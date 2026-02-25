@@ -1,0 +1,37 @@
+{
+  "project": "effect-rpc-nextjs-api-route",
+  "status": "pending",
+  "lastUpdated": "2026-02-25",
+  "phases": {
+    "p0": {
+      "status": "pending",
+      "outputs": {
+        "research": "specs/pending/effect-rpc-nextjs-api-route/outputs/p0-research.md"
+      }
+    },
+    "p1": {
+      "status": "pending",
+      "outputs": {
+        "design": "specs/pending/effect-rpc-nextjs-api-route/outputs/p1-design.md"
+      }
+    },
+    "p2": {
+      "status": "pending",
+      "outputs": {
+        "implementationPlan": "specs/pending/effect-rpc-nextjs-api-route/outputs/p2-implementation-plan.md"
+      }
+    },
+    "p3": {
+      "status": "pending",
+      "outputs": {
+        "implementationNotes": "specs/pending/effect-rpc-nextjs-api-route/outputs/p3-implementation-notes.md"
+      }
+    },
+    "p4": {
+      "status": "pending",
+      "outputs": {
+        "verification": "specs/pending/effect-rpc-nextjs-api-route/outputs/p4-verification.md"
+      }
+    }
+  }
+}

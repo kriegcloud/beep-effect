@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { renderCommonAncestors } from "@beep/claude/scripts/util";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -221,7 +222,7 @@ const renderNodeClassification = (graph: ArchitectureGraph, analysisGraph: Analy
   const vmCount = grouped.vm.length;
   const total = leafCount + midCount + vmCount;
 
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<node_classification n="${total}">`);
   sections.push(`  <leaf n="${leafCount}">${grouped.leaf.map((s) => s.name).join(", ")}</leaf>`);
   sections.push(`  <mid n="${midCount}">${grouped.mid.map((s) => s.name).join(", ")}</mid>`);
@@ -257,7 +258,7 @@ const renderEdges = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): st
 };
 
 const renderMetrics = (metrics: GraphMetrics): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push("<metrics>");
   sections.push(
     `  <density value="${metrics.density.toFixed(3)}" description="Edge count / max possible. <0.2 sparse (good), >0.4 dense (coupled)" />`
@@ -281,7 +282,7 @@ const formatAgent = (graph: ArchitectureGraph): string => {
     averageDegree: computeAverageDegree(analysisGraph),
   };
 
-  const output: string[] = [];
+  const output = A.empty<string>();
 
   output.push(renderLocations(graph));
   output.push("");
@@ -395,7 +396,7 @@ const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): 
 };
 
 const renderBlastRadius = (result: BlastRadiusResult): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<blast_radius service="${result.service}">`);
 
   sections.push(`  <downstream n="${result.downstreamCount}" risk="${result.risk}">`);
@@ -549,43 +550,6 @@ const computeCommonAncestors = (
     commonDependencies,
     rootCauseCandidates,
   };
-};
-
-const renderCommonAncestors = (result: CommonAncestorsResult): string => {
-  const sections: string[] = [];
-
-  sections.push(`<common_ancestors n="${result.inputServices.length}">`);
-
-  sections.push("  <input>");
-  for (const service of result.inputServices) {
-    sections.push(`    <service>${service}</service>`);
-  }
-  sections.push("  </input>");
-  sections.push("");
-
-  sections.push(`  <shared_dependencies n="${result.commonDependencies.length}">`);
-  for (const dep of result.commonDependencies) {
-    const coverageStr = `${dep.coverage}/${result.inputServices.length}`;
-    sections.push(`    <dependency coverage="${coverageStr}" risk="${dep.risk}">`);
-    sections.push(`      <service>${dep.service}</service>`);
-    sections.push(`      <affected_by>${dep.affectedBy.join(", ")}</affected_by>`);
-    sections.push(`    </dependency>`);
-  }
-  sections.push("  </shared_dependencies>");
-  sections.push("");
-
-  sections.push("  <root_cause_candidates>");
-  for (const candidate of result.rootCauseCandidates) {
-    const coveragePct = Math.round((candidate.coverage / result.inputServices.length) * 100);
-    sections.push(
-      `    <candidate rank="${candidate.rank}" service="${candidate.service}" coverage="${coveragePct}%" />`
-    );
-  }
-  sections.push("  </root_cause_candidates>");
-
-  sections.push("</common_ancestors>");
-
-  return sections.join("\n");
 };
 
 const helpText = `

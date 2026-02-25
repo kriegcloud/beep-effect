@@ -110,7 +110,7 @@ const toModulePath = (absolutePath: string, repoRoot: string): string => {
  */
 const parseGitmodules = (content: string): ReadonlyArray<string> => {
   const pathRegex = /path\s*=\s*(.+)/g;
-  const paths: string[] = [];
+  const paths = A.empty<string>();
   let match: RegExpExecArray | null;
   while ((match = pathRegex.exec(content)) !== null) {
     paths.push(Str.trim(match[1]));

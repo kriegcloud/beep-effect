@@ -8,12 +8,13 @@ import {
   formatHuman,
   formatMermaid,
   type LayerDefinition,
-  renderCommonAncestors,
   type ServiceDefinition,
 } from "@beep/claude/scripts/analyze-architecture";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as ts from "typescript";
+import { renderCommonAncestors } from "../util.js";
 
 const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
 const LAYER_PATTERN =
@@ -110,7 +111,7 @@ const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.
 const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
 
 const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  const deps: string[] = [];
+  const deps = A.empty<string>();
 
   const processType = (t: ts.Type): void => {
     if (t.isUnion()) {
@@ -258,7 +259,7 @@ const generateMermaid = (graph: ArchitectureGraph): string => {
 
   const services = graph.services.filter((s) => !s.name.endsWith("VM")).map((s) => s.name);
 
-  const styleLines: string[] = [];
+  const styleLines = A.empty<string>();
   if (vms.length > 0) {
     styleLines.push(`  classDef vm fill:#e1f5fe,stroke:#01579b`);
     styleLines.push(`  class ${vms.join(",")} vm`);

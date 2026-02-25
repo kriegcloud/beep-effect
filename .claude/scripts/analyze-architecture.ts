@@ -1,19 +1,19 @@
 import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
 import * as Graph from "effect/Graph";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import type { PlatformError } from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as ts from "typescript";
-
 export interface ServiceDefinition {
   readonly name: string;
   readonly path: string;
@@ -73,7 +73,7 @@ export const countLinesBefore = (content: string, index: number): number =>
   Str.split("\n")(Str.substring(0, index)(content)).length;
 
 export const extractServicesFromContent = (content: string, filePath: string): ReadonlyArray<ServiceDefinition> => {
-  const results: ServiceDefinition[] = [];
+  const results = A.empty<ServiceDefinition>();
   SERVICE_TAG_PATTERN.lastIndex = 0;
 
   let match: RegExpExecArray | null;
@@ -97,7 +97,7 @@ interface LayerMatch {
 }
 
 export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
-  const results: LayerMatch[] = [];
+  const results = A.empty<LayerMatch>();
 
   LAYER_PATTERN.lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -144,7 +144,7 @@ const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.
 const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
 
 const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  const deps: string[] = [];
+  const deps = A.empty<string>();
   const visited = new Set<ts.Type>();
 
   const processType = (t: ts.Type): void => {
@@ -173,7 +173,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
     const typeRef = t as ts.TypeReference;
     const isTypeReference = typeRef.target !== undefined;
 
-    if ((symbolName === "Identifier" || typeString.startsWith("Id<")) && isTypeReference) {
+    if ((symbolName === "Identifier" || Str.startsWith("Id<")(typeString)) && isTypeReference) {
       const typeArgs = checker.getTypeArguments(typeRef);
 
       let typeArgString: string | undefined;
@@ -241,7 +241,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
 const extractErrorTypeNames = (errorType: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
   if (errorType.flags & ts.TypeFlags.Never) {
-    return [];
+    return A.empty();
   }
 
   if (errorType.isUnion()) {
@@ -269,26 +269,26 @@ const extractLayerInfo = (program: ts.Program, filePath: string, layerName: stri
   }
 
   if (!sourceFile) {
-    return { dependencies: [], errorTypes: [] };
+    return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
   if (!moduleSymbol) {
-    return { dependencies: [], errorTypes: [] };
+    return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const exports = checker.getExportsOfModule(moduleSymbol);
   const layerExport = exports.find((s) => s.getName() === layerName);
 
   if (!layerExport) {
-    return { dependencies: [], errorTypes: [] };
+    return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const type = checker.getTypeOfSymbol(layerExport);
   const typeString = checker.typeToString(type);
 
   if (!typeString.startsWith("Layer<")) {
-    return { dependencies: [], errorTypes: [] };
+    return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const typeRef = type as ts.TypeReference;
@@ -301,7 +301,7 @@ const extractLayerInfo = (program: ts.Program, filePath: string, layerName: stri
     };
   }
 
-  return { dependencies: [], errorTypes: [] };
+  return { dependencies: A.empty(), errorTypes: A.empty() };
 };
 
 export const createTsProgram = (filePaths: ReadonlyArray<string>): ts.Program => {
@@ -334,7 +334,9 @@ export const extractLayersFromContent = (
   const layerMatches = extractLayerMatches(content);
 
   return layerMatches.map((match) => {
-    const layerInfo = program ? extractLayerInfo(program, filePath, match.name) : { dependencies: [], errorTypes: [] };
+    const layerInfo = program
+      ? extractLayerInfo(program, filePath, match.name)
+      : { dependencies: A.empty(), errorTypes: A.empty() };
 
     return {
       name: match.name,
@@ -362,95 +364,88 @@ export const findTypeScriptFiles = (srcPath: string) =>
     );
 
     if (!srcExists) {
-      return [];
+      return A.empty();
     }
 
-    const scanDir = (
+    const scanDir: (
       dir: string
-    ): Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> =>
-      Effect.gen(function* () {
+    ) => Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+      function* (dir) {
         const entries = yield* pipe(
           fs.readDirectory(dir),
           Effect.catchTag("PlatformError", (error: PlatformError) =>
-            error.reason._tag === "NotFound" ? Effect.succeed([] as Array<string>) : Effect.fail(error)
+            P.isTagged(error.reason, "NotFound") ? Effect.succeed(A.empty<string>()) : Effect.fail(error)
           )
         );
 
-        const processEntry = (entry: string) =>
-          Effect.gen(function* () {
-            const fullPath = path.join(dir, entry);
-            const stat = yield* fs.stat(fullPath);
+        const processEntry = Effect.fn(function* (entry: string) {
+          const fullPath = path.join(dir, entry);
+          const stat = yield* fs.stat(fullPath);
 
-            if (stat.type === "Directory") {
-              if (entry !== "node_modules" && entry !== "__tests__") {
-                return yield* scanDir(fullPath);
-              }
-              return [];
+          if (stat.type === "Directory") {
+            if (entry !== "node_modules" && entry !== "__tests__") {
+              return yield* scanDir(fullPath);
             }
+            return A.empty();
+          }
 
-            if (entry.endsWith(".ts") && !entry.endsWith(".test.ts")) {
-              return [fullPath];
-            }
+          if (Str.endsWith(".ts")(entry) && !Str.endsWith(".test.ts")(entry)) {
+            return [fullPath];
+          }
 
-            return [];
-          });
+          return A.empty();
+        });
 
         const results = yield* Effect.forEach(entries, processEntry);
         return A.flatten(results);
-      });
+      }
+    );
 
     return yield* scanDir(resolvedPath);
   });
 
-export const findServiceDefinitions = (
+export const findServiceDefinitions: (
   files: ReadonlyArray<string>
-): Effect.Effect<ReadonlyArray<ServiceDefinition>, PlatformError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
+) => Effect.Effect<ReadonlyArray<ServiceDefinition>, PlatformError, FileSystem.FileSystem> = Effect.fn(
+  function* (files) {
     const fs = yield* FileSystem.FileSystem;
 
     const processFile = (filePath: string) =>
-      pipe(
-        fs.readFileString(filePath),
-        Effect.map((content) => extractServicesFromContent(content, filePath))
-      );
+      fs.readFileString(filePath).pipe(Effect.map((content) => extractServicesFromContent(content, filePath)));
 
     const results = yield* Effect.forEach(files, processFile);
     return A.flatten(results);
-  });
+  }
+);
 
-export const findLayerDefinitions = (
+export const findLayerDefinitions: (
   files: ReadonlyArray<string>
-): Effect.Effect<ReadonlyArray<LayerDefinition>, PlatformError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
+) => Effect.Effect<ReadonlyArray<LayerDefinition>, PlatformError, FileSystem.FileSystem> = Effect.fn(function* (files) {
+  const fs = yield* FileSystem.FileSystem;
 
-    const program = createTsProgram(files);
+  const program = createTsProgram(files);
 
-    const processFile = (filePath: string) =>
-      pipe(
-        fs.readFileString(filePath),
-        Effect.map((content) => extractLayersFromContent(content, filePath, program))
-      );
+  const processFile = (filePath: string) =>
+    fs.readFileString(filePath).pipe(Effect.map((content) => extractLayersFromContent(content, filePath, program)));
 
-    const results = yield* Effect.forEach(files, processFile);
-    return A.flatten(results);
-  });
+  const results = yield* Effect.forEach(files, processFile);
+  return A.flatten(results);
+});
 
-export const buildArchitectureGraph = (srcPath: string) =>
-  Effect.gen(function* () {
-    const files = yield* findTypeScriptFiles(srcPath);
+export const buildArchitectureGraph = Effect.fn(function* (srcPath: string) {
+  const files = yield* findTypeScriptFiles(srcPath);
 
-    if (files.length === 0) {
-      yield* Console.log(`No TypeScript files found in ${srcPath} directory`);
-      yield* Console.log("The architecture analyzer expects services and layers in the specified directory");
-      yield* Console.log("Returning empty graph...");
-    }
+  if (files.length === 0) {
+    yield* Console.log(`No TypeScript files found in ${srcPath} directory`);
+    yield* Console.log("The architecture analyzer expects services and layers in the specified directory");
+    yield* Console.log("Returning empty graph...");
+  }
 
-    const services = yield* findServiceDefinitions(files);
-    const layers = yield* findLayerDefinitions(files);
+  const services = yield* findServiceDefinitions(files);
+  const layers = yield* findLayerDefinitions(files);
 
-    return { services, layers } satisfies ArchitectureGraph;
-  });
+  return { services, layers } satisfies ArchitectureGraph;
+});
 
 export const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
   const graph = Graph.directed<ServiceDefinition, void>((mutable) => {
@@ -518,28 +513,29 @@ const computeStats = (graph: ArchitectureGraph) => {
 const makeShortPath = (fullPath: string): string => Str.replace(/^(\.\/)?.*\/src\//, "")(fullPath);
 
 export const formatMermaid = (graph: ArchitectureGraph): string => {
-  const serviceLines = graph.services.map(
+  const serviceLines = A.map(
+    graph.services,
     (service) => `  ${service.name}["${service.name}<br/><i>${makeShortPath(service.path)}</i>"]`
   );
 
   const dependencyLines = pipe(
     graph.layers,
-    A.flatMap((layer) => layer.dependencies.map((dep) => `  ${layer.serviceName} --> ${dep}`))
+    A.flatMap((layer) => A.map(layer.dependencies, (dep) => `  ${layer.serviceName} --> ${dep}`))
   );
 
   const vms = pipe(
     graph.services,
-    A.filter((s) => s.name.endsWith("VM")),
+    A.filter((s) => Str.endsWith("VM")(s.name)),
     A.map((s) => s.name)
   );
 
   const services = pipe(
     graph.services,
-    A.filter((s) => !s.name.endsWith("VM")),
+    A.filter((s) => !Str.endsWith("VM")(s.name)),
     A.map((s) => s.name)
   );
 
-  const styleLines: string[] = [];
+  const styleLines = A.empty<string>();
   if (vms.length > 0) {
     styleLines.push(`  classDef vm fill:#e1f5fe,stroke:#01579b`);
     styleLines.push(`  class ${vms.join(",")} vm`);
@@ -578,14 +574,14 @@ interface GroupedServices {
 }
 
 const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): Map<string, LayerDefinition> =>
-  new Map(layers.map((layer) => [layer.serviceName, layer]));
+  new Map(A.map(layers, (layer) => [layer.serviceName, layer]));
 
 const collectTransitiveDeps = (analysisGraph: AnalysisGraph, serviceName: string): ReadonlyArray<string> => {
   const nodeIndex = analysisGraph.serviceIndex.get(serviceName);
   if (nodeIndex === undefined) return [];
 
   const visited = new Set<Graph.NodeIndex>();
-  const result: string[] = [];
+  const result = A.empty<string>();
 
   const walker = Graph.dfs(analysisGraph.graph, {
     start: [nodeIndex],
@@ -609,15 +605,15 @@ const analyzeDependencies = (
   analysisGraph: AnalysisGraph
 ): DependencyInfo => {
   const layer = layerByService.get(serviceName);
-  const direct = layer?.dependencies ?? [];
+  const direct = layer?.dependencies ?? A.empty();
 
   const indirect = new Set<string>();
   direct.forEach((dep) => {
     const transitive = collectTransitiveDeps(analysisGraph, dep);
-    transitive.forEach((t) => indirect.add(t));
+    transitive.forEach(indirect.add);
   });
 
-  const redundant = direct.filter((d) => indirect.has(d));
+  const redundant = A.filter(direct, (d) => indirect.has(d));
 
   return {
     direct,
@@ -630,11 +626,11 @@ const groupServicesByType = (graph: ArchitectureGraph, analysisGraph: AnalysisGr
   const indegree = computeIndegrees(analysisGraph);
   const outdegree = computeOutdegrees(analysisGraph);
 
-  const root: ServiceDefinition[] = [];
-  const intermediate: ServiceDefinition[] = [];
-  const leaf: ServiceDefinition[] = [];
-  const vm: ServiceDefinition[] = [];
-  const orphans: ServiceDefinition[] = [];
+  const root = A.empty<ServiceDefinition>();
+  const intermediate = A.empty<ServiceDefinition>();
+  const leaf = A.empty<ServiceDefinition>();
+  const vm = A.empty<ServiceDefinition>();
+  const orphans = A.empty<ServiceDefinition>();
 
   graph.services.forEach((service) => {
     const inDeg = indegree.get(service.name) ?? 0;
@@ -645,7 +641,7 @@ const groupServicesByType = (graph: ArchitectureGraph, analysisGraph: AnalysisGr
       return;
     }
 
-    if (service.name.endsWith("VM")) {
+    if (Str.endsWith("VM")(service.name)) {
       vm.push(service);
       return;
     }
@@ -677,9 +673,9 @@ const renderExpandedTree = (
 ): ReadonlyArray<string> => {
   const depInfo = analyzeDependencies(serviceName, layerByService, analysisGraph);
   const layer = layerByService.get(serviceName);
-  const deps = layer?.dependencies ?? [];
+  const deps = layer?.dependencies ?? A.empty();
 
-  const lines: string[] = [];
+  const lines = A.empty<string>();
 
   deps.forEach((dep, i) => {
     const isLastDep = i === deps.length - 1;
@@ -703,9 +699,9 @@ export const formatHuman = (graph: ArchitectureGraph): string => {
   const analysisGraph = buildAnalysisGraph(graph);
   const grouped = groupServicesByType(graph, analysisGraph);
 
-  const output: string[] = [];
+  const output = A.empty<string>();
 
-  const rootNames = grouped.root.map((s) => s.name).join(", ");
+  const rootNames = A.join(A.map(grouped.root, getName), ", ");
   output.push(`[Root] ${rootNames}`);
   output.push("");
 
@@ -741,7 +737,7 @@ export const formatHuman = (graph: ArchitectureGraph): string => {
   output.push("Markers:");
   output.push("- *(redundant)* - direct dep AND indirect dep (might be intentional or leak)");
 
-  return output.join("\n");
+  return A.join(output, "\n");
 };
 
 interface Violation {
@@ -852,28 +848,30 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
 const detectCycles = (analysisGraph: AnalysisGraph): ReadonlyArray<ReadonlyArray<string>> => {
   const sccs = Graph.stronglyConnectedComponents(analysisGraph.graph);
 
-  return sccs
-    .filter((component) => component.length > 1)
-    .map((component) =>
-      component.map((nodeIndex) => {
+  return pipe(
+    sccs,
+    A.filter((component) => component.length > 1),
+    A.map((component) =>
+      A.map(component, (nodeIndex) => {
         const nodeData = Graph.getNode(analysisGraph.graph, nodeIndex);
         return O.isSome(nodeData) ? nodeData.value.name : `unknown-${nodeIndex}`;
       })
-    );
+    )
+  );
 };
-
+const getName = <T extends { readonly name: string }>(obj: T) => Struct.get(obj, "name");
 const checkInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): ReadonlyArray<Violation> => {
-  const violations: Violation[] = [];
+  const violations = A.empty<Violation>();
   const layerByService = buildLayerMap(graph.layers);
   const grouped = groupServicesByType(graph, analysisGraph);
 
-  const vmNames = new Set(grouped.vm.map((s) => s.name));
-  const rootNames = new Set(grouped.root.map((s) => s.name));
-  const intermediateNames = new Set(grouped.intermediate.map((s) => s.name));
+  const vmNames = new Set(A.map(grouped.vm, getName));
+  const rootNames = new Set(A.map(grouped.root, getName));
+  const intermediateNames = new Set(A.map(grouped.intermediate, getName));
 
   grouped.vm.forEach((vm) => {
     const layer = layerByService.get(vm.name);
-    const deps = layer?.dependencies ?? [];
+    const deps = layer?.dependencies ?? A.empty();
     const vmDeps = deps.filter((d) => vmNames.has(d));
     if (vmDeps.length > 0) {
       violations.push({
@@ -887,7 +885,7 @@ const checkInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
     .filter((s) => !s.name.endsWith("VM"))
     .forEach((service) => {
       const layer = layerByService.get(service.name);
-      const deps = layer?.dependencies ?? [];
+      const deps = layer?.dependencies ?? A.empty();
       const vmDeps = deps.filter((d) => vmNames.has(d));
       if (vmDeps.length > 0) {
         violations.push({
@@ -907,7 +905,7 @@ const checkInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
 
   grouped.root.forEach((service) => {
     const layer = layerByService.get(service.name);
-    const deps = layer?.dependencies ?? [];
+    const deps = layer?.dependencies ?? A.empty();
     if (deps.length > 0) {
       violations.push({
         invariant: "INV-4",
@@ -918,8 +916,8 @@ const checkInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
 
   grouped.intermediate.forEach((service) => {
     const layer = layerByService.get(service.name);
-    const deps = layer?.dependencies ?? [];
-    const invalidDeps = deps.filter((d) => !rootNames.has(d) && !intermediateNames.has(d));
+    const deps = layer?.dependencies ?? A.empty();
+    const invalidDeps = A.filter(deps, (d) => !rootNames.has(d) && !intermediateNames.has(d));
     if (invalidDeps.length > 0) {
       violations.push({
         invariant: "INV-5",
@@ -1091,7 +1089,7 @@ const groupByDepth = (
 
     const node = Graph.getNode(analysisGraph.graph, idx);
     if (O.isSome(node)) {
-      const group = levelGroups.get(depth) ?? [];
+      const group = levelGroups.get(depth) ?? A.empty();
       group.push(node.value.name);
       levelGroups.set(depth, group);
     }
@@ -1147,7 +1145,7 @@ export const computeAncestors = (analysisGraph: AnalysisGraph, serviceName: stri
 };
 
 export const renderBlastRadius = (result: BlastRadiusResult): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<blast_radius service="${result.service}">`);
 
   sections.push(`  <downstream n="${result.downstreamCount}" risk="${result.risk}">`);
@@ -1167,7 +1165,7 @@ export const renderBlastRadius = (result: BlastRadiusResult): string => {
 };
 
 export const renderAncestors = (result: AncestorsResult): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<ancestors service="${result.service}">`);
 
   sections.push(`  <dependencies n="${result.totalCount}">`);
@@ -1245,8 +1243,8 @@ export const computeCommonAncestors = (
   if (depSetArray.length === 0) {
     return {
       inputServices: serviceNames,
-      commonDependencies: [],
-      rootCauseCandidates: [],
+      commonDependencies: A.empty(),
+      rootCauseCandidates: A.empty(),
     };
   }
 
@@ -1311,46 +1309,9 @@ export const computeCommonAncestors = (
   };
 };
 
-export const renderCommonAncestors = (result: CommonAncestorsResult): string => {
-  const sections: string[] = [];
-
-  sections.push(`<common_ancestors n="${result.inputServices.length}">`);
-
-  sections.push("  <input>");
-  for (const service of result.inputServices) {
-    sections.push(`    <service>${service}</service>`);
-  }
-  sections.push("  </input>");
-  sections.push("");
-
-  sections.push(`  <shared_dependencies n="${result.commonDependencies.length}">`);
-  for (const dep of result.commonDependencies) {
-    const coverageStr = `${dep.coverage}/${result.inputServices.length}`;
-    sections.push(`    <dependency coverage="${coverageStr}" risk="${dep.risk}">`);
-    sections.push(`      <service>${dep.service}</service>`);
-    sections.push(`      <affected_by>${dep.affectedBy.join(", ")}</affected_by>`);
-    sections.push(`    </dependency>`);
-  }
-  sections.push("  </shared_dependencies>");
-  sections.push("");
-
-  sections.push("  <root_cause_candidates>");
-  for (const candidate of result.rootCauseCandidates) {
-    const coveragePct = Math.round((candidate.coverage / result.inputServices.length) * 100);
-    sections.push(
-      `    <candidate rank="${candidate.rank}" service="${candidate.service}" coverage="${coveragePct}%" />`
-    );
-  }
-  sections.push("  </root_cause_candidates>");
-
-  sections.push("</common_ancestors>");
-
-  return sections.join("\n");
-};
-
 const detectCutVerticesAndDomains = (analysisGraph: AnalysisGraph): DomainAnalysis => {
   const nodeCount = Graph.nodeCount(analysisGraph.graph);
-  if (nodeCount === 0) return { cutVertices: [], domains: [] };
+  if (nodeCount === 0) return { cutVertices: A.empty(), domains: A.empty() };
 
   const baseComponentCount = countConnectedComponents(analysisGraph);
 
@@ -1378,16 +1339,16 @@ const detectCutVerticesAndDomains = (analysisGraph: AnalysisGraph): DomainAnalys
   );
 
   if (nodeIndicesWithoutCutVertices.length === 0) {
-    return { cutVertices: cutVertexNames, domains: [] };
+    return { cutVertices: cutVertexNames, domains: A.empty() };
   }
 
   const visited = new Set<Graph.NodeIndex>();
-  const domainsList: Domain[] = [];
+  const domainsList = A.empty<Domain>();
 
   for (const startIndex of nodeIndicesWithoutCutVertices) {
     if (visited.has(startIndex)) continue;
 
-    const componentServices: string[] = [];
+    const componentServices = A.empty<string>();
     const walker = Graph.dfs(analysisGraph.graph, {
       start: [startIndex],
     });
@@ -1425,12 +1386,12 @@ const computeWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
   const indegrees = computeIndegrees(analysisGraph);
   const outdegrees = computeOutdegrees(analysisGraph);
 
-  const redundant: RedundantWarning[] = [];
+  const redundant = A.empty<RedundantWarning>();
   graph.layers.forEach((layer) => {
     const direct = new Set(layer.dependencies);
     layer.dependencies.forEach((dep) => {
       const depLayer = layerByService.get(dep);
-      const transitive = depLayer?.dependencies ?? [];
+      const transitive = depLayer?.dependencies ?? A.empty();
       transitive.forEach((t) => {
         if (direct.has(t)) {
           redundant.push({
@@ -1443,7 +1404,7 @@ const computeWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
     });
   });
 
-  const hot: HotWarning[] = [];
+  const hot = A.empty<HotWarning>();
   indegrees.forEach((count, service) => {
     if (count >= 4) {
       hot.push({ service, count });
@@ -1451,7 +1412,7 @@ const computeWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
   });
   hot.sort((a, b) => b.count - a.count);
 
-  const orphan: string[] = [];
+  const orphan = A.empty<string>();
   graph.services.forEach((s) => {
     const inDeg = indegrees.get(s.name) ?? 0;
     const outDeg = outdegrees.get(s.name) ?? 0;
@@ -1460,7 +1421,7 @@ const computeWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph)
     }
   });
 
-  const wide: WideWarning[] = [];
+  const wide = A.empty<WideWarning>();
   graph.layers.forEach((layer) => {
     if (layer.dependencies.length >= 5) {
       wide.push({ service: layer.serviceName, count: layer.dependencies.length });
@@ -1486,7 +1447,7 @@ const renderNodeClassification = (graph: ArchitectureGraph, analysisGraph: Analy
   const vmCount = grouped.vm.length;
   const total = orphanCount + rootCount + intermediateCount + leafCount + vmCount;
 
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<node_classification n="${total}">`);
   if (orphanCount > 0) {
     sections.push(`  <orphan n="${orphanCount}">${grouped.orphans.map((s) => s.name).join(", ")}</orphan>`);
@@ -1506,9 +1467,9 @@ const renderEdges = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): st
   const ordered = orderServicesByDependencyCount(graph, analysisGraph);
 
   const edgeLines = ordered.map((item) => {
-    const deps = item.layer?.dependencies ?? [];
+    const deps = item.layer?.dependencies ?? A.empty();
 
-    const errorTypes = item.layer?.errorTypes ?? [];
+    const errorTypes = item.layer?.errorTypes ?? A.empty();
     const serviceName = item.service.name;
     const isParametrized = item.layer?.isParametrized ?? false;
 
@@ -1538,7 +1499,7 @@ const renderInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph
     { id: "5", description: "Intermediate services only depend on root or intermediate" },
   ];
 
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push("<invariants>");
   invariants.forEach((inv) => {
     const status = violationsByInv.has(`INV-${inv.id}`) ? "fail" : "pass";
@@ -1551,7 +1512,7 @@ const renderInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph
 
 const renderWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): string => {
   const warnings = computeWarnings(graph, analysisGraph);
-  const sections: string[] = [];
+  const sections = A.empty<string>();
 
   sections.push("<warnings>");
 
@@ -1613,7 +1574,7 @@ const renderViolations = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph
     return `<violations n="0" />`;
   }
 
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push(`<violations n="${violations.length}">`);
   violations.forEach((v) => {
     sections.push(`  ${v.invariant}: ${v.description}`);
@@ -1624,7 +1585,7 @@ const renderViolations = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph
 };
 
 const renderMetrics = (metrics: GraphMetrics): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push("<metrics>");
 
   const densityStatus = metrics.density < 0.2 ? "good" : metrics.density < 0.4 ? "moderate" : "bad";
@@ -1671,7 +1632,7 @@ const renderMetrics = (metrics: GraphMetrics): string => {
 };
 
 const renderAdvancedMetrics = (metrics: AdvancedMetrics): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
   sections.push("<advanced_metrics>");
 
   const betweennessDesc =
@@ -1732,7 +1693,7 @@ const renderAdvancedMetrics = (metrics: AdvancedMetrics): string => {
 };
 
 const renderWorkflows = (expanded: boolean): string => {
-  const lines: string[] = [];
+  const lines = A.empty<string>();
 
   if (expanded) {
     lines.push("  <workflows>");
@@ -1808,7 +1769,7 @@ const renderWorkflows = (expanded: boolean): string => {
 };
 
 const renderCommandsSummary = (expanded: boolean): string => {
-  const lines: string[] = [];
+  const lines = A.empty<string>();
 
   if (expanded) {
     lines.push("  <available_commands>");
@@ -1892,7 +1853,7 @@ const renderCommandsSummary = (expanded: boolean): string => {
 };
 
 const renderDebugSection = (showWorkflows: boolean, showCommands: boolean): string => {
-  const lines: string[] = [];
+  const lines = A.empty<string>();
 
   lines.push("<debug>");
   lines.push("  <hint>For impact analysis and debugging, these commands are available</hint>");
@@ -1909,7 +1870,7 @@ const renderDebugSection = (showWorkflows: boolean, showCommands: boolean): stri
 };
 
 const renderDomainsFromAdvanced = (advancedMetrics: AdvancedMetrics): string => {
-  const sections: string[] = [];
+  const sections = A.empty<string>();
 
   const bridgeDesc = "Cut vertices connecting domains";
   const bridges = advancedMetrics.domainAnalysis.cutVertices;
@@ -1961,7 +1922,7 @@ export const formatAgentWithHints = (graph: ArchitectureGraph, options: RenderOp
     domainAnalysis: detectCutVerticesAndDomains(analysisGraph),
   };
 
-  const output: string[] = [];
+  const output = A.empty<string>();
 
   output.push("<architecture>");
   output.push("");
@@ -2071,7 +2032,7 @@ export const formatAgent = (graph: ArchitectureGraph): string => {
     domainAnalysis: detectCutVerticesAndDomains(analysisGraph),
   };
 
-  const output: string[] = [];
+  const output = A.empty<string>();
 
   output.push(renderLocations(graph));
   output.push("");
@@ -2174,7 +2135,7 @@ export const formatAdjacencyList = (graph: ArchitectureGraph, showErrors: boolea
         A.getSomes
       );
 
-      const errorTypes = item.layer?.errorTypes ?? [];
+      const errorTypes = item.layer?.errorTypes ?? A.empty();
       const errorInfo = formatErrorInfo(errorTypes, showErrors);
 
       const depCount = deps.length;

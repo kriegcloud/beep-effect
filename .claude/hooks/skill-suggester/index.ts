@@ -336,7 +336,7 @@ const program = Effect.gen(function* () {
   const miseTasksResult = shouldShowMiseTasks(input.prompt) ? yield* fetchMiseTasks(input.cwd) : O.none<string>();
 
   // Build context parts
-  const parts: string[] = [];
+  const parts = A.empty<string>();
 
   // Add hook state tracking
   const elapsedMs = previousState.lastCallMs ? currentCallMs - previousState.lastCallMs : "n/a";

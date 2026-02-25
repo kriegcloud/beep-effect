@@ -1,4 +1,5 @@
 import { BunFileSystem, BunPath, BunRuntime } from "@effect/platform-bun";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -24,7 +25,7 @@ const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.
 const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
 
 const extractDepsFromType = (type: ts.Type, _checker: ts.TypeChecker): ReadonlyArray<string> => {
-  const deps: string[] = [];
+  const deps = A.empty<string>();
 
   const processType = (t: ts.Type): void => {
     if (t.isUnion()) {
