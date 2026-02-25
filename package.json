@@ -203,7 +203,7 @@
     "copyfiles": "^2.4.1",
     "doctrine": "^3.0.0",
     "eslint": "^10.0.2",
-    "eslint-config-next": "16.2.0-canary.60",
+    "eslint-config-next": "16.2.0-canary.61",
     "eslint-plugin-jsdoc": "^62.7.1",
     "glob": "^13.0.6",
     "handlebars": "^4.7.8",
@@ -211,7 +211,7 @@
     "jscodeshift": "^17.3.0",
     "lefthook": "^2.1.1",
     "madge": "^8.0.0",
-    "next": "16.2.0-canary.60",
+    "next": "16.2.0-canary.61",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-force-graph-2d": "^1.29.1",
@@ -230,7 +230,7 @@
     "vite-tsconfig-paths": "^6.1.1",
     "wink-bm25-text-search": "^3.1.2",
     "fast-check": "^4.5.3",
-    "@next/bundle-analyzer": "16.2.0-canary.60",
+    "@next/bundle-analyzer": "16.2.0-canary.61",
     "@playwright/test": "^1.58.2",
     "yaml": "^2.8.2",
     "publint": "^0.3.17",
@@ -241,7 +241,7 @@
     "@storybook/react-vite": "^10.2.12",
     "storybook": "^10.2.12",
     "@storybook/addon-vitest": "^10.2.12",
-    "sst": "^4.0.2",
+    "sst": "^4.0.5",
     "@types/picomatch": "^4.0.2"
   }
 }
