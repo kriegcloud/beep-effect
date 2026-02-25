@@ -11,7 +11,7 @@
     "analyze": "ANALYZE=true next build",
     "db:generate": "drizzle-kit generate",
     "db:generate:auth": "npx @better-auth/cli@latest generate --output ./src/lib/db/schema.ts --yes",
-    "db:migrate": "npx tsx src/lib/db/migrate.ts",
+    "db:migrate": "npx tsx src/lib/db/migrate.ts --require-url",
     "db:migrate:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio"
   },

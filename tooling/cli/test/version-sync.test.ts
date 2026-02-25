@@ -1,4 +1,4 @@
-import { versionSyncCommand } from "@beep/repo-cli/commands/version-sync/index";
+import { versionSyncCommand } from "@beep/repo-cli";
 import { type BiomeSchemaState, buildBiomeReport } from "@beep/repo-cli/commands/version-sync/resolvers/biome";
 import { type BunVersionState, buildBunReport } from "@beep/repo-cli/commands/version-sync/resolvers/bun";
 import { buildDockerReport, type DockerImageState } from "@beep/repo-cli/commands/version-sync/resolvers/docker";
@@ -54,7 +54,7 @@ const createTmpDir = Effect.fn(function* (suffix: string) {
 
 const removeTmpDir = Effect.fn(function* (tmpDir: string) {
   const fs = yield* FileSystem.FileSystem;
-  yield* fs.remove(tmpDir, { recursive: true }).pipe(Effect.orElseSucceed(() => void 0));
+  yield* fs.remove(tmpDir, { recursive: true }).pipe(Effect.asVoid);
 });
 
 // ---------------------------------------------------------------------------
