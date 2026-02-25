@@ -25,9 +25,8 @@ This is the Effect library repository, focusing on functional programming patter
 
 - Run `pnpm lint-fix` after editing files
 - Always run tests after making changes: `pnpm test <test_file.ts>`
-- Run type checking: `pnpm check`
-  - If type checking continues to fail, run `pnpm clean` to clear caches, then re-run `pnpm check`
-- Build the project: `pnpm build`
+- Run type checking: `pnpm check:tsgo`
+  - If type checking continues to fail, run `pnpm clean` to clear caches, then re-run `pnpm check:tsgo`
 - Check JSDoc examples compile: `pnpm docgen`
 
 ## Code Style Guidelines
@@ -110,6 +109,14 @@ You can run them with `pnpm test-types <filename>`.
 
 Take a look at the existing `.tst.ts` files for examples of how to write type
 level tests. They use the `tstyche` testing library.
+
+## Writing AI documentation
+
+Refer to `ai-docs/README.md` for instructions on how to write AI documentation.
+Read it very carefully before writing AI documentation examples.
+
+AI documentation changes can ignore the "Reduce comments" guideline. You can add
+comments to AI documentation examples as needed to explain the code.
 
 ## Changesets
 

@@ -492,33 +492,33 @@ const fiberIdStore = { id: 0 }
 export const getCurrentFiber = (): Fiber.Fiber<any, any> | undefined => (globalThis as any)[currentFiberTypeId]
 
 const keepAlive = (() => {
-  const start = (() => {
-    const setInterval = globalThis.setInterval
-    const clearInterval = globalThis.clearInterval
+  let isAvailable: boolean | undefined
+  const start = () => {
+    if (isAvailable === true) return setInterval(constVoid, 2_147_483_647)
+    else if (isAvailable === false) return undefined
+
     try {
       const running = setInterval(constVoid, 2_147_483_647)
-      clearInterval(running)
-      return {
-        setInterval,
-        clearInterval
-      }
+      isAvailable = true
+      return running
     } catch {
+      isAvailable = false
       return undefined
     }
-  })()
+  }
   let count = 0
   let running: ReturnType<typeof globalThis.setInterval> | undefined = undefined
   return ({
     increment() {
       count++
-      if (start !== undefined && running === undefined) {
-        running = start.setInterval(constVoid, 2_147_483_647)
+      if (running === undefined) {
+        running = start()
       }
     },
     decrement() {
       count--
-      if (count === 0 && start !== undefined && running !== undefined) {
-        start.clearInterval(running)
+      if (count === 0 && running !== undefined) {
+        clearInterval(running)
         running = undefined
       }
     }
@@ -832,13 +832,29 @@ export const fiberInterrupt = <A, E>(
 
 /** @internal */
 export const fiberInterruptAs: {
-  (fiberId: number): <A, E>(self: Fiber.Fiber<A, E>) => Effect.Effect<void>
-  <A, E>(self: Fiber.Fiber<A, E>, fiberId: number): Effect.Effect<void>
-} = dual(2, <A, E>(self: Fiber.Fiber<A, E>, fiberId: number): Effect.Effect<void> =>
-  withFiber((parent) => {
-    self.interruptUnsafe(fiberId, fiberStackAnnotations(parent))
-    return asVoid(fiberAwait(self))
-  }))
+  (
+    fiberId: number | undefined,
+    annotations?: ServiceMap.ServiceMap<never> | undefined
+  ): <A, E>(self: Fiber.Fiber<A, E>) => Effect.Effect<void>
+  <A, E>(
+    self: Fiber.Fiber<A, E>,
+    fiberId: number | undefined,
+    annotations?: ServiceMap.ServiceMap<never> | undefined
+  ): Effect.Effect<void>
+} = dual(
+  (args) => hasProperty(args[0], FiberTypeId),
+  <A, E>(
+    self: Fiber.Fiber<A, E>,
+    fiberId: number | undefined,
+    annotations?: ServiceMap.ServiceMap<never> | undefined
+  ): Effect.Effect<void> =>
+    withFiber((parent) => {
+      let ann = fiberStackAnnotations(parent)
+      ann = ann && annotations ? ServiceMap.merge(ann, annotations) : ann ?? annotations
+      self.interruptUnsafe(fiberId, ann)
+      return asVoid(fiberAwait(self))
+    })
+)
 
 /** @internal */
 export const fiberInterruptAll = <A extends Iterable<Fiber.Fiber<any, any>>>(
@@ -2003,23 +2019,8 @@ export const updateServices: {
       const nextServices = f(prev)
       if (prev === nextServices) return self as any
       fiber.setServices(nextServices)
-      const newServices = new Map<string, unknown>()
-      for (const [key, value] of fiber.services.mapUnsafe) {
-        if (!prev.mapUnsafe.has(key) || value !== prev.mapUnsafe.get(key)) {
-          newServices.set(key, value)
-        }
-      }
-      return onExitPrimitive(self as any, () => {
-        const map = new Map(fiber.services.mapUnsafe)
-        for (const [key, value] of newServices) {
-          if (value !== map.get(key)) continue
-          if (prev.mapUnsafe.has(key)) {
-            map.set(key, prev.mapUnsafe.get(key))
-          } else {
-            map.delete(key)
-          }
-        }
-        fiber.setServices(ServiceMap.makeUnsafe(map))
+      return onExitPrimitive(self, () => {
+        fiber.setServices(prev)
         return undefined
       })
     })
@@ -2043,12 +2044,11 @@ export const updateService: {
     service: ServiceMap.Service<I, A>,
     f: (value: A) => A
   ): Effect.Effect<XA, E, R | I> =>
-    withFiber((fiber) => {
-      const prev = ServiceMap.getUnsafe(fiber.services, service)
+    updateServices(self, (s) => {
+      const prev = ServiceMap.getUnsafe(s, service)
       const next = f(prev)
-      if (prev === next) return self
-      fiber.setServices(ServiceMap.add(fiber.services, service, next))
-      return onExit(self, () => sync(() => fiber.setServices(ServiceMap.add(fiber.services, service, prev))))
+      if (prev === next) return s
+      return ServiceMap.add(s, service, next)
     })
 )
 
@@ -2115,11 +2115,10 @@ const provideServiceImpl = <A, E, R, I, S>(
   service: ServiceMap.Service<I, S>,
   implementation: S
 ): Effect.Effect<A, E, Exclude<R, I>> =>
-  withFiber((fiber) => {
-    const prev = ServiceMap.getOption(fiber.services, service)
-    if (prev._tag === "Some" && prev.value === implementation) return self
-    fiber.setServices(ServiceMap.add(fiber.services, service, implementation))
-    return onExit(self, () => sync(() => fiber.setServices(ServiceMap.addOrOmit(fiber.services, service, prev))))
+  updateServices(self, (s) => {
+    const prev = s.mapUnsafe.get(service.key)
+    if (prev === implementation) return s
+    return ServiceMap.add(s, service, implementation)
   }) as any
 
 /** @internal */
@@ -3666,11 +3665,11 @@ export const provideScope: {
 /** @internal */
 export const scoped = <A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect<A, E, Exclude<R, Scope.Scope>> =>
   withFiber((fiber) => {
-    const prev = ServiceMap.getOption(fiber.services, scopeTag)
+    const prev = fiber.services
     const scope = scopeMakeUnsafe()
     fiber.setServices(ServiceMap.add(fiber.services, scopeTag, scope))
     return onExitPrimitive(self, (exit) => {
-      fiber.setServices(ServiceMap.addOrOmit(fiber.services, scopeTag, prev))
+      fiber.setServices(prev)
       return scopeCloseUnsafe(scope, exit)
     })
   }) as any
@@ -5554,6 +5553,40 @@ export const CurrentLoggers = ServiceMap.Reference<
 export const LogToStderr = ServiceMap.Reference<boolean>("effect/Logger/LogToStderr", {
   defaultValue: constFalse
 })
+
+/** @internal */
+export const annotateLogsScoped: {
+  (key: string, value: unknown): Effect.Effect<void, never, Scope.Scope>
+  (values: Record<string, unknown>): Effect.Effect<void, never, Scope.Scope>
+} = function() {
+  const entries = typeof arguments[0] === "string" ?
+    [[arguments[0], arguments[1]]] :
+    Object.entries(arguments[0])
+  return uninterruptible(withFiber((fiber) => {
+    const prev = fiber.getRef(CurrentLogAnnotations)
+    const next = { ...prev }
+    for (let i = 0; i < entries.length; i++) {
+      const [key, value] = entries[i]
+      next[key] = value
+    }
+    fiber.setServices(ServiceMap.add(fiber.services, CurrentLogAnnotations, next))
+    return scopeAddFinalizerExit(ServiceMap.getUnsafe(fiber.services, scopeTag), (_) => {
+      const current = fiber.getRef(CurrentLogAnnotations)
+      const next = { ...current }
+      for (let i = 0; i < entries.length; i++) {
+        const [key, value] = entries[i]
+        if (current[key] !== value) continue
+        if (key in prev) {
+          next[key] = prev[key]
+        } else {
+          delete next[key]
+        }
+      }
+      fiber.setServices(ServiceMap.add(fiber.services, CurrentLogAnnotations, next))
+      return void_
+    })
+  }))
+}
 
 /** @internal */
 export const LoggerTypeId = "~effect/Logger"
