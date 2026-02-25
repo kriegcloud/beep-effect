@@ -32,5 +32,10 @@
     "paths": {
       "@beep/claude/*": ["./*.ts", "./*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../packages/common/identity/tsconfig.json"
+    }
+  ]
 }

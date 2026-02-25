@@ -7,6 +7,9 @@
   "include": [],
   "references": [
     {
+      "path": ".claude"
+    },
+    {
       "path": "apps/web"
     },
     {
@@ -43,10 +46,10 @@
       "path": "scratchpad"
     },
     {
-      "path": "tooling/cli"
+      "path": "tooling/agent-eval"
     },
     {
-      "path": "tooling/agent-eval"
+      "path": "tooling/cli"
     },
     {
       "path": "tooling/repo-utils"
