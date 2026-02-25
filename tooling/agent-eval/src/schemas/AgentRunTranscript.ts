@@ -20,6 +20,10 @@ export type AgentRunTranscript = {
   readonly outputTokens: number;
   readonly costUsd: number;
   readonly touchedPaths: ReadonlyArray<string>;
+  readonly backend?: "cli" | "sdk" | undefined;
+  readonly completionObserved?: boolean | undefined;
+  readonly exitCode?: number | null | undefined;
+  readonly signal?: string | null | undefined;
 };
 
 /**
@@ -41,4 +45,8 @@ export const AgentRunTranscriptSchema = S.Struct({
   outputTokens: S.Int,
   costUsd: S.Number,
   touchedPaths: S.Array(S.NonEmptyString),
+  backend: S.optional(S.Literals(["cli", "sdk"])),
+  completionObserved: S.optional(S.Boolean),
+  exitCode: S.optional(S.NullOr(S.Int)),
+  signal: S.optional(S.NullOr(S.String)),
 });

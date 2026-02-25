@@ -47,6 +47,16 @@ export const AllBenchConditions: ReadonlyArray<BenchCondition> = ["current", "mi
 export const AllBenchAgents: ReadonlyArray<AgentName> = ["codex", "claude"];
 
 /**
+ * Supported execution backend selection modes.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ExecutionBackend = "auto" | "cli" | "sdk";
+
+const AllExecutionBackends: ReadonlyArray<ExecutionBackend> = ["auto", "cli", "sdk"];
+
+/**
  * Parse a comma-separated CLI flag into trimmed, unique values in first-seen order.
  *
  * @param raw - Raw flag value.
@@ -221,6 +231,29 @@ export const parseReasoningFlag = (raw: string | undefined): ReasoningEffort | u
   }
 
   return effort;
+};
+
+/**
+ * Parse execution backend mode.
+ *
+ * @param raw - Raw `--execution-backend` value.
+ * @returns Parsed backend mode, defaulting to `auto` when omitted.
+ * @since 0.0.0
+ * @category functions
+ */
+export const parseExecutionBackendFlag = (raw: string | undefined): ExecutionBackend => {
+  if (raw === undefined) {
+    return "auto";
+  }
+
+  const backend = raw.trim();
+  if (backend !== "auto" && backend !== "cli" && backend !== "sdk") {
+    throw new AgentEvalConfigError({
+      message: `--execution-backend contains unsupported value: ${raw}. Allowed: ${AllExecutionBackends.join(", ")}`,
+    });
+  }
+
+  return backend;
 };
 
 const trimNonEmpty = (raw: string | undefined): string | undefined => {

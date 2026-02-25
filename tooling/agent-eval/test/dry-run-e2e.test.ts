@@ -105,6 +105,11 @@ type RunDiagnosticEventShape = {
     readonly stdoutTruncated: boolean;
     readonly stderrTruncated: boolean;
     readonly tailCharLimit: number;
+    readonly backend: "cli" | "sdk";
+    readonly completionObserved: boolean;
+    readonly exitCode: number | null;
+    readonly signal: string | null;
+    readonly fallbackReason: string | null;
   };
 };
 
@@ -127,7 +132,12 @@ const isRunDiagnosticEventShape = (value: unknown): value is RunDiagnosticEventS
     typeof command.stderrLength === "number" &&
     typeof command.stdoutTruncated === "boolean" &&
     typeof command.stderrTruncated === "boolean" &&
-    typeof command.tailCharLimit === "number"
+    typeof command.tailCharLimit === "number" &&
+    (command.backend === "cli" || command.backend === "sdk") &&
+    typeof command.completionObserved === "boolean" &&
+    (typeof command.exitCode === "number" || command.exitCode === null) &&
+    (typeof command.signal === "string" || command.signal === null) &&
+    (typeof command.fallbackReason === "string" || command.fallbackReason === null)
   );
 };
 
@@ -151,11 +161,15 @@ describe("dry-run benchmark", () => {
         groupId: "beep-dev",
       },
       strictTaskCount: 3,
+      executionBackend: "cli",
       isolateInWorktree: false,
       worktreeRoot: undefined,
     });
 
     expect(suite.records.length).toBe(24);
+    expect(suite.runMode).toBe("simulate");
+    expect(suite.executionBackend).toBe("cli");
+    expect(typeof suite.matrixFingerprint).toBe("string");
 
     const current = suite.records.find(
       (record) =>
@@ -192,6 +206,7 @@ describe("dry-run benchmark", () => {
         groupId: "beep-dev",
       },
       strictTaskCount: 2,
+      executionBackend: "cli",
       isolateInWorktree: false,
       worktreeRoot: undefined,
     });
@@ -222,6 +237,7 @@ describe("dry-run benchmark", () => {
         groupId: "beep-dev",
       },
       strictTaskCount: 1,
+      executionBackend: "cli",
       isolateInWorktree: false,
       worktreeRoot: undefined,
       onDiagnostic: (event) => {
@@ -242,6 +258,10 @@ describe("dry-run benchmark", () => {
     expect(runDiagnostic.command.stdoutTruncated).toBe(false);
     expect(runDiagnostic.command.stderrTruncated).toBe(false);
     expect(runDiagnostic.command.tailCharLimit > 0).toBe(true);
+    expect(runDiagnostic.command.backend).toBe("cli");
+    expect(runDiagnostic.command.completionObserved).toBe(false);
+    expect(runDiagnostic.command.exitCode).toBeNull();
+    expect(runDiagnostic.command.signal).toBeNull();
     expect(diagnostics.some((event) => JSON.stringify(event).includes('"type":"suite.metrics"'))).toBe(true);
   });
 
@@ -264,6 +284,7 @@ describe("dry-run benchmark", () => {
         groupId: "beep-dev",
       },
       strictTaskCount: 3,
+      executionBackend: "cli",
       isolateInWorktree: false,
       worktreeRoot: undefined,
       maxWallMinutes: 0.0000001,
@@ -299,6 +320,7 @@ describe("dry-run benchmark", () => {
             groupId: "beep-dev",
           },
           strictTaskCount: 1,
+          executionBackend: "cli",
           isolateInWorktree: true,
           worktreeRoot: blockedWorktreeRoot,
         })

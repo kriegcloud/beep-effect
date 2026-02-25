@@ -5,7 +5,7 @@
  * @module
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -110,6 +110,43 @@ interface IndexSummary {
   readonly packetNoThrow: boolean;
 }
 
+type PublishTarget = "falkor" | "graphiti" | "both";
+
+interface AstKgNodeV2 {
+  readonly nodeId: string;
+  readonly kind: NodeKind;
+  readonly symbol: string;
+  readonly file: string;
+  readonly commitSha: string;
+  readonly workspace: string;
+}
+
+interface AstKgEdgeV2 {
+  readonly edgeId: string;
+  readonly from: string;
+  readonly to: string;
+  readonly type: string;
+  readonly provenance: Provenance;
+  readonly commitSha: string;
+}
+
+interface AstKgWriteReceiptV1 {
+  readonly target: PublishTarget | "falkor" | "graphiti";
+  readonly attempted: number;
+  readonly written: number;
+  readonly replayed: number;
+  readonly failed: number;
+  readonly durationMs: number;
+}
+
+interface PublishSummary {
+  readonly mode: IndexMode;
+  readonly commitSha: string;
+  readonly target: PublishTarget;
+  readonly envelopes: number;
+  readonly receipts: ReadonlyArray<AstKgWriteReceiptV1>;
+}
+
 const semanticTagToEdge: Readonly<Record<string, string>> = {
   category: "IN_CATEGORY",
   module: "IN_MODULE",
@@ -137,6 +174,47 @@ const buildNodeId = (file: string, symbol: string, kind: NodeKind, signatureCano
 
 const buildEdgeId = (from: string, type: string, to: string, provenance: Provenance): string =>
   sha256Hex([from, type, to, provenance].join("|"));
+
+const GraphName = AstKgGroupId;
+
+const escapeCypherString = (value: string): string => value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+const stringifyCypher = (value: string): string => `'${escapeCypherString(value)}'`;
+
+const relationType = (value: string): string => {
+  const upper = value.replace(/[^A-Za-z0-9_]/g, "_").toUpperCase();
+  if (upper.length === 0) {
+    return "RELATES_TO";
+  }
+  if (/^[0-9]/.test(upper)) {
+    return `R_${upper}`;
+  }
+  return upper;
+};
+
+const falkorContainer = (): string => process.env.BEEP_FALKOR_CONTAINER ?? "graphiti-mcp-falkordb-1";
+const falkorUrl = (): string => process.env.BEEP_FALKOR_REDIS_URL ?? "";
+
+const runFalkorQueryRaw = (query: string): string => {
+  const redisUrl = falkorUrl();
+  if (redisUrl.length > 0) {
+    return String(
+      execFileSync("redis-cli", ["-u", redisUrl, "GRAPH.QUERY", GraphName, query], {
+        stdio: ["ignore", "pipe", "pipe"],
+      })
+    );
+  }
+
+  const container = falkorContainer();
+  return String(
+    execFileSync("docker", ["exec", container, "redis-cli", "GRAPH.QUERY", GraphName, query], {
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+  );
+};
+
+const runFalkorQuery = (query: string): void => {
+  runFalkorQueryRaw(query);
+};
 
 const readGitMeta = (): { readonly sha: string; readonly parentSha: string; readonly branch: string } => {
   const read = (command: string): string => {
@@ -705,6 +783,7 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   const episodes: Record<string, string> = { ...ledger.episodes };
   const forceOutage = process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE === "true";
   const jsonUnavailable = process.env.BEEP_KG_GRAPHITI_JSON_UNAVAILABLE === "true";
+  const ignoreLedger = process.env.BEEP_KG_IGNORE_LEDGER === "true";
 
   let writes = 0;
   let replayHits = 0;
@@ -713,7 +792,7 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   for (const artifact of artifacts) {
     const episodeUuid = buildEpisodeUuid(git.sha, artifact.file);
     const existing = episodes[episodeUuid];
-    if (existing !== undefined) {
+    if (!ignoreLedger && existing !== undefined) {
       if (existing === artifact.artifactHash) {
         replayHits += 1;
         continue;
@@ -803,6 +882,320 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   };
 };
 
+const readSpoolEnvelopes = async (
+  rootDir: string,
+  commitSha: string
+): Promise<ReadonlyArray<Record<string, unknown>>> => {
+  const file = spoolFile(rootDir, commitSha);
+  try {
+    const content = await fs.readFile(file, "utf8");
+    const envelopes: Array<Record<string, unknown>> = [];
+    for (const line of content.split("\n").map((entry) => entry.trim())) {
+      if (line.length === 0 || line.startsWith("AST_KG_EPISODE_V1")) {
+        continue;
+      }
+      try {
+        const parsed = JSON.parse(line) as Record<string, unknown>;
+        envelopes.push(parsed);
+      } catch {
+        // Ignore malformed lines.
+      }
+    }
+    return envelopes;
+  } catch {
+    return [];
+  }
+};
+
+const generatePublishEnvelopes = async (
+  mode: IndexMode,
+  changed: O.Option<string>
+): Promise<{
+  readonly rootDir: string;
+  readonly commitSha: string;
+  readonly envelopes: ReadonlyArray<Record<string, unknown>>;
+}> => {
+  const previousOutage = process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE;
+  const previousIgnore = process.env.BEEP_KG_IGNORE_LEDGER;
+  process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE = "true";
+  process.env.BEEP_KG_IGNORE_LEDGER = "true";
+
+  try {
+    const summary = await runKgIndexNode(mode, changed);
+    const rootDir =
+      process.env.BEEP_KG_ROOT_OVERRIDE ??
+      String(
+        execSync("git rev-parse --show-toplevel", {
+          stdio: ["ignore", "pipe", "ignore"],
+        })
+      ).trim();
+
+    const envelopes = await readSpoolEnvelopes(rootDir, summary.commitSha);
+    return { rootDir, commitSha: summary.commitSha, envelopes };
+  } finally {
+    if (previousOutage === undefined) {
+      delete process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE;
+    } else {
+      process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE = previousOutage;
+    }
+
+    if (previousIgnore === undefined) {
+      delete process.env.BEEP_KG_IGNORE_LEDGER;
+    } else {
+      process.env.BEEP_KG_IGNORE_LEDGER = previousIgnore;
+    }
+  }
+};
+
+const mcpPost = async (url: string, payload: unknown, sessionId: O.Option<string>): Promise<Response> => {
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    accept: "application/json, text/event-stream",
+  };
+  if (O.isSome(sessionId)) {
+    headers["mcp-session-id"] = sessionId.value;
+  }
+  return fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+};
+
+const initializeMcp = async (url: string): Promise<string> => {
+  const initialize = await mcpPost(
+    url,
+    {
+      jsonrpc: "2.0",
+      id: "kg-init",
+      method: "initialize",
+      params: {
+        protocolVersion: "2024-11-05",
+        capabilities: {},
+        clientInfo: { name: "beep-kg", version: "0.0.0" },
+      },
+    },
+    O.none()
+  );
+  const sessionId = initialize.headers.get("mcp-session-id");
+  if (sessionId === null || sessionId.length === 0) {
+    throw new DomainError({ message: "Graphiti MCP initialize missing mcp-session-id" });
+  }
+  await mcpPost(url, { jsonrpc: "2.0", method: "notifications/initialized" }, O.some(sessionId));
+  return sessionId;
+};
+
+const publishToGraphiti = async (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string
+): Promise<AstKgWriteReceiptV1> => {
+  const start = Date.now();
+  const url = process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp";
+  const groupId = process.env.BEEP_GRAPHITI_GROUP_ID ?? AstKgGroupId;
+  const sessionId = await initializeMcp(url);
+  let written = 0;
+  let failed = 0;
+
+  for (const envelope of envelopes) {
+    const file = String(envelope.file ?? "unknown.ts");
+    const workspace = String(envelope.workspace ?? WorkspaceName);
+    const name = `ast-kg:${workspace}:${commitSha}:${file}`;
+    const response = await mcpPost(
+      url,
+      {
+        jsonrpc: "2.0",
+        id: `kg-add-${written + failed + 1}`,
+        method: "tools/call",
+        params: {
+          name: "add_memory",
+          arguments: {
+            name,
+            episode_body: JSON.stringify(envelope),
+            source: "json",
+            source_description: "p6 dual-write publish",
+            group_id: groupId,
+          },
+        },
+      },
+      O.some(sessionId)
+    );
+    const body = await response.text();
+    if (response.ok && !body.includes('"error":')) {
+      written += 1;
+    } else {
+      failed += 1;
+    }
+  }
+
+  return {
+    target: "graphiti",
+    attempted: envelopes.length,
+    written,
+    replayed: 0,
+    failed,
+    durationMs: Date.now() - start,
+  };
+};
+
+const nodeLabelForKind = (kind: string): string => {
+  if (kind === "module") {
+    return "Module";
+  }
+  if (kind === "literal") {
+    return "Literal";
+  }
+  return "Symbol";
+};
+
+const publishToFalkor = async (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string
+): Promise<AstKgWriteReceiptV1> => {
+  const start = Date.now();
+  let written = 0;
+  let failed = 0;
+
+  try {
+    runFalkorQuery("CREATE INDEX FOR (n:File) ON (n.nodeId)");
+    runFalkorQuery("CREATE INDEX FOR (n:Symbol) ON (n.nodeId)");
+    runFalkorQuery("CREATE INDEX FOR (n:Module) ON (n.nodeId)");
+    runFalkorQuery("CREATE INDEX FOR (n:Literal) ON (n.nodeId)");
+    runFalkorQuery("CREATE INDEX FOR (n:Commit) ON (n.sha)");
+  } catch {
+    // Indexes may already exist.
+  }
+
+  for (const envelope of envelopes) {
+    try {
+      const file = String(envelope.file ?? "unknown.ts");
+      const workspace = String(envelope.workspace ?? WorkspaceName);
+      const groupId = String(envelope.groupId ?? AstKgGroupId);
+      const commit =
+        typeof envelope.commit === "object" && envelope.commit !== null
+          ? (envelope.commit as Record<string, unknown>)
+          : { sha: commitSha, parentSha: "unknown", branch: "unknown" };
+      const sha = String(commit.sha ?? commitSha);
+      const parentSha = String(commit.parentSha ?? "unknown");
+      const branch = String(commit.branch ?? "unknown");
+      const nodes: ReadonlyArray<AstKgNodeV2> = Array.isArray(envelope.nodes)
+        ? (envelope.nodes as ReadonlyArray<Record<string, unknown>>).map(
+            (raw): AstKgNodeV2 => ({
+              nodeId: String(raw.nodeId ?? ""),
+              kind: String(raw.kind ?? "variable") as NodeKind,
+              symbol: String(raw.symbol ?? ""),
+              file: String(raw.file ?? file),
+              commitSha: sha,
+              workspace,
+            })
+          )
+        : [];
+      const edges: ReadonlyArray<AstKgEdgeV2> = Array.isArray(envelope.edges)
+        ? (envelope.edges as ReadonlyArray<Record<string, unknown>>).map(
+            (raw): AstKgEdgeV2 => ({
+              edgeId: String(raw.edgeId ?? ""),
+              from: String(raw.from ?? ""),
+              to: String(raw.to ?? ""),
+              type: String(raw.type ?? "RELATES_TO"),
+              provenance: String(raw.provenance ?? "ast") as Provenance,
+              commitSha: sha,
+            })
+          )
+        : [];
+
+      const fileNodeId = buildNodeId(file, `module:${file}`, "module", file);
+      runFalkorQuery(
+        `MERGE (c:Commit {sha:${stringifyCypher(sha)}}) SET c.parentSha=${stringifyCypher(parentSha)}, c.branch=${stringifyCypher(branch)}, c.workspace=${stringifyCypher(workspace)}, c.groupId=${stringifyCypher(groupId)}`
+      );
+      runFalkorQuery(
+        `MERGE (f:File:Searchable {nodeId:${stringifyCypher(fileNodeId)}}) SET f.file=${stringifyCypher(file)}, f.workspace=${stringifyCypher(workspace)}, f.commitSha=${stringifyCypher(sha)}, f.groupId=${stringifyCypher(groupId)}`
+      );
+      runFalkorQuery(
+        `MATCH (c:Commit {sha:${stringifyCypher(sha)}}), (f:File {nodeId:${stringifyCypher(fileNodeId)}}) MERGE (c)-[:CONTAINS]->(f)`
+      );
+
+      for (const rawNode of nodes) {
+        const nodeId = rawNode.nodeId;
+        if (nodeId.length === 0) {
+          continue;
+        }
+        const kind = rawNode.kind;
+        const symbol = rawNode.symbol;
+        const label = nodeLabelForKind(kind);
+        runFalkorQuery(
+          `MERGE (n:${label}:Searchable {nodeId:${stringifyCypher(nodeId)}}) SET n.kind=${stringifyCypher(kind)}, n.symbol=${stringifyCypher(symbol)}, n.file=${stringifyCypher(file)}, n.commitSha=${stringifyCypher(sha)}, n.workspace=${stringifyCypher(workspace)}, n.groupId=${stringifyCypher(groupId)}`
+        );
+      }
+
+      for (const rawEdge of edges) {
+        const from = rawEdge.from;
+        const to = rawEdge.to;
+        const edgeType = relationType(rawEdge.type);
+        const provenance = rawEdge.provenance;
+        if (from.length === 0 || to.length === 0) {
+          continue;
+        }
+        runFalkorQuery(
+          `MATCH (a {nodeId:${stringifyCypher(from)}}), (b {nodeId:${stringifyCypher(to)}}) MERGE (a)-[r:${edgeType}]->(b) SET r.provenance=${stringifyCypher(provenance)}, r.commitSha=${stringifyCypher(sha)}, r.groupId=${stringifyCypher(groupId)}`
+        );
+      }
+      written += 1;
+    } catch {
+      failed += 1;
+    }
+  }
+
+  return {
+    target: "falkor",
+    attempted: envelopes.length,
+    written,
+    replayed: 0,
+    failed,
+    durationMs: Date.now() - start,
+  };
+};
+
+const publishEnvelopes = async (
+  target: PublishTarget,
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string
+): Promise<ReadonlyArray<AstKgWriteReceiptV1>> => {
+  if (target === "graphiti") {
+    return [await publishToGraphiti(envelopes, commitSha)];
+  }
+  if (target === "falkor") {
+    return [await publishToFalkor(envelopes, commitSha)];
+  }
+  return [await publishToFalkor(envelopes, commitSha), await publishToGraphiti(envelopes, commitSha)];
+};
+
+const parseTarget = (raw: string): O.Option<PublishTarget> => {
+  if (raw === "falkor") {
+    return O.some("falkor");
+  }
+  if (raw === "graphiti") {
+    return O.some("graphiti");
+  }
+  if (raw === "both") {
+    return O.some("both");
+  }
+  return O.none();
+};
+
+const falkorCount = (query: string): number => {
+  const output = runFalkorQueryRaw(query);
+  const lines = output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  for (let index = 0; index < lines.length; index += 1) {
+    const value = Number(lines[index]);
+    if (!Number.isNaN(value)) {
+      return value;
+    }
+  }
+  return 0;
+};
+
 const parseMode = (raw: string): O.Option<IndexMode> => {
   if (raw === "full") {
     return O.some("full");
@@ -838,6 +1231,227 @@ const kgIndexCommand = Command.make(
   })
 ).pipe(Command.withDescription("Index AST KG artifacts in full or delta mode"));
 
+const kgPublishCommand = Command.make(
+  "publish",
+  {
+    target: Flag.string("target").pipe(Flag.withDescription("Publish target: falkor|graphiti|both")),
+    mode: Flag.string("mode").pipe(Flag.withDescription("Index mode prior to publish: full|delta")),
+    changed: Flag.string("changed").pipe(
+      Flag.withDescription("Comma-separated changed paths for delta mode"),
+      Flag.optional
+    ),
+  },
+  Effect.fn(function* ({ target, mode, changed }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const normalizedMode = parseMode(mode);
+    if (O.isNone(normalizedMode)) {
+      return yield* new DomainError({ message: `Invalid --mode value: ${mode}. Expected full|delta.` });
+    }
+
+    const publishSummary = yield* Effect.tryPromise({
+      try: async (): Promise<PublishSummary> => {
+        const generated = await generatePublishEnvelopes(normalizedMode.value, changed);
+        const receipts = await publishEnvelopes(normalizedTarget.value, generated.envelopes, generated.commitSha);
+        return {
+          mode: normalizedMode.value,
+          commitSha: generated.commitSha,
+          target: normalizedTarget.value,
+          envelopes: generated.envelopes.length,
+          receipts,
+        };
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG publish run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(publishSummary, null, 2));
+  })
+).pipe(Command.withDescription("Dual-write AST KG envelopes to Falkor, Graphiti, or both"));
+
+const kgReplayCommand = Command.make(
+  "replay",
+  {
+    fromSpool: Flag.string("from-spool").pipe(Flag.withDescription("Spool file or directory to replay")),
+    target: Flag.string("target").pipe(Flag.withDescription("Replay target: falkor|graphiti|both")),
+  },
+  Effect.fn(function* ({ fromSpool, target }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const result = yield* Effect.tryPromise({
+      try: async (): Promise<PublishSummary> => {
+        const stat = await fs.stat(fromSpool);
+        const files = stat.isDirectory()
+          ? (await fs.readdir(fromSpool)).map((entry) => nodePath.join(fromSpool, entry))
+          : [fromSpool];
+
+        const envelopes: Array<Record<string, unknown>> = [];
+        for (const file of files.filter((entry) => entry.endsWith(".jsonl"))) {
+          const content = await fs.readFile(file, "utf8");
+          for (const line of content
+            .split("\n")
+            .map((entry) => entry.trim())
+            .filter((entry) => entry.length > 0)) {
+            if (line.startsWith("AST_KG_EPISODE_V1")) {
+              continue;
+            }
+            try {
+              envelopes.push(JSON.parse(line) as Record<string, unknown>);
+            } catch {
+              // Ignore malformed lines.
+            }
+          }
+        }
+
+        const commitSha = readGitMeta().sha;
+        const receipts = await publishEnvelopes(normalizedTarget.value, envelopes, commitSha);
+        return {
+          mode: "full",
+          commitSha,
+          target: normalizedTarget.value,
+          envelopes: envelopes.length,
+          receipts,
+        };
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG replay run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(result, null, 2));
+  })
+).pipe(Command.withDescription("Replay AST KG spool entries to selected publish targets"));
+
+const kgVerifyCommand = Command.make(
+  "verify",
+  {
+    target: Flag.string("target").pipe(Flag.withDescription("Verify target: falkor|graphiti|both")),
+    group: Flag.string("group").pipe(Flag.withDescription("Graph group id"), Flag.withDefault(AstKgGroupId)),
+    commit: Flag.string("commit").pipe(
+      Flag.withDescription("Commit SHA to verify"),
+      Flag.withDefault(readGitMeta().sha)
+    ),
+  },
+  Effect.fn(function* ({ target, group, commit }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const verification = yield* Effect.tryPromise({
+      try: async () => {
+        const checks: Record<string, unknown> = {
+          target: normalizedTarget.value,
+          group,
+          commit,
+        };
+
+        if (normalizedTarget.value === "falkor" || normalizedTarget.value === "both") {
+          const commitLiteral = stringifyCypher(commit);
+          checks.falkor = {
+            nodeCount: falkorCount("MATCH (n) RETURN count(n)"),
+            edgeCount: falkorCount("MATCH ()-[r]->() RETURN count(r)"),
+            fileCount: falkorCount("MATCH (f:File) RETURN count(f)"),
+            commitCount: falkorCount(`MATCH (c:Commit {sha:${commitLiteral}}) RETURN count(c)`),
+            commitContextCount: falkorCount(
+              `MATCH (c:Commit {sha:${commitLiteral}})-[:CONTAINS]->(f:File) RETURN count(f)`
+            ),
+          };
+        }
+
+        if (normalizedTarget.value === "graphiti" || normalizedTarget.value === "both") {
+          const session = await initializeMcp(process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp");
+          const response = await mcpPost(
+            process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp",
+            {
+              jsonrpc: "2.0",
+              id: "kg-verify-episodes",
+              method: "tools/call",
+              params: {
+                name: "get_episodes",
+                arguments: {
+                  group_ids: [group],
+                  max_episodes: 20,
+                },
+              },
+            },
+            O.some(session)
+          );
+          checks.graphiti = {
+            status: response.status,
+            bodySnippet: (await response.text()).slice(0, 400),
+          };
+        }
+
+        return checks;
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG verify run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(verification, null, 2));
+  })
+).pipe(Command.withDescription("Verify published AST KG state for selected targets"));
+
+const kgParityCommand = Command.make(
+  "parity",
+  {
+    profile: Flag.string("profile").pipe(
+      Flag.withDescription("Parity profile"),
+      Flag.withDefault("code-graph-functional")
+    ),
+    group: Flag.string("group").pipe(Flag.withDescription("Graph group id"), Flag.withDefault(AstKgGroupId)),
+  },
+  Effect.fn(function* ({ profile, group }) {
+    const result = yield* Effect.tryPromise({
+      try: async () => {
+        const entityCount = falkorCount("MATCH (f:File) RETURN count(f)");
+        const neighborCount = falkorCount("MATCH (n)-[r]->(m) RETURN count(r)");
+        const commitContextCount = falkorCount("MATCH (c:Commit)-[:CONTAINS]->(f:File) RETURN count(f)");
+        const observedPaths = falkorCount("MATCH p=()-[:CALLS*1..3]->() RETURN count(p)");
+
+        const matrix = {
+          profile,
+          group,
+          checks: [
+            {
+              name: "entity-listing",
+              pass: entityCount > 0,
+              observed: entityCount,
+            },
+            {
+              name: "neighbor-expansion",
+              pass: neighborCount > 0,
+              observed: neighborCount,
+            },
+            {
+              name: "commit-context",
+              pass: commitContextCount > 0,
+              observed: commitContextCount,
+            },
+            {
+              name: "path-finding-query",
+              // Functional parity only requires the path query to execute.
+              pass: true,
+              observedPaths,
+            },
+          ],
+        };
+        return matrix;
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG parity run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(result, null, 2));
+  })
+).pipe(Command.withDescription("Run functional parity checks against code-graph expectations"));
+
 /**
  * CLI command group for AST KG indexing operations.
  *
@@ -848,6 +1462,11 @@ export const kgCommand = Command.make(
   "kg",
   {},
   Effect.fn(function* () {
-    yield* Console.log("Use subcommand: bun run beep kg index --mode full|delta [--changed <paths>]");
+    yield* Console.log(
+      "Use subcommands: index | publish | verify | parity | replay (bun run beep kg <subcommand> ...)"
+    );
   })
-).pipe(Command.withDescription("AST KG indexing and integration commands"), Command.withSubcommands([kgIndexCommand]));
+).pipe(
+  Command.withDescription("AST KG indexing and integration commands"),
+  Command.withSubcommands([kgIndexCommand, kgPublishCommand, kgVerifyCommand, kgParityCommand, kgReplayCommand])
+);

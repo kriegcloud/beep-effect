@@ -1,0 +1,1803 @@
+{
+  "AgentConfig": [
+    ".claude/hooks/agent-init/index.ts",
+    ".claude/hooks/subagent-init/index.ts"
+  ],
+  "AgentConfigError": [
+    ".claude/hooks/agent-init/index.ts",
+    ".claude/hooks/subagent-init/index.ts"
+  ],
+  "AgentConfigLive": [
+    ".claude/hooks/agent-init/index.ts",
+    ".claude/hooks/subagent-init/index.ts"
+  ],
+  "AppLive": [
+    ".claude/hooks/agent-init/index.ts",
+    ".claude/hooks/subagent-init/index.ts"
+  ],
+  "program": [
+    ".claude/hooks/agent-init/index.ts"
+  ],
+  "ProjectStructureCapture": [
+    ".claude/hooks/agent-init/index.ts"
+  ],
+  "ProjectStructureCaptureLive": [
+    ".claude/hooks/agent-init/index.ts"
+  ],
+  "findMatches": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "getFilePath": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "getMatchableContent": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "HookInput": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "loadPatterns": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "matches": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "testGlob": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "testRegex": [
+    ".claude/hooks/pattern-detector/core.ts"
+  ],
+  "EditToolInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "EditToolResponse": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "GenericToolInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "HookInputBase": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "HookOutput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "PostToolUseInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "PreToolUseInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "SessionStartInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "StructuredPatchEntry": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "TaskToolInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "ToolUseInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "UserPromptInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "WriteToolInput": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "WriteToolResponse": [
+    ".claude/hooks/schemas/index.ts"
+  ],
+  "buildKgContextBlock": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "extractKeywords": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "findMatchingSkills": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "KEYWORD_MATCH_SCORE": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "matchesWordBoundary": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "MAX_SUGGESTIONS": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "MIN_SCORE": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "NAME_MATCH_BOOST": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "scoreSkill": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "SkillMetadata": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "STOPWORDS": [
+    ".claude/hooks/skill-suggester/index.ts"
+  ],
+  "ConfigLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "Default": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts",
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "EvaluationSession": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "helper": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "KeyBindingRegistryLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "LanguageModel": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "layerCurrentZone": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "layerMessagePort": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "LoggerLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "make": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts",
+    "packages/common/identity/src/Id.ts"
+  ],
+  "MyCustomName": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "MyService": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "MyServiceLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "ServiceA": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "ServiceB": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "SidebarVM": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "SynthesisService": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "TodoQueryService": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "TodoQueryServiceLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "TypedLive": [
+    ".claude/scripts/__tests__/analyze-architecture.test.ts"
+  ],
+  "AnalysisGraph": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "AncestorsResult": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "ArchitectureGraph": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "BlastRadiusResult": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "buildAnalysisGraph": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "buildArchitectureGraph": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "CommonAncestor": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "CommonAncestorsResult": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "computeAncestors": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "computeBlastRadius": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "computeCommonAncestors": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "countLinesBefore": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "createTsProgram": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "extractLayerMatches": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "extractLayersFromContent": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "extractServicesFromContent": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "findLayerDefinitions": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "findServiceDefinitions": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "findTypeScriptFiles": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "formatAdjacencyList": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "formatAgent": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "formatAgentWithHints": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "formatHuman": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "formatMermaid": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "generateStats": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "LayerDefinition": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "renderAncestors": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "renderBlastRadius": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "ServiceDefinition": [
+    ".claude/scripts/analyze-architecture.ts"
+  ],
+  "buildChainGraph": [
+    ".claude/scripts/util.ts"
+  ],
+  "buildFullyConnectedGraph": [
+    ".claude/scripts/util.ts"
+  ],
+  "buildHubGraph": [
+    ".claude/scripts/util.ts"
+  ],
+  "buildStarGraph": [
+    ".claude/scripts/util.ts"
+  ],
+  "renderCommonAncestors": [
+    ".claude/scripts/util.ts"
+  ],
+  "GET": [
+    "apps/web/src/app/api/graph/search/route.ts"
+  ],
+  "Encoded": [
+    "apps/web/src/app/features/Todo/Todo.ts"
+  ],
+  "Todo": [
+    "apps/web/src/app/features/Todo/Todo.ts"
+  ],
+  "TodoId": [
+    "apps/web/src/app/features/Todo/Todo.ts"
+  ],
+  "Type": [
+    "apps/web/src/app/features/Todo/Todo.ts"
+  ],
+  "TodoItemVM": [
+    "apps/web/src/app/features/Todo/TodoItemVM.ts"
+  ],
+  "metadata": [
+    "apps/web/src/app/layout.tsx"
+  ],
+  "useVM": [
+    "apps/web/src/app/runtime.ts"
+  ],
+  "WebVitals": [
+    "apps/web/src/app/web-vitals.tsx"
+  ],
+  "ChatPanel": [
+    "apps/web/src/components/chat/ChatPanel.tsx"
+  ],
+  "MessageBubble": [
+    "apps/web/src/components/chat/MessageBubble.tsx"
+  ],
+  "ToolCallTrace": [
+    "apps/web/src/components/chat/ToolCallTrace.tsx",
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "ForceGraph": [
+    "apps/web/src/components/graph/ForceGraph.tsx"
+  ],
+  "GraphPanel": [
+    "apps/web/src/components/graph/GraphPanel.tsx"
+  ],
+  "NodeDetail": [
+    "apps/web/src/components/graph/NodeDetail.tsx"
+  ],
+  "register": [
+    "apps/web/src/instrumentation.ts"
+  ],
+  "authClient": [
+    "apps/web/src/lib/auth/client.ts"
+  ],
+  "auth": [
+    "apps/web/src/lib/auth/server.ts"
+  ],
+  "db": [
+    "apps/web/src/lib/db/index.ts"
+  ],
+  "account": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "accountRelations": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "session": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "sessionRelations": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "user": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "userRelations": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "verification": [
+    "apps/web/src/lib/db/schema.ts"
+  ],
+  "CanonicalRegressionRules": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatMessage": [
+    "apps/web/src/lib/effect/chat-handler.ts",
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "ChatMessageSchema": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatRequest": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatRequestDecodeError": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatRequestSchema": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatSseEventType": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatSseEventTypeSchema": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatStreamError": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "createChatSseResponse": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "decodeChatRequestUnknown": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "encodeSseEnvelope": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "extractGraphSnippet": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "GraphSnippet": [
+    "apps/web/src/lib/effect/chat-handler.ts",
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "GraphSnippetSchema": [
+    "apps/web/src/lib/effect/chat-handler.ts",
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "LegacyPatternDenyList": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "makeChatPrompt": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "MAX_TOOL_ITERATIONS": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "SYSTEM_PROMPT": [
+    "apps/web/src/lib/effect/chat-handler.ts"
+  ],
+  "ChatRouteOptions": [
+    "apps/web/src/lib/effect/chat-route.ts"
+  ],
+  "makeChatRouteHandler": [
+    "apps/web/src/lib/effect/chat-route.ts"
+  ],
+  "makeChatRouteLayer": [
+    "apps/web/src/lib/effect/chat-route.ts"
+  ],
+  "deriveNeighborNodes": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphFact": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphFactSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphFactsResult": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphFactsResultSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphitiEntityNode": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphitiEntityNodeSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphitiFact": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphitiFactSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphLink": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphLinkSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphNode": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphNodeDetails": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphNodeDetailsSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphNodeSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphSearchResult": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "GraphSearchResultSchema": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapEntityNodesToGraphNodes": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapEntityNodeToGraphNode": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapFactsToGraphFacts": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapFactsToGraphLinks": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapFactToGraphFact": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapFactToGraphLink": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "mapSearchToGraphData": [
+    "apps/web/src/lib/effect/mappers.ts"
+  ],
+  "AppRuntimeLayer": [
+    "apps/web/src/lib/effect/runtime.ts"
+  ],
+  "KnowledgeGraphRuntimeLayer": [
+    "apps/web/src/lib/effect/runtime.ts"
+  ],
+  "OpenAiClientLayer": [
+    "apps/web/src/lib/effect/runtime.ts"
+  ],
+  "OpenAiLanguageModelLayer": [
+    "apps/web/src/lib/effect/runtime.ts"
+  ],
+  "OpenAiRuntimeLayer": [
+    "apps/web/src/lib/effect/runtime.ts"
+  ],
+  "knowledgeGraphHandlers": [
+    "apps/web/src/lib/effect/tool-handlers.ts"
+  ],
+  "KnowledgeGraphToolsLayer": [
+    "apps/web/src/lib/effect/tool-handlers.ts"
+  ],
+  "GetFacts": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "GetFactsParameters": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "GetFactsParametersSchema": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "GetNode": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "GetNodeParameters": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "KnowledgeGraphToolkit": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "SearchGraph": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "SearchGraphParameters": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "SearchGraphScopeSchema": [
+    "apps/web/src/lib/effect/tools.ts"
+  ],
+  "GraphitiFetch": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiGetNodeParams": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiGetNodeParamsSchema": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiHttpStatusError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiLayerOptions": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiNodeLookup": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiProtocolError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiRequestError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiResponseDecodeError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiRuntimeConfig": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiRuntimeConfigSchema": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiSearchFactsParams": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiSearchFactsParamsSchema": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiSearchNodesParams": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiSearchNodesParamsSchema": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiService": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiServiceError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "GraphitiToolError": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "validateGraphitiEntityNode": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "validateGraphitiFact": [
+    "apps/web/src/lib/graphiti/client.ts"
+  ],
+  "config": [
+    "apps/web/src/proxy.ts",
+    "packages/ui/ui/lostpixel.config.ts"
+  ],
+  "proxy": [
+    "apps/web/src/proxy.ts"
+  ],
+  "chatContextNodeAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "chatInputAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "chatLatestGraphSnippetAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "chatMessagesAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "clearChatContextNodeAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "sendChatMessageAtom": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "ToolResultTrace": [
+    "apps/web/src/state/chat.atoms.ts"
+  ],
+  "applyGraphSnippetAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "clearGraphHighlightsAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "clearGraphSelectionAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "expandGraphNodeAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "graphDataAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "GraphSearchApiResponse": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "GraphSearchApiResponseSchema": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "graphSearchQueryAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "highlightedNodeIdsAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "loadSeedGraphAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "seedGraphLoadedAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "selectedGraphNodeAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "selectedNodeDetailsAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "selectedNodeFactsAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "selectedNodeIdAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "selectGraphNodeAtom": [
+    "apps/web/src/state/graph.atoms.ts"
+  ],
+  "AppRegistryProvider": [
+    "apps/web/src/state/registry.tsx"
+  ],
+  "FormalMonthName": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "FormalMonthNameValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/month.ts"
+  ],
+  "FormalWeekName": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "FormalWeekNameValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/weekday.ts"
+  ],
+  "MonthISO": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "MonthISOValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/month.ts"
+  ],
+  "MonthName": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "MonthNameValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/month.ts"
+  ],
+  "MonthNumber": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "MonthNumberValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/month.ts"
+  ],
+  "WeekName": [
+    "packages/common/data/src/Calendar.ts"
+  ],
+  "WeekNameValues": [
+    "packages/common/data/src/Calendar.ts",
+    "packages/common/data/src/internal/data/calendar/weekday.ts"
+  ],
+  "CurrencyCode": [
+    "packages/common/data/src/CurrencyCodes.ts"
+  ],
+  "CurrencyCodeData": [
+    "packages/common/data/src/CurrencyCodes.ts"
+  ],
+  "CurrencyCodeDataValues": [
+    "packages/common/data/src/CurrencyCodes.ts",
+    "packages/common/data/src/internal/data/currency-codes.ts"
+  ],
+  "application": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/application.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "audio": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/audio.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "image": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/image.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "FileExtension": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "getExtensions": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "getTypes": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "lookup": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "mimes": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "MimeType": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "mimeTypes": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts"
+  ],
+  "misc": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts",
+    "packages/common/data/src/internal/data/mime-types/misc.ts"
+  ],
+  "text": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts",
+    "packages/common/data/src/internal/data/mime-types/text.ts"
+  ],
+  "video": [
+    "packages/common/data/src/MimeTypes.ts",
+    "packages/common/data/src/internal/data/mime-types/index.ts",
+    "packages/common/data/src/internal/data/mime-types/video.ts"
+  ],
+  "TimezoneNameValues": [
+    "packages/common/data/src/Timezones.ts",
+    "packages/common/data/src/internal/data/timezones.ts"
+  ],
+  "formalizeValues": [
+    "packages/common/data/src/internal/data/utils.ts"
+  ],
+  "TimezoneName": [
+    "packages/common/data/src/Timezones.ts"
+  ],
+  "IdentityAnnotation": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentityAnnotationResult": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentityComposer": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentityInterpolationError": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentitySegmentCountError": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentityString": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "IdentitySymbol": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "ModuleAccessor": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "ModuleSegmentValue": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "SchemaAnnotationExtras": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "SegmentValue": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "TaggedAccessor": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "TaggedModuleRecord": [
+    "packages/common/identity/src/Id.ts"
+  ],
+  "VERSION": [
+    "packages/common/identity/src/Id.ts",
+    "packages/common/ontology/src/index.ts",
+    "packages/common/schema/src/index.ts",
+    "packages/shared/domain/src/index.ts",
+    "packages/shared/env/src/index.ts",
+    "packages/ui/ui/src/index.ts",
+    "tooling/repo-utils/src/index.ts"
+  ],
+  "$AgentEvalId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$BeepSyncId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$ClaudeId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$CodebaseSearchId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$DataId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$I": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$IdentityId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$MessagesId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$OntologyId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$RepoCliId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$RepoUtilsId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$SchemaId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$SharedDomainId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$SharedEnvId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$TypesId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$UiId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$UtilsId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "$WebId": [
+    "packages/common/identity/src/packages.ts"
+  ],
+  "getLogIssues": [
+    "packages/common/messages/src/i18n.ts"
+  ],
+  "GetLogIssuesOptions": [
+    "packages/common/messages/src/i18n.ts"
+  ],
+  "leafHook": [
+    "packages/common/messages/src/i18n.ts"
+  ],
+  "logIssues": [
+    "packages/common/messages/src/i18n.ts"
+  ],
+  "t": [
+    "packages/common/messages/src/i18n.ts"
+  ],
+  "ArrayOfInts": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "ArrayOfNonEmptyStrings": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "ArrayOfNumbers": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "ArrayOfStrings": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "NonEmptyArrayOfInts": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "NonEmptyArrayOfNonEmptyStrings": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "NonEmptyArrayOfNumbers": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "NonEmptyArrayOfStrings": [
+    "packages/common/schema/src/ArrayOf.ts"
+  ],
+  "LiteralKit": [
+    "packages/common/schema/src/LiteralKit.ts"
+  ],
+  "LiteralNotInSetError": [
+    "packages/common/schema/src/LiteralKit.ts"
+  ],
+  "LiteralToKey": [
+    "packages/common/schema/src/LiteralKit.ts"
+  ],
+  "matchLiteral": [
+    "packages/common/schema/src/LiteralKit.ts"
+  ],
+  "Chars": [
+    "packages/common/types/src/TString.types.ts"
+  ],
+  "NonEmpty": [
+    "packages/common/types/src/TString.types.ts"
+  ],
+  "Any": [
+    "packages/common/types/src/TUnsafe.types.ts"
+  ],
+  "dotGet": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "dotGetOption": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "StructPath": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "StructPathTuple": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "StructPathTupleValue": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "StructPathValue": [
+    "packages/common/utils/src/Struct.ts"
+  ],
+  "thunk": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunk0": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunk1": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEffect": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEffectSucceed": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEffectVoid": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEmptyArray": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEmptyReadonlyArray": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEmptyRecord": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkEmptyStr": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkFalse": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkNull": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkTrue": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkUndefined": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "thunkVoid": [
+    "packages/common/utils/src/thunk.ts"
+  ],
+  "ClickInteraction": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Destructive": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Ghost": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Large": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Link": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Outline": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Secondary": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "Small": [
+    "packages/ui/ui/src/components/ui/button.stories.tsx"
+  ],
+  "cn": [
+    "packages/ui/ui/src/lib/utils.ts"
+  ],
+  "loadTaskCatalog": [
+    "tooling/agent-eval/src/benchmark/catalog.ts"
+  ],
+  "renderComparisonMarkdown": [
+    "tooling/agent-eval/src/benchmark/compare.ts"
+  ],
+  "probeClaudeSdkAvailability": [
+    "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts"
+  ],
+  "runClaudeSdkExecution": [
+    "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts"
+  ],
+  "runCliExecution": [
+    "tooling/agent-eval/src/benchmark/execution/cli-executor.ts"
+  ],
+  "probeCodexSdkAvailability": [
+    "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts"
+  ],
+  "runCodexSdkExecution": [
+    "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts"
+  ],
+  "createExecutionResolver": [
+    "tooling/agent-eval/src/benchmark/execution/index.ts"
+  ],
+  "CreateExecutionResolverOptions": [
+    "tooling/agent-eval/src/benchmark/execution/index.ts"
+  ],
+  "BenchmarkClaudeEffort": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "BenchmarkReasoningEffort": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "ExecutionBackend": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts",
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "ExecutionBackendMode": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "ExecutionRequest": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "ExecutionResolver": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "ExecutionResult": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "SdkAvailability": [
+    "tooling/agent-eval/src/benchmark/execution/types.ts"
+  ],
+  "buildRetrievalPacket": [
+    "tooling/agent-eval/src/benchmark/packet.ts"
+  ],
+  "RetrievalPacket": [
+    "tooling/agent-eval/src/benchmark/packet.ts"
+  ],
+  "renderBenchmarkMarkdown": [
+    "tooling/agent-eval/src/benchmark/report.ts"
+  ],
+  "AgentModels": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "allowlistPass": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "BenchmarkDiagnosticEvent": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "BenchmarkProgressEvent": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "ClaudeEffortLevel": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "CorrectionEntry": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "decodeCorrectionIndexJson": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "decodePricingTableJson": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "disallowedTouchedPaths": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "isPathAllowed": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "parseStatusPorcelain": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "PricingEntry": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "PricingTable": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "ReasoningEffortLevel": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "RunBenchmarkOptions": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "runBenchmarkSuite": [
+    "tooling/agent-eval/src/benchmark/runner.ts"
+  ],
+  "AllBenchAgents": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "AllBenchConditions": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "ClaudeEffort": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "deriveRepoBasename": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseBenchAgentsFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseBenchConditionsFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseClaudeEffortFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseCsvFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseExecutionBackendFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseMaxWallMinutesFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseModelFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseReasoningFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseTaskIdsFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "parseWorktreeRootFlag": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "ReasoningEffort": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "resolveDefaultWorktreeRoot": [
+    "tooling/agent-eval/src/commands/bench-flags.ts"
+  ],
+  "BenchArgs": [
+    "tooling/agent-eval/src/commands/bench.ts"
+  ],
+  "handleBench": [
+    "tooling/agent-eval/src/commands/bench.ts"
+  ],
+  "readSuiteFile": [
+    "tooling/agent-eval/src/commands/bench.ts"
+  ],
+  "CompareArgs": [
+    "tooling/agent-eval/src/commands/compare.ts"
+  ],
+  "handleCompare": [
+    "tooling/agent-eval/src/commands/compare.ts"
+  ],
+  "handleIngest": [
+    "tooling/agent-eval/src/commands/ingest.ts"
+  ],
+  "IngestArgs": [
+    "tooling/agent-eval/src/commands/ingest.ts"
+  ],
+  "handleReport": [
+    "tooling/agent-eval/src/commands/report.ts"
+  ],
+  "ReportArgs": [
+    "tooling/agent-eval/src/commands/report.ts"
+  ],
+  "detectEffectComplianceViolations": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "detectWrongApis": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "EffectComplianceRules": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "WrongApiDetectionReport": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "WrongApiIncident": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "WrongApiRule": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "WrongApiRules": [
+    "tooling/agent-eval/src/effect-v4-detector/index.ts"
+  ],
+  "AgentEvalConfigError": [
+    "tooling/agent-eval/src/errors.ts"
+  ],
+  "AgentEvalDecodeError": [
+    "tooling/agent-eval/src/errors.ts"
+  ],
+  "AgentEvalInvariantError": [
+    "tooling/agent-eval/src/errors.ts"
+  ],
+  "AgentEvalProtocolError": [
+    "tooling/agent-eval/src/errors.ts"
+  ],
+  "addMemoryEpisode": [
+    "tooling/agent-eval/src/graphiti/mcp.ts"
+  ],
+  "GraphitiMcpOptions": [
+    "tooling/agent-eval/src/graphiti/mcp.ts"
+  ],
+  "searchMemoryFacts": [
+    "tooling/agent-eval/src/graphiti/mcp.ts"
+  ],
+  "readFileUtf8": [
+    "tooling/agent-eval/src/io.ts"
+  ],
+  "resolveFromCwd": [
+    "tooling/agent-eval/src/io.ts"
+  ],
+  "writeFileUtf8": [
+    "tooling/agent-eval/src/io.ts"
+  ],
+  "hasValidSkillCap": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "loadPolicyOverlays": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "PolicyOverlay": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "PolicyPacket": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "selectFocusedSkills": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "selectPolicyPacket": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "SkillCandidate": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "SkillCandidates": [
+    "tooling/agent-eval/src/policies/index.ts"
+  ],
+  "AgentEvalPlatformLayer": [
+    "tooling/agent-eval/src/runtime.ts"
+  ],
+  "AgentBenchSuite": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "AgentBenchSuiteSchema": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "AgentRunRecord": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "AgentRunRecordSchema": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "BenchSuiteStatus": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "BenchSuiteStatusSchema": [
+    "tooling/agent-eval/src/schemas/AgentBenchSuite.ts"
+  ],
+  "AgentName": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "AgentNameSchema": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "AgentRunConfig": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "AgentRunConfigSchema": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "BenchCondition": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "BenchConditionSchema": [
+    "tooling/agent-eval/src/schemas/AgentRunConfig.ts"
+  ],
+  "AgentRunResult": [
+    "tooling/agent-eval/src/schemas/AgentRunResult.ts"
+  ],
+  "AgentRunResultSchema": [
+    "tooling/agent-eval/src/schemas/AgentRunResult.ts"
+  ],
+  "AgentRunTranscript": [
+    "tooling/agent-eval/src/schemas/AgentRunTranscript.ts"
+  ],
+  "AgentRunTranscriptSchema": [
+    "tooling/agent-eval/src/schemas/AgentRunTranscript.ts"
+  ],
+  "AgentTaskSpec": [
+    "tooling/agent-eval/src/schemas/AgentTaskSpec.ts"
+  ],
+  "AgentTaskSpecSchema": [
+    "tooling/agent-eval/src/schemas/AgentTaskSpec.ts"
+  ],
+  "TaskCategory": [
+    "tooling/agent-eval/src/schemas/AgentTaskSpec.ts"
+  ],
+  "TaskCategorySchema": [
+    "tooling/agent-eval/src/schemas/AgentTaskSpec.ts"
+  ],
+  "EffectV4EvidenceFact": [
+    "tooling/agent-eval/src/schemas/EffectV4EvidenceFact.ts"
+  ],
+  "EffectV4EvidenceFactSchema": [
+    "tooling/agent-eval/src/schemas/EffectV4EvidenceFact.ts"
+  ],
+  "FailureSignature": [
+    "tooling/agent-eval/src/schemas/FailureSignature.ts"
+  ],
+  "FailureSignatureSchema": [
+    "tooling/agent-eval/src/schemas/FailureSignature.ts"
+  ],
+  "KnowledgeFeedbackEpisode": [
+    "tooling/agent-eval/src/schemas/KnowledgeFeedbackEpisode.ts"
+  ],
+  "KnowledgeFeedbackEpisodeSchema": [
+    "tooling/agent-eval/src/schemas/KnowledgeFeedbackEpisode.ts"
+  ],
+  "codegenCommand": [
+    "tooling/cli/src/commands/codegen.ts"
+  ],
+  "checkConfigNeedsUpdate": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "checkConfigNeedsUpdateForTargets": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "ConfigUpdateBatchResult": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "ConfigUpdateResult": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "ConfigUpdateTarget": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "ConfigUpdateTargetResult": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "updateRootConfigs": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "updateRootConfigsForTargets": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "updateTsconfigPackages": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "updateTsconfigPaths": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "updateTstycheConfig": [
+    "tooling/cli/src/commands/create-package/config-updater.ts"
+  ],
+  "createFileGenerationPlanService": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "FileGenerationExecutionResult": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "FileGenerationPlan": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "FileGenerationPlanInput": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "FileGenerationPlanService": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "GenerationAction": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "PlannedFile": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "PlannedSymlink": [
+    "tooling/cli/src/commands/create-package/file-generation-plan-service.ts"
+  ],
+  "createPackageCommand": [
+    "tooling/cli/src/commands/create-package/handler.ts",
+    "tooling/cli/src/commands/create-package/index.ts"
+  ],
+  "resolveCreatePackageTemplateDir": [
+    "tooling/cli/src/commands/create-package/handler.ts"
+  ],
+  "createTemplateService": [
+    "tooling/cli/src/commands/create-package/template-service.ts"
+  ],
+  "RenderedTemplate": [
+    "tooling/cli/src/commands/create-package/template-service.ts"
+  ],
+  "TemplateRenderRequest": [
+    "tooling/cli/src/commands/create-package/template-service.ts"
+  ],
+  "TemplateService": [
+    "tooling/cli/src/commands/create-package/template-service.ts"
+  ],
+  "TemplateSpec": [
+    "tooling/cli/src/commands/create-package/template-service.ts"
+  ],
+  "createTsMorphIntegrationService": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphIntegrationResult": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphIntegrationService": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphMutation": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphMutationAdapter": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphMutationKind": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "TsMorphMutationOutcome": [
+    "tooling/cli/src/commands/create-package/ts-morph-integration-service.ts"
+  ],
+  "docsCommand": [
+    "tooling/cli/src/commands/docs.ts"
+  ],
+  "kgCommand": [
+    "tooling/cli/src/commands/kg.ts"
+  ],
+  "runKgIndexNode": [
+    "tooling/cli/src/commands/kg.ts"
+  ],
+  "purgeAtRoot": [
+    "tooling/cli/src/commands/purge.ts"
+  ],
+  "purgeCommand": [
+    "tooling/cli/src/commands/purge.ts"
+  ],
+  "PurgeSummary": [
+    "tooling/cli/src/commands/purge.ts"
+  ],
+  "rootCommand": [
+    "tooling/cli/src/commands/root.ts"
+  ],
+  "topoSortCommand": [
+    "tooling/cli/src/commands/topo-sort.ts"
+  ],
+  "syncTsconfigAtRoot": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncChange": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "tsconfigSyncCommand": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncCycleError": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncDriftError": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncFilterError": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncMode": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncResult": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncRunOptions": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "TsconfigSyncSection": [
+    "tooling/cli/src/commands/tsconfig-sync.ts"
+  ],
+  "handleVersionSync": [
+    "tooling/cli/src/commands/version-sync/handler.ts"
+  ],
+  "versionSyncCommand": [
+    "tooling/cli/src/commands/version-sync/index.ts"
+  ],
+  "BiomeSchemaState": [
+    "tooling/cli/src/commands/version-sync/resolvers/biome.ts"
+  ],
+  "buildBiomeReport": [
+    "tooling/cli/src/commands/version-sync/resolvers/biome.ts"
+  ],
+  "resolveBiomeSchema": [
+    "tooling/cli/src/commands/version-sync/resolvers/biome.ts"
+  ],
+  "updateBiomeSchema": [
+    "tooling/cli/src/commands/version-sync/resolvers/biome.ts"
+  ],
+  "buildBunReport": [
+    "tooling/cli/src/commands/version-sync/resolvers/bun.ts"
+  ],
+  "BunVersionState": [
+    "tooling/cli/src/commands/version-sync/resolvers/bun.ts"
+  ],
+  "resolveBunVersions": [
+    "tooling/cli/src/commands/version-sync/resolvers/bun.ts"
+  ],
+  "buildDockerReport": [
+    "tooling/cli/src/commands/version-sync/resolvers/docker.ts"
+  ],
+  "DockerImageRef": [
+    "tooling/cli/src/commands/version-sync/resolvers/docker.ts"
+  ],
+  "DockerImageState": [
+    "tooling/cli/src/commands/version-sync/resolvers/docker.ts"
+  ],
+  "resolveDockerImages": [
+    "tooling/cli/src/commands/version-sync/resolvers/docker.ts"
+  ],
+  "buildNodeReport": [
+    "tooling/cli/src/commands/version-sync/resolvers/node.ts"
+  ],
+  "NodeVersionLocation": [
+    "tooling/cli/src/commands/version-sync/resolvers/node.ts"
+  ],
+  "NodeVersionState": [
+    "tooling/cli/src/commands/version-sync/resolvers/node.ts"
+  ],
+  "resolveNodeVersions": [
+    "tooling/cli/src/commands/version-sync/resolvers/node.ts"
+  ],
+  "NetworkUnavailableError": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionCategory": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionCategoryReport": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionCategoryStatus": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionDriftItem": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionSyncDriftError": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionSyncError": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionSyncMode": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionSyncOptions": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "VersionSyncReport": [
+    "tooling/cli/src/commands/version-sync/types.ts"
+  ],
+  "updatePackageManagerField": [
+    "tooling/cli/src/commands/version-sync/updaters/package-json.ts"
+  ],
+  "updatePlainTextFile": [
+    "tooling/cli/src/commands/version-sync/updaters/plain-text.ts"
+  ],
+  "replaceNodeVersionWithFile": [
+    "tooling/cli/src/commands/version-sync/updaters/yaml-file.ts"
+  ],
+  "updateYamlValue": [
+    "tooling/cli/src/commands/version-sync/updaters/yaml-file.ts"
+  ],
+  "bar": [
+    "tooling/cli/test/codegen.test.ts"
+  ],
+  "foo": [
+    "tooling/cli/test/codegen.test.ts"
+  ],
+  "secret": [
+    "tooling/cli/test/codegen.test.ts"
+  ],
+  "visible": [
+    "tooling/cli/test/codegen.test.ts"
+  ],
+  "value": [
+    "tooling/cli/test/create-package-services.test.ts"
+  ],
+  "dep": [
+    "tooling/cli/test/kg.test.ts"
+  ],
+  "runThing": [
+    "tooling/cli/test/kg.test.ts"
+  ],
+  "A": [
+    "tooling/cli/test/tsconfig-sync.test.ts"
+  ],
+  "B": [
+    "tooling/cli/test/tsconfig-sync.test.ts"
+  ],
+  "C": [
+    "tooling/cli/test/tsconfig-sync.test.ts"
+  ],
+  "extractWorkspaceDependencies": [
+    "tooling/repo-utils/src/Dependencies.ts"
+  ],
+  "buildRepoDependencyIndex": [
+    "tooling/repo-utils/src/DependencyIndex.ts"
+  ],
+  "CyclicDependencyError": [
+    "tooling/repo-utils/src/errors/CyclicDependencyError.ts"
+  ],
+  "DomainError": [
+    "tooling/repo-utils/src/errors/DomainError.ts"
+  ],
+  "NoSuchFileError": [
+    "tooling/repo-utils/src/errors/NoSuchFileError.ts"
+  ],
+  "FsUtils": [
+    "tooling/repo-utils/src/FsUtils.ts"
+  ],
+  "FsUtilsLive": [
+    "tooling/repo-utils/src/FsUtils.ts"
+  ],
+  "FsUtilsShape": [
+    "tooling/repo-utils/src/FsUtils.ts"
+  ],
+  "GlobOptions": [
+    "tooling/repo-utils/src/FsUtils.ts"
+  ],
+  "computeTransitiveClosure": [
+    "tooling/repo-utils/src/Graph.ts"
+  ],
+  "detectCycles": [
+    "tooling/repo-utils/src/Graph.ts"
+  ],
+  "topologicalSort": [
+    "tooling/repo-utils/src/Graph.ts"
+  ],
+  "jsonParse": [
+    "tooling/repo-utils/src/JsonUtils.ts"
+  ],
+  "jsonStringifyCompact": [
+    "tooling/repo-utils/src/JsonUtils.ts"
+  ],
+  "jsonStringifyPretty": [
+    "tooling/repo-utils/src/JsonUtils.ts"
+  ],
+  "findRepoRoot": [
+    "tooling/repo-utils/src/Root.ts"
+  ],
+  "Author": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "Bin": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "Bugs": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "decodePackageJson": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "decodePackageJsonEffect": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "decodePackageJsonExit": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "encodePackageJsonEffect": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "encodePackageJsonPrettyEffect": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "encodePackageJsonToJsonEffect": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "PackageJson": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "Repository": [
+    "tooling/repo-utils/src/schemas/PackageJson.ts"
+  ],
+  "DependencyRecord": [
+    "tooling/repo-utils/src/schemas/WorkspaceDeps.ts"
+  ],
+  "emptyWorkspaceDeps": [
+    "tooling/repo-utils/src/schemas/WorkspaceDeps.ts"
+  ],
+  "WorkspaceDeps": [
+    "tooling/repo-utils/src/schemas/WorkspaceDeps.ts"
+  ],
+  "collectTsConfigPaths": [
+    "tooling/repo-utils/src/TsConfig.ts"
+  ],
+  "collectUniqueNpmDependencies": [
+    "tooling/repo-utils/src/UniqueDeps.ts"
+  ],
+  "UniqueNpmDeps": [
+    "tooling/repo-utils/src/UniqueDeps.ts"
+  ],
+  "getWorkspaceDir": [
+    "tooling/repo-utils/src/Workspaces.ts"
+  ],
+  "resolveWorkspaceDirs": [
+    "tooling/repo-utils/src/Workspaces.ts"
+  ],
+  "a": [
+    "tooling/repo-utils/test/fixtures/mock-monorepo/packages/pkg-a/src/index.ts"
+  ],
+  "b": [
+    "tooling/repo-utils/test/fixtures/mock-monorepo/packages/pkg-b/src/index.ts"
+  ],
+  "c": [
+    "tooling/repo-utils/test/fixtures/mock-monorepo/packages/pkg-c/src/index.ts"
+  ]
+}

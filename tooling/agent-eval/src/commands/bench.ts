@@ -9,6 +9,7 @@ import type { FileSystem, Path as PathService } from "effect";
 import { Effect, FileSystem as FS, Path } from "effect";
 import * as S from "effect/Schema";
 import { loadTaskCatalog } from "../benchmark/catalog.js";
+import type { ExecutionBackendMode } from "../benchmark/execution/types.js";
 import { renderBenchmarkMarkdown } from "../benchmark/report.js";
 import {
   type BenchmarkDiagnosticEvent,
@@ -54,6 +55,7 @@ export interface BenchArgs {
   readonly claudeModel: string;
   readonly claudeEffort: ClaudeEffortLevel | undefined;
   readonly reasoningEffort: ReasoningEffortLevel | undefined;
+  readonly executionBackend: ExecutionBackendMode;
   readonly conditions: ReadonlyArray<BenchCondition>;
   readonly agents: ReadonlyArray<AgentName>;
   readonly taskIds: ReadonlyArray<string>;
@@ -239,6 +241,7 @@ export const handleBench: (
       },
       ...(args.claudeEffort === undefined ? {} : { claudeEffort: args.claudeEffort }),
       ...(args.reasoningEffort === undefined ? {} : { reasoningEffort: args.reasoningEffort }),
+      executionBackend: args.executionBackend,
       strictTaskCount: runStrictTaskCount,
       isolateInWorktree: args.isolateInWorktree,
       worktreeRoot: worktreeRootPath,

@@ -1,0 +1,24 @@
+{
+  "mode": "full",
+  "commitSha": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
+  "target": "both",
+  "envelopes": 474,
+  "receipts": [
+    {
+      "target": "falkor",
+      "attempted": 474,
+      "written": 0,
+      "replayed": 0,
+      "failed": 474,
+      "durationMs": 798
+    },
+    {
+      "target": "graphiti",
+      "attempted": 474,
+      "written": 474,
+      "replayed": 0,
+      "failed": 0,
+      "durationMs": 2556
+    }
+  ]
+}

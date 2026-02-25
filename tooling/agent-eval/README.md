@@ -20,5 +20,6 @@ Benchmark and reliability harness for Codex + Claude workflows in the beep-effec
 
 - `--worktree` (default `true`)
 - `--worktree-root <path>` (optional override; supports `~/...`)
+- `--execution-backend <auto|cli|sdk>` (default `auto`)
 - `--reasoning <none|minimal|low|medium|high|xhigh>` (unified reasoning effort)
 - `--claude-effort <low|medium|high>` (legacy alias; prefer `--reasoning`)

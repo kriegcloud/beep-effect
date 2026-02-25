@@ -1,7 +1,7 @@
 # Master Orchestration
 
 ## Phase State Machine
-`P0 -> P1 -> P2 -> P3 -> P4`
+`P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> P6 -> P7`
 
 No phase is complete until:
 1. Declared outputs exist.
@@ -89,6 +89,62 @@ Use README lock tables as normative defaults. P1 cannot reopen these decisions w
 - Exit gate:
   1. All quantitative thresholds from README met.
   2. Rollback controls tested and documented.
+
+## P5: FalkorDB Ingestion Completion (Gap Closure)
+- Objective: close the spec gap by executing real Graphiti/FalkorDB publication for AST KG artifacts and proving queryable ingestion.
+- Owners: Orchestrator, Ingestion Engineer, Verification Engineer.
+- Required outputs:
+  1. `outputs/p5-falkordb-ingestion/ingestion-execution-log.md`
+  2. `outputs/p5-falkordb-ingestion/graphiti-publication-verification.md`
+  3. `outputs/p5-falkordb-ingestion/backfill-and-replay-runbook.md`
+  4. `outputs/p5-falkordb-ingestion/agents/ingestion-engineer.md`
+  5. `outputs/p5-falkordb-ingestion/agents/verification-engineer.md`
+- Entry gate: P4 complete.
+- Exit gate:
+  1. AST KG episodes published to Graphiti/FalkorDB group `beep-ast-kg` for configured index scope.
+  2. Verification queries demonstrate expected node/edge presence with provenance and commit metadata.
+  3. Replay/idempotency behavior verified against the target Graphiti service.
+  4. P5 handoff prompt set exists.
+
+## P6: Dual-Write + Falkor Parity Hardening
+- Objective: harden AST KG into production-grade dual-write flow (direct Falkor structured graph + Graphiti episodic envelopes) with TypeScript-first functional parity against Falkor code-graph behavior.
+- Owners: Orchestrator, Schema/Parity Engineer, Dual-Write Engineer, Query API Engineer, Validation Engineer, Rollout Engineer.
+- Required outputs:
+  1. `outputs/p6-dual-write-parity/schema-parity-contract.md`
+  2. `outputs/p6-dual-write-parity/dual-write-execution-log.md`
+  3. `outputs/p6-dual-write-parity/query-parity-report.md`
+  4. `outputs/p6-dual-write-parity/quality-scorecard.md`
+  5. `outputs/p6-dual-write-parity/rollout-and-operations-runbook.md`
+  6. `outputs/p6-dual-write-parity/agents/schema-parity-engineer.md`
+  7. `outputs/p6-dual-write-parity/agents/dual-write-engineer.md`
+  8. `outputs/p6-dual-write-parity/agents/query-api-engineer.md`
+  9. `outputs/p6-dual-write-parity/agents/validation-engineer.md`
+  10. `outputs/p6-dual-write-parity/agents/rollout-engineer.md`
+- Entry gate: P5 complete with evidenced publication to `beep-ast-kg`.
+- Exit gate:
+  1. `beep kg publish|verify|parity|replay` command surface is implemented and documented.
+  2. Dual-write full+delta+replay evidence exists for `target=both` with deterministic replay semantics.
+  3. Falkor functional parity checks (entity listing, neighbor expansion, commit context, path query execution) are evidenced.
+  4. Manual signoff packet includes known gaps, owners, and mitigations.
+
+## P7: KG Excellence Gap Closure
+- Objective: resolve all P6 known gaps with measurable performance and reliability improvements for world-class AST KG operations.
+- Owners: Orchestrator, Performance Engineer, Query Engineer, Reliability Engineer, Operations Engineer.
+- Required outputs:
+  1. `outputs/p7-kg-excellence/tickets.md`
+  2. `outputs/p7-kg-excellence/falkor-batching-report.md`
+  3. `outputs/p7-kg-excellence/replay-receipt-contract.md`
+  4. `outputs/p7-kg-excellence/group-isolation-runbook.md`
+  5. `outputs/p7-kg-excellence/strict-parity-profile.md`
+  6. `outputs/p7-kg-excellence/recovery-automation-report.md`
+  7. `outputs/p7-kg-excellence/resilience-drill-report.md`
+  8. `outputs/p7-kg-excellence/final-excellence-scorecard.md`
+- Entry gate: P6 packet complete with full-repo dual-write evidence.
+- Exit gate:
+  1. No open P0/P1 tickets from P7 backlog.
+  2. Full-repo dual-write runtime reduced by >=70% from P6 baseline.
+  3. Strict parity profile is implemented and evidenced.
+  4. Recovery automation and outage drills are documented and repeatable.
 
 ## Rollout Stages and Controls
 - Stages: `R0 Shadow`, `R1 Advisory`, `R2 Limited On`, `R3 Default On`.
