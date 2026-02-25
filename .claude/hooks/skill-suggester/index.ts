@@ -15,7 +15,7 @@
 
 import * as fs from "node:fs";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Console, Effect, FileSystem, Order, Path, pipe, Terminal } from "effect";
+import { Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -74,7 +74,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     return `${t.name}${aliases}: ${t.description}`;
   }).join("\n");
 
-const SCRIPT_TRIGGER_KEYWORDS = new Set([
+const SCRIPT_TRIGGER_KEYWORDS = HashSet.fromIterable([
   "run",
   "test",
   "build",
@@ -147,7 +147,7 @@ const parseFrontmatter = (content: string): R.ReadonlyRecord<string, string> => 
   return R.fromEntries(entries);
 };
 
-export const STOPWORDS = new Set([
+export const STOPWORDS = HashSet.fromIterable([
   "the",
   "and",
   "for",
@@ -192,7 +192,7 @@ export const extractKeywords = (text: string): ReadonlyArray<string> => {
   const lowercased = Str.toLowerCase(text);
   const words = Str.split(lowercased, /[\s,.-]+/);
 
-  return A.filter(words, (word) => Str.length(word) >= 3 && !STOPWORDS.has(word));
+  return A.filter(words, (word) => Str.length(word) >= 3 && !HashSet.has(STOPWORDS, word));
 };
 
 const OutputSchema = S.Struct({

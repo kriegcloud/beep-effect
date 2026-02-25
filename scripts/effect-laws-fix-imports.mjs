@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import path from "node:path";
+import { MutableHashSet } from "effect";
 import { Project } from "ts-morph";
 import * as Str from "effect/String";
 
@@ -9,10 +10,10 @@ const args = process.argv.slice(2);
 const write = args.includes("--write");
 const strictCheck = args.includes("--check");
 
-const excludePaths = new Set();
+const excludePaths = MutableHashSet.empty();
 for (let index = 0; index < args.length; index++) {
   if (args[index] === "--exclude" && typeof args[index + 1] === "string") {
-    excludePaths.add(args[index + 1].replaceAll("\\", "/"));
+    MutableHashSet.add(excludePaths, args[index + 1].replaceAll("\\", "/"));
     index++;
   }
 }
@@ -33,7 +34,7 @@ const toPosix = (value) => value.replaceAll("\\", "/");
 const isStableSubmodule = (moduleName) => moduleName.startsWith("effect/") && !moduleName.startsWith("effect/unstable/");
 const isExcludedFile = (filePath) => {
   const normalized = toPosix(filePath);
-  if (excludePaths.has(normalized)) return true;
+  if (MutableHashSet.has(excludePaths, normalized)) return true;
   if (EXCLUDED_SUFFIXES.some((suffix) => normalized.endsWith(suffix))) return true;
   return EXCLUDED_SEGMENTS.some((segment) => normalized.includes(segment));
 };

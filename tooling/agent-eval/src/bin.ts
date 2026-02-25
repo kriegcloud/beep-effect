@@ -8,14 +8,20 @@
  */
 
 import type { FileSystem, Path } from "effect";
-import { Cause, Effect, HashMap, String as Str } from "effect";
+import { Cause, Effect, Exit, HashMap, String as Str } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { handleBench } from "./commands/bench.js";
 import {
   parseBenchAgentsFlag,
   parseBenchConditionsFlag,
+  parseClaudeEffortFlag,
   parseMaxWallMinutesFlag,
+  parseModelFlag,
+  parseReasoningFlag,
   parseTaskIdsFlag,
+  parseWorktreeRootFlag,
+  resolveDefaultWorktreeRoot,
 } from "./commands/bench-flags.js";
 import { handleCompare } from "./commands/compare.js";
 import { handleIngest } from "./commands/ingest.js";
@@ -24,17 +30,17 @@ import { AgentEvalConfigError } from "./errors.js";
 import { AgentEvalPlatformLayer } from "./runtime.js";
 
 const parseFlags = (argv: ReadonlyArray<string>): HashMap.HashMap<string, string> => {
-  const entries: Array<readonly [string, string]> = [];
+  const entries = A.empty<readonly [string, string]>();
 
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index] ?? "";
-    if (!token.startsWith("--")) {
+    if (!Str.startsWith("--")(token)) {
       continue;
     }
 
     const key = Str.slice(2)(token);
     const next = argv[index + 1] ?? "";
-    if (next.startsWith("--") || next.length === 0) {
+    if (Str.startsWith("--")(next) || next.length === 0) {
       entries.push([key, "true"]);
       continue;
     }
@@ -80,6 +86,20 @@ const readBoolFlag = (flags: HashMap.HashMap<string, string>, key: string, fallb
 const toConfigError = (cause: unknown, message: string): AgentEvalConfigError =>
   cause instanceof AgentEvalConfigError ? cause : new AgentEvalConfigError({ message, cause });
 
+const toClaudeCompatibleReasoning = (
+  reasoning: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | undefined
+): "low" | "medium" | "high" | undefined => {
+  if (reasoning === undefined) {
+    return undefined;
+  }
+  if (reasoning === "low" || reasoning === "medium" || reasoning === "high") {
+    return reasoning;
+  }
+  throw new AgentEvalConfigError({
+    message: `--reasoning=${reasoning} is not supported when Claude is selected. Use: low, medium, high.`,
+  });
+};
+
 const printHelp = () => {
   console.log("agent-eval commands:");
   console.log("  bench   --run reliability benchmark suite");
@@ -113,6 +133,49 @@ const run = () => {
               try: () => parseMaxWallMinutesFlag(readOptionalFlag(flags, "max-wall-minutes")),
               catch: (cause) => toConfigError(cause, "Invalid --max-wall-minutes flag"),
             });
+            const isolateInWorktree = readBoolFlag(flags, "worktree", true);
+            const worktreeRootOverride = yield* Effect.try({
+              try: () => parseWorktreeRootFlag(readOptionalFlag(flags, "worktree-root"), process.env.HOME),
+              catch: (cause) => toConfigError(cause, "Invalid --worktree-root flag"),
+            });
+            const worktreeRoot = yield* Effect.try({
+              try: () =>
+                isolateInWorktree
+                  ? (worktreeRootOverride ?? resolveDefaultWorktreeRoot(process.env.XDG_CACHE_HOME, process.env.HOME))
+                  : undefined,
+              catch: (cause) => toConfigError(cause, "Unable to resolve default --worktree-root"),
+            });
+            const codexModel = yield* Effect.try({
+              try: () => parseModelFlag(readOptionalFlag(flags, "codex-model"), "--codex-model", "gpt-5.2"),
+              catch: (cause) => toConfigError(cause, "Invalid --codex-model flag"),
+            });
+            const claudeModel = yield* Effect.try({
+              try: () => parseModelFlag(readOptionalFlag(flags, "claude-model"), "--claude-model", "claude-sonnet-4-6"),
+              catch: (cause) => toConfigError(cause, "Invalid --claude-model flag"),
+            });
+            const claudeEffort = yield* Effect.try({
+              try: () => parseClaudeEffortFlag(readOptionalFlag(flags, "claude-effort")),
+              catch: (cause) => toConfigError(cause, "Invalid --claude-effort flag"),
+            });
+            const reasoning = yield* Effect.try({
+              try: () => parseReasoningFlag(readOptionalFlag(flags, "reasoning")),
+              catch: (cause) => toConfigError(cause, "Invalid --reasoning flag"),
+            });
+            const effectiveReasoning = yield* Effect.try({
+              try: () => {
+                if (reasoning !== undefined && claudeEffort !== undefined && reasoning !== claudeEffort) {
+                  throw new AgentEvalConfigError({
+                    message: `Conflicting reasoning flags: --reasoning=${reasoning} and --claude-effort=${claudeEffort}`,
+                  });
+                }
+                return reasoning ?? claudeEffort;
+              },
+              catch: (cause) => toConfigError(cause, "Invalid reasoning configuration"),
+            });
+            const effectiveClaudeEffort = yield* Effect.try({
+              try: () => (agents.includes("claude") ? toClaudeCompatibleReasoning(effectiveReasoning) : undefined),
+              catch: (cause) => toConfigError(cause, "Invalid reasoning configuration for Claude"),
+            });
 
             return yield* handleBench({
               output,
@@ -136,7 +199,12 @@ const run = () => {
               trials: readIntFlag(flags, "trials", 2),
               graphitiUrl: readFlag(flags, "graphiti-url", "http://localhost:8000/mcp"),
               graphitiGroupId: readFlag(flags, "graphiti-group-id", "beep-dev"),
-              isolateInWorktree: readBoolFlag(flags, "worktree", true),
+              isolateInWorktree,
+              worktreeRoot,
+              codexModel,
+              claudeModel,
+              claudeEffort: effectiveClaudeEffort,
+              reasoningEffort: effectiveReasoning,
               conditions,
               agents,
               taskIds,
@@ -176,7 +244,7 @@ const run = () => {
   const program = commandEffect.pipe(Effect.provide(AgentEvalPlatformLayer));
 
   Effect.runPromiseExit(program).then((exit) => {
-    if (exit._tag === "Failure") {
+    if (Exit.isFailure(exit)) {
       console.error(Cause.pretty(exit.cause));
       process.exit(1);
     }

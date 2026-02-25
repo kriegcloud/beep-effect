@@ -22,7 +22,7 @@ export class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`
   "DomainError",
   {
     message: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("DomainError", {
     title: "Domain Error",

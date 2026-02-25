@@ -97,12 +97,13 @@ const getNodeHandler = Effect.fn("KnowledgeGraphToolkit.GetNode")(function* (par
 
   const links = mapFactsToGraphLinks(lookup.facts);
   const facts = mapFactsToGraphFacts(lookup.facts);
+  const { neighbors: lookupNeighbors } = lookup;
 
   const neighbors = pipe(
     lookup.node,
     O.match({
-      onNone: () => mapEntityNodesToGraphNodes(lookup.neighbors),
-      onSome: (node) => deriveNeighborNodes(node.uuid, lookup.neighbors, lookup.facts),
+      onNone: () => mapEntityNodesToGraphNodes(lookupNeighbors),
+      onSome: (node) => deriveNeighborNodes(node.uuid, lookupNeighbors, lookup.facts),
     })
   );
 

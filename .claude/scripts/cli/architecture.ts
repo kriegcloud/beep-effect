@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { renderCommonAncestors } from "@beep/claude/scripts/util";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { HashMap, HashSet, MutableHashMap, MutableHashSet } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -19,29 +20,29 @@ import {
 
 interface AnalysisGraph {
   readonly graph: Graph.DirectedGraph<ServiceDefinition, void>;
-  readonly serviceIndex: ReadonlyMap<string, Graph.NodeIndex>;
+  readonly serviceIndex: MutableHashMap.MutableHashMap<string, Graph.NodeIndex>;
 }
 
 const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
   const graph = Graph.directed<ServiceDefinition, void>((mutable) => {
-    const serviceIndex = new Map<string, Graph.NodeIndex>();
+    const serviceIndex = MutableHashMap.empty<string, Graph.NodeIndex>();
 
     arch.services.forEach((service) => {
       const nodeIndex = Graph.addNode(mutable, service);
-      serviceIndex.set(service.name, nodeIndex);
+      MutableHashMap.set(serviceIndex, service.name, nodeIndex);
     });
 
-    const layerMap = new Map(arch.layers.map((layer) => [layer.serviceName, layer]));
+    const layerMap = HashMap.fromIterable(arch.layers.map((layer) => [layer.serviceName, layer] as const));
 
     arch.services.forEach((service) => {
-      const layer = layerMap.get(service.name);
+      const layer = O.getOrUndefined(HashMap.get(layerMap, service.name));
       if (!layer) return;
 
-      const sourceIndex = serviceIndex.get(service.name);
+      const sourceIndex = O.getOrUndefined(MutableHashMap.get(serviceIndex, service.name));
       if (sourceIndex === undefined) return;
 
       layer.dependencies.forEach((depName) => {
-        const targetIndex = serviceIndex.get(depName);
+        const targetIndex = O.getOrUndefined(MutableHashMap.get(serviceIndex, depName));
         if (targetIndex !== undefined) {
           Graph.addEdge(mutable, sourceIndex, targetIndex, undefined);
         }
@@ -49,10 +50,10 @@ const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
     });
   });
 
-  const serviceIndex = new Map<string, Graph.NodeIndex>();
+  const serviceIndex = MutableHashMap.empty<string, Graph.NodeIndex>();
   let index = 0;
   for (const service of arch.services) {
-    serviceIndex.set(service.name, index);
+    MutableHashMap.set(serviceIndex, service.name, index);
     index++;
   }
 
@@ -74,10 +75,10 @@ interface GroupedServices {
 
 const makeShortPath = (fullPath: string): string => Str.replace(/^(\.\/)?.*\/src\//, "")(fullPath);
 
-const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): Map<string, LayerDefinition> =>
-  new Map(layers.map((layer) => [layer.serviceName, layer]));
+const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): HashMap.HashMap<string, LayerDefinition> =>
+  HashMap.fromIterable(layers.map((layer) => [layer.serviceName, layer] as const));
 
-const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
+const detectOrphans = (analysisGraph: AnalysisGraph): HashSet.HashSet<string> => {
   const noIncomingIndices: Graph.NodeIndex[] = globalThis.Array.from(
     Graph.indices(Graph.externals(analysisGraph.graph, { direction: "incoming" }))
   );
@@ -99,13 +100,13 @@ const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
       return O.some(serviceName);
     }),
     A.getSomes,
-    (names) => new Set(names)
+    HashSet.fromIterable
   );
 };
 
 const groupServicesByType = (
   graph: ArchitectureGraph,
-  layerByService: Map<string, LayerDefinition>,
+  layerByService: HashMap.HashMap<string, LayerDefinition>,
   analysisGraph: AnalysisGraph
 ): GroupedServices => {
   const orphanNames = detectOrphans(analysisGraph);
@@ -116,12 +117,12 @@ const groupServicesByType = (
   const orphans: ServiceDefinition[] = [];
 
   graph.services.forEach((service) => {
-    if (orphanNames.has(service.name)) {
+    if (HashSet.has(orphanNames, service.name)) {
       orphans.push(service);
       return;
     }
 
-    const layer = layerByService.get(service.name);
+    const layer = O.getOrUndefined(HashMap.get(layerByService, service.name));
     const hasDeps = (layer?.dependencies.length ?? 0) > 0;
 
     if (service.name.endsWith("VM")) {
@@ -168,8 +169,8 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
   if (nodeCount === 0) return 0;
 
   return pipe(
-    A.fromIterable(analysisGraph.serviceIndex.values()),
-    A.map((nodeIndex) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
+    A.fromIterable(analysisGraph.serviceIndex),
+    A.map(([, nodeIndex]) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
     A.reduce(0, (sum, count) => sum + count),
     (total) => total / nodeCount
   );
@@ -191,14 +192,14 @@ const orderServicesByDependencyCount = (
   return pipe(
     graph.services,
     A.map((service: ServiceDefinition) => {
-      const nodeIndex = analysisGraph.serviceIndex.get(service.name);
+      const nodeIndex = O.getOrUndefined(MutableHashMap.get(analysisGraph.serviceIndex, service.name));
       if (nodeIndex === undefined) return O.none<ServiceWithIndex>();
 
       const depCount = Graph.neighbors(analysisGraph.graph, nodeIndex).length;
 
       return O.some({
         service,
-        layer: layerByService.get(service.name),
+        layer: O.getOrUndefined(HashMap.get(layerByService, service.name)),
         index: nodeIndex,
         depCount,
       });
@@ -315,8 +316,8 @@ const groupByDepth = (
   walker: Graph.NodeWalker<ServiceDefinition>,
   startIdx: Graph.NodeIndex
 ): ReadonlyArray<{ readonly depth: number; readonly services: ReadonlyArray<string> }> => {
-  const depthMap = new Map<Graph.NodeIndex, number>();
-  depthMap.set(startIdx, 0);
+  const depthMap = MutableHashMap.empty<Graph.NodeIndex, number>();
+  MutableHashMap.set(depthMap, startIdx, 0);
 
   for (const [idx] of walker) {
     if (idx === startIdx) continue;
@@ -325,30 +326,30 @@ const groupByDepth = (
     const neighborDepths = pipe(
       neighbors,
       A.map((neighborIdx: Graph.NodeIndex) => {
-        const depth = depthMap.get(neighborIdx);
+        const depth = O.getOrUndefined(MutableHashMap.get(depthMap, neighborIdx));
         return depth !== undefined ? O.some(depth) : O.none<number>();
       }),
       A.getSomes
     );
 
     if (neighborDepths.length > 0) {
-      depthMap.set(idx, Math.min(...neighborDepths) + 1);
+      MutableHashMap.set(depthMap, idx, Math.min(...neighborDepths) + 1);
     }
   }
 
-  const levelGroups = new Map<number, string[]>();
-  for (const [idx, depth] of depthMap.entries()) {
+  const levelGroups = MutableHashMap.empty<number, string[]>();
+  for (const [idx, depth] of depthMap) {
     if (idx === startIdx) continue;
     const node = Graph.getNode(analysisGraph.graph, idx);
     if (O.isSome(node)) {
-      const group = levelGroups.get(depth) ?? [];
+      const group = O.getOrElse(MutableHashMap.get(levelGroups, depth), () => A.empty<string>());
       group.push(node.value.name);
-      levelGroups.set(depth, group);
+      MutableHashMap.set(levelGroups, depth, group);
     }
   }
 
   return pipe(
-    A.fromIterable(levelGroups.entries()),
+    A.fromIterable(levelGroups),
     A.map(([depth, services]) => ({
       depth,
       services: services.sort(),
@@ -358,7 +359,7 @@ const groupByDepth = (
 };
 
 const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): O.Option<BlastRadiusResult> => {
-  const serviceIdx = analysisGraph.serviceIndex.get(serviceName);
+  const serviceIdx = O.getOrUndefined(MutableHashMap.get(analysisGraph.serviceIndex, serviceName));
   if (serviceIdx === undefined) return O.none();
 
   const downstreamWalker = Graph.bfs(analysisGraph.graph, {
@@ -444,13 +445,13 @@ interface CommonAncestorsResult {
   }>;
 }
 
-const intersection = <T>(sets: ReadonlyArray<Set<T>>): Set<T> => {
-  if (sets.length === 0) return new Set();
+const intersection = <T>(sets: ReadonlyArray<HashSet.HashSet<T>>): HashSet.HashSet<T> => {
+  if (sets.length === 0) return HashSet.empty();
   if (sets.length === 1) return sets[0];
 
   return pipe(
     sets.slice(1),
-    A.reduce(sets[0], (acc, set) => new Set([...acc].filter((x) => set.has(x))))
+    A.reduce(sets[0], (acc, set) => HashSet.intersection(acc, set))
   );
 };
 
@@ -458,12 +459,12 @@ const computeCommonAncestors = (
   analysisGraph: AnalysisGraph,
   serviceNames: ReadonlyArray<string>
 ): CommonAncestorsResult => {
-  const dependencySets = new Map<string, Set<Graph.NodeIndex>>();
+  const dependencySets = MutableHashMap.empty<string, HashSet.HashSet<Graph.NodeIndex>>();
 
   for (const serviceName of serviceNames) {
-    const nodeIndex = analysisGraph.serviceIndex.get(serviceName);
+    const nodeIndex = O.getOrUndefined(MutableHashMap.get(analysisGraph.serviceIndex, serviceName));
     if (nodeIndex === undefined) {
-      dependencySets.set(serviceName, new Set());
+      MutableHashMap.set(dependencySets, serviceName, HashSet.empty<Graph.NodeIndex>());
       continue;
     }
 
@@ -476,13 +477,16 @@ const computeCommonAncestors = (
       Graph.indices(walker),
       A.fromIterable,
       A.filter((idx) => idx !== nodeIndex),
-      (indices) => new Set(indices)
+      HashSet.fromIterable
     );
 
-    dependencySets.set(serviceName, deps);
+    MutableHashMap.set(dependencySets, serviceName, deps);
   }
 
-  const depSetArray = A.fromIterable(dependencySets.values());
+  const depSetArray = pipe(
+    A.fromIterable(dependencySets),
+    A.map(([, depSet]) => depSet)
+  );
   if (depSetArray.length === 0) {
     return {
       inputServices: serviceNames,
@@ -493,13 +497,13 @@ const computeCommonAncestors = (
 
   const commonIndices = intersection(depSetArray);
 
-  const coverageMap = new Map<Graph.NodeIndex, Set<string>>();
-  for (const [serviceName, depSet] of dependencySets.entries()) {
+  const coverageMap = MutableHashMap.empty<Graph.NodeIndex, MutableHashSet.MutableHashSet<string>>();
+  for (const [serviceName, depSet] of dependencySets) {
     for (const depIndex of commonIndices) {
-      if (depSet.has(depIndex)) {
-        const affected = coverageMap.get(depIndex) ?? new Set<string>();
-        affected.add(serviceName);
-        coverageMap.set(depIndex, affected);
+      if (HashSet.has(depSet, depIndex)) {
+        const affected = O.getOrElse(MutableHashMap.get(coverageMap, depIndex), () => MutableHashSet.empty<string>());
+        MutableHashSet.add(affected, serviceName);
+        MutableHashMap.set(coverageMap, depIndex, affected);
       }
     }
   }
@@ -510,7 +514,9 @@ const computeCommonAncestors = (
       const node = Graph.getNode(analysisGraph.graph, depIndex);
       if (O.isNone(node)) return O.none<CommonAncestor>();
 
-      const affectedBySet = coverageMap.get(depIndex) ?? new Set<string>();
+      const affectedBySet = O.getOrElse(MutableHashMap.get(coverageMap, depIndex), () =>
+        MutableHashSet.empty<string>()
+      );
       const affectedBy = A.fromIterable(affectedBySet);
       const coverage = affectedBy.length;
 

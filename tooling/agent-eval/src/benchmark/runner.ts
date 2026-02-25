@@ -63,6 +63,33 @@ export interface PricingTable {
 }
 
 /**
+ * Model selection per agent.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface AgentModels {
+  readonly codex: string;
+  readonly claude: string;
+}
+
+/**
+ * Claude effort levels supported by CLI.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ClaudeEffortLevel = "low" | "medium" | "high";
+
+/**
+ * Unified reasoning effort levels supported by benchmark CLI.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
+
+/**
  * Runner options for one suite execution.
  *
  * @since 0.0.0
@@ -80,8 +107,12 @@ export interface RunBenchmarkOptions {
   readonly correctionIndex: ReadonlyArray<CorrectionEntry>;
   readonly pricingTable: PricingTable;
   readonly graphiti: GraphitiMcpOptions;
+  readonly agentModels?: AgentModels;
+  readonly claudeEffort?: ClaudeEffortLevel;
+  readonly reasoningEffort?: ReasoningEffortLevel;
   readonly strictTaskCount: number;
   readonly isolateInWorktree: boolean;
+  readonly worktreeRoot: string | undefined;
   readonly maxWallMinutes?: number;
   readonly onProgress?: (event: BenchmarkProgressEvent) => void | Promise<void>;
   readonly onDiagnostic?: (event: BenchmarkDiagnosticEvent) => void | Promise<void>;
@@ -296,7 +327,15 @@ const ClaudeJsonSchema = S.Struct({
 
 const decodeClaudeJson = S.decodeUnknownSync(ClaudeJsonSchema);
 
-const modelForAgent = (agent: AgentName): string => (agent === "codex" ? "gpt-5.2" : "claude-sonnet-4-6");
+const defaultAgentModels: AgentModels = {
+  codex: "gpt-5.2",
+  claude: "claude-sonnet-4-6",
+};
+
+const modelForAgent = (agent: AgentName, options: RunBenchmarkOptions): string => {
+  const selected = options.agentModels ?? defaultAgentModels;
+  return agent === "codex" ? selected.codex : selected.claude;
+};
 const epochNowMs = (): number => Math.round(performance.timeOrigin + performance.now());
 const monotonicNowMs = (): number => performance.now();
 const minutesToMs = (minutes: number): number => Math.max(1, Math.round(minutes * 60_000));
@@ -712,42 +751,31 @@ const runAgentCommand = async (
   promptPacket: string,
   cwd: string,
   timeoutMinutes: number,
+  reasoningEffort: ReasoningEffortLevel | undefined,
+  claudeEffort: ClaudeEffortLevel | undefined,
   suiteDeadlineMs: number | undefined
 ): Promise<ProcessResult> => {
   if (agent === "codex") {
-    return runProcess(
-      "codex",
-      ["exec", "--json", "--model", model, promptPacket],
-      cwd,
-      timeoutMinutes,
-      remainingTimeoutCapMs(suiteDeadlineMs)
-    );
+    const codexArgs = ["exec", "--json", "--model", model];
+    if (reasoningEffort !== undefined) {
+      codexArgs.push("-c", `model_reasoning_effort="${reasoningEffort}"`);
+    }
+    codexArgs.push(promptPacket);
+    return runProcess("codex", codexArgs, cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
   }
 
-  return runProcess(
-    "claude",
-    ["-p", promptPacket, "--output-format", "json", "--model", model],
-    cwd,
-    timeoutMinutes,
-    remainingTimeoutCapMs(suiteDeadlineMs)
-  );
+  const claudeArgs = ["-p", promptPacket, "--output-format", "json", "--model", model];
+  if (claudeEffort !== undefined) {
+    claudeArgs.push("--effort", claudeEffort);
+  }
+
+  return runProcess("claude", claudeArgs, cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
 };
 
-const createWorktreePath = (pathApi: Path.Path, repoRoot: string, runId: string): string => {
+const createWorktreePath = (pathApi: Path.Path, worktreeRoot: string, runId: string): string => {
   const safe = runId.replaceAll(":", "__").replaceAll("/", "__");
   const unique = `${epochNowMs()}-${Math.round(Math.random() * 1_000_000)}`;
-  return pathApi.join(repoRoot, "outputs", "agent-reliability", "worktrees", `${safe}__${unique}`);
-};
-
-const isRepoClean = async (repoRoot: string, suiteDeadlineMs: number | undefined): Promise<boolean> => {
-  const statusResult = await runProcess(
-    "git",
-    ["-C", repoRoot, "status", "--porcelain"],
-    repoRoot,
-    1,
-    remainingTimeoutCapMs(suiteDeadlineMs)
-  );
-  return statusResult.success && Str.trim(statusResult.stdout).length === 0;
+  return pathApi.join(worktreeRoot, `${safe}__${unique}`);
 };
 
 const ensureWorktreeDependencies = async (
@@ -789,6 +817,7 @@ const withRunCwd = async (
   repoRoot: string,
   runId: string,
   enabled: boolean,
+  worktreeRoot: string | undefined,
   suiteDeadlineMs: number | undefined,
   action: (cwd: string) => Promise<LiveExecutionResult>
 ): Promise<LiveExecutionResult> => {
@@ -796,7 +825,13 @@ const withRunCwd = async (
     return action(repoRoot);
   }
 
-  const worktreePath = createWorktreePath(pathApi, repoRoot, runId);
+  if (worktreeRoot === undefined) {
+    throw new AgentEvalInvariantError({
+      message: `Missing worktree root for isolated run ${runId}`,
+    });
+  }
+
+  const worktreePath = createWorktreePath(pathApi, worktreeRoot, runId);
   const addResult = await runProcess(
     "git",
     ["-C", repoRoot, "worktree", "add", "--detach", "--force", worktreePath],
@@ -806,9 +841,6 @@ const withRunCwd = async (
   );
 
   if (!addResult.success) {
-    if (await isRepoClean(repoRoot, suiteDeadlineMs)) {
-      return action(repoRoot);
-    }
     throw new AgentEvalInvariantError({
       message: `Failed to create isolated worktree for ${runId}: ${addResult.stderr || addResult.stdout}`,
     });
@@ -831,10 +863,13 @@ const executeLiveRun = async (
   promptPacket: string,
   pricingTable: PricingTable,
   isolateInWorktree: boolean,
+  worktreeRoot: string | undefined,
+  reasoningEffort: ReasoningEffortLevel | undefined,
+  claudeEffort: ClaudeEffortLevel | undefined,
   pathApi: Path.Path,
   suiteDeadlineMs: number | undefined
 ): Promise<LiveExecutionResult> =>
-  withRunCwd(pathApi, repoRoot, runId, isolateInWorktree, suiteDeadlineMs, async (executionRoot) => {
+  withRunCwd(pathApi, repoRoot, runId, isolateInWorktree, worktreeRoot, suiteDeadlineMs, async (executionRoot) => {
     const taskRelative = pathApi.relative(repoRoot, taskCwd);
     const executionCwd = executionRoot === repoRoot ? taskCwd : pathApi.join(executionRoot, taskRelative);
 
@@ -844,6 +879,8 @@ const executeLiveRun = async (
       promptPacket,
       executionCwd,
       tuple.task.timeoutMinutes,
+      reasoningEffort,
+      claudeEffort,
       suiteDeadlineMs
     );
     const statusResult = await runProcess(
@@ -872,8 +909,8 @@ const executeLiveRun = async (
       model,
       command:
         tuple.agent === "codex"
-          ? `codex exec --json --model ${model}`
-          : `claude -p --output-format json --model ${model}`,
+          ? `codex exec --json --model ${model}${reasoningEffort === undefined ? "" : ` -c model_reasoning_effort="${reasoningEffort}"`}`
+          : `claude -p --output-format json --model ${model}${claudeEffort === undefined ? "" : ` --effort ${claudeEffort}`}`,
       promptPacket,
       rawOutput: commandResult.stdout,
       assistantText: claudeOutput?.assistantText ?? commandResult.stdout,
@@ -987,7 +1024,7 @@ const executeRunTuple = async (
   const promptPacket = renderPromptPacket(tuple.task, tuple.condition, policy.selectedPolicyIds, skills, packet.facts);
 
   const runId = `${tuple.task.id}:${tuple.condition}:${tuple.agent}:${tuple.trial}`;
-  const model = modelForAgent(tuple.agent);
+  const model = modelForAgent(tuple.agent, options);
   const taskCwd = resolveTaskCwd(options.pathApi, options.repoRoot, tuple.task.cwd);
   const startMs = monotonicNowMs();
 
@@ -1002,6 +1039,9 @@ const executeRunTuple = async (
         promptPacket,
         options.pricingTable,
         options.isolateInWorktree,
+        options.worktreeRoot,
+        options.reasoningEffort,
+        options.claudeEffort,
         options.pathApi,
         suiteDeadlineMs
       );

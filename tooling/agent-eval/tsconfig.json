@@ -7,9 +7,7 @@
     "types": ["node", "bun"],
     "plugins": []
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "references": [
     {
       "path": "../../packages/common/identity/tsconfig.json"

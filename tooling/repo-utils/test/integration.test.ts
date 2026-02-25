@@ -16,7 +16,7 @@ import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer } from "effect";
+import { Effect, HashMap, HashSet, Layer } from "effect";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -121,8 +121,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
         expect(unique.devDependencies).toEqual(sortedDevDeps);
 
         // No duplicates within each array
-        expect(new Set(unique.dependencies).size).toBe(unique.dependencies.length);
-        expect(new Set(unique.devDependencies).size).toBe(unique.devDependencies.length);
+        expect(HashSet.size(HashSet.fromIterable(unique.dependencies))).toBe(unique.dependencies.length);
+        expect(HashSet.size(HashSet.fromIterable(unique.devDependencies))).toBe(unique.devDependencies.length);
       })
     );
   });

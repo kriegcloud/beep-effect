@@ -1,12 +1,32 @@
 import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.mjs";
+import { HashSet } from "effect";
 import * as Str from "effect/String";
 
 
-const OBJECT_METHODS = new Set(["keys", "values", "entries", "fromEntries", "assign", "hasOwn", "freeze", "seal", "create"]);
-const DATE_METHODS = new Set(["now", "parse", "UTC"]);
-const ARRAY_STATIC_METHODS = new Set(["from", "isArray", "of"]);
-const TYPEOF_TYPES = new Set(["string", "number", "boolean", "object", "function", "undefined", "symbol", "bigint"]);
-const MAP_SET_CTORS = new Set(["Map", "Set", "WeakMap", "WeakSet"]);
+const OBJECT_METHODS = HashSet.fromIterable([
+  "keys",
+  "values",
+  "entries",
+  "fromEntries",
+  "assign",
+  "hasOwn",
+  "freeze",
+  "seal",
+  "create",
+]);
+const DATE_METHODS = HashSet.fromIterable(["now", "parse", "UTC"]);
+const ARRAY_STATIC_METHODS = HashSet.fromIterable(["from", "isArray", "of"]);
+const TYPEOF_TYPES = HashSet.fromIterable([
+  "string",
+  "number",
+  "boolean",
+  "object",
+  "function",
+  "undefined",
+  "symbol",
+  "bigint",
+]);
+const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set", "WeakMap", "WeakSet"]);
 
 /**
  * @type {import("eslint").Rule.RuleModule}
@@ -54,7 +74,7 @@ const noNativeRuntimeRule = {
         }
       },
       NewExpression(node) {
-        if (node.callee.type === "Identifier" && MAP_SET_CTORS.has(node.callee.name)) {
+        if (node.callee.type === "Identifier" && HashSet.has(MAP_SET_CTORS, node.callee.name)) {
           reportIfNotAllowlisted(node, "new-map-set", "mapSetCtor", { ctor: node.callee.name });
           return;
         }
@@ -72,17 +92,17 @@ const noNativeRuntimeRule = {
         const objectName = callee.object.name;
         const propertyName = callee.property.name;
 
-        if (objectName === "Object" && OBJECT_METHODS.has(propertyName)) {
+        if (objectName === "Object" && HashSet.has(OBJECT_METHODS, propertyName)) {
           reportIfNotAllowlisted(node, "object-method", "objectMethod", { method: propertyName });
           return;
         }
 
-        if (objectName === "Date" && DATE_METHODS.has(propertyName)) {
+        if (objectName === "Date" && HashSet.has(DATE_METHODS, propertyName)) {
           reportIfNotAllowlisted(node, "date-static", "dateStatic", { method: propertyName });
           return;
         }
 
-        if (objectName === "Array" && ARRAY_STATIC_METHODS.has(propertyName)) {
+        if (objectName === "Array" && HashSet.has(ARRAY_STATIC_METHODS, propertyName)) {
           reportIfNotAllowlisted(node, "array-static", "arrayStatic", { method: propertyName });
         }
       },
@@ -93,8 +113,12 @@ const noNativeRuntimeRule = {
         const leftTypeof = node.left.type === "UnaryExpression" && node.left.operator === "typeof";
         const rightTypeof = node.right.type === "UnaryExpression" && node.right.operator === "typeof";
 
-        const leftString = node.left.type === "Literal" && typeof node.left.value === "string" && TYPEOF_TYPES.has(node.left.value);
-        const rightString = node.right.type === "Literal" && typeof node.right.value === "string" && TYPEOF_TYPES.has(node.right.value);
+        const leftString =
+          node.left.type === "Literal" && typeof node.left.value === "string" && HashSet.has(TYPEOF_TYPES, node.left.value);
+        const rightString =
+          node.right.type === "Literal" &&
+          typeof node.right.value === "string" &&
+          HashSet.has(TYPEOF_TYPES, node.right.value);
 
         if ((leftTypeof && rightString) || (rightTypeof && leftString)) {
           reportIfNotAllowlisted(node, "typeof-runtime", "typeofRuntime");

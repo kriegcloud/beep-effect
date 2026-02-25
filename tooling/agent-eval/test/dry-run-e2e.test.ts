@@ -1,4 +1,9 @@
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { type CorrectionEntry, type PricingTable, runBenchmarkSuite } from "@beep/agent-eval/benchmark/runner";
+import { AgentEvalInvariantError } from "@beep/agent-eval/errors";
 import type { AgentTaskSpec } from "@beep/agent-eval/schemas/index";
 import { Effect, Path } from "effect";
 import { describe, expect, it } from "vitest";
@@ -72,6 +77,19 @@ const loadPathApi = async () =>
     }).pipe(Effect.provide(Path.layer))
   );
 
+const createCleanGitRepo = (): string => {
+  const repoRoot = mkdtempSync(path.join(os.tmpdir(), "agent-eval-worktree-root-"));
+  writeFileSync(path.join(repoRoot, "README.md"), "agent eval temp repo\n");
+  execFileSync("git", ["init"], { cwd: repoRoot, stdio: "ignore" });
+  execFileSync("git", ["add", "README.md"], { cwd: repoRoot, stdio: "ignore" });
+  execFileSync(
+    "git",
+    ["-c", "user.email=agent-eval@example.com", "-c", "user.name=agent-eval", "commit", "-m", "init"],
+    { cwd: repoRoot, stdio: "ignore" }
+  );
+  return repoRoot;
+};
+
 describe("dry-run benchmark", () => {
   it("runs one task per category across four conditions", async () => {
     const pathApi = await loadPathApi();
@@ -93,6 +111,7 @@ describe("dry-run benchmark", () => {
       },
       strictTaskCount: 3,
       isolateInWorktree: false,
+      worktreeRoot: undefined,
     });
 
     expect(suite.records.length).toBe(24);
@@ -133,6 +152,7 @@ describe("dry-run benchmark", () => {
       },
       strictTaskCount: 2,
       isolateInWorktree: false,
+      worktreeRoot: undefined,
     });
 
     expect(suite.records.length).toBe(2);
@@ -162,6 +182,7 @@ describe("dry-run benchmark", () => {
       },
       strictTaskCount: 1,
       isolateInWorktree: false,
+      worktreeRoot: undefined,
       onDiagnostic: (event) => {
         diagnostics.push(event);
       },
@@ -192,6 +213,7 @@ describe("dry-run benchmark", () => {
       },
       strictTaskCount: 3,
       isolateInWorktree: false,
+      worktreeRoot: undefined,
       maxWallMinutes: 0.0000001,
     });
 
@@ -199,5 +221,38 @@ describe("dry-run benchmark", () => {
     expect((suite.plannedRunCount ?? 0) > (suite.completedRunCount ?? 0)).toBe(true);
     expect((suite.completedRunCount ?? 0) === suite.records.length).toBe(true);
     expect(typeof suite.abortReason).toBe("string");
+  });
+
+  it("fails fast when worktree creation fails under isolated mode", async () => {
+    const pathApi = await loadPathApi();
+    const repoRoot = createCleanGitRepo();
+    const blockedWorktreeRoot = path.join(repoRoot, "worktree-root-blocker");
+    writeFileSync(blockedWorktreeRoot, "not a directory");
+
+    try {
+      await expect(
+        runBenchmarkSuite({
+          tasks: tasks.slice(0, 1),
+          conditions: ["minimal"],
+          agents: ["codex"],
+          trials: 1,
+          simulate: false,
+          repoRoot,
+          pathApi,
+          policyOverlays: [],
+          correctionIndex,
+          pricingTable,
+          graphiti: {
+            url: "http://localhost:8000/mcp",
+            groupId: "beep-dev",
+          },
+          strictTaskCount: 1,
+          isolateInWorktree: true,
+          worktreeRoot: blockedWorktreeRoot,
+        })
+      ).rejects.toBeInstanceOf(AgentEvalInvariantError);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
   });
 });

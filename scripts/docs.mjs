@@ -1,10 +1,11 @@
 import * as Fs from "node:fs";
 import * as Path from "node:path";
+import { HashSet, MutableHashSet } from "effect";
 import * as Str from "effect/String";
 
 
 const PACKAGE_ROOTS = ["packages", "tooling", "apps"];
-const IGNORED_DIRS = new Set([".git", ".turbo", "node_modules", "dist", "build"]);
+const IGNORED_DIRS = HashSet.fromIterable([".git", ".turbo", "node_modules", "dist", "build"]);
 
 function walkRoot(root) {
   const packages = [];
@@ -25,7 +26,7 @@ function walkRoot(root) {
     }
 
     const children = Fs.readdirSync(packageDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && !IGNORED_DIRS.has(entry.name))
+      .filter((entry) => entry.isDirectory() && !HashSet.has(IGNORED_DIRS, entry.name))
       .map((entry) => entry.name)
       .sort();
 
@@ -42,19 +43,19 @@ function findPackages() {
   const packages = PACKAGE_ROOTS.flatMap(walkRoot)
     .sort((left, right) => left.outputPath.localeCompare(right.outputPath));
 
-  const duplicateOutputPaths = new Set();
-  const seenOutputPaths = new Set();
+  const duplicateOutputPaths = MutableHashSet.empty();
+  const seenOutputPaths = MutableHashSet.empty();
 
   for (const pkg of packages) {
-    if (seenOutputPaths.has(pkg.outputPath)) {
-      duplicateOutputPaths.add(pkg.outputPath);
+    if (MutableHashSet.has(seenOutputPaths, pkg.outputPath)) {
+      MutableHashSet.add(duplicateOutputPaths, pkg.outputPath);
       continue;
     }
-    seenOutputPaths.add(pkg.outputPath);
+    MutableHashSet.add(seenOutputPaths, pkg.outputPath);
   }
 
-  if (duplicateOutputPaths.size > 0) {
-    throw new Error(`Duplicate docs output paths detected: ${[...duplicateOutputPaths].join(", ")}`);
+  if (MutableHashSet.size(duplicateOutputPaths) > 0) {
+    throw new Error(`Duplicate docs output paths detected: ${Array.from(duplicateOutputPaths).join(", ")}`);
   }
 
   return packages;

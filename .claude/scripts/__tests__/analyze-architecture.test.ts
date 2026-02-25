@@ -10,6 +10,7 @@ import {
   type LayerDefinition,
   type ServiceDefinition,
 } from "@beep/claude/scripts/analyze-architecture";
+import { HashSet, MutableHashMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -28,7 +29,7 @@ const LAYER_PATTERN =
 const FACTORY_PATTERN =
   /(export\s+)?const\s+(\w+)\s*=\s*\([^)]*\)\s*(?::\s*[^=]+)?\s*=>\s*(?:\{[^}]*(?:return\s+)?|)Layer\.(scoped|effect|succeed|sync)\s*\(\s*([\w.]+)\s*,/gm;
 
-const EFFECT_INFRASTRUCTURE = new Set([
+const EFFECT_INFRASTRUCTURE = HashSet.fromIterable([
   "never",
   "unknown",
   "Scope",
@@ -40,7 +41,7 @@ const EFFECT_INFRASTRUCTURE = new Set([
   "__type",
 ]);
 
-const EXCLUDED_FROM_GRAPH = new Set(["AtomRegistry", "Registry"]);
+const EXCLUDED_FROM_GRAPH = HashSet.fromIterable(["AtomRegistry", "Registry"]);
 
 interface LayerMatch {
   readonly name: string;
@@ -112,9 +113,9 @@ const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
   return results;
 };
 
-const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.has(name);
+const isEffectInfrastructure = (name: string): boolean => HashSet.has(EFFECT_INFRASTRUCTURE, name);
 
-const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
+const isExcludedFromGraph = (name: string): boolean => HashSet.has(EXCLUDED_FROM_GRAPH, name);
 
 const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
   const deps = A.empty<string>();
@@ -293,14 +294,15 @@ const generateStats = (graph: ArchitectureGraph): string => {
   const serviceCount = graph.services.filter((s) => !s.name.endsWith("VM")).length;
   const vmCount = graph.services.filter((s) => s.name.endsWith("VM")).length;
 
-  const depMap = new Map<string, number>();
+  const depMap = MutableHashMap.empty<string, number>();
   for (const layer of graph.layers) {
     for (const dep of layer.dependencies) {
-      depMap.set(dep, (depMap.get(dep) ?? 0) + 1);
+      const current = O.getOrElse(MutableHashMap.get(depMap, dep), () => 0);
+      MutableHashMap.set(depMap, dep, current + 1);
     }
   }
 
-  const depCounts = Array.from(depMap.entries())
+  const depCounts = Array.from(depMap)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);

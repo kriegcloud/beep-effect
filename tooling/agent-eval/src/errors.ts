@@ -21,7 +21,7 @@ export class AgentEvalDecodeError extends S.TaggedErrorClass<AgentEvalDecodeErro
   {
     message: S.String,
     source: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("AgentEvalDecodeError", {
     title: "Agent Eval Decode Error",
@@ -39,7 +39,7 @@ export class AgentEvalConfigError extends S.TaggedErrorClass<AgentEvalConfigErro
   "AgentEvalConfigError",
   {
     message: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("AgentEvalConfigError", {
     title: "Agent Eval Config Error",
@@ -57,7 +57,7 @@ export class AgentEvalInvariantError extends S.TaggedErrorClass<AgentEvalInvaria
   "AgentEvalInvariantError",
   {
     message: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("AgentEvalInvariantError", {
     title: "Agent Eval Invariant Error",
@@ -75,7 +75,7 @@ export class AgentEvalProtocolError extends S.TaggedErrorClass<AgentEvalProtocol
   "AgentEvalProtocolError",
   {
     message: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("AgentEvalProtocolError", {
     title: "Agent Eval Protocol Error",
