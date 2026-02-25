@@ -13,6 +13,22 @@
     "outDir": "dist-types",
     "types": ["node", "bun"],
     "noEmit": true,
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
+        "importAliases": {
+          "Array": "A",
+          "Option": "O",
+          "Predicate": "P",
+          "Record": "R",
+          "Schema": "S",
+          "Equal": "Eq"
+        },
+        "ignoreEffectSuggestionsInTscExitCode": false
+      }
+    ],
     "paths": {
       "@beep/claude/*": ["./*.ts", "./*"]
     }

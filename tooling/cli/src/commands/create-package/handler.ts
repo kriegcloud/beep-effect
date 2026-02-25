@@ -484,7 +484,6 @@ const generatePackageJson: (
     scripts: {
       codegen: "echo 'no codegen needed'",
       build: "tsc -b tsconfig.json && bun run babel",
-      "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
       babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
       check: "tsc -b tsconfig.json",
       lint: "biome check .",

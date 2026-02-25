@@ -6,6 +6,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
@@ -27,6 +28,8 @@ const withTestLayers =
   <A, E, R, Args extends ReadonlyArray<unknown>>(fn: (...args: Args) => Effect.Effect<A, E, R>) =>
   (...args: Args) =>
     fn(...args).pipe(Effect.provide(TestLayers));
+const stringifyJson = (value: unknown, _replacer?: unknown, _space?: unknown) =>
+  S.encodeSync(S.UnknownFromJsonString)(value);
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -59,7 +62,7 @@ const createRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(rootDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/root",
         private: true,
@@ -72,7 +75,7 @@ const createRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(workspaceDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/pkg-a",
         version: "0.0.0",
@@ -115,7 +118,7 @@ const createEmptyRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(rootDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/root",
         private: true,
@@ -128,7 +131,7 @@ const createEmptyRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(workspaceDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/pkg-a",
         version: "0.0.0",

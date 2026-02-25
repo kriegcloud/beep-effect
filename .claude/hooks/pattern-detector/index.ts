@@ -7,9 +7,12 @@ import * as S from "effect/Schema";
 import { type PatternDefinition, PatternLevelOrder } from "../../patterns/schema.ts";
 import { findMatches, HookInput, loadPatterns } from "./core.ts";
 
+const decodeHookInput = S.decodeUnknownEffect(S.fromJsonString(HookInput));
+const encodeJson = S.encodeSync(S.UnknownFromJsonString);
+
 const program = Effect.gen(function* () {
   const terminal = yield* Terminal.Terminal;
-  const input = yield* S.decodeUnknownEffect(HookInput)(JSON.parse(yield* terminal.readLine));
+  const input = yield* decodeHookInput(yield* terminal.readLine);
   const patterns = yield* loadPatterns;
 
   const matchedPatterns = findMatches(input, patterns);
@@ -34,7 +37,7 @@ const program = Effect.gen(function* () {
       })
     );
     yield* Console.log(
-      JSON.stringify({
+      encodeJson({
         hookSpecificOutput: {
           hookEventName: "PostToolUse",
           additionalContext: A.join(blocks, "\n\n"),
@@ -49,7 +52,7 @@ const program = Effect.gen(function* () {
 
     if (O.isSome(primary)) {
       yield* Console.log(
-        JSON.stringify({
+        encodeJson({
           hookSpecificOutput: {
             hookEventName: "PreToolUse",
             permissionDecision: primary.value.action,

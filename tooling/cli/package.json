@@ -49,7 +49,6 @@
   "scripts": {
     "codegen": "echo 'codegen will be implemented by this package'",
     "build": "tsc -b tsconfig.json && bun run babel && node scripts/copy-create-package-templates.mjs",
-    "build:tsgo": "tsgo -b tsconfig.json && bun run babel && node scripts/copy-create-package-templates.mjs",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",

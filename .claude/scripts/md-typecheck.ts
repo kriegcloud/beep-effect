@@ -3,6 +3,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import type { PlatformError } from "effect/PlatformError";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
@@ -64,6 +65,7 @@ const createTsConfig = (tsconfigBasePath: string, projectRoot: string) => ({
 
 // Directories to skip when crawling for markdown files
 const SKIP_DIRECTORIES = new Set(["node_modules", "dist-types", ".git", "dist", "build"]);
+const stringifyJson = S.encodeSync(S.UnknownFromJsonString);
 
 // ============================================================================
 // File System Operations
@@ -186,9 +188,7 @@ const writeCodeBlocksToOutput = (
 
     // Write tsconfig.json that extends the project's root config
     const tsconfig = createTsConfig(tsconfigBasePath, projectRoot);
-    yield* fs
-      .writeFileString(path.join(outputDir, "tsconfig.json"), JSON.stringify(tsconfig, null, 2))
-      .pipe(Effect.orDie);
+    yield* fs.writeFileString(path.join(outputDir, "tsconfig.json"), stringifyJson(tsconfig)).pipe(Effect.orDie);
 
     // Write code blocks AS-IS - users must provide valid TypeScript with all imports
 

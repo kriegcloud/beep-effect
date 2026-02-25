@@ -401,7 +401,7 @@ const cli = Command.run(contextCrawler, {
 const runnable = pipe(
   cli,
   Effect.provide(BunServices.layer),
-  Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.map(() => void 0)))
+  Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.asVoid))
 );
 
 BunRuntime.runMain(runnable);
