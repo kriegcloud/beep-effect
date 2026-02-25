@@ -33,6 +33,8 @@ export const renderComparisonMarkdown = (
   candidate: AgentBenchSuite,
   title: string
 ): string => {
+  const baselineStatus = baseline.status ?? "completed";
+  const candidateStatus = candidate.status ?? "completed";
   const baselineRate = successRate(baseline);
   const candidateRate = successRate(candidate);
   const baselineWrongApi = wrongApiIncidentCount(baseline);
@@ -42,7 +44,12 @@ export const renderComparisonMarkdown = (
     `# ${title}`,
     "",
     `- baselineRunAtEpochMs: ${baseline.runAtEpochMs}`,
+    `- baselineStatus: ${baselineStatus}`,
     `- candidateRunAtEpochMs: ${candidate.runAtEpochMs}`,
+    `- candidateStatus: ${candidateStatus}`,
+    ...(baselineStatus !== "completed" || candidateStatus !== "completed"
+      ? ["", "> WARNING: One or both suites are incomplete; compare deltas may not represent full matrix behavior."]
+      : []),
     "",
     "| Metric | Baseline | Candidate | Delta |",
     "|---|---:|---:|---:|",

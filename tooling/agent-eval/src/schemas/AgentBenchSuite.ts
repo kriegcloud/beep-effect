@@ -11,6 +11,22 @@ import { type AgentTaskSpec, AgentTaskSpecSchema } from "./AgentTaskSpec.js";
 import { type FailureSignature, FailureSignatureSchema } from "./FailureSignature.js";
 
 /**
+ * Benchmark suite completion status.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const BenchSuiteStatusSchema = S.Literals(["completed", "aborted_wall_cap"]);
+
+/**
+ * Benchmark suite completion status.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BenchSuiteStatus = typeof BenchSuiteStatusSchema.Type;
+
+/**
  * Expanded run record with config, task, and preflight metadata.
  *
  * @since 0.0.0
@@ -41,6 +57,10 @@ export type AgentBenchSuite = {
   readonly runAtEpochMs: number;
   readonly strictTaskCount: number;
   readonly conditions: ReadonlyArray<BenchCondition>;
+  readonly status?: BenchSuiteStatus | undefined;
+  readonly plannedRunCount?: number | undefined;
+  readonly completedRunCount?: number | undefined;
+  readonly abortReason?: string | null | undefined;
   readonly records: ReadonlyArray<AgentRunRecord>;
 };
 
@@ -75,5 +95,9 @@ export const AgentBenchSuiteSchema = S.Struct({
   runAtEpochMs: S.Int,
   strictTaskCount: S.Int,
   conditions: S.Array(BenchConditionSchema),
+  status: S.optional(BenchSuiteStatusSchema),
+  plannedRunCount: S.optional(S.Int),
+  completedRunCount: S.optional(S.Int),
+  abortReason: S.optional(S.NullOr(S.NonEmptyString)),
   records: S.Array(AgentRunRecordSchema),
 });

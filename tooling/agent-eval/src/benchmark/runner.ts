@@ -21,6 +21,7 @@ import type {
   AgentRunTranscript,
   AgentTaskSpec,
   BenchCondition,
+  BenchSuiteStatus,
   FailureSignature,
 } from "../schemas/index.js";
 import { buildRetrievalPacket } from "./packet.js";
@@ -81,6 +82,9 @@ export interface RunBenchmarkOptions {
   readonly graphiti: GraphitiMcpOptions;
   readonly strictTaskCount: number;
   readonly isolateInWorktree: boolean;
+  readonly maxWallMinutes?: number;
+  readonly onProgress?: (event: BenchmarkProgressEvent) => void | Promise<void>;
+  readonly onDiagnostic?: (event: BenchmarkDiagnosticEvent) => void | Promise<void>;
 }
 
 interface RunTuple {
@@ -97,6 +101,19 @@ interface ProcessResult {
   readonly timedOut: boolean;
 }
 
+interface AcceptanceCommandResult {
+  readonly success: boolean;
+  readonly failedCommand: string | null;
+  readonly timedOut: boolean;
+  readonly abortedByWallCap: boolean;
+}
+
+interface StatusPorcelainParseEntry {
+  readonly rawLine: string;
+  readonly parsedPath: string;
+  readonly ignored: boolean;
+}
+
 interface TouchedSourceFile {
   readonly path: string;
   readonly content: string;
@@ -108,8 +125,131 @@ interface LiveExecutionResult {
   readonly touchedPaths: ReadonlyArray<string>;
   readonly touchedSourceFiles: ReadonlyArray<TouchedSourceFile>;
   readonly commandPass: boolean;
+  readonly commandTimedOut: boolean;
+  readonly statusPorcelainRaw: string;
+  readonly statusPorcelainParsed: ReadonlyArray<StatusPorcelainParseEntry>;
   readonly executionCwd: string;
 }
+
+/**
+ * Progress event emitted while running the benchmark suite.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BenchmarkProgressEvent =
+  | {
+      readonly type: "suite.started";
+      readonly atEpochMs: number;
+      readonly plannedRunCount: number;
+      readonly strictTaskCount: number;
+      readonly maxWallMinutes: number | null;
+    }
+  | {
+      readonly type: "run.started";
+      readonly atEpochMs: number;
+      readonly runId: string;
+      readonly runIndex: number;
+      readonly totalRuns: number;
+      readonly taskId: string;
+      readonly condition: BenchCondition;
+      readonly agent: AgentName;
+      readonly trial: number;
+    }
+  | {
+      readonly type: "run.completed";
+      readonly atEpochMs: number;
+      readonly runId: string;
+      readonly runIndex: number;
+      readonly totalRuns: number;
+      readonly success: boolean;
+      readonly failureType: FailureSignature["failureType"] | null;
+      readonly wallMs: number;
+    }
+  | {
+      readonly type: "suite.aborted";
+      readonly atEpochMs: number;
+      readonly completedRunCount: number;
+      readonly plannedRunCount: number;
+      readonly reason: string;
+    }
+  | {
+      readonly type: "suite.completed";
+      readonly atEpochMs: number;
+      readonly status: BenchSuiteStatus;
+      readonly completedRunCount: number;
+      readonly plannedRunCount: number;
+    };
+
+/**
+ * Diagnostic event emitted for run-level forensics and suite metrics.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BenchmarkDiagnosticEvent =
+  | {
+      readonly type: "run.diagnostic";
+      readonly atEpochMs: number;
+      readonly runId: string;
+      readonly taskId: string;
+      readonly condition: BenchCondition;
+      readonly agent: AgentName;
+      readonly trial: number;
+      readonly simulate: boolean;
+      readonly model: string;
+      readonly executionCwd: string;
+      readonly touchedPaths: ReadonlyArray<string>;
+      readonly touchedPathCount: number;
+      readonly statusPorcelainRaw: string;
+      readonly statusPorcelainParsed: ReadonlyArray<StatusPorcelainParseEntry>;
+      readonly allowlist: {
+        readonly pass: boolean;
+        readonly firstViolationPath: string | null;
+        readonly violationCount: number;
+      };
+      readonly command: {
+        readonly success: boolean;
+        readonly timedOut: boolean;
+      };
+      readonly acceptance: AcceptanceCommandResult;
+      readonly detector: {
+        readonly wrongApiRuleIds: ReadonlyArray<string>;
+        readonly effectComplianceRuleIds: ReadonlyArray<string>;
+        readonly criticalIncidentCount: number;
+      };
+      readonly result: {
+        readonly success: boolean;
+        readonly failureType: FailureSignature["failureType"] | null;
+        readonly rootCause: string | null;
+        readonly wallMs: number;
+        readonly costUsd: number;
+      };
+      readonly wallBudget: {
+        readonly maxWallMinutes: number | null;
+        readonly remainingMsAtRunStart: number | null;
+        readonly remainingMsAtRunEnd: number | null;
+      };
+    }
+  | {
+      readonly type: "suite.metrics";
+      readonly atEpochMs: number;
+      readonly status: BenchSuiteStatus;
+      readonly plannedRunCount: number;
+      readonly completedRunCount: number;
+      readonly totalCostUsd: number;
+      readonly totalWallMs: number;
+      readonly averageWallMs: number;
+      readonly outcomeCounts: {
+        readonly success: number;
+        readonly wrong_api: number;
+        readonly effect_compliance: number;
+        readonly acceptance: number;
+        readonly allowlist: number;
+        readonly runtime: number;
+      };
+      readonly abortReason: string | null;
+    };
 
 const decodeCorrectionEntries = S.decodeUnknownSync(
   S.fromJsonString(
@@ -159,6 +299,37 @@ const decodeClaudeJson = S.decodeUnknownSync(ClaudeJsonSchema);
 const modelForAgent = (agent: AgentName): string => (agent === "codex" ? "gpt-5.2" : "claude-sonnet-4-6");
 const epochNowMs = (): number => Math.round(performance.timeOrigin + performance.now());
 const monotonicNowMs = (): number => performance.now();
+const minutesToMs = (minutes: number): number => Math.max(1, Math.round(minutes * 60_000));
+const resolveDeadlineMs = (maxWallMinutes: number | undefined): number | undefined =>
+  maxWallMinutes === undefined ? undefined : monotonicNowMs() + minutesToMs(maxWallMinutes);
+const remainingTimeoutCapMs = (deadlineMs: number | undefined): number | undefined =>
+  deadlineMs === undefined ? undefined : Math.max(1, Math.floor(deadlineMs - monotonicNowMs()));
+const hasDeadlineElapsed = (deadlineMs: number | undefined): boolean =>
+  deadlineMs !== undefined && deadlineMs <= monotonicNowMs();
+
+const emitProgress = async (options: RunBenchmarkOptions, event: BenchmarkProgressEvent): Promise<void> => {
+  if (options.onProgress === undefined) {
+    return;
+  }
+
+  try {
+    await options.onProgress(event);
+  } catch {
+    // Progress callbacks are best-effort and must not fail suite execution.
+  }
+};
+
+const emitDiagnostic = async (options: RunBenchmarkOptions, event: BenchmarkDiagnosticEvent): Promise<void> => {
+  if (options.onDiagnostic === undefined) {
+    return;
+  }
+
+  try {
+    await options.onDiagnostic(event);
+  } catch {
+    // Diagnostics callbacks are best-effort and must not fail suite execution.
+  }
+};
 
 const tokenMultiplier = (condition: BenchCondition): number => {
   if (condition === "minimal") {
@@ -216,7 +387,8 @@ const runProcess = async (
   command: string,
   args: ReadonlyArray<string>,
   cwd: string,
-  timeoutMinutes: number
+  timeoutMinutes: number,
+  timeoutCapMs?: number
 ): Promise<ProcessResult> =>
   new Promise((resolve) => {
     const child = spawn(command, [...args], {
@@ -251,7 +423,11 @@ const runProcess = async (
       stderr += String(data);
     });
 
-    const timeoutMs = Math.max(1, timeoutMinutes) * 60_000;
+    const requestedTimeoutMs = minutesToMs(timeoutMinutes);
+    const timeoutMs =
+      timeoutCapMs === undefined
+        ? requestedTimeoutMs
+        : Math.max(1, Math.min(requestedTimeoutMs, Math.floor(timeoutCapMs)));
     const timer = setTimeout(() => {
       if (completed) {
         return;
@@ -295,24 +471,56 @@ const runProcess = async (
     });
   });
 
-const runOneCommand = async (cwd: string, command: string, timeoutMinutes: number): Promise<boolean> => {
-  const result = await runProcess("bash", ["-lc", command], cwd, timeoutMinutes);
-  return result.success;
-};
+const runOneCommand = async (
+  cwd: string,
+  command: string,
+  timeoutMinutes: number,
+  suiteDeadlineMs: number | undefined
+): Promise<ProcessResult> =>
+  runProcess("bash", ["-lc", command], cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
 
-const runAcceptanceCommands = async (task: AgentTaskSpec, cwd: string, simulate: boolean): Promise<boolean> => {
+const runAcceptanceCommands = async (
+  task: AgentTaskSpec,
+  cwd: string,
+  simulate: boolean,
+  suiteDeadlineMs: number | undefined
+): Promise<AcceptanceCommandResult> => {
   if (simulate) {
-    return true;
+    return {
+      success: true,
+      failedCommand: null,
+      timedOut: false,
+      abortedByWallCap: false,
+    };
   }
 
   for (const command of task.acceptanceCommands) {
-    const passed = await runOneCommand(cwd, command, task.timeoutMinutes);
-    if (!passed) {
-      return false;
+    if (hasDeadlineElapsed(suiteDeadlineMs)) {
+      return {
+        success: false,
+        failedCommand: command,
+        timedOut: true,
+        abortedByWallCap: true,
+      };
+    }
+
+    const commandResult = await runOneCommand(cwd, command, task.timeoutMinutes, suiteDeadlineMs);
+    if (!commandResult.success) {
+      return {
+        success: false,
+        failedCommand: command,
+        timedOut: commandResult.timedOut,
+        abortedByWallCap: false,
+      };
     }
   }
 
-  return true;
+  return {
+    success: true,
+    failedCommand: null,
+    timedOut: false,
+    abortedByWallCap: false,
+  };
 };
 
 const parseJsonLine = (line: string): unknown | null => {
@@ -387,17 +595,29 @@ const parseClaudeOutput = (
   }
 };
 
-const collectTouchedPaths = (statusOutput: string): ReadonlyArray<string> => {
+const parseStatusPorcelain = (
+  statusOutput: string
+): {
+  readonly touchedPaths: ReadonlyArray<string>;
+  readonly parsedEntries: ReadonlyArray<StatusPorcelainParseEntry>;
+} => {
   const ignoredRoots = ["node_modules"] as const;
   const lines = Str.split("\n")(statusOutput)
     .map((line) => Str.replace(/\r$/, "")(line))
     .filter((line) => Str.trim(line).length > 0);
 
   const touched: Array<string> = [];
+  const parsedEntries: Array<StatusPorcelainParseEntry> = [];
   for (const line of lines) {
     const rawPath = line.length > 3 ? Str.trim(Str.slice(3)(line)) : Str.trim(line);
     const maybeRenamed = rawPath.includes(" -> ") ? (Str.split(" -> ")(rawPath).at(-1) ?? rawPath) : rawPath;
     const ignored = ignoredRoots.some((root) => maybeRenamed === root || maybeRenamed.startsWith(`${root}/`));
+    parsedEntries.push({
+      rawLine: line,
+      parsedPath: maybeRenamed,
+      ignored,
+    });
+
     if (ignored) {
       continue;
     }
@@ -406,7 +626,10 @@ const collectTouchedPaths = (statusOutput: string): ReadonlyArray<string> => {
     }
   }
 
-  return touched;
+  return {
+    touchedPaths: touched,
+    parsedEntries,
+  };
 };
 
 const sourceFileExtensions = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts"] as const;
@@ -416,7 +639,8 @@ const isSourceFilePath = (filePath: string): boolean =>
 
 const readTouchedSourceFiles = async (
   executionRoot: string,
-  touchedPaths: ReadonlyArray<string>
+  touchedPaths: ReadonlyArray<string>,
+  suiteDeadlineMs: number | undefined
 ): Promise<ReadonlyArray<TouchedSourceFile>> => {
   const files: Array<TouchedSourceFile> = [];
 
@@ -425,7 +649,7 @@ const readTouchedSourceFiles = async (
       continue;
     }
 
-    const readResult = await runProcess("cat", [touchedPath], executionRoot, 1);
+    const readResult = await runProcess("cat", [touchedPath], executionRoot, 1, remainingTimeoutCapMs(suiteDeadlineMs));
     if (!readResult.success) {
       continue;
     }
@@ -444,6 +668,11 @@ const isPathAllowed = (filePath: string, allowlist: ReadonlyArray<string>): bool
 
 const allowlistPass = (touchedPaths: ReadonlyArray<string>, allowlist: ReadonlyArray<string>): boolean =>
   touchedPaths.every((filePath) => isPathAllowed(filePath, allowlist));
+
+const disallowedTouchedPaths = (
+  touchedPaths: ReadonlyArray<string>,
+  allowlist: ReadonlyArray<string>
+): ReadonlyArray<string> => touchedPaths.filter((filePath) => !isPathAllowed(filePath, allowlist));
 
 const renderPromptPacket = (
   task: AgentTaskSpec,
@@ -482,13 +711,26 @@ const runAgentCommand = async (
   model: string,
   promptPacket: string,
   cwd: string,
-  timeoutMinutes: number
+  timeoutMinutes: number,
+  suiteDeadlineMs: number | undefined
 ): Promise<ProcessResult> => {
   if (agent === "codex") {
-    return runProcess("codex", ["exec", "--json", "--model", model, promptPacket], cwd, timeoutMinutes);
+    return runProcess(
+      "codex",
+      ["exec", "--json", "--model", model, promptPacket],
+      cwd,
+      timeoutMinutes,
+      remainingTimeoutCapMs(suiteDeadlineMs)
+    );
   }
 
-  return runProcess("claude", ["-p", promptPacket, "--output-format", "json", "--model", model], cwd, timeoutMinutes);
+  return runProcess(
+    "claude",
+    ["-p", promptPacket, "--output-format", "json", "--model", model],
+    cwd,
+    timeoutMinutes,
+    remainingTimeoutCapMs(suiteDeadlineMs)
+  );
 };
 
 const createWorktreePath = (pathApi: Path.Path, repoRoot: string, runId: string): string => {
@@ -497,23 +739,48 @@ const createWorktreePath = (pathApi: Path.Path, repoRoot: string, runId: string)
   return pathApi.join(repoRoot, "outputs", "agent-reliability", "worktrees", `${safe}__${unique}`);
 };
 
-const isRepoClean = async (repoRoot: string): Promise<boolean> => {
-  const statusResult = await runProcess("git", ["-C", repoRoot, "status", "--porcelain"], repoRoot, 1);
+const isRepoClean = async (repoRoot: string, suiteDeadlineMs: number | undefined): Promise<boolean> => {
+  const statusResult = await runProcess(
+    "git",
+    ["-C", repoRoot, "status", "--porcelain"],
+    repoRoot,
+    1,
+    remainingTimeoutCapMs(suiteDeadlineMs)
+  );
   return statusResult.success && Str.trim(statusResult.stdout).length === 0;
 };
 
 const ensureWorktreeDependencies = async (
   pathApi: Path.Path,
   repoRoot: string,
-  worktreePath: string
+  worktreePath: string,
+  suiteDeadlineMs: number | undefined
 ): Promise<void> => {
   const repoNodeModules = pathApi.join(repoRoot, "node_modules");
   const worktreeNodeModules = pathApi.join(worktreePath, "node_modules");
-  const hasRepoNodeModules = await runProcess("test", ["-d", repoNodeModules], repoRoot, 1);
-  const hasWorktreeNodeModules = await runProcess("test", ["-e", worktreeNodeModules], repoRoot, 1);
+  const hasRepoNodeModules = await runProcess(
+    "test",
+    ["-d", repoNodeModules],
+    repoRoot,
+    1,
+    remainingTimeoutCapMs(suiteDeadlineMs)
+  );
+  const hasWorktreeNodeModules = await runProcess(
+    "test",
+    ["-e", worktreeNodeModules],
+    repoRoot,
+    1,
+    remainingTimeoutCapMs(suiteDeadlineMs)
+  );
 
   if (hasRepoNodeModules.success && !hasWorktreeNodeModules.success) {
-    await runProcess("ln", ["-s", repoNodeModules, worktreeNodeModules], repoRoot, 1);
+    await runProcess(
+      "ln",
+      ["-s", repoNodeModules, worktreeNodeModules],
+      repoRoot,
+      1,
+      remainingTimeoutCapMs(suiteDeadlineMs)
+    );
   }
 };
 
@@ -522,6 +789,7 @@ const withRunCwd = async (
   repoRoot: string,
   runId: string,
   enabled: boolean,
+  suiteDeadlineMs: number | undefined,
   action: (cwd: string) => Promise<LiveExecutionResult>
 ): Promise<LiveExecutionResult> => {
   if (!enabled) {
@@ -533,11 +801,12 @@ const withRunCwd = async (
     "git",
     ["-C", repoRoot, "worktree", "add", "--detach", "--force", worktreePath],
     repoRoot,
-    5
+    5,
+    remainingTimeoutCapMs(suiteDeadlineMs)
   );
 
   if (!addResult.success) {
-    if (await isRepoClean(repoRoot)) {
+    if (await isRepoClean(repoRoot, suiteDeadlineMs)) {
       return action(repoRoot);
     }
     throw new AgentEvalInvariantError({
@@ -546,7 +815,7 @@ const withRunCwd = async (
   }
 
   try {
-    await ensureWorktreeDependencies(pathApi, repoRoot, worktreePath);
+    await ensureWorktreeDependencies(pathApi, repoRoot, worktreePath, suiteDeadlineMs);
     return await action(worktreePath);
   } finally {
     await runProcess("git", ["-C", repoRoot, "worktree", "remove", "--force", worktreePath], repoRoot, 5);
@@ -562,9 +831,10 @@ const executeLiveRun = async (
   promptPacket: string,
   pricingTable: PricingTable,
   isolateInWorktree: boolean,
-  pathApi: Path.Path
+  pathApi: Path.Path,
+  suiteDeadlineMs: number | undefined
 ): Promise<LiveExecutionResult> =>
-  withRunCwd(pathApi, repoRoot, runId, isolateInWorktree, async (executionRoot) => {
+  withRunCwd(pathApi, repoRoot, runId, isolateInWorktree, suiteDeadlineMs, async (executionRoot) => {
     const taskRelative = pathApi.relative(repoRoot, taskCwd);
     const executionCwd = executionRoot === repoRoot ? taskCwd : pathApi.join(executionRoot, taskRelative);
 
@@ -573,11 +843,19 @@ const executeLiveRun = async (
       model,
       promptPacket,
       executionCwd,
-      tuple.task.timeoutMinutes
+      tuple.task.timeoutMinutes,
+      suiteDeadlineMs
     );
-    const statusResult = await runProcess("git", ["status", "--porcelain"], executionRoot, 2);
-    const touchedPaths = collectTouchedPaths(statusResult.stdout);
-    const touchedSourceFiles = await readTouchedSourceFiles(executionRoot, touchedPaths);
+    const statusResult = await runProcess(
+      "git",
+      ["status", "--porcelain"],
+      executionRoot,
+      2,
+      remainingTimeoutCapMs(suiteDeadlineMs)
+    );
+    const parsedStatus = parseStatusPorcelain(statusResult.stdout);
+    const touchedPaths = parsedStatus.touchedPaths;
+    const touchedSourceFiles = await readTouchedSourceFiles(executionRoot, touchedPaths, suiteDeadlineMs);
     const allowlistOk = allowlistPass(touchedPaths, tuple.task.touchedPathAllowlist);
 
     const codexUsage = tuple.agent === "codex" ? parseCodexUsage(commandResult.stdout) : null;
@@ -611,6 +889,9 @@ const executeLiveRun = async (
       touchedPaths,
       touchedSourceFiles,
       commandPass: commandResult.success && !commandResult.timedOut,
+      commandTimedOut: commandResult.timedOut,
+      statusPorcelainRaw: statusResult.stdout,
+      statusPorcelainParsed: parsedStatus.parsedEntries,
       executionCwd,
     };
   });
@@ -683,7 +964,12 @@ const buildRunMatrix = (options: RunBenchmarkOptions): ReadonlyArray<RunTuple> =
     )
   );
 
-const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): Promise<AgentRunRecord> => {
+const executeRunTuple = async (
+  options: RunBenchmarkOptions,
+  tuple: RunTuple,
+  suiteDeadlineMs: number | undefined
+): Promise<AgentRunRecord> => {
+  const remainingMsAtRunStart = remainingTimeoutCapMs(suiteDeadlineMs) ?? null;
   const policy = selectPolicyPacket(options.policyOverlays, tuple.condition, tuple.task.category);
   const skills = selectFocusedSkills(tuple.task.prompt, tuple.task.category, Math.min(3, policy.maxSkills));
   const correctionFacts = relevantCorrectionFacts(tuple.task.prompt, options.correctionIndex);
@@ -716,11 +1002,12 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
         promptPacket,
         options.pricingTable,
         options.isolateInWorktree,
-        options.pathApi
+        options.pathApi,
+        suiteDeadlineMs
       );
 
   const executionCwd = liveExecution?.executionCwd ?? taskCwd;
-  const commandsPassed = await runAcceptanceCommands(tuple.task, executionCwd, options.simulate);
+  const acceptance = await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs);
 
   const touchedSourceFiles = liveExecution?.touchedSourceFiles ?? [];
   const detectorInput = touchedSourceFiles
@@ -737,8 +1024,9 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
     liveExecution?.transcript.costUsd ?? estimateCost(options.pricingTable, model, inputTokens, outputTokens);
 
   const touchedPaths = liveExecution?.touchedPaths ?? [];
-  const allowlistOk = liveExecution?.allowlistPass ?? true;
-  const runPassed = (liveExecution?.commandPass ?? true) && commandsPassed;
+  const disallowedPaths = disallowedTouchedPaths(touchedPaths, tuple.task.touchedPathAllowlist);
+  const allowlistOk = disallowedPaths.length === 0;
+  const runPassed = (liveExecution?.commandPass ?? true) && acceptance.success;
   const criticalIncidentCount = wrongApi.criticalCount + effectCompliance.criticalCount;
 
   const result: AgentRunResult = {
@@ -765,9 +1053,53 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
         effectCompliance.incidents.map((incident) => incident.ruleId),
         touchedPaths,
         liveExecution?.commandPass ?? true,
-        commandsPassed,
+        acceptance.success,
         allowlistOk
       );
+
+  await emitDiagnostic(options, {
+    type: "run.diagnostic",
+    atEpochMs: epochNowMs(),
+    runId,
+    taskId: tuple.task.id,
+    condition: tuple.condition,
+    agent: tuple.agent,
+    trial: tuple.trial,
+    simulate: options.simulate,
+    model,
+    executionCwd,
+    touchedPaths,
+    touchedPathCount: touchedPaths.length,
+    statusPorcelainRaw: liveExecution?.statusPorcelainRaw ?? "",
+    statusPorcelainParsed: liveExecution?.statusPorcelainParsed ?? [],
+    allowlist: {
+      pass: allowlistOk,
+      firstViolationPath: disallowedPaths[0] ?? null,
+      violationCount: disallowedPaths.length,
+    },
+    command: {
+      success: liveExecution?.commandPass ?? true,
+      timedOut: liveExecution?.commandTimedOut ?? false,
+    },
+    acceptance,
+    detector: {
+      wrongApiRuleIds: wrongApi.incidents.map((incident) => incident.ruleId),
+      effectComplianceRuleIds: effectCompliance.incidents.map((incident) => incident.ruleId),
+      criticalIncidentCount,
+    },
+    result: {
+      success: result.success,
+      failureType: failureSignature?.failureType ?? null,
+      rootCause: failureSignature?.rootCause ?? null,
+      wallMs: result.wallMs,
+      costUsd: result.costUsd,
+    },
+    wallBudget: {
+      maxWallMinutes: options.maxWallMinutes ?? null,
+      remainingMsAtRunStart,
+      remainingMsAtRunEnd: remainingTimeoutCapMs(suiteDeadlineMs) ?? null,
+    },
+  });
 
   return {
     config: {
@@ -810,6 +1142,29 @@ export const decodeCorrectionIndexJson = (content: string): ReadonlyArray<Correc
  */
 export const decodePricingTableJson = (content: string): PricingTable => decodePricingTable(content);
 
+const summarizeOutcomeCounts = (records: ReadonlyArray<AgentRunRecord>) => {
+  const counts = {
+    success: 0,
+    wrong_api: 0,
+    effect_compliance: 0,
+    acceptance: 0,
+    allowlist: 0,
+    runtime: 0,
+  };
+
+  for (const record of records) {
+    if (record.result.success) {
+      counts.success += 1;
+      continue;
+    }
+
+    const failureType = record.failureSignature?.failureType ?? "runtime";
+    counts[failureType] += 1;
+  }
+
+  return counts;
+};
+
 /**
  * Execute one benchmark suite.
  *
@@ -821,17 +1176,122 @@ export const decodePricingTableJson = (content: string): PricingTable => decodeP
 export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<AgentBenchSuite> => {
   const runAtEpochMs = epochNowMs();
   const matrix = buildRunMatrix(options);
-  const records = await Effect.runPromise(
-    Effect.forEach(matrix, (tuple) => Effect.promise(() => executeRunTuple(options, tuple)), {
-      concurrency: 1,
-    })
+  const plannedRunCount = matrix.length;
+  const records: Array<AgentRunRecord> = [];
+  const suiteDeadlineMs = resolveDeadlineMs(options.maxWallMinutes);
+  const maxWallMinutes = options.maxWallMinutes ?? null;
+  let abortReason: string | null = null;
+
+  await emitProgress(options, {
+    type: "suite.started",
+    atEpochMs: epochNowMs(),
+    plannedRunCount,
+    strictTaskCount: options.strictTaskCount,
+    maxWallMinutes,
+  });
+
+  await Effect.runPromise(
+    Effect.forEach(
+      matrix,
+      (tuple, index) =>
+        Effect.promise(async () => {
+          if (abortReason !== null) {
+            return;
+          }
+
+          if (hasDeadlineElapsed(suiteDeadlineMs)) {
+            abortReason = `Reached max wall clock budget of ${maxWallMinutes} minutes`;
+            await emitProgress(options, {
+              type: "suite.aborted",
+              atEpochMs: epochNowMs(),
+              completedRunCount: records.length,
+              plannedRunCount,
+              reason: abortReason,
+            });
+            return;
+          }
+
+          const runId = `${tuple.task.id}:${tuple.condition}:${tuple.agent}:${tuple.trial}`;
+          await emitProgress(options, {
+            type: "run.started",
+            atEpochMs: epochNowMs(),
+            runId,
+            runIndex: index + 1,
+            totalRuns: plannedRunCount,
+            taskId: tuple.task.id,
+            condition: tuple.condition,
+            agent: tuple.agent,
+            trial: tuple.trial,
+          });
+
+          const record = await executeRunTuple(options, tuple, suiteDeadlineMs);
+          records.push(record);
+
+          await emitProgress(options, {
+            type: "run.completed",
+            atEpochMs: epochNowMs(),
+            runId: record.result.runId,
+            runIndex: index + 1,
+            totalRuns: plannedRunCount,
+            success: record.result.success,
+            failureType: record.failureSignature?.failureType ?? null,
+            wallMs: record.result.wallMs,
+          });
+
+          if (abortReason === null && records.length < plannedRunCount && hasDeadlineElapsed(suiteDeadlineMs)) {
+            abortReason = `Reached max wall clock budget of ${maxWallMinutes} minutes`;
+            await emitProgress(options, {
+              type: "suite.aborted",
+              atEpochMs: epochNowMs(),
+              completedRunCount: records.length,
+              plannedRunCount,
+              reason: abortReason,
+            });
+          }
+        }),
+      {
+        concurrency: 1,
+      }
+    )
   );
 
-  return {
+  const status: BenchSuiteStatus = abortReason === null ? "completed" : "aborted_wall_cap";
+  await emitProgress(options, {
+    type: "suite.completed",
+    atEpochMs: epochNowMs(),
+    status,
+    completedRunCount: records.length,
+    plannedRunCount,
+  });
+
+  const totalCostUsd = records.reduce((acc, record) => acc + record.result.costUsd, 0);
+  const totalWallMs = records.reduce((acc, record) => acc + record.result.wallMs, 0);
+  const averageWallMs = records.length === 0 ? 0 : totalWallMs / records.length;
+  const outcomeCounts = summarizeOutcomeCounts(records);
+  await emitDiagnostic(options, {
+    type: "suite.metrics",
+    atEpochMs: epochNowMs(),
+    status,
+    plannedRunCount,
+    completedRunCount: records.length,
+    totalCostUsd,
+    totalWallMs,
+    averageWallMs,
+    outcomeCounts,
+    abortReason,
+  });
+
+  const suite: AgentBenchSuite = {
     formatVersion: 1,
     runAtEpochMs,
     strictTaskCount: options.strictTaskCount,
     conditions: options.conditions,
+    status,
+    plannedRunCount,
+    completedRunCount: records.length,
+    abortReason: abortReason ?? undefined,
     records,
   };
+
+  return suite;
 };

@@ -41,7 +41,7 @@ describe("architecture guardrails", () => {
     const source = readFileSync(runnerPath, "utf8");
 
     expect(source.includes("buildRunMatrix")).toBe(true);
-    expect(source.includes("Effect.forEach(matrix")).toBe(true);
+    expect(/Effect\.forEach\(\s*matrix/.test(source)).toBe(true);
 
     expect(source.includes("for (const task of options.tasks)")).toBe(false);
     expect(source.includes("for (const condition of options.conditions)")).toBe(false);

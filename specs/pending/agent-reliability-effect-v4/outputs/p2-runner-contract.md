@@ -16,6 +16,27 @@
 7. `--smoke-timeout-minutes` default: `1`.
 8. `--graphiti-url` default: `http://localhost:8000/mcp`.
 9. `--graphiti-group-id` default: `beep-dev`.
+10. `--conditions` default: all (`current,minimal,adaptive,adaptive_kg`).
+11. `--agents` default: both (`codex,claude`).
+12. `--task-ids` default: empty (no filter; all loaded tasks).
+13. `--max-wall-minutes` default: unset (no suite wall cap).
+14. `--progress-output` default: `${output}.progress.jsonl`.
+15. `--diagnostics` default: `false`.
+16. `--diagnostics-output` default: `${output}.diagnostics.jsonl`.
+
+### Targeting + Budget Rules
+
+1. `strict-task-count` validation is performed against the full loaded catalog before any `task-ids` filtering.
+2. `task-ids` filters are exact ID matches and fail fast when any unknown task ID is requested.
+3. `max-wall-minutes` applies at suite scope:
+   - each subprocess timeout is capped by remaining suite wall budget
+   - suite aborts safely when budget is exhausted
+   - partial artifacts are still written
+   - CLI exits non-zero after writing partial artifacts
+4. `progress-output` is incrementally flushed during the run (JSONL), not only at suite end.
+5. When `--diagnostics true`, `diagnostics-output` receives machine-readable forensic events:
+   - `run.diagnostic`: raw `git status --porcelain`, parsed touched paths, first allowlist mismatch, acceptance command outcome, detector rule IDs, and run root-cause summary
+   - `suite.metrics`: aggregate counts (`success`, `wrong_api`, `effect_compliance`, `acceptance`, `allowlist`, `runtime`) plus cost/wall-clock totals
 
 ## Agent Invocation Contract
 
@@ -27,6 +48,11 @@
 
 1. Suite rows are stored under top-level `records`.
 2. Full matrix target: `18 tasks x 4 conditions x 2 agents x 2 trials = 288` records.
+3. Suite-level incomplete metadata (optional for backward compatibility):
+   - `status`: `completed | aborted_wall_cap`
+   - `plannedRunCount`
+   - `completedRunCount`
+   - `abortReason` (nullable string)
 
 ## Effect-First Compliance Gate (Mandatory)
 
@@ -139,6 +165,67 @@ bun run agent:bench:compare -- --baseline outputs/agent-reliability/runs/baselin
 ```
 
 Status: `ready_to_rerun_after_push` (previous managed live run was intentionally stopped while baseline and runner-contract fixes were applied).
+
+## Targeted Recipes
+
+### 1) Effect-compliance focused slice
+
+```bash
+bun run agent:bench -- \
+  --live true \
+  --trials 1 \
+  --task-ids package_lib_01,package_lib_02,package_lib_05 \
+  --conditions adaptive,adaptive_kg \
+  --agents codex,claude \
+  --max-wall-minutes 30 \
+  --output /tmp/effect-compliance.json \
+  --report-output /tmp/effect-compliance.md
+```
+
+### 2) Runtime-stability focused slice
+
+```bash
+bun run agent:bench -- \
+  --live true \
+  --trials 1 \
+  --task-ids apps_web_01 \
+  --conditions current,minimal \
+  --agents codex,claude \
+  --max-wall-minutes 20 \
+  --output /tmp/runtime-stability.json \
+  --report-output /tmp/runtime-stability.md
+```
+
+### 3) Agent-comparison focused slice
+
+```bash
+bun run agent:bench -- \
+  --live true \
+  --trials 1 \
+  --task-ids tooling_cli_01,tooling_cli_02,tooling_cli_04 \
+  --conditions minimal \
+  --agents codex,claude \
+  --max-wall-minutes 25 \
+  --output /tmp/agent-compare.json \
+  --report-output /tmp/agent-compare.md
+```
+
+### 4) Forensic diagnostic smoke
+
+```bash
+bun run agent:bench -- \
+  --live true \
+  --smoke true \
+  --smoke-task-limit 3 \
+  --smoke-timeout-minutes 3 \
+  --trials 1 \
+  --task-ids apps_web_01,tooling_cli_01,package_lib_01 \
+  --conditions minimal \
+  --agents codex,claude \
+  --diagnostics true \
+  --output /tmp/agent-diagnostics-smoke.json \
+  --report-output /tmp/agent-diagnostics-smoke.md
+```
 
 ## Exit Gate Status
 

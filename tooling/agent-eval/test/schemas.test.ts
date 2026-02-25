@@ -1,4 +1,5 @@
 import {
+  AgentBenchSuiteSchema,
   AgentRunConfigSchema,
   AgentRunResultSchema,
   AgentRunTranscriptSchema,
@@ -55,6 +56,80 @@ describe("agent-eval schemas", () => {
         wallMs: 1,
       })
     ).toThrow();
+  });
+
+  it("decodes legacy suite payload without completion metadata", () => {
+    const decode = S.decodeUnknownSync(AgentBenchSuiteSchema);
+    const suite = decode({
+      formatVersion: 1,
+      runAtEpochMs: 1,
+      strictTaskCount: 1,
+      conditions: ["current"],
+      records: [
+        {
+          config: {
+            agent: "codex",
+            model: "gpt-5.2",
+            condition: "current",
+            trial: 1,
+          },
+          task: {
+            id: "apps_web_01",
+            title: "task",
+            category: "apps_web",
+            prompt: "prompt",
+            cwd: ".",
+            acceptanceCommands: ["bun run lint"],
+            timeoutMinutes: 1,
+            touchedPathAllowlist: ["apps/web/src/app/api/chat/route.ts"],
+          },
+          result: {
+            runId: "r",
+            taskId: "apps_web_01",
+            success: true,
+            checkPass: true,
+            lintPass: true,
+            testPass: true,
+            wrongApiIncidentCount: 0,
+            steps: 1,
+            inputTokens: 1,
+            outputTokens: 1,
+            costUsd: 0.01,
+            wallMs: 1.5,
+          },
+          selectedPolicyIds: ["core"],
+          selectedSkills: ["effect-v4-errors"],
+          correctionFacts: ["fact"],
+          retrievedFacts: ["fact"],
+          allowlistPass: true,
+          touchedPaths: ["apps/web/src/app/api/chat/route.ts"],
+          transcript: null,
+          failureSignature: null,
+        },
+      ],
+    });
+
+    expect(suite.records.length).toBe(1);
+    expect(suite.status).toBeUndefined();
+  });
+
+  it("decodes suite payload with incomplete metadata", () => {
+    const decode = S.decodeUnknownSync(AgentBenchSuiteSchema);
+    const suite = decode({
+      formatVersion: 1,
+      runAtEpochMs: 1,
+      strictTaskCount: 1,
+      conditions: ["current"],
+      status: "aborted_wall_cap",
+      plannedRunCount: 8,
+      completedRunCount: 3,
+      abortReason: "Reached max wall clock budget",
+      records: [],
+    });
+
+    expect(suite.status).toBe("aborted_wall_cap");
+    expect(suite.plannedRunCount).toBe(8);
+    expect(suite.completedRunCount).toBe(3);
   });
 
   it("fails invalid transcript payload", () => {

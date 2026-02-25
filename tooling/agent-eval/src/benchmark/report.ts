@@ -75,6 +75,9 @@ const summarizeByKey = (
  * @category functions
  */
 export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): string => {
+  const status = suite.status ?? "completed";
+  const plannedRunCount = suite.plannedRunCount ?? suite.records.length;
+  const completedRunCount = suite.completedRunCount ?? suite.records.length;
   const byCondition = summarizeByKey(suite, (record) => record.config.condition);
   const byAgent = summarizeByKey(suite, (record) => `${record.config.agent}:${record.config.model}`);
 
@@ -97,8 +100,20 @@ export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): 
     "",
     `- formatVersion: ${suite.formatVersion}`,
     `- runAtEpochMs: ${suite.runAtEpochMs}`,
+    `- status: ${status}`,
     `- strictTaskCount: ${suite.strictTaskCount}`,
+    `- plannedRunCount: ${plannedRunCount}`,
+    `- completedRunCount: ${completedRunCount}`,
     `- totalRuns: ${suite.records.length}`,
+    ...(status === "aborted_wall_cap"
+      ? [
+          "",
+          "> WARNING: Suite is incomplete due to max wall clock budget.",
+          ...(suite.abortReason !== undefined && suite.abortReason !== null
+            ? [`> abortReason: ${suite.abortReason}`]
+            : []),
+        ]
+      : []),
     "",
     "## By Condition",
     "",
