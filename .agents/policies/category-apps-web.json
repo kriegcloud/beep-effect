@@ -1,0 +1,11 @@
+{
+  "id": "category_apps_web",
+  "description": "Apps/web overlay for Effect AI + HTTP + graphiti integration tasks.",
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "categories": ["apps_web"],
+  "priority": 70,
+  "maxSkills": 3,
+  "maxFacts": 6,
+  "maxChars": 2200,
+  "keywords": ["next", "chat", "graph", "route", "stream"]
+}

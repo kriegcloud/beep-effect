@@ -1,0 +1,32 @@
+[
+  {
+    "id": "context-tag-service-map",
+    "keywords": ["context.tag", "context.generictag", "service", "layer"],
+    "fact": "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+  },
+  {
+    "id": "catchall-catch",
+    "keywords": ["catchall", "error handling", "catch"],
+    "fact": "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag."
+  },
+  {
+    "id": "schema-decode-replacement",
+    "keywords": ["schema.decode", "decode", "schema"],
+    "fact": "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+  },
+  {
+    "id": "layer-scoped-removal",
+    "keywords": ["layer.scoped", "layer", "resource"],
+    "fact": "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+  },
+  {
+    "id": "platform-import-move",
+    "keywords": ["@effect/platform", "filesystem", "path"],
+    "fact": "FileSystem and Path moved to the root effect package in v4 for stable imports."
+  },
+  {
+    "id": "schema-package-merge",
+    "keywords": ["@effect/schema", "schema package", "import schema"],
+    "fact": "@effect/schema was merged; import Schema from effect/Schema (alias S)."
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "id": "adaptive",
+  "description": "Adaptive condition: targeted preflight guidance and focused skill activation.",
+  "conditions": ["adaptive", "adaptive_kg"],
+  "categories": ["apps_web", "tooling_cli", "package_lib"],
+  "priority": 85,
+  "maxSkills": 3,
+  "maxFacts": 6,
+  "maxChars": 2200,
+  "keywords": ["adaptive", "benchmark", "focused", "reliability"]
+}

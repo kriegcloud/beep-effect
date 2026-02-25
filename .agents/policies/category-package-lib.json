@@ -1,0 +1,11 @@
+{
+  "id": "category_package_lib",
+  "description": "Package/lib overlay for stable public API and strict Effect v4 import hygiene.",
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "categories": ["package_lib"],
+  "priority": 70,
+  "maxSkills": 3,
+  "maxFacts": 6,
+  "maxChars": 2200,
+  "keywords": ["package", "schema", "identity", "exports", "docgen"]
+}

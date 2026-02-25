@@ -61,12 +61,6 @@
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
       "@beep/ui/*": [
         "./packages/ui/ui/src/*.ts"
-      ],
-      "@beep/_test-agents-1771987653183": [
-        "./tooling/_test-agents-1771987653183/src/index.ts"
-      ],
-      "@beep/_test-agents-1771987653183/*": [
-        "./tooling/_test-agents-1771987653183/src/*.ts"
       ]
     },
     "plugins": [

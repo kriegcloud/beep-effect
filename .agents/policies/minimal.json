@@ -1,0 +1,11 @@
+{
+  "id": "minimal",
+  "description": "Minimal condition: strict context budget with small fact set for cost control.",
+  "conditions": ["minimal"],
+  "categories": ["apps_web", "tooling_cli", "package_lib"],
+  "priority": 90,
+  "maxSkills": 1,
+  "maxFacts": 2,
+  "maxChars": 900,
+  "keywords": ["minimal", "cost", "latency"]
+}

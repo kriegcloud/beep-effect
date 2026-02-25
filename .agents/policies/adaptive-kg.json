@@ -1,0 +1,11 @@
+{
+  "id": "adaptive_kg",
+  "description": "Adaptive KG condition: retrieval-enabled condition with larger bounded packet.",
+  "conditions": ["adaptive_kg"],
+  "categories": ["apps_web", "tooling_cli", "package_lib"],
+  "priority": 80,
+  "maxSkills": 3,
+  "maxFacts": 8,
+  "maxChars": 2600,
+  "keywords": ["kg", "graphrag", "memory", "retrieval"]
+}

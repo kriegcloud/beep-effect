@@ -10,6 +10,7 @@
     "directory": ".claude"
   },
   "scripts": {
+    "build": "tsc -b tsconfig.json",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -37,7 +37,14 @@
       {
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
-        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"]
+        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
+        "importAliases": {
+          "Array": "A",
+          "Option": "O",
+          "Predicate": "P",
+          "Record": "R",
+          "Schema": "S"
+        }
       }
     ]
   }

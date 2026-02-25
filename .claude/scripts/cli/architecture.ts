@@ -671,7 +671,7 @@ const main = Effect.gen(function* () {
       const service = args[1];
       if (!service) {
         yield* Console.error("Usage: architecture blast-radius <service> [directory]");
-        return yield* Effect.fail(new Error("Missing service"));
+        return yield* Effect.fail("Missing service");
       }
       if (args[2]) {
         directory = args[2];
@@ -702,7 +702,7 @@ const main = Effect.gen(function* () {
       const services = args.slice(1);
       if (services.length < 2) {
         yield* Console.error("Usage: architecture common-ancestors <service1> <service2> ... [directory]");
-        return yield* Effect.fail(new Error("Need at least 2 services"));
+        return yield* Effect.fail("Need at least 2 services");
       }
       const result = computeCommonAncestors(analysisGraph, services);
       yield* Console.log(renderCommonAncestors(result));
@@ -757,12 +757,12 @@ const main = Effect.gen(function* () {
     default:
       yield* Console.error(`Unknown command: ${command}`);
       yield* Console.log(helpText);
-      return yield* Effect.fail(new Error("Unknown command"));
+      return yield* Effect.fail("Unknown command");
   }
 }).pipe(
-  Effect.catch((error: Error) =>
+  Effect.catch((error) =>
     Effect.gen(function* () {
-      yield* Console.error(`Error: ${error}`);
+      yield* Console.error(`Error: ${String(error)}`);
       return yield* Effect.fail(error);
     })
   )

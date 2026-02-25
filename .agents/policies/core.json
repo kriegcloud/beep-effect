@@ -1,0 +1,11 @@
+{
+  "id": "core",
+  "description": "Immutable reliability core: always-on legal/safety constraints with conservative defaults.",
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "categories": ["apps_web", "tooling_cli", "package_lib"],
+  "priority": 100,
+  "maxSkills": 3,
+  "maxFacts": 6,
+  "maxChars": 2200,
+  "keywords": ["effect", "schema", "service", "layer", "typed"]
+}

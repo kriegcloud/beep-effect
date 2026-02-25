@@ -1,0 +1,11 @@
+{
+  "id": "category_tooling_cli",
+  "description": "Tooling CLI overlay for command safety, deterministic scripts, and checks.",
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "categories": ["tooling_cli"],
+  "priority": 70,
+  "maxSkills": 3,
+  "maxFacts": 6,
+  "maxChars": 2200,
+  "keywords": ["cli", "command", "check", "lint", "tsconfig"]
+}
