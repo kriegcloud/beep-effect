@@ -5,7 +5,7 @@
  *
  * import { Unsafe } from "@beep/types";
  *
- * export const youShouldFeelShame = (beepBopDumbass: Unsafe.Any) => console.log(beepBopDumbass);
+ * export const youShouldFeelShame = (beepBopUnsafeValue: Unsafe.Any) => console.log(beepBopUnsafeValue);
  *
  * @module @beep/types/Unsafe.types
  * @since 0.0.0
@@ -19,7 +19,7 @@
  *
  * import { Unsafe } from "@beep/types";
  *
- * export const youShouldFeelShame = (beepBopDumbass: Unsafe.Any) => console.log(beepBopDumbass);
+ * export const youShouldFeelShame = (beepBopUnsafeValue: Unsafe.Any) => console.log(beepBopUnsafeValue);
  *
  * @category Unsafe
  * @since 0.0.0
