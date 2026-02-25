@@ -4,9 +4,11 @@
  * @module @beep/utils/thunk
  */
 
-import { Effect, type LazyArg } from "effect";
+import { Effect } from "effect";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
+
+type LazyArg<A> = () => A;
 
 /**
  * Creates a thunk that always returns the provided value.
