@@ -13,6 +13,7 @@
  * @since 1.0.0
  */
 
+import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
@@ -314,6 +315,157 @@ const formatOutput = (context: string) =>
     },
   });
 
+interface KgContextSymbol {
+  readonly id: string;
+  readonly kind: string;
+  readonly score: number;
+  readonly provenance: string;
+}
+
+interface KgContextRelationship {
+  readonly type: string;
+  readonly from: string;
+  readonly to: string;
+  readonly score: number;
+  readonly provenance: string;
+}
+
+const readLatestSnapshotFile = (cwd: string): O.Option<string> => {
+  try {
+    const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
+    const entries = fs.readdirSync(snapshotRoot).filter((entry) => entry.endsWith(".jsonl"));
+    if (entries.length === 0) {
+      return O.none();
+    }
+
+    const latest = entries
+      .map((entry) => {
+        const fullPath = `${snapshotRoot}/${entry}`;
+        const stat = fs.statSync(fullPath);
+        return {
+          fullPath,
+          mtime: stat.mtimeMs,
+        };
+      })
+      .sort((left, right) => right.mtime - left.mtime)
+      .at(0);
+
+    return latest === undefined ? O.none() : O.some(latest.fullPath);
+  } catch {
+    return O.none();
+  }
+};
+
+const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string): number => {
+  const lowered = Str.toLowerCase(file);
+  let score = 0;
+  for (const keyword of promptKeywords) {
+    if (keyword.length > 0 && lowered.includes(keyword)) {
+      score += 1;
+    }
+  }
+  return score;
+};
+
+export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> => {
+  try {
+    const snapshotFile = readLatestSnapshotFile(cwd);
+    if (O.isNone(snapshotFile)) {
+      return O.none();
+    }
+
+    const content = fs.readFileSync(snapshotFile.value, "utf8");
+    const lines = Str.split(content, "\n")
+      .map((line) => Str.trim(line))
+      .filter((line) => line.length > 0);
+    if (lines.length === 0) {
+      return O.none();
+    }
+
+    const promptKeywords = extractKeywords(prompt);
+    const scored = lines
+      .map((line) => {
+        try {
+          const parsed = JSON.parse(line) as {
+            readonly file?: string;
+            readonly nodeCount?: number;
+            readonly edgeCount?: number;
+          };
+          const file = parsed.file ?? "";
+          return {
+            file,
+            nodeCount: parsed.nodeCount ?? 0,
+            edgeCount: parsed.edgeCount ?? 0,
+            score: scoreSnapshotRecord(promptKeywords, file),
+          };
+        } catch {
+          return {
+            file: "",
+            nodeCount: 0,
+            edgeCount: 0,
+            score: 0,
+          };
+        }
+      })
+      .filter((entry) => entry.file.length > 0 && entry.score > 0)
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 8);
+
+    if (scored.length === 0) {
+      return O.none();
+    }
+
+    const symbols: ReadonlyArray<KgContextSymbol> = scored.map((entry) => ({
+      id: `beep-effect3::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
+      kind: "module",
+      score: Math.min(0.99, 0.5 + entry.score * 0.1),
+      provenance: "ast",
+    }));
+
+    const relationships: ReadonlyArray<KgContextRelationship> = scored.slice(0, 7).map((entry, index) => ({
+      type: "CONTAINS",
+      from: symbols[index]?.id ?? "",
+      to: `${entry.file}#nodes:${String(entry.nodeCount)}#edges:${String(entry.edgeCount)}`,
+      score: Math.min(0.95, 0.45 + entry.score * 0.1),
+      provenance: "ast",
+    }));
+
+    const symbolXml = symbols
+      .map(
+        (symbol) =>
+          `<symbol id="${symbol.id}" kind="${symbol.kind}" score="${symbol.score.toFixed(2)}" provenance="${symbol.provenance}" />`
+      )
+      .join("\n");
+    const relationshipXml = relationships
+      .filter((relationship) => relationship.from.length > 0)
+      .slice(0, 14)
+      .map(
+        (relationship) =>
+          `<relationship type="${relationship.type}" from="${relationship.from}" to="${relationship.to}" score="${relationship.score.toFixed(2)}" provenance="${relationship.provenance}" />`
+      )
+      .join("\n");
+
+    const block = [
+      `<kg-context version="1">`,
+      `<symbols>`,
+      symbolXml,
+      `</symbols>`,
+      `<relationships>`,
+      relationshipXml,
+      `</relationships>`,
+      `<confidence overall="0.70" />`,
+      `<provenance local-cache="true" graphiti="false" commit="snapshot" />`,
+      `</kg-context>`,
+    ].join("\n");
+
+    return block.length > 6000 ? O.none() : O.some(block);
+  } catch {
+    return O.none();
+  }
+};
+
+const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");
+
 const program = Effect.gen(function* () {
   const terminal = yield* Terminal.Terminal;
 
@@ -362,6 +514,14 @@ elapsed_ms: ${elapsedMs}
 Run these with: mise run <task-name>
 ${miseTasksResult.value}
 </available-scripts>`);
+  }
+
+  const kgHookEnabled = process.env.BEEP_KG_HOOK_ENABLED !== "false";
+  if (kgHookEnabled) {
+    const kgContext = buildKgContextBlock(input.cwd, input.prompt);
+    if (O.isSome(kgContext)) {
+      parts.push(kgContext.value);
+    }
   }
 
   // Thoughtful pushback when there's genuine signal

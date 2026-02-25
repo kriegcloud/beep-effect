@@ -1,4 +1,7 @@
+import * as fs from "node:fs/promises";
+import * as nodePath from "node:path";
 import {
+  buildKgContextBlock,
   extractKeywords,
   findMatchingSkills,
   matchesWordBoundary,
@@ -371,6 +374,47 @@ describe("skill-suggester", () => {
       const edgeSkills: ReadonlyArray<SkillMetadata> = [{ name: "obscure-tool", keywords: ["rare"] }];
       const result = findMatchingSkills("a rare occurrence", edgeSkills);
       expect(result).not.toContain("obscure-tool");
+    });
+  });
+
+  describe("buildKgContextBlock", () => {
+    it("returns none when snapshots are unavailable", () => {
+      const none = buildKgContextBlock("/tmp/does-not-exist", "find module");
+      expect(none._tag).toBe("None");
+    });
+
+    it("builds bounded kg-context block from latest snapshot", async () => {
+      const cwd = nodePath.join(process.cwd(), `.claude/_test-kg-hook-${Date.now()}`);
+      const snapshotRoot = nodePath.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
+      await fs.mkdir(snapshotRoot, { recursive: true });
+      await fs.writeFile(
+        nodePath.join(snapshotRoot, "test-commit.jsonl"),
+        [
+          JSON.stringify({
+            file: "packages/fixture/src/index.ts",
+            nodeCount: 4,
+            edgeCount: 3,
+          }),
+          JSON.stringify({
+            file: "packages/fixture/src/dep.ts",
+            nodeCount: 2,
+            edgeCount: 1,
+          }),
+        ].join("\n"),
+        "utf8"
+      );
+
+      const context = buildKgContextBlock(cwd, "update fixture index module");
+      expect(context._tag).toBe("Some");
+      if (context._tag === "Some") {
+        expect(context.value).toContain('<kg-context version="1">');
+        expect(context.value).toContain("<symbols>");
+        expect(context.value).toContain("<relationships>");
+        expect(context.value).toContain("<confidence overall=");
+        expect(context.value).toContain('<provenance local-cache="true"');
+      }
+
+      await fs.rm(cwd, { recursive: true, force: true });
     });
   });
 });

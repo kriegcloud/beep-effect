@@ -17,7 +17,9 @@ Use README lock tables as normative defaults. P1 cannot reopen these decisions w
   1. canonical files (`README`, `QUICK_START`, `MASTER_ORCHESTRATION`, `AGENT_PROMPTS`, `RUBRICS`, `REFLECTION_LOG`)
   2. P0 handoffs (`HANDOFF_P0`, P0 orchestrator/research/reuse prompts)
   3. P0 outputs (`landscape-comparison`, `reuse-vs-build-matrix`, `constraints-and-gaps`, agent summaries)
-- Exit gate: required files present + pathless check pass.
+- Exit gate:
+  1. Required files present + pathless check pass.
+  2. P1 handoff prompt set exists.
 
 ## P1: Research and Decision Log Freeze
 - Objective: refresh evidence, confirm reuse/build boundaries, and freeze research-grade decision logs.
@@ -50,6 +52,7 @@ Use README lock tables as normative defaults. P1 cannot reopen these decisions w
   1. `TBD=0` across all design outputs.
   2. CLI/ID/envelope/hook contracts frozen.
   3. P3 task graph and ownership frozen.
+  4. P3 handoff prompt set exists (`HANDOFF_P2` + P3 prompts).
 
 ## P3: Core Implementation and Integration
 - Objective: implement AST/type/JSDoc extraction core, deterministic local cache, delta planner, Graphiti persistence, hook integration, and benchmark profile wiring.
@@ -68,6 +71,7 @@ Use README lock tables as normative defaults. P1 cannot reopen these decisions w
   1. Full + delta indexing smoke checks pass.
   2. Graphiti write path proven idempotent on replay.
   3. Hook fallback no-throw behavior passes integration checks.
+  4. P4 handoff prompt set exists.
 
 ## P4: Validation + Rollout
 - Objective: prove correctness/usefulness/impact and validate fallback.

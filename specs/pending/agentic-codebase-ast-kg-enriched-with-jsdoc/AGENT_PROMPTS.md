@@ -36,6 +36,9 @@ Required outputs:
 
 Hard rule: no unresolved architectural `TBD` by P2 exit.
 
+Phase completion invariant:
+A phase is complete only when outputs are present, exit gates pass, and next-phase handoff prompt documents are authored.
+
 ## P3 Core Engineers
 - AST Engineer: extraction + delta planner + deterministic cache.
 - Semantic Engineer: JSDoc tag mapper to graph edges.
@@ -58,3 +61,14 @@ Required output root: `outputs/p4-validation/*`
 - [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P1_RESEARCH_AGENT_PROMPT.md](./handoffs/P1_RESEARCH_AGENT_PROMPT.md)
 - [handoffs/P1_REUSE_AUDIT_AGENT_PROMPT.md](./handoffs/P1_REUSE_AUDIT_AGENT_PROMPT.md)
+- [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md)
+- [handoffs/P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md)
+- [handoffs/P2_SCHEMA_AGENT_PROMPT.md](./handoffs/P2_SCHEMA_AGENT_PROMPT.md)
+- [handoffs/P2_GRAPHITI_CONTRACT_AGENT_PROMPT.md](./handoffs/P2_GRAPHITI_CONTRACT_AGENT_PROMPT.md)
+- [handoffs/P2_HOOK_CONTRACT_AGENT_PROMPT.md](./handoffs/P2_HOOK_CONTRACT_AGENT_PROMPT.md)
+- [handoffs/P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md)
+- [handoffs/P3_AST_ENGINEER_PROMPT.md](./handoffs/P3_AST_ENGINEER_PROMPT.md)
+- [handoffs/P3_SEMANTIC_ENGINEER_PROMPT.md](./handoffs/P3_SEMANTIC_ENGINEER_PROMPT.md)
+- [handoffs/P3_GRAPHITI_ENGINEER_PROMPT.md](./handoffs/P3_GRAPHITI_ENGINEER_PROMPT.md)
+- [handoffs/P3_HOOK_ENGINEER_PROMPT.md](./handoffs/P3_HOOK_ENGINEER_PROMPT.md)
+- [handoffs/P3_EVAL_ENGINEER_PROMPT.md](./handoffs/P3_EVAL_ENGINEER_PROMPT.md)
