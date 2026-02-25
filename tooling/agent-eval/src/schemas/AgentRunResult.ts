@@ -39,5 +39,5 @@ export const AgentRunResultSchema = S.Struct({
   inputTokens: S.Int,
   outputTokens: S.Int,
   costUsd: S.Number,
-  wallMs: S.Int,
+  wallMs: S.Number,
 });
