@@ -11,16 +11,16 @@
  */
 
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
-import { Console, DateTime, Effect, FileSystem, Path, String as Str, type Schema } from "effect";
+import { Console, DateTime, Effect, FileSystem, Path, type Schema, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
-    checkConfigNeedsUpdateForTargets,
-    updateRootConfigsForTargets,
-    type ConfigUpdateBatchResult,
-    type ConfigUpdateTarget,
+  type ConfigUpdateBatchResult,
+  type ConfigUpdateTarget,
+  checkConfigNeedsUpdateForTargets,
+  updateRootConfigsForTargets,
 } from "./config-updater.js";
 import { createFileGenerationPlanService } from "./file-generation-plan-service.js";
 import { createTemplateService, type TemplateSpec } from "./template-service.js";

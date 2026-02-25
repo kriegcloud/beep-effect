@@ -6,11 +6,11 @@ import * as S from "effect/Schema";
 import { LanguageModel, Prompt, type Response, type Tool, type Toolkit } from "effect/unstable/ai";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import {
-    GraphFactsResultSchema,
-    GraphLinkSchema,
-    GraphNodeDetailsSchema,
-    GraphNodeSchema,
-    GraphSearchResultSchema,
+  GraphFactsResultSchema,
+  GraphLinkSchema,
+  GraphNodeDetailsSchema,
+  GraphNodeSchema,
+  GraphSearchResultSchema,
 } from "./mappers";
 import { GetFactsParametersSchema, GetNodeParameters, KnowledgeGraphToolkit, SearchGraphParameters } from "./tools";
 

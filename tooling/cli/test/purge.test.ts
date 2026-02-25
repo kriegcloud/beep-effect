@@ -31,7 +31,7 @@ const withTestLayers =
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const WORKSPACE_DIR_ARTIFACTS = ["build", "dist", ".next", "coverage", ".turbo", "node_modules"] as const;
+const WORKSPACE_DIR_ARTIFACTS = ["build", "dist", ".next", "coverage", ".turbo", "node_modules", "tsconfig.tsbuildinfo"] as const;
 
 interface RepoFixture {
   readonly rootDir: string;
@@ -77,6 +77,7 @@ const createRepoFixture = Effect.fn(function* () {
   // Root artifacts
   yield* fs.makeDirectory(path.join(rootDir, "node_modules"), { recursive: true });
   yield* fs.makeDirectory(path.join(rootDir, ".turbo"), { recursive: true });
+  yield* fs.makeDirectory(path.join(rootDir, "dist"), { recursive: true });
   yield* fs.writeFileString(path.join(rootDir, "bun.lock"), "# bun lock");
 
   // Workspace artifacts
@@ -162,6 +163,7 @@ describe("purge command", () => {
           // Root artifacts should be removed by default.
           expect(yield* exists(path.join(fixture.rootDir, "node_modules"))).toBe(false);
           expect(yield* exists(path.join(fixture.rootDir, ".turbo"))).toBe(false);
+          expect(yield* exists(path.join(fixture.rootDir, "dist"))).toBe(false);
 
           // bun.lock should remain unless --lock is requested.
           expect(yield* exists(path.join(fixture.rootDir, "bun.lock"))).toBe(true);

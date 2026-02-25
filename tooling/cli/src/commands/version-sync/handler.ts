@@ -11,7 +11,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type { HttpClient } from "effect/unstable/http";
 import { buildBiomeReport, resolveBiomeSchema, updateBiomeSchema } from "./resolvers/biome.js";
-import { buildBunReport, type BunVersionState, resolveBunVersions } from "./resolvers/bun.js";
+import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
 import { buildDockerReport, type DockerImageState, resolveDockerImages } from "./resolvers/docker.js";
 import { buildNodeReport, resolveNodeVersions } from "./resolvers/node.js";
 import type { VersionCategoryReport, VersionSyncMode, VersionSyncOptions, VersionSyncReport } from "./types.js";

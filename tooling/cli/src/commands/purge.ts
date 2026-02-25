@@ -19,6 +19,7 @@ import { Command, Flag } from "effect/unstable/cli";
  */
 const WORKSPACE_ARTIFACTS = [
   ".tsbuildinfo",
+  "tsconfig.tsbuildinfo",
   "build",
   "dist",
   "docs",
@@ -35,7 +36,7 @@ const WORKSPACE_ARTIFACTS = [
  * @since 0.0.0
  * @category constants
  */
-const ROOT_ARTIFACTS = ["node_modules", ".turbo", "docs"] as const;
+const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
 
 /**
  * Optional root lock artifact purged with `--lock` / `-l`.

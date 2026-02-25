@@ -1,11 +1,11 @@
 import {
-    type GraphFact,
-    type GraphLink,
-    GraphLinkSchema,
-    type GraphNode,
-    GraphNodeDetailsSchema,
-    GraphNodeSchema,
-    GraphSearchResultSchema,
+  type GraphFact,
+  type GraphLink,
+  GraphLinkSchema,
+  type GraphNode,
+  GraphNodeDetailsSchema,
+  GraphNodeSchema,
+  GraphSearchResultSchema,
 } from "@beep/web/lib/effect/mappers";
 import { Effect, Match, pipe } from "effect";
 import * as A from "effect/Array";

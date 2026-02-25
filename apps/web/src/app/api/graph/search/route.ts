@@ -1,13 +1,13 @@
 import { auth } from "@beep/web/lib/auth/server";
 import {
-    deriveNeighborNodes,
-    GraphNodeDetailsSchema,
-    GraphSearchResultSchema,
-    mapEntityNodesToGraphNodes,
-    mapEntityNodeToGraphNode,
-    mapFactsToGraphFacts,
-    mapFactsToGraphLinks,
-    mapSearchToGraphData,
+  deriveNeighborNodes,
+  GraphNodeDetailsSchema,
+  GraphSearchResultSchema,
+  mapEntityNodesToGraphNodes,
+  mapEntityNodeToGraphNode,
+  mapFactsToGraphFacts,
+  mapFactsToGraphLinks,
+  mapSearchToGraphData,
 } from "@beep/web/lib/effect/mappers";
 import { GraphitiService, type GraphitiServiceError } from "@beep/web/lib/graphiti/client";
 import { Effect, Match, pipe } from "effect";

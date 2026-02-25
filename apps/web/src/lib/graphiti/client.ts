@@ -1,15 +1,16 @@
 import { $WebId } from "@beep/identity/packages";
 import {
-    type GraphitiEntityNode,
-    GraphitiEntityNodeSchema,
-    type GraphitiFact,
-    GraphitiFactSchema,
+  type GraphitiEntityNode,
+  GraphitiEntityNodeSchema,
+  type GraphitiFact,
+  GraphitiFactSchema,
 } from "@beep/web/lib/effect/mappers";
 import { Effect, Layer, Match, pipe, ServiceMap, String } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+
 const $I = $WebId.create("lib/graphiti/client");
 const $ErrorsId = $I.create("errors");
 

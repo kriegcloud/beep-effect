@@ -3,16 +3,16 @@
 import type { GraphNode } from "@beep/web/lib/effect/mappers";
 import { chatContextNodeAtom } from "@beep/web/state/chat.atoms";
 import {
-    clearGraphHighlightsAtom,
-    expandGraphNodeAtom,
-    graphDataAtom,
-    graphSearchQueryAtom,
-    highlightedNodeIdsAtom,
-    loadSeedGraphAtom,
-    seedGraphLoadedAtom,
-    selectedGraphNodeAtom,
-    selectedNodeFactsAtom,
-    selectedNodeIdAtom,
+  clearGraphHighlightsAtom,
+  expandGraphNodeAtom,
+  graphDataAtom,
+  graphSearchQueryAtom,
+  highlightedNodeIdsAtom,
+  loadSeedGraphAtom,
+  seedGraphLoadedAtom,
+  selectedGraphNodeAtom,
+  selectedNodeFactsAtom,
+  selectedNodeIdAtom,
 } from "@beep/web/state/graph.atoms";
 import { useAtom, useAtomValue } from "@effect/atom-react";
 import { Match, pipe, String as Str } from "effect";

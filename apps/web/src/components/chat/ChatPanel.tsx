@@ -1,12 +1,12 @@
 "use client";
 
 import {
-    chatContextNodeAtom,
-    chatInputAtom,
-    chatLatestGraphSnippetAtom,
-    chatMessagesAtom,
-    clearChatContextNodeAtom,
-    sendChatMessageAtom,
+  chatContextNodeAtom,
+  chatInputAtom,
+  chatLatestGraphSnippetAtom,
+  chatMessagesAtom,
+  clearChatContextNodeAtom,
+  sendChatMessageAtom,
 } from "@beep/web/state/chat.atoms";
 import { useAtom, useAtomValue } from "@effect/atom-react";
 import { Match, pipe, String as Str } from "effect";

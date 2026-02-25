@@ -15,10 +15,10 @@ import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import * as jsonc from "jsonc-parser";
 import {
-    NetworkUnavailableError,
-    type VersionCategoryReport,
-    type VersionDriftItem,
-    VersionSyncError,
+  NetworkUnavailableError,
+  type VersionCategoryReport,
+  type VersionDriftItem,
+  VersionSyncError,
 } from "../types.js";
 
 // ── GitHub API schema ───────────────────────────────────────────────────────
