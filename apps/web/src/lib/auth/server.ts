@@ -7,7 +7,9 @@ import { Resend } from "resend";
 import { db } from "../db";
 import * as schema from "../db/schema";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY ?? "";
+const hasResolvedResendApiKey = resendApiKey.length > 0 && !resendApiKey.startsWith("op://");
+const resend = hasResolvedResendApiKey ? new Resend(resendApiKey) : undefined;
 const normalizeEmail = (value: string) => Str.toLowerCase(Str.trim(value));
 const configuredEmailFrom = process.env.EMAIL_FROM ? Str.trim(process.env.EMAIL_FROM) : undefined;
 const emailFrom =
@@ -30,6 +32,9 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, url }) => {
         if (HashSet.size(allowedEmails) === 0) {
           throw new Error("Email allowlist not configured");
+        }
+        if (resend === undefined) {
+          throw new Error("RESEND_API_KEY is not configured");
         }
         if (!HashSet.has(allowedEmails, normalizeEmail(email))) {
           throw new Error("Email not authorized");
