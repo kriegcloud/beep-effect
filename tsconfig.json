@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/language-service" },
+    { "path": "packages/harness-effect-v3" },
+    { "path": "packages/harness-effect-v4" }
+  ]
+}

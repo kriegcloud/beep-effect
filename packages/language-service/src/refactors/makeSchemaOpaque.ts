@@ -1,0 +1,255 @@
+import * as Array from "effect/Array"
+import { pipe } from "effect/Function"
+import * as Option from "effect/Option"
+import type ts from "typescript"
+import * as LSP from "../core/LSP.js"
+import * as Nano from "../core/Nano.js"
+import * as TypeCheckerApi from "../core/TypeCheckerApi.js"
+import * as TypeParser from "../core/TypeParser.js"
+import * as TypeScriptApi from "../core/TypeScriptApi.js"
+import * as TypeScriptUtils from "../core/TypeScriptUtils.js"
+
+export const _findSchemaVariableDeclaration = Nano.fn(
+  "makeSchemaOpaque._findSchemaVariableDeclaration"
+)(
+  function*(sourceFile: ts.SourceFile, textRange: ts.TextRange) {
+    const ts = yield* Nano.service(TypeScriptApi.TypeScriptApi)
+    const tsUtils = yield* Nano.service(TypeScriptUtils.TypeScriptUtils)
+    const typeChecker = yield* Nano.service(TypeCheckerApi.TypeCheckerApi)
+    const typeParser = yield* Nano.service(TypeParser.TypeParser)
+
+    const findSchema = Nano.fn("makeSchemaOpaque.apply.findSchema")(
+      function*(node: ts.Node) {
+        if (!ts.isVariableDeclaration(node)) {
+          return yield* Nano.fail("parent should be variable declaration")
+        }
+        const identifier = node.name
+        if (!ts.isIdentifier(identifier)) return yield* Nano.fail("name should be an identifier")
+        const initializer = node.initializer
+        if (!initializer) return yield* Nano.fail("should have an initializer")
+
+        const variableDeclarationList = node.parent
+        if (!variableDeclarationList || !ts.isVariableDeclarationList(variableDeclarationList)) {
+          return yield* Nano.fail("parent is not a variable declaration list")
+        }
+
+        const variableStatement = variableDeclarationList.parent
+        if (!variableStatement || !ts.isVariableStatement(variableStatement)) {
+          return yield* Nano.fail("parent not variable declaration statement")
+        }
+
+        const type = typeChecker.getTypeAtLocation(initializer)
+        const types = yield* typeParser.effectSchemaType(type, initializer)
+
+        return { identifier, variableStatement, variableDeclarationList, types }
+      }
+    )
+
+    return yield* pipe(
+      tsUtils.getAncestorNodesInRange(sourceFile, textRange),
+      Array.map(findSchema),
+      Nano.firstSuccessOf,
+      Nano.option
+    )
+  }
+)
+
+export const _createOpaqueTypes = Nano.fn("_createOpaqueTypes")(function*(
+  effectSchemaName: string,
+  inferFromName: string,
+  typeA: ts.Type,
+  opaqueTypeName: string,
+  typeE: ts.Type,
+  opaqueEncodedName: string,
+  opaqueContextName: string,
+  isV4: boolean,
+  opaqueEncodingServicesName: string
+) {
+  const ts = yield* Nano.service(TypeScriptApi.TypeScriptApi)
+  // opaque type
+  const opaqueInferred = ts.factory.createExpressionWithTypeArguments(
+    ts.factory.createPropertyAccessExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier(effectSchemaName),
+        ts.factory.createIdentifier("Schema")
+      ),
+      ts.factory.createIdentifier("Type")
+    ),
+    [ts.factory.createTypeQueryNode(
+      ts.factory.createIdentifier(inferFromName)
+    )]
+  )
+  const opaqueType = !(typeA.flags & ts.TypeFlags.Object) ?
+    ts.factory.createTypeAliasDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      opaqueTypeName,
+      [],
+      opaqueInferred
+    ) :
+    ts.factory.createInterfaceDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      opaqueTypeName,
+      undefined,
+      [ts.factory.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [opaqueInferred]
+      )],
+      []
+    )
+  // encoded type
+  const encodedInferred = ts.factory.createExpressionWithTypeArguments(
+    ts.factory.createPropertyAccessExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier(effectSchemaName),
+        ts.factory.createIdentifier(isV4 ? "Codec" : "Schema")
+      ),
+      ts.factory.createIdentifier("Encoded")
+    ),
+    [ts.factory.createTypeQueryNode(
+      ts.factory.createIdentifier(inferFromName)
+    )]
+  )
+  const encodedType = !(typeE.flags & ts.TypeFlags.Object) ?
+    ts.factory.createTypeAliasDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      opaqueEncodedName,
+      [],
+      encodedInferred
+    ) :
+    ts.factory.createInterfaceDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      opaqueEncodedName,
+      undefined,
+      [ts.factory.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [encodedInferred]
+      )],
+      []
+    )
+
+  // context
+  const contextInferred = ts.factory.createExpressionWithTypeArguments(
+    ts.factory.createPropertyAccessExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier(effectSchemaName),
+        ts.factory.createIdentifier(isV4 ? "Codec" : "Schema")
+      ),
+      ts.factory.createIdentifier(isV4 ? "DecodingServices" : "Context")
+    ),
+    [ts.factory.createTypeQueryNode(
+      ts.factory.createIdentifier(inferFromName)
+    )]
+  )
+  const contextType = ts.factory.createTypeAliasDeclaration(
+    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    opaqueContextName,
+    [],
+    contextInferred
+  )
+
+  const contextEncodeInferred = ts.factory.createExpressionWithTypeArguments(
+    ts.factory.createPropertyAccessExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier(effectSchemaName),
+        ts.factory.createIdentifier(isV4 ? "Codec" : "Schema")
+      ),
+      ts.factory.createIdentifier(isV4 ? "EncodingServices" : "Context")
+    ),
+    [ts.factory.createTypeQueryNode(
+      ts.factory.createIdentifier(inferFromName)
+    )]
+  )
+  const contextEncodeType = ts.factory.createTypeAliasDeclaration(
+    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    opaqueEncodingServicesName,
+    [],
+    contextEncodeInferred
+  )
+
+  return { contextType, contextEncodeType, encodedType, opaqueType }
+})
+
+export const makeSchemaOpaque = LSP.createRefactor({
+  name: "makeSchemaOpaque",
+  description: "Make Schema opaque",
+  apply: Nano.fn("makeSchemaOpaque.apply")(function*(sourceFile, textRange) {
+    const ts = yield* Nano.service(TypeScriptApi.TypeScriptApi)
+    const tsUtils = yield* Nano.service(TypeScriptUtils.TypeScriptUtils)
+    const typeParser = yield* Nano.service(TypeParser.TypeParser)
+    const supportedEffect = typeParser.supportedEffect()
+
+    const maybeNode = yield* _findSchemaVariableDeclaration(sourceFile, textRange)
+    if (Option.isNone(maybeNode)) return yield* Nano.fail(new LSP.RefactorNotApplicableError())
+
+    const { identifier, types, variableDeclarationList, variableStatement } = maybeNode.value
+
+    return {
+      kind: "refactor.rewrite.effect.makeSchemaOpaque",
+      description: `Make Schema opaque`,
+      apply: pipe(
+        Nano.gen(function*() {
+          const changeTracker = yield* Nano.service(TypeScriptApi.ChangeTracker)
+          const effectSchemaName = tsUtils.findImportedModuleIdentifierByPackageAndNameOrBarrel(
+            sourceFile,
+            "effect",
+            "Schema"
+          ) || "Schema"
+
+          const newIdentifier = ts.factory.createIdentifier(ts.idText(identifier) + "_")
+          const { contextEncodeType, contextType, encodedType, opaqueType } = yield* _createOpaqueTypes(
+            effectSchemaName,
+            ts.idText(newIdentifier),
+            types.A,
+            ts.idText(identifier),
+            types.I,
+            ts.idText(identifier) + "Encoded",
+            supportedEffect === "v4" ? ts.idText(identifier) + "DecodingServices" : ts.idText(identifier) + "Context",
+            supportedEffect === "v4",
+            supportedEffect === "v4" ? ts.idText(identifier) + "EncodingServices" : ts.idText(identifier) + "Context"
+          )
+
+          changeTracker.replaceNode(
+            sourceFile,
+            identifier,
+            newIdentifier
+          )
+          changeTracker.insertNodeAfter(sourceFile, variableStatement, opaqueType)
+          changeTracker.insertNodeAfter(sourceFile, variableStatement, encodedType)
+          changeTracker.insertNodeAfter(sourceFile, variableStatement, contextType)
+          if (supportedEffect === "v4") {
+            changeTracker.insertNodeAfter(sourceFile, variableStatement, contextEncodeType)
+          }
+
+          // insert new declaration
+          const newSchemaType = ts.factory.createTypeReferenceNode(
+            ts.factory.createQualifiedName(
+              ts.factory.createIdentifier(effectSchemaName),
+              supportedEffect === "v4" ? ts.factory.createIdentifier("Codec") : ts.factory.createIdentifier("Schema")
+            ),
+            [
+              ts.factory.createTypeReferenceNode(opaqueType.name),
+              ts.factory.createTypeReferenceNode(encodedType.name),
+              ts.factory.createTypeReferenceNode(contextType.name)
+            ].concat(supportedEffect === "v4" ? [ts.factory.createTypeReferenceNode(contextEncodeType.name)] : [])
+          )
+          const newConstDeclaration = ts.factory.createVariableStatement(
+            variableStatement.modifiers,
+            ts.factory.createVariableDeclarationList(
+              [ts.factory.createVariableDeclaration(
+                ts.idText(identifier),
+                undefined,
+                newSchemaType,
+                ts.factory.createIdentifier(ts.idText(newIdentifier))
+              )],
+              variableDeclarationList.flags
+            )
+          )
+
+          changeTracker.insertNodeAfter(sourceFile, variableStatement, newConstDeclaration)
+          changeTracker.insertText(sourceFile, variableStatement.end, "\n")
+        }),
+        Nano.provideService(TypeScriptApi.TypeScriptApi, ts)
+      )
+    }
+  })
+})
