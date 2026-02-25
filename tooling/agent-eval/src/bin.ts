@@ -8,11 +8,9 @@
  */
 
 import type { FileSystem, Path } from "effect";
-import { Cause, Effect, HashMap } from "effect";
+import { Cause, Effect, Exit, HashMap, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { handleBench } from "./commands/bench.js";
 import {
   parseBenchAgentsFlag,
