@@ -23,17 +23,17 @@ Choose based on what throws:
 
 ```ts
 import { Effect, Schema as S } from "effect"
-import { make } from "@beep/identity"
+import { $PackageNameId } from "@beep/identity/packages"
 
-const $Id = make("beep").$BeepId.create("myDomain")
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 // Step 1: Define a tagged error with Schema annotations.
 // WHY: TaggedErrorClass gives you a _tag discriminant for catchTag + Schema encode/decode.
-class JsonParseError extends S.TaggedErrorClass<JsonParseError>($Id`JsonParseError`)(
+class JsonParseError extends S.TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
   "JsonParseError",
   { input: S.String, message: S.String },
   // WHY: Annotations make errors self-documenting and inspectable.
-  { identifier: "JsonParseError", title: "JSON Parse Error", description: "Failed to parse JSON string" }
+  $I.annote("JsonParseError", { title: "JSON Parse Error", description: "Failed to parse JSON string" })
 ) {}
 
 // Step 2: Wrap the throwable call.

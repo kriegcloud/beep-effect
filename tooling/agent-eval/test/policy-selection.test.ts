@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { hasValidSkillCap, selectFocusedSkills, selectPolicyPacket, type PolicyOverlay } from "../src/policies/index.js";
+import {
+  hasValidSkillCap,
+  type PolicyOverlay,
+  selectFocusedSkills,
+  selectPolicyPacket,
+} from "../src/policies/index.js";
 
 describe("policy selection", () => {
   const overlays: ReadonlyArray<PolicyOverlay> = [

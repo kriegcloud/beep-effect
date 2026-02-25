@@ -222,57 +222,57 @@ const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define custom error types
 class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
-	"ValidationError",
-	{
-		field: S.String,
-		message: S.String
-	},
-	$I.annote("ValidationError", {
-		description: "a meaningful description of the error"
-	})
+  "ValidationError",
+  {
+    field: S.String,
+    message: S.String
+  },
+  $I.annote("ValidationError", {
+    description: "a meaningful description of the error"
+  })
 ) {
 }
 
 class NetworkError extends S.TaggedErrorClass($I`NetworkError`)(
-	"NetworkError",
-	{
-		status: S.Int,
+  "NetworkError",
+  {
+    status: S.Int,
         url: S.String
     },
   $I.annote("NetworkError", {
-		description: "a meaningful description of the error"
+    description: "a meaningful description of the error"
   })
 ) {
 }
 
 // Use in operations
 const validateAndFetch = 
-	Effect.fn("validateAndFetch")(function* (url: string) {
-		if (!Str.startsWith("https://")(url)) {
-			return yield* Effect.fail(
-				new ValidationError({
-					field: "url",
-					message: "URL must use HTTPS"
-				})
-			)
-		}
+  Effect.fn("validateAndFetch")(function* (url: string) {
+    if (!Str.startsWith("https://")(url)) {
+      return yield* Effect.fail(
+        new ValidationError({
+          field: "url",
+          message: "URL must use HTTPS"
+        })
+      )
+    }
 
-		const response = yield* Effect.tryPromise({
-			try: () => fetch(url),
-			catch: () => new NetworkError({status: 0, url})
-		})
+    const response = yield* Effect.tryPromise({
+      try: () => fetch(url),
+      catch: () => new NetworkError({status: 0, url})
+    })
 
-		if (!response.ok) {
-			return yield* Effect.fail(
-				new NetworkError({
-					status: response.status,
-					url
-				})
-			)
-		}
+    if (!response.ok) {
+      return yield* Effect.fail(
+        new NetworkError({
+          status: response.status,
+          url
+        })
+      )
+    }
 
-		return response
-	})
+    return response
+  })
 ```
 
 ### Resource Management Pattern
@@ -325,41 +325,41 @@ const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define service interfaces
 class DatabaseService extends ServiceMap.Service<DatabaseService, {
-	readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
+  readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
 }>()($I`DatabaseService`) {
 }
 
 class UserService extends ServiceMap.Service<UserService, {
-	readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
+  readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
 }>()($I`UserService`) {
 }
 
 // Implement services as layers
 const DatabaseServiceLive = Layer.succeed(
-	DatabaseService,
-	DatabaseService.of({
-		query: (sql) => Effect.tryPromise({
-			try: () => database.execute(sql),
-			catch: (error) => new DatabaseError({cause: error})
-		})
-	})
+  DatabaseService,
+  DatabaseService.of({
+    query: (sql) => Effect.tryPromise({
+      try: () => database.execute(sql),
+      catch: (error) => new DatabaseError({cause: error})
+    })
+  })
 );
 
 const UserServiceLive = Layer.effect(
-	UserService,
-	Effect.gen(function* () {
-		const db = yield* DatabaseService;
+  UserService,
+  Effect.gen(function* () {
+    const db = yield* DatabaseService;
 
-		return UserService.of({
-			getUser: Effect.fn(function* (id) {
-				const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`);
-				if (rows.length === 0) {
-					return yield* Effect.fail(new UserError({message: "User not found"}));
-				}
-				return rows[0] as User;
-			})
-		});
-	})
+    return UserService.of({
+      getUser: Effect.fn(function* (id) {
+        const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`);
+        if (rows.length === 0) {
+          return yield* Effect.fail(new UserError({message: "User not found"}));
+        }
+        return rows[0] as User;
+      })
+    });
+  })
 );
 
 // Compose layers
@@ -415,39 +415,39 @@ import * as S from "effect/Schema";
 const $I = $SomePackageId.create("relative/path/to/file");
 
 export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
-	{
-		option1: S.String,
-		option2: S.Number
-	},
-	$I.annote(
-		"FeatureConfig",
-		{
-			description: "Configuration for a feature"
-		}
-	)
+  {
+    option1: S.String,
+    option2: S.Number
+  },
+  $I.annote(
+    "FeatureConfig",
+    {
+      description: "Configuration for a feature"
+    }
+  )
 ) {}
 
 // Step 1: Basic structure with effect/Schema
 
 // Step 2: Core implementation
 const createFeature = Effect.fn("createFeature")(function* (
-	config: FeatureConfig // S.Class is opaque and can be used as a type
+  config: FeatureConfig // S.Class is opaque and can be used as a type
 ) {
-	// Basic implementation
-	yield* Console.log("Feature created");
-	return {config};
+  // Basic implementation
+  yield* Console.log("Feature created");
+  return {config};
 });
 
 // Step 3: Add error handling
 const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(function* (
-	config: FeatureConfig
+  config: FeatureConfig
 ) {
-	if (config.option2 < 0) {
-		return yield* Effect.fail("Option2 must be positive");
-	}
+  if (config.option2 < 0) {
+    return yield* Effect.fail("Option2 must be positive");
+  }
 
-	const feature = yield* createFeature(config);
-	return feature;
+  const feature = yield* createFeature(config);
+  return feature;
 });
 
 // Step 4: Add comprehensive functionality

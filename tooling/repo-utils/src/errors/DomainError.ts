@@ -7,7 +7,10 @@
  * @since 0.0.0
  * @category errors
  */
+import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+
+const $I = $RepoUtilsId.create("errors/DomainError");
 
 /**
  * A generic domain-level error with an optional underlying cause.
@@ -15,16 +18,16 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class DomainError extends S.TaggedErrorClass<DomainError>("@beep/repo-utils/errors/DomainError/DomainError")(
+export class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",
   {
     message: S.String,
     cause: S.optional(S.Unknown),
   },
-  {
+  $I.annote("DomainError", {
     title: "Domain Error",
     description:
       "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors.",
-  }
+  })
 ) {}
 // bench

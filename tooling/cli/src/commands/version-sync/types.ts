@@ -5,8 +5,11 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("commands/version-sync/types");
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 
@@ -16,12 +19,13 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>(
-  "@beep/repo-cli/commands/version-sync/VersionSyncError"
-)(
+export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
   "VersionSyncError",
   { message: S.String, file: S.String, cause: S.optional(S.Unknown) },
-  { title: "Version Sync Error", description: "Failed to read, resolve, or update a version pin" }
+  $I.annote("VersionSyncError", {
+    title: "Version Sync Error",
+    description: "Failed to read, resolve, or update a version pin",
+  })
 ) {}
 
 /**
@@ -30,12 +34,13 @@ export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>(
  * @since 0.0.0
  * @category errors
  */
-export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailableError>(
-  "@beep/repo-cli/commands/version-sync/NetworkUnavailableError"
-)(
+export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailableError>($I`NetworkUnavailableError`)(
   "NetworkUnavailableError",
   { message: S.String },
-  { title: "Network Unavailable", description: "Upstream version resolution failed due to network" }
+  $I.annote("NetworkUnavailableError", {
+    title: "Network Unavailable",
+    description: "Upstream version resolution failed due to network",
+  })
 ) {}
 
 /**
@@ -44,12 +49,13 @@ export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailab
  * @since 0.0.0
  * @category errors
  */
-export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftError>(
-  "@beep/repo-cli/commands/version-sync/VersionSyncDriftError"
-)(
+export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftError>($I`VersionSyncDriftError`)(
   "VersionSyncDriftError",
   { message: S.String, driftCount: S.Number },
-  { title: "Version Sync Drift Error", description: "Version drift detected in check mode" }
+  $I.annote("VersionSyncDriftError", {
+    title: "Version Sync Drift Error",
+    description: "Version drift detected in check mode",
+  })
 ) {}
 
 // ── Report model ────────────────────────────────────────────────────────────

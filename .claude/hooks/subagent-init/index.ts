@@ -15,9 +15,12 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Array as Arr, Config, Console, Effect, Layer, pipe, Schema, ServiceMap } from "effect";
 import { ChildProcess } from "effect/unstable/process";
+
+const $I = $ClaudeId.create("hooks/subagent-init/index");
 
 const AgentConfigSchema = Schema.Struct({
   projectDir: Schema.NonEmptyString,
@@ -37,13 +40,15 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     return `${t.name}${aliases}: ${t.description}`;
   }).join("\n");
 
-export class AgentConfigError extends Schema.TaggedErrorClass<AgentConfigError>(
-  "@beep/claude/hooks/subagent-init/AgentConfigError"
-)("AgentConfigError", { reason: Schema.String, cause: Schema.optional(Schema.Unknown) }) {}
-
-export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()(
-  "@beep/claude/hooks/subagent-init/AgentConfig"
+export class AgentConfigError extends Schema.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
+  "AgentConfigError",
+  { reason: Schema.String, cause: Schema.optional(Schema.Unknown) },
+  $I.annote("AgentConfigError", {
+    description: "Raised when subagent hook configuration cannot be decoded.",
+  })
 ) {}
+
+export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
 
 const ProjectDirConfig = pipe(
   Config.string("CLAUDE_PROJECT_DIR"),

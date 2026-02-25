@@ -26,8 +26,8 @@ Effect.gen(function*() {
 Effect.gen(function*() {
   const result = yield* Effect.result(someEffect)
   if (
-		P.isTagged(result, "Failure") // prefer this
-		// same as `result._tag === "Failure"`
+    P.isTagged(result, "Failure") // prefer this
+    // same as `result._tag === "Failure"`
   ) {
     // Handle error appropriately
     return yield* Effect.fail("handled error")
@@ -70,74 +70,73 @@ const $I = $SomePackageId.create("relative/path/to/file"); // define canonical I
 
 // Basic tagged error - has _tag for catchTag discrimination
 class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
-	"ValidationError",
-	{
-		field: S.String,
-		message: S.String
-	},
-	$I.annote(  // Annotate with IdentityComposer to tersly add `identifier` & `title` annotations
-		"ValidationError",
-		{
-			description: "A validation error."
-		}
-	)
+  "ValidationError",
+  {
+    field: S.String,
+    message: S.String
+  },
+  $I.annote(  // Annotate with IdentityComposer to tersly add `identifier` & `title` annotations
+    "ValidationError",
+    {
+      description: "A validation error."
+    }
+  )
 ) {
 }
 
 // Network error with cause
 class NetworkError extends S.TaggedErrorClass<NetworkError>($I`NetworkError`)(
-	"NetworkError",
-	{
-		status: S.Number,
-		url: S.String,
-		cause: S.optionalKey(S.Defect)
-	},
-	$I.annote(
-		"NetworkError",
-		{
-			description: "A network error with a status code and URL."
-		}
-	)
+  "NetworkError",
+  {
+    status: S.Number,
+    url: S.String,
+    cause: S.optionalKey(S.Defect)
+  },
+  $I.annote(
+    "NetworkError",
+    {
+      description: "A network error with a status code and URL."
+    }
+  )
 ) {
-	// Custom message formatting
-	override get message(): string {
-		return `Network request failed: ${this.status} ${this.url}`;
-	}
+  // Custom message formatting
+  override get message(): string {
+    return `Network request failed: ${this.status} ${this.url}`;
+  }
 }
 
 const SystemErrorReason = LiteralKit([
-	"reason1",
-	"reason2"
+  "reason1",
+  "reason2"
 ]);
-
 
 // Platform error with context
 class SystemError extends S.TaggedErrorClass<SystemError>($I`SystemError`)(
-	"SystemError",
-	{
-		reason: SystemErrorReason,
-		module: S.String,
-		method: S.String,
-		pathOrDescriptor: S.optionalKey(S.Union([
-			S.String,
-			S.Number
-		])),
-		cause: S.optionalKey(S.Defect)
-	},
+  "SystemError",
+  {
+    reason: SystemErrorReason,
+    module: S.String,
+    method: S.String,
+    pathOrDescriptor: S.optionalKey(S.Union([
+      S.String,
+      S.Number
+    ])),
+    cause: S.optionalKey(S.Defect)
+  },
   $I.annote(
-		"SystemError",
-	  {
-			description: "A platform error with a reason, module, method, optional path or descriptor, and optional cause."
-	  }
+    "SystemError",
+    {
+      description: "A platform error with a reason, module, method, optional path or descriptor, and optional cause."
+    }
   )
 ) {
-	override get message(): string {
-		return `${this.reason}: ${this.module}.${this.method}${this.pathOrDescriptor !== undefined
-		                                                       ? ` (${this.pathOrDescriptor})`
-		                                                       : ""}${this.cause
-		                                                              ? `: ${this.cause}`
-		                                                              : ""}`;
-	}
+  override get message(): string {
+    return `${this.reason}: ${this.module}.${this.method}${this.pathOrDescriptor !== undefined
+                                                           ? ` (${this.pathOrDescriptor})`
+                                                           : ""}${this.cause
+                                                                  ? `: ${this.cause}`
+                                                                  : ""}`;
+  }
 }
 ```
 
@@ -243,75 +242,75 @@ const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define individual error types
 export class RequestError extends S.TaggedErrorClass<RequestError>($I`RequestError`)(
-	"RequestError",
-	{
-		reason: HttpClientErrorReason.pick([
-			"Transport",
-			"Encode",
-			"InvalidUrl"
-		]),
-		url: S.String,
-		cause: S.optionalKey(S.Defect)
-	},
-	$I.annote(
-		"RequestError",
-		{
-			description: "A meaningful description"
-		}
-	)
+  "RequestError",
+  {
+    reason: HttpClientErrorReason.pick([
+      "Transport",
+      "Encode",
+      "InvalidUrl"
+    ]),
+    url: S.String,
+    cause: S.optionalKey(S.Defect)
+  },
+  $I.annote(
+    "RequestError",
+    {
+      description: "A meaningful description"
+    }
+  )
 ) {
 }
 
 export class ResponseError extends S.TaggedErrorClass<ResponseError>($I`ResponseError`)(
-	"ResponseError",
-	{
-		reason: HttpClientErrorReason.pick([
-			"StatusCode",
-			"Decode",
-			"EmptyBody"
-		]),
-		status: S.Number,
-		cause: S.optionalKey(S.Defect)
-	},
-	$I.annote(
-		"ResponseError",
-		{
-			description: "A meaningful description"
-		}
-	)
+  "ResponseError",
+  {
+    reason: HttpClientErrorReason.pick([
+      "StatusCode",
+      "Decode",
+      "EmptyBody"
+    ]),
+    status: S.Number,
+    cause: S.optionalKey(S.Defect)
+  },
+  $I.annote(
+    "ResponseError",
+    {
+      description: "A meaningful description"
+    }
+  )
 ) {
 }
 
 // Compose errors using effect/Schema `Union`
 export const HttpClientError = S.Union([
-	RequestError,
-	ResponseError
+  RequestError,
+  ResponseError
 ])
 .annotate($I.annote(
-	"HttpClientError",
-	{
-		description: "A meaningful description"
-	}
+  "HttpClientError",
+  {
+    description: "A meaningful description"
+  }
 ));
 
 export type HttpClientError = typeof HttpClientError.Type;
 
 // Usage in function signatures
 const fetchData: (url: string) => Effect.Effect<Data, HttpClientError> = Effect.fn(function* (url) {
-	// Implementation...
+  // Implementation...
 });
 
 // Discriminate using catchTag
 const handleErrors = fetchData(url)
 .pipe(
-	Effect.catchTags({
-		RequestError: (error) => {
-			// Handle request errors
-		},
-		ResponseError: (error) => {
-			// Handle response errors
-		}
-	}),
+  Effect.catchTags({
+    RequestError: (error) => {
+      // Handle request errors
+    },
+    ResponseError: (error) => {
+      // Handle response errors
+    }
+  }),
   
 );
 ```
@@ -370,41 +369,41 @@ For Promise-based operations:
 import {flow, Effect} from "effect";
 // Network request with structured errors
 const fetchUser = flow(
-	(id: string) => Effect.tryPromise({
-		try: () => fetch(`/api/users/${id}`),
-		catch: (error) => new NetworkError({
-			status: 0,
-			url: `/api/users/${id}`,
-			cause: error
-		})
-	}),
-	Effect.flatMap((response) => response.ok
-	                             ? Effect.tryPromise({
-			try: () => response.json(),
-			catch: (error) => new ParseError({
-				input: "response body",
-				cause: error
-			})
-		})
-	                             : Effect.fail(new NetworkError({
-			status: response.status,
-			url: response.url
-		})))
+  (id: string) => Effect.tryPromise({
+    try: () => fetch(`/api/users/${id}`),
+    catch: (error) => new NetworkError({
+      status: 0,
+      url: `/api/users/${id}`,
+      cause: error
+    })
+  }),
+  Effect.flatMap((response) => response.ok
+                               ? Effect.tryPromise({
+      try: () => response.json(),
+      catch: (error) => new ParseError({
+        input: "response body",
+        cause: error
+      })
+    })
+                               : Effect.fail(new NetworkError({
+      status: response.status,
+      url: response.url
+    })))
 );
 
 // File operations
 const readFile = (path: string) => Effect.tryPromise({
-	try: () => import("fs/promises").then((fs) => fs.readFile(
-		path,
-		"utf8"
-	)),
-	catch: (error: NodeJS.ErrnoException) => new SystemError({
-		reason: mapErrnoToReason(error.code),
-		module: "FileSystem",
-		method: "readFile",
-		pathOrDescriptor: path,
-		cause: error
-	})
+  try: () => import("fs/promises").then((fs) => fs.readFile(
+    path,
+    "utf8"
+  )),
+  catch: (error: NodeJS.ErrnoException) => new SystemError({
+    reason: mapErrnoToReason(error.code),
+    module: "FileSystem",
+    method: "readFile",
+    pathOrDescriptor: path,
+    cause: error
+  })
 });
 ```
 
@@ -538,25 +537,24 @@ import {Match} from "effect";
 // Convert platform errors to domain errors
 const mapFileSystemError = Match.type<SystemError>()
 .pipe(
-	Match.withReturnType<DomainError>(),
-	Match.when(
-		{reason: "NotFound"},
-		(error) => new ResourceNotFoundError({resource: error.pathOrDescriptor})
-	),
-	Match.when(
-		{reason: "PermissionDenied"},
-		(error) => new AccessDeniedError({resource: error.pathOrDescriptor})
-	),
-	Match.orElse((error) => new UnknownError({cause: error}))
+  Match.withReturnType<DomainError>(),
+  Match.when(
+    {reason: "NotFound"},
+    (error) => new ResourceNotFoundError({resource: error.pathOrDescriptor})
+  ),
+  Match.when(
+    {reason: "PermissionDenied"},
+    (error) => new AccessDeniedError({resource: error.pathOrDescriptor})
+  ),
+  Match.orElse((error) => new UnknownError({cause: error}))
 );
-
 
 // Error aggregation for multiple operations
 const aggregateErrors = <E>(errors: ReadonlyArray<E>): E | AggregateError<E> => {
-	if (errors.length === 1) {
-		return errors[0]!;
-	}
-	return new AggregateError({errors});
+  if (errors.length === 1) {
+    return errors[0]!;
+  }
+  return new AggregateError({errors});
 };
 ```
 

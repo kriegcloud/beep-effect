@@ -7,6 +7,8 @@ Eff = "Eff"
 
 # Effect-TS API names (not typos)
 Somes = "Somes"
+annote = "annote"
+retriev = "retriev"
 
 # Biome rule names
 Inferrable = "Inferrable"
@@ -39,6 +41,7 @@ extend-exclude = [
   ".next/**",
   "**/storybook-static/**",
   ".beep/**",
+  "outputs/agent-reliability/**",
   "specs/**",
   "THOUGHTS.md",
   "**/internal/data/**",

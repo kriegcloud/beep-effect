@@ -1,0 +1,13 @@
+{
+  "id": "tooling_cli_03",
+  "title": "Version sync determinism",
+  "category": "tooling_cli",
+  "prompt": "Make version-sync execution deterministic and replace any stale v3 error-handling APIs.",
+  "cwd": "tooling/cli",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 10,
+  "touchedPathAllowlist": [
+    "tooling/cli/src/commands/version-sync.ts",
+    "tooling/cli/src/services"
+  ]
+}

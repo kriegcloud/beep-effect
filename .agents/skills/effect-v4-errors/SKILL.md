@@ -12,11 +12,14 @@ status: active
 1. Catch semantics:
 - Replace `Effect.catchAll` with `Effect.catch`.
 - Use `Effect.catchTag` for tagged typed errors.
+- Prefer `Effect.try` / `Effect.tryPromise` for exception boundaries.
 
 2. Error modeling:
-- Prefer `Schema.TaggedErrorClass` for public error channels.
+- Prefer `S.TaggedErrorClass` (`effect/Schema` as `S`) for public error channels.
 - Keep payloads minimal and structured.
+- Do not use `new Error(...)`, `class X extends Error`, or raw `throw`.
 
 3. Null handling:
 - Use `Option` at boundaries.
 - Use `Match` for explicit branching and clearer failure modes.
+- Avoid `| null`, `= null`, non-null assertions (`!`), and type assertions (`as ...`).

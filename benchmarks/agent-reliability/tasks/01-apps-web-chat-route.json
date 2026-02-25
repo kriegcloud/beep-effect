@@ -1,0 +1,13 @@
+{
+  "id": "apps_web_01",
+  "title": "Chat Route Effect v4 service wiring",
+  "category": "apps_web",
+  "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+  "cwd": "apps/web",
+  "acceptanceCommands": ["bun run lint"],
+  "timeoutMinutes": 12,
+  "touchedPathAllowlist": [
+    "apps/web/src/app/api/chat/route.ts",
+    "apps/web/src/lib/ai"
+  ]
+}

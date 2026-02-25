@@ -6,11 +6,7 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category models
  */
-export const TaskCategorySchema = S.Literals([
-  "apps_web",
-  "tooling_cli",
-  "package_lib",
-]);
+export const TaskCategorySchema = S.Literals(["apps_web", "tooling_cli", "package_lib"]);
 
 /**
  * Task category for benchmark coverage balancing.

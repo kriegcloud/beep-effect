@@ -1,0 +1,10 @@
+{
+  "id": "package_lib_05",
+  "title": "Identity package catch semantics",
+  "category": "package_lib",
+  "prompt": "Ensure identity package error recovery uses Effect.catch and catchTag instead of removed v3 APIs.",
+  "cwd": "packages/common/identity",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 8,
+  "touchedPathAllowlist": ["packages/common/identity/src"]
+}

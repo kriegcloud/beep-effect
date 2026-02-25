@@ -8,285 +8,280 @@
  * @since 1.0.0
  */
 
-import {BunRuntime, BunServices} from "@effect/platform-bun";
-import {Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap} from "effect";
+import { $ClaudeId } from "@beep/identity/packages";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {ChildProcess, ChildProcessSpawner} from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+
+const $I = $ClaudeId.create("hooks/agent-init/index");
 
 // ============================================================================
 // Schemas & Types
 // ============================================================================
 
 const AgentConfigSchema = S.Struct({
-	projectDir: S.NonEmptyString
+  projectDir: S.NonEmptyString,
 });
 
 const MiseTask = S.Struct({
-	name: S.String,
-	aliases: S.Array(S.String),
-	description: S.String
+  name: S.String,
+  aliases: S.Array(S.String),
+  description: S.String,
 });
 
 const MiseTasks = S.Array(MiseTask);
 
-const formatMiseTasks = (tasks: typeof MiseTasks.Type): string => A.map(
-	tasks,
-	(t) => {
-		const aliases = t.aliases.length > 0
-		                ? ` (${t.aliases.join(", ")})`
-		                : "";
-		return `${t.name}${aliases}: ${t.description}`;
-	}
-)
-.join("\n");
+const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
+  A.map(tasks, (t) => {
+    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+    return `${t.name}${aliases}: ${t.description}`;
+  }).join("\n");
 
 const listMemories = pipe(
-	Effect.gen(function* () {
-		const fs = yield* FileSystem.FileSystem;
-		const pathService = yield* Path.Path;
-		const homeDir = yield* Effect.sync(() => Bun.env.HOME || "/home");
-		const vaultPath = pathService.join(
-			homeDir,
-			".claude",
-			"memory"
-		);
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const pathService = yield* Path.Path;
+    const homeDir = yield* Effect.sync(() => Bun.env.HOME || "/home");
+    const vaultPath = pathService.join(homeDir, ".claude", "memory");
 
-		const exists = yield* fs.exists(vaultPath);
-		if (!exists) {
-			return "No memories found (vault not initialized).";
-		}
+    const exists = yield* fs.exists(vaultPath);
+    if (!exists) {
+      return "No memories found (vault not initialized).";
+    }
 
-		const entries = yield* fs.readDirectory(vaultPath);
-		const mdFiles = pipe(
-			entries,
-			A.filter((f: string) => f.endsWith(".md")),
-			A.take(10)
-		);
+    const entries = yield* fs.readDirectory(vaultPath);
+    const mdFiles = pipe(
+      entries,
+      A.filter((f: string) => f.endsWith(".md")),
+      A.take(10)
+    );
 
-		if (mdFiles.length === 0) {
-			return "Memory vault exists but is empty.";
-		}
+    if (mdFiles.length === 0) {
+      return "Memory vault exists but is empty.";
+    }
 
-		return pipe(
-			mdFiles,
-			A.map((f: string) => `  - ${f.replace(
-				".md",
-				""
-			)}`)
-		)
-		.join("\n");
-	}),
-	Effect.catch(() => Effect.succeed("Error listing memories."))
+    return pipe(
+      mdFiles,
+      A.map((f: string) => `  - ${f.replace(".md", "")}`)
+    ).join("\n");
+  }),
+  Effect.catch(() => Effect.succeed("Error listing memories."))
 );
 
-export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>("@beep/claude/hooks/agent-init/AgentConfigError")(
-	"AgentConfigError",
-	{
-		reason: S.String,
-		cause: S.optional(S.Unknown)
-	}
-) {
-}
+export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
+  "AgentConfigError",
+  {
+    reason: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  $I.annote("AgentConfigError", {
+    description: "Raised when hook configuration cannot be decoded.",
+  })
+) {}
 
 // ============================================================================
 // Services
 // ============================================================================
 
-export class AgentConfig extends ServiceMap.Service<AgentConfig, {
-	readonly projectDir: string
-}>()("@beep/claude/hooks/agent-init/AgentConfig") {
-}
+export class AgentConfig extends ServiceMap.Service<
+  AgentConfig,
+  {
+    readonly projectDir: string;
+  }
+>()($I`AgentConfig`) {}
 
-export class ProjectStructureCapture extends ServiceMap.Service<ProjectStructureCapture, {
-	readonly capture: () => Effect.Effect<string>
-}>()("@beep/claude/hooks/agent-init/ProjectStructureCapture") {
-}
+export class ProjectStructureCapture extends ServiceMap.Service<
+  ProjectStructureCapture,
+  {
+    readonly capture: () => Effect.Effect<string>;
+  }
+>()($I`ProjectStructureCapture`) {}
 
 // ============================================================================
 // Service Implementations
 // ============================================================================
 
 const ProjectDirConfig = pipe(
-	Config.string("CLAUDE_PROJECT_DIR"),
-	Config.withDefault(() => ".")
+  Config.string("CLAUDE_PROJECT_DIR"),
+  Config.withDefault(() => ".")
 );
 
 export const AgentConfigLive = Layer.effect(
-	AgentConfig,
-	Effect.gen(function* () {
-		const projectDir = yield* ProjectDirConfig;
-		const config = yield* S.decodeEffect(AgentConfigSchema)(
-			{
-				projectDir
-			})
-		.pipe(Effect.mapError((error) => new AgentConfigError({
-			reason: "Invalid configuration",
-			cause: error
-		})));
-		return {projectDir: config.projectDir};
-	})
+  AgentConfig,
+  Effect.gen(function* () {
+    const projectDir = yield* ProjectDirConfig;
+    const config = yield* S.decodeEffect(AgentConfigSchema)({
+      projectDir,
+    }).pipe(
+      Effect.mapError(
+        (error) =>
+          new AgentConfigError({
+            reason: "Invalid configuration",
+            cause: error,
+          })
+      )
+    );
+    return { projectDir: config.projectDir };
+  })
 );
 
 export const ProjectStructureCaptureLive = Layer.effect(
-	ProjectStructureCapture,
-	Effect.gen(function* () {
-		const config = yield* AgentConfig;
-		const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  ProjectStructureCapture,
+  Effect.gen(function* () {
+    const config = yield* AgentConfig;
+    const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
-		return {
-			capture: () => pipe(
-				ChildProcess.make({
-					cwd: config.projectDir
-				})`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`,
-				ChildProcess.string,
-				Effect.catch(() => Effect.succeed("(tree unavailable)")),
-				Effect.provideService(ChildProcessSpawner.ChildProcessSpawner)(
-					spawner)
-			)
-		};
-	})
+    return {
+      capture: () =>
+        pipe(
+          ChildProcess.make({
+            cwd: config.projectDir,
+          })`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`,
+          ChildProcess.string,
+          Effect.catch(() => Effect.succeed("(tree unavailable)")),
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner)(spawner)
+        ),
+    };
+  })
 );
 
 export const AppLive = ProjectStructureCaptureLive.pipe(
-	Layer.provideMerge(AgentConfigLive),
-	Layer.provideMerge(BunServices.layer)
+  Layer.provideMerge(AgentConfigLive),
+  Layer.provideMerge(BunServices.layer)
 );
 
 // ============================================================================
 // Main Program
 // ============================================================================
 
-const run = (cwd: string) => (
-	cmd: TemplateStringsArray,
-	...args: Array<string>
-) => pipe(
-	ChildProcess.make({cwd})(
-		cmd,
-		...args
-	),
-	ChildProcess.string
-);
+const run =
+  (cwd: string) =>
+  (cmd: TemplateStringsArray, ...args: Array<string>) =>
+    pipe(ChildProcess.make({ cwd })(cmd, ...args), ChildProcess.string);
 
 export const program = Effect.gen(function* () {
-	const config = yield* AgentConfig;
-	const structureCapture = yield* ProjectStructureCapture;
-	const sh = run(config.projectDir);
+  const config = yield* AgentConfig;
+  const structureCapture = yield* ProjectStructureCapture;
+  const sh = run(config.projectDir);
 
-	// Capture all context in parallel
-	const [
-		treeOutput, gitStatus, latestCommit, previousCommits, branchContext, githubIssues, githubPRs, moduleSummary, projectVersion, packageScripts, miseTasks, repoInfo, recentAuthors, architectureGraph
-	] = yield* Effect.all(
-		[
-			structureCapture.capture(),
-			pipe(
-				sh`git status --short`,
-				Effect.catch(() => Effect.succeed("(not a git repository)"))
-			),
-			pipe(
-				sh`git show HEAD --stat --format=%h %s%n%n%b`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`git log --oneline -4 --skip=1`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`git branch -vv --list --sort=-committerdate`,
-				Effect.map((s) => {
-					const lines = s.trim()
-					.split("\n");
-					const current = lines.find((l) => l.startsWith("*")) || "";
-					const recent = lines.filter((l) => !l.startsWith("*"))
-					.slice(
-						0,
-						4
-					);
-					return {
-						current: current.replace(
-							/^\*\s*/,
-							""
-						)
-						.trim(),
-						recent
-					};
-				}),
-				Effect.catch((): Effect.Effect<{
-					current: string;
-					recent: string[]
-				}> => Effect.succeed({
-					current: "",
-					recent: []
-				}))
-			),
-			pipe(
-				sh`gh issue list --limit 5 --state open --sort updated`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`gh pr list --limit 5 --state open --sort updated`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`bun .claude/scripts/context-crawler.ts --summary`,
-				Effect.catch(() => Effect.succeed('<modules count="0">(unavailable)</modules>'))
-			),
-			pipe(
-				sh`bun -e ${"console.log(require('./package.json').version)"}`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed("unknown"))
-			),
-			pipe(
-				sh`bun -e ${"const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`mise tasks --json`,
-				Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(
-					s)),
-				Effect.map(formatMiseTasks),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`gh repo view --json owner,name -q ${'.owner.login + "/" + .name'}`,
-				Effect.map(Str.trim),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`git log ${"--since=7 days ago"} --format=%an --no-merges`,
-				Effect.map((out) => [
-					...new Set(out.trim()
-					.split("\n")
-					.filter(Boolean))
-				].join(", ")),
-				Effect.catch(() => Effect.succeed(""))
-			),
-			pipe(
-				sh`bun run .claude/scripts/analyze-architecture.ts --format agent`,
-				Effect.catch(() => Effect.succeed("<architecture>(unavailable)</architecture>"))
-			)
-		],
-		{concurrency: "unbounded"}
-	);
+  // Capture all context in parallel
+  const [
+    treeOutput,
+    gitStatus,
+    latestCommit,
+    previousCommits,
+    branchContext,
+    githubIssues,
+    githubPRs,
+    moduleSummary,
+    projectVersion,
+    packageScripts,
+    miseTasks,
+    repoInfo,
+    recentAuthors,
+    architectureGraph,
+  ] = yield* Effect.all(
+    [
+      structureCapture.capture(),
+      pipe(
+        sh`git status --short`,
+        Effect.catch(() => Effect.succeed("(not a git repository)"))
+      ),
+      pipe(
+        sh`git show HEAD --stat --format=%h %s%n%n%b`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`git log --oneline -4 --skip=1`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`git branch -vv --list --sort=-committerdate`,
+        Effect.map((s) => {
+          const lines = s.trim().split("\n");
+          const current = lines.find((l) => l.startsWith("*")) || "";
+          const recent = lines.filter((l) => !l.startsWith("*")).slice(0, 4);
+          return {
+            current: current.replace(/^\*\s*/, "").trim(),
+            recent,
+          };
+        }),
+        Effect.catch(
+          (): Effect.Effect<{
+            current: string;
+            recent: string[];
+          }> =>
+            Effect.succeed({
+              current: "",
+              recent: [],
+            })
+        )
+      ),
+      pipe(
+        sh`gh issue list --limit 5 --state open --sort updated`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`gh pr list --limit 5 --state open --sort updated`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`bun .claude/scripts/context-crawler.ts --summary`,
+        Effect.catch(() => Effect.succeed('<modules count="0">(unavailable)</modules>'))
+      ),
+      pipe(
+        sh`bun -e ${"console.log(require('./package.json').version)"}`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed("unknown"))
+      ),
+      pipe(
+        sh`bun -e ${"const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`mise tasks --json`,
+        Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
+        Effect.map(formatMiseTasks),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`gh repo view --json owner,name -q ${'.owner.login + "/" + .name'}`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`git log ${"--since=7 days ago"} --format=%an --no-merges`,
+        Effect.map((out) => [...new Set(out.trim().split("\n").filter(Boolean))].join(", ")),
+        Effect.catch(() => Effect.succeed(""))
+      ),
+      pipe(
+        sh`bun run .claude/scripts/analyze-architecture.ts --format agent`,
+        Effect.catch(() => Effect.succeed("<architecture>(unavailable)</architecture>"))
+      ),
+    ],
+    { concurrency: "unbounded" }
+  );
 
-	// Fetch collaborators (depends on repoInfo)
-	const collaborators = yield* repoInfo
-	                             ? pipe(
-			sh`gh api ${`repos/${repoInfo}/collaborators`} -q ${`.[] | "\\(.login):\\(.role_name)"`}`,
-			Effect.map(Str.trim),
-			Effect.catch(() => Effect.succeed(""))
-		)
-	                             : Effect.succeed("");
+  // Fetch collaborators (depends on repoInfo)
+  const collaborators = yield* repoInfo
+    ? pipe(
+        sh`gh api ${`repos/${repoInfo}/collaborators`} -q ${`.[] | "\\(.login):\\(.role_name)"`}`,
+        Effect.map(Str.trim),
+        Effect.catch(() => Effect.succeed(""))
+      )
+    : Effect.succeed("");
 
-	const memories = yield* listMemories;
+  const memories = yield* listMemories;
 
-	const reorganizedOutput = `<session-context>
+  const reorganizedOutput = `<session-context>
 <agent_instructions>
 <ABSOLUTE_PROHIBITIONS>
 ⊥ := VIOLATION → HALT
@@ -616,32 +611,28 @@ ${previousCommits || "(none)"}
 
 <branch-context>
 <current>${branchContext.current || "(detached)"}</current>
-${branchContext.recent.length > 0
-	? `<recent>\n${branchContext.recent.join("\n")}\n</recent>`
-	: ""}
+${branchContext.recent.length > 0 ? `<recent>\n${branchContext.recent.join("\n")}\n</recent>` : ""}
 </branch-context>
 
 <collaborators>
 <team>
-${collaborators
-	.split("\n")
-	.filter(Boolean)
-	.map((line) => {
-		const [login, role] = line.split(":");
-		return `  <person github="${login}" role="${role || "unknown"}"/>`;
-	})
-	.join("\n") || "  (unavailable)"}
+${
+  collaborators
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [login, role] = line.split(":");
+      return `  <person github="${login}" role="${role || "unknown"}"/>`;
+    })
+    .join("\n") || "  (unavailable)"
+}
 </team>
 <recently-active window="7d">${recentAuthors || "(none)"}</recently-active>
 </collaborators>
 
 <github-context>
-${githubIssues
-	? `<open-issues>\n${githubIssues}\n</open-issues>`
-	: "<open-issues>(none)</open-issues>"}
-${githubPRs
-	? `<open-prs>\n${githubPRs}\n</open-prs>`
-	: "<open-prs>(none)</open-prs>"}
+${githubIssues ? `<open-issues>\n${githubIssues}\n</open-issues>` : "<open-issues>(none)</open-issues>"}
+${githubPRs ? `<open-prs>\n${githubPRs}\n</open-prs>` : "<open-prs>(none)</open-prs>"}
 </github-context>
 
 <available-scripts>
@@ -655,16 +646,13 @@ ${miseTasks || "(none)"}
 
 </session-context>`;
 
-	yield* Console.log(reorganizedOutput);
+  yield* Console.log(reorganizedOutput);
 });
 
 const runnable = pipe(
-	program,
-	Effect.provide(AppLive),
-	Effect.catchTag(
-		"AgentConfigError",
-		(error) => Console.error(`<error>Config: ${error.reason}</error>`)
-	)
+  program,
+  Effect.provide(AppLive),
+  Effect.catchTag("AgentConfigError", (error) => Console.error(`<error>Config: ${error.reason}</error>`))
 );
 
 BunRuntime.runMain(runnable);

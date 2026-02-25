@@ -7,6 +7,7 @@ Detailed guidance lives in [standards/effect-laws-v1.md](/home/elpresidank/YeeBo
 3. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
 4. No runtime `typeof ... === ...`; use `effect/Predicate`.
 5. No native `Object/Map/Set/Date` in domain logic; boundary-only via allowlist.
-6. JSDoc required for exported APIs in package/tooling source; examples must pass docgen.
-7. Exceptions require allowlist entry with `reason`, `owner`, `issue`, optional `expiresOn`.
-8. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+6. No native `Error` in `tooling/*/src`; use `S.TaggedErrorClass`-based typed errors.
+7. JSDoc required for exported APIs in package/tooling source; examples must pass docgen.
+8. Exceptions require allowlist entry with `reason`, `owner`, `issue`, optional `expiresOn`.
+9. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.

@@ -31,7 +31,15 @@ const withTestLayers =
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const WORKSPACE_DIR_ARTIFACTS = ["build", "dist", ".next", "coverage", ".turbo", "node_modules", "tsconfig.tsbuildinfo"] as const;
+const WORKSPACE_DIR_ARTIFACTS = [
+  "build",
+  "dist",
+  ".next",
+  "coverage",
+  ".turbo",
+  "node_modules",
+  "tsconfig.tsbuildinfo",
+] as const;
 
 interface RepoFixture {
   readonly rootDir: string;

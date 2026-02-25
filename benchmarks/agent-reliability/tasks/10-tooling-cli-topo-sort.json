@@ -1,0 +1,13 @@
+{
+  "id": "tooling_cli_04",
+  "title": "Topo-sort command resilience",
+  "category": "tooling_cli",
+  "prompt": "Harden topo-sort command failure paths and ensure all dependencies use Effect v4 imports.",
+  "cwd": "tooling/cli",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 10,
+  "touchedPathAllowlist": [
+    "tooling/cli/src/commands/topo-sort.ts",
+    "tooling/cli/src/commands/root.ts"
+  ]
+}

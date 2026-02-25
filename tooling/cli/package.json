@@ -60,6 +60,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "effect": "catalog:",
     "@effect/platform-node": "catalog:",

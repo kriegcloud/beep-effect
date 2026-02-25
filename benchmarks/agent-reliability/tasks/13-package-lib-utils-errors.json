@@ -1,0 +1,10 @@
+{
+  "id": "package_lib_01",
+  "title": "Utils error channels cleanup",
+  "category": "package_lib",
+  "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+  "cwd": "packages/common/utils",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 8,
+  "touchedPathAllowlist": ["packages/common/utils/src"]
+}

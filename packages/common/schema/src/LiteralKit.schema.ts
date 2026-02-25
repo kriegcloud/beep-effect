@@ -9,12 +9,15 @@
  * @module @beep/schema/LiteralKit.schema
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { HashSet, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { LiteralValue } from "effect/SchemaAST";
 import type * as Unify from "effect/Unify";
+
+const $I = $SchemaId.create("LiteralKit.schema");
 
 type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
 
@@ -122,17 +125,16 @@ const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
  * @category errors
  * @since 0.0.0
  */
-export class LiteralNotInSetError extends S.TaggedErrorClass<LiteralNotInSetError>("@beep/schema/LiteralKit")(
+export class LiteralNotInSetError extends S.TaggedErrorClass<LiteralNotInSetError>($I`LiteralNotInSetError`)(
   "LiteralNotInSetError",
   {
     literals: S.Array(LiteralValueSchema),
     input: S.Array(LiteralValueSchema),
   },
-  {
-    identifier: "LiteralNotInSetError",
+  $I.annote("LiteralNotInSetError", {
     title: "Not In Literals Error",
     description: "Error thrown when an input value is not found in the provided literals array.",
-  }
+  })
 ) {}
 
 const makeOptionsFns = <L extends Literals>(

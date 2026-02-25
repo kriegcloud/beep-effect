@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { BenchConditionSchema, type BenchCondition } from "./AgentRunConfig.js";
+import { type BenchCondition, BenchConditionSchema } from "./AgentRunConfig.js";
 
 /**
  * Structured feedback episode emitted from failed benchmark runs.

@@ -7,10 +7,13 @@
  * @since 0.0.0
  * @module
  */
+import { $RepoUtilsId } from "@beep/identity/packages";
 import { Effect, FileSystem, Layer, Path, Schema, ServiceMap } from "effect";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
+
+const $I = $RepoUtilsId.create("FsUtils");
 
 /**
  * Options for glob matching operations.
@@ -116,7 +119,7 @@ export interface FsUtilsShape {
  * @since 0.0.0
  * @category services
  */
-export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()("@beep/repo-utils/FsUtils") {}
+export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
 
 /**
  * Live layer for `FsUtils` that uses the platform `FileSystem` and `Path`

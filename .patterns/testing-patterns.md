@@ -543,23 +543,23 @@ describe("ModuleName", () => {
 ```typescript
 describe("feature progression", () => {
   it.effect("basic functionality", Effect.fnUntraced(function* () {
-		 /* simple test */
+     /* simple test */
   }))
   
     it.effect("with configuration", Effect.fnUntraced(function* () {
-		 /* configuration test */
+     /* configuration test */
   }))
   
     it.effect("with error handling", Effect.fnUntraced(function* () {
-		  /* error test */
+      /* error test */
   }))
   
   it.effect("with concurrency", Effect.fnUntraced(function* () {
-		 /* concurrent test */
+     /* concurrent test */
   }))
   
   it.effect("full integration", Effect.fnUntraced(function* () {
-		 /* comprehensive test */
+     /* comprehensive test */
   }))
 })
 ```

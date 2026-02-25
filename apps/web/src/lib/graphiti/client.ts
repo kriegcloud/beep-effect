@@ -12,7 +12,6 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $WebId.create("lib/graphiti/client");
-const $ErrorsId = $I.create("errors");
 
 const DefaultGraphitiApiUrl = "https://auth-proxy-production-91fe.up.railway.app/mcp";
 const DefaultGraphitiGroupId = "effect-v4";
@@ -74,65 +73,63 @@ export const GraphitiGetNodeParamsSchema = S.Struct({
 
 export type GraphitiGetNodeParams = typeof GraphitiGetNodeParamsSchema.Type;
 
-export class GraphitiRequestError extends S.TaggedErrorClass<GraphitiRequestError>($ErrorsId`GraphitiRequestError`)(
+export class GraphitiRequestError extends S.TaggedErrorClass<GraphitiRequestError>($I`GraphitiRequestError`)(
   "GraphitiRequestError",
   {
     message: S.String,
   },
-  {
+  $I.annote("GraphitiRequestError", {
     title: "Graphiti Request Error",
     description: "Graphiti HTTP request failed before a valid response was received.",
-  }
+  })
 ) {}
 
-export class GraphitiHttpStatusError extends S.TaggedErrorClass<GraphitiHttpStatusError>(
-  $ErrorsId`GraphitiHttpStatusError`
-)(
+export class GraphitiHttpStatusError extends S.TaggedErrorClass<GraphitiHttpStatusError>($I`GraphitiHttpStatusError`)(
   "GraphitiHttpStatusError",
   {
     status: S.Int,
     body: S.String,
   },
-  {
+  $I.annote("GraphitiHttpStatusError", {
     title: "Graphiti HTTP Status Error",
     description: "Graphiti returned a non-success HTTP status.",
-  }
+  })
 ) {}
 
-export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolError>($ErrorsId`GraphitiProtocolError`)(
+export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolError>($I`GraphitiProtocolError`)(
   "GraphitiProtocolError",
   {
     message: S.String,
   },
-  {
+  $I.annote("GraphitiProtocolError", {
     title: "Graphiti Protocol Error",
     description: "Graphiti response did not match the expected MCP protocol shape.",
-  }
+  })
 ) {}
 
-export class GraphitiToolError extends S.TaggedErrorClass<GraphitiToolError>($ErrorsId`GraphitiToolError`)(
+export class GraphitiToolError extends S.TaggedErrorClass<GraphitiToolError>($I`GraphitiToolError`)(
   "GraphitiToolError",
   {
     toolName: S.NonEmptyString,
     message: S.String,
   },
-  {
+  $I.annote("GraphitiToolError", {
     title: "Graphiti Tool Error",
     description: "Graphiti returned a tool-level error payload.",
-  }
+  })
 ) {}
 
 export class GraphitiResponseDecodeError extends S.TaggedErrorClass<GraphitiResponseDecodeError>(
-  $ErrorsId`GraphitiResponseDecodeError`
+  $I`GraphitiResponseDecodeError`
 )(
   "GraphitiResponseDecodeError",
   {
     message: S.String,
   },
-  {
+  $I.annote("GraphitiResponseDecodeError", {
     title: "Graphiti Response Decode Error",
     description: "Graphiti payload could not be decoded with the expected schema.",
-  }
+  })
 ) {}
 
 export type GraphitiServiceError =

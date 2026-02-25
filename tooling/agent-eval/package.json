@@ -21,6 +21,7 @@
   "dependencies": {
     "effect": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^"
   },
   "devDependencies": {

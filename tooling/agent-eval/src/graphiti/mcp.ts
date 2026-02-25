@@ -5,6 +5,8 @@
  * @module
  */
 
+import { AgentEvalProtocolError } from "../errors.js";
+
 /**
  * Graphiti client options.
  *
@@ -53,7 +55,9 @@ const initializeSession = async (url: string): Promise<string> => {
 
   const sessionId = response.headers.get("mcp-session-id");
   if (!sessionId) {
-    throw new Error("Graphiti MCP initialize missing mcp-session-id");
+    throw new AgentEvalProtocolError({
+      message: "Graphiti MCP initialize missing mcp-session-id",
+    });
   }
 
   return sessionId;

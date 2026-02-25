@@ -46,6 +46,9 @@
       "path": "tooling/cli"
     },
     {
+      "path": "tooling/agent-eval"
+    },
+    {
       "path": "tooling/repo-utils"
     }
   ]

@@ -7,12 +7,18 @@
  * @since 0.0.0
  */
 import madge from "madge";
+import fs from "node:fs";
 
 const dirs = ["tooling/cli/src", "tooling/repo-utils/src", "tooling/codebase-search/src"];
 
 let hasCircular = false;
 
 for (const dir of dirs) {
+  if (!fs.existsSync(dir)) {
+    console.warn(`Skipping missing directory: ${dir}`);
+    continue;
+  }
+
   const result = await madge(dir, {
     fileExtensions: ["ts"],
     tsConfig: "tsconfig.json",

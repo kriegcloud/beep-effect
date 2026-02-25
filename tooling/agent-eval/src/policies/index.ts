@@ -5,9 +5,10 @@
  * @module
  */
 
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
+import { Effect, FileSystem, Path } from "effect";
 import * as S from "effect/Schema";
+import { AgentEvalDecodeError } from "../errors.js";
+import { resolveFromCwd } from "../io.js";
 import type { BenchCondition, TaskCategory } from "../schemas/index.js";
 
 /**
@@ -102,20 +103,33 @@ export const SkillCandidates: ReadonlyArray<SkillCandidate> = [
  * @since 0.0.0
  * @category functions
  */
-export const loadPolicyOverlays = async (policyDirectory: string): Promise<ReadonlyArray<PolicyOverlay>> => {
-  const entries = await readdir(policyDirectory, { withFileTypes: true }).catch(() => []);
-  const jsonFiles = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".json"));
+export const loadPolicyOverlays = (policyDirectory: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const absoluteDirectory = yield* resolveFromCwd(policyDirectory);
 
-  const overlays: Array<PolicyOverlay> = [];
-  for (const entry of jsonFiles) {
-    const filePath = path.join(policyDirectory, entry.name);
-    const content = await readFile(filePath, "utf8");
-    const decoded = decodeOverlay(content);
-    overlays.push(decoded);
-  }
+    const entries = yield* fs.readDirectory(absoluteDirectory).pipe(Effect.orElseSucceed(() => []));
 
-  return overlays.sort((left, right) => right.priority - left.priority);
-};
+    const jsonFiles = entries.filter((entry) => entry.endsWith(".json"));
+    const overlays = yield* Effect.forEach(jsonFiles, (entry) =>
+      Effect.gen(function* () {
+        const filePath = path.join(absoluteDirectory, entry);
+        const content = yield* fs.readFileString(filePath, "utf8");
+        return yield* Effect.try({
+          try: () => decodeOverlay(content),
+          catch: (cause) =>
+            new AgentEvalDecodeError({
+              source: filePath,
+              message: `Invalid policy overlay in ${filePath}`,
+              cause,
+            }),
+        });
+      })
+    );
+
+    return overlays.sort((left, right) => right.priority - left.priority);
+  });
 
 /**
  * Resolve merged policy constraints for one run tuple.

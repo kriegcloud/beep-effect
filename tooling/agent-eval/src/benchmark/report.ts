@@ -28,13 +28,19 @@ const median = (values: ReadonlyArray<number>): number => {
 const summarizeByKey = (
   suite: AgentBenchSuite,
   keySelector: (record: AgentBenchSuite["records"][number]) => string
-): ReadonlyArray<{ readonly key: string; readonly runs: number; readonly successes: number; readonly wrongApi: number; readonly medianCost: number }> => {
+): ReadonlyArray<{
+  readonly key: string;
+  readonly runs: number;
+  readonly successes: number;
+  readonly wrongApi: number;
+  readonly medianCost: number;
+}> => {
   const keys: Array<string> = [];
   const groups: Array<Array<AgentBenchSuite["records"][number]>> = [];
 
   for (const record of suite.records) {
     const key = keySelector(record);
-    const index = keys.findIndex((candidate) => candidate === key);
+    const index = keys.indexOf(key);
     if (index >= 0) {
       groups[index]?.push(record);
     } else {
@@ -43,7 +49,13 @@ const summarizeByKey = (
     }
   }
 
-  const rows: Array<{ readonly key: string; readonly runs: number; readonly successes: number; readonly wrongApi: number; readonly medianCost: number }> = [];
+  const rows: Array<{
+    readonly key: string;
+    readonly runs: number;
+    readonly successes: number;
+    readonly wrongApi: number;
+    readonly medianCost: number;
+  }> = [];
 
   for (let index = 0; index < keys.length; index += 1) {
     const key = keys[index] ?? "unknown";

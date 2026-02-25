@@ -1,0 +1,10 @@
+{
+  "id": "apps_web_04",
+  "title": "RAG route boundary hardening",
+  "category": "apps_web",
+  "prompt": "Implement route boundary safety with typed failures and deduped retrieval packets under strict size caps.",
+  "cwd": "apps/web",
+  "acceptanceCommands": ["bun run lint"],
+  "timeoutMinutes": 12,
+  "touchedPathAllowlist": ["apps/web/src/app/api", "apps/web/src/lib"]
+}

@@ -22,8 +22,6 @@ This directory provides reusable solutions and best practices for Effect TypeScr
 
 ### Architecture Patterns
 
-
-
 ## 🔧 HOW TO USE
 
 ### For Developers

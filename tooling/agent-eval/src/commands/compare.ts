@@ -5,9 +5,10 @@
  * @module
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import type { FileSystem, Path } from "effect";
+import { Effect } from "effect";
 import { renderComparisonMarkdown } from "../benchmark/compare.js";
+import { writeFileUtf8 } from "../io.js";
 import { readSuiteFile } from "./bench.js";
 
 /**
@@ -29,12 +30,11 @@ export interface CompareArgs {
  * @since 0.0.0
  * @category commands
  */
-export const handleCompare = async (args: CompareArgs): Promise<void> => {
-  const baseline = await readSuiteFile(args.baseline);
-  const candidate = await readSuiteFile(args.candidate);
+export const handleCompare: (args: CompareArgs) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> =
+  Effect.fn(function* (args) {
+    const baseline = yield* readSuiteFile(args.baseline);
+    const candidate = yield* readSuiteFile(args.candidate);
 
-  const markdown = renderComparisonMarkdown(baseline, candidate, args.title);
-  const outputPath = path.resolve(args.output);
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, markdown, "utf8");
-};
+    const markdown = renderComparisonMarkdown(baseline, candidate, args.title);
+    yield* writeFileUtf8(args.output, markdown);
+  });

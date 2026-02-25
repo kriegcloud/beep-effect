@@ -5,6 +5,7 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import {
   buildRepoDependencyIndex,
   type CyclicDependencyError,
@@ -42,6 +43,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * @category constants
  */
 const ROOT_DEP_INDEX_KEY = "@beep/root" as const;
+const $I = $RepoCliId.create("commands/tsconfig-sync");
 
 /**
  * Canonical alias key matcher managed by this command.
@@ -61,18 +63,16 @@ const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSyncDriftError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncDriftError"
-)(
+export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
   {
     fileCount: Schema.Number,
     summary: Schema.String,
   },
-  {
+  $I.annote("TsconfigSyncDriftError", {
     title: "Tsconfig Sync Drift Error",
     description: "Raised when tsconfig-sync --check detects one or more files that are out of sync.",
-  }
+  })
 ) {}
 
 /**
@@ -81,18 +81,16 @@ export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSync
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSyncCycleError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncCycleError"
-)(
+export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
   {
     cycles: Schema.Array(Schema.Array(Schema.String)),
     message: Schema.String,
   },
-  {
+  $I.annote("TsconfigSyncCycleError", {
     title: "Tsconfig Sync Cycle Error",
     description: "Raised when workspace dependency graph contains one or more cycles.",
-  }
+  })
 ) {}
 
 /**
@@ -102,17 +100,17 @@ export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSync
  * @category errors
  */
 export class TsconfigSyncFilterError extends Schema.TaggedErrorClass<TsconfigSyncFilterError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncFilterError"
+  $I`TsconfigSyncFilterError`
 )(
   "TsconfigSyncFilterError",
   {
     filter: Schema.String,
     message: Schema.String,
   },
-  {
+  $I.annote("TsconfigSyncFilterError", {
     title: "Tsconfig Sync Filter Error",
     description: "Raised when tsconfig-sync filter does not match any workspace package name or path.",
-  }
+  })
 ) {}
 
 /**

@@ -1,0 +1,13 @@
+{
+  "id": "apps_web_05",
+  "title": "Ontology query endpoint v4 imports",
+  "category": "apps_web",
+  "prompt": "Migrate ontology endpoint imports to Effect v4-safe modules and preserve typed response handling.",
+  "cwd": "apps/web",
+  "acceptanceCommands": ["bun run lint"],
+  "timeoutMinutes": 12,
+  "touchedPathAllowlist": [
+    "apps/web/src/app/api/ontology",
+    "apps/web/src/lib/ontology"
+  ]
+}
