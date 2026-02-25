@@ -1,9 +1,8 @@
 import { $I } from "@beep/identity/packages";
 import { type ChatRequest, decodeChatRequestUnknown } from "@beep/web/lib/effect/chat-handler";
-import { Effect } from "effect";
+import { Cause, Effect, Match } from "effect";
 import * as Option from "effect/Option";
 import * as S from "effect/Schema";
-import * as HttpEffect from "effect/unstable/http/HttpEffect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -123,7 +122,7 @@ export const makeChatRouteHandler = <R = never>(options: ChatRouteOptions<R>) =>
     yield* ensureAuthenticated(options.getSession);
     const chatRequest = yield* readChatRequest();
     const response = yield* options.createResponse(chatRequest);
-    return HttpEffect.scopeTransferToStream(response);
+    return response;
   }).pipe(
     Effect.catchTag("ChatUnauthorizedError", (error) =>
       Effect.succeed(
@@ -161,13 +160,18 @@ export const makeChatRouteHandler = <R = never>(options: ChatRouteOptions<R>) =>
         })
       )
     ),
-    Effect.catchCause(() =>
-      Effect.succeed(
-        makeErrorResponse({
-          status: 500,
-          code: "ChatInternalError",
-          message: "Internal chat route error",
-        })
+    Effect.catchCause((cause) =>
+      Match.value(Cause.hasInterruptsOnly(cause)).pipe(
+        Match.when(true, () => Effect.failCause(cause)),
+        Match.orElse(() =>
+          Effect.succeed(
+            makeErrorResponse({
+              status: 500,
+              code: "ChatInternalError",
+              message: "Internal chat route error",
+            })
+          )
+        )
       )
     )
   );

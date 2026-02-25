@@ -3,7 +3,7 @@ import { createChatSseResponse } from "@beep/web/lib/effect/chat-handler";
 import { makeChatRouteLayer } from "@beep/web/lib/effect/chat-route";
 import { KnowledgeGraphRuntimeLayer, OpenAiClientLayer } from "@beep/web/lib/effect/runtime";
 import { OpenAiLanguageModel } from "@effect/ai-openai";
-import { Layer } from "effect";
+import { Layer, ServiceMap } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 
 const defaultRouteOptions = {
@@ -24,5 +24,6 @@ const ChatRouteLayer = makeChatRouteLayer(defaultRouteOptions).pipe(
 const ChatRouteAppLayer = Layer.mergeAll(HttpRouter.layer, ChatRouteLayer);
 
 const { handler } = HttpRouter.toWebHandler(ChatRouteAppLayer);
+const emptyRequestServices = ServiceMap.makeUnsafe<unknown>(new Map());
 
-export const POST = handler;
+export const POST = (request: Request) => handler(request, emptyRequestServices);

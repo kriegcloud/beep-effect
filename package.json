@@ -204,6 +204,7 @@
     "next": "16.2.0-canary.60",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-force-graph-2d": "^1.29.1",
     "resend": "^6.9.2",
     "shadcn": "^3.8.5",
     "syncpack": "14.0.0-alpha.41",

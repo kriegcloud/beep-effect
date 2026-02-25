@@ -16,15 +16,15 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
     "@effect/ai-openai": "catalog:",
     "@effect/atom-react": "catalog:",
     "@neondatabase/serverless": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/api-logs": "catalog:",
-    "@base-ui/react": "catalog:",
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/ui": "workspace:^",
     "@phosphor-icons/react": "catalog:",
     "@vercel/analytics": "catalog:",
     "@vercel/otel": "catalog:",
@@ -37,6 +37,7 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-force-graph-2d": "catalog:",
     "resend": "catalog:",
     "tailwind-merge": "catalog:"
   },

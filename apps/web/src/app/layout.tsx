@@ -1,4 +1,5 @@
 import { WebVitals } from "@beep/web/app/web-vitals";
+import { AppRegistryProvider } from "@beep/web/state/registry";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        {children}
+        <AppRegistryProvider>{children}</AppRegistryProvider>
         <WebVitals />
         <Analytics />
         <SpeedInsights />

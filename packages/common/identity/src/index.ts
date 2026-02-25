@@ -4,5 +4,5 @@
  * @since 0.0.0
  */
 
-export * from "./Identity.js";
+export * from "./Id.ts";
 // bench
