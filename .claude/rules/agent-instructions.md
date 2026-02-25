@@ -1,128 +1,37 @@
 ---
 root: true
-targets: ["*"]
-description: "Core instructions for the Effect library repository"
-globs: ["**/*"]
+targets: ["**"]
+description: "Core agent instructions"
+globs: ["**"]
 ---
 
 # Agent Instructions
 
-This is the Effect library repository, focusing on functional programming patterns and effect systems in TypeScript.
+Use command first discovery:
 
-## Development Workflow
+- `bun run beep docs laws`
+- `bun run beep docs skills`
+- `bun run beep docs policies`
+- `bun run beep docs find <topic>`
 
-- The git base branch is `main`
-- Use `pnpm` as the package manager
+Core expectations:
 
-### Core Principles
+1. Keep code clear, direct, and maintainable.
+2. Prefer Effect first patterns required by repository law.
+3. Avoid unsafe typing escapes and untyped runtime errors.
+4. Keep domain logic free of disallowed native utilities.
+5. Keep comments minimal unless they explain non obvious intent.
+6. Complete work only when check, lint, test, and docgen pass.
 
-- **Zero Tolerance for Errors**: All automated checks must pass
-- **Clarity over Cleverness**: Choose clear, maintainable solutions
-- **Conciseness**: Keep code and any wording concise and to the point. Sacrifice grammar for the sake of concision.
-- **Reduce comments**: Avoid comments unless absolutely required to explain unusual or complex logic. Comments in jsdocs are acceptable.
+Validation loop:
 
-### Mandatory Validation Steps
+- Run `pnpm lint-fix` after edits.
+- Run `pnpm check`.
+- Run `pnpm test` for affected scope.
+- Run `pnpm build` when build outputs are affected.
+- Run `pnpm docgen` when exported APIs change.
 
-- Run `pnpm lint-fix` after editing files
-- Always run tests after making changes: `pnpm test <test_file.ts>`
-- Run type checking: `pnpm check`
-  - If type checking continues to fail, run `pnpm clean` to clear caches, then re-run `pnpm check`
-- Build the project: `pnpm build`
-- Check JSDoc examples compile: `pnpm docgen`
+Pathless config rule:
 
-## Code Style Guidelines
-
-**Always** look at existing code in the repository to learn and follow
-established patterns before writing new code.
-
-Do not worry about getting code formatting perfect while writing. Use `pnpm lint-fix`
-to automatically format code according to the project's style guidelines.
-
-## Prefer `Effect.fnUntraced` over functions that return `Effect.gen`
-
-Instead of writing:
-
-```ts
-const fn = (param: string) =>
-  Effect.gen(function*() {
-    // ...
-  })
-```
-
-Prefer:
-
-```ts
-const fn = Effect.fnUntraced(function*(param: string) {
-  // ...
-})
-```
-
-## Using `ServiceMap.Service`
-
-Prefer the class syntax when working with `ServiceMap.Service`. For example:
-
-```ts
-import { ServiceMap } from "effect"
-import { $PackageNameId } from "@beep/identity/packages";
-const $I = $PackageNameId.create("relative/path/to/module")
-class MyService extends ServiceMap.Service<MyService, {
-  readonly doSomething: (input: string) => number
-}>()($I`MyService`) {}
-```
-
-## Barrel files
-
-The `index.ts` files are automatically generated. Do not manually edit them. Use
-`pnpm codegen` to regenerate barrel files after adding or removing modules.
-
-## Running test code
-
-If you need to run some code for testing or debugging purposes, create a new
-file in the `scratchpad/` directory at the root of the repository. You can then
-run the file with `node scratchpad/your-file.ts`.
-
-Make sure to delete the file after you are done testing.
-
-## Testing
-
-Before writing tests, look at existing tests in the codebase for similar
-functionality to follow established patterns.
-
-- Test files are located in `packages/*/test/` directories for each package
-- Main Effect library tests: `packages/effect/test/`
-- Always verify implementations with tests
-- Run specific tests with: `bun run  test <filename>`
-
-### it.effect Testing Pattern
-
-- Use `it.effect` for all Effect-based tests, not `Effect.runSync` with regular `it`
-- Import `{ assert, describe, it }` from `@effect/vitest`
-- Never use `expect` from vitest in Effect tests - use `assert` methods instead
-- All tests should use `it.effect("description", () => Effect.gen(function*() { ... }))`
-
-Before writing tests, look at existing tests in the codebase for similar
-functionality to follow established patterns.
-
-### Type level tests
-
-Type level tests are located in the `dtslint` directories of each package.
-
-You can run them with `bun run  test-types <filename>`.
-
-Take a look at the existing `.tst.ts` files for examples of how to write type
-level tests. They use the `tstyche` testing library.
-
-## Changesets
-
-All pull requests must include a changeset. You can create changesets in the
-`.changeset/` directory.
-
-The have the following format:
-
-```md
----
-"package-name": patch | minor | major
----
-
-A description of the change.
-```
+- Keep agent instruction text lightweight and pathless.
+- Use command names in guidance, not file links or module paths.

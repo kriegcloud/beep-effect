@@ -1,6 +1,7 @@
 import {
   AllBenchAgents,
   AllBenchConditions,
+  deriveRepoBasename,
   parseBenchAgentsFlag,
   parseBenchConditionsFlag,
   parseClaudeEffortFlag,
@@ -96,13 +97,25 @@ describe("bench flag parsing", () => {
   });
 
   it("resolves default worktree root from XDG_CACHE_HOME then HOME", () => {
-    expect(resolveDefaultWorktreeRoot("/var/cache", "/home/alex")).toBe("/var/cache/beep-effect3/agent-eval/worktrees");
-    expect(resolveDefaultWorktreeRoot(undefined, "/home/alex")).toBe(
-      "/home/alex/.cache/beep-effect3/agent-eval/worktrees"
+    expect(resolveDefaultWorktreeRoot("/var/cache", "/home/alex", "beep-effect4")).toBe(
+      "/var/cache/beep-effect4/agent-eval/worktrees"
+    );
+    expect(resolveDefaultWorktreeRoot(undefined, "/home/alex", "beep-effect2")).toBe(
+      "/home/alex/.cache/beep-effect2/agent-eval/worktrees"
     );
   });
 
+  it("derives repository basename from repo root paths", () => {
+    expect(deriveRepoBasename("/home/alex/src/beep-effect")).toBe("beep-effect");
+    expect(deriveRepoBasename("/home/alex/src/beep-effect3/")).toBe("beep-effect3");
+    expect(deriveRepoBasename("C:\\Users\\alex\\beep-effect4")).toBe("beep-effect4");
+  });
+
+  it("fails when repository basename cannot be derived", () => {
+    expect(() => deriveRepoBasename("   ")).toThrow();
+  });
+
   it("fails to resolve default worktree root when XDG/HOME are unavailable", () => {
-    expect(() => resolveDefaultWorktreeRoot(undefined, undefined)).toThrow();
+    expect(() => resolveDefaultWorktreeRoot(undefined, undefined, "beep-effect")).toThrow();
   });
 });

@@ -231,6 +231,11 @@ const trimNonEmpty = (raw: string | undefined): string | undefined => {
   return normalized.length === 0 ? undefined : normalized;
 };
 
+const PathSeparatorPattern = /[\\/]+/g;
+
+const splitPathSegments = (pathValue: string): ReadonlyArray<string> =>
+  pathValue.split(PathSeparatorPattern).filter((segment) => segment.length > 0);
+
 const expandHomePrefix = (pathValue: string, home: string | undefined, source: string): string => {
   if (!(pathValue === "~" || pathValue.startsWith("~/"))) {
     return pathValue;
@@ -271,19 +276,58 @@ export const parseWorktreeRootFlag = (raw: string | undefined, home: string | un
 };
 
 /**
+ * Derive repository basename used by portable cache defaults.
+ *
+ * @param repoRoot - Repository root path (typically current working directory).
+ * @returns Repository basename.
+ * @since 0.0.0
+ * @category functions
+ */
+export const deriveRepoBasename = (repoRoot: string | undefined): string => {
+  const normalizedRoot = trimNonEmpty(repoRoot);
+  if (normalizedRoot === undefined) {
+    throw new AgentEvalConfigError({
+      message: "Worktree isolation requires a resolvable repository root for default worktree path.",
+    });
+  }
+
+  const segments = splitPathSegments(normalizedRoot);
+  const repoBasename = segments.at(-1);
+  if (repoBasename === undefined || repoBasename.length === 0) {
+    throw new AgentEvalConfigError({
+      message: `Unable to derive repository basename from path: ${normalizedRoot}`,
+    });
+  }
+
+  return repoBasename;
+};
+
+/**
  * Resolve default external worktree root from XDG/HOME.
  *
  * @param xdgCacheHome - XDG_CACHE_HOME environment variable value.
  * @param home - HOME environment variable value.
+ * @param repoBasename - Repository basename used for portable cache partitioning.
  * @returns Default worktree root path.
  * @since 0.0.0
  * @category functions
  */
-export const resolveDefaultWorktreeRoot = (xdgCacheHome: string | undefined, home: string | undefined): string => {
+export const resolveDefaultWorktreeRoot = (
+  xdgCacheHome: string | undefined,
+  home: string | undefined,
+  repoBasename: string
+): string => {
+  const normalizedRepoBasename = trimNonEmpty(repoBasename);
+  if (normalizedRepoBasename === undefined) {
+    throw new AgentEvalConfigError({
+      message: "Worktree isolation requires a non-empty repository basename.",
+    });
+  }
+
   const normalizedXdg = trimNonEmpty(xdgCacheHome);
   if (normalizedXdg !== undefined) {
     const expandedXdg = expandHomePrefix(normalizedXdg, home, "XDG_CACHE_HOME");
-    return `${expandedXdg}/beep-effect3/agent-eval/worktrees`;
+    return `${expandedXdg}/${normalizedRepoBasename}/agent-eval/worktrees`;
   }
 
   const normalizedHome = trimNonEmpty(home);
@@ -293,5 +337,5 @@ export const resolveDefaultWorktreeRoot = (xdgCacheHome: string | undefined, hom
     });
   }
 
-  return `${normalizedHome}/.cache/beep-effect3/agent-eval/worktrees`;
+  return `${normalizedHome}/.cache/${normalizedRepoBasename}/agent-eval/worktrees`;
 };

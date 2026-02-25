@@ -4,13 +4,14 @@
 - {{description}}
 
 ## Surface Map
-| Module | Key exports | Notes |
+| Surface | Key exports | Notes |
 | --- | --- | --- |
-| `src/index.ts` | `VERSION` | Package entry point |
+| entry module | VERSION | package entry point |
 
 ## Laws
-- Follow [standards/effect-laws-v1.md](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws-v1.md).
-- Keep package guidance concise; do not duplicate long policy prose.
+- Follow repository laws through command discovery.
+- Run `bun run beep docs laws`.
+- Keep package guidance concise and avoid duplicating long policy prose.
 
 ## Quick Recipes
 ```ts
@@ -23,8 +24,8 @@ import { VERSION } from "{{scopedName}}"
 - `bunx turbo run check --filter={{scopedName}}`
 
 ## Contributor Checklist
-- [ ] New exports include JSDoc (`@since`, `@category` as applicable)
-- [ ] Tests added/updated for behavior changes
+- [ ] New exports include jsdoc metadata
+- [ ] Tests added or updated for behavior changes
 - [ ] `bun run check` passes
 - [ ] `bun run test` passes
 - [ ] `bun run lint` passes

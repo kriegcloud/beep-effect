@@ -34,6 +34,17 @@ Generate barrel file exports for a package.
 bunx @beep/repo-cli codegen [package-dir]
 ```
 
+### `docs`
+
+Discover repository laws, skills, and policy gates through command-first output.
+
+```bash
+bunx @beep/repo-cli docs laws
+bunx @beep/repo-cli docs skills
+bunx @beep/repo-cli docs policies
+bunx @beep/repo-cli docs find <topic>
+```
+
 ## License
 
 MIT

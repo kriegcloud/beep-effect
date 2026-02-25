@@ -1,13 +1,20 @@
-# CODEBASE LAWS v1 (Compact)
+# CODEBASE LAWS V1
 
-Detailed guidance lives in [standards/effect-laws-v1.md](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws-v1.md).
+Command first discovery:
 
-1. Use `A/O/P/R/S/Str,Eq` aliases only: `effect/Array`, `Option`, `Predicate`, `Record`, `Schema`, `String`, `Eq`.
-2. For other stable modules, prefer root imports from `"effect"`; `effect/unstable/*` is allowed.
-3. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
-4. No runtime `typeof ... === ...`; use `effect/Predicate`.
-5. No native `Object/Map/Set/Date/Error/JSON/String` in domain logic; boundary-only via allowlist.
-6. No native `Error` in `tooling/*/src`; use `S.TaggedErrorClass`-based typed errors.
-7. JSDoc required for exported APIs in package/tooling source; examples must pass docgen.
-8. Exceptions require allowlist entry with `reason`, `owner`, `issue`, optional `expiresOn`.
-9. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+- `bun run beep docs laws`
+- `bun run beep docs skills`
+- `bun run beep docs policies`
+- `bun run beep docs find <topic>`
+
+Core rules:
+
+1. Use Effect first APIs and canonical aliases required by repository law.
+2. No any, no type assertions, no ts ignore, and no non null assertions.
+3. Avoid direct runtime type checks when Predicate based checks exist.
+4. Keep domain logic free of native mutable containers and native date, error, json, and string utilities except approved boundaries.
+5. In tooling source, use typed schema based errors.
+6. Exported APIs require jsdoc and docgen clean examples.
+7. Exceptions require allowlist metadata with reason, owner, and issue context.
+8. Do not complete work with failing check, lint, test, or docgen.
+9. Keep agent instruction text pathless and run `bun run agents:pathless:check` after editing agent config surfaces.

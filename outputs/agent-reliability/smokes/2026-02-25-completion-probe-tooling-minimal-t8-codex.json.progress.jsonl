@@ -1,0 +1,4 @@
+{"type":"suite.started","atEpochMs":1772044340312,"plannedRunCount":1,"strictTaskCount":1,"maxWallMinutes":12}
+{"type":"run.started","atEpochMs":1772044340312,"runId":"tooling_cli_01:minimal:codex:1","runIndex":1,"totalRuns":1,"taskId":"tooling_cli_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772044822401,"runId":"tooling_cli_01:minimal:codex:1","runIndex":1,"totalRuns":1,"success":false,"failureType":"runtime","wallMs":482086.56717399997}
+{"type":"suite.completed","atEpochMs":1772044822401,"status":"completed","completedRunCount":1,"plannedRunCount":1}

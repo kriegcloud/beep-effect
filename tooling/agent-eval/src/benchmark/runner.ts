@@ -132,6 +132,12 @@ interface ProcessResult {
   readonly timedOut: boolean;
 }
 
+interface OutputTailSnapshot {
+  readonly tail: string;
+  readonly length: number;
+  readonly truncated: boolean;
+}
+
 interface AcceptanceCommandResult {
   readonly success: boolean;
   readonly failedCommand: string | null;
@@ -157,6 +163,13 @@ interface LiveExecutionResult {
   readonly touchedSourceFiles: ReadonlyArray<TouchedSourceFile>;
   readonly commandPass: boolean;
   readonly commandTimedOut: boolean;
+  readonly commandStdoutTail: string;
+  readonly commandStderrTail: string;
+  readonly commandStdoutLength: number;
+  readonly commandStderrLength: number;
+  readonly commandStdoutTruncated: boolean;
+  readonly commandStderrTruncated: boolean;
+  readonly commandTailCharLimit: number;
   readonly statusPorcelainRaw: string;
   readonly statusPorcelainParsed: ReadonlyArray<StatusPorcelainParseEntry>;
   readonly executionCwd: string;
@@ -242,6 +255,13 @@ export type BenchmarkDiagnosticEvent =
       readonly command: {
         readonly success: boolean;
         readonly timedOut: boolean;
+        readonly stdoutTail: string;
+        readonly stderrTail: string;
+        readonly stdoutLength: number;
+        readonly stderrLength: number;
+        readonly stdoutTruncated: boolean;
+        readonly stderrTruncated: boolean;
+        readonly tailCharLimit: number;
       };
       readonly acceptance: AcceptanceCommandResult;
       readonly detector: {
@@ -339,12 +359,30 @@ const modelForAgent = (agent: AgentName, options: RunBenchmarkOptions): string =
 const epochNowMs = (): number => Math.round(performance.timeOrigin + performance.now());
 const monotonicNowMs = (): number => performance.now();
 const minutesToMs = (minutes: number): number => Math.max(1, Math.round(minutes * 60_000));
+const commandDiagnosticTailCharLimit = 4_000;
 const resolveDeadlineMs = (maxWallMinutes: number | undefined): number | undefined =>
   maxWallMinutes === undefined ? undefined : monotonicNowMs() + minutesToMs(maxWallMinutes);
 const remainingTimeoutCapMs = (deadlineMs: number | undefined): number | undefined =>
   deadlineMs === undefined ? undefined : Math.max(1, Math.floor(deadlineMs - monotonicNowMs()));
 const hasDeadlineElapsed = (deadlineMs: number | undefined): boolean =>
   deadlineMs !== undefined && deadlineMs <= monotonicNowMs();
+
+const snapshotOutputTail = (content: string, maxChars: number): OutputTailSnapshot => {
+  const normalizedMax = Math.max(1, maxChars);
+  if (content.length <= normalizedMax) {
+    return {
+      tail: content,
+      length: content.length,
+      truncated: false,
+    };
+  }
+
+  return {
+    tail: content.slice(content.length - normalizedMax),
+    length: content.length,
+    truncated: true,
+  };
+};
 
 const emitProgress = async (options: RunBenchmarkOptions, event: BenchmarkProgressEvent): Promise<void> => {
   if (options.onProgress === undefined) {
@@ -883,6 +921,8 @@ const executeLiveRun = async (
       claudeEffort,
       suiteDeadlineMs
     );
+    const commandStdout = snapshotOutputTail(commandResult.stdout, commandDiagnosticTailCharLimit);
+    const commandStderr = snapshotOutputTail(commandResult.stderr, commandDiagnosticTailCharLimit);
     const statusResult = await runProcess(
       "git",
       ["status", "--porcelain"],
@@ -927,6 +967,13 @@ const executeLiveRun = async (
       touchedSourceFiles,
       commandPass: commandResult.success && !commandResult.timedOut,
       commandTimedOut: commandResult.timedOut,
+      commandStdoutTail: commandStdout.tail,
+      commandStderrTail: commandStderr.tail,
+      commandStdoutLength: commandStdout.length,
+      commandStderrLength: commandStderr.length,
+      commandStdoutTruncated: commandStdout.truncated,
+      commandStderrTruncated: commandStderr.truncated,
+      commandTailCharLimit: commandDiagnosticTailCharLimit,
       statusPorcelainRaw: statusResult.stdout,
       statusPorcelainParsed: parsedStatus.parsedEntries,
       executionCwd,
@@ -1120,6 +1167,13 @@ const executeRunTuple = async (
     command: {
       success: liveExecution?.commandPass ?? true,
       timedOut: liveExecution?.commandTimedOut ?? false,
+      stdoutTail: liveExecution?.commandStdoutTail ?? "",
+      stderrTail: liveExecution?.commandStderrTail ?? "",
+      stdoutLength: liveExecution?.commandStdoutLength ?? 0,
+      stderrLength: liveExecution?.commandStderrLength ?? 0,
+      stdoutTruncated: liveExecution?.commandStdoutTruncated ?? false,
+      stderrTruncated: liveExecution?.commandStderrTruncated ?? false,
+      tailCharLimit: liveExecution?.commandTailCharLimit ?? commandDiagnosticTailCharLimit,
     },
     acceptance,
     detector: {
