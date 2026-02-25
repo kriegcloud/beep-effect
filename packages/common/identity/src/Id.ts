@@ -5,7 +5,7 @@
  */
 
 import type { TString } from "@beep/types";
-import { Function as F, MutableHashSet, String } from "effect";
+import { Function as F, MutableHashSet, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -242,15 +242,15 @@ type BaseIdentity<Base extends TString.NonEmpty> =
 
 const SegmentCheck = S.makeFilterGroup(
   [
-    S.makeFilter((segment: string) => String.isNonEmpty(segment), {
+    S.makeFilter((segment: string) => Str.isNonEmpty(segment), {
       identifier: "@beep/identity/check/non-empty-segment",
       message: "Identity segments cannot be empty.",
     }),
-    S.makeFilter((segment: string) => !F.pipe(segment, String.startsWith("/")), {
+    S.makeFilter((segment: string) => !F.pipe(segment, Str.startsWith("/")), {
       identifier: "@beep/identity/check/no-leading-slash",
       message: 'Identity segments cannot start with "/".',
     }),
-    S.makeFilter((segment: string) => !F.pipe(segment, String.endsWith("/")), {
+    S.makeFilter((segment: string) => !F.pipe(segment, Str.endsWith("/")), {
       identifier: "@beep/identity/check/no-trailing-slash",
       message: 'Identity segments cannot end with "/".',
     }),
@@ -283,7 +283,7 @@ const ModuleSegmentCheck = S.makeFilterGroup(
 const ModuleSegmentSchema = SegmentSchema.check(ModuleSegmentCheck);
 
 const BaseSegmentSchema = S.String.check(
-  S.makeFilter((base: string) => String.isNonEmpty(base), {
+  S.makeFilter((base: string) => Str.isNonEmpty(base), {
     identifier: "@beep/identity/check/non-empty-base",
     message: "Identity bases cannot be empty.",
   }),
@@ -306,13 +306,13 @@ const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Va
 const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifier): string =>
   F.pipe(
     identifier,
-    String.replace(/[_-]+/g, " "),
-    String.trim,
-    String.split(" "),
-    A.filter(String.isNonEmpty),
+    Str.replace(/[_-]+/g, " "),
+    Str.trim,
+    Str.split(" "),
+    A.filter(Str.isNonEmpty),
     A.map((segment) => {
-      const head = F.pipe(segment, String.slice(0, 1), String.toUpperCase);
-      const tail = F.pipe(segment, String.slice(1));
+      const head = F.pipe(segment, Str.slice(0, 1), Str.toUpperCase);
+      const tail = F.pipe(segment, Str.slice(1));
       return `${head}${tail}`;
     }),
     A.join(" ")
@@ -322,7 +322,7 @@ type ModulePascal<Segment extends TString.NonEmpty> =
   ModuleAccessor<Segment> extends `${infer Pascal}Id` ? Pascal : never;
 
 const toPascalIdentifier = <const Segment extends TString.NonEmpty>(segment: Segment): ModulePascal<Segment> =>
-  F.pipe(segment, toTitle, String.replace(/\s+/g, "")) as ModulePascal<Segment>;
+  F.pipe(segment, toTitle, Str.replace(/\s+/g, "")) as ModulePascal<Segment>;
 
 const toTaggedKey = <const Segment extends TString.NonEmpty>(segment: Segment): TaggedAccessor<Segment> =>
   `$${toPascalIdentifier(segment)}Id` as TaggedAccessor<Segment>;
@@ -344,17 +344,17 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
     if (segment === BEEP_NAMESPACE) {
       return "beep";
     }
-    if (F.pipe(segment, String.startsWith(`${BEEP_NAMESPACE}/`))) {
-      return F.pipe(segment, String.slice(String.length(`${BEEP_NAMESPACE}/`)));
+    if (F.pipe(segment, Str.startsWith(`${BEEP_NAMESPACE}/`))) {
+      return F.pipe(segment, Str.slice(Str.length(`${BEEP_NAMESPACE}/`)));
     }
-    if (F.pipe(segment, String.startsWith(BEEP_NAMESPACE))) {
-      return F.pipe(segment, String.slice(String.length(BEEP_NAMESPACE)));
+    if (F.pipe(segment, Str.startsWith(BEEP_NAMESPACE))) {
+      return F.pipe(segment, Str.slice(Str.length(BEEP_NAMESPACE)));
     }
     return segment;
   });
 
   const withoutAtPrefix = F.pipe(withoutNamespace, (value) =>
-    F.pipe(value, String.startsWith("@")) ? F.pipe(value, String.slice(1)) : value
+    F.pipe(value, Str.startsWith("@")) ? F.pipe(value, Str.slice(1)) : value
   );
 
   return decodeBaseSegment(withoutAtPrefix) as NormalizedBase<Base>;

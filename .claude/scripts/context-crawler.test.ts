@@ -1,54 +1,56 @@
 import { BunServices } from "@effect/platform-bun";
-import { Effect, FileSystem, Option, pipe, String } from "effect";
+import { Effect, FileSystem, pipe } from "effect";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
 // Pure function tests - re-implement for testing since not exported
-const parseFrontmatter = (content: string): Option.Option<string> => {
+const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-  const match = content.match(frontmatterRegex);
-  return match ? Option.some(match[1]) : Option.none();
+  const match = O.getOrNull(O.fromNullishOr(Str.match(frontmatterRegex)(content)));
+  return match ? O.some(match[1]) : O.none();
 };
 
-const extractTomlMessage = (toml: string): Option.Option<string> => {
+const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
-  const match = toml.match(messageRegex);
-  return match ? Option.some(match[1]) : Option.none();
+  const match = O.getOrNull(O.fromNullishOr(Str.match(messageRegex)(toml)));
+  return match ? O.some(match[1]) : O.none();
 };
 
-const extractFirstParagraph = (content: string): Option.Option<string> => {
+const extractFirstParagraph = (content: string): O.Option<string> => {
   // Remove frontmatter if present
-  const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n?/, "");
-  const lines = withoutFrontmatter.split("\n");
+  const withoutFrontmatter = Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(content);
+  const lines = Str.split("\n")(withoutFrontmatter);
 
   for (const line of lines) {
-    const trimmed = line.trim();
+    const trimmed = Str.trim(line);
     if (trimmed.length > 0 && !trimmed.startsWith("#")) {
-      return Option.some(trimmed);
+      return O.some(trimmed);
     }
   }
-  return Option.none();
+  return O.none();
 };
 
-const extractPurposeSection = (content: string): Option.Option<string> => {
+const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
-  const match = content.match(purposeRegex);
-  return match ? Option.some(String.trim(match[1])) : Option.none();
+  const match = O.getOrNull(O.fromNullishOr(Str.match(purposeRegex)(content)));
+  return match ? O.some(Str.trim(match[1])) : O.none();
 };
 
 const extractSummary = (content: string, fallback: string): string => {
   return pipe(
     parseFrontmatter(content),
-    Option.flatMap(extractTomlMessage),
-    Option.orElse(() => extractPurposeSection(content)),
-    Option.orElse(() => extractFirstParagraph(content)),
-    Option.getOrElse(() => fallback)
+    O.flatMap(extractTomlMessage),
+    O.orElse(() => extractPurposeSection(content)),
+    O.orElse(() => extractFirstParagraph(content)),
+    O.getOrElse(() => fallback)
   );
 };
 
 const toModulePath = (absolutePath: string, repoRoot: string): string => {
-  const relative = absolutePath.replace(`${repoRoot}/`, "");
-  return relative.replace("/ai-context.md", "").replace("ai-context.md", ".");
+  const relative = Str.replace(`${repoRoot}/`, "")(absolutePath);
+  return Str.replace("ai-context.md", ".")(Str.replace("/ai-context.md", "")(relative));
 };
 
 const parseGitmodules = (content: string): ReadonlyArray<string> => {
@@ -56,7 +58,7 @@ const parseGitmodules = (content: string): ReadonlyArray<string> => {
   const paths: string[] = [];
   let match: RegExpExecArray | null;
   while ((match = pathRegex.exec(content)) !== null) {
-    paths.push(match[1].trim());
+    paths.push(Str.trim(match[1]));
   }
   return paths;
 };
@@ -78,14 +80,14 @@ message = "test message"
 # Content here`;
 
       const result = parseFrontmatter(content);
-      expect(Option.isSome(result)).toBe(true);
-      expect(Option.getOrThrow(result)).toContain('message = "test message"');
+      expect(O.isSome(result)).toBe(true);
+      expect(O.getOrThrow(result)).toContain('message = "test message"');
     });
 
     it("returns None when no frontmatter exists", () => {
       const content = "# Just markdown\nNo frontmatter here";
       const result = parseFrontmatter(content);
-      expect(Option.isNone(result)).toBe(true);
+      expect(O.isNone(result)).toBe(true);
     });
 
     it("handles empty frontmatter", () => {
@@ -94,7 +96,7 @@ message = "test message"
 ---
 # Content`;
       const result = parseFrontmatter(content);
-      expect(Option.isSome(result)).toBe(true);
+      expect(O.isSome(result)).toBe(true);
     });
   });
 
@@ -105,20 +107,20 @@ files = ["**/*.ts"]
 message = "TypeScript patterns"`;
 
       const result = extractTomlMessage(toml);
-      expect(Option.isSome(result)).toBe(true);
-      expect(Option.getOrThrow(result)).toBe("TypeScript patterns");
+      expect(O.isSome(result)).toBe(true);
+      expect(O.getOrThrow(result)).toBe("TypeScript patterns");
     });
 
     it("handles message with spaces around equals", () => {
       const toml = 'message   =   "spaced out"';
       const result = extractTomlMessage(toml);
-      expect(Option.getOrThrow(result)).toBe("spaced out");
+      expect(O.getOrThrow(result)).toBe("spaced out");
     });
 
     it("returns None when no message field", () => {
       const toml = 'files = ["*.ts"]';
       const result = extractTomlMessage(toml);
-      expect(Option.isNone(result)).toBe(true);
+      expect(O.isNone(result)).toBe(true);
     });
   });
 
@@ -129,7 +131,7 @@ This is the first paragraph.
 More content here.`;
 
       const result = extractFirstParagraph(content);
-      expect(Option.getOrThrow(result)).toBe("This is the first paragraph.");
+      expect(O.getOrThrow(result)).toBe("This is the first paragraph.");
     });
 
     it("skips multiple headings", () => {
@@ -139,7 +141,7 @@ More content here.`;
 Finally some content`;
 
       const result = extractFirstParagraph(content);
-      expect(Option.getOrThrow(result)).toBe("Finally some content");
+      expect(O.getOrThrow(result)).toBe("Finally some content");
     });
 
     it("strips frontmatter before extracting", () => {
@@ -150,13 +152,13 @@ key: value
 Actual content`;
 
       const result = extractFirstParagraph(content);
-      expect(Option.getOrThrow(result)).toBe("Actual content");
+      expect(O.getOrThrow(result)).toBe("Actual content");
     });
 
     it("returns None for empty content", () => {
       const content = "# Just a heading";
       const result = extractFirstParagraph(content);
-      expect(Option.isNone(result)).toBe(true);
+      expect(O.isNone(result)).toBe(true);
     });
   });
 
@@ -168,13 +170,13 @@ Type-safe environment management.
 ## Other section`;
 
       const result = extractPurposeSection(content);
-      expect(Option.getOrThrow(result)).toBe("Type-safe environment management.");
+      expect(O.getOrThrow(result)).toBe("Type-safe environment management.");
     });
 
     it("returns None when no Purpose section", () => {
       const content = "# Title\n## Overview\nSome content";
       const result = extractPurposeSection(content);
-      expect(Option.isNone(result)).toBe(true);
+      expect(O.isNone(result)).toBe(true);
     });
   });
 

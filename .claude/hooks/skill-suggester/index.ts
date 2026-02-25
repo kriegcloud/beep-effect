@@ -15,19 +15,22 @@
 
 import * as fs from "node:fs";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Array, Console, Effect, FileSystem, Option, Order, Path, pipe, Record, String, Terminal } from "effect";
-import * as Arr from "effect/Array";
-import * as Schema from "effect/Schema";
+import { Console, Effect, FileSystem, Order, Path, pipe, Terminal } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 
-const LenientUserPromptInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
-  cwd: Schema.String,
-  permission_mode: Schema.String.pipe(Schema.withDecodingDefault(() => "default")),
-  hook_event_name: Schema.Literal("UserPromptSubmit"),
-  prompt: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
-  user_prompt: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
+const LenientUserPromptInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String.pipe(S.withDecodingDefault(() => "")),
+  cwd: S.String,
+  permission_mode: S.String.pipe(S.withDecodingDefault(() => "default")),
+  hook_event_name: S.Literal("UserPromptSubmit"),
+  prompt: S.String.pipe(S.withDecodingDefault(() => "")),
+  user_prompt: S.String.pipe(S.withDecodingDefault(() => "")),
 });
 
 export interface SkillMetadata {
@@ -57,16 +60,16 @@ const writeHookState = (cwd: string, state: HookState): void => {
   } catch {}
 };
 
-const MiseTask = Schema.Struct({
-  name: Schema.String,
-  aliases: Schema.Array(Schema.String),
-  description: Schema.String,
+const MiseTask = S.Struct({
+  name: S.String,
+  aliases: S.Array(S.String),
+  description: S.String,
 });
 
-const MiseTasks = Schema.Array(MiseTask);
+const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  Array.map(tasks, (t) => {
+  A.map(tasks, (t) => {
     const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
     return `${t.name}${aliases}: ${t.description}`;
   }).join("\n");
@@ -97,7 +100,7 @@ const SCRIPT_TRIGGER_KEYWORDS = new Set([
 ]);
 
 const shouldShowMiseTasks = (prompt: string): boolean => {
-  const lowered = prompt.toLowerCase();
+  const lowered = Str.toLowerCase(prompt);
   for (const keyword of SCRIPT_TRIGGER_KEYWORDS) {
     if (lowered.includes(keyword)) return true;
   }
@@ -109,41 +112,39 @@ const fetchMiseTasks = (cwd: string) =>
     const result = yield* pipe(
       ChildProcess.make({ cwd })`mise tasks --json`,
       ChildProcess.string,
-      Effect.flatMap((s) => Schema.decodeUnknownEffect(Schema.fromJsonString(MiseTasks))(s)),
+      Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
       Effect.map(formatMiseTasks),
       Effect.catch(() => Effect.succeed(""))
     );
 
-    return String.isNonEmpty(result) ? Option.some(result) : Option.none();
+    return Str.isNonEmpty(result) ? O.some(result) : O.none();
   });
 
-const parseFrontmatter = (content: string): Record.ReadonlyRecord<string, string> => {
+const parseFrontmatter = (content: string): R.ReadonlyRecord<string, string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-  const match = content.match(frontmatterRegex);
-  if (!match) return Record.empty();
+  const match = O.getOrNull(O.fromNullishOr(Str.match(frontmatterRegex)(content)));
+  if (!match) return R.empty();
 
   const frontmatter = match[1];
-  const lines = String.split(frontmatter, "\n");
+  const lines = Str.split(frontmatter, "\n");
 
   const entries = pipe(
     lines,
-    Arr.map((line: string) =>
+    A.map((line: string) =>
       pipe(
-        String.indexOf(":")(line),
-        Option.fromUndefinedOr,
-        Option.flatMap((colonIndex) => {
-          const key = pipe(line, String.slice(0, colonIndex), String.trim);
-          const value = pipe(line, String.slice(colonIndex + 1), String.trim);
-          return String.isNonEmpty(key) && String.isNonEmpty(value)
-            ? Option.some([key, value] as const)
-            : Option.none();
+        Str.indexOf(":")(line),
+        O.fromUndefinedOr,
+        O.flatMap((colonIndex) => {
+          const key = pipe(line, Str.slice(0, colonIndex), Str.trim);
+          const value = pipe(line, Str.slice(colonIndex + 1), Str.trim);
+          return Str.isNonEmpty(key) && Str.isNonEmpty(value) ? O.some([key, value] as const) : O.none();
         })
       )
     ),
-    Arr.getSomes
+    A.getSomes
   );
 
-  return Record.fromEntries(entries);
+  return R.fromEntries(entries);
 };
 
 export const STOPWORDS = new Set([
@@ -188,16 +189,16 @@ export const STOPWORDS = new Set([
 ]);
 
 export const extractKeywords = (text: string): ReadonlyArray<string> => {
-  const lowercased = String.toLowerCase(text);
-  const words = String.split(lowercased, /[\s,.-]+/);
+  const lowercased = Str.toLowerCase(text);
+  const words = Str.split(lowercased, /[\s,.-]+/);
 
-  return Array.filter(words, (word) => String.length(word) >= 3 && !STOPWORDS.has(word));
+  return A.filter(words, (word) => Str.length(word) >= 3 && !STOPWORDS.has(word));
 };
 
-const OutputSchema = Schema.Struct({
-  hookSpecificOutput: Schema.Struct({
-    hookEventName: Schema.Literal("UserPromptSubmit"),
-    additionalContext: Schema.String,
+const OutputSchema = S.Struct({
+  hookSpecificOutput: S.Struct({
+    hookEventName: S.Literal("UserPromptSubmit"),
+    additionalContext: S.String,
   }),
 });
 
@@ -213,7 +214,7 @@ const readSkillFile = (skillPath: string) =>
 
     const nameKeywords = extractKeywords(name);
     const descKeywords = extractKeywords(description);
-    const keywords = Array.dedupe(Array.appendAll(nameKeywords, descKeywords));
+    const keywords = A.dedupe(A.appendAll(nameKeywords, descKeywords));
 
     return { name, keywords };
   });
@@ -226,19 +227,19 @@ const loadSkills = (cwd: string) =>
     const skillsDir = path.join(cwd, ".claude", "skills");
     const exists = yield* fs.exists(skillsDir);
 
-    if (!exists) return Array.empty<SkillMetadata>();
+    if (!exists) return A.empty<SkillMetadata>();
 
     const entries = yield* fs.readDirectory(skillsDir);
-    const skillEffects = Array.map(entries, (entry) =>
+    const skillEffects = A.map(entries, (entry) =>
       Effect.option(readSkillFile(path.join(skillsDir, entry, "SKILL.md")))
     );
 
     const skillOptions = yield* Effect.all(skillEffects, { concurrency: "unbounded" });
-    return Array.getSomes(skillOptions);
+    return A.getSomes(skillOptions);
   });
 
 export const matchesWordBoundary = (prompt: string, word: string): boolean => {
-  const pattern = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+  const pattern = new RegExp(`\\b${Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(word)}\\b`, "i");
   return pattern.test(prompt);
 };
 
@@ -248,20 +249,20 @@ export const NAME_MATCH_BOOST = 3;
 export const KEYWORD_MATCH_SCORE = 1;
 
 export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
-  const nameSegments = pipe(String.toLowerCase(skill.name), String.split(/-/));
+  const nameSegments = pipe(Str.toLowerCase(skill.name), Str.split(/-/));
 
   const nameScore = pipe(
     nameSegments,
-    Array.filter((seg) => String.length(seg) >= 3),
-    Array.filter((seg) => matchesWordBoundary(prompt, seg)),
-    Array.length,
+    A.filter((seg) => Str.length(seg) >= 3),
+    A.filter((seg) => matchesWordBoundary(prompt, seg)),
+    A.length,
     (n) => n * NAME_MATCH_BOOST
   );
 
   const keywordScore = pipe(
     skill.keywords,
-    Array.filter((keyword) => matchesWordBoundary(prompt, keyword)),
-    Array.length,
+    A.filter((keyword) => matchesWordBoundary(prompt, keyword)),
+    A.length,
     (n) => n * KEYWORD_MATCH_SCORE
   );
 
@@ -271,25 +272,23 @@ export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
 export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string> =>
   pipe(
     skills,
-    Array.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
-    Array.filter(({ score }) => score >= MIN_SCORE),
-    Array.sort(
-      Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)
-    ),
-    Array.take(MAX_SUGGESTIONS),
-    Array.map(({ skill }) => skill.name)
+    A.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
+    A.filter(({ score }) => score >= MIN_SCORE),
+    A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)),
+    A.take(MAX_SUGGESTIONS),
+    A.map(({ skill }) => skill.name)
   );
 
 const searchModules = (prompt: string, cwd: string) =>
   Effect.gen(function* () {
     const words = pipe(
       prompt,
-      String.toLowerCase,
-      String.split(/\s+/),
-      Array.filter((w) => String.length(w) >= 4)
+      Str.toLowerCase,
+      Str.split(/\s+/),
+      A.filter((w) => Str.length(w) >= 4)
     );
 
-    if (!Arr.isReadonlyArrayNonEmpty(words)) return Option.none<string>();
+    if (!A.isReadonlyArrayNonEmpty(words)) return O.none<string>();
 
     const pattern = words[0];
 
@@ -299,16 +298,16 @@ const searchModules = (prompt: string, cwd: string) =>
       Effect.catch(() => Effect.succeed(""))
     );
 
-    const countMatch = result.match(/count="(\d+)"/);
+    const countMatch = O.getOrNull(O.fromNullishOr(Str.match(/count="(\d+)"/)(result)));
     const count = countMatch ? Number.parseInt(countMatch[1], 10) : 0;
 
-    if (count === 0) return Option.none<string>();
+    if (count === 0) return O.none<string>();
 
-    return Option.some(String.trim(result));
+    return O.some(Str.trim(result));
   });
 
 const formatOutput = (context: string) =>
-  Schema.encodeEffect(Schema.fromJsonString(OutputSchema))({
+  S.encodeEffect(S.fromJsonString(OutputSchema))({
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit" as const,
       additionalContext: context,
@@ -319,7 +318,7 @@ const program = Effect.gen(function* () {
   const terminal = yield* Terminal.Terminal;
 
   const stdin = yield* terminal.readLine;
-  const raw = yield* Schema.decodeEffect(Schema.fromJsonString(LenientUserPromptInput))(stdin);
+  const raw = yield* S.decodeEffect(S.fromJsonString(LenientUserPromptInput))(stdin);
   const prompt = raw.prompt || raw.user_prompt || "";
   const input = { ...raw, prompt };
 
@@ -334,7 +333,7 @@ const program = Effect.gen(function* () {
   const moduleSearchResult = yield* searchModules(input.prompt, input.cwd);
 
   // Fetch mise tasks if prompt indicates script execution intent
-  const miseTasksResult = shouldShowMiseTasks(input.prompt) ? yield* fetchMiseTasks(input.cwd) : Option.none<string>();
+  const miseTasksResult = shouldShowMiseTasks(input.prompt) ? yield* fetchMiseTasks(input.cwd) : O.none<string>();
 
   // Build context parts
   const parts: string[] = [];
@@ -348,17 +347,17 @@ elapsed_ms: ${elapsedMs}
 </hook_state>`);
 
   // Always show matched skills if any
-  if (Arr.isReadonlyArrayNonEmpty(matchingSkills)) {
+  if (A.isReadonlyArrayNonEmpty(matchingSkills)) {
     parts.push(`<skills>${matchingSkills.join(", ")}</skills>`);
   }
 
   // Always show matching modules if found
-  if (Option.isSome(moduleSearchResult)) {
+  if (O.isSome(moduleSearchResult)) {
     parts.push(`<relevant-modules>\n${moduleSearchResult.value}\n</relevant-modules>`);
   }
 
   // Show mise tasks when user indicates script execution intent
-  if (Option.isSome(miseTasksResult)) {
+  if (O.isSome(miseTasksResult)) {
     parts.push(`<available-scripts>
 Run these with: mise run <task-name>
 ${miseTasksResult.value}
@@ -525,7 +524,7 @@ Prefer these over manual exploration and memory management.
   const version = yield* pipe(
     ChildProcess.make("bun", ["-e", "console.log(require('./package.json').version)"], { cwd: input.cwd }),
     ChildProcess.string,
-    Effect.map((v) => String.trim(v)),
+    Effect.map((v) => Str.trim(v)),
     Effect.catch(() => Effect.succeed("unknown"))
   );
   parts.push(`<version>${version}</version>`);

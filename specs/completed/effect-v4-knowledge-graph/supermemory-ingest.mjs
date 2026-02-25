@@ -10,6 +10,9 @@
 import { readFile } from "node:fs/promises"
 import { resolve, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -54,10 +57,10 @@ async function addMemory(apiKey, episode, index) {
   const body = {
     content: `${episode.name}\n\n${episode.episode_body}`,
     containerTag: CONTAINER_TAG,
-    customId: `effect-v4-${episode.name.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase().slice(0, 80)}`,
+    customId: `effect-v4-${Str.slice(0, 80)(Str.toLowerCase(Str.replace(/[^a-zA-Z0-9]/g, "-")(episode.name)))}`,
     metadata: {
       source: episode.source_description || "effect-v4-knowledge-graph",
-      category: episode.episode_body.match(/Category:\s*(\w+)/)?.[1] || "unknown",
+      category: O.getOrNull(O.fromNullishOr(Str.match(/Category:\s*(\w+)/)(episode.episode_body)))?.[1] || "unknown",
       sm_source: "effect-v4-kg-ingestion",
     },
     entityContext: ENTITY_CONTEXT,

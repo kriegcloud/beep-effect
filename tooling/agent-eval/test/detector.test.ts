@@ -1,5 +1,5 @@
+import { detectEffectComplianceViolations, detectWrongApis } from "@beep/agent-eval/effect-v4-detector/index";
 import { describe, expect, it } from "vitest";
-import { detectEffectComplianceViolations, detectWrongApis } from "../src/effect-v4-detector/index.js";
 
 describe("effect-v4 detector", () => {
   it("detects v3 Context.Tag usage", () => {

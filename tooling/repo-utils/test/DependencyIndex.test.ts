@@ -1,10 +1,12 @@
 import * as path from "node:path";
+import { buildRepoDependencyIndex } from "@beep/repo-utils/DependencyIndex";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer, Option } from "effect";
-import { buildRepoDependencyIndex } from "../src/DependencyIndex.js";
-import { FsUtilsLive } from "../src/FsUtils.js";
+import { Effect, HashMap, Layer } from "effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -31,8 +33,8 @@ layer(TestLayer)("DependencyIndex", (it) => {
       Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgADeps = HashMap.get(index, "@mock/pkg-a");
-        expect(Option.isSome(pkgADeps)).toBe(true);
-        if (Option.isSome(pkgADeps)) {
+        expect(O.isSome(pkgADeps)).toBe(true);
+        if (O.isSome(pkgADeps)) {
           const deps = pkgADeps.value;
           // @mock/pkg-b is a workspace dep
           expect(deps.workspace.dependencies).toHaveProperty("@mock/pkg-b");
@@ -47,8 +49,8 @@ layer(TestLayer)("DependencyIndex", (it) => {
       Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgBDeps = HashMap.get(index, "@mock/pkg-b");
-        expect(Option.isSome(pkgBDeps)).toBe(true);
-        if (Option.isSome(pkgBDeps)) {
+        expect(O.isSome(pkgBDeps)).toBe(true);
+        if (O.isSome(pkgBDeps)) {
           const deps = pkgBDeps.value;
           // @mock/pkg-c is a workspace devDep
           expect(deps.workspace.devDependencies).toHaveProperty("@mock/pkg-c");
@@ -63,12 +65,12 @@ layer(TestLayer)("DependencyIndex", (it) => {
       Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgCDeps = HashMap.get(index, "@mock/pkg-c");
-        expect(Option.isSome(pkgCDeps)).toBe(true);
-        if (Option.isSome(pkgCDeps)) {
+        expect(O.isSome(pkgCDeps)).toBe(true);
+        if (O.isSome(pkgCDeps)) {
           const deps = pkgCDeps.value;
           // No workspace deps
-          expect(Object.keys(deps.workspace.dependencies)).toHaveLength(0);
-          expect(Object.keys(deps.workspace.devDependencies)).toHaveLength(0);
+          expect(R.keys(deps.workspace.dependencies)).toHaveLength(0);
+          expect(R.keys(deps.workspace.devDependencies)).toHaveLength(0);
           // zod is npm dep
           expect(deps.npm.dependencies).toHaveProperty("zod");
           // effect is an npm peerDep
@@ -82,8 +84,8 @@ layer(TestLayer)("DependencyIndex", (it) => {
       Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const rootDeps = HashMap.get(index, "@beep/root");
-        expect(Option.isSome(rootDeps)).toBe(true);
-        if (Option.isSome(rootDeps)) {
+        expect(O.isSome(rootDeps)).toBe(true);
+        if (O.isSome(rootDeps)) {
           const deps = rootDeps.value;
           expect(deps.packageName).toBe("@beep/root");
           // Root has typescript as a dep and vitest as devDep, both npm

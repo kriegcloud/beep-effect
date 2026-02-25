@@ -1,12 +1,12 @@
-import type { Effect } from "effect";
-import { describe, expect, it } from "tstyche";
 import {
   collectUniqueNpmDependencies,
   type DomainError,
   type FsUtils,
   type NoSuchFileError,
   type UniqueNpmDeps,
-} from "../src/index.js";
+} from "@beep/repo-utils";
+import type { Effect } from "effect";
+import { describe, expect, it } from "tstyche";
 
 describe("UniqueDeps", () => {
   it("collectUniqueNpmDependencies returns UniqueNpmDeps", () => {

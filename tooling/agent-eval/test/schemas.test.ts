@@ -1,5 +1,3 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   AgentRunConfigSchema,
   AgentRunResultSchema,
@@ -7,7 +5,9 @@ import {
   AgentTaskSpecSchema,
   EffectV4EvidenceFactSchema,
   FailureSignatureSchema,
-} from "../src/schemas/index.js";
+} from "@beep/agent-eval/schemas/index";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 describe("agent-eval schemas", () => {
   it("decodes valid task spec", () => {

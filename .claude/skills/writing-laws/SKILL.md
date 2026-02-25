@@ -346,11 +346,11 @@ NOW THEREFORE, the following LAWS are hereby declared and SHALL govern all impor
 ```typescript
 // CORRECT
 import * as Effect from "effect/Effect"
-import * as Option from "effect/Option"
+import * as O from "effect/Option"
 
 // FORBIDDEN
 import { Effect, pipe } from "effect"
-import { Option, none, some } from "effect/Option"
+import { none, some } from "effect"
 ```
 
 ---

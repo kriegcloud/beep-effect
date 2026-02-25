@@ -1,8 +1,8 @@
+import { findMatches, type HookInput, loadPatterns } from "@beep/claude/hooks/pattern-detector/core";
+import type { PatternDefinition } from "@beep/claude/patterns/schema";
 import { NodeServices } from "@effect/platform-node";
 import { Effect } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
-import { findMatches, type HookInput, loadPatterns } from "../../hooks/pattern-detector/core.ts";
-import type { PatternDefinition } from "../../patterns/schema.ts";
 
 let patterns: PatternDefinition[] = [];
 

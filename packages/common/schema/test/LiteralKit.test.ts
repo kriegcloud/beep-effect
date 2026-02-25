@@ -1,4 +1,4 @@
-import { LiteralKit, LiteralNotInSetError } from "@beep/schema/LiteralKit.schema";
+import { LiteralKit, LiteralNotInSetError } from "@beep/schema/LiteralKit";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("LiteralKit", () => {

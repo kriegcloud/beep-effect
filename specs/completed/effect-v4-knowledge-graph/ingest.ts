@@ -16,6 +16,9 @@
  */
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
+
 
 const BASE_DIR = "specs/pending/effect-v4-knowledge-graph";
 const OUT_DIR = join(BASE_DIR, "outputs/p5-graph-pipeline");
@@ -203,12 +206,12 @@ async function ingestBatch(name: string, episodes: GraphitiEpisode[]): Promise<I
     }
 
     try {
-      process.stdout.write(`  ${progress} ${ep.name.substring(0, 60)}...`);
+      process.stdout.write(`  ${progress} ${Str.substring(0, 60)(ep.name)}...`);
       await addMemory(ep);
       console.log(` OK`);
       log.succeeded++;
     } catch (e: any) {
-      console.log(` FAIL: ${e.message.substring(0, 80)}`);
+      console.log(` FAIL: ${Str.substring(0, 80)(e.message)}`);
       log.failed++;
       log.errors.push({ index: globalIdx, name: ep.name, error: e.message });
     }
@@ -251,7 +254,7 @@ async function main() {
     const log = await ingestBatch(batchName, episodes);
     allLogs.push(log);
   } else {
-    console.error(`Unknown batch: ${batchName}. Available: ${Object.keys(BATCHES).join(", ")}, all`);
+    console.error(`Unknown batch: ${batchName}. Available: ${R.keys(BATCHES).join(", ")}, all`);
     process.exit(1);
   }
 

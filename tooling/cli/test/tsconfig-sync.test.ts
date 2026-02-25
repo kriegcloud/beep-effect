@@ -1,14 +1,15 @@
+import { rootCommand } from "@beep/repo-cli/commands/root";
+import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/tsconfig-sync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
-import { rootCommand } from "../src/commands/root.js";
-import { syncTsconfigAtRoot } from "../src/commands/tsconfig-sync.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -59,7 +60,7 @@ const createFixture = Effect.fn(function* () {
 
   const rootDir = path.join(
     path.resolve("."),
-    `_test-tsconfig-sync-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    `_test-tsconfig-sync-${Date.now()}-${Str.slice(2)(Math.random().toString(36))}`
   );
 
   const pkgADir = path.join(rootDir, "tooling", "pkg-a");

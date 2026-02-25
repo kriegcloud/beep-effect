@@ -146,7 +146,7 @@ Standardized error reasons for consistency:
 
 ```typescript
 import { $SchemaId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema/LiteralKit.schema";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 
 const $I = $SchemaId.create("internal/error-reasons");
 

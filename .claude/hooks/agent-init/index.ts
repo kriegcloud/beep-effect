@@ -65,7 +65,7 @@ const listMemories = pipe(
 
     return pipe(
       mdFiles,
-      A.map((f: string) => `  - ${f.replace(".md", "")}`)
+      A.map((f: string) => `  - ${Str.replace(".md", "")(f)}`)
     ).join("\n");
   }),
   Effect.catch(() => Effect.succeed("Error listing memories."))
@@ -203,11 +203,11 @@ export const program = Effect.gen(function* () {
       pipe(
         sh`git branch -vv --list --sort=-committerdate`,
         Effect.map((s) => {
-          const lines = s.trim().split("\n");
+          const lines = Str.split("\n")(Str.trim(s));
           const current = lines.find((l) => l.startsWith("*")) || "";
           const recent = lines.filter((l) => !l.startsWith("*")).slice(0, 4);
           return {
-            current: current.replace(/^\*\s*/, "").trim(),
+            current: Str.trim(Str.replace(/^\*\s*/, "")(current)),
             recent,
           };
         }),
@@ -242,7 +242,7 @@ export const program = Effect.gen(function* () {
         Effect.catch(() => Effect.succeed("unknown"))
       ),
       pipe(
-        sh`bun -e ${"const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
+        sh`bun -e ${"const p = require('./package.json'); const R = require('effect/Record'); console.log(R.toEntries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
         Effect.map(Str.trim),
         Effect.catch(() => Effect.succeed(""))
       ),
@@ -259,7 +259,7 @@ export const program = Effect.gen(function* () {
       ),
       pipe(
         sh`git log ${"--since=7 days ago"} --format=%an --no-merges`,
-        Effect.map((out) => [...new Set(out.trim().split("\n").filter(Boolean))].join(", ")),
+        Effect.map((out) => [...new Set(Str.split("\n")(Str.trim(out)).filter(Boolean))].join(", ")),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
@@ -617,11 +617,10 @@ ${branchContext.recent.length > 0 ? `<recent>\n${branchContext.recent.join("\n")
 <collaborators>
 <team>
 ${
-  collaborators
-    .split("\n")
+  Str.split("\n")(collaborators)
     .filter(Boolean)
     .map((line) => {
-      const [login, role] = line.split(":");
+      const [login, role] = Str.split(":")(line);
       return `  <person github="${login}" role="${role || "unknown"}"/>`;
     })
     .join("\n") || "  (unavailable)"

@@ -8,7 +8,7 @@
  */
 
 import type { FileSystem, Path } from "effect";
-import { Effect, HashMap } from "effect";
+import { Effect, HashMap, String as Str } from "effect";
 import * as O from "effect/Option";
 import { handleBench } from "./commands/bench.js";
 import { handleCompare } from "./commands/compare.js";
@@ -25,7 +25,7 @@ const parseFlags = (argv: ReadonlyArray<string>): HashMap.HashMap<string, string
       continue;
     }
 
-    const key = token.slice(2);
+    const key = Str.slice(2)(token);
     const next = argv[index + 1] ?? "";
     if (next.startsWith("--") || next.length === 0) {
       entries.push([key, "true"]);

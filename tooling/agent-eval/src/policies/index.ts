@@ -5,7 +5,7 @@
  * @module
  */
 
-import { Effect, FileSystem, Path } from "effect";
+import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as S from "effect/Schema";
 import { AgentEvalDecodeError } from "../errors.js";
 import { resolveFromCwd } from "../io.js";
@@ -171,10 +171,10 @@ export const selectPolicyPacket = (
 };
 
 const keywordScore = (prompt: string, keywords: ReadonlyArray<string>): number => {
-  const loweredPrompt = prompt.toLowerCase();
+  const loweredPrompt = Str.toLowerCase(prompt);
   let score = 0;
   for (const keyword of keywords) {
-    if (loweredPrompt.includes(keyword.toLowerCase())) {
+    if (loweredPrompt.includes(Str.toLowerCase(keyword))) {
       score += 1;
     }
   }
@@ -206,7 +206,7 @@ export const selectFocusedSkills = (
       if (right.score !== left.score) {
         return right.score - left.score;
       }
-      return left.name.localeCompare(right.name);
+      return Str.localeCompare(right.name)(left.name);
     });
 
   return scored.slice(0, maxSkills).map((item) => item.name);

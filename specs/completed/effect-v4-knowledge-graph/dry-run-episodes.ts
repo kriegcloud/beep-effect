@@ -4,6 +4,8 @@
  */
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import * as Str from "effect/String";
+
 
 const BASE = "specs/pending/effect-v4-knowledge-graph/outputs";
 
@@ -87,7 +89,7 @@ if (platformCorrection) dryRunEpisodes.push(platformCorrection);
 
 // 5. One pattern episode
 const patterns = loadJson("p2-doc-extraction/pattern-episodes.json");
-const errorPattern = patterns.find((e) => e.name.toLowerCase().includes("error"));
+const errorPattern = patterns.find((e) => Str.toLowerCase(e.name).includes("error"));
 if (errorPattern) dryRunEpisodes.push(errorPattern);
 
 // 6. One doc episode (Schema section)

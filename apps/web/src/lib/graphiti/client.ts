@@ -5,7 +5,7 @@ import {
   type GraphitiFact,
   GraphitiFactSchema,
 } from "@beep/web/lib/effect/mappers";
-import { Effect, Layer, Match, pipe, ServiceMap, String } from "effect";
+import { Effect, Layer, Match, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -329,15 +329,15 @@ const toNullableArray = (values: ReadonlyArray<string> | undefined): ReadonlyArr
 };
 
 const parseMcpBody = Effect.fn("Graphiti.parseMcpBody")(function* (body: string) {
-  const lines = A.fromIterable(String.linesIterator(body));
+  const lines = A.fromIterable(Str.linesIterator(body));
   const maybeDataLine = pipe(
     lines,
-    A.findFirst((line) => pipe(line, String.startsWith("data: ")))
+    A.findFirst((line) => pipe(line, Str.startsWith("data: ")))
   );
 
   return yield* O.match(maybeDataLine, {
     onNone: () => parseJson(body),
-    onSome: (line) => parseJson(pipe(line, String.slice(6), String.trimStart)),
+    onSome: (line) => parseJson(pipe(line, Str.slice(6), Str.trimStart)),
   });
 });
 

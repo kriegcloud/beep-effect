@@ -4,6 +4,10 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import * as R from "effect/Record";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const srcDir = ".repos/effect-smol/packages/effect/src";
 const outDir = "specs/pending/effect-v4-knowledge-graph/outputs/p3-ast-extraction";
@@ -37,7 +41,7 @@ const stats = { modules: 0, functions: 0, types: 0, skipped: 0 };
 
 for (const file of moduleFiles) {
   const filePath = join(srcDir, file);
-  const moduleName = file.replace(".ts", "");
+  const moduleName = Str.replace(".ts", "")(file);
   const content = readFileSync(filePath, "utf-8");
 
   // Extract all JSDoc + export blocks
@@ -71,7 +75,7 @@ function extractExports(content: string, moduleName: string): ExportInfo[] {
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(content)) !== null) {
     const jsdoc = match[1];
-    const kindRaw = match[2].replace("declare ", "").replace("abstract ", "").trim();
+    const kindRaw = Str.trim(Str.replace("abstract ", "")(Str.replace("declare ", "")(match[2])));
     const name = match[3];
 
     // Skip internal/private exports (starting with _)
@@ -88,17 +92,17 @@ function extractExports(content: string, moduleName: string): ExportInfo[] {
 
     // Extract signature (the line after the JSDoc closing)
     const sigStart = match.index + match[0].length;
-    const sigEnd = content.indexOf("\n\n", sigStart);
+    const sigEndOffset = O.getOrElse(O.fromUndefinedOr(Str.indexOf("\n\n")(Str.slice(sigStart)(content))), () => -1);
+    const sigEnd = sigEndOffset >= 0 ? sigStart + sigEndOffset : -1;
     let signature = "";
     if (sigEnd > sigStart) {
-      const sigBlock = content.substring(match.index + match[0].length - name.length, Math.min(sigEnd, sigStart + 500));
+      const sigBlock = Str.substring(match.index + match[0].length - name.length, Math.min(sigEnd, sigStart + 500))(content);
       // Clean up the signature - take first meaningful line(s)
-      const sigLines = sigBlock
-        .split("\n")
+      const sigLines = Str.split("\n")(sigBlock)
         .slice(0, 5)
-        .map((l) => l.trim())
+        .map((l) => Str.trim(l))
         .filter((l) => l);
-      signature = sigLines.join(" ").substring(0, 300);
+      signature = Str.substring(0, 300)(sigLines.join(" "));
     }
 
     const kind = kindRaw as ExportInfo["kind"];
@@ -119,7 +123,7 @@ function extractExports(content: string, moduleName: string): ExportInfo[] {
 }
 
 function extractDescription(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
 
   const result: string[] = [];
   for (const line of lines) {
@@ -128,22 +132,17 @@ function extractDescription(jsdoc: string): string {
     result.push(line);
   }
 
-  return result
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .replace(/\{@link\s+(\w+)\}/g, "$1")
-    .replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")
-    .trim()
-    .substring(0, 500); // Cap description length
+  return Str.substring(0, 500)(Str.trim(Str.replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")(Str.replace(/\{@link\s+(\w+)\}/g, "$1")(Str.replace(/\s+/g, " ")(result
+    .join(" ")))))); // Cap description length
 }
 
 function extractTag(jsdoc: string, tag: string): string {
-  const m = jsdoc.match(new RegExp(`@${tag}\\s+(.+)`));
-  return m ? m[1].trim() : "";
+  const m = O.getOrNull(O.fromNullishOr(Str.match(new RegExp(`@${tag}\\s+(.+)`))(jsdoc)));
+  return m ? Str.trim(m[1]) : "";
 }
 
 function extractExample(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
 
   let inExample = false;
   let inCode = false;
@@ -169,7 +168,7 @@ function extractExample(jsdoc: string): string {
     }
   }
 
-  return result.join("\n").substring(0, 500); // Cap example length
+  return Str.substring(0, 500)(result.join("\n")); // Cap example length
 }
 
 function formatEpisode(exp: ExportInfo): GraphitiEpisode {
@@ -221,7 +220,7 @@ const extractionLog = {
 
 // Count per module
 for (const ep of allEpisodes) {
-  const mod = ep.episode_body.match(/Module Path: effect\/(\w+)/)?.[1] || "unknown";
+  const mod = O.getOrNull(O.fromNullishOr(Str.match(/Module Path: effect\/(\w+)/)(ep.episode_body)))?.[1] || "unknown";
   extractionLog.moduleBreakdown[mod] = (extractionLog.moduleBreakdown[mod] || 0) + 1;
 }
 
@@ -235,7 +234,7 @@ console.log(`  Types: ${stats.types}`);
 console.log(`  Total episodes: ${allEpisodes.length}`);
 
 // Show top 10 modules by export count
-const sorted = Object.entries(extractionLog.moduleBreakdown)
+const sorted = R.toEntries(extractionLog.moduleBreakdown)
   .sort((a, b) => b[1] - a[1])
   .slice(0, 10);
 console.log(`\nTop 10 modules by export count:`);

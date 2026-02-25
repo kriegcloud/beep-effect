@@ -8,9 +8,13 @@
     "test/**/*.ts"
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": ".",
     "outDir": "dist-types",
     "types": ["node", "bun"],
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@beep/claude/*": ["./*.ts", "./*"]
+    }
   }
 }

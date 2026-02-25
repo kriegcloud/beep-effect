@@ -13,6 +13,9 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = join(__dirname, "cache");
@@ -69,7 +72,7 @@ async function fetchWithHTTP(url) {
     const html = await res.text();
     // Basic HTML to text extraction
     const text = htmlToText(html);
-    return { ok: true, content: text.slice(0, MAX_CONTENT_LENGTH) };
+    return { ok: true, content: Str.slice(0, MAX_CONTENT_LENGTH)(text) };
   } catch (e) {
     clearTimeout(timeout);
     return { ok: false, error: e.message };
@@ -78,39 +81,16 @@ async function fetchWithHTTP(url) {
 
 function htmlToText(html) {
   // Remove script, style, nav, footer, header tags and their content
-  let text = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<header[\s\S]*?<\/header>/gi, "");
+  let text = Str.replace(/<header[\s\S]*?<\/header>/gi, "")(Str.replace(/<footer[\s\S]*?<\/footer>/gi, "")(Str.replace(/<nav[\s\S]*?<\/nav>/gi, "")(Str.replace(/<style[\s\S]*?<\/style>/gi, "")(Str.replace(/<script[\s\S]*?<\/script>/gi, "")(html)))));
 
   // Try to extract main/article content first
-  const mainMatch = text.match(/<(?:main|article)[\s\S]*?>([\s\S]*?)<\/(?:main|article)>/i);
+  const mainMatch = O.getOrNull(O.fromNullishOr(Str.match(/<(?:main|article)[\s\S]*?>([\s\S]*?)<\/(?:main|article)>/i)(text)));
   if (mainMatch) {
     text = mainMatch[1];
   }
 
   // Replace common block elements with newlines
-  text = text
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(?:p|div|h[1-6]|li|tr|blockquote)>/gi, "\n")
-    .replace(/<(?:p|div|h[1-6]|li|tr|blockquote)[^>]*>/gi, "\n")
-    // Remove remaining HTML tags
-    .replace(/<[^>]+>/g, " ")
-    // Decode common HTML entities
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#x27;/g, "'")
-    .replace(/&#x2F;/g, "/")
-    // Clean up whitespace
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n\s*\n/g, "\n\n")
-    .trim();
+  text = Str.trim(Str.replace(/\n\s*\n/g, "\n\n")(Str.replace(/[ \t]+/g, " ")(Str.replace(/&#x2F;/g, "/")(Str.replace(/&#x27;/g, "'")(Str.replace(/&nbsp;/g, " ")(Str.replace(/&#39;/g, "'")(Str.replace(/&quot;/g, '"')(Str.replace(/&gt;/g, ">")(Str.replace(/&lt;/g, "<")(Str.replace(/&amp;/g, "&")(Str.replace(/<[^>]+>/g, " ")(Str.replace(/<(?:p|div|h[1-6]|li|tr|blockquote)[^>]*>/gi, "\n")(Str.replace(/<\/(?:p|div|h[1-6]|li|tr|blockquote)>/gi, "\n")(Str.replace(/<br\s*\/?>/gi, "\n")(text)))))))))))))));
 
   return text;
 }
@@ -140,7 +120,7 @@ async function fetchWithPlaywright(browser, url) {
     });
 
     await context.close();
-    return { ok: true, content: (text || "").slice(0, MAX_CONTENT_LENGTH) };
+    return { ok: true, content: Str.slice(0, MAX_CONTENT_LENGTH)((text || "")) };
   } catch (e) {
     await context.close();
     return { ok: false, error: e.message };
@@ -174,7 +154,7 @@ async function main() {
   let httpFail = 0;
   for (let i = 0; i < httpUncached.length; i++) {
     const entry = httpUncached[i];
-    process.stdout.write(`  [${i + 1}/${httpUncached.length}] ${entry.url.slice(0, 80)}...`);
+    process.stdout.write(`  [${i + 1}/${httpUncached.length}] ${Str.slice(0, 80)(entry.url)}...`);
     const result = await fetchWithHTTP(entry.url);
     if (result.ok) {
       writeFileSync(cachePath(entry.url), result.content, "utf-8");
@@ -203,7 +183,7 @@ async function main() {
     let pwFail = 0;
     for (let i = 0; i < pwUncached.length; i++) {
       const entry = pwUncached[i];
-      process.stdout.write(`  [${i + 1}/${pwUncached.length}] ${entry.url.slice(0, 80)}...`);
+      process.stdout.write(`  [${i + 1}/${pwUncached.length}] ${Str.slice(0, 80)(entry.url)}...`);
       const result = await fetchWithPlaywright(browser, entry.url);
       if (result.ok && result.content.length > 100) {
         writeFileSync(cachePath(entry.url), result.content, "utf-8");

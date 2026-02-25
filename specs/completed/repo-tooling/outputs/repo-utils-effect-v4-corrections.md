@@ -81,28 +81,28 @@ const program = myEffect.pipe(
 
 ---
 
-### 3. ❌ Schema.decode → ✅ Schema.decodeUnknownEffect / Schema.decodeUnknownSync
+### 3. ❌ S.decode → ✅ S.decodeUnknownEffect / S.decodeUnknownSync
 
 **WRONG (handoff):**
 ```typescript
-const result = Schema.decode(PackageJson)(jsonData)
+const result = S.decode(PackageJson)(jsonData)
 ```
 
 **CORRECT (Effect v4):**
 ```typescript
 // Effectful decoding
 const parsePackageJson = (data: unknown) =>
-  Schema.decodeUnknownEffect(PackageJson)(data)  // Returns: Effect<Type, SchemaError>
+  S.decodeUnknownEffect(PackageJson)(data)  // Returns: Effect<Type, SchemaError>
 
 // Synchronous decoding (throws on error)
 const parsePackageJsonSync = (data: unknown) =>
-  Schema.decodeUnknownSync(PackageJson)(data)
+  S.decodeUnknownSync(PackageJson)(data)
 
 // Also available
-Schema.decodeSync(PackageJson)(data)  // From encoded type, not unknown
+S.decodeSync(PackageJson)(data)  // From encoded type, not unknown
 ```
 
-**Why:** `Schema.decode` doesn't exist in v4. Use the explicit effectful or sync variants.
+**Why:** `S.decode` doesn't exist in v4. Use the explicit effectful or sync variants.
 
 ---
 
@@ -226,11 +226,11 @@ class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
 }> {}
 ```
 
-✅ **Schema.Struct (capital S):**
+✅ **S.Struct (capital S):**
 ```typescript
-const PackageJson = Schema.Struct({
-  name: Schema.String,
-  version: Schema.optional(Schema.String),
+const PackageJson = S.Struct({
+  name: S.String,
+  version: S.optional(S.String),
 })
 ```
 
@@ -272,8 +272,8 @@ import { FileSystem, Path, PlatformError } from "effect"  // NOT @effect/platfor
 import { NodeFileSystem, NodePath } from "@effect/platform-node"  // Layers
 
 // Schema
-import { Schema } from "effect"
-Schema.decodeUnknownEffect(schema)(data)  // NOT Schema.decode
+import * as S from "effect/Schema"
+S.decodeUnknownEffect(schema)(data)  // NOT S.decode
 
 // Data structures
 import { HashMap, HashSet } from "effect"
@@ -299,8 +299,8 @@ import { describe, expect, it } from "@effect/vitest"
 |-----------|--------|-----------------|
 | **Task #4 (FsUtils)** | ⚠️ Blocked | Update to use ServiceMap.Service, correct FileSystem/Path imports |
 | **Task #5 (Root)** | ⚠️ Blocked | Update FileSystem/Path imports |
-| **Task #6 (Workspaces)** | ⚠️ Blocked | Update imports, use Schema.decodeUnknownEffect |
-| **Task #7 (Dependencies)** | ⚠️ Blocked | Use Schema.decodeUnknownEffect |
+| **Task #6 (Workspaces)** | ⚠️ Blocked | Update imports, use S.decodeUnknownEffect |
+| **Task #7 (Dependencies)** | ⚠️ Blocked | Use S.decodeUnknownEffect |
 | **Task #11 (Graph)** | ✅ Simplified | Use built-in Graph module instead of implementing from scratch |
 | **All tasks** | ⚠️ | Replace Context.GenericTag with ServiceMap.Service |
 | **Handoff doc** | ❌ Outdated | Needs complete rewrite with v4 patterns |

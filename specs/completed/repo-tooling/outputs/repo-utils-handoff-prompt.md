@@ -99,15 +99,15 @@ export class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
 
 **Schema Definition:**
 ```typescript
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 
-export const PackageJson = Schema.Struct({
-  name: Schema.String,
-  version: Schema.optional(Schema.String),
+export const PackageJson = S.Struct({
+  name: S.String,
+  version: S.optional(S.String),
   // ... other fields
 })
 
-export type PackageJson = Schema.Schema.Type<typeof PackageJson>
+export type PackageJson = S.Schema.Type<typeof PackageJson>
 ```
 
 **Test Pattern:**
@@ -149,7 +149,7 @@ describe("FsUtils", () => {
 
 3. **PackageJson Schema** (3 hours)
    - `src/schemas/PackageJson.ts`
-   - Use `Schema.Struct` with proper field types
+   - Use `S.Struct` with proper field types
    - Support all common package.json fields
    - Write validation tests
 
@@ -491,7 +491,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
   // Read root package.json
   const rootPkgJsonPath = `${root}/package.json`
   const rootPkgJson = yield* fs.readJson(rootPkgJsonPath)
-  const rootPkg = yield* Schema.decode(PackageJson)(rootPkgJson)
+  const rootPkg = yield* S.decode(PackageJson)(rootPkgJson)
 
   if (!rootPkg.workspaces || rootPkg.workspaces.length === 0) {
     return HashMap.empty<string, string>()
@@ -515,7 +515,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
       }
 
       const pkgJson = yield* fs.readJson(pkgJsonPath)
-      const pkg = yield* Schema.decode(PackageJson)(pkgJson)
+      const pkg = yield* S.decode(PackageJson)(pkgJson)
 
       const dir = yield* fs.getParentDirectory(pkgJsonPath)
       workspaceMap = HashMap.set(workspaceMap, pkg.name, dir)
@@ -565,7 +565,7 @@ export const topologicalSort = <K extends string>(
 
       // Reduce in-degree for dependencies
       const deps = HashMap.get(adjacencyList, node)
-      if (Option.isSome(deps)) {
+      if (O.isSome(deps)) {
         for (const dep of HashSet.toIterable(deps.value)) {
           const newDegree = inDegree.get(dep)! - 1
           inDegree.set(dep, newDegree)
@@ -780,14 +780,14 @@ export * from "./FsUtils.js" // ✅ docgen works!
 
 ---
 
-### ❌ DON'T: Use old Schema.struct
+### ❌ DON'T: Use old S.struct
 ```typescript
-const MySchema = Schema.struct({ field: Schema.string }) // ❌ Effect v3 API!
+const MySchema = S.struct({ field: S.string }) // ❌ Effect v3 API!
 ```
 
-### ✅ DO: Use Schema.Struct
+### ✅ DO: Use S.Struct
 ```typescript
-const MySchema = Schema.Struct({ field: Schema.String }) // ✅ Effect v4 API!
+const MySchema = S.Struct({ field: S.String }) // ✅ Effect v4 API!
 ```
 
 ---
@@ -909,10 +909,10 @@ import * as Effect from "effect/Effect"
 // Data structures
 import * as HashMap from "effect/HashMap"
 import * as HashSet from "effect/HashSet"
-import * as Option from "effect/Option"
+import * as O from "effect/Option"
 
 // Schemas
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 
 // Errors
 import * as Data from "effect/Data"

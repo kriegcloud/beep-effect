@@ -17,32 +17,35 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Array as Arr, Config, Console, Effect, Layer, pipe, Schema, ServiceMap } from "effect";
+import { Config, Console, Effect, Layer, pipe, ServiceMap } from "effect";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
 
-const AgentConfigSchema = Schema.Struct({
-  projectDir: Schema.NonEmptyString,
+const AgentConfigSchema = S.Struct({
+  projectDir: S.NonEmptyString,
 });
 
-const MiseTask = Schema.Struct({
-  name: Schema.String,
-  aliases: Schema.Array(Schema.String),
-  description: Schema.String,
+const MiseTask = S.Struct({
+  name: S.String,
+  aliases: S.Array(S.String),
+  description: S.String,
 });
 
-const MiseTasks = Schema.Array(MiseTask);
+const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  Arr.map(tasks, (t) => {
+  A.map(tasks, (t) => {
     const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
     return `${t.name}${aliases}: ${t.description}`;
   }).join("\n");
 
-export class AgentConfigError extends Schema.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
+export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
-  { reason: Schema.String, cause: Schema.optional(Schema.Unknown) },
+  { reason: S.String, cause: S.optional(S.Unknown) },
   $I.annote("AgentConfigError", {
     description: "Raised when subagent hook configuration cannot be decoded.",
   })
@@ -59,7 +62,7 @@ export const AgentConfigLive = Layer.effect(
   AgentConfig,
   Effect.gen(function* () {
     const projectDir = yield* ProjectDirConfig;
-    const config = yield* Schema.decodeEffect(AgentConfigSchema)({
+    const config = yield* S.decodeEffect(AgentConfigSchema)({
       projectDir,
     }).pipe(Effect.mapError((error) => new AgentConfigError({ reason: "Invalid configuration", cause: error })));
     return { projectDir: config.projectDir };
@@ -85,7 +88,7 @@ function listMemories(): string {
       return "Memory vault exists but is empty.";
     }
 
-    return files.map((f) => `  - ${f.replace(".md", "")}`).join("\n");
+    return files.map((f) => `  - ${Str.replace(".md", "")(f)}`).join("\n");
   } catch {
     return "Error listing memories.";
   }
@@ -108,27 +111,27 @@ const program = Effect.gen(function* () {
       ),
       pipe(
         sh`bun -e ${"console.log(require('./package.json').version)"}`,
-        Effect.map((v) => v.trim()),
+        Effect.map((v) => Str.trim(v)),
         Effect.catch(() => Effect.succeed("unknown"))
       ),
       pipe(
         sh`git show HEAD --stat --format=%h %s%n%n%b`,
-        Effect.map((s) => s.trim()),
+        Effect.map((s) => Str.trim(s)),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
         sh`git log --oneline -4 --skip=1`,
-        Effect.map((s) => s.trim()),
+        Effect.map((s) => Str.trim(s)),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
-        sh`bun -e ${"const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
-        Effect.map((s) => s.trim()),
+        sh`bun -e ${"const p = require('./package.json'); const R = require('effect/Record'); console.log(R.toEntries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
+        Effect.map((s) => Str.trim(s)),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
         sh`mise tasks --json`,
-        Effect.flatMap((s) => Schema.decodeUnknownEffect(Schema.fromJsonString(MiseTasks))(s)),
+        Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
         Effect.map(formatMiseTasks),
         Effect.catch(() => Effect.succeed(""))
       ),

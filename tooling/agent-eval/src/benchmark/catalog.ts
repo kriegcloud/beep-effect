@@ -5,7 +5,7 @@
  * @module
  */
 
-import { Effect, FileSystem, Path } from "effect";
+import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as S from "effect/Schema";
 import { AgentEvalConfigError, AgentEvalDecodeError } from "../errors.js";
 import { resolveFromCwd } from "../io.js";
@@ -29,7 +29,9 @@ export const loadTaskCatalog: (
     const absoluteDirectory = yield* resolveFromCwd(directory);
 
     const entries = yield* fs.readDirectory(absoluteDirectory);
-    const files = entries.filter((entry) => entry.endsWith(".json")).sort((left, right) => left.localeCompare(right));
+    const files = entries
+      .filter((entry) => entry.endsWith(".json"))
+      .sort((left, right) => Str.localeCompare(right)(left));
 
     const tasks = yield* Effect.forEach(files, (fileName) =>
       Effect.gen(function* () {

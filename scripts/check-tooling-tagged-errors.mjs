@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import * as Str from "effect/String";
+
 
 const result = spawnSync(
   "rg",
@@ -26,15 +28,15 @@ if (result.status === 0) {
   console.error(
     "[check-tooling-tagged-errors] native Error usage detected in tooling/*/src. Use S.TaggedErrorClass errors."
   );
-  if (result.stdout.trim().length > 0) {
-    console.error(result.stdout.trim());
+  if (Str.trim(result.stdout).length > 0) {
+    console.error(Str.trim(result.stdout));
   }
   process.exit(1);
 }
 
 console.error("[check-tooling-tagged-errors] ripgrep exited unexpectedly.");
-if (result.stderr.trim().length > 0) {
-  console.error(result.stderr.trim());
+if (Str.trim(result.stderr).length > 0) {
+  console.error(Str.trim(result.stderr));
 }
 process.exit(result.status ?? 2);
 

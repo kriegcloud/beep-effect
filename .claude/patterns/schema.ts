@@ -1,14 +1,14 @@
 import * as Order from "effect/Order";
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
-export const PatternEvent = Schema.Literals(["PreToolUse", "PostToolUse"]);
-export type PatternEvent = Schema.Schema.Type<typeof PatternEvent>;
+export const PatternEvent = S.Literals(["PreToolUse", "PostToolUse"]);
+export type PatternEvent = S.Schema.Type<typeof PatternEvent>;
 
-export const PatternAction = Schema.Literals(["context", "ask", "deny"]);
-export type PatternAction = Schema.Schema.Type<typeof PatternAction>;
+export const PatternAction = S.Literals(["context", "ask", "deny"]);
+export type PatternAction = S.Schema.Type<typeof PatternAction>;
 
-export const PatternLevel = Schema.Literals(["critical", "high", "medium", "warning", "info"]);
-export type PatternLevel = Schema.Schema.Type<typeof PatternLevel>;
+export const PatternLevel = S.Literals(["critical", "high", "medium", "warning", "info"]);
+export type PatternLevel = S.Schema.Type<typeof PatternLevel>;
 
 export const PatternLevelOrder: Order.Order<PatternLevel> = Order.mapInput(
   Order.Number,
@@ -28,32 +28,32 @@ export const PatternLevelOrder: Order.Order<PatternLevel> = Order.mapInput(
   }
 );
 
-export const PatternFrontmatter = Schema.Struct({
-  name: Schema.String,
-  description: Schema.String,
-  event: PatternEvent.pipe(Schema.withDecodingDefault(() => "PostToolUse" as const)),
-  tool: Schema.String.pipe(Schema.withDecodingDefault(() => ".*")),
-  glob: Schema.optional(Schema.String),
-  pattern: Schema.String,
-  action: PatternAction.pipe(Schema.withDecodingDefault(() => "context" as const)),
-  level: PatternLevel.pipe(Schema.withDecodingDefault(() => "info" as const)),
-  tag: Schema.optional(Schema.String),
+export const PatternFrontmatter = S.Struct({
+  name: S.String,
+  description: S.String,
+  event: PatternEvent.pipe(S.withDecodingDefault(() => "PostToolUse" as const)),
+  tool: S.String.pipe(S.withDecodingDefault(() => ".*")),
+  glob: S.optional(S.String),
+  pattern: S.String,
+  action: PatternAction.pipe(S.withDecodingDefault(() => "context" as const)),
+  level: PatternLevel.pipe(S.withDecodingDefault(() => "info" as const)),
+  tag: S.optional(S.String),
 });
 
-export type PatternFrontmatter = Schema.Schema.Type<typeof PatternFrontmatter>;
+export type PatternFrontmatter = S.Schema.Type<typeof PatternFrontmatter>;
 
-export const PatternDefinition = Schema.Struct({
-  name: Schema.String,
-  description: Schema.String,
+export const PatternDefinition = S.Struct({
+  name: S.String,
+  description: S.String,
   event: PatternEvent,
-  tool: Schema.String,
-  glob: Schema.optional(Schema.String),
-  pattern: Schema.String,
+  tool: S.String,
+  glob: S.optional(S.String),
+  pattern: S.String,
   action: PatternAction,
   level: PatternLevel,
-  tag: Schema.optional(Schema.String),
-  body: Schema.String,
-  filePath: Schema.String,
+  tag: S.optional(S.String),
+  body: S.String,
+  filePath: S.String,
 });
 
-export type PatternDefinition = Schema.Schema.Type<typeof PatternDefinition>;
+export type PatternDefinition = S.Schema.Type<typeof PatternDefinition>;

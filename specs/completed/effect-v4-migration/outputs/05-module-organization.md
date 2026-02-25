@@ -59,9 +59,9 @@ export type NonEmptyArray<A> = ...
 
 **Consumed as:**
 ```typescript
-import { Array } from "effect"
+import * as A from "effect/Array"
 
-Array.map(xs, f)  // Namespace-based access
+A.map(xs, f)  // Namespace-based access
 ```
 
 **Benefits:**

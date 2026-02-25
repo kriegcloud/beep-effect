@@ -8,7 +8,8 @@
  * @module
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { Effect, FileSystem, Layer, Path, Schema, ServiceMap } from "effect";
+import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
@@ -170,7 +171,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
             })
         )
       );
-      return yield* Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content).pipe(
+      return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(content).pipe(
         Effect.mapError(
           (error) =>
             new DomainError({

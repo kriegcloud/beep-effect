@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
 import {
   hasValidSkillCap,
   type PolicyOverlay,
   selectFocusedSkills,
   selectPolicyPacket,
-} from "../src/policies/index.js";
+} from "@beep/agent-eval/policies/index";
+import { describe, expect, it } from "vitest";
 
 describe("policy selection", () => {
   const overlays: ReadonlyArray<PolicyOverlay> = [

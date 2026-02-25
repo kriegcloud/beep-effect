@@ -3,6 +3,9 @@
  * Parses JSDoc comments for each module re-export and generates structured episodes.
  */
 import { readFileSync, writeFileSync } from "fs";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const indexPath = ".repos/effect-smol/packages/effect/src/index.ts";
 const content = readFileSync(indexPath, "utf-8");
@@ -65,11 +68,10 @@ while ((match = modulePattern.exec(content)) !== null) {
 const namedExportPattern =
   /\/\*\*\s*\n\s*\*\s*@since\s+[\d.]+\s*\n\s*\*\/\s*\n\s*export\s*\{([^}]+)\}\s*from\s+"\.\/([^"]+)\.ts"/g;
 while ((match = namedExportPattern.exec(content)) !== null) {
-  const names = match[1]
-    .split(",")
+  const names = Str.split(",")(match[1])
     .map((n) => {
       // Extract just the name, ignoring JSDoc within the block
-      const cleaned = n.replace(/\/\*\*[\s\S]*?\*\//g, "").trim();
+      const cleaned = Str.trim(Str.replace(/\/\*\*[\s\S]*?\*\//g, "")(n));
       return cleaned;
     })
     .filter((n) => n.length > 0);
@@ -78,7 +80,7 @@ while ((match = namedExportPattern.exec(content)) !== null) {
 }
 
 function extractSection(jsdoc: string, heading: string | null): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
 
   if (heading === null) {
     // Extract text before first ## heading or @see/@since
@@ -87,7 +89,7 @@ function extractSection(jsdoc: string, heading: string | null): string {
       if (line.startsWith("## ") || line.startsWith("@see") || line.startsWith("@since")) break;
       result.push(line);
     }
-    return result.join("\n").trim();
+    return Str.trim(result.join("\n"));
   }
 
   let inSection = false;
@@ -101,27 +103,24 @@ function extractSection(jsdoc: string, heading: string | null): string {
     if (inSection && (line.startsWith("@see") || line.startsWith("@since"))) break;
     if (inSection) result.push(line);
   }
-  return result.join("\n").trim();
+  return Str.trim(result.join("\n"));
 }
 
 function extractSeeAlso(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
   return lines
     .filter((l) => l.startsWith("@see"))
-    .map((l) => l.replace("@see ", ""))
+    .map((l) => Str.replace("@see ", "")(l))
     .join("\n");
 }
 
 function extractSince(jsdoc: string): string {
-  const m = jsdoc.match(/@since\s+([\d.]+)/);
+  const m = O.getOrNull(O.fromNullishOr(Str.match(/@since\s+([\d.]+)/)(jsdoc)));
   return m ? m[1] : "unknown";
 }
 
 function cleanJsdoc(text: string): string {
-  return text
-    .replace(/\{@link\s+(\w+)\}/g, "$1") // {@link foo} -> foo
-    .replace(/\{@link\s+(\w+)\s+(\w+)\}/g, "$2") // {@link foo bar} -> bar
-    .trim();
+  return Str.trim(Str.replace(/\{@link\s+(\w+)\s+(\w+)\}/g, "$2")(Str.replace(/\{@link\s+(\w+)\}/g, "$1")(text)));
 }
 
 // Generate episode narratives for Graphiti ingestion

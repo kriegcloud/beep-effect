@@ -1,4 +1,6 @@
 import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.mjs";
+import * as Str from "effect/String";
+
 
 const OBJECT_METHODS = new Set(["keys", "values", "entries", "fromEntries", "assign", "hasOwn", "freeze", "seal", "create"]);
 const DATE_METHODS = new Set(["now", "parse", "UTC"]);
@@ -30,7 +32,7 @@ const noNativeRuntimeRule = {
   create(context) {
     const cwd = process.cwd().replaceAll("\\", "/");
     const absoluteFilePath = context.filename.replaceAll("\\", "/");
-    const relativeFilePath = absoluteFilePath.startsWith(`${cwd}/`) ? absoluteFilePath.slice(cwd.length + 1) : absoluteFilePath;
+    const relativeFilePath = absoluteFilePath.startsWith(`${cwd}/`) ? Str.slice(cwd.length + 1)(absoluteFilePath) : absoluteFilePath;
 
     const reportIfNotAllowlisted = (node, kind, messageId, data) => {
       const allowed = isViolationAllowlisted({

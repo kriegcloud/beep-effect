@@ -1,5 +1,3 @@
-import { ServiceMap } from "effect";
-import { describe, expect, it } from "tstyche";
 import type {
   IdentityAnnotationResult,
   IdentityComposer,
@@ -7,8 +5,10 @@ import type {
   IdentitySymbol,
   ModuleSegmentValue,
   SegmentValue,
-} from "../src/index.js";
-import { make } from "../src/index.js";
+} from "@beep/identity";
+import { make } from "@beep/identity";
+import { ServiceMap } from "effect";
+import { describe, expect, it } from "tstyche";
 
 describe("Identity", () => {
   it("preserves literal types for make, compose, string, and symbol", () => {

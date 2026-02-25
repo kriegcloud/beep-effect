@@ -1,45 +1,49 @@
-import { Array, Config, Effect, FileSystem, Option, Path, Predicate, pipe } from "effect";
-import * as Schema from "effect/Schema";
+import { Config, Effect, FileSystem, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import picomatch from "picomatch";
 import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
 
-export const HookInput = Schema.Struct({
-  hook_event_name: Schema.Literals(["PreToolUse", "PostToolUse"]),
-  tool_name: Schema.String,
-  tool_input: Schema.Record(Schema.String, Schema.Unknown),
+export const HookInput = S.Struct({
+  hook_event_name: S.Literals(["PreToolUse", "PostToolUse"]),
+  tool_name: S.String,
+  tool_input: S.Record(S.String, S.Unknown),
 });
 
-export type HookInput = Schema.Schema.Type<typeof HookInput>;
+export type HookInput = S.Schema.Type<typeof HookInput>;
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
 
 export const getMatchableContent = (input: Record<string, unknown>): string =>
   pipe(
     contentFields,
-    Array.findFirst((field) => Predicate.isString(input[field])),
-    Option.flatMap((field) => Option.fromNullishOr(input[field])),
-    Option.filter(Predicate.isString),
-    Option.getOrElse(() => JSON.stringify(input))
+    A.findFirst((field) => P.isString(input[field])),
+    O.flatMap((field) => O.fromNullishOr(input[field])),
+    O.filter(P.isString),
+    O.getOrElse(() => JSON.stringify(input))
   );
 
-export const getFilePath = (input: Record<string, unknown>): Option.Option<string> =>
-  pipe(Option.fromNullishOr(input.file_path), Option.filter(Predicate.isString));
+export const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
+  pipe(O.fromNullishOr(input.file_path), O.filter(P.isString));
 
 const parseYaml = (content: string): Record<string, unknown> => {
-  const matched = content.match(/^---\n([\s\S]*?)\n---/);
+  const matched = O.getOrNull(O.fromNullishOr(Str.match(/^---\n([\s\S]*?)\n---/)(content)));
   if (!matched || !matched[1]) return {};
   return pipe(
-    matched[1].split("\n"),
-    Array.map((line: string) => {
-      const m = line.match(/^(\w+):\s*["']?(.+?)["']?$/);
-      return m?.[1] && m[2] ? Option.some([m[1], m[2]] as const) : Option.none();
+    Str.split("\n")(matched[1]),
+    A.map((line: string) => {
+      const m = O.getOrNull(O.fromNullishOr(Str.match(/^(\w+):\s*["']?(.+?)["']?$/)(line)));
+      return m?.[1] && m[2] ? O.some([m[1], m[2]] as const) : O.none();
     }),
-    Array.getSomes,
+    A.getSomes,
     (pairs) => Object.fromEntries(pairs)
   );
 };
 
-const extractBody = (content: string): string => content.replace(/^---\n[\s\S]*?\n---\n?/, "").trim();
+const extractBody = (content: string): string => Str.trim(Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(content));
 
 export const testRegex = (text: string, pattern: string): boolean => {
   try {
@@ -61,8 +65,8 @@ const readPattern = (filePath: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const content = yield* fs.readFileString(filePath);
-    const fm = yield* Schema.decodeUnknownEffect(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
-    return Option.map(
+    const fm = yield* S.decodeUnknownEffect(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
+    return O.map(
       fm,
       (f): PatternDefinition => ({
         name: f.name,
@@ -90,46 +94,44 @@ export const loadPatterns = Effect.gen(function* () {
   const projectDir = cwd.endsWith(".claude") ? path.join(cwd, "..") : configDir;
   const root = path.join(projectDir, ".claude", "patterns");
 
-  if (!(yield* fs.exists(root))) return Array.empty<PatternDefinition>();
+  if (!(yield* fs.exists(root))) return A.empty<PatternDefinition>();
 
   const walk = (dir: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
     Effect.gen(function* () {
-      const entries: Array<string> = yield* fs
-        .readDirectory(dir)
-        .pipe(Effect.orElseSucceed(() => Array.empty<string>()));
+      const entries: Array<string> = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => A.empty<string>()));
 
       const processEntry = (entry: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
         Effect.gen(function* () {
           const full = path.join(dir, entry);
           const stat = yield* fs.stat(full).pipe(Effect.option);
-          if (Option.isNone(stat)) return Array.empty<PatternDefinition>();
+          if (O.isNone(stat)) return A.empty<PatternDefinition>();
 
           if (stat.value.type === "Directory") return yield* Effect.suspend(() => walk(full));
 
           if (entry.endsWith(".md")) {
             return yield* readPattern(full).pipe(
               Effect.option,
-              Effect.map(Option.flatten),
+              Effect.map(O.flatten),
               Effect.map(
-                Option.match({
-                  onNone: () => Array.empty<PatternDefinition>(),
+                O.match({
+                  onNone: () => A.empty<PatternDefinition>(),
                   onSome: (pattern) => [pattern],
                 })
               )
             );
           }
 
-          return Array.empty<PatternDefinition>();
+          return A.empty<PatternDefinition>();
         });
 
-      return yield* pipe(entries, Array.map(processEntry), Effect.all, Effect.map(Array.flatten));
+      return yield* pipe(entries, A.map(processEntry), Effect.all, Effect.map(A.flatten));
     });
 
   return yield* walk(root);
 });
 
 export const matches = (input: HookInput, p: PatternDefinition): boolean => {
-  const filePath = pipe(getFilePath(input.tool_input), Option.getOrUndefined);
+  const filePath = pipe(getFilePath(input.tool_input), O.getOrUndefined);
   const content = getMatchableContent(input.tool_input);
 
   return (
@@ -143,5 +145,5 @@ export const matches = (input: HookInput, p: PatternDefinition): boolean => {
 export const findMatches = (input: HookInput, patterns: PatternDefinition[]): PatternDefinition[] =>
   pipe(
     patterns,
-    Array.filter((p) => matches(input, p))
+    A.filter((p) => matches(input, p))
   );

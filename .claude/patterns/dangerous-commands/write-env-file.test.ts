@@ -1,4 +1,4 @@
-import { testWritePattern } from "../../test/pattern-test-harness.js";
+import { testWritePattern } from "@beep/claude/test/pattern-test-harness";
 
 testWritePattern({
   name: "write-env-file",

@@ -1,6 +1,6 @@
+import { dotGet, dotGetOption } from "@beep/utils";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
-import { dotGet, dotGetOption } from "../src/index.js";
 
 describe("dotGet", () => {
   it("resolves nested path value types", () => {

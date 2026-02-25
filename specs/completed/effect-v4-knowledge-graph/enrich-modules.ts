@@ -4,6 +4,9 @@
  */
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const SRC_DIR = ".repos/effect-smol/packages/effect/src";
 const EPISODES_PATH = "specs/pending/effect-v4-knowledge-graph/outputs/p2-doc-extraction/module-episodes.json";
@@ -24,20 +27,20 @@ const functionEpisodes: GraphitiEpisode[] = JSON.parse(readFileSync(FUNCTIONS_PA
 // Build function index by module
 const functionsByModule = new Map<string, Array<{ name: string; category: string; kind: string; desc: string }>>();
 for (const ep of functionEpisodes) {
-  const modMatch = ep.episode_body.match(/Module Path: effect\/(\w+)/);
+  const modMatch = O.getOrNull(O.fromNullishOr(Str.match(/Module Path: effect\/(\w+)/)(ep.episode_body)));
   if (!modMatch) continue;
   const mod = modMatch[1];
-  const nameMatch = ep.episode_body.match(/Title: \w+\.(\w+)/);
-  const catMatch = ep.episode_body.match(/Category Tag: (.+)/);
-  const kindMatch = ep.episode_body.match(/Export Kind: (.+)/);
-  const descMatch = ep.episode_body.match(/Description: (.+)/);
+  const nameMatch = O.getOrNull(O.fromNullishOr(Str.match(/Title: \w+\.(\w+)/)(ep.episode_body)));
+  const catMatch = O.getOrNull(O.fromNullishOr(Str.match(/Category Tag: (.+)/)(ep.episode_body)));
+  const kindMatch = O.getOrNull(O.fromNullishOr(Str.match(/Export Kind: (.+)/)(ep.episode_body)));
+  const descMatch = O.getOrNull(O.fromNullishOr(Str.match(/Description: (.+)/)(ep.episode_body)));
 
   if (!functionsByModule.has(mod)) functionsByModule.set(mod, []);
   functionsByModule.get(mod)!.push({
     name: nameMatch?.[1] || "unknown",
-    category: catMatch?.[1]?.trim() || "uncategorized",
-    kind: kindMatch?.[1]?.trim() || "unknown",
-    desc: descMatch?.[1]?.trim().substring(0, 80) || "",
+    category: Str.trim(catMatch?.[1] ?? "") || "uncategorized",
+    kind: Str.trim(kindMatch?.[1] ?? "") || "unknown",
+    desc: Str.substring(0, 80)(Str.trim(descMatch?.[1] ?? "")) || "",
   });
 }
 
@@ -45,21 +48,22 @@ let enriched = 0;
 let alreadyRich = 0;
 
 for (const ep of moduleEpisodes) {
-  const modMatch = ep.episode_body.match(/Module Path: effect\/(\w+)/);
+  const modMatch = O.getOrNull(O.fromNullishOr(Str.match(/Module Path: effect\/(\w+)/)(ep.episode_body)));
   if (!modMatch) continue;
   const moduleName = modMatch[1];
 
   // Check if already rich (has Mental Model or Description with content)
   const hasContent =
     ep.episode_body.includes("Mental Model:") ||
-    (ep.episode_body.includes("Description:") && ep.episode_body.split("Description:")[1]?.trim().length > 20);
+    (ep.episode_body.includes("Description:") &&
+      Str.trim(Str.split("Description:")(ep.episode_body)[1] ?? "").length > 20);
 
   if (hasContent) {
     // Already rich - just add export summary if missing
     if (!ep.episode_body.includes("Key Exports by Category:")) {
       const summary = buildExportSummary(moduleName);
       if (summary) {
-        ep.episode_body = ep.episode_body.replace(/\nSince:/, `\n${summary}\nSince:`);
+        ep.episode_body = Str.replace(/\nSince:/, `\n${summary}\nSince:`)(ep.episode_body);
       }
     }
     alreadyRich++;
@@ -73,7 +77,7 @@ for (const ep of moduleEpisodes) {
   const content = readFileSync(filePath, "utf-8");
 
   // Extract module-level JSDoc (first JSDoc block in the file, before any import/export)
-  const moduleJsdocMatch = content.match(/^\/\*\*([\s\S]*?)\*\//m);
+  const moduleJsdocMatch = O.getOrNull(O.fromNullishOr(Str.match(/^\/\*\*([\s\S]*?)\*\//m)(content)));
   if (!moduleJsdocMatch) continue;
 
   const jsdoc = moduleJsdocMatch[1];
@@ -103,7 +107,7 @@ for (const ep of moduleEpisodes) {
   if (exportSummary) body += `${exportSummary}\n\n`;
 
   // Extract since
-  const sinceMatch = jsdoc.match(/@since\s+([\d.]+)/);
+  const sinceMatch = O.getOrNull(O.fromNullishOr(Str.match(/@since\s+([\d.]+)/)(jsdoc)));
   body += `Since: ${sinceMatch ? sinceMatch[1] : "unknown"}`;
 
   ep.episode_body = body;
@@ -111,23 +115,18 @@ for (const ep of moduleEpisodes) {
 }
 
 function extractModuleDescription(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
   const result: string[] = [];
   for (const line of lines) {
     if (line.startsWith("**") || line.startsWith("@") || line.startsWith("## ")) break;
     result.push(line);
   }
-  return result
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .replace(/\{@link\s+(\w+)\}/g, "$1")
-    .replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")
-    .trim()
-    .substring(0, 600);
+  return Str.substring(0, 600)(Str.trim(Str.replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")(Str.replace(/\{@link\s+(\w+)\}/g, "$1")(Str.replace(/\s+/g, " ")(result
+    .join(" "))))));
 }
 
 function extractSection(jsdoc: string, heading: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
   let inSection = false;
   const result: string[] = [];
   for (const line of lines) {
@@ -138,12 +137,8 @@ function extractSection(jsdoc: string, heading: string): string {
     if (inSection && (line.startsWith("**") || line.startsWith("@") || line.startsWith("## "))) break;
     if (inSection) result.push(line);
   }
-  return result
-    .join("\n")
-    .replace(/\{@link\s+(\w+)\}/g, "$1")
-    .replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")
-    .trim()
-    .substring(0, 1000);
+  return Str.substring(0, 1000)(Str.trim(Str.replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")(Str.replace(/\{@link\s+(\w+)\}/g, "$1")(result
+    .join("\n")))));
 }
 
 function buildExportSummary(moduleName: string): string {
@@ -164,7 +159,7 @@ function buildExportSummary(moduleName: string): string {
     summary += `- ${cat}: ${displayed}${more}\n`;
   }
 
-  return summary.trim();
+  return Str.trim(summary);
 }
 
 // Write enriched episodes

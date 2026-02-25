@@ -1,10 +1,10 @@
 import * as path from "node:path";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
-import { FsUtilsLive } from "../src/FsUtils.js";
-import { collectUniqueNpmDependencies } from "../src/UniqueDeps.js";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));

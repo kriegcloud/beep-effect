@@ -1,9 +1,10 @@
+import { FsUtils, FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as Fs from "effect/FileSystem";
-import { FsUtils, FsUtilsLive } from "../src/FsUtils.js";
+import * as Str from "effect/String";
 
 // Build a TestLayer that provides FsUtils AND also passes through FileSystem/Path
 // so tests can use them directly (e.g. for makeTempDirectory)
@@ -144,7 +145,7 @@ layer(TestLayer)("FsUtils", (it) => {
         const filePath = `${tmpDir}/modify.txt`;
         yield* fs.writeFileString(filePath, "hello world");
 
-        const changed = yield* utils.modifyFile(filePath, (content) => content.replace("world", "effect"));
+        const changed = yield* utils.modifyFile(filePath, (content) => Str.replace("world", "effect")(content));
         expect(changed).toBe(true);
 
         const result = yield* fs.readFileString(filePath);

@@ -1,6 +1,6 @@
+import { decodePackageJson, decodePackageJsonExit, PackageJson } from "@beep/repo-utils/schemas/PackageJson";
 import { describe, expect, it } from "@effect/vitest";
 import { Exit } from "effect";
-import { decodePackageJson, decodePackageJsonExit, PackageJson } from "../../src/schemas/PackageJson.js";
 
 describe("PackageJson schema", () => {
   describe("valid structures", () => {

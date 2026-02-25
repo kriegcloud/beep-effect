@@ -6,7 +6,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { Effect, type Path } from "effect";
+import { Effect, type Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { detectEffectComplianceViolations, detectWrongApis } from "../effect-v4-detector/index.js";
@@ -177,7 +177,7 @@ const estimateTokens = (
   prompt: string,
   condition: BenchCondition
 ): { readonly input: number; readonly output: number } => {
-  const words = prompt.split(/\s+/).filter((word) => word.length > 0).length;
+  const words = Str.split(/\s+/)(prompt).filter((word) => word.length > 0).length;
   const multiplier = tokenMultiplier(condition);
   return {
     input: Math.max(1, Math.round(words * 24 * multiplier)),
@@ -196,11 +196,11 @@ const estimateCost = (pricingTable: PricingTable, model: string, inputTokens: nu
 };
 
 const relevantCorrectionFacts = (prompt: string, index: ReadonlyArray<CorrectionEntry>): ReadonlyArray<string> => {
-  const lowered = prompt.toLowerCase();
+  const lowered = Str.toLowerCase(prompt);
   const facts: Array<string> = [];
 
   for (const entry of index) {
-    const matched = entry.keywords.some((keyword) => lowered.includes(keyword.toLowerCase()));
+    const matched = entry.keywords.some((keyword) => lowered.includes(Str.toLowerCase(keyword)));
     if (matched) {
       facts.push(entry.fact);
     }
@@ -326,9 +326,8 @@ const parseJsonLine = (line: string): unknown | null => {
 const parseCodexUsage = (stdout: string): { readonly inputTokens: number; readonly outputTokens: number } => {
   let inputTokens = 0;
   let outputTokens = 0;
-  const lines = stdout
-    .split("\n")
-    .map((line) => line.trim())
+  const lines = Str.split("\n")(stdout)
+    .map((line) => Str.trim(line))
     .filter((line) => line.length > 0);
 
   for (const line of lines) {
@@ -390,15 +389,14 @@ const parseClaudeOutput = (
 
 const collectTouchedPaths = (statusOutput: string): ReadonlyArray<string> => {
   const ignoredRoots = ["node_modules"] as const;
-  const lines = statusOutput
-    .split("\n")
-    .map((line) => line.replace(/\r$/, ""))
-    .filter((line) => line.trim().length > 0);
+  const lines = Str.split("\n")(statusOutput)
+    .map((line) => Str.replace(/\r$/, "")(line))
+    .filter((line) => Str.trim(line).length > 0);
 
   const touched: Array<string> = [];
   for (const line of lines) {
-    const rawPath = line.length > 3 ? line.slice(3).trim() : line.trim();
-    const maybeRenamed = rawPath.includes(" -> ") ? (rawPath.split(" -> ").at(-1) ?? rawPath) : rawPath;
+    const rawPath = line.length > 3 ? Str.trim(Str.slice(3)(line)) : Str.trim(line);
+    const maybeRenamed = rawPath.includes(" -> ") ? (Str.split(" -> ")(rawPath).at(-1) ?? rawPath) : rawPath;
     const ignored = ignoredRoots.some((root) => maybeRenamed === root || maybeRenamed.startsWith(`${root}/`));
     if (ignored) {
       continue;
@@ -501,7 +499,7 @@ const createWorktreePath = (pathApi: Path.Path, repoRoot: string, runId: string)
 
 const isRepoClean = async (repoRoot: string): Promise<boolean> => {
   const statusResult = await runProcess("git", ["-C", repoRoot, "status", "--porcelain"], repoRoot, 1);
-  return statusResult.success && statusResult.stdout.trim().length === 0;
+  return statusResult.success && Str.trim(statusResult.stdout).length === 0;
 };
 
 const ensureWorktreeDependencies = async (

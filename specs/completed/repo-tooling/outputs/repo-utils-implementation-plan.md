@@ -95,7 +95,7 @@ tooling/repo-utils/
 
 **Schema Pattern:**
 ```typescript
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 import * as Data from "effect/Data"
 
 export class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
@@ -115,24 +115,24 @@ export class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
 
 **Schema Structure:**
 ```typescript
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 
-export const PackageJson = Schema.Struct({
-  name: Schema.String,
-  version: Schema.optional(Schema.String),
-  description: Schema.optional(Schema.String),
-  keywords: Schema.optional(Schema.Array(Schema.String)),
-  license: Schema.optional(Schema.String),
-  scripts: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.String })),
-  dependencies: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.String })),
-  devDependencies: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.String })),
-  peerDependencies: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.String })),
-  optionalDependencies: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.String })),
-  workspaces: Schema.optional(Schema.Array(Schema.String)),
+export const PackageJson = S.Struct({
+  name: S.String,
+  version: S.optional(S.String),
+  description: S.optional(S.String),
+  keywords: S.optional(S.Array(S.String)),
+  license: S.optional(S.String),
+  scripts: S.optional(S.Record({ key: S.String, value: S.String })),
+  dependencies: S.optional(S.Record({ key: S.String, value: S.String })),
+  devDependencies: S.optional(S.Record({ key: S.String, value: S.String })),
+  peerDependencies: S.optional(S.Record({ key: S.String, value: S.String })),
+  optionalDependencies: S.optional(S.Record({ key: S.String, value: S.String })),
+  workspaces: S.optional(S.Array(S.String)),
   // ... additional fields
 })
 
-export type PackageJson = Schema.Schema.Type<typeof PackageJson>
+export type PackageJson = S.Schema.Type<typeof PackageJson>
 ```
 
 **Tests:**
@@ -296,7 +296,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
 
   // Read root package.json
   const rootPkgJson = yield* fs.readJson(`${root}/package.json`)
-  const rootPkg = yield* Schema.decode(PackageJson)(rootPkgJson)
+  const rootPkg = yield* S.decode(PackageJson)(rootPkgJson)
 
   if (!rootPkg.workspaces) {
     return HashMap.empty<string, string>()
@@ -310,7 +310,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
 
     for (const pkgJsonPath of matches) {
       const pkgJson = yield* fs.readJson(pkgJsonPath)
-      const pkg = yield* Schema.decode(PackageJson)(pkgJson)
+      const pkg = yield* S.decode(PackageJson)(pkgJson)
 
       const dir = yield* fs.getParentDirectory(pkgJsonPath)
       workspaceMap.set(pkg.name, dir)
@@ -340,15 +340,15 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
 
 **Schema:**
 ```typescript
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 import * as HashSet from "effect/HashSet"
 
-export const WorkspaceDependencies = Schema.Struct({
-  workspace: Schema.Array(Schema.String),  // Will convert to HashSet
-  npm: Schema.Array(Schema.String)
+export const WorkspaceDependencies = S.Struct({
+  workspace: S.Array(S.String),  // Will convert to HashSet
+  npm: S.Array(S.String)
 })
 
-export const TypedDependencies = Schema.Struct({
+export const TypedDependencies = S.Struct({
   dependencies: WorkspaceDependencies,
   devDependencies: WorkspaceDependencies,
   peerDependencies: WorkspaceDependencies
@@ -370,7 +370,7 @@ export const extractWorkspaceDependencies = (
   Effect.gen(function* () {
     const fs = yield* FsUtils
     const pkgJson = yield* fs.readJson(pkgJsonPath)
-    const pkg = yield* Schema.decode(PackageJson)(pkgJson)
+    const pkg = yield* S.decode(PackageJson)(pkgJson)
 
     const classify = (deps: Record<string, string> | undefined) => {
       if (!deps) return { workspace: HashSet.empty(), npm: HashSet.empty() }
@@ -378,7 +378,7 @@ export const extractWorkspaceDependencies = (
       const workspace = HashSet.empty<string>()
       const npm = HashSet.empty<string>()
 
-      for (const [name, _version] of Object.entries(deps)) {
+      for (const [name, _version] of R.toEntries(deps)) {
         if (name.startsWith(workspacePattern)) {
           workspace.add(name)
         } else {
@@ -863,14 +863,14 @@ Include:
 
 4. **Schema Definition:**
    ```typescript
-   import * as Schema from "effect/Schema"
+   import * as S from "effect/Schema"
 
-   export const MySchema = Schema.Struct({
-     field: Schema.String,
-     optional: Schema.optional(Schema.Number)
+   export const MySchema = S.Struct({
+     field: S.String,
+     optional: S.optional(S.Number)
    })
 
-   export type MyType = Schema.Schema.Type<typeof MySchema>
+   export type MyType = S.Schema.Type<typeof MySchema>
    ```
 
 ### Code Quality Standards

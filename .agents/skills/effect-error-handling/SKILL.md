@@ -22,7 +22,8 @@ Choose based on what throws:
 ### Worked Example: Wrapping a Throwable API
 
 ```ts
-import { Effect, Schema as S } from "effect"
+import { Effect } from "effect"
+import * as S from "effect/Schema"
 import { $PackageNameId } from "@beep/identity/packages"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")

@@ -1064,15 +1064,16 @@ Effect-TS follows a distinctive documentation pattern:
 
 ```typescript
 /**
- * Retrieves the first element of an array, returning `Option.none` if the
+ * Retrieves the first element of an array, returning `O.none` if the
  * array is empty.
  *
  * @example
  * ```ts
- * import { Array, Option } from "effect"
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
  *
- * const result = Array.head([1, 2, 3])
- * console.log(result) // Option.some(1)
+ * const result = A.head([1, 2, 3])
+ * console.log(result) // O.some(1)
  * ```
  *
  * @category getters

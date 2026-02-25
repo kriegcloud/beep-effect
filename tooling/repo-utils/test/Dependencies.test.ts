@@ -1,7 +1,8 @@
+import { extractWorkspaceDependencies } from "@beep/repo-utils/Dependencies";
+import type { PackageJson } from "@beep/repo-utils/schemas/PackageJson";
 import { describe, expect, it } from "@effect/vitest";
 import { HashSet } from "effect";
-import { extractWorkspaceDependencies } from "../src/Dependencies.js";
-import type { PackageJson } from "../src/schemas/PackageJson.js";
+import * as R from "effect/Record";
 
 describe("Dependencies", () => {
   const workspaceNames = HashSet.make("@mock/pkg-a", "@mock/pkg-b", "@mock/pkg-c");
@@ -98,8 +99,8 @@ describe("Dependencies", () => {
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
-      expect(Object.keys(result.workspace.dependencies)).toHaveLength(3);
-      expect(Object.keys(result.npm.dependencies)).toHaveLength(0);
+      expect(R.keys(result.workspace.dependencies)).toHaveLength(3);
+      expect(R.keys(result.npm.dependencies)).toHaveLength(0);
     });
 
     it("should handle all-npm dependencies", () => {
@@ -113,8 +114,8 @@ describe("Dependencies", () => {
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
-      expect(Object.keys(result.workspace.dependencies)).toHaveLength(0);
-      expect(Object.keys(result.npm.dependencies)).toHaveLength(2);
+      expect(R.keys(result.workspace.dependencies)).toHaveLength(0);
+      expect(R.keys(result.npm.dependencies)).toHaveLength(2);
     });
 
     it("should use empty HashSet to treat all deps as npm", () => {
@@ -128,8 +129,8 @@ describe("Dependencies", () => {
 
       const result = extractWorkspaceDependencies(pkg, HashSet.empty<string>());
 
-      expect(Object.keys(result.workspace.dependencies)).toHaveLength(0);
-      expect(Object.keys(result.npm.dependencies)).toHaveLength(2);
+      expect(R.keys(result.workspace.dependencies)).toHaveLength(0);
+      expect(R.keys(result.npm.dependencies)).toHaveLength(2);
     });
   });
 });

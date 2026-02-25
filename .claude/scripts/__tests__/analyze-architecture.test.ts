@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import * as ts from "typescript";
 import {
   type ArchitectureGraph,
   buildAnalysisGraph,
@@ -11,7 +10,10 @@ import {
   type LayerDefinition,
   renderCommonAncestors,
   type ServiceDefinition,
-} from "../analyze-architecture.js";
+} from "@beep/claude/scripts/analyze-architecture";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import * as ts from "typescript";
 
 const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
 const LAYER_PATTERN =
@@ -41,7 +43,8 @@ interface LayerMatch {
   readonly factoryName?: string;
 }
 
-const countLinesBefore = (content: string, index: number): number => content.substring(0, index).split("\n").length;
+const countLinesBefore = (content: string, index: number): number =>
+  Str.split("\n")(Str.substring(0, index)(content)).length;
 
 const extractServicesFromContent = (content: string, filePath: string): ReadonlyArray<ServiceDefinition> => {
   const results: ServiceDefinition[] = [];
@@ -68,7 +71,7 @@ const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
     const varName = match[2];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
-      ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
+      ? (Str.split(".")(serviceNameRaw).pop() ?? serviceNameRaw)
       : serviceNameRaw;
 
     results.push({
@@ -85,7 +88,7 @@ const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
     const factoryName = match[2];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
-      ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
+      ? (Str.split(".")(serviceNameRaw).pop() ?? serviceNameRaw)
       : serviceNameRaw;
 
     if (isExported) {
@@ -137,8 +140,8 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
         const typeArgString = checker.typeToString(typeArg);
 
         if (typeArgString.startsWith("typeof ")) {
-          const typeofContent = typeArgString.slice(7);
-          const parts = typeofContent.split(".");
+          const typeofContent = Str.slice(7)(typeArgString);
+          const parts = Str.split(".")(typeofContent);
           const serviceName = parts[0];
 
           if (
@@ -1057,12 +1060,12 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("indents content within tags with appropriate spacing", () => {
       const output = formatAgent(sampleGraph);
-      const lines = output.split("\n");
+      const lines = Str.split("\n")(output);
 
-      const locationContentLines = lines.filter((l) => l.match(/^\s{2}\w+\s+\(/));
+      const locationContentLines = lines.filter((l) => O.getOrNull(O.fromNullishOr(Str.match(/^\s{2}\w+\s+\(/)(l))));
       expect(locationContentLines.length).toBeGreaterThan(0);
 
-      const adjacencyContentLines = lines.filter((l) => l.match(/^\s{2}\w+<.*>/));
+      const adjacencyContentLines = lines.filter((l) => O.getOrNull(O.fromNullishOr(Str.match(/^\s{2}\w+<.*>/)(l))));
       expect(adjacencyContentLines.length).toBeGreaterThan(0);
     });
 
@@ -1105,7 +1108,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
       };
 
       const output = formatAgent(graphWithWarnings);
-      const lines = output.split("\n");
+      const lines = Str.split("\n")(output);
 
       const redundantIndex = lines.findIndex((l) => l.includes("<redundant"));
       if (redundantIndex !== -1) {
@@ -1120,9 +1123,9 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("maintains consistent indentation throughout", () => {
       const output = formatAgent(sampleGraph);
-      const lines = output.split("\n");
+      const lines = Str.split("\n")(output);
 
-      const nestedTags = lines.filter((l) => l.match(/^\s{2}<\w+/));
+      const nestedTags = lines.filter((l) => O.getOrNull(O.fromNullishOr(Str.match(/^\s{2}<\w+/)(l))));
       expect(nestedTags.length).toBeGreaterThan(0);
 
       nestedTags.forEach((line) => {
@@ -1785,7 +1788,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("orders services by dependency count ascending", () => {
       const output = formatAdjacencyList(sampleGraph, false);
-      const lines = output.split("\n").slice(1);
+      const lines = Str.split("\n")(output).slice(1);
 
       expect(lines[0]).toContain("→ ∅");
       expect(lines[1]).toContain("→ ∅");
@@ -1806,17 +1809,21 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("aligns service names for readability", () => {
       const output = formatAdjacencyList(sampleGraph, false);
-      const lines = output.split("\n").slice(1);
+      const lines = Str.split("\n")(output).slice(1);
 
-      const serviceName1 = lines[0].split(" ").filter((s) => s.length > 0)[0];
-      const serviceName2 = lines[1].split(" ").filter((s) => s.length > 0)[0];
+      const serviceName1 = Str.split(" ")(lines[0]).filter((s) => s.length > 0)[0];
+      const serviceName2 = Str.split(" ")(lines[1]).filter((s) => s.length > 0)[0];
 
-      const servicePadding1 = lines[0].indexOf("→") - serviceName1.length;
-      const servicePadding2 = lines[1].indexOf("→") - serviceName2.length;
+      const servicePadding1 =
+        O.getOrElse(O.fromUndefinedOr(Str.indexOf("→")(lines[0])), () => -1) - serviceName1.length;
+      const servicePadding2 =
+        O.getOrElse(O.fromUndefinedOr(Str.indexOf("→")(lines[1])), () => -1) - serviceName2.length;
 
       expect(servicePadding1).toBeGreaterThan(0);
       expect(servicePadding2).toBeGreaterThan(0);
-      expect(lines[0].indexOf("→")).toBe(lines[1].indexOf("→"));
+      expect(O.getOrElse(O.fromUndefinedOr(Str.indexOf("→")(lines[0])), () => -1)).toBe(
+        O.getOrElse(O.fromUndefinedOr(Str.indexOf("→")(lines[1])), () => -1)
+      );
     });
 
     it("shows error counts by default without --show-errors", () => {
@@ -1835,7 +1842,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("shows no indicator for services without errors when not using --show-errors", () => {
       const output = formatAdjacencyList(sampleGraph, false);
-      const lines = output.split("\n");
+      const lines = Str.split("\n")(output);
 
       const queryLine = lines.find((line) => line.includes("TodoQueryService"));
       expect(queryLine).not.toContain("error");
@@ -1884,7 +1891,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
     it("indents service lines with 2 spaces", () => {
       const output = formatAdjacencyList(sampleGraph, false);
-      const lines = output.split("\n").slice(1);
+      const lines = Str.split("\n")(output).slice(1);
 
       lines.forEach((line) => {
         if (line.length > 0) {
@@ -2105,7 +2112,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<density");
-        const densityMatch = output.match(/<density[^>]*value="([\d.]+)"/);
+        const densityMatch = O.getOrNull(O.fromNullishOr(Str.match(/<density[^>]*value="([\d.]+)"/)(output)));
         expect(densityMatch).toBeTruthy();
         const density = Number.parseFloat(densityMatch![1]);
         expect(density).toBeCloseTo(0.25, 2);
@@ -2142,7 +2149,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<diameter");
-        const diameterMatch = output.match(/<diameter[^>]*value="([\d.]+)"/);
+        const diameterMatch = O.getOrNull(O.fromNullishOr(Str.match(/<diameter[^>]*value="([\d.]+)"/)(output)));
         expect(diameterMatch).toBeTruthy();
         const diameter = Number.parseFloat(diameterMatch![1]);
         expect(diameter).toBeGreaterThan(0);
@@ -2163,7 +2170,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<average_degree");
-        const avgDegreeMatch = output.match(/<average_degree[^>]*value="([\d.]+)"/);
+        const avgDegreeMatch = O.getOrNull(O.fromNullishOr(Str.match(/<average_degree[^>]*value="([\d.]+)"/)(output)));
         expect(avgDegreeMatch).toBeTruthy();
         const avgDegree = Number.parseFloat(avgDegreeMatch![1]);
         expect(avgDegree).toBeGreaterThan(0);
@@ -2183,7 +2190,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<average_degree");
-        const avgDegreeMatch = output.match(/<average_degree[^>]*value="([\d.]+)"/);
+        const avgDegreeMatch = O.getOrNull(O.fromNullishOr(Str.match(/<average_degree[^>]*value="([\d.]+)"/)(output)));
         expect(avgDegreeMatch).toBeTruthy();
         const avgDegree = Number.parseFloat(avgDegreeMatch![1]);
         expect(avgDegree).toBeCloseTo(0.75, 2);
@@ -2194,7 +2201,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<average_degree");
-        const avgDegreeMatch = output.match(/<average_degree[^>]*value="([\d.]+)"/);
+        const avgDegreeMatch = O.getOrNull(O.fromNullishOr(Str.match(/<average_degree[^>]*value="([\d.]+)"/)(output)));
         expect(avgDegreeMatch).toBeTruthy();
         const avgDegree = Number.parseFloat(avgDegreeMatch![1]);
         expect(avgDegree).toBeCloseTo(3, 1);
@@ -2474,7 +2481,9 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<clustering_coefficient");
-        const clusteringSection = output.match(/<clustering_coefficient[^>]*>[\s\S]*?<\/clustering_coefficient>/);
+        const clusteringSection = O.getOrNull(
+          O.fromNullishOr(Str.match(/<clustering_coefficient[^>]*>[\s\S]*?<\/clustering_coefficient>/)(output))
+        );
         expect(clusteringSection).toBeTruthy();
       });
 
@@ -2483,7 +2492,9 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<clustering_coefficient");
-        const clusteringMatch = output.match(/<clustering_coefficient[^>]*>([\s\S]*?)<\/clustering_coefficient>/);
+        const clusteringMatch = O.getOrNull(
+          O.fromNullishOr(Str.match(/<clustering_coefficient[^>]*>([\s\S]*?)<\/clustering_coefficient>/)(output))
+        );
         expect(clusteringMatch).toBeTruthy();
       });
 
@@ -2498,7 +2509,9 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const graph = buildHubGraph();
         const output = formatAgent(graph);
 
-        const clusteringMatch = output.match(/<clustering_coefficient[^>]*>([\s\S]*?)<\/clustering_coefficient>/);
+        const clusteringMatch = O.getOrNull(
+          O.fromNullishOr(Str.match(/<clustering_coefficient[^>]*>([\s\S]*?)<\/clustering_coefficient>/)(output))
+        );
         if (clusteringMatch) {
           const content = clusteringMatch[1];
           const hasCorrectFormat = /\d\.\d{2}/.test(content);
@@ -2544,7 +2557,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<domain_bridges");
-        const bridgesMatch = output.match(/<domain_bridges n="(\d+)"/);
+        const bridgesMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domain_bridges n="(\d+)"/)(output)));
         expect(bridgesMatch).toBeTruthy();
         const bridgeCount = Number.parseInt(bridgesMatch![1], 10);
         expect(bridgeCount).toBeGreaterThanOrEqual(0);
@@ -2565,7 +2578,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<domains");
-        const domainsMatch = output.match(/<domains n="(\d+)"/);
+        const domainsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domains n="(\d+)"/)(output)));
         expect(domainsMatch).toBeTruthy();
       });
 
@@ -2704,13 +2717,13 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
       const graph = buildSampleGraph();
       const output = formatAgent(graph);
 
-      const metricsStart = output.indexOf("<metrics>");
-      const metricsEnd = output.indexOf("</metrics>");
+      const metricsStart = O.getOrElse(O.fromUndefinedOr(Str.indexOf("<metrics>")(output)), () => -1);
+      const metricsEnd = O.getOrElse(O.fromUndefinedOr(Str.indexOf("</metrics>")(output)), () => -1);
       expect(metricsStart).toBeGreaterThan(-1);
       expect(metricsEnd).toBeGreaterThan(metricsStart);
 
-      const advancedStart = output.indexOf("<advanced_metrics>");
-      const advancedEnd = output.indexOf("</advanced_metrics>");
+      const advancedStart = O.getOrElse(O.fromUndefinedOr(Str.indexOf("<advanced_metrics>")(output)), () => -1);
+      const advancedEnd = O.getOrElse(O.fromUndefinedOr(Str.indexOf("</advanced_metrics>")(output)), () => -1);
       expect(advancedStart).toBeGreaterThan(-1);
       expect(advancedEnd).toBeGreaterThan(advancedStart);
     });

@@ -1,5 +1,5 @@
+import { buildRetrievalPacket } from "@beep/agent-eval/benchmark/packet";
 import { describe, expect, it } from "vitest";
-import { buildRetrievalPacket } from "../src/benchmark/packet.js";
 
 describe("retrieval packet", () => {
   it("deduplicates facts", () => {

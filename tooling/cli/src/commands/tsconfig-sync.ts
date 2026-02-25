@@ -19,11 +19,12 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, HashMap, HashSet, Path, Schema } from "effect";
+import { Console, Effect, FileSystem, HashMap, HashSet, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 
@@ -65,11 +66,11 @@ const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
+export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
   {
-    fileCount: Schema.Number,
-    summary: Schema.String,
+    fileCount: S.Number,
+    summary: S.String,
   },
   $I.annote("TsconfigSyncDriftError", {
     title: "Tsconfig Sync Drift Error",
@@ -83,11 +84,11 @@ export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSync
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
+export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
   {
-    cycles: Schema.Array(Schema.Array(Schema.String)),
-    message: Schema.String,
+    cycles: S.Array(S.Array(S.String)),
+    message: S.String,
   },
   $I.annote("TsconfigSyncCycleError", {
     title: "Tsconfig Sync Cycle Error",
@@ -101,13 +102,11 @@ export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSync
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncFilterError extends Schema.TaggedErrorClass<TsconfigSyncFilterError>(
-  $I`TsconfigSyncFilterError`
-)(
+export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
   "TsconfigSyncFilterError",
   {
-    filter: Schema.String,
-    message: Schema.String,
+    filter: S.String,
+    message: S.String,
   },
   $I.annote("TsconfigSyncFilterError", {
     title: "Tsconfig Sync Filter Error",
@@ -202,7 +201,7 @@ const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
 
 const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
   const unique = [...HashSet.fromIterable(values)];
-  unique.sort((left, right) => left.localeCompare(right));
+  unique.sort((left, right) => Str.localeCompare(right)(left));
   return unique;
 };
 
@@ -325,7 +324,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
   }
 
   const sorted = [...descriptors];
-  sorted.sort((left, right) => left.relativeDir.localeCompare(right.relativeDir));
+  sorted.sort((left, right) => Str.localeCompare(right.relativeDir)(left.relativeDir));
   return sorted;
 });
 
@@ -566,7 +565,7 @@ const planPackageReferenceSync = Effect.fn(function* (
   const workspaceByName = HashMap.fromIterable(
     A.map(workspaces, (workspace) => [workspace.packageName, workspace] as const)
   );
-  const normalizedFilter = filter === undefined ? undefined : toPosixPath(filter).replace(/^\.\//, "");
+  const normalizedFilter = filter === undefined ? undefined : Str.replace(/^\.\//, "")(toPosixPath(filter));
 
   const targetWorkspaces = A.filter(workspaces, (workspace) => {
     if (workspace.ownerTsconfigPath === undefined) {
@@ -683,11 +682,11 @@ const planPackageReferenceSync = Effect.fn(function* (
 
 const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<PlannedFileChange> =>
   [...changes].sort((left, right) => {
-    const fileCompare = left.filePath.localeCompare(right.filePath);
+    const fileCompare = Str.localeCompare(right.filePath)(left.filePath);
     if (fileCompare !== 0) {
       return fileCompare;
     }
-    return left.section.localeCompare(right.section);
+    return Str.localeCompare(right.section)(left.section);
   });
 
 const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange => ({

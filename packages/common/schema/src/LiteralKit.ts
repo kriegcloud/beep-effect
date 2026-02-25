@@ -6,7 +6,7 @@
  * and maps them to string keys via {@link LiteralToKey}.
  *
  * @since 0.0.0
- * @module @beep/schema/LiteralKit.schema
+ * @module @beep/schema/LiteralKit
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -15,7 +15,7 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
-const $I = $SchemaId.create("LiteralKit.schema");
+const $I = $SchemaId.create("LiteralKit");
 
 type Literals = A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>;
 

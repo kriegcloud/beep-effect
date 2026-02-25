@@ -1,6 +1,6 @@
 import { dotGet, dotGetOption } from "@beep/utils";
 import { pipe } from "effect/Function";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import { describe, expect, expectTypeOf, it } from "vitest";
 
 describe("@beep/utils dotGet", () => {
@@ -59,10 +59,10 @@ describe("@beep/utils dotGet", () => {
     const someUndefined = dotGetOption(source, "maybeUndefined");
     const none = dotGetOption(missing, "attributes.name");
 
-    expect(Option.isSome(some)).toBe(true);
-    expect(Option.isSome(someFromTuple)).toBe(true);
-    expect(Option.isSome(someUndefined)).toBe(true);
-    expect(Option.isNone(none)).toBe(true);
+    expect(O.isSome(some)).toBe(true);
+    expect(O.isSome(someFromTuple)).toBe(true);
+    expect(O.isSome(someUndefined)).toBe(true);
+    expect(O.isNone(none)).toBe(true);
   });
 });
 // bench

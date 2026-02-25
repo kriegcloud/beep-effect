@@ -14,8 +14,8 @@ pre-commit:
       run: gitleaks protect --staged --verbose
     typos:
       glob: "*.{ts,tsx,js,jsx,md,json}"
-      exclude: ".beep/**"
-      run: typos {staged_files}
+      exclude: ".beep/**|specs/**|outputs/**"
+      run: typos --exclude '.beep/**'
 
 commit-msg:
   commands:

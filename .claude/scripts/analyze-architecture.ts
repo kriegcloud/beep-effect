@@ -9,6 +9,8 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import type { PlatformError } from "effect/PlatformError";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as ts from "typescript";
 
@@ -68,7 +70,7 @@ const EFFECT_INFRASTRUCTURE = new Set([
 const EXCLUDED_FROM_GRAPH = new Set(["AtomRegistry", "Registry"]);
 
 export const countLinesBefore = (content: string, index: number): number =>
-  content.substring(0, index).split("\n").length;
+  Str.split("\n")(Str.substring(0, index)(content)).length;
 
 export const extractServicesFromContent = (content: string, filePath: string): ReadonlyArray<ServiceDefinition> => {
   const results: ServiceDefinition[] = [];
@@ -103,7 +105,7 @@ export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> 
     const varName = match[2];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
-      ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
+      ? (Str.split(".")(serviceNameRaw).pop() ?? serviceNameRaw)
       : serviceNameRaw;
 
     results.push({
@@ -120,7 +122,7 @@ export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> 
     const factoryName = match[2];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
-      ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
+      ? (Str.split(".")(serviceNameRaw).pop() ?? serviceNameRaw)
       : serviceNameRaw;
 
     if (isExported) {
@@ -179,7 +181,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
       if (typeArgs && typeArgs.length > 0) {
         typeArgString = checker.typeToString(typeArgs[0]);
       } else if (typeString.startsWith("Id<")) {
-        const match = typeString.match(/^Id<(.+)>$/);
+        const match = O.getOrNull(O.fromNullishOr(Str.match(/^Id<(.+)>$/)(typeString)));
         if (match) {
           typeArgString = match[1];
         }
@@ -187,8 +189,8 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
       if (typeArgString) {
         if (typeArgString.startsWith("typeof ")) {
-          const typeofContent = typeArgString.slice(7);
-          const parts = typeofContent.split(".");
+          const typeofContent = Str.slice(7)(typeArgString);
+          const parts = Str.split(".")(typeofContent);
           const serviceName = parts[0];
 
           if (
@@ -199,7 +201,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
             deps.push(serviceName);
           }
         } else if (typeArgString.startsWith('"@')) {
-          const match = typeArgString.match(/^"@[^/]+\/([^"]+)"$/);
+          const match = O.getOrNull(O.fromNullishOr(Str.match(/^"@[^/]+\/([^"]+)"$/)(typeArgString)));
           if (match) {
             const serviceName = match[1];
 
@@ -496,7 +498,7 @@ const computeStats = (graph: ArchitectureGraph) => {
     A.flatMap((l) => l.dependencies),
     A.groupBy((dep) => dep),
     (grouped) =>
-      Object.entries(grouped).map(([name, deps]) => ({
+      R.toEntries(grouped).map(([name, deps]) => ({
         name,
         count: deps.length,
       })),
@@ -513,7 +515,7 @@ const computeStats = (graph: ArchitectureGraph) => {
   return { serviceCount, vmCount, depCounts, complexLayers };
 };
 
-const makeShortPath = (fullPath: string): string => fullPath.replace(/^(\.\/)?.*\/src\//, "");
+const makeShortPath = (fullPath: string): string => Str.replace(/^(\.\/)?.*\/src\//, "")(fullPath);
 
 export const formatMermaid = (graph: ArchitectureGraph): string => {
   const serviceLines = graph.services.map(

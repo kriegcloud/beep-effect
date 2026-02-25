@@ -67,7 +67,8 @@ Create all templates per `outputs/create-package-template-inventory.md`:
 
 ### Effect v4 Imports
 ```ts
-import { Effect, FileSystem, Path, Schema } from "effect";
+import { Effect, FileSystem, Path } from "effect";
+import * as S from "effect/Schema";
 import * as Console from "effect/Console";
 import { Command, Flag, Argument } from "effect/unstable/cli";
 ```

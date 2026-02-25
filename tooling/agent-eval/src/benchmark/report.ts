@@ -1,10 +1,4 @@
-/**
- * Markdown report rendering for benchmark suites.
- *
- * @since 0.0.0
- * @module
- */
-
+import { String as Str } from "effect";
 import type { AgentBenchSuite } from "../schemas/index.js";
 
 const median = (values: ReadonlyArray<number>): number => {
@@ -68,7 +62,7 @@ const summarizeByKey = (
     rows.push({ key, runs, successes, wrongApi, medianCost });
   }
 
-  return rows.sort((left, right) => left.key.localeCompare(right.key));
+  return rows.sort((left, right) => Str.localeCompare(right.key)(left.key));
 };
 
 /**

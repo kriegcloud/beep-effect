@@ -1,5 +1,7 @@
 import * as Fs from "node:fs";
 import * as Path from "node:path";
+import * as Str from "effect/String";
+
 
 function findPackages() {
   const packages = [];
@@ -50,7 +52,7 @@ function copyFiles(dir, pkg) {
         continue;
       }
 
-      const content = Fs.readFileSync(path, "utf8").replace(/^parent: Modules$/m, `parent: "${name}"`);
+      const content = Str.replace(/^parent: Modules$/m, `parent: "${name}"`)(Fs.readFileSync(path, "utf8"));
       Fs.writeFileSync(destPath, content);
     }
   }

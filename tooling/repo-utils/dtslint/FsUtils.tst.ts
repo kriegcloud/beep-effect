@@ -1,6 +1,6 @@
+import { type DomainError, type FsUtils, FsUtilsLive, type FsUtilsShape, type NoSuchFileError } from "@beep/repo-utils";
 import type { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "tstyche";
-import { type DomainError, type FsUtils, FsUtilsLive, type FsUtilsShape, type NoSuchFileError } from "../src/index.js";
 
 describe("FsUtils", () => {
   describe("FsUtilsShape", () => {

@@ -21,8 +21,7 @@
     "./tooling/*/test/fixtures/**/*.ts",
     "./apps/*/test/**/*.ts",
     "./apps/*/test/**/*.json",
-    "./apps/*/vitest.*.ts",
-    "./**/dtslint/**/*.tst.*"
+    "./apps/*/vitest.*.ts"
   ],
   "compilerOptions": {
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",

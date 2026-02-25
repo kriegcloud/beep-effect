@@ -1,12 +1,12 @@
-import type { Effect, HashMap, Option } from "effect";
-import { describe, expect, it } from "tstyche";
 import {
   type DomainError,
   type FsUtils,
   getWorkspaceDir,
   type NoSuchFileError,
   resolveWorkspaceDirs,
-} from "../src/index.js";
+} from "@beep/repo-utils";
+import type { Effect, HashMap, Option } from "effect";
+import { describe, expect, it } from "tstyche";
 
 describe("Workspaces", () => {
   it("resolveWorkspaceDirs returns HashMap<string, string>", () => {

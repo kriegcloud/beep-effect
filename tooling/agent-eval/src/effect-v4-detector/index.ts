@@ -1,3 +1,6 @@
+import { String as Str } from "effect";
+import * as O from "effect/Option";
+
 /**
  * Effect v4 wrong-API detection utilities.
  *
@@ -286,7 +289,7 @@ export const EffectComplianceRules: ReadonlyArray<WrongApiRule> = [
 const buildLineStarts = (content: string): ReadonlyArray<number> => {
   const starts: Array<number> = [0];
   for (let index = 0; index < content.length; index += 1) {
-    if (content.charCodeAt(index) === 10) {
+    if (O.getOrElse(O.fromUndefinedOr(Str.charCodeAt(index)(content)), () => Number.NaN) === 10) {
       starts.push(index + 1);
     }
   }
@@ -314,7 +317,7 @@ const findLineIndexForOffset = (lineStarts: ReadonlyArray<number>, offset: numbe
 
 const detectWithRules = (content: string, rules: ReadonlyArray<WrongApiRule>): WrongApiDetectionReport => {
   const lineStarts = buildLineStarts(content);
-  const lines = content.split("\n");
+  const lines = Str.split("\n")(content);
   const incidents: Array<WrongApiIncident> = [];
 
   for (const rule of rules) {
@@ -333,7 +336,7 @@ const detectWithRules = (content: string, rules: ReadonlyArray<WrongApiRule>): W
         category: rule.category,
         severity: rule.severity,
         line: lineIndex + 1,
-        snippet: line.trim(),
+        snippet: Str.trim(line),
       });
     }
   }

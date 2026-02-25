@@ -2,8 +2,9 @@ import { KnowledgeGraphToolsLayer } from "@beep/web/lib/effect/tool-handlers";
 import { KnowledgeGraphToolkit } from "@beep/web/lib/effect/tools";
 import { GraphitiService } from "@beep/web/lib/graphiti/client";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 const graphitiMock = GraphitiService.of({
   searchNodes: () =>
@@ -42,7 +43,7 @@ const graphitiMock = GraphitiService.of({
     ]),
   getNode: () =>
     Effect.succeed({
-      node: Option.some({
+      node: O.some({
         uuid: "node-1",
         name: "effect/ServiceMap",
         labels: ["Entity", "Location"],
@@ -91,7 +92,7 @@ describe("KnowledgeGraphToolkit", () => {
         return yield* Stream.runCollect(stream);
       }).pipe(Effect.provide(KnowledgeGraphToolsLayer), Effect.provideService(GraphitiService, graphitiMock));
 
-      const lastEvent = Option.getOrUndefined(A.last(events));
+      const lastEvent = O.getOrUndefined(A.last(events));
 
       expect(lastEvent).toBeDefined();
       expect(lastEvent?.isFailure).toBe(false);
@@ -113,7 +114,7 @@ describe("KnowledgeGraphToolkit", () => {
         return yield* Stream.runCollect(stream);
       }).pipe(Effect.provide(KnowledgeGraphToolsLayer), Effect.provideService(GraphitiService, graphitiMock));
 
-      const lastEvent = Option.getOrUndefined(A.last(events));
+      const lastEvent = O.getOrUndefined(A.last(events));
 
       expect(lastEvent).toBeDefined();
       expect(lastEvent?.isFailure).toBe(false);

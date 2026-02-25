@@ -2,21 +2,20 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins";
-import { HashSet } from "effect";
+import { HashSet, String as Str } from "effect";
 import { Resend } from "resend";
 import { db } from "../db";
 import * as schema from "../db/schema";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const normalizeEmail = (value: string) => value.trim().toLowerCase();
-const configuredEmailFrom = process.env.EMAIL_FROM?.trim();
+const normalizeEmail = (value: string) => Str.toLowerCase(Str.trim(value));
+const configuredEmailFrom = process.env.EMAIL_FROM ? Str.trim(process.env.EMAIL_FROM) : undefined;
 const emailFrom =
   configuredEmailFrom && configuredEmailFrom.length > 0 ? configuredEmailFrom : "Effect v4 KG <onboarding@resend.dev>";
 const allowedEmailsRaw = process.env.ALLOWED_EMAILS ?? process.env.APP_ADMINS_EMAILS ?? "";
 
 const allowedEmails = HashSet.fromIterable(
-  allowedEmailsRaw
-    .split(/[\n,;]/)
+  Str.split(/[\n,;]/)(allowedEmailsRaw)
     .map(normalizeEmail)
     .filter(Boolean)
 );

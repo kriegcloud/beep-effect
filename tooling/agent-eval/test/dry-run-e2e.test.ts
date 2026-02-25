@@ -1,7 +1,7 @@
+import { type CorrectionEntry, type PricingTable, runBenchmarkSuite } from "@beep/agent-eval/benchmark/runner";
+import type { AgentTaskSpec } from "@beep/agent-eval/schemas/index";
 import { Effect, Path } from "effect";
 import { describe, expect, it } from "vitest";
-import { type CorrectionEntry, type PricingTable, runBenchmarkSuite } from "../src/benchmark/runner.js";
-import type { AgentTaskSpec } from "../src/schemas/index.js";
 
 describe("dry-run benchmark", () => {
   it("runs one task per category across four conditions", async () => {

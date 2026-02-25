@@ -10,8 +10,9 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { Effect, FileSystem, HashMap, Order, Path } from "effect";
+import { Effect, FileSystem, HashMap, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as jsonc from "jsonc-parser";
 
@@ -109,9 +110,9 @@ const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
 const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: string): boolean => {
   const candidatePattern = `${packagePath}/dtslint/**/*.tst.*`;
   if (A.some(testFileMatch, (entry) => entry === candidatePattern)) return true;
-  const lastSlash = packagePath.lastIndexOf("/");
+  const lastSlash = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf("/")(packagePath)), () => -1);
   if (lastSlash < 0) return false;
-  const parentDir = packagePath.substring(0, lastSlash);
+  const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
   return A.some(testFileMatch, (entry) => entry === parentWildcard);
 };

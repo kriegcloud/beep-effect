@@ -1,3 +1,11 @@
+import { versionSyncCommand } from "@beep/repo-cli/commands/version-sync/index";
+import { type BiomeSchemaState, buildBiomeReport } from "@beep/repo-cli/commands/version-sync/resolvers/biome";
+import { type BunVersionState, buildBunReport } from "@beep/repo-cli/commands/version-sync/resolvers/bun";
+import { buildDockerReport, type DockerImageState } from "@beep/repo-cli/commands/version-sync/resolvers/docker";
+import { buildNodeReport, type NodeVersionState } from "@beep/repo-cli/commands/version-sync/resolvers/node";
+import { updatePackageManagerField } from "@beep/repo-cli/commands/version-sync/updaters/package-json";
+import { updatePlainTextFile } from "@beep/repo-cli/commands/version-sync/updaters/plain-text";
+import { replaceNodeVersionWithFile, updateYamlValue } from "@beep/repo-cli/commands/version-sync/updaters/yaml-file";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -10,14 +18,6 @@ import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { versionSyncCommand } from "../src/commands/version-sync/index.js";
-import { type BiomeSchemaState, buildBiomeReport } from "../src/commands/version-sync/resolvers/biome.js";
-import { type BunVersionState, buildBunReport } from "../src/commands/version-sync/resolvers/bun.js";
-import { buildDockerReport, type DockerImageState } from "../src/commands/version-sync/resolvers/docker.js";
-import { buildNodeReport, type NodeVersionState } from "../src/commands/version-sync/resolvers/node.js";
-import { updatePackageManagerField } from "../src/commands/version-sync/updaters/package-json.js";
-import { updatePlainTextFile } from "../src/commands/version-sync/updaters/plain-text.js";
-import { replaceNodeVersionWithFile, updateYamlValue } from "../src/commands/version-sync/updaters/yaml-file.js";
 
 // ---------------------------------------------------------------------------
 // Test layers

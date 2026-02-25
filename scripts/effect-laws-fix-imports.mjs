@@ -2,6 +2,8 @@
 
 import path from "node:path";
 import { Project } from "ts-morph";
+import * as Str from "effect/String";
+
 
 const args = process.argv.slice(2);
 const write = args.includes("--write");
@@ -94,7 +96,7 @@ for (const sourceFile of sourceFiles) {
       continue;
     }
 
-    const stableName = moduleName.slice("effect/".length);
+    const stableName = Str.slice("effect/".length)(moduleName);
     if (stableName.length === 0 || stableName.includes("/")) {
       continue;
     }

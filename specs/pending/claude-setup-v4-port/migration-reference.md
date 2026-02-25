@@ -15,7 +15,6 @@ These are mechanical find-and-replace operations.
 ```diff
 - import * as Schema from "@effect/schema"
 - import * as S from "@effect/schema/Schema"
-+ import * as Schema from "effect/Schema"
 + import * as S from "effect/Schema"
 
 - import { Args, Command, Options } from "@effect/cli"
@@ -39,11 +38,15 @@ These are mechanical find-and-replace operations.
   // Same import, just version ^4.0.0-beta.11 via catalog:
 ```
 
-### Core Effect Imports (unchanged)
+### Core Effect Imports (with canonical O alias)
 
 ```ts
 // These stay the same — just ensure version is v4
-import { Effect, Console, Option, Array, String, pipe, Record, Order, Config, Layer, Data } from "effect"
+import { Effect, Console, pipe, Order, Config, Layer, Data } from "effect"
+import * as A from "effect/Array"
+import * as O from "effect/Option"
+import * as R from "effect/Record"
+import * as Str from "effect/String"
 ```
 
 ## 2. Service & Layer Migration
@@ -106,22 +109,22 @@ import { Effect, Console, Option, Array, String, pipe, Record, Order, Config, La
 
 ## 3. Error Type Migration
 
-### Data.TaggedError → Schema.TaggedErrorClass
+### Data.TaggedError → S.TaggedErrorClass
 
 **Working example:** `tooling/cli/src/commands/tsconfig-sync.ts` — `TsconfigSyncDriftError`
 
 ```diff
 - import { Data } from "effect"
-+ import { Schema } from "effect"
++ import * as S from "effect/Schema"
 
 - class MyError extends Data.TaggedError("MyError")<{
 -   readonly reason: string
 - }> {}
-+ class MyError extends Schema.TaggedErrorClass<MyError>(
++ class MyError extends S.TaggedErrorClass<MyError>(
 +   "@beep/claude-setup/MyError"   // Service-style identifier (1st call)
 + )(
 +   "MyError",                      // Tag name (2nd call)
-+   { reason: Schema.String },      // Schema fields, NOT TS types
++   { reason: S.String },      // Schema fields, NOT TS types
 +   {                                // Annotations
 +     identifier: "MyError",
 +     title: "My Error",
@@ -132,7 +135,7 @@ import { Effect, Console, Option, Array, String, pipe, Record, Order, Config, La
 
 **Note:** The first call takes a service-style identifier string. The second call takes `(tag, fields, annotations)`. See `tooling/cli/src/commands/tsconfig-sync.ts` for the exact pattern used in this repo.
 
-**Note:** `Schema.TaggedErrorClass` takes Schema field definitions (not TypeScript types). This means:
+**Note:** `S.TaggedErrorClass` takes Schema field definitions (not TypeScript types). This means:
 - `string` → `S.String`
 - `number` → `S.Number`
 - `boolean` → `S.Boolean`
@@ -146,33 +149,33 @@ import { Effect, Console, Option, Array, String, pipe, Record, Order, Config, La
 
 ```diff
   // decodeUnknown — signature may change
-- const decoded = yield* Schema.decodeUnknown(MySchema)(rawData)
-+ const decoded = yield* Schema.decodeUnknown(MySchema)(rawData)
-  // Verify exact signature against .repos/effect-smol/packages/effect/src/Schema.ts
+- const decoded = yield* S.decodeUnknown(MySchema)(rawData)
++ const decoded = yield* S.decodeUnknown(MySchema)(rawData)
+  // Verify exact signature against .repos/effect-smol/packages/effect/src/S.ts
 
   // decode → decodeEffect (if used in Effect context)
-- const decoded = yield* Schema.decode(MySchema)(input)
-+ const decoded = yield* Schema.decodeEffect(MySchema)(input)
+- const decoded = yield* S.decode(MySchema)(input)
++ const decoded = yield* S.decodeEffect(MySchema)(input)
 ```
 
 ### Schema Construction (mostly unchanged)
 
 ```ts
 // These patterns are stable across v3→v4:
-Schema.Struct({ ... })
-Schema.Literal("a", "b")
-Schema.Union([Schema.String, Schema.Number])
-Schema.Array(Schema.String)
-Schema.Record({ key: Schema.String, value: Schema.Unknown })
-Schema.optional(Schema.String)
+S.Struct({ ... })
+S.Literal("a", "b")
+S.Union([S.String, S.Number])
+S.Array(S.String)
+S.Record({ key: S.String, value: S.Unknown })
+S.optional(S.String)
 ```
 
-### Schema.Data removed
+### S.Data removed
 
 ```diff
-- const MyData = Schema.Struct({ ... }).pipe(Schema.Data)
-+ const MyData = Schema.Struct({ ... })
-  // Data integration changed — verify if Schema.Data still exists in v4
+- const MyData = S.Struct({ ... }).pipe(S.Data)
++ const MyData = S.Struct({ ... })
+  // Data integration changed — verify if S.Data still exists in v4
 ```
 
 ## 5. Command Execution Migration

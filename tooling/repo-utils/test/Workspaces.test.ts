@@ -1,10 +1,11 @@
 import * as path from "node:path";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { getWorkspaceDir, resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer, Option } from "effect";
-import { FsUtilsLive } from "../src/FsUtils.js";
-import { getWorkspaceDir, resolveWorkspaceDirs } from "../src/Workspaces.js";
+import { Effect, HashMap, Layer } from "effect";
+import * as O from "effect/Option";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -29,8 +30,8 @@ layer(TestLayer)("Workspaces", (it) => {
       Effect.fn(function* () {
         const workspaces = yield* resolveWorkspaceDirs(MOCK_ROOT);
         const dirA = HashMap.get(workspaces, "@mock/pkg-a");
-        expect(Option.isSome(dirA)).toBe(true);
-        if (Option.isSome(dirA)) {
+        expect(O.isSome(dirA)).toBe(true);
+        if (O.isSome(dirA)) {
           expect(dirA.value).toContain("packages/pkg-a");
           expect(path.isAbsolute(dirA.value)).toBe(true);
         }
@@ -62,8 +63,8 @@ layer(TestLayer)("Workspaces", (it) => {
       "should find an existing workspace by name",
       Effect.fn(function* () {
         const dir = yield* getWorkspaceDir(MOCK_ROOT, "@mock/pkg-b");
-        expect(Option.isSome(dir)).toBe(true);
-        if (Option.isSome(dir)) {
+        expect(O.isSome(dir)).toBe(true);
+        if (O.isSome(dir)) {
           expect(dir.value).toContain("packages/pkg-b");
         }
       })
@@ -73,7 +74,7 @@ layer(TestLayer)("Workspaces", (it) => {
       "should return None for a non-existent workspace",
       Effect.fn(function* () {
         const dir = yield* getWorkspaceDir(MOCK_ROOT, "@mock/nonexistent");
-        expect(Option.isNone(dir)).toBe(true);
+        expect(O.isNone(dir)).toBe(true);
       })
     );
   });

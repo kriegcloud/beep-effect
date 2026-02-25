@@ -1,24 +1,26 @@
-import { Array, Option, Order, pipe } from "effect";
+import type { PatternDefinition } from "@beep/claude/patterns/schema";
+import { PatternLevelOrder } from "@beep/claude/patterns/schema";
+import * as TestClaude from "@beep/claude/test/TestClaude";
+import { Order, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import picomatch from "picomatch";
 import { describe, expect, it } from "vitest";
-import type { PatternDefinition } from "../../patterns/schema.js";
-import { PatternLevelOrder } from "../../patterns/schema.js";
-import * as TestClaude from "../../test/TestClaude.js";
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
 
 const getMatchableContent = (input: Record<string, unknown>): string =>
   pipe(
     contentFields,
-    Array.findFirst((field) => typeof input[field] === "string"),
-    Option.flatMap((field) => Option.fromNullishOr(input[field] as string)),
-    Option.getOrElse(() => JSON.stringify(input))
+    A.findFirst((field) => typeof input[field] === "string"),
+    O.flatMap((field) => O.fromNullishOr(input[field] as string)),
+    O.getOrElse(() => JSON.stringify(input))
   );
 
-const getFilePath = (input: Record<string, unknown>): Option.Option<string> =>
+const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
   pipe(
-    Option.fromNullishOr(input.file_path),
-    Option.filter((v): v is string => typeof v === "string")
+    O.fromNullishOr(input.file_path),
+    O.filter((v): v is string => typeof v === "string")
   );
 
 const testRegex = (text: string, pattern: string): boolean => {
@@ -38,7 +40,7 @@ const testGlob = (filePath: string, glob: string): boolean => {
 };
 
 const matches = (input: TestClaude.HookInput, p: PatternDefinition): boolean => {
-  const filePath = pipe(getFilePath(input.tool_input as Record<string, unknown>), Option.getOrUndefined);
+  const filePath = pipe(getFilePath(input.tool_input as Record<string, unknown>), O.getOrUndefined);
   const content = getMatchableContent(input.tool_input as Record<string, unknown>);
 
   return (
@@ -71,7 +73,7 @@ const processPatterns = (input: TestClaude.HookInput, patterns: PatternDefinitio
   }
 
   if (input.hook_event_name === "PreToolUse" && permission.length > 0) {
-    const sorted = pipe(permission, Array.sort(Order.mapInput(PatternLevelOrder, (p: PatternDefinition) => p.level)));
+    const sorted = pipe(permission, A.sort(Order.mapInput(PatternLevelOrder, (p: PatternDefinition) => p.level)));
     const primary = sorted[0];
 
     return {
@@ -145,17 +147,17 @@ describe("Pattern Detector", () => {
   describe("file path extraction", () => {
     it("extracts file_path when present", () => {
       const input = { file_path: "/test/file.ts" };
-      expect(Option.getOrUndefined(getFilePath(input))).toBe("/test/file.ts");
+      expect(O.getOrUndefined(getFilePath(input))).toBe("/test/file.ts");
     });
 
     it("returns None when file_path is missing", () => {
       const input = { command: "echo hello" };
-      expect(Option.isNone(getFilePath(input))).toBe(true);
+      expect(O.isNone(getFilePath(input))).toBe(true);
     });
 
     it("returns None when file_path is not a string", () => {
       const input = { file_path: 123 };
-      expect(Option.isNone(getFilePath(input))).toBe(true);
+      expect(O.isNone(getFilePath(input))).toBe(true);
     });
   });
 

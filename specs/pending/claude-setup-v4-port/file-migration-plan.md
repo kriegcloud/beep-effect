@@ -75,17 +75,17 @@ Priority: schemas are imported by everything else. Migrate first.
 **Phase:** P1 | **Effort:** MEDIUM
 
 **v3 APIs found:**
-- `import * as Schema from "@effect/schema"` or `import * as Schema from "effect/Schema"`
-- `Schema.Struct`, `Schema.Literal`, `Schema.optional`, `Schema.NullOr`, `Schema.Record`
-- `Schema.Schema.Type<typeof X>` (type extraction)
-- Possibly `Schema.Data` pipe
+- `import * as Schema from "@effect/schema"` or `import * as S from "effect/Schema"`
+- `S.Struct`, `S.Literal`, `S.optional`, `S.NullOr`, `S.Record`
+- `S.Schema.Type<typeof X>` (type extraction)
+- Possibly `S.Data` pipe
 
 **Changes required:**
-1. Update import path: `import * as Schema from "effect/Schema"` (if using `@effect/schema`)
-2. Check `Schema.optionalWith` vs `Schema.optional` signature — v4 may change optional field handling
-3. Check if `Schema.Data` still exists (likely removed — `Data` integration changed)
-4. `Schema.NullOr` → verify name in v4 (may be `Schema.NullOr` or `Schema.nullable`)
-5. Type extraction: `Schema.Schema.Type<typeof X>` → verify still works or use `typeof X.Type`
+1. Update import path: `import * as S from "effect/Schema"` (if using `@effect/schema`)
+2. Check `S.optionalWith` vs `S.optional` signature — v4 may change optional field handling
+3. Check if `S.Data` still exists (likely removed — `Data` integration changed)
+4. `S.NullOr` → verify name in v4 (may be `S.NullOr` or `S.nullable`)
+5. Type extraction: `S.Schema.Type<typeof X>` → verify still works or use `typeof X.Type`
 
 **Verification:** `bun run check` passes for this file specifically.
 
@@ -96,13 +96,13 @@ Priority: schemas are imported by everything else. Migrate first.
 **Phase:** P1 | **Effort:** LOW
 
 **v3 APIs found:**
-- `Schema.Struct`, `Schema.String`, `Schema.optional`, `Schema.optionalWith`, `Schema.Literal`
-- `Schema.Data` pipe
+- `S.Struct`, `S.String`, `S.optional`, `S.optionalWith`, `S.Literal`
+- `S.Data` pipe
 
 **Changes required:**
 1. Update import path if needed
-2. Remove `.pipe(Schema.Data)` if `Schema.Data` is removed in v4
-3. Verify `Schema.optionalWith` signature
+2. Remove `.pipe(S.Data)` if `S.Data` is removed in v4
+3. Verify `S.optionalWith` signature
 
 ---
 
@@ -130,7 +130,7 @@ Priority: schemas are imported by everything else. Migrate first.
 - `Layer.effect(AgentConfig, Effect.gen(function*() { ... }))`
 - `Data.TaggedError("MyError")<{ reason: string }>`
 - `Effect.gen(function*() { ... })` (extensively)
-- `Schema.decode(X)(input)`
+- `S.decode(X)(input)`
 - `Command.make("git", "status")` + `Command.string` + `Command.workingDirectory`
 - `BunRuntime.runMain(...)`
 - `Effect.all([...], { concurrency: "unbounded" })`
@@ -138,11 +138,11 @@ Priority: schemas are imported by everything else. Migrate first.
 
 **Changes required:**
 1. `Context.Tag` → `ServiceMap.Service` (class syntax, argument order change)
-2. `Data.TaggedError` → `Schema.TaggedErrorClass` — **Reference:** `tooling/cli/src/commands/tsconfig-sync.ts` for exact pattern
+2. `Data.TaggedError` → `S.TaggedErrorClass` — **Reference:** `tooling/cli/src/commands/tsconfig-sync.ts` for exact pattern
 3. `Command.make(...)` → `ChildProcess.make\`...\`` (P3 dependency — stub/skip in P2, or migrate together)
 4. `BunRuntime.runMain` → keep (still exists in `@effect/platform-bun` v4)
 5. `Effect.gen(function*() {})` → keep as-is (still valid in v4), but prefer `Effect.fn` for exported functions — **Reference:** every command handler in `tooling/cli/src/commands/`
-6. `Schema.decode` → verify signature against `.repos/effect-smol` (`Schema.decodeEffect` or `Schema.decodeUnknown`)
+6. `S.decode` → verify signature against `.repos/effect-smol` (`S.decodeEffect` or `S.decodeUnknown`)
 7. Layer naming: if `.Default` or `.Live` used, rename to `.layer`
 8. Remove `dependencies` arrays, use `Layer.provide` instead — **Reference:** `tooling/cli/src/bin.ts` for Layer composition pattern
 
@@ -197,13 +197,13 @@ Apply same transformations as agent-init.
 
 **v3 APIs found:**
 - `Terminal.Terminal` from `@effect/platform`
-- `Schema.decodeUnknown`
+- `S.decodeUnknown`
 - `Array.sort(Order.mapInput(...))`
 - `BunRuntime.runMain`
 
 **Changes required:**
 1. `Terminal` → `import { Terminal } from "effect"` (moved to core)
-2. `Schema.decodeUnknown` → verify name in v4
+2. `S.decodeUnknown` → verify name in v4
 3. `BunRuntime.runMain` → keep (still in `@effect/platform-bun`)
 
 ---

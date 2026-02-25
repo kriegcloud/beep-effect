@@ -1,12 +1,13 @@
 #!/usr/bin/env bun
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import * as Array from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Graph from "effect/Graph";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as Str from "effect/String";
 import {
   type ArchitectureGraph,
   buildArchitectureGraph,
@@ -70,7 +71,7 @@ interface GroupedServices {
   readonly orphans: ReadonlyArray<ServiceDefinition>;
 }
 
-const makeShortPath = (fullPath: string): string => fullPath.replace(/^(\.\/)?.*\/src\//, "");
+const makeShortPath = (fullPath: string): string => Str.replace(/^(\.\/)?.*\/src\//, "")(fullPath);
 
 const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): Map<string, LayerDefinition> =>
   new Map(layers.map((layer) => [layer.serviceName, layer]));
@@ -82,7 +83,7 @@ const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
 
   return pipe(
     noIncomingIndices,
-    Array.map((idx: Graph.NodeIndex) => {
+    A.map((idx: Graph.NodeIndex) => {
       const node = Graph.getNode(analysisGraph.graph, idx);
       if (O.isNone(node)) return O.none<string>();
 
@@ -96,7 +97,7 @@ const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
 
       return O.some(serviceName);
     }),
-    Array.getSomes,
+    A.getSomes,
     (names) => new Set(names)
   );
 };
@@ -132,10 +133,10 @@ const groupServicesByType = (
   });
 
   return {
-    leaf: pipe(leaf, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
-    mid: pipe(mid, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
-    vm: pipe(vm, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
-    orphans: pipe(orphans, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    leaf: pipe(leaf, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    mid: pipe(mid, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    vm: pipe(vm, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    orphans: pipe(orphans, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
   };
 };
 
@@ -154,10 +155,10 @@ const computeDiameter = (analysisGraph: AnalysisGraph): number => {
   const result = Graph.floydWarshall(analysisGraph.graph, () => 1);
 
   return pipe(
-    Array.fromIterable(result.distances.values()),
-    Array.flatMap((innerMap) => Array.fromIterable(innerMap.values())),
-    Array.filter((dist) => dist !== Number.POSITIVE_INFINITY),
-    Array.reduce(0, (max, dist) => Math.max(max, dist))
+    A.fromIterable(result.distances.values()),
+    A.flatMap((innerMap) => A.fromIterable(innerMap.values())),
+    A.filter((dist) => dist !== Number.POSITIVE_INFINITY),
+    A.reduce(0, (max, dist) => Math.max(max, dist))
   );
 };
 
@@ -166,9 +167,9 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
   if (nodeCount === 0) return 0;
 
   return pipe(
-    Array.fromIterable(analysisGraph.serviceIndex.values()),
-    Array.map((nodeIndex) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
-    Array.reduce(0, (sum, count) => sum + count),
+    A.fromIterable(analysisGraph.serviceIndex.values()),
+    A.map((nodeIndex) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
+    A.reduce(0, (sum, count) => sum + count),
     (total) => total / nodeCount
   );
 };
@@ -188,7 +189,7 @@ const orderServicesByDependencyCount = (
 
   return pipe(
     graph.services,
-    Array.map((service: ServiceDefinition) => {
+    A.map((service: ServiceDefinition) => {
       const nodeIndex = analysisGraph.serviceIndex.get(service.name);
       if (nodeIndex === undefined) return O.none<ServiceWithIndex>();
 
@@ -201,8 +202,8 @@ const orderServicesByDependencyCount = (
         depCount,
       });
     }),
-    Array.getSomes,
-    Array.sort(Order.mapInput(Order.Number, (item: ServiceWithIndex) => item.depCount))
+    A.getSomes,
+    A.sort(Order.mapInput(Order.Number, (item: ServiceWithIndex) => item.depCount))
   );
 };
 
@@ -237,11 +238,11 @@ const renderEdges = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): st
   const edgeLines = ordered.map((item) => {
     const deps = pipe(
       Graph.neighbors(analysisGraph.graph, item.index),
-      Array.map((depIndex: Graph.NodeIndex) => {
+      A.map((depIndex: Graph.NodeIndex) => {
         const node = Graph.getNode(analysisGraph.graph, depIndex);
         return O.isSome(node) ? O.some(node.value.name) : O.none<string>();
       }),
-      Array.getSomes
+      A.getSomes
     );
 
     const depCount = deps.length;
@@ -322,11 +323,11 @@ const groupByDepth = (
     const neighbors = Graph.neighbors(analysisGraph.graph, idx);
     const neighborDepths = pipe(
       neighbors,
-      Array.map((neighborIdx: Graph.NodeIndex) => {
+      A.map((neighborIdx: Graph.NodeIndex) => {
         const depth = depthMap.get(neighborIdx);
         return depth !== undefined ? O.some(depth) : O.none<number>();
       }),
-      Array.getSomes
+      A.getSomes
     );
 
     if (neighborDepths.length > 0) {
@@ -346,12 +347,12 @@ const groupByDepth = (
   }
 
   return pipe(
-    Array.fromIterable(levelGroups.entries()),
-    Array.map(([depth, services]) => ({
+    A.fromIterable(levelGroups.entries()),
+    A.map(([depth, services]) => ({
       depth,
       services: services.sort(),
     })),
-    Array.sort(Order.mapInput(Order.Number, (item: { depth: number; services: ReadonlyArray<string> }) => item.depth))
+    A.sort(Order.mapInput(Order.Number, (item: { depth: number; services: ReadonlyArray<string> }) => item.depth))
   );
 };
 
@@ -367,7 +368,7 @@ const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): 
   const downstream = groupByDepth(analysisGraph, downstreamWalker, serviceIdx);
   const downstreamCount = pipe(
     downstream,
-    Array.flatMap((level) => level.services)
+    A.flatMap((level) => level.services)
   ).length;
 
   const upstreamWalker = Graph.bfs(analysisGraph.graph, {
@@ -378,7 +379,7 @@ const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): 
   const upstream = groupByDepth(analysisGraph, upstreamWalker, serviceIdx);
   const upstreamCount = pipe(
     upstream,
-    Array.flatMap((level) => level.services)
+    A.flatMap((level) => level.services)
   ).length;
 
   const risk = downstreamCount >= 5 ? "HIGH" : downstreamCount >= 3 ? "MEDIUM" : "LOW";
@@ -448,7 +449,7 @@ const intersection = <T>(sets: ReadonlyArray<Set<T>>): Set<T> => {
 
   return pipe(
     sets.slice(1),
-    Array.reduce(sets[0], (acc, set) => new Set([...acc].filter((x) => set.has(x))))
+    A.reduce(sets[0], (acc, set) => new Set([...acc].filter((x) => set.has(x))))
   );
 };
 
@@ -472,15 +473,15 @@ const computeCommonAncestors = (
 
     const deps = pipe(
       Graph.indices(walker),
-      Array.fromIterable,
-      Array.filter((idx) => idx !== nodeIndex),
+      A.fromIterable,
+      A.filter((idx) => idx !== nodeIndex),
       (indices) => new Set(indices)
     );
 
     dependencySets.set(serviceName, deps);
   }
 
-  const depSetArray = Array.fromIterable(dependencySets.values());
+  const depSetArray = A.fromIterable(dependencySets.values());
   if (depSetArray.length === 0) {
     return {
       inputServices: serviceNames,
@@ -503,13 +504,13 @@ const computeCommonAncestors = (
   }
 
   const commonDependencies = pipe(
-    Array.fromIterable(commonIndices),
-    Array.map((depIndex: Graph.NodeIndex) => {
+    A.fromIterable(commonIndices),
+    A.map((depIndex: Graph.NodeIndex) => {
       const node = Graph.getNode(analysisGraph.graph, depIndex);
       if (O.isNone(node)) return O.none<CommonAncestor>();
 
       const affectedBySet = coverageMap.get(depIndex) ?? new Set<string>();
-      const affectedBy = Array.fromIterable(affectedBySet);
+      const affectedBy = A.fromIterable(affectedBySet);
       const coverage = affectedBy.length;
 
       const risk: "HIGH" | "MEDIUM" | "LOW" =
@@ -522,8 +523,8 @@ const computeCommonAncestors = (
         risk,
       });
     }),
-    Array.getSomes,
-    Array.sort(
+    A.getSomes,
+    A.sort(
       Order.flip(
         Order.combine(
           Order.mapInput(Order.Number, (a: CommonAncestor) => a.coverage),
@@ -535,8 +536,8 @@ const computeCommonAncestors = (
 
   const rootCauseCandidates = pipe(
     commonDependencies,
-    Array.take(5),
-    Array.map((ancestor: CommonAncestor, index: number) => ({
+    A.take(5),
+    A.map((ancestor: CommonAncestor, index: number) => ({
       rank: index + 1,
       service: ancestor.service,
       coverage: ancestor.coverage,
@@ -714,11 +715,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const metricsMatch = fullOutput.match(/<metrics>[\s\S]*?<\/metrics>/);
+        const metricsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput)));
         yield* Console.log(metricsMatch?.[0] ?? "<metrics />");
       } else {
         const fullOutput = formatAgent(graph);
-        const metricsMatch = fullOutput.match(/<metrics>[\s\S]*?<\/metrics>/);
+        const metricsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput)));
         yield* Console.log(metricsMatch?.[0] ?? "<metrics />");
       }
       break;
@@ -729,11 +730,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const domainsMatch = fullOutput.match(/<domains[\s\S]*?<\/domains>/);
+        const domainsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput)));
         yield* Console.log(domainsMatch?.[0] ?? "<domains />");
       } else {
         const fullOutput = formatAgent(graph);
-        const domainsMatch = fullOutput.match(/<domains[\s\S]*?<\/domains>/);
+        const domainsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput)));
         yield* Console.log(domainsMatch?.[0] ?? "<domains />");
       }
       break;
@@ -744,11 +745,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const hotMatch = fullOutput.match(/<hot[\s\S]*?<\/hot>/);
+        const hotMatch = O.getOrNull(O.fromNullishOr(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput)));
         yield* Console.log(hotMatch?.[0] ?? "<hot />");
       } else {
         const fullOutput = formatAgent(graph);
-        const hotMatch = fullOutput.match(/<hot[\s\S]*?<\/hot>/);
+        const hotMatch = O.getOrNull(O.fromNullishOr(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput)));
         yield* Console.log(hotMatch?.[0] ?? "<hot />");
       }
       break;

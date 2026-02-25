@@ -1,6 +1,12 @@
+import {
+  extractKeywords,
+  findMatchingSkills,
+  matchesWordBoundary,
+  type SkillMetadata,
+  scoreSkill,
+} from "@beep/claude/hooks/skill-suggester/index";
+import * as TestClaude from "@beep/claude/test/TestClaude";
 import { describe, expect, it } from "vitest";
-import * as TestClaude from "../../test/TestClaude.js";
-import { extractKeywords, findMatchingSkills, matchesWordBoundary, type SkillMetadata, scoreSkill } from "./index.js";
 
 describe("skill-suggester", () => {
   describe("TestClaude.UserPromptSubmit", () => {

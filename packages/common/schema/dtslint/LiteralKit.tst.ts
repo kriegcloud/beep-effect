@@ -1,7 +1,7 @@
+import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "@beep/schema";
 import type * as A from "effect/Array";
 import type { LiteralValue } from "effect/SchemaAST";
 import { describe, expect, it } from "tstyche";
-import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "../src/index.js";
 
 describe("LiteralToKey", () => {
   it("maps booleans to 'true' | 'false'", () => {
