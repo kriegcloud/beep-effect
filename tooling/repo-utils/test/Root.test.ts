@@ -1,8 +1,8 @@
+import { findRepoRoot } from "@beep/repo-utils/Root";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect } from "effect";
 import * as Fs from "effect/FileSystem";
-import { findRepoRoot } from "../src/Root.js";
 
 layer(NodeFileSystem.layer)("Root", (it) => {
   describe("findRepoRoot", () => {

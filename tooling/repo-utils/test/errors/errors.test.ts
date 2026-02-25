@@ -1,6 +1,6 @@
+import { CyclicDependencyError, DomainError, NoSuchFileError } from "@beep/repo-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { CyclicDependencyError, DomainError, NoSuchFileError } from "../../src/errors/index.js";
 
 describe("Error types", () => {
   describe("NoSuchFileError", () => {

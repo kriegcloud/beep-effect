@@ -2,7 +2,7 @@
  * Topological sort command - outputs workspace packages in dependency order.
  *
  * @since 0.0.0
- * @module
+ * @module @beep/repo-cli/topo-sort
  */
 
 import { buildRepoDependencyIndex, findRepoRoot, topologicalSort } from "@beep/repo-utils";

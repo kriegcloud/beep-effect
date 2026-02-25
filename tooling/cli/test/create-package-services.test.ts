@@ -1,3 +1,11 @@
+import {
+  checkConfigNeedsUpdateForTargets,
+  updateRootConfigsForTargets,
+} from "@beep/repo-cli/commands/create-package/config-updater";
+import { createFileGenerationPlanService } from "@beep/repo-cli/commands/create-package/file-generation-plan-service";
+import { resolveCreatePackageTemplateDir } from "@beep/repo-cli/commands/create-package/handler";
+import { createTemplateService } from "@beep/repo-cli/commands/create-package/template-service";
+import { createTsMorphIntegrationService } from "@beep/repo-cli/commands/create-package/ts-morph-integration-service";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -5,16 +13,9 @@ import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import {
-  checkConfigNeedsUpdateForTargets,
-  updateRootConfigsForTargets,
-} from "../src/commands/create-package/config-updater.js";
-import { createFileGenerationPlanService } from "../src/commands/create-package/file-generation-plan-service.js";
-import { resolveCreatePackageTemplateDir } from "../src/commands/create-package/handler.js";
-import { createTemplateService } from "../src/commands/create-package/template-service.js";
-import { createTsMorphIntegrationService } from "../src/commands/create-package/ts-morph-integration-service.js";
 
 const BaseLayers = Layer.mergeAll(
   NodeFileSystem.layer,
@@ -30,7 +31,7 @@ const withTestLayers =
   (...args: Args) =>
     fn(...args).pipe(Effect.provide(TestLayers));
 
-const uniqueSuffix = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const uniqueSuffix = () => `${Date.now()}-${Str.slice(2)(Math.random().toString(36))}`;
 
 interface ConfigFixture {
   readonly rootDir: string;

@@ -1,4 +1,4 @@
-import { $I } from "@beep/identity/packages";
+import { $WebId } from "@beep/identity/packages";
 import { type ChatRequest, decodeChatRequestUnknown } from "@beep/web/lib/effect/chat-handler";
 import { Cause, Effect, Match } from "effect";
 import * as O from "effect/Option";
@@ -7,45 +7,39 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
-const $EffectId = $I.create("web").create("effect");
-const $ChatRouteId = $EffectId.create("chat-route");
-const $ChatRouteErrorsId = $ChatRouteId.create("errors");
+const $I = $WebId.create("lib/effect/chat-route");
 
-class ChatUnauthorizedError extends S.TaggedErrorClass<ChatUnauthorizedError>(
-  $ChatRouteErrorsId`ChatUnauthorizedError`
-)(
+class ChatUnauthorizedError extends S.TaggedErrorClass<ChatUnauthorizedError>($I`ChatUnauthorizedError`)(
   "ChatUnauthorizedError",
   {
     message: S.String,
   },
-  {
+  $I.annote("ChatUnauthorizedError", {
     title: "Chat Unauthorized Error",
     description: "Request requires an authenticated better-auth session.",
-  }
+  })
 ) {}
 
-class ChatSessionLookupError extends S.TaggedErrorClass<ChatSessionLookupError>(
-  $ChatRouteErrorsId`ChatSessionLookupError`
-)(
+class ChatSessionLookupError extends S.TaggedErrorClass<ChatSessionLookupError>($I`ChatSessionLookupError`)(
   "ChatSessionLookupError",
   {
     message: S.String,
   },
-  {
+  $I.annote("ChatSessionLookupError", {
     title: "Chat Session Lookup Error",
     description: "Failed to resolve authentication session from request headers.",
-  }
+  })
 ) {}
 
-class ChatBodyReadError extends S.TaggedErrorClass<ChatBodyReadError>($ChatRouteErrorsId`ChatBodyReadError`)(
+class ChatBodyReadError extends S.TaggedErrorClass<ChatBodyReadError>($I`ChatBodyReadError`)(
   "ChatBodyReadError",
   {
     message: S.String,
   },
-  {
+  $I.annote("ChatBodyReadError", {
     title: "Chat Body Read Error",
     description: "Failed to parse request JSON body.",
-  }
+  })
 ) {}
 
 const makeErrorResponse = (options: {

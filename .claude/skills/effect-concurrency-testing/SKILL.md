@@ -222,7 +222,8 @@ it.effect("should publish user created event", () =>
 
 ```typescript
 import { it } from "@effect/vitest"
-import { Effect, PubSub, Fiber, Array as A } from "effect"
+import { Effect, PubSub, Fiber } from "effect"
+import * as A from "effect/Array"
 
 it.effect("concurrent publishers and subscribers", () =>
   Effect.gen(function* () {
@@ -259,7 +260,8 @@ When testing forked fibers that subscribe to a PubSub, proper yield ordering is 
 
 ```typescript
 import { it, expect } from "@effect/vitest"
-import { Effect, PubSub, Ref, Array as A } from "effect"
+import { Effect, PubSub, Ref } from "effect"
+import * as A from "effect/Array"
 
 it.effect("forked subscriber receives all events", () =>
   Effect.gen(function* () {

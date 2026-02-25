@@ -12,7 +12,7 @@ test.describe("Smoke tests", () => {
   });
 
   test("no console errors on homepage", async ({ page }) => {
-    const errors: string[] = [];
+    const errors = A.empty<string>();
     page.on("console", (msg) => {
       if (msg.type() === "error") {
         errors.push(msg.text());

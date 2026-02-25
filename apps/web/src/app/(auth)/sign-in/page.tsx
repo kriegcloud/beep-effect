@@ -26,13 +26,13 @@ function SignInForm() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!email.trim()) return;
+      if (!Str.trim(email)) return;
 
       setStatus("loading");
       setErrorMessage("");
 
       const { error } = await signIn.magicLink({
-        email: email.trim(),
+        email: Str.trim(email),
         callbackURL,
       });
 
@@ -96,7 +96,7 @@ function SignInForm() {
 
             {status === "error" && <p className="text-sm text-destructive">{errorMessage}</p>}
 
-            <Button type="submit" className="w-full" disabled={status === "loading" || !email.trim()}>
+            <Button type="submit" className="w-full" disabled={status === "loading" || !Str.trim(email)}>
               {status === "loading" ? (
                 <>
                   <SpinnerGap className="animate-spin" />

@@ -90,7 +90,7 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
   }
 
   return {
-    targets: Array.from(targets),
+    targets: [...targets],
     workspaceCount,
   } as const;
 });

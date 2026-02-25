@@ -1,0 +1,10 @@
+{
+  "id": "tooling_cli_01",
+  "title": "CLI root command Effect service alignment",
+  "category": "tooling_cli",
+  "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+  "cwd": "tooling/cli",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 10,
+  "touchedPathAllowlist": ["tooling/cli/src/commands", "tooling/cli/src/bin.ts"]
+}

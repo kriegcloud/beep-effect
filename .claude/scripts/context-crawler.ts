@@ -33,7 +33,7 @@ interface ModuleContext {
  */
 const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-  const match = content.match(frontmatterRegex);
+  const match = O.getOrNull(O.fromNullishOr(Str.match(frontmatterRegex)(content)));
   return match ? O.some(match[1]) : O.none();
 };
 
@@ -43,7 +43,7 @@ const parseFrontmatter = (content: string): O.Option<string> => {
  */
 const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
-  const match = toml.match(messageRegex);
+  const match = O.getOrNull(O.fromNullishOr(Str.match(messageRegex)(toml)));
   return match ? O.some(match[1]) : O.none();
 };
 
@@ -52,7 +52,7 @@ const extractTomlMessage = (toml: string): O.Option<string> => {
  */
 const extractFirstParagraph = (content: string): O.Option<string> => {
   // Remove frontmatter
-  const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, "");
+  const withoutFrontmatter = Str.replace(/^---\n[\s\S]*?\n---\n/, "")(content);
 
   // Split into lines and find first non-empty, non-heading line
   const lines = Str.split(withoutFrontmatter, "\n");
@@ -73,7 +73,7 @@ const extractFirstParagraph = (content: string): O.Option<string> => {
  */
 const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
-  const match = content.match(purposeRegex);
+  const match = O.getOrNull(O.fromNullishOr(Str.match(purposeRegex)(content)));
   return match ? O.some(Str.trim(match[1])) : O.none();
 };
 
@@ -101,8 +101,8 @@ type ModuleSource = "internal" | "external";
  * /path/to/repo/apps/editor/ai-context.md -> apps/editor
  */
 const toModulePath = (absolutePath: string, repoRoot: string): string => {
-  const relative = absolutePath.replace(`${repoRoot}/`, "");
-  return relative.replace("/ai-context.md", "").replace("ai-context.md", ".");
+  const relative = Str.replace(`${repoRoot}/`, "")(absolutePath);
+  return Str.replace("ai-context.md", ".")(Str.replace("/ai-context.md", "")(relative));
 };
 
 /**
@@ -110,10 +110,10 @@ const toModulePath = (absolutePath: string, repoRoot: string): string => {
  */
 const parseGitmodules = (content: string): ReadonlyArray<string> => {
   const pathRegex = /path\s*=\s*(.+)/g;
-  const paths: string[] = [];
+  const paths = A.empty<string>();
   let match: RegExpExecArray | null;
   while ((match = pathRegex.exec(content)) !== null) {
-    paths.push(match[1].trim());
+    paths.push(Str.trim(match[1]));
   }
   return paths;
 };
@@ -308,9 +308,9 @@ const moduleMode = (modulePath: string) =>
         onSome: (ctx) =>
           Effect.gen(function* () {
             // Output just the content without frontmatter
-            const body = ctx.content.replace(/^---\n[\s\S]*?\n---\n?/, "");
+            const body = Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(ctx.content);
             yield* Console.log(`<module path="${ctx.path}">`);
-            yield* Console.log(body.trim());
+            yield* Console.log(Str.trim(body));
             yield* Console.log("</module>");
           }),
       })
@@ -325,7 +325,7 @@ const searchMode = (pattern: string) =>
     const contexts = yield* loadAllContexts;
 
     // Convert glob-like pattern to regex
-    const regexPattern = pattern.replace(/\*/g, ".*").replace(/\?/g, ".");
+    const regexPattern = Str.replace(/\?/g, ".")(Str.replace(/\*/g, ".*")(pattern));
     const regex = new RegExp(regexPattern, "i");
 
     const matches = pipe(
@@ -401,7 +401,7 @@ const cli = Command.run(contextCrawler, {
 const runnable = pipe(
   cli,
   Effect.provide(BunServices.layer),
-  Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.map(() => void 0)))
+  Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.asVoid))
 );
 
 BunRuntime.runMain(runnable);

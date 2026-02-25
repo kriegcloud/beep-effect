@@ -22,7 +22,7 @@
     "./apps/*/test/**/*.ts",
     "./apps/*/test/**/*.json",
     "./apps/*/vitest.*.ts",
-    "./**/dtslint/**/*.tst.*"
+    "outputs"
   ],
   "compilerOptions": {
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
@@ -40,6 +40,9 @@
       "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["./tooling/repo-utils/src/*.ts"],
       "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
+      "@beep/agent-eval": ["./tooling/agent-eval/src/index.ts"],
+      "@beep/agent-eval/*": ["./tooling/agent-eval/src/*.ts"],
+      "@beep/agent-eval/test/*": ["./tooling/agent-eval/test/*.ts"],
       "@beep/types": ["./packages/common/types/src/index.ts"],
       "@beep/types/*": ["./packages/common/types/src/*.ts"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
@@ -59,14 +62,13 @@
       "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
       "@beep/shared-env/*": ["./packages/shared/env/src/*.ts"],
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
-      "@beep/ui/*": [
-        "./packages/ui/ui/src/*.ts"
-      ]
+      "@beep/ui/*": ["./packages/ui/ui/src/*.ts"]
     },
     "plugins": [
       {
         "name": "@effect/language-service",
-        "namespaceImportPackages": ["@beep/*"]
+        "namespaceImportPackages": ["@beep/*"],
+        "ignoreEffectSuggestionsInTscExitCode": false
       }
     ]
   }

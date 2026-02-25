@@ -5,9 +5,10 @@
  * @module
  */
 
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
+import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as S from "effect/Schema";
+import { AgentEvalDecodeError } from "../errors.js";
+import { resolveFromCwd } from "../io.js";
 import type { BenchCondition, TaskCategory } from "../schemas/index.js";
 
 /**
@@ -99,27 +100,46 @@ export const SkillCandidates: ReadonlyArray<SkillCandidate> = [
 /**
  * Load policy overlays from a directory of JSON files.
  *
+ * @param policyDirectory - Relative or absolute directory containing overlay JSON files.
+ * @returns Effect that loads, decodes, and priority-sorts policy overlays.
  * @since 0.0.0
  * @category functions
  */
-export const loadPolicyOverlays = async (policyDirectory: string): Promise<ReadonlyArray<PolicyOverlay>> => {
-  const entries = await readdir(policyDirectory, { withFileTypes: true }).catch(() => []);
-  const jsonFiles = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".json"));
+export const loadPolicyOverlays = (policyDirectory: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const absoluteDirectory = yield* resolveFromCwd(policyDirectory);
 
-  const overlays: Array<PolicyOverlay> = [];
-  for (const entry of jsonFiles) {
-    const filePath = path.join(policyDirectory, entry.name);
-    const content = await readFile(filePath, "utf8");
-    const decoded = decodeOverlay(content);
-    overlays.push(decoded);
-  }
+    const entries = yield* fs.readDirectory(absoluteDirectory).pipe(Effect.orElseSucceed(() => []));
 
-  return overlays.sort((left, right) => right.priority - left.priority);
-};
+    const jsonFiles = entries.filter((entry) => entry.endsWith(".json"));
+    const overlays = yield* Effect.forEach(jsonFiles, (entry) =>
+      Effect.gen(function* () {
+        const filePath = path.join(absoluteDirectory, entry);
+        const content = yield* fs.readFileString(filePath, "utf8");
+        return yield* Effect.try({
+          try: () => decodeOverlay(content),
+          catch: (cause) =>
+            new AgentEvalDecodeError({
+              source: filePath,
+              message: `Invalid policy overlay in ${filePath}`,
+              cause,
+            }),
+        });
+      })
+    );
+
+    return overlays.sort((left, right) => right.priority - left.priority);
+  });
 
 /**
  * Resolve merged policy constraints for one run tuple.
  *
+ * @param overlays - Available overlays loaded from the policy directory.
+ * @param condition - Benchmark condition for the current run tuple.
+ * @param category - Task category used to filter applicable overlays.
+ * @returns Effective packet limits and selected policy identifiers.
  * @since 0.0.0
  * @category functions
  */
@@ -151,10 +171,10 @@ export const selectPolicyPacket = (
 };
 
 const keywordScore = (prompt: string, keywords: ReadonlyArray<string>): number => {
-  const loweredPrompt = prompt.toLowerCase();
+  const loweredPrompt = Str.toLowerCase(prompt);
   let score = 0;
   for (const keyword of keywords) {
-    if (loweredPrompt.includes(keyword.toLowerCase())) {
+    if (loweredPrompt.includes(Str.toLowerCase(keyword))) {
       score += 1;
     }
   }
@@ -164,6 +184,10 @@ const keywordScore = (prompt: string, keywords: ReadonlyArray<string>): number =
 /**
  * Deterministically select focused skill modules with a strict max cap.
  *
+ * @param prompt - Task prompt text used for keyword scoring.
+ * @param category - Task category used to filter candidate skills.
+ * @param maxSkills - Maximum number of skills to return.
+ * @returns Ordered skill names selected from deterministic score ranking.
  * @since 0.0.0
  * @category functions
  */
@@ -182,7 +206,7 @@ export const selectFocusedSkills = (
       if (right.score !== left.score) {
         return right.score - left.score;
       }
-      return left.name.localeCompare(right.name);
+      return Str.localeCompare(right.name)(left.name);
     });
 
   return scored.slice(0, maxSkills).map((item) => item.name);
@@ -191,6 +215,9 @@ export const selectFocusedSkills = (
 /**
  * Validate that the strict max-skills cap is honored.
  *
+ * @param skills - Selected skills to validate.
+ * @param maxSkills - Configured upper bound for selected skills.
+ * @returns True when selection size is within the configured cap.
  * @since 0.0.0
  * @category functions
  */

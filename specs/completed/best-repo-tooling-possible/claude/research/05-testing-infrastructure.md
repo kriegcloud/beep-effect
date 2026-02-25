@@ -246,7 +246,8 @@ export default defineConfig({
 // test/PackageJson.prop.test.ts
 import { describe, expect } from "@effect/vitest";
 import { it } from "@fast-check/vitest";
-import { Arbitrary, FastCheck, Schema as S } from "effect";
+import { Arbitrary, FastCheck } from "effect";
+import * as S from "effect/Schema";
 import { PackageJson } from "@beep/repo-utils/schemas/PackageJson";
 
 const packageJsonArb = Arbitrary.make(PackageJson);

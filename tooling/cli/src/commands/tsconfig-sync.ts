@@ -5,6 +5,7 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import {
   buildRepoDependencyIndex,
   type CyclicDependencyError,
@@ -18,9 +19,12 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, HashMap, HashSet, Path, Schema } from "effect";
+import { Console, Effect, FileSystem, HashMap, HashSet, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 
@@ -42,6 +46,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * @category constants
  */
 const ROOT_DEP_INDEX_KEY = "@beep/root" as const;
+const $I = $RepoCliId.create("commands/tsconfig-sync");
 
 /**
  * Canonical alias key matcher managed by this command.
@@ -61,18 +66,16 @@ const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSyncDriftError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncDriftError"
-)(
+export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
   {
-    fileCount: Schema.Number,
-    summary: Schema.String,
+    fileCount: S.Number,
+    summary: S.String,
   },
-  {
+  $I.annote("TsconfigSyncDriftError", {
     title: "Tsconfig Sync Drift Error",
     description: "Raised when tsconfig-sync --check detects one or more files that are out of sync.",
-  }
+  })
 ) {}
 
 /**
@@ -81,18 +84,16 @@ export class TsconfigSyncDriftError extends Schema.TaggedErrorClass<TsconfigSync
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSyncCycleError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncCycleError"
-)(
+export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
   {
-    cycles: Schema.Array(Schema.Array(Schema.String)),
-    message: Schema.String,
+    cycles: S.Array(S.Array(S.String)),
+    message: S.String,
   },
-  {
+  $I.annote("TsconfigSyncCycleError", {
     title: "Tsconfig Sync Cycle Error",
     description: "Raised when workspace dependency graph contains one or more cycles.",
-  }
+  })
 ) {}
 
 /**
@@ -101,18 +102,16 @@ export class TsconfigSyncCycleError extends Schema.TaggedErrorClass<TsconfigSync
  * @since 0.0.0
  * @category errors
  */
-export class TsconfigSyncFilterError extends Schema.TaggedErrorClass<TsconfigSyncFilterError>(
-  "@beep/repo-cli/commands/tsconfig-sync/TsconfigSyncFilterError"
-)(
+export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
   "TsconfigSyncFilterError",
   {
-    filter: Schema.String,
-    message: Schema.String,
+    filter: S.String,
+    message: S.String,
   },
-  {
+  $I.annote("TsconfigSyncFilterError", {
     title: "Tsconfig Sync Filter Error",
     description: "Raised when tsconfig-sync filter does not match any workspace package name or path.",
-  }
+  })
 ) {}
 
 /**
@@ -201,8 +200,8 @@ interface TsconfigWithPaths {
 const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
 
 const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const unique = [...new Set(values)];
-  unique.sort((left, right) => left.localeCompare(right));
+  const unique = [...HashSet.fromIterable(values)];
+  unique.sort((left, right) => Str.localeCompare(right)(left));
   return unique;
 };
 
@@ -221,10 +220,10 @@ const isCanonicalAliasKey = (key: string): boolean => CANONICAL_ALIAS_KEY_PATTER
 
 const dependencyNamesFromWorkspaceDeps = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> =>
   uniqueSorted([
-    ...Object.keys(workspaceDeps.workspace.dependencies),
-    ...Object.keys(workspaceDeps.workspace.devDependencies),
-    ...Object.keys(workspaceDeps.workspace.peerDependencies),
-    ...Object.keys(workspaceDeps.workspace.optionalDependencies),
+    ...R.keys(workspaceDeps.workspace.dependencies),
+    ...R.keys(workspaceDeps.workspace.devDependencies),
+    ...R.keys(workspaceDeps.workspace.peerDependencies),
+    ...R.keys(workspaceDeps.workspace.optionalDependencies),
   ]);
 
 const parseJsonc = Effect.fn(function* <T>(content: string, filePath: string) {
@@ -325,7 +324,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
   }
 
   const sorted = [...descriptors];
-  sorted.sort((left, right) => left.relativeDir.localeCompare(right.relativeDir));
+  sorted.sort((left, right) => Str.localeCompare(right.relativeDir)(left.relativeDir));
   return sorted;
 });
 
@@ -355,19 +354,19 @@ const summaryCounts = (
   expectedItems: ReadonlyArray<string>,
   noun: string
 ): string => {
-  const currentSet = new Set(currentItems);
-  const expectedSet = new Set(expectedItems);
+  const currentSet = HashSet.fromIterable(currentItems);
+  const expectedSet = HashSet.fromIterable(expectedItems);
 
   let added = 0;
   let removed = 0;
 
   for (const entry of expectedSet) {
-    if (!currentSet.has(entry)) {
+    if (!HashSet.has(currentSet, entry)) {
       added += 1;
     }
   }
   for (const entry of currentSet) {
-    if (!expectedSet.has(entry)) {
+    if (!HashSet.has(expectedSet, entry)) {
       removed += 1;
     }
   }
@@ -378,7 +377,7 @@ const summaryCounts = (
 };
 
 const compareReferencePathsInOrder = (parsed: TsconfigWithReferences): ReadonlyArray<string> =>
-  (parsed.references ?? A.empty()).flatMap((entry) => (typeof entry.path === "string" ? [entry.path] : []));
+  (parsed.references ?? A.empty()).flatMap((entry) => (P.isString(entry.path) ? [entry.path] : []));
 
 const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: ReadonlyArray<WorkspaceDescriptor>) {
   const path = yield* Path.Path;
@@ -420,11 +419,11 @@ const canonicalAliasEntriesForWorkspace = (
 };
 
 const pathValuesEqual = (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean => {
-  if (!Array.isArray(currentValue)) {
+  if (!A.isArray(currentValue)) {
     return false;
   }
 
-  if (!currentValue.every((entry) => typeof entry === "string")) {
+  if (!A.every(currentValue, P.isString)) {
     return false;
   }
 
@@ -440,23 +439,23 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
 
   const currentPaths = parsed.compilerOptions?.paths ?? {};
 
-  const expectedAliases = new Map<string, ReadonlyArray<string>>();
+  let expectedAliases = HashMap.empty<string, ReadonlyArray<string>>();
   for (const workspace of workspaces) {
     for (const [aliasKey, aliasValue] of canonicalAliasEntriesForWorkspace(workspace)) {
-      expectedAliases.set(aliasKey, aliasValue);
+      expectedAliases = HashMap.set(expectedAliases, aliasKey, aliasValue);
     }
   }
 
-  const currentCanonicalKeys = uniqueSorted(Object.keys(currentPaths).filter(isCanonicalAliasKey));
-  const expectedCanonicalKeys = uniqueSorted(Array.from(expectedAliases.keys()));
+  const currentCanonicalKeys = uniqueSorted(A.filter(R.keys(currentPaths), isCanonicalAliasKey));
+  const expectedCanonicalKeys = uniqueSorted([...HashMap.keys(expectedAliases)]);
 
-  const keysToRemove = A.filter(currentCanonicalKeys, (key) => !expectedAliases.has(key));
+  const keysToRemove = A.filter(currentCanonicalKeys, (key) => O.isNone(HashMap.get(expectedAliases, key)));
   const keysToSet = A.filter(expectedCanonicalKeys, (key) => {
-    const expectedValue = expectedAliases.get(key);
-    if (expectedValue === undefined) {
+    const expectedValue = HashMap.get(expectedAliases, key);
+    if (O.isNone(expectedValue)) {
       return false;
     }
-    return !pathValuesEqual(currentPaths[key], expectedValue);
+    return !pathValuesEqual(currentPaths[key], expectedValue.value);
   });
 
   if (keysToRemove.length === 0 && keysToSet.length === 0) {
@@ -468,11 +467,11 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
     nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], undefined);
   }
   for (const key of keysToSet) {
-    const expectedValue = expectedAliases.get(key);
-    if (expectedValue === undefined) {
+    const expectedValue = HashMap.get(expectedAliases, key);
+    if (O.isNone(expectedValue)) {
       continue;
     }
-    nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], expectedValue);
+    nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], expectedValue.value);
   }
 
   const additions = keysToSet.filter((key) => !currentCanonicalKeys.includes(key)).length;
@@ -563,8 +562,10 @@ const planPackageReferenceSync = Effect.fn(function* (
 ) {
   const path = yield* Path.Path;
 
-  const workspaceByName = new Map(workspaces.map((workspace) => [workspace.packageName, workspace] as const));
-  const normalizedFilter = filter === undefined ? undefined : toPosixPath(filter).replace(/^\.\//, "");
+  const workspaceByName = HashMap.fromIterable(
+    A.map(workspaces, (workspace) => [workspace.packageName, workspace] as const)
+  );
+  const normalizedFilter = filter === undefined ? undefined : Str.replace(/^\.\//, "")(toPosixPath(filter));
 
   const targetWorkspaces = A.filter(workspaces, (workspace) => {
     if (workspace.ownerTsconfigPath === undefined) {
@@ -601,19 +602,19 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const directDeps = dependencyNamesFromWorkspaceDeps(workspaceDepsOption.value).filter((depName) => {
-      const descriptor = workspaceByName.get(depName);
-      return descriptor !== undefined && descriptor.ownerTsconfigPath !== undefined;
+      const descriptor = HashMap.get(workspaceByName, depName);
+      return O.isSome(descriptor) && descriptor.value.ownerTsconfigPath !== undefined;
     });
 
     const subsetAdjacency = buildSubsetAdjacency(directDeps, adjacency);
     const sortedDeps = directDeps.length === 0 ? A.empty<string>() : yield* topologicalSort(subsetAdjacency);
 
     const computedTargets = sortedDeps.flatMap((depName) => {
-      const descriptor = workspaceByName.get(depName);
-      if (descriptor?.ownerTsconfigPath === undefined) {
+      const descriptor = HashMap.get(workspaceByName, depName);
+      if (O.isNone(descriptor) || descriptor.value.ownerTsconfigPath === undefined) {
         return [];
       }
-      return [descriptor.ownerTsconfigPath];
+      return [descriptor.value.ownerTsconfigPath];
     });
 
     const original = yield* readFileString(sourceOwnerTsconfigPath);
@@ -638,9 +639,9 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const computedResolvedTargets = uniqueSorted(A.map(computedTargets, toPosixPath));
-    const computedResolvedTargetSet = new Set(computedResolvedTargets);
+    const computedResolvedTargetSet = HashSet.fromIterable(computedResolvedTargets);
 
-    const extraTargets = existingResolvedTargets.filter((target) => !computedResolvedTargetSet.has(target));
+    const extraTargets = existingResolvedTargets.filter((target) => !HashSet.has(computedResolvedTargetSet, target));
     const finalTargets = [...computedResolvedTargets, ...extraTargets];
 
     const finalRefPaths = finalTargets.map((targetPath) => normalizeRelativeRef(sourceDir, targetPath, path));
@@ -681,11 +682,11 @@ const planPackageReferenceSync = Effect.fn(function* (
 
 const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<PlannedFileChange> =>
   [...changes].sort((left, right) => {
-    const fileCompare = left.filePath.localeCompare(right.filePath);
+    const fileCompare = Str.localeCompare(right.filePath)(left.filePath);
     if (fileCompare !== 0) {
       return fileCompare;
     }
-    return left.section.localeCompare(right.section);
+    return Str.localeCompare(right.section)(left.section);
   });
 
 const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange => ({

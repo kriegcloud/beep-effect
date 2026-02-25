@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness.js";
+import { testBashPattern } from "@beep/claude/test/pattern-test-harness";
 
 testBashPattern({
   name: "expose-secrets",

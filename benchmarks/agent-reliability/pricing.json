@@ -1,0 +1,20 @@
+{
+  "version": "2026-02-25",
+  "entries": [
+    {
+      "model": "gpt-5.2",
+      "inputPerMillionUsd": 1.25,
+      "outputPerMillionUsd": 5
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "inputPerMillionUsd": 3,
+      "outputPerMillionUsd": 15
+    }
+  ],
+  "fallback": {
+    "model": "fallback",
+    "inputPerMillionUsd": 2,
+    "outputPerMillionUsd": 8
+  }
+}

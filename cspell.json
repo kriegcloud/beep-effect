@@ -115,6 +115,13 @@
     "networkidle",
     "oxlint",
     "autodocs",
+    "annote",
+    "codemod",
+    "worktree",
+    "worktrees",
+    "combinators",
+    "llms",
+    "LLMs",
 
     "graphiti",
     "neondatabase",

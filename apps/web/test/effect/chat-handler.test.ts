@@ -6,8 +6,9 @@ import {
   SYSTEM_PROMPT,
 } from "@beep/web/lib/effect/chat-handler";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option, pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 describe("chat-handler", () => {
   it.effect("decodes valid chat request payload", () =>
@@ -74,9 +75,9 @@ describe("chat-handler", () => {
         },
       });
 
-      expect(Option.isSome(snippet)).toBe(true);
+      expect(O.isSome(snippet)).toBe(true);
 
-      yield* Option.match(snippet, {
+      yield* O.match(snippet, {
         onNone: () => Effect.fail("expected snippet"),
         onSome: (value) =>
           Effect.sync(() => {
@@ -128,9 +129,9 @@ describe("chat-handler", () => {
         },
       });
 
-      expect(Option.isSome(snippet)).toBe(true);
+      expect(O.isSome(snippet)).toBe(true);
 
-      yield* Option.match(snippet, {
+      yield* O.match(snippet, {
         onNone: () => Effect.fail("expected snippet"),
         onSome: (value) =>
           Effect.sync(() => {

@@ -7,7 +7,8 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, HashMap, type Option } from "effect";
+import { Effect, HashMap } from "effect";
+import type * as O from "effect/Option";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
 import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
@@ -113,12 +114,13 @@ export const resolveWorkspaceDirs: (
  * @returns An Option containing the absolute directory path, or None.
  * @example
  * ```ts
- * import { Effect, Option } from "effect"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"
  *
  * const program = Effect.gen(function*() {
  *   const dir = yield* getWorkspaceDir("/path/to/repo", "@mock/pkg-a")
- *   if (Option.isSome(dir)) {
+ *   if (O.isSome(dir)) {
  *     console.log("Found:", dir.value)
  *   }
  * })
@@ -129,10 +131,8 @@ export const resolveWorkspaceDirs: (
 export const getWorkspaceDir: (
   rootDir: string,
   name: string
-) => Effect.Effect<Option.Option<string>, NoSuchFileError | DomainError, FsUtils> = Effect.fn(
-  function* (rootDir, name) {
-    const workspaces = yield* resolveWorkspaceDirs(rootDir);
-    return HashMap.get(workspaces, name);
-  }
-);
+) => Effect.Effect<O.Option<string>, NoSuchFileError | DomainError, FsUtils> = Effect.fn(function* (rootDir, name) {
+  const workspaces = yield* resolveWorkspaceDirs(rootDir);
+  return HashMap.get(workspaces, name);
+});
 // bench

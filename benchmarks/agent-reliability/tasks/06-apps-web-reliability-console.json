@@ -1,0 +1,13 @@
+{
+  "id": "apps_web_06",
+  "title": "Reliability console screen integration",
+  "category": "apps_web",
+  "prompt": "Implement reliability console data rendering for run history and failure taxonomy with deterministic grouping.",
+  "cwd": "apps/web",
+  "acceptanceCommands": ["bun run lint"],
+  "timeoutMinutes": 12,
+  "touchedPathAllowlist": [
+    "apps/web/src/app/agent-reliability",
+    "apps/web/src/components"
+  ]
+}

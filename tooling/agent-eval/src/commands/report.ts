@@ -5,9 +5,10 @@
  * @module
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import type { FileSystem, Path } from "effect";
+import { Effect } from "effect";
 import { renderBenchmarkMarkdown } from "../benchmark/report.js";
+import { writeFileUtf8 } from "../io.js";
 import { readSuiteFile } from "./bench.js";
 
 /**
@@ -28,10 +29,9 @@ export interface ReportArgs {
  * @since 0.0.0
  * @category commands
  */
-export const handleReport = async (args: ReportArgs): Promise<void> => {
-  const suite = await readSuiteFile(args.input);
-  const markdown = renderBenchmarkMarkdown(suite, args.title);
-  const outputPath = path.resolve(args.output);
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, markdown, "utf8");
-};
+export const handleReport: (args: ReportArgs) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> =
+  Effect.fn(function* (args) {
+    const suite = yield* readSuiteFile(args.input);
+    const markdown = renderBenchmarkMarkdown(suite, args.title);
+    yield* writeFileUtf8(args.output, markdown);
+  });

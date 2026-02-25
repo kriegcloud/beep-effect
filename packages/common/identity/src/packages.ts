@@ -36,6 +36,7 @@ const composers = $I.compose(
   "web",
   "beep-sync",
   "repo-cli",
+  "agent-eval",
   "codebase-search",
   "repo-utils",
   "claude"
@@ -128,6 +129,12 @@ export const $BeepSyncId = composers.$BeepSyncId;
  * @category tooling
  */
 export const $RepoCliId = composers.$RepoCliId;
+
+/**
+ * @since 0.0.0
+ * @category tooling
+ */
+export const $AgentEvalId = composers.$AgentEvalId;
 
 /**
  * @since 0.0.0

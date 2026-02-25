@@ -1,0 +1,13 @@
+{
+  "id": "apps_web_03",
+  "title": "Editor tool integration correctness",
+  "category": "apps_web",
+  "prompt": "Adjust editor integration to use Effect.catch and catchTag patterns while preserving existing tool contracts.",
+  "cwd": "apps/web",
+  "acceptanceCommands": ["bun run lint"],
+  "timeoutMinutes": 12,
+  "touchedPathAllowlist": [
+    "apps/web/src/components/editor",
+    "apps/web/src/lib/ai"
+  ]
+}

@@ -1,14 +1,16 @@
+import { rootCommand } from "@beep/repo-cli/commands/root";
+import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/tsconfig-sync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
-import { rootCommand } from "../src/commands/root.js";
-import { syncTsconfigAtRoot } from "../src/commands/tsconfig-sync.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -27,6 +29,8 @@ const withTestLayers =
   <A, E, R, Args extends ReadonlyArray<unknown>>(fn: (...args: Args) => Effect.Effect<A, E, R>) =>
   (...args: Args) =>
     fn(...args).pipe(Effect.provide(TestLayers));
+const stringifyJson = (value: unknown, _replacer?: unknown, _space?: unknown) =>
+  S.encodeSync(S.UnknownFromJsonString)(value);
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -59,7 +63,7 @@ const createFixture = Effect.fn(function* () {
 
   const rootDir = path.join(
     path.resolve("."),
-    `_test-tsconfig-sync-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    `_test-tsconfig-sync-${Date.now()}-${Str.slice(2)(Math.random().toString(36))}`
   );
 
   const pkgADir = path.join(rootDir, "tooling", "pkg-a");
@@ -76,7 +80,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(rootDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/root",
         private: true,
@@ -89,7 +93,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     pkgAPackageJsonPath,
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@beep/pkg-a",
         version: "0.0.0",
@@ -103,7 +107,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     pkgBPackageJsonPath,
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@beep/pkg-b",
         version: "0.0.0",
@@ -119,7 +123,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgCDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@beep/pkg-c",
         version: "0.0.0",
@@ -171,7 +175,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgADir, "tsconfig.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "../../tsconfig.base.json",
         include: ["src"],
@@ -183,7 +187,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgBDir, "tsconfig.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "../../tsconfig.base.json",
         include: ["src"],
@@ -200,7 +204,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgCDir, "tsconfig.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "../../tsconfig.base.json",
         references: [{ path: "tsconfig.src.json" }, { path: "tsconfig.test.json" }],
@@ -212,7 +216,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgCDir, "tsconfig.src.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "../../tsconfig.base.json",
         include: ["src"],
@@ -224,7 +228,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgCDir, "tsconfig.test.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "../../tsconfig.base.json",
         include: ["test"],
@@ -237,7 +241,7 @@ const createFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(pkgCDir, "tsconfig.build.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         extends: "./tsconfig.src.json",
         references: [],
@@ -471,7 +475,7 @@ describe("tsconfig-sync command", () => {
         try {
           yield* fs.writeFileString(
             fixture.pkgAPackageJsonPath,
-            JSON.stringify(
+            stringifyJson(
               {
                 name: "@beep/pkg-a",
                 version: "0.0.0",

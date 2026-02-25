@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness.js";
+import { testPattern } from "@beep/claude/test/pattern-test-harness";
 
 testPattern({
   name: "use-console-service",

@@ -18,6 +18,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",

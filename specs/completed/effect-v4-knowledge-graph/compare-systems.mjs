@@ -8,6 +8,8 @@
 
 import { readFile } from "node:fs/promises"
 import { resolve } from "node:path"
+import * as Str from "effect/String";
+
 
 const SUPERMEMORY_API = "https://api.supermemory.ai"
 const SUPERMEMORY_TAG = "effect_v4_knowledge"
@@ -128,7 +130,7 @@ async function searchSupermemory(apiKey, query) {
   const data = await res.json()
   return {
     results: (data.results || []).map((r) => ({
-      content: (r.content || r.memory || r.context || "").slice(0, 300),
+      content: Str.slice(0, 300)((r.content || r.memory || r.context || "")),
       similarity: r.similarity,
     })),
     total: data.total || 0,
@@ -164,7 +166,7 @@ async function searchGraphitiNodes(query) {
     return {
       results: (Array.isArray(nodes) ? nodes : nodes?.nodes || []).map(
         (n) => ({
-          content: `${n.name}: ${(n.summary || "").slice(0, 200)}`,
+          content: `${n.name}: ${Str.slice(0, 200)((n.summary || ""))}`,
           similarity: null,
         }),
       ),
@@ -204,7 +206,7 @@ async function searchGraphitiFacts(query) {
     return {
       results: (Array.isArray(facts) ? facts : facts?.facts || []).map(
         (f) => ({
-          content: `${f.name || ""}: ${(f.fact || "").slice(0, 200)}`,
+          content: `${f.name || ""}: ${Str.slice(0, 200)((f.fact || ""))}`,
           similarity: null,
         }),
       ),
@@ -219,17 +221,17 @@ async function searchGraphitiFacts(query) {
 function scoreResult(results, expectedKeywords) {
   if (!results || results.error) return { score: 0, hits: [], misses: expectedKeywords }
 
-  const combined = results.results.map((r) => r.content).join(" ").toLowerCase()
+  const combined = Str.toLowerCase(results.results.map((r) => r.content).join(" "))
   const hits = []
   const misses = []
 
   for (const kw of expectedKeywords) {
     if (kw.startsWith("NOT ")) {
-      const neg = kw.slice(4).toLowerCase()
+      const neg = Str.toLowerCase(Str.slice(4)(kw))
       // For negative keywords, we check if the correct replacement IS present
       // (this is a soft check - having the negative term isn't a failure if the correct one is also there)
       hits.push(kw)
-    } else if (combined.includes(kw.toLowerCase())) {
+    } else if (combined.includes(Str.toLowerCase(kw))) {
       hits.push(kw)
     } else {
       misses.push(kw)
@@ -294,14 +296,14 @@ async function main() {
       const gs = scoreResult(graphiti, q.expectedKeywords)
       console.log(`  GRAPHITI  : ${gs.score * 100}% (${gs.hits.length}/${q.expectedKeywords.length}) | ${graphiti.latency}ms | ${graphiti.total} results`)
       if (gs.misses.length) console.log(`             Misses: ${gs.misses.join(", ")}`)
-      if (graphiti.results?.[0]) console.log(`             Top: ${graphiti.results[0].content.slice(0, 120)}`)
+      if (graphiti.results?.[0]) console.log(`             Top: ${Str.slice(0, 120)(graphiti.results[0].content)}`)
     }
 
     if (supermemory) {
       const ss = scoreResult(supermemory, q.expectedKeywords)
       console.log(`  SUPERMEM  : ${ss.score * 100}% (${ss.hits.length}/${q.expectedKeywords.length}) | ${supermemory.latency}ms | ${supermemory.total} results`)
       if (ss.misses.length) console.log(`             Misses: ${ss.misses.join(", ")}`)
-      if (supermemory.results?.[0]) console.log(`             Top: ${supermemory.results[0].content.slice(0, 120)}`)
+      if (supermemory.results?.[0]) console.log(`             Top: ${Str.slice(0, 120)(supermemory.results[0].content)}`)
     }
 
     results.push({

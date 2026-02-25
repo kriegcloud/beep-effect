@@ -1,6 +1,6 @@
 import { make } from "@beep/identity";
+import { $I, $SchemaId } from "@beep/identity/packages";
 import { describe, expect, it } from "vitest";
-import { $I, $SchemaId } from "../src/packages.js";
 
 describe("@beep/identity", () => {
   it("builds root identity strings and symbols", () => {

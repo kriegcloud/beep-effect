@@ -1,13 +1,15 @@
+import { purgeAtRoot } from "@beep/repo-cli/commands/purge";
+import { rootCommand } from "@beep/repo-cli/commands/root";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { purgeAtRoot } from "../src/commands/purge.js";
-import { rootCommand } from "../src/commands/root.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -26,12 +28,22 @@ const withTestLayers =
   <A, E, R, Args extends ReadonlyArray<unknown>>(fn: (...args: Args) => Effect.Effect<A, E, R>) =>
   (...args: Args) =>
     fn(...args).pipe(Effect.provide(TestLayers));
+const stringifyJson = (value: unknown, _replacer?: unknown, _space?: unknown) =>
+  S.encodeSync(S.UnknownFromJsonString)(value);
 
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const WORKSPACE_DIR_ARTIFACTS = ["build", "dist", ".next", "coverage", ".turbo", "node_modules", "tsconfig.tsbuildinfo"] as const;
+const WORKSPACE_DIR_ARTIFACTS = [
+  "build",
+  "dist",
+  ".next",
+  "coverage",
+  ".turbo",
+  "node_modules",
+  "tsconfig.tsbuildinfo",
+] as const;
 
 interface RepoFixture {
   readonly rootDir: string;
@@ -42,7 +54,7 @@ const createRepoFixture = Effect.fn(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const rootDir = path.join(path.resolve("."), `_test-purge-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const rootDir = path.join(path.resolve("."), `_test-purge-${Date.now()}-${Str.slice(2)(Math.random().toString(36))}`);
   const workspaceDir = path.join(rootDir, "custom-workspaces", "pkg-a");
 
   yield* fs.makeDirectory(path.join(rootDir, ".git"), { recursive: true });
@@ -50,7 +62,7 @@ const createRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(rootDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/root",
         private: true,
@@ -63,7 +75,7 @@ const createRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(workspaceDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/pkg-a",
         version: "0.0.0",
@@ -97,7 +109,7 @@ const createEmptyRepoFixture = Effect.fn(function* () {
 
   const rootDir = path.join(
     path.resolve("."),
-    `_test-purge-empty-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    `_test-purge-empty-${Date.now()}-${Str.slice(2)(Math.random().toString(36))}`
   );
   const workspaceDir = path.join(rootDir, "custom-workspaces", "pkg-a");
 
@@ -106,7 +118,7 @@ const createEmptyRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(rootDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/root",
         private: true,
@@ -119,7 +131,7 @@ const createEmptyRepoFixture = Effect.fn(function* () {
 
   yield* fs.writeFileString(
     path.join(workspaceDir, "package.json"),
-    JSON.stringify(
+    stringifyJson(
       {
         name: "@test/pkg-a",
         version: "0.0.0",

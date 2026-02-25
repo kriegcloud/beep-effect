@@ -4,6 +4,9 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const unstableDir = ".repos/effect-smol/packages/effect/src/unstable";
 const outDir = "specs/pending/effect-v4-knowledge-graph/outputs/p3-ast-extraction";
@@ -30,7 +33,7 @@ const directFiles = readdirSync(unstableDir).filter((f) => f.endsWith(".ts") && 
 
 // Process direct files
 for (const file of directFiles) {
-  processFile(join(unstableDir, file), `unstable/${file.replace(".ts", "")}`);
+  processFile(join(unstableDir, file), `unstable/${Str.replace(".ts", "")(file)}`);
 }
 
 // Process subdirectories
@@ -39,7 +42,7 @@ for (const subdir of subdirs) {
   const files = readdirSync(dirPath).filter((f) => f.endsWith(".ts") && f !== "index.ts");
 
   for (const file of files) {
-    processFile(join(dirPath, file), `unstable/${subdir}/${file.replace(".ts", "")}`);
+    processFile(join(dirPath, file), `unstable/${subdir}/${Str.replace(".ts", "")(file)}`);
   }
 }
 
@@ -58,7 +61,7 @@ function processFile(filePath: string, modulePrefix: string) {
 
   while ((match = pattern.exec(content)) !== null) {
     const jsdoc = match[1];
-    const kindRaw = match[2].replace("declare ", "").replace("abstract ", "").trim();
+    const kindRaw = Str.trim(Str.replace("abstract ", "")(Str.replace("declare ", "")(match[2])));
     const name = match[3];
 
     if (name.startsWith("_")) continue;
@@ -102,29 +105,24 @@ function processFile(filePath: string, modulePrefix: string) {
 }
 
 function extractDescription(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
   const result: string[] = [];
   for (const line of lines) {
     if (line.startsWith("@")) break;
     if (line.startsWith("**Example**") || line.startsWith("```")) break;
     result.push(line);
   }
-  return result
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .replace(/\{@link\s+(\w+)\}/g, "$1")
-    .replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")
-    .trim()
-    .substring(0, 500);
+  return Str.substring(0, 500)(Str.trim(Str.replace(/\{@link\s+(\w+)\s+([^}]+)\}/g, "$2")(Str.replace(/\{@link\s+(\w+)\}/g, "$1")(Str.replace(/\s+/g, " ")(result
+    .join(" "))))));
 }
 
 function extractTag(jsdoc: string, tag: string): string {
-  const m = jsdoc.match(new RegExp(`@${tag}\\s+(.+)`));
-  return m ? m[1].trim() : "";
+  const m = O.getOrNull(O.fromNullishOr(Str.match(new RegExp(`@${tag}\\s+(.+)`))(jsdoc)));
+  return m ? Str.trim(m[1]) : "";
 }
 
 function extractExample(jsdoc: string): string {
-  const lines = jsdoc.split("\n").map((l) => l.replace(/^\s*\*\s?/, ""));
+  const lines = Str.split("\n")(jsdoc).map((l) => Str.replace(/^\s*\*\s?/, "")(l));
   let inExample = false,
     inCode = false;
   const result: string[] = [];
@@ -144,7 +142,7 @@ function extractExample(jsdoc: string): string {
     }
     if (inCode) result.push(line);
   }
-  return result.join("\n").substring(0, 500);
+  return Str.substring(0, 500)(result.join("\n"));
 }
 
 // Write output

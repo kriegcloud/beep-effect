@@ -8,7 +8,10 @@
  * @since 0.0.0
  * @category errors
  */
+import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+
+const $I = $RepoUtilsId.create("errors/NoSuchFileError");
 
 /**
  * Raised when a required file or directory cannot be located.
@@ -16,17 +19,15 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>(
-  "@beep/repo-utils/errors/NoSuchFileError/NoSuchFileError"
-)(
+export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>($I`NoSuchFileError`)(
   "NoSuchFileError",
   {
     path: S.String,
     message: S.String,
   },
-  {
+  $I.annote("NoSuchFileError", {
     title: "No Such File Error",
     description: "Raised when a required file or directory cannot be located on the filesystem.",
-  }
+  })
 ) {}
 // bench

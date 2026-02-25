@@ -148,7 +148,7 @@ declare const Database: ServiceMap.Service.Tag<
 declare const Config: ServiceMap.Service.Tag<
   Config,
   {
-    readonly getConfig: Effect.Effect<{ connection: string }>
+    readonly getConfig: Effect.Effect<{ readonly connection: string }>
   }
 >
 
@@ -181,8 +181,8 @@ export const DatabaseLive = Layer.effect(
     const logger = yield* Logger    // Dependency
 
     return {
-      query: (sql) =>
-        Effect.gen(function* () {
+      query: 
+        Effect.fn(function* (sql) {
           yield* logger.log(`Executing: ${sql}`)
           const { connection } = yield* config.getConfig
           return executeQuery(connection, sql)
@@ -230,8 +230,8 @@ export const StripeGatewayLive = Layer.mergeAll(
 Use `Effect.serviceOption` for capabilities that may not be available:
 
 ```typescript
-import { Effect, Option } from "effect"
-
+import { Effect } from "effect"
+import * as O from "effect/Option";
 declare const PaymentGateway: {
   handoff: (intent: any) => Effect.Effect<any>
 }
@@ -250,15 +250,15 @@ declare function setupRefundPolicy(
   order: Order
 ): Effect.Effect<void>
 
-const processPayment = (order: Order) =>
-  Effect.gen(function* () {
+const processPayment = 
+  Effect.fn("processPayment")(function* (order: Order) {
     const handoff = yield* PaymentGateway
     const result = yield* handoff.handoff(order.paymentIntent)
 
     // Optional capability - check if available
     const refundGateway = yield* Effect.serviceOption(PaymentRefundGateway)
 
-    if (Option.isSome(refundGateway)) {
+    if (O.isSome(refundGateway)) {
       yield* setupRefundPolicy(refundGateway.value, order)
     }
 

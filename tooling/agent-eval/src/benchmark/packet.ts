@@ -19,6 +19,10 @@ export interface RetrievalPacket {
 /**
  * Build a deduplicated bounded retrieval packet.
  *
+ * @param inputFacts - Raw fact strings collected from correction and KG sources.
+ * @param maxFacts - Maximum number of facts to include before char trimming.
+ * @param maxChars - Maximum cumulative character budget for returned facts.
+ * @returns Packet payload with selected facts and total character count.
  * @since 0.0.0
  * @category functions
  */

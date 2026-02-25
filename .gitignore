@@ -60,3 +60,4 @@ storybook-static/
 # SST
 .sst/
 sst-env.d.ts
+/outputs/agent-reliability/worktrees/

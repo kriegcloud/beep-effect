@@ -1,56 +1,57 @@
 ---
 name: domain-modeling
-description: Create production-ready Effect domain models using Schema.TaggedStruct for ADTs, Schema.Data for automatic equality, with comprehensive predicates, orders, guards, and match functions. Use when modeling domain entities, value objects, or any discriminated union types.
+description: Create production-ready Effect domain models using S.TaggedStruct for ADTs, S.Data for automatic equality, with comprehensive predicates, orders, guards, and match functions. Use when modeling domain entities, value objects, or any discriminated union types.
 ---
 
 # Effect Domain Modeling Skill
 
 Use this skill when creating domain models, entities, value objects, or any types that represent core business concepts. This skill covers the complete lifecycle from type definition to runtime utilities.
 
-## Core Pattern: Schema.TaggedStruct + Schema.Data
+## Core Pattern: S.TaggedStruct + S.Data
 
 The foundation of Effect domain modeling combines three key features:
 
-1. **Schema.TaggedStruct** - Automatic `_tag` discriminator for union types
-2. **Schema.Data** - Automatic `Equal` implementation for structural equality
-3. **Schema.decodeSync** - Type-safe constructors with validation
+1. **S.TaggedStruct** - Automatic `_tag` discriminator for union types
+2. **S.Data** - Automatic `Equal` implementation for structural equality
+3. **S.decodeSync** - Type-safe constructors with validation
 
 ```typescript
-import { Schema, Equal } from "effect"
+import * as Eq from "effect/Equal"
+import * as S from "effect/Schema"
 
 // Define each variant with TaggedStruct
-export const Pending = Schema.TaggedStruct("pending", {
-  id: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
+export const Pending = S.TaggedStruct("pending", {
+  id: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
 }).pipe(
-  Schema.Data, // Automatic Equal.Symbol implementation
-  Schema.annotations({
+  S.Data, // Automatic Eq.symbol implementation
+  S.annotations({
     identifier: "Pending",
     title: "Pending Task",
     description: "A task that has been created but not yet started",
   })
 )
 
-export const Active = Schema.TaggedStruct("active", {
-  id: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
-  startedAt: Schema.DateTimeUtcFromSelf,
+export const Active = S.TaggedStruct("active", {
+  id: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
+  startedAt: S.DateTimeUtcFromSelf,
 }).pipe(
-  Schema.Data,
-  Schema.annotations({
+  S.Data,
+  S.annotations({
     identifier: "Active",
     title: "Active Task",
     description: "A task that is currently being worked on",
   })
 )
 
-export const Completed = Schema.TaggedStruct("completed", {
-  id: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
-  completedAt: Schema.DateTimeUtcFromSelf,
+export const Completed = S.TaggedStruct("completed", {
+  id: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
+  completedAt: S.DateTimeUtcFromSelf,
 }).pipe(
-  Schema.Data,
-  Schema.annotations({
+  S.Data,
+  S.annotations({
     identifier: "Completed",
     title: "Completed Task",
     description: "A task that has been finished",
@@ -58,37 +59,37 @@ export const Completed = Schema.TaggedStruct("completed", {
 )
 
 // Union type
-export const Task = Schema.Union(Pending, Active, Completed).pipe(
-  Schema.annotations({
+export const Task = S.Union(Pending, Active, Completed).pipe(
+  S.annotations({
     identifier: "Task",
     title: "Task",
     description: "A task can be pending, active, or completed",
   })
 )
 
-export type Task = Schema.Schema.Type<typeof Task>
+export type Task = S.Schema.Type<typeof Task>
 
 // Export member types for refinements
-export type Pending = Schema.Schema.Type<typeof Pending>
-export type Active = Schema.Schema.Type<typeof Active>
-export type Completed = Schema.Schema.Type<typeof Completed>
+export type Pending = S.Schema.Type<typeof Pending>
+export type Active = S.Schema.Type<typeof Active>
+export type Completed = S.Schema.Type<typeof Completed>
 ```
 
 ## Why This Pattern?
 
-**Schema.TaggedStruct Benefits:**
-- Automatically adds `_tag` discriminator (no manual `Schema.Literal`)
+**S.TaggedStruct Benefits:**
+- Automatically adds `_tag` discriminator (no manual `S.Literal`)
 - The `_tag` is applied automatically in constructors
-- Cleaner than `Schema.Struct` with manual tag fields
+- Cleaner than `S.Struct` with manual tag fields
 - Enables exhaustive pattern matching
 
-**Schema.Data Benefits:**
-- Implements `Equal.Symbol` automatically
-- Enables `Equal.equals(a, b)` for structural equality
+**S.Data Benefits:**
+- Implements `Eq.symbol` automatically
+- Enables `Eq.equals(a, b)` for structural equality
 - No manual equality implementation needed
 - Works correctly with nested structures
 
-**Schema.annotations Benefits:**
+**S.annotations Benefits:**
 - Self-documenting schemas with identifier, title, description
 - Better error messages in validation failures
 - Enables schema introspection
@@ -100,50 +101,50 @@ Every domain model module MUST include:
 ### 1. Type Definition with Schemas
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 
 // Export both schema and type for each variant
-export const Admin = Schema.TaggedStruct("Admin", {
-  id: Schema.String,
-  name: Schema.String,
-  permissions: Schema.Array(Schema.String),
-}).pipe(Schema.Data)
+export const Admin = S.TaggedStruct("Admin", {
+  id: S.String,
+  name: S.String,
+  permissions: S.Array(S.String),
+}).pipe(S.Data)
 
-export type Admin = Schema.Schema.Type<typeof Admin>
+export type Admin = S.Schema.Type<typeof Admin>
 
-export const Customer = Schema.TaggedStruct("Customer", {
-  id: Schema.String,
-  name: Schema.String,
-  tier: Schema.Union(
-    Schema.Literal("free"),
-    Schema.Literal("premium")
+export const Customer = S.TaggedStruct("Customer", {
+  id: S.String,
+  name: S.String,
+  tier: S.Union(
+    S.Literal("free"),
+    S.Literal("premium")
   ),
-}).pipe(Schema.Data)
+}).pipe(S.Data)
 
-export type Customer = Schema.Schema.Type<typeof Customer>
+export type Customer = S.Schema.Type<typeof Customer>
 
 // Union schema
-export const User = Schema.Union(Admin, Customer).pipe(
-  Schema.annotations({
+export const User = S.Union(Admin, Customer).pipe(
+  S.annotations({
     identifier: "User",
     title: "User",
     description: "A user can be an admin or a customer",
   })
 )
 
-export type User = Schema.Schema.Type<typeof User>
+export type User = S.Schema.Type<typeof User>
 ```
 
-### 2. Constructors Using Schema.decodeSync
+### 2. Constructors Using S.decodeSync
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 import * as DateTime from "effect/DateTime"
 
 // Assume we have these schemas from previous section
-declare const Pending: Schema.Schema<any, any, never>
-declare const Active: Schema.Schema<any, any, never>
-declare const Completed: Schema.Schema<any, any, never>
+declare const Pending: S.Schema<any, any, never>
+declare const Active: S.Schema<any, any, never>
+declare const Completed: S.Schema<any, any, never>
 
 /**
  * Create a pending task.
@@ -162,14 +163,14 @@ declare const Completed: Schema.Schema<any, any, never>
  * })
  * // Result: { _tag: "pending", id: "task-123", createdAt: ... }
  *
- * // Structural equality from Schema.Data:
+ * // Structural equality from S.Data:
  * const another = Task.makePending({
  *   id: "task-123",
  *   createdAt: DateTime.unsafeNow()
  * })
- * Equal.equals(task, another) // true if all fields match
+ * Eq.equals(task, another) // true if all fields match
  */
-export const makePending = Schema.decodeSync(Pending)
+export const makePending = S.decodeSync(Pending)
 
 /**
  * Create an active task.
@@ -177,7 +178,7 @@ export const makePending = Schema.decodeSync(Pending)
  * @category Constructors
  * @since 0.1.0
  */
-export const makeActive = Schema.decodeSync(Active)
+export const makeActive = S.decodeSync(Active)
 
 /**
  * Create a completed task.
@@ -185,11 +186,11 @@ export const makeActive = Schema.decodeSync(Active)
  * @category Constructors
  * @since 0.1.0
  */
-export const makeCompleted = Schema.decodeSync(Completed)
+export const makeCompleted = S.decodeSync(Completed)
 ```
 
 **Why decodeSync?**
-- `Schema.Data` returns a schema that needs decoding
+- `S.Data` returns a schema that needs decoding
 - `decodeSync` creates a validated constructor
 - Automatically applies the `_tag` discriminator
 - Throws on invalid input (use `decodeUnknownSync` for unknown data)
@@ -197,7 +198,7 @@ export const makeCompleted = Schema.decodeSync(Completed)
 ### 3. Guards and Type Predicates
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 
 // Assume Task type from previous section
 declare type Task =
@@ -209,7 +210,7 @@ declare type Pending = Extract<Task, { readonly _tag: "pending" }>
 declare type Active = Extract<Task, { readonly _tag: "active" }>
 declare type Completed = Extract<Task, { readonly _tag: "completed" }>
 
-declare const Task: Schema.Schema<Task, any, never>
+declare const Task: S.Schema<Task, any, never>
 
 /**
  * Type guard for Task union.
@@ -223,7 +224,7 @@ declare const Task: Schema.Schema<Task, any, never>
  *   // value is Task
  * }
  */
-export const isTask = Schema.is(Task)
+export const isTask = S.is(Task)
 
 /**
  * Refine to Pending variant.
@@ -292,12 +293,12 @@ export const match = Match.typeTags<Task>()
 - Type-safe and exhaustive
 - Works with any `_tag` discriminator
 
-### 5. Equivalence (Usually Automatic via Schema.Data)
+### 5. Equivalence (Usually Automatic via S.Data)
 
 ```typescript
-import { Schema } from "effect"
-import * as Equal from "effect/Equal"
-import * as Equivalence from "effect/Equivalence"
+import * as S from "effect/Schema"
+import * as Eq from "effect/Equal"
+import * as Equivalence from "effect/Equaluivalence"
 
 // Assume Task type and schema from previous section
 declare type Task =
@@ -305,19 +306,19 @@ declare type Task =
   | { readonly _tag: "active"; readonly id: string; readonly createdAt: any; readonly startedAt: any }
   | { readonly _tag: "completed"; readonly id: string; readonly createdAt: any; readonly completedAt: any }
 
-declare const Task: Schema.Schema<Task, any, never>
+declare const Task: S.Schema<Task, any, never>
 
 /**
- * Primary approach: Use Equal.equals() from Schema.Data
+ * Primary approach: Use Eq.equals() from S.Data
  *
  * @example
- * import * as Equal from "effect/Equal"
+ * import * as Eq from "effect/Equal"
  *
  * const task1 = Task.makePending({ ... })
  * const task2 = Task.makePending({ ... })
  *
- * // Structural equality (automatic from Schema.Data)
- * if (Equal.equals(task1, task2)) {
+ * // Structural equality (automatic from S.Data)
+ * if (Eq.equals(task1, task2)) {
  *   // Tasks are structurally equal
  * }
  */
@@ -347,7 +348,7 @@ export const EquivalenceById = Equivalence.mapInput(
 - Business logic requires custom equality checks
 
 **When NOT to Export Custom Equivalence:**
-- You only need structural equality (use `Equal.equals()` directly)
+- You only need structural equality (use `Eq.equals()` directly)
 - No custom comparison logic is needed
 
 ## Conditional Module Exports
@@ -449,10 +450,10 @@ declare type Task =
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  * import { pipe } from "effect/Function"
  *
- * const sorted = pipe(tasks, Array.sort(Task.OrderByTag))
+ * const sorted = pipe(tasks, A.sort(Task.OrderByTag))
  */
 export const OrderByTag: Order.Order<Task> = Order.mapInput(
   Order.number,
@@ -489,9 +490,9 @@ export const OrderByCreatedAt: Order.Order<Task> =
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  *
- * const sorted = Array.sort(tasks, Task.OrderByTagThenDate)
+ * const sorted = A.sort(tasks, Task.OrderByTagThenDate)
  */
 export const OrderByTagThenDate: Order.Order<Task> = Order.combine(
   OrderByTag,
@@ -573,12 +574,12 @@ export const setId: {
 
 ## Advanced Patterns
 
-### Recursive Schemas with Schema.suspend
+### Recursive Schemas with S.suspend
 
 Use for self-referencing types (trees, graphs, nested structures):
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 
 /**
  * Recursive domain type: Category with subcategories.
@@ -586,32 +587,32 @@ import { Schema } from "effect"
 
 // Separate base fields from recursive field
 const baseFields = {
-  id: Schema.String,
-  name: Schema.String,
+  id: S.String,
+  name: S.String,
 }
 
 // Define the recursive type
-interface Category extends Schema.Struct.Type<typeof baseFields> {
+interface Category extends S.Struct.Type<typeof baseFields> {
   readonly subcategories: ReadonlyArray<Category>
 }
 
-// Create schema with Schema.suspend for recursion
-export const Category = Schema.Struct({
+// Create schema with S.suspend for recursion
+export const Category = S.Struct({
   ...baseFields,
-  subcategories: Schema.Array(
-    Schema.suspend((): Schema.Schema<Category> => Category)
+  subcategories: S.Array(
+    S.suspend((): S.Schema<Category> => Category)
   ),
 }).pipe(
-  Schema.Data,
-  Schema.annotations({
+  S.Data,
+  S.annotations({
     identifier: "Category",
     title: "Category",
     description: "A category that can contain nested subcategories",
   })
 )
 
-export type Category = Schema.Schema.Type<typeof Category>
-export const make = Schema.decodeSync(Category)
+export type Category = S.Schema.Type<typeof Category>
+export const make = S.decodeSync(Category)
 
 /**
  * Example usage:
@@ -627,10 +628,10 @@ export const make = Schema.decodeSync(Category)
  */
 ```
 
-**Key Pattern: Schema.suspend**
+**Key Pattern: S.suspend**
 - Use for self-referencing types
 - Separate base fields for clarity
-- Define interface first, then schema with `Schema.suspend`
+- Define interface first, then schema with `S.suspend`
 
 ### Branded Types
 
@@ -638,7 +639,7 @@ For types that need additional runtime guarantees:
 
 ```typescript
 import * as Brand from "effect/Brand"
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 
 /**
  * Email branded type with validation.
@@ -653,13 +654,13 @@ export const Email = Brand.refined<Email>(
 /**
  * Schema for Email serialization/deserialization.
  */
-export const EmailSchema: Schema.BrandSchema<Email, string> =
-  Schema.String.pipe(Schema.fromBrand(Email))
+export const EmailSchema: S.BrandSchema<Email, string> =
+  S.String.pipe(S.fromBrand(Email))
 
 /**
  * @example
  * const email = Email("user@example.com")
- * const decoded = Schema.decodeSync(EmailSchema)("user@example.com")
+ * const decoded = S.decodeSync(EmailSchema)("user@example.com")
  */
 ```
 
@@ -718,9 +719,9 @@ export const OrderByScheduledDate = Schedulable$.OrderByScheduledDate(Schedulabl
 // CORRECT
 import * as Task from "@/schemas/Task"
 import * as DateTime from "effect/DateTime"
-import * as Array from "effect/Array"
+import * as A from "effect/Array"
 import * as Order from "effect/Order"
-import * as Equal from "effect/Equal"
+import * as Eq from "effect/Equal"
 
 declare const tasks: ReadonlyArray<Task.Task>
 declare const task1: Task.Task
@@ -731,8 +732,8 @@ const task = Task.makePending({
   createdAt: DateTime.unsafeNow()
 })
 const isPending = Task.isPending(task)
-const sorted = Array.sort(tasks, Task.OrderByTag)
-const areEqual = Equal.equals(task1, task2)
+const sorted = A.sort(tasks, Task.OrderByTag)
+const areEqual = Eq.equals(task1, task2)
 ```
 
 **NEVER** do this:
@@ -754,19 +755,19 @@ Always use DateTime and Duration, never Date or number:
 
 ```typescript
 // CORRECT
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 import * as DateTime from "effect/DateTime"
 import * as Duration from "effect/Duration"
 
-export const Task = Schema.TaggedStruct("task", {
-  createdAt: Schema.DateTimeUtcFromSelf,  // UTC datetime
-  duration: Schema.Duration,               // Duration type
-}).pipe(Schema.Data)
+export const Task = S.TaggedStruct("task", {
+  createdAt: S.DateTimeUtcFromSelf,  // UTC datetime
+  duration: S.Duration,               // Duration type
+}).pipe(S.Data)
 
 // WRONG
-export const TaskBad = Schema.TaggedStruct("task", {
-  createdAt: Schema.Date,        // Native Date
-  duration: Schema.Number,       // Number milliseconds
+export const TaskBad = S.TaggedStruct("task", {
+  createdAt: S.Date,        // Native Date
+  duration: S.Number,       // Number milliseconds
 })
 ```
 
@@ -803,10 +804,10 @@ Every exported member MUST have:
 - `@example` with fully working code including all imports
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 import * as DateTime from "effect/DateTime"
 
-declare const Pending: Schema.Schema<any, any, never>
+declare const Pending: S.Schema<any, any, never>
 
 /**
  * Create a pending task.
@@ -824,18 +825,18 @@ declare const Pending: Schema.Schema<any, any, never>
  *   createdAt: DateTime.unsafeNow()
  * })
  */
-export const makePending = Schema.decodeSync(Pending)
+export const makePending = S.decodeSync(Pending)
 ```
 
 ## Quality Checklist
 
 ### Mandatory - Every Domain Model
 
-- [ ] Type definition using `Schema.TaggedStruct` for each variant
-- [ ] `.pipe(Schema.Data)` for automatic `Equal` implementation
+- [ ] Type definition using `S.TaggedStruct` for each variant
+- [ ] `.pipe(S.Data)` for automatic `Equal` implementation
 - [ ] Schema annotations (identifier, title, description) on all schemas
-- [ ] Constructor functions using `Schema.decodeSync`
-- [ ] Type guard using `Schema.is` for union
+- [ ] Constructor functions using `S.decodeSync`
+- [ ] Type guard using `S.is` for union
 - [ ] Refinement predicates for each variant (e.g., `isPending`)
 - [ ] Match function using `Match.typeTags`
 - [ ] Export all union member schemas and types
@@ -852,10 +853,10 @@ export const makePending = Schema.decodeSync(Pending)
 - [ ] Combinators (`add`, `min`, `max`, `combine`)
 - [ ] Order instances using `Order.mapInput` for common sorting needs
 - [ ] `Order.combine` for multi-criteria sorting
-- [ ] Custom Equivalence via `Schema.equivalence()` or `Equivalence.mapInput`
+- [ ] Custom Equivalence via `S.equivalence()` or `Equivalence.mapInput`
 - [ ] Destructors (getters for common fields)
 - [ ] Setters (immutable update helpers)
-- [ ] Recursive schemas with `Schema.suspend` (for self-referencing types)
+- [ ] Recursive schemas with `S.suspend` (for self-referencing types)
 - [ ] Branded types for validation constraints
 - [ ] Typeclass instances (check `@/typeclass/` directory first)
 - [ ] Derived predicates from typeclasses
@@ -869,57 +870,59 @@ export const makePending = Schema.decodeSync(Pending)
  *
  * @since 0.1.0
  */
-import { Schema, Equal, Match, Data } from "effect"
+import { Match, Data } from "effect"
+import * as Eq from "effect/Equal"
+import * as S from "effect/Schema"
 import * as DateTime from "effect/DateTime"
 import * as Order from "effect/Order"
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 import { dual } from "effect/Function"
 
 // =============================================================================
 // Models
 // =============================================================================
 
-export const Admin = Schema.TaggedStruct("Admin", {
-  id: Schema.String,
-  name: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
-  permissions: Schema.Array(Schema.String),
+export const Admin = S.TaggedStruct("Admin", {
+  id: S.String,
+  name: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
+  permissions: S.Array(S.String),
 }).pipe(
-  Schema.Data,
-  Schema.annotations({
+  S.Data,
+  S.annotations({
     identifier: "Admin",
     title: "Administrator",
     description: "A user with administrative privileges",
   })
 )
 
-export type Admin = Schema.Schema.Type<typeof Admin>
+export type Admin = S.Schema.Type<typeof Admin>
 
-export const Customer = Schema.TaggedStruct("Customer", {
-  id: Schema.String,
-  name: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
-  tier: Schema.Union(Schema.Literal("free"), Schema.Literal("premium")),
+export const Customer = S.TaggedStruct("Customer", {
+  id: S.String,
+  name: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
+  tier: S.Union(S.Literal("free"), S.Literal("premium")),
 }).pipe(
-  Schema.Data,
-  Schema.annotations({
+  S.Data,
+  S.annotations({
     identifier: "Customer",
     title: "Customer",
     description: "A customer user",
   })
 )
 
-export type Customer = Schema.Schema.Type<typeof Customer>
+export type Customer = S.Schema.Type<typeof Customer>
 
-export const User = Schema.Union(Admin, Customer).pipe(
-  Schema.annotations({
+export const User = S.Union(Admin, Customer).pipe(
+  S.annotations({
     identifier: "User",
     title: "User",
     description: "A user can be an admin or a customer",
   })
 )
 
-export type User = Schema.Schema.Type<typeof User>
+export type User = S.Schema.Type<typeof User>
 
 // =============================================================================
 // Constructors
@@ -941,7 +944,7 @@ export type User = Schema.Schema.Type<typeof User>
  *   permissions: ["read", "write"]
  * })
  */
-export const makeAdmin = Schema.decodeSync(Admin)
+export const makeAdmin = S.decodeSync(Admin)
 
 /**
  * Create a customer user.
@@ -949,7 +952,7 @@ export const makeAdmin = Schema.decodeSync(Admin)
  * @category Constructors
  * @since 0.1.0
  */
-export const makeCustomer = Schema.decodeSync(Customer)
+export const makeCustomer = S.decodeSync(Customer)
 
 // =============================================================================
 // Guards
@@ -961,7 +964,7 @@ export const makeCustomer = Schema.decodeSync(Customer)
  * @category Guards
  * @since 0.1.0
  */
-export const isUser = Schema.is(User)
+export const isUser = S.is(User)
 
 /**
  * Refine to Admin.
@@ -1104,15 +1107,15 @@ export const setName: {
 
 ## Key Principles Summary
 
-1. **Schema.TaggedStruct** - Use for all tagged union variants
-2. **Schema.Data** - Apply for automatic Equal implementation
-3. **Schema.decodeSync** - Create type-safe constructors
-4. **Schema.annotations** - Document all schemas
+1. **S.TaggedStruct** - Use for all tagged union variants
+2. **S.Data** - Apply for automatic Equal implementation
+3. **S.decodeSync** - Create type-safe constructors
+4. **S.annotations** - Document all schemas
 5. **Order.mapInput** - Compose orders from base orders
 6. **Match.typeTags** - Pattern match on discriminated unions
-7. **Schema.suspend** - Handle recursive types
+7. **S.suspend** - Handle recursive types
 8. **Namespace imports** - Always use `import * as`
 9. **DateTime/Duration** - Never use Date/number for temporal data
-10. **Equal.equals()** - Primary equality check (from Schema.Data)
+10. **Eq.equals()** - Primary equality check (from S.Data)
 
 Your domain models should be production-ready, type-safe, and provide excellent developer experience.

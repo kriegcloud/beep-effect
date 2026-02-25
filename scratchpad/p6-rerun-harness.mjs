@@ -12,6 +12,8 @@ import { handleFindRelated } from '/home/elpresidank/YeeBois/projects/beep-effec
 import { handleReindex } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/ReindexTool.js';
 import { handleSearchCodebase } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/SearchCodebaseTool.js';
 import { HybridSearchLive, RelationResolverLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/search/index.ts';
+import * as Str from "effect/String";
+
 
 const rootDir = '/home/elpresidank/YeeBois/projects/beep-effect2';
 const indexPath = join(rootDir, '.code-index');
@@ -30,7 +32,7 @@ const qualityQueries = [
   { query: 'parse jsdoc tags', expected: ['JsDocExtractor', 'extractJSDoc', 'JSDoc'] },
 ];
 
-const lowercase = (value) => value.toLowerCase();
+const lowercase = (value) => Str.toLowerCase(value);
 
 const rowText = (row) => lowercase(`${row.id} ${row.name} ${row.kind} ${row.module} ${row.description} ${row.signature}`);
 
@@ -292,10 +294,10 @@ const finalPayload = {
         hookPromptCoding.stdout.includes('Relevant Existing Code'),
       skipShortPrompt:
         hookPromptShort.status === 0 &&
-        hookPromptShort.stdout.trim().length === 0,
+        Str.trim(hookPromptShort.stdout).length === 0,
       skipMetaPrompt:
         hookPromptMeta.status === 0 &&
-        hookPromptMeta.stdout.trim().length === 0,
+        Str.trim(hookPromptMeta.stdout).length === 0,
     },
   },
 };

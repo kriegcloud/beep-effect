@@ -1,0 +1,13 @@
+{
+  "id": "tooling_cli_02",
+  "title": "Codegen command failure handling",
+  "category": "tooling_cli",
+  "prompt": "Improve codegen command failure classification using typed errors and catchTag recovery.",
+  "cwd": "tooling/cli",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 10,
+  "touchedPathAllowlist": [
+    "tooling/cli/src/commands/codegen.ts",
+    "tooling/cli/src/services"
+  ]
+}

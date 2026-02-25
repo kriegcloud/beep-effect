@@ -7,16 +7,16 @@
  * counts that would break every time a workspace is added or removed.
  */
 
+import { buildRepoDependencyIndex } from "@beep/repo-utils/DependencyIndex";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { findRepoRoot } from "@beep/repo-utils/Root";
+import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
+import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
+import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, HashMap, Layer } from "effect";
-import { buildRepoDependencyIndex } from "../src/DependencyIndex.js";
-import { FsUtilsLive } from "../src/FsUtils.js";
-import { findRepoRoot } from "../src/Root.js";
-import { collectTsConfigPaths } from "../src/TsConfig.js";
-import { collectUniqueNpmDependencies } from "../src/UniqueDeps.js";
-import { resolveWorkspaceDirs } from "../src/Workspaces.js";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));

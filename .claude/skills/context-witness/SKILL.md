@@ -16,13 +16,13 @@ Choose between witness (existence) and capability (behavior) patterns for Contex
 Field exists in the schema - tightly coupled to domain model:
 
 ```typescript
-import { Schema } from "effect"
+import * as S from "effect/Schema"
 
 // ❌ HARD COUPLING - Serial is part of the schema
-export const PaymentIntent = Schema.Struct({
-  id: Schema.String,
-  serial: Schema.String,  // In schema = hard coupled
-  amount: Schema.BigInt
+export const PaymentIntent = S.Struct({
+  id: S.String,
+  serial: S.String,  // In schema = hard coupled
+  amount: S.BigInt
 })
 
 // Every PaymentIntent MUST have a serial
@@ -36,14 +36,15 @@ export const PaymentIntent = Schema.Struct({
 Field **removed from schema**, only injected in code:
 
 ```typescript
-import { Schema, ServiceMap, Effect, Logger } from "effect"
+import { ServiceMap, Effect, Logger } from "effect"
+import * as S from "effect/Schema"
 
 declare const generateId: () => string
 
 // ✅ SOFT COUPLING - Serial not in schema
-export const PaymentIntent = Schema.Struct({
-  id: Schema.String,
-  amount: Schema.BigInt
+export const PaymentIntent = S.Struct({
+  id: S.String,
+  amount: S.BigInt
   // No serial field!
 })
 
@@ -84,12 +85,13 @@ By removing the field from the schema and injecting it only where needed, you:
 Use when you only need to know something **exists** in the environment:
 
 ```typescript
-import { Schema, ServiceMap, Effect } from "effect"
+import { ServiceMap, Effect } from "effect"
+import * as S from "effect/Schema"
 
-declare const PaymentIntent: Schema.Struct<{
-  id: typeof Schema.String
-  serial: typeof Schema.String
-  amount: typeof Schema.BigInt
+declare const PaymentIntent: S.Struct<{
+  id: typeof S.String
+  serial: typeof S.String
+  amount: typeof S.BigInt
 }>
 declare const other: any
 
@@ -109,12 +111,13 @@ const createPaymentIntent = Effect.gen(function* () {
 Use when you need **operations**:
 
 ```typescript
-import { Schema, ServiceMap, Effect } from "effect"
+import { ServiceMap, Effect } from "effect"
+import * as S from "effect/Schema"
 
-declare const PaymentIntent: Schema.Struct<{
-  id: typeof Schema.String
-  serial: typeof Schema.String
-  amount: typeof Schema.BigInt
+declare const PaymentIntent: S.Struct<{
+  id: typeof S.String
+  serial: typeof S.String
+  amount: typeof S.BigInt
 }>
 declare const other: any
 
@@ -212,17 +215,18 @@ const test = myProgram.pipe(
 - **Yes** → Keep in schema
 
 ```typescript
-import { Schema, ServiceMap, Effect, Logger, Clock } from "effect"
+import { ServiceMap, Effect, Logger, Clock } from "effect"
+import * as S from "effect/Schema"
 
-declare const LineItem: Schema.Schema<any>
+declare const LineItem: S.Schema<any>
 declare const generateId: () => string
 declare const calculateTotal: (items: Array<any>) => bigint
 
 // ✅ Domain model - only persisted data
-export const Order = Schema.Struct({
-  id: Schema.String,
-  items: Schema.Array(LineItem),
-  total: Schema.BigInt
+export const Order = S.Struct({
+  id: S.String,
+  items: S.Array(LineItem),
+  total: S.BigInt
   // No correlationId - not persisted!
   // No timestamp - derived from system!
 })
@@ -232,7 +236,7 @@ const CorrelationId = ServiceMap.Service<string>("CorrelationId")
 const RequestId = ServiceMap.Service<string>("RequestId")
 
 // Use in code, not in data
-const createOrder = (items: Array<Schema.Schema.Type<typeof LineItem>>) =>
+const createOrder = (items: Array<S.Schema.Type<typeof LineItem>>) =>
   Effect.gen(function* () {
     const correlationId = yield* CorrelationId  // For tracing
     const requestId = yield* RequestId          // For logging

@@ -1,19 +1,21 @@
+import {
+  checkConfigNeedsUpdateForTargets,
+  updateRootConfigs,
+  updateRootConfigsForTargets,
+} from "@beep/repo-cli/commands/create-package/config-updater";
+import { createPackageCommand } from "@beep/repo-cli/commands/create-package/index";
 import { FsUtilsLive, findRepoRoot } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import {
-  checkConfigNeedsUpdateForTargets,
-  updateRootConfigs,
-  updateRootConfigsForTargets,
-} from "../src/commands/create-package/config-updater.js";
-import { createPackageCommand } from "../src/commands/create-package/index.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -72,8 +74,8 @@ const withTempPackageBase = Effect.fn(function* (
 
 const withTempPackage = withTestLayers(withTempPackageBase);
 
-const decodeJson = <A = unknown>(content: string): Effect.Effect<A, Schema.SchemaError> =>
-  Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content) as Effect.Effect<A, Schema.SchemaError>;
+const decodeJson = <A = unknown>(content: string): Effect.Effect<A, S.SchemaError> =>
+  S.decodeUnknownEffect(S.UnknownFromJsonString)(content) as Effect.Effect<A, S.SchemaError>;
 
 type GeneratedPackageJson = {
   readonly name: string;
@@ -749,7 +751,7 @@ describe("create-package command", () => {
 
           // Verify no duplicate entries in tsconfig.packages.json
           const pkgsContent = yield* fs.readFileString(path.join(repoRoot, "tsconfig.packages.json"));
-          const matches = pkgsContent.match(new RegExp(`tooling/${pkgName}`, "g"));
+          const matches = O.getOrNull(O.fromNullishOr(Str.match(new RegExp(`tooling/${pkgName}`, "g"))(pkgsContent)));
           expect(matches).not.toBeNull();
           expect(matches!.length).toBe(1);
         })

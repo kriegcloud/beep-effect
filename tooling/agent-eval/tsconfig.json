@@ -4,7 +4,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["node", "bun"]
+    "types": ["node", "bun"],
+    "plugins": []
   },
   "include": ["src/**/*.ts"]
 }

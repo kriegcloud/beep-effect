@@ -19,7 +19,10 @@ status: active
 2. Stable module policy:
 - Prefer root imports from `"effect"` for other stable modules.
 - Keep `effect/unstable/*` usage deliberate and local.
+- For data/time helpers prefer Effect modules over native APIs.
 
 3. Migration bans:
 - No `@effect/schema` in v4 codepaths.
 - No v3 Context-tag APIs.
+- No `node:fs` / `node:path` imports in Effect-first domain logic.
+- No `JSON.parse` / `JSON.stringify` for typed boundaries; use `S.decodeUnknown*` and `S.encode*`.

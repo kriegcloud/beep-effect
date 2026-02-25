@@ -11,6 +11,8 @@
 import { Effect, FileSystem, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { parseDocument } from "yaml";
@@ -84,18 +86,20 @@ const semverCompare = (a: readonly [number, number, number], b: readonly [number
 
 const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
 
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 const parseImageRef = (service: string, image: string, yamlPath: ReadonlyArray<string | number>): DockerImageRef => {
-  const colonIdx = image.lastIndexOf(":");
-  const slashIdx = image.indexOf("/");
+  const colonIdx = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf(":")(image)), () => -1);
+  const slashIdx = O.getOrElse(O.fromUndefinedOr(Str.indexOf("/")(image)), () => -1);
 
   let repository: string;
   let tag: string;
 
   if (colonIdx > 0 && (slashIdx < 0 || colonIdx > slashIdx)) {
-    repository = image.substring(0, colonIdx);
-    tag = image.substring(colonIdx + 1);
+    repository = Str.substring(0, colonIdx)(image);
+    tag = Str.substring(colonIdx + 1)(image);
   } else {
     repository = image;
     tag = "latest";
@@ -114,7 +118,7 @@ const dockerHubTagsUrl = (repository: string): string => {
 };
 
 const isStableTag = (tag: string): boolean => {
-  const lower = tag.toLowerCase();
+  const lower = Str.toLowerCase(tag);
   return (
     tag !== "latest" &&
     !lower.includes("rc") &&
@@ -240,20 +244,20 @@ export const resolveDockerImages: (
     const doc = parseDocument(content);
     const root = doc.toJSON();
 
-    if (typeof root !== "object" || root === null || !("services" in root)) {
+    if (!isRecord(root) || !("services" in root)) {
       return { images: A.empty() };
     }
 
     const services = root.services;
-    if (typeof services !== "object" || services === null) {
+    if (!isRecord(services)) {
       return { images: A.empty() };
     }
 
     let images = A.empty<DockerImageRef & { readonly latest: O.Option<string> }>();
 
-    for (const serviceName of Object.keys(services)) {
+    for (const serviceName of R.keys(services)) {
       const service = services[serviceName];
-      if (typeof service !== "object" || service === null || !("image" in service)) {
+      if (!isRecord(service) || !("image" in service)) {
         continue;
       }
 
@@ -311,7 +315,7 @@ const fetchLatestDockerTag: (
   const tagNames = A.map(body.results, (r) => r.name);
 
   // Strategy depends on image
-  const repoLower = ref.repository.toLowerCase();
+  const repoLower = Str.toLowerCase(ref.repository);
   let result: O.Option<string>;
 
   if (repoLower === "redis" || repoLower === "library/redis") {

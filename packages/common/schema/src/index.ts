@@ -14,5 +14,5 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  * @category schemas
  */
-export * from "./LiteralKit.schema.js";
+export * from "./LiteralKit.js";
 // bench

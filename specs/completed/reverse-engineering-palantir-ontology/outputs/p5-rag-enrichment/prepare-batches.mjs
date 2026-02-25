@@ -8,6 +8,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import * as Str from "effect/String";
+
 
 const SPEC =
   "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-for-beep-effect-ontology";
@@ -52,7 +54,7 @@ batches.forEach((batch, idx) => {
     const cachePath = join(CACHE_DIR, `${urlToHash(entry.url)}.txt`);
     let content = readFileSync(cachePath, "utf-8");
     if (content.length > MAX_CONTENT_CHARS) {
-      content = `${content.slice(0, MAX_CONTENT_CHARS)}\n[...truncated]`;
+      content = `${Str.slice(0, MAX_CONTENT_CHARS)(content)}\n[...truncated]`;
     }
     return {
       url: entry.url,
@@ -78,7 +80,7 @@ const sampleData = entries.slice(0, 10).map((entry) => {
   const cachePath = join(CACHE_DIR, `${urlToHash(entry.url)}.txt`);
   let content = readFileSync(cachePath, "utf-8");
   if (content.length > MAX_CONTENT_CHARS) {
-    content = `${content.slice(0, MAX_CONTENT_CHARS)}\n[...truncated]`;
+    content = `${Str.slice(0, MAX_CONTENT_CHARS)(content)}\n[...truncated]`;
   }
   return {
     url: entry.url,

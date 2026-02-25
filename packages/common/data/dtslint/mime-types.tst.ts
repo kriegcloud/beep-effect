@@ -61,6 +61,7 @@ describe("lookup", () => {
   });
 
   it("rejects non-string arguments", () => {
-    expect(lookup(123)).type.toRaiseError();
+    // @ts-expect-error not assignable to parameter of type
+    lookup(123);
   });
 });

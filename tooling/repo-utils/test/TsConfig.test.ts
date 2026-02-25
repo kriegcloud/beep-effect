@@ -1,10 +1,11 @@
 import * as path from "node:path";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer, Option } from "effect";
-import { FsUtilsLive } from "../src/FsUtils.js";
-import { collectTsConfigPaths } from "../src/TsConfig.js";
+import { Effect, HashMap, Layer } from "effect";
+import * as O from "effect/Option";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -19,8 +20,8 @@ layer(TestLayer)("TsConfig", (it) => {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // Root should have tsconfig.json and tsconfig.build.json
         const rootConfigs = HashMap.get(configs, "@beep/root");
-        expect(Option.isSome(rootConfigs)).toBe(true);
-        if (Option.isSome(rootConfigs)) {
+        expect(O.isSome(rootConfigs)).toBe(true);
+        if (O.isSome(rootConfigs)) {
           expect(rootConfigs.value.length).toBe(2);
           expect(rootConfigs.value.some((p) => p.endsWith("tsconfig.json"))).toBe(true);
           expect(rootConfigs.value.some((p) => p.endsWith("tsconfig.build.json"))).toBe(true);
@@ -34,8 +35,8 @@ layer(TestLayer)("TsConfig", (it) => {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // pkg-a has tsconfig.json and tsconfig.test.json
         const pkgAConfigs = HashMap.get(configs, "@mock/pkg-a");
-        expect(Option.isSome(pkgAConfigs)).toBe(true);
-        if (Option.isSome(pkgAConfigs)) {
+        expect(O.isSome(pkgAConfigs)).toBe(true);
+        if (O.isSome(pkgAConfigs)) {
           expect(pkgAConfigs.value.length).toBe(2);
           expect(pkgAConfigs.value.some((p) => p.endsWith("tsconfig.json"))).toBe(true);
           expect(pkgAConfigs.value.some((p) => p.endsWith("tsconfig.test.json"))).toBe(true);
@@ -49,8 +50,8 @@ layer(TestLayer)("TsConfig", (it) => {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // pkg-b and pkg-c each have only tsconfig.json
         const pkgBConfigs = HashMap.get(configs, "@mock/pkg-b");
-        expect(Option.isSome(pkgBConfigs)).toBe(true);
-        if (Option.isSome(pkgBConfigs)) {
+        expect(O.isSome(pkgBConfigs)).toBe(true);
+        if (O.isSome(pkgBConfigs)) {
           expect(pkgBConfigs.value.length).toBe(1);
         }
       })

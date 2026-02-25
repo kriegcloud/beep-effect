@@ -1,7 +1,30 @@
 import * as S from "effect/Schema";
-import { AgentRunConfigSchema, type BenchCondition, BenchConditionSchema } from "./AgentRunConfig.js";
-import { AgentRunResultSchema } from "./AgentRunResult.js";
-import { AgentTaskSpecSchema } from "./AgentTaskSpec.js";
+import {
+  type AgentRunConfig,
+  AgentRunConfigSchema,
+  type BenchCondition,
+  BenchConditionSchema,
+} from "./AgentRunConfig.js";
+import { type AgentRunResult, AgentRunResultSchema } from "./AgentRunResult.js";
+import { type AgentRunTranscript, AgentRunTranscriptSchema } from "./AgentRunTranscript.js";
+import { type AgentTaskSpec, AgentTaskSpecSchema } from "./AgentTaskSpec.js";
+import { type FailureSignature, FailureSignatureSchema } from "./FailureSignature.js";
+
+/**
+ * Benchmark suite completion status.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const BenchSuiteStatusSchema = S.Literals(["completed", "aborted_wall_cap"]);
+
+/**
+ * Benchmark suite completion status.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BenchSuiteStatus = typeof BenchSuiteStatusSchema.Type;
 
 /**
  * Expanded run record with config, task, and preflight metadata.
@@ -10,13 +33,17 @@ import { AgentTaskSpecSchema } from "./AgentTaskSpec.js";
  * @category models
  */
 export type AgentRunRecord = {
-  readonly config: typeof AgentRunConfigSchema.Type;
-  readonly task: typeof AgentTaskSpecSchema.Type;
-  readonly result: typeof AgentRunResultSchema.Type;
+  readonly config: AgentRunConfig;
+  readonly task: AgentTaskSpec;
+  readonly result: AgentRunResult;
   readonly selectedPolicyIds: ReadonlyArray<string>;
   readonly selectedSkills: ReadonlyArray<string>;
   readonly correctionFacts: ReadonlyArray<string>;
   readonly retrievedFacts: ReadonlyArray<string>;
+  readonly allowlistPass: boolean;
+  readonly touchedPaths: ReadonlyArray<string>;
+  readonly transcript: AgentRunTranscript | null;
+  readonly failureSignature: FailureSignature | null;
 };
 
 /**
@@ -30,6 +57,10 @@ export type AgentBenchSuite = {
   readonly runAtEpochMs: number;
   readonly strictTaskCount: number;
   readonly conditions: ReadonlyArray<BenchCondition>;
+  readonly status?: BenchSuiteStatus | undefined;
+  readonly plannedRunCount?: number | undefined;
+  readonly completedRunCount?: number | undefined;
+  readonly abortReason?: string | null | undefined;
   readonly records: ReadonlyArray<AgentRunRecord>;
 };
 
@@ -47,6 +78,10 @@ export const AgentRunRecordSchema = S.Struct({
   selectedSkills: S.Array(S.NonEmptyString),
   correctionFacts: S.Array(S.NonEmptyString),
   retrievedFacts: S.Array(S.NonEmptyString),
+  allowlistPass: S.Boolean,
+  touchedPaths: S.Array(S.NonEmptyString),
+  transcript: S.NullOr(AgentRunTranscriptSchema),
+  failureSignature: S.NullOr(FailureSignatureSchema),
 });
 
 /**
@@ -60,5 +95,9 @@ export const AgentBenchSuiteSchema = S.Struct({
   runAtEpochMs: S.Int,
   strictTaskCount: S.Int,
   conditions: S.Array(BenchConditionSchema),
+  status: S.optional(BenchSuiteStatusSchema),
+  plannedRunCount: S.optional(S.Int),
+  completedRunCount: S.optional(S.Int),
+  abortReason: S.optional(S.NullOr(S.NonEmptyString)),
   records: S.Array(AgentRunRecordSchema),
 });

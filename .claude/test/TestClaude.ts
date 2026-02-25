@@ -1,112 +1,112 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
-const BashInput = Schema.Struct({
-  command: Schema.String,
-  restart: Schema.optional(Schema.Boolean),
+const BashInput = S.Struct({
+  command: S.String,
+  restart: S.optional(S.Boolean),
 });
 
-const ReadInput = Schema.Struct({
-  file_path: Schema.String,
-  offset: Schema.optional(Schema.Number),
-  limit: Schema.optional(Schema.Number),
+const ReadInput = S.Struct({
+  file_path: S.String,
+  offset: S.optional(S.Number),
+  limit: S.optional(S.Number),
 });
 
-const WriteInput = Schema.Struct({
-  file_path: Schema.String,
-  content: Schema.String,
+const WriteInput = S.Struct({
+  file_path: S.String,
+  content: S.String,
 });
 
-const EditInput = Schema.Struct({
-  file_path: Schema.String,
-  old_string: Schema.String,
-  new_string: Schema.String,
-  replace_all: Schema.optional(Schema.Boolean),
+const EditInput = S.Struct({
+  file_path: S.String,
+  old_string: S.String,
+  new_string: S.String,
+  replace_all: S.optional(S.Boolean),
 });
 
-const GrepInput = Schema.Struct({
-  pattern: Schema.String,
-  path: Schema.optional(Schema.String),
-  glob: Schema.optional(Schema.String),
-  type: Schema.optional(Schema.String),
-  output_mode: Schema.optional(Schema.Literals(["content", "files_with_matches", "count"])),
+const GrepInput = S.Struct({
+  pattern: S.String,
+  path: S.optional(S.String),
+  glob: S.optional(S.String),
+  type: S.optional(S.String),
+  output_mode: S.optional(S.Literals(["content", "files_with_matches", "count"])),
 });
 
-const GlobInput = Schema.Struct({
-  pattern: Schema.String,
-  path: Schema.optional(Schema.String),
+const GlobInput = S.Struct({
+  pattern: S.String,
+  path: S.optional(S.String),
 });
 
-const TaskInput = Schema.Struct({
-  description: Schema.String,
-  prompt: Schema.String,
-  subagent_type: Schema.String,
-  model: Schema.optional(Schema.String),
-  run_in_background: Schema.optional(Schema.Boolean),
-  resume: Schema.optional(Schema.String),
+const TaskInput = S.Struct({
+  description: S.String,
+  prompt: S.String,
+  subagent_type: S.String,
+  model: S.optional(S.String),
+  run_in_background: S.optional(S.Boolean),
+  resume: S.optional(S.String),
 });
 
-const WebFetchInput = Schema.Struct({
-  url: Schema.String,
+const WebFetchInput = S.Struct({
+  url: S.String,
 });
 
-const WebSearchInput = Schema.Struct({
-  query: Schema.String,
+const WebSearchInput = S.Struct({
+  query: S.String,
 });
 
-const LSPInput = Schema.Struct({
-  operation: Schema.String,
-  file: Schema.String,
-  line: Schema.Number,
-  col: Schema.Number,
-  newName: Schema.optional(Schema.String),
+const LSPInput = S.Struct({
+  operation: S.String,
+  file: S.String,
+  line: S.Number,
+  col: S.Number,
+  newName: S.optional(S.String),
 });
 
-const NotebookEditInput = Schema.Struct({
-  notebook_path: Schema.String,
-  cell_index: Schema.Number,
-  new_content: Schema.String,
+const NotebookEditInput = S.Struct({
+  notebook_path: S.String,
+  cell_index: S.Number,
+  new_content: S.String,
 });
 
-const TodoWriteInput = Schema.Struct({
-  content: Schema.String,
-  append: Schema.optional(Schema.Boolean),
+const TodoWriteInput = S.Struct({
+  content: S.String,
+  append: S.optional(S.Boolean),
 });
 
-const UserPromptSubmitInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("UserPromptSubmit"),
-  prompt: Schema.String,
+const UserPromptSubmitInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("UserPromptSubmit"),
+  prompt: S.String,
 });
 
-const SessionStartInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("SessionStart"),
+const SessionStartInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("SessionStart"),
 });
 
-export const HookInput = Schema.Struct({
-  hook_event_name: Schema.Literals(["PreToolUse", "PostToolUse"]),
-  tool_name: Schema.String,
-  tool_input: Schema.Unknown,
+export const HookInput = S.Struct({
+  hook_event_name: S.Literals(["PreToolUse", "PostToolUse"]),
+  tool_name: S.String,
+  tool_input: S.Unknown,
 });
 
-export type HookInput = Schema.Schema.Type<typeof HookInput>;
+export type HookInput = S.Schema.Type<typeof HookInput>;
 
-export const HookOutput = Schema.Struct({
-  hookSpecificOutput: Schema.Struct({
-    hookEventName: Schema.String,
-    permissionDecision: Schema.optional(Schema.String),
-    permissionDecisionReason: Schema.optional(Schema.String),
-    additionalContext: Schema.optional(Schema.String),
+export const HookOutput = S.Struct({
+  hookSpecificOutput: S.Struct({
+    hookEventName: S.String,
+    permissionDecision: S.optional(S.String),
+    permissionDecisionReason: S.optional(S.String),
+    additionalContext: S.optional(S.String),
   }),
 });
 
-export type HookOutput = Schema.Schema.Type<typeof HookOutput>;
+export type HookOutput = S.Schema.Type<typeof HookOutput>;
 
 type ToolHooks<T> = {
   readonly pre: HookInput & { tool_input: T };
@@ -120,29 +120,29 @@ const makeTool =
     post: { hook_event_name: "PostToolUse", tool_name: toolName, tool_input: input },
   });
 
-export const Bash = makeTool<Schema.Schema.Type<typeof BashInput>>("Bash");
-export const Read = makeTool<Schema.Schema.Type<typeof ReadInput>>("Read");
-export const Write = makeTool<Schema.Schema.Type<typeof WriteInput>>("Write");
-export const Edit = makeTool<Schema.Schema.Type<typeof EditInput>>("Edit");
-export const Grep = makeTool<Schema.Schema.Type<typeof GrepInput>>("Grep");
-export const Glob = makeTool<Schema.Schema.Type<typeof GlobInput>>("Glob");
-export const Task = makeTool<Schema.Schema.Type<typeof TaskInput>>("Task");
-export const WebFetch = makeTool<Schema.Schema.Type<typeof WebFetchInput>>("WebFetch");
-export const WebSearch = makeTool<Schema.Schema.Type<typeof WebSearchInput>>("WebSearch");
-export const LSP = makeTool<Schema.Schema.Type<typeof LSPInput>>("LSP");
-export const NotebookEdit = makeTool<Schema.Schema.Type<typeof NotebookEditInput>>("NotebookEdit");
-export const TodoWrite = makeTool<Schema.Schema.Type<typeof TodoWriteInput>>("TodoWrite");
+export const Bash = makeTool<S.Schema.Type<typeof BashInput>>("Bash");
+export const Read = makeTool<S.Schema.Type<typeof ReadInput>>("Read");
+export const Write = makeTool<S.Schema.Type<typeof WriteInput>>("Write");
+export const Edit = makeTool<S.Schema.Type<typeof EditInput>>("Edit");
+export const Grep = makeTool<S.Schema.Type<typeof GrepInput>>("Grep");
+export const Glob = makeTool<S.Schema.Type<typeof GlobInput>>("Glob");
+export const Task = makeTool<S.Schema.Type<typeof TaskInput>>("Task");
+export const WebFetch = makeTool<S.Schema.Type<typeof WebFetchInput>>("WebFetch");
+export const WebSearch = makeTool<S.Schema.Type<typeof WebSearchInput>>("WebSearch");
+export const LSP = makeTool<S.Schema.Type<typeof LSPInput>>("LSP");
+export const NotebookEdit = makeTool<S.Schema.Type<typeof NotebookEditInput>>("NotebookEdit");
+export const TodoWrite = makeTool<S.Schema.Type<typeof TodoWriteInput>>("TodoWrite");
 
 export const UserPromptSubmit = (
-  input: Omit<Schema.Schema.Type<typeof UserPromptSubmitInput>, "hook_event_name">
-): Schema.Schema.Type<typeof UserPromptSubmitInput> => ({
+  input: Omit<S.Schema.Type<typeof UserPromptSubmitInput>, "hook_event_name">
+): S.Schema.Type<typeof UserPromptSubmitInput> => ({
   hook_event_name: "UserPromptSubmit",
   ...input,
 });
 
 export const SessionStart = (
-  input: Omit<Schema.Schema.Type<typeof SessionStartInput>, "hook_event_name">
-): Schema.Schema.Type<typeof SessionStartInput> => ({
+  input: Omit<S.Schema.Type<typeof SessionStartInput>, "hook_event_name">
+): S.Schema.Type<typeof SessionStartInput> => ({
   hook_event_name: "SessionStart",
   ...input,
 });

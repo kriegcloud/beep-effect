@@ -22,10 +22,11 @@ Choose based on what throws:
 ### Worked Example: Wrapping a Throwable API
 
 ```ts
-import { Effect, Schema as S } from "effect"
-import { $NameOfPackageId } from "@beep/identity"
+import { Effect } from "effect"
+import * as S from "effect/Schema"
+import { $PackageNameId } from "@beep/identity/packages"
 
-const $I = $NameOfPackageId.create("relative/path/to/module")
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 // Step 1: Define a tagged error with Schema annotations.
 // WHY: TaggedErrorClass gives you a _tag discriminant for catchTag + Schema encode/decode.
@@ -33,7 +34,7 @@ class JsonParseError extends S.TaggedErrorClass<JsonParseError>($I`JsonParseErro
   "JsonParseError",
   { input: S.String, message: S.String },
   // WHY: Annotations make errors self-documenting and inspectable.
-   $I.annote("JsonParseError",  { description: "Failed to parse JSON string" })
+  $I.annote("JsonParseError", { title: "JSON Parse Error", description: "Failed to parse JSON string" })
 ) {}
 
 // Step 2: Wrap the throwable call.

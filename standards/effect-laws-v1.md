@@ -15,8 +15,9 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 4. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
 5. No runtime `typeof ... === ...`; use `effect/Predicate` guards.
 6. No native `Object/Map/Set/Date` in domain logic.
-7. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
-8. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+7. No native `Error` in `tooling/*/src`; use `S.TaggedErrorClass` typed errors.
+8. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
+9. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
 
 ## Allowlist Contract
 

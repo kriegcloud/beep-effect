@@ -11,15 +11,15 @@ status: active
 
 ## Step 1: Create the Identity
 
-Every service needs a unique key from `@beep/identity`. Never use plain strings.
+Every service needs a unique key from `@beep/identity/packages`. Never use plain strings.
 
 ```ts
 // WHY: IdentityComposer produces branded strings with compile-time path validation.
 // The tagged template literal validates segment characters at runtime.
-import { make } from "@beep/identity"
+import { $PackageNameId } from "@beep/identity/packages"
 
-const $Id = make("beep").$BeepId.create("myDomain")
-//                 ↑ base         ↑ compose = returns IdentityComposer for sub-paths
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+//                        ↑ package composer      ↑ file-local composer
 ```
 
 ## Step 2: Define the Service Class
@@ -30,10 +30,10 @@ Use `ServiceMap.Service<Self, Shape>()(identityKey)`. Note: type params FIRST, t
 import { Effect, ServiceMap, Layer } from "effect"
 
 // WHY: Class syntax gives you a nominal type (Self) + the service shape in one declaration.
-// The $Id template tag produces "@beep/myDomain/Notifications" as a branded IdentityString.
+// The $I template tag produces a branded IdentityString under the file-local path.
 class Notifications extends ServiceMap.Service<Notifications, {
   readonly notify: (msg: string) => Effect.Effect<void>
-}>()($Id`Notifications`) {}
+}>()($I`Notifications`) {}
 ```
 
 ## Step 3: Add the Constructor
@@ -43,7 +43,7 @@ Use the `make` option for effectful construction. Do NOT use `dependencies` — 
 ```ts
 class Notifications extends ServiceMap.Service<Notifications, {
   readonly notify: (msg: string) => Effect.Effect<void>
-}>()($Id`Notifications`, {
+}>()($I`Notifications`, {
   // WHY: `make` stores the constructor on the class but does NOT auto-generate a Layer.
   make: Effect.gen(function*() {
     const config = yield* AppConfig
@@ -91,4 +91,4 @@ const program = myEffect.pipe(Effect.provide(AppLayer))
 1. `yield* ServiceName` compiles — the R channel includes the service.
 2. `Layer.effect(Service, Service.make)` compiles — shape matches.
 3. No `Context.Tag`, `Effect.Tag`, `Effect.Service`, or `.Default` anywhere in your code.
-4. All service keys use `$Id\`Name\`` template tags, not string literals.
+4. All service keys use `$I\`Name\`` template tags, not string literals.

@@ -7,10 +7,14 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, FileSystem, Layer, Path, Schema, ServiceMap } from "effect";
+import { $RepoUtilsId } from "@beep/identity/packages";
+import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
+
+const $I = $RepoUtilsId.create("FsUtils");
 
 /**
  * Options for glob matching operations.
@@ -116,7 +120,7 @@ export interface FsUtilsShape {
  * @since 0.0.0
  * @category services
  */
-export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()("@beep/repo-utils/FsUtils") {}
+export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
 
 /**
  * Live layer for `FsUtils` that uses the platform `FileSystem` and `Path`
@@ -167,7 +171,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
             })
         )
       );
-      return yield* Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content).pipe(
+      return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(content).pipe(
         Effect.mapError(
           (error) =>
             new DomainError({

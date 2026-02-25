@@ -532,12 +532,12 @@ export const TypeId = ...
 ### ❌ Problematic Patterns
 
 ````typescript
-// ❌ WRONG - Non-compiling imports
+// ⚠️ Mixed import examples (wrong + canonical)
 /**
  * @example
  * ```ts
  * import { Schema } from "@effect/schema"      // Wrong package (deprecated)
- * import { Schema } from "effect/Schema"       // Wrong - not a valid path
+ * import * as S from "effect/Schema"           // Canonical namespace alias
  * import { Schema } from "effect/schema"       // Wrong - use "effect" instead
  * ```
  */

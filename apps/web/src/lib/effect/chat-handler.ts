@@ -1,4 +1,4 @@
-import { $I } from "@beep/identity/packages";
+import { $WebId } from "@beep/identity/packages";
 import { Cause, Effect, Match, pipe, Queue, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -14,9 +14,7 @@ import {
 } from "./mappers";
 import { GetFactsParametersSchema, GetNodeParameters, KnowledgeGraphToolkit, SearchGraphParameters } from "./tools";
 
-const $EffectId = $I.create("web").create("effect");
-const $ChatHandlerId = $EffectId.create("chat-handler");
-const $ChatErrorsId = $ChatHandlerId.create("errors");
+const $I = $WebId.create("lib/effect/chat-handler");
 
 export const MAX_TOOL_ITERATIONS = 3;
 
@@ -71,7 +69,7 @@ export const ChatMessageSchema = S.Struct({
   role: S.Literals(["user", "assistant"]),
   content: S.NonEmptyString,
 }).annotate(
-  $ChatHandlerId.annote("ChatMessageSchema", {
+  $I.annote("ChatMessageSchema", {
     title: "Chat Message",
     description: "One chat message accepted by the chat API.",
   })
@@ -82,7 +80,7 @@ export type ChatMessage = typeof ChatMessageSchema.Type;
 export const ChatRequestSchema = S.Struct({
   messages: S.NonEmptyArray(ChatMessageSchema),
 }).annotate(
-  $ChatHandlerId.annote("ChatRequestSchema", {
+  $I.annote("ChatRequestSchema", {
     title: "Chat Request",
     description: "Input payload for POST /api/chat.",
   })
@@ -94,7 +92,7 @@ export const GraphSnippetSchema = S.Struct({
   nodes: S.Array(GraphNodeSchema),
   links: S.Array(GraphLinkSchema),
 }).annotate(
-  $ChatHandlerId.annote("GraphSnippetSchema", {
+  $I.annote("GraphSnippetSchema", {
     title: "Graph Snippet",
     description: "Graph nodes/links extracted from tool results for UI highlighting.",
   })
@@ -102,28 +100,26 @@ export const GraphSnippetSchema = S.Struct({
 
 export type GraphSnippet = typeof GraphSnippetSchema.Type;
 
-export class ChatRequestDecodeError extends S.TaggedErrorClass<ChatRequestDecodeError>(
-  $ChatErrorsId`ChatRequestDecodeError`
-)(
+export class ChatRequestDecodeError extends S.TaggedErrorClass<ChatRequestDecodeError>($I`ChatRequestDecodeError`)(
   "ChatRequestDecodeError",
   {
     message: S.String,
   },
-  {
+  $I.annote("ChatRequestDecodeError", {
     title: "Chat Request Decode Error",
     description: "Incoming chat request body could not be decoded.",
-  }
+  })
 ) {}
 
-export class ChatStreamError extends S.TaggedErrorClass<ChatStreamError>($ChatErrorsId`ChatStreamError`)(
+export class ChatStreamError extends S.TaggedErrorClass<ChatStreamError>($I`ChatStreamError`)(
   "ChatStreamError",
   {
     message: S.String,
   },
-  {
+  $I.annote("ChatStreamError", {
     title: "Chat Stream Error",
     description: "Chat stream execution failed.",
-  }
+  })
 ) {}
 
 export const ChatSseEventTypeSchema = S.Literals([
@@ -133,7 +129,7 @@ export const ChatSseEventTypeSchema = S.Literals([
   "graph-snippet",
   "done",
 ]).annotate(
-  $ChatHandlerId.annote("ChatSseEventTypeSchema", {
+  $I.annote("ChatSseEventTypeSchema", {
     title: "Chat SSE Event Type",
     description: "Event types produced by the streaming chat endpoint.",
   })

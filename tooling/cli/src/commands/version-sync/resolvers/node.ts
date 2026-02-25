@@ -11,6 +11,8 @@
 import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import { parseDocument } from "yaml";
 import type { VersionCategoryReport, VersionDriftItem } from "../types.js";
 import { VersionSyncError } from "../types.js";
@@ -43,6 +45,8 @@ export interface NodeVersionState {
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
+
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 /**
  * Resolve Node.js version state from `.nvmrc` and workflow files.
@@ -115,34 +119,34 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
   const doc = parseDocument(content);
   const root = doc.toJSON();
 
-  if (typeof root !== "object" || root === null || !("jobs" in root)) {
+  if (!isRecord(root) || !("jobs" in root)) {
     return locations;
   }
 
   const jobs = root.jobs;
-  if (typeof jobs !== "object" || jobs === null) {
+  if (!isRecord(jobs)) {
     return locations;
   }
 
-  for (const jobName of Object.keys(jobs)) {
+  for (const jobName of R.keys(jobs)) {
     const job = jobs[jobName];
-    if (typeof job !== "object" || job === null || !("steps" in job)) {
+    if (!isRecord(job) || !("steps" in job)) {
       continue;
     }
 
     const steps = job.steps;
-    if (!Array.isArray(steps)) {
+    if (!A.isArray(steps)) {
       continue;
     }
 
     for (let stepIdx = 0; stepIdx < A.length(steps); stepIdx++) {
       const step = steps[stepIdx];
-      if (typeof step !== "object" || step === null) {
+      if (!isRecord(step)) {
         continue;
       }
 
       // Check for node-version in `with:` block
-      if ("with" in step && typeof step.with === "object" && step.with !== null) {
+      if ("with" in step && isRecord(step.with)) {
         const withBlock = step.with;
         if ("node-version" in withBlock) {
           const nodeVersion = String(withBlock["node-version"]);

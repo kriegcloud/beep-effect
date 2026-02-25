@@ -1,5 +1,4 @@
-import { String as Str } from "effect";
-import { coerceUnsafe, dual } from "effect/Function";
+import { Function as F, String as Str } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 
@@ -137,7 +136,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
       return { found: false };
     }
 
-    const record = coerceUnsafe<unknown, Record<string, unknown>>(current);
+    const record = F.coerceUnsafe<unknown, Record<string, unknown>>(current);
     if (!hasOwn.call(record, part)) {
       return { found: false };
     }
@@ -166,7 +165,7 @@ export const dotGet: {
   ): <S extends object>(self: StructForPathTuple<S, P>) => StructValueForPathTuple<S, P>;
   <S extends object, const P extends StructPath<S>>(self: S, path: P): StructPathValue<S, P>;
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): StructPathTupleValue<S, P>;
-} = dual(2, <S extends object>(self: S, path: PathInput): unknown => {
+} = F.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? lookup.value : undefined;
 }) as {
@@ -196,7 +195,7 @@ export const dotGetOption: {
   ): <S extends object>(self: StructForPathTuple<S, P>) => O.Option<StructValueForPathTuple<S, P>>;
   <S extends object, const P extends StructPath<S>>(self: S, path: P): O.Option<StructPathValue<S, P>>;
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
-} = dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
+} = F.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? O.some(lookup.value) : O.none();
 }) as {

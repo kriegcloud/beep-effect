@@ -1,14 +1,16 @@
 import * as nodePath from "node:path";
+import { codegenCommand } from "@beep/repo-cli/commands/codegen";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { codegenCommand } from "../src/commands/codegen.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -92,7 +94,10 @@ describe("codegen command", () => {
           // Write a minimal package.json
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-codegen" }, null, 2)
+            `{
+  "name": "@beep/test-codegen"
+}
+`
           );
 
           // Write some TypeScript modules
@@ -111,8 +116,8 @@ describe("codegen command", () => {
           expect(indexContent).toContain('export * from "./Foo.js"');
 
           // Bar should come before Foo (alphabetical)
-          const barIdx = indexContent.indexOf("./Bar.js");
-          const fooIdx = indexContent.indexOf("./Foo.js");
+          const barIdx = O.getOrElse(O.fromUndefinedOr(Str.indexOf("./Bar.js")(indexContent)), () => -1);
+          const fooIdx = O.getOrElse(O.fromUndefinedOr(Str.indexOf("./Foo.js")(indexContent)), () => -1);
           expect(barIdx).toBeLessThan(fooIdx);
         } finally {
           yield* fs.remove(tmpDir, { recursive: true }).pipe(Effect.orElseSucceed(() => void 0));
@@ -135,7 +140,10 @@ describe("codegen command", () => {
 
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-skip" }, null, 2)
+            `{
+  "name": "@beep/test-skip"
+}
+`
           );
 
           // Regular module
@@ -178,7 +186,10 @@ describe("codegen command", () => {
 
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-empty" }, null, 2)
+            `{
+  "name": "@beep/test-empty"
+}
+`
           );
 
           yield* run(["--package", tmpDir]);

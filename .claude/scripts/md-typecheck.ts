@@ -3,6 +3,8 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import type { PlatformError } from "effect/PlatformError";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 
@@ -63,6 +65,7 @@ const createTsConfig = (tsconfigBasePath: string, projectRoot: string) => ({
 
 // Directories to skip when crawling for markdown files
 const SKIP_DIRECTORIES = new Set(["node_modules", "dist-types", ".git", "dist", "build"]);
+const stringifyJson = S.encodeSync(S.UnknownFromJsonString);
 
 // ============================================================================
 // File System Operations
@@ -121,7 +124,7 @@ const extractCodeBlocks = (file: string, content: string): ReadonlyArray<CodeBlo
     const code = match[3];
     const language = langTag === "tsx" ? ("tsx" as const) : ("ts" as const);
     const nocheck = modifier === "nocheck";
-    const sourceLine = content.substring(0, match.index).split("\n").length;
+    const sourceLine = Str.split("\n")(Str.substring(0, match.index)(content)).length;
 
     blocks.push(
       new CodeBlock({
@@ -163,7 +166,7 @@ const extractAllCodeBlocks = (
 
 const generateOutputFileName = (block: CodeBlock, path: Path.Path): string => {
   const basename = path.basename(block.sourceFile, ".md");
-  const parts = block.sourceFile.split(path.sep);
+  const parts = Str.split(path.sep)(block.sourceFile);
   const relevantParts = parts.slice(-3, -1).join("_");
   const indexStr = String(block.index).padStart(4, "0");
   const ext = block.language === "tsx" ? ".tsx" : ".ts";
@@ -185,12 +188,11 @@ const writeCodeBlocksToOutput = (
 
     // Write tsconfig.json that extends the project's root config
     const tsconfig = createTsConfig(tsconfigBasePath, projectRoot);
-    yield* fs
-      .writeFileString(path.join(outputDir, "tsconfig.json"), JSON.stringify(tsconfig, null, 2))
-      .pipe(Effect.orDie);
+    yield* fs.writeFileString(path.join(outputDir, "tsconfig.json"), stringifyJson(tsconfig)).pipe(Effect.orDie);
 
     // Write code blocks AS-IS - users must provide valid TypeScript with all imports
-    const locations = yield* Effect.forEach(
+
+    return yield* Effect.forEach(
       blocks,
       (block) =>
         Effect.gen(function* () {
@@ -206,8 +208,6 @@ const writeCodeBlocksToOutput = (
         }),
       { concurrency: "unbounded" }
     );
-
-    return locations;
   });
 
 // ============================================================================
@@ -241,7 +241,7 @@ const parseTypeScriptError = (line: string, locations: ReadonlyArray<CodeBlockLo
   if (!match) return null;
 
   const [, tempFile, lineStr, colStr, message] = match;
-  const tempFileName = tempFile.split("/").pop() || tempFile;
+  const tempFileName = Str.split("/")(tempFile).pop() || tempFile;
   const errorLine = Number.parseInt(lineStr, 10);
   const errorCol = Number.parseInt(colStr, 10);
 
@@ -264,7 +264,7 @@ const parseTypeScriptErrors = (
   output: string,
   locations: ReadonlyArray<CodeBlockLocation>
 ): ReadonlyArray<TypeError> => {
-  const lines = output.split("\n");
+  const lines = Str.split("\n")(output);
   const errors: Array<TypeError> = [];
 
   for (const line of lines) {
@@ -288,7 +288,7 @@ const program = Effect.gen(function* () {
   // Step 1: Find all markdown files
   // Find .claude directory - either cwd is .claude/ or we need to look for it
   const cwd = process.cwd();
-  const claudeDir = cwd.endsWith(".claude") ? cwd : path.join(cwd, ".claude");
+  const claudeDir = Str.endsWith(".claude")(cwd) ? cwd : path.join(cwd, ".claude");
 
   yield* Console.log(`Scanning ${claudeDir} for markdown files...`);
   const markdownFiles = yield* crawlMarkdownFiles(claudeDir);
@@ -303,8 +303,8 @@ const program = Effect.gen(function* () {
   const allCodeBlocks = yield* extractAllCodeBlocks(markdownFiles);
 
   // Filter out nocheck blocks
-  const nocheckCount = allCodeBlocks.filter((b) => b.nocheck).length;
-  const codeBlocks = allCodeBlocks.filter((b) => !b.nocheck);
+  const nocheckCount = A.filter(allCodeBlocks, (b) => b.nocheck).length;
+  const codeBlocks = A.filter(allCodeBlocks, (b) => !b.nocheck);
 
   yield* Console.log(`Extracted ${allCodeBlocks.length} TypeScript code blocks (${nocheckCount} skipped with nocheck)`);
 
@@ -315,7 +315,7 @@ const program = Effect.gen(function* () {
 
   // Step 3: Create temporary directory and write files
   const outputDir = yield* fs.makeTempDirectory({ prefix: "md-typecheck-" });
-  const projectRoot = claudeDir.replace("/.claude", "");
+  const projectRoot = Str.replace("/.claude", "")(claudeDir);
   const tsconfigBasePath = path.join(projectRoot, "tsconfig.base.json");
 
   yield* Console.log(`Writing code blocks to ${outputDir}...`);
@@ -337,7 +337,10 @@ const program = Effect.gen(function* () {
   const errorsByFile = new Map<string, number>();
 
   for (const error of result) {
-    const relPath = error.sourceFile.replace(`${claudeDir}/`, "").replace(`${claudeDir.replace("/.claude", "")}/`, "");
+    const relPath = Str.replace(
+      `${Str.replace("/.claude", "")(claudeDir)}/`,
+      ""
+    )(Str.replace(`${claudeDir}/`, "")(error.sourceFile));
     errorsByFile.set(relPath, (errorsByFile.get(relPath) || 0) + 1);
   }
 
@@ -367,9 +370,10 @@ const program = Effect.gen(function* () {
     yield* Console.log("═══════════════════════════════════════════════════════════════");
     yield* Console.log("");
     for (const error of result) {
-      const relPath = error.sourceFile
-        .replace(`${claudeDir}/`, "")
-        .replace(`${claudeDir.replace("/.claude", "")}/`, "");
+      const relPath = Str.replace(
+        `${Str.replace("/.claude", "")(claudeDir)}/`,
+        ""
+      )(Str.replace(`${claudeDir}/`, "")(error.sourceFile));
       yield* Console.log(`  ${relPath}:${error.sourceLine}:${error.sourceCol}`);
       yield* Console.log(`    ${error.message}`);
     }

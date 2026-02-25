@@ -1,0 +1,10 @@
+{
+  "id": "package_lib_04",
+  "title": "Shared domain service-map alignment",
+  "category": "package_lib",
+  "prompt": "Align shared-domain service construction with ServiceMap.Service and explicit Layer composition.",
+  "cwd": "packages/shared/domain",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 8,
+  "touchedPathAllowlist": ["packages/shared/domain/src"]
+}

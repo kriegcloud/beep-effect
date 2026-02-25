@@ -1,0 +1,10 @@
+{
+  "id": "package_lib_06",
+  "title": "Messages package import and typing safety",
+  "category": "package_lib",
+  "prompt": "Review messages package import paths for Effect v4 correctness and maintain strict typed API boundaries.",
+  "cwd": "packages/common/messages",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 8,
+  "touchedPathAllowlist": ["packages/common/messages/src"]
+}

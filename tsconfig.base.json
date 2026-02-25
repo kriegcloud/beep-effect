@@ -43,7 +43,8 @@
           "Option": "O",
           "Predicate": "P",
           "Record": "R",
-          "Schema": "S"
+          "Schema": "S",
+          "Equal": "Eq"
         }
       }
     ]

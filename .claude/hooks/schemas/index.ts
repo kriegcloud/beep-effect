@@ -2,10 +2,10 @@
  * Shared Schema Definitions
  *
  * This file contains all shared schemas for the hook system.
- * All encoding/decoding should use Schema.encode/decode directly instead of sync versions.
+ * All encoding/decoding should use S.encode/decode directly instead of sync versions.
  */
 
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
 // =============================================================================
 // Common Base Fields
@@ -14,12 +14,12 @@ import * as Schema from "effect/Schema";
 /**
  * Base fields present in all hook inputs
  */
-export const HookInputBase = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.String,
+export const HookInputBase = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.String,
 });
 
 // =============================================================================
@@ -29,42 +29,42 @@ export const HookInputBase = Schema.Struct({
 /**
  * Edit tool input
  */
-export const EditToolInput = Schema.Struct({
-  file_path: Schema.String,
-  old_string: Schema.String,
-  new_string: Schema.String,
-  replace_all: Schema.optional(Schema.Boolean),
+export const EditToolInput = S.Struct({
+  file_path: S.String,
+  old_string: S.String,
+  new_string: S.String,
+  replace_all: S.optional(S.Boolean),
 });
 
 /**
  * Write tool input
  */
-export const WriteToolInput = Schema.Struct({
-  file_path: Schema.String,
-  content: Schema.String,
+export const WriteToolInput = S.Struct({
+  file_path: S.String,
+  content: S.String,
 });
 
 /**
  * Task tool input (for spawning subagents)
  */
-export const TaskToolInput = Schema.Struct({
-  description: Schema.String,
-  prompt: Schema.String,
-  subagent_type: Schema.String,
-  model: Schema.optional(Schema.String),
-  run_in_background: Schema.optional(Schema.Boolean),
-  resume: Schema.optional(Schema.String),
+export const TaskToolInput = S.Struct({
+  description: S.String,
+  prompt: S.String,
+  subagent_type: S.String,
+  model: S.optional(S.String),
+  run_in_background: S.optional(S.Boolean),
+  resume: S.optional(S.String),
 });
 
 /**
  * Generic tool input with common optional fields
  */
-export const GenericToolInput = Schema.Struct({
-  file_path: Schema.optional(Schema.String),
-  notebook_path: Schema.optional(Schema.String),
-  content: Schema.optional(Schema.String),
-  old_string: Schema.optional(Schema.String),
-  new_string: Schema.optional(Schema.String),
+export const GenericToolInput = S.Struct({
+  file_path: S.optional(S.String),
+  notebook_path: S.optional(S.String),
+  content: S.optional(S.String),
+  old_string: S.optional(S.String),
+  new_string: S.optional(S.String),
 });
 
 // =============================================================================
@@ -74,36 +74,36 @@ export const GenericToolInput = Schema.Struct({
 /**
  * Structured patch entry in Edit/Write responses
  */
-export const StructuredPatchEntry = Schema.Struct({
-  oldStart: Schema.Number,
-  oldLines: Schema.Number,
-  newStart: Schema.Number,
-  newLines: Schema.Number,
-  lines: Schema.Array(Schema.String),
+export const StructuredPatchEntry = S.Struct({
+  oldStart: S.Number,
+  oldLines: S.Number,
+  newStart: S.Number,
+  newLines: S.Number,
+  lines: S.Array(S.String),
 });
 
 /**
  * Edit tool response
  */
-export const EditToolResponse = Schema.Struct({
-  filePath: Schema.String,
-  oldString: Schema.String,
-  newString: Schema.String,
-  originalFile: Schema.String,
-  structuredPatch: Schema.Array(StructuredPatchEntry),
-  userModified: Schema.Boolean,
-  replaceAll: Schema.Boolean,
+export const EditToolResponse = S.Struct({
+  filePath: S.String,
+  oldString: S.String,
+  newString: S.String,
+  originalFile: S.String,
+  structuredPatch: S.Array(StructuredPatchEntry),
+  userModified: S.Boolean,
+  replaceAll: S.Boolean,
 });
 
 /**
  * Write tool response
  */
-export const WriteToolResponse = Schema.Struct({
-  type: Schema.String, // "create" | "overwrite"
-  filePath: Schema.String,
-  content: Schema.String,
-  structuredPatch: Schema.Array(StructuredPatchEntry),
-  originalFile: Schema.NullOr(Schema.String),
+export const WriteToolResponse = S.Struct({
+  type: S.String, // "create" | "overwrite"
+  filePath: S.String,
+  content: S.String,
+  structuredPatch: S.Array(StructuredPatchEntry),
+  originalFile: S.NullOr(S.String),
 });
 
 // =============================================================================
@@ -113,18 +113,18 @@ export const WriteToolResponse = Schema.Struct({
 /**
  * PreToolUse hook input - received before tool execution
  */
-export const PreToolUseInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("PreToolUse"),
-  tool_name: Schema.String,
+export const PreToolUseInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("PreToolUse"),
+  tool_name: S.String,
   tool_input: GenericToolInput,
-  tool_use_id: Schema.String,
+  tool_use_id: S.String,
 });
 
-export type PreToolUseInput = Schema.Schema.Type<typeof PreToolUseInput>;
+export type PreToolUseInput = S.Schema.Type<typeof PreToolUseInput>;
 
 // =============================================================================
 // PostToolUse Hook Input
@@ -134,19 +134,19 @@ export type PreToolUseInput = Schema.Schema.Type<typeof PreToolUseInput>;
  * PostToolUse hook input - received after tool execution
  * Includes tool_response with the result
  */
-export const PostToolUseInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("PostToolUse"),
-  tool_name: Schema.String,
+export const PostToolUseInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("PostToolUse"),
+  tool_name: S.String,
   tool_input: GenericToolInput,
-  tool_response: Schema.Unknown, // Varies by tool
-  tool_use_id: Schema.String,
+  tool_response: S.Unknown, // Varies by tool
+  tool_use_id: S.String,
 });
 
-export type PostToolUseInput = Schema.Schema.Type<typeof PostToolUseInput>;
+export type PostToolUseInput = S.Schema.Type<typeof PostToolUseInput>;
 
 // =============================================================================
 // Legacy/Combined ToolUseInput (for backward compatibility)
@@ -156,19 +156,19 @@ export type PostToolUseInput = Schema.Schema.Type<typeof PostToolUseInput>;
  * Combined ToolUseInput schema - works for both PreToolUse and PostToolUse
  * @deprecated Use PreToolUseInput or PostToolUseInput for better type safety
  */
-export const ToolUseInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.String,
-  tool_name: Schema.String,
+export const ToolUseInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.String,
+  tool_name: S.String,
   tool_input: GenericToolInput,
-  tool_response: Schema.optional(Schema.Unknown),
-  tool_use_id: Schema.String,
+  tool_response: S.optional(S.Unknown),
+  tool_use_id: S.String,
 });
 
-export type ToolUseInput = Schema.Schema.Type<typeof ToolUseInput>;
+export type ToolUseInput = S.Schema.Type<typeof ToolUseInput>;
 
 // =============================================================================
 // UserPromptSubmit Hook Input
@@ -177,16 +177,16 @@ export type ToolUseInput = Schema.Schema.Type<typeof ToolUseInput>;
 /**
  * UserPromptSubmit hook input - received when user submits a prompt
  */
-export const UserPromptInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("UserPromptSubmit"),
-  prompt: Schema.String,
+export const UserPromptInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("UserPromptSubmit"),
+  prompt: S.String,
 });
 
-export type UserPromptInput = Schema.Schema.Type<typeof UserPromptInput>;
+export type UserPromptInput = S.Schema.Type<typeof UserPromptInput>;
 
 // =============================================================================
 // SessionStart Hook Input
@@ -195,15 +195,15 @@ export type UserPromptInput = Schema.Schema.Type<typeof UserPromptInput>;
 /**
  * SessionStart hook input - received when a new session starts
  */
-export const SessionStartInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.String,
-  hook_event_name: Schema.Literal("SessionStart"),
+export const SessionStartInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.String,
+  hook_event_name: S.Literal("SessionStart"),
 });
 
-export type SessionStartInput = Schema.Schema.Type<typeof SessionStartInput>;
+export type SessionStartInput = S.Schema.Type<typeof SessionStartInput>;
 
 // =============================================================================
 // Hook Output Schemas
@@ -212,13 +212,13 @@ export type SessionStartInput = Schema.Schema.Type<typeof SessionStartInput>;
 /**
  * Standard hook output format
  */
-export const HookOutput = Schema.Struct({
-  hookSpecificOutput: Schema.Struct({
-    hookEventName: Schema.String,
-    permissionDecision: Schema.optional(Schema.String),
-    permissionDecisionReason: Schema.optional(Schema.String),
-    additionalContext: Schema.optional(Schema.String),
+export const HookOutput = S.Struct({
+  hookSpecificOutput: S.Struct({
+    hookEventName: S.String,
+    permissionDecision: S.optional(S.String),
+    permissionDecisionReason: S.optional(S.String),
+    additionalContext: S.optional(S.String),
   }),
 });
 
-export type HookOutput = Schema.Schema.Type<typeof HookOutput>;
+export type HookOutput = S.Schema.Type<typeof HookOutput>;

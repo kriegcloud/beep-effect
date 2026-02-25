@@ -1,0 +1,13 @@
+{
+  "id": "tooling_cli_06",
+  "title": "Config sync policy guardrails",
+  "category": "tooling_cli",
+  "prompt": "Add guardrails to config-sync command ensuring deterministic output and effect-v4-compliant error handling.",
+  "cwd": "tooling/cli",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 10,
+  "touchedPathAllowlist": [
+    "tooling/cli/src/commands/tsconfig-sync.ts",
+    "tooling/cli/src/services"
+  ]
+}

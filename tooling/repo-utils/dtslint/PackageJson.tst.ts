@@ -1,5 +1,3 @@
-import type { Effect, Exit, Schema } from "effect";
-import { describe, expect, it } from "tstyche";
 import {
   type DomainError,
   decodePackageJson,
@@ -9,7 +7,9 @@ import {
   encodePackageJsonPrettyEffect,
   encodePackageJsonToJsonEffect,
   type PackageJson,
-} from "../src/index.js";
+} from "@beep/repo-utils";
+import type { Effect, Exit, Schema } from "effect";
+import { describe, expect, it } from "tstyche";
 
 describe("PackageJson", () => {
   describe("PackageJson schema", () => {

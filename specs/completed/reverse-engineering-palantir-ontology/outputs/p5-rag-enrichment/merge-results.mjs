@@ -9,6 +9,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const SPEC =
   "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-for-beep-effect-ontology";
@@ -26,7 +29,7 @@ master.forEach((e) => masterByUrl.set(e.url, e));
 
 // 2. Find and load all batch result files
 const resultFiles = readdirSync(BATCH_DIR)
-  .filter((f) => f.match(/^batch-\d+-results\.json$/))
+  .filter((f) => O.getOrNull(O.fromNullishOr(Str.match(/^batch-\d+-results\.json$/)(f))))
   .sort();
 
 console.log(`Found ${resultFiles.length} batch result files`);

@@ -1,13 +1,14 @@
+import { CyclicDependencyError, computeTransitiveClosure, detectCycles, topologicalSort } from "@beep/repo-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, HashMap, HashSet } from "effect";
-import { CyclicDependencyError, computeTransitiveClosure, detectCycles, topologicalSort } from "../src/index.js";
+import * as R from "effect/Record";
 
 /**
  * Helper to build an adjacency list from a record for readability.
  */
 const makeAdj = (entries: Record<string, ReadonlyArray<string>>): HashMap.HashMap<string, HashSet.HashSet<string>> => {
   let map = HashMap.empty<string, HashSet.HashSet<string>>();
-  for (const [key, deps] of Object.entries(entries)) {
+  for (const [key, deps] of R.toEntries(entries)) {
     map = HashMap.set(map, key, HashSet.fromIterable(deps));
   }
   return map;

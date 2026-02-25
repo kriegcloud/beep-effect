@@ -71,7 +71,7 @@ export const getDoc = (name: string, text: string, isModule = false) =>
     const category = yield* _(getCategoryTag(...))// <-- extracts @category
     const description = yield* _(getDescription(...))
     const examples = yield* _(getExamplesTag(...))// <-- extracts @example
-    const deprecated = Option.isSome(Record.get(comment.tags, "deprecated"))
+    const deprecated = O.isSome(Record.get(comment.tags, "deprecated"))
     // ^^^ EVERYTHING ELSE in comment.tags IS THROWN AWAY
     return Domain.createDoc(description, since, deprecated, examples, category)
   })
@@ -119,9 +119,9 @@ export const PackageJson = Schema.Struct({ ... }).annotate({
 
 **ts-morph extraction** (proof of concept):
 ```typescript
-const extractAnnotateMetadata = (vd: ast.VariableDeclaration): Option.Option<AnnotateMetadata> => {
+const extractAnnotateMetadata = (vd: ast.VariableDeclaration): O.Option<AnnotateMetadata> => {
   const init = vd.getInitializer()
-  if (!init) return Option.none()
+  if (!init) return O.none()
 
   // Walk the call chain: Schema.Struct({...}).annotate({...})
   const calls = collectCallChain(init)
@@ -131,9 +131,9 @@ const extractAnnotateMetadata = (vd: ast.VariableDeclaration): Option.Option<Ann
 
   return pipe(
     annotateCall,
-    Option.flatMap((call) => A.head(call.getArguments())),
-    Option.filter(ast.Node.isObjectLiteralExpression),
-    Option.map((obj) => ({
+    O.flatMap((call) => A.head(call.getArguments())),
+    O.filter(ast.Node.isObjectLiteralExpression),
+    O.map((obj) => ({
       identifier: getStringProperty(obj, "identifier"),
       title: getStringProperty(obj, "title"),
       description: getStringProperty(obj, "description"),
@@ -160,22 +160,22 @@ export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyEr
 
 **ts-morph extraction**:
 ```typescript
-const extractTaggedErrorMetadata = (cd: ast.ClassDeclaration): Option.Option<TaggedErrorMeta> => {
+const extractTaggedErrorMetadata = (cd: ast.ClassDeclaration): O.Option<TaggedErrorMeta> => {
   const heritage = cd.getExtends()
-  if (!heritage) return Option.none()
+  if (!heritage) return O.none()
   const expr = heritage.getExpression()
 
   // Pattern: S.TaggedErrorClass<T>("identifier")("tag", { fields }, { meta })
-  if (!ast.Node.isCallExpression(expr)) return Option.none()
+  if (!ast.Node.isCallExpression(expr)) return O.none()
 
   const outerCall = expr  // ("tag", {fields}, {meta})
   const innerExpr = outerCall.getExpression()
-  if (!ast.Node.isCallExpression(innerExpr)) return Option.none()
+  if (!ast.Node.isCallExpression(innerExpr)) return O.none()
 
   const factoryCall = innerExpr  // S.TaggedErrorClass<T>("identifier")
   const args = outerCall.getArguments()
 
-  return Option.some({
+  return O.some({
     schemaIdentifier: getStringLiteral(factoryCall.getArguments()[0]),
     tagName: getStringLiteral(args[0]),
     fields: args[1] ? extractObjectShape(args[1]) : {},
@@ -202,14 +202,14 @@ const extractTaggedErrorMetadata = (cd: ast.ClassDeclaration): Option.Option<Tag
 2. Use the type-checker to inspect `Layer.Layer<Provides, Error, Requires>` type arguments directly (robust)
 
 ```typescript
-const extractLayerDeps = (vd: ast.VariableDeclaration): Option.Option<LayerDeps> => {
+const extractLayerDeps = (vd: ast.VariableDeclaration): O.Option<LayerDeps> => {
   const type = vd.getType()
   const symbol = type.getSymbol() ?? type.getAliasSymbol()
-  if (symbol?.getName() !== "Layer") return Option.none()
+  if (symbol?.getName() !== "Layer") return O.none()
 
   const typeArgs = type.getTypeArguments()
   // Layer.Layer<Provides, Error, Requires>
-  return Option.some({
+  return O.some({
     provides: typeArgs[0]?.getText() ?? "unknown",
     error: typeArgs[1]?.getText() ?? "never",
     requires: typeArgs[2]?.getText() ?? "never",
@@ -224,8 +224,8 @@ const extractLayerDeps = (vd: ast.VariableDeclaration): Option.Option<LayerDeps>
 **Partial workaround via docgen**: `parseComment()` already captures these in `comment.tags`:
 ```typescript
 const comment = Parser.parseComment(jsDocText)
-// comment.tags["see"]  => [Option.some("OtherModule")]
-// comment.tags["link"] => [Option.some("SomeClass")]  -- if doctrine parses inline @link
+// comment.tags["see"]  => [O.some("OtherModule")]
+// comment.tags["link"] => [O.some("SomeClass")]  -- if doctrine parses inline @link
 ```
 
 But `getDoc()` discards them. We can call `parseComment()` directly and extract.
@@ -283,17 +283,20 @@ Docgen is pinned to Effect v3 (`effect: "3.7.0"`, `@effect/schema: "0.72.0"`, `@
 
 import * as ast from "ts-morph"
 import * as doctrine from "doctrine"
-import { Effect, Option, Array as A, pipe } from "effect"
+import { Effect, pipe } from "effect"
+import * as A from "effect/Array"
+import * as O from "effect/Option"
+import * as R from "effect/Record"
 
 // ─── Reuse from docgen's approach (reimplemented for v4) ───
 
 interface JSDocInfo {
-  readonly description: Option.Option<string>
-  readonly since: Option.Option<string>
-  readonly category: Option.Option<string>
+  readonly description: O.Option<string>
+  readonly since: O.Option<string>
+  readonly category: O.Option<string>
   readonly deprecated: boolean
   readonly examples: ReadonlyArray<string>
-  readonly tags: Record<string, ReadonlyArray<Option.Option<string>>>
+  readonly tags: Record<string, ReadonlyArray<O.Option<string>>>
 }
 
 /** Replicates docgen's parseComment + getDoc without the enforcement/error layer */
@@ -302,11 +305,11 @@ const extractJSDoc = (jsdocText: string): JSDocInfo => {
   const tags = pipe(
     annotation.tags,
     A.groupBy((tag) => tag.title),
-    Record.map(A.map((tag) => Option.fromNullishOr(tag.description)))
+    R.map(A.map((tag) => O.fromNullishOr(tag.description)))
   )
   return {
-    description: Option.fromNullishOr(annotation.description).pipe(
-      Option.filter((s) => s.trim().length > 0)
+    description: O.fromNullishOr(annotation.description).pipe(
+      O.filter((s) => s.trim().length > 0)
     ),
     since: extractTag(tags, "since"),
     category: extractTag(tags, "category"),
@@ -319,25 +322,25 @@ const extractJSDoc = (jsdocText: string): JSDocInfo => {
 // ─── NEW: Effect-specific extractors (what docgen cannot do) ───
 
 interface AnnotateMetadata {
-  readonly identifier: Option.Option<string>
-  readonly title: Option.Option<string>
-  readonly description: Option.Option<string>
+  readonly identifier: O.Option<string>
+  readonly title: O.Option<string>
+  readonly description: O.Option<string>
 }
 
-const extractAnnotateChain = (node: ast.Node): Option.Option<AnnotateMetadata> => {
+const extractAnnotateChain = (node: ast.Node): O.Option<AnnotateMetadata> => {
   // Walk up call expression chain looking for .annotate({...})
-  if (!ast.Node.isCallExpression(node)) return Option.none()
+  if (!ast.Node.isCallExpression(node)) return O.none()
   const expr = node.getExpression()
   if (!ast.Node.isPropertyAccessExpression(expr)) {
     // Check if callee itself is a .annotate() result being chained
     return ast.Node.isCallExpression(expr)
       ? extractAnnotateChain(expr)
-      : Option.none()
+      : O.none()
   }
   if (expr.getName() === "annotate") {
     const arg = node.getArguments()[0]
     if (arg && ast.Node.isObjectLiteralExpression(arg)) {
-      return Option.some({
+      return O.some({
         identifier: getStringProp(arg, "identifier"),
         title: getStringProp(arg, "title"),
         description: getStringProp(arg, "description"),
@@ -352,31 +355,31 @@ interface TaggedErrorMeta {
   readonly schemaIdentifier: string
   readonly tagName: string
   readonly fieldNames: ReadonlyArray<string>
-  readonly title: Option.Option<string>
-  readonly description: Option.Option<string>
+  readonly title: O.Option<string>
+  readonly description: O.Option<string>
 }
 
 const extractTaggedErrorClass = (
   cd: ast.ClassDeclaration
-): Option.Option<TaggedErrorMeta> => {
+): O.Option<TaggedErrorMeta> => {
   const heritage = cd.getExtends()
-  if (!heritage) return Option.none()
+  if (!heritage) return O.none()
   const expr = heritage.getExpression()
-  if (!ast.Node.isCallExpression(expr)) return Option.none()
+  if (!ast.Node.isCallExpression(expr)) return O.none()
 
   // S.TaggedErrorClass<T>("id")("tag", {fields}, {meta})
   const outerArgs = expr.getArguments()
   const inner = expr.getExpression()
-  if (!ast.Node.isCallExpression(inner)) return Option.none()
+  if (!ast.Node.isCallExpression(inner)) return O.none()
 
   const factoryExpr = inner.getExpression()
   const isTaggedErrorClass =
     factoryExpr.getText().includes("TaggedErrorClass")
 
-  if (!isTaggedErrorClass) return Option.none()
+  if (!isTaggedErrorClass) return O.none()
 
   const innerArgs = inner.getArguments()
-  return Option.some({
+  return O.some({
     schemaIdentifier: getStringLiteralValue(innerArgs[0]),
     tagName: getStringLiteralValue(outerArgs[0]),
     fieldNames: outerArgs[1] && ast.Node.isObjectLiteralExpression(outerArgs[1])
@@ -386,10 +389,10 @@ const extractTaggedErrorClass = (
       : [],
     title: outerArgs[2] && ast.Node.isObjectLiteralExpression(outerArgs[2])
       ? getStringProp(outerArgs[2], "title")
-      : Option.none(),
+      : O.none(),
     description: outerArgs[2] && ast.Node.isObjectLiteralExpression(outerArgs[2])
       ? getStringProp(outerArgs[2], "description")
-      : Option.none(),
+      : O.none(),
   })
 }
 
@@ -414,11 +417,11 @@ const extractCrossRefs = (jsDocInfo: JSDocInfo): ReadonlyArray<CrossRef> => {
   // Also extract inline {@link Foo} from description
   const inlineLinks = pipe(
     jsDocInfo.description,
-    Option.map((desc) => {
+    O.map((desc) => {
       const matches = [...desc.matchAll(/\{@link\s+(\S+)\}/g)]
       return matches.map((m): CrossRef => ({ tag: "link", target: m[1] }))
     }),
-    Option.getOrElse(() => [] as CrossRef[])
+    O.getOrElse(() => [] as CrossRef[])
   )
   return [...seeRefs, ...linkRefs, ...inlineLinks]
 }
@@ -426,8 +429,8 @@ const extractCrossRefs = (jsDocInfo: JSDocInfo): ReadonlyArray<CrossRef> => {
 // ─── Custom tag extraction ───
 
 interface CustomTags {
-  readonly layer: Option.Option<string>
-  readonly service: Option.Option<string>
+  readonly layer: O.Option<string>
+  readonly service: O.Option<string>
   readonly depends: ReadonlyArray<string>
   readonly provides: ReadonlyArray<string>
 }

@@ -116,7 +116,7 @@ const applyBunUpdates: (
       } else if (item.file === "package.json" && item.field === "packageManager") {
         const filePath = path.join(repoRoot, "package.json");
         // Extract version from "bun@X.Y.Z"
-        const version = item.expected.replace(/^bun@/, "");
+        const version = Str.replace(/^bun@/, "")(item.expected);
         const changed = yield* updatePackageManagerField(filePath, version);
         if (changed) filesChanged += 1;
       }
@@ -180,7 +180,7 @@ const applyDockerUpdates: (
       }
 
       // Extract the image tag from expected (repository:tag)
-      const colonIdx = item.expected.lastIndexOf(":");
+      const colonIdx = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf(":")(item.expected)), () => -1);
       if (colonIdx < 0) continue;
 
       const newImageValue = item.expected;

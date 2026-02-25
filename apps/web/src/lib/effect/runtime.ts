@@ -1,10 +1,10 @@
 import { KnowledgeGraphToolsLayer } from "@beep/web/lib/effect/tool-handlers";
 import { GraphitiService } from "@beep/web/lib/graphiti/client";
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
-import { Config, Effect, Layer, pipe, Redacted, String } from "effect";
+import { Config, Effect, Layer, pipe, Redacted, String as Str } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 
-const OpenAiApiKey = pipe(process.env.OPENAI_API_KEY ?? process.env.AI_OPENAI_API_KEY ?? "", String.trim);
+const OpenAiApiKey = pipe(process.env.OPENAI_API_KEY ?? process.env.AI_OPENAI_API_KEY ?? "", Str.trim);
 
 export const OpenAiClientLayer = OpenAiClient.layer({
   apiKey: Redacted.make(OpenAiApiKey),

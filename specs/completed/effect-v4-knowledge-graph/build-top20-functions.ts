@@ -3,6 +3,9 @@
  * important modules. This balances coverage vs ingestion cost.
  */
 import { readFileSync, writeFileSync } from "fs";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 
 const BASE = "specs/pending/effect-v4-knowledge-graph/outputs";
 
@@ -43,7 +46,7 @@ const allFunctions: GraphitiEpisode[] = JSON.parse(
 );
 
 const filtered = allFunctions.filter((ep) => {
-  const modMatch = ep.episode_body.match(/Module Path: effect\/(\w+)/);
+  const modMatch = O.getOrNull(O.fromNullishOr(Str.match(/Module Path: effect\/(\w+)/)(ep.episode_body)));
   return modMatch && TOP_20_MODULES.has(modMatch[1]);
 });
 
@@ -52,7 +55,7 @@ writeFileSync(`${BASE}/p3-ast-extraction/function-episodes-top20.json`, JSON.str
 // Count per module
 const byModule = new Map<string, number>();
 for (const ep of filtered) {
-  const mod = ep.episode_body.match(/Module Path: effect\/(\w+)/)?.[1] || "unknown";
+  const mod = O.getOrNull(O.fromNullishOr(Str.match(/Module Path: effect\/(\w+)/)(ep.episode_body)))?.[1] || "unknown";
   byModule.set(mod, (byModule.get(mod) || 0) + 1);
 }
 

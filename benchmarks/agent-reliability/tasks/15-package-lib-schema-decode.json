@@ -1,0 +1,10 @@
+{
+  "id": "package_lib_03",
+  "title": "Schema decode migration correctness",
+  "category": "package_lib",
+  "prompt": "Replace deprecated Schema.decode usage with decodeUnknownSync or decodeUnknownEffect where appropriate.",
+  "cwd": "packages/common/schema",
+  "acceptanceCommands": ["bun run check"],
+  "timeoutMinutes": 8,
+  "touchedPathAllowlist": ["packages/common/schema/src"]
+}

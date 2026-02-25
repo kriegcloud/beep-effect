@@ -10,8 +10,10 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { Effect, FileSystem, HashMap, Order, Path } from "effect";
+import { Effect, FileSystem, HashMap, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as jsonc from "jsonc-parser";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -76,8 +78,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   insertSpaces: true,
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 const parseJsoncObject = (content: string, filePath: string): Record<string, unknown> => {
   const errors: Array<jsonc.ParseError> = [];
@@ -92,10 +93,10 @@ const parseJsoncObject = (content: string, filePath: string): Record<string, unk
 };
 
 const readReferences = (parsed: Record<string, unknown>): Array<unknown> =>
-  Array.isArray(parsed.references) ? [...parsed.references] : [];
+  A.isArray(parsed.references) ? [...parsed.references] : [];
 
 const hasReferencePath = (entry: unknown, target: string): boolean =>
-  isRecord(entry) && typeof entry.path === "string" && entry.path === target;
+  isRecord(entry) && P.isString(entry.path) && entry.path === target;
 
 const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
   if (!isRecord(parsed.compilerOptions)) return {};
@@ -104,14 +105,14 @@ const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknow
 };
 
 const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
-  Array.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : [];
+  A.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : [];
 
 const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: string): boolean => {
   const candidatePattern = `${packagePath}/dtslint/**/*.tst.*`;
   if (A.some(testFileMatch, (entry) => entry === candidatePattern)) return true;
-  const lastSlash = packagePath.lastIndexOf("/");
+  const lastSlash = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf("/")(packagePath)), () => -1);
   if (lastSlash < 0) return false;
-  const parentDir = packagePath.substring(0, lastSlash);
+  const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
   return A.some(testFileMatch, (entry) => entry === parentWildcard);
 };

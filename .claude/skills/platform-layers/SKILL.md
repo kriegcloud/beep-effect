@@ -264,8 +264,8 @@ import { FileSystem } from "effect"
 import { Effect, TestContext } from "effect"
 import { test } from "vitest"
 
-test("with TestContext", () =>
-  Effect.gen(function* () {
+test("with TestContext", 
+  Effect.fn(function* () {
     const fs = yield* FileSystem.FileSystem
     // TestContext provides mock implementations
     yield* fs.writeFileString("test.txt", "content")
@@ -295,17 +295,18 @@ src/
 ```typescript
 // services/ConfigService.ts
 import { FileSystem, Path, ServiceMap } from "effect"
-import { Effect, Layer, Schema } from "effect"
+import { Effect, Layer } from "effect"
+import * as S from "effect/Schema"
 
 interface Config {
   readonly name: string
   readonly version: string
 }
 
-declare const ConfigSchema: Schema.Schema<Config>
+declare const ConfigSchema: S.Schema<Config>
 
-class ConfigError extends Schema.TaggedError<ConfigError>()("ConfigError", {
-  message: Schema.String
+class ConfigError extends S.TaggedError<ConfigError>()("ConfigError", {
+  message: S.String
 }) {}
 
 class ConfigService extends ServiceMap.Service<ConfigService, {
@@ -322,7 +323,7 @@ const ConfigServiceLive = Layer.effect(
     const load = Effect.gen(function* () {
       const configPath = path.join("config", "app.json")
       const content = yield* fs.readFileString(configPath)
-      return yield* Schema.decode(ConfigSchema)(JSON.parse(content))
+      return yield* S.decode(ConfigSchema)(JSON.parse(content))
     })
 
     const save = (config: Config) =>

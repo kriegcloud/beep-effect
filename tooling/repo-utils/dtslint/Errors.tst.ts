@@ -1,5 +1,5 @@
+import { type CyclicDependencyError, DomainError, NoSuchFileError } from "@beep/repo-utils";
 import { describe, expect, it } from "tstyche";
-import { type CyclicDependencyError, DomainError, NoSuchFileError } from "../src/index.js";
 
 describe("Errors", () => {
   describe("NoSuchFileError", () => {

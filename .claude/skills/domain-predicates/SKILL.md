@@ -7,19 +7,21 @@ description: Generate comprehensive predicates and orders for domain types using
 
 Generate complete sets of predicates and Order instances for domain types, derived from typeclass implementations.
 
-## Pattern: Equality with Schema.Data
+## Pattern: Equality with S.Data
 
-When using schemas, leverage `Schema.Data` for automatic structural equality:
+When using schemas, leverage `S.Data` for automatic structural equality:
 
 ```typescript
-import { Schema, Equal, DateTime } from "effect"
+import { DateTime } from "effect"
+import * as Eq from "effect/Equal"
+import * as S from "effect/Schema"
 
-export const Task = Schema.TaggedStruct("pending", {
-  id: Schema.String,
-  createdAt: Schema.DateTimeUtcFromSelf,
-}).pipe(Schema.Data) // Implements Equal.Symbol automatically
+export const Task = S.TaggedStruct("pending", {
+  id: S.String,
+  createdAt: S.DateTimeUtcFromSelf,
+}).pipe(S.Data) // Implements Eq.symbol automatically
 
-export type Task = Schema.Schema.Type<typeof Task>
+export type Task = S.Schema.Type<typeof Task>
 
 declare const makeTask: (props: { id: string; createdAt: DateTime.Utc }) => Task
 declare const now: DateTime.Utc
@@ -28,7 +30,7 @@ declare const now: DateTime.Utc
 const task1 = makeTask({ id: "123", createdAt: now })
 const task2 = makeTask({ id: "123", createdAt: now })
 
-Equal.equals(task1, task2) // true - structural equality
+Eq.equals(task1, task2) // true - structural equality
 ```
 
 ## Pattern: Equivalence from Schema
@@ -36,19 +38,20 @@ Equal.equals(task1, task2) // true - structural equality
 When you need an `Equivalence` instance (for use with combinators), derive it from the schema:
 
 ```typescript
-import { Schema, Array } from "effect"
-import * as Equivalence from "effect/Equivalence"
+import * as A from "effect/Array"
+import * as S from "effect/Schema"
+import * as Equivalence from "effect/Equaluivalence"
 
-declare const Task: Schema.Schema<any, any, never>
-type Task = Schema.Schema.Type<typeof Task>
+declare const Task: S.Schema<any, any, never>
+type Task = S.Schema.Type<typeof Task>
 
 // Derive from schema (structural equality)
-export const TaskEquivalence = Schema.equivalence(Task)
+export const TaskEquivalence = S.equivalence(Task)
 
 declare const tasks: Array<Task>
 
 // Usage with combinators
-const uniqueTasks = Array.dedupeWith(tasks, TaskEquivalence)
+const uniqueTasks = A.dedupeWith(tasks, TaskEquivalence)
 ```
 
 ## Pattern: Field-Based Equivalence with Equivalence.mapInput
@@ -57,7 +60,7 @@ Compare by specific fields using `Equivalence.mapInput`:
 
 ```typescript
 import { DateTime } from "effect"
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 
 interface Task {
   readonly _tag: string
@@ -72,9 +75,9 @@ interface Task {
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  *
- * const uniqueById = Array.dedupeWith(tasks, Task.EquivalenceById)
+ * const uniqueById = A.dedupeWith(tasks, Task.EquivalenceById)
  */
 export const EquivalenceById = Equivalence.mapInput(
   Equivalence.string,
@@ -116,7 +119,7 @@ Use `Equivalence.combine` for multi-field equality:
 
 ```typescript
 import { DateTime } from "effect"
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 
 interface Task {
   readonly _tag: string
@@ -168,7 +171,8 @@ export const EquivalenceComplete = Equivalence.combine(
 When a domain type implements a typeclass, re-export all relevant predicates:
 
 ```typescript
-import { DateTime, Duration, Schema } from "effect"
+import { DateTime, Duration } from "effect"
+import * as S from "effect/Schema"
 import * as Order from "effect/Order"
 
 // Inline typeclass interface declarations (instead of module augmentations)
@@ -251,7 +255,7 @@ Compose orders from simpler base orders using `Order.mapInput`:
 ```typescript
 import { DateTime } from "effect"
 import * as Order from "effect/Order"
-import * as String from "effect/String"
+import * as Str from "effect/String"
 
 interface Task {
   readonly _tag: "pending" | "active" | "completed"
@@ -266,12 +270,12 @@ interface Task {
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  *
- * const sorted = Array.sort(tasks, Task.OrderById)
+ * const sorted = A.sort(tasks, Task.OrderById)
  */
 export const OrderById: Order.Order<Task> =
-  Order.mapInput(Order.string, (task: Task) => task.id)
+  Order.mapInput(Order.String, (task: Task) => task.id)
 
 /**
  * Order by creation date.
@@ -289,7 +293,7 @@ export const OrderByCreatedAt: Order.Order<Task> =
  * @since 0.1.0
  */
 export const OrderByTag: Order.Order<Task> =
-  Order.mapInput(Order.string, (task: Task) => task._tag)
+  Order.mapInput(Order.String, (task: Task) => task._tag)
 
 /**
  * Order by priority (domain-specific logic).
@@ -298,7 +302,7 @@ export const OrderByTag: Order.Order<Task> =
  * @since 0.1.0
  */
 export const OrderByPriority: Order.Order<Task> =
-  Order.mapInput(Order.number, (task: Task) => {
+  Order.mapInput(Order.Number, (task: Task) => {
     const priorities = { pending: 0, active: 1, completed: 2 }
     return priorities[task._tag]
   })
@@ -306,7 +310,7 @@ export const OrderByPriority: Order.Order<Task> =
 
 **Key Pattern: Order.mapInput**
 - Signature: `Order.mapInput(baseOrder, (value) => extractField)`
-- Compose from existing orders (Order.string, Order.number, DateTime.Order, etc.)
+- Compose from existing orders (Order.String, Order.Number, DateTime.Order, etc.)
 - Map domain type to comparable value
 - Dual API: data-first and data-last
 
@@ -336,10 +340,10 @@ declare const OrderById: Order.Order<Task>
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  *
  * // High priority tasks first, then by oldest
- * const sorted = Array.sort(tasks, Task.OrderByPriorityThenDate)
+ * const sorted = A.sort(tasks, Task.OrderByPriorityThenDate)
  */
 export const OrderByPriorityThenDate: Order.Order<Task> = Order.combine(
   OrderByPriority,
@@ -363,7 +367,7 @@ export const OrderComplex: Order.Order<Task> = Order.combine(
 - Combines multiple orders for multi-criteria sorting
 - First order takes precedence, then second, etc.
 - Order matters (unlike Equivalence.combine)
-- Returns combined order that can be used with Array.sort
+- Returns combined order that can be used with A.sort
 
 ## Pattern: Comprehensive Order Instances
 
@@ -372,7 +376,7 @@ Provide extensive sorting capabilities:
 ```typescript
 import { DateTime, Duration } from "effect"
 import * as Order from "effect/Order"
-import * as String from "effect/String"
+import * as Str from "effect/String"
 
 // Inline typeclass interface declarations
 interface SchedulableInstance<A> {
@@ -439,10 +443,10 @@ export const OrderBySeconds = Durable$.OrderBySeconds(Durable)
 
 // Domain-specific orders using Order.mapInput
 export const OrderByStatus: Order.Order<Appointment> =
-  Order.mapInput(String.Order, (appt: Appointment) => appt.status)
+  Order.mapInput(Str.Order, (appt: Appointment) => appt.status)
 
 export const OrderByStatusPriority: Order.Order<Appointment> =
-  Order.mapInput(Order.number, (appt: Appointment) => {
+  Order.mapInput(Order.Number, (appt: Appointment) => {
     const priorities: Record<AppointmentStatus, number> = {
       scheduled: 0,
       confirmed: 1,
@@ -464,8 +468,9 @@ export const OrderByStatusThenTime: Order.Order<Appointment> = Order.combine(
 ### Equality Examples
 
 ```typescript
-import { Equal, Array } from "effect"
-import * as Equivalence from "effect/Equivalence"
+import * as A from "effect/Array"
+import * as Eq from "effect/Equal"
+import * as Equivalence from "effect/Equaluivalence"
 
 declare module "@/schemas/Task" {
   export interface Task {
@@ -483,17 +488,17 @@ declare const task2: Task.Task
 declare const tasks: Array<Task.Task>
 declare const searchTask: Task.Task
 
-// Structural equality (automatic from Schema.Data)
-const areSame = Equal.equals(task1, task2)
+// Structural equality (automatic from S.Data)
+const areSame = Eq.equals(task1, task2)
 
 // Deduplicate by ID only
-const uniqueById = Array.dedupeWith(tasks, Task.EquivalenceById)
+const uniqueById = A.dedupeWith(tasks, Task.EquivalenceById)
 
 // Deduplicate by tag and ID
-const uniqueByTagAndId = Array.dedupeWith(tasks, Task.EquivalenceByTagAndId)
+const uniqueByTagAndId = A.dedupeWith(tasks, Task.EquivalenceByTagAndId)
 
 // Find if array contains equivalent task
-const hasTask = Array.containsWith(tasks, Task.EquivalenceById)(searchTask)
+const hasTask = A.containsWith(tasks, Task.EquivalenceById)(searchTask)
 ```
 
 ### Filtering Examples
@@ -501,7 +506,8 @@ const hasTask = Array.containsWith(tasks, Task.EquivalenceById)(searchTask)
 Document how these predicates enable powerful filtering:
 
 ```typescript
-import { DateTime, Duration, Array } from "effect"
+import { DateTime, Duration } from "effect"
+import * as A from "effect/Array"
 import { pipe } from "effect/Function"
 
 declare module "@/schemas/Appointment" {
@@ -522,7 +528,7 @@ declare const appointments: Array<Appointment.Appointment>
  * import * as Appointment from "@/schemas/Appointment"
  * import * as DateTime from "effect/DateTime"
  * import * as Duration from "effect/Duration"
- * import * as Array from "effect/Array"
+ * import * as A from "effect/Array"
  * import { pipe } from "effect/Function"
  *
  * const tomorrow = DateTime.addDuration(
@@ -532,7 +538,7 @@ declare const appointments: Array<Appointment.Appointment>
  *
  * const beforeTomorrow = pipe(
  *   appointments,
- *   Array.filter(Appointment.isScheduledBefore(tomorrow))
+ *   A.filter(Appointment.isScheduledBefore(tomorrow))
  * )
  */
 const tomorrow = DateTime.addDuration(
@@ -542,14 +548,15 @@ const tomorrow = DateTime.addDuration(
 
 const beforeTomorrow = pipe(
   appointments,
-  Array.filter(Appointment.isScheduledBefore(tomorrow))
+  A.filter(Appointment.isScheduledBefore(tomorrow))
 )
 ```
 
 ### Sorting Examples
 
 ```typescript
-import { Array, DateTime } from "effect"
+import { DateTime } from "effect"
+import * as A from "effect/Array"
 import * as Order from "effect/Order"
 import { pipe } from "effect/Function"
 
@@ -570,10 +577,10 @@ import * as Task from "@/schemas/Task"
 declare const tasks: Array<Task.Task>
 
 // Simple sort by single field
-const sortedById = Array.sort(tasks, Task.OrderById)
+const sortedById = A.sort(tasks, Task.OrderById)
 
 // Multi-criteria sort
-const sortedComplex = Array.sort(
+const sortedComplex = A.sort(
   tasks,
   Order.combine(
     Task.OrderByPriority,
@@ -584,8 +591,8 @@ const sortedComplex = Array.sort(
 // Sort with filter
 const sortedFiltered = pipe(
   tasks,
-  Array.filter(Task.isPending),
-  Array.sort(Task.OrderByCreatedAt)
+  A.filter(Task.isPending),
+  A.sort(Task.OrderByCreatedAt)
 )
 ```
 
@@ -594,10 +601,11 @@ const sortedFiltered = pipe(
 Combine predicates for sophisticated queries:
 
 ```typescript
-import { DateTime, Duration, Array } from "effect"
+import { DateTime, Duration } from "effect"
+import * as A from "effect/Array"
 import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 
 declare module "@/schemas/Appointment" {
   export interface Appointment {
@@ -622,15 +630,15 @@ declare const appointments: Array<Appointment.Appointment>
 // Find long appointments this week
 const longThisWeek = pipe(
   appointments,
-  Array.filter(Appointment.isScheduledThisWeek),
-  Array.filter(Appointment.hasMinimumDuration(Duration.hours(2)))
+  A.filter(Appointment.isScheduledThisWeek),
+  A.filter(Appointment.hasMinimumDuration(Duration.hours(2)))
 )
 
 // Sort by multiple criteria
 const sorted = pipe(
   appointments,
-  Array.filter(Appointment.isScheduledToday),
-  Array.sort(
+  A.filter(Appointment.isScheduledToday),
+  A.sort(
     Order.combine(
       Appointment.OrderByStatusPriority,
       Appointment.OrderByScheduledTime
@@ -641,16 +649,16 @@ const sorted = pipe(
 // Deduplicate and sort
 const uniqueSorted = pipe(
   appointments,
-  Array.dedupeWith(Appointment.EquivalenceById),
-  Array.sort(Appointment.OrderByPriorityThenDate)
+  A.dedupeWith(Appointment.EquivalenceById),
+  A.sort(Appointment.OrderByPriorityThenDate)
 )
 ```
 
 ## Checklist for Complete Coverage
 
 ### Equality
-- [ ] Use `Schema.Data` for automatic `Equal.equals()`
-- [ ] Export `Schema.equivalence()` when needed for combinators
+- [ ] Use `S.Data` for automatic `Eq.equals()`
+- [ ] Export `S.equivalence()` when needed for combinators
 - [ ] Export field-based equivalences using `Equivalence.mapInput`
 - [ ] Export combined equivalences using `Equivalence.combine`
 
@@ -692,38 +700,40 @@ Every predicate, equivalence, and order MUST have:
 
 ## Key Patterns Summary
 
-**1. Schema.Data for Equality**
+**1. S.Data for Equality**
 ```typescript
-import { Schema, Equal } from "effect"
+import * as Eq from "effect/Equal"
+import * as S from "effect/Schema"
 
-const TaskSchema = Schema.TaggedStruct("task", { id: Schema.String }).pipe(Schema.Data)
-type Task = Schema.Schema.Type<typeof TaskSchema>
+const TaskSchema = S.TaggedStruct("task", { id: S.String }).pipe(S.Data)
+type Task = S.Schema.Type<typeof TaskSchema>
 
 declare const t1: Task
 declare const t2: Task
 
-// Usage: Equal.equals(t1, t2)
-const areSame = Equal.equals(t1, t2)
+// Usage: Eq.equals(t1, t2)
+const areSame = Eq.equals(t1, t2)
 ```
 
-**2. Schema.equivalence() for Combinators**
+**2. S.equivalence() for Combinators**
 ```typescript
-import { Schema, Array } from "effect"
+import * as A from "effect/Array"
+import * as S from "effect/Schema"
 
-declare const Task: Schema.Schema<any, any, never>
-type Task = Schema.Schema.Type<typeof Task>
+declare const Task: S.Schema<any, any, never>
+type Task = S.Schema.Type<typeof Task>
 
-export const Equivalence = Schema.equivalence(Task)
+export const Equivalence = S.equivalence(Task)
 
 declare const tasks: Array<Task>
 
-// Usage: Array.dedupeWith(tasks, Equivalence)
-const uniqueTasks = Array.dedupeWith(tasks, Equivalence)
+// Usage: A.dedupeWith(tasks, Equivalence)
+const uniqueTasks = A.dedupeWith(tasks, Equivalence)
 ```
 
 **3. Equivalence.mapInput for Field-Based**
 ```typescript
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 
 interface Task {
   readonly id: string
@@ -734,7 +744,7 @@ const EquivalenceById = Equivalence.mapInput(Equivalence.string, (t: Task) => t.
 
 **4. Equivalence.combine for Multi-Field**
 ```typescript
-import * as Equivalence from "effect/Equivalence"
+import * as Equivalence from "effect/Equaluivalence"
 
 interface Task {
   readonly _tag: string
@@ -755,7 +765,7 @@ interface Task {
   readonly id: string
 }
 
-const OrderById = Order.mapInput(Order.string, (t: Task) => t.id)
+const OrderById = Order.mapInput(Order.String, (t: Task) => t.id)
 ```
 
 **6. Order.combine for Multi-Criteria Sorting**

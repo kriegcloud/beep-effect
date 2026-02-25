@@ -5,6 +5,8 @@
  * @module
  */
 
+import { AgentEvalProtocolError } from "../errors.js";
+
 /**
  * Graphiti client options.
  *
@@ -53,7 +55,9 @@ const initializeSession = async (url: string): Promise<string> => {
 
   const sessionId = response.headers.get("mcp-session-id");
   if (!sessionId) {
-    throw new Error("Graphiti MCP initialize missing mcp-session-id");
+    throw new AgentEvalProtocolError({
+      message: "Graphiti MCP initialize missing mcp-session-id",
+    });
   }
 
   return sessionId;
@@ -83,6 +87,10 @@ const callTool = async (url: string, sessionId: string, toolName: string, args: 
 /**
  * Search memory facts from Graphiti via MCP HTTP transport.
  *
+ * @param options - Graphiti MCP endpoint and group configuration.
+ * @param query - Search query string sent to the Graphiti memory tool.
+ * @param maxFacts - Maximum number of facts requested from Graphiti.
+ * @returns Deduplicated fact strings extracted from the MCP response text.
  * @since 0.0.0
  * @category functions
  */
@@ -103,6 +111,10 @@ export const searchMemoryFacts = async (
 /**
  * Add a structured memory episode to Graphiti via MCP HTTP transport.
  *
+ * @param options - Graphiti MCP endpoint and group configuration.
+ * @param name - Episode title used as the Graphiti memory name.
+ * @param episodeBody - Full episode content to persist in Graphiti memory.
+ * @returns Resolves when the add-memory tool call completes.
  * @since 0.0.0
  * @category functions
  */

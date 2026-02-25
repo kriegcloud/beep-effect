@@ -5,7 +5,19 @@
  * @packageDocumentation
  */
 
+/**
+ * @since 0.0.0
+ */
 export * from "./bench.js";
-export * from "./report.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./compare.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./ingest.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./report.js";
