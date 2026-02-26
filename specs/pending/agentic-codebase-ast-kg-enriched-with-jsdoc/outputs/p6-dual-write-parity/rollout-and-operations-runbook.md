@@ -29,6 +29,7 @@
 |---|---|---|
 | Falkor write failures with Graphiti success | `publish` receipt shows Falkor `failed>0` | Run `verify`; if quote/shell issue suspected, ensure patched CLI with argument-safe Falkor execution is deployed; replay from spool after patch. |
 | Graphiti MCP failures | `verify.graphiti.status != 200` or publish graphiti failures | Keep publishing to Falkor target, preserve spool files, and replay Graphiti when service recovers. |
+| Graphiti MCP tool calls fail with `Unexpected content type: None` | Memory tool failures while Graphiti health endpoint is up | Run `scripts/graphiti-recover.sh --patch-mcp-path --skip-republish` to enforce `/mcp` + `/mcp/` streamable compatibility and rerun MCP smoke checks. |
 | Commit-context parity fails | `parity` check `commit-context` false | Run `verify` commit metrics (`commitCount`, `commitContextCount`), then republish for target commit and rerun parity. |
 | Publish runtime too long on full-repo scope | operational timeout / pipeline breach | Switch to delta mode for routine runs; schedule batched Falkor ingestion improvement before expansion gate. |
 
@@ -37,7 +38,8 @@
 2. Re-publish dual-write from index envelopes: `bun run beep kg publish --target both --mode full`.
 3. Replay preserved spool entries: `bun run beep kg replay --from-spool <spool-path> --target both`.
 4. Validate recovery: `bun run beep kg verify --target both --group beep-ast-kg --commit <sha>` and parity command.
-5. Automated local recovery helper: `scripts/graphiti-recover.sh` (supports `--republish` and `--skip-republish`).
+5. Automated local recovery helper: `scripts/graphiti-recover.sh` (supports `--republish`, `--skip-republish`, `--patch-mcp-path`, and `--skip-mcp-patch`).
+6. MCP path compatibility probe should pass for both `http://localhost:8000/mcp` and `http://localhost:8000/mcp/` before relying on Codex memory tools.
 
 ## Operational Constraints
 1. Full-repo publish currently performs many serial Falkor queries; treat as heavy operation.

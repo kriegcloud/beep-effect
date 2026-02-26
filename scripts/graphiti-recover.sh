@@ -6,6 +6,7 @@ GRAPHITI_CONTAINER="${GRAPHITI_CONTAINER:-graphiti-mcp-graphiti-mcp-1}"
 MCP_URL="${GRAPHITI_MCP_URL:-http://localhost:8000/mcp}"
 VERIFY_GROUP="${GRAPHITI_VERIFY_GROUP:-beep-ast-kg}"
 REHYDRATE_MODE="auto" # auto|always|never
+MCP_PATH_PATCH_MODE="auto" # auto|always|never
 WAIT_SECONDS="${WAIT_SECONDS:-180}"
 
 usage() {
@@ -15,6 +16,8 @@ Usage: scripts/graphiti-recover.sh [options]
 Options:
   --republish         Always republish AST KG to Graphiti after recovery.
   --skip-republish    Never republish AST KG.
+  --patch-mcp-path    Always apply MCP /mcp and /mcp/ compatibility hotfix.
+  --skip-mcp-patch    Never apply MCP compatibility hotfix.
   --group <id>        Group id to verify with get_episodes (default: beep-ast-kg).
   --url <mcp-url>     MCP URL (default: http://localhost:8000/mcp).
   -h, --help          Show this help.
@@ -29,6 +32,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-republish)
       REHYDRATE_MODE="never"
+      shift
+      ;;
+    --patch-mcp-path)
+      MCP_PATH_PATCH_MODE="always"
+      shift
+      ;;
+    --skip-mcp-patch)
+      MCP_PATH_PATCH_MODE="never"
       shift
       ;;
     --group)
@@ -90,6 +101,159 @@ wait_healthy() {
   done
 }
 
+probe_init_headers() {
+  local url="$1"
+  local headers body
+  headers="$(mktemp)"
+  body="$(mktemp)"
+
+  local code
+  code="$(
+    curl -sS -m 30 -D "$headers" -o "$body" -w '%{http_code}' \
+      -H 'Accept: application/json, text/event-stream' \
+      -H 'Content-Type: application/json' \
+      --data '{"jsonrpc":"2.0","id":"compat-init","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"graphiti-recover","version":"0.0.0"}}}' \
+      "$url" || true
+  )"
+
+  local content_type
+  content_type="$(awk 'tolower($1)=="content-type:" {print $2}' "$headers" | tr -d '\r' | tail -n1)"
+
+  local session_id
+  session_id="$(awk 'tolower($1)=="mcp-session-id:" {print $2}' "$headers" | tr -d '\r' | tail -n1)"
+
+  rm -f "$headers" "$body"
+  printf '%s|%s|%s' "$code" "$content_type" "$session_id"
+}
+
+is_streamable_ok() {
+  local url="$1"
+  local probe code ctype sid
+  probe="$(probe_init_headers "$url")"
+  code="${probe%%|*}"
+  ctype="${probe#*|}"
+  ctype="${ctype%%|*}"
+  sid="${probe##*|}"
+
+  [[ "$code" == "200" && "$ctype" == text/event-stream* && -n "$sid" ]]
+}
+
+apply_mcp_path_hotfix() {
+  log "Applying MCP /mcp and /mcp/ compatibility hotfix in ${GRAPHITI_CONTAINER}"
+
+  docker exec "$GRAPHITI_CONTAINER" sh -lc "python - <<'PY'
+from pathlib import Path
+
+path = Path('/app/mcp/src/graphiti_mcp_server.py')
+text = path.read_text()
+changed = False
+
+if 'from starlette.routing import Route' not in text:
+    text = text.replace(
+        'from starlette.responses import JSONResponse\\n',
+        'from starlette.responses import JSONResponse\\nfrom starlette.routing import Route\\n',
+        1,
+    )
+    changed = True
+
+if 'def enable_mcp_path_aliases() -> None:' not in text:
+    insertion = '''
+
+def enable_mcp_path_aliases() -> None:
+    \"\"\"Serve both /mcp and /mcp/ without redirect-only responses.\"\"\"
+    original_streamable_http_app = mcp.streamable_http_app
+
+    def patched_streamable_http_app():
+        app = original_streamable_http_app()
+
+        canonical_path = mcp.settings.streamable_http_path.rstrip('/') or '/'
+        alternate_path = canonical_path if canonical_path == '/' else f'{canonical_path}/'
+
+        existing_paths = {
+            route.path for route in app.router.routes if isinstance(route, Route)
+        }
+
+        def endpoint_for(path: str):
+            for route in app.router.routes:
+                if isinstance(route, Route) and route.path == path:
+                    return route.endpoint
+            return None
+
+        canonical_endpoint = endpoint_for(canonical_path)
+        alternate_endpoint = endpoint_for(alternate_path)
+
+        if canonical_endpoint is not None and alternate_path not in existing_paths:
+            app.router.routes.append(Route(alternate_path, endpoint=canonical_endpoint))
+        elif alternate_endpoint is not None and canonical_path not in existing_paths:
+            app.router.routes.append(Route(canonical_path, endpoint=alternate_endpoint))
+
+        app.router.redirect_slashes = False
+        return app
+
+    mcp.streamable_http_app = patched_streamable_http_app
+'''
+    marker = '# Global services\\n'
+    if marker not in text:
+        raise SystemExit('Unable to locate Global services marker for MCP path patch')
+    text = text.replace(marker, f\"{insertion}\\n{marker}\", 1)
+    changed = True
+
+if 'enable_mcp_path_aliases()' not in text:
+    old = \"        logger.info('For MCP clients, connect to the /mcp/ endpoint above')\\n\\n        # Configure uvicorn logging to match our format\\n\"
+    new = \"        logger.info('For MCP clients, connect to the /mcp endpoint above')\\n\\n        enable_mcp_path_aliases()\\n\\n        # Configure uvicorn logging to match our format\\n\"
+    if old not in text:
+        old = \"        logger.info('For MCP clients, connect to the /mcp endpoint above')\\n\\n        # Configure uvicorn logging to match our format\\n\"
+    if old not in text:
+        raise SystemExit('Unable to locate HTTP transport marker for MCP path patch')
+    text = text.replace(old, new, 1)
+    changed = True
+
+if changed:
+    path.write_text(text)
+    print('patched')
+else:
+    print('already-patched')
+PY"
+
+  log "Restarting ${GRAPHITI_CONTAINER} after MCP path hotfix"
+  docker restart "$GRAPHITI_CONTAINER" >/dev/null
+  wait_healthy
+}
+
+ensure_mcp_path_compat() {
+  local canonical_url="${MCP_URL%/}"
+  local slash_url="${canonical_url}/"
+
+  if ! is_streamable_ok "$canonical_url"; then
+    echo "MCP canonical endpoint failed streamable initialize check: ${canonical_url}" >&2
+    return 1
+  fi
+
+  if [[ "$MCP_PATH_PATCH_MODE" == "always" ]]; then
+    apply_mcp_path_hotfix
+  fi
+
+  if is_streamable_ok "$slash_url"; then
+    log "MCP path compatibility check passed for both ${canonical_url} and ${slash_url}"
+    return 0
+  fi
+
+  if [[ "$MCP_PATH_PATCH_MODE" == "never" ]]; then
+    echo "MCP slash endpoint failed and patch mode is disabled: ${slash_url}" >&2
+    return 1
+  fi
+
+  log "MCP slash endpoint failed streamable check; applying hotfix"
+  apply_mcp_path_hotfix
+
+  if ! is_streamable_ok "$canonical_url" || ! is_streamable_ok "$slash_url"; then
+    echo "MCP compatibility checks failed after hotfix for ${canonical_url} and ${slash_url}" >&2
+    return 1
+  fi
+
+  log "MCP path compatibility hotfix verified for ${canonical_url} and ${slash_url}"
+}
+
 init_session() {
   local headers body
   headers="$(mktemp)"
@@ -132,6 +296,8 @@ log "Restarting $FALKOR_CONTAINER and $GRAPHITI_CONTAINER"
 docker restart "$FALKOR_CONTAINER" "$GRAPHITI_CONTAINER" >/dev/null
 
 wait_healthy
+
+ensure_mcp_path_compat
 
 log "Running MCP smoke checks"
 SESSION_ID="$(init_session)"

@@ -640,6 +640,17 @@ const runAcceptanceCommands = async (
   };
 };
 
+const skippedAcceptanceResult = (): AcceptanceCommandResult => ({
+  success: true,
+  failedCommand: null,
+  timedOut: false,
+  abortedByWallCap: false,
+  failedCommandDiagnostics: null,
+});
+
+const shouldRunAcceptanceCommands = (simulate: boolean, commandPass: boolean | undefined): boolean =>
+  simulate || (commandPass ?? true);
+
 /**
  * Parse `git status --porcelain --untracked-files=all` into concrete touched paths.
  *
@@ -1108,7 +1119,9 @@ const executeRunTuple = async (
       );
 
   const executionCwd = liveExecution?.executionCwd ?? taskCwd;
-  const acceptance = await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs);
+  const acceptance = shouldRunAcceptanceCommands(options.simulate, liveExecution?.commandPass)
+    ? await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs)
+    : skippedAcceptanceResult();
 
   const touchedSourceFiles = liveExecution?.touchedSourceFiles ?? [];
   const detectorInput = touchedSourceFiles

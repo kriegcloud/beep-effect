@@ -52,6 +52,8 @@ IN PROGRESS (P7 KG excellence gap-closure phase opened after P6 full-repo dual-w
 - [P7 Reliability Engineer Prompt](./handoffs/P7_RELIABILITY_ENGINEER_PROMPT.md)
 - [P7 Query Engineer Prompt](./handoffs/P7_QUERY_ENGINEER_PROMPT.md)
 - [P7 Ticket Backlog](./outputs/p7-kg-excellence/tickets.md)
+- [P7 Milestone](https://github.com/kriegcloud/beep-effect/milestone/1)
+- [P7 Issues #61-#66](https://github.com/kriegcloud/beep-effect/issues?q=is%3Aissue%20state%3Aopen%20milestone%3A%22P7%20KG%20Excellence%22)
 - [Landscape Comparison](./outputs/p0-research/landscape-comparison.md)
 - [Reuse vs Build Matrix](./outputs/p0-research/reuse-vs-build-matrix.md)
 - [Constraints and Gaps](./outputs/p0-research/constraints-and-gaps.md)

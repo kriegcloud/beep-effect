@@ -130,6 +130,7 @@ Use README lock tables as normative defaults. P1 cannot reopen these decisions w
 ## P7: KG Excellence Gap Closure
 - Objective: resolve all P6 known gaps with measurable performance and reliability improvements for world-class AST KG operations.
 - Owners: Orchestrator, Performance Engineer, Query Engineer, Reliability Engineer, Operations Engineer.
+- Tracking milestone: `P7 KG Excellence` with issues `#61`-`#66` in `kriegcloud/beep-effect`.
 - Required outputs:
   1. `outputs/p7-kg-excellence/tickets.md`
   2. `outputs/p7-kg-excellence/falkor-batching-report.md`

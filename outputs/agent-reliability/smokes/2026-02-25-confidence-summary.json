@@ -1,0 +1,61 @@
+{
+  "suites": ["completed", "completed", "completed"],
+  "totalRuns": 6,
+  "totalSuccess": 0,
+  "byTaskAgent": [
+    {
+      "task": "apps_web_01",
+      "agent": "codex",
+      "success": false,
+      "failureType": "runtime",
+      "rootCause": "Agent command failed or timed out",
+      "backend": "sdk",
+      "touched": 0
+    },
+    {
+      "task": "apps_web_01",
+      "agent": "claude",
+      "success": false,
+      "failureType": "runtime",
+      "rootCause": "Agent command failed or timed out",
+      "backend": "sdk",
+      "touched": 0
+    },
+    {
+      "task": "tooling_cli_01",
+      "agent": "codex",
+      "success": false,
+      "failureType": "runtime",
+      "rootCause": "Agent command failed or timed out",
+      "backend": "sdk",
+      "touched": 0
+    },
+    {
+      "task": "tooling_cli_01",
+      "agent": "claude",
+      "success": false,
+      "failureType": "effect_compliance",
+      "rootCause": "Mandatory Effect-first compliance rule violation detected",
+      "backend": "sdk",
+      "touched": 5
+    },
+    {
+      "task": "package_lib_01",
+      "agent": "codex",
+      "success": false,
+      "failureType": "runtime",
+      "rootCause": "Agent command failed or timed out",
+      "backend": "sdk",
+      "touched": 0
+    },
+    {
+      "task": "package_lib_01",
+      "agent": "claude",
+      "success": false,
+      "failureType": "effect_compliance",
+      "rootCause": "Mandatory Effect-first compliance rule violation detected",
+      "backend": "sdk",
+      "touched": 1
+    }
+  ]
+}
