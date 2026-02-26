@@ -1,17 +1,17 @@
 # Falkor Batching Report
 
 ## Objective
-Reduce full-repo Falkor publish runtime for  by at least 70% from the P6 baseline.
+Reduce full-repo Falkor publish runtime for `kg publish --target both --mode full` by at least 70% from the P6 baseline.
 
 ## Implementation
-- Added batched Falkor query execution in [](tooling/cli/src/commands/kg.ts) via .
-- Replaced per-query process invocation with one  stdin session per envelope.
-- Added sink dedupe ledger () to skip deterministic repeats.
+- Added batched Falkor query execution in `tooling/cli/src/commands/kg.ts` via `runFalkorQueries(...)`.
+- Replaced per-query process invocation with one `redis-cli` stdin session per envelope.
+- Added sink dedupe ledger (`tooling/ast-kg/.cache/publish-ledger.json`) to skip deterministic repeats.
 
 ## Benchmark Inputs
-- Baseline artifact: 
-- P7 artifact: 
-- P7 run group: 
+- Baseline artifact: `specs/pending/agentic-codebase-ast-kg-enriched-with-jsdoc/outputs/p6-dual-write-parity/evidence/20260225T214750Z-fullrepo-publish-full.json`
+- P7 artifact: `outputs/p7-kg-excellence/evidence/20260226T004744Z-fullrepo-publish-both.json`
+- P7 run group: `beep-ast-kg-p7-20260226T004744Z`
 
 ## Results
 

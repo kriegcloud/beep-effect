@@ -3,6 +3,17 @@
   "extractorVersion": "p3-v1",
   "snapshots": [
     {
+      "commitSha": "1f915b33fd99acf811ca6170a61c5a3f67a0dfc1",
+      "mode": "full",
+      "createdAtEpochMs": 1772068152578,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "d491e077a3fd2a51f5872c7b4c2bf97ed1af80360a16f02178249ab33d22b387",
+      "records": 245
+    },
+    {
       "commitSha": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
       "mode": "full",
       "createdAtEpochMs": 1772066865216,

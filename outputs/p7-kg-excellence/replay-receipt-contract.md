@@ -1,26 +1,26 @@
 # Replay Receipt Contract
 
 ## Contract Update
- now contains sink-level dedupe counters:
+`AstKgWriteReceiptV1` now contains sink-level dedupe counters:
 
 | Field | Type | Meaning |
 |---|---|---|
-|  |  | Sink receipt scope |
-|  | number | Candidate envelopes for sink |
-|  | number | New writes committed |
-|  | number | Deterministic replay hits (same sink/group/commit/file/hash) |
-|  | number | Sink write failures |
-|  | number | Sink execution duration |
-|  | number | Same as replayed; explicit dedupe counter |
-|  | number | Envelopes requiring writes |
+| `target` | `falkor | graphiti` | Sink receipt scope |
+| `attempted` | number | Candidate envelopes for sink |
+| `written` | number | New writes committed |
+| `replayed` | number | Deterministic replay hits (same sink/group/commit/file/hash) |
+| `failed` | number | Sink write failures |
+| `durationMs` | number | Sink execution duration |
+| `dedupeHits` | number | Same as replayed; explicit dedupe counter |
+| `dedupeMisses` | number | Envelopes requiring writes |
 
-Code: [](tooling/cli/src/commands/kg.ts)
+Code: `tooling/cli/src/commands/kg.ts`
 
 ## Deterministic Repeat Replay Evidence
-Run group: 
+Run group: `beep-ast-kg-replay-p7-20260226T004924Z`
 
-- First replay artifact: 
-- Second replay artifact: 
+- First replay artifact: `outputs/p7-kg-excellence/evidence/20260226T004924Z-replay-both-first.json`
+- Second replay artifact: `outputs/p7-kg-excellence/evidence/20260226T004924Z-replay-both-second.json`
 
 ### First replay
 - Falkor: attempted 244, written 244, replayed 0, dedupeHits 0, failed 0.

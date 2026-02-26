@@ -271,9 +271,7 @@ const runFalkorQueries = (queries: ReadonlyArray<string>): void => {
     return;
   }
 
-  const commandBody = `${queries
-    .map((query) => `GRAPH.QUERY ${GraphName} ${quoteRedisCliArg(query)}`)
-    .join("\n")}\n`;
+  const commandBody = `${queries.map((query) => `GRAPH.QUERY ${GraphName} ${quoteRedisCliArg(query)}`).join("\n")}\n`;
   const redisUrl = falkorUrl();
 
   if (redisUrl.length > 0) {
@@ -288,10 +286,6 @@ const runFalkorQueries = (queries: ReadonlyArray<string>): void => {
     input: commandBody,
     stdio: ["pipe", "pipe", "pipe"],
   });
-};
-
-const runFalkorQuery = (query: string): void => {
-  runFalkorQueries([query]);
 };
 
 const readGitMeta = (): { readonly sha: string; readonly parentSha: string; readonly branch: string } => {
@@ -1463,7 +1457,12 @@ const kgPublishCommand = Command.make(
       try: async (): Promise<PublishSummary> => {
         const generated = await generatePublishEnvelopes(normalizedMode.value, changed);
         const envelopes = applyGroupOverride(generated.envelopes, group);
-        const receipts = await publishEnvelopes(normalizedTarget.value, envelopes, generated.commitSha, generated.rootDir);
+        const receipts = await publishEnvelopes(
+          normalizedTarget.value,
+          envelopes,
+          generated.commitSha,
+          generated.rootDir
+        );
         return {
           mode: normalizedMode.value,
           commitSha: generated.commitSha,
@@ -1571,7 +1570,9 @@ const kgVerifyCommand = Command.make(
             nodeCount: falkorCount(`MATCH (n {groupId:${groupLiteral}}) RETURN count(n)`),
             edgeCount: falkorCount(`MATCH ()-[r]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`),
             fileCount: falkorCount(`MATCH (f:File {groupId:${groupLiteral}}) RETURN count(f)`),
-            commitCount: falkorCount(`MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}}) RETURN count(c)`),
+            commitCount: falkorCount(
+              `MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}}) RETURN count(c)`
+            ),
             commitContextCount: falkorCount(
               `MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
             ),
@@ -1648,9 +1649,7 @@ const kgParityCommand = Command.make(
         const commitContextCount = falkorCount(
           `MATCH (c:Commit {groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
         );
-        const eligibleCallEdges = falkorCount(
-          `MATCH ()-[r:CALLS]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`
-        );
+        const eligibleCallEdges = falkorCount(`MATCH ()-[r:CALLS]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`);
         const observedPaths = falkorCount(
           `MATCH p=()-[:CALLS*1..3]->() WHERE all(rel IN relationships(p) WHERE rel.groupId=${groupLiteral}) RETURN count(p)`
         );

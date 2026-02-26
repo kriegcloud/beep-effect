@@ -79,6 +79,7 @@
     "release": "bun run build && bun run test && bun run lint && changeset publish",
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
     "services:up": "bun run dotenvx -- docker compose up -d",
+    "graphiti:proxy": "bun run scripts/graphiti-mcp-queue-proxy.mjs",
     "kg:graphiti-recover:dry-run": "bash scripts/graphiti-recover.sh --dry-run --skip-republish",
     "dotenvx": "bunx @dotenvx/dotenvx run -f .env --",
     "deps:update": "bunx syncpack update --target=latest --dependency-types=catalog",
