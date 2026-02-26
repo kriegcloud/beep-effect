@@ -161,9 +161,13 @@
       "name": "@beep/ontology",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -172,6 +176,7 @@
       "name": "@beep/schema",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/data": "workspace:^",
         "@beep/identity": "workspace:^",
         "effect": "catalog:",
       },

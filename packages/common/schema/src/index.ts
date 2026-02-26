@@ -15,4 +15,21 @@ export const VERSION = "0.0.0" as const;
  * @category schemas
  */
 export * from "./LiteralKit.js";
+
 // bench
+
+/**
+ * @since 0.0.0
+ * @category schemas
+ */
+export * from "./ArrayOf.js";
+/**
+ * @since 0.0.0
+ * @category schemas
+ */
+export * from "./MimeType.js";
+/**
+ * @since 0.0.0
+ * @category schemas
+ */
+export * from "./Number.js";
