@@ -12,6 +12,7 @@ Reduce full-repo Falkor publish runtime for `kg publish --target both --mode ful
 - Baseline artifact: `specs/pending/agentic-codebase-ast-kg-enriched-with-jsdoc/outputs/p6-dual-write-parity/evidence/20260225T214750Z-fullrepo-publish-full.json`
 - P7 artifact: `outputs/p7-kg-excellence/evidence/20260226T004744Z-fullrepo-publish-both.json`
 - P7 run group: `beep-ast-kg-p7-20260226T004744Z`
+- Post-mitigation artifact (queue proxy routing): `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-publish-both.json`
 
 ## Results
 
@@ -26,3 +27,11 @@ Reduce full-repo Falkor publish runtime for `kg publish --target both --mode ful
 ## Gate Decision
 - Runtime reduction target (>=70%): **PASS**
 - Zero failed writes preserved: **PASS**
+
+## Post-Mitigation Revalidation
+- Run group: `beep-ast-kg-p7-continue-20260226T011541Z`
+- Falkor duration: `26,474 ms`
+- Falkor failures: `0`
+- Reduction vs baseline: **98.03% faster**
+
+Decision: runtime target remains satisfied after enabling shared Graphiti queue proxy routing.

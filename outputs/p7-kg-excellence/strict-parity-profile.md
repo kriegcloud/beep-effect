@@ -25,8 +25,17 @@ Fallback condition:
 ## Evidence
 - Strict parity artifact: `outputs/p7-kg-excellence/evidence/20260226T004744Z-fullrepo-parity-strict.json`
 - Group: `beep-ast-kg-p7-20260226T004744Z`
+- Post-mitigation strict parity artifact: `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-parity-strict.json`
+- Post-mitigation group: `beep-ast-kg-p7-continue-20260226T011541Z`
 
 Observed strict output:
+- `strictMinPaths: 1`
+- `observedPaths: 0`
+- `eligibleCallEdges: 0`
+- `fallback: no-eligible-call-edges`
+- strict path check `pass: true`
+
+Post-mitigation strict output:
 - `strictMinPaths: 1`
 - `observedPaths: 0`
 - `eligibleCallEdges: 0`

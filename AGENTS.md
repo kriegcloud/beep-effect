@@ -21,8 +21,8 @@ Core rules:
 
 ## Graphiti Memory Routing Policy
 
-1. Route graphiti-memory MCP traffic to `http://127.0.0.1:8123/mcp`.
-2. Do not target `http://127.0.0.1:8000/mcp` directly from agents.
-3. Before parallel workloads, verify proxy health at `http://127.0.0.1:8123/healthz`.
-4. During heavy fan-out, check queue pressure at `http://127.0.0.1:8123/metrics` and reduce parallelism if rejections occur.
+1. Route graphiti-memory MCP traffic to host `127.0.0.1:8123` using route `mcp`.
+2. Do not target host `127.0.0.1:8000` directly from agents.
+3. Before parallel workloads, verify proxy health on host `127.0.0.1:8123` route `healthz`.
+4. During heavy fan-out, check queue pressure on host `127.0.0.1:8123` route `metrics` and reduce parallelism if rejections occur.
 5. If graphiti-memory is unavailable, continue task execution and report memory calls as skipped.
