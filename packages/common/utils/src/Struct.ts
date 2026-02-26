@@ -228,7 +228,7 @@ export const dotGetOption: {
  * @example
  * ```ts
  * import * as assert from "node:assert"
- * import { Struct } from "effect"
+ * import * as Struct from "@beep/utils/Struct"
  *
  * const c = Symbol("c")
  * const value = { a: "foo", b: 1, [c]: true }
@@ -243,4 +243,10 @@ export const dotGetOption: {
 export const entries = <const R>(obj: R): Array<[keyof R & string, R[keyof R & string]]> =>
   Object.entries(obj as TUnsafe.Any) as TUnsafe.Any;
 
+/**
+ * Re-export of Effect Struct utilities.
+ *
+ * @since 0.0.0
+ * @category re-exports
+ */
 export * from "effect/Struct";

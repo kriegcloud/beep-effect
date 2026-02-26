@@ -17,6 +17,7 @@ import { Command, Flag } from "effect/unstable/cli";
 const KgSchemaVersion = "kg-schema-v1" as const;
 const AstKgEnvelopeVersion = "AstKgEpisodeV1" as const;
 const AstKgGroupId = "beep-ast-kg" as const;
+const DefaultGraphitiMcpUrl = "http://127.0.0.1:8123/mcp" as const;
 const WorkspaceName = "beep-effect3" as const;
 const ExtractorVersion = "p3-v1" as const;
 const IncludeRoots = ["apps", "packages", "tooling", ".claude/hooks", ".claude/scripts"] as const;
@@ -211,6 +212,20 @@ const relationType = (value: string): string => {
     return `R_${upper}`;
   }
   return upper;
+};
+
+const resolveGraphitiMcpUrl = (): string => process.env.BEEP_GRAPHITI_URL ?? DefaultGraphitiMcpUrl;
+const isLoopbackHost = (host: string): boolean => host === "127.0.0.1" || host === "localhost";
+
+const isProxyGraphitiMcpUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    const normalizedPath = parsed.pathname.endsWith("/") ? parsed.pathname.slice(0, -1) : parsed.pathname;
+    const port = parsed.port.length > 0 ? parsed.port : parsed.protocol === "https:" ? "443" : "80";
+    return isLoopbackHost(parsed.hostname) && port === "8123" && normalizedPath === "/mcp";
+  } catch {
+    return false;
+  }
 };
 
 const toNodeKind = (value: string): NodeKind => {
@@ -1114,7 +1129,12 @@ const generatePublishEnvelopes = async (
   }
 };
 
-const mcpPost = async (url: string, payload: unknown, sessionId: O.Option<string>): Promise<Response> => {
+const mcpPost = async (
+  url: string,
+  payload: unknown,
+  sessionId: O.Option<string>,
+  timeoutMs: O.Option<number> = O.none()
+): Promise<Response> => {
   const headers: Record<string, string> = {
     "content-type": "application/json",
     accept: "application/json, text/event-stream",
@@ -1122,11 +1142,15 @@ const mcpPost = async (url: string, payload: unknown, sessionId: O.Option<string
   if (O.isSome(sessionId)) {
     headers["mcp-session-id"] = sessionId.value;
   }
-  return fetch(url, {
+  const request: RequestInit = {
     method: "POST",
     headers,
     body: JSON.stringify(payload),
-  });
+  };
+  if (O.isSome(timeoutMs)) {
+    request.signal = AbortSignal.timeout(timeoutMs.value);
+  }
+  return fetch(url, request);
 };
 
 const initializeMcp = async (url: string): Promise<string> => {
@@ -1160,6 +1184,79 @@ const parsePositiveInt = (value: string | undefined, fallback: number): number =
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 };
 
+const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
+    return false;
+  }
+  return fallback;
+};
+
+const parsePositiveNumber = (value: string | undefined, fallback: number): number => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise<void> => {
+  const preflightEnabled = parseBoolean(process.env.BEEP_GRAPHITI_PROXY_PREFLIGHT, true);
+  if (!preflightEnabled || !isProxyGraphitiMcpUrl(graphitiUrl)) {
+    return;
+  }
+
+  const timeoutMs = parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS, 3_000);
+  const healthUrl = new URL("/healthz", graphitiUrl).toString();
+
+  let response: Response;
+  try {
+    response = await fetch(healthUrl, {
+      method: "GET",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (cause) {
+    throw new DomainError({
+      message: `Graphiti proxy preflight failed: unable to reach ${healthUrl} within ${String(timeoutMs)}ms. Start proxy with 'bun run graphiti:proxy:ensure'.`,
+      cause,
+    });
+  }
+
+  const responseText = await response.text();
+  if (!response.ok) {
+    throw new DomainError({
+      message: `Graphiti proxy preflight failed: ${healthUrl} returned HTTP ${String(response.status)}. Start proxy with 'bun run graphiti:proxy:ensure' or check 'systemctl --user status beep-graphiti-proxy.service'. Response: ${responseText.slice(0, 200)}`,
+    });
+  }
+
+  if (responseText.length > 0) {
+    try {
+      const parsed = JSON.parse(responseText);
+      if (isRecord(parsed)) {
+        const status = parsed.status;
+        if (typeof status === "string" && status !== "ok") {
+          throw new DomainError({
+            message: `Graphiti proxy preflight failed: ${healthUrl} reported status '${status}'. Response: ${responseText.slice(0, 200)}`,
+          });
+        }
+      }
+    } catch (cause) {
+      if (cause instanceof DomainError) {
+        throw cause;
+      }
+    }
+  }
+};
+
 const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
   const trimmed = body.trim();
   const dataLines = trimmed
@@ -1171,7 +1268,7 @@ const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
   const parseRecord = (value: string): O.Option<Record<string, unknown>> => {
     try {
       const parsed = JSON.parse(value);
-      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      if (isRecord(parsed)) {
         return O.some(parsed);
       }
       return O.none();
@@ -1199,8 +1296,8 @@ const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
 
 const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<Record<string, unknown>> => {
   const value = record[key];
-  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-    return O.some(value as Record<string, unknown>);
+  if (isRecord(value)) {
+    return O.some(value);
   }
   return O.none();
 };
@@ -1303,89 +1400,222 @@ const parseMcpToolResult = (
   };
 };
 
+const sleep = async (milliseconds: number): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+
+const isCommitShaLike = (value: string): boolean => /^[0-9a-f]{7,64}$/i.test(value.trim());
+const normalizeCommitSha = (value: string): string => value.trim().toLowerCase();
+
+const commitShaFromEpisodeName = (name: string): O.Option<string> => {
+  const parts = name.split(":");
+  const candidate = parts[2] ?? "";
+  if (!isCommitShaLike(candidate)) {
+    return O.none();
+  }
+  return O.some(normalizeCommitSha(candidate));
+};
+
+const commitShaFromEpisodeContent = (content: string): O.Option<string> => {
+  try {
+    const parsed = JSON.parse(content);
+    if (!isRecord(parsed)) {
+      return O.none();
+    }
+
+    const metadata = recordValue(parsed, "metadata");
+    if (O.isSome(metadata)) {
+      const metadataCommit = stringValue(metadata.value, "commitSha");
+      if (O.isSome(metadataCommit) && isCommitShaLike(metadataCommit.value)) {
+        return O.some(normalizeCommitSha(metadataCommit.value));
+      }
+    }
+
+    const topLevelCommit = stringValue(parsed, "commitSha");
+    if (O.isSome(topLevelCommit) && isCommitShaLike(topLevelCommit.value)) {
+      return O.some(normalizeCommitSha(topLevelCommit.value));
+    }
+
+    return O.none();
+  } catch {
+    return O.none();
+  }
+};
+
+const extractGraphitiEpisodes = (
+  payload: O.Option<Record<string, unknown>>
+): ReadonlyArray<Readonly<Record<string, unknown>>> => {
+  if (O.isNone(payload)) {
+    return [];
+  }
+  const result = recordValue(payload.value, "result");
+  if (O.isNone(result)) {
+    return [];
+  }
+  const structured = recordValue(result.value, "structuredContent");
+  if (O.isNone(structured)) {
+    return [];
+  }
+  const structuredResult = recordValue(structured.value, "result");
+  if (O.isNone(structuredResult)) {
+    return [];
+  }
+  const episodes = arrayValue(structuredResult.value, "episodes");
+  if (O.isNone(episodes)) {
+    return [];
+  }
+
+  const normalized: Array<Readonly<Record<string, unknown>>> = [];
+  for (const entry of episodes.value) {
+    if (isRecord(entry)) {
+      normalized.push(entry);
+    }
+  }
+  return normalized;
+};
+
+const countCommitMatchedEpisodes = (
+  episodes: ReadonlyArray<Readonly<Record<string, unknown>>>,
+  expectedCommitSha: string
+): number => {
+  let matched = 0;
+  for (const episode of episodes) {
+    const nameValue = stringValue(episode, "name");
+    const contentValue = stringValue(episode, "content");
+    const fromName = O.isSome(nameValue) ? commitShaFromEpisodeName(nameValue.value) : O.none();
+    const commitSha =
+      O.isSome(fromName) || O.isNone(contentValue) ? fromName : commitShaFromEpisodeContent(contentValue.value);
+
+    if (O.isSome(commitSha) && commitSha.value === expectedCommitSha) {
+      matched += 1;
+    }
+  }
+  return matched;
+};
+
 const verifyGraphitiEpisodes = async (
   url: string,
   sessionId: string,
-  group: string
+  group: string,
+  commitSha: string
 ): Promise<{
   readonly status: number;
   readonly bodySnippet: string;
   readonly message: string;
   readonly episodesObserved: number;
+  readonly episodesScanned: number;
+  readonly episodesCommitMatched: number;
+  readonly expectedCommitSha: string;
+  readonly requiresCommitMatch: boolean;
+  readonly contractSatisfied: boolean;
   readonly attempts: number;
   readonly waitedMs: number;
   readonly pollMs: number;
+  readonly pollMaxMs: number;
+  readonly pollMultiplier: number;
   readonly maxWaitMs: number;
+  readonly requestTimeoutMs: number;
+  readonly firstVisibleAtMs: number;
   readonly timedOut: boolean;
 }> => {
   const maxWaitMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_WAIT_MS, 180_000);
-  const pollMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MS, 2_000);
+  const pollMinMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MIN_MS, 500);
+  const legacyPollMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MS, pollMinMs);
+  const pollMs = Math.max(1, legacyPollMs);
+  const pollMaxMs = Math.max(pollMs, parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MAX_MS, 4_000));
+  const pollMultiplier = parsePositiveNumber(process.env.BEEP_GRAPHITI_VERIFY_POLL_MULTIPLIER, 1.5);
   const maxEpisodes = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_MAX_EPISODES, 1);
+  const requestTimeoutMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_REQUEST_TIMEOUT_MS, 10_000);
+  const expectedCommitSha = normalizeCommitSha(commitSha);
+  const requiresCommitMatch = isCommitShaLike(expectedCommitSha);
   const startedAt = Date.now();
+
   let attempts = 0;
   let status = 0;
   let bodySnippet = "";
   let message = "";
   let episodesObserved = 0;
+  let episodesScanned = 0;
+  let episodesCommitMatched = 0;
+  let firstVisibleAtMs = 0;
+  let nextPollMs = pollMs;
 
   while (true) {
     attempts += 1;
-    const response = await mcpPost(
-      url,
-      {
-        jsonrpc: "2.0",
-        id: "kg-verify-episodes",
-        method: "tools/call",
-        params: {
-          name: "get_episodes",
-          arguments: {
-            group_ids: [group],
-            max_episodes: maxEpisodes,
+
+    try {
+      const response = await mcpPost(
+        url,
+        {
+          jsonrpc: "2.0",
+          id: "kg-verify-episodes",
+          method: "tools/call",
+          params: {
+            name: "get_episodes",
+            arguments: {
+              group_ids: [group],
+              max_episodes: maxEpisodes,
+            },
           },
         },
-      },
-      O.some(sessionId)
-    );
+        O.some(sessionId),
+        O.some(requestTimeoutMs)
+      );
 
-    const responseText = await response.text();
-    const parsed = parseMcpToolResult(response.status, responseText);
-    status = response.status;
-    bodySnippet = responseText.slice(0, 400);
-    message = parsed.message;
+      const responseText = await response.text();
+      const parsed = parseMcpToolResult(response.status, responseText);
+      status = response.status;
+      bodySnippet = responseText.slice(0, 400);
+      message = parsed.message;
 
-    if (parsed.isError) {
-      throw new DomainError({
-        message: `Graphiti get_episodes failed for group ${group}: ${parsed.message}`,
-      });
-    }
-
-    if (O.isSome(parsed.payload)) {
-      const result = recordValue(parsed.payload.value, "result");
-      if (O.isSome(result)) {
-        const structured = recordValue(result.value, "structuredContent");
-        if (O.isSome(structured)) {
-          const structuredResult = recordValue(structured.value, "result");
-          if (O.isSome(structuredResult)) {
-            const episodes = arrayValue(structuredResult.value, "episodes");
-            if (O.isSome(episodes)) {
-              episodesObserved = episodes.value.length;
-            }
-          }
+      if (parsed.isError) {
+        if (response.status >= 400 && response.status < 500) {
+          throw new DomainError({
+            message: `Graphiti get_episodes failed for group ${group}: ${parsed.message}`,
+          });
+        }
+      } else {
+        const episodes = extractGraphitiEpisodes(parsed.payload);
+        episodesObserved = episodes.length;
+        episodesScanned = episodes.length;
+        episodesCommitMatched = requiresCommitMatch
+          ? countCommitMatchedEpisodes(episodes, expectedCommitSha)
+          : episodes.length;
+        if (episodesObserved > 0 && firstVisibleAtMs === 0) {
+          firstVisibleAtMs = Date.now() - startedAt;
         }
       }
+    } catch (cause) {
+      if (cause instanceof DomainError) {
+        throw cause;
+      }
+      status = 0;
+      bodySnippet = "";
+      message = cause instanceof Error ? cause.message : String(cause);
     }
 
     const waitedMs = Date.now() - startedAt;
-    if (episodesObserved > 0) {
+    const contractSatisfied = episodesObserved > 0 && episodesCommitMatched > 0;
+    if (contractSatisfied) {
       return {
         status,
         bodySnippet,
         message,
         episodesObserved,
+        episodesScanned,
+        episodesCommitMatched,
+        expectedCommitSha,
+        requiresCommitMatch,
+        contractSatisfied,
         attempts,
         waitedMs,
         pollMs,
+        pollMaxMs,
+        pollMultiplier,
         maxWaitMs,
+        requestTimeoutMs,
+        firstVisibleAtMs,
         timedOut: false,
       };
     }
@@ -1396,17 +1626,29 @@ const verifyGraphitiEpisodes = async (
         bodySnippet,
         message: message.length > 0 ? message : "No episodes found",
         episodesObserved,
+        episodesScanned,
+        episodesCommitMatched,
+        expectedCommitSha,
+        requiresCommitMatch,
+        contractSatisfied,
         attempts,
         waitedMs,
         pollMs,
+        pollMaxMs,
+        pollMultiplier,
         maxWaitMs,
+        requestTimeoutMs,
+        firstVisibleAtMs,
         timedOut: true,
       };
     }
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, pollMs);
-    });
+    const jitterCeiling = Math.max(1, Math.floor(nextPollMs * 0.2));
+    const jitter = Math.floor(Math.random() * jitterCeiling);
+    const sleepMs = Math.min(pollMaxMs, nextPollMs + jitter);
+    await sleep(sleepMs);
+    const scaled = Math.round(nextPollMs * pollMultiplier);
+    nextPollMs = Math.max(pollMs, Math.min(pollMaxMs, scaled));
   }
 };
 
@@ -1416,7 +1658,7 @@ const publishToGraphiti = async (
   rootDir: string
 ): Promise<AstKgWriteReceiptV1> => {
   const start = Date.now();
-  const url = process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp";
+  const url = resolveGraphitiMcpUrl();
   const defaultGroupId = process.env.BEEP_GRAPHITI_GROUP_ID ?? AstKgGroupId;
   const sessionId = await initializeMcp(url);
   const ledger = await readSinkPublishLedger(rootDir);
@@ -1714,6 +1956,9 @@ const kgPublishCommand = Command.make(
 
     const publishSummary = yield* Effect.tryPromise({
       try: async (): Promise<PublishSummary> => {
+        if (normalizedTarget.value === "graphiti" || normalizedTarget.value === "both") {
+          await ensureGraphitiProxyPreflight(resolveGraphitiMcpUrl());
+        }
         const generated = await generatePublishEnvelopes(normalizedMode.value, changed);
         const envelopes = applyGroupOverride(generated.envelopes, group);
         const receipts = await publishEnvelopes(
@@ -1816,6 +2061,12 @@ const kgVerifyCommand = Command.make(
 
     const verification = yield* Effect.tryPromise({
       try: async () => {
+        const graphitiRequested = normalizedTarget.value === "graphiti" || normalizedTarget.value === "both";
+        const graphitiUrl = graphitiRequested ? resolveGraphitiMcpUrl() : "";
+        if (graphitiRequested) {
+          await ensureGraphitiProxyPreflight(graphitiUrl);
+        }
+
         const checks: Record<string, unknown> = {
           target: normalizedTarget.value,
           group,
@@ -1838,15 +2089,14 @@ const kgVerifyCommand = Command.make(
           };
         }
 
-        if (normalizedTarget.value === "graphiti" || normalizedTarget.value === "both") {
-          const graphitiUrl = process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp";
+        if (graphitiRequested) {
           const session = await initializeMcp(graphitiUrl);
-          const graphitiCheck = await verifyGraphitiEpisodes(graphitiUrl, session, group);
+          const graphitiCheck = await verifyGraphitiEpisodes(graphitiUrl, session, group, commit);
           checks.graphiti = graphitiCheck;
 
-          if (graphitiCheck.episodesObserved === 0) {
+          if (!graphitiCheck.contractSatisfied) {
             throw new DomainError({
-              message: `Graphiti verify timed out after ${String(graphitiCheck.waitedMs)}ms for group ${group}. Consider increasing BEEP_GRAPHITI_VERIFY_WAIT_MS.`,
+              message: `Graphiti verify timed out after ${String(graphitiCheck.waitedMs)}ms for group ${group} commit ${commit}. Consider increasing BEEP_GRAPHITI_VERIFY_WAIT_MS or tuning BEEP_GRAPHITI_VERIFY_POLL_MIN_MS/BEEP_GRAPHITI_VERIFY_POLL_MAX_MS/BEEP_GRAPHITI_VERIFY_REQUEST_TIMEOUT_MS.`,
             });
           }
         }

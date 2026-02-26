@@ -147,7 +147,14 @@
     "redeployments",
     "onepassword",
     "cutover",
-    "fanout"
+    "fanout",
+    "healthz",
+    "backpressure",
+    "Knhown",
+    "timecode",
+    "geopoint",
+    "geoshape",
+    "geotime"
   ],
   "ignorePaths": [
     "bun.lock",

@@ -16,6 +16,9 @@ type MimeTypeProperty = {
 
 type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][number];
 
+/**
+ * @since 0.0.0
+ */
 export const extractMimeExtensions = <const T extends MimeTypeProperty>(
   mime: T
 ): A.NonEmptyReadonlyArray<MimeTypeExtension<T>> =>
@@ -27,6 +30,9 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
       new Set([...extensions]).values() as unknown as readonly [MimeTypeExtension<T>, ...MimeTypeExtension<T>[]]
   );
 
+/**
+ * @since 0.0.0
+ */
 export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
   pipe(
     mime,
@@ -34,6 +40,9 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
     (mimeTypes) => new Set([...mimeTypes]).values() as unknown as A.NonEmptyReadonlyArray<keyof T>
   );
 
+/**
+ * @since 0.0.0
+ */
 export const MimeType = pipe(
   {
     Application: LiteralKit(extractMimeTypes(MimeTypesData.application)).annotate(
@@ -88,19 +97,58 @@ export const MimeType = pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type MimeType = MimeTypesData.MimeType;
 
+/**
+ * @since 0.0.0
+ */
 export const ApplicationMimeType = MimeType.kinds.Application;
+/**
+ * @since 0.0.0
+ */
 export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const VideoMimeType = MimeType.kinds.Video;
+/**
+ * @since 0.0.0
+ */
 export type VideoMimeType = typeof MimeType.kinds.Video.Type;
+/**
+ * @since 0.0.0
+ */
 export const TextMimeType = MimeType.kinds.Text;
+/**
+ * @since 0.0.0
+ */
 export type TextMimeType = typeof MimeType.kinds.Text.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ImageMimeType = MimeType.kinds.Image;
+/**
+ * @since 0.0.0
+ */
 export type ImageMimeType = typeof MimeType.kinds.Image.Type;
+/**
+ * @since 0.0.0
+ */
 export const AudioMimeType = MimeType.kinds.Audio;
+/**
+ * @since 0.0.0
+ */
 export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
+/**
+ * @since 0.0.0
+ */
 export const MiscMimeType = MimeType.kinds.Misc;
+/**
+ * @since 0.0.0
+ */
 export type MiscMimeType = typeof MimeType.kinds.Misc.Type;

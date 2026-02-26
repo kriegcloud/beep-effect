@@ -27,6 +27,8 @@ Fallback condition:
 - Group: `beep-ast-kg-p7-20260226T004744Z`
 - Post-mitigation strict parity artifact: `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-parity-strict.json`
 - Post-mitigation group: `beep-ast-kg-p7-continue-20260226T011541Z`
+- Final rerun strict parity artifact: `outputs/p7-kg-excellence/evidence/20260226T020435Z-final2-parity-strict.json`
+- Final rerun group: `beep-ast-kg-p7-final2-20260226T020435Z`
 
 Observed strict output:
 - `strictMinPaths: 1`

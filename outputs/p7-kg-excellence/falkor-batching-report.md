@@ -13,6 +13,7 @@ Reduce full-repo Falkor publish runtime for `kg publish --target both --mode ful
 - P7 artifact: `outputs/p7-kg-excellence/evidence/20260226T004744Z-fullrepo-publish-both.json`
 - P7 run group: `beep-ast-kg-p7-20260226T004744Z`
 - Post-mitigation artifact (queue proxy routing): `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-publish-both.json`
+- Final full-cycle rerun artifact: `outputs/p7-kg-excellence/evidence/20260226T020435Z-final2-publish-both.json`
 
 ## Results
 
@@ -35,3 +36,8 @@ Reduce full-repo Falkor publish runtime for `kg publish --target both --mode ful
 - Reduction vs baseline: **98.03% faster**
 
 Decision: runtime target remains satisfied after enabling shared Graphiti queue proxy routing.
+
+Final full-cycle rerun confirmation:
+- Group: `beep-ast-kg-p7-final2-20260226T020435Z`
+- Falkor attempted/written/replayed/failed: `560/280/280/0`
+- Falkor duration: `35,478 ms`
