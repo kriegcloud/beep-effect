@@ -1152,6 +1152,264 @@ const initializeMcp = async (url: string): Promise<string> => {
   return sessionId;
 };
 
+const parsePositiveInt = (value: string | undefined, fallback: number): number => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
+  const trimmed = body.trim();
+  const dataLines = trimmed
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => line.slice(6).trim())
+    .filter((line) => line.length > 0);
+
+  const parseRecord = (value: string): O.Option<Record<string, unknown>> => {
+    try {
+      const parsed = JSON.parse(value);
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        return O.some(parsed);
+      }
+      return O.none();
+    } catch {
+      return O.none();
+    }
+  };
+
+  if (dataLines.length > 0) {
+    for (let index = dataLines.length - 1; index >= 0; index -= 1) {
+      const candidate = dataLines[index];
+      if (candidate === undefined) {
+        continue;
+      }
+      const parsed = parseRecord(candidate);
+      if (O.isSome(parsed)) {
+        return parsed;
+      }
+    }
+    return O.none();
+  }
+
+  return parseRecord(trimmed);
+};
+
+const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<Record<string, unknown>> => {
+  const value = record[key];
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return O.some(value as Record<string, unknown>);
+  }
+  return O.none();
+};
+
+const stringValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> => {
+  const value = record[key];
+  return typeof value === "string" ? O.some(value) : O.none();
+};
+
+const arrayValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<ReadonlyArray<unknown>> => {
+  const value = record[key];
+  return Array.isArray(value) ? O.some(value) : O.none();
+};
+
+const parseMcpToolResult = (
+  status: number,
+  responseText: string
+): {
+  readonly isError: boolean;
+  readonly message: string;
+  readonly payload: O.Option<Record<string, unknown>>;
+} => {
+  const payload = parseMcpPayload(responseText);
+  if (status < 200 || status >= 300) {
+    return {
+      isError: true,
+      message: `Graphiti MCP HTTP ${String(status)}`,
+      payload,
+    };
+  }
+
+  if (O.isNone(payload)) {
+    return {
+      isError: true,
+      message: "Graphiti MCP response could not be parsed as JSON payload",
+      payload,
+    };
+  }
+
+  const top = payload.value;
+  const topError = recordValue(top, "error");
+  if (O.isSome(topError)) {
+    return {
+      isError: true,
+      message: O.getOrElse(stringValue(topError.value, "message"), () => "Graphiti MCP response error"),
+      payload,
+    };
+  }
+
+  const result = recordValue(top, "result");
+  if (O.isNone(result)) {
+    return {
+      isError: false,
+      message: "",
+      payload,
+    };
+  }
+
+  if (result.value.isError === true) {
+    const structured = recordValue(result.value, "structuredContent");
+    if (O.isSome(structured)) {
+      const structuredResult = recordValue(structured.value, "result");
+      if (O.isSome(structuredResult)) {
+        const structuredMessage = stringValue(structuredResult.value, "message");
+        if (O.isSome(structuredMessage)) {
+          return {
+            isError: true,
+            message: structuredMessage.value,
+            payload,
+          };
+        }
+      }
+    }
+    return {
+      isError: true,
+      message: "Graphiti MCP tool call failed (isError=true)",
+      payload,
+    };
+  }
+
+  const structured = recordValue(result.value, "structuredContent");
+  if (O.isSome(structured)) {
+    const structuredResult = recordValue(structured.value, "result");
+    if (O.isSome(structuredResult)) {
+      const structuredMessage = stringValue(structuredResult.value, "message");
+      if (O.isSome(structuredMessage)) {
+        return {
+          isError: false,
+          message: structuredMessage.value,
+          payload,
+        };
+      }
+    }
+  }
+
+  return {
+    isError: false,
+    message: "",
+    payload,
+  };
+};
+
+const verifyGraphitiEpisodes = async (
+  url: string,
+  sessionId: string,
+  group: string
+): Promise<{
+  readonly status: number;
+  readonly bodySnippet: string;
+  readonly message: string;
+  readonly episodesObserved: number;
+  readonly attempts: number;
+  readonly waitedMs: number;
+  readonly pollMs: number;
+  readonly maxWaitMs: number;
+  readonly timedOut: boolean;
+}> => {
+  const maxWaitMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_WAIT_MS, 180_000);
+  const pollMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MS, 2_000);
+  const maxEpisodes = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_MAX_EPISODES, 1);
+  const startedAt = Date.now();
+  let attempts = 0;
+  let status = 0;
+  let bodySnippet = "";
+  let message = "";
+  let episodesObserved = 0;
+
+  while (true) {
+    attempts += 1;
+    const response = await mcpPost(
+      url,
+      {
+        jsonrpc: "2.0",
+        id: "kg-verify-episodes",
+        method: "tools/call",
+        params: {
+          name: "get_episodes",
+          arguments: {
+            group_ids: [group],
+            max_episodes: maxEpisodes,
+          },
+        },
+      },
+      O.some(sessionId)
+    );
+
+    const responseText = await response.text();
+    const parsed = parseMcpToolResult(response.status, responseText);
+    status = response.status;
+    bodySnippet = responseText.slice(0, 400);
+    message = parsed.message;
+
+    if (parsed.isError) {
+      throw new DomainError({
+        message: `Graphiti get_episodes failed for group ${group}: ${parsed.message}`,
+      });
+    }
+
+    if (O.isSome(parsed.payload)) {
+      const result = recordValue(parsed.payload.value, "result");
+      if (O.isSome(result)) {
+        const structured = recordValue(result.value, "structuredContent");
+        if (O.isSome(structured)) {
+          const structuredResult = recordValue(structured.value, "result");
+          if (O.isSome(structuredResult)) {
+            const episodes = arrayValue(structuredResult.value, "episodes");
+            if (O.isSome(episodes)) {
+              episodesObserved = episodes.value.length;
+            }
+          }
+        }
+      }
+    }
+
+    const waitedMs = Date.now() - startedAt;
+    if (episodesObserved > 0) {
+      return {
+        status,
+        bodySnippet,
+        message,
+        episodesObserved,
+        attempts,
+        waitedMs,
+        pollMs,
+        maxWaitMs,
+        timedOut: false,
+      };
+    }
+
+    if (waitedMs >= maxWaitMs) {
+      return {
+        status,
+        bodySnippet,
+        message: message.length > 0 ? message : "No episodes found",
+        episodesObserved,
+        attempts,
+        waitedMs,
+        pollMs,
+        maxWaitMs,
+        timedOut: true,
+      };
+    }
+
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, pollMs);
+    });
+  }
+};
+
 const publishToGraphiti = async (
   envelopes: ReadonlyArray<Record<string, unknown>>,
   commitSha: string,
@@ -1204,7 +1462,8 @@ const publishToGraphiti = async (
       O.some(sessionId)
     );
     const body = await response.text();
-    if (response.ok && !body.includes('"error":')) {
+    const parsed = parseMcpToolResult(response.status, body);
+    if (!parsed.isError) {
       written += 1;
       dedupeMisses += 1;
       sinkEntries[sinkKey] = metadata.artifactHash;
@@ -1580,27 +1839,16 @@ const kgVerifyCommand = Command.make(
         }
 
         if (normalizedTarget.value === "graphiti" || normalizedTarget.value === "both") {
-          const session = await initializeMcp(process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp");
-          const response = await mcpPost(
-            process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp",
-            {
-              jsonrpc: "2.0",
-              id: "kg-verify-episodes",
-              method: "tools/call",
-              params: {
-                name: "get_episodes",
-                arguments: {
-                  group_ids: [group],
-                  max_episodes: 20,
-                },
-              },
-            },
-            O.some(session)
-          );
-          checks.graphiti = {
-            status: response.status,
-            bodySnippet: (await response.text()).slice(0, 400),
-          };
+          const graphitiUrl = process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp";
+          const session = await initializeMcp(graphitiUrl);
+          const graphitiCheck = await verifyGraphitiEpisodes(graphitiUrl, session, group);
+          checks.graphiti = graphitiCheck;
+
+          if (graphitiCheck.episodesObserved === 0) {
+            throw new DomainError({
+              message: `Graphiti verify timed out after ${String(graphitiCheck.waitedMs)}ms for group ${group}. Consider increasing BEEP_GRAPHITI_VERIFY_WAIT_MS.`,
+            });
+          }
         }
 
         return checks;
