@@ -22,7 +22,7 @@ export * as CurrencyCodes from "./CurrencyCodes.js";
 /**
  * @since 0.0.0
  */
-export * as MimeTypes from "./MimeTypes.js";
+export * as MimeTypesData from "./MimeTypes.js";
 
 /**
  * @since 0.0.0

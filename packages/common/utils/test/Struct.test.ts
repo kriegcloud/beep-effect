@@ -1,14 +1,14 @@
-import { dotGet, dotGetOption } from "@beep/utils";
+import { Struct } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-describe("@beep/utils dotGet", () => {
+describe("@beep/utils Struct.dotGet", () => {
   it("supports data-first and data-last calls", () => {
     const source = { attributes: { name: "beep" }, kind: "example" } as const;
 
-    const dataFirst = dotGet(source, "attributes.name");
-    const dataLast = pipe(source, dotGet("attributes.name"));
+    const dataFirst = Struct.dotGet(source, "attributes.name");
+    const dataLast = pipe(source, Struct.dotGet("attributes.name"));
 
     expect(dataFirst).toBe("beep");
     expect(dataLast).toBe("beep");
@@ -18,13 +18,13 @@ describe("@beep/utils dotGet", () => {
 
   it("supports top-level keys", () => {
     const source = { kind: "example" } as const;
-    expect(dotGet(source, "kind")).toBe("example");
+    expect(Struct.dotGet(source, "kind")).toBe("example");
   });
 
   it("supports tuple paths", () => {
     const source = { "attributes.name": "flat", attributes: { name: "nested" } } as const;
-    const dataFirst = dotGet(source, ["attributes", "name"] as const);
-    const dataLast = pipe(source, dotGet(["attributes.name"] as const));
+    const dataFirst = Struct.dotGet(source, ["attributes", "name"] as const);
+    const dataLast = pipe(source, Struct.dotGet(["attributes.name"] as const));
 
     expect(dataFirst).toBe("nested");
     expect(dataLast).toBe("flat");
@@ -34,15 +34,15 @@ describe("@beep/utils dotGet", () => {
 
   it("returns undefined when runtime data does not satisfy the path", () => {
     const runtimeMismatch = { attributes: {} } as unknown as { attributes: { name: string } };
-    expect(dotGet(runtimeMismatch, "attributes.name")).toBeUndefined();
+    expect(Struct.dotGet(runtimeMismatch, "attributes.name")).toBeUndefined();
   });
 
   it("supports nested access through optional properties", () => {
     const withAttributes: { attributes?: { name: string } } = { attributes: { name: "beep" } };
     const withoutAttributes: { attributes?: { name: string } } = {};
 
-    const maybeNameA = dotGet(withAttributes, "attributes.name");
-    const maybeNameB = dotGet(withoutAttributes, "attributes.name");
+    const maybeNameA = Struct.dotGet(withAttributes, "attributes.name");
+    const maybeNameB = Struct.dotGet(withoutAttributes, "attributes.name");
 
     expectTypeOf(maybeNameA).toEqualTypeOf<string | undefined>();
     expectTypeOf(maybeNameB).toEqualTypeOf<string | undefined>();
@@ -54,10 +54,10 @@ describe("@beep/utils dotGet", () => {
     const source = { attributes: { name: "beep" }, maybeUndefined: undefined as string | undefined } as const;
     const missing = { attributes: {} } as unknown as { attributes: { name: string } };
 
-    const some = dotGetOption(source, "attributes.name");
-    const someFromTuple = pipe(source, dotGetOption(["attributes", "name"] as const));
-    const someUndefined = dotGetOption(source, "maybeUndefined");
-    const none = dotGetOption(missing, "attributes.name");
+    const some = Struct.dotGetOption(source, "attributes.name");
+    const someFromTuple = pipe(source, Struct.dotGetOption(["attributes", "name"] as const));
+    const someUndefined = Struct.dotGetOption(source, "maybeUndefined");
+    const none = Struct.dotGetOption(missing, "attributes.name");
 
     expect(O.isSome(some)).toBe(true);
     expect(O.isSome(someFromTuple)).toBe(true);
