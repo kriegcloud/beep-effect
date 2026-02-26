@@ -1,7 +1,7 @@
-import { KeyValueStore } from "@effect/platform"
-import { BunKeyValueStore } from "@effect/platform-bun"
-import * as Clock from "effect/Clock"
-import * as Context from "effect/Context"
+import { KeyValueStore } from "effect/unstable/persistence"
+
+import * as Clock from "effect/Clock";
+import * as ServiceMap from "effect/ServiceMap";
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
@@ -15,7 +15,7 @@ import {
   defaultStorageDirectory
 } from "./defaults.js"
 import { StorageConfig } from "./StorageConfig.js"
-import { StorageError, toStorageError } from "./StorageError.js"
+import { type StorageError, toStorageError } from "./StorageError.js"
 
 export type SessionIndexListOptions = {
   readonly offset?: number
@@ -81,10 +81,10 @@ const resolvePageSize = Effect.gen(function*() {
 
 const normalizePageSize = (value: number) => Math.max(1, value)
 
-const tupleOrder = Order.tuple(Order.number, Order.string)
+const tupleOrder = Order.Tuple([Order.Number, Order.String])
 
 const resolveTupleOrder = (direction: SessionIndexDirection) =>
-  direction === "desc" ? Order.reverse(tupleOrder) : tupleOrder
+  direction === "desc" ? Order.flip(tupleOrder) : tupleOrder
 
 const toOrderKey = (meta: SessionMeta, orderBy: SessionIndexOrderBy) =>
   [orderBy === "createdAt" ? meta.createdAt : meta.updatedAt, meta.sessionId] as const
@@ -105,7 +105,7 @@ const applyOrdering = (
   let sorted = metas.slice().sort(ordering)
 
   if (options?.cursor) {
-    const after = Order.greaterThan(resolveTupleOrder(direction))
+    const after = Order.isGreaterThan(resolveTupleOrder(direction))
     const cursorKey = toCursorKey(options.cursor)
     sorted = sorted.filter((meta) => after(toOrderKey(meta, orderBy), cursorKey))
   }
@@ -149,7 +149,7 @@ export type SessionIndexStoreService = {
   ) => Effect.Effect<SessionIndexPage, StorageError>
 }
 
-const defaultSessionIndexStore: SessionIndexStoreService = {
+export const defaultSessionIndexStore: SessionIndexStoreService = {
   touch: (sessionId, options) =>
     Effect.succeed(
       SessionMeta.make({
@@ -165,10 +165,10 @@ const defaultSessionIndexStore: SessionIndexStoreService = {
   listPage: () => Effect.succeed({ items: [] })
 }
 
-export class SessionIndexStore extends Context.Reference<SessionIndexStore>()(
+export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, SessionIndexStoreService>()(
   "@effect/claude-agent-sdk/SessionIndexStore",
   {
-    defaultValue: () => defaultSessionIndexStore
+    make: Effect.succeed(defaultSessionIndexStore)
   }
 ) {
   static readonly layerMemory = Layer.effect(
@@ -194,7 +194,7 @@ export class SessionIndexStore extends Context.Reference<SessionIndexStore>()(
 
       const get = Effect.fn("SessionIndexStore.get")((sessionId: string) =>
         SynchronizedRef.get(stateRef).pipe(
-          Effect.map((state) => Option.fromNullable(state.meta.get(sessionId)))
+          Effect.map((state) => Option.fromNullishOr(state.meta.get(sessionId)))
         )
       )
 
@@ -267,9 +267,9 @@ export class SessionIndexStore extends Context.Reference<SessionIndexStore>()(
       Effect.gen(function*() {
         const kv = yield* KeyValueStore.KeyValueStore
         const prefix = options?.prefix ?? defaultSessionIndexPrefix
-        const indexMetaStore = kv.forSchema(SessionIndexMeta)
-        const pageStore = kv.forSchema(SessionIndexPageSchema)
-        const sessionStore = kv.forSchema(SessionMeta)
+        const indexMetaStore = KeyValueStore.toSchemaStore(kv, SessionIndexMeta)
+        const pageStore = KeyValueStore.toSchemaStore(kv, SessionIndexPageSchema)
+        const sessionStore = KeyValueStore.toSchemaStore(kv, SessionMeta)
 
         const metaKey = `${prefix}/index/meta`
         const pageKey = (page: number) => `${prefix}/index/page/${page}`
@@ -536,7 +536,7 @@ export class SessionIndexStore extends Context.Reference<SessionIndexStore>()(
       prefix: options?.prefix ?? defaultSessionIndexPrefix
     }).pipe(
       Layer.provide(
-        BunKeyValueStore.layerFileSystem(
+        KeyValueStore.layerFileSystem(
           options?.directory ?? defaultStorageDirectory
         )
       )

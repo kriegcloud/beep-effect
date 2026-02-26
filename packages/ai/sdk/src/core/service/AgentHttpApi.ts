@@ -3,7 +3,7 @@ import {
   HttpApiEndpoint,
   HttpApiGroup,
   HttpApiSchema
-} from "@effect/platform"
+} from "effect/unstable/httpapi"
 import * as Schema from "effect/Schema"
 import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js"
 import * as SdkSchema from "../Schema/index.js"
@@ -22,7 +22,7 @@ import { SessionServiceError } from "./SessionErrors.js"
 class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   .add(
     HttpApiEndpoint.post("query", "/query")
-      .setPayload(QueryInput)
+      .payload(QueryInput)
       .addSuccess(QueryResultOutput)
       .addError(AgentServiceError)
   )

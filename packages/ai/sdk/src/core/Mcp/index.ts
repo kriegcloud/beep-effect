@@ -348,7 +348,7 @@ export const toolsFromToolkit = <
           const signal = getSignalFromExtra(extra)
           const effect = built.handle(toolEntry.name as any, args).pipe(
             Effect.map((result) => renderResult(toolEntry, result)),
-            Effect.catchAll((error) => Effect.succeed(renderError(toolEntry, error)))
+            Effect.catch((error) => Effect.succeed(renderError(toolEntry, error)))
           )
           const runOptions = signal ? { signal } : undefined
           return Runtime.runPromise(runtime)(effect, runOptions)

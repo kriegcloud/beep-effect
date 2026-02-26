@@ -5,7 +5,6 @@
  * @module @beep/ontology/ontology/valueFormatting/PropertyDateAndTimestampFormattingRule
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { PropertyTypeReferenceOrStringConstant } from "./PropertyValueFormattingUtils.js";
 
@@ -17,18 +16,20 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyDateAndTimestamp
  * @since 0.0.0
  * @category schemas
  */
-export const DatetimeLocalizedFormatType = LiteralKit([
-  "DATE_FORMAT_RELATIVE_TO_NOW",
-  "DATE_FORMAT_DATE",
-  "DATE_FORMAT_YEAR_AND_MONTH",
-  "DATE_FORMAT_DATE_TIME",
-  "DATE_FORMAT_DATE_TIME_SHORT",
-  "DATE_FORMAT_TIME",
-  "DATE_FORMAT_ISO_INSTANT",
-]).annotate(
-  $I.annote("DatetimeLocalizedFormatType", {
-    description: "Supported localized date and time format presets for ontology date and timestamp properties.",
-  })
+export const DatetimeLocalizedFormatType = S.Union([
+  S.Literal("DATE_FORMAT_RELATIVE_TO_NOW"),
+  S.Literal("DATE_FORMAT_DATE"),
+  S.Literal("DATE_FORMAT_YEAR_AND_MONTH"),
+  S.Literal("DATE_FORMAT_DATE_TIME"),
+  S.Literal("DATE_FORMAT_DATE_TIME_SHORT"),
+  S.Literal("DATE_FORMAT_TIME"),
+  S.Literal("DATE_FORMAT_ISO_INSTANT"),
+]).pipe(
+  S.annotate(
+    $I.annote("DatetimeLocalizedFormatType", {
+      description: "Supported localized date and time format presets for ontology date and timestamp properties.",
+    })
+  )
 );
 
 /**
@@ -47,7 +48,7 @@ export type DatetimeLocalizedFormatType = typeof DatetimeLocalizedFormatType.Typ
  */
 export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`DatetimeTimezoneStatic`)(
   {
-    type: S.tag("static"),
+    type: S.Literal("static"),
     zoneId: PropertyTypeReferenceOrStringConstant,
   },
   $I.annote("DatetimeTimezoneStatic", {
@@ -63,7 +64,7 @@ export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`D
  */
 export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`DatetimeTimezoneUser`)(
   {
-    type: S.tag("user"),
+    type: S.Literal("user"),
   },
   $I.annote("DatetimeTimezoneUser", {
     description: "Uses the viewing user's local timezone when formatting timestamp values.",
@@ -77,7 +78,6 @@ export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`Datet
  * @category schemas
  */
 export const DatetimeTimezone = S.Union([DatetimeTimezoneStatic, DatetimeTimezoneUser]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("DatetimeTimezone", {
       description:
@@ -102,7 +102,7 @@ export type DatetimeTimezone = typeof DatetimeTimezone.Type;
  */
 export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I`DatetimeLocalizedFormat`)(
   {
-    type: S.tag("localizedFormat"),
+    type: S.Literal("localizedFormat"),
     format: DatetimeLocalizedFormatType,
   },
   $I.annote("DatetimeLocalizedFormat", {
@@ -118,7 +118,7 @@ export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I
  */
 export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`DatetimeStringFormat`)(
   {
-    type: S.tag("stringFormat"),
+    type: S.Literal("stringFormat"),
     pattern: S.String,
   },
   $I.annote("DatetimeStringFormat", {
@@ -133,7 +133,6 @@ export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`Datet
  * @category schemas
  */
 export const DatetimeFormat = S.Union([DatetimeLocalizedFormat, DatetimeStringFormat]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("DatetimeFormat", {
       description:
@@ -158,7 +157,7 @@ export type DatetimeFormat = typeof DatetimeFormat.Type;
  */
 export class PropertyDateFormattingRule extends S.Class<PropertyDateFormattingRule>($I`PropertyDateFormattingRule`)(
   {
-    type: S.tag("date"),
+    type: S.Literal("date"),
     format: DatetimeFormat,
   },
   $I.annote("PropertyDateFormattingRule", {
@@ -176,7 +175,7 @@ export class PropertyTimestampFormattingRule extends S.Class<PropertyTimestampFo
   $I`PropertyTimestampFormattingRule`
 )(
   {
-    type: S.tag("timestamp"),
+    type: S.Literal("timestamp"),
     format: DatetimeFormat,
     displayTimezone: DatetimeTimezone,
   },

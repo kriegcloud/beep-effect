@@ -1,11 +1,13 @@
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 
-export class StorageError extends Schema.TaggedError<StorageError>()("StorageError", {
-  store: Schema.String,
-  operation: Schema.String,
-  message: Schema.String,
-  cause: Schema.optional(Schema.Defect)
-}) {}
+export class StorageError extends S.TaggedErrorClass<StorageError>()("StorageError", {
+  store: S.String,
+  operation: S.String,
+  message: S.String,
+  cause: S.optional(S.Defect)
+}) {
+  static readonly make = (params: Pick<StorageError, "store" | "operation" | "message" | "cause">) => new StorageError(params)
+}
 
 export type StorageErrorEncoded = typeof StorageError.Encoded
 
@@ -13,7 +15,7 @@ export const toStorageError = (
   store: string,
   operation: string,
   cause: unknown,
-  message?: string
+  message?: undefined | string
 ) =>
   StorageError.make({
     store,

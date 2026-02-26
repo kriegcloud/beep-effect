@@ -10,16 +10,33 @@ import * as S from "effect/Schema";
 const $I = $OntologyId.create("ontology/OntologyMetadata");
 
 /**
- * Metadata fields attached to ontology definitions.
+ * Metadata carried by ontology definitions.
  *
  * @since 0.0.0
  * @category models
  */
-export class OntologyMetadata extends S.Class<OntologyMetadata>($I`OntologyMetadata`)(
-  {
-    extraUserAgent: S.String,
-  },
-  $I.annote("OntologyMetadata", {
-    description: "Ontology metadata fields used to extend request user-agent information.",
-  })
-) {}
+export interface OntologyMetadata<_NEVER_USED_KEPT_FOR_BACKCOMPAT = unknown> {
+  readonly expectsClientVersion?: _NEVER_USED_KEPT_FOR_BACKCOMPAT;
+  readonly ontologyRid: string;
+  readonly ontologyApiName: string;
+  readonly userAgent: string;
+}
+
+/**
+ * Runtime schema for {@link OntologyMetadata}.
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const OntologyMetadata = S.Struct({
+  expectsClientVersion: S.optionalKey(S.Unknown),
+  ontologyRid: S.String,
+  ontologyApiName: S.String,
+  userAgent: S.String,
+}).pipe(
+  S.annotate(
+    $I.annote("OntologyMetadata", {
+      description: "Metadata emitted with ontology definitions and request context.",
+    })
+  )
+);

@@ -18,7 +18,7 @@ export type SandboxNetworkConfig = typeof SandboxNetworkConfig.Type
 export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded
 
 export const SandboxIgnoreViolations = withIdentifier(
-  Schema.Record({ key: Schema.String, value: Schema.Array(Schema.String) }),
+  Schema.Record( Schema.String,  Schema.Array(Schema.String) ),
   "SandboxIgnoreViolations"
 )
 

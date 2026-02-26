@@ -5,7 +5,6 @@
  * @module @beep/ontology/ontology/valueFormatting/PropertyNumberFormattingRule
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { PropertyTypeReferenceOrStringConstant } from "./PropertyValueFormattingUtils.js";
 
@@ -17,11 +16,18 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyNumberFormatting
  * @since 0.0.0
  * @category schemas
  */
-export const NumberFormatNotation = LiteralKit(["STANDARD", "SCIENTIFIC", "ENGINEERING", "COMPACT"]).annotate(
-  $I.annote("NumberFormatNotation", {
-    description:
-      "Supported notation strategies for number rendering, including standard, scientific, engineering, and compact output.",
-  })
+export const NumberFormatNotation = S.Union([
+  S.Literal("STANDARD"),
+  S.Literal("SCIENTIFIC"),
+  S.Literal("ENGINEERING"),
+  S.Literal("COMPACT"),
+]).pipe(
+  S.annotate(
+    $I.annote("NumberFormatNotation", {
+      description:
+        "Supported notation strategies for number rendering, including standard, scientific, engineering, and compact output.",
+    })
+  )
 );
 
 /**
@@ -38,10 +44,12 @@ export type NumberFormatNotation = typeof NumberFormatNotation.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const NumberFormatCurrencyStyle = NumberFormatNotation.pick(["STANDARD", "COMPACT"]).annotate(
-  $I.annote("NumberFormatCurrencyStyle", {
-    description: "Currency-specific notation styles supported by number formatting rules.",
-  })
+export const NumberFormatCurrencyStyle = S.Union([S.Literal("STANDARD"), S.Literal("COMPACT")]).pipe(
+  S.annotate(
+    $I.annote("NumberFormatCurrencyStyle", {
+      description: "Currency-specific notation styles supported by number formatting rules.",
+    })
+  )
 );
 
 /**
@@ -58,10 +66,12 @@ export type NumberFormatCurrencyStyle = typeof NumberFormatCurrencyStyle.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const NumberRoundingMode = LiteralKit(["CEIL", "FLOOR", "ROUND_CLOSEST"]).annotate(
-  $I.annote("NumberRoundingMode", {
-    description: "Rounding behavior used when formatting numeric values.",
-  })
+export const NumberRoundingMode = S.Union([S.Literal("CEIL"), S.Literal("FLOOR"), S.Literal("ROUND_CLOSEST")]).pipe(
+  S.annotate(
+    $I.annote("NumberRoundingMode", {
+      description: "Rounding behavior used when formatting numeric values.",
+    })
+  )
 );
 
 /**
@@ -78,10 +88,18 @@ export type NumberRoundingMode = typeof NumberRoundingMode.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const DurationPrecision = LiteralKit(["DAYS", "HOURS", "MINUTES", "SECONDS", "AUTO"]).annotate(
-  $I.annote("DurationPrecision", {
-    description: "Duration precision controls used when formatting time duration values.",
-  })
+export const DurationPrecision = S.Union([
+  S.Literal("DAYS"),
+  S.Literal("HOURS"),
+  S.Literal("MINUTES"),
+  S.Literal("SECONDS"),
+  S.Literal("AUTO"),
+]).pipe(
+  S.annotate(
+    $I.annote("DurationPrecision", {
+      description: "Duration precision controls used when formatting time duration values.",
+    })
+  )
 );
 
 /**
@@ -98,10 +116,12 @@ export type DurationPrecision = typeof DurationPrecision.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const DurationBaseValue = LiteralKit(["SECONDS", "MILLISECONDS"]).annotate(
-  $I.annote("DurationBaseValue", {
-    description: "Unit of the raw numeric duration input before formatting.",
-  })
+export const DurationBaseValue = S.Union([S.Literal("SECONDS"), S.Literal("MILLISECONDS")]).pipe(
+  S.annotate(
+    $I.annote("DurationBaseValue", {
+      description: "Unit of the raw numeric duration input before formatting.",
+    })
+  )
 );
 
 /**
@@ -118,10 +138,12 @@ export type DurationBaseValue = typeof DurationBaseValue.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const NumberScaleType = LiteralKit(["THOUSANDS", "MILLIONS", "BILLIONS"]).annotate(
-  $I.annote("NumberScaleType", {
-    description: "Scale factors used to normalize large numeric values for display.",
-  })
+export const NumberScaleType = S.Union([S.Literal("THOUSANDS"), S.Literal("MILLIONS"), S.Literal("BILLIONS")]).pipe(
+  S.annotate(
+    $I.annote("NumberScaleType", {
+      description: "Scale factors used to normalize large numeric values for display.",
+    })
+  )
 );
 
 /**
@@ -138,10 +160,16 @@ export type NumberScaleType = typeof NumberScaleType.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const NumberRatioType = LiteralKit(["PERCENTAGE", "PER_MILLE", "BASIS_POINTS"]).annotate(
-  $I.annote("NumberRatioType", {
-    description: "Ratio display formats including percentage, per-mille, and basis points.",
-  })
+export const NumberRatioType = S.Union([
+  S.Literal("PERCENTAGE"),
+  S.Literal("PER_MILLE"),
+  S.Literal("BASIS_POINTS"),
+]).pipe(
+  S.annotate(
+    $I.annote("NumberRatioType", {
+      description: "Ratio display formats including percentage, per-mille, and basis points.",
+    })
+  )
 );
 
 /**
@@ -152,8 +180,17 @@ export const NumberRatioType = LiteralKit(["PERCENTAGE", "PER_MILLE", "BASIS_POI
  */
 export type NumberRatioType = typeof NumberRatioType.Type;
 
-const OptionFromOptionalNonNegativeInt = S.OptionFromOptionalKey(NonNegativeInt).annotate(
-  $I.annote("OptionFromOptionalNonNegativeInt", {
+const NonNegativeInt = S.Int.pipe(
+  S.check(S.isGreaterThanOrEqualTo(0)),
+  S.annotate(
+    $I.annote("NonNegativeInt", {
+      description: "Non-negative integer constraint used in number-format precision options.",
+    })
+  )
+);
+
+const OptionalNonNegativeInt = S.optionalKey(NonNegativeInt).annotate(
+  $I.annote("OptionalNonNegativeInt", {
     description: "Optional non-negative integer wrapper used for numeric formatting precision and digit constraints.",
   })
 );
@@ -166,15 +203,15 @@ const OptionFromOptionalNonNegativeInt = S.OptionFromOptionalKey(NonNegativeInt)
  */
 export class NumberFormatOptions extends S.Class<NumberFormatOptions>($I`NumberFormatOptions`)(
   {
-    useGrouping: S.OptionFromOptionalKey(S.Boolean),
-    convertNegativeToParenthesis: S.OptionFromOptionalKey(S.Boolean),
-    minimumIntegerDigits: OptionFromOptionalNonNegativeInt,
-    minimumFractionDigits: OptionFromOptionalNonNegativeInt,
-    maximumFractionDigits: OptionFromOptionalNonNegativeInt,
-    minimumSignificantDigits: OptionFromOptionalNonNegativeInt,
-    maximumSignificantDigits: OptionFromOptionalNonNegativeInt,
-    notation: S.OptionFromOptionalKey(NumberFormatNotation),
-    roundingMode: S.OptionFromOptionalKey(NumberRoundingMode),
+    useGrouping: S.optionalKey(S.Boolean),
+    convertNegativeToParenthesis: S.optionalKey(S.Boolean),
+    minimumIntegerDigits: OptionalNonNegativeInt,
+    minimumFractionDigits: OptionalNonNegativeInt,
+    maximumFractionDigits: OptionalNonNegativeInt,
+    minimumSignificantDigits: OptionalNonNegativeInt,
+    maximumSignificantDigits: OptionalNonNegativeInt,
+    notation: S.optionalKey(NumberFormatNotation),
+    roundingMode: S.optionalKey(NumberRoundingMode),
   },
   $I.annote("NumberFormatOptions", {
     description:
@@ -190,7 +227,7 @@ export class NumberFormatOptions extends S.Class<NumberFormatOptions>($I`NumberF
  */
 export class NumberFormatStandard extends S.Class<NumberFormatStandard>($I`NumberFormatStandard`)(
   {
-    type: S.tag("standard"),
+    type: S.Literal("standard"),
     baseFormatOptions: NumberFormatOptions,
   },
   $I.annote("NumberFormatStandard", {
@@ -206,7 +243,7 @@ export class NumberFormatStandard extends S.Class<NumberFormatStandard>($I`Numbe
  */
 export class NumberFormatFixedValues extends S.Class<NumberFormatFixedValues>($I`NumberFormatFixedValues`)(
   {
-    type: S.tag("fixedValues"),
+    type: S.Literal("fixedValues"),
     values: S.Record(S.Number, S.String),
   },
   $I.annote("NumberFormatFixedValues", {
@@ -222,7 +259,7 @@ export class NumberFormatFixedValues extends S.Class<NumberFormatFixedValues>($I
  */
 export class NumberFormatCurrency extends S.Class<NumberFormatCurrency>($I`NumberFormatCurrency`)(
   {
-    type: S.tag("currency"),
+    type: S.Literal("currency"),
     baseFormatOptions: NumberFormatOptions,
     style: NumberFormatCurrencyStyle,
     currencyCode: PropertyTypeReferenceOrStringConstant,
@@ -240,7 +277,7 @@ export class NumberFormatCurrency extends S.Class<NumberFormatCurrency>($I`Numbe
  */
 export class NumberFormatStandardUnit extends S.Class<NumberFormatStandardUnit>($I`NumberFormatStandardUnit`)(
   {
-    type: S.tag("standardUnit"),
+    type: S.Literal("standardUnit"),
     baseFormatOptions: NumberFormatOptions,
     unit: PropertyTypeReferenceOrStringConstant,
   },
@@ -257,7 +294,7 @@ export class NumberFormatStandardUnit extends S.Class<NumberFormatStandardUnit>(
  */
 export class NumberFormatCustomUnit extends S.Class<NumberFormatCustomUnit>($I`NumberFormatCustomUnit`)(
   {
-    type: S.tag("customUnit"),
+    type: S.Literal("customUnit"),
     baseFormatOptions: NumberFormatOptions,
     unit: PropertyTypeReferenceOrStringConstant,
   },
@@ -274,8 +311,8 @@ export class NumberFormatCustomUnit extends S.Class<NumberFormatCustomUnit>($I`N
  */
 export class Affix extends S.Class<Affix>($I`Affix`)(
   {
-    prefix: S.OptionFromOptionalKey(PropertyTypeReferenceOrStringConstant),
-    postfix: S.OptionFromOptionalKey(PropertyTypeReferenceOrStringConstant),
+    prefix: S.optionalKey(PropertyTypeReferenceOrStringConstant),
+    postfix: S.optionalKey(PropertyTypeReferenceOrStringConstant),
   },
   $I.annote("Affix", {
     description: "Prefix and postfix text configuration applied around a formatted numeric value.",
@@ -290,7 +327,7 @@ export class Affix extends S.Class<Affix>($I`Affix`)(
  */
 export class NumberFormatAffix extends S.Class<NumberFormatAffix>($I`NumberFormatAffix`)(
   {
-    type: S.tag("affix"),
+    type: S.Literal("affix"),
     baseFormatOptions: NumberFormatOptions,
     affix: Affix,
   },
@@ -307,8 +344,8 @@ export class NumberFormatAffix extends S.Class<NumberFormatAffix>($I`NumberForma
  */
 export class HumanReadableFormat extends S.Class<HumanReadableFormat>($I`HumanReadableFormat`)(
   {
-    type: S.tag("humanReadable"),
-    showFullUnits: S.OptionFromOptionalKey(S.Boolean),
+    type: S.Literal("humanReadable"),
+    showFullUnits: S.optionalKey(S.Boolean),
   },
   $I.annote("HumanReadableFormat", {
     description: "Duration formatting style that renders human-readable unit text.",
@@ -323,7 +360,7 @@ export class HumanReadableFormat extends S.Class<HumanReadableFormat>($I`HumanRe
  */
 export class TimeCodeFormat extends S.Class<TimeCodeFormat>($I`TimeCodeFormat`)(
   {
-    type: S.tag("timecode"),
+    type: S.Literal("timecode"),
   },
   $I.annote("TimeCodeFormat", {
     description: "Duration formatting style that renders values as a timecode string.",
@@ -337,7 +374,6 @@ export class TimeCodeFormat extends S.Class<TimeCodeFormat>($I`TimeCodeFormat`)(
  * @category schemas
  */
 export const DurationFormatStyle = S.Union([TimeCodeFormat, HumanReadableFormat]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("DurationFormatStyle", {
       description: "Tagged union defining whether durations are rendered as timecode or human-readable text.",
@@ -361,9 +397,9 @@ export type DurationFormatStyle = typeof DurationFormatStyle.Type;
  */
 export class NumberFormatDuration extends S.Class<NumberFormatDuration>($I`NumberFormatDuration`)(
   {
-    type: S.tag("duration"),
+    type: S.Literal("duration"),
     formatStyle: DurationFormatStyle,
-    precision: S.OptionFromOptionalKey(DurationPrecision),
+    precision: S.optionalKey(DurationPrecision),
     baseValue: DurationBaseValue,
   },
   $I.annote("NumberFormatDuration", {
@@ -379,7 +415,7 @@ export class NumberFormatDuration extends S.Class<NumberFormatDuration>($I`Numbe
  */
 export class NumberFormatScale extends S.Class<NumberFormatScale>($I`NumberFormatScale`)(
   {
-    type: S.tag("scale"),
+    type: S.Literal("scale"),
     scaleType: NumberScaleType,
     baseFormatOptions: NumberFormatOptions,
   },
@@ -396,7 +432,7 @@ export class NumberFormatScale extends S.Class<NumberFormatScale>($I`NumberForma
  */
 export class NumberFormatRatio extends S.Class<NumberFormatRatio>($I`NumberFormatRatio`)(
   {
-    type: S.tag("ratio"),
+    type: S.Literal("ratio"),
     ratioType: NumberRatioType,
     baseFormatOptions: NumberFormatOptions,
   },
@@ -422,7 +458,6 @@ export const PropertyNumberFormattingRuleType = S.Union([
   NumberFormatScale,
   NumberFormatRatio,
 ]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("PropertyNumberFormattingRuleType", {
       description: "Tagged union of all supported numeric value formatting variants for ontology properties.",
@@ -448,7 +483,7 @@ export class PropertyNumberFormattingRule extends S.Class<PropertyNumberFormatti
   $I`PropertyNumberFormattingRule`
 )(
   {
-    type: S.tag("number"),
+    type: S.Literal("number"),
     numberType: PropertyNumberFormattingRuleType,
   },
   $I.annote("PropertyNumberFormattingRule", {

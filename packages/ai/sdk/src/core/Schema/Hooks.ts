@@ -1,4 +1,5 @@
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema";
+
 import { withIdentifier } from "./Annotations.js"
 import { ExitReason } from "./Common.js"
 import {
@@ -6,16 +7,16 @@ import {
   PermissionUpdate
 } from "./Permission.js"
 
-const BaseHookInput = Schema.Struct({
-  session_id: Schema.String,
-  transcript_path: Schema.String,
-  cwd: Schema.String,
-  permission_mode: Schema.optional(Schema.String)
+const BaseHookInput = S.Struct({
+  session_id: S.String,
+  transcript_path: S.String,
+  cwd: S.String,
+  permission_mode: S.optional(S.String)
 })
 
 export const HookEvent = withIdentifier(
-  Schema.Literal(
-    "PreToolUse",
+  S.Literals(
+   [ "PreToolUse",
     "PostToolUse",
     "PostToolUseFailure",
     "Notification",
@@ -29,7 +30,7 @@ export const HookEvent = withIdentifier(
     "PermissionRequest",
     "Setup",
     "TeammateIdle",
-    "TaskCompleted"
+    "TaskCompleted"]
   ),
   "HookEvent"
 )
@@ -38,12 +39,12 @@ export type HookEvent = typeof HookEvent.Type
 export type HookEventEncoded = typeof HookEvent.Encoded
 
 export const NotificationHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("Notification"),
-    message: Schema.String,
-    title: Schema.optional(Schema.String),
-    notification_type: Schema.String
+    hook_event_name: S.Literal("Notification"),
+    message: S.String,
+    title: S.optional(S.String),
+    notification_type: S.String
   }),
   "NotificationHookInput"
 )
@@ -52,10 +53,10 @@ export type NotificationHookInput = typeof NotificationHookInput.Type
 export type NotificationHookInputEncoded = typeof NotificationHookInput.Encoded
 
 export const UserPromptSubmitHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("UserPromptSubmit"),
-    prompt: Schema.String
+    hook_event_name: S.Literal("UserPromptSubmit"),
+    prompt: S.String
   }),
   "UserPromptSubmitHookInput"
 )
@@ -64,12 +65,12 @@ export type UserPromptSubmitHookInput = typeof UserPromptSubmitHookInput.Type
 export type UserPromptSubmitHookInputEncoded = typeof UserPromptSubmitHookInput.Encoded
 
 export const SessionStartHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("SessionStart"),
-    source: Schema.Literal("startup", "resume", "clear", "compact"),
-    agent_type: Schema.optional(Schema.String),
-    model: Schema.optional(Schema.String)
+    hook_event_name: S.Literal("SessionStart"),
+    source: S.Literals(["startup", "resume", "clear", "compact"]),
+    agent_type: S.optional(S.String),
+    model: S.optional(S.String)
   }),
   "SessionStartHookInput"
 )
@@ -78,9 +79,9 @@ export type SessionStartHookInput = typeof SessionStartHookInput.Type
 export type SessionStartHookInputEncoded = typeof SessionStartHookInput.Encoded
 
 export const SessionEndHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("SessionEnd"),
+    hook_event_name: S.Literal("SessionEnd"),
     reason: ExitReason
   }),
   "SessionEndHookInput"
@@ -90,10 +91,10 @@ export type SessionEndHookInput = typeof SessionEndHookInput.Type
 export type SessionEndHookInputEncoded = typeof SessionEndHookInput.Encoded
 
 export const StopHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("Stop"),
-    stop_hook_active: Schema.Boolean
+    hook_event_name: S.Literal("Stop"),
+    stop_hook_active: S.Boolean
   }),
   "StopHookInput"
 )
@@ -102,11 +103,11 @@ export type StopHookInput = typeof StopHookInput.Type
 export type StopHookInputEncoded = typeof StopHookInput.Encoded
 
 export const SubagentStartHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("SubagentStart"),
-    agent_id: Schema.String,
-    agent_type: Schema.String
+    hook_event_name: S.Literal("SubagentStart"),
+    agent_id: S.String,
+    agent_type: S.String
   }),
   "SubagentStartHookInput"
 )
@@ -115,13 +116,13 @@ export type SubagentStartHookInput = typeof SubagentStartHookInput.Type
 export type SubagentStartHookInputEncoded = typeof SubagentStartHookInput.Encoded
 
 export const SubagentStopHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("SubagentStop"),
-    stop_hook_active: Schema.Boolean,
-    agent_id: Schema.String,
-    agent_transcript_path: Schema.String,
-    agent_type: Schema.String
+    hook_event_name: S.Literal("SubagentStop"),
+    stop_hook_active: S.Boolean,
+    agent_id: S.String,
+    agent_transcript_path: S.String,
+    agent_type: S.String
   }),
   "SubagentStopHookInput"
 )
@@ -130,11 +131,11 @@ export type SubagentStopHookInput = typeof SubagentStopHookInput.Type
 export type SubagentStopHookInputEncoded = typeof SubagentStopHookInput.Encoded
 
 export const PreCompactHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("PreCompact"),
-    trigger: Schema.Literal("manual", "auto"),
-    custom_instructions: Schema.Union(Schema.String, Schema.Null)
+    hook_event_name: S.Literal("PreCompact"),
+    trigger: S.Literals(["manual", "auto"]),
+    custom_instructions: S.Union([S.String, S.Null])
   }),
   "PreCompactHookInput"
 )
@@ -143,12 +144,12 @@ export type PreCompactHookInput = typeof PreCompactHookInput.Type
 export type PreCompactHookInputEncoded = typeof PreCompactHookInput.Encoded
 
 export const PreToolUseHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("PreToolUse"),
-    tool_name: Schema.String,
-    tool_input: Schema.Unknown,
-    tool_use_id: Schema.String
+    hook_event_name: S.Literal("PreToolUse"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_use_id: S.String
   }),
   "PreToolUseHookInput"
 )
@@ -157,13 +158,13 @@ export type PreToolUseHookInput = typeof PreToolUseHookInput.Type
 export type PreToolUseHookInputEncoded = typeof PreToolUseHookInput.Encoded
 
 export const PostToolUseHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("PostToolUse"),
-    tool_name: Schema.String,
-    tool_input: Schema.Unknown,
-    tool_response: Schema.Unknown,
-    tool_use_id: Schema.String
+    hook_event_name: S.Literal("PostToolUse"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_response: S.Unknown,
+    tool_use_id: S.String
   }),
   "PostToolUseHookInput"
 )
@@ -172,14 +173,14 @@ export type PostToolUseHookInput = typeof PostToolUseHookInput.Type
 export type PostToolUseHookInputEncoded = typeof PostToolUseHookInput.Encoded
 
 export const PostToolUseFailureHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("PostToolUseFailure"),
-    tool_name: Schema.String,
-    tool_input: Schema.Unknown,
-    tool_use_id: Schema.String,
-    error: Schema.String,
-    is_interrupt: Schema.optional(Schema.Boolean)
+    hook_event_name: S.Literal("PostToolUseFailure"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_use_id: S.String,
+    error: S.String,
+    is_interrupt: S.optional(S.Boolean)
   }),
   "PostToolUseFailureHookInput"
 )
@@ -188,12 +189,12 @@ export type PostToolUseFailureHookInput = typeof PostToolUseFailureHookInput.Typ
 export type PostToolUseFailureHookInputEncoded = typeof PostToolUseFailureHookInput.Encoded
 
 export const PermissionRequestHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("PermissionRequest"),
-    tool_name: Schema.String,
-    tool_input: Schema.Unknown,
-    permission_suggestions: Schema.optional(Schema.Array(PermissionUpdate))
+    hook_event_name: S.Literal("PermissionRequest"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    permission_suggestions: S.optional(S.Array(PermissionUpdate))
   }),
   "PermissionRequestHookInput"
 )
@@ -202,10 +203,10 @@ export type PermissionRequestHookInput = typeof PermissionRequestHookInput.Type
 export type PermissionRequestHookInputEncoded = typeof PermissionRequestHookInput.Encoded
 
 export const SetupHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("Setup"),
-    trigger: Schema.Literal("init", "maintenance")
+    hook_event_name: S.Literal("Setup"),
+    trigger: S.Literals(["init", "maintenance"])
   }),
   "SetupHookInput"
 )
@@ -214,11 +215,11 @@ export type SetupHookInput = typeof SetupHookInput.Type
 export type SetupHookInputEncoded = typeof SetupHookInput.Encoded
 
 export const TeammateIdleHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("TeammateIdle"),
-    teammate_name: Schema.String,
-    team_name: Schema.String
+    hook_event_name: S.Literal("TeammateIdle"),
+    teammate_name: S.String,
+    team_name: S.String
   }),
   "TeammateIdleHookInput"
 )
@@ -227,14 +228,14 @@ export type TeammateIdleHookInput = typeof TeammateIdleHookInput.Type
 export type TeammateIdleHookInputEncoded = typeof TeammateIdleHookInput.Encoded
 
 export const TaskCompletedHookInput = withIdentifier(
-  Schema.Struct({
+  S.Struct({
     ...BaseHookInput.fields,
-    hook_event_name: Schema.Literal("TaskCompleted"),
-    task_id: Schema.String,
-    task_subject: Schema.String,
-    task_description: Schema.optional(Schema.String),
-    teammate_name: Schema.optional(Schema.String),
-    team_name: Schema.optional(Schema.String)
+    hook_event_name: S.Literal("TaskCompleted"),
+    task_id: S.String,
+    task_subject: S.String,
+    task_description: S.optional(S.String),
+    teammate_name: S.optional(S.String),
+    team_name: S.optional(S.String)
   }),
   "TaskCompletedHookInput"
 )
@@ -243,8 +244,8 @@ export type TaskCompletedHookInput = typeof TaskCompletedHookInput.Type
 export type TaskCompletedHookInputEncoded = typeof TaskCompletedHookInput.Encoded
 
 export const HookInput = withIdentifier(
-  Schema.Union(
-    PreToolUseHookInput,
+  S.Union(
+    [PreToolUseHookInput,
     PostToolUseHookInput,
     PostToolUseFailureHookInput,
     NotificationHookInput,
@@ -258,7 +259,7 @@ export const HookInput = withIdentifier(
     PermissionRequestHookInput,
     SetupHookInput,
     TeammateIdleHookInput,
-    TaskCompletedHookInput
+    TaskCompletedHookInput]
   ),
   "HookInput"
 )
@@ -267,12 +268,12 @@ export type HookInput = typeof HookInput.Type
 export type HookInputEncoded = typeof HookInput.Encoded
 
 export const PreToolUseHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("PreToolUse"),
-    permissionDecision: Schema.optional(Schema.Literal("allow", "deny", "ask")),
-    permissionDecisionReason: Schema.optional(Schema.String),
-    updatedInput: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("PreToolUse"),
+    permissionDecision: S.optionalKey(S.Literals(["allow", "deny", "ask"])),
+    permissionDecisionReason: S.optionalKey(S.String),
+    updatedInput: S.optionalKey(S.Record( S.String, S.Unknown)),
+    additionalContext: S.optionalKey(S.String)
   }),
   "PreToolUseHookSpecificOutput"
 )
@@ -281,9 +282,9 @@ export type PreToolUseHookSpecificOutput = typeof PreToolUseHookSpecificOutput.T
 export type PreToolUseHookSpecificOutputEncoded = typeof PreToolUseHookSpecificOutput.Encoded
 
 export const UserPromptSubmitHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("UserPromptSubmit"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("UserPromptSubmit"),
+    additionalContext: S.optional(S.String)
   }),
   "UserPromptSubmitHookSpecificOutput"
 )
@@ -292,9 +293,9 @@ export type UserPromptSubmitHookSpecificOutput = typeof UserPromptSubmitHookSpec
 export type UserPromptSubmitHookSpecificOutputEncoded = typeof UserPromptSubmitHookSpecificOutput.Encoded
 
 export const SessionStartHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("SessionStart"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("SessionStart"),
+    additionalContext: S.optional(S.String)
   }),
   "SessionStartHookSpecificOutput"
 )
@@ -303,9 +304,9 @@ export type SessionStartHookSpecificOutput = typeof SessionStartHookSpecificOutp
 export type SessionStartHookSpecificOutputEncoded = typeof SessionStartHookSpecificOutput.Encoded
 
 export const SetupHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("Setup"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("Setup"),
+    additionalContext: S.optional(S.String)
   }),
   "SetupHookSpecificOutput"
 )
@@ -314,9 +315,9 @@ export type SetupHookSpecificOutput = typeof SetupHookSpecificOutput.Type
 export type SetupHookSpecificOutputEncoded = typeof SetupHookSpecificOutput.Encoded
 
 export const SubagentStartHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("SubagentStart"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("SubagentStart"),
+    additionalContext: S.optional(S.String)
   }),
   "SubagentStartHookSpecificOutput"
 )
@@ -325,10 +326,10 @@ export type SubagentStartHookSpecificOutput = typeof SubagentStartHookSpecificOu
 export type SubagentStartHookSpecificOutputEncoded = typeof SubagentStartHookSpecificOutput.Encoded
 
 export const PostToolUseHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("PostToolUse"),
-    additionalContext: Schema.optional(Schema.String),
-    updatedMCPToolOutput: Schema.optional(Schema.Unknown)
+  S.Struct({
+    hookEventName: S.Literal("PostToolUse"),
+    additionalContext: S.optional(S.String),
+    updatedMCPToolOutput: S.optional(S.Unknown)
   }),
   "PostToolUseHookSpecificOutput"
 )
@@ -337,9 +338,9 @@ export type PostToolUseHookSpecificOutput = typeof PostToolUseHookSpecificOutput
 export type PostToolUseHookSpecificOutputEncoded = typeof PostToolUseHookSpecificOutput.Encoded
 
 export const PostToolUseFailureHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("PostToolUseFailure"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("PostToolUseFailure"),
+    additionalContext: S.optional(S.String)
   }),
   "PostToolUseFailureHookSpecificOutput"
 )
@@ -348,9 +349,9 @@ export type PostToolUseFailureHookSpecificOutput = typeof PostToolUseFailureHook
 export type PostToolUseFailureHookSpecificOutputEncoded = typeof PostToolUseFailureHookSpecificOutput.Encoded
 
 export const NotificationHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("Notification"),
-    additionalContext: Schema.optional(Schema.String)
+  S.Struct({
+    hookEventName: S.Literal("Notification"),
+    additionalContext: S.optional(S.String)
   }),
   "NotificationHookSpecificOutput"
 )
@@ -359,8 +360,8 @@ export type NotificationHookSpecificOutput = typeof NotificationHookSpecificOutp
 export type NotificationHookSpecificOutputEncoded = typeof NotificationHookSpecificOutput.Encoded
 
 export const HookSpecificOutput = withIdentifier(
-  Schema.Union(
-    PreToolUseHookSpecificOutput,
+  S.Union(
+    [PreToolUseHookSpecificOutput,
     UserPromptSubmitHookSpecificOutput,
     SessionStartHookSpecificOutput,
     SetupHookSpecificOutput,
@@ -368,7 +369,7 @@ export const HookSpecificOutput = withIdentifier(
     PostToolUseHookSpecificOutput,
     PostToolUseFailureHookSpecificOutput,
     NotificationHookSpecificOutput,
-    PermissionRequestHookSpecificOutput
+    PermissionRequestHookSpecificOutput]
   ),
   "HookSpecificOutput"
 )
@@ -377,14 +378,14 @@ export type HookSpecificOutput = typeof HookSpecificOutput.Type
 export type HookSpecificOutputEncoded = typeof HookSpecificOutput.Encoded
 
 export const SyncHookJSONOutput = withIdentifier(
-  Schema.Struct({
-    continue: Schema.optional(Schema.Boolean),
-    suppressOutput: Schema.optional(Schema.Boolean),
-    stopReason: Schema.optional(Schema.String),
-    decision: Schema.optional(Schema.Literal("approve", "block")),
-    systemMessage: Schema.optional(Schema.String),
-    reason: Schema.optional(Schema.String),
-    hookSpecificOutput: Schema.optional(HookSpecificOutput)
+  S.Struct({
+    continue: S.optional(S.Boolean),
+    suppressOutput: S.optional(S.Boolean),
+    stopReason: S.optional(S.String),
+    decision: S.optional(S.Literals(["approve", "block"])),
+    systemMessage: S.optional(S.String),
+    reason: S.optional(S.String),
+    hookSpecificOutput: S.optional(HookSpecificOutput)
   }),
   "SyncHookJSONOutput"
 )
@@ -393,9 +394,9 @@ export type SyncHookJSONOutput = typeof SyncHookJSONOutput.Type
 export type SyncHookJSONOutputEncoded = typeof SyncHookJSONOutput.Encoded
 
 export const AsyncHookJSONOutput = withIdentifier(
-  Schema.Struct({
-    async: Schema.Literal(true),
-    asyncTimeout: Schema.optional(Schema.Number)
+  S.Struct({
+    async: S.Literal(true),
+    asyncTimeout: S.optional(S.Number)
   }),
   "AsyncHookJSONOutput"
 )
@@ -404,29 +405,29 @@ export type AsyncHookJSONOutput = typeof AsyncHookJSONOutput.Type
 export type AsyncHookJSONOutputEncoded = typeof AsyncHookJSONOutput.Encoded
 
 export const HookJSONOutput = withIdentifier(
-  Schema.Union(AsyncHookJSONOutput, SyncHookJSONOutput),
+  S.Union([AsyncHookJSONOutput, SyncHookJSONOutput]),
   "HookJSONOutput"
 )
 
 export type HookJSONOutput = typeof HookJSONOutput.Type
 export type HookJSONOutputEncoded = typeof HookJSONOutput.Encoded
 
-export const HookCallback = Schema.declare(
+export const HookCallback = S.declare(
   (_: unknown): _ is ((
     input: HookInput,
     toolUseID: string | undefined,
     options: { signal: AbortSignal }
   ) => Promise<HookJSONOutput>) => true
-).pipe(Schema.annotations({ identifier: "HookCallback", jsonSchema: {} }))
+).pipe(S.annotate({ identifier: "HookCallback", jsonSchema: {} }))
 
 export type HookCallback = typeof HookCallback.Type
 export type HookCallbackEncoded = typeof HookCallback.Encoded
 
 export const HookCallbackMatcher = withIdentifier(
-  Schema.Struct({
-    matcher: Schema.optional(Schema.String),
-    hooks: Schema.Array(HookCallback),
-    timeout: Schema.optional(Schema.Number)
+  S.Struct({
+    matcher: S.optional(S.String),
+    hooks: S.Array(HookCallback),
+    timeout: S.optional(S.Number)
   }),
   "HookCallbackMatcher"
 )

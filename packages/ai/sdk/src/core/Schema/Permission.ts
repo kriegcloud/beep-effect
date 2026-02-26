@@ -2,13 +2,13 @@ import * as Schema from "effect/Schema"
 import { withIdentifier } from "./Annotations.js"
 
 export const PermissionMode = withIdentifier(
-  Schema.Literal(
-    "default",
+  Schema.Literals(
+  [  "default",
     "acceptEdits",
     "bypassPermissions",
     "plan",
     "delegate",
-    "dontAsk"
+    "dontAsk"]
   ),
   "PermissionMode"
 )
@@ -17,7 +17,7 @@ export type PermissionMode = typeof PermissionMode.Type
 export type PermissionModeEncoded = typeof PermissionMode.Encoded
 
 export const PermissionBehavior = withIdentifier(
-  Schema.Literal("allow", "deny", "ask"),
+  Schema.Literals(["allow", "deny", "ask"]),
   "PermissionBehavior"
 )
 
@@ -25,7 +25,7 @@ export type PermissionBehavior = typeof PermissionBehavior.Type
 export type PermissionBehaviorEncoded = typeof PermissionBehavior.Encoded
 
 export const PermissionUpdateDestination = withIdentifier(
-  Schema.Literal("userSettings", "projectSettings", "localSettings", "session", "cliArg"),
+  Schema.Literals(["userSettings", "projectSettings", "localSettings", "session", "cliArg"]),
   "PermissionUpdateDestination"
 )
 
@@ -51,7 +51,7 @@ const RulesPayload = Schema.Struct({
 
 export const PermissionUpdate = withIdentifier(
   Schema.Union(
-    Schema.Struct({
+    [Schema.Struct({
       type: Schema.Literal("addRules"),
       ...RulesPayload.fields
     }),
@@ -77,7 +77,7 @@ export const PermissionUpdate = withIdentifier(
       type: Schema.Literal("removeDirectories"),
       directories: Schema.Array(Schema.String),
       destination: PermissionUpdateDestination
-    })
+    })]
   ),
   "PermissionUpdate"
 )
@@ -87,9 +87,9 @@ export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded
 
 export const PermissionResult = withIdentifier(
   Schema.Union(
-    Schema.Struct({
+ [   Schema.Struct({
       behavior: Schema.Literal("allow"),
-      updatedInput: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+      updatedInput: Schema.optional(Schema.Record( Schema.String,  Schema.Unknown )),
       updatedPermissions: Schema.optional(Schema.Array(PermissionUpdate)),
       toolUseID: Schema.optional(Schema.String)
     }),
@@ -98,7 +98,7 @@ export const PermissionResult = withIdentifier(
       message: Schema.String,
       interrupt: Schema.optional(Schema.Boolean),
       toolUseID: Schema.optional(Schema.String)
-    })
+    })]
   ),
   "PermissionResult"
 )
@@ -110,16 +110,16 @@ export const PermissionRequestHookSpecificOutput = withIdentifier(
   Schema.Struct({
     hookEventName: Schema.Literal("PermissionRequest"),
     decision: Schema.Union(
-      Schema.Struct({
+      [Schema.Struct({
         behavior: Schema.Literal("allow"),
-        updatedInput: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+        updatedInput: Schema.optional(Schema.Record( Schema.String,  Schema.Unknown )),
         updatedPermissions: Schema.optional(Schema.Array(PermissionUpdate))
       }),
       Schema.Struct({
         behavior: Schema.Literal("deny"),
         message: Schema.optional(Schema.String),
         interrupt: Schema.optional(Schema.Boolean)
-      })
+      })]
     )
   }),
   "PermissionRequestHookSpecificOutput"
@@ -141,7 +141,7 @@ export const CanUseTool = Schema.declare(
       agentID?: string
     }
   ) => Promise<PermissionResult>) => true
-).pipe(Schema.annotations({ identifier: "CanUseTool", jsonSchema: {} }))
+).annotate({ identifier: "CanUseTool", jsonSchema: {} })
 
 export type CanUseTool = typeof CanUseTool.Type
 export type CanUseToolEncoded = typeof CanUseTool.Encoded

@@ -1,6 +1,5 @@
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
-import * as Runtime from "effect/Runtime"
 import { HookError } from "../Errors.js"
 import type {
   HookCallback,
@@ -22,7 +21,7 @@ import type {
   SubagentStopHookInput,
   UserPromptSubmitHookInput
 } from "../Schema/Hooks.js"
-import { mergeHookMaps, type HookMap } from "./utils.js"
+import { type HookMap, mergeHookMaps } from "./utils.js"
 
 /**
  * Context passed to hook handlers by the SDK.
@@ -52,7 +51,7 @@ export type HookTapHandler<R> = (
 
 export type HookMatcherOptions = {
   readonly matcher?: string | undefined
-  readonly timeout?: Duration.DurationInput | undefined
+  readonly timeout?: Duration.Input | undefined
 }
 
 /**
@@ -60,12 +59,13 @@ export type HookMatcherOptions = {
  */
 export const callback = <R>(handler: HookHandler<R>) =>
   Effect.gen(function*() {
-    const runtime = yield* Effect.runtime<R>()
+    const services = yield* Effect.services<R>()
+    const runWithServices = Effect.runPromiseWith(services)
     return ((input, toolUseID, options) =>
-      Runtime.runPromise(runtime)(
+      runWithServices(
         handler(input, { toolUseID, signal: options.signal }).pipe(
           Effect.mapError((cause) =>
-            HookError.make({
+            new HookError({
               message: "Hook handler failed",
               cause
             })
@@ -80,12 +80,12 @@ export const callback = <R>(handler: HookHandler<R>) =>
  */
 export const matcher = (options: {
   readonly matcher?: string | undefined
-  readonly timeout?: Duration.DurationInput | undefined
+  readonly timeout?: Duration.Input | undefined
   readonly hooks: ReadonlyArray<HookCallback>
 }): HookCallbackMatcher => ({
   matcher: options.matcher,
   hooks: Array.from(options.hooks),
-  timeout: options.timeout ? Duration.toSeconds(options.timeout) : undefined
+  timeout: options.timeout ? Duration.toMillis(options.timeout) / 1000 : undefined
 })
 
 const toHookMap = (
@@ -99,7 +99,10 @@ const toHookMap = (
   return map as HookMap
 }
 
-const toMatcherEffect = <R>(handler: HookHandler<R>, options?: HookMatcherOptions) =>
+const toMatcherEffect = <R>(
+  handler: HookHandler<R>,
+  options?: HookMatcherOptions
+): Effect.Effect<HookCallbackMatcher, HookError, R> =>
   Effect.gen(function*() {
     const hookCallback = yield* callback(handler)
     return matcher({
@@ -113,7 +116,7 @@ export const hook = <E extends HookEvent, R>(
   event: E,
   handler: HookHandlerFor<E, R>,
   options?: HookMatcherOptions
-) =>
+): Effect.Effect<HookMap, HookError, R> =>
   toMatcherEffect(handler as HookHandler<R>, options).pipe(
     Effect.map((hookMatcher) => toHookMap([event], hookMatcher))
   )
@@ -122,7 +125,7 @@ export const tap = <R>(
   events: HookEvent | ReadonlyArray<HookEvent>,
   handler: HookTapHandler<R>,
   options?: HookMatcherOptions
-) =>
+): Effect.Effect<HookMap, HookError, R> =>
   toMatcherEffect(
     (input, context) => handler(input, context).pipe(Effect.as({})),
     options
@@ -422,7 +425,7 @@ export class HookBuilder<R = never> {
   }
 
   build(): Effect.Effect<HookMap, HookError, R> {
-    if (this.entries.length === 0) return Effect.succeed({})
+    if (this.entries.length === 0) return Effect.succeed(mergeHookMaps())
     return Effect.forEach(this.entries, (entry) => entry, {
       concurrency: "unbounded"
     }).pipe(Effect.map((maps) => mergeHookMaps(...maps)))

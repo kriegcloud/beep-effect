@@ -1,23 +1,23 @@
-import * as EventLogModule from "@effect/experimental/EventLog"
-import * as EventJournal from "@effect/experimental/EventJournal"
-import { KeyValueStore } from "@effect/platform"
-import { BunKeyValueStore } from "@effect/platform-bun"
-import * as Context from "effect/Context"
+import * as EventLog from "effect/unstable/eventlog/EventLog"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
+import { KeyValueStore } from "effect/unstable/persistence"
+
+import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import type { HookEvent } from "../Schema/Hooks.js"
 import { AuditEventSchema, layerAuditHandlers } from "../experimental/EventLog.js"
-import { Compaction, compactEntries } from "../Sync/Compaction.js"
-import type { CompactionStrategy } from "../Sync/Compaction.js"
-import { ConflictPolicy } from "../Sync/ConflictPolicy.js"
+import { Compaction, compactEntries } from "../Sync/index.js"
+import type { CompactionStrategy } from "../Sync/index.js"
+import { ConflictPolicy } from "../Sync/index.js"
 import {
   defaultAuditEventJournalKey,
   defaultAuditIdentityKey,
   defaultStorageDirectory
 } from "./defaults.js"
 import { StorageConfig } from "./StorageConfig.js"
-import { StorageError, toStorageError } from "./StorageError.js"
+import { type StorageError, toStorageError } from "./StorageError.js"
 import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJournalKeyValueStore.js"
 
 export type AuditEventInput =
@@ -107,7 +107,7 @@ const auditEventTags = [
   "sync_compaction"
 ] as const
 
-const layerAuditJournalCompaction = Layer.scopedDiscard(
+const layerAuditJournalCompaction = Layer.effectDiscard(
   Effect.gen(function*() {
     const config = yield* Effect.serviceOption(StorageConfig)
     if (Option.isNone(config)) return
@@ -116,7 +116,7 @@ const layerAuditJournalCompaction = Layer.scopedDiscard(
     strategies.push(Compaction.byAge(retention.maxAge))
     strategies.push(Compaction.byCount(retention.maxEntries))
     const strategy = Compaction.composite(...strategies)
-    const log = yield* EventLogModule.EventLog
+    const log = yield* EventLog.EventLog
     yield* log.registerCompaction({
       events: auditEventTags,
       effect: ({ entries, write }) =>
@@ -128,7 +128,7 @@ const layerAuditJournalCompaction = Layer.scopedDiscard(
 )
 
 const makeStore = Effect.gen(function*() {
-  const log = yield* EventLogModule.EventLog
+  const log = yield* EventLog.EventLog
 
   const write = Effect.fn("AuditEventStore.write")((input: AuditEventInput) =>
     Effect.gen(function*() {
@@ -151,23 +151,23 @@ const makeStore = Effect.gen(function*() {
   return AuditEventStore.of({ write, entries })
 })
 
-export class AuditEventStore extends Context.Tag("@effect/claude-agent-sdk/AuditEventStore")<
+export class AuditEventStore extends ServiceMap.Service<
   AuditEventStore,
   {
     readonly write: (input: AuditEventInput) => Effect.Effect<void, StorageError>
     readonly entries: Effect.Effect<ReadonlyArray<EventJournal.Entry>, StorageError>
     readonly cleanup?: () => Effect.Effect<void, StorageError>
   }
->() {
+>()("@effect/claude-agent-sdk/AuditEventStore") {
   static readonly layerMemory = Layer.effect(
     AuditEventStore,
     makeStore
   ).pipe(
     Layer.provide(
       (() => {
-        const baseLayer = EventLogModule.layerEventLog.pipe(
+        const baseLayer = EventLog.layerEventLog.pipe(
           Layer.provide(EventJournal.layerMemory),
-          Layer.provide(Layer.sync(EventLogModule.Identity, () => EventLogModule.Identity.makeRandom())),
+          Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
           Layer.provide(layerAuditHandlers)
         )
         const compactionLayer = layerAuditJournalCompaction.pipe(Layer.provide(baseLayer))
@@ -186,15 +186,15 @@ export class AuditEventStore extends Context.Tag("@effect/claude-agent-sdk/Audit
         (() => {
           const conflictPolicyLayer =
             options?.conflictPolicy ?? ConflictPolicy.layerLastWriteWins
-          const baseLayer = EventLogModule.layerEventLog.pipe(
+          const baseLayer = EventLog.layerEventLog.pipe(
             Layer.provide(
               layerEventJournalKeyValueStore(
                 options?.journalKey ? { key: options.journalKey } : undefined
               )
             ),
-            Layer.provide(EventLogModule.layerIdentityKvs({
-              key: options?.identityKey ?? defaultAuditIdentityKey
-            })),
+            // Layer.provide(EventLog.layerEventLog.pipe(Layer.succeed({
+            //   key: options?.identityKey ?? defaultAuditIdentityKey
+            // }))),
             Layer.provide(layerAuditHandlers),
             Layer.provide(conflictPolicyLayer)
           )
@@ -238,7 +238,7 @@ export class AuditEventStore extends Context.Tag("@effect/claude-agent-sdk/Audit
         : {})
     }).pipe(
       Layer.provide(
-        BunKeyValueStore.layerFileSystem(
+        KeyValueStore.layerFileSystem(
           options?.directory ?? defaultStorageDirectory
         )
       )

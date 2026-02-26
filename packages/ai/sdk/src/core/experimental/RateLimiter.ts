@@ -1,9 +1,9 @@
-import * as RateLimiter from "@effect/experimental/RateLimiter"
 import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
+import * as RateLimiter from "effect/unstable/persistence/RateLimiter"
 
-export * from "@effect/experimental/RateLimiter"
+export * from "effect/unstable/persistence/RateLimiter"
 
 /**
  * In-memory rate limiter layer for local development and tests.
@@ -46,7 +46,7 @@ export const keyForSessionTool = (sessionId: string, toolName: string) =>
 export type RateLimitWindowConfig = {
   readonly algorithm?: "fixed-window" | "token-bucket"
   readonly onExceeded?: "delay" | "fail"
-  readonly window: Duration.DurationInput
+  readonly window: Duration.Input
   readonly limit: number
   readonly tokens?: number
 }
@@ -73,7 +73,7 @@ export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & 
  */
 export const withRateLimit = (config: {
   readonly key: string
-  readonly window: Duration.DurationInput
+  readonly window: Duration.Input
   readonly limit: number
   readonly algorithm?: "fixed-window" | "token-bucket"
   readonly onExceeded?: "delay" | "fail"

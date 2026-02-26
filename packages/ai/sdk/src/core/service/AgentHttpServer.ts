@@ -1,6 +1,6 @@
-import { HttpApiBuilder } from "@effect/platform"
 import { BunHttpServer } from "@effect/platform-bun"
 import * as Layer from "effect/Layer"
+import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { AgentHttpApi } from "./AgentHttpApi.js"
 import { layer as AgentHttpHandlers } from "./AgentHttpHandlers.js"
 

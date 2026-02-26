@@ -1,7 +1,8 @@
-import { KeyValueStore } from "@effect/platform"
-import { BunFileSystem, BunKeyValueStore, BunPath } from "@effect/platform-bun"
-import type { FileSystem } from "@effect/platform/FileSystem"
-import type { Path } from "@effect/platform/Path"
+import { KeyValueStore } from "effect/unstable/persistence"
+import { BunFileSystem, BunPath } from "@effect/platform-bun"
+import * as Effect from "effect/Effect"
+import type * as FileSystem from "effect/FileSystem"
+import type * as Path from "effect/Path"
 import type * as Duration from "effect/Duration"
 import * as Layer from "effect/Layer"
 import { ArtifactStore } from "./ArtifactStore.js"
@@ -50,7 +51,7 @@ export type StorageLayersWithSync<E = unknown, R = unknown> = StorageLayers<E, R
 }
 
 export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
-  readonly syncInterval?: Duration.DurationInput
+  readonly syncInterval?: Duration.Input
   readonly disablePing?: boolean
   readonly protocols?: string | Array<string>
   readonly syncChatHistory?: boolean
@@ -182,7 +183,7 @@ const resolveLayersFromKvs = <R>(
   kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, R>,
   mode: StorageMode,
   tenant: string | undefined
-): StorageLayers<unknown, R> => {
+): StorageLayers<unknown, unknown> => {
   const tenantScope = resolveTenantScope(tenant)
   return {
     chatHistory: mode === "journaled"
@@ -221,7 +222,7 @@ const mergeLayers = <E, R>(layers: StorageLayers<E, R>) =>
     layers.sessionIndex
   )
 
-type BunDependencies = FileSystem | Path
+type BunDependencies = FileSystem.FileSystem | Path.Path
 
 const provideBunLayers = <E, R>(
   layers: StorageLayers<E, R>
@@ -251,14 +252,14 @@ const bunPathLayer = BunPath.layer
 
 export const layersFileSystemBun = (
   options?: StorageLayerOptions
-): StorageLayers<unknown, never> => {
+): StorageLayers<unknown, unknown> => {
   const layers = resolveLayers(options, "bun", "standard")
   return provideBunLayers(layers)
 }
 
 export const layersFileSystemBunJournaled = (
   options?: StorageLayerOptions
-): StorageLayers<unknown, never> => {
+): StorageLayers<unknown, unknown> => {
   const layers = resolveLayers(options, "bun", "journaled")
   return provideBunLayers(layers)
 }
@@ -302,8 +303,8 @@ const buildChatSyncLayers = <RBase, ROptions>(
   options: StorageSyncLayerOptions<ROptions> | undefined,
   kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, RBase>
 ): {
-  readonly chatHistory: Layer.Layer<ChatHistoryStore, unknown, RBase | ROptions>
-  readonly syncLayer: Layer.Layer<SyncService, unknown, RBase | ROptions>
+  readonly chatHistory: Layer.Layer<ChatHistoryStore, unknown, unknown>
+  readonly syncLayer: Layer.Layer<SyncService, unknown, unknown>
 } => {
   const tenantScope = resolveTenantScope(options?.tenant)
   const baseLayer = ChatHistoryStore.layerJournaledWithEventLog(
@@ -316,11 +317,8 @@ const buildChatSyncLayers = <RBase, ROptions>(
         : {})
     }
   ).pipe(Layer.provide(kvsLayer))
-  const chatHistory = Layer.project(
-    baseLayer,
-    ChatHistoryStore,
-    ChatHistoryStore,
-    (store) => store
+  const chatHistory = Layer.effect(ChatHistoryStore, Effect.service(ChatHistoryStore)).pipe(
+    Layer.provide(baseLayer)
   )
   let syncLayer = SyncService.layerWebSocket(
     url,
@@ -339,10 +337,10 @@ const buildJournaledSyncLayers = <RBase, ROptions>(
   options: StorageSyncLayerOptions<ROptions> | undefined,
   baseLayers: StorageLayers<unknown, RBase>,
   kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, RBase>
-): StorageLayersWithSync<unknown, RBase | ROptions> => {
+): StorageLayersWithSync<unknown, unknown> => {
   const tenantScope = resolveTenantScope(options?.tenant)
   const flags = resolveSyncFlags(options)
-  let syncLayer: Layer.Layer<SyncService, unknown, RBase | ROptions> | undefined
+  let syncLayer: Layer.Layer<SyncService, unknown, unknown> | undefined
   const chatHistory = flags.syncChatHistory
     ? flags.exposeSync
       ? (() => {
@@ -403,7 +401,7 @@ const buildJournaledSyncLayers = <RBase, ROptions>(
 const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
   url: string,
   options?: StorageSyncLayerOptions<R>
-): StorageLayersWithSync<unknown, FileSystem | Path | R> => {
+): StorageLayersWithSync<unknown, unknown> => {
   const directory = options?.directory
   const kvsLayer = KeyValueStore.layerFileSystem(
     directory ?? defaultStorageDirectory
@@ -420,11 +418,11 @@ const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
 export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
   options?: StorageSyncLayerOptions<R>
-): StorageLayersWithSync<unknown, R> => {
+): StorageLayersWithSync<unknown, unknown> => {
   const directory = options?.directory
-  const kvsLayer = BunKeyValueStore.layerFileSystem(
+  const kvsLayer = KeyValueStore.layerFileSystem(
     directory ?? defaultStorageDirectory
-  )
+  ).pipe(Layer.provide([bunFileSystemLayer, bunPathLayer]))
   const baseLayers = layersFileSystemBunJournaled(
     {
       ...(directory !== undefined ? { directory } : {}),
@@ -448,7 +446,7 @@ export function layers(
 ): StorageLayersWithSync<unknown, never>
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "filesystem" }
-): StorageLayersWithSync<unknown, FileSystem | Path>
+): StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "r2" }
 ): StorageLayersWithSync<unknown, never>
@@ -457,10 +455,10 @@ export function layers(
 ): StorageLayersWithSync<unknown, never>
 export function layers(
   options?: StorageLayerBundleOptions
-): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem | Path>
+): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>
 export function layers(
   options: StorageLayerBundleOptions = {}
-): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem | Path> {
+): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path> {
   validateTenant(options.tenant)
   const backend = options.backend ?? "bun"
   const mode = options.sync ? "journaled" : (options.mode ?? "standard")
@@ -536,7 +534,7 @@ export function layers(
         ...(directory !== undefined ? { directory } : {}),
         ...(options.tenant !== undefined ? { tenant: options.tenant } : {})
       }
-    ) as StorageLayersWithSync<unknown, FileSystem | Path>
+    ) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>
   }
 
   return mode === "journaled"
@@ -545,11 +543,11 @@ export function layers(
           ...(directory !== undefined ? { directory } : {}),
           ...(options.tenant !== undefined ? { tenant: options.tenant } : {})
         }
-      ) as StorageLayersWithSync<unknown, FileSystem | Path>)
+      ) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>)
     : (layersFileSystem(
         {
           ...(directory !== undefined ? { directory } : {}),
           ...(options.tenant !== undefined ? { tenant: options.tenant } : {})
         }
-      ) as StorageLayersWithSync<unknown, FileSystem | Path>)
+      ) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>)
 }

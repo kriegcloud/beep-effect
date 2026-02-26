@@ -1,6 +1,6 @@
-import * as HttpRouter from "@effect/platform/HttpRouter"
+import * as HttpRouter from "effect/unstable/http/HttpRouter"
 import { BunHttpServer } from "@effect/platform-bun"
-import { RpcSerialization, RpcServer } from "@effect/rpc"
+import { RpcSerialization, RpcServer } from "effect/unstable/rpc"
 import * as Layer from "effect/Layer"
 import { AgentRpcs } from "./AgentRpcs.js"
 import { layer as AgentRpcHandlers } from "./AgentRpcHandlers.js"
@@ -22,9 +22,9 @@ export const layer = (options: AgentRpcServerOptions = {}) => {
     Layer.provide(RpcSerialization.layerNdjson)
   )
 
-  return HttpRouter.Default.serve().pipe(
+  return HttpRouter.serve(Layer.empty.pipe(
     Layer.provide(rpcLayer),
     Layer.provide(protocolLayer),
     Layer.provide(BunHttpServer.layer({ port }))
-  )
+  ))
 }

@@ -1,25 +1,24 @@
-import * as EventLogModule from "@effect/experimental/EventLog"
-import * as EventLogEncryption from "@effect/experimental/EventLogEncryption"
-import * as EventLogRemote from "@effect/experimental/EventLogRemote"
-import * as Socket from "@effect/platform/Socket"
+import * as EventLogModule from "effect/unstable/eventlog/EventLog"
+import * as EventLogEncryption from "effect/unstable/eventlog/EventLogEncryption"
+import * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote"
+import * as Socket from "effect/unstable/socket/Socket"
 import { BunSocket } from "@effect/platform-bun"
 import * as Cause from "effect/Cause"
 import * as Clock from "effect/Clock"
-import * as Context from "effect/Context"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as FiberMap from "effect/FiberMap"
 import * as Layer from "effect/Layer"
-import * as Mailbox from "effect/Mailbox"
 import * as Option from "effect/Option"
 import * as Ref from "effect/Ref"
 import * as Schedule from "effect/Schedule"
+import * as Semaphore from "effect/Semaphore"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Scope from "effect/Scope"
 import * as Stream from "effect/Stream"
 import * as SubscriptionRef from "effect/SubscriptionRef"
 import { StorageConfig } from "../Storage/StorageConfig.js"
 import { EventLogRemoteServer, layerBunWebSocketTest } from "./EventLogRemoteServer.js"
-import type { EventLogRemoteServerError } from "./EventLogRemoteServer.js"
 
 export type RemoteKind = "remoteId" | "url"
 
@@ -45,13 +44,15 @@ export type RemoteStatus = {
 }
 
 export type SyncConfigOptions = {
-  readonly syncInterval?: Duration.DurationInput
+  readonly syncInterval?: Duration.Input
 }
 
 export type SyncServiceWebSocketOptions = {
   readonly disablePing?: boolean
   readonly protocols?: string | Array<string>
 }
+
+type EventLogRemoteService = ServiceMap.Service.Shape<typeof EventLogRemote.EventLogRemote>
 
 const remoteIdToString = (remoteId: Uint8Array) =>
   Array.from(remoteId)
@@ -60,36 +61,33 @@ const remoteIdToString = (remoteId: Uint8Array) =>
 
 const defaultSyncConfig: SyncConfigOptions = {}
 
-export class SyncConfig extends Context.Reference<SyncConfig>()(
+export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigOptions>()(
   "@effect/claude-agent-sdk/SyncConfig",
   {
-    defaultValue: () => defaultSyncConfig
+    make: Effect.succeed(defaultSyncConfig)
   }
 ) {
   static readonly layer = (options: SyncConfigOptions) =>
-    Layer.succeed(SyncConfig, options)
+    Layer.succeed(SyncConfig, SyncConfig.of(options))
 }
 
-export class SyncService extends Context.Tag("@effect/claude-agent-sdk/SyncService")<
-  SyncService,
-  {
-    readonly connect: (remote: EventLogRemote.EventLogRemote) => Effect.Effect<void>
-    readonly connectWebSocket: (url: string, options?: SyncServiceWebSocketOptions) => Effect.Effect<void>
-    /**
-     * Disconnects a remote by key (URL or remoteId hex).
-     */
-    readonly disconnect: (key: RemoteKey | string) => Effect.Effect<void>
-    /**
-     * @deprecated Use `disconnect` instead.
-     */
-    readonly disconnectRemoteId: (remoteId: string) => Effect.Effect<void>
-    readonly disconnectWebSocket: (url: string) => Effect.Effect<void>
-    readonly syncNow: () => Effect.Effect<void>
-    readonly status: () => Effect.Effect<ReadonlyArray<RemoteStatus>>
-    readonly statusStream: () => Stream.Stream<ReadonlyArray<RemoteStatus>>
-  }
->() {
-  static readonly layer = Layer.scoped(SyncService, make())
+export class SyncService extends ServiceMap.Service<SyncService, {
+  readonly connect: (remote: EventLogRemoteService) => Effect.Effect<void>
+  readonly connectWebSocket: (url: string, options?: SyncServiceWebSocketOptions) => Effect.Effect<void>
+  /**
+   * Disconnects a remote by key (URL or remoteId hex).
+   */
+  readonly disconnect: (key: RemoteKey | string) => Effect.Effect<void>
+  /**
+   * @deprecated Use `disconnect` instead.
+   */
+  readonly disconnectRemoteId: (remoteId: string) => Effect.Effect<void>
+  readonly disconnectWebSocket: (url: string) => Effect.Effect<void>
+  readonly syncNow: () => Effect.Effect<void>
+  readonly status: () => Effect.Effect<ReadonlyArray<RemoteStatus>>
+  readonly statusStream: () => Stream.Stream<ReadonlyArray<RemoteStatus>>
+}>()("@effect/claude-agent-sdk/SyncService") {
+  static readonly layer = Layer.effect(SyncService, make())
 
   static readonly layerSocket: (
     host: string,
@@ -101,7 +99,7 @@ export class SyncService extends Context.Tag("@effect/claude-agent-sdk/SyncServi
     options?: SyncServiceWebSocketOptions
   ) => {
     const socketLayer = BunSocket.layerNet({ host, port })
-    const layer = Layer.scoped(
+    const layer = Layer.effect(
       SyncService,
       makeWithSocket(`tcp://${host}:${port}`, options)
     ).pipe(
@@ -118,7 +116,7 @@ export class SyncService extends Context.Tag("@effect/claude-agent-sdk/SyncServi
     url: string,
     options?: SyncServiceWebSocketOptions
   ) => {
-    const layer = Layer.scoped(SyncService, makeWithWebSocket(url, options)).pipe(
+    const layer = Layer.effect(SyncService, makeWithWebSocket(url, options)).pipe(
       Layer.provide(BunSocket.layerWebSocketConstructor),
       Layer.provide(EventLogEncryption.layerSubtle)
     )
@@ -128,10 +126,10 @@ export class SyncService extends Context.Tag("@effect/claude-agent-sdk/SyncServi
   static readonly layerMemory: (
     options?: SyncServiceWebSocketOptions
   ) => Layer.Layer<SyncService, unknown, EventLogModule.EventLog> = (options) =>
-    Layer.unwrapEffect(
+    Layer.unwrap(
       Effect.gen(function*() {
         const server = yield* EventLogRemoteServer
-        const layer = Layer.scoped(SyncService, makeWithWebSocket(server.url, options)).pipe(
+        const layer = Layer.effect(SyncService, makeWithWebSocket(server.url, options)).pipe(
           Layer.provide(BunSocket.layerWebSocketConstructor),
           Layer.provide(EventLogEncryption.layerSubtle)
         )
@@ -175,7 +173,7 @@ function makeService() {
     )
     const socketOption = yield* Effect.serviceOption(Socket.Socket)
     const fibers = yield* FiberMap.make<string>()
-    const syncNowSemaphore = yield* Effect.makeSemaphore(1)
+    const syncNowSemaphore = yield* Semaphore.make(1)
     const statusRef = yield* SubscriptionRef.make<Map<string, RemoteStatus>>(new Map())
     const connectorsRef = yield* Ref.make<Map<string, {
       readonly effect: Effect.Effect<void, never, Scope.Scope>
@@ -326,12 +324,11 @@ function makeService() {
       FiberMap.run(
         fibers,
         key,
-        Scope.extend(
+        Scope.provide(scope)(
           effect.pipe(
-            Effect.catchAllCause((cause) => markDisconnected(key, Cause.pretty(cause))),
+            Effect.catchCause((cause) => markDisconnected(key, Cause.pretty(cause))),
             Effect.ensuring(markDisconnected(key))
-          ),
-          scope
+          )
         ),
         { onlyIfMissing: options?.onlyIfMissing ?? true }
       )
@@ -377,21 +374,12 @@ function makeService() {
       yield* runTracked(key, effect, { onlyIfMissing: !hasFiber })
     })
 
-    const wrapMailbox = <A, E>(mailbox: Mailbox.ReadonlyMailbox<A, E>, key: string) =>
-      Mailbox.fromStream(
-        Mailbox.toStream(mailbox).pipe(
-          Stream.tap(() => markSynced(key))
-        )
-      )
-
-    const wrapRemote = (remote: EventLogRemote.EventLogRemote, key: string): EventLogRemote.EventLogRemote => ({
+    const wrapRemote = (remote: EventLogRemoteService, key: string): EventLogRemoteService => ({
       id: remote.id,
       write: (identity, entries) =>
         remote.write(identity, entries).pipe(Effect.tap(() => markSynced(key))),
       changes: (identity, startSequence) =>
-        remote.changes(identity, startSequence).pipe(
-          Effect.flatMap((mailbox) => wrapMailbox(mailbox, key))
-        )
+        remote.changes(identity, startSequence)
     })
 
     const trackedEventLog = (key: string) =>
@@ -413,8 +401,8 @@ function makeService() {
     ) {
       const socket = yield* Option.match(socketOption, {
         onNone: () =>
-          Effect.dieMessage(
-            "SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet."
+          Effect.die(
+            new Error("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet.")
           ),
         onSome: (service) => Effect.succeed(service)
       })
@@ -422,12 +410,21 @@ function makeService() {
         Effect.provideService(EventLogModule.EventLog, trackedEventLog(key)),
         Effect.provideService(EventLogEncryption.EventLogEncryption, encryption),
         Effect.provideService(Socket.Socket, socket)
+      ).pipe(
+        Effect.flatMap((remote) => {
+          const remoteId = remoteIdToString(remote.id)
+          const trackedRemote = wrapRemote(remote, key)
+          return log.registerRemote(trackedRemote).pipe(
+            Effect.tap(() => updateRemoteId(key, remoteId)),
+            Effect.tap(() => markConnected(key, "url", key))
+          )
+        })
       )
       yield* connectInternal(key, "url", effect, key)
     })
 
     const connect = Effect.fn("SyncService.connect")(function*(
-      remote: EventLogRemote.EventLogRemote
+      remote: EventLogRemoteService
     ) {
       const key = remoteIdToString(remote.id)
       const trackedRemote = wrapRemote(remote, key)
@@ -447,8 +444,10 @@ function makeService() {
     ) {
       const webSocketConstructor = yield* Option.match(webSocketConstructorOption, {
         onNone: () =>
-          Effect.dieMessage(
-            "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
+          Effect.die(
+            new Error(
+              "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
+            )
           ),
         onSome: (constructor) => Effect.succeed(constructor)
       })
@@ -463,6 +462,15 @@ function makeService() {
         Effect.provideService(EventLogModule.EventLog, trackedEventLog(url)),
         Effect.provideService(EventLogEncryption.EventLogEncryption, encryption),
         Effect.provideService(Socket.Socket, socket)
+      ).pipe(
+        Effect.flatMap((remote) => {
+          const remoteId = remoteIdToString(remote.id)
+          const trackedRemote = wrapRemote(remote, url)
+          return log.registerRemote(trackedRemote).pipe(
+            Effect.tap(() => updateRemoteId(url, remoteId)),
+            Effect.tap(() => markConnected(url, "url", url))
+          )
+        })
       )
       yield* connectInternal(url, "url", effect, url)
     })
@@ -473,8 +481,8 @@ function makeService() {
     const disconnect = Effect.fn("SyncService.disconnect")((input: RemoteKey | string) => {
       const key = toKey(input)
       return FiberMap.remove(fibers, key).pipe(
-        Effect.zipRight(removeConnector(key)),
-        Effect.zipRight(markDisconnected(key))
+        Effect.andThen(removeConnector(key)),
+        Effect.andThen(markDisconnected(key))
       )
     })
 
@@ -493,7 +501,7 @@ function makeService() {
             connectors,
             ([key, connector]) =>
               FiberMap.remove(fibers, key).pipe(
-                Effect.zipRight(runTracked(key, connector.effect, { onlyIfMissing: false }))
+                Effect.andThen(runTracked(key, connector.effect, { onlyIfMissing: false }))
               ),
             { discard: true }
           )
@@ -508,14 +516,14 @@ function makeService() {
     )
 
     const statusStream = () =>
-      statusRef.changes.pipe(
+      SubscriptionRef.changes(statusRef).pipe(
         Stream.map((map) => Array.from(map.values()))
       )
 
     yield* Effect.gen(function*() {
-      const syncConfig = yield* SyncConfig
-      if (syncConfig.syncInterval !== undefined) {
-        const interval = syncConfig.syncInterval
+      const syncConfigOption = yield* Effect.serviceOption(SyncConfig)
+      if (Option.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
+        const interval = syncConfigOption.value.syncInterval
         if (Duration.toMillis(interval) <= 0) return
         yield* Effect.repeat(syncNow(), Schedule.spaced(interval))
         return
@@ -526,7 +534,7 @@ function makeService() {
       if (Duration.toMillis(interval) <= 0) return
       yield* Effect.repeat(syncNow(), Schedule.spaced(interval))
     }).pipe(
-      Effect.catchAllCause(Effect.logDebug),
+      Effect.catchCause(Effect.logDebug),
       Effect.forkScoped
     )
 

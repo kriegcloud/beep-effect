@@ -1,11 +1,11 @@
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 import { withIdentifier } from "./Annotations.js"
 import {
   SdkBeta,
   SdkPluginConfig
 } from "./Common.js"
 import { HookCallbackMatcher, HookEvent } from "./Hooks.js"
-import { McpServerConfig, McpServerConfigForProcessTransport } from "./Mcp.js"
+import  { McpServerConfig, McpServerConfigForProcessTransport } from "./Mcp.js"
 import { CanUseTool, PermissionMode } from "./Permission.js"
 import { SandboxSettings } from "./Sandbox.js"
 import {
@@ -15,34 +15,34 @@ import {
 } from "./Runtime.js"
 
 export const SettingSource = withIdentifier(
-  Schema.Literal("user", "project", "local"),
+  S.Literals(["user", "project", "local"]),
   "SettingSource"
 )
 
 export type SettingSource = typeof SettingSource.Type
 export type SettingSourceEncoded = typeof SettingSource.Encoded
 
-const SystemPromptPreset = Schema.Struct({
-  type: Schema.Literal("preset"),
-  preset: Schema.Literal("claude_code"),
-  append: Schema.optional(Schema.String)
+const SystemPromptPreset = S.Struct({
+  type: S.Literal("preset"),
+  preset: S.Literal("claude_code"),
+  append: S.optional(S.String)
 })
 
 export const SystemPrompt = withIdentifier(
-  Schema.Union(Schema.String, SystemPromptPreset),
+  S.Union([S.String, SystemPromptPreset]),
   "SystemPrompt"
 )
 
 export type SystemPrompt = typeof SystemPrompt.Type
 export type SystemPromptEncoded = typeof SystemPrompt.Encoded
 
-const ToolsPreset = Schema.Struct({
-  type: Schema.Literal("preset"),
-  preset: Schema.Literal("claude_code")
+const ToolsPreset = S.Struct({
+  type: S.Literal("preset"),
+  preset: S.Literal("claude_code")
 })
 
 export const ToolsConfig = withIdentifier(
-  Schema.Union(Schema.Array(Schema.String), ToolsPreset),
+  S.Union([S.Array(S.String), ToolsPreset]),
   "ToolsConfig"
 )
 
@@ -50,9 +50,9 @@ export type ToolsConfig = typeof ToolsConfig.Type
 export type ToolsConfigEncoded = typeof ToolsConfig.Encoded
 
 export const JsonSchemaOutputFormat = withIdentifier(
-  Schema.Struct({
-    type: Schema.Literal("json_schema"),
-    schema: Schema.Record({ key: Schema.String, value: Schema.Unknown })
+  S.Struct({
+    type: S.Literal("json_schema"),
+    schema: S.Record( S.String,  S.Unknown )
   }),
   "JsonSchemaOutputFormat"
 )
@@ -66,21 +66,21 @@ export type OutputFormat = typeof OutputFormat.Type
 export type OutputFormatEncoded = typeof OutputFormat.Encoded
 
 export const AgentDefinition = withIdentifier(
-  Schema.Struct({
-    description: Schema.String,
-    tools: Schema.optional(Schema.Array(Schema.String)),
-    disallowedTools: Schema.optional(Schema.Array(Schema.String)),
-    prompt: Schema.String,
-    model: Schema.optional(Schema.Literal("sonnet", "opus", "haiku", "inherit")),
-    mcpServers: Schema.optional(
-      Schema.Union(
-        Schema.Array(Schema.String),
-        Schema.Record({ key: Schema.String, value: McpServerConfigForProcessTransport })
+  S.Struct({
+    description: S.String,
+    tools: S.optional(S.Array(S.String)),
+    disallowedTools: S.optional(S.Array(S.String)),
+    prompt: S.String,
+    model: S.optional(S.Literals(["sonnet", "opus", "haiku", "inherit"])),
+    mcpServers: S.optional(
+      S.Union(
+        [S.Array(S.String),
+        S.Record( S.String,  McpServerConfigForProcessTransport )]
       )
     ),
-    criticalSystemReminder_EXPERIMENTAL: Schema.optional(Schema.String),
-    skills: Schema.optional(Schema.Array(Schema.String)),
-    maxTurns: Schema.optional(Schema.Number)
+    criticalSystemReminder_EXPERIMENTAL: S.optional(S.String),
+    skills: S.optional(S.Array(S.String)),
+    maxTurns: S.optional(S.Number)
   }),
   "AgentDefinition"
 )
@@ -89,9 +89,9 @@ export type AgentDefinition = typeof AgentDefinition.Type
 export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded
 
 export const AgentMcpServerSpec = withIdentifier(
-  Schema.Union(
-    Schema.String,
-    Schema.Record({ key: Schema.String, value: McpServerConfigForProcessTransport })
+  S.Union(
+    [S.String,
+    S.Record( S.String,  McpServerConfigForProcessTransport )]
   ),
   "AgentMcpServerSpec"
 )
@@ -99,71 +99,66 @@ export const AgentMcpServerSpec = withIdentifier(
 export type AgentMcpServerSpec = typeof AgentMcpServerSpec.Type
 export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded
 
-const HookMap = Schema.Record({ key: HookEvent, value: Schema.Array(HookCallbackMatcher) }).pipe(
-  Schema.partial
-)
+const HookMap = S.Record( S.optionalKey(HookEvent),  S.UndefinedOr(S.Array(HookCallbackMatcher)) )
 
-const ThinkingConfig = Schema.Union(
-  Schema.Struct({ type: Schema.Literal("adaptive") }),
-  Schema.Struct({ type: Schema.Literal("enabled"), budgetTokens: Schema.Number }),
-  Schema.Struct({ type: Schema.Literal("disabled") })
+const ThinkingConfig = S.Union(
+ [ S.Struct({ type: S.Literal("adaptive") }),
+  S.Struct({ type: S.Literal("enabled"), budgetTokens: S.Number }),
+  S.Struct({ type: S.Literal("disabled") })]
 )
 
 export const Options = withIdentifier(
-  Schema.Struct({
-    abortController: Schema.optional(AbortController),
-    additionalDirectories: Schema.optional(Schema.Array(Schema.String)),
-    agent: Schema.optional(Schema.String),
-    agents: Schema.optional(Schema.Record({ key: Schema.String, value: AgentDefinition })),
-    allowDangerouslySkipPermissions: Schema.optional(Schema.Boolean),
-    allowedTools: Schema.optional(Schema.Array(Schema.String)),
-    betas: Schema.optional(Schema.Array(SdkBeta)),
-    canUseTool: Schema.optional(CanUseTool),
-    continue: Schema.optional(Schema.Boolean),
-    cwd: Schema.optional(Schema.String),
-    debug: Schema.optional(Schema.Boolean),
-    debugFile: Schema.optional(Schema.String),
-    disallowedTools: Schema.optional(Schema.Array(Schema.String)),
-    effort: Schema.optional(Schema.Literal("low", "medium", "high", "max")),
-    enableFileCheckpointing: Schema.optional(Schema.Boolean),
-    env: Schema.optional(
-      Schema.Record({
-        key: Schema.String,
-        value: Schema.Union(Schema.String, Schema.Undefined)
-      })
+  S.Struct({
+    abortController: S.optional(AbortController),
+    additionalDirectories: S.optional(S.Array(S.String)),
+    agent: S.optional(S.String),
+    agents: S.optional(S.Record( S.String,  AgentDefinition )),
+    allowDangerouslySkipPermissions: S.optional(S.Boolean),
+    allowedTools: S.optional(S.Array(S.String)),
+    betas: S.optional(S.Array(SdkBeta)),
+    canUseTool: S.optional(CanUseTool),
+    continue: S.optional(S.Boolean),
+    cwd: S.optional(S.String),
+    debug: S.optional(S.Boolean),
+    debugFile: S.optional(S.String),
+    disallowedTools: S.optional(S.Array(S.String)),
+    effort: S.optional(S.Literals(["low", "medium", "high", "max"])),
+    enableFileCheckpointing: S.optional(S.Boolean),
+    env: S.optional(
+      S.Record(
+        S.String,
+        S.Union([S.String, S.Undefined])
+      )
     ),
-    executable: Schema.optional(Schema.Literal("bun", "deno", "node")),
-    executableArgs: Schema.optional(Schema.Array(Schema.String)),
-    extraArgs: Schema.optional(
-      Schema.Record({ key: Schema.String, value: Schema.Union(Schema.String, Schema.Null) })
-    ),
-    fallbackModel: Schema.optional(Schema.String),
-    forkSession: Schema.optional(Schema.Boolean),
-    hooks: Schema.optional(HookMap),
-    includePartialMessages: Schema.optional(Schema.Boolean),
-    maxBudgetUsd: Schema.optional(Schema.Number),
-    /** @deprecated Use `thinking` instead */
-    maxThinkingTokens: Schema.optional(Schema.Number),
-    maxTurns: Schema.optional(Schema.Number),
-    mcpServers: Schema.optional(Schema.Record({ key: Schema.String, value: McpServerConfig })),
-    model: Schema.optional(Schema.String),
-    outputFormat: Schema.optional(OutputFormat),
-    pathToClaudeCodeExecutable: Schema.optional(Schema.String),
-    permissionMode: Schema.optional(PermissionMode),
-    permissionPromptToolName: Schema.optional(Schema.String),
-    persistSession: Schema.optional(Schema.Boolean),
-    plugins: Schema.optional(Schema.Array(SdkPluginConfig)),
-    resume: Schema.optional(Schema.String),
-    resumeSessionAt: Schema.optional(Schema.String),
-    sandbox: Schema.optional(SandboxSettings),
-    sessionId: Schema.optional(Schema.String),
-    settingSources: Schema.optional(Schema.Array(SettingSource)),
-    stderr: Schema.optional(StderrCallback),
-    strictMcpConfig: Schema.optional(Schema.Boolean),
-    systemPrompt: Schema.optional(SystemPrompt),
-    thinking: Schema.optional(ThinkingConfig),
-    tools: Schema.optional(ToolsConfig),
-    spawnClaudeCodeProcess: Schema.optional(SpawnClaudeCodeProcess)
+    executable: S.optional(S.Literals(["bun", "deno", "node"])),
+    executableArgs: S.optional(S.Array(S.String)),
+    extraArgs: S.optional(
+      S.Record( S.String,  S.Union([S.String, S.Null]))),
+    fallbackModel: S.optional(S.String),
+    forkSession: S.optional(S.Boolean),
+    hooks: S.optional(HookMap),
+    includePartialMessages: S.optional(S.Boolean),
+    maxBudgetUsd: S.optional(S.Number),
+    maxTurns: S.optional(S.Number),
+    mcpServers: S.optional(S.Record( S.String,  McpServerConfig )),
+    model: S.optional(S.String),
+    outputFormat: S.optional(OutputFormat),
+    pathToClaudeCodeExecutable: S.optional(S.String),
+    permissionMode: S.optional(PermissionMode),
+    permissionPromptToolName: S.optional(S.String),
+    persistSession: S.optional(S.Boolean),
+    plugins: S.optional(S.Array(SdkPluginConfig)),
+    resume: S.optional(S.String),
+    resumeSessionAt: S.optional(S.String),
+    sandbox: S.optional(SandboxSettings),
+    sessionId: S.optional(S.String),
+    settingSources: S.optional(S.Array(SettingSource)),
+    stderr: S.optional(StderrCallback),
+    strictMcpConfig: S.optional(S.Boolean),
+    systemPrompt: S.optional(SystemPrompt),
+    thinking: S.optional(ThinkingConfig),
+    tools: S.optional(ToolsConfig),
+    spawnClaudeCodeProcess: S.optional(SpawnClaudeCodeProcess)
   }),
   "Options"
 )

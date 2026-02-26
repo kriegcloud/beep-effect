@@ -5,7 +5,6 @@
  * @module @beep/ontology/object/Media
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { MimeType } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("object/Media");
@@ -33,14 +32,15 @@ export interface Media {
  */
 export class MediaReference extends S.Class<MediaReference>($I`MediaReference`)(
   {
-    mimeType: MimeType,
+    mimeType: S.String,
     reference: S.Struct({
       type: S.tag("mediaSetViewItem"),
       mediaSetViewItem: S.Struct({
         mediaItemRid: S.String,
         mediaSetRid: S.String,
         mediaSetViewRid: S.String,
-        token: S.OptionFromOptionalKey(S.String),
+        token: S.optionalKey(S.String),
+        readToken: S.optionalKey(S.String),
       }),
     }),
   },
@@ -73,7 +73,7 @@ export class MediaUpload extends S.Class<MediaUpload>($I`MediaUpload`)(
  */
 export class MediaMetadata extends S.Class<MediaMetadata>($I`MediaMetadata`)(
   {
-    path: S.OptionFromOptionalKey(S.String),
+    path: S.optionalKey(S.String),
     sizeBytes: S.Number,
     mediaType: S.String,
   },

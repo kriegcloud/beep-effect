@@ -1,4 +1,5 @@
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema";
+
 
 export type BetaMessage = unknown
 export type BetaRawMessageStreamEvent = unknown
@@ -12,34 +13,34 @@ export type CallToolResult = {
 }
 export type McpServer = unknown
 
-export const BetaMessage = Schema.declare((_: unknown): _ is BetaMessage => true).pipe(
-  Schema.annotations({ identifier: "BetaMessage", jsonSchema: {} })
+export const BetaMessage = S.declare((_: unknown): _ is BetaMessage => true).pipe(
+  S.annotate({ identifier: "BetaMessage", jsonSchema: {} })
 )
 
-export const BetaRawMessageStreamEvent = Schema.declare(
+export const BetaRawMessageStreamEvent = S.declare(
   (_: unknown): _ is BetaRawMessageStreamEvent => true
 ).pipe(
-  Schema.annotations({ identifier: "BetaRawMessageStreamEvent", jsonSchema: {} })
+  S.annotate({ identifier: "BetaRawMessageStreamEvent", jsonSchema: {} })
 )
 
-export const BetaUsage = Schema.declare((_: unknown): _ is BetaUsage => true).pipe(
-  Schema.annotations({ identifier: "BetaUsage", jsonSchema: {} })
+export const BetaUsage = S.declare((_: unknown): _ is BetaUsage => true).pipe(
+  S.annotate({ identifier: "BetaUsage", jsonSchema: {} })
 )
 
-export const MessageParam = Schema.declare((_: unknown): _ is MessageParam => true).pipe(
-  Schema.annotations({ identifier: "MessageParam", jsonSchema: {} })
+export const MessageParam = S.declare((_: unknown): _ is MessageParam => true).pipe(
+  S.annotate({ identifier: "MessageParam", jsonSchema: {} })
 )
 
-export const JSONRPCMessage = Schema.declare((_: unknown): _ is JSONRPCMessage => true).pipe(
-  Schema.annotations({ identifier: "JSONRPCMessage", jsonSchema: {} })
+export const JSONRPCMessage = S.declare((_: unknown): _ is JSONRPCMessage => true).pipe(
+  S.annotate({ identifier: "JSONRPCMessage", jsonSchema: {} })
 )
 
-export const CallToolResult = Schema.Struct({
-  content: Schema.optional(Schema.Array(Schema.Unknown)),
-  structuredContent: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
-  isError: Schema.optional(Schema.Boolean)
-}).pipe(Schema.annotations({ identifier: "CallToolResult" }))
+export const CallToolResult = S.Struct({
+  content: S.optional(S.Array(S.Unknown)),
+  structuredContent: S.optional(S.Record( S.String, S.Unknown )),
+  isError: S.optional(S.Boolean)
+}).pipe(S.annotate({ identifier: "CallToolResult" }))
 
-export const McpServer = Schema.declare((_: unknown): _ is McpServer => true).pipe(
-  Schema.annotations({ identifier: "McpServer", jsonSchema: {} })
+export const McpServer = S.declare((_: unknown): _ is McpServer => true).pipe(
+  S.annotate({ identifier: "McpServer", jsonSchema: {} })
 )

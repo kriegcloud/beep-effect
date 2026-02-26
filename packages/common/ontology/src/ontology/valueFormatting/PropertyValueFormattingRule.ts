@@ -11,7 +11,7 @@ import {
   PropertyDateFormattingRule,
   PropertyTimestampFormattingRule,
 } from "./PropertyDateAndTimestampFormattingRule.js";
-import { PropertyKnhownTypeFormattingRule } from "./PropertyKnownTypeFormattingRule.js";
+import { PropertyKnownTypeFormattingRule } from "./PropertyKnownTypeFormattingRule.js";
 import { PropertyNumberFormattingRule } from "./PropertyNumberFormattingRule.js";
 
 const $I = $OntologyId.create("ontology/valueFormatting/PropertyValueFormattingRule");
@@ -23,16 +23,23 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyValueFormattingR
  * @category schemas
  */
 export const PropertyValueFormattingRule = S.Union([
-  PropertyBooleanFormattingRule,
+  PropertyNumberFormattingRule,
   PropertyTimestampFormattingRule,
   PropertyDateFormattingRule,
-  PropertyKnhownTypeFormattingRule,
-  PropertyNumberFormattingRule,
+  PropertyBooleanFormattingRule,
+  PropertyKnownTypeFormattingRule,
 ]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("PropertyValueFormattingRule", {
       description: "Tagged union of all supported ontology property value formatting rule schemas.",
     })
   )
 );
+
+/**
+ * Type for {@link PropertyValueFormattingRule}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type PropertyValueFormattingRule = typeof PropertyValueFormattingRule.Type;

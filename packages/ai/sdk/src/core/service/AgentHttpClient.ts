@@ -1,5 +1,5 @@
-import { FetchHttpClient, HttpApiClient } from "@effect/platform"
-import type * as HttpClient from "@effect/platform/HttpClient"
+import { FetchHttpClient, HttpApiClient } from "effect/unstable/httpapi"
+import type * as HttpClient from "effect/unstable/httpapi/HttpClient"
 import * as Effect from "effect/Effect"
 import { AgentHttpApi } from "./AgentHttpApi.js"
 

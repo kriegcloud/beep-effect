@@ -10,53 +10,27 @@ import * as S from "effect/Schema";
 const $I = $OntologyId.create("PageResult");
 
 /**
- * Types for paged result schemas.
+ * Paged result shape used by object fetch APIs.
  *
  * @since 0.0.0
  * @category models
  */
-export declare namespace PageResult {
-  /**
-   * Generic page result schema type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Schema<T extends S.Top> = S.Schema<T>;
-
-  /**
-   * Decoded page result type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Type<T extends S.Top> = S.Schema.Type<Schema<T>>;
-
-  /**
-   * Encoded page result type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Encoded<T extends S.Top> = Schema<T>["Encoded"];
+export interface PageResult<T> {
+  readonly data: Array<T>;
+  readonly nextPageToken?: string;
+  readonly totalCount: string;
 }
 
 /**
- * Construct a standard page result schema for object fetch operations.
+ * Construct a schema for {@link PageResult}.
  *
  * @since 0.0.0
  * @category constructors
  */
-export function PageResult<const T extends S.Top>(
-  schema: S.Schema<T>
-): S.Struct<{
-  readonly data: S.$Array<S.Schema<T>>;
-  readonly nextPageToken: S.OptionFromOptional<S.String>;
-  readonly totalCount: S.String;
-}> {
-  return S.Struct({
+export const PageResult = <const T extends S.Top>(schema: S.Schema<T>) =>
+  S.Struct({
     data: S.Array(schema),
-    nextPageToken: S.OptionFromOptional(S.String),
+    nextPageToken: S.optionalKey(S.String),
     totalCount: S.String,
   }).pipe(
     S.annotate(
@@ -65,4 +39,3 @@ export function PageResult<const T extends S.Top>(
       })
     )
   );
-}

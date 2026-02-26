@@ -3410,7 +3410,7 @@ export const zipLeft: {
  * const stream2 = Stream.make("a", "b", "c", "d")
  *
  * const program = Effect.gen(function*() {
- *   const result = yield* Stream.zipRight(stream1, stream2).pipe(Stream.runCollect)
+ *   const result = yield* Stream.andThen(stream1, stream2).pipe(Stream.runCollect)
  *   yield* Console.log(result)
  * })
  *

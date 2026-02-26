@@ -22,7 +22,7 @@ declare interface Durable<A> {
 // then curries out all other parameters
 export const isMoreThan =
   <A>(D: Durable<A>) =>
-  (minimum: Duration.DurationInput) =>
+  (minimum: Duration.Input) =>
   (self: A): boolean => {
     const current = D.getDuration(self)
     return Duration.greaterThanOrEqualTo(current, minimum)
@@ -44,12 +44,12 @@ declare interface Durable<A> {
 export const isMoreThan = <A>(D: Durable<A>) =>
   Function.dual<
     // Data-last (curried) - pipe-friendly
-    (minimum: Duration.DurationInput) => (self: A) => boolean,
+    (minimum: Duration.Input) => (self: A) => boolean,
     // Data-first (uncurried) - direct call
-    (self: A, minimum: Duration.DurationInput) => boolean
+    (self: A, minimum: Duration.Input) => boolean
   >(
     2,  // Number of arguments for data-first form
-    (self: A, minimum: Duration.DurationInput): boolean => {
+    (self: A, minimum: Duration.Input): boolean => {
       const current = D.getDuration(self)
       return Duration.greaterThanOrEqualTo(current, minimum)
     }
@@ -70,8 +70,8 @@ declare interface Durable<A> {
 }
 
 declare const isMoreThan: <A>(D: Durable<A>) => {
-  (minimum: Duration.DurationInput): (self: A) => boolean
-  (self: A, minimum: Duration.DurationInput): boolean
+  (minimum: Duration.Input): (self: A) => boolean
+  (self: A, minimum: Duration.Input): boolean
 }
 
 declare interface Appointment {
@@ -114,7 +114,7 @@ import * as Function from "effect/Function"
  */
 export interface Durable<A> {
   readonly getDuration: (self: A) => Duration.Duration
-  readonly setDuration: (self: A, duration: Duration.DurationInput) => A
+  readonly setDuration: (self: A, duration: Duration.Input) => A
 }
 
 /**
@@ -122,7 +122,7 @@ export interface Durable<A> {
  */
 export const make = <A>(
   getDuration: (self: A) => Duration.Duration,
-  setDuration: (self: A, duration: Duration.DurationInput) => A
+  setDuration: (self: A, duration: Duration.Input) => A
 ): Durable<A> => ({
   getDuration,
   setDuration
@@ -133,11 +133,11 @@ export const make = <A>(
  */
 export const isMoreThan = <A>(D: Durable<A>) =>
   Function.dual<
-    (minimum: Duration.DurationInput) => (self: A) => boolean,
-    (self: A, minimum: Duration.DurationInput) => boolean
+    (minimum: Duration.Input) => (self: A) => boolean,
+    (self: A, minimum: Duration.Input) => boolean
   >(
     2,
-    (self: A, minimum: Duration.DurationInput): boolean =>
+    (self: A, minimum: Duration.Input): boolean =>
       Duration.greaterThanOrEqualTo(
         D.getDuration(self),
         Duration.decode(minimum)

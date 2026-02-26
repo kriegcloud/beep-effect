@@ -1,5 +1,5 @@
 import * as Effect from "effect/Effect"
-import * as Context from "effect/Context"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Option from "effect/Option"
 import * as Stream from "effect/Stream"
 import { AgentRuntime } from "../AgentRuntime.js"
@@ -18,7 +18,7 @@ import { AgentRpcs } from "./AgentRpcs.js"
 import { SessionPoolUnavailableError } from "./SessionErrors.js"
 import { resolveRequestTenant } from "./TenantAccess.js"
 
-type SessionPoolService = Context.Tag.Service<typeof SessionPool>
+type SessionPoolService = ServiceMap.Service.Shape<typeof SessionPool>
 type TenantScopedInput = { readonly tenant?: string | undefined }
 type ResumeSessionInput = TenantScopedInput & {
   readonly sessionId: string

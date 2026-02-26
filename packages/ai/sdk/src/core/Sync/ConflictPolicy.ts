@@ -1,7 +1,7 @@
-import * as EventJournal from "@effect/experimental/EventJournal"
-import * as Context from "effect/Context"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
+import * as ServiceMap from "effect/ServiceMap"
 
 export type ConflictResolution =
   | { readonly _tag: "accept"; readonly entry: EventJournal.Entry }
@@ -63,28 +63,28 @@ const defaultConflictPolicy: ConflictPolicyService = {
     )
 }
 
-export class ConflictPolicy extends Context.Reference<ConflictPolicy>()(
+export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()(
   "@effect/claude-agent-sdk/ConflictPolicy",
   {
-    defaultValue: () => defaultConflictPolicy
+    make: Effect.succeed(defaultConflictPolicy)
   }
 ) {
   static readonly layerLastWriteWins = Layer.succeed(
     ConflictPolicy,
-    defaultConflictPolicy
+    ConflictPolicy.of(defaultConflictPolicy)
   )
 
   static readonly layerFirstWriteWins = Layer.succeed(
     ConflictPolicy,
-      ConflictPolicy.of({
-        resolve: ({ entry, conflicts }) =>
-          Effect.succeed(
-            accept(
-              pickEarliest([entry, ...conflicts]) ?? entry
-            )
+    ConflictPolicy.of({
+      resolve: ({ entry, conflicts }) =>
+        Effect.succeed(
+          accept(
+            pickEarliest([entry, ...conflicts]) ?? entry
           )
-      })
-    )
+        )
+    })
+  )
 
   static readonly layerReject = (reason?: string) =>
     Layer.succeed(

@@ -7,6 +7,7 @@ import * as Effect from "effect/Effect"
 import * as Fiber from "effect/Fiber"
 import * as Layer from "effect/Layer"
 import type * as Scope from "effect/Scope"
+import * as ServiceMap from "effect/ServiceMap"
 import { AgentSdkConfig } from "./AgentSdkConfig.js"
 import { McpError, TransportError } from "./Errors.js"
 import { mergeOptions } from "./internal/options.js"
@@ -45,17 +46,17 @@ const makeAgentSdk = Effect.gen(function*() {
     const sdkQueryInstance = yield* Effect.try({
       try: () => sdkQuery(sdkParams),
       catch: (cause) =>
-        TransportError.make({
-          message: "Failed to start SDK query",
+        TransportError.make(
+          "Failed to start SDK query",
           cause
-        })
+        )
     })
     const pumpFiber = inputQueue
-      ? yield* Effect.fork(
+      ? yield* Effect.forkDetach(
           pumpInput(inputQueue.queue, prompt as AsyncIterable<SDKUserMessage>).pipe(
-            Effect.catchAll((error) =>
+            Effect.catch((error) =>
               Deferred.fail(inputFailure!, error).pipe(
-                Effect.zipRight(
+                Effect.andThen(
                   Effect.tryPromise({
                     try: () => sdkQueryInstance.interrupt(),
                     catch: () => undefined
@@ -146,16 +147,12 @@ const makeAgentSdk = Effect.gen(function*() {
  *   }).pipe(Effect.provide(AgentSdk.layerDefault))
  * )
  */
-export class AgentSdk extends Effect.Service<AgentSdk>()(
-  "@effect/claude-agent-sdk/AgentSdk",
-  {
-    effect: makeAgentSdk
-  }
-) {
+export class AgentSdk extends ServiceMap.Service<AgentSdk, Effect.Success<typeof makeAgentSdk>>
+()( "@effect/claude-agent-sdk/AgentSdk") {
   /**
    * Build the AgentSdk service using the provided AgentSdkConfig service.
    */
-  static readonly layer = AgentSdk.Default
+  static readonly layer = Layer.effect(AgentSdk, makeAgentSdk)
 
   /**
    * Convenience layer that wires AgentSdkConfig from defaults.

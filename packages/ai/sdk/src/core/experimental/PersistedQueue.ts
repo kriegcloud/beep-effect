@@ -1,4 +1,4 @@
-import * as PersistedQueue from "@effect/experimental/PersistedQueue"
+import * as PersistedQueue from "effect/unstable/persistence/PersistedQueue"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Stream from "effect/Stream"
@@ -9,7 +9,7 @@ import type { QueryHandle } from "../Query.js"
 import type { Options } from "../Schema/Options.js"
 import { SDKUserMessage } from "../Schema/Message.js"
 
-export * from "@effect/experimental/PersistedQueue"
+export * from "effect/unstable/persistence/PersistedQueue"
 
 /**
  * In-memory persisted queue layer for development and tests.
@@ -46,10 +46,10 @@ export type PersistedInputAdapter = {
 }
 
 const toTransportError = (message: string, cause: unknown) =>
-  TransportError.make({
+  TransportError.make(
     message,
     cause
-  })
+  )
 
 /**
  * Build an input adapter from a persisted queue.
@@ -59,7 +59,7 @@ export const makeInputAdapter = (
   options?: { readonly maxAttempts?: number }
 ) =>
   Effect.gen(function*() {
-    const stream = Stream.repeatEffect(
+    const stream = Stream.fromEffectRepeat(
       queue.take((message) => Effect.succeed(message), {
         maxAttempts: options?.maxAttempts
       })
@@ -98,7 +98,7 @@ export const withPersistedInputQueue = (
   send: adapter.send,
   sendAll: adapter.sendAll,
   sendForked: (message) => Effect.forkScoped(adapter.send(message)).pipe(Effect.asVoid),
-  closeInput: adapter.closeInput.pipe(Effect.zipRight(handle.closeInput))
+  closeInput: adapter.closeInput.pipe(Effect.andThen(handle.closeInput))
 })
 
 /**

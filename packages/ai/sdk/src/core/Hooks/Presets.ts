@@ -1,8 +1,8 @@
 import * as Clock from "effect/Clock"
 import * as Effect from "effect/Effect"
+import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js"
 import { onPermissionRequest, onPostToolUse, onPostToolUseFailure, onPreToolUse, tap } from "./Hook.js"
 import { mergeHookMaps } from "./utils.js"
-import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js"
 
 const allEvents: ReadonlyArray<HookEvent> = [
   "PreToolUse",

@@ -1,70 +1,64 @@
-import * as PersistedCache from "@effect/experimental/PersistedCache"
-import * as Persistence from "@effect/experimental/Persistence"
-import * as Duration from "effect/Duration"
+import * as PersistedCache from "effect/unstable/persistence/PersistedCache"
+
+import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
-import * as PrimaryKey from "effect/PrimaryKey"
-import * as Schema from "effect/Schema"
+
+import * as S from "effect/Schema"
 import type { QueryHandle } from "../Query.js"
+import * as Persistable from "effect/unstable/persistence/Persistable"
 import { AgentSdkError, TransportError } from "../Errors.js"
 import { AccountInfo, ModelInfo, SlashCommand } from "../Schema/Common.js"
 
-export * from "@effect/experimental/PersistedCache"
-export * as Persistence from "@effect/experimental/Persistence"
+export * from "effect/unstable/persistence/PersistedCache"
+export * as Persistence from "effect/unstable/persistence/Persistence"
 
-const SupportedCommandsSchema = Schema.Array(SlashCommand)
-const SupportedModelsSchema = Schema.Array(ModelInfo)
+const SupportedCommandsSchema = S.Array(SlashCommand)
+const SupportedModelsSchema = S.Array(ModelInfo)
 
 /**
  * Persisted request for supported slash commands.
  */
-export class SupportedCommandsRequest extends Schema.TaggedRequest<SupportedCommandsRequest>()(
+export class SupportedCommandsRequest extends Persistable.Class()(
   "SupportedCommandsRequest",
   {
     success: SupportedCommandsSchema,
-    failure: AgentSdkError,
-    payload: {}
+    error: AgentSdkError,
+    primaryKey: () => "SupportedCommands"
   }
-) implements Persistence.Persistable<typeof SupportedCommandsSchema, typeof AgentSdkError> {
-  [PrimaryKey.symbol]() {
-    return "SupportedCommands"
-  }
+) {
 }
 
 /**
  * Persisted request for supported models.
  */
-export class SupportedModelsRequest extends Schema.TaggedRequest<SupportedModelsRequest>()(
+export class SupportedModelsRequest extends Persistable.Class()(
   "SupportedModelsRequest",
   {
     success: SupportedModelsSchema,
-    failure: AgentSdkError,
-    payload: {}
+    error: AgentSdkError,
+    primaryKey: () => "SupportedModels"
   }
-) implements Persistence.Persistable<typeof SupportedModelsSchema, typeof AgentSdkError> {
-  [PrimaryKey.symbol]() {
-    return "SupportedModels"
-  }
+) {
+
 }
 
 /**
  * Persisted request for account info.
  */
-export class AccountInfoRequest extends Schema.TaggedRequest<AccountInfoRequest>()(
+export class AccountInfoRequest extends Persistable.Class()(
   "AccountInfoRequest",
   {
     success: AccountInfo,
-    failure: AgentSdkError,
-    payload: {}
+    error: AgentSdkError,
+    primaryKey: () => "AccountInfo"
   }
-) implements Persistence.Persistable<typeof AccountInfo, typeof AgentSdkError> {
-  [PrimaryKey.symbol]() {
-    return "AccountInfo"
-  }
+)  {
+
 }
 
-const supportedCommandsKey = new SupportedCommandsRequest({})
-const supportedModelsKey = new SupportedModelsRequest({})
-const accountInfoKey = new AccountInfoRequest({})
+const supportedCommandsKey = new SupportedCommandsRequest()
+const supportedModelsKey = new SupportedModelsRequest()
+const accountInfoKey = new AccountInfoRequest()
 
 /**
  * Cache entries for query metadata calls.
@@ -80,9 +74,9 @@ export type QueryMetadataCache = {
  */
 export type QueryMetadataCacheOptions = {
   readonly storeIdPrefix?: string
-  readonly timeToLive?: Duration.DurationInput
+  readonly timeToLive?: Duration.Input
   readonly inMemoryCapacity?: number
-  readonly inMemoryTTL?: Duration.DurationInput
+  readonly inMemoryTTL?: Duration.Input
 }
 
 const cacheErrorTags = new Set([
@@ -102,10 +96,10 @@ const toCacheError = (message: string, cause: unknown): AgentSdkError => {
   ) {
     return cause as AgentSdkError
   }
-  return TransportError.make({
+  return TransportError.make(
     message,
     cause
-  })
+  )
 }
 
 /**
@@ -125,28 +119,28 @@ export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadat
     lookup: () => handle.supportedCommands,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    inMemoryTTL
+    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
   })
   const supportedModels = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-models`,
     lookup: () => handle.supportedModels,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    inMemoryTTL
+    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
   })
   const accountInfo = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-account-info`,
     lookup: () => handle.accountInfo,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    inMemoryTTL
+    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
   })
 
   return {
     supportedCommands,
     supportedModels,
     accountInfo
-  } satisfies QueryMetadataCache
+  }
 })
 
 /**

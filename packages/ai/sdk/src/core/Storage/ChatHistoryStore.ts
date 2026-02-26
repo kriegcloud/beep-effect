@@ -1,31 +1,29 @@
-import { KeyValueStore } from "@effect/platform"
-import { BunKeyValueStore } from "@effect/platform-bun"
-import * as EventLogModule from "@effect/experimental/EventLog"
+import { BunFileSystem, BunPath } from "@effect/platform-bun"
 import * as Clock from "effect/Clock"
-import * as Context from "effect/Context"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
+import * as Schema from "effect/Schema"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
 import * as SynchronizedRef from "effect/SynchronizedRef"
-import * as Schema from "effect/Schema"
+import * as EventLogModule from "effect/unstable/eventlog/EventLog"
+import { KeyValueStore } from "effect/unstable/persistence"
 import type { SDKMessage } from "../Schema/Message.js"
-import { ChatEvent, ChatEventSource } from "../Schema/Storage.js"
-import { Compaction, compactEntries } from "../Sync/Compaction.js"
-import type { CompactionStrategy } from "../Sync/Compaction.js"
-import { ConflictPolicy } from "../Sync/ConflictPolicy.js"
-import { SyncConfig, SyncService } from "../Sync/SyncService.js"
+import { ChatEvent, type ChatEventSource } from "../Schema/Storage.js"
+import type { CompactionStrategy } from "../Sync/index.js"
+import { Compaction, ConflictPolicy, compactEntries, SyncConfig, SyncService } from "../Sync/index.js"
 import {
   defaultChatEventJournalKey,
   defaultChatHistoryPrefix,
   defaultChatIdentityKey,
   defaultStorageDirectory
 } from "./defaults.js"
-import { StorageConfig } from "./StorageConfig.js"
-import { StorageError, toStorageError } from "./StorageError.js"
-import { SessionIndexStore } from "./SessionIndexStore.js"
 import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJournalKeyValueStore.js"
+import { SessionIndexStore } from "./SessionIndexStore.js"
+import { StorageConfig } from "./StorageConfig.js"
+import { type StorageError, toStorageError } from "./StorageError.js"
 import { ChatEventGroup, ChatEventSchema, ChatEventTag } from "./StorageEventGroups.js"
 
 export type ChatHistoryAppendOptions = {
@@ -50,7 +48,7 @@ export type ChatHistoryJournaledOptions<R = never> = {
 export type ChatHistorySyncOptions<R = never> = ChatHistoryJournaledOptions<R> & {
   readonly disablePing?: boolean
   readonly protocols?: string | Array<string>
-  readonly syncInterval?: Duration.DurationInput
+  readonly syncInterval?: Duration.Input
 }
 
 const defaultSource: ChatEventSource = "sdk"
@@ -191,19 +189,23 @@ const logIndexWarning = (operation: string, sessionId: string, cause: unknown) =
   )
 
 const touchSessionIndex = (sessionId: string, timestamp: number) =>
-  Effect.flatMap(SessionIndexStore, (store) =>
-    store.touch(sessionId, { updatedAt: timestamp }).pipe(Effect.asVoid)
-  ).pipe(
-    Effect.catchAll((cause) =>
+  Effect.gen(function*() {
+    const storeOption = yield* Effect.serviceOption(SessionIndexStore)
+    if (Option.isNone(storeOption)) return
+    yield* storeOption.value.touch(sessionId, { updatedAt: timestamp }).pipe(Effect.asVoid)
+  }).pipe(
+    Effect.catch((cause) =>
       logIndexWarning("touch", sessionId, cause).pipe(Effect.asVoid)
     )
   )
 
 const removeSessionIndex = (sessionId: string) =>
-  Effect.flatMap(SessionIndexStore, (store) =>
-    store.remove(sessionId).pipe(Effect.asVoid)
-  ).pipe(
-    Effect.catchAll((cause) =>
+  Effect.gen(function*() {
+    const storeOption = yield* Effect.serviceOption(SessionIndexStore)
+    if (Option.isNone(storeOption)) return
+    yield* storeOption.value.remove(sessionId).pipe(Effect.asVoid)
+  }).pipe(
+    Effect.catch((cause) =>
       logIndexWarning("remove", sessionId, cause).pipe(Effect.asVoid)
     )
   )
@@ -244,12 +246,12 @@ const layerChatJournalHandlers = (options?: {
         if (!enabled) return
         const kv = yield* KeyValueStore.KeyValueStore
         const prefix = options?.prefix ?? defaultChatHistoryPrefix
-        const eventStore = kv.forSchema(ChatEvent)
-        const metaStore = kv.forSchema(ChatMeta)
+        const eventStore = KeyValueStore.toSchemaStore(kv, ChatEvent)
+        const metaStore = KeyValueStore.toSchemaStore(kv, ChatMeta)
 
         const metaKey = (sessionId: string) => `${prefix}/${sessionId}/meta`
         const eventKey = (sessionId: string, sequence: number) =>
-          `${prefix}/${sessionId}/event/${sequence}`
+          `${prefix}/${sessionId}/events/${sequence}`
 
         const loadMeta = (sessionId: string) =>
           metaStore.get(metaKey(sessionId)).pipe(
@@ -330,19 +332,19 @@ const layerChatJournalHandlers = (options?: {
           Effect.mapError((cause) => mapError("appendMessage", cause))
         )
         yield* saveMeta(event.sessionId, { lastSequence, updatedAt }).pipe(
-          Effect.catchAll((error) =>
+          Effect.catch((error) =>
             eventStore.remove(eventKey(event.sessionId, event.sequence)).pipe(
-              Effect.catchAll((cleanupCause) =>
+              Effect.catch((cleanupCause) =>
                 Effect.logWarning(
                   `[ChatHistoryStore] journal append compensation failed while removing event session=${event.sessionId} sequence=${event.sequence}: ${String(cleanupCause)}`
                 ).pipe(Effect.asVoid)
               ),
-              Effect.zipRight(
+              Effect.andThen(
                 Effect.logWarning(
                   `[ChatHistoryStore] journal append compensation removed event session=${event.sessionId} sequence=${event.sequence} after meta save failure`
                 )
               ),
-              Effect.zipRight(Effect.fail(error))
+              Effect.andThen(Effect.fail(error))
             )
           )
         )
@@ -356,7 +358,7 @@ const layerChatJournalHandlers = (options?: {
       )
   )
 
-const layerChatJournalCompaction = Layer.scopedDiscard(
+const layerChatJournalCompaction = Layer.effectDiscard(
   Effect.gen(function*() {
     const retention = yield* resolveRetention
     if (!retention) return
@@ -393,9 +395,7 @@ const journaledEventLogLayer = <R = never>(
         { key: keys.journalKey }
       )
     ),
-    Layer.provide(EventLogModule.layerIdentityKvs({
-      key: keys.identityKey
-    })),
+    Layer.provide(Layer.sync(EventLogModule.Identity, () => EventLogModule.makeIdentityUnsafe())),
     Layer.provide(layerChatJournalHandlers(options)),
     Layer.provide(conflictPolicyLayer)
   )
@@ -412,12 +412,12 @@ const makeJournaledStore = (options?: {
     const kv = yield* KeyValueStore.KeyValueStore
     const log = yield* EventLogModule.EventLog
     const prefix = options?.prefix ?? defaultChatHistoryPrefix
-    const eventStore = kv.forSchema(ChatEvent)
-    const metaStore = kv.forSchema(ChatMeta)
+    const eventStore = KeyValueStore.toSchemaStore(kv, ChatEvent)
+    const metaStore = KeyValueStore.toSchemaStore(kv, ChatMeta)
 
     const metaKey = (sessionId: string) => `${prefix}/${sessionId}/meta`
     const eventKey = (sessionId: string, sequence: number) =>
-      `${prefix}/${sessionId}/event/${sequence}`
+      `${prefix}/${sessionId}/events/${sequence}`
 
     const loadMeta = (sessionId: string) =>
       metaStore.get(metaKey(sessionId)).pipe(
@@ -603,8 +603,9 @@ const makeJournaledStore = (options?: {
       if (!enabled) return
       const retention = yield* resolveRetention
       if (!retention) return
-      const index = yield* SessionIndexStore
-      const sessionIds = yield* index.listIds()
+      const indexOption = yield* Effect.serviceOption(SessionIndexStore)
+      if (Option.isNone(indexOption)) return
+      const sessionIds = yield* indexOption.value.listIds()
       if (sessionIds.length === 0) return
       const now = yield* Clock.currentTimeMillis
       yield* Effect.forEach(
@@ -690,31 +691,28 @@ const makeJournaledStore = (options?: {
     })
   })
 
-export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/ChatHistoryStore")<
-  ChatHistoryStore,
-  {
-    readonly appendMessage: (
-      sessionId: string,
-      message: SDKMessage,
-      options?: ChatHistoryAppendOptions
-    ) => Effect.Effect<ChatEvent, StorageError>
-    readonly appendMessages: (
-      sessionId: string,
-      messages: Iterable<SDKMessage>,
-      options?: ChatHistoryAppendOptions
-    ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>
-    readonly list: (
-      sessionId: string,
-      options?: ChatHistoryListOptions
-    ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>
-    readonly stream: (
-      sessionId: string,
-      options?: ChatHistoryListOptions
-    ) => Stream.Stream<ChatEvent, StorageError>
-    readonly purge: (sessionId: string) => Effect.Effect<void, StorageError>
-    readonly cleanup?: () => Effect.Effect<void, StorageError>
-  }
->() {
+export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, {
+  readonly appendMessage: (
+    sessionId: string,
+    message: SDKMessage,
+    options?: ChatHistoryAppendOptions
+  ) => Effect.Effect<ChatEvent, StorageError>
+  readonly appendMessages: (
+    sessionId: string,
+    messages: Iterable<SDKMessage>,
+    options?: ChatHistoryAppendOptions
+  ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>
+  readonly list: (
+    sessionId: string,
+    options?: ChatHistoryListOptions
+  ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>
+  readonly stream: (
+    sessionId: string,
+    options?: ChatHistoryListOptions
+  ) => Stream.Stream<ChatEvent, StorageError>
+  readonly purge: (sessionId: string) => Effect.Effect<void, StorageError>
+  readonly cleanup?: () => Effect.Effect<void, StorageError>
+}>()("@effect/claude-agent-sdk/ChatHistoryStore") {
   static readonly layerMemory = Layer.effect(
     ChatHistoryStore,
     Effect.gen(function*() {
@@ -853,12 +851,12 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
       Effect.gen(function*() {
         const kv = yield* KeyValueStore.KeyValueStore
         const prefix = options?.prefix ?? defaultChatHistoryPrefix
-        const eventStore = kv.forSchema(ChatEvent)
-        const metaStore = kv.forSchema(ChatMeta)
+        const eventStore = KeyValueStore.toSchemaStore(kv, ChatEvent)
+        const metaStore = KeyValueStore.toSchemaStore(kv, ChatMeta)
 
         const metaKey = (sessionId: string) => `${prefix}/${sessionId}/meta`
         const eventKey = (sessionId: string, sequence: number) =>
-          `${prefix}/${sessionId}/event/${sequence}`
+          `${prefix}/${sessionId}/events/${sequence}`
 
         const loadMeta = (sessionId: string) =>
           metaStore.get(metaKey(sessionId)).pipe(
@@ -984,19 +982,19 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
               )
             )
             yield* saveMeta(sessionId, { lastSequence: sequence, updatedAt: timestamp }).pipe(
-              Effect.catchAll((error) =>
+              Effect.catch((error) =>
                 eventStore.remove(eventKey(sessionId, sequence)).pipe(
-                  Effect.catchAll((cleanupCause) =>
+                  Effect.catch((cleanupCause) =>
                     Effect.logWarning(
                       `[ChatHistoryStore] appendMessage compensation failed while removing event session=${sessionId} sequence=${sequence}: ${String(cleanupCause)}`
                     ).pipe(Effect.asVoid)
                   ),
-                  Effect.zipRight(
+                  Effect.andThen(
                     Effect.logWarning(
                       `[ChatHistoryStore] appendMessage compensation removed event session=${sessionId} sequence=${sequence} after meta save failure`
                     )
                   ),
-                  Effect.zipRight(Effect.fail(error))
+                  Effect.andThen(Effect.fail(error))
                 )
               )
             )
@@ -1039,12 +1037,12 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
               lastSequence: meta.lastSequence + events.length,
               updatedAt: timestamp
             }).pipe(
-              Effect.catchAll((error) =>
+              Effect.catch((error) =>
                 Effect.forEach(
                   writtenSequences,
                   (sequence) =>
                     eventStore.remove(eventKey(sessionId, sequence)).pipe(
-                      Effect.catchAll((cleanupCause) =>
+                      Effect.catch((cleanupCause) =>
                         Effect.logWarning(
                           `[ChatHistoryStore] appendMessages compensation failed while removing event session=${sessionId} sequence=${sequence}: ${String(cleanupCause)}`
                         ).pipe(Effect.asVoid)
@@ -1052,12 +1050,12 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
                     ),
                   { discard: true }
                 ).pipe(
-                  Effect.zipRight(
+                  Effect.andThen(
                     Effect.logWarning(
                       `[ChatHistoryStore] appendMessages compensation removed ${writtenSequences.length} events for session=${sessionId} after meta save failure`
                     )
                   ),
-                  Effect.zipRight(Effect.fail(error))
+                  Effect.andThen(Effect.fail(error))
                 )
               )
             )
@@ -1150,8 +1148,9 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
           if (!enabled) return
           const retention = yield* resolveRetention
           if (!retention) return
-          const index = yield* SessionIndexStore
-          const sessionIds = yield* index.listIds()
+          const indexOption = yield* Effect.serviceOption(SessionIndexStore)
+          if (Option.isNone(indexOption)) return
+          const sessionIds = yield* indexOption.value.listIds()
           if (sessionIds.length === 0) return
           const now = yield* Clock.currentTimeMillis
           yield* Effect.forEach(
@@ -1222,11 +1221,8 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
       )
     }
     const combined = Layer.merge(baseLayer, syncLayer)
-    return Layer.project(
-      combined,
-      ChatHistoryStore,
-      ChatHistoryStore,
-      (store) => store
+    return Layer.effect(ChatHistoryStore, Effect.service(ChatHistoryStore)).pipe(
+      Layer.provide(combined)
     )
   }
 
@@ -1252,10 +1248,11 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
       prefix: options?.prefix ?? defaultChatHistoryPrefix
     }).pipe(
       Layer.provide(
-        BunKeyValueStore.layerFileSystem(
+        KeyValueStore.layerFileSystem(
           options?.directory ?? defaultStorageDirectory
         )
-      )
+      ),
+      Layer.provide([BunFileSystem.layer, BunPath.layer])
     )
 
   static readonly layerJournaledFileSystem = (options?: {
@@ -1284,9 +1281,10 @@ export class ChatHistoryStore extends Context.Tag("@effect/claude-agent-sdk/Chat
       resolveJournaledOptions(options)
     ).pipe(
       Layer.provide(
-        BunKeyValueStore.layerFileSystem(
+        KeyValueStore.layerFileSystem(
           options?.directory ?? defaultStorageDirectory
         )
-      )
+      ),
+      Layer.provide([BunFileSystem.layer, BunPath.layer])
     )
 }

@@ -31,7 +31,7 @@ export const layerAuditEventStore = Layer.effect(
         event: "sync_conflict",
         payload
       }).pipe(
-        Effect.catchAll((cause) => Effect.logError(cause).pipe(Effect.asVoid))
+        Effect.catch((cause) => Effect.logError(cause).pipe(Effect.asVoid))
       )
     }
 
@@ -52,7 +52,7 @@ export const layerAuditEventStore = Layer.effect(
           event: "sync_compaction",
           payload
         }).pipe(
-          Effect.catchAll((cause) => Effect.logError(cause).pipe(Effect.asVoid))
+          Effect.catch((cause) => Effect.logError(cause).pipe(Effect.asVoid))
         )
       })
 

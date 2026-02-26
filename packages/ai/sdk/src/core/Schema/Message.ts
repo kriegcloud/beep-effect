@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
 import { withIdentifier, withSdkMessage } from "./Annotations.js"
 import {
   ApiKeySource,
@@ -11,14 +11,14 @@ import { BetaMessage, BetaRawMessageStreamEvent, MessageParam } from "./External
 import { PermissionMode } from "./Permission.js"
 
 export const SDKAssistantMessageError = withIdentifier(
-  Schema.Literal(
-    "authentication_failed",
+  S.Literals(
+   [ "authentication_failed",
     "billing_error",
     "rate_limit",
     "invalid_request",
     "server_error",
     "unknown",
-    "max_output_tokens"
+    "max_output_tokens"]
   ),
   "SDKAssistantMessageError"
 )
@@ -27,13 +27,13 @@ export type SDKAssistantMessageError = typeof SDKAssistantMessageError.Type
 export type SDKAssistantMessageErrorEncoded = typeof SDKAssistantMessageError.Encoded
 
 export const SDKAssistantMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("assistant"),
+  S.Struct({
+    type: S.Literal("assistant"),
     message: BetaMessage,
-    parent_tool_use_id: Schema.Union(Schema.String, Schema.Null),
-    error: Schema.optional(SDKAssistantMessageError),
+    parent_tool_use_id: S.Union([S.String, S.Null]),
+    error: S.optional(SDKAssistantMessageError),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKAssistantMessage"
 )
@@ -42,13 +42,13 @@ export type SDKAssistantMessage = typeof SDKAssistantMessage.Type
 export type SDKAssistantMessageEncoded = typeof SDKAssistantMessage.Encoded
 
 export const SDKAuthStatusMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("auth_status"),
-    isAuthenticating: Schema.Boolean,
-    output: Schema.Array(Schema.String),
-    error: Schema.optional(Schema.String),
+  S.Struct({
+    type: S.Literal("auth_status"),
+    isAuthenticating: S.Boolean,
+    output: S.Array(S.String),
+    error: S.optional(S.String),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKAuthStatusMessage"
 )
@@ -57,15 +57,15 @@ export type SDKAuthStatusMessage = typeof SDKAuthStatusMessage.Type
 export type SDKAuthStatusMessageEncoded = typeof SDKAuthStatusMessage.Encoded
 
 export const SDKCompactBoundaryMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("compact_boundary"),
-    compact_metadata: Schema.Struct({
-      trigger: Schema.Literal("manual", "auto"),
-      pre_tokens: Schema.Number
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("compact_boundary"),
+    compact_metadata: S.Struct({
+      trigger: S.Literals(["manual", "auto"]),
+      pre_tokens: S.Number
     }),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKCompactBoundaryMessage"
 )
@@ -74,19 +74,19 @@ export type SDKCompactBoundaryMessage = typeof SDKCompactBoundaryMessage.Type
 export type SDKCompactBoundaryMessageEncoded = typeof SDKCompactBoundaryMessage.Encoded
 
 export const SDKHookResponseMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("hook_response"),
-    hook_id: Schema.String,
-    hook_name: Schema.String,
-    hook_event: Schema.String,
-    output: Schema.String,
-    stdout: Schema.String,
-    stderr: Schema.String,
-    exit_code: Schema.optional(Schema.Number),
-    outcome: Schema.Literal("success", "error", "cancelled"),
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("hook_response"),
+    hook_id: S.String,
+    hook_name: S.String,
+    hook_event: S.String,
+    output: S.String,
+    stdout: S.String,
+    stderr: S.String,
+    exit_code: S.optional(S.Number),
+    outcome: S.Literals(["success", "error", "cancelled"]),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKHookResponseMessage"
 )
@@ -95,14 +95,14 @@ export type SDKHookResponseMessage = typeof SDKHookResponseMessage.Type
 export type SDKHookResponseMessageEncoded = typeof SDKHookResponseMessage.Encoded
 
 export const SDKHookStartedMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("hook_started"),
-    hook_id: Schema.String,
-    hook_name: Schema.String,
-    hook_event: Schema.String,
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("hook_started"),
+    hook_id: S.String,
+    hook_name: S.String,
+    hook_event: S.String,
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKHookStartedMessage"
 )
@@ -111,17 +111,17 @@ export type SDKHookStartedMessage = typeof SDKHookStartedMessage.Type
 export type SDKHookStartedMessageEncoded = typeof SDKHookStartedMessage.Encoded
 
 export const SDKHookProgressMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("hook_progress"),
-    hook_id: Schema.String,
-    hook_name: Schema.String,
-    hook_event: Schema.String,
-    stdout: Schema.String,
-    stderr: Schema.String,
-    output: Schema.String,
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("hook_progress"),
+    hook_id: S.String,
+    hook_name: S.String,
+    hook_event: S.String,
+    stdout: S.String,
+    stderr: S.String,
+    output: S.String,
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKHookProgressMessage"
 )
@@ -130,12 +130,12 @@ export type SDKHookProgressMessage = typeof SDKHookProgressMessage.Type
 export type SDKHookProgressMessageEncoded = typeof SDKHookProgressMessage.Encoded
 
 export const SDKPartialAssistantMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("stream_event"),
+  S.Struct({
+    type: S.Literal("stream_event"),
     event: BetaRawMessageStreamEvent,
-    parent_tool_use_id: Schema.Union(Schema.String, Schema.Null),
+    parent_tool_use_id: S.Union([S.String, S.Null]),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKPartialAssistantMessage"
 )
@@ -144,22 +144,22 @@ export type SDKPartialAssistantMessage = typeof SDKPartialAssistantMessage.Type
 export type SDKPartialAssistantMessageEncoded = typeof SDKPartialAssistantMessage.Encoded
 
 export const SDKResultSuccess = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("result"),
-    subtype: Schema.Literal("success"),
-    duration_ms: Schema.Number,
-    duration_api_ms: Schema.Number,
-    is_error: Schema.Boolean,
-    num_turns: Schema.Number,
-    result: Schema.String,
-    stop_reason: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-    total_cost_usd: Schema.Number,
+  S.Struct({
+    type: S.Literal("result"),
+    subtype: S.Literal("success"),
+    duration_ms: S.Number,
+    duration_api_ms: S.Number,
+    is_error: S.Boolean,
+    num_turns: S.Number,
+    result: S.String,
+    stop_reason: S.optional(S.Union([S.String, S.Null])),
+    total_cost_usd: S.Number,
     usage: NonNullableUsage,
-    modelUsage: Schema.Record({ key: Schema.String, value: ModelUsage }),
-    permission_denials: Schema.Array(SDKPermissionDenial),
-    structured_output: Schema.optional(Schema.Unknown),
+    modelUsage: S.Record( S.String,  ModelUsage),
+  permission_denials: S.Array(SDKPermissionDenial),
+    structured_output: S.optional(S.Unknown),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKResultSuccess"
 )
@@ -168,26 +168,26 @@ export type SDKResultSuccess = typeof SDKResultSuccess.Type
 export type SDKResultSuccessEncoded = typeof SDKResultSuccess.Encoded
 
 export const SDKResultError = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("result"),
-    subtype: Schema.Literal(
-      "error_during_execution",
+  S.Struct({
+    type: S.Literal("result"),
+    subtype: S.Literals(
+      ["error_during_execution",
       "error_max_turns",
       "error_max_budget_usd",
-      "error_max_structured_output_retries"
+      "error_max_structured_output_retries"]
     ),
-    duration_ms: Schema.Number,
-    duration_api_ms: Schema.Number,
-    is_error: Schema.Boolean,
-    num_turns: Schema.Number,
-    stop_reason: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-    total_cost_usd: Schema.Number,
+    duration_ms: S.Number,
+    duration_api_ms: S.Number,
+    is_error: S.Boolean,
+    num_turns: S.Number,
+    stop_reason: S.optional(S.Union([S.String, S.Null])),
+    total_cost_usd: S.Number,
     usage: NonNullableUsage,
-    modelUsage: Schema.Record({ key: Schema.String, value: ModelUsage }),
-    permission_denials: Schema.Array(SDKPermissionDenial),
-    errors: Schema.Array(Schema.String),
+    modelUsage: S.Record( S.String,  ModelUsage ),
+    permission_denials: S.Array(SDKPermissionDenial),
+    errors: S.Array(S.String),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKResultError"
 )
@@ -196,7 +196,7 @@ export type SDKResultError = typeof SDKResultError.Type
 export type SDKResultErrorEncoded = typeof SDKResultError.Encoded
 
 export const SDKResultMessage = withIdentifier(
-  Schema.Union(SDKResultSuccess, SDKResultError),
+  S.Union([SDKResultSuccess, SDKResultError]),
   "SDKResultMessage"
 )
 
@@ -204,7 +204,7 @@ export type SDKResultMessage = typeof SDKResultMessage.Type
 export type SDKResultMessageEncoded = typeof SDKResultMessage.Encoded
 
 export const SDKStatus = withIdentifier(
-  Schema.Union(Schema.Literal("compacting"), Schema.Null),
+  S.Union([S.Literal("compacting"), S.Null]),
   "SDKStatus"
 )
 
@@ -212,13 +212,13 @@ export type SDKStatus = typeof SDKStatus.Type
 export type SDKStatusEncoded = typeof SDKStatus.Encoded
 
 export const SDKStatusMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("status"),
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("status"),
     status: SDKStatus,
-    permissionMode: Schema.optional(PermissionMode),
+    permissionMode: S.optional(PermissionMode),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKStatusMessage"
 )
@@ -227,34 +227,34 @@ export type SDKStatusMessage = typeof SDKStatusMessage.Type
 export type SDKStatusMessageEncoded = typeof SDKStatusMessage.Encoded
 
 export const SDKSystemMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("init"),
-    agents: Schema.optional(Schema.Array(Schema.String)),
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("init"),
+    agents: S.optional(S.Array(S.String)),
     apiKeySource: ApiKeySource,
-    betas: Schema.optional(Schema.Array(Schema.String)),
-    claude_code_version: Schema.String,
-    cwd: Schema.String,
-    tools: Schema.Array(Schema.String),
-    mcp_servers: Schema.Array(
-      Schema.Struct({
-        name: Schema.String,
-        status: Schema.String
+    betas: S.optional(S.Array(S.String)),
+    claude_code_version: S.String,
+    cwd: S.String,
+    tools: S.Array(S.String),
+    mcp_servers: S.Array(
+      S.Struct({
+        name: S.String,
+        status: S.String
       })
     ),
-    model: Schema.String,
+    model: S.String,
     permissionMode: PermissionMode,
-    slash_commands: Schema.Array(Schema.String),
-    output_style: Schema.String,
-    skills: Schema.Array(Schema.String),
-    plugins: Schema.Array(
-      Schema.Struct({
-        name: Schema.String,
-        path: Schema.String
+    slash_commands: S.Array(S.String),
+    output_style: S.String,
+    skills: S.Array(S.String),
+    plugins: S.Array(
+      S.Struct({
+        name: S.String,
+        path: S.String
       })
     ),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKSystemMessage"
 )
@@ -263,15 +263,15 @@ export type SDKSystemMessage = typeof SDKSystemMessage.Type
 export type SDKSystemMessageEncoded = typeof SDKSystemMessage.Encoded
 
 export const SDKTaskNotificationMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("task_notification"),
-    task_id: Schema.String,
-    status: Schema.Literal("completed", "failed", "stopped"),
-    output_file: Schema.String,
-    summary: Schema.String,
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("task_notification"),
+    task_id: S.String,
+    status: S.Literals(["completed", "failed", "stopped"]),
+    output_file: S.String,
+    summary: S.String,
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKTaskNotificationMessage"
 )
@@ -280,15 +280,15 @@ export type SDKTaskNotificationMessage = typeof SDKTaskNotificationMessage.Type
 export type SDKTaskNotificationMessageEncoded = typeof SDKTaskNotificationMessage.Encoded
 
 export const SDKTaskStartedMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("task_started"),
-    task_id: Schema.String,
-    tool_use_id: Schema.optional(Schema.String),
-    description: Schema.String,
-    task_type: Schema.optional(Schema.String),
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("task_started"),
+    task_id: S.String,
+    tool_use_id: S.optional(S.String),
+    description: S.String,
+    task_type: S.optional(S.String),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKTaskStartedMessage"
 )
@@ -297,24 +297,24 @@ export type SDKTaskStartedMessage = typeof SDKTaskStartedMessage.Type
 export type SDKTaskStartedMessageEncoded = typeof SDKTaskStartedMessage.Encoded
 
 export const SDKFilesPersistedEvent = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("system"),
-    subtype: Schema.Literal("files_persisted"),
-    files: Schema.Array(
-      Schema.Struct({
-        filename: Schema.String,
-        file_id: Schema.String
+  S.Struct({
+    type: S.Literal("system"),
+    subtype: S.Literal("files_persisted"),
+    files: S.Array(
+      S.Struct({
+        filename: S.String,
+        file_id: S.String
       })
     ),
-    failed: Schema.Array(
-      Schema.Struct({
-        filename: Schema.String,
-        error: Schema.String
+    failed: S.Array(
+      S.Struct({
+        filename: S.String,
+        error: S.String
       })
     ),
-    processed_at: Schema.String,
+    processed_at: S.String,
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKFilesPersistedEvent"
 )
@@ -323,14 +323,14 @@ export type SDKFilesPersistedEvent = typeof SDKFilesPersistedEvent.Type
 export type SDKFilesPersistedEventEncoded = typeof SDKFilesPersistedEvent.Encoded
 
 export const SDKToolProgressMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("tool_progress"),
-    tool_use_id: Schema.String,
-    tool_name: Schema.String,
-    parent_tool_use_id: Schema.Union(Schema.String, Schema.Null),
-    elapsed_time_seconds: Schema.Number,
+  S.Struct({
+    type: S.Literal("tool_progress"),
+    tool_use_id: S.String,
+    tool_name: S.String,
+    parent_tool_use_id: S.Union([S.String, S.Null]),
+    elapsed_time_seconds: S.Number,
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKToolProgressMessage"
 )
@@ -339,12 +339,12 @@ export type SDKToolProgressMessage = typeof SDKToolProgressMessage.Type
 export type SDKToolProgressMessageEncoded = typeof SDKToolProgressMessage.Encoded
 
 export const SDKToolUseSummaryMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("tool_use_summary"),
-    summary: Schema.String,
-    preceding_tool_use_ids: Schema.Array(Schema.String),
+  S.Struct({
+    type: S.Literal("tool_use_summary"),
+    summary: S.String,
+    preceding_tool_use_ids: S.Array(S.String),
     uuid: UUID,
-    session_id: Schema.String
+    session_id: S.String
   }),
   "SDKToolUseSummaryMessage"
 )
@@ -353,14 +353,14 @@ export type SDKToolUseSummaryMessage = typeof SDKToolUseSummaryMessage.Type
 export type SDKToolUseSummaryMessageEncoded = typeof SDKToolUseSummaryMessage.Encoded
 
 export const SDKUserMessage = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("user"),
+  S.Struct({
+    type: S.Literal("user"),
     message: MessageParam,
-    parent_tool_use_id: Schema.Union(Schema.String, Schema.Null),
-    isSynthetic: Schema.optional(Schema.Boolean),
-    tool_use_result: Schema.optional(Schema.Unknown),
-    uuid: Schema.optional(UUID),
-    session_id: Schema.String
+    parent_tool_use_id: S.Union([S.String, S.Null]),
+    isSynthetic: S.optional(S.Boolean),
+    tool_use_result: S.optional(S.Unknown),
+    uuid: S.optional(UUID),
+    session_id: S.String
   }),
   "SDKUserMessage"
 )
@@ -369,15 +369,15 @@ export type SDKUserMessage = typeof SDKUserMessage.Type
 export type SDKUserMessageEncoded = typeof SDKUserMessage.Encoded
 
 export const SDKUserMessageReplay = withSdkMessage(
-  Schema.Struct({
-    type: Schema.Literal("user"),
+  S.Struct({
+    type: S.Literal("user"),
     message: MessageParam,
-    parent_tool_use_id: Schema.Union(Schema.String, Schema.Null),
-    isSynthetic: Schema.optional(Schema.Boolean),
-    tool_use_result: Schema.optional(Schema.Unknown),
+    parent_tool_use_id: S.Union([S.String, S.Null]),
+    isSynthetic: S.optional(S.Boolean),
+    tool_use_result: S.optional(S.Unknown),
     uuid: UUID,
-    session_id: Schema.String,
-    isReplay: Schema.Literal(true)
+    session_id: S.String,
+    isReplay: S.Literal(true)
   }),
   "SDKUserMessageReplay"
 )
@@ -386,8 +386,8 @@ export type SDKUserMessageReplay = typeof SDKUserMessageReplay.Type
 export type SDKUserMessageReplayEncoded = typeof SDKUserMessageReplay.Encoded
 
 export const SDKMessage = withIdentifier(
-  Schema.Union(
-    SDKAssistantMessage,
+  S.Union(
+  [  SDKAssistantMessage,
     SDKUserMessage,
     SDKUserMessageReplay,
     SDKResultMessage,
@@ -403,7 +403,7 @@ export const SDKMessage = withIdentifier(
     SDKAuthStatusMessage,
     SDKTaskNotificationMessage,
     SDKTaskStartedMessage,
-    SDKFilesPersistedEvent
+    SDKFilesPersistedEvent]
   ),
   "SDKMessage"
 )

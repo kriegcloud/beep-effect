@@ -1,11 +1,10 @@
-import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
 import type { QueryHandle } from "../Query.js"
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js"
 import { ChatEventSource } from "../Schema/Storage.js"
 import { ChatHistoryStore } from "./ChatHistoryStore.js"
-import type { StorageError } from "./StorageError.js"
 
 export type RecorderOptions = {
   readonly sessionId?: string
@@ -19,7 +18,7 @@ export type RecorderOptions = {
 const defaultOutputSource: ChatEventSource = "sdk"
 const defaultInputSource: ChatEventSource = "external"
 
-type ChatHistoryStoreService = Context.Tag.Service<typeof ChatHistoryStore>
+type ChatHistoryStoreService = ServiceMap.Service.Shape<typeof ChatHistoryStore>
 
 const recordMessage = (
   store: ChatHistoryStoreService,
@@ -30,7 +29,7 @@ const recordMessage = (
 ) => {
   const resolvedSessionId = sessionId ?? message.session_id
   const effect = store.appendMessage(resolvedSessionId, message, { source }).pipe(Effect.asVoid)
-  return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catchAll(() => Effect.void))
+  return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catch(() => Effect.void))
 }
 
 const recordMessages = (
@@ -44,7 +43,7 @@ const recordMessages = (
   const resolvedSessionId = sessionId ?? messages[0]?.session_id
   if (!resolvedSessionId) return Effect.void
   const effect = store.appendMessages(resolvedSessionId, messages, { source }).pipe(Effect.asVoid)
-  return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catchAll(() => Effect.void))
+  return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catch(() => Effect.void))
 }
 
 export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function*(

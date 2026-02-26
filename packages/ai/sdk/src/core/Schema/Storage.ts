@@ -1,59 +1,75 @@
-import * as Schema from "effect/Schema"
-import { SDKMessage } from "./Message.js"
-import { HookEvent } from "./Hooks.js"
+import * as S from "effect/Schema";
+import {SDKMessage} from "./Message.js";
+import {HookEvent} from "./Hooks.js";
 
-export const ChatEventSource = Schema.Literal("sdk", "replay", "external")
+export const ChatEventSource = S.Literals([
+	"sdk",
+	"replay",
+	"external"
+]);
 export type ChatEventSource = typeof ChatEventSource.Type
 export type ChatEventSourceEncoded = typeof ChatEventSource.Encoded
 
-export class ChatEvent extends Schema.Class<ChatEvent>("ChatEvent")({
-  sessionId: Schema.String,
-  sequence: Schema.Number,
-  timestamp: Schema.Number,
-  source: ChatEventSource,
-  message: SDKMessage
-}) {}
+export class ChatEvent extends S.Class<ChatEvent>("ChatEvent")(
+	{
+		sessionId: S.String,
+		sequence: S.Number,
+		timestamp: S.Number,
+		source: ChatEventSource,
+		message: SDKMessage
+	}) {
+	static readonly make = (params: ChatEvent) => new ChatEvent(params)
+}
 
 export type ChatEventEncoded = typeof ChatEvent.Encoded
 
-export class SessionMeta extends Schema.Class<SessionMeta>("SessionMeta")({
-  sessionId: Schema.String,
-  createdAt: Schema.Number,
-  updatedAt: Schema.Number
-}) {}
+export class SessionMeta extends S.Class<SessionMeta>("SessionMeta")(
+	{
+		sessionId: S.String,
+		createdAt: S.Number,
+		updatedAt: S.Number
+	}) {
+	static readonly make = (params: SessionMeta) => new SessionMeta(params)
+}
 
 export type SessionMetaEncoded = typeof SessionMeta.Encoded
 
-export const ArtifactEncoding = Schema.Literal("utf8", "base64")
+export const ArtifactEncoding = S.Literals([
+	"utf8",
+	"base64"
+]);
 export type ArtifactEncoding = typeof ArtifactEncoding.Type
 export type ArtifactEncodingEncoded = typeof ArtifactEncoding.Encoded
 
-export const ArtifactKind = Schema.Literal(
-  "file",
-  "tool_result",
-  "summary",
-  "image",
-  "other"
-)
+export const ArtifactKind = S.Literals([
+	"file",
+	"tool_result",
+	"summary",
+	"image",
+	"other"
+]);
 export type ArtifactKind = typeof ArtifactKind.Type
 export type ArtifactKindEncoded = typeof ArtifactKind.Encoded
 
-export class ArtifactRecord extends Schema.Class<ArtifactRecord>("ArtifactRecord")({
-  id: Schema.String,
-  sessionId: Schema.String,
-  kind: ArtifactKind,
-  toolName: Schema.optional(Schema.String),
-  toolUseId: Schema.optional(Schema.String),
-  hookEvent: Schema.optional(HookEvent),
-  contentType: Schema.optional(Schema.String),
-  encoding: ArtifactEncoding,
-  content: Schema.String,
-  sizeBytes: Schema.optional(Schema.Number),
-  createdAt: Schema.Number,
-  metadata: Schema.optional(Schema.Record({
-    key: Schema.String,
-    value: Schema.Unknown
-  }))
-}) {}
+export class ArtifactRecord extends S.Class<ArtifactRecord>("ArtifactRecord")(
+	{
+		id: S.String,
+		sessionId: S.String,
+		kind: ArtifactKind,
+		toolName: S.optional(S.String),
+		toolUseId: S.optional(S.String),
+		hookEvent: S.optional(HookEvent),
+		contentType: S.optional(S.String),
+		encoding: ArtifactEncoding,
+		content: S.String,
+		sizeBytes: S.optional(S.Number),
+		createdAt: S.Number,
+		metadata: S.optional(S.Record(
+			S.String,
+			S.Unknown
+		))
+	}) {
+	static readonly make = (params: ArtifactRecord) => new ArtifactRecord(params)
+}
 
 export type ArtifactRecordEncoded = typeof ArtifactRecord.Encoded

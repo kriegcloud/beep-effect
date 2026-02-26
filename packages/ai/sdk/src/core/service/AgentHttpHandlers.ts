@@ -1,6 +1,7 @@
-import { HttpApiBuilder, HttpServerResponse } from "@effect/platform"
+
+import { HttpApiBuilder, HttpServerResponse } from "effect/unstable/httpapi"
 import * as Cause from "effect/Cause"
-import * as Context from "effect/Context"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
 import * as Schema from "effect/Schema"
@@ -17,7 +18,7 @@ import { AgentHttpApi } from "./AgentHttpApi.js"
 import { SessionPoolUnavailableError } from "./SessionErrors.js"
 import { resolveRequestTenant } from "./TenantAccess.js"
 
-type SessionPoolService = Context.Tag.Service<typeof SessionPool>
+type SessionPoolService = ServiceMap.Service.Shape<typeof SessionPool>
 
 const textEncoder = new TextEncoder()
 
@@ -30,7 +31,7 @@ const toSseChunk = (data: unknown, event?: string) => {
 const toSseStream = <E>(stream: Stream.Stream<unknown, E>) =>
   stream.pipe(
     Stream.map((message) => toSseChunk(message)),
-    Stream.catchAllCause((cause) =>
+    Stream.catchCause((cause) =>
       Stream.fromIterable([
         toSseChunk({ error: Cause.pretty(cause) }, "error")
       ])
@@ -107,7 +108,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
       .handleRaw("streamPost", ({ request }) =>
         request.json.pipe(
           Effect.flatMap((payload) =>
-            Schema.decodeUnknown(QueryInput)(payload).pipe(
+            Schema.decodeUnknownEffect(QueryInput)(payload).pipe(
               Effect.map((decoded) =>
                 HttpServerResponse.stream(
                   toSseStream(runtime.stream(toPrompt(decoded), decoded.options)),
@@ -122,7 +123,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
               )
             )
           ),
-          Effect.catchAll(() =>
+          Effect.catch(() =>
             Effect.succeed(
               HttpServerResponse.text("Invalid request payload.", { status: 400 })
             )
@@ -155,7 +156,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
           resolveRequestTenant(urlParams.tenant).pipe(
             Effect.flatMap((tenant) =>
               pool.get(urlParams.id, undefined, tenant).pipe(
-                Effect.zipRight(pool.info(urlParams.id, tenant))
+                Effect.andThen(pool.info(urlParams.id, tenant))
               ))
           )
         ))

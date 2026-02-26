@@ -1,5 +1,5 @@
 /**
- * Tagged result schemas for ontology object operations.
+ * Tagged result schemas and guards for ontology object operations.
  *
  * @since 0.0.0
  * @module @beep/ontology/object/Result
@@ -11,156 +11,101 @@ import * as S from "effect/Schema";
 const $I = $OntologyId.create("object/Result");
 
 /**
- * Error variant for a result.
+ * Error result payload.
  *
  * @since 0.0.0
  * @category models
  */
-export class ErrorResult extends S.TaggedClass<ErrorResult>($I`ErrorResult`)(
-  "Error",
-  {
-    error: S.OptionFromOptionalKey(S.DefectWithStack),
-    value: S.optionalKey(S.Never),
-  },
-  $I.annote("ErrorResult", {
-    description: "Result variant indicating an operation failed and may include defect details.",
-  })
-) {}
+export interface ErrorResult {
+  readonly error: Error;
+  readonly value?: never;
+}
 
 /**
- * Success result schema constructor.
+ * Runtime schema for {@link ErrorResult}.
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const ErrorResult = S.Struct({
+  error: S.instanceOf(Error),
+  value: S.optionalKey(S.Never),
+}).pipe(
+  S.annotate(
+    $I.annote("ErrorResult", {
+      description: "Result branch representing an error value.",
+    })
+  )
+);
+
+/**
+ * Success result payload.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface OkResult<V> {
+  readonly value: V;
+  readonly error?: never;
+}
+
+/**
+ * Runtime schema constructor for {@link OkResult}.
  *
  * @since 0.0.0
  * @category constructors
  */
-export const OkResult = <V extends S.Top>(valueSchema: S.Schema<V>) =>
-  S.TaggedStruct("Ok", {
+export const OkResult = <const V extends S.Top>(valueSchema: S.Schema<V>) =>
+  S.Struct({
     value: valueSchema,
     error: S.optionalKey(S.Never),
   }).pipe(
     S.annotate(
       $I.annote("OkResult", {
-        description: "Result variant indicating success with a typed value payload.",
+        description: "Result branch representing a successful value.",
       })
     )
   );
 
 /**
- * Types for {@link OkResult}.
+ * Union of success and error result payloads.
  *
  * @since 0.0.0
  * @category models
  */
-export declare namespace OkResult {
-  /**
-   * Success tagged schema.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Schema<V extends S.Top> = S.TaggedStruct<
-    "Ok",
-    {
-      readonly value: S.Schema<V>;
-      readonly error: S.optionalKey<S.Never>;
-    }
-  >;
-
-  /**
-   * Decoded success value type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Type<V extends S.Top> = {
-    readonly _tag: "Ok";
-    readonly value: Schema<V>;
-    readonly error?: never;
-  };
-
-  /**
-   * Encoded success value type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Encoded<V extends S.Top> = Schema<V>["Encoded"];
-}
+export type Result<V> = OkResult<V> | ErrorResult;
 
 /**
- * Tagged result union constructor with helper guards.
+ * Runtime schema constructor for {@link Result}.
  *
  * @since 0.0.0
  * @category constructors
  */
-export const Result = <V extends S.Top>(valueSchema: S.Schema<V>) => {
-  const base = S.Union([OkResult(valueSchema), ErrorResult]).pipe(
-    S.toTaggedUnion("_tag"),
+export const Result = <const V extends S.Top>(valueSchema: S.Schema<V>) =>
+  S.Union([OkResult(valueSchema), ErrorResult]).pipe(
     S.annotate(
       $I.annote("Result", {
-        description: "Tagged union of successful and failed operation results.",
+        description: "Union of successful and error operation results.",
       })
     )
   );
 
-  return Object.assign(base, {
-    /**
-     * Check if a result is successful.
-     *
-     * @since 0.0.0
-     */
-    isOk: (a: Result.Type<V>): a is S.Schema.Type<OkResult.Schema<V>> =>
-      P.and(P.hasProperty("value"), P.isTagged("Ok"))(a),
-
-    /**
-     * Check if a result is an error.
-     *
-     * @since 0.0.0
-     */
-    isError: (a: Result.Type<V>): a is ErrorResult => P.and(P.hasProperty("error"), P.isTagged("Error"))(a),
-  });
-};
-
 /**
- * Types for {@link Result}.
+ * Check whether a result contains a successful value.
  *
  * @since 0.0.0
- * @category models
+ * @category predicates
  */
-export declare namespace Result {
-  /**
-   * Tagged result union schema.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Schema<V extends S.Top> = S.toTaggedUnion<
-    "_tag",
-    readonly [
-      S.TaggedStruct<
-        "Ok",
-        {
-          readonly value: S.Schema<V>;
-          readonly error: S.optionalKey<S.Never>;
-        }
-      >,
-      typeof ErrorResult,
-    ]
-  >;
+export function isOk<V>(a: Result<V>): a is OkResult<V> {
+  return P.hasProperty(a, "value");
+}
 
-  /**
-   * Decoded tagged result type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Type<V extends S.Top> = S.Schema.Type<Schema<V>>;
-
-  /**
-   * Encoded tagged result type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Encoded<V extends S.Top> = Schema<V>["Encoded"];
+/**
+ * Check whether a result contains an error value.
+ *
+ * @since 0.0.0
+ * @category predicates
+ */
+export function isError<V>(a: Result<V>): a is ErrorResult {
+  return P.hasProperty(a, "error");
 }

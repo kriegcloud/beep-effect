@@ -5,7 +5,6 @@
  * @module @beep/ontology/ontology/VersionString
  */
 import { $OntologyId } from "@beep/identity/packages";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("ontology/VersionString");
@@ -19,7 +18,7 @@ const $I = $OntologyId.create("ontology/VersionString");
 export class InvalidVersionPartError extends S.TaggedErrorClass<InvalidVersionPartError>($I`InvalidVersionPartError`)(
   "InvalidVersionPartError",
   {
-    input: S.Any,
+    input: S.Unknown,
     cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("InvalidVersionPartError", {
@@ -29,7 +28,7 @@ export class InvalidVersionPartError extends S.TaggedErrorClass<InvalidVersionPa
 
 const VersionPart = S.Int.pipe(S.check(S.isGreaterThanOrEqualTo(0))).annotate(
   $I.annote("VersionPart", {
-    description: "A single non-negative integer version component used by ontology version strings.",
+    description: "A single non-negative integer version component.",
   })
 );
 
@@ -56,12 +55,10 @@ export class ValidVersionParts extends S.Class<ValidVersionParts>($I`ValidVersio
   })
 ) {}
 
-const isValid = <const Major extends number, const Minor extends number, const Patch extends number>(
-  parts: VersionStringParts<Major, Minor, Patch>
-): parts is VersionStringParts<Major, Minor, Patch> => S.decodeOption(ValidVersionParts)(parts).pipe(O.isSome);
+const isValidVersionParts = S.is(ValidVersionParts);
 
 /**
- * Builds a version string schema for fixed major/minor/patch values.
+ * Build a version string schema for fixed major/minor/patch values.
  *
  * @since 0.0.0
  * @category constructors
@@ -69,26 +66,29 @@ const isValid = <const Major extends number, const Minor extends number, const P
 export function VersionString<const Major extends number, const Minor extends number, const Patch extends number>(
   parts: VersionStringParts<Major, Minor, Patch>
 ) {
-  if (!isValid(parts)) {
+  if (!isValidVersionParts(parts)) {
     throw new InvalidVersionPartError({
       input: parts,
     });
   }
 
-  return S.TemplateLiteral([`${parts.major}`, ".", `${parts.minor}`, ".", `${parts.patch}`]).annotate(
-    $I.annote("VersionString", {
-      description:
-        "A template-literal schema that constrains ontology version strings to an exact major.minor.patch value.",
-    })
+  return S.TemplateLiteral([`${parts.major}`, ".", `${parts.minor}`, ".", `${parts.patch}`]).pipe(
+    S.annotate(
+      $I.annote("VersionString", {
+        description: "Template-literal schema constrained to an exact major.minor.patch version.",
+      })
+    )
   );
 }
 
 /**
- * Type-level representation for a version string template.
+ * Type-level representation for a semantic version string.
  *
  * @since 0.0.0
  * @category models
  */
-export type VersionString<Major extends number, Minor extends number, Patch extends number> = S.TemplateLiteral<
-  readonly [`${Major}`, ",", `${Minor}`, ",", `${Patch}`]
->["Type"];
+export type VersionString<
+  Major extends number,
+  Minor extends number,
+  Patch extends number,
+> = `${Major}.${Minor}.${Patch}`;

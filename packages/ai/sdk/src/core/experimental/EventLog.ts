@@ -1,23 +1,23 @@
-import * as EventLogModule from "@effect/experimental/EventLog"
-import * as EventJournalModule from "@effect/experimental/EventJournal"
-import * as EventGroupModule from "@effect/experimental/EventGroup"
-import * as Effect from "effect/Effect"
+import { thunkEffectVoid } from "@beep/utils";
 import * as Layer from "effect/Layer"
-import * as Schema from "effect/Schema"
+import * as S from "effect/Schema"
+import * as EventGroupModule from "effect/unstable/eventlog/EventGroup"
+import * as EventJournalModule from "effect/unstable/eventlog/EventJournal"
+import * as EventLogModule from "effect/unstable/eventlog/EventLog"
 import { HookEvent } from "../Schema/Hooks.js"
 
-export * from "@effect/experimental/EventLog"
-export * as Event from "@effect/experimental/Event"
-export * as EventGroup from "@effect/experimental/EventGroup"
-export * as EventJournal from "@effect/experimental/EventJournal"
-export * as EventLogRemote from "@effect/experimental/EventLogRemote"
+export * as Event from "effect/unstable/eventlog/Event"
+export * as EventGroup from "effect/unstable/eventlog/EventGroup"
+export * as EventJournal from "effect/unstable/eventlog/EventJournal"
+export * from "effect/unstable/eventlog/EventLog"
+export * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote"
 
 /**
  * In-memory identity layer for event log auditing.
  */
 export const layerIdentityMemory = Layer.sync(
   EventLogModule.Identity,
-  () => EventLogModule.Identity.makeRandom()
+  () => EventLogModule.makeIdentityUnsafe()
 )
 
 /**
@@ -28,44 +28,44 @@ export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(layerIdentityMemory)
 )
 
-const ToolUsePayload = Schema.Struct({
-  sessionId: Schema.String,
-  toolName: Schema.String,
-  toolUseId: Schema.optional(Schema.String),
-  status: Schema.Literal("start", "success", "failure"),
-  durationMs: Schema.optional(Schema.Number)
+const ToolUsePayload = S.Struct({
+  sessionId: S.String,
+  toolName: S.String,
+  toolUseId: S.optional(S.String),
+  status: S.Literals(["start", "success", "failure"]),
+  durationMs: S.optional(S.Number)
 })
 
-const PermissionDecisionPayload = Schema.Struct({
-  sessionId: Schema.String,
-  toolName: Schema.String,
-  decision: Schema.Literal("allow", "deny", "prompt"),
-  reason: Schema.optional(Schema.String)
+const PermissionDecisionPayload = S.Struct({
+  sessionId: S.String,
+  toolName: S.String,
+  decision: S.Literals(["allow", "deny", "prompt"]),
+  reason: S.optional(S.String)
 })
 
-const HookEventPayload = Schema.Struct({
-  sessionId: Schema.optional(Schema.String),
+const HookEventPayload = S.Struct({
+  sessionId: S.optional(S.String),
   hook: HookEvent,
-  toolUseId: Schema.optional(Schema.String),
-  outcome: Schema.Literal("success", "failure")
+  toolUseId: S.optional(S.String),
+  outcome: S.Literals(["success", "failure"])
 })
 
-const SyncConflictPayload = Schema.Struct({
-  remoteId: Schema.String,
-  event: Schema.String,
-  primaryKey: Schema.String,
-  entryId: Schema.String,
-  conflictCount: Schema.Number,
-  resolution: Schema.Literal("accept", "merge", "reject"),
-  resolvedEntryId: Schema.optional(Schema.String)
+const SyncConflictPayload = S.Struct({
+  remoteId: S.String,
+  event: S.String,
+  primaryKey: S.String,
+  entryId: S.String,
+  conflictCount: S.Number,
+  resolution: S.Literals(["accept", "merge", "reject"]),
+  resolvedEntryId: S.optional(S.String)
 })
 
-const SyncCompactionPayload = Schema.Struct({
-  remoteId: Schema.String,
-  before: Schema.Number,
-  after: Schema.Number,
-  events: Schema.optional(Schema.Array(Schema.String)),
-  timestamp: Schema.Number
+const SyncCompactionPayload = S.Struct({
+  remoteId: S.String,
+  before: S.Number,
+  after: S.Number,
+  events: S.optional(S.Array(S.String)),
+  timestamp: S.Number
 })
 
 /**
@@ -131,9 +131,9 @@ export const AuditEventSchema = EventLogModule.schema(AuditEventGroup)
  */
 export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handlers) =>
   handlers
-    .handle("tool_use", () => Effect.void)
-    .handle("permission_decision", () => Effect.void)
-    .handle("hook_event", () => Effect.void)
-    .handle("sync_conflict", () => Effect.void)
-    .handle("sync_compaction", () => Effect.void)
+    .handle("tool_use", thunkEffectVoid)
+    .handle("permission_decision", thunkEffectVoid)
+    .handle("hook_event", thunkEffectVoid)
+    .handle("sync_conflict", thunkEffectVoid)
+    .handle("sync_compaction", thunkEffectVoid)
 )

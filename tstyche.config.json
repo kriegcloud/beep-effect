@@ -8,7 +8,8 @@
     "apps/*/dtslint/**/*.tst.*",
     "packages/shared/domain/dtslint/**/*.tst.*",
     "packages/shared/env/dtslint/**/*.tst.*",
-    "packages/ui/ui/dtslint/**/*.tst.*"
+    "packages/ui/ui/dtslint/**/*.tst.*",
+    "packages/ai/sdk/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }

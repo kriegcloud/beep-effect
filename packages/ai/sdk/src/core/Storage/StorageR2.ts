@@ -1,8 +1,6 @@
-import { KeyValueStore } from "@effect/platform"
-import * as PlatformError from "@effect/platform/Error"
+import { KeyValueStore } from "effect/unstable/persistence"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as Option from "effect/Option"
 import * as Schedule from "effect/Schedule"
 
 /**
@@ -12,11 +10,9 @@ import * as Schedule from "effect/Schedule"
  * (not a custom error type).
  */
 const storageError = (method: string, description: string, cause?: unknown) =>
-  new PlatformError.SystemError({
-    reason: "Unknown",
-    module: "KeyValueStore",
+  new KeyValueStore.KeyValueStoreError({
     method,
-    description,
+    message: description,
     ...(cause !== undefined ? { cause } : {})
   })
 
@@ -103,8 +99,8 @@ export const layerR2 = (bucket: R2Bucket): Layer.Layer<KeyValueStore.KeyValueSto
       get: (key) =>
         tryR2("get", "R2 get failed", async () => {
           const obj = await bucket.get(key)
-          if (!obj) return Option.none()
-          return Option.some(await obj.text())
+          if (!obj) return undefined
+          return await obj.text()
         }),
 
       set: (key, value) =>

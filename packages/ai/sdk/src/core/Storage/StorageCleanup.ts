@@ -1,7 +1,7 @@
-import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Schedule from "effect/Schedule"
+import * as ServiceMap from "effect/ServiceMap"
 import { ArtifactStore } from "./ArtifactStore.js"
 import { AuditEventStore } from "./AuditEventStore.js"
 import { ChatHistoryStore } from "./ChatHistoryStore.js"
@@ -36,13 +36,10 @@ const runCleanup = Effect.gen(function*() {
   yield* Effect.forEach(tasks, (task) => task, { discard: true, concurrency: 1 })
 })
 
-export class StorageCleanup extends Context.Tag("@effect/claude-agent-sdk/StorageCleanup")<
-  StorageCleanup,
-  {
-    readonly run: Effect.Effect<void, StorageError>
-  }
->() {
-  static readonly layer = Layer.scoped(
+export class StorageCleanup extends ServiceMap.Service<StorageCleanup, {
+  readonly run: Effect.Effect<void, StorageError>
+}>()("@effect/claude-agent-sdk/StorageCleanup") {
+  static readonly layer = Layer.effect(
     StorageCleanup,
     Effect.gen(function*() {
       const config = yield* StorageConfig
@@ -61,13 +58,13 @@ export class StorageCleanup extends Context.Tag("@effect/claude-agent-sdk/Storag
       if (settings.cleanup.enabled) {
         if (settings.cleanup.runOnStart) {
           yield* run.pipe(
-            Effect.catchAll((cause) => logCleanupWarning("startup", cause).pipe(Effect.asVoid))
+            Effect.catch((cause) => logCleanupWarning("startup", cause).pipe(Effect.asVoid))
           )
         }
 
         yield* Effect.forkScoped(
           run.pipe(
-            Effect.catchAll((cause) => logCleanupWarning("scheduled", cause).pipe(Effect.asVoid)),
+            Effect.catch((cause) => logCleanupWarning("scheduled", cause).pipe(Effect.asVoid)),
             Effect.repeat(Schedule.spaced(settings.cleanup.interval))
           )
         )

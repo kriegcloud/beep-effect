@@ -1,38 +1,44 @@
 # Handoff P0
 
 ## Objective
+
 Freeze baseline parity facts, dependency order, conventions checklist, and risk register before contract freeze and code work.
 
-## Inputs
+## Inputs Used
+
 1. `README.md`
 2. `MASTER_ORCHESTRATION.md`
-3. Upstream `@osdk/api` source tree
-4. Current `@beep/ontology` source tree
+3. Upstream source tree: `/home/elpresidank/YeeBois/dev/references/osdk-ts/packages/api/src`
+4. Local ontology tree: `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/ontology/src`
 
-## Required Work
-1. Build a module-level stable parity matrix (`present`, `missing`, `stubbed`, `implemented`).
-2. Produce dependency-aware implementation order for missing/stub modules.
-3. Capture established local ontology schema conventions.
-4. Capture phase risks and mitigation gates.
-5. Author P1 handoff and orchestrator prompt.
+## Completed Deliverables
 
-## Deliverables
-- `outputs/p0-baseline/parity-matrix.md`
-- `outputs/p0-baseline/module-dependency-order.md`
-- `outputs/p0-baseline/conventions-checklist.md`
-- `outputs/p0-baseline/risks-and-mitigations.md`
+1. `outputs/p0-baseline/parity-matrix.md`
+2. `outputs/p0-baseline/module-dependency-order.md`
+3. `outputs/p0-baseline/conventions-checklist.md`
+4. `outputs/p0-baseline/risks-and-mitigations.md`
 
 ## Completion Checklist
-- [ ] Stable and unstable baseline counts verified.
-- [ ] Dependency order frozen and phaseable.
-- [ ] Conventions checklist explicit and reviewable.
-- [ ] Risks and mitigations captured.
-- [ ] P1 handoff + prompt authored.
 
-## Memory Protocol
-1. Preflight `curl -fsS http://127.0.0.1:8123/healthz` before parallel analysis.
-2. If unavailable: `graphiti-memory skipped: proxy unavailable`.
-3. Route to proxy only (`127.0.0.1:8123/mcp`).
+- [x] Stable and unstable baseline counts verified from source evidence.
+- [x] Missing vs stubbed vs implemented distinctions captured.
+- [x] Dependency order frozen and phase-aligned.
+- [x] Conventions checklist explicit and reviewable.
+- [x] Risks and mitigations captured.
+- [x] P1 handoff + prompt authored (`handoffs/HANDOFF_P1.md`, `handoffs/P1_ORCHESTRATOR_PROMPT.md`).
 
-## Exit Gate
-P0 closes when baseline is locked and P1 can execute without discovery ambiguity.
+## Required Checks (P0)
+
+- [x] `bun run beep docs laws`
+- [x] `bun run beep docs skills`
+- [x] `bun run beep docs policies`
+
+## Memory Protocol Log
+
+1. Proxy health checked: `curl -fsS http://127.0.0.1:8123/healthz`.
+2. Fan-out metrics monitored: `curl -fsS http://127.0.0.1:8123/metrics`.
+3. Graphiti traffic routed via proxy endpoint policy.
+
+## Exit Gate Status
+
+P0 exit criteria are satisfied: all required P0 outputs now exist and P1 handoff/prompt are present.

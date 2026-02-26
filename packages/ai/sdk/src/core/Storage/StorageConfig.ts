@@ -1,10 +1,10 @@
+import { ServiceMap } from "effect";
 import * as Config from "effect/Config"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import { layerConfigFromEnv } from "../internal/config.js"
-
 export type StorageConfigData = {
   readonly enabled: {
     readonly chatHistory: boolean
@@ -108,37 +108,37 @@ const makeStorageConfig = Effect.gen(function*() {
   )
 
   const chatMaxEvents = yield* Config.option(
-    Config.integer("STORAGE_CHAT_MAX_EVENTS")
+    Config.int("STORAGE_CHAT_MAX_EVENTS")
   )
   const chatMaxAge = yield* Config.option(
     Config.duration("STORAGE_CHAT_MAX_AGE")
   )
 
   const artifactMaxCount = yield* Config.option(
-    Config.integer("STORAGE_ARTIFACT_MAX_COUNT")
+    Config.int("STORAGE_ARTIFACT_MAX_COUNT")
   )
   const artifactMaxBytes = yield* Config.option(
-    Config.integer("STORAGE_ARTIFACT_MAX_BYTES")
+    Config.int("STORAGE_ARTIFACT_MAX_BYTES")
   )
   const artifactMaxAge = yield* Config.option(
     Config.duration("STORAGE_ARTIFACT_MAX_AGE")
   )
 
   const auditMaxEntries = yield* Config.option(
-    Config.integer("STORAGE_AUDIT_MAX_ENTRIES")
+    Config.int("STORAGE_AUDIT_MAX_ENTRIES")
   )
   const auditMaxAge = yield* Config.option(
     Config.duration("STORAGE_AUDIT_MAX_AGE")
   )
 
   const chatPageSize = yield* Config.option(
-    Config.integer("STORAGE_CHAT_PAGE_SIZE")
+    Config.int("STORAGE_CHAT_PAGE_SIZE")
   )
   const artifactPageSize = yield* Config.option(
-    Config.integer("STORAGE_ARTIFACT_PAGE_SIZE")
+    Config.int("STORAGE_ARTIFACT_PAGE_SIZE")
   )
   const indexPageSize = yield* Config.option(
-    Config.integer("STORAGE_INDEX_PAGE_SIZE")
+    Config.int("STORAGE_INDEX_PAGE_SIZE")
   )
 
   const cleanupEnabled = yield* Config.option(
@@ -237,12 +237,12 @@ const makeStorageConfig = Effect.gen(function*() {
 
   return { settings }
 })
-
-export class StorageConfig extends Effect.Service<StorageConfig>()(
+// export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
+//  Effect.Effect<, Config.ConfigError, never>
+export class StorageConfig extends ServiceMap.Service<StorageConfig, {
+    settings: StorageConfigData;
+}>()(
   "@effect/claude-agent-sdk/StorageConfig",
-  {
-    effect: makeStorageConfig
-  }
 ) {
   /**
    * Build StorageConfig by reading configuration from environment variables.
@@ -253,5 +253,5 @@ export class StorageConfig extends Effect.Service<StorageConfig>()(
   /**
    * Default configuration layer for storage.
    */
-  static readonly layer = StorageConfig.Default
+  static readonly layer = Layer.effect(StorageConfig, makeStorageConfig)
 }

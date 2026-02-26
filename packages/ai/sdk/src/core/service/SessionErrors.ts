@@ -3,7 +3,7 @@ import { SessionManagerError } from "../SessionManager.js"
 import { SessionPoolError } from "../SessionPool.js"
 import { SessionTenantAccessError } from "./TenantAccess.js"
 
-export class SessionPoolUnavailableError extends Schema.TaggedError<SessionPoolUnavailableError>()(
+export class SessionPoolUnavailableError extends Schema.TaggedErrorClass<SessionPoolUnavailableError>()(
   "SessionPoolUnavailableError",
   {
     message: Schema.String
@@ -11,11 +11,11 @@ export class SessionPoolUnavailableError extends Schema.TaggedError<SessionPoolU
 ) {}
 
 export const SessionServiceError = Schema.Union(
-  SessionManagerError,
+[  SessionManagerError,
   SessionPoolError,
   SessionTenantAccessError,
-  SessionPoolUnavailableError
-).pipe(Schema.annotations({ identifier: "SessionServiceError" }))
+  SessionPoolUnavailableError]
+).pipe(Schema.annotate({ identifier: "SessionServiceError" }))
 
 export type SessionServiceError = typeof SessionServiceError.Type
 export type SessionServiceErrorEncoded = typeof SessionServiceError.Encoded

@@ -1,4 +1,4 @@
-import * as EventJournal from "@effect/experimental/EventJournal"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import * as Clock from "effect/Clock"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
@@ -45,7 +45,7 @@ const estimateEntrySize = (entry: EventJournal.Entry) =>
   entry.id.byteLength
 
 export const Compaction = {
-  byAge: (maxAge: Duration.DurationInput): CompactionStrategy => (entries) =>
+  byAge: (maxAge: Duration.Input): CompactionStrategy => (entries) =>
     Effect.gen(function*() {
       const maxAgeMs = Duration.toMillis(maxAge)
       if (maxAgeMs <= 0) return toBracket([], entries)

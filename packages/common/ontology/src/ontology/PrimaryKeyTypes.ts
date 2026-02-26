@@ -5,7 +5,7 @@
  * @module @beep/ontology/ontology/PrimaryKeyTypes
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("ontology/PrimaryKeyTypes");
 
@@ -15,25 +15,43 @@ const $I = $OntologyId.create("ontology/PrimaryKeyTypes");
  * @since 0.0.0
  * @category schemas
  */
-export const PrimaryKeyType = LiteralKit([
-  "string",
-  "datetime",
-  "double",
-  "integer",
-  "timestamp",
-  "short",
-  "long",
-  "byte",
-]).annotate(
-  $I.annote("PrimaryKeyType", {
-    description: "The supported scalar wire property types that may be used as an ontology object primary key.",
-  })
+export const PrimaryKeyTypes = S.Union([
+  S.Literal("string"),
+  S.Literal("datetime"),
+  S.Literal("double"),
+  S.Literal("integer"),
+  S.Literal("timestamp"),
+  S.Literal("short"),
+  S.Literal("long"),
+  S.Literal("byte"),
+]).pipe(
+  S.annotate(
+    $I.annote("PrimaryKeyTypes", {
+      description: "Supported scalar wire types used by ontology object primary keys.",
+    })
+  )
 );
 
 /**
- * Type for {@link PrimaryKeyType}.
+ * Type for {@link PrimaryKeyTypes}.
  *
  * @since 0.0.0
  * @category models
  */
-export type PrimaryKeyType = typeof PrimaryKeyType.Type;
+export type PrimaryKeyTypes = typeof PrimaryKeyTypes.Type;
+
+/**
+ * Compatibility alias for {@link PrimaryKeyTypes}.
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const PrimaryKeyType = PrimaryKeyTypes;
+
+/**
+ * Compatibility alias type for {@link PrimaryKeyTypes}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type PrimaryKeyType = PrimaryKeyTypes;

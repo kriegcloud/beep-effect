@@ -1503,10 +1503,10 @@ export const flatten: <A>(self: Option<Option<A>>) => Option<A> = flatMap(identi
  * ```ts
  * import { Option } from "effect"
  *
- * console.log(Option.zipRight(Option.some(1), Option.some("hello")))
+ * console.log(Option.andThen(Option.some(1), Option.some("hello")))
  * // Output: { _id: 'Option', _tag: 'Some', value: 'hello' }
  *
- * console.log(Option.zipRight(Option.none(), Option.some("hello")))
+ * console.log(Option.andThen(Option.none(), Option.some("hello")))
  * // Output: { _id: 'Option', _tag: 'None' }
  * ```
  *
@@ -1516,7 +1516,7 @@ export const flatten: <A>(self: Option<Option<A>>) => Option<A> = flatMap(identi
  * @category Zipping
  * @since 2.0.0
  */
-export const zipRight: {
+export const andThen: {
   <B>(that: Option<B>): <_>(self: Option<_>) => Option<B>
   <X, B>(self: Option<X>, that: Option<B>): Option<B>
 } = dual(2, <X, B>(self: Option<X>, that: Option<B>): Option<B> => flatMap(self, () => that))
@@ -1545,7 +1545,7 @@ export const zipRight: {
  * // Output: { _id: 'Option', _tag: 'None' }
  * ```
  *
- * @see {@link zipRight} to keep the second value instead
+ * @see {@link andThen} to keep the second value instead
  * @see {@link zipWith} to combine both values
  *
  * @category Zipping

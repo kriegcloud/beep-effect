@@ -1,16 +1,12 @@
-import { KeyValueStore } from "@effect/platform"
-import * as PlatformError from "@effect/platform/Error"
+import { KeyValueStore } from "effect/unstable/persistence"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as Option from "effect/Option"
 
 // Same storageError helper as StorageR2 (could be shared in a common file)
 const storageError = (method: string, description: string, cause?: unknown) =>
-  new PlatformError.SystemError({
-    reason: "Unknown",
-    module: "KeyValueStore",
+  new KeyValueStore.KeyValueStoreError({
     method,
-    description,
+    message: description,
     ...(cause !== undefined ? { cause } : {})
   })
 
@@ -187,7 +183,7 @@ export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyVa
         Effect.tryPromise({
           try: async () => {
             const value = await namespace.get(key, "text")
-            return value === null ? Option.none() : Option.some(value)
+            return value === null ? undefined : value
           },
           catch: (cause) => storageError("get", "KV get failed", cause)
         }),

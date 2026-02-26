@@ -15,7 +15,7 @@ const $I = $OntologyId.create("object/PropertySecurity");
  * @since 0.0.0
  * @category schemas
  */
-export const MarkingId = S.String.pipe(S.brand("MarkingId")).annotate(
+export const MarkingId = S.String.annotate(
   $I.annote("MarkingId", {
     description: "A unique identifier for a security marking.",
     documentation: "Markings represent security classifications or access control requirements.",
@@ -80,14 +80,14 @@ export type TwoDimensionalArrayOfMarkingId = typeof TwoDimensionalArrayOfMarking
  */
 export class PropertyMarkings extends S.Class<PropertyMarkings>($I`PropertyMarkings`)(
   {
-    conjunctive: S.OptionFromOptionalKey(ArrayOfMarkingId).annotateKey(
+    conjunctive: S.optionalKey(ArrayOfMarkingId).annotateKey(
       $I.annote("PropertyMarkings.conjunctive", {
         description: "The conjunctive set of markings required to access the property value.",
         documentation: "All markings from a conjunctive set must be met for access.",
       })
     ),
 
-    disjunctive: S.OptionFromOptionalKey(TwoDimensionalArrayOfMarkingId).annotateKey(
+    disjunctive: S.optionalKey(TwoDimensionalArrayOfMarkingId).annotateKey(
       $I.annote("PropertyMarkings.disjunctive", {
         description: "The disjunctive set of markings required to access the property value.",
         documentation:
@@ -95,7 +95,7 @@ export class PropertyMarkings extends S.Class<PropertyMarkings>($I`PropertyMarki
       })
     ),
 
-    containerConjunctive: S.OptionFromOptionalKey(ArrayOfMarkingId).annotateKey(
+    containerConjunctive: S.optionalKey(ArrayOfMarkingId).annotateKey(
       $I.annote("PropertyMarkings.containerConjunctive", {
         description:
           "The conjunctive set of markings for the container of this property value, such as the project of a dataset.",
@@ -104,7 +104,7 @@ export class PropertyMarkings extends S.Class<PropertyMarkings>($I`PropertyMarki
       })
     ),
 
-    containerDisjunctive: S.OptionFromOptionalKey(TwoDimensionalArrayOfMarkingId).annotateKey(
+    containerDisjunctive: S.optionalKey(TwoDimensionalArrayOfMarkingId).annotateKey(
       $I.annote("PropertyMarkings.containerDisjunctive", {
         description:
           "The disjunctive set of markings for the container of this property value, such as the project of a dataset.",
@@ -130,7 +130,7 @@ export class PropertyMarkingsPropertySecurity extends PropertyMarkings.extend<Pr
   $I`PropertyMarkingsPropertySecurity`
 )(
   {
-    type: S.tag("propertyMarkings"),
+    type: S.Literal("propertyMarkings"),
   },
   $I.annote("PropertyMarkingsPropertySecurity", {
     description: "Property security result that includes computed property markings.",
@@ -147,7 +147,7 @@ export class UnsupportedPolicyPropertySecurity extends S.Class<UnsupportedPolicy
   $I`UnsupportedPolicyPropertySecurity`
 )(
   {
-    type: S.tag("unsupportedPolicy"),
+    type: S.Literal("unsupportedPolicy"),
   },
   $I.annote("UnsupportedPolicyPropertySecurity", {
     description: "Property security result indicating policy evaluation is unsupported for this property.",
@@ -164,7 +164,7 @@ export class ErrorComputingSecurityPropertySecurity extends S.Class<ErrorComputi
   $I`ErrorComputingSecurityPropertySecurity`
 )(
   {
-    type: S.tag("errorComputingSecurity"),
+    type: S.Literal("errorComputingSecurity"),
   },
   $I.annote("ErrorComputingSecurityPropertySecurity", {
     description: "Property security result indicating the server could not compute security markings.",
@@ -182,7 +182,6 @@ export const PropertySecurity = S.Union([
   UnsupportedPolicyPropertySecurity,
   ErrorComputingSecurityPropertySecurity,
 ]).pipe(
-  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("PropertySecurity", {
       description: "Discriminated union representing all possible property security outcomes.",

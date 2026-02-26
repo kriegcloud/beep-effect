@@ -1,4 +1,4 @@
-import * as Context from "effect/Context"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as ParseResult from "effect/ParseResult"
@@ -163,7 +163,7 @@ const Proto = {
           )
           const { isFailure, result } = yield* schemas.handler(decodedParams).pipe(
             Effect.map((result) => ({ result, isFailure: false })),
-            Effect.catchAll((error) =>
+            Effect.catch((error) =>
               activeTool.failureMode === "error"
                 ? Effect.fail(error)
                 : Effect.succeed({ result: error, isFailure: true })

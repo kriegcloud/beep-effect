@@ -1,4 +1,4 @@
-import * as Context from "effect/Context"
+import * as ServiceMap from "effect/ServiceMap"
 import * as JsonSchema from "effect/JSONSchema"
 import { constFalse, constTrue } from "effect/Function"
 import type * as Effect from "effect/Effect"

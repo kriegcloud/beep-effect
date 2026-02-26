@@ -1,107 +1,205 @@
 /**
- * Ontology object type definition models.
+ * Ontology object type definition models and compile-time metadata helpers.
  *
  * @since 0.0.0
  * @module @beep/ontology/ontology/ObjectTypeDefinition
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
-import * as A from "effect/Array";
-import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type { OsdkMetadata } from "../OsdkMetadata.js";
+import type { ObjectOrInterfaceDefinition, PropertyKeys } from "./ObjectOrInterface.js";
+import type { PrimaryKeyTypes } from "./PrimaryKeyTypes.js";
+import type { VersionString } from "./VersionString.js";
+import type { PropertyValueFormattingRule } from "./valueFormatting/PropertyValueFormattingRule.js";
+import type { WirePropertyTypes } from "./WirePropertyTypes.js";
 
 const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
 
 /**
- * Marker interface for carrying compile-time definition metadata.
- *
- * @since 0.0.0
- * @category models
- */
-export interface DefinitionMetadataCarrier {
-  readonly __DefinitionMetadata?: S.Struct<S.Struct.Fields>;
-}
-
-/**
- * Infer metadata struct schema from a metadata carrier.
- *
- * @since 0.0.0
- * @category models
- */
-export type InferDefinitionMetadataStruct<T extends DefinitionMetadataCarrier> = NonNullable<T["__DefinitionMetadata"]>;
-
-/**
- * Extract validated compile-time metadata from a definition carrier.
- *
- * @since 0.0.0
- * @category constructors
- */
-export const CompileTimeMetadata = <const T extends DefinitionMetadataCarrier>(
-  fields: T
-): InferDefinitionMetadataStruct<T> => {
-  if (!isCompileTimeMetadata(fields)) {
-    throw new Error("Invalid compile time metadata");
-  }
-
-  return fields.__DefinitionMetadata;
-};
-
-/**
- * Types for {@link CompileTimeMetadata}.
- *
- * @since 0.0.0
- * @category models
- */
-export declare namespace CompileTimeMetadata {
-  /**
-   * Compile-time metadata schema type.
-   *
-   * @since 0.0.0
-   * @category models
-   */
-  export type Schema<T extends DefinitionMetadataCarrier> = InferDefinitionMetadataStruct<T>;
-}
-
-const FieldValue = S.declare(S.isSchema);
-const FieldEntry = S.Tuple([S.PropertyKey, FieldValue]);
-
-/**
- * Predicate that checks whether metadata carrier contains compile-time schema metadata.
- *
- * @since 0.0.0
- * @category predicates
- */
-export const isCompileTimeMetadata = <T extends DefinitionMetadataCarrier>(
-  fields: T
-): fields is T & { readonly __DefinitionMetadata: NonNullable<T["__DefinitionMetadata"]> } =>
-  P.hasProperty(fields, "__DefinitionMetadata") &&
-  P.isNotNullish(fields.__DefinitionMetadata) &&
-  S.isSchema(fields.__DefinitionMetadata) &&
-  P.hasProperty(fields.__DefinitionMetadata, "fields") &&
-  P.isObject(fields.__DefinitionMetadata.fields) &&
-  A.every(R.toEntries(fields.__DefinitionMetadata.fields), S.is(FieldEntry));
-
-/**
- * Base ontology metadata kinds represented by object and interface definitions.
+ * Runtime schema for object/interface metadata discriminator.
  *
  * @since 0.0.0
  * @category schemas
  */
-export const ObjectInterfaceBaseMetadataType = LiteralKit(["object", "interface"]).annotate(
-  $I.annote("ObjectInterfaceBaseMetadataType", {
-    description: "Literal union of ontology metadata base kinds: object and interface.",
-  })
+export const ObjectInterfaceBaseMetadataType = S.Union([S.Literal("object"), S.Literal("interface")]).pipe(
+  S.annotate(
+    $I.annote("ObjectInterfaceBaseMetadataType", {
+      description: "Literal union for ontology metadata base kinds.",
+    })
+  )
 );
 
 /**
- * Temporary compile-time metadata check fixture.
+ * Extract compile-time definition metadata from a definition carrier.
  *
  * @since 0.0.0
- * @category constants
+ * @category models
  */
-export const dummyTest = CompileTimeMetadata({
-  __DefinitionMetadata: S.Struct({
-    beep: S.Literal("hole"),
-  }),
-});
+export type CompileTimeMetadata<T extends { __DefinitionMetadata?: object }> = NonNullable<T["__DefinitionMetadata"]>;
+
+/**
+ * Property-definition extraction helper from compile-time metadata.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ObjectTypePropertyDefinitionFrom2<
+  Q extends ObjectOrInterfaceDefinition,
+  P extends PropertyKeys<Q>,
+> = CompileTimeMetadata<Q>["properties"][P];
+
+/**
+ * Shared metadata fields for object and interface definitions.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface ObjectInterfaceBaseMetadata {
+  readonly type: "object" | "interface";
+  readonly apiName: string;
+  readonly displayName: string;
+  readonly description: string | undefined;
+  readonly properties: Record<string, ObjectMetadata.Property>;
+  readonly rid: string;
+  /**
+   * Represents implemented interfaces for object definitions.
+   */
+  readonly implements?: ReadonlyArray<string>;
+}
+
+/**
+ * Additional compile-time-only definition metadata used by generated code.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface ObjectInterfaceCompileDefinition {
+  readonly type: "object" | "interface";
+  readonly objectSet?: unknown;
+  readonly props?: unknown;
+  readonly strictProps?: unknown;
+  readonly linksType?: unknown;
+}
+
+/**
+ * Version expectation marker for client-generated definitions.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface VersionBound<V extends VersionString<number, number, number>> {
+  readonly __expectedClientVersion?: V;
+}
+
+/**
+ * Metadata carried by ontology object definitions.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface ObjectMetadata extends ObjectInterfaceBaseMetadata {
+  readonly type: "object";
+  readonly primaryKeyApiName: keyof this["properties"];
+  readonly titleProperty: keyof this["properties"];
+  readonly links: Record<string, ObjectMetadata.Link<ObjectTypeDefinition, boolean>>;
+  readonly primaryKeyType: PrimaryKeyTypes;
+  readonly icon: Icon | undefined;
+  readonly visibility: ObjectTypeVisibility | undefined;
+  readonly pluralDisplayName: string;
+  readonly status: ReleaseStatus | undefined;
+  readonly interfaceMap: Record<string, Record<string, string>>;
+  readonly inverseInterfaceMap: Record<string, Record<string, string>>;
+}
+
+/**
+ * Types for {@link ObjectMetadata}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export declare namespace ObjectMetadata {
+  /**
+   * Property metadata for ontology object properties.
+   *
+   * @since 0.0.0
+   * @category models
+   */
+  export interface Property {
+    readonly readonly?: boolean;
+    readonly displayName?: string;
+    readonly description?: string;
+    readonly type: WirePropertyTypes;
+    readonly multiplicity?: boolean;
+    readonly nullable?: boolean;
+    readonly valueTypeApiName?: string;
+    readonly valueFormatting?: PropertyValueFormattingRule;
+  }
+
+  /**
+   * Link metadata for object definition links.
+   *
+   * @since 0.0.0
+   * @category models
+   */
+  export interface Link<Q extends ObjectTypeDefinition, M extends boolean> {
+    readonly __OsdkLinkTargetType?: Q;
+    readonly targetType: Q["apiName"];
+    readonly multiplicity: M;
+  }
+}
+
+/**
+ * Compile-time description of an ontology object definition.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface ObjectTypeDefinition {
+  readonly type: "object";
+  readonly apiName: string;
+  readonly osdkMetadata?: OsdkMetadata;
+  readonly __DefinitionMetadata?: ObjectMetadata & ObjectInterfaceCompileDefinition;
+}
+
+/**
+ * Link-key extraction helper from compile-time metadata.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ObjectTypeLinkKeysFrom2<Q extends ObjectOrInterfaceDefinition> = keyof CompileTimeMetadata<Q>["links"] &
+  string;
+
+/**
+ * Canonical property metadata constructor type.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface PropertyDef<
+  T extends WirePropertyTypes,
+  N extends "nullable" | "non-nullable" = "nullable",
+  M extends "array" | "single" = "single",
+> extends ObjectMetadata.Property {
+  readonly type: T;
+  readonly multiplicity: M extends "array" ? true : false;
+  readonly nullable: N extends "nullable" ? true : false;
+}
+
+/**
+ * Supported object release statuses.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ReleaseStatus = "ACTIVE" | "EXPERIMENTAL" | "DEPRECATED" | "ENDORSED";
+
+type ObjectTypeVisibility = "NORMAL" | "PROMINENT" | "HIDDEN";
+
+type BlueprintIcon = {
+  readonly type: "blueprint";
+  readonly color: string;
+  readonly name: string;
+};
+
+type Icon = BlueprintIcon;

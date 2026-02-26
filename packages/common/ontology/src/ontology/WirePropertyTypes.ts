@@ -5,7 +5,7 @@
  * @module @beep/ontology/ontology/WirePropertyTypes
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("ontology/WirePropertyTypes");
 
@@ -15,39 +15,78 @@ const $I = $OntologyId.create("ontology/WirePropertyTypes");
  * @since 0.0.0
  * @category schemas
  */
-export const WirePropertyType = LiteralKit([
-  "string",
-  "datetime",
-  "double",
-  "boolean",
-  "integer",
-  "timestamp",
-  "short",
-  "long",
-  "float",
-  "decimal",
-  "byte",
-  "marking",
-  "mediaReference",
-  "numericTimeseries",
-  "stringTimeseries",
-  "sensorTimeseries",
-  "attachment",
-  "geopoint",
-  "geoshape",
-  "geotimeSeriesReference",
-  "vector",
-]).annotate(
-  $I.annote("WirePropertyType", {
-    description:
-      "Union of supported ontology wire property type identifiers used in property metadata and wire payloads.",
-  })
+export const BaseWirePropertyTypes = S.Union([
+  S.Literal("string"),
+  S.Literal("datetime"),
+  S.Literal("double"),
+  S.Literal("boolean"),
+  S.Literal("integer"),
+  S.Literal("timestamp"),
+  S.Literal("short"),
+  S.Literal("long"),
+  S.Literal("float"),
+  S.Literal("decimal"),
+  S.Literal("byte"),
+  S.Literal("marking"),
+  S.Literal("mediaReference"),
+  S.Literal("numericTimeseries"),
+  S.Literal("stringTimeseries"),
+  S.Literal("sensorTimeseries"),
+  S.Literal("attachment"),
+  S.Literal("geopoint"),
+  S.Literal("geoshape"),
+  S.Literal("geotimeSeriesReference"),
+  S.Literal("vector"),
+]).pipe(
+  S.annotate(
+    $I.annote("BaseWirePropertyTypes", {
+      description: "Union of scalar and complex ontology wire property type identifiers.",
+    })
+  )
 );
 
 /**
- * Type for {@link WirePropertyType}.
+ * Type for {@link BaseWirePropertyTypes}.
  *
  * @since 0.0.0
  * @category models
  */
-export type WirePropertyType = typeof WirePropertyType.Type;
+export type BaseWirePropertyTypes = typeof BaseWirePropertyTypes.Type;
+
+/**
+ * Ontology wire property type: either a base type or a map from key to base type.
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const WirePropertyTypes = S.Union([BaseWirePropertyTypes, S.Record(S.String, BaseWirePropertyTypes)]).pipe(
+  S.annotate(
+    $I.annote("WirePropertyTypes", {
+      description: "Wire property type union supporting scalar type literals or keyed nested base type maps.",
+    })
+  )
+);
+
+/**
+ * Type for {@link WirePropertyTypes}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type WirePropertyTypes = typeof WirePropertyTypes.Type;
+
+/**
+ * Compatibility alias for {@link BaseWirePropertyTypes}.
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const WirePropertyType = BaseWirePropertyTypes;
+
+/**
+ * Compatibility alias type for {@link BaseWirePropertyTypes}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type WirePropertyType = BaseWirePropertyTypes;

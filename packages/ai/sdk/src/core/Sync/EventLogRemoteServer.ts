@@ -1,13 +1,12 @@
-import * as EventLogServer from "@effect/experimental/EventLogServer"
-import * as HttpServer from "@effect/platform/HttpServer"
-import * as HttpRouter from "@effect/platform/HttpRouter"
+import * as EventLogServer from "effect/unstable/eventlog/EventLogServer"
+import * as HttpServer from "effect/unstable/http/HttpServer"
 import { BunHttpServer } from "@effect/platform-bun"
-import * as Context from "effect/Context"
 import * as Cause from "effect/Cause"
 import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Layer from "effect/Layer"
 import * as Schema from "effect/Schema"
+import * as ServiceMap from "effect/ServiceMap"
 
 export type EventLogRemoteServerOptions = {
   readonly port?: number
@@ -17,13 +16,16 @@ export type EventLogRemoteServerOptions = {
   readonly storage?: Layer.Layer<EventLogServer.Storage>
 }
 
-export class EventLogRemoteServerError extends Schema.TaggedError<EventLogRemoteServerError>()(
+export class EventLogRemoteServerError extends Schema.TaggedErrorClass<EventLogRemoteServerError>()(
   "EventLogRemoteServerError",
   {
     message: Schema.String,
     cause: Schema.optional(Schema.Defect)
   }
-) {}
+) {
+  static readonly make = (params: Pick<EventLogRemoteServerError, "message" | "cause">) =>
+    new EventLogRemoteServerError(params)
+}
 
 /**
  * Build a WebSocket URL from a bound server address.
@@ -53,8 +55,8 @@ export const toWebSocketUrl = (
         parsed.protocol === "https:"
           ? "wss"
           : parsed.protocol === "http:"
-          ? "ws"
-          : undefined
+            ? "ws"
+            : undefined
       return {
         hostname: parsed.hostname,
         scheme,
@@ -67,8 +69,8 @@ export const toWebSocketUrl = (
   const resolvedHostname = parsedHostname.hostname === "0.0.0.0"
     ? "127.0.0.1"
     : parsedHostname.hostname === "::"
-    ? "::1"
-    : parsedHostname.hostname
+      ? "::1"
+      : parsedHostname.hostname
   const formattedHostname =
     resolvedHostname.includes(":") && !resolvedHostname.startsWith("[")
       ? `[${resolvedHostname}]`
@@ -84,10 +86,9 @@ const toWebSocketUrlError = (cause: unknown) =>
   cause instanceof EventLogRemoteServerError
     ? cause
     : EventLogRemoteServerError.make({
-        message: cause instanceof Error ? cause.message : "Failed to build WebSocket URL.",
-        cause
-      })
-
+      message: cause instanceof Error ? cause.message : "Failed to build WebSocket URL.",
+      cause
+    })
 
 export const toWebSocketUrlEffect = (
   address: HttpServer.Address,
@@ -115,23 +116,20 @@ const findAvailablePort = () =>
     return port
   })
 
-export class EventLogRemoteServer extends Context.Tag("@effect/claude-agent-sdk/EventLogRemoteServer")<
+export class EventLogRemoteServer extends ServiceMap.Service<
   EventLogRemoteServer,
   { readonly address: HttpServer.Address; readonly url: string }
->() {}
+>()("@effect/claude-agent-sdk/EventLogRemoteServer") {}
 
 const buildBunWebSocketLayerWithServer = (
   options: EventLogRemoteServerOptions,
   httpServerLayer: Layer.Layer<HttpServer.HttpServer, unknown>
 ) => {
-  const path = (options.path ?? "/event-log") as HttpRouter.PathInput
+  const path = options.path ?? "/event-log"
   const storageLayer = options.storage ?? EventLogServer.layerStorageMemory
 
-  const handler = Effect.flatten(EventLogServer.makeHandlerHttp)
-  const route = HttpRouter.makeRoute("GET", path, handler)
-  const router = HttpRouter.empty.pipe(HttpRouter.append(route))
-  const serveLayer = Layer.unwrapEffect(
-    Effect.map(HttpRouter.toHttpApp(router), (app) => HttpServer.serve(app))
+  const serveLayer = Layer.unwrap(
+    Effect.map(EventLogServer.makeHandlerHttp, (handler) => HttpServer.serve(handler))
   )
 
   const serviceLayer = Layer.effect(
@@ -162,14 +160,17 @@ const buildBunWebSocketLayer = (
 ) =>
   buildBunWebSocketLayerWithServer(
     options,
-    BunHttpServer.layer({ port, hostname: options.hostname })
+    BunHttpServer.layer({
+      port,
+      ...(options.hostname !== undefined ? { hostname: options.hostname } : {})
+    })
   )
 
 export const layerBunWebSocket = (options: EventLogRemoteServerOptions = {}) =>
   buildBunWebSocketLayer(options, options.port ?? 8787)
 
 export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {}) =>
-  Layer.unwrapEffect(
+  Layer.unwrap(
     Effect.gen(function*() {
       const makeTestServer = Effect.gen(function*() {
         const maxAttempts = options.port ? 1 : 20
@@ -177,18 +178,17 @@ export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {})
         for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
           const port = options.port ?? (yield* findAvailablePort())
           const exit = yield* Effect.exit(
-            BunHttpServer.make({ port, hostname: options.hostname })
+            BunHttpServer.make({
+              port,
+              ...(options.hostname !== undefined ? { hostname: options.hostname } : {})
+            })
           )
           if (Exit.isSuccess(exit)) return exit.value
           lastError = Cause.squash(exit.cause)
         }
-        return yield* toWebSocketUrlError(
-          lastError ?? new Error("Failed to start test server.")
-        )
+        return yield* toWebSocketUrlError(lastError ?? new Error("Failed to start test server."))
       })
-      const httpServerLayer = Layer.scoped(HttpServer.HttpServer, makeTestServer).pipe(
-        Layer.provide(BunHttpServer.layerContext)
-      )
+      const httpServerLayer = Layer.effect(HttpServer.HttpServer, makeTestServer)
       return buildBunWebSocketLayerWithServer(options, httpServerLayer)
     })
   )

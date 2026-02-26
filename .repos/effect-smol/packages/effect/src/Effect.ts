@@ -2064,7 +2064,7 @@ export const flatten: <A, E, R, E2, R2>(self: Effect<Effect<A, E, R>, E2, R2>) =
  *
  * This API replaces the following from Effect 3.x:
  *
- * - `Effect.zipRight`
+ * - `Effect.andThen`
  *
  * @example Applying a Discount Based on Fetched Amount
  * ```ts

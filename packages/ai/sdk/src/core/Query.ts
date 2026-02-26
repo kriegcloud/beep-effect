@@ -1,6 +1,5 @@
 import type * as Duration from "effect/Duration"
 import type * as Effect from "effect/Effect"
-import type * as Fiber from "effect/Fiber"
 import type * as Scope from "effect/Scope"
 import type * as Stream from "effect/Stream"
 import type * as Types from "effect/Types"
@@ -11,13 +10,13 @@ import type {
   RewindFilesResult,
   SlashCommand
 } from "./Schema/Common.js"
+import type { PermissionMode } from "./Schema/index.js"
 import type {
   McpServerConfig,
   McpServerStatus,
   McpSetServersResult
 } from "./Schema/Mcp.js"
 import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js"
-import type { PermissionMode } from "./Schema/Permission.js"
 
 /**
  * Configuration for sharing a single query stream across multiple consumers.
@@ -25,14 +24,14 @@ import type { PermissionMode } from "./Schema/Permission.js"
 export type StreamShareConfig =
   | {
       readonly capacity: "unbounded"
-      readonly replay?: number
-      readonly idleTimeToLive?: Duration.DurationInput
+      readonly replay?: undefined |  number
+      readonly idleTimeToLive?: undefined |  Duration.Input
     }
   | {
       readonly capacity: number
-      readonly strategy?: "sliding" | "dropping" | "suspend"
-      readonly replay?: number
-      readonly idleTimeToLive?: Duration.DurationInput
+      readonly strategy?: undefined |  "sliding" | "dropping" | "suspend"
+      readonly replay?: undefined |  number
+      readonly idleTimeToLive?: undefined |  Duration.Input
     }
 
 /**
@@ -42,12 +41,12 @@ export type StreamBroadcastConfig =
   | number
   | {
       readonly capacity: "unbounded"
-      readonly replay?: number
+      readonly replay?: undefined |  number
     }
   | {
       readonly capacity: number
-      readonly strategy?: "sliding" | "dropping" | "suspend"
-      readonly replay?: number
+      readonly strategy?: undefined |  "sliding" | "dropping" | "suspend"
+      readonly replay?: undefined |  number
     }
 
 /**
@@ -83,14 +82,14 @@ export interface QueryHandle {
    * Share the output stream across multiple consumers in a scope.
    */
   readonly share: (
-    config?: StreamShareConfig
+    config?: undefined |  StreamShareConfig
   ) => Effect.Effect<Stream.Stream<SDKMessage, AgentSdkError>, never, Scope.Scope>
   /**
    * Broadcast the output stream to N consumers in a scope.
    */
   readonly broadcast: <N extends number>(
     n: N,
-    maximumLag?: StreamBroadcastConfig
+    maximumLag?: undefined |  StreamBroadcastConfig
   ) => Effect.Effect<Types.TupleOf<N, Stream.Stream<SDKMessage, AgentSdkError>>, never, Scope.Scope>
   /**
    * Interrupt the underlying SDK query process.
@@ -103,7 +102,7 @@ export interface QueryHandle {
   /**
    * Override the model for the running query.
    */
-  readonly setModel: (model?: string) => Effect.Effect<void, AgentSdkError>
+  readonly setModel: (model?: undefined |  string) => Effect.Effect<void, AgentSdkError>
   /**
    * Adjust max thinking tokens for the running query.
    */
@@ -111,8 +110,8 @@ export interface QueryHandle {
   /**
    * Rewind the workspace to a prior user message.
    */
-  readonly rewindFiles: (userMessageUuid: string, options?: {
-    readonly dryRun?: boolean
+  readonly rewindFiles: (userMessageUuid: string, options?: undefined |  {
+    readonly dryRun?: undefined |  boolean
   }) => Effect.Effect<RewindFilesResult, AgentSdkError>
   /**
    * Fetch supported slash commands.

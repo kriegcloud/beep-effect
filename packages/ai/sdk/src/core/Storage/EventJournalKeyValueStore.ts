@@ -1,11 +1,11 @@
-import * as EventJournal from "@effect/experimental/EventJournal"
-import { KeyValueStore, MsgPack } from "@effect/platform"
-import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import * as PubSub from "effect/PubSub"
-import * as Schema from "effect/Schema"
+import * as Semaphore from "effect/Semaphore"
+import * as ServiceMap from "effect/ServiceMap"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
+import { KeyValueStore } from "effect/unstable/persistence"
 import { ConflictPolicy } from "../Sync/ConflictPolicy.js"
 import type { ConflictResolution } from "../Sync/ConflictPolicy.js"
 import { SyncAudit } from "../Sync/SyncAudit.js"
@@ -15,52 +15,6 @@ const defaultKey = defaultAuditEventJournalKey
 
 const toJournalError = (method: string, cause: unknown) =>
   new EventJournal.EventJournalError({ method, cause })
-
-const EntryArray = Schema.Array(EventJournal.Entry)
-const EntryArrayMsgPack = MsgPack.schema(EntryArray)
-const EntryEnvelope = Schema.Struct({
-  version: Schema.Literal(1),
-  entries: EntryArray
-})
-const EntryEnvelopeMsgPack = MsgPack.schema(EntryEnvelope)
-const decodeEntries = Schema.decode(EntryArrayMsgPack)
-const decodeEntryEnvelope = Schema.decode(EntryEnvelopeMsgPack)
-const encodeEntryEnvelope = Schema.encode(EntryEnvelopeMsgPack)
-
-const decodeStoredEntries = (payload: Uint8Array) =>
-  decodeEntryEnvelope(payload).pipe(
-    Effect.map((envelope) => envelope.entries),
-    Effect.catchAll(() => decodeEntries(payload))
-  )
-
-const loadEntries = (kv: KeyValueStore.KeyValueStore, key: string) =>
-  kv.getUint8Array(key).pipe(
-    Effect.mapError((cause) => toJournalError("entries", cause)),
-    Effect.flatMap((maybe) =>
-      Option.isNone(maybe)
-        ? Effect.succeed([])
-        : decodeStoredEntries(maybe.value).pipe(
-            Effect.mapError((cause) => toJournalError("entries", cause))
-          )
-    )
-  )
-
-const persistEntries = (
-  kv: KeyValueStore.KeyValueStore,
-  key: string,
-  entries: ReadonlyArray<EventJournal.Entry>
-) =>
-  encodeEntryEnvelope({
-    version: 1,
-    entries
-  }).pipe(
-    Effect.mapError((cause) => toJournalError("persist", cause)),
-    Effect.flatMap((payload) =>
-      kv.set(key, payload).pipe(
-        Effect.mapError((cause) => toJournalError("persist", cause))
-      )
-    )
-  )
 
 const resolveDefaultConflict = (
   entry: EventJournal.Entry,
@@ -75,15 +29,34 @@ const resolveDefaultConflict = (
   return { _tag: "accept", entry: latest }
 }
 
+const loadEntries = (
+  store: KeyValueStore.SchemaStore<typeof EventJournal.Entry.arrayMsgpack>,
+  key: string
+) =>
+  store.get(key).pipe(
+    Effect.mapError((cause) => toJournalError("entries", cause)),
+    Effect.map((maybe) => Option.getOrElse(maybe, () => [] as ReadonlyArray<EventJournal.Entry>))
+  )
+
+const persistEntries = (
+  store: KeyValueStore.SchemaStore<typeof EventJournal.Entry.arrayMsgpack>,
+  key: string,
+  entries: ReadonlyArray<EventJournal.Entry>
+) =>
+  store.set(key, entries).pipe(
+    Effect.mapError((cause) => toJournalError("persist", cause))
+  )
+
 export const make = (options?: { readonly key?: string }) =>
   Effect.gen(function*() {
     const kv = yield* KeyValueStore.KeyValueStore
+    const entryStore = KeyValueStore.toSchemaStore(kv, EventJournal.Entry.arrayMsgpack)
     const key = options?.key ?? defaultKey
     const pubsub = yield* PubSub.unbounded<EventJournal.Entry>()
-    const journal = [...(yield* loadEntries(kv, key))]
+    const journal = [...(yield* loadEntries(entryStore, key))]
     const byId = new Map(journal.map((entry) => [entry.idString, entry]))
     const remotes = new Map<string, { sequence: number; missing: Array<EventJournal.Entry> }>()
-    const journalSemaphore = yield* Effect.makeSemaphore(1)
+    const journalSemaphore = yield* Semaphore.make(1)
     const conflictKey = (entry: EventJournal.Entry) => `${entry.event}\u0000${entry.primaryKey}`
     const conflictIndex = new Map<string, Array<EventJournal.Entry>>()
     for (const entry of journal) {
@@ -104,8 +77,8 @@ export const make = (options?: { readonly key?: string }) =>
       let high = entries.length
       while (low < high) {
         const mid = Math.floor((low + high) / 2)
-        const current = entries[mid]!
-        if (current.createdAtMillis <= entry.createdAtMillis) {
+        const current = entries[mid]
+        if (current && current.createdAtMillis <= entry.createdAtMillis) {
           low = mid + 1
         } else {
           high = mid
@@ -134,7 +107,7 @@ export const make = (options?: { readonly key?: string }) =>
     }
 
     const publishChange = (entry: EventJournal.Entry) =>
-      pubsub.publish(entry).pipe(Effect.asVoid)
+      PubSub.publish(pubsub, entry).pipe(Effect.asVoid)
 
     const remoteIdToString = (remoteId: EventJournal.RemoteId) =>
       Array.from(remoteId)
@@ -143,14 +116,14 @@ export const make = (options?: { readonly key?: string }) =>
 
     const ensureRemote = (remoteId: EventJournal.RemoteId) => {
       const remoteIdString = remoteIdToString(remoteId)
-      let remote = remotes.get(remoteIdString)
-      if (remote) return remote
-      remote = { sequence: 0, missing: journal.slice() }
-      remotes.set(remoteIdString, remote)
-      return remote
+      const existing = remotes.get(remoteIdString)
+      if (existing) return existing
+      const created = { sequence: 0, missing: journal.slice() }
+      remotes.set(remoteIdString, created)
+      return created
     }
 
-    const withRemoteUncommitted = <A, E, R>(
+    const withRemoteUncommited = <A, E, R>(
       remoteId: EventJournal.RemoteId,
       f: (entries: Array<EventJournal.Entry>) => Effect.Effect<A, E, R>
     ) =>
@@ -158,19 +131,21 @@ export const make = (options?: { readonly key?: string }) =>
         withLock(Effect.sync(() => ensureRemote(remoteId).missing.slice())),
         f,
         (entries, exit) =>
-          withLock(Effect.sync(() => {
-            if (exit._tag === "Failure") return
-            const last = entries[entries.length - 1]
-            if (!last) return
-            const remote = ensureRemote(remoteId)
-            for (let i = remote.missing.length - 1; i >= 0; i--) {
-              const missing = remote.missing[i]
-              if (missing && missing.id === last.id) {
-                remote.missing = remote.missing.slice(i + 1)
-                break
+          withLock(
+            Effect.sync(() => {
+              if (exit._tag === "Failure") return
+              const last = entries[entries.length - 1]
+              if (!last) return
+              const remote = ensureRemote(remoteId)
+              for (let i = remote.missing.length - 1; i >= 0; i -= 1) {
+                const missing = remote.missing[i]
+                if (missing && missing.idString === last.idString) {
+                  remote.missing = remote.missing.slice(i + 1)
+                  break
+                }
               }
-            }
-          }))
+            })
+          )
       )
 
     const service = EventJournal.EventJournal.of({
@@ -180,7 +155,7 @@ export const make = (options?: { readonly key?: string }) =>
           const entry = yield* Effect.sync(
             () =>
               new EventJournal.Entry({
-                id: EventJournal.makeEntryId(),
+                id: EventJournal.makeEntryIdUnsafe(),
                 event,
                 primaryKey,
                 payload
@@ -192,7 +167,7 @@ export const make = (options?: { readonly key?: string }) =>
               if (byId.has(entry.idString)) return Effect.void
               const persistedJournal = journal.slice()
               insertSorted(persistedJournal, entry)
-              return persistEntries(kv, key, persistedJournal).pipe(
+              return persistEntries(entryStore, key, persistedJournal).pipe(
                 Effect.tap(() =>
                   Effect.sync(() => {
                     commitEntry(entry)
@@ -201,7 +176,7 @@ export const make = (options?: { readonly key?: string }) =>
                     })
                   })
                 ),
-                Effect.zipRight(publishChange(entry))
+                Effect.andThen(publishChange(entry))
               )
             })
           )
@@ -209,121 +184,133 @@ export const make = (options?: { readonly key?: string }) =>
         })
       },
       writeFromRemote: (options) =>
-        withLock(Effect.gen(function*() {
-          const remote = ensureRemote(options.remoteId)
-          const uncommittedRemotes: Array<EventJournal.RemoteEntry> = []
-          const uncommitted: Array<EventJournal.Entry> = []
-          let nextRemoteSequence = remote.sequence
-          for (const remoteEntry of options.entries) {
-            if (remoteEntry.remoteSequence > nextRemoteSequence) {
-              nextRemoteSequence = remoteEntry.remoteSequence
-            }
-            if (!byId.has(remoteEntry.entry.idString)) {
-              uncommittedRemotes.push(remoteEntry)
-              uncommitted.push(remoteEntry.entry)
-            }
-          }
-
-          const brackets = options.compact
-            ? yield* options.compact(uncommittedRemotes)
-            : [[uncommitted, uncommittedRemotes]] as const
-
-          const policy = yield* ConflictPolicy
-          const audit = yield* SyncAudit
-          const remoteIdString = remoteIdToString(options.remoteId)
-
-          const resolveConflict = (
-            entry: EventJournal.Entry,
-            conflicts: ReadonlyArray<EventJournal.Entry>
-          ) =>
-            policy.resolve({ entry, conflicts })
-
-          const emitConflict = (
-            entry: EventJournal.Entry,
-            conflicts: ReadonlyArray<EventJournal.Entry>,
-            resolution: ConflictResolution
-          ) =>
-            audit.conflict({
-              remoteId: remoteIdString,
-              entry,
-              conflicts,
-              resolution
-            })
-
-          const emitCompaction = (
-            before: number,
-            after: number,
-            events: ReadonlyArray<string>
-          ) =>
-            audit.compaction({
-              remoteId: remoteIdString,
-              before,
-              after,
-              events
-            })
-
-          const acceptedAll: Array<EventJournal.Entry> = []
-          for (const [compacted, remoteEntries] of brackets) {
-            if (remoteEntries.length > compacted.length) {
-              const events = Array.from(
-                new Set(remoteEntries.map((remoteEntry) => remoteEntry.entry.event))
-              )
-              yield* emitCompaction(remoteEntries.length, compacted.length, events)
-            }
-            const accepted: Array<EventJournal.Entry> = []
-            const acceptedIndex = new Map<string, Array<EventJournal.Entry>>()
-            for (const originEntry of compacted) {
-              const conflicts: Array<EventJournal.Entry> = []
-              const key = conflictKey(originEntry)
-              const existing = conflictIndex.get(key)
-              if (existing) conflicts.push(...existing)
-              const local = acceptedIndex.get(key)
-              if (local) conflicts.push(...local)
-              let resolution = resolveDefaultConflict(originEntry, conflicts)
-              if (conflicts.length > 0) {
-                resolution = yield* resolveConflict(originEntry, conflicts)
-                yield* emitConflict(originEntry, conflicts, resolution)
+        withLock(
+          Effect.gen(function*() {
+            const remote = ensureRemote(options.remoteId)
+            const uncommittedRemotes: Array<EventJournal.RemoteEntry> = []
+            const uncommitted: Array<EventJournal.Entry> = []
+            let nextRemoteSequence = remote.sequence
+            for (const remoteEntry of options.entries) {
+              if (remoteEntry.remoteSequence > nextRemoteSequence) {
+                nextRemoteSequence = remoteEntry.remoteSequence
               }
-              if (resolution._tag !== "reject") {
-                const resolvedEntry = resolution.entry
-                if (!byId.has(resolvedEntry.idString)) {
-                  yield* options.effect({ entry: resolvedEntry, conflicts })
-                  accepted.push(resolvedEntry)
-                  const acceptedKey = conflictKey(resolvedEntry)
-                  const acceptedEntries = acceptedIndex.get(acceptedKey)
-                  if (acceptedEntries) {
-                    acceptedEntries.push(resolvedEntry)
-                  } else {
-                    acceptedIndex.set(acceptedKey, [resolvedEntry])
+              if (!byId.has(remoteEntry.entry.idString)) {
+                uncommittedRemotes.push(remoteEntry)
+                uncommitted.push(remoteEntry.entry)
+              }
+            }
+
+            const brackets: ReadonlyArray<
+              readonly [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>]
+            > = options.compact
+              ? yield* options.compact(uncommittedRemotes)
+              : [[uncommitted, uncommittedRemotes]]
+
+            const policyOption = yield* Effect.serviceOption(ConflictPolicy)
+            const auditOption = yield* Effect.serviceOption(SyncAudit)
+            const remoteIdString = remoteIdToString(options.remoteId)
+
+            const resolveConflict = (
+              entry: EventJournal.Entry,
+              conflicts: ReadonlyArray<EventJournal.Entry>
+            ) =>
+              Option.isSome(policyOption)
+                ? policyOption.value.resolve({ entry, conflicts })
+                : Effect.succeed(resolveDefaultConflict(entry, conflicts))
+
+            const emitConflict = (
+              entry: EventJournal.Entry,
+              conflicts: ReadonlyArray<EventJournal.Entry>,
+              resolution: ConflictResolution
+            ) =>
+              Option.isSome(auditOption)
+                ? auditOption.value.conflict({
+                    remoteId: remoteIdString,
+                    entry,
+                    conflicts,
+                    resolution
+                  })
+                : Effect.void
+
+            const emitCompaction = (
+              before: number,
+              after: number,
+              events: ReadonlyArray<string>
+            ) =>
+              Option.isSome(auditOption)
+                ? auditOption.value.compaction({
+                    remoteId: remoteIdString,
+                    before,
+                    after,
+                    events
+                  })
+                : Effect.void
+
+            const acceptedAll: Array<EventJournal.Entry> = []
+            for (const [compacted, remoteEntries] of brackets) {
+              if (remoteEntries.length > compacted.length) {
+                const events = Array.from(
+                  new Set(remoteEntries.map((remoteEntry) => remoteEntry.entry.event))
+                )
+                yield* emitCompaction(remoteEntries.length, compacted.length, events)
+              }
+
+              const accepted: Array<EventJournal.Entry> = []
+              const acceptedIndex = new Map<string, Array<EventJournal.Entry>>()
+              for (const originEntry of compacted) {
+                const conflicts: Array<EventJournal.Entry> = []
+                const key = conflictKey(originEntry)
+                const existing = conflictIndex.get(key)
+                if (existing) conflicts.push(...existing)
+                const local = acceptedIndex.get(key)
+                if (local) conflicts.push(...local)
+
+                let resolution = resolveDefaultConflict(originEntry, conflicts)
+                if (conflicts.length > 0) {
+                  resolution = yield* resolveConflict(originEntry, conflicts)
+                  yield* emitConflict(originEntry, conflicts, resolution)
+                }
+
+                if (resolution._tag !== "reject") {
+                  const resolvedEntry = resolution.entry
+                  if (!byId.has(resolvedEntry.idString)) {
+                    yield* options.effect({ entry: resolvedEntry, conflicts })
+                    accepted.push(resolvedEntry)
+                    const acceptedKey = conflictKey(resolvedEntry)
+                    const acceptedEntries = acceptedIndex.get(acceptedKey)
+                    if (acceptedEntries) {
+                      acceptedEntries.push(resolvedEntry)
+                    } else {
+                      acceptedIndex.set(acceptedKey, [resolvedEntry])
+                    }
                   }
                 }
               }
-            }
-            acceptedAll.push(...accepted)
-          }
 
-          if (acceptedAll.length > 0) {
-            const persistedJournal = journal.slice()
-            for (const entry of acceptedAll) {
-              insertSorted(persistedJournal, entry)
+              acceptedAll.push(...accepted)
             }
-            yield* persistEntries(kv, key, persistedJournal)
-            for (const entry of acceptedAll) {
-              commitEntry(entry)
-            }
-          }
 
-          if (nextRemoteSequence > remote.sequence) {
-            remote.sequence = nextRemoteSequence
-          }
-        })),
-      // Deprecated misspelling retained for compatibility.
-      withRemoteUncommited: withRemoteUncommitted,
-      nextRemoteSequence: (remoteId) =>
-        withLock(Effect.sync(() => ensureRemote(remoteId).sequence)),
+            if (acceptedAll.length > 0) {
+              const persistedJournal = journal.slice()
+              for (const entry of acceptedAll) {
+                insertSorted(persistedJournal, entry)
+              }
+              yield* persistEntries(entryStore, key, persistedJournal)
+              for (const entry of acceptedAll) {
+                commitEntry(entry)
+              }
+            }
+
+            if (nextRemoteSequence > remote.sequence) {
+              remote.sequence = nextRemoteSequence
+            }
+          })
+        ),
+      withRemoteUncommited,
+      nextRemoteSequence: (remoteId) => withLock(Effect.sync(() => ensureRemote(remoteId).sequence)),
       changes: PubSub.subscribe(pubsub),
       destroy: withLock(
-        kv.remove(key).pipe(
+        entryStore.remove(key).pipe(
           Effect.mapError((cause) => toJournalError("destroy", cause)),
           Effect.tap(() =>
             Effect.sync(() => {
@@ -336,19 +323,15 @@ export const make = (options?: { readonly key?: string }) =>
         )
       )
     })
-    return Object.assign(service, { withRemoteUncommitted })
+
+    return service
   })
 
 export const layerKeyValueStore = (options?: { readonly key?: string }) =>
-  Layer.scoped(EventJournal.EventJournal, make(options))
+  Layer.effect(EventJournal.EventJournal, make(options))
 
 export const withRemoteUncommitted = <A, E, R>(
-  journal: Context.Tag.Service<typeof EventJournal.EventJournal>,
+  journal: ServiceMap.Service.Shape<typeof EventJournal.EventJournal>,
   remoteId: EventJournal.RemoteId,
   f: (entries: ReadonlyArray<EventJournal.Entry>) => Effect.Effect<A, E, R>
-) => {
-  const anyJournal = journal as typeof journal & {
-    readonly withRemoteUncommitted?: typeof journal.withRemoteUncommited
-  }
-  return (anyJournal.withRemoteUncommitted ?? journal.withRemoteUncommited)(remoteId, f)
-}
+) => journal.withRemoteUncommited(remoteId, f)

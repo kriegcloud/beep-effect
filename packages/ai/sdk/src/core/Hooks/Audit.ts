@@ -1,5 +1,5 @@
 import * as Clock from "effect/Clock"
-import * as Context from "effect/Context"
+import type * as ServiceMap from "effect/ServiceMap"
 import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Ref from "effect/Ref"
@@ -16,11 +16,11 @@ import type { HookContext } from "./Hook.js"
 import type { HookMap } from "./utils.js"
 
 export type AuditLoggingOptions = {
-  readonly strict?: boolean
-  readonly logHookOutcomes?: boolean
-  readonly logPermissionDecisions?: boolean
-  readonly matcher?: string
-  readonly timeout?: Duration.DurationInput
+  readonly strict?: undefined |  boolean
+  readonly logHookOutcomes?: undefined |  boolean
+  readonly logPermissionDecisions?: undefined |  boolean
+  readonly matcher?: undefined |  string
+  readonly timeout?: undefined |  Duration.Input
 }
 
 const hookEvents: ReadonlyArray<HookEvent> = [
@@ -41,17 +41,14 @@ const hookEvents: ReadonlyArray<HookEvent> = [
 
 const promptDecision = "prompt" as const
 
-type AuditEventStoreService = Context.Tag.Service<typeof AuditEventStore>
+type AuditEventStoreService = ServiceMap.Service.Shape<typeof AuditEventStore>
 type ResolvedPermissionDecision = {
   readonly decision: "allow" | "deny" | "prompt"
-  readonly reason?: string
+  readonly reason?: undefined |  string
 }
 
-const recordWrite = (
-  store: AuditEventStoreService,
-  strict: boolean,
-  effect: Effect.Effect<void, unknown>
-) => (strict ? effect : effect.pipe(Effect.catchAll(() => Effect.void)))
+const recordWrite = (strict: boolean, effect: Effect.Effect<void, unknown>) =>
+  strict ? effect : effect.pipe(Effect.catch(() => Effect.void))
 
 const resolveHookToolUseId = (input: HookInput, toolUseId: string | undefined) =>
   toolUseId ?? ("tool_use_id" in input ? input.tool_use_id : undefined)
@@ -66,7 +63,6 @@ const recordHookOutcome = (
 ) => {
   const resolvedToolUseId = resolveHookToolUseId(input, toolUseId)
   return recordWrite(
-    store,
     strict,
     store.write({
       event: "hook_event",
@@ -88,7 +84,6 @@ const recordPermissionPrompt = (
 ) =>
   input.hook_event_name === "PermissionRequest"
     ? recordWrite(
-        store,
         strict,
         store.write({
           event: "permission_decision",
@@ -170,14 +165,14 @@ const wrapPermissionCallback = (
     }
   })
 
-  await Effect.runPromise(recordWrite(store, strict, effect))
+  await Effect.runPromise(recordWrite(strict, effect))
   return output
 }
 
 export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(function*(
   hooks: HookMap,
   sessionId: string,
-  options?: AuditLoggingOptions
+  options?: undefined |  AuditLoggingOptions
 ) {
   const logPermissionDecisions = options?.logPermissionDecisions ?? true
   if (!logPermissionDecisions) return hooks
@@ -226,7 +221,6 @@ const recordToolStart = (
 ) =>
   input.hook_event_name === "PreToolUse"
     ? recordWrite(
-        store,
         strict,
         store.write({
           event: "tool_use",
@@ -246,11 +240,10 @@ const recordToolFinish = (
   input: HookInput,
   sessionId: string,
   status: "success" | "failure",
-  durationMs?: number
+  durationMs?: undefined |  number
 ) =>
   input.hook_event_name === "PostToolUse" || input.hook_event_name === "PostToolUseFailure"
     ? recordWrite(
-        store,
         strict,
         store.write({
           event: "tool_use",
@@ -278,14 +271,14 @@ const resolveDuration = (
   }).pipe(
     Effect.flatMap((start) =>
       start === undefined
-        ? Effect.succeed(undefined)
+        ? Effect.succeed<undefined>(undefined)
         : Clock.currentTimeMillis.pipe(Effect.map((now) => now - start))
     )
   )
 
 export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function*(
   sessionId: string,
-  options?: AuditLoggingOptions
+  options?: undefined |  AuditLoggingOptions
 ) {
   const store = yield* AuditEventStore
   const strict = options?.strict ?? false
@@ -348,7 +341,7 @@ export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function*(
 
       return {} satisfies HookJSONOutput
     }).pipe(
-      Effect.catchAll((cause) => {
+      Effect.catch((cause) => {
         const recordFailure = logHookOutcomes
           ? recordHookOutcome(
               store,
@@ -359,10 +352,10 @@ export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function*(
               sessionId || input.session_id
             )
           : Effect.void
-        return recordFailure.pipe(Effect.zipRight(Effect.fail(cause)))
+        return recordFailure.pipe(Effect.andThen(Effect.fail(cause)))
       }),
       Effect.mapError((cause) =>
-        HookError.make({
+        new HookError({
           message: "Audit hook failed",
           cause
         })

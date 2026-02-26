@@ -5,8 +5,6 @@
  * @module @beep/ontology/ontology/valueFormatting/PropertyKnownTypeFormattingRule
  */
 import { $OntologyId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
-import { pipe, Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("ontology/valueFormatting/PropertyKnownTypeFormattingRule");
@@ -17,10 +15,16 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyKnownTypeFormatt
  * @since 0.0.0
  * @category schemas
  */
-export const KnownType = LiteralKit(["USER_OR_GROUP_ID", "RESOURCE_RID", "ARTIFACT_GID"]).annotate(
-  $I.annote("KnownType", {
-    description: "Supported known semantic property kinds with predefined formatting behavior.",
-  })
+export const KnownType = S.Union([
+  S.Literal("USER_OR_GROUP_ID"),
+  S.Literal("RESOURCE_RID"),
+  S.Literal("ARTIFACT_GID"),
+]).pipe(
+  S.annotate(
+    $I.annote("KnownType", {
+      description: "Known semantic property kinds with specialized formatting behavior.",
+    })
+  )
 );
 
 /**
@@ -32,44 +36,19 @@ export const KnownType = LiteralKit(["USER_OR_GROUP_ID", "RESOURCE_RID", "ARTIFA
 export type KnownType = typeof KnownType.Type;
 
 /**
- * Formatting rule variants for properties tagged as known semantic types.
- *
- * @since 0.0.0
- * @category schemas
- */
-export const PropertyKnhownTypeFormattingRule = KnownType.mapMembers((members) => {
-  const type = S.tag("knownType");
-  return pipe(
-    members,
-    Tuple.evolve([
-      ({ literal }) =>
-        S.Struct({
-          type,
-          knownType: S.tag(literal),
-        }),
-      ({ literal }) =>
-        S.Struct({
-          type,
-          knownType: S.tag(literal),
-        }),
-      ({ literal }) =>
-        S.Struct({
-          type,
-          knownType: S.tag(literal),
-        }),
-    ])
-  );
-}).annotate(
-  $I.annote("PropertyKnhownTypeFormattingRule", {
-    description:
-      "Tagged union of formatting rules for known semantic property types such as principal, resource, and artifact identifiers.",
-  })
-);
-
-/**
- * Type for {@link PropertyKnhownTypeFormattingRule}.
+ * Formatting rule for properties tagged as a known semantic type.
  *
  * @since 0.0.0
  * @category models
  */
-export type PropertyKnhownTypeFormattingRule = typeof PropertyKnhownTypeFormattingRule.Type;
+export class PropertyKnownTypeFormattingRule extends S.Class<PropertyKnownTypeFormattingRule>(
+  $I`PropertyKnownTypeFormattingRule`
+)(
+  {
+    type: S.Literal("knownType"),
+    knownType: KnownType,
+  },
+  $I.annote("PropertyKnownTypeFormattingRule", {
+    description: "Formatting rule variant for known semantic property types.",
+  })
+) {}

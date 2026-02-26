@@ -122,6 +122,27 @@
         "typescript": "catalog:",
       },
     },
+    "packages/ai/sdk": {
+      "name": "@beep/ai-sdk",
+      "version": "0.0.0",
+      "dependencies": {
+        "@anthropic-ai/claude-agent-sdk": "catalog:",
+        "@beep/data": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@effect/ai-anthropic": "catalog:",
+        "@effect/ai-openai": "catalog:",
+        "@openai/codex-sdk": "catalog:",
+        "effect": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/data": {
       "name": "@beep/data",
       "version": "0.0.0",
@@ -522,6 +543,8 @@
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
     "@beep/agent-eval": ["@beep/agent-eval@workspace:tooling/agent-eval"],
+
+    "@beep/ai-sdk": ["@beep/ai-sdk@workspace:packages/ai/sdk"],
 
     "@beep/claude": ["@beep/claude@workspace:.claude"],
 

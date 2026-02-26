@@ -1,7 +1,7 @@
-import * as EventJournal from "@effect/experimental/EventJournal"
-import * as Context from "effect/Context"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
+import * as ServiceMap from "effect/ServiceMap"
 import type { ConflictResolution } from "./ConflictPolicy.js"
 
 export type SyncConflictAudit = {
@@ -28,14 +28,14 @@ const defaultSyncAudit: SyncAuditService = {
   compaction: () => Effect.void
 }
 
-export class SyncAudit extends Context.Reference<SyncAudit>()(
+export class SyncAudit extends ServiceMap.Service<SyncAudit, SyncAuditService>()(
   "@effect/claude-agent-sdk/SyncAudit",
   {
-    defaultValue: () => defaultSyncAudit
+    make: Effect.succeed(defaultSyncAudit)
   }
 ) {
   static readonly layer = Layer.succeed(
     SyncAudit,
-    defaultSyncAudit
+    SyncAudit.of(defaultSyncAudit)
   )
 }

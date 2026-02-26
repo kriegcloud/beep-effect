@@ -30,6 +30,7 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./unstable": "./src/public/unstable.ts",
     "./*": "./src/*.ts",
     "./internal/*": null
   },
@@ -53,6 +54,7 @@
     "exports": {
       "./package.json": "./package.json",
       ".": "./dist/index.js",
+      "./unstable": "./dist/public/unstable.js",
       "./*": "./dist/*.js",
       "./internal/*": null
     }

@@ -1,4 +1,4 @@
-import { Rpc, RpcGroup } from "@effect/rpc"
+import { Rpc, RpcGroup } from "effect/unstable/rpc"
 import * as Schema from "effect/Schema"
 import { AgentSdkError } from "../Errors.js"
 import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js"
@@ -15,7 +15,7 @@ import {
 import { SessionServiceError } from "./SessionErrors.js"
 
 export const AgentServiceError = AgentSdkError.pipe(
-  Schema.annotations({ identifier: "AgentServiceError" })
+  Schema.annotate({ identifier: "AgentServiceError" })
 )
 
 export type AgentServiceError = typeof AgentServiceError.Type
@@ -69,7 +69,7 @@ export class AgentRpcs extends RpcGroup.make(
   Rpc.make("SendSession", {
     payload: Schema.Struct({
       sessionId: Schema.String,
-      message: Schema.Union(Schema.String, SdkSchema.SDKUserMessage),
+      message: Schema.Union([Schema.String, SdkSchema.SDKUserMessage]),
       tenant: Schema.optional(Tenant)
     }),
     success: Schema.Void,
