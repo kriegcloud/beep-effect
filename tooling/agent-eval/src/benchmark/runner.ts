@@ -24,6 +24,8 @@ import type {
   BenchSuiteStatus,
   FailureSignature,
 } from "../schemas/index.js";
+import { createExecutionResolver } from "./execution/index.js";
+import type { ExecutionBackendMode, ExecutionResolver } from "./execution/types.js";
 import { buildRetrievalPacket } from "./packet.js";
 
 /**
@@ -110,6 +112,7 @@ export interface RunBenchmarkOptions {
   readonly agentModels?: AgentModels;
   readonly claudeEffort?: ClaudeEffortLevel;
   readonly reasoningEffort?: ReasoningEffortLevel;
+  readonly executionBackend: ExecutionBackendMode;
   readonly strictTaskCount: number;
   readonly isolateInWorktree: boolean;
   readonly worktreeRoot: string | undefined;
@@ -130,6 +133,8 @@ interface ProcessResult {
   readonly stdout: string;
   readonly stderr: string;
   readonly timedOut: boolean;
+  readonly exitCode: number | null;
+  readonly signal: string | null;
 }
 
 interface OutputTailSnapshot {
@@ -138,11 +143,24 @@ interface OutputTailSnapshot {
   readonly truncated: boolean;
 }
 
+interface CommandOutputDiagnostics {
+  readonly stdoutTail: string;
+  readonly stderrTail: string;
+  readonly stdoutLength: number;
+  readonly stderrLength: number;
+  readonly stdoutTruncated: boolean;
+  readonly stderrTruncated: boolean;
+  readonly tailCharLimit: number;
+  readonly exitCode: number | null;
+  readonly signal: string | null;
+}
+
 interface AcceptanceCommandResult {
   readonly success: boolean;
   readonly failedCommand: string | null;
   readonly timedOut: boolean;
   readonly abortedByWallCap: boolean;
+  readonly failedCommandDiagnostics: CommandOutputDiagnostics | null;
 }
 
 interface StatusPorcelainParseEntry {
@@ -170,6 +188,11 @@ interface LiveExecutionResult {
   readonly commandStdoutTruncated: boolean;
   readonly commandStderrTruncated: boolean;
   readonly commandTailCharLimit: number;
+  readonly commandBackend: "cli" | "sdk";
+  readonly commandCompletionObserved: boolean;
+  readonly commandExitCode: number | null;
+  readonly commandSignal: string | null;
+  readonly commandFallbackReason: string | null;
   readonly statusPorcelainRaw: string;
   readonly statusPorcelainParsed: ReadonlyArray<StatusPorcelainParseEntry>;
   readonly executionCwd: string;
@@ -262,6 +285,11 @@ export type BenchmarkDiagnosticEvent =
         readonly stdoutTruncated: boolean;
         readonly stderrTruncated: boolean;
         readonly tailCharLimit: number;
+        readonly backend: "cli" | "sdk";
+        readonly completionObserved: boolean;
+        readonly exitCode: number | null;
+        readonly signal: string | null;
+        readonly fallbackReason: string | null;
       };
       readonly acceptance: AcceptanceCommandResult;
       readonly detector: {
@@ -321,31 +349,6 @@ const PricingTableSchema = S.Struct({
 });
 
 const decodePricingTable = S.decodeUnknownSync(S.fromJsonString(PricingTableSchema));
-
-const CodexTurnCompletedSchema = S.Struct({
-  type: S.Literal("turn.completed"),
-  usage: S.Struct({
-    input_tokens: S.Int,
-    output_tokens: S.Int,
-  }),
-});
-
-const decodeCodexTurnCompleted = S.decodeUnknownSync(CodexTurnCompletedSchema);
-
-const ClaudeUsageSchema = S.Struct({
-  input_tokens: S.optional(S.Int),
-  output_tokens: S.optional(S.Int),
-});
-
-const ClaudeJsonSchema = S.Struct({
-  result: S.optional(S.String),
-  message: S.optional(S.String),
-  content: S.optional(S.String),
-  total_cost_usd: S.optional(S.Number),
-  usage: S.optional(ClaudeUsageSchema),
-});
-
-const decodeClaudeJson = S.decodeUnknownSync(ClaudeJsonSchema);
 
 const defaultAgentModels: AgentModels = {
   codex: "gpt-5.2",
@@ -516,10 +519,12 @@ const runProcess = async (
         stdout,
         stderr,
         timedOut: true,
+        exitCode: null,
+        signal: "SIGKILL",
       });
     }, timeoutMs);
 
-    child.on("exit", (code) => {
+    child.on("exit", (code, signal) => {
       if (completed) {
         return;
       }
@@ -530,6 +535,8 @@ const runProcess = async (
         stdout,
         stderr,
         timedOut: false,
+        exitCode: code,
+        signal: signal ?? null,
       });
     });
 
@@ -544,6 +551,8 @@ const runProcess = async (
         stdout,
         stderr: `${stderr}\n${String(error)}`,
         timedOut: false,
+        exitCode: null,
+        signal: null,
       });
     });
   });
@@ -553,8 +562,11 @@ const runOneCommand = async (
   command: string,
   timeoutMinutes: number,
   suiteDeadlineMs: number | undefined
-): Promise<ProcessResult> =>
-  runProcess("bash", ["-lc", command], cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
+): Promise<ProcessResult> => {
+  const shell = process.env.SHELL;
+  const resolvedShell = typeof shell === "string" && shell.length > 0 ? shell : "sh";
+  return runProcess(resolvedShell, ["-lc", command], cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
+};
 
 const runAcceptanceCommands = async (
   task: AgentTaskSpec,
@@ -562,12 +574,25 @@ const runAcceptanceCommands = async (
   simulate: boolean,
   suiteDeadlineMs: number | undefined
 ): Promise<AcceptanceCommandResult> => {
+  const emptyDiagnostics: CommandOutputDiagnostics = {
+    stdoutTail: "",
+    stderrTail: "",
+    stdoutLength: 0,
+    stderrLength: 0,
+    stdoutTruncated: false,
+    stderrTruncated: false,
+    tailCharLimit: commandDiagnosticTailCharLimit,
+    exitCode: null,
+    signal: null,
+  };
+
   if (simulate) {
     return {
       success: true,
       failedCommand: null,
       timedOut: false,
       abortedByWallCap: false,
+      failedCommandDiagnostics: null,
     };
   }
 
@@ -578,16 +603,30 @@ const runAcceptanceCommands = async (
         failedCommand: command,
         timedOut: true,
         abortedByWallCap: true,
+        failedCommandDiagnostics: emptyDiagnostics,
       };
     }
 
     const commandResult = await runOneCommand(cwd, command, task.timeoutMinutes, suiteDeadlineMs);
     if (!commandResult.success) {
+      const stdoutTail = snapshotOutputTail(commandResult.stdout, commandDiagnosticTailCharLimit);
+      const stderrTail = snapshotOutputTail(commandResult.stderr, commandDiagnosticTailCharLimit);
       return {
         success: false,
         failedCommand: command,
         timedOut: commandResult.timedOut,
         abortedByWallCap: false,
+        failedCommandDiagnostics: {
+          stdoutTail: stdoutTail.tail,
+          stderrTail: stderrTail.tail,
+          stdoutLength: stdoutTail.length,
+          stderrLength: stderrTail.length,
+          stdoutTruncated: stdoutTail.truncated,
+          stderrTruncated: stderrTail.truncated,
+          tailCharLimit: commandDiagnosticTailCharLimit,
+          exitCode: commandResult.exitCode,
+          signal: commandResult.signal,
+        },
       };
     }
   }
@@ -597,82 +636,30 @@ const runAcceptanceCommands = async (
     failedCommand: null,
     timedOut: false,
     abortedByWallCap: false,
+    failedCommandDiagnostics: null,
   };
 };
 
-const parseJsonLine = (line: string): unknown | null => {
-  try {
-    return JSON.parse(line) as unknown;
-  } catch {
-    return null;
-  }
-};
+const skippedAcceptanceResult = (): AcceptanceCommandResult => ({
+  success: true,
+  failedCommand: null,
+  timedOut: false,
+  abortedByWallCap: false,
+  failedCommandDiagnostics: null,
+});
 
-const parseCodexUsage = (stdout: string): { readonly inputTokens: number; readonly outputTokens: number } => {
-  let inputTokens = 0;
-  let outputTokens = 0;
-  const lines = Str.split("\n")(stdout)
-    .map((line) => Str.trim(line))
-    .filter((line) => line.length > 0);
+const shouldRunAcceptanceCommands = (simulate: boolean, commandPass: boolean | undefined): boolean =>
+  simulate || (commandPass ?? true);
 
-  for (const line of lines) {
-    const parsed = parseJsonLine(line);
-    if (parsed === null) {
-      continue;
-    }
-
-    try {
-      const decoded = decodeCodexTurnCompleted(parsed);
-      inputTokens = decoded.usage.input_tokens;
-      outputTokens = decoded.usage.output_tokens;
-    } catch {
-      // Ignore non-matching lines in codex JSONL output.
-    }
-  }
-
-  return {
-    inputTokens,
-    outputTokens,
-  };
-};
-
-const parseClaudeOutput = (
-  stdout: string
-): {
-  readonly assistantText: string;
-  readonly inputTokens: number;
-  readonly outputTokens: number;
-  readonly costUsd: number | null;
-} => {
-  const parsed = parseJsonLine(stdout);
-  if (parsed === null) {
-    return {
-      assistantText: stdout,
-      inputTokens: 0,
-      outputTokens: 0,
-      costUsd: null,
-    };
-  }
-
-  try {
-    const value = decodeClaudeJson(parsed);
-    return {
-      assistantText: value.result ?? value.message ?? value.content ?? stdout,
-      inputTokens: value.usage?.input_tokens ?? 0,
-      outputTokens: value.usage?.output_tokens ?? 0,
-      costUsd: value.total_cost_usd ?? null,
-    };
-  } catch {
-    return {
-      assistantText: stdout,
-      inputTokens: 0,
-      outputTokens: 0,
-      costUsd: null,
-    };
-  }
-};
-
-const parseStatusPorcelain = (
+/**
+ * Parse `git status --porcelain --untracked-files=all` into concrete touched paths.
+ *
+ * @param statusOutput - Raw porcelain output.
+ * @returns Parsed touched path list and raw-entry mapping used for diagnostics.
+ * @since 0.0.0
+ * @category functions
+ */
+export const parseStatusPorcelain = (
   statusOutput: string
 ): {
   readonly touchedPaths: ReadonlyArray<string>;
@@ -740,13 +727,40 @@ const readTouchedSourceFiles = async (
   return files;
 };
 
-const isPathAllowed = (filePath: string, allowlist: ReadonlyArray<string>): boolean =>
+/**
+ * Check whether one touched path is within the allowlist contract.
+ *
+ * @param filePath - Relative touched file path.
+ * @param allowlist - Allowlisted path roots for the task.
+ * @returns `true` when the path is allowed.
+ * @since 0.0.0
+ * @category functions
+ */
+export const isPathAllowed = (filePath: string, allowlist: ReadonlyArray<string>): boolean =>
   allowlist.some((allowed) => filePath === allowed || filePath.startsWith(`${allowed}/`));
 
-const allowlistPass = (touchedPaths: ReadonlyArray<string>, allowlist: ReadonlyArray<string>): boolean =>
+/**
+ * Evaluate allowlist pass/fail for one run based on touched file paths.
+ *
+ * @param touchedPaths - Touched paths from porcelain parsing.
+ * @param allowlist - Allowlisted path roots for the task.
+ * @returns `true` when all touched paths are allowed.
+ * @since 0.0.0
+ * @category functions
+ */
+export const allowlistPass = (touchedPaths: ReadonlyArray<string>, allowlist: ReadonlyArray<string>): boolean =>
   touchedPaths.every((filePath) => isPathAllowed(filePath, allowlist));
 
-const disallowedTouchedPaths = (
+/**
+ * Return disallowed touched paths for diagnostic reporting.
+ *
+ * @param touchedPaths - Touched paths from porcelain parsing.
+ * @param allowlist - Allowlisted path roots for the task.
+ * @returns Paths that violate the allowlist.
+ * @since 0.0.0
+ * @category functions
+ */
+export const disallowedTouchedPaths = (
   touchedPaths: ReadonlyArray<string>,
   allowlist: ReadonlyArray<string>
 ): ReadonlyArray<string> => touchedPaths.filter((filePath) => !isPathAllowed(filePath, allowlist));
@@ -782,33 +796,6 @@ const renderPromptPacket = (
     "Touched Path Allowlist:",
     ...task.touchedPathAllowlist.map((filePath) => `- ${filePath}`),
   ].join("\n");
-
-const runAgentCommand = async (
-  agent: AgentName,
-  model: string,
-  promptPacket: string,
-  cwd: string,
-  timeoutMinutes: number,
-  reasoningEffort: ReasoningEffortLevel | undefined,
-  claudeEffort: ClaudeEffortLevel | undefined,
-  suiteDeadlineMs: number | undefined
-): Promise<ProcessResult> => {
-  if (agent === "codex") {
-    const codexArgs = ["exec", "--json", "--model", model];
-    if (reasoningEffort !== undefined) {
-      codexArgs.push("-c", `model_reasoning_effort="${reasoningEffort}"`);
-    }
-    codexArgs.push(promptPacket);
-    return runProcess("codex", codexArgs, cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
-  }
-
-  const claudeArgs = ["-p", promptPacket, "--output-format", "json", "--model", model];
-  if (claudeEffort !== undefined) {
-    claudeArgs.push("--effort", claudeEffort);
-  }
-
-  return runProcess("claude", claudeArgs, cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
-};
 
 const createWorktreePath = (pathApi: Path.Path, worktreeRoot: string, runId: string): string => {
   const safe = runId.replaceAll(":", "__").replaceAll("/", "__");
@@ -900,6 +887,7 @@ const executeLiveRun = async (
   taskCwd: string,
   promptPacket: string,
   pricingTable: PricingTable,
+  executionResolver: ExecutionResolver,
   isolateInWorktree: boolean,
   worktreeRoot: string | undefined,
   reasoningEffort: ReasoningEffortLevel | undefined,
@@ -911,21 +899,21 @@ const executeLiveRun = async (
     const taskRelative = pathApi.relative(repoRoot, taskCwd);
     const executionCwd = executionRoot === repoRoot ? taskCwd : pathApi.join(executionRoot, taskRelative);
 
-    const commandResult = await runAgentCommand(
-      tuple.agent,
+    const executionResult = await executionResolver.execute({
+      agent: tuple.agent,
       model,
       promptPacket,
-      executionCwd,
-      tuple.task.timeoutMinutes,
+      cwd: executionCwd,
+      timeoutMinutes: tuple.task.timeoutMinutes,
+      timeoutCapMs: remainingTimeoutCapMs(suiteDeadlineMs),
       reasoningEffort,
       claudeEffort,
-      suiteDeadlineMs
-    );
-    const commandStdout = snapshotOutputTail(commandResult.stdout, commandDiagnosticTailCharLimit);
-    const commandStderr = snapshotOutputTail(commandResult.stderr, commandDiagnosticTailCharLimit);
+    });
+    const commandStdout = snapshotOutputTail(executionResult.stdout, commandDiagnosticTailCharLimit);
+    const commandStderr = snapshotOutputTail(executionResult.stderr, commandDiagnosticTailCharLimit);
     const statusResult = await runProcess(
       "git",
-      ["status", "--porcelain"],
+      ["status", "--porcelain", "--untracked-files=all"],
       executionRoot,
       2,
       remainingTimeoutCapMs(suiteDeadlineMs)
@@ -935,29 +923,28 @@ const executeLiveRun = async (
     const touchedSourceFiles = await readTouchedSourceFiles(executionRoot, touchedPaths, suiteDeadlineMs);
     const allowlistOk = allowlistPass(touchedPaths, tuple.task.touchedPathAllowlist);
 
-    const codexUsage = tuple.agent === "codex" ? parseCodexUsage(commandResult.stdout) : null;
-    const claudeOutput = tuple.agent === "claude" ? parseClaudeOutput(commandResult.stdout) : null;
-    const inputTokens = codexUsage?.inputTokens ?? claudeOutput?.inputTokens ?? 0;
-    const outputTokens = codexUsage?.outputTokens ?? claudeOutput?.outputTokens ?? 0;
+    const inputTokens = Math.max(0, executionResult.inputTokens);
+    const outputTokens = Math.max(0, executionResult.outputTokens);
     const costUsd =
-      claudeOutput?.costUsd ?? estimateCost(pricingTable, model, Math.max(0, inputTokens), Math.max(0, outputTokens));
+      executionResult.costUsd ?? estimateCost(pricingTable, model, Math.max(0, inputTokens), Math.max(0, outputTokens));
 
     const transcript: AgentRunTranscript = {
       runId,
       taskId: tuple.task.id,
       agent: tuple.agent,
       model,
-      command:
-        tuple.agent === "codex"
-          ? `codex exec --json --model ${model}${reasoningEffort === undefined ? "" : ` -c model_reasoning_effort="${reasoningEffort}"`}`
-          : `claude -p --output-format json --model ${model}${claudeEffort === undefined ? "" : ` --effort ${claudeEffort}`}`,
+      command: executionResult.commandDescription,
       promptPacket,
-      rawOutput: commandResult.stdout,
-      assistantText: claudeOutput?.assistantText ?? commandResult.stdout,
-      inputTokens: Math.max(0, inputTokens),
-      outputTokens: Math.max(0, outputTokens),
+      rawOutput: executionResult.stdout,
+      assistantText: executionResult.assistantText,
+      inputTokens,
+      outputTokens,
       costUsd: Math.max(0, costUsd),
       touchedPaths,
+      backend: executionResult.backend,
+      completionObserved: executionResult.completionObserved,
+      exitCode: executionResult.exitCode,
+      signal: executionResult.signal,
     };
 
     return {
@@ -965,8 +952,8 @@ const executeLiveRun = async (
       allowlistPass: allowlistOk,
       touchedPaths,
       touchedSourceFiles,
-      commandPass: commandResult.success && !commandResult.timedOut,
-      commandTimedOut: commandResult.timedOut,
+      commandPass: executionResult.success && !executionResult.timedOut,
+      commandTimedOut: executionResult.timedOut,
       commandStdoutTail: commandStdout.tail,
       commandStderrTail: commandStderr.tail,
       commandStdoutLength: commandStdout.length,
@@ -974,6 +961,11 @@ const executeLiveRun = async (
       commandStdoutTruncated: commandStdout.truncated,
       commandStderrTruncated: commandStderr.truncated,
       commandTailCharLimit: commandDiagnosticTailCharLimit,
+      commandBackend: executionResult.backend,
+      commandCompletionObserved: executionResult.completionObserved,
+      commandExitCode: executionResult.exitCode,
+      commandSignal: executionResult.signal,
+      commandFallbackReason: executionResult.fallbackReason,
       statusPorcelainRaw: statusResult.stdout,
       statusPorcelainParsed: parsedStatus.parsedEntries,
       executionCwd,
@@ -1048,9 +1040,41 @@ const buildRunMatrix = (options: RunBenchmarkOptions): ReadonlyArray<RunTuple> =
     )
   );
 
+const buildMatrixFingerprint = (matrix: ReadonlyArray<RunTuple>): string =>
+  matrix.map((tuple) => `${tuple.task.id}|${tuple.condition}|${tuple.agent}|${tuple.trial}`).join("\n");
+
+const summarizeExecutionBackend = (
+  records: ReadonlyArray<AgentRunRecord>,
+  requestedMode: ExecutionBackendMode
+): "cli" | "sdk" | "mixed" => {
+  const observedBackends: Array<"cli" | "sdk"> = [];
+  for (const record of records) {
+    const backend = record.transcript?.backend;
+    if (backend === undefined || backend === null) {
+      continue;
+    }
+    if (!observedBackends.includes(backend)) {
+      observedBackends.push(backend);
+    }
+  }
+
+  if (observedBackends.length === 0) {
+    if (requestedMode === "cli") {
+      return "cli";
+    }
+    if (requestedMode === "sdk") {
+      return "sdk";
+    }
+    return "mixed";
+  }
+
+  return observedBackends.length === 1 ? (observedBackends[0] ?? "mixed") : "mixed";
+};
+
 const executeRunTuple = async (
   options: RunBenchmarkOptions,
   tuple: RunTuple,
+  executionResolver: ExecutionResolver,
   suiteDeadlineMs: number | undefined
 ): Promise<AgentRunRecord> => {
   const remainingMsAtRunStart = remainingTimeoutCapMs(suiteDeadlineMs) ?? null;
@@ -1085,6 +1109,7 @@ const executeRunTuple = async (
         taskCwd,
         promptPacket,
         options.pricingTable,
+        executionResolver,
         options.isolateInWorktree,
         options.worktreeRoot,
         options.reasoningEffort,
@@ -1094,7 +1119,9 @@ const executeRunTuple = async (
       );
 
   const executionCwd = liveExecution?.executionCwd ?? taskCwd;
-  const acceptance = await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs);
+  const acceptance = shouldRunAcceptanceCommands(options.simulate, liveExecution?.commandPass)
+    ? await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs)
+    : skippedAcceptanceResult();
 
   const touchedSourceFiles = liveExecution?.touchedSourceFiles ?? [];
   const detectorInput = touchedSourceFiles
@@ -1174,6 +1201,11 @@ const executeRunTuple = async (
       stdoutTruncated: liveExecution?.commandStdoutTruncated ?? false,
       stderrTruncated: liveExecution?.commandStderrTruncated ?? false,
       tailCharLimit: liveExecution?.commandTailCharLimit ?? commandDiagnosticTailCharLimit,
+      backend: liveExecution?.commandBackend ?? "cli",
+      completionObserved: liveExecution?.commandCompletionObserved ?? false,
+      exitCode: liveExecution?.commandExitCode ?? null,
+      signal: liveExecution?.commandSignal ?? null,
+      fallbackReason: liveExecution?.commandFallbackReason ?? null,
     },
     acceptance,
     detector: {
@@ -1270,10 +1302,15 @@ const summarizeOutcomeCounts = (records: ReadonlyArray<AgentRunRecord>) => {
 export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<AgentBenchSuite> => {
   const runAtEpochMs = epochNowMs();
   const matrix = buildRunMatrix(options);
+  const matrixFingerprint = buildMatrixFingerprint(matrix);
   const plannedRunCount = matrix.length;
   const records: Array<AgentRunRecord> = [];
   const suiteDeadlineMs = resolveDeadlineMs(options.maxWallMinutes);
   const maxWallMinutes = options.maxWallMinutes ?? null;
+  const executionResolver = await createExecutionResolver({
+    mode: options.executionBackend,
+    agents: options.agents,
+  });
   let abortReason: string | null = null;
 
   await emitProgress(options, {
@@ -1318,7 +1355,7 @@ export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<A
             trial: tuple.trial,
           });
 
-          const record = await executeRunTuple(options, tuple, suiteDeadlineMs);
+          const record = await executeRunTuple(options, tuple, executionResolver, suiteDeadlineMs);
           records.push(record);
 
           await emitProgress(options, {
@@ -1380,6 +1417,9 @@ export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<A
     runAtEpochMs,
     strictTaskCount: options.strictTaskCount,
     conditions: options.conditions,
+    runMode: options.simulate ? "simulate" : "live",
+    executionBackend: summarizeExecutionBackend(records, options.executionBackend),
+    matrixFingerprint,
     status,
     plannedRunCount,
     completedRunCount: records.length,

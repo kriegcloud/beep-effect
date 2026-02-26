@@ -8,6 +8,9 @@ const emptySuite = (status?: AgentBenchSuite["status"]): AgentBenchSuite => ({
   runAtEpochMs: 1,
   strictTaskCount: 1,
   conditions: ["current"],
+  runMode: "simulate",
+  executionBackend: "cli",
+  matrixFingerprint: "apps_web_01|current|codex|1",
   status,
   plannedRunCount: 1,
   completedRunCount: status === "aborted_wall_cap" ? 0 : 1,
@@ -27,5 +30,22 @@ describe("benchmark markdown renderers", () => {
     expect(markdown.includes("baselineStatus: completed")).toBe(true);
     expect(markdown.includes("candidateStatus: aborted_wall_cap")).toBe(true);
     expect(markdown.includes("WARNING: One or both suites are incomplete")).toBe(true);
+  });
+
+  it("renders non-comparable warning when run mode differs", () => {
+    const baseline: AgentBenchSuite = {
+      ...emptySuite("completed"),
+      runMode: "simulate",
+      matrixFingerprint: "apps_web_01|current|codex|1",
+    };
+    const candidate: AgentBenchSuite = {
+      ...emptySuite("completed"),
+      runMode: "live",
+      matrixFingerprint: "apps_web_01|current|codex|1",
+    };
+
+    const markdown = renderComparisonMarkdown(baseline, candidate, "Compare");
+    expect(markdown.includes("NON-COMPARABLE")).toBe(true);
+    expect(markdown.includes("runMode differs")).toBe(true);
   });
 });

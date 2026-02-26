@@ -132,6 +132,93 @@ describe("agent-eval schemas", () => {
     expect(suite.completedRunCount).toBe(3);
   });
 
+  it("decodes suite payload with run metadata and transcript backend fields", () => {
+    const decode = S.decodeUnknownSync(AgentBenchSuiteSchema);
+    const suite = decode({
+      formatVersion: 1,
+      runAtEpochMs: 1,
+      strictTaskCount: 1,
+      conditions: ["minimal"],
+      runMode: "live",
+      executionBackend: "mixed",
+      matrixFingerprint: "apps_web_01|minimal|codex|1",
+      records: [
+        {
+          config: {
+            agent: "codex",
+            model: "gpt-5.2",
+            condition: "minimal",
+            trial: 1,
+          },
+          task: {
+            id: "apps_web_01",
+            title: "task",
+            category: "apps_web",
+            prompt: "prompt",
+            cwd: ".",
+            acceptanceCommands: ["bun run lint"],
+            timeoutMinutes: 1,
+            touchedPathAllowlist: ["apps/web/src/app/api/chat/route.ts"],
+          },
+          result: {
+            runId: "r",
+            taskId: "apps_web_01",
+            success: false,
+            checkPass: false,
+            lintPass: false,
+            testPass: false,
+            wrongApiIncidentCount: 0,
+            steps: 1,
+            inputTokens: 1,
+            outputTokens: 1,
+            costUsd: 0.01,
+            wallMs: 1.5,
+          },
+          selectedPolicyIds: ["core"],
+          selectedSkills: ["effect-v4-errors"],
+          correctionFacts: ["fact"],
+          retrievedFacts: ["fact"],
+          allowlistPass: true,
+          touchedPaths: ["apps/web/src/app/api/chat/route.ts"],
+          transcript: {
+            runId: "r",
+            taskId: "apps_web_01",
+            agent: "codex",
+            model: "gpt-5.2",
+            command: "codex-sdk runStreamed model=gpt-5.2",
+            promptPacket: "prompt",
+            rawOutput: "{}",
+            assistantText: "ok",
+            inputTokens: 1,
+            outputTokens: 1,
+            costUsd: 0.01,
+            touchedPaths: ["apps/web/src/app/api/chat/route.ts"],
+            backend: "sdk",
+            completionObserved: true,
+            exitCode: null,
+            signal: null,
+          },
+          failureSignature: {
+            id: "sig",
+            runId: "r",
+            taskId: "apps_web_01",
+            condition: "minimal",
+            agent: "codex",
+            failureType: "runtime",
+            rootCause: "Agent command failed or timed out",
+            ruleIds: [],
+            touchedPaths: [],
+          },
+        },
+      ],
+    });
+
+    expect(suite.runMode).toBe("live");
+    expect(suite.executionBackend).toBe("mixed");
+    expect(suite.matrixFingerprint).toBe("apps_web_01|minimal|codex|1");
+    expect(suite.records[0]?.transcript?.backend).toBe("sdk");
+  });
+
   it("fails invalid transcript payload", () => {
     const decode = S.decodeUnknownSync(AgentRunTranscriptSchema);
     expect(() =>

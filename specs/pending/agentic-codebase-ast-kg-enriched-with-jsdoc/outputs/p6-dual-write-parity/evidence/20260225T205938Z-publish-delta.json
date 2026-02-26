@@ -1,0 +1,24 @@
+{
+  "mode": "delta",
+  "commitSha": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
+  "target": "both",
+  "envelopes": 475,
+  "receipts": [
+    {
+      "target": "falkor",
+      "attempted": 475,
+      "written": 0,
+      "replayed": 0,
+      "failed": 475,
+      "durationMs": 787
+    },
+    {
+      "target": "graphiti",
+      "attempted": 475,
+      "written": 475,
+      "replayed": 0,
+      "failed": 0,
+      "durationMs": 2290
+    }
+  ]
+}

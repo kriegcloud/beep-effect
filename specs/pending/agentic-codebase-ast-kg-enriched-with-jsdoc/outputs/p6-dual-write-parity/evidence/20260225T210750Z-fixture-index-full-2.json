@@ -1,0 +1,12 @@
+{
+  "mode": "full",
+  "effectiveMode": "full",
+  "commitSha": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
+  "changedCount": 0,
+  "selectedCount": 2,
+  "fullScopeCount": 2,
+  "writes": 0,
+  "replayHits": 2,
+  "spoolWrites": 0,
+  "packetNoThrow": true
+}

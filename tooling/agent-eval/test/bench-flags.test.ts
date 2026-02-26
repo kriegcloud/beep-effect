@@ -6,6 +6,7 @@ import {
   parseBenchConditionsFlag,
   parseClaudeEffortFlag,
   parseCsvFlag,
+  parseExecutionBackendFlag,
   parseMaxWallMinutesFlag,
   parseModelFlag,
   parseReasoningFlag,
@@ -83,6 +84,17 @@ describe("bench flag parsing", () => {
 
   it("rejects unsupported unified reasoning effort values", () => {
     expect(() => parseReasoningFlag("max")).toThrow();
+  });
+
+  it("parses execution backend mode", () => {
+    expect(parseExecutionBackendFlag(undefined)).toBe("auto");
+    expect(parseExecutionBackendFlag("auto")).toBe("auto");
+    expect(parseExecutionBackendFlag("cli")).toBe("cli");
+    expect(parseExecutionBackendFlag("sdk")).toBe("sdk");
+  });
+
+  it("rejects unsupported execution backend mode", () => {
+    expect(() => parseExecutionBackendFlag("unknown")).toThrow();
   });
 
   it("parses optional worktree root and expands tilde with HOME", () => {

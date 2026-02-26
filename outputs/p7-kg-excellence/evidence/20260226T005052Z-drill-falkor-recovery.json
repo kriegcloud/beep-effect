@@ -1,0 +1,29 @@
+{
+  "mode": "full",
+  "commitSha": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+  "group": "beep-ast-kg-drill-falkor-20260226T005052Z",
+  "target": "both",
+  "envelopes": 244,
+  "receipts": [
+    {
+      "target": "falkor",
+      "attempted": 244,
+      "written": 244,
+      "replayed": 0,
+      "failed": 0,
+      "durationMs": 20351,
+      "dedupeHits": 0,
+      "dedupeMisses": 244
+    },
+    {
+      "target": "graphiti",
+      "attempted": 244,
+      "written": 0,
+      "replayed": 244,
+      "failed": 0,
+      "durationMs": 24,
+      "dedupeHits": 244,
+      "dedupeMisses": 0
+    }
+  ]
+}
