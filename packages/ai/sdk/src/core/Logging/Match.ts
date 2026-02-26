@@ -1,8 +1,8 @@
-import * as LogLevel from "effect/LogLevel"
+import type * as LogLevel from "effect/LogLevel"
 import * as Match from "effect/Match"
+import type { QueryEvent } from "../QuerySupervisor.js"
 import type { HookInput } from "../Schema/Hooks.js"
 import type { SDKMessage } from "../Schema/Message.js"
-import type { QueryEvent } from "../QuerySupervisor.js"
 import type { AgentLogEvent } from "./Types.js"
 
 const compact = (value: Record<string, unknown>) =>
@@ -32,7 +32,7 @@ const makeSdkEvent = (
     data,
     annotations
   }: {
-    readonly level: LogLevel.LogLevel
+    readonly level: LogLevel.Severity
     readonly event: string
     readonly messageText: string
     readonly data?: Record<string, unknown>
@@ -55,7 +55,7 @@ const makeSdkEvent = (
 export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   Match.when({ type: "assistant", error: Match.string }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Error,
+      level: "Error",
       event: "sdk.message.assistant.error",
       messageText: "assistant message error",
       annotations: {
@@ -70,7 +70,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "assistant" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.assistant",
       messageText: "assistant message",
       annotations: {
@@ -84,7 +84,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "user", isReplay: true }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.user.replay",
       messageText: "user message replay",
       annotations: {
@@ -101,7 +101,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "user" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.user",
       messageText: "user message",
       annotations: {
@@ -117,7 +117,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "result", subtype: "success" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.result.success",
       messageText: "result success",
       data: {
@@ -141,7 +141,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
     { type: "result", subtype: "error_max_structured_output_retries" },
     (message) =>
       makeSdkEvent(message, {
-        level: LogLevel.Error,
+        level: "Error",
         event: "sdk.message.result.error",
         messageText: "result error",
         data: {
@@ -159,7 +159,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "init" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.system.init",
       messageText: "system init",
       data: {
@@ -181,7 +181,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "compact_boundary" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.system.compact_boundary",
       messageText: "system compact boundary",
       data: {
@@ -192,7 +192,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "status" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.system.status",
       messageText: "system status",
       data: {
@@ -202,7 +202,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "hook_started" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.system.hook_started",
       messageText: "hook started",
       annotations: {
@@ -214,7 +214,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "hook_progress" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.system.hook_progress",
       messageText: "hook progress",
       annotations: {
@@ -237,7 +237,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "hook_response" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.system.hook_response",
       messageText: "hook response",
       annotations: {
@@ -262,7 +262,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "files_persisted" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.system.files_persisted",
       messageText: "files persisted",
       data: {
@@ -274,10 +274,10 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "system", subtype: "task_notification" }, (message) => {
     const level = message.status === "failed"
-      ? LogLevel.Error
+      ? "Error"
       : message.status === "stopped"
-        ? LogLevel.Warning
-        : LogLevel.Info
+        ? "Warn"
+        : "Info"
     return makeSdkEvent(message, {
       level,
       event: "sdk.message.system.task_notification",
@@ -292,7 +292,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   }),
   Match.when({ type: "system", subtype: "task_started" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.system.task_started",
       messageText: "task started",
       data: {
@@ -305,7 +305,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "stream_event" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Trace,
+      level: "Trace",
       event: "sdk.message.stream_event",
       messageText: "assistant stream event",
       annotations: {
@@ -319,7 +319,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "tool_progress" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Debug,
+      level: "Debug",
       event: "sdk.message.tool_progress",
       messageText: "tool progress",
       annotations: {
@@ -337,7 +337,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "tool_use_summary" }, (message) =>
     makeSdkEvent(message, {
-      level: LogLevel.Info,
+      level: "Info",
       event: "sdk.message.tool_use_summary",
       messageText: "tool use summary",
       data: {
@@ -348,7 +348,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "auth_status" }, (message) =>
     makeSdkEvent(message, {
-      level: message.error ? LogLevel.Warning : LogLevel.Info,
+      level: message.error ? "Warn" : "Info",
       event: message.error ? "sdk.message.auth_status.error" : "sdk.message.auth_status",
       messageText: message.error ? "auth status error" : "auth status",
       data: {
@@ -370,7 +370,7 @@ const makeQueryEvent = (
     data,
     annotations
   }: {
-    readonly level: LogLevel.LogLevel
+    readonly level: LogLevel.Severity
     readonly eventName: string
     readonly messageText: string
     readonly data?: Record<string, unknown>
@@ -393,7 +393,7 @@ const makeQueryEvent = (
 export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   Match.tag("QueryQueued", (event) =>
     makeQueryEvent(event, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.query.queued",
       messageText: "query queued",
       data: {
@@ -403,7 +403,7 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   ),
   Match.tag("QueryStarted", (event) =>
     makeQueryEvent(event, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.query.started",
       messageText: "query started",
       data: {
@@ -413,7 +413,7 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   ),
   Match.tag("QueryCompleted", (event) =>
     makeQueryEvent(event, {
-      level: event.status === "success" ? LogLevel.Info : LogLevel.Warning,
+      level: event.status === "success" ? "Info" : "Warn",
       eventName: "agent.query.completed",
       messageText: "query completed",
       annotations: {
@@ -427,7 +427,7 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   ),
   Match.tag("QueryStartFailed", (event) =>
     makeQueryEvent(event, {
-      level: LogLevel.Error,
+      level: "Error",
       eventName: "agent.query.start_failed",
       messageText: "query start failed",
       annotations: {
@@ -457,7 +457,7 @@ const makeHookEvent = (
     data,
     annotations
   }: {
-    readonly level: LogLevel.LogLevel
+    readonly level: LogLevel.Severity
     readonly eventName: string
     readonly messageText: string
     readonly data?: Record<string, unknown>
@@ -480,7 +480,7 @@ const makeHookEvent = (
 export const matchHookInput = Match.type<HookInput>().pipe(
   Match.when({ hook_event_name: "PreToolUse" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Debug,
+      level: "Debug",
       eventName: "agent.hook.pre_tool_use",
       messageText: "hook pre tool use",
       annotations: {
@@ -499,7 +499,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "PostToolUse" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Debug,
+      level: "Debug",
       eventName: "agent.hook.post_tool_use",
       messageText: "hook post tool use",
       annotations: {
@@ -519,7 +519,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "PostToolUseFailure" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Error,
+      level: "Error",
       eventName: "agent.hook.post_tool_use_failure",
       messageText: "hook post tool use failure",
       annotations: {
@@ -540,7 +540,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "Notification" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.notification",
       messageText: "hook notification",
       data: {
@@ -555,7 +555,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "UserPromptSubmit" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Debug,
+      level: "Debug",
       eventName: "agent.hook.user_prompt_submit",
       messageText: "hook user prompt submit",
       data: {
@@ -568,7 +568,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "SessionStart" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.session_start",
       messageText: "hook session start",
       data: {
@@ -583,7 +583,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "SessionEnd" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.session_end",
       messageText: "hook session end",
       data: {
@@ -596,7 +596,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "Stop" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Warning,
+      level: "Warn",
       eventName: "agent.hook.stop",
       messageText: "hook stop",
       data: {
@@ -609,7 +609,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "SubagentStart" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Debug,
+      level: "Debug",
       eventName: "agent.hook.subagent_start",
       messageText: "hook subagent start",
       annotations: {
@@ -626,7 +626,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "SubagentStop" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Debug,
+      level: "Debug",
       eventName: "agent.hook.subagent_stop",
       messageText: "hook subagent stop",
       annotations: {
@@ -644,7 +644,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "PreCompact" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.pre_compact",
       messageText: "hook pre compact",
       data: {
@@ -658,7 +658,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "PermissionRequest" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Warning,
+      level: "Warn",
       eventName: "agent.hook.permission_request",
       messageText: "hook permission request",
       annotations: {
@@ -676,7 +676,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "Setup" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.setup",
       messageText: "hook setup",
       data: {
@@ -689,7 +689,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "TeammateIdle" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.teammate_idle",
       messageText: "hook teammate idle",
       data: {
@@ -703,7 +703,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
   ),
   Match.when({ hook_event_name: "TaskCompleted" }, (input) =>
     makeHookEvent(input, {
-      level: LogLevel.Info,
+      level: "Info",
       eventName: "agent.hook.task_completed",
       messageText: "hook task completed",
       data: {

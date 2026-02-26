@@ -7,8 +7,8 @@ import * as Option from "effect/Option"
 import * as ServiceMap from "effect/ServiceMap"
 import * as SynchronizedRef from "effect/SynchronizedRef"
 import { KeyValueStore } from "effect/unstable/persistence"
-import { ArtifactRecord } from "../Schema/Storage.js"
-import type { ConflictPolicy } from "../Sync/ConflictPolicy.js"
+import type { ArtifactRecord } from "../Schema/Storage.js"
+import type { ConflictPolicy } from "../Sync/index.js"
 import {
   defaultArtifactPrefix,
   defaultStorageDirectory

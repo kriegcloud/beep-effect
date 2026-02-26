@@ -1,6 +1,6 @@
+import * as Schema from "effect/Schema"
 import * as EventGroup from "effect/unstable/eventlog/EventGroup"
 import * as EventLog from "effect/unstable/eventlog/EventLog"
-import * as Schema from "effect/Schema"
 import { ArtifactRecord, ChatEvent } from "../Schema/Storage.js"
 import { StorageError } from "./StorageError.js"
 

@@ -1,10 +1,10 @@
 import * as Layer from "effect/Layer"
 import { AgentRuntime } from "./AgentRuntime.js"
+import type { SDKSessionOptions } from "./Schema/Session.js"
 import { SessionConfig } from "./SessionConfig.js"
 import { SessionManager } from "./SessionManager.js"
-import { SessionService, type SessionHistoryOptions } from "./SessionService.js"
-import type { SDKSessionOptions } from "./Schema/Session.js"
-import { ChatHistoryStore } from "./Storage/ChatHistoryStore.js"
+import { type SessionHistoryOptions, SessionService } from "./SessionService.js"
+import { ChatHistoryStore } from "./Storage/index.js"
 
 export type EntryPrefix = string
 

@@ -76,7 +76,7 @@ const tryResolvePackageVersion = (specifier: string) =>
       return json.version
     },
     catch: () => undefined
-  }).pipe(Effect.catch(() => Effect.succeed(undefined)))
+  }).pipe(Effect.catch(() => Effect.void))
 
 const checkClaudeCodeCli = () =>
   Effect.tryPromise({

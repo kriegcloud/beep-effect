@@ -4,6 +4,7 @@ import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import * as Schema from "effect/Schema"
+import * as ServiceMap from "effect/ServiceMap"
 import { layerConfigFromEnv } from "./internal/config.js"
 
 export const PendingQueueStrategy = Schema.Literals(["suspend", "dropping", "sliding"])
@@ -92,11 +93,10 @@ const makeQuerySupervisorConfig = Effect.gen(function*() {
   return { settings }
 })
 
-export class QuerySupervisorConfig extends Effect.Service<QuerySupervisorConfig>()(
+export class QuerySupervisorConfig extends ServiceMap.Service<QuerySupervisorConfig, {
+  settings: QuerySupervisorSettings
+}>()(
   "@effect/claude-agent-sdk/QuerySupervisorConfig",
-  {
-    effect: makeQuerySupervisorConfig
-  }
 ) {
   /**
    * Build QuerySupervisorConfig by reading configuration from environment variables.
@@ -107,15 +107,15 @@ export class QuerySupervisorConfig extends Effect.Service<QuerySupervisorConfig>
   /**
    * Default configuration layer for QuerySupervisor.
    */
-  static readonly layer = QuerySupervisorConfig.Default
+  static readonly layer = Layer.effect(QuerySupervisorConfig, makeQuerySupervisorConfig)
 
   /**
    * Build QuerySupervisorConfig with explicit overrides applied to defaults.
    */
   static readonly layerWith = (overrides?: Partial<QuerySupervisorSettings>) =>
-    Layer.succeed(
+    Layer.effect(
       QuerySupervisorConfig,
-      QuerySupervisorConfig.make({
+      Effect.succeed({
         settings: resolveSettings(overrides)
       })
     )

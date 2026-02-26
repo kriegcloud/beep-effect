@@ -2,20 +2,14 @@ import * as Config from "effect/Config"
 import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as LogLevel from "effect/LogLevel"
+import type * as LogLevel from "effect/LogLevel"
 import * as Option from "effect/Option"
 import * as Schema from "effect/Schema"
 import { ConfigError } from "../Errors.js"
 import { layerConfigFromEnv } from "../internal/config.js"
 import type { AgentLogCategory } from "./Types.js"
 
-export const LogFormat = Schema.Literal(
-  "pretty",
-  "structured",
-  "json",
-  "logfmt",
-  "string"
-)
+export const LogFormat = Schema.Literals(["pretty", "structured", "json", "logfmt", "string"])
 
 export type LogFormat = typeof LogFormat.Type
 
@@ -30,7 +24,7 @@ export type AgentLoggingSettings = {
 
 const defaultSettings: AgentLoggingSettings = {
   format: "pretty",
-  minLevel: LogLevel.Info,
+  minLevel: "Info",
   includeSpans: false,
   categories: {
     messages: true,
@@ -41,7 +35,7 @@ const defaultSettings: AgentLoggingSettings = {
 
 const parseLogFormat = (value: string) => {
   const normalized = value.trim().toLowerCase()
-  return Schema.decodeUnknown(LogFormat)(normalized).pipe(
+  return Schema.decodeUnknownEffect(LogFormat)(normalized).pipe(
     Effect.mapError((cause) =>
       ConfigError.make({
         message: `Invalid log format: ${value}`,
@@ -51,27 +45,27 @@ const parseLogFormat = (value: string) => {
   )
 }
 
-const parseLogLevel = (value: string) => {
+const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigError> => {
   const normalized = value.trim().toLowerCase()
   switch (normalized) {
     case "all":
-      return Effect.succeed(LogLevel.All)
+      return Effect.succeed("All")
     case "trace":
-      return Effect.succeed(LogLevel.Trace)
+      return Effect.succeed("Trace")
     case "debug":
-      return Effect.succeed(LogLevel.Debug)
+      return Effect.succeed("Debug")
     case "info":
-      return Effect.succeed(LogLevel.Info)
+      return Effect.succeed("Info")
     case "warn":
     case "warning":
-      return Effect.succeed(LogLevel.Warning)
+      return Effect.succeed("Warn")
     case "error":
-      return Effect.succeed(LogLevel.Error)
+      return Effect.succeed("Error")
     case "fatal":
-      return Effect.succeed(LogLevel.Fatal)
+      return Effect.succeed("Fatal")
     case "off":
     case "none":
-      return Effect.succeed(LogLevel.None)
+      return Effect.succeed("None")
     default:
       return Effect.fail(
         ConfigError.make({
@@ -81,16 +75,9 @@ const parseLogLevel = (value: string) => {
   }
 }
 
-const defaultLoggingConfig = {
-  settings: defaultSettings
-}
-
-export class AgentLoggingConfig extends Context.Reference<AgentLoggingConfig>()(
-  "@effect/claude-agent-sdk/AgentLoggingConfig",
-  {
-    defaultValue: () => defaultLoggingConfig
-  }
-) {
+export class AgentLoggingConfig extends ServiceMap.Service<AgentLoggingConfig, {
+  readonly settings: AgentLoggingSettings
+}>()("@effect/claude-agent-sdk/AgentLoggingConfig") {
   /**
    * Build AgentLoggingConfig by reading configuration from environment variables.
    */

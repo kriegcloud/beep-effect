@@ -1,61 +1,92 @@
 import * as Effect from "effect/Effect"
 import * as Stream from "effect/Stream"
 import { AgentRuntime } from "./AgentRuntime.js"
-import { runtimeLayer, type RuntimeEntryOptions } from "./EntryPoints.js"
+import { type RuntimeEntryOptions, runtimeLayer } from "./EntryPoint.js"
 import * as QueryResult from "./QueryResult.js"
 import type { SDKMessage, SDKResultSuccess } from "./Schema/Message.js"
 import type { Options } from "./Schema/Options.js"
 
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === "object" && value !== null
+
+const toRecord = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
+  isRecord(value) ? value : undefined
+
 const extractTextFromContent = (content: unknown): ReadonlyArray<string> => {
-  if (!Array.isArray(content)) return []
+  if (!Array.isArray(content)) {
+    return []
+  }
+
   const chunks: Array<string> = []
   for (const item of content) {
-    if (typeof item !== "object" || item === null) continue
-    const record = item as { type?: unknown; text?: unknown }
-    if (record.type === "text" && typeof record.text === "string" && record.text.length > 0) {
-      chunks.push(record.text)
+    const record = toRecord(item)
+    if (!record) {
+      continue
+    }
+    if (record.type !== "text") {
+      continue
+    }
+    const text = record.text
+    if (typeof text === "string" && text.length > 0) {
+      chunks.push(text)
     }
   }
+
   return chunks
 }
 
 const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
-  if (typeof event !== "object" || event === null) return []
-  const record = event as {
-    text?: unknown
-    delta?: { text?: unknown; content?: unknown }
-    content_block?: { text?: unknown }
-    message?: { content?: unknown }
-    content?: unknown
+  const record = toRecord(event)
+  if (!record) {
+    return []
   }
-  if (typeof record.text === "string" && record.text.length > 0) {
-    return [record.text]
+
+  const topText = record.text
+  if (typeof topText === "string" && topText.length > 0) {
+    return [topText]
   }
-  if (typeof record.delta?.text === "string" && record.delta.text.length > 0) {
-    return [record.delta.text]
+
+  const delta = toRecord(record.delta)
+  if (delta) {
+    const deltaText = delta.text
+    if (typeof deltaText === "string" && deltaText.length > 0) {
+      return [deltaText]
+    }
+    const deltaContent = delta.content
+    if (typeof deltaContent === "string" && deltaContent.length > 0) {
+      return [deltaContent]
+    }
   }
-  if (typeof record.delta?.content === "string" && record.delta.content.length > 0) {
-    return [record.delta.content]
+
+  const contentBlock = toRecord(record.content_block)
+  if (contentBlock) {
+    const text = contentBlock.text
+    if (typeof text === "string" && text.length > 0) {
+      return [text]
+    }
   }
-  if (typeof record.content_block?.text === "string" && record.content_block.text.length > 0) {
-    return [record.content_block.text]
+
+  const message = toRecord(record.message)
+  if (message) {
+    const fromMessage = extractTextFromContent(message.content)
+    if (fromMessage.length > 0) {
+      return fromMessage
+    }
   }
-  const fromMessage = extractTextFromContent(record.message?.content)
-  if (fromMessage.length > 0) return fromMessage
-  const fromContent = extractTextFromContent(record.content)
-  return fromContent
+
+  return extractTextFromContent(record.content)
 }
 
 export const extractTextChunks = (message: SDKMessage): ReadonlyArray<string> => {
   if (message.type === "assistant") {
-    const content = (message as { message?: { content?: unknown } }).message?.content
-    return extractTextFromContent(content)
+    const envelope = toRecord(message.message)
+    return extractTextFromContent(envelope?.content)
   }
+
   if (message.type === "stream_event") {
-    return extractTextFromStreamEvent(
-      (message as { event?: unknown }).event
-    )
+    return extractTextFromStreamEvent(message.event)
   }
+
   return []
 }
 
@@ -66,25 +97,27 @@ export const extractResultText = (message: SDKMessage): string | undefined =>
 
 export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(
-    Stream.mapAccum(false, (hasText, message) => {
+    Stream.mapAccum(() => false, (hasText, message) => {
       const chunks = extractTextChunks(message)
       if (chunks.length > 0) {
-        return [true, chunks] as const
+        const next: readonly [boolean, ReadonlyArray<string>] = [true, chunks]
+        return next
       }
+
       if (!hasText) {
         const resultText = extractResultText(message)
-        if (resultText && resultText.length > 0) {
-          return [true, [resultText]] as const
+        if (resultText !== undefined && resultText.length > 0) {
+          const next: readonly [boolean, ReadonlyArray<string>] = [true, [resultText]]
+          return next
         }
       }
-      return [hasText, []] as const
+
+      const next: readonly [boolean, ReadonlyArray<string>] = [hasText, []]
+      return next
     }),
     Stream.flatMap((chunks) => Stream.fromIterable(chunks))
   )
 
-/**
- * Zero-config entry point that runs a single prompt and resolves with the final result.
- */
 export const run = (
   prompt: string,
   options?: Options,
@@ -94,16 +127,11 @@ export const run = (
     Effect.scoped(
       Effect.gen(function*() {
         const runtime = yield* AgentRuntime
-        return yield* QueryResult.collectResultSuccess(
-          runtime.stream(prompt, options)
-        )
+        return yield* QueryResult.collectResultSuccess(runtime.stream(prompt, options))
       }).pipe(Effect.provide(runtimeLayer(entry)))
     )
   )
 
-/**
- * Zero-config entry point that streams assistant text chunks as an AsyncIterable.
- */
 export const streamText = (
   prompt: string,
   options?: Options,
@@ -119,6 +147,7 @@ export const streamText = (
         }).pipe(Effect.provide(runtimeLayer(entry)))
       )
     )
+
     for await (const chunk of iterable) {
       yield chunk
     }

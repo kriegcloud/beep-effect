@@ -1,7 +1,7 @@
-import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as ServiceMap from "effect/ServiceMap"
+import type * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import type { ConflictResolution } from "./ConflictPolicy.js"
 
 export type SyncConflictAudit = {

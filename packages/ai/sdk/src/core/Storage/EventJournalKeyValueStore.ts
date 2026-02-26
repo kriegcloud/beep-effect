@@ -1,15 +1,14 @@
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Option from "effect/Option"
-import * as PubSub from "effect/PubSub"
-import * as Semaphore from "effect/Semaphore"
-import * as ServiceMap from "effect/ServiceMap"
-import * as EventJournal from "effect/unstable/eventlog/EventJournal"
-import { KeyValueStore } from "effect/unstable/persistence"
-import { ConflictPolicy } from "../Sync/ConflictPolicy.js"
-import type { ConflictResolution } from "../Sync/ConflictPolicy.js"
-import { SyncAudit } from "../Sync/SyncAudit.js"
-import { defaultAuditEventJournalKey } from "./defaults.js"
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
+import * as PubSub from "effect/PubSub";
+import * as Semaphore from "effect/Semaphore";
+import type * as ServiceMap from "effect/ServiceMap";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
+import {KeyValueStore} from "effect/unstable/persistence";
+import type {ConflictResolution} from "../Sync/index.js";
+import {ConflictPolicy, SyncAudit} from "../Sync/index.js";
+import {defaultAuditEventJournalKey} from "./defaults.js";
 
 const defaultKey = defaultAuditEventJournalKey
 
@@ -148,183 +147,219 @@ export const make = (options?: { readonly key?: string }) =>
           )
       )
 
-    const service = EventJournal.EventJournal.of({
+    return EventJournal.EventJournal.of({
       entries: withLock(Effect.sync(() => journal.slice())),
-      write({ effect, event, payload, primaryKey }) {
-        return Effect.gen(function*() {
-          const entry = yield* Effect.sync(
-            () =>
-              new EventJournal.Entry({
-                id: EventJournal.makeEntryIdUnsafe(),
-                event,
-                primaryKey,
-                payload
-              }, { disableValidation: true })
-          )
+      write({
+              effect,
+              event,
+              payload,
+              primaryKey
+            }) {
+        return Effect.gen(function* () {
+          const entry = yield* Effect.sync(() => new EventJournal.Entry(
+            {
+              id: EventJournal.makeEntryIdUnsafe(),
+              event,
+              primaryKey,
+              payload
+            },
+            {disableValidation: true}
+          ))
           const value = yield* effect(entry)
-          yield* withLock(
-            Effect.suspend(() => {
-              if (byId.has(entry.idString)) return Effect.void
-              const persistedJournal = journal.slice()
-              insertSorted(persistedJournal, entry)
-              return persistEntries(entryStore, key, persistedJournal).pipe(
-                Effect.tap(() =>
-                  Effect.sync(() => {
-                    commitEntry(entry)
-                    remotes.forEach((remote) => {
-                      remote.missing.push(entry)
-                    })
-                  })
-                ),
-                Effect.andThen(publishChange(entry))
-              )
-            })
-          )
+          yield* withLock(Effect.suspend(() => {
+            if (byId.has(entry.idString)) return Effect.void
+            const persistedJournal = journal.slice()
+            insertSorted(
+              persistedJournal,
+              entry
+            )
+            return persistEntries(
+              entryStore,
+              key,
+              persistedJournal
+            )
+            .pipe(
+              Effect.tap(() => Effect.sync(() => {
+                commitEntry(entry)
+                remotes.forEach((remote) => {
+                  remote.missing.push(entry)
+                })
+              })),
+              Effect.andThen(publishChange(entry))
+            )
+          }))
           return value
         })
       },
-      writeFromRemote: (options) =>
-        withLock(
-          Effect.gen(function*() {
-            const remote = ensureRemote(options.remoteId)
-            const uncommittedRemotes: Array<EventJournal.RemoteEntry> = []
-            const uncommitted: Array<EventJournal.Entry> = []
-            let nextRemoteSequence = remote.sequence
-            for (const remoteEntry of options.entries) {
-              if (remoteEntry.remoteSequence > nextRemoteSequence) {
-                nextRemoteSequence = remoteEntry.remoteSequence
-              }
-              if (!byId.has(remoteEntry.entry.idString)) {
-                uncommittedRemotes.push(remoteEntry)
-                uncommitted.push(remoteEntry.entry)
-              }
-            }
+      writeFromRemote: (options) => withLock(Effect.gen(function* () {
+        const remote = ensureRemote(options.remoteId)
+        const uncommittedRemotes: Array<EventJournal.RemoteEntry> = []
+        const uncommitted: Array<EventJournal.Entry> = []
+        let nextRemoteSequence = remote.sequence
+        for (const remoteEntry of options.entries) {
+          if (remoteEntry.remoteSequence > nextRemoteSequence) {
+            nextRemoteSequence = remoteEntry.remoteSequence
+          }
+          if (!byId.has(remoteEntry.entry.idString)) {
+            uncommittedRemotes.push(remoteEntry)
+            uncommitted.push(remoteEntry.entry)
+          }
+        }
 
-            const brackets: ReadonlyArray<
-              readonly [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>]
-            > = options.compact
-              ? yield* options.compact(uncommittedRemotes)
-              : [[uncommitted, uncommittedRemotes]]
+        const brackets: ReadonlyArray<readonly [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>]> = options.compact
+                                                                                                                               ? yield* options.compact(uncommittedRemotes)
+                                                                                                                               : [
+            [
+              uncommitted,
+              uncommittedRemotes
+            ]
+          ]
 
-            const policyOption = yield* Effect.serviceOption(ConflictPolicy)
-            const auditOption = yield* Effect.serviceOption(SyncAudit)
-            const remoteIdString = remoteIdToString(options.remoteId)
+        const policyOption = yield* Effect.serviceOption(ConflictPolicy)
+        const auditOption = yield* Effect.serviceOption(SyncAudit)
+        const remoteIdString = remoteIdToString(options.remoteId)
 
-            const resolveConflict = (
-              entry: EventJournal.Entry,
-              conflicts: ReadonlyArray<EventJournal.Entry>
-            ) =>
-              Option.isSome(policyOption)
-                ? policyOption.value.resolve({ entry, conflicts })
-                : Effect.succeed(resolveDefaultConflict(entry, conflicts))
-
-            const emitConflict = (
-              entry: EventJournal.Entry,
-              conflicts: ReadonlyArray<EventJournal.Entry>,
-              resolution: ConflictResolution
-            ) =>
-              Option.isSome(auditOption)
-                ? auditOption.value.conflict({
-                    remoteId: remoteIdString,
-                    entry,
-                    conflicts,
-                    resolution
-                  })
-                : Effect.void
-
-            const emitCompaction = (
-              before: number,
-              after: number,
-              events: ReadonlyArray<string>
-            ) =>
-              Option.isSome(auditOption)
-                ? auditOption.value.compaction({
-                    remoteId: remoteIdString,
-                    before,
-                    after,
-                    events
-                  })
-                : Effect.void
-
-            const acceptedAll: Array<EventJournal.Entry> = []
-            for (const [compacted, remoteEntries] of brackets) {
-              if (remoteEntries.length > compacted.length) {
-                const events = Array.from(
-                  new Set(remoteEntries.map((remoteEntry) => remoteEntry.entry.event))
-                )
-                yield* emitCompaction(remoteEntries.length, compacted.length, events)
-              }
-
-              const accepted: Array<EventJournal.Entry> = []
-              const acceptedIndex = new Map<string, Array<EventJournal.Entry>>()
-              for (const originEntry of compacted) {
-                const conflicts: Array<EventJournal.Entry> = []
-                const key = conflictKey(originEntry)
-                const existing = conflictIndex.get(key)
-                if (existing) conflicts.push(...existing)
-                const local = acceptedIndex.get(key)
-                if (local) conflicts.push(...local)
-
-                let resolution = resolveDefaultConflict(originEntry, conflicts)
-                if (conflicts.length > 0) {
-                  resolution = yield* resolveConflict(originEntry, conflicts)
-                  yield* emitConflict(originEntry, conflicts, resolution)
-                }
-
-                if (resolution._tag !== "reject") {
-                  const resolvedEntry = resolution.entry
-                  if (!byId.has(resolvedEntry.idString)) {
-                    yield* options.effect({ entry: resolvedEntry, conflicts })
-                    accepted.push(resolvedEntry)
-                    const acceptedKey = conflictKey(resolvedEntry)
-                    const acceptedEntries = acceptedIndex.get(acceptedKey)
-                    if (acceptedEntries) {
-                      acceptedEntries.push(resolvedEntry)
-                    } else {
-                      acceptedIndex.set(acceptedKey, [resolvedEntry])
-                    }
-                  }
-                }
-              }
-
-              acceptedAll.push(...accepted)
-            }
-
-            if (acceptedAll.length > 0) {
-              const persistedJournal = journal.slice()
-              for (const entry of acceptedAll) {
-                insertSorted(persistedJournal, entry)
-              }
-              yield* persistEntries(entryStore, key, persistedJournal)
-              for (const entry of acceptedAll) {
-                commitEntry(entry)
-              }
-            }
-
-            if (nextRemoteSequence > remote.sequence) {
-              remote.sequence = nextRemoteSequence
-            }
+        const resolveConflict = (
+          entry: EventJournal.Entry,
+          conflicts: ReadonlyArray<EventJournal.Entry>
+        ) => Option.isSome(policyOption)
+             ? policyOption.value.resolve({
+            entry,
+            conflicts
           })
-        ),
+             : Effect.succeed(resolveDefaultConflict(
+            entry,
+            conflicts
+          ))
+
+        const emitConflict = (
+          entry: EventJournal.Entry,
+          conflicts: ReadonlyArray<EventJournal.Entry>,
+          resolution: ConflictResolution
+        ) => Option.isSome(auditOption)
+             ? auditOption.value.conflict({
+            remoteId: remoteIdString,
+            entry,
+            conflicts,
+            resolution
+          })
+             : Effect.void
+
+        const emitCompaction = (
+          before: number,
+          after: number,
+          events: ReadonlyArray<string>
+        ) => Option.isSome(auditOption)
+             ? auditOption.value.compaction({
+            remoteId: remoteIdString,
+            before,
+            after,
+            events
+          })
+             : Effect.void
+
+        const acceptedAll: Array<EventJournal.Entry> = []
+        for (const [compacted, remoteEntries] of brackets) {
+          if (remoteEntries.length > compacted.length) {
+            const events = Array.from(new Set(remoteEntries.map((remoteEntry) => remoteEntry.entry.event)))
+            yield* emitCompaction(
+              remoteEntries.length,
+              compacted.length,
+              events
+            )
+          }
+
+          const accepted: Array<EventJournal.Entry> = []
+          const acceptedIndex = new Map<string, Array<EventJournal.Entry>>()
+          for (const originEntry of compacted) {
+            const conflicts: Array<EventJournal.Entry> = []
+            const key = conflictKey(originEntry)
+            const existing = conflictIndex.get(key)
+            if (existing) conflicts.push(...existing)
+            const local = acceptedIndex.get(key)
+            if (local) conflicts.push(...local)
+
+            let resolution = resolveDefaultConflict(
+              originEntry,
+              conflicts
+            )
+            if (conflicts.length > 0) {
+              resolution = yield* resolveConflict(
+                originEntry,
+                conflicts
+              )
+              yield* emitConflict(
+                originEntry,
+                conflicts,
+                resolution
+              )
+            }
+
+            if (resolution._tag !== "reject") {
+              const resolvedEntry = resolution.entry
+              if (!byId.has(resolvedEntry.idString)) {
+                yield* options.effect({
+                  entry: resolvedEntry,
+                  conflicts
+                })
+                accepted.push(resolvedEntry)
+                const acceptedKey = conflictKey(resolvedEntry)
+                const acceptedEntries = acceptedIndex.get(acceptedKey)
+                if (acceptedEntries) {
+                  acceptedEntries.push(resolvedEntry)
+                }
+                else {
+                  acceptedIndex.set(
+                    acceptedKey,
+                    [resolvedEntry]
+                  )
+                }
+              }
+            }
+          }
+
+          acceptedAll.push(...accepted)
+        }
+
+        if (acceptedAll.length > 0) {
+          const persistedJournal = journal.slice()
+          for (const entry of acceptedAll) {
+            insertSorted(
+              persistedJournal,
+              entry
+            )
+          }
+          yield* persistEntries(
+            entryStore,
+            key,
+            persistedJournal
+          )
+          for (const entry of acceptedAll) {
+            commitEntry(entry)
+          }
+        }
+
+        if (nextRemoteSequence > remote.sequence) {
+          remote.sequence = nextRemoteSequence
+        }
+      })),
       withRemoteUncommited,
       nextRemoteSequence: (remoteId) => withLock(Effect.sync(() => ensureRemote(remoteId).sequence)),
       changes: PubSub.subscribe(pubsub),
-      destroy: withLock(
-        entryStore.remove(key).pipe(
-          Effect.mapError((cause) => toJournalError("destroy", cause)),
-          Effect.tap(() =>
-            Effect.sync(() => {
-              journal.length = 0
-              byId.clear()
-              remotes.clear()
-              conflictIndex.clear()
-            })
-          )
-        )
-      )
+      destroy: withLock(entryStore.remove(key)
+      .pipe(
+        Effect.mapError((cause) => toJournalError(
+          "destroy",
+          cause
+        )),
+        Effect.tap(() => Effect.sync(() => {
+          journal.length = 0
+          byId.clear()
+          remotes.clear()
+          conflictIndex.clear()
+        }))
+      ))
     })
-
-    return service
   })
 
 export const layerKeyValueStore = (options?: { readonly key?: string }) =>

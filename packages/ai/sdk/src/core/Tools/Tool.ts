@@ -1,5 +1,5 @@
 import * as ServiceMap from "effect/ServiceMap"
-import * as JsonSchema from "effect/JSONSchema"
+import * as JsonSchema from "effect/JsonSchema"
 import { constFalse, constTrue } from "effect/Function"
 import type * as Effect from "effect/Effect"
 import * as Schema from "effect/Schema"
@@ -12,7 +12,7 @@ import * as AST from "effect/SchemaAST"
  */
 export type FailureMode = "error" | "return"
 
-export type AnyStructSchema = Schema.Schema.Any
+export type AnyStructSchema = Schema.Top
 
 /**
  * Declarative tool definition used for SDK tool registration.
@@ -20,9 +20,9 @@ export type AnyStructSchema = Schema.Schema.Any
 export interface Tool<
   Name extends string,
   Config extends {
-    readonly parameters: Schema.Schema.Any
-    readonly success: Schema.Schema.Any
-    readonly failure: Schema.Schema.All
+    readonly parameters: Schema.Top
+    readonly success: Schema.Top
+    readonly failure: Schema.Top
     readonly failureMode: FailureMode
   },
   Requirements = never
@@ -34,10 +34,10 @@ export interface Tool<
   readonly parametersSchema: Config["parameters"]
   readonly successSchema: Config["success"]
   readonly failureSchema: Config["failure"]
-  readonly annotations: Context.Context<never>
+  readonly annotations: ServiceMap.ServiceMap<never>
 
   addDependency<Identifier, Service>(
-    tag: Context.Tag<Identifier, Service>
+    tag: ServiceMap.Service<Identifier, Service>
   ): Tool<Name, Config, Identifier | Requirements>
 
   setParameters<
@@ -57,7 +57,7 @@ export interface Tool<
     Requirements
   >
 
-  setSuccess<SuccessSchema extends Schema.Schema.Any>(
+  setSuccess<SuccessSchema extends Schema.Top>(
     schema: SuccessSchema
   ): Tool<
     Name,
@@ -70,7 +70,7 @@ export interface Tool<
     Requirements
   >
 
-  setFailure<FailureSchema extends Schema.Schema.Any>(
+  setFailure<FailureSchema extends Schema.Top>(
     schema: FailureSchema
   ): Tool<
     Name,
@@ -84,7 +84,7 @@ export interface Tool<
   >
 
   annotate<I, S>(
-    tag: Context.Tag<I, S> | Context.Reference<any, S>,
+    tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>,
     value: S
   ): Tool<Name, Config, Requirements>
 }
@@ -97,8 +97,8 @@ export namespace Tool {
 
 export type Any = Tool<string, {
   readonly parameters: AnyStructSchema
-  readonly success: Schema.Schema.Any
-  readonly failure: Schema.Schema.All
+  readonly success: Schema.Top
+  readonly failure: Schema.Top
   readonly failureMode: FailureMode
 }>
 
@@ -109,7 +109,7 @@ export type Parameters<T> = T extends Tool<infer _Name, infer _Config, infer _Re
   never
 
 export type ParametersEncoded<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
-  Schema.Schema.Encoded<_Config["parameters"]> :
+  Schema.Codec.Encoded<_Config["parameters"]> :
   never
 
 export type ParametersSchema<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
@@ -125,7 +125,7 @@ export type SuccessSchema<T> = T extends Tool<infer _Name, infer _Config, infer 
   never
 
 export type SuccessEncoded<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
-  Schema.Schema.Encoded<_Config["success"]> :
+  Schema.Codec.Encoded<_Config["success"]> :
   never
 
 export type Failure<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
@@ -137,7 +137,7 @@ export type FailureSchema<T> = T extends Tool<infer _Name, infer _Config, infer 
   never
 
 export type FailureEncoded<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
-  Schema.Schema.Encoded<_Config["failure"]> :
+  Schema.Codec.Encoded<_Config["failure"]> :
   never
 
 export type FailureModeOf<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ?
@@ -178,8 +178,8 @@ export type ToolWithHandler<
   Name extends string,
   Config extends {
     readonly parameters: AnyStructSchema
-    readonly success: Schema.Schema.Any
-    readonly failure: Schema.Schema.All
+    readonly success: Schema.Top
+    readonly failure: Schema.Top
     readonly failureMode: FailureMode
   },
   Requirements = never
@@ -189,8 +189,8 @@ export type ToolWithHandler<
 
 export type DefinitionFields<
   Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Schema.Any = typeof Schema.Void,
-  Failure extends Schema.Schema.All = typeof Schema.Never,
+  Success extends Schema.Top = typeof Schema.Void,
+  Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined,
   R = never
 > = {
@@ -206,8 +206,8 @@ export type DefinitionFields<
 
 export type DefinitionSchema<
   Parameters extends AnyStructSchema,
-  Success extends Schema.Schema.Any = typeof Schema.Void,
-  Failure extends Schema.Schema.All = typeof Schema.Never,
+  Success extends Schema.Top = typeof Schema.Void,
+  Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined,
   R = never
 > = {
@@ -224,14 +224,14 @@ export type DefinitionSchema<
 export type Definition = {
   readonly description?: string | undefined
   readonly parameters?: Schema.Struct.Fields | AnyStructSchema | undefined
-  readonly success?: Schema.Schema.Any | undefined
-  readonly failure?: Schema.Schema.All | undefined
+  readonly success?: Schema.Top | undefined
+  readonly failure?: Schema.Top | undefined
   readonly failureMode?: FailureMode | undefined
   readonly handler: (params: any) => Effect.Effect<any, any, any>
 }
 
 type DefinitionParametersSchema<D> = D extends { parameters: infer P }
-  ? P extends Schema.Schema.Any
+  ? P extends Schema.Top
     ? P
     : P extends Schema.Struct.Fields
       ? Schema.Struct<P>
@@ -239,13 +239,13 @@ type DefinitionParametersSchema<D> = D extends { parameters: infer P }
   : typeof constEmptyStruct
 
 type DefinitionSuccessSchema<D> = D extends { success: infer S }
-  ? S extends Schema.Schema.Any
+  ? S extends Schema.Top
     ? S
     : typeof Schema.Void
   : typeof Schema.Void
 
 type DefinitionFailureSchema<D> = D extends { failure: infer F }
-  ? F extends Schema.Schema.All
+  ? F extends Schema.Top
     ? F
     : typeof Schema.Never
   : typeof Schema.Never
@@ -276,10 +276,10 @@ const Proto = {
   addDependency(this: Any) {
     return this
   },
-  annotate(this: Any, tag: Context.Tag<any, any> | Context.Reference<any, any>, value: any) {
+  annotate(this: Any, tag: ServiceMap.Service<any, any> | ServiceMap.Reference<any>, value: any) {
     return makeTool({
       ...this,
-      annotations: Context.add(this.annotations, tag as any, value)
+      annotations: ServiceMap.add(this.annotations, tag as any, value)
     })
   },
   setParameters(this: Any, schema: Schema.Struct<any> | Schema.Struct.Fields) {
@@ -291,13 +291,13 @@ const Proto = {
       parametersSchema
     })
   },
-  setSuccess(this: Any, schema: Schema.Schema.Any) {
+  setSuccess(this: Any, schema: Schema.Top) {
     return makeTool({
       ...this,
       successSchema: schema
     })
   },
-  setFailure(this: Any, schema: Schema.Schema.Any) {
+  setFailure(this: Any, schema: Schema.Top) {
     return makeTool({
       ...this,
       failureSchema: schema
@@ -309,10 +309,10 @@ const makeTool = <Name extends string>(options: {
   readonly name: Name
   readonly description?: string | undefined
   readonly parametersSchema: AnyStructSchema
-  readonly successSchema: Schema.Schema.Any
-  readonly failureSchema: Schema.Schema.All
+  readonly successSchema: Schema.Top
+  readonly failureSchema: Schema.Top
   readonly failureMode: FailureMode
-  readonly annotations: Context.Context<never>
+  readonly annotations: ServiceMap.ServiceMap<never>
 }) => {
   const self = Object.assign(Object.create(Proto), options)
   self.id = `@effect/claude-agent-sdk/Tool/${options.name}`
@@ -327,8 +327,8 @@ const constEmptyStruct = Schema.Struct({})
 export const make = <
   const Name extends string,
   Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Schema.Any = typeof Schema.Void,
-  Failure extends Schema.Schema.All = typeof Schema.Never,
+  Success extends Schema.Top = typeof Schema.Void,
+  Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined
 >(
   name: Name,
@@ -357,7 +357,7 @@ export const make = <
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? "error",
-    annotations: Context.empty()
+    annotations: ServiceMap.empty()
   }) as any
 }
 
@@ -367,8 +367,8 @@ export const make = <
 export const fromSchema = <
   const Name extends string,
   Parameters extends AnyStructSchema,
-  Success extends Schema.Schema.Any = typeof Schema.Void,
-  Failure extends Schema.Schema.All = typeof Schema.Never,
+  Success extends Schema.Top = typeof Schema.Void,
+  Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined
 >(
   name: Name,
@@ -395,7 +395,7 @@ export const fromSchema = <
     successSchema: options.success ?? Schema.Void,
     failureSchema: options.failure ?? Schema.Never,
     failureMode: options.failureMode ?? "error",
-    annotations: Context.empty()
+    annotations: ServiceMap.empty()
   }) as any
 
 const attachHandler = <T extends Any>(
@@ -419,8 +419,8 @@ export const define: {
   <
     const Name extends string,
     Parameters extends Schema.Struct.Fields = {},
-    Success extends Schema.Schema.Any = typeof Schema.Void,
-    Failure extends Schema.Schema.All = typeof Schema.Never,
+    Success extends Schema.Top = typeof Schema.Void,
+    Failure extends Schema.Top = typeof Schema.Never,
     Mode extends FailureMode | undefined = undefined,
     R = never
   >(
@@ -439,8 +439,8 @@ export const define: {
   <
     const Name extends string,
     Parameters extends AnyStructSchema,
-    Success extends Schema.Schema.Any = typeof Schema.Void,
-    Failure extends Schema.Schema.All = typeof Schema.Never,
+    Success extends Schema.Top = typeof Schema.Void,
+    Failure extends Schema.Top = typeof Schema.Never,
     Mode extends FailureMode | undefined = undefined,
     R = never
   >(
@@ -482,8 +482,8 @@ export const define: {
 export const fn = <
   const Name extends string,
   Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Schema.Any = typeof Schema.Void,
-  Failure extends Schema.Schema.All = typeof Schema.Never,
+  Success extends Schema.Top = typeof Schema.Void,
+  Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined,
   R = never
 >(
@@ -508,83 +508,61 @@ export const getJsonSchema = <
   Name extends string,
   Config extends {
     readonly parameters: AnyStructSchema
-    readonly success: Schema.Schema.Any
-    readonly failure: Schema.Schema.All
+    readonly success: Schema.Top
+    readonly failure: Schema.Top
     readonly failureMode: FailureMode
   }
 >(
   tool: Tool<Name, Config>
-): JsonSchema.JsonSchema7 => getJsonSchemaFromSchemaAst(tool.parametersSchema.ast)
+): JsonSchema.JsonSchema => getJsonSchemaFromSchema(tool.parametersSchema)
+
+const getJsonSchemaFromSchema = (schema: Schema.Top): JsonSchema.JsonSchema => {
+  const document = Schema.toJsonSchemaDocument(schema)
+  if (Object.keys(document.definitions).length === 0) {
+    return document.schema
+  }
+  return {
+    ...document.schema,
+    $defs: document.definitions
+  }
+}
 
 export const getJsonSchemaFromSchemaAst = (
   ast: AST.AST
-): JsonSchema.JsonSchema7 => {
-  if (
-    AST.isTypeLiteral(ast) &&
-    ast.propertySignatures.length === 0 &&
-    ast.indexSignatures.length === 0
-  ) {
-    return {
-      type: "object",
-      properties: {},
-      required: [],
-      additionalProperties: false
-    }
-  }
-  const $defs = {}
-  const schema = JsonSchema.fromAST(ast, {
-    definitions: $defs,
-    topLevelReferenceStrategy: "skip"
-  })
-  if (Object.keys($defs).length === 0) return schema
-  ;(schema as any).$defs = $defs
-  return schema
-}
+): JsonSchema.JsonSchema => getJsonSchemaFromSchema(Schema.make(ast))
 
 /**
  * Optional title metadata for tools.
  */
-export class Title extends Context.Tag("@effect/claude-agent-sdk/Tool/Title")<
-  Title,
-  string
->() {}
+export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/Title")
 
 /**
  * Indicates the tool is readonly (no side-effects).
  */
-export class Readonly extends Context.Reference<Readonly>()(
-  "@effect/claude-agent-sdk/Tool/Readonly",
-  {
-    defaultValue: constFalse
-  }
-) {}
+export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Readonly", {
+  defaultValue: constFalse
+})
 
 /**
  * Indicates the tool is destructive (side-effects likely).
  */
-export class Destructive extends Context.Reference<Destructive>()(
+export const Destructive = ServiceMap.Reference<boolean>(
   "@effect/claude-agent-sdk/Tool/Destructive",
   {
     defaultValue: constTrue
   }
-) {}
+)
 
 /**
  * Indicates the tool is idempotent for repeated calls.
  */
-export class Idempotent extends Context.Reference<Idempotent>()(
-  "@effect/claude-agent-sdk/Tool/Idempotent",
-  {
-    defaultValue: constFalse
-  }
-) {}
+export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Idempotent", {
+  defaultValue: constFalse
+})
 
 /**
  * Indicates the tool can read or write beyond the repo (open-world).
  */
-export class OpenWorld extends Context.Reference<OpenWorld>()(
-  "@effect/claude-agent-sdk/Tool/OpenWorld",
-  {
-    defaultValue: constTrue
-  }
-) {}
+export const OpenWorld = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/OpenWorld", {
+  defaultValue: constTrue
+})

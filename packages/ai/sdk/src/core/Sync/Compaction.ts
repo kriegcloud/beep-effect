@@ -1,7 +1,7 @@
-import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 import * as Clock from "effect/Clock"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
 
 export type CompactionBracket = [
   ReadonlyArray<EventJournal.Entry>,

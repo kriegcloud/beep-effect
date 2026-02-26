@@ -1,6 +1,6 @@
-import { KeyValueStore } from "effect/unstable/persistence"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
+import { KeyValueStore } from "effect/unstable/persistence"
 
 // Same storageError helper as StorageR2 (could be shared in a common file)
 const storageError = (method: string, description: string, cause?: unknown) =>

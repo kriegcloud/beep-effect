@@ -6,13 +6,12 @@ import * as Effect from "effect/Effect"
 import * as Runtime from "effect/Runtime"
 import * as Schema from "effect/Schema"
 import type * as Scope from "effect/Scope"
+import type { ZodRawShape, z } from "zod"
 import { McpError } from "../Errors.js"
-import type { CallToolResult } from "../Schema/External.js"
-import * as Tool from "../Tools/Tool.js"
-import * as Toolkit from "../Tools/Toolkit.js"
 import { schemaToZodObject } from "../internal/schemaToZod.js"
-import type { ZodRawShape } from "zod"
-import { z } from "zod"
+import type { CallToolResult } from "../Schema/External.js"
+import type * as Tool from "../Tools/Tool.js"
+import type * as Toolkit from "../Tools/Toolkit.js"
 
 export type ToolNameValidation = {
   readonly isValid: boolean
@@ -109,7 +108,7 @@ export type McpToolInputSchema = ZodRawShape | z.ZodTypeAny
 /**
  * Options for building an MCP tool from an Effect handler.
  */
-export type McpToolOptions<ParametersSchema extends Schema.Schema.AnyNoContext, R, E> = {
+export type McpToolOptions<ParametersSchema extends Schema.Top, R, E> = {
   readonly name: string
   readonly description: string
   readonly parameters: ParametersSchema
@@ -240,7 +239,7 @@ const defaultRenderError: ToolErrorRenderer = (_tool, error) =>
 /**
  * Create a single MCP tool from an Effect handler and Schema parameters.
  */
-export const tool = <ParametersSchema extends Schema.Schema.AnyNoContext, R, E>(
+export const tool = <ParametersSchema extends Schema.Top, R, E>(
   options: McpToolOptions<ParametersSchema, R, E>
 ): Effect.Effect<
   ReturnType<typeof sdkTool>,
@@ -249,7 +248,7 @@ export const tool = <ParametersSchema extends Schema.Schema.AnyNoContext, R, E>(
 > =>
   Effect.gen(function*() {
     warnOnInvalidToolName(options.name)
-    const runtime = yield* Effect.runtime<R>()
+    const runtime = Effect.runtime<R>()
     const inputSchema = options.inputSchema ?? (yield* Effect.try({
       try: () => schemaToZodObject(options.parameters),
       catch: (cause) =>
@@ -266,7 +265,7 @@ export const tool = <ParametersSchema extends Schema.Schema.AnyNoContext, R, E>(
           cause
         })
     })
-    const decodeParams = Schema.decodeUnknown(options.parameters)
+    const decodeParams = Schema.decodeUnknownEffect(options.parameters)
     const handler = (args: unknown, extra: unknown) => {
       const signal = getSignalFromExtra(extra)
       const effect = decodeParams(args).pipe(

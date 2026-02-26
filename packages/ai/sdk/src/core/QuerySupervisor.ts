@@ -5,12 +5,14 @@ import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Layer from "effect/Layer"
 import * as Metric from "effect/Metric"
-import * as MetricBoundaries from "effect/MetricBoundaries"
 import * as Option from "effect/Option"
+import * as Predicate from "effect/Predicate"
 import * as PubSub from "effect/PubSub"
 import * as Queue from "effect/Queue"
 import * as Schema from "effect/Schema"
+import * as Semaphore from "effect/Semaphore"
 import * as Scope from "effect/Scope"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
 import * as SynchronizedRef from "effect/SynchronizedRef"
 import { AgentSdk } from "./AgentSdk.js"
@@ -122,8 +124,10 @@ const queryFailedMetric = Metric.counter("agent_queries_failed", {
 
 const queryDurationMetric = Metric.histogram(
   "agent_query_duration_ms",
-  MetricBoundaries.fromIterable([50, 100, 250, 500, 1000, 2000, 5000, 10000, 30000]),
-  "Query duration in milliseconds"
+  {
+    description: "Query duration in milliseconds",
+    boundaries: Metric.boundariesFromIterable([50, 100, 250, 500, 1000, 2000, 5000, 10000, 30000])
+  }
 )
 
 const makeQueryId = () =>
@@ -153,10 +157,10 @@ const makeEventBus = (strategy: PendingQueueStrategy, capacity: number) => {
   }
 }
 
-const exitStatus = (exit: Exit.Exit<unknown, unknown>) => {
-  if (Exit.isInterrupted(exit)) return "interrupted" as const
-  if (Exit.isFailure(exit)) return "failure" as const
-  return "success" as const
+const exitStatus = (exit: Exit.Exit<unknown, unknown>): "success" | "failure" | "interrupted" => {
+  if (Exit.hasInterrupts(exit)) return "interrupted"
+  if (Exit.isFailure(exit)) return "failure"
+  return "success"
 }
 
 const stripNonSerializableOptions = (options: Options): Options => {
@@ -168,7 +172,17 @@ const stripNonSerializableOptions = (options: Options): Options => {
     abortController,
     ...rest
   } = options
-  return rest as Options
+  return rest
+}
+
+const extractErrorTag = (error: unknown): string | undefined => {
+  if (Predicate.hasProperty(error, "_tag")) {
+    const tag = error._tag
+    if (typeof tag === "string") {
+      return tag
+    }
+  }
+  return undefined
 }
 
 const toHookMatcherRegex = (matcher: string) =>
@@ -229,7 +243,7 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
       for (const toolUseId of preToolFired) {
         if (completedToolUseIds.has(toolUseId)) continue
         completedToolUseIds.add(toolUseId)
-        const input = {
+        const input: HookInput = {
           ...makeBaseInput(resolvedSessionId),
           hook_event_name: "PostToolUseFailure",
           tool_name: toolNames.get(toolUseId) ?? "unknown",
@@ -237,7 +251,7 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
           tool_use_id: toolUseId,
           error: errorMessage,
           ...(isInterrupt ? { is_interrupt: true } : {})
-        } as HookInput
+        }
         yield* runHookEvent("PostToolUseFailure", input, toolUseId).pipe(Effect.ignore)
       }
     })
@@ -247,11 +261,11 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
       ? Effect.void
       : Effect.gen(function*() {
           stopFired = true
-          const stopInput = {
+          const stopInput: HookInput = {
             ...makeBaseInput(resolvedSessionId),
             hook_event_name: "Stop",
             stop_hook_active: false
-          } as HookInput
+          }
           yield* runHookEvent("Stop", stopInput).pipe(Effect.ignore)
         })
 
@@ -260,11 +274,11 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
       ? Effect.void
       : Effect.gen(function*() {
           sessionEnded = true
-          const input = {
+          const input: HookInput = {
             ...makeBaseInput(resolvedSessionId),
             hook_event_name: "SessionEnd",
             reason: "other"
-          } as HookInput
+          }
           yield* runHookEvent("SessionEnd", input).pipe(Effect.ignore)
         })
 
@@ -274,12 +288,12 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
         sessionId = message.session_id
         if (!sessionStarted) {
           sessionStarted = true
-          const input = {
+          const input: HookInput = {
             ...makeBaseInput(message.session_id),
             hook_event_name: "SessionStart",
             source: "startup",
             model: options?.model
-          } as HookInput
+          }
           yield* runHookEvent("SessionStart", input).pipe(Effect.ignore)
         }
 
@@ -287,13 +301,13 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
           toolNames.set(message.tool_use_id, message.tool_name)
           if (!preToolFired.has(message.tool_use_id)) {
             preToolFired.add(message.tool_use_id)
-            const input = {
+            const input: HookInput = {
               ...makeBaseInput(message.session_id),
               hook_event_name: "PreToolUse",
               tool_name: message.tool_name,
               tool_input: {},
               tool_use_id: message.tool_use_id
-            } as HookInput
+            }
             yield* runHookEvent("PreToolUse", input, message.tool_use_id).pipe(Effect.ignore)
           }
         }
@@ -305,24 +319,25 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
         ) {
           const toolUseId = message.parent_tool_use_id
           completedToolUseIds.add(toolUseId)
-          const input = {
+          const input: HookInput = {
             ...makeBaseInput(message.session_id),
             hook_event_name: "PostToolUse",
             tool_name: toolNames.get(toolUseId) ?? "unknown",
             tool_input: {},
             tool_response: message.tool_use_result,
             tool_use_id: toolUseId
-          } as HookInput
+          }
           yield* runHookEvent("PostToolUse", input, toolUseId).pipe(Effect.ignore)
         }
 
         if (message.type === "result") {
           if (message.subtype !== "success") {
             const fallbackError = `Sandbox query failed with ${message.subtype}`
+            const firstError = "errors" in message
+              ? message.errors[0]
+              : undefined
             const errorMessage =
-              "errors" in message && message.errors.length > 0
-                ? message.errors[0]!
-                : fallbackError
+              firstError ?? fallbackError
             yield* firePostToolUseFailures(message.session_id, errorMessage)
             yield* fireStop(message.session_id)
           }
@@ -331,12 +346,12 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
         }
       })
     ),
-    Stream.ensuringWith((exit) =>
+    Stream.onExit((exit) =>
       Effect.gen(function*() {
         if (!sessionStarted || sessionEnded) return
         const resolvedSessionId = sessionId ?? "sandbox-session"
         if (Exit.isFailure(exit)) {
-          const interrupted = Exit.isInterrupted(exit)
+          const interrupted = Exit.hasInterrupts(exit)
           const errorMessage = interrupted
             ? "Sandbox query interrupted before emitting result"
             : "Sandbox query terminated before emitting result"
@@ -357,7 +372,7 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
 const makeQuerySupervisor = Effect.gen(function*() {
   const { settings } = yield* QuerySupervisorConfig
   const sdk = yield* AgentSdk
-  const semaphore = yield* Effect.makeSemaphore(settings.concurrencyLimit)
+  const semaphore = yield* Semaphore.make(settings.concurrencyLimit)
   const activeRef = yield* SynchronizedRef.make(new Map<string, ActiveQuery>())
   const pendingQueue = settings.pendingQueueCapacity > 0
     ? yield* makePendingQueue(settings.pendingQueueStrategy, settings.pendingQueueCapacity)
@@ -425,12 +440,12 @@ const makeQuerySupervisor = Effect.gen(function*() {
       )
     })
 
-  const startQuery = (request: QueryRequest) => {
+  const startQuery = (request: QueryRequest): Effect.Effect<QueryHandle, AgentSdkError> => {
     const effect = Effect.uninterruptibleMask((restore) =>
       Effect.gen(function*() {
         yield* restore(semaphore.take(1))
         const handle = yield* restore(
-          dispatchQuery(request.prompt, request.options).pipe(Scope.extend(request.scope))
+          dispatchQuery(request.prompt, request.options).pipe(Scope.provide(request.scope))
         ).pipe(
           Effect.onError(() => semaphore.release(1))
         )
@@ -468,9 +483,7 @@ const makeQuerySupervisor = Effect.gen(function*() {
             _tag: "QueryStartFailed",
             queryId: request.queryId,
             failedAt,
-            errorTag: typeof error === "object" && error !== null && "_tag" in error
-              ? String((error as { _tag?: string })._tag)
-              : undefined
+            errorTag: extractErrorTag(error)
           })
         })
       )
@@ -518,7 +531,7 @@ const makeQuerySupervisor = Effect.gen(function*() {
       scope,
       Deferred.fail(
         deferred,
-        QueryPendingCanceledError.make({
+        new QueryPendingCanceledError({
           message: "Query was canceled before it started",
           queryId
         })
@@ -527,7 +540,7 @@ const makeQuerySupervisor = Effect.gen(function*() {
 
     const offer = yield* Queue.offer(pendingQueue, pending)
     if (settings.pendingQueueStrategy === "dropping" && offer === false) {
-      const error = QueryQueueFullError.make({
+      const error = new QueryQueueFullError({
         message: "Pending queue is full",
         queryId,
         capacity: settings.pendingQueueCapacity,
@@ -546,24 +559,21 @@ const makeQuerySupervisor = Effect.gen(function*() {
     const awaitHandle = Deferred.await(deferred)
     if (settings.maxPendingTime) {
       const timeoutMs = Duration.toMillis(settings.maxPendingTime)
-      const timeoutError = QueryPendingTimeoutError.make({
+      const timeoutError = new QueryPendingTimeoutError({
         message: "Query did not start within maxPendingTime",
         queryId,
         timeoutMs
       })
       return yield* awaitHandle.pipe(
-        Effect.timeoutFail({
-          onTimeout: () => timeoutError,
+        Effect.timeoutOrElse({
           duration: settings.maxPendingTime
-        }),
-        Effect.tapError((error) =>
-          typeof error === "object" &&
-            error !== null &&
-            "_tag" in error &&
-            (error as { _tag?: string })._tag === "QueryPendingTimeoutError"
-            ? Deferred.fail(deferred, timeoutError).pipe(Effect.ignore)
-            : Effect.void
-        )
+          ,
+          onTimeout: () =>
+            Deferred.fail(deferred, timeoutError).pipe(
+              Effect.ignore,
+              Effect.andThen(Effect.fail(timeoutError))
+            )
+        })
       )
     }
 
@@ -571,7 +581,7 @@ const makeQuerySupervisor = Effect.gen(function*() {
   })
 
   const submitStream = (prompt: string | AsyncIterable<SDKUserMessage>, options?: Options) =>
-    Stream.unwrapScoped(
+    Stream.unwrap(
       submit(prompt, options).pipe(Effect.map((handle) => handle.stream))
     )
 
@@ -606,9 +616,7 @@ const makeQuerySupervisor = Effect.gen(function*() {
   })
 
   const events = eventBus
-    ? Stream.unwrapScoped(
-        Effect.map(PubSub.subscribe(eventBus), (queue) => Stream.fromQueue(queue))
-      )
+    ? Stream.fromPubSub(eventBus)
     : Stream.empty
 
   if (pendingQueue) {
@@ -651,16 +659,12 @@ const makeQuerySupervisor = Effect.gen(function*() {
 /**
  * Supervisor for running Claude Agent SDK queries with concurrency limits.
  */
-export class QuerySupervisor extends Effect.Service<QuerySupervisor>()(
-  "@effect/claude-agent-sdk/QuerySupervisor",
-  {
-    scoped: makeQuerySupervisor
-  }
-) {
+export class QuerySupervisor extends ServiceMap.Service<QuerySupervisor, Effect.Success<typeof makeQuerySupervisor>>()
+("@effect/claude-agent-sdk/QuerySupervisor") {
   /**
    * Build the QuerySupervisor service using QuerySupervisorConfig.
    */
-  static readonly layer = QuerySupervisor.Default
+  static readonly layer = Layer.effect(QuerySupervisor, makeQuerySupervisor)
 
   /**
    * Convenience layer that wires QuerySupervisorConfig from defaults.

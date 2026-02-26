@@ -1,7 +1,7 @@
-import { KeyValueStore } from "effect/unstable/persistence"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Schedule from "effect/Schedule"
+import { KeyValueStore } from "effect/unstable/persistence"
 
 /**
  * Helper to create PlatformError.SystemError for KVS operations.

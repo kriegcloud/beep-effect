@@ -1,39 +1,32 @@
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Logger from "effect/Logger"
+import * as References from "effect/References"
 import { AgentLoggingConfig, type LogFormat } from "./Config.js"
 
 const resolveLogger = (format: LogFormat) => {
   switch (format) {
     case "pretty":
-      return Logger.prettyLogger()
+      return Logger.consolePretty()
     case "structured":
-      return Logger.structuredLogger
+      return Logger.consoleStructured
     case "json":
-      return Logger.jsonLogger
+      return Logger.consoleJson
     case "logfmt":
-      return Logger.logfmtLogger
+      return Logger.consoleLogFmt
     case "string":
-      return Logger.stringLogger
+      return Logger.withConsoleLog(Logger.formatSimple)
   }
 }
 
-const needsConsoleRouting = (format: LogFormat) => format !== "pretty"
-
-export const layer = Layer.unwrapEffect(
+export const layer = Layer.unwrap(
   Effect.gen(function*() {
     const { settings } = yield* AgentLoggingConfig
-    const baseLogger = resolveLogger(settings.format)
-    const routedLogger = needsConsoleRouting(settings.format)
-      ? Logger.withLeveledConsole(baseLogger)
-      : baseLogger
-    const logger = settings.includeSpans
-      ? Logger.withSpanAnnotations(routedLogger)
-      : routedLogger
+    const logger = resolveLogger(settings.format)
 
     return Layer.mergeAll(
-      Logger.replace(Logger.defaultLogger, logger),
-      Logger.minimumLogLevel(settings.minLevel)
+      Logger.layer([logger]),
+      Layer.succeed(References.MinimumLogLevel, settings.minLevel)
     )
   })
 )

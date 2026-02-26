@@ -9,8 +9,8 @@ import * as Schema from "effect/Schema"
 import { ConfigError } from "./Errors.js"
 import { defaultSettingSources, layerConfigFromEnv } from "./internal/config.js"
 import { missingCredentialsError } from "./internal/credentials.js"
+import { PermissionMode } from "./Schema/index.js"
 import { type Options, SettingSource } from "./Schema/Options.js"
-import { PermissionMode } from "./Schema/Permission.js"
 import { SandboxIgnoreViolations } from "./Schema/Sandbox.js"
 
 const SettingSourcesSchema = Schema.Array(SettingSource)

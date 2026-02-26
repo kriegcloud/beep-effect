@@ -274,7 +274,7 @@ export const makeSessionTurnDriver = ({
       yield* Effect.logWarning(
         "SessionTurnDriver result timeout detected. Shutting down driver and closing transport."
       )
-      yield* Effect.fork(
+      yield* Effect.forkDetach(
         shutdown.pipe(
           Effect.andThen(
             close.pipe(
@@ -415,7 +415,7 @@ export const makeSessionTurnDriver = ({
     })
 
     const turn = (message: string | SDKUserMessage) =>
-      Stream.unwrapScoped(
+      Stream.fromEffect(
         Effect.gen(function*() {
           const request = yield* createRequest(message)
           yield* enqueueTurn
@@ -447,7 +447,7 @@ export const makeSessionTurnDriver = ({
         )
     )
 
-    const streamRawBase = Stream.unwrapScoped(
+    const streamRawBase = Stream.fromEffect(
       Effect.gen(function*() {
         yield* beginRaw
         yield* logState("raw-stream-begin")

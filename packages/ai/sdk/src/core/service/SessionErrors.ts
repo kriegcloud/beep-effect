@@ -8,14 +8,17 @@ export class SessionPoolUnavailableError extends Schema.TaggedErrorClass<Session
   {
     message: Schema.String
   }
-) {}
+) {
+  static readonly make = (params: Pick<SessionPoolUnavailableError, "message">) =>
+    new SessionPoolUnavailableError(params)
+}
 
-export const SessionServiceError = Schema.Union(
-[  SessionManagerError,
+export const SessionServiceError = Schema.Union([
+  SessionManagerError,
   SessionPoolError,
   SessionTenantAccessError,
-  SessionPoolUnavailableError]
-).pipe(Schema.annotate({ identifier: "SessionServiceError" }))
+  SessionPoolUnavailableError
+]).pipe(Schema.annotate({ identifier: "SessionServiceError" }))
 
 export type SessionServiceError = typeof SessionServiceError.Type
 export type SessionServiceErrorEncoded = typeof SessionServiceError.Encoded

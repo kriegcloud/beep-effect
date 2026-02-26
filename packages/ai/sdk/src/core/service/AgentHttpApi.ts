@@ -1,10 +1,5 @@
-import {
-  HttpApi,
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpApiSchema
-} from "effect/unstable/httpapi"
 import * as Schema from "effect/Schema"
+import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi"
 import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js"
 import * as SdkSchema from "../Schema/index.js"
 import {
@@ -21,86 +16,100 @@ import { SessionServiceError } from "./SessionErrors.js"
 
 class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   .add(
-    HttpApiEndpoint.post("query", "/query")
-      .payload(QueryInput)
-      .addSuccess(QueryResultOutput)
-      .addError(AgentServiceError)
+    HttpApiEndpoint.post("query", "/query", {
+      payload: HttpApiSchema.asJson({ contentType: "application/json" })(QueryInput),
+      success: QueryResultOutput,
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("stats", "/stats")
-      .addSuccess(QuerySupervisorStatsSchema)
+    HttpApiEndpoint.get("stats", "/stats", {
+      success: QuerySupervisorStatsSchema
+    })
   )
   .add(
-    HttpApiEndpoint.post("interruptAll", "/interrupt-all")
-      .addSuccess(HttpApiSchema.NoContent)
-      .addError(AgentServiceError)
+    HttpApiEndpoint.post("interruptAll", "/interrupt-all", {
+      success: HttpApiSchema.NoContent,
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("models", "/models")
-      .addSuccess(Schema.Array(SdkSchema.ModelInfo))
-      .addError(AgentServiceError)
+    HttpApiEndpoint.get("models", "/models", {
+      success: Schema.Array(SdkSchema.ModelInfo),
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("commands", "/commands")
-      .addSuccess(Schema.Array(SdkSchema.SlashCommand))
-      .addError(AgentServiceError)
+    HttpApiEndpoint.get("commands", "/commands", {
+      success: Schema.Array(SdkSchema.SlashCommand),
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("account", "/account")
-      .addSuccess(SdkSchema.AccountInfo)
-      .addError(AgentServiceError)
+    HttpApiEndpoint.get("account", "/account", {
+      success: SdkSchema.AccountInfo,
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("stream", "/stream")
-      .setUrlParams(Schema.Struct({ prompt: Schema.String }))
-      .addSuccess(Schema.String)
-      .addError(AgentServiceError)
+    HttpApiEndpoint.get("stream", "/stream", {
+      query: Schema.Struct({ prompt: Schema.String }),
+      success: Schema.String,
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.post("streamPost", "/stream")
-      .setPayload(QueryInput)
-      .addSuccess(Schema.String)
-      .addError(AgentServiceError)
+    HttpApiEndpoint.post("streamPost", "/stream", {
+      payload: QueryInput,
+      success: Schema.String,
+      error: AgentServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.post("createSession", "/sessions")
-      .setPayload(SessionCreateInput)
-      .addSuccess(SessionCreateOutput)
-      .addError(SessionServiceError)
+    HttpApiEndpoint.post("createSession", "/sessions", {
+      payload: SessionCreateInput,
+      success: SessionCreateOutput,
+      error: SessionServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("listSessions", "/sessions")
-      .setUrlParams(Schema.Struct({ tenant: Schema.optional(Tenant) }))
-      .addSuccess(Schema.Array(SessionInfo))
-      .addError(SessionServiceError)
+    HttpApiEndpoint.get("listSessions", "/sessions", {
+      query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
+      success: Schema.Array(SessionInfo),
+      error: SessionServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("getSession", "/sessions/:id")
-      .setUrlParams(Schema.Struct({ id: Schema.String, tenant: Schema.optional(Tenant) }))
-      .addSuccess(SessionInfo)
-      .addError(SessionServiceError)
+    HttpApiEndpoint.get("getSession", "/sessions/:id", {
+      params: Schema.Struct({ id: Schema.String }),
+      query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
+      success: SessionInfo,
+      error: SessionServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.post("sendSession", "/sessions/:id/send")
-      .setUrlParams(Schema.Struct({ id: Schema.String }))
-      .setPayload(SessionSendInput)
-      .addSuccess(HttpApiSchema.NoContent)
-      .addError(SessionServiceError)
+    HttpApiEndpoint.post("sendSession", "/sessions/:id/send", {
+      params: Schema.Struct({ id: Schema.String }),
+      payload: SessionSendInput,
+      success: HttpApiSchema.NoContent,
+      error: SessionServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.get("streamSession", "/sessions/:id/stream")
-      .setUrlParams(Schema.Struct({ id: Schema.String, tenant: Schema.optional(Tenant) }))
-      .addSuccess(Schema.String)
-      .addError(SessionServiceError)
+    HttpApiEndpoint.get("streamSession", "/sessions/:id/stream", {
+      params: Schema.Struct({ id: Schema.String }),
+      query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
+      success: Schema.String,
+      error: SessionServiceError
+    })
   )
   .add(
-    HttpApiEndpoint.del("closeSession", "/sessions/:id")
-      .setUrlParams(Schema.Struct({ id: Schema.String, tenant: Schema.optional(Tenant) }))
-      .addSuccess(HttpApiSchema.NoContent)
-      .addError(SessionServiceError)
-  )
-{}
+    HttpApiEndpoint.delete("closeSession", "/sessions/:id", {
+      params: Schema.Struct({ id: Schema.String }),
+      query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
+      success: HttpApiSchema.NoContent,
+      error: SessionServiceError
+    })
+  ) {}
 
-export class AgentHttpApi extends HttpApi.make("agent") // top-level routes
-  .add(AgentHttpGroup)
-{}
+export class AgentHttpApi extends HttpApi.make("agent").add(AgentHttpGroup) {}

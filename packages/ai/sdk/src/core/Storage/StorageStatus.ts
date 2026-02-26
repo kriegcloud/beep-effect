@@ -1,7 +1,7 @@
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
-import { SyncService, type RemoteStatus } from "../Sync/SyncService.js"
+import { type RemoteStatus, SyncService } from "../Sync/index.js"
 import { StorageConfig, type StorageConfigData } from "./StorageConfig.js"
 
 export type StorageStatus = {

@@ -1,11 +1,11 @@
+import type { SDKSession, SDKUserMessage as SdkSDKUserMessage } from "@anthropic-ai/claude-agent-sdk"
 import {
   unstable_v2_createSession,
   unstable_v2_prompt,
   unstable_v2_resumeSession
 } from "@anthropic-ai/claude-agent-sdk"
-import type { SDKSession, SDKUserMessage as SdkSDKUserMessage } from "@anthropic-ai/claude-agent-sdk"
-import * as Duration from "effect/Duration"
 import * as Deferred from "effect/Deferred"
+import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Option from "effect/Option"
@@ -26,7 +26,7 @@ export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedErr
     message: Schema.String
   }
 ) {
-   static readonly make = (message: string) => new SessionClosedError(message)
+   static readonly make = (message: string) => new SessionClosedError({message})
 }
 
 export const SessionError = Schema.Union([SessionClosedError, TransportError])

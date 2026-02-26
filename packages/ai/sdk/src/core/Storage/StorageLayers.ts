@@ -1,16 +1,15 @@
-import { KeyValueStore } from "effect/unstable/persistence"
 import { BunFileSystem, BunPath } from "@effect/platform-bun"
+import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import type * as FileSystem from "effect/FileSystem"
-import type * as Path from "effect/Path"
-import type * as Duration from "effect/Duration"
 import * as Layer from "effect/Layer"
+import type * as Path from "effect/Path"
+import { KeyValueStore } from "effect/unstable/persistence"
+import type { ConflictPolicy } from "../Sync/index.js"
+import { SyncConfig, SyncService } from "../Sync/index.js"
 import { ArtifactStore } from "./ArtifactStore.js"
 import { AuditEventStore } from "./AuditEventStore.js"
 import { ChatHistoryStore } from "./ChatHistoryStore.js"
-import { SessionIndexStore } from "./SessionIndexStore.js"
-import { type KVNamespace, layerKV } from "./StorageKV.js"
-import { type R2Bucket, layerR2 } from "./StorageR2.js"
 import {
   defaultArtifactEventJournalKey,
   defaultArtifactIdentityKey,
@@ -23,8 +22,9 @@ import {
   defaultSessionIndexPrefix,
   defaultStorageDirectory
 } from "./defaults.js"
-import type { ConflictPolicy } from "../Sync/ConflictPolicy.js"
-import { SyncConfig, SyncService } from "../Sync/SyncService.js"
+import { SessionIndexStore } from "./SessionIndexStore.js"
+import { type KVNamespace, layerKV } from "./StorageKV.js"
+import { layerR2, type R2Bucket } from "./StorageR2.js"
 
 export type StorageLayerOptions = {
   readonly directory?: string

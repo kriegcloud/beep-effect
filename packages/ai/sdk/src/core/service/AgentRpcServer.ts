@@ -1,9 +1,9 @@
-import * as HttpRouter from "effect/unstable/http/HttpRouter"
 import { BunHttpServer } from "@effect/platform-bun"
-import { RpcSerialization, RpcServer } from "effect/unstable/rpc"
 import * as Layer from "effect/Layer"
-import { AgentRpcs } from "./AgentRpcs.js"
+import * as HttpRouter from "effect/unstable/http/HttpRouter"
+import { RpcSerialization, RpcServer } from "effect/unstable/rpc"
 import { layer as AgentRpcHandlers } from "./AgentRpcHandlers.js"
+import { AgentRpcs } from "./AgentRpcs.js"
 
 export type AgentRpcServerOptions = {
   readonly port?: number

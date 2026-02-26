@@ -1,16 +1,16 @@
-import { ServiceMap } from "effect";
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
+import * as ServiceMap from "effect/ServiceMap"
 import type * as Stream from "effect/Stream"
 import { makeSessionTurnDriver } from "./internal/sessionTurnDriver.js"
-import { SessionConfig, resolveTurnTimeouts } from "./SessionConfig.js"
-import { SessionManager } from "./SessionManager.js"
-import type { SessionHandle, SessionError } from "./Session.js"
 import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js"
 import type { SDKSessionOptions } from "./Schema/Session.js"
 import type { ChatEventSource } from "./Schema/Storage.js"
-import { ChatHistoryStore } from "./Storage/ChatHistoryStore.js"
+import type { SessionError, SessionHandle } from "./Session.js"
+import { resolveTurnTimeouts, SessionConfig } from "./SessionConfig.js"
+import { SessionManager } from "./SessionManager.js"
+import { ChatHistoryStore } from "./Storage/index.js"
 
 export type SessionHistoryOptions = {
   readonly source?: ChatEventSource
@@ -24,27 +24,27 @@ const defaultInputSource: ChatEventSource = "external"
 
 type SessionConfigService = ServiceMap.Service.Shape<typeof SessionConfig>
 
-const resolveRuntimeTimeouts = (
-  Effect.serviceOption(SessionConfig) as Effect.Effect<Option.Option<SessionConfigService>>
-).pipe(
-  Effect.map((configOption) =>
-    Option.isNone(configOption) ? undefined : resolveTurnTimeouts(configOption.value.runtime)
+const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
+  Effect.map((configOption: Option.Option<SessionConfigService>) =>
+    Option.isNone(configOption)
+      ? undefined
+      : resolveTurnTimeouts(configOption.value.runtime)
   )
 )
 
-export class SessionService extends ServiceMap.Service<SessionService, {
+export class SessionService extends ServiceMap.Service<
+  SessionService,
+  {
     readonly handle: SessionHandle
     readonly sessionId: Effect.Effect<string, SessionError>
     readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>
     readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>
     readonly stream: Stream.Stream<SDKMessage, SessionError>
     readonly close: Effect.Effect<void, SessionError>
-  }>()("@effect/claude-agent-sdk/SessionService") {
-  /**
-   * Build a scoped session service from a SessionManager.
-   */
+  }
+>()("@effect/claude-agent-sdk/SessionService") {
   static readonly layer = (options: SDKSessionOptions) =>
-    Layer.buildWithScope(
+    Layer.effect(
       SessionService,
       Effect.gen(function*() {
         const manager = yield* SessionManager
@@ -56,6 +56,7 @@ export class SessionService extends ServiceMap.Service<SessionService, {
           close: handle.close,
           ...(timeouts ? { timeouts } : {})
         })
+
         return SessionService.of({
           handle,
           sessionId: handle.sessionId,
@@ -67,29 +68,21 @@ export class SessionService extends ServiceMap.Service<SessionService, {
       })
     )
 
-  /**
-   * Convenience layer that wires SessionManager from defaults.
-   */
   static readonly layerDefault = (options: SDKSessionOptions) =>
-	  Layer.effect(SessionService, Effect.succeed(
-			SessionManager.layerDefault(options)
-	  ))
+    SessionService.layer(options).pipe(
+      Layer.provide(SessionManager.layerDefault)
+    )
 
-  /**
-   * Convenience layer that reads SessionManager config from env.
-   */
   static readonly layerDefaultFromEnv = (options: SDKSessionOptions, prefix = "AGENTSDK") =>
-    Layer.effect(SessionService, Effect.succeed(SessionManager.layerDefaultFromEnv(prefix)(options)))
+    SessionService.layer(options).pipe(
+      Layer.provide(SessionManager.layerDefaultFromEnv(prefix))
+    )
 
-  /**
-   * Scoped session service that records streamed messages into ChatHistoryStore.
-   * Recording is fail-open: storage errors are ignored to keep session flow intact.
-   */
   static readonly layerWithHistory = (
     options: SDKSessionOptions,
     history?: SessionHistoryOptions
   ) =>
-    Layer.buildWithScope(
+    Layer.effect(
       SessionService,
       Effect.gen(function*() {
         const manager = yield* SessionManager

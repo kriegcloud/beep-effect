@@ -1,9 +1,9 @@
 import * as Effect from "effect/Effect"
-import * as ServiceMap from "effect/ServiceMap"
+import  type * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
 import type { QueryHandle } from "../Query.js"
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js"
-import { ChatEventSource } from "../Schema/Storage.js"
+import type { ChatEventSource } from "../Schema/Storage.js"
 import { ChatHistoryStore } from "./ChatHistoryStore.js"
 
 export type RecorderOptions = {

@@ -24,6 +24,7 @@
     "@effect/ai-anthropic": "catalog:",
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@cloudflare/sandbox": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/data": "workspace:^",
     "zod": "catalog:"

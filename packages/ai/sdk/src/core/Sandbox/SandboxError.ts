@@ -21,5 +21,5 @@ export class SandboxError extends S.TaggedErrorClass<SandboxError>($I`SandboxErr
 		}
 	)
 ) {
-	static readonly make = (params: Pick<SandboxError, "message" | "operation" | "provider">) => new SandboxError(params);
+	static readonly make = (params: Pick<SandboxError, "message" | "operation" | "provider" | "cause">) => new SandboxError(params);
 }

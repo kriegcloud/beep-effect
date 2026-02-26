@@ -1,5 +1,5 @@
-import * as S from "effect/Schema";
 import {$AiSdkId} from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/QuerySupervisorError");
 
@@ -34,6 +34,7 @@ export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTim
 		description: "Raised when a pending query waits too long before starting."
 	})
 ) {
+	static readonly make = (params: Pick<QueryPendingTimeoutError, "message" | "queryId" | "timeoutMs">) => new QueryPendingTimeoutError(params)
 }
 
 /**

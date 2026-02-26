@@ -1,24 +1,23 @@
-import * as EventLog from "effect/unstable/eventlog/EventLog"
-import * as EventJournal from "effect/unstable/eventlog/EventJournal"
-import { KeyValueStore } from "effect/unstable/persistence"
-
-import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
-import type { HookEvent } from "../Schema/Hooks.js"
+
+import * as ServiceMap from "effect/ServiceMap"
+import * as EventJournal from "effect/unstable/eventlog/EventJournal"
+import * as EventLog from "effect/unstable/eventlog/EventLog"
+import { KeyValueStore } from "effect/unstable/persistence"
 import { AuditEventSchema, layerAuditHandlers } from "../experimental/EventLog.js"
-import { Compaction, compactEntries } from "../Sync/index.js"
+import type { HookEvent } from "../Schema/Hooks.js"
 import type { CompactionStrategy } from "../Sync/index.js"
-import { ConflictPolicy } from "../Sync/index.js"
+import { Compaction, ConflictPolicy, compactEntries } from "../Sync/index.js"
 import {
   defaultAuditEventJournalKey,
   defaultAuditIdentityKey,
   defaultStorageDirectory
 } from "./defaults.js"
+import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJournalKeyValueStore.js"
 import { StorageConfig } from "./StorageConfig.js"
 import { type StorageError, toStorageError } from "./StorageError.js"
-import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJournalKeyValueStore.js"
 
 export type AuditEventInput =
   | {

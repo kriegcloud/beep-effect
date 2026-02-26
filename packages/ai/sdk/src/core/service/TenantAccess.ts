@@ -1,8 +1,8 @@
-import * as Headers from "effect/unstable/http/Headers"
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
 import * as Schema from "effect/Schema"
+import * as Headers from "effect/unstable/http/Headers"
+import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest"
 
 const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/
 const callerTenantHeader = "x-agent-tenant"

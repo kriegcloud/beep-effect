@@ -1,7 +1,6 @@
 import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as ParseResult from "effect/ParseResult"
 import * as Schema from "effect/Schema"
 import type * as Scope from "effect/Scope"
 import * as Tool from "./Tool.js"
@@ -24,7 +23,7 @@ export interface Toolkit<Tools extends Record<string, Tool.Any>> {
    */
   toContext<Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(
     build: Handlers | Effect.Effect<Handlers, EX, RX>
-  ): Effect.Effect<Context.Context<Tool.HandlersFor<Tools>>, EX, RX>
+  ): Effect.Effect<ServiceMap.ServiceMap<Tool.HandlersFor<Tools>>, EX, RX>
   /**
    * Build a Layer with tool handlers for dependency injection.
    */
@@ -91,44 +90,52 @@ const Proto = {
     build: Record<string, (params: any) => any> | Effect.Effect<Record<string, (params: any) => any>>
   ) {
     return Effect.gen(this, function*() {
-      const context = yield* Effect.context<never>()
+      const context = yield* Effect.services<never>()
       const handlers = Effect.isEffect(build) ? yield* build : build
       const contextMap = new Map<string, unknown>()
       for (const [name, handler] of Object.entries(handlers)) {
         const tool = this.tools[name]!
         contextMap.set(tool.id, { handler, context })
       }
-      return Context.unsafeMake(contextMap)
+      return ServiceMap.makeUnsafe(contextMap)
     })
   },
   toLayer(
     this: Toolkit<Record<string, Tool.Any>>,
     build: Record<string, (params: any) => any> | Effect.Effect<Record<string, (params: any) => any>>
   ) {
-    return Layer.scopedContext(this.toContext(build))
+    return Layer.unwrap(
+      this.toContext(build).pipe(
+        Effect.map((context) => Layer.succeedServices(context))
+      )
+    )
   },
   commit(this: Toolkit<Record<string, Tool.Any>>) {
     return Effect.gen(this, function*() {
       const tools = this.tools
-      const context = yield* Effect.context<never>()
+      const context = yield* Effect.services<never>()
       const schemasCache = new WeakMap<any, {
-        readonly context: Context.Context<never>
+        readonly context: ServiceMap.ServiceMap<never>
         readonly handler: (params: any) => Effect.Effect<any, any, any>
-        readonly decodeParameters: (u: unknown) => Effect.Effect<Tool.Parameters<any>, ParseResult.ParseError>
-        readonly validateResult: (u: unknown) => Effect.Effect<unknown, ParseResult.ParseError>
-        readonly encodeResult: (u: unknown) => Effect.Effect<unknown, ParseResult.ParseError>
+        readonly decodeParameters: (u: unknown) => Effect.Effect<Tool.Parameters<any>, Schema.SchemaError>
+        readonly validateResult: (u: unknown) => Effect.Effect<unknown, Schema.SchemaError>
+        readonly encodeResult: (u: unknown) => Effect.Effect<unknown, Schema.SchemaError>
       }>()
       const getSchemas = (tool: Tool.Any) => {
         let schemas = schemasCache.get(tool)
         if (schemas === undefined) {
-          const handler = context.unsafeMap.get(tool.id)! as {
-            readonly handler: (params: any) => Effect.Effect<any, any, any>
-            readonly context: Context.Context<never>
+          const maybeHandler = context.mapUnsafe.get(tool.id)
+          if (maybeHandler === undefined) {
+            throw new Error(`Missing handler for tool '${tool.name}'`)
           }
-          const decodeParameters = Schema.decodeUnknown(tool.parametersSchema) as any
+          const handler = maybeHandler as {
+            readonly handler: (params: any) => Effect.Effect<any, any, any>
+            readonly context: ServiceMap.ServiceMap<never>
+          }
+          const decodeParameters = Schema.decodeUnknownEffect(tool.parametersSchema) as any
           const resultSchema = Schema.Union(tool.successSchema, tool.failureSchema)
-          const validateResult = Schema.validate(resultSchema) as any
-          const encodeResult = Schema.encodeUnknown(resultSchema) as any
+          const validateResult = Schema.decodeUnknownEffect(resultSchema) as any
+          const encodeResult = Schema.encodeUnknownEffect(resultSchema) as any
           schemas = {
             context: handler.context,
             handler: handler.handler,
@@ -169,9 +176,9 @@ const Proto = {
                 : Effect.succeed({ result: error, isFailure: true })
             ),
             Effect.tap(({ result }) => schemas.validateResult(result)),
-            Effect.mapInputContext((input) => Context.merge(schemas.context, input)),
+            Effect.provideServices(schemas.context),
             Effect.mapError((cause) =>
-              ParseResult.isParseError(cause)
+              Schema.isSchemaError(cause)
                 ? ToolOutputError.make({
                   name,
                   message: `Failed to validate result for tool '${name}'`,

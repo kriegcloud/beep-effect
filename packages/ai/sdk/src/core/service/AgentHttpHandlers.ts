@@ -1,23 +1,23 @@
-
-import { HttpApiBuilder, HttpServerResponse } from "effect/unstable/httpapi"
 import * as Cause from "effect/Cause"
-import * as ServiceMap from "effect/ServiceMap"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
-import * as Schema from "effect/Schema"
+import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
+import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
+import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { AgentRuntime } from "../AgentRuntime.js"
 import type { AgentSdkError } from "../Errors.js"
-import { collectResultSuccess } from "../QueryResult.js"
 import type { QueryHandle } from "../Query.js"
-import type { SDKUserMessage } from "../Schema/Message.js"
-import { QueryInput, type QueryInput as QueryInputType } from "../Schema/Service.js"
+import { collectResultSuccess } from "../QueryResult.js"
 import type { QuerySupervisorError } from "../QuerySupervisor.js"
+import type { SDKUserMessage } from "../Schema/Message.js"
+import type { QueryInput as QueryInputType } from "../Schema/Service.js"
 import { SessionPool } from "../SessionPool.js"
 import { AgentHttpApi } from "./AgentHttpApi.js"
 import { SessionPoolUnavailableError } from "./SessionErrors.js"
 import { resolveRequestTenant } from "./TenantAccess.js"
 
+type AgentRuntimeService = ServiceMap.Service.Shape<typeof AgentRuntime>
 type SessionPoolService = ServiceMap.Service.Shape<typeof SessionPool>
 
 const textEncoder = new TextEncoder()
@@ -52,7 +52,7 @@ const toPrompt = (input: QueryInputType): string | AsyncIterable<SDKUserMessage>
     : toAsyncIterable(input.prompt)
 
 const withProbeHandle = <A>(
-  runtime: AgentRuntime,
+  runtime: AgentRuntimeService,
   use: (handle: QueryHandle) => Effect.Effect<A, AgentSdkError, never>
 ): Effect.Effect<A, AgentSdkError | QuerySupervisorError, never> =>
   Effect.scoped(
@@ -66,6 +66,12 @@ const withProbeHandle = <A>(
         }).pipe(Effect.ignore)
     )
   )
+
+const sseHeaders = {
+  "content-type": "text/event-stream",
+  "cache-control": "no-cache",
+  connection: "keep-alive"
+}
 
 export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
   Effect.gen(function*() {
@@ -92,41 +98,18 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
             metadata: result
           }))
         ))
-      .handleRaw("stream", ({ urlParams }) =>
+      .handle("stream", ({ query }) =>
         Effect.succeed(
           HttpServerResponse.stream(
-            toSseStream(runtime.stream(urlParams.prompt)),
-            {
-              headers: {
-                "content-type": "text/event-stream",
-                "cache-control": "no-cache",
-                connection: "keep-alive"
-              }
-            }
+            toSseStream(runtime.stream(query.prompt)),
+            { headers: sseHeaders }
           )
         ))
-      .handleRaw("streamPost", ({ request }) =>
-        request.json.pipe(
-          Effect.flatMap((payload) =>
-            Schema.decodeUnknownEffect(QueryInput)(payload).pipe(
-              Effect.map((decoded) =>
-                HttpServerResponse.stream(
-                  toSseStream(runtime.stream(toPrompt(decoded), decoded.options)),
-                  {
-                    headers: {
-                      "content-type": "text/event-stream",
-                      "cache-control": "no-cache",
-                      connection: "keep-alive"
-                    }
-                  }
-                )
-              )
-            )
-          ),
-          Effect.catch(() =>
-            Effect.succeed(
-              HttpServerResponse.text("Invalid request payload.", { status: 400 })
-            )
+      .handle("streamPost", ({ payload }) =>
+        Effect.succeed(
+          HttpServerResponse.stream(
+            toSseStream(runtime.stream(toPrompt(payload), payload.options)),
+            { headers: sseHeaders }
           )
         ))
       .handle("stats", () => runtime.stats)
@@ -144,56 +127,50 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
               ))
           )
         ))
-      .handle("listSessions", ({ urlParams }) =>
+      .handle("listSessions", ({ query }) =>
         requirePool((pool) =>
-          resolveRequestTenant(urlParams.tenant).pipe(
+          resolveRequestTenant(query.tenant).pipe(
             Effect.flatMap((tenant) => pool.listByTenant(tenant))
           )
         )
       )
-      .handle("getSession", ({ urlParams }) =>
+      .handle("getSession", ({ params, query }) =>
         requirePool((pool) =>
-          resolveRequestTenant(urlParams.tenant).pipe(
+          resolveRequestTenant(query.tenant).pipe(
             Effect.flatMap((tenant) =>
-              pool.get(urlParams.id, undefined, tenant).pipe(
-                Effect.andThen(pool.info(urlParams.id, tenant))
+              pool.get(params.id, undefined, tenant).pipe(
+                Effect.andThen(pool.info(params.id, tenant))
               ))
           )
         ))
-      .handle("sendSession", ({ urlParams, payload }) =>
+      .handle("sendSession", ({ params, payload }) =>
         requirePool((pool) =>
           resolveRequestTenant(payload.tenant).pipe(
             Effect.flatMap((tenant) =>
-              pool.get(urlParams.id, undefined, tenant).pipe(
+              pool.get(params.id, undefined, tenant).pipe(
                 Effect.flatMap((handle) => handle.send(payload.message)),
                 Effect.asVoid
               ))
           )
         ))
-      .handleRaw("streamSession", ({ urlParams }) =>
+      .handle("streamSession", ({ params, query }) =>
         requirePool((pool) =>
-          resolveRequestTenant(urlParams.tenant).pipe(
+          resolveRequestTenant(query.tenant).pipe(
             Effect.flatMap((tenant) =>
-              pool.get(urlParams.id, undefined, tenant).pipe(
+              pool.get(params.id, undefined, tenant).pipe(
                 Effect.map((handle) =>
                   HttpServerResponse.stream(
                     toSseStream(handle.stream),
-                    {
-                      headers: {
-                        "content-type": "text/event-stream",
-                        "cache-control": "no-cache",
-                        connection: "keep-alive"
-                      }
-                    }
+                    { headers: sseHeaders }
                   )
                 )
               ))
           )
         ))
-      .handle("closeSession", ({ urlParams }) =>
+      .handle("closeSession", ({ params, query }) =>
         requirePool((pool) =>
-          resolveRequestTenant(urlParams.tenant).pipe(
-            Effect.flatMap((tenant) => pool.close(urlParams.id, tenant).pipe(Effect.asVoid))
+          resolveRequestTenant(query.tenant).pipe(
+            Effect.flatMap((tenant) => pool.close(params.id, tenant).pipe(Effect.asVoid))
           )
         )
       )

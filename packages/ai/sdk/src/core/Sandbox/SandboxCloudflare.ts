@@ -116,7 +116,7 @@ const isStaleResumeFailure = (error: unknown): boolean => {
 export const layerCloudflare = (
   options: CloudflareSandboxOptions
 ): Layer.Layer<SandboxService, SandboxError> =>
-  Layer.scope(
+  Layer.effect(
     SandboxService,
     Effect.gen(function*() {
       // Dynamic import -- @cloudflare/sandbox is a peer dep.
@@ -293,7 +293,7 @@ export const layerCloudflare = (
               resumeSessionId: string | undefined,
               initialReadable?: ReadableStream
             ) =>
-              Stream.unwrapScoped(
+              Stream.fromEffect(
                 Effect.gen(function*() {
                   const readable = initialReadable ?? (yield* acquireExecStream(buildCommand(resumeSessionId)))
                   yield* Ref.set(activeReadableRef, readable)
@@ -415,7 +415,7 @@ export const layerCloudflare = (
               : makeAttemptStream(resumeSessionId, initialReadable).pipe(
                 Stream.catch((error) =>
                   isStaleResumeFailure(error)
-                    ? Stream.unwrapScoped(
+                    ? Stream.fromEffect(
                       Effect.gen(function*() {
                         yield* Effect.logWarning(
                           `Cloudflare sandbox resume fallback activated for sandbox=${options.sandboxId} session=${resumeSessionId}`

@@ -9,19 +9,15 @@ import { AgentSdkConfig } from "./AgentSdkConfig.js"
 import { ConfigError } from "./Errors.js"
 import { QuerySupervisor } from "./QuerySupervisor.js"
 import { QuerySupervisorConfig, type QuerySupervisorSettings } from "./QuerySupervisorConfig.js"
-import { layerCloudflare, type CloudflareSandboxEnv } from "./Sandbox/SandboxCloudflare.js"
+import { type CloudflareSandboxEnv, layerCloudflare } from "./Sandbox/SandboxCloudflare.js"
 import { layerLocal } from "./Sandbox/SandboxLocal.js"
-import { SandboxService } from "./Sandbox/SandboxService.js"
-import { ArtifactStore } from "./Storage/ArtifactStore.js"
-import { AuditEventStore } from "./Storage/AuditEventStore.js"
-import { ChatHistoryStore } from "./Storage/ChatHistoryStore.js"
-import { SessionIndexStore } from "./Storage/SessionIndexStore.js"
-import { StorageConfig } from "./Storage/StorageConfig.js"
+import type { SandboxService } from "./Sandbox/SandboxService.js"
+import { ArtifactStore, AuditEventStore, ChatHistoryStore, SessionIndexStore, StorageConfig } from "./Storage/index.js"
 import {
-  layers as storageLayers,
   type CloudflareStorageBindings,
   type StorageBackend,
-  type StorageMode
+  type StorageMode,
+  layers as storageLayers
 } from "./Storage/StorageLayers.js"
 
 type QuickConfigCloudflareSandbox = {
@@ -38,7 +34,7 @@ type QuickConfigCloudflareSandbox = {
 export type QuickConfig = {
   readonly apiKey?: string
   readonly model?: string
-  readonly timeout?: Duration.DurationInput
+  readonly timeout?: Duration.Input
   readonly concurrency?: number
   readonly persistence?:
     | "memory"
@@ -58,7 +54,7 @@ export type QuickConfig = {
 type ResolvedQuickConfig = {
   readonly apiKey?: string
   readonly model?: string
-  readonly timeout: Duration.DurationInput
+  readonly timeout: Duration.Input
   readonly concurrency: number
   readonly persistence: NonNullable<QuickConfig["persistence"]>
   readonly sandbox?: QuickConfig["sandbox"]
@@ -125,7 +121,7 @@ type RuntimeParts = {
 
 const buildRuntimeParts = (config: ResolvedQuickConfig): RuntimeParts => {
   const runtimeConfigLayer = AgentRuntimeConfig.layerWith({
-    queryTimeout: Duration.decode(config.timeout)
+    queryTimeout: Duration.fromInput(config.timeout)
   })
   const supervisorConfigLayer = QuerySupervisorConfig.layerWith({
     concurrencyLimit: config.concurrency,

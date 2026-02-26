@@ -1,12 +1,12 @@
+import {ServiceMap} from "effect";
 import * as Config from "effect/Config";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import {ServiceMap} from "effect";
-import type {Options} from "./Schema/Options.js";
-import {mergeOptions} from "./internal/options.js";
 import {layerConfigFromEnv} from "./internal/config.js";
+import {mergeOptions} from "./internal/options.js";
+import type {Options} from "./Schema/Options.js";
 
 export type AgentRuntimeSettings = {
 	readonly defaultOptions: Options

@@ -1,14 +1,14 @@
 import * as Effect from "effect/Effect"
 import * as Stream from "effect/Stream"
-import { logHookInput, logQueryEvent, logSdkMessage } from "./Events.js"
+import type { QueryEvent } from "../QuerySupervisor.js"
 import type { HookInput } from "../Schema/Hooks.js"
 import type { SDKMessage } from "../Schema/Message.js"
-import type { QueryEvent } from "../QuerySupervisor.js"
+import { logHookInput, logQueryEvent, logSdkMessage } from "./Events.js"
 
 export const tapSdkLogs = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(
     Stream.tap(logSdkMessage),
-    Stream.tapErrorCause((cause) => Effect.logError(cause))
+    Stream.onError((cause) => Effect.logError(cause))
   )
 
 export const logSdkStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
@@ -17,7 +17,7 @@ export const logSdkStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
 export const tapQueryEvents = <E>(stream: Stream.Stream<QueryEvent, E>) =>
   stream.pipe(
     Stream.tap(logQueryEvent),
-    Stream.tapErrorCause((cause) => Effect.logError(cause))
+    Stream.onError((cause) => Effect.logError(cause))
   )
 
 export const logQueryEventStream = <E>(stream: Stream.Stream<QueryEvent, E>) =>
@@ -26,7 +26,7 @@ export const logQueryEventStream = <E>(stream: Stream.Stream<QueryEvent, E>) =>
 export const tapHookInputs = <E>(stream: Stream.Stream<HookInput, E>) =>
   stream.pipe(
     Stream.tap(logHookInput),
-    Stream.tapErrorCause((cause) => Effect.logError(cause))
+    Stream.onError((cause) => Effect.logError(cause))
   )
 
 export const logHookInputStream = <E>(stream: Stream.Stream<HookInput, E>) =>

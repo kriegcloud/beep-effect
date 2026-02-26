@@ -6,7 +6,6 @@ import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import * as Schedule from "effect/Schedule"
 import * as Stream from "effect/Stream"
-import type * as Scope from "effect/Scope"
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js"
 import type { AgentSdkError } from "./Errors.js"
 import { withAuditLogging, wrapPermissionHooks, type AuditLoggingOptions } from "./Hooks/Audit.js"
@@ -14,27 +13,22 @@ import { withHooks } from "./Hooks/utils.js"
 import { mergeOptions } from "./internal/options.js"
 import type { QueryHandle } from "./Query.js"
 import { QuerySupervisor } from "./QuerySupervisor.js"
-import type {
-  QueryEvent,
-  QuerySupervisorError,
-  QuerySupervisorStats
-} from "./QuerySupervisor.js"
 import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js"
 import type { Options } from "./Schema/Options.js"
 import { ArtifactRecord, type ChatEventSource } from "./Schema/Storage.js"
-import type { RecorderOptions } from "./Storage/ChatHistory.js"
-import { ArtifactStore } from "./Storage/ArtifactStore.js"
-import { AuditEventStore } from "./Storage/AuditEventStore.js"
-import { ChatHistoryStore } from "./Storage/ChatHistoryStore.js"
-import { StorageConfig } from "./Storage/StorageConfig.js"
+import type { RecorderOptions } from "./Storage/index.js"
+import { ArtifactStore } from "./Storage/index.js"
+import { AuditEventStore } from "./Storage/index.js"
+import { ChatHistoryStore } from "./Storage/index.js"
+import { StorageConfig } from "./Storage/index.js"
 import {
   layersFileSystemBunJournaledWithSyncWebSocket,
   type StorageSyncLayerOptions
-} from "./Storage/StorageLayers.js"
-import { SessionIndexStore } from "./Storage/SessionIndexStore.js"
-import { layerAuditEventStore } from "./Sync/SyncAuditEventStore.js"
+} from "./Storage/index.js"
+import { SessionIndexStore } from "./Storage/index.js"
+import { layerAuditEventStore } from "./Sync/index.js"
 
-type ChatHistoryStoreService = Context.Tag.Service<typeof ChatHistoryStore>
+type ChatHistoryStoreService = ServiceMap.Service.Shape<typeof ChatHistoryStore>
 
 const decorateHandle = (
   handle: QueryHandle,
@@ -92,12 +86,12 @@ const applyRetry = <A, E, R>(
     : effect
 
 export type PersistenceLayers = {
-  readonly runtime?: Layer.Layer<AgentRuntime, unknown, never>
-  readonly chatHistory?: Layer.Layer<ChatHistoryStore, unknown, never>
-  readonly artifacts?: Layer.Layer<ArtifactStore, unknown, never>
-  readonly auditLog?: Layer.Layer<AuditEventStore, unknown, never>
-  readonly sessionIndex?: Layer.Layer<SessionIndexStore, unknown, never>
-  readonly storageConfig?: Layer.Layer<StorageConfig, unknown, never>
+  readonly runtime?: Layer.Layer<AgentRuntime, unknown, unknown>
+  readonly chatHistory?: Layer.Layer<ChatHistoryStore, unknown, unknown>
+  readonly artifacts?: Layer.Layer<ArtifactStore, unknown, unknown>
+  readonly auditLog?: Layer.Layer<AuditEventStore, unknown, unknown>
+  readonly sessionIndex?: Layer.Layer<SessionIndexStore, unknown, unknown>
+  readonly storageConfig?: Layer.Layer<StorageConfig, unknown, unknown>
 }
 
 export type PersistenceOptions = {
@@ -225,7 +219,7 @@ const makeAgentRuntime = Effect.gen(function*() {
   })
 
   const stream = (prompt: string | AsyncIterable<SDKUserMessage>, options?: Options) =>
-    Stream.unwrapScoped(
+    Stream.unwrap(
       query(prompt, options).pipe(Effect.map((handle) => handle.stream))
     )
 
@@ -242,16 +236,12 @@ const makeAgentRuntime = Effect.gen(function*() {
 /**
  * AgentRuntime composes AgentSdk, QuerySupervisor, and runtime policies.
  */
-export class AgentRuntime extends Effect.Service<AgentRuntime>()(
-  "@effect/claude-agent-sdk/AgentRuntime",
-  {
-    effect: makeAgentRuntime
-  }
-) {
+export class AgentRuntime extends ServiceMap.Service<AgentRuntime, Effect.Success<typeof makeAgentRuntime>>()
+("@effect/claude-agent-sdk/AgentRuntime") {
   /**
    * Build the AgentRuntime service using AgentRuntimeConfig.
    */
-  static readonly layer = AgentRuntime.Default
+  static readonly layer = Layer.effect(AgentRuntime, makeAgentRuntime)
 
   /**
    * Convenience layer that wires AgentRuntimeConfig from defaults.
@@ -371,11 +361,11 @@ export class AgentRuntime extends Effect.Service<AgentRuntime>()(
         )
 
         const stream = (prompt: string | AsyncIterable<SDKUserMessage>, opts?: Options) =>
-          Stream.unwrapScoped(
+          Stream.unwrap(
             query(prompt, opts).pipe(Effect.map((handle) => handle.stream))
           )
 
-        return AgentRuntime.make({
+        return AgentRuntime.of({
           query,
           queryRaw,
           stream,

@@ -1,5 +1,5 @@
-import { Rpc, RpcGroup } from "effect/unstable/rpc"
 import * as Schema from "effect/Schema"
+import { Rpc, RpcGroup } from "effect/unstable/rpc"
 import { AgentSdkError } from "../Errors.js"
 import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js"
 import * as SdkSchema from "../Schema/index.js"
@@ -9,7 +9,6 @@ import {
   SessionCreateInput,
   SessionCreateOutput,
   SessionInfo,
-  SessionSendInput,
   Tenant
 } from "../Schema/Service.js"
 import { SessionServiceError } from "./SessionErrors.js"
