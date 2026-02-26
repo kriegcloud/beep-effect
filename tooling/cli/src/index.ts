@@ -51,6 +51,19 @@ export {
   docsCommand,
 } from "./commands/docs.js";
 /**
+ * AST KG indexing command tree.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * AST KG indexing command tree.
+   *
+   * @since 0.0.0
+   */
+  kgCommand,
+} from "./commands/kg.js";
+/**
  * Purge command for removing root/workspace build artifacts.
  *
  * @since 0.0.0

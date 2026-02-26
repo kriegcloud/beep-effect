@@ -25,6 +25,13 @@ PENDING (P0 launch packet hardened for P1 execution)
 - [P1 Orchestrator Prompt](./handoffs/P1_ORCHESTRATOR_PROMPT.md)
 - [P1 Research Agent Prompt](./handoffs/P1_RESEARCH_AGENT_PROMPT.md)
 - [P1 Reuse Audit Agent Prompt](./handoffs/P1_REUSE_AUDIT_AGENT_PROMPT.md)
+- [P2 Handoff](./handoffs/HANDOFF_P2.md)
+- [P3 Orchestrator Prompt](./handoffs/P3_ORCHESTRATOR_PROMPT.md)
+- [P3 AST Engineer Prompt](./handoffs/P3_AST_ENGINEER_PROMPT.md)
+- [P3 Semantic Engineer Prompt](./handoffs/P3_SEMANTIC_ENGINEER_PROMPT.md)
+- [P3 Graphiti Engineer Prompt](./handoffs/P3_GRAPHITI_ENGINEER_PROMPT.md)
+- [P3 Hook Engineer Prompt](./handoffs/P3_HOOK_ENGINEER_PROMPT.md)
+- [P3 Eval Engineer Prompt](./handoffs/P3_EVAL_ENGINEER_PROMPT.md)
 - [Landscape Comparison](./outputs/p0-research/landscape-comparison.md)
 - [Reuse vs Build Matrix](./outputs/p0-research/reuse-vs-build-matrix.md)
 - [Constraints and Gaps](./outputs/p0-research/constraints-and-gaps.md)
@@ -69,12 +76,15 @@ This package is explicitly aligned to [outputs/initial_plan.md](./outputs/initia
 
 ## Phase Architecture
 
+Phase completion invariant:
+No phase is complete until declared outputs exist, phase exit gates pass, and the next-phase handoff prompt set is created.
+
 | Phase | Focus | Required Outputs | Entry Gate | Exit Gate | Owners |
 |---|---|---|---|---|---|
-| P0 | Launch packet | Canonical files + P0 handoffs + p0-research outputs | Spec path exists | Required-file checklist complete | Orchestrator |
-| P1 | Research and decision-log freeze | `outputs/p1-research/*` | P0 checklist complete | Source coverage 16/16 retained and no lock contradictions | Orchestrator + Research + Reuse Audit |
-| P2 | Contract and design freeze | `outputs/p2-design/*` | P1 complete | `TBD=0`, command surface fixed, schema + persistence + hook contracts frozen | Orchestrator + Schema + Graphiti Contract + Hook Contract |
-| P3 | Core implementation and integration | `outputs/p3-execution/*` + code changes | P2 complete | Full and delta indexing smoke pass; idempotent persistence pass | AST/Type + Semantic + Graphiti + Hook + Eval Engineers |
+| P0 | Launch packet | Canonical files + P0 handoffs + p0-research outputs | Spec path exists | Required-file checklist complete and P1 handoff prompt set exists | Orchestrator |
+| P1 | Research and decision-log freeze | `outputs/p1-research/*` | P0 checklist complete | Source coverage 16/16 retained, no lock contradictions, and P2 prompt set authored | Orchestrator + Research + Reuse Audit |
+| P2 | Contract and design freeze | `outputs/p2-design/*` | P1 complete | `TBD=0`, command surface fixed, schema + persistence + hook contracts frozen, and P3 handoff prompt set exists | Orchestrator + Schema + Graphiti Contract + Hook Contract |
+| P3 | Core implementation and integration | `outputs/p3-execution/*` + code changes | P2 complete | Full and delta indexing smoke pass, idempotent persistence pass, and P4 handoff prompt set exists | AST/Type + Semantic + Graphiti + Hook + Eval Engineers |
 | P4 | Validation + rollout readiness | `outputs/p4-validation/*` | P3 complete | Thresholds met and fallback drill pass | Validation + Rollout Engineers |
 
 ## Quantitative Validation Targets

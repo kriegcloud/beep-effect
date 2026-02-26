@@ -1,10 +1,12 @@
-# Agent Reliability Comparison (Baseline vs Dry Candidate)
+# Agent Reliability Comparison (Targeted Baseline vs Live 2026-02-25)
 
-- baselineRunAtEpochMs: 1771999260525
-- candidateRunAtEpochMs: 1771999575595
+- baselineRunAtEpochMs: 1772048632429
+- baselineStatus: completed
+- candidateRunAtEpochMs: 1772048638952
+- candidateStatus: completed
 
 | Metric | Baseline | Candidate | Delta |
 |---|---:|---:|---:|
-| Success Rate | 50.00% | 50.00% | 0.00pp |
-| Wrong-API Incidents | 240 | 240 | 0 |
-| Run Count | 288 | 288 | 0 |
+| Success Rate | 100.00% | 0.00% | -100.00pp |
+| Wrong-API Incidents | 0 | 0 | 0 |
+| Run Count | 24 | 24 | 0 |

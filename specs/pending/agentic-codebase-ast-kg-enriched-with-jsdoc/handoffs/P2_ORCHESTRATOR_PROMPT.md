@@ -33,8 +33,10 @@ Use P0 locked defaults and locked interface defaults as immutable unless ADR + p
 2. CLI/ID/provenance/tag-edge/envelope/hook-failure contracts match P0 locks.
 3. Open items from P1 are resolved using their carried defaults unless ADR is accepted.
 4. P3 task graph ownership assumptions are explicitly documented in P2 outputs.
+5. P3 handoff prompt set exists (`HANDOFF_P2` + all P3 prompt files).
 
 ## Exit Gate
 1. No contradictions to locked defaults/interfaces.
 2. All P2 outputs exist and pass internal consistency check.
 3. P3 execution can start without architecture choices.
+4. P3 handoff prompt set is authored.
