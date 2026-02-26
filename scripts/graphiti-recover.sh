@@ -8,6 +8,7 @@ VERIFY_GROUP="${GRAPHITI_VERIFY_GROUP:-beep-ast-kg}"
 REHYDRATE_MODE="auto" # auto|always|never
 MCP_PATH_PATCH_MODE="auto" # auto|always|never
 WAIT_SECONDS="${WAIT_SECONDS:-180}"
+DRY_RUN="false"
 
 usage() {
   cat <<'USAGE'
@@ -18,6 +19,7 @@ Options:
   --skip-republish    Never republish AST KG.
   --patch-mcp-path    Always apply MCP /mcp and /mcp/ compatibility hotfix.
   --skip-mcp-patch    Never apply MCP compatibility hotfix.
+  --dry-run           Validate inputs and print planned recovery actions without side effects.
   --group <id>        Group id to verify with get_episodes (default: beep-ast-kg).
   --url <mcp-url>     MCP URL (default: http://localhost:8000/mcp).
   -h, --help          Show this help.
@@ -40,6 +42,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-mcp-patch)
       MCP_PATH_PATCH_MODE="never"
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN="true"
       shift
       ;;
     --group)
@@ -75,6 +81,16 @@ require curl
 log() {
   printf '[graphiti-recover] %s\n' "$1"
 }
+
+if [[ "$DRY_RUN" == "true" ]]; then
+  log "Dry-run mode enabled; no containers or MCP services will be mutated."
+  log "Planned restart targets: ${FALKOR_CONTAINER}, ${GRAPHITI_CONTAINER}"
+  log "Planned MCP endpoint: ${MCP_URL}"
+  log "Planned verify group: ${VERIFY_GROUP}"
+  log "Planned republish mode: ${REHYDRATE_MODE}"
+  log "Planned MCP path patch mode: ${MCP_PATH_PATCH_MODE}"
+  exit 0
+fi
 
 health_status() {
   local container="$1"

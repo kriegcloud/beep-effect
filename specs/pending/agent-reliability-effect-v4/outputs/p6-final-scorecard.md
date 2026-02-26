@@ -1,46 +1,57 @@
-# P6 Final Scorecard (Day 90)
+# P6 Final Scorecard
 
-## Evidence Base
+## Evidence base
 
-- Baseline (matched matrix): `outputs/agent-reliability/runs/baseline-targeted.json`
-- Live candidate: `outputs/agent-reliability/runs/latest.json`
-- Comparison: `outputs/agent-reliability/weekly/compare.md`
-- Diagnostics: `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
-- Closed-loop episodes: `outputs/agent-reliability/episodes/latest.json`
+Artifacts used:
 
-Matrix compared: `3 tasks x 4 conditions x 2 agents x 1 trial = 24 runs`.
+- `outputs/agent-reliability/runs/latest.json`
+- `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
+- `outputs/agent-reliability/weekly/latest-report.md`
+- `outputs/agent-reliability/weekly/compare.md`
+- `outputs/agent-reliability/episodes/latest.json`
 
-## Scorecard Criteria
+Candidate metadata:
 
-| Criterion | Baseline | Candidate | Delta | Status |
-|---|---:|---:|---:|---|
-| Mixed-task success rate | 100.00% (24/24) | 0.00% (0/24) | -100.00pp | Fail |
-| Wrong-API incidents per successful task | 0.0000 | N/A (no successes) | N/A | Blocked |
-| First-pass `check+lint` pass rate | 100.00% (24/24) | 0.00% (0/24) | -100.00pp | Fail |
-| Median token-cost per successful task | $0.001643 | N/A (no successes) | N/A | Blocked |
-| Closed-loop ops validation (`ingest`) | Not run in baseline | `24` episodes emitted | +24 episodes | Pass |
+- `runMode`: `live`
+- `executionBackend`: `sdk`
+- Candidate matrix: three-task minimal slice (`6` runs)
 
-## Reliability Summary
+## Day-90 criteria scorecard (fail vs blocked)
 
-- Candidate status: `completed` (`plannedRunCount=24`, `completedRunCount=24`)
-- Outcome distribution: `runtime=24`, all other failure categories `0`
-- Allowlist false-positive regression: not observed (`allowlist pass 24/24`)
+| Criterion | Measured Value | Status |
+|---|---:|---|
+| Mixed-task success rate | `0/6` (`0.00%`) | Fail |
+| First-pass `check+lint+test` pass rate | `0/6` (`0.00%`) | Fail |
+| Wrong-API incidents per successful task | N/A (`0` successful tasks) | Blocked |
+| Median cost per successful task | N/A (`0` successful tasks) | Blocked |
+| Detector live mutation evidence | Mutations present in `2/6` runs; incidents in `2/6` runs | Pass |
+| Baseline/candidate comparability quality | `NON-COMPARABLE` (simulate baseline vs live candidate, matrix mismatch) | Fail |
+| Closed-loop ingestion artifact | `outputs/agent-reliability/episodes/latest.json` length `6` | Pass |
 
-## Confidence for Full Live Run Success
+## Key metrics and deltas
 
-- Confidence level: `Low`
-- Practical estimate under current harness/runtime settings: `<10%` chance of meaningful success-rate improvement in a full live matrix without runtime remediation.
+- Candidate run count: `6`
+- Candidate successes: `0`
+- Candidate critical incidents: `23`
+- Candidate average wall time: `602447.50 ms`
+- Candidate total cost: `$0`
+- Confidence-smoke gate: failed (`0/6` successes)
+- Control run (`apps_web_01` codex-only): runtime failure with timeout pattern reproduced
 
-## Go/No-Go
+## Confidence level for full live-run success
 
-- Final decision: `NO-GO`
-- Reason: mandatory success and first-pass quality criteria regressed by `-100pp`, with runtime timeouts preventing substantive execution.
+- Confidence: `Low`
+- Practical estimate for immediate full-matrix success: `<10%`
 
-## Exact Blockers and Next Action
+## Exact blockers and next action
 
-1. Blocker: universal runtime timeout across agents and conditions (`24/24`).
-   - Next action: run a focused live probe with increased task timeout budget (for example `--smoke-timeout-minutes 3-5`) on one task per category to confirm completions are possible.
-2. Blocker: Claude diagnostics tails are empty (`stdoutLength=0`, `stderrLength=0` in `12/12` Claude runs).
-   - Next action: instrument/verify Claude subprocess stream capture in the runner so tail diagnostics are usable.
-3. Blocker: detector live efficacy unproven because timed-out runs produce no touched source files.
-   - Next action: after runtime stability is restored, execute a small mutation-capable live slice and verify detector rule firing against touched-file evidence.
+1. Blocker: command timeout dominance (`command.timedOut=true` in all smoke/control runs).
+   - Next action: run one per-category live probe with increased per-task timeout budget and verify `completionObserved=true` before rerunning matrix.
+2. Blocker: broader live matrix is gated by smoke failure (`0/6` successes).
+   - Next action: require at least one successful run per category in confidence smokes, then execute baseline/candidate full matrix with matched assumptions.
+3. Blocker: adaptive/KG cohort metrics unavailable.
+   - Next action: after gate pass, execute `current,minimal,adaptive,adaptive_kg` cohorts and regenerate P3/P5 deltas from that run set.
+
+## Final decision
+
+- Go/No-Go: `NO-GO`

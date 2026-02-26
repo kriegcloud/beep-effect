@@ -1,77 +1,49 @@
 # P4 Effect v4 Detector Report
 
-## Scope
+## Scope and artifacts
 
-Detector status and live incident evidence for the February 25, 2026 targeted matrix.
+Artifacts used:
 
-Primary artifacts:
-
-- `tooling/agent-eval/src/effect-v4-detector/index.ts`
 - `outputs/agent-reliability/runs/latest.json`
 - `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
+- `outputs/agent-reliability/smokes/2026-02-25-confidence-summary.json`
 
-Verification gates executed:
+Run metadata:
 
-- `bun run --cwd tooling/agent-eval test` -> pass (`test/detector.test.ts` included)
+- `runMode`: `live`
+- `executionBackend`: `sdk`
+- Slice: three minimal confidence-smoke tasks aggregated (`apps_web_01`, `tooling_cli_01`, `package_lib_01`)
 
-## Rule Inventory
-
-Detector rule count: `27`
-
-Rule IDs:
-
-1. `context-generic-tag`
-2. `context-tag`
-3. `effect-tag`
-4. `effect-catch-all`
-5. `layer-scoped`
-6. `schema-decode`
-7. `effect-schema-package`
-8. `platform-filesystem-path`
-9. `platform-path-path`
-10. `runtime-generic`
-11. `node-core-import`
-12. `node-core-require`
-13. `native-date-now`
-14. `native-new-date`
-15. `native-array-method-chain`
-16. `json-parse-stringify`
-17. `schema-union-literals-array`
-18. `native-error-construction`
-19. `native-error-inheritance`
-20. `native-try-catch`
-21. `nullable-type-union`
-22. `nullable-initializer`
-23. `type-assertion-as`
-24. `non-null-assertion`
-25. `native-throw`
-26. `native-promise-construction`
-27. `native-promise-static`
-
-## Live Evidence (Targeted Matrix)
+## Detector incident and mutation metrics
 
 From `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`:
 
-- `run.diagnostic` rows: `24`
-- `wrongApiRuleIds` hits: `0`
-- `effectComplianceRuleIds` hits: `0`
-- `criticalIncidentCount > 0` rows: `0`
-- Runtime timeouts: `24/24`
-- `touchedPathCount=0` for all runs
+- Total runs: `6`
+- Runs with detector critical incidents (`criticalIncidentCount > 0`): `2`
+- Total critical incidents: `23`
+- Wrong-API incidents: `0`
+- Effect-compliance incidents: `23`
+- Dominant rule id: `type-assertion-as`
 
-From suite metrics in the same diagnostics file:
+Touched-path evidence:
 
-- `outcomeCounts.wrong_api = 0`
-- `outcomeCounts.effect_compliance = 0`
-- `outcomeCounts.runtime = 24`
+- Runs with `touchedPathCount > 0`: `2/6`
+- Total touched paths across runs: `6`
+- Live mutations present: `YES`
+  - `tooling_cli_01:minimal:claude:1` touched paths: `5`
+  - `package_lib_01:minimal:claude:1` touched paths: `1`
 
-## Precision/Recall Interpretation
+Timeout context:
 
-1. Static detector implementation health is validated at unit-test level.
-2. Live detector precision/recall is not observable in this run set because no source files were modified before runtime timeout.
-3. Current live evidence supports "no false positives observed" but does not support "detector catches real incidents" under this timeout-constrained execution profile.
+- `command.timedOut=true`: `6/6`
+- `command.completionObserved=true`: `0/6`
+
+## Interpretation
+
+1. Detector wiring is active in live runs and can emit critical effect-compliance incidents when files are mutated.
+2. Detector signal is currently mixed with universal command timeout behavior, so quality impact cannot be isolated from runtime instability.
 
 ## Decision
 
-- Detector implementation status: `GO` (unit-tested, rule inventory present)
-- Detector live efficacy status: `NO-GO` (insufficient mutation signal in live runs)
+- Detector live-signal presence: `GO` (mutations + incident firing observed)
+- Detector efficacy claim for rollout: `NO-GO` (runtime timeout dominates all runs)

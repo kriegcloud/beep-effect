@@ -111,6 +111,8 @@ interface IndexSummary {
 }
 
 type PublishTarget = "falkor" | "graphiti" | "both";
+type SinkTarget = "falkor" | "graphiti";
+type ParityProfile = "code-graph-functional" | "code-graph-strict";
 
 interface AstKgNodeV2 {
   readonly nodeId: string;
@@ -137,14 +139,34 @@ interface AstKgWriteReceiptV1 {
   readonly replayed: number;
   readonly failed: number;
   readonly durationMs: number;
+  readonly dedupeHits: number;
+  readonly dedupeMisses: number;
 }
 
 interface PublishSummary {
   readonly mode: IndexMode;
   readonly commitSha: string;
+  readonly group: string;
   readonly target: PublishTarget;
   readonly envelopes: number;
   readonly receipts: ReadonlyArray<AstKgWriteReceiptV1>;
+}
+
+interface SinkPublishLedger {
+  readonly schemaVersion: typeof KgSchemaVersion;
+  readonly sinks: Readonly<Record<string, string>>;
+}
+
+interface EnvelopeMetadata {
+  readonly file: string;
+  readonly workspace: string;
+  readonly groupId: string;
+  readonly commitSha: string;
+  readonly parentSha: string;
+  readonly branch: string;
+  readonly artifactHash: string;
+  readonly nodes: ReadonlyArray<AstKgNodeV2>;
+  readonly edges: ReadonlyArray<AstKgEdgeV2>;
 }
 
 const semanticTagToEdge: Readonly<Record<string, string>> = {
@@ -191,8 +213,40 @@ const relationType = (value: string): string => {
   return upper;
 };
 
+const toNodeKind = (value: string): NodeKind => {
+  if (
+    value === "module" ||
+    value === "function" ||
+    value === "class" ||
+    value === "interface" ||
+    value === "typeAlias" ||
+    value === "variable" ||
+    value === "enum" ||
+    value === "literal"
+  ) {
+    return value;
+  }
+  return "variable";
+};
+
+const toProvenance = (value: string): Provenance => {
+  if (value === "ast" || value === "type" || value === "jsdoc") {
+    return value;
+  }
+  return "ast";
+};
+
+const resolveRootDir = (): string =>
+  process.env.BEEP_KG_ROOT_OVERRIDE ??
+  String(
+    execSync("git rev-parse --show-toplevel", {
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+  ).trim();
+
 const falkorContainer = (): string => process.env.BEEP_FALKOR_CONTAINER ?? "graphiti-mcp-falkordb-1";
 const falkorUrl = (): string => process.env.BEEP_FALKOR_REDIS_URL ?? "";
+const quoteRedisCliArg = (value: string): string => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
 const runFalkorQueryRaw = (query: string): string => {
   const redisUrl = falkorUrl();
@@ -212,8 +266,32 @@ const runFalkorQueryRaw = (query: string): string => {
   );
 };
 
+const runFalkorQueries = (queries: ReadonlyArray<string>): void => {
+  if (queries.length === 0) {
+    return;
+  }
+
+  const commandBody = `${queries
+    .map((query) => `GRAPH.QUERY ${GraphName} ${quoteRedisCliArg(query)}`)
+    .join("\n")}\n`;
+  const redisUrl = falkorUrl();
+
+  if (redisUrl.length > 0) {
+    execFileSync("redis-cli", ["-u", redisUrl], {
+      input: commandBody,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return;
+  }
+
+  execFileSync("docker", ["exec", "-i", falkorContainer(), "redis-cli"], {
+    input: commandBody,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+};
+
 const runFalkorQuery = (query: string): void => {
-  runFalkorQueryRaw(query);
+  runFalkorQueries([query]);
 };
 
 const readGitMeta = (): { readonly sha: string; readonly parentSha: string; readonly branch: string } => {
@@ -244,6 +322,8 @@ const spoolFile = (rootDir: string, commitSha: string): string =>
   nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "graphiti-spool", `${commitSha}.jsonl`);
 const ledgerFile = (rootDir: string): string =>
   nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "graphiti-ledger.json");
+const publishLedgerFile = (rootDir: string): string =>
+  nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "publish-ledger.json");
 
 const isIndexableFile = (relativePath: string): boolean => {
   const normalized = normalizePath(relativePath);
@@ -490,6 +570,111 @@ const writeJson = async (file: string, value: unknown): Promise<void> => {
   await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
 
+const buildSinkLedgerKey = (
+  sink: SinkTarget,
+  groupId: string,
+  workspace: string,
+  commitSha: string,
+  file: string
+): string => [sink, canonicalSpaces(groupId), workspace, commitSha, normalizePath(file)].join("|");
+
+const readSinkPublishLedger = async (rootDir: string): Promise<SinkPublishLedger> =>
+  readJson<SinkPublishLedger>(publishLedgerFile(rootDir), {
+    schemaVersion: KgSchemaVersion,
+    sinks: {},
+  });
+
+const writeSinkPublishLedger = async (rootDir: string, sinks: Readonly<Record<string, string>>): Promise<void> =>
+  writeJson(publishLedgerFile(rootDir), {
+    schemaVersion: KgSchemaVersion,
+    sinks,
+  });
+
+const parseEnvelopeMetadata = (
+  envelope: Readonly<Record<string, unknown>>,
+  fallbackCommitSha: string,
+  fallbackGroupId: string
+): EnvelopeMetadata => {
+  const file = String(envelope.file ?? "unknown.ts");
+  const workspace = String(envelope.workspace ?? WorkspaceName);
+  const groupId = String(envelope.groupId ?? fallbackGroupId);
+  const artifactHash = String(envelope.artifactHash ?? sha256Hex(JSON.stringify(envelope)));
+  const commit =
+    typeof envelope.commit === "object" && envelope.commit !== null
+      ? (envelope.commit as Record<string, unknown>)
+      : { sha: fallbackCommitSha, parentSha: "unknown", branch: "unknown" };
+  const commitSha = String(commit.sha ?? fallbackCommitSha);
+  const parentSha = String(commit.parentSha ?? "unknown");
+  const branch = String(commit.branch ?? "unknown");
+
+  const nodes: Array<AstKgNodeV2> = [];
+  if (Array.isArray(envelope.nodes)) {
+    for (const candidate of envelope.nodes) {
+      if (typeof candidate !== "object" || candidate === null) {
+        continue;
+      }
+      const raw = candidate as Record<string, unknown>;
+      nodes.push({
+        nodeId: String(raw.nodeId ?? ""),
+        kind: toNodeKind(String(raw.kind ?? "variable")),
+        symbol: String(raw.symbol ?? ""),
+        file: String(raw.file ?? file),
+        commitSha,
+        workspace,
+      });
+    }
+  }
+
+  const edges: Array<AstKgEdgeV2> = [];
+  if (Array.isArray(envelope.edges)) {
+    for (const candidate of envelope.edges) {
+      if (typeof candidate !== "object" || candidate === null) {
+        continue;
+      }
+      const raw = candidate as Record<string, unknown>;
+      edges.push({
+        edgeId: String(raw.edgeId ?? ""),
+        from: String(raw.from ?? ""),
+        to: String(raw.to ?? ""),
+        type: String(raw.type ?? "RELATES_TO"),
+        provenance: toProvenance(String(raw.provenance ?? "ast")),
+        commitSha,
+      });
+    }
+  }
+
+  return {
+    file,
+    workspace,
+    groupId,
+    commitSha,
+    parentSha,
+    branch,
+    artifactHash,
+    nodes,
+    edges,
+  };
+};
+
+const applyGroupOverride = (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  groupOverride: O.Option<string>
+): ReadonlyArray<Record<string, unknown>> =>
+  O.match(groupOverride, {
+    onNone: () => envelopes,
+    onSome: (groupId) => envelopes.map((envelope) => ({ ...envelope, groupId })),
+  });
+
+const publishGroupFromEnvelopes = (envelopes: ReadonlyArray<Record<string, unknown>>): string => {
+  for (const envelope of envelopes) {
+    const groupId = envelope.groupId;
+    if (typeof groupId === "string" && groupId.length > 0) {
+      return groupId;
+    }
+  }
+  return AstKgGroupId;
+};
+
 const readSnapshotRecords = async (rootDir: string, commitSha: string): Promise<ReadonlyArray<SnapshotRecord>> => {
   const file = snapshotFile(rootDir, commitSha);
   try {
@@ -638,13 +823,7 @@ const parseChanged = (changedFlag: O.Option<string>): ReadonlyArray<string> =>
  * @internal
  */
 export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<string>): Promise<IndexSummary> => {
-  const rootDir =
-    process.env.BEEP_KG_ROOT_OVERRIDE ??
-    String(
-      execSync("git rev-parse --show-toplevel", {
-        stdio: ["ignore", "pipe", "ignore"],
-      })
-    ).trim();
+  const rootDir = resolveRootDir();
   const git = readGitMeta();
 
   const manifest = await readJson<SnapshotManifest>(manifestFile(rootDir), {
@@ -922,13 +1101,7 @@ const generatePublishEnvelopes = async (
 
   try {
     const summary = await runKgIndexNode(mode, changed);
-    const rootDir =
-      process.env.BEEP_KG_ROOT_OVERRIDE ??
-      String(
-        execSync("git rev-parse --show-toplevel", {
-          stdio: ["ignore", "pipe", "ignore"],
-        })
-      ).trim();
+    const rootDir = resolveRootDir();
 
     const envelopes = await readSpoolEnvelopes(rootDir, summary.commitSha);
     return { rootDir, commitSha: summary.commitSha, envelopes };
@@ -987,19 +1160,36 @@ const initializeMcp = async (url: string): Promise<string> => {
 
 const publishToGraphiti = async (
   envelopes: ReadonlyArray<Record<string, unknown>>,
-  commitSha: string
+  commitSha: string,
+  rootDir: string
 ): Promise<AstKgWriteReceiptV1> => {
   const start = Date.now();
   const url = process.env.BEEP_GRAPHITI_URL ?? "http://localhost:8000/mcp";
-  const groupId = process.env.BEEP_GRAPHITI_GROUP_ID ?? AstKgGroupId;
+  const defaultGroupId = process.env.BEEP_GRAPHITI_GROUP_ID ?? AstKgGroupId;
   const sessionId = await initializeMcp(url);
+  const ledger = await readSinkPublishLedger(rootDir);
+  const sinkEntries: Record<string, string> = { ...ledger.sinks };
   let written = 0;
   let failed = 0;
+  let dedupeHits = 0;
+  let dedupeMisses = 0;
 
   for (const envelope of envelopes) {
-    const file = String(envelope.file ?? "unknown.ts");
-    const workspace = String(envelope.workspace ?? WorkspaceName);
-    const name = `ast-kg:${workspace}:${commitSha}:${file}`;
+    const metadata = parseEnvelopeMetadata(envelope, commitSha, defaultGroupId);
+    const sinkKey = buildSinkLedgerKey(
+      "graphiti",
+      metadata.groupId,
+      metadata.workspace,
+      metadata.commitSha,
+      metadata.file
+    );
+    const existingHash = sinkEntries[sinkKey];
+    if (existingHash !== undefined && existingHash === metadata.artifactHash) {
+      dedupeHits += 1;
+      continue;
+    }
+
+    const name = `ast-kg:${metadata.workspace}:${metadata.commitSha}:${metadata.file}`;
     const response = await mcpPost(
       url,
       {
@@ -1013,7 +1203,7 @@ const publishToGraphiti = async (
             episode_body: JSON.stringify(envelope),
             source: "json",
             source_description: "p6 dual-write publish",
-            group_id: groupId,
+            group_id: metadata.groupId,
           },
         },
       },
@@ -1022,18 +1212,24 @@ const publishToGraphiti = async (
     const body = await response.text();
     if (response.ok && !body.includes('"error":')) {
       written += 1;
+      dedupeMisses += 1;
+      sinkEntries[sinkKey] = metadata.artifactHash;
     } else {
       failed += 1;
     }
   }
 
+  await writeSinkPublishLedger(rootDir, sinkEntries);
+
   return {
     target: "graphiti",
     attempted: envelopes.length,
     written,
-    replayed: 0,
+    replayed: dedupeHits,
     failed,
     durationMs: Date.now() - start,
+    dedupeHits,
+    dedupeMisses,
   };
 };
 
@@ -1049,71 +1245,54 @@ const nodeLabelForKind = (kind: string): string => {
 
 const publishToFalkor = async (
   envelopes: ReadonlyArray<Record<string, unknown>>,
-  commitSha: string
+  commitSha: string,
+  rootDir: string
 ): Promise<AstKgWriteReceiptV1> => {
   const start = Date.now();
+  const defaultGroupId = AstKgGroupId;
+  const ledger = await readSinkPublishLedger(rootDir);
+  const sinkEntries: Record<string, string> = { ...ledger.sinks };
   let written = 0;
   let failed = 0;
+  let dedupeHits = 0;
+  let dedupeMisses = 0;
 
   try {
-    runFalkorQuery("CREATE INDEX FOR (n:File) ON (n.nodeId)");
-    runFalkorQuery("CREATE INDEX FOR (n:Symbol) ON (n.nodeId)");
-    runFalkorQuery("CREATE INDEX FOR (n:Module) ON (n.nodeId)");
-    runFalkorQuery("CREATE INDEX FOR (n:Literal) ON (n.nodeId)");
-    runFalkorQuery("CREATE INDEX FOR (n:Commit) ON (n.sha)");
+    runFalkorQueries([
+      "CREATE INDEX FOR (n:File) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Symbol) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Module) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Literal) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Commit) ON (n.sha)",
+    ]);
   } catch {
     // Indexes may already exist.
   }
 
   for (const envelope of envelopes) {
     try {
-      const file = String(envelope.file ?? "unknown.ts");
-      const workspace = String(envelope.workspace ?? WorkspaceName);
-      const groupId = String(envelope.groupId ?? AstKgGroupId);
-      const commit =
-        typeof envelope.commit === "object" && envelope.commit !== null
-          ? (envelope.commit as Record<string, unknown>)
-          : { sha: commitSha, parentSha: "unknown", branch: "unknown" };
-      const sha = String(commit.sha ?? commitSha);
-      const parentSha = String(commit.parentSha ?? "unknown");
-      const branch = String(commit.branch ?? "unknown");
-      const nodes: ReadonlyArray<AstKgNodeV2> = Array.isArray(envelope.nodes)
-        ? (envelope.nodes as ReadonlyArray<Record<string, unknown>>).map(
-            (raw): AstKgNodeV2 => ({
-              nodeId: String(raw.nodeId ?? ""),
-              kind: String(raw.kind ?? "variable") as NodeKind,
-              symbol: String(raw.symbol ?? ""),
-              file: String(raw.file ?? file),
-              commitSha: sha,
-              workspace,
-            })
-          )
-        : [];
-      const edges: ReadonlyArray<AstKgEdgeV2> = Array.isArray(envelope.edges)
-        ? (envelope.edges as ReadonlyArray<Record<string, unknown>>).map(
-            (raw): AstKgEdgeV2 => ({
-              edgeId: String(raw.edgeId ?? ""),
-              from: String(raw.from ?? ""),
-              to: String(raw.to ?? ""),
-              type: String(raw.type ?? "RELATES_TO"),
-              provenance: String(raw.provenance ?? "ast") as Provenance,
-              commitSha: sha,
-            })
-          )
-        : [];
+      const metadata = parseEnvelopeMetadata(envelope, commitSha, defaultGroupId);
+      const sinkKey = buildSinkLedgerKey(
+        "falkor",
+        metadata.groupId,
+        metadata.workspace,
+        metadata.commitSha,
+        metadata.file
+      );
+      const existingHash = sinkEntries[sinkKey];
+      if (existingHash !== undefined && existingHash === metadata.artifactHash) {
+        dedupeHits += 1;
+        continue;
+      }
 
-      const fileNodeId = buildNodeId(file, `module:${file}`, "module", file);
-      runFalkorQuery(
-        `MERGE (c:Commit {sha:${stringifyCypher(sha)}}) SET c.parentSha=${stringifyCypher(parentSha)}, c.branch=${stringifyCypher(branch)}, c.workspace=${stringifyCypher(workspace)}, c.groupId=${stringifyCypher(groupId)}`
-      );
-      runFalkorQuery(
-        `MERGE (f:File:Searchable {nodeId:${stringifyCypher(fileNodeId)}}) SET f.file=${stringifyCypher(file)}, f.workspace=${stringifyCypher(workspace)}, f.commitSha=${stringifyCypher(sha)}, f.groupId=${stringifyCypher(groupId)}`
-      );
-      runFalkorQuery(
-        `MATCH (c:Commit {sha:${stringifyCypher(sha)}}), (f:File {nodeId:${stringifyCypher(fileNodeId)}}) MERGE (c)-[:CONTAINS]->(f)`
-      );
+      const fileNodeId = buildNodeId(metadata.file, `module:${metadata.file}`, "module", metadata.file);
+      const queries: Array<string> = [
+        `MERGE (c:Commit {sha:${stringifyCypher(metadata.commitSha)}, groupId:${stringifyCypher(metadata.groupId)}}) SET c.parentSha=${stringifyCypher(metadata.parentSha)}, c.branch=${stringifyCypher(metadata.branch)}, c.workspace=${stringifyCypher(metadata.workspace)}`,
+        `MERGE (f:File:Searchable {nodeId:${stringifyCypher(fileNodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) SET f.file=${stringifyCypher(metadata.file)}, f.workspace=${stringifyCypher(metadata.workspace)}, f.commitSha=${stringifyCypher(metadata.commitSha)}`,
+        `MATCH (c:Commit {sha:${stringifyCypher(metadata.commitSha)}, groupId:${stringifyCypher(metadata.groupId)}}), (f:File {nodeId:${stringifyCypher(fileNodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) MERGE (c)-[:CONTAINS]->(f)`,
+      ];
 
-      for (const rawNode of nodes) {
+      for (const rawNode of metadata.nodes) {
         const nodeId = rawNode.nodeId;
         if (nodeId.length === 0) {
           continue;
@@ -1121,12 +1300,12 @@ const publishToFalkor = async (
         const kind = rawNode.kind;
         const symbol = rawNode.symbol;
         const label = nodeLabelForKind(kind);
-        runFalkorQuery(
-          `MERGE (n:${label}:Searchable {nodeId:${stringifyCypher(nodeId)}}) SET n.kind=${stringifyCypher(kind)}, n.symbol=${stringifyCypher(symbol)}, n.file=${stringifyCypher(file)}, n.commitSha=${stringifyCypher(sha)}, n.workspace=${stringifyCypher(workspace)}, n.groupId=${stringifyCypher(groupId)}`
+        queries.push(
+          `MERGE (n:${label}:Searchable {nodeId:${stringifyCypher(nodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) SET n.kind=${stringifyCypher(kind)}, n.symbol=${stringifyCypher(symbol)}, n.file=${stringifyCypher(metadata.file)}, n.commitSha=${stringifyCypher(metadata.commitSha)}, n.workspace=${stringifyCypher(metadata.workspace)}`
         );
       }
 
-      for (const rawEdge of edges) {
+      for (const rawEdge of metadata.edges) {
         const from = rawEdge.from;
         const to = rawEdge.to;
         const edgeType = relationType(rawEdge.type);
@@ -1134,38 +1313,47 @@ const publishToFalkor = async (
         if (from.length === 0 || to.length === 0) {
           continue;
         }
-        runFalkorQuery(
-          `MATCH (a {nodeId:${stringifyCypher(from)}}), (b {nodeId:${stringifyCypher(to)}}) MERGE (a)-[r:${edgeType}]->(b) SET r.provenance=${stringifyCypher(provenance)}, r.commitSha=${stringifyCypher(sha)}, r.groupId=${stringifyCypher(groupId)}`
+        queries.push(
+          `MATCH (a {nodeId:${stringifyCypher(from)}, groupId:${stringifyCypher(metadata.groupId)}}), (b {nodeId:${stringifyCypher(to)}, groupId:${stringifyCypher(metadata.groupId)}}) MERGE (a)-[r:${edgeType}]->(b) SET r.provenance=${stringifyCypher(provenance)}, r.commitSha=${stringifyCypher(metadata.commitSha)}, r.groupId=${stringifyCypher(metadata.groupId)}`
         );
       }
+
+      runFalkorQueries(queries);
       written += 1;
+      dedupeMisses += 1;
+      sinkEntries[sinkKey] = metadata.artifactHash;
     } catch {
       failed += 1;
     }
   }
 
+  await writeSinkPublishLedger(rootDir, sinkEntries);
+
   return {
     target: "falkor",
     attempted: envelopes.length,
     written,
-    replayed: 0,
+    replayed: dedupeHits,
     failed,
     durationMs: Date.now() - start,
+    dedupeHits,
+    dedupeMisses,
   };
 };
 
 const publishEnvelopes = async (
   target: PublishTarget,
   envelopes: ReadonlyArray<Record<string, unknown>>,
-  commitSha: string
+  commitSha: string,
+  rootDir: string
 ): Promise<ReadonlyArray<AstKgWriteReceiptV1>> => {
   if (target === "graphiti") {
-    return [await publishToGraphiti(envelopes, commitSha)];
+    return [await publishToGraphiti(envelopes, commitSha, rootDir)];
   }
   if (target === "falkor") {
-    return [await publishToFalkor(envelopes, commitSha)];
+    return [await publishToFalkor(envelopes, commitSha, rootDir)];
   }
-  return [await publishToFalkor(envelopes, commitSha), await publishToGraphiti(envelopes, commitSha)];
+  return [await publishToFalkor(envelopes, commitSha, rootDir), await publishToGraphiti(envelopes, commitSha, rootDir)];
 };
 
 const parseTarget = (raw: string): O.Option<PublishTarget> => {
@@ -1206,6 +1394,24 @@ const parseMode = (raw: string): O.Option<IndexMode> => {
   return O.none();
 };
 
+const parseParityProfile = (raw: string): O.Option<ParityProfile> => {
+  if (raw === "code-graph-functional") {
+    return O.some("code-graph-functional");
+  }
+  if (raw === "code-graph-strict") {
+    return O.some("code-graph-strict");
+  }
+  return O.none();
+};
+
+const parseStrictMinPaths = (raw: string): O.Option<number> => {
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    return O.none();
+  }
+  return O.some(value);
+};
+
 const kgIndexCommand = Command.make(
   "index",
   {
@@ -1240,8 +1446,9 @@ const kgPublishCommand = Command.make(
       Flag.withDescription("Comma-separated changed paths for delta mode"),
       Flag.optional
     ),
+    group: Flag.string("group").pipe(Flag.withDescription("Optional group id override for publish"), Flag.optional),
   },
-  Effect.fn(function* ({ target, mode, changed }) {
+  Effect.fn(function* ({ target, mode, changed, group }) {
     const normalizedTarget = parseTarget(target);
     if (O.isNone(normalizedTarget)) {
       return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
@@ -1255,12 +1462,14 @@ const kgPublishCommand = Command.make(
     const publishSummary = yield* Effect.tryPromise({
       try: async (): Promise<PublishSummary> => {
         const generated = await generatePublishEnvelopes(normalizedMode.value, changed);
-        const receipts = await publishEnvelopes(normalizedTarget.value, generated.envelopes, generated.commitSha);
+        const envelopes = applyGroupOverride(generated.envelopes, group);
+        const receipts = await publishEnvelopes(normalizedTarget.value, envelopes, generated.commitSha, generated.rootDir);
         return {
           mode: normalizedMode.value,
           commitSha: generated.commitSha,
+          group: publishGroupFromEnvelopes(envelopes),
           target: normalizedTarget.value,
-          envelopes: generated.envelopes.length,
+          envelopes: envelopes.length,
           receipts,
         };
       },
@@ -1277,8 +1486,9 @@ const kgReplayCommand = Command.make(
   {
     fromSpool: Flag.string("from-spool").pipe(Flag.withDescription("Spool file or directory to replay")),
     target: Flag.string("target").pipe(Flag.withDescription("Replay target: falkor|graphiti|both")),
+    group: Flag.string("group").pipe(Flag.withDescription("Optional group id override for replay"), Flag.optional),
   },
-  Effect.fn(function* ({ fromSpool, target }) {
+  Effect.fn(function* ({ fromSpool, target, group }) {
     const normalizedTarget = parseTarget(target);
     if (O.isNone(normalizedTarget)) {
       return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
@@ -1309,13 +1519,16 @@ const kgReplayCommand = Command.make(
           }
         }
 
+        const rootDir = resolveRootDir();
+        const overridden = applyGroupOverride(envelopes, group);
         const commitSha = readGitMeta().sha;
-        const receipts = await publishEnvelopes(normalizedTarget.value, envelopes, commitSha);
+        const receipts = await publishEnvelopes(normalizedTarget.value, overridden, commitSha, rootDir);
         return {
           mode: "full",
           commitSha,
+          group: publishGroupFromEnvelopes(overridden),
           target: normalizedTarget.value,
-          envelopes: envelopes.length,
+          envelopes: overridden.length,
           receipts,
         };
       },
@@ -1353,13 +1566,14 @@ const kgVerifyCommand = Command.make(
 
         if (normalizedTarget.value === "falkor" || normalizedTarget.value === "both") {
           const commitLiteral = stringifyCypher(commit);
+          const groupLiteral = stringifyCypher(group);
           checks.falkor = {
-            nodeCount: falkorCount("MATCH (n) RETURN count(n)"),
-            edgeCount: falkorCount("MATCH ()-[r]->() RETURN count(r)"),
-            fileCount: falkorCount("MATCH (f:File) RETURN count(f)"),
-            commitCount: falkorCount(`MATCH (c:Commit {sha:${commitLiteral}}) RETURN count(c)`),
+            nodeCount: falkorCount(`MATCH (n {groupId:${groupLiteral}}) RETURN count(n)`),
+            edgeCount: falkorCount(`MATCH ()-[r]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`),
+            fileCount: falkorCount(`MATCH (f:File {groupId:${groupLiteral}}) RETURN count(f)`),
+            commitCount: falkorCount(`MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}}) RETURN count(c)`),
             commitContextCount: falkorCount(
-              `MATCH (c:Commit {sha:${commitLiteral}})-[:CONTAINS]->(f:File) RETURN count(f)`
+              `MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
             ),
           };
         }
@@ -1402,22 +1616,67 @@ const kgParityCommand = Command.make(
   "parity",
   {
     profile: Flag.string("profile").pipe(
-      Flag.withDescription("Parity profile"),
+      Flag.withDescription("Parity profile: code-graph-functional|code-graph-strict"),
       Flag.withDefault("code-graph-functional")
     ),
     group: Flag.string("group").pipe(Flag.withDescription("Graph group id"), Flag.withDefault(AstKgGroupId)),
+    strictMinPaths: Flag.string("strict-min-paths").pipe(
+      Flag.withDescription("Strict profile minimum observed CALLS path count"),
+      Flag.withDefault("1")
+    ),
   },
-  Effect.fn(function* ({ profile, group }) {
+  Effect.fn(function* ({ profile, group, strictMinPaths }) {
+    const normalizedProfile = parseParityProfile(profile);
+    if (O.isNone(normalizedProfile)) {
+      return yield* new DomainError({
+        message: `Invalid --profile value: ${profile}. Expected code-graph-functional|code-graph-strict.`,
+      });
+    }
+
+    const normalizedStrictMinPaths = parseStrictMinPaths(strictMinPaths);
+    if (O.isNone(normalizedStrictMinPaths)) {
+      return yield* new DomainError({
+        message: `Invalid --strict-min-paths value: ${strictMinPaths}. Expected integer >= 1.`,
+      });
+    }
+
     const result = yield* Effect.tryPromise({
       try: async () => {
-        const entityCount = falkorCount("MATCH (f:File) RETURN count(f)");
-        const neighborCount = falkorCount("MATCH (n)-[r]->(m) RETURN count(r)");
-        const commitContextCount = falkorCount("MATCH (c:Commit)-[:CONTAINS]->(f:File) RETURN count(f)");
-        const observedPaths = falkorCount("MATCH p=()-[:CALLS*1..3]->() RETURN count(p)");
+        const groupLiteral = stringifyCypher(group);
+        const entityCount = falkorCount(`MATCH (f:File {groupId:${groupLiteral}}) RETURN count(f)`);
+        const neighborCount = falkorCount(`MATCH (n)-[r]->(m) WHERE r.groupId=${groupLiteral} RETURN count(r)`);
+        const commitContextCount = falkorCount(
+          `MATCH (c:Commit {groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
+        );
+        const eligibleCallEdges = falkorCount(
+          `MATCH ()-[r:CALLS]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`
+        );
+        const observedPaths = falkorCount(
+          `MATCH p=()-[:CALLS*1..3]->() WHERE all(rel IN relationships(p) WHERE rel.groupId=${groupLiteral}) RETURN count(p)`
+        );
+        const strictFallback = eligibleCallEdges === 0;
+        const strictPathPass = strictFallback || observedPaths >= normalizedStrictMinPaths.value;
+        const pathCheck =
+          normalizedProfile.value === "code-graph-strict"
+            ? {
+                name: "path-finding-query",
+                pass: strictPathPass,
+                observedPaths,
+                minRequiredPaths: normalizedStrictMinPaths.value,
+                eligibleCallEdges,
+                fallback: strictFallback ? "no-eligible-call-edges" : "none",
+              }
+            : {
+                name: "path-finding-query",
+                pass: true,
+                observedPaths,
+                mode: "functional-execution-only",
+              };
 
         const matrix = {
-          profile,
+          profile: normalizedProfile.value,
           group,
+          strictMinPaths: normalizedStrictMinPaths.value,
           checks: [
             {
               name: "entity-listing",
@@ -1434,12 +1693,7 @@ const kgParityCommand = Command.make(
               pass: commitContextCount > 0,
               observed: commitContextCount,
             },
-            {
-              name: "path-finding-query",
-              // Functional parity only requires the path query to execute.
-              pass: true,
-              observedPaths,
-            },
+            pathCheck,
           ],
         };
         return matrix;

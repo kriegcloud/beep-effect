@@ -1,52 +1,43 @@
 # P5 KG Impact Report
 
-## Scope
+## Scope and artifacts
 
-Controlled comparison of `adaptive` vs `adaptive_kg` using the February 25, 2026 live targeted matrix.
+Target comparison: `adaptive` vs `adaptive_kg`.
 
-- Source suite: `outputs/agent-reliability/runs/latest.json`
-- Diagnostics source: `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
+Artifacts used:
 
-Matrix slice:
+- `outputs/agent-reliability/runs/latest.json`
+- `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
 
-- Tasks: `apps_web_01`, `tooling_cli_01`, `package_lib_01`
-- Agents: `codex`, `claude`
-- Trials: `1`
-- Runs per cohort: `6`
+Run metadata:
 
-## Measured Deltas (`adaptive` -> `adaptive_kg`)
+- `runMode`: `live`
+- `executionBackend`: `sdk`
+- Executed conditions in artifact: `minimal` only
+
+## Measured `adaptive` vs `adaptive_kg` metrics
 
 | Metric | `adaptive` | `adaptive_kg` | Delta (`adaptive_kg - adaptive`) |
 |---|---:|---:|---:|
-| Runs | 6 | 6 | 0 |
+| Runs | 0 | 0 | 0 |
 | Successes | 0 | 0 | 0 |
-| Success Rate | 0.00% | 0.00% | 0.00pp |
-| Runtime Failures | 6 | 6 | 0 |
-| Wrong-API Incidents | 0 | 0 | 0 |
-| Avg Wall Time | 62752.75 ms | 62302.09 ms | -450.66 ms |
-| Total Cost | $0.0000 | $0.0000 | $0.0000 |
+| Success Rate | N/A | N/A | N/A |
+| Critical Incidents | 0 | 0 | 0 |
+| Avg Wall Time | N/A | N/A | N/A |
+| Total Cost | N/A | N/A | N/A |
+| Retrieval Facts per Run | N/A | N/A | N/A |
 
-Retrieval/policy signal:
+Available reference from executed minimal slice (not KG comparison):
 
-- `adaptive` selected policies include `adaptive`
-- `adaptive_kg` selected policies include `adaptive` + `adaptive_kg`
-- Avg `retrievedFacts` per run:
-  - `adaptive`: `1.6667`
-  - `adaptive_kg`: `1.6667`
-
-## Interpretation
-
-1. KG-enabled policy did not improve success outcomes in this live slice (`0/6` vs `0/6`).
-2. Runtime timeout dominates both cohorts, masking potential semantic benefit.
-3. Wall-time difference slightly favors `adaptive_kg` (`-450.66 ms` average), but the effect is small relative to full timeout-scale runtime.
-4. Retrieval payload volume did not increase under `adaptive_kg` in this dataset.
+- Minimal runs: `6`
+- Avg retrieved facts per run: `1.6667`
 
 ## Caveats
 
-1. Bounded timeout profile (`--smoke-timeout-minutes 1`) prioritizes deterministic completion over deep task execution.
-2. Claude command tails are empty in diagnostics for all Claude runs, limiting retrieval-quality introspection.
+1. Confidence gate failure blocked broader live execution before `adaptive` and `adaptive_kg` cohorts were run.
+2. No condition-level KG delta can be established from the current candidate artifact.
 
 ## Decision
 
-- Go/No-Go for enabling KG by default: `NO-GO`
-- Rationale: no measured success lift, no wrong-API reduction signal, and no retrieval-volume improvement under current runtime behavior.
+- KG default-enable decision: `NO-GO`
+- Reason: required `adaptive` vs `adaptive_kg` live evidence is unavailable; current executed slice has `0` successes.

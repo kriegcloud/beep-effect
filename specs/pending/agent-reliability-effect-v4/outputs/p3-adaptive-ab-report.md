@@ -1,52 +1,41 @@
 # P3 Adaptive A/B Report
 
-## Scope
+## Scope and artifacts
 
-Adaptive policy comparison using matched live matrix artifacts from February 25, 2026.
+Target comparison: `current` vs `adaptive`.
 
-- Source suite: `outputs/agent-reliability/runs/latest.json`
-- Matched baseline: `outputs/agent-reliability/runs/baseline-targeted.json`
-- Compare artifact: `outputs/agent-reliability/weekly/compare.md`
+Artifacts used:
 
-Matrix used:
+- `outputs/agent-reliability/runs/latest.json`
+- `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
+- `outputs/agent-reliability/weekly/compare.md`
 
-- Tasks: `apps_web_01`, `tooling_cli_01`, `package_lib_01`
-- Agents: `codex`, `claude`
-- Trials: `1`
-- Condition cohorts compared:
-  - A: `current`
-  - B: `adaptive`
-- Runs per cohort: `6`
+Run metadata in candidate artifact:
 
-## Measured Results (`current` vs `adaptive`)
+- `runMode`: `live`
+- `executionBackend`: `sdk`
+- Executed conditions: `minimal` only
+
+## Measured `current` vs `adaptive` deltas
 
 | Metric | `current` | `adaptive` | Delta (`adaptive - current`) |
 |---|---:|---:|---:|
-| Runs | 6 | 6 | 0 |
+| Runs | 0 | 0 | 0 |
 | Successes | 0 | 0 | 0 |
-| Success Rate | 0.00% | 0.00% | 0.00pp |
-| Runtime Failures | 6 | 6 | 0 |
+| Success Rate | N/A | N/A | N/A |
 | Wrong-API Incidents | 0 | 0 | 0 |
-| Avg Wall Time | 62272.64 ms | 62752.75 ms | +480.12 ms |
-| Total Cost | $0.0000 | $0.0000 | $0.0000 |
 
-Agent-level wall-time deltas:
+Concrete observation from available artifact:
 
-- Codex: `62035.10 ms` -> `62683.99 ms` (`+648.89 ms`)
-- Claude: `62510.17 ms` -> `62821.52 ms` (`+311.35 ms`)
-
-## Interpretation
-
-1. There is no adaptive lift on success rate in this live slice (`0/6` vs `0/6`).
-2. Runtime timeout failures dominate both cohorts equally.
-3. Cost and wrong-API metrics are flat because no runs reached successful completion.
+- Minimal-only slice runs: `6`
+- Minimal-only successes: `0`
 
 ## Caveats
 
-1. This live slice was intentionally bounded (`--smoke-timeout-minutes 1`) to ensure deterministic completion under wall budget.
-2. Because every run failed at runtime timeout, this dataset cannot establish quality differences in generated code.
+1. Confidence gate failed before broader live execution (`0/6` dual-agent smoke successes), so `current`/`adaptive` cohorts were not run.
+2. `outputs/agent-reliability/weekly/compare.md` explicitly marks baseline-vs-candidate as `NON-COMPARABLE` (`simulate` vs `live`, matrix mismatch).
 
 ## Decision
 
-- Go/No-Go (adaptive promotion over current): `NO-GO`
-- Rationale: no measurable success gain, no quality gain signal, and slightly higher average wall time for adaptive under current runtime constraints.
+- Adaptive A/B promotion decision: `NO-GO`
+- Reason: required `current` vs `adaptive` live evidence is blocked and no success signal exists in the executed minimal slice.

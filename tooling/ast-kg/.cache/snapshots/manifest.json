@@ -3,6 +3,28 @@
   "extractorVersion": "p3-v1",
   "snapshots": [
     {
+      "commitSha": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+      "mode": "full",
+      "createdAtEpochMs": 1772066865216,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "d528da782b2599b44b117b57bb581312d3f5a5a0707f235dbdc6fb664e723df3",
+      "records": 244
+    },
+    {
+      "commitSha": "096ab21c85c52d2edebc9dd5260a2626116a8ef7",
+      "mode": "full",
+      "createdAtEpochMs": 1772063802226,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "adda069691325f0018bc45d82ae04c199a1d7b621f6267499993f7958a850870",
+      "records": 244
+    },
+    {
       "commitSha": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
       "mode": "full",
       "createdAtEpochMs": 1772056070866,

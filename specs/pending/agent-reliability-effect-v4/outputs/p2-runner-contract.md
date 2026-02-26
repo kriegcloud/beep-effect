@@ -2,117 +2,113 @@
 
 ## Phase 2 Execution Snapshot (February 25, 2026)
 
-- Run mode used: `dual-agent live` (`codex` + `claude`)
-- Availability gate:
-  - `command -v codex` -> available
-  - `command -v claude` -> available
-- Preconditions (executed before live runs):
-  - `bun run --cwd tooling/agent-eval check` -> pass
-  - `bun run --cwd tooling/agent-eval lint` -> pass
-  - `bun run --cwd tooling/agent-eval test` -> pass
-  - `bun run --cwd tooling/agent-eval docgen` -> pass
+### Preconditions and availability
 
-## Confidence Smokes (Targeted Live, Diagnostics Enabled)
+Executed and passed:
 
-All smokes used `--diagnostics true`, explicit `--progress-output`, and bounded `--max-wall-minutes`.
+- `bun run --cwd tooling/agent-eval check`
+- `bun run --cwd tooling/agent-eval lint`
+- `bun run --cwd tooling/agent-eval test`
+- `bun run --cwd tooling/agent-eval docgen`
 
-| Scope | Artifact | Planned/Completed | Success | Runtime Failures | Allowlist Pass |
-|---|---|---:|---:|---:|---:|
-| `apps_web_01` | `outputs/agent-reliability/smokes/2026-02-25-takeover-smoke-apps-web-r2.json` | `2/2` | `0` | `2` | `2/2` |
-| `tooling_cli_01` | `outputs/agent-reliability/smokes/2026-02-25-takeover-smoke-tooling-cli.json` | `2/2` | `0` | `2` | `2/2` |
-| `package_lib_01` | `outputs/agent-reliability/smokes/2026-02-25-takeover-smoke-package-lib.json` | `2/2` | `0` | `2` | `2/2` |
+CLI availability:
 
-Smoke diagnostics aggregate (`*.diagnostics.jsonl`):
+- `command -v codex` -> available
+- `command -v claude` -> available
 
-- `run.diagnostic` rows: `6`
-- Timeouts: `6/6`
-- Allowlist failures: `0/6`
-- Avg wall time:
-  - Codex: `182697.40 ms`
-  - Claude: `182221.52 ms`
-- Tail behavior:
-  - `tailCharLimit`: `4000`
-  - Codex tails truncated: `stdoutTruncated=3`, `stderrTruncated=3`
-  - Claude zero-length tails: `3/3` (`stdoutLength=0`, `stderrLength=0`)
+### Actual run mode and backend used
 
-## Phase 2 Closure Run (Matched Baseline vs Live Candidate)
+- Run mode: `live`
+- Agent mode: `dual-agent` for confidence smokes (`codex`, `claude`)
+- Execution backend observed in diagnostics: `sdk` for all smoke/control runs (`7/7`)
+- `auto` fallback reason observed: none in this slice (no CLI fallback triggered)
 
-### Matrix definition
+## Confidence Smokes (live, diagnostics enabled)
 
-- Tasks: `apps_web_01`, `tooling_cli_01`, `package_lib_01`
-- Conditions: `current`, `minimal`, `adaptive`, `adaptive_kg`
-- Agents: `codex`, `claude`
-- Trials: `1`
-- Planned runs: `3 x 4 x 2 x 1 = 24`
+Artifacts:
 
-### Baseline (matched matrix)
+- `outputs/agent-reliability/smokes/2026-02-25-apps-web-v3.json`
+- `outputs/agent-reliability/smokes/2026-02-25-tooling-cli.json`
+- `outputs/agent-reliability/smokes/2026-02-25-package-lib.json`
+- `outputs/agent-reliability/smokes/2026-02-25-native-timeout-control-v2.json`
+- `outputs/agent-reliability/smokes/2026-02-25-confidence-summary.json`
+- `outputs/agent-reliability/smokes/2026-02-25-confidence-diagnostics-summary.json`
 
-- Artifact: `outputs/agent-reliability/runs/baseline-targeted.json`
-- Status: `completed`
-- Planned/Completed: `24/24`
-- Success: `24/24`
+| Scope | Planned/Completed | Success | Runtime | Effect Compliance | Allowlist Pass |
+|---|---:|---:|---:|---:|---:|
+| `apps_web_01` (dual) | `2/2` | `0` | `2` | `0` | `2/2` |
+| `tooling_cli_01` (dual) | `2/2` | `0` | `1` | `1` | `2/2` |
+| `package_lib_01` (dual) | `2/2` | `0` | `1` | `1` | `2/2` |
+| `apps_web_01` native-timeout control (codex-only) | `1/1` | `0` | `1` | `0` | `1/1` |
 
-### Live candidate
+Aggregate (three dual smokes):
 
-- Artifact: `outputs/agent-reliability/runs/latest.json`
-- Status: `completed`
-- Planned/Completed: `24/24`
-- Success: `0/24`
-- Failure type mix: `runtime=24`
-- Allowlist failures: `0`
-- Suite wall/cost:
-  - `totalWallMs=1499480.4253019998`
-  - `averageWallMs=62478.35105424999`
-  - `totalCostUsd=0`
+- Runs: `6`
+- Successes: `0`
+- Confidence gate pass condition: **not met** (`0/6`)
 
-### Generated Phase 2 artifacts
+Diagnostics aggregate (dual smokes + control):
 
-- `outputs/agent-reliability/runs/latest.json`
+- `run.diagnostic` rows: `7`
+- `command.timedOut=true`: `7/7`
+- `command.completionObserved=true`: `0/7`
+- `command.stdoutTruncated=true`: `7/7`
+- `command.stderrTruncated=true`: `0/7`
+- `allowlist.pass=true`: `7/7`
+
+## Diagnostics tail schema and observed insights
+
+Observed `run.diagnostic.command` fields:
+
+- Existing tails/length/truncation fields:
+  - `stdoutTail`, `stderrTail`
+  - `stdoutLength`, `stderrLength`
+  - `stdoutTruncated`, `stderrTruncated`
+  - `tailCharLimit`
+- Added command execution metadata:
+  - `backend`, `completionObserved`, `exitCode`, `signal`, `fallbackReason`
+
+Observed acceptance diagnostics fields:
+
+- `acceptance.failedCommandDiagnostics.stdoutTail`
+- `acceptance.failedCommandDiagnostics.stderrTail`
+- `acceptance.failedCommandDiagnostics.stdoutLength`
+- `acceptance.failedCommandDiagnostics.stderrLength`
+- `acceptance.failedCommandDiagnostics.stdoutTruncated`
+- `acceptance.failedCommandDiagnostics.stderrTruncated`
+- `acceptance.failedCommandDiagnostics.tailCharLimit`
+- `acceptance.failedCommandDiagnostics.exitCode`
+- `acceptance.failedCommandDiagnostics.signal`
+
+Observed timeout/root-cause tail patterns:
+
+- Codex stderr tail pattern: `The operation was aborted.`
+- Claude stderr tail pattern: `Claude Code process aborted by user`
+- `stdoutLength` high and truncated in all timed-out runs, indicating long in-progress sessions rather than immediate process crashes.
+
+## Phase 2 closure artifacts refreshed
+
+- `outputs/agent-reliability/runs/latest.json` (confidence-smoke aggregate across three task slices)
+- `outputs/agent-reliability/runs/latest.json.progress.jsonl`
+- `outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`
 - `outputs/agent-reliability/weekly/latest-report.md`
 - `outputs/agent-reliability/weekly/compare.md`
 
-Comparison assumptions are aligned (same task/condition/agent/trial matrix) using:
+Comparison caveat is explicit in `outputs/agent-reliability/weekly/compare.md`:
 
-- baseline: `outputs/agent-reliability/runs/baseline-targeted.json`
-- candidate: `outputs/agent-reliability/runs/latest.json`
+- Baseline: `outputs/agent-reliability/runs/baseline-targeted.json` (`simulate`)
+- Candidate: `outputs/agent-reliability/runs/latest.json` (`live`)
+- Result: marked `NON-COMPARABLE` with matrix/run-mode caveats.
 
-## Diagnostics Tail Schema and Observed Insights
+## Explicit remaining blockers
 
-Observed `run.diagnostic.command` payload fields include:
+1. Confidence gate blocker: `0/6` successful dual-agent smoke runs.
+2. Command completion blocker: `completionObserved=false` in `7/7` smoke/control runs.
+3. Timeout blocker: `command.timedOut=true` in `7/7` smoke/control runs.
+4. Broader live matrix blocker: full Phase 2 baseline/candidate live matrix was not executed after confidence-gate failure.
 
-- `stdoutTail`, `stderrTail`
-- `stdoutLength`, `stderrLength`
-- `stdoutTruncated`, `stderrTruncated`
-- `tailCharLimit`
+## Phase 2 status
 
-Live candidate diagnostics (`outputs/agent-reliability/runs/latest.json.diagnostics.jsonl`) insights:
-
-1. Timeout root cause is dominant and universal.
-   - `timedOut=true` for `24/24` runs
-   - `failureType=runtime` for `24/24`
-2. Allowlist false positives are not present.
-   - `allowlist.pass=true` for `24/24`
-   - `firstViolationPath=none` for all runs
-3. Codex diagnostics are information-rich but tail-truncated.
-   - Codex runs: `12`
-   - `stdoutTruncated=12`, `stderrTruncated=12`
-   - Max captured lengths before tailing: `stdoutLength=64770`, `stderrLength=20292`
-4. Claude diagnostics are structurally present but payload-empty.
-   - Claude runs: `12`
-   - `stdoutLength=0`, `stderrLength=0` for all Claude runs
-5. Acceptance command metadata is captured despite runtime classification.
-   - `bun run check`: `16` rows
-   - `bun run lint`: `8` rows
-
-## Explicit Remaining Blockers
-
-1. Runtime stability blocker:
-   - Live success rate is `0%` (`0/24`) due subprocess timeout behavior.
-2. Claude forensic visibility blocker:
-   - `run.diagnostic.command` tails for Claude are consistently empty, limiting root-cause depth.
-3. Detector live-signal blocker:
-   - No touched source paths in timed-out runs (`touchedPathCount=0`), so detector firing cannot be validated on live edits.
-
-## Phase 2 Status
-
-Phase 2 is closed for runner-contract evidence collection and artifact generation, with blockers explicitly documented. The contract is stable enough for controlled measurement, but not yet for success-rate goals.
+- Phase 2 runner contract evidence collection: `COMPLETE`
+- Phase 2 broader live matrix execution: `BLOCKED`
+- Go/No-Go for moving to full live matrix now: `NO-GO`
