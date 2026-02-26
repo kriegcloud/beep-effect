@@ -28,3 +28,6 @@ Smoke checkpoints observed:
 
 ## Acceptance Decision
 Recovery automation now has deterministic preflight validation and successful end-to-end recovery smoke evidence: **PASS**.
+
+## Note: Graphiti Async Ingestion
+Graphiti `add_memory` acknowledgements are queue-based. Verification now accounts for this by polling `get_episodes` until episodes are observed (or timeout) to avoid false "No episodes found" reads immediately after publish.

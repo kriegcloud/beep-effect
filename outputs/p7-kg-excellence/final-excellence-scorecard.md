@@ -33,6 +33,7 @@ P7 KG excellence closure is complete with evidence-backed artifacts for all requ
 - Dual-write outage/recovery matrix including queue-proxy burst test: `outputs/p7-kg-excellence/resilience-drill-report.md`.
 - Multi-clone Graphiti queue routing runbook: `outputs/p7-kg-excellence/group-isolation-runbook.md`.
 - Post-mitigation proxy-routed gate cycle evidence: `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-publish-both.json`, `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-verify-both.json`, `outputs/p7-kg-excellence/evidence/20260226T011541Z-continue-parity-strict.json`.
+- Graphiti async-ingestion verification fix evidence: `outputs/p7-kg-excellence/evidence/20260226T012316Z-verify-fix-publish-graphiti.json`, `outputs/p7-kg-excellence/evidence/20260226T012316Z-verify-fix-verify-graphiti.json`.
 
 ## Final Decision
 **P7 KG Excellence Closure: PASS**.
