@@ -1,80 +1,63 @@
 # P4 Orchestrator Prompt
 
 ## 1. Context
-You are running Phase P4 of .
-Follow locked defaults and phase gates in  and .
+Core ontology models are available. Aggregate/query primitive layer is next.
 
 ## 2. Mission
-Deliver Phase P4 outputs to completion with no unresolved blockers and with next-phase handoff continuity.
+Implement aggregate/filter/groupby/query primitive stack and validate composition semantics.
 
 ## 3. Inputs
-1. 
-2. 
-3. 
-4. 
-5. Prior phase outputs (if available)
-6. Upstream API source ()
-7. Local ontology source ()
+1. P1 contracts
+2. P3 outputs
+3. `handoffs/HANDOFF_P4.md`
 
 ## 4. Non-negotiable locks
-1. API target: hybrid parity + aliases.
-2. Type fidelity: high.
-3. Unstable work only in P6.
-4. Effect conventions (, no unsafe typing escapes).
-5. Required discovery commands run first.
+1. Preserve filter/discriminator correctness.
+2. Keep aggregation option types aligned with contracts.
+3. Ensure stack composes for P5 consumers.
 
 ## 5. Agent assignments
-1. Assign focused sub-agents by workstream within this phase.
-2. Keep ownership explicit per file/output.
-3. Reduce parallel fan-out if proxy metrics indicate rejection/queue pressure.
+1. aggregate/filter owner
+2. groupby/query owner
+3. edge-case audit owner
 
 ## 6. Required outputs
-Produce all artifacts for Phase P4 listed in  under that phase path.
+1. `outputs/p4-aggregate-query/implementation-log.md`
+2. `outputs/p4-aggregate-query/edge-case-audit.md`
+
+Locked module scope for this phase:
+
+```text
+src/aggregate/BaseFilter.ts
+src/aggregate/ArrayFilter.ts
+src/aggregate/BooleanFilter.ts
+src/aggregate/DatetimeFilter.ts
+src/aggregate/NumberFilter.ts
+src/aggregate/StringFilter.ts
+src/aggregate/Just.ts
+src/aggregate/GeoFilter.ts
+src/aggregate/WhereClause.ts
+src/aggregate/AggregatableKeys.ts
+src/aggregate/AggregationsClause.ts
+src/aggregate/AggregateOpts.ts
+src/aggregate/AggregateOptsThatErrors.ts
+src/aggregate/AggregationResultsWithoutGroups.ts
+src/aggregate/AggregationResultsWithGroups.ts
+src/aggregate/AggregationsResults.ts
+src/groupby/GroupByMapper.ts
+src/groupby/GroupByClause.ts
+src/queries/Aggregations.ts
+```
 
 ## 7. Required checks
-1. Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-2. Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-3. Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-4.  when prompt/handoff instruction text is changed.
-5. Phase-specific compile/test checks documented in outputs.
+1. Discovery commands
+2. Ontology package compile + targeted test checks
 
 ## 8. Exit gate
-1. All declared outputs exist and are non-empty.
-2. Required checks are recorded.
-3. No unresolved blocker remains.
-4. Next-phase handoff + orchestrator prompt exist.
+Aggregate stack compiles end-to-end; P5 handoff/prompt authored.
 
 ## 9. Memory protocol
-1. Health preflight: 
-2. Fan-out monitoring: 
-3. On memory/proxy failure, continue and report exactly:
-   - 
-4. Route Graphiti memory to  only; do not use  directly.
-5. If available, query both groups at phase start:
-   - 
-   - 
+Apply proxy health and metrics checks; fallback string on failure is mandatory.
 
 ## 10. Handoff document pointer
-Primary phase handoff: 
+`handoffs/HANDOFF_P4.md`

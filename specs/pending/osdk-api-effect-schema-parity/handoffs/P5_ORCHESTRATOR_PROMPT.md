@@ -1,80 +1,64 @@
 # P5 Orchestrator Prompt
 
 ## 1. Context
-You are running Phase P5 of .
-Follow locked defaults and phase gates in  and .
+Primitive stack is complete. Heavy ObjectSet/Osdk/actions/query integration begins.
 
 ## 2. Mission
-Deliver Phase P5 outputs to completion with no unresolved blockers and with next-phase handoff continuity.
+Implement and integrate interdependent ObjectSet, Osdk, actions, queries, and derived-property modules.
 
 ## 3. Inputs
-1. 
-2. 
-3. 
-4. 
-5. Prior phase outputs (if available)
-6. Upstream API source ()
-7. Local ontology source ()
+1. P1 contracts
+2. P4 outputs
+3. `handoffs/HANDOFF_P5.md`
 
 ## 4. Non-negotiable locks
-1. API target: hybrid parity + aliases.
-2. Type fidelity: high.
-3. Unstable work only in P6.
-4. Effect conventions (, no unsafe typing escapes).
-5. Required discovery commands run first.
+1. Preserve heavy generic fidelity.
+2. Keep compile-time metadata wiring intact.
+3. Maintain compatibility with future export parity checks.
 
 ## 5. Agent assignments
-1. Assign focused sub-agents by workstream within this phase.
-2. Keep ownership explicit per file/output.
-3. Reduce parallel fan-out if proxy metrics indicate rejection/queue pressure.
+1. objectset core owner
+2. osdk object/from owner
+3. actions/queries owner
+4. type parity verifier
 
 ## 6. Required outputs
-Produce all artifacts for Phase P5 listed in  under that phase path.
+1. `outputs/p5-objectset-osdk/implementation-log.md`
+2. `outputs/p5-objectset-osdk/type-parity-report.md`
+
+Locked module scope for this phase:
+
+```text
+src/OsdkBase.ts
+src/object/FetchPageResult.ts
+src/objectSet/BaseObjectSet.ts
+src/objectSet/ObjectSetLinks.ts
+src/objectSet/ObjectSetListener.ts
+src/objectSet/ObjectSet.ts
+src/objectSet/BulkLinkResult.ts
+src/definitions/LinkDefinitions.ts
+src/definitions.ts
+src/derivedProperties/WithPropertiesAggregationOptions.ts
+src/derivedProperties/Expressions.ts
+src/derivedProperties/DerivedProperty.ts
+src/OsdkObjectFrom.ts
+src/actions/NullValue.ts
+src/actions/ActionResults.ts
+src/actions/Actions.ts
+src/actions/ActionReturnTypeForOptions.ts
+src/queries/Queries.ts
+src/util/LinkUtils.ts
+```
 
 ## 7. Required checks
-1. Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-2. Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-3. Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-4.  when prompt/handoff instruction text is changed.
-5. Phase-specific compile/test checks documented in outputs.
+1. Discovery commands
+2. Heavy generic scenario checks for ObjectSet and OsdkObjectFrom
 
 ## 8. Exit gate
-1. All declared outputs exist and are non-empty.
-2. Required checks are recorded.
-3. No unresolved blocker remains.
-4. Next-phase handoff + orchestrator prompt exist.
+P5 integration complete and compile-stable; P6 handoff/prompt authored.
 
 ## 9. Memory protocol
-1. Health preflight: 
-2. Fan-out monitoring: 
-3. On memory/proxy failure, continue and report exactly:
-   - 
-4. Route Graphiti memory to  only; do not use  directly.
-5. If available, query both groups at phase start:
-   - 
-   - 
+Apply proxy health and metrics checks; fallback string on failure is mandatory.
 
 ## 10. Handoff document pointer
-Primary phase handoff: 
+`handoffs/HANDOFF_P5.md`

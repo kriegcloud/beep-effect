@@ -1,65 +1,42 @@
 # Handoff P3
 
 ## Objective
-Execute Phase P3 exactly as defined in 
-a) - 
-a) - [README.md](../README.md)
-- [MASTER_ORCHESTRATION.md](../MASTER_ORCHESTRATION.md)
+Implement ontology core SCC and compile-time metadata contracts with high type fidelity.
 
 ## Inputs
-1. Global spec docs (, , ).
-2. Prior phase outputs (if phase > P0).
-3. Upstream source: .
-4. Local source: .
+1. P1 contract docs
+2. P2 implementation outputs
+3. Upstream ontology core modules
 
 ## Required Work
-1. Run discovery commands first:
-   - Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-   - Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-   - Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-2. Execute P3 workstream and produce required outputs in the phase output directory.
-3. Keep  in sync with artifact status.
-4. Author next phase handoff and orchestrator prompt before closing phase.
+Implement this exact P3 scope and validate core type fixtures:
+
+```text
+src/ontology/SimplePropertyDef.ts
+src/ontology/InterfaceDefinition.ts
+src/ontology/ObjectTypeDefinition.ts
+src/ontology/ObjectOrInterface.ts
+src/ontology/ObjectSpecifier.ts
+src/ontology/ActionDefinition.ts
+src/ontology/QueryDefinition.ts
+src/mapping/PropertyValueMapping.ts
+src/OsdkObject.ts
+src/Definitions.ts
+src/object/FetchPageArgs.ts
+```
 
 ## Deliverables
-See phase requirements in [outputs/manifest.json](../outputs/manifest.json).
+- `outputs/p3-ontology-core/implementation-log.md`
+- `outputs/p3-ontology-core/type-fidelity-notes.md`
 
 ## Completion Checklist
-- [ ] Required outputs created and non-empty.
-- [ ] Required checks executed and results recorded.
-- [ ] No unresolved gate blockers remain.
-- [ ] Next-phase handoff + orchestrator prompt authored.
+- [ ] Core SCC modules complete.
+- [ ] Core generics compile as contracted.
+- [ ] Type fixtures for `SimplePropertyDef` and `ObjectSpecifier` pass.
+- [ ] P4 handoff + prompt authored.
 
 ## Memory Protocol
-1. Before heavy parallel work, check proxy health:
-   - 
-2. During high fan-out runs, monitor:
-   - 
-3. If memory is unavailable, continue and report exactly:
-   - 
-4. Do not target Graphiti direct endpoint  from agents.
+Proxy-only routing and fallback text are mandatory.
 
 ## Exit Gate
-P3 is complete only when all checklist items are satisfied and phase outputs meet rubric gates.
+P3 closes when aggregate/query primitives can start without core-model blockers.

@@ -1,65 +1,49 @@
 # Handoff P4
 
 ## Objective
-Execute Phase P4 exactly as defined in 
-a) - 
-a) - [README.md](../README.md)
-- [MASTER_ORCHESTRATION.md](../MASTER_ORCHESTRATION.md)
+Implement aggregate/filter/groupby/query primitives and validate composition semantics.
 
 ## Inputs
-1. Global spec docs (, , ).
-2. Prior phase outputs (if phase > P0).
-3. Upstream source: .
-4. Local source: .
+1. P1 contracts
+2. P3 outputs
+3. Upstream aggregate/groupby/query primitive modules
 
 ## Required Work
-1. Run discovery commands first:
-   - Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-   - Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-   - Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-2. Execute P4 workstream and produce required outputs in the phase output directory.
-3. Keep  in sync with artifact status.
-4. Author next phase handoff and orchestrator prompt before closing phase.
+Implement this exact P4 scope, focusing on filter unions, aggregate option typing, and query primitive wiring:
+
+```text
+src/aggregate/BaseFilter.ts
+src/aggregate/ArrayFilter.ts
+src/aggregate/BooleanFilter.ts
+src/aggregate/DatetimeFilter.ts
+src/aggregate/NumberFilter.ts
+src/aggregate/StringFilter.ts
+src/aggregate/Just.ts
+src/aggregate/GeoFilter.ts
+src/aggregate/WhereClause.ts
+src/aggregate/AggregatableKeys.ts
+src/aggregate/AggregationsClause.ts
+src/aggregate/AggregateOpts.ts
+src/aggregate/AggregateOptsThatErrors.ts
+src/aggregate/AggregationResultsWithoutGroups.ts
+src/aggregate/AggregationResultsWithGroups.ts
+src/aggregate/AggregationsResults.ts
+src/groupby/GroupByMapper.ts
+src/groupby/GroupByClause.ts
+src/queries/Aggregations.ts
+```
 
 ## Deliverables
-See phase requirements in [outputs/manifest.json](../outputs/manifest.json).
+- `outputs/p4-aggregate-query/implementation-log.md`
+- `outputs/p4-aggregate-query/edge-case-audit.md`
 
 ## Completion Checklist
-- [ ] Required outputs created and non-empty.
-- [ ] Required checks executed and results recorded.
-- [ ] No unresolved gate blockers remain.
-- [ ] Next-phase handoff + orchestrator prompt authored.
+- [ ] Aggregate stack compiles end-to-end.
+- [ ] GroupBy and WhereClause scenarios covered.
+- [ ] P5 handoff + prompt authored.
 
 ## Memory Protocol
-1. Before heavy parallel work, check proxy health:
-   - 
-2. During high fan-out runs, monitor:
-   - 
-3. If memory is unavailable, continue and report exactly:
-   - 
-4. Do not target Graphiti direct endpoint  from agents.
+Proxy-only routing and fallback text are mandatory.
 
 ## Exit Gate
-P4 is complete only when all checklist items are satisfied and phase outputs meet rubric gates.
+P4 closes when P5 heavy object/action/query layers can build on a stable primitive stack.

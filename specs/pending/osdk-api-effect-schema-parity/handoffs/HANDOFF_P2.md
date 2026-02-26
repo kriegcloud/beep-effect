@@ -1,65 +1,53 @@
 # Handoff P2
 
 ## Objective
-Execute Phase P2 exactly as defined in 
-a) - 
-a) - [README.md](../README.md)
-- [MASTER_ORCHESTRATION.md](../MASTER_ORCHESTRATION.md)
+Implement and audit foundation modules with compile-safe behavior and parity-oriented correctness.
 
 ## Inputs
-1. Global spec docs (, , ).
-2. Prior phase outputs (if phase > P0).
-3. Upstream source: .
-4. Local source: .
+1. P1 contracts
+2. `packages/common/ontology/src` foundation files
+3. Upstream source equivalents
 
 ## Required Work
-1. Run discovery commands first:
-   - Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-   - Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-   - Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-2. Execute P2 workstream and produce required outputs in the phase output directory.
-3. Keep  in sync with artifact status.
-4. Author next phase handoff and orchestrator prompt before closing phase.
+Implement/audit this exact P2 scope and produce change evidence:
+
+```text
+src/Logger.ts
+src/object/Attachment.ts
+src/object/Media.ts
+src/object/PropertySecurity.ts
+src/object/Result.ts
+src/PageResult.ts
+src/ontology/OntologyMetadata.ts
+src/ontology/PrimaryKeyTypes.ts
+src/ontology/WirePropertyTypes.ts
+src/ontology/VersionString.ts
+src/ontology/valueFormatting/PropertyBooleanFormattingRule.ts
+src/ontology/valueFormatting/PropertyKnownTypeFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingUtils.ts
+src/ontology/valueFormatting/PropertyDateAndTimestampFormattingRule.ts
+src/ontology/valueFormatting/PropertyNumberFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingRule.ts
+src/mapping/DurationMapping.ts
+src/mapping/DataValueMapping.ts
+src/timeseries/timeseries.ts
+src/OsdkMetadata.ts
+src/OsdkObjectPrimaryKeyType.ts
+src/util/IncludeValuesExtending.ts
+```
 
 ## Deliverables
-See phase requirements in [outputs/manifest.json](../outputs/manifest.json).
+- `outputs/p2-foundation/implementation-log.md`
+- `outputs/p2-foundation/changed-files-manifest.md`
 
 ## Completion Checklist
-- [ ] Required outputs created and non-empty.
-- [ ] Required checks executed and results recorded.
-- [ ] No unresolved gate blockers remain.
-- [ ] Next-phase handoff + orchestrator prompt authored.
+- [ ] P2 module scope complete.
+- [ ] Foundation compiles.
+- [ ] No unresolved recursion blocker remains.
+- [ ] P3 handoff + prompt authored.
 
 ## Memory Protocol
-1. Before heavy parallel work, check proxy health:
-   - 
-2. During high fan-out runs, monitor:
-   - 
-3. If memory is unavailable, continue and report exactly:
-   - 
-4. Do not target Graphiti direct endpoint  from agents.
+Proxy-only routing and fallback text are mandatory.
 
 ## Exit Gate
-P2 is complete only when all checklist items are satisfied and phase outputs meet rubric gates.
+P2 closes when foundation is compile-ready for ontology core work.

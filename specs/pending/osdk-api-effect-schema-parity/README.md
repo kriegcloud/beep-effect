@@ -148,6 +148,139 @@ Mandatory checks for every phase:
 | P6 | Public surface + aliases + unstable | `outputs/p6-public-surface/*` |
 | P7 | Verification + docs + readiness | `outputs/p7-verification/*` |
 
+## Locked Phase Module Scopes
+
+### P2 — Foundation modules
+
+```text
+src/Logger.ts
+src/object/Attachment.ts
+src/object/Media.ts
+src/object/PropertySecurity.ts
+src/object/Result.ts
+src/PageResult.ts
+src/ontology/OntologyMetadata.ts
+src/ontology/PrimaryKeyTypes.ts
+src/ontology/WirePropertyTypes.ts
+src/ontology/VersionString.ts
+src/ontology/valueFormatting/PropertyBooleanFormattingRule.ts
+src/ontology/valueFormatting/PropertyKnownTypeFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingUtils.ts
+src/ontology/valueFormatting/PropertyDateAndTimestampFormattingRule.ts
+src/ontology/valueFormatting/PropertyNumberFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingRule.ts
+src/mapping/DurationMapping.ts
+src/mapping/DataValueMapping.ts
+src/timeseries/timeseries.ts
+src/OsdkMetadata.ts
+src/OsdkObjectPrimaryKeyType.ts
+src/util/IncludeValuesExtending.ts
+```
+
+### P3 — Ontology core + compile-time metadata
+
+```text
+src/ontology/SimplePropertyDef.ts
+src/ontology/InterfaceDefinition.ts
+src/ontology/ObjectTypeDefinition.ts
+src/ontology/ObjectOrInterface.ts
+src/ontology/ObjectSpecifier.ts
+src/ontology/ActionDefinition.ts
+src/ontology/QueryDefinition.ts
+src/mapping/PropertyValueMapping.ts
+src/OsdkObject.ts
+src/Definitions.ts
+src/object/FetchPageArgs.ts
+```
+
+### P4 — Aggregate / groupby / query primitives
+
+```text
+src/aggregate/BaseFilter.ts
+src/aggregate/ArrayFilter.ts
+src/aggregate/BooleanFilter.ts
+src/aggregate/DatetimeFilter.ts
+src/aggregate/NumberFilter.ts
+src/aggregate/StringFilter.ts
+src/aggregate/Just.ts
+src/aggregate/GeoFilter.ts
+src/aggregate/WhereClause.ts
+src/aggregate/AggregatableKeys.ts
+src/aggregate/AggregationsClause.ts
+src/aggregate/AggregateOpts.ts
+src/aggregate/AggregateOptsThatErrors.ts
+src/aggregate/AggregationResultsWithoutGroups.ts
+src/aggregate/AggregationResultsWithGroups.ts
+src/aggregate/AggregationsResults.ts
+src/groupby/GroupByMapper.ts
+src/groupby/GroupByClause.ts
+src/queries/Aggregations.ts
+```
+
+### P5 — ObjectSet + Osdk core + actions/queries
+
+```text
+src/OsdkBase.ts
+src/object/FetchPageResult.ts
+src/objectSet/BaseObjectSet.ts
+src/objectSet/ObjectSetLinks.ts
+src/objectSet/ObjectSetListener.ts
+src/objectSet/ObjectSet.ts
+src/objectSet/BulkLinkResult.ts
+src/definitions/LinkDefinitions.ts
+src/definitions.ts
+src/derivedProperties/WithPropertiesAggregationOptions.ts
+src/derivedProperties/Expressions.ts
+src/derivedProperties/DerivedProperty.ts
+src/OsdkObjectFrom.ts
+src/actions/NullValue.ts
+src/actions/ActionResults.ts
+src/actions/Actions.ts
+src/actions/ActionReturnTypeForOptions.ts
+src/queries/Queries.ts
+src/util/LinkUtils.ts
+```
+
+### P6 — Public surface + aliases + unstable
+
+```text
+src/index.ts
+src/public/unstable.ts
+src/experimental/Experiment.ts
+src/experimental/createMediaReference.ts
+src/experimental/fetchOneByRid.ts
+src/experimental/fetchPageByRid.ts
+src/experimental/getBulkLinks.ts
+src/OntologyBase.ts
+src/OntologyObject.ts
+src/OntologyObjectFrom.ts
+src/OntologyObjectPrimaryKey.ts
+src/definitions/LinkDefinition.ts
+packages/common/ontology/package.json
+```
+
+## Knowledge Graph Protocol
+
+At every phase start:
+
+1. Query memory for phase objective in both groups:
+   - `group_ids: ["beep-dev"]`
+   - `group_ids: ["palantir-ontology"]`
+2. If no facts are returned, fall back to:
+   - `specs/completed/reverse-engineering-palantir-ontology/outputs/p1-schema-design/kg-schema-design.md`
+   - `specs/completed/reverse-engineering-palantir-ontology/outputs/p4b-repo-analysis/osdk-ts.json`
+
+During each phase:
+
+1. Write implementation decisions and hard bug root causes to `beep-dev`.
+2. Write Palantir ontology concept mapping discoveries to `palantir-ontology`.
+
+If Graphiti write/read fails:
+
+1. Record failure in phase output.
+2. Continue with local source-of-truth files.
+3. Retry once at phase end.
+
 ## Phase Completion Invariant
 
 No phase can be marked complete until:

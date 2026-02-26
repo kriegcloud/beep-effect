@@ -1,65 +1,38 @@
 # Handoff P0
 
 ## Objective
-Execute Phase P0 exactly as defined in 
-a) - 
-a) - [README.md](../README.md)
-- [MASTER_ORCHESTRATION.md](../MASTER_ORCHESTRATION.md)
+Freeze baseline parity facts, dependency order, conventions checklist, and risk register before contract freeze and code work.
 
 ## Inputs
-1. Global spec docs (, , ).
-2. Prior phase outputs (if phase > P0).
-3. Upstream source: .
-4. Local source: .
+1. `README.md`
+2. `MASTER_ORCHESTRATION.md`
+3. Upstream `@osdk/api` source tree
+4. Current `@beep/ontology` source tree
 
 ## Required Work
-1. Run discovery commands first:
-   - Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-   - Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-   - Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-2. Execute P0 workstream and produce required outputs in the phase output directory.
-3. Keep  in sync with artifact status.
-4. Author next phase handoff and orchestrator prompt before closing phase.
+1. Build a module-level stable parity matrix (`present`, `missing`, `stubbed`, `implemented`).
+2. Produce dependency-aware implementation order for missing/stub modules.
+3. Capture established local ontology schema conventions.
+4. Capture phase risks and mitigation gates.
+5. Author P1 handoff and orchestrator prompt.
 
 ## Deliverables
-See phase requirements in [outputs/manifest.json](../outputs/manifest.json).
+- `outputs/p0-baseline/parity-matrix.md`
+- `outputs/p0-baseline/module-dependency-order.md`
+- `outputs/p0-baseline/conventions-checklist.md`
+- `outputs/p0-baseline/risks-and-mitigations.md`
 
 ## Completion Checklist
-- [ ] Required outputs created and non-empty.
-- [ ] Required checks executed and results recorded.
-- [ ] No unresolved gate blockers remain.
-- [ ] Next-phase handoff + orchestrator prompt authored.
+- [ ] Stable and unstable baseline counts verified.
+- [ ] Dependency order frozen and phaseable.
+- [ ] Conventions checklist explicit and reviewable.
+- [ ] Risks and mitigations captured.
+- [ ] P1 handoff + prompt authored.
 
 ## Memory Protocol
-1. Before heavy parallel work, check proxy health:
-   - 
-2. During high fan-out runs, monitor:
-   - 
-3. If memory is unavailable, continue and report exactly:
-   - 
-4. Do not target Graphiti direct endpoint  from agents.
+1. Preflight `curl -fsS http://127.0.0.1:8123/healthz` before parallel analysis.
+2. If unavailable: `graphiti-memory skipped: proxy unavailable`.
+3. Route to proxy only (`127.0.0.1:8123/mcp`).
 
 ## Exit Gate
-P0 is complete only when all checklist items are satisfied and phase outputs meet rubric gates.
+P0 closes when baseline is locked and P1 can execute without discovery ambiguity.

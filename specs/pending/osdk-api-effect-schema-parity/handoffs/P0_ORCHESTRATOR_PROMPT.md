@@ -1,80 +1,46 @@
 # P0 Orchestrator Prompt
 
 ## 1. Context
-You are running Phase P0 of .
-Follow locked defaults and phase gates in  and .
+You are running Phase P0 for `specs/pending/osdk-api-effect-schema-parity`.
+This phase establishes a locked factual baseline before any contract or implementation work.
 
 ## 2. Mission
-Deliver Phase P0 outputs to completion with no unresolved blockers and with next-phase handoff continuity.
+Produce a verified parity baseline, dependency order, conventions checklist, and risk register.
 
 ## 3. Inputs
-1. 
-2. 
-3. 
-4. 
-5. Prior phase outputs (if available)
-6. Upstream API source ()
-7. Local ontology source ()
+1. `README.md`
+2. `MASTER_ORCHESTRATION.md`
+3. Upstream API source tree
+4. Local ontology source tree
 
 ## 4. Non-negotiable locks
-1. API target: hybrid parity + aliases.
-2. Type fidelity: high.
-3. Unstable work only in P6.
-4. Effect conventions (, no unsafe typing escapes).
-5. Required discovery commands run first.
+1. Baseline counts must be evidence-backed.
+2. No implementation edits in P0 outputs.
+3. Capture missing vs stubbed vs implemented distinctions.
 
 ## 5. Agent assignments
-1. Assign focused sub-agents by workstream within this phase.
-2. Keep ownership explicit per file/output.
-3. Reduce parallel fan-out if proxy metrics indicate rejection/queue pressure.
+1. `parity-inventory`: stable/unstable module matrix.
+2. `dependency-map`: prerequisite ordering by module cluster.
 
 ## 6. Required outputs
-Produce all artifacts for Phase P0 listed in  under that phase path.
+1. `outputs/p0-baseline/parity-matrix.md`
+2. `outputs/p0-baseline/module-dependency-order.md`
+3. `outputs/p0-baseline/conventions-checklist.md`
+4. `outputs/p0-baseline/risks-and-mitigations.md`
 
 ## 7. Required checks
-1. Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-2. Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-3. Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-4.  when prompt/handoff instruction text is changed.
-5. Phase-specific compile/test checks documented in outputs.
+1. `bun run beep docs laws`
+2. `bun run beep docs skills`
+3. `bun run beep docs policies`
 
 ## 8. Exit gate
-1. All declared outputs exist and are non-empty.
-2. Required checks are recorded.
-3. No unresolved blocker remains.
-4. Next-phase handoff + orchestrator prompt exist.
+P0 ends only when all outputs exist and P1 handoff/prompt are authored.
 
 ## 9. Memory protocol
-1. Health preflight: 
-2. Fan-out monitoring: 
-3. On memory/proxy failure, continue and report exactly:
-   - 
-4. Route Graphiti memory to  only; do not use  directly.
-5. If available, query both groups at phase start:
-   - 
-   - 
+1. Check proxy health: `curl -fsS http://127.0.0.1:8123/healthz`
+2. Monitor during fan-out: `curl -fsS http://127.0.0.1:8123/metrics`
+3. On failure, continue and record: `graphiti-memory skipped: proxy unavailable`
+4. Use `http://127.0.0.1:8123/mcp` only.
 
 ## 10. Handoff document pointer
-Primary phase handoff: 
+`handoffs/HANDOFF_P0.md`

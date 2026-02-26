@@ -1,80 +1,65 @@
 # P2 Orchestrator Prompt
 
 ## 1. Context
-You are running Phase P2 of .
-Follow locked defaults and phase gates in  and .
+P1 contracts are frozen. Begin foundation implementation.
 
 ## 2. Mission
-Deliver Phase P2 outputs to completion with no unresolved blockers and with next-phase handoff continuity.
+Implement and audit low-dependency foundation modules for compile-safe parity groundwork.
 
 ## 3. Inputs
-1. 
-2. 
-3. 
-4. 
-5. Prior phase outputs (if available)
-6. Upstream API source ()
-7. Local ontology source ()
+1. P1 contract outputs
+2. P2 module scope list from README
+3. `handoffs/HANDOFF_P2.md`
 
 ## 4. Non-negotiable locks
-1. API target: hybrid parity + aliases.
-2. Type fidelity: high.
-3. Unstable work only in P6.
-4. Effect conventions (, no unsafe typing escapes).
-5. Required discovery commands run first.
+1. Preserve established ontology annotation conventions.
+2. No unsafe type escapes.
+3. Keep module/file naming aligned with upstream parity goals.
 
 ## 5. Agent assignments
-1. Assign focused sub-agents by workstream within this phase.
-2. Keep ownership explicit per file/output.
-3. Reduce parallel fan-out if proxy metrics indicate rejection/queue pressure.
+1. foundation implementation owner
+2. foundation parity audit owner
 
 ## 6. Required outputs
-Produce all artifacts for Phase P2 listed in  under that phase path.
+1. `outputs/p2-foundation/implementation-log.md`
+2. `outputs/p2-foundation/changed-files-manifest.md`
+
+Locked module scope for this phase:
+
+```text
+src/Logger.ts
+src/object/Attachment.ts
+src/object/Media.ts
+src/object/PropertySecurity.ts
+src/object/Result.ts
+src/PageResult.ts
+src/ontology/OntologyMetadata.ts
+src/ontology/PrimaryKeyTypes.ts
+src/ontology/WirePropertyTypes.ts
+src/ontology/VersionString.ts
+src/ontology/valueFormatting/PropertyBooleanFormattingRule.ts
+src/ontology/valueFormatting/PropertyKnownTypeFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingUtils.ts
+src/ontology/valueFormatting/PropertyDateAndTimestampFormattingRule.ts
+src/ontology/valueFormatting/PropertyNumberFormattingRule.ts
+src/ontology/valueFormatting/PropertyValueFormattingRule.ts
+src/mapping/DurationMapping.ts
+src/mapping/DataValueMapping.ts
+src/timeseries/timeseries.ts
+src/OsdkMetadata.ts
+src/OsdkObjectPrimaryKeyType.ts
+src/util/IncludeValuesExtending.ts
+```
 
 ## 7. Required checks
-1. Codebase Laws
-Effect-first quality law summary and validation entry points.
-- Use Effect-first APIs and aliases defined by repository law.
-- Reject unsafe typing escapes and untyped runtime errors.
-- Keep domain logic free of native mutable runtime containers.
-- Finish only when check, lint, test, and docgen pass.
-- Run: bun run check
-- Run: bun run lint
-- Run: bun run test
-- Run: bun run docgen
-2. Agent Skills
-High-signal skills and usage expectations for coding agents.
-- Use focused skills when a task clearly matches a specialized domain.
-- Prefer minimal skill sets that directly match requested outcomes.
-- Keep context tight and avoid broad, unfocused skill loading.
-- Pair skills with verification commands before completion.
-- Run: bun run beep docs find effect
-3. Policy Gates
-Operational policy checks for agent output and repo hygiene.
-- Benchmark compliance and allowlist checks are strict by default.
-- Agent instruction surfaces must remain pathless and lightweight.
-- Worktree runs must use isolated disposable worktrees when enabled.
-- Run: bun run agents:check
-- Run: bun run agents:pathless:check
-- Run: bun run lint:effect-laws:strict
-4.  when prompt/handoff instruction text is changed.
-5. Phase-specific compile/test checks documented in outputs.
+1. Discovery commands
+2. Package-level compile check for ontology package
 
 ## 8. Exit gate
-1. All declared outputs exist and are non-empty.
-2. Required checks are recorded.
-3. No unresolved blocker remains.
-4. Next-phase handoff + orchestrator prompt exist.
+P2 scope complete, compiles, no unresolved recursion blockers, P3 handoff/prompt authored.
 
 ## 9. Memory protocol
-1. Health preflight: 
-2. Fan-out monitoring: 
-3. On memory/proxy failure, continue and report exactly:
-   - 
-4. Route Graphiti memory to  only; do not use  directly.
-5. If available, query both groups at phase start:
-   - 
-   - 
+Apply proxy health and metrics checks; fallback string on failure is mandatory.
 
 ## 10. Handoff document pointer
-Primary phase handoff: 
+`handoffs/HANDOFF_P2.md`
