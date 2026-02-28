@@ -1,11 +1,16 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import {
   Clock,
   Deferred,
   Duration,
   Effect,
   Exit,
+  HashMap,
   Layer,
   Metric,
+  MutableHashMap,
+  MutableHashSet,
   PubSub,
   Queue,
   Scope,
@@ -14,8 +19,10 @@ import {
   Stream,
   SynchronizedRef,
 } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { AgentSdk } from "./AgentSdk.js";
 import type { AgentSdkError } from "./Errors.js";
@@ -34,6 +41,8 @@ import { SandboxService } from "./Sandbox/SandboxService.js";
 import type { HookInput } from "./Schema/Hooks.js";
 import type { SDKUserMessage } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
+
+const $I = $AiSdkId.create("core/QuerySupervisor");
 
 /**
  * @since 0.0.0
@@ -61,7 +70,7 @@ export const QueryPendingTimeoutError = QueryPendingTimeoutError_;
  */
 export const QueryQueueFullError = QueryQueueFullError_;
 
-const CompletionStatus = S.Literals(["success", "failure", "interrupted"]);
+const CompletionStatus = LiteralKit(["success", "failure", "interrupted"]);
 
 const QueryQueuedEvent = S.TaggedStruct("QueryQueued", {
   queryId: S.String,
@@ -107,7 +116,7 @@ export const QuerySupervisorStatsSchema = S.Struct({
   pending: S.Number,
   concurrencyLimit: S.Number,
   pendingQueueCapacity: S.Number,
-  pendingQueueStrategy: S.Literals(["disabled", "suspend", "dropping", "sliding"]),
+  pendingQueueStrategy: LiteralKit(["disabled", "suspend", "dropping", "sliding"]),
 }).pipe(S.annotate({ identifier: "QuerySupervisorStats" }));
 
 /**
@@ -202,7 +211,7 @@ const stripNonSerializableOptions = (options: Options): Options => {
 const extractErrorTag = (error: unknown): string | undefined => {
   if (P.hasProperty(error, "_tag")) {
     const tag = error._tag;
-    if (typeof tag === "string") {
+    if (P.isString(tag)) {
       return tag;
     }
   }
@@ -222,7 +231,7 @@ const hookMatcherAllowsInput = (matcher: string | undefined, input: HookInput) =
 
 const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle => {
   const hooks = options?.hooks;
-  if (!hooks || Object.keys(hooks).length === 0) return handle;
+  if (!hooks || R.keys(hooks).length === 0) return handle;
 
   const baseCwd = options?.cwd ?? "";
   const basePermissionMode = options?.permissionMode;
@@ -258,19 +267,19 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
   let sessionId: string | undefined;
   let sessionEnded = false;
   let stopFired = false;
-  const toolNames = new Map<string, string>();
-  const preToolFired = new Set<string>();
-  const completedToolUseIds = new Set<string>();
+  const toolNames = MutableHashMap.empty<string, string>();
+  const preToolFired = MutableHashSet.empty<string>();
+  const completedToolUseIds = MutableHashSet.empty<string>();
 
   const firePostToolUseFailures = (resolvedSessionId: string, errorMessage: string, isInterrupt?: boolean) =>
     Effect.gen(function* () {
       for (const toolUseId of preToolFired) {
-        if (completedToolUseIds.has(toolUseId)) continue;
-        completedToolUseIds.add(toolUseId);
+        if (MutableHashSet.has(completedToolUseIds, toolUseId)) continue;
+        MutableHashSet.add(completedToolUseIds, toolUseId);
         const input: HookInput = {
           ...makeBaseInput(resolvedSessionId),
           hook_event_name: "PostToolUseFailure",
-          tool_name: toolNames.get(toolUseId) ?? "unknown",
+          tool_name: O.getOrElse(MutableHashMap.get(toolNames, toolUseId), () => "unknown"),
           tool_input: {},
           tool_use_id: toolUseId,
           error: errorMessage,
@@ -322,9 +331,9 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
         }
 
         if (message.type === "tool_progress") {
-          toolNames.set(message.tool_use_id, message.tool_name);
-          if (!preToolFired.has(message.tool_use_id)) {
-            preToolFired.add(message.tool_use_id);
+          MutableHashMap.set(toolNames, message.tool_use_id, message.tool_name);
+          if (!MutableHashSet.has(preToolFired, message.tool_use_id)) {
+            MutableHashSet.add(preToolFired, message.tool_use_id);
             const input: HookInput = {
               ...makeBaseInput(message.session_id),
               hook_event_name: "PreToolUse",
@@ -338,11 +347,11 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
 
         if (message.type === "user" && message.parent_tool_use_id !== null && message.tool_use_result !== undefined) {
           const toolUseId = message.parent_tool_use_id;
-          completedToolUseIds.add(toolUseId);
+          MutableHashSet.add(completedToolUseIds, toolUseId);
           const input: HookInput = {
             ...makeBaseInput(message.session_id),
             hook_event_name: "PostToolUse",
-            tool_name: toolNames.get(toolUseId) ?? "unknown",
+            tool_name: O.getOrElse(MutableHashMap.get(toolNames, toolUseId), () => "unknown"),
             tool_input: {},
             tool_response: message.tool_use_result,
             tool_use_id: toolUseId,
@@ -390,7 +399,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
   const { settings } = yield* QuerySupervisorConfig;
   const sdk = yield* AgentSdk;
   const semaphore = yield* Semaphore.make(settings.concurrencyLimit);
-  const activeRef = yield* SynchronizedRef.make(new Map<string, ActiveQuery>());
+  const activeRef = yield* SynchronizedRef.make(HashMap.empty<string, ActiveQuery>());
   const pendingQueue =
     settings.pendingQueueCapacity > 0
       ? yield* makePendingQueue(settings.pendingQueueStrategy, settings.pendingQueueCapacity)
@@ -409,18 +418,10 @@ const makeQuerySupervisor = Effect.gen(function* () {
     settings.metricsEnabled ? Metric.update(queryDurationMetric, durationMs) : Effect.void;
 
   const addActive = (active: ActiveQuery) =>
-    SynchronizedRef.update(activeRef, (current) => {
-      const next = new Map(current);
-      next.set(active.queryId, active);
-      return next;
-    });
+    SynchronizedRef.update(activeRef, (current) => HashMap.set(current, active.queryId, active));
 
   const removeActive = (queryId: string) =>
-    SynchronizedRef.update(activeRef, (current) => {
-      const next = new Map(current);
-      next.delete(queryId);
-      return next;
-    });
+    SynchronizedRef.update(activeRef, (current) => HashMap.remove(current, queryId));
 
   const dispatchQuery = (
     prompt: string | AsyncIterable<SDKUserMessage>,
@@ -428,7 +429,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
   ): Effect.Effect<QueryHandle, AgentSdkError, Scope.Scope> =>
     Effect.flatMap(Effect.serviceOption(SandboxService), (sandboxOption) => {
       if (O.isSome(sandboxOption) && sandboxOption.value.isolated) {
-        if (typeof prompt !== "string") {
+        if (!P.isString(prompt)) {
           return Effect.fail(
             SandboxError.make({
               message:
@@ -585,7 +586,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
     Stream.unwrap(submit(prompt, options).pipe(Effect.map((handle) => handle.stream)));
 
   const stats = Effect.gen(function* () {
-    const active = yield* SynchronizedRef.get(activeRef).pipe(Effect.map((current) => current.size));
+    const active = yield* SynchronizedRef.get(activeRef).pipe(Effect.map((current) => HashMap.size(current)));
     const pending = pendingQueue ? Math.max(0, yield* Queue.size(pendingQueue)) : 0;
     return {
       active,
@@ -598,7 +599,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
 
   const interruptAll = Effect.gen(function* () {
     const active = yield* SynchronizedRef.get(activeRef);
-    const handles = Array.from(active.values()).map((entry) => entry.handle);
+    const handles = A.map(A.fromIterable(HashMap.values(active)), (entry) => entry.handle);
     yield* Effect.forEach(
       handles,
       (handle) =>
@@ -653,14 +654,17 @@ const makeQuerySupervisor = Effect.gen(function* () {
 });
 
 /**
+ * @since 0.0.0
+ */
+export interface QuerySupervisorShape extends Effect.Success<typeof makeQuerySupervisor> {}
+
+/**
  * Supervisor for running Claude Agent SDK queries with concurrency limits.
  */
 /**
  * @since 0.0.0
  */
-export class QuerySupervisor extends ServiceMap.Service<QuerySupervisor, Effect.Success<typeof makeQuerySupervisor>>()(
-  "@effect/claude-agent-sdk/QuerySupervisor"
-) {
+export class QuerySupervisor extends ServiceMap.Service<QuerySupervisor, QuerySupervisorShape>()($I`QuerySupervisor`) {
   /**
    * Build the QuerySupervisor service using QuerySupervisorConfig.
    */

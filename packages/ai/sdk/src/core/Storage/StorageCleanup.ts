@@ -1,9 +1,12 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { Effect, Layer, Schedule, ServiceMap } from "effect";
 import { ArtifactStore } from "./ArtifactStore.js";
 import { AuditEventStore } from "./AuditEventStore.js";
 import { ChatHistoryStore } from "./ChatHistoryStore.js";
 import { StorageConfig } from "./StorageConfig.js";
 import type { StorageError } from "./StorageError.js";
+
+const $I = $AiSdkId.create("core/Storage/StorageCleanup");
 
 const logCleanupWarning = (phase: string, cause: unknown) =>
   Effect.logWarning(`[StorageCleanup] ${phase} cleanup failed: ${String(cause)}`);
@@ -34,12 +37,14 @@ const runCleanup = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class StorageCleanup extends ServiceMap.Service<
-  StorageCleanup,
-  {
-    readonly run: Effect.Effect<void, StorageError>;
-  }
->()("@effect/claude-agent-sdk/StorageCleanup") {
+export interface StorageCleanupShape {
+  readonly run: Effect.Effect<void, StorageError>;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class StorageCleanup extends ServiceMap.Service<StorageCleanup, StorageCleanupShape>()($I`StorageCleanup`) {
   static readonly layer = Layer.effect(
     StorageCleanup,
     Effect.gen(function* () {

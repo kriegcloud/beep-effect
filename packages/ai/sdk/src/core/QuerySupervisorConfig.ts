@@ -1,12 +1,15 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import { layerConfigFromEnv } from "./internal/config.js";
+
+const $I = $AiSdkId.create("core/QuerySupervisorConfig");
 
 /**
  * @since 0.0.0
  */
-export const PendingQueueStrategy = S.Literals(["suspend", "dropping", "sliding"]);
+export const PendingQueueStrategy = LiteralKit(["suspend", "dropping", "sliding"]);
 
 /**
  * @since 0.0.0
@@ -91,12 +94,16 @@ const makeQuerySupervisorConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class QuerySupervisorConfig extends ServiceMap.Service<
-  QuerySupervisorConfig,
-  {
-    settings: QuerySupervisorSettings;
-  }
->()("@effect/claude-agent-sdk/QuerySupervisorConfig") {
+export interface QuerySupervisorConfigShape {
+  readonly settings: QuerySupervisorSettings;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class QuerySupervisorConfig extends ServiceMap.Service<QuerySupervisorConfig, QuerySupervisorConfigShape>()(
+  $I`QuerySupervisorConfig`
+) {
   /**
    * Build QuerySupervisorConfig by reading configuration from environment variables.
    */

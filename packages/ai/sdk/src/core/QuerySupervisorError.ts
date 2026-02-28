@@ -28,7 +28,9 @@ export class QueryQueueFullError extends S.TaggedErrorClass<QueryQueueFullError>
 /**
  * @since 0.0.0
  */
-export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTimeoutError>()(
+export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTimeoutError>(
+  $I`QueryPendingTimeoutError`
+)(
   "QueryPendingTimeoutError",
   {
     message: S.String,
@@ -49,7 +51,9 @@ export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTim
 /**
  * @since 0.0.0
  */
-export class QueryPendingCanceledError extends S.TaggedErrorClass<QueryPendingCanceledError>()(
+export class QueryPendingCanceledError extends S.TaggedErrorClass<QueryPendingCanceledError>(
+  $I`QueryPendingCanceledError`
+)(
   "QueryPendingCanceledError",
   {
     message: S.String,
@@ -71,7 +75,6 @@ export const QuerySupervisorError = S.Union([
   QueryPendingTimeoutError,
   QueryPendingCanceledError,
 ]).pipe(
-  S.toTaggedUnion("_tag"),
   S.annotate(
     $I.annote("QuerySupervisorError", {
       description: "Union of all query supervisor errors.",

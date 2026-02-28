@@ -1,9 +1,11 @@
-import { ServiceMap } from "effect";
-import type * as Effect from "effect/Effect";
-import { constFalse, constTrue } from "effect/Function";
-import type * as JsonSchema from "effect/JsonSchema";
+import { $AiSdkId } from "@beep/identity/packages";
+import type { Effect, JsonSchema, SchemaAST } from "effect";
+import { Function as F, ServiceMap } from "effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type * as AST from "effect/SchemaAST";
+
+const $I = $AiSdkId.create("core/Tools/Tool");
+const toolIdentity = $I.create("Tool");
 
 /**
  * Controls how tool handler failures are represented.
@@ -378,9 +380,11 @@ const makeTool = <Name extends string>(options: {
   readonly failureMode: FailureMode;
   readonly annotations: ServiceMap.ServiceMap<never>;
 }) => {
-  const self = Object.assign(Object.create(Proto), options);
-  self.id = `@effect/claude-agent-sdk/Tool/${options.name}`;
-  return self;
+  return {
+    ...Proto,
+    ...options,
+    id: `${toolIdentity.string()}/${options.name}`,
+  };
 };
 
 const constEmptyStruct = S.Struct({});
@@ -469,7 +473,10 @@ export const fromSchema = <
   }) as any;
 
 const attachHandler = <T extends Any>(tool: T, handler: HandlerFor<T>) =>
-  Object.assign(tool, { handler }) as unknown as ToolWithHandler<
+  ({
+    ...tool,
+    handler,
+  }) as unknown as ToolWithHandler<
     Name<T>,
     {
       readonly parameters: ParametersSchema<T>;
@@ -596,7 +603,7 @@ export const getJsonSchema = <
 
 const getJsonSchemaFromSchema = (schema: S.Top): JsonSchema.JsonSchema => {
   const document = S.toJsonSchemaDocument(schema);
-  if (Object.keys(document.definitions).length === 0) {
+  if (R.keys(document.definitions).length === 0) {
     return document.schema;
   }
   return {
@@ -608,7 +615,8 @@ const getJsonSchemaFromSchema = (schema: S.Top): JsonSchema.JsonSchema => {
 /**
  * @since 0.0.0
  */
-export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema => getJsonSchemaFromSchema(S.make(ast));
+export const getJsonSchemaFromSchemaAst = (ast: SchemaAST.AST): JsonSchema.JsonSchema =>
+  getJsonSchemaFromSchema(S.make(ast));
 
 /**
  * Optional title metadata for tools.
@@ -616,7 +624,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema 
 /**
  * @since 0.0.0
  */
-export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/Title");
+export const Title = ServiceMap.Service<string>($I`Title`);
 
 /**
  * Indicates the tool is readonly (no side-effects).
@@ -624,8 +632,8 @@ export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/T
 /**
  * @since 0.0.0
  */
-export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Readonly", {
-  defaultValue: constFalse,
+export const Readonly = ServiceMap.Reference<boolean>($I`Readonly`, {
+  defaultValue: F.constFalse,
 });
 
 /**
@@ -634,8 +642,8 @@ export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/
 /**
  * @since 0.0.0
  */
-export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Destructive", {
-  defaultValue: constTrue,
+export const Destructive = ServiceMap.Reference<boolean>($I`Destructive`, {
+  defaultValue: F.constTrue,
 });
 
 /**
@@ -644,8 +652,8 @@ export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-s
 /**
  * @since 0.0.0
  */
-export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Idempotent", {
-  defaultValue: constFalse,
+export const Idempotent = ServiceMap.Reference<boolean>($I`Idempotent`, {
+  defaultValue: F.constFalse,
 });
 
 /**
@@ -654,6 +662,6 @@ export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sd
 /**
  * @since 0.0.0
  */
-export const OpenWorld = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/OpenWorld", {
-  defaultValue: constTrue,
+export const OpenWorld = ServiceMap.Reference<boolean>($I`OpenWorld`, {
+  defaultValue: F.constTrue,
 });

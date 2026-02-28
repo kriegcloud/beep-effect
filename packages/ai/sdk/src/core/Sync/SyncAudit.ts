@@ -1,6 +1,9 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { Effect, Layer, ServiceMap } from "effect";
 import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import type { ConflictResolution } from "./ConflictPolicy.js";
+
+const $I = $AiSdkId.create("core/Sync/SyncAudit");
 
 /**
  * @since 0.0.0
@@ -25,10 +28,10 @@ export type SyncCompactionAudit = {
 /**
  * @since 0.0.0
  */
-export type SyncAuditService = {
+export interface SyncAuditService {
   readonly conflict: (input: SyncConflictAudit) => Effect.Effect<void>;
   readonly compaction: (input: SyncCompactionAudit) => Effect.Effect<void>;
-};
+}
 
 const defaultSyncAudit: SyncAuditService = {
   conflict: () => Effect.void,
@@ -38,7 +41,7 @@ const defaultSyncAudit: SyncAuditService = {
 /**
  * @since 0.0.0
  */
-export class SyncAudit extends ServiceMap.Service<SyncAudit, SyncAuditService>()("@effect/claude-agent-sdk/SyncAudit", {
+export class SyncAudit extends ServiceMap.Service<SyncAudit, SyncAuditService>()($I`SyncAudit`, {
   make: Effect.succeed(defaultSyncAudit),
 }) {
   static readonly layer = Layer.succeed(SyncAudit, SyncAudit.of(defaultSyncAudit));

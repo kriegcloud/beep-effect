@@ -58,7 +58,7 @@ export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): Hook
       const matchers = map[event];
       if (!matchers || matchers.length === 0) continue;
       const existing = merged[event];
-      merged[event] = existing ? [...existing, ...matchers] : Array.from(matchers);
+      merged[event] = existing ? [...existing, ...matchers] : [...matchers];
     }
   }
   return merged;

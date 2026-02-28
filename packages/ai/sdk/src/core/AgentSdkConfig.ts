@@ -1,5 +1,8 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Config, ConfigProvider, Effect, Layer, Redacted, ServiceMap } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ConfigError } from "./Errors.js";
 import { defaultSettingSources, layerConfigFromEnv } from "./internal/config.js";
@@ -8,10 +11,12 @@ import { PermissionMode } from "./Schema/index.js";
 import { type Options, SettingSource } from "./Schema/Options.js";
 import { SandboxIgnoreViolations } from "./Schema/Sandbox.js";
 
+const $I = $AiSdkId.create("core/AgentSdkConfig");
+
 const SettingSourcesSchema = S.Array(SettingSource);
-const SandboxProviderSchema = S.Literals(["local", "cloudflare"]);
-const StorageBackendSchema = S.Literals(["bun", "filesystem", "r2", "kv"]);
-const StorageModeSchema = S.Literals(["standard", "journaled"]);
+const SandboxProviderSchema = LiteralKit(["local", "cloudflare"]);
+const StorageBackendSchema = LiteralKit(["bun", "filesystem", "r2", "kv"]);
+const StorageModeSchema = LiteralKit(["standard", "journaled"]);
 
 const parseSettingSources = (value: string) =>
   S.decodeUnknownEffect(SettingSourcesSchema)(
@@ -63,7 +68,7 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   );
   const model = yield* Config.option(Config.string("MODEL"));
   const cwd = yield* Config.option(Config.string("CWD"));
-  const executable = yield* Config.option(Config.schema(S.Literals(["bun", "deno", "node"]), "EXECUTABLE"));
+  const executable = yield* Config.option(Config.schema(LiteralKit(["bun", "deno", "node"]), "EXECUTABLE"));
   const allowDangerouslySkipPermissions = yield* Config.option(Config.boolean("ALLOW_DANGEROUSLY_SKIP_PERMISSIONS"));
   const permissionMode = yield* Config.option(Config.schema(PermissionMode, "PERMISSION_MODE"));
   const settingSourcesValue = yield* Config.option(Config.string("SETTING_SOURCES"));
@@ -95,15 +100,20 @@ const makeAgentSdkConfig = Effect.gen(function* () {
     : defaultSettingSources;
   const processEnv = yield* Effect.sync(() => process.env);
   const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
-  const authEnvOverrides = {
-    ...(O.isSome(resolvedApiKey) ? { ANTHROPIC_API_KEY: Redacted.value(resolvedApiKey.value) } : {}),
-    ...(O.isSome(sessionAccessToken)
+  const authEnvEntries: Array<readonly [string, string]> = [];
+  if (O.isSome(resolvedApiKey)) {
+    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(resolvedApiKey.value)]);
+  }
+  if (O.isSome(sessionAccessToken)) {
+    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
+  }
+  const env =
+    authEnvEntries.length > 0
       ? {
-          CLAUDE_CODE_SESSION_ACCESS_TOKEN: Redacted.value(sessionAccessToken.value),
+          ...processEnv,
+          ...R.fromEntries(authEnvEntries),
         }
-      : {}),
-  };
-  const env = Object.keys(authEnvOverrides).length > 0 ? { ...processEnv, ...authEnvOverrides } : undefined;
+      : undefined;
   const cwdDefault = yield* Effect.sync(() => process.cwd());
 
   if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
@@ -221,9 +231,12 @@ const makeAgentSdkConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, Effect.Success<typeof makeAgentSdkConfig>>()(
-  "@effect/claude-agent-sdk/AgentSdkConfig"
-) {
+export interface AgentSdkConfigShape extends Effect.Success<typeof makeAgentSdkConfig> {}
+
+/**
+ * @since 0.0.0
+ */
+export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, AgentSdkConfigShape>()($I`AgentSdkConfig`) {
   /**
    * Build AgentSdkConfig with explicit overrides layered on top of environment config.
    */
@@ -238,7 +251,10 @@ export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, Effect.Su
     if (entries.length === 0) {
       return AgentSdkConfig.layer;
     }
-    const provider = ConfigProvider.orElse(ConfigProvider.fromUnknown(new Map(entries)), ConfigProvider.fromEnv());
+    const provider = ConfigProvider.orElse(
+      ConfigProvider.fromUnknown(R.fromEntries(entries)),
+      ConfigProvider.fromEnv()
+    );
     return AgentSdkConfig.layer.pipe(Layer.provide(ConfigProvider.layerAdd(provider)));
   };
   /**

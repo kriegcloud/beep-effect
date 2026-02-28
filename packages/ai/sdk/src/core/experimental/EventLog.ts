@@ -1,3 +1,4 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { thunkEffectVoid } from "@beep/utils";
 import { Layer } from "effect";
 import * as S from "effect/Schema";
@@ -5,6 +6,8 @@ import * as EventGroupModule from "effect/unstable/eventlog/EventGroup";
 import * as EventJournalModule from "effect/unstable/eventlog/EventJournal";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import { HookEvent } from "../Schema/Hooks.js";
+
+const $I = $AiSdkId.create("core/experimental/EventLog");
 
 /**
  * @since 0.0.0
@@ -46,45 +49,221 @@ export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(layerIdentityMemory)
 );
 
-const ToolUsePayload = S.Struct({
-  sessionId: S.String,
-  toolName: S.String,
-  toolUseId: S.optional(S.String),
-  status: S.Literals(["start", "success", "failure"]),
-  durationMs: S.optional(S.Number),
-});
+class ToolUsePayloadBase extends S.Class<ToolUsePayloadBase>($I`ToolUsePayloadBase`)(
+  {
+    sessionId: S.String,
+    toolName: S.String,
+    toolUseId: S.optional(S.String),
+    durationMs: S.optional(S.Number),
+  },
+  $I.annote("ToolUsePayloadBase", {
+    description: "Base payload for tool use audit events.",
+  })
+) {}
 
-const PermissionDecisionPayload = S.Struct({
-  sessionId: S.String,
-  toolName: S.String,
-  decision: S.Literals(["allow", "deny", "prompt"]),
-  reason: S.optional(S.String),
-});
+class ToolUsePayloadStart extends ToolUsePayloadBase.extend<ToolUsePayloadStart>($I`ToolUsePayloadStart`)(
+  {
+    status: S.tag("start"),
+  },
+  $I.annote("ToolUsePayloadStart", {
+    description: "Payload emitted when a tool use starts.",
+  })
+) {}
 
-const HookEventPayload = S.Struct({
-  sessionId: S.optional(S.String),
-  hook: HookEvent,
-  toolUseId: S.optional(S.String),
-  outcome: S.Literals(["success", "failure"]),
-});
+class ToolUsePayloadSuccess extends ToolUsePayloadBase.extend<ToolUsePayloadSuccess>($I`ToolUsePayloadSuccess`)(
+  {
+    status: S.tag("success"),
+  },
+  $I.annote("ToolUsePayloadSuccess", {
+    description: "Payload emitted when a tool use succeeds.",
+  })
+) {}
 
-const SyncConflictPayload = S.Struct({
-  remoteId: S.String,
-  event: S.String,
-  primaryKey: S.String,
-  entryId: S.String,
-  conflictCount: S.Number,
-  resolution: S.Literals(["accept", "merge", "reject"]),
-  resolvedEntryId: S.optional(S.String),
-});
+class ToolUsePayloadFailure extends ToolUsePayloadBase.extend<ToolUsePayloadFailure>($I`ToolUsePayloadFailure`)(
+  {
+    status: S.tag("failure"),
+  },
+  $I.annote("ToolUsePayloadFailure", {
+    description: "Payload emitted when a tool use fails.",
+  })
+) {}
 
-const SyncCompactionPayload = S.Struct({
-  remoteId: S.String,
-  before: S.Number,
-  after: S.Number,
-  events: S.optional(S.Array(S.String)),
-  timestamp: S.Number,
-});
+const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
+  S.toTaggedUnion("status"),
+  S.annotate(
+    $I.annote("ToolUsePayload", {
+      description: "Tagged union payload for tool_use events.",
+    })
+  )
+);
+
+class PermissionDecisionPayloadBase extends S.Class<PermissionDecisionPayloadBase>($I`PermissionDecisionPayloadBase`)(
+  {
+    sessionId: S.String,
+    toolName: S.String,
+    reason: S.optional(S.String),
+  },
+  $I.annote("PermissionDecisionPayloadBase", {
+    description: "Base payload for permission decision events.",
+  })
+) {}
+
+class PermissionDecisionPayloadAllow extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadAllow>(
+  $I`PermissionDecisionPayloadAllow`
+)(
+  {
+    decision: S.tag("allow"),
+  },
+  $I.annote("PermissionDecisionPayloadAllow", {
+    description: "Permission decision payload for allow outcomes.",
+  })
+) {}
+
+class PermissionDecisionPayloadDeny extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadDeny>(
+  $I`PermissionDecisionPayloadDeny`
+)(
+  {
+    decision: S.tag("deny"),
+  },
+  $I.annote("PermissionDecisionPayloadDeny", {
+    description: "Permission decision payload for deny outcomes.",
+  })
+) {}
+
+class PermissionDecisionPayloadPrompt extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadPrompt>(
+  $I`PermissionDecisionPayloadPrompt`
+)(
+  {
+    decision: S.tag("prompt"),
+  },
+  $I.annote("PermissionDecisionPayloadPrompt", {
+    description: "Permission decision payload for prompt outcomes.",
+  })
+) {}
+
+const PermissionDecisionPayload = S.Union([
+  PermissionDecisionPayloadAllow,
+  PermissionDecisionPayloadDeny,
+  PermissionDecisionPayloadPrompt,
+]).pipe(
+  S.toTaggedUnion("decision"),
+  S.annotate(
+    $I.annote("PermissionDecisionPayload", {
+      description: "Tagged union payload for permission_decision events.",
+    })
+  )
+);
+
+class HookEventPayloadBase extends S.Class<HookEventPayloadBase>($I`HookEventPayloadBase`)(
+  {
+    sessionId: S.optional(S.String),
+    hook: HookEvent,
+    toolUseId: S.optional(S.String),
+  },
+  $I.annote("HookEventPayloadBase", {
+    description: "Base payload for hook event audit records.",
+  })
+) {}
+
+class HookEventPayloadSuccess extends HookEventPayloadBase.extend<HookEventPayloadSuccess>($I`HookEventPayloadSuccess`)(
+  {
+    outcome: S.tag("success"),
+  },
+  $I.annote("HookEventPayloadSuccess", {
+    description: "Hook event payload with successful outcome.",
+  })
+) {}
+
+class HookEventPayloadFailure extends HookEventPayloadBase.extend<HookEventPayloadFailure>($I`HookEventPayloadFailure`)(
+  {
+    outcome: S.tag("failure"),
+  },
+  $I.annote("HookEventPayloadFailure", {
+    description: "Hook event payload with failure outcome.",
+  })
+) {}
+
+const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
+  S.toTaggedUnion("outcome"),
+  S.annotate(
+    $I.annote("HookEventPayload", {
+      description: "Tagged union payload for hook_event records.",
+    })
+  )
+);
+
+class SyncConflictPayloadBase extends S.Class<SyncConflictPayloadBase>($I`SyncConflictPayloadBase`)(
+  {
+    remoteId: S.String,
+    event: S.String,
+    primaryKey: S.String,
+    entryId: S.String,
+    conflictCount: S.Number,
+    resolvedEntryId: S.optional(S.String),
+  },
+  $I.annote("SyncConflictPayloadBase", {
+    description: "Base payload for sync conflict audit events.",
+  })
+) {}
+
+class SyncConflictPayloadAccept extends SyncConflictPayloadBase.extend<SyncConflictPayloadAccept>(
+  $I`SyncConflictPayloadAccept`
+)(
+  {
+    resolution: S.tag("accept"),
+  },
+  $I.annote("SyncConflictPayloadAccept", {
+    description: "Conflict payload for accept resolution.",
+  })
+) {}
+
+class SyncConflictPayloadMerge extends SyncConflictPayloadBase.extend<SyncConflictPayloadMerge>(
+  $I`SyncConflictPayloadMerge`
+)(
+  {
+    resolution: S.tag("merge"),
+  },
+  $I.annote("SyncConflictPayloadMerge", {
+    description: "Conflict payload for merge resolution.",
+  })
+) {}
+
+class SyncConflictPayloadReject extends SyncConflictPayloadBase.extend<SyncConflictPayloadReject>(
+  $I`SyncConflictPayloadReject`
+)(
+  {
+    resolution: S.tag("reject"),
+  },
+  $I.annote("SyncConflictPayloadReject", {
+    description: "Conflict payload for reject resolution.",
+  })
+) {}
+
+const SyncConflictPayload = S.Union([
+  SyncConflictPayloadAccept,
+  SyncConflictPayloadMerge,
+  SyncConflictPayloadReject,
+]).pipe(
+  S.toTaggedUnion("resolution"),
+  S.annotate(
+    $I.annote("SyncConflictPayload", {
+      description: "Tagged union payload for sync_conflict records.",
+    })
+  )
+);
+
+class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
+  {
+    remoteId: S.String,
+    before: S.Number,
+    after: S.Number,
+    events: S.optional(S.Array(S.String)),
+    timestamp: S.Number,
+  },
+  $I.annote("SyncCompactionPayload", {
+    description: "Payload for sync compaction audit events.",
+  })
+) {}
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.

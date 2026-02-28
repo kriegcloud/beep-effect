@@ -1,4 +1,5 @@
-import { Clock, Effect, Layer, Order, ServiceMap, SynchronizedRef } from "effect";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Clock, Effect, HashMap, Layer, Order, ServiceMap, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -6,6 +7,8 @@ import { SessionMeta } from "../Schema/Storage.js";
 import { defaultIndexPageSize, defaultSessionIndexPrefix, defaultStorageDirectory } from "./defaults.js";
 import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
+
+const $I = $AiSdkId.create("core/Storage/SessionIndexStore");
 
 /**
  * @since 0.0.0
@@ -125,25 +128,25 @@ export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = def
 
 type SessionIndexState = {
   readonly ids: ReadonlyArray<string>;
-  readonly meta: Map<string, SessionMeta>;
+  readonly meta: HashMap.HashMap<string, SessionMeta>;
 };
 
 const emptyState: SessionIndexState = {
   ids: [],
-  meta: new Map(),
+  meta: HashMap.empty(),
 };
 
 /**
  * @since 0.0.0
  */
-export type SessionIndexStoreService = {
+export interface SessionIndexStoreService {
   readonly touch: (sessionId: string, options?: SessionIndexTouchOptions) => Effect.Effect<SessionMeta, StorageError>;
   readonly get: (sessionId: string) => Effect.Effect<O.Option<SessionMeta>, StorageError>;
   readonly list: (options?: SessionIndexListOptions) => Effect.Effect<ReadonlyArray<SessionMeta>, StorageError>;
   readonly listIds: () => Effect.Effect<ReadonlyArray<string>, StorageError>;
   readonly remove: (sessionId: string) => Effect.Effect<void, StorageError>;
   readonly listPage: (options?: SessionIndexListOptions) => Effect.Effect<SessionIndexPage, StorageError>;
-};
+}
 
 /**
  * @since 0.0.0
@@ -168,7 +171,7 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
  * @since 0.0.0
  */
 export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, SessionIndexStoreService>()(
-  "@effect/claude-agent-sdk/SessionIndexStore",
+  $I`SessionIndexStore`,
   {
     make: Effect.succeed(defaultSessionIndexStore),
   }
@@ -184,19 +187,17 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
       ) {
         const now = options?.updatedAt ?? (yield* Clock.currentTimeMillis);
         return yield* SynchronizedRef.modify(stateRef, (state) => {
-          const nextMeta = new Map(state.meta);
-          const existing = nextMeta.get(sessionId);
-          const createdAt = existing?.createdAt ?? options?.createdAt ?? now;
+          const existing = HashMap.get(state.meta, sessionId);
+          const createdAt = O.isSome(existing) ? existing.value.createdAt : (options?.createdAt ?? now);
           const updatedAt = now;
           const meta = SessionMeta.make({ sessionId, createdAt, updatedAt });
-          nextMeta.set(sessionId, meta);
-          const ids = existing ? state.ids : state.ids.concat(sessionId);
-          return [meta, { ids, meta: nextMeta }] as const;
+          const ids = O.isSome(existing) ? state.ids : state.ids.concat(sessionId);
+          return [meta, { ids, meta: HashMap.set(state.meta, sessionId, meta) }] as const;
         });
       });
 
       const get = Effect.fn("SessionIndexStore.get")((sessionId: string) =>
-        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => O.fromNullishOr(state.meta.get(sessionId))))
+        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => HashMap.get(state.meta, sessionId)))
       );
 
       const listIds = Effect.fn("SessionIndexStore.listIds")(() =>
@@ -212,8 +213,8 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           if (limit <= 0) return [];
           const state = yield* SynchronizedRef.get(stateRef);
           const metas = state.ids.flatMap((id) => {
-            const meta = state.meta.get(id);
-            return meta ? [meta] : [];
+            const meta = HashMap.get(state.meta, id);
+            return O.isSome(meta) ? [meta.value] : [];
           });
           const ordered = applyOrdering(metas, options);
           return ordered.slice(offset, offset + limit);
@@ -237,9 +238,8 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
 
       const remove = Effect.fn("SessionIndexStore.remove")((sessionId: string) =>
         SynchronizedRef.update(stateRef, (state) => {
-          if (!state.meta.has(sessionId)) return state;
-          const nextMeta = new Map(state.meta);
-          nextMeta.delete(sessionId);
+          if (!HashMap.has(state.meta, sessionId)) return state;
+          const nextMeta = HashMap.remove(state.meta, sessionId);
           const ids = state.ids.filter((id) => id !== sessionId);
           return { ids, meta: nextMeta };
         })

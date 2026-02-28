@@ -1,7 +1,5 @@
-import { Effect, Exit, Queue, Ref, Sink, Stream, SynchronizedRef } from "effect";
-import type * as Duration from "effect/Duration";
+import { type Duration, Effect, Exit, Queue, Ref, type Scope, Sink, Stream, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
-import type * as Scope from "effect/Scope";
 import { TransportError } from "../Errors.js";
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import { SessionClosedError, type SessionError } from "../Session.js";

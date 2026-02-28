@@ -1,5 +1,6 @@
-import { Effect, Layer } from "effect";
-import type * as Duration from "effect/Duration";
+import { type Duration, Effect, Layer } from "effect";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
 
 /**
@@ -133,8 +134,8 @@ export const rateLimitHandler =
   <A, E, R, B>(handler: (input: A) => Effect.Effect<B, E, R>, config: RateLimitHandlerConfig<A>) =>
   (input: A) => {
     const { tokens: tokensConfig, ...rest } = config;
-    const key = typeof rest.key === "function" ? rest.key(input) : rest.key;
-    const tokens = typeof tokensConfig === "function" ? tokensConfig(input) : tokensConfig;
+    const key = P.isFunction(rest.key) ? rest.key(input) : rest.key;
+    const tokens = P.isFunction(tokensConfig) ? tokensConfig(input) : tokensConfig;
     const limiterConfig = {
       ...rest,
       key,
@@ -171,8 +172,8 @@ export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
   const prefix = options?.keyPrefix ? `${options.keyPrefix}:` : "";
   const output = {} as Handlers;
 
-  for (const [name, handler] of Object.entries(handlers)) {
-    const resolved = typeof config === "function" ? config(name as keyof Handlers) : config;
+  for (const [name, handler] of R.toEntries(handlers)) {
+    const resolved = P.isFunction(config) ? config(name as keyof Handlers) : config;
     output[name as keyof Handlers] = rateLimitHandler(handler as AnyHandler, {
       ...resolved,
       key: `${prefix}${name}`,

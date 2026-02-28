@@ -6,6 +6,7 @@ import {
 } from "@anthropic-ai/claude-agent-sdk";
 import { Deferred, Duration, Effect, Exit, Semaphore, Stream, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { TransportError } from "./Errors.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
@@ -191,7 +192,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
       () =>
         sendSemaphore.withPermits(1)(
           Effect.tryPromise({
-            try: () => sdkSession.send(typeof message === "string" ? message : normalizeUserMessage(message)),
+            try: () => sdkSession.send(P.isString(message) ? message : normalizeUserMessage(message)),
             catch: (cause) => toTransportError("Failed to send session message", cause),
           })
         ),

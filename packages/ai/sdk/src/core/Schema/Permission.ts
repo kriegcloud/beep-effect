@@ -1,12 +1,23 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
-import { withIdentifier } from "./Annotations.js";
+
+const $I = $AiSdkId.create("core/Schema/Permission");
 
 /**
  * @since 0.0.0
  */
-export const PermissionMode = withIdentifier(
-  S.Literals(["default", "acceptEdits", "bypassPermissions", "plan", "delegate", "dontAsk"]),
-  "PermissionMode"
+export const PermissionMode = LiteralKit([
+  "default",
+  "acceptEdits",
+  "bypassPermissions",
+  "plan",
+  "delegate",
+  "dontAsk",
+]).annotate(
+  $I.annote("PermissionMode", {
+    description: "Schema for PermissionMode.",
+  })
 );
 
 /**
@@ -21,7 +32,11 @@ export type PermissionModeEncoded = typeof PermissionMode.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionBehavior = withIdentifier(S.Literals(["allow", "deny", "ask"]), "PermissionBehavior");
+export const PermissionBehavior = LiteralKit(["allow", "deny", "ask"]).annotate(
+  $I.annote("PermissionBehavior", {
+    description: "Schema for PermissionBehavior.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -35,9 +50,16 @@ export type PermissionBehaviorEncoded = typeof PermissionBehavior.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionUpdateDestination = withIdentifier(
-  S.Literals(["userSettings", "projectSettings", "localSettings", "session", "cliArg"]),
-  "PermissionUpdateDestination"
+export const PermissionUpdateDestination = LiteralKit([
+  "userSettings",
+  "projectSettings",
+  "localSettings",
+  "session",
+  "cliArg",
+]).annotate(
+  $I.annote("PermissionUpdateDestination", {
+    description: "Schema for PermissionUpdateDestination.",
+  })
 );
 
 /**
@@ -52,12 +74,13 @@ export type PermissionUpdateDestinationEncoded = typeof PermissionUpdateDestinat
 /**
  * @since 0.0.0
  */
-export const PermissionRuleValue = withIdentifier(
-  S.Struct({
-    toolName: S.String,
-    ruleContent: S.optional(S.String),
-  }),
-  "PermissionRuleValue"
+export const PermissionRuleValue = S.Struct({
+  toolName: S.String,
+  ruleContent: S.optional(S.String),
+}).annotate(
+  $I.annote("PermissionRuleValue", {
+    description: "Schema for PermissionRuleValue.",
+  })
 );
 
 /**
@@ -78,37 +101,41 @@ const RulesPayload = S.Struct({
 /**
  * @since 0.0.0
  */
-export const PermissionUpdate = withIdentifier(
-  S.Union([
-    S.Struct({
-      type: S.Literal("addRules"),
-      ...RulesPayload.fields,
-    }),
-    S.Struct({
-      type: S.Literal("replaceRules"),
-      ...RulesPayload.fields,
-    }),
-    S.Struct({
-      type: S.Literal("removeRules"),
-      ...RulesPayload.fields,
-    }),
-    S.Struct({
-      type: S.Literal("setMode"),
-      mode: PermissionMode,
-      destination: PermissionUpdateDestination,
-    }),
-    S.Struct({
-      type: S.Literal("addDirectories"),
-      directories: S.Array(S.String),
-      destination: PermissionUpdateDestination,
-    }),
-    S.Struct({
-      type: S.Literal("removeDirectories"),
-      directories: S.Array(S.String),
-      destination: PermissionUpdateDestination,
-    }),
-  ]),
-  "PermissionUpdate"
+export const PermissionUpdate = S.Union([
+  S.Struct({
+    type: S.Literal("addRules"),
+    ...RulesPayload.fields,
+  }),
+  S.Struct({
+    type: S.Literal("replaceRules"),
+    ...RulesPayload.fields,
+  }),
+  S.Struct({
+    type: S.Literal("removeRules"),
+    ...RulesPayload.fields,
+  }),
+  S.Struct({
+    type: S.Literal("setMode"),
+    mode: PermissionMode,
+    destination: PermissionUpdateDestination,
+  }),
+  S.Struct({
+    type: S.Literal("addDirectories"),
+    directories: S.Array(S.String),
+    destination: PermissionUpdateDestination,
+  }),
+  S.Struct({
+    type: S.Literal("removeDirectories"),
+    directories: S.Array(S.String),
+    destination: PermissionUpdateDestination,
+  }),
+]).pipe(
+  S.toTaggedUnion("type"),
+  S.annotate(
+    $I.annote("PermissionUpdate", {
+      description: "Tagged union schema for permission update operations.",
+    })
+  )
 );
 
 /**
@@ -123,22 +150,26 @@ export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionResult = withIdentifier(
-  S.Union([
-    S.Struct({
-      behavior: S.Literal("allow"),
-      updatedInput: S.optional(S.Record(S.String, S.Unknown)),
-      updatedPermissions: S.optional(S.Array(PermissionUpdate)),
-      toolUseID: S.optional(S.String),
-    }),
-    S.Struct({
-      behavior: S.Literal("deny"),
-      message: S.String,
-      interrupt: S.optional(S.Boolean),
-      toolUseID: S.optional(S.String),
-    }),
-  ]),
-  "PermissionResult"
+export const PermissionResult = S.Union([
+  S.Struct({
+    behavior: S.Literal("allow"),
+    updatedInput: S.optional(S.Record(S.String, S.Unknown)),
+    updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+    toolUseID: S.optional(S.String),
+  }),
+  S.Struct({
+    behavior: S.Literal("deny"),
+    message: S.String,
+    interrupt: S.optional(S.Boolean),
+    toolUseID: S.optional(S.String),
+  }),
+]).pipe(
+  S.toTaggedUnion("behavior"),
+  S.annotate(
+    $I.annote("PermissionResult", {
+      description: "Tagged union schema for permission request outcomes.",
+    })
+  )
 );
 
 /**
@@ -153,23 +184,24 @@ export type PermissionResultEncoded = typeof PermissionResult.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionRequestHookSpecificOutput = withIdentifier(
-  S.Struct({
-    hookEventName: S.Literal("PermissionRequest"),
-    decision: S.Union([
-      S.Struct({
-        behavior: S.Literal("allow"),
-        updatedInput: S.optional(S.Record(S.String, S.Unknown)),
-        updatedPermissions: S.optional(S.Array(PermissionUpdate)),
-      }),
-      S.Struct({
-        behavior: S.Literal("deny"),
-        message: S.optional(S.String),
-        interrupt: S.optional(S.Boolean),
-      }),
-    ]),
-  }),
-  "PermissionRequestHookSpecificOutput"
+export const PermissionRequestHookSpecificOutput = S.Struct({
+  hookEventName: S.Literal("PermissionRequest"),
+  decision: S.Union([
+    S.Struct({
+      behavior: S.Literal("allow"),
+      updatedInput: S.optional(S.Record(S.String, S.Unknown)),
+      updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+    }),
+    S.Struct({
+      behavior: S.Literal("deny"),
+      message: S.optional(S.String),
+      interrupt: S.optional(S.Boolean),
+    }),
+  ]),
+}).annotate(
+  $I.annote("PermissionRequestHookSpecificOutput", {
+    description: "Schema for PermissionRequestHookSpecificOutput.",
+  })
 );
 
 /**
@@ -199,7 +231,12 @@ export const CanUseTool = S.declare(
       agentID?: string;
     }
   ) => Promise<PermissionResult> => true
-).annotate({ identifier: "CanUseTool", jsonSchema: {} });
+).annotate(
+  $I.annote("CanUseTool", {
+    description: "Schema for CanUseTool.",
+    jsonSchema: {},
+  })
+);
 
 /**
  * @since 0.0.0

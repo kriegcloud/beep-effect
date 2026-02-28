@@ -61,3 +61,4 @@ Excludes by default:
 
 - [JSDoc patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md)
 - [Effect library development patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/effect-library-development.md)
+- [Effect-first development](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-first-development.md)

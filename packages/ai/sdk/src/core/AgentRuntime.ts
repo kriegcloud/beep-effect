@@ -1,5 +1,8 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { Clock, Deferred, Effect, Layer, Schedule, ServiceMap, Stream } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
@@ -21,6 +24,8 @@ import {
   type StorageSyncLayerOptions,
 } from "./Storage/index.js";
 import { layerAuditEventStore } from "./Sync/index.js";
+
+const $I = $AiSdkId.create("core/AgentRuntime");
 
 type ChatHistoryStoreService = ServiceMap.Service.Shape<typeof ChatHistoryStore>;
 
@@ -102,7 +107,7 @@ export type RemoteSyncOptions = StorageSyncLayerOptions & {
 const makeArtifactId = () => globalThis.crypto?.randomUUID?.() ?? `artifact-${Math.random().toString(36).slice(2)}`;
 
 const resolveToolResultContent = (value: unknown) => {
-  if (typeof value === "string") {
+  if (P.isString(value)) {
     return { content: value, contentType: "text/plain" };
   }
   try {
@@ -152,7 +157,7 @@ const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(fu
 
   const sendAll = recordInput
     ? Effect.fn("AgentRuntime.sendAllWithHistory")((messages: Iterable<SDKUserMessage>) => {
-        const batch = Array.from(messages);
+        const batch = A.fromIterable(messages);
         return handle.sendAll(batch).pipe(Effect.tap(() => recordMessages(batch, inputSource)));
       })
     : handle.sendAll;
@@ -210,14 +215,17 @@ const makeAgentRuntime = Effect.gen(function* () {
 });
 
 /**
+ * @since 0.0.0
+ */
+export interface AgentRuntimeShape extends Effect.Success<typeof makeAgentRuntime> {}
+
+/**
  * AgentRuntime composes AgentSdk, QuerySupervisor, and runtime policies.
  */
 /**
  * @since 0.0.0
  */
-export class AgentRuntime extends ServiceMap.Service<AgentRuntime, Effect.Success<typeof makeAgentRuntime>>()(
-  "@effect/claude-agent-sdk/AgentRuntime"
-) {
+export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeShape>()($I`AgentRuntime`) {
   /**
    * Build the AgentRuntime service using AgentRuntimeConfig.
    */

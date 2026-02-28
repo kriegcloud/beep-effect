@@ -1,15 +1,18 @@
-import { Config, Effect, Layer, ServiceMap } from "effect";
-import type * as LogLevel from "effect/LogLevel";
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Config, Effect, Layer, type LogLevel, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ConfigError } from "../Errors.js";
 import { layerConfigFromEnv } from "../internal/config.js";
 import type { AgentLogCategory } from "./Types.js";
 
+const $I = $AiSdkId.create("core/Logging/Config");
+
 /**
  * @since 0.0.0
  */
-export const LogFormat = S.Literals(["pretty", "structured", "json", "logfmt", "string"]);
+export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "string"]);
 
 /**
  * @since 0.0.0
@@ -87,12 +90,16 @@ const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigEr
 /**
  * @since 0.0.0
  */
-export class AgentLoggingConfig extends ServiceMap.Service<
-  AgentLoggingConfig,
-  {
-    readonly settings: AgentLoggingSettings;
-  }
->()("@effect/claude-agent-sdk/AgentLoggingConfig") {
+export interface AgentLoggingConfigShape {
+  readonly settings: AgentLoggingSettings;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class AgentLoggingConfig extends ServiceMap.Service<AgentLoggingConfig, AgentLoggingConfigShape>()(
+  $I`AgentLoggingConfig`
+) {
   /**
    * Build AgentLoggingConfig by reading configuration from environment variables.
    */

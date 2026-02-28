@@ -1,8 +1,11 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { BunHttpServer } from "@effect/platform-bun";
 import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
 import * as HttpServer from "effect/unstable/http/HttpServer";
+
+const $I = $AiSdkId.create("core/Sync/EventLogRemoteServer");
 
 /**
  * @since 0.0.0
@@ -18,14 +21,19 @@ export type EventLogRemoteServerOptions = {
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemoteServerError>()(
+export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemoteServerError>(
+  $I`EventLogRemoteServerError`
+)(
   "EventLogRemoteServerError",
   {
     message: S.String,
     cause: S.optional(S.Defect),
-  }
+  },
+  $I.annote("EventLogRemoteServerError", {
+    description: "Raised when the EventLogRemoteServer cannot derive or bind a valid websocket endpoint.",
+  })
 ) {
-  static readonly make = (params: Pick<EventLogRemoteServerError, "message" | "cause">) =>
+  static readonly make = (params: { readonly message: string; readonly cause?: unknown }) =>
     new EventLogRemoteServerError(params);
 }
 
@@ -105,6 +113,14 @@ export const toWebSocketUrlEffect = (
     catch: toWebSocketUrlError,
   });
 
+/**
+ * @since 0.0.0
+ */
+export interface EventLogRemoteServerShape {
+  readonly address: HttpServer.Address;
+  readonly url: string;
+}
+
 const basePort = 20000 + (process.pid % 10000);
 let nextPort = basePort;
 
@@ -121,10 +137,9 @@ const findAvailablePort = () =>
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServer extends ServiceMap.Service<
-  EventLogRemoteServer,
-  { readonly address: HttpServer.Address; readonly url: string }
->()("@effect/claude-agent-sdk/EventLogRemoteServer") {}
+export class EventLogRemoteServer extends ServiceMap.Service<EventLogRemoteServer, EventLogRemoteServerShape>()(
+  $I`EventLogRemoteServer`
+) {}
 
 const buildBunWebSocketLayerWithServer = (
   options: EventLogRemoteServerOptions,

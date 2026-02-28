@@ -1,5 +1,6 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
-import { Clock, Duration, Effect, Layer, ServiceMap, SynchronizedRef } from "effect";
+import { Clock, Duration, Effect, HashMap, HashSet, Layer, ServiceMap, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { ArtifactRecord } from "../Schema/Storage.js";
@@ -8,6 +9,8 @@ import { defaultArtifactPrefix, defaultStorageDirectory } from "./defaults.js";
 import { SessionIndexStore } from "./SessionIndexStore.js";
 import { StorageConfig } from "./StorageConfig.js";
 import type { StorageError } from "./StorageError.js";
+
+const $I = $AiSdkId.create("core/Storage/ArtifactStore");
 
 /**
  * @since 0.0.0
@@ -43,11 +46,14 @@ type ArtifactRetention = {
 };
 
 type ArtifactState = {
-  readonly byId: Map<string, ArtifactRecord>;
-  readonly bySession: Map<string, ReadonlyArray<string>>;
+  readonly byId: HashMap.HashMap<string, ArtifactRecord>;
+  readonly bySession: HashMap.HashMap<string, ReadonlyArray<string>>;
 };
 
-type ArtifactStoreService = {
+/**
+ * @since 0.0.0
+ */
+export interface ArtifactStoreService {
   readonly put: (record: ArtifactRecord) => Effect.Effect<void, StorageError>;
   readonly get: (id: string) => Effect.Effect<O.Option<ArtifactRecord>, StorageError>;
   readonly list: (
@@ -57,11 +63,11 @@ type ArtifactStoreService = {
   readonly delete: (id: string) => Effect.Effect<void, StorageError>;
   readonly purgeSession: (sessionId: string) => Effect.Effect<void, StorageError>;
   readonly cleanup?: () => Effect.Effect<void, StorageError>;
-};
+}
 
 const emptyState: ArtifactState = {
-  byId: new Map(),
-  bySession: new Map(),
+  byId: HashMap.empty(),
+  bySession: HashMap.empty(),
 };
 
 const resolveEnabled = Effect.gen(function* () {
@@ -93,14 +99,14 @@ const applyRetention = (
 ): ArtifactState => {
   if (!retention) return state;
 
-  const ids = state.bySession.get(sessionId) ?? [];
-  let filteredIds = ids.filter((id) => state.byId.has(id));
+  const ids = O.getOrElse(HashMap.get(state.bySession, sessionId), () => [] as ReadonlyArray<string>);
+  let filteredIds = ids.filter((id) => HashMap.has(state.byId, id));
 
   if (retention.maxAgeMs !== undefined) {
     const cutoff = now - retention.maxAgeMs;
     filteredIds = filteredIds.filter((id) => {
-      const record = state.byId.get(id);
-      return record ? record.createdAt >= cutoff : false;
+      const record = HashMap.get(state.byId, id);
+      return O.isSome(record) ? record.value.createdAt >= cutoff : false;
     });
   }
 
@@ -123,9 +129,9 @@ const applyRetention = (
       for (let index = filteredIds.length - 1; index >= 0; index -= 1) {
         const id = filteredIds[index];
         if (!id) continue;
-        const record = state.byId.get(id);
-        if (!record) continue;
-        const size = sizeOfRecord(record);
+        const record = HashMap.get(state.byId, id);
+        if (O.isNone(record)) continue;
+        const size = sizeOfRecord(record.value);
         if (total + size > maxBytes) continue;
         total += size;
         kept.push(id);
@@ -135,22 +141,21 @@ const applyRetention = (
     }
   }
 
-  const kept = new Set(filteredIds);
-  if (kept.size === ids.length) return state;
+  const kept = HashSet.fromIterable(filteredIds);
+  if (HashSet.size(kept) === ids.length) return state;
 
-  const next: ArtifactState = {
-    byId: new Map(state.byId),
-    bySession: new Map(state.bySession),
-  };
-
-  next.bySession.set(sessionId, filteredIds);
+  let nextById = HashMap.fromIterable(state.byId);
+  const nextBySession = HashMap.set(HashMap.fromIterable(state.bySession), sessionId, filteredIds);
   for (const id of ids) {
-    if (!kept.has(id)) {
-      next.byId.delete(id);
+    if (!HashSet.has(kept, id)) {
+      nextById = HashMap.remove(nextById, id);
     }
   }
 
-  return next;
+  return {
+    byId: nextById,
+    bySession: nextBySession,
+  };
 };
 
 const touchSessionIndex = (sessionId: string, timestamp: number) =>
@@ -177,33 +182,38 @@ const makeMemoryStore = Effect.gen(function* () {
       const now = record.createdAt || (yield* Clock.currentTimeMillis);
       const retention = yield* resolveRetention;
       yield* SynchronizedRef.update(stateRef, (state) => {
-        const next: ArtifactState = {
-          byId: new Map(state.byId),
-          bySession: new Map(state.bySession),
-        };
-        next.byId.set(record.id, record);
-        const currentIds = next.bySession.get(record.sessionId) ?? [];
-        next.bySession.set(record.sessionId, updateIndex(currentIds, record.id));
-        return applyRetention(next, record.sessionId, retention, now);
+        const byId = HashMap.set(HashMap.fromIterable(state.byId), record.id, record);
+        const bySessionBase = HashMap.fromIterable(state.bySession);
+        const currentIds = O.getOrElse(HashMap.get(bySessionBase, record.sessionId), () => [] as ReadonlyArray<string>);
+        const bySession = HashMap.set(bySessionBase, record.sessionId, updateIndex(currentIds, record.id));
+        return applyRetention(
+          {
+            byId,
+            bySession,
+          },
+          record.sessionId,
+          retention,
+          now
+        );
       });
       yield* touchSessionIndex(record.sessionId, now);
     })
   );
 
   const get = Effect.fn("ArtifactStore.get")((id: string) =>
-    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => O.fromNullishOr(state.byId.get(id))))
+    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => HashMap.get(state.byId, id)))
   );
 
   const list = Effect.fn("ArtifactStore.list")((sessionId: string, options?: ArtifactListOptions) =>
     SynchronizedRef.get(stateRef).pipe(
       Effect.map((state) => {
-        const ids = state.bySession.get(sessionId) ?? [];
+        const ids = O.getOrElse(HashMap.get(state.bySession, sessionId), () => [] as ReadonlyArray<string>);
         const offset = Math.max(0, options?.offset ?? 0);
         const slice =
           options?.limit === undefined ? ids.slice(offset) : ids.slice(offset, offset + Math.max(0, options.limit));
         return slice.flatMap((id) => {
-          const record = state.byId.get(id);
-          return record ? [record] : [];
+          const record = HashMap.get(state.byId, id);
+          return O.isSome(record) ? [record.value] : [];
         });
       })
     )
@@ -211,36 +221,36 @@ const makeMemoryStore = Effect.gen(function* () {
 
   const deleteArtifact = Effect.fn("ArtifactStore.delete")((id: string) =>
     SynchronizedRef.update(stateRef, (state) => {
-      const record = state.byId.get(id);
-      if (!record) return state;
-      const next: ArtifactState = {
-        byId: new Map(state.byId),
-        bySession: new Map(state.bySession),
-      };
-      next.byId.delete(id);
-      const ids = next.bySession.get(record.sessionId) ?? [];
+      const record = HashMap.get(state.byId, id);
+      if (O.isNone(record)) return state;
+      const byId = HashMap.remove(HashMap.fromIterable(state.byId), id);
+      const bySessionBase = HashMap.fromIterable(state.bySession);
+      const ids = O.getOrElse(HashMap.get(bySessionBase, record.value.sessionId), () => [] as ReadonlyArray<string>);
       const remaining = ids.filter((existing) => existing !== id);
+      let bySession = bySessionBase;
       if (remaining.length === 0) {
-        next.bySession.delete(record.sessionId);
+        bySession = HashMap.remove(bySessionBase, record.value.sessionId);
       } else {
-        next.bySession.set(record.sessionId, remaining);
+        bySession = HashMap.set(bySessionBase, record.value.sessionId, remaining);
       }
-      return next;
+      return {
+        byId,
+        bySession,
+      };
     })
   );
 
   const purgeSession = Effect.fn("ArtifactStore.purgeSession")((sessionId: string) =>
     SynchronizedRef.update(stateRef, (state) => {
-      const ids = state.bySession.get(sessionId) ?? [];
-      const next: ArtifactState = {
-        byId: new Map(state.byId),
-        bySession: new Map(state.bySession),
-      };
+      const ids = O.getOrElse(HashMap.get(state.bySession, sessionId), () => [] as ReadonlyArray<string>);
+      let byId = HashMap.fromIterable(state.byId);
       for (const id of ids) {
-        next.byId.delete(id);
+        byId = HashMap.remove(byId, id);
       }
-      next.bySession.delete(sessionId);
-      return next;
+      return {
+        byId,
+        bySession: HashMap.remove(HashMap.fromIterable(state.bySession), sessionId),
+      };
     }).pipe(Effect.tap(() => removeSessionIndex(sessionId)))
   );
 
@@ -253,7 +263,7 @@ const makeMemoryStore = Effect.gen(function* () {
 
     yield* SynchronizedRef.update(stateRef, (state) => {
       let next = state;
-      for (const sessionId of state.bySession.keys()) {
+      for (const sessionId of HashMap.keys(state.bySession)) {
         next = applyRetention(next, sessionId, retention, now);
       }
       return next;
@@ -273,9 +283,7 @@ const makeMemoryStore = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class ArtifactStore extends ServiceMap.Service<ArtifactStore, ArtifactStoreService>()(
-  "@effect/claude-agent-sdk/ArtifactStore"
-) {
+export class ArtifactStore extends ServiceMap.Service<ArtifactStore, ArtifactStoreService>()($I`ArtifactStore`) {
   static readonly layerMemory = Layer.effect(ArtifactStore, makeMemoryStore);
 
   static readonly layerKeyValueStore = (_options?: { readonly prefix?: string }) => ArtifactStore.layerMemory;

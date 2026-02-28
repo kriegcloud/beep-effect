@@ -1,6 +1,10 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import { layerConfigFromEnv } from "../internal/config.js";
+
+const $I = $AiSdkId.create("core/Storage/StorageConfig");
+
 /**
  * @since 0.0.0
  */
@@ -48,6 +52,11 @@ export type StorageConfigData = {
 export type StorageConfigSettings = {
   readonly settings: StorageConfigData;
 };
+
+/**
+ * @since 0.0.0
+ */
+export interface StorageConfigShape extends StorageConfigSettings {}
 
 const defaultSettings: StorageConfigData = {
   enabled: {
@@ -167,12 +176,7 @@ const makeStorageConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class StorageConfig extends ServiceMap.Service<
-  StorageConfig,
-  {
-    settings: StorageConfigData;
-  }
->()("@effect/claude-agent-sdk/StorageConfig") {
+export class StorageConfig extends ServiceMap.Service<StorageConfig, StorageConfigShape>()($I`StorageConfig`) {
   /**
    * Build StorageConfig by reading configuration from environment variables.
    */

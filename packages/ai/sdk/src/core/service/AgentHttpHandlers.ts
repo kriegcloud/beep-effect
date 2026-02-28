@@ -1,6 +1,7 @@
+import type { ServiceMap } from "effect";
 import { Cause, Effect, Stream } from "effect";
 import * as O from "effect/Option";
-import type * as ServiceMap from "effect/ServiceMap";
+import * as P from "effect/Predicate";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
@@ -41,7 +42,7 @@ const toAsyncIterable = (messages: ReadonlyArray<SDKUserMessage>): AsyncIterable
 });
 
 const toPrompt = (input: QueryInputType): string | AsyncIterable<SDKUserMessage> =>
-  typeof input.prompt === "string" ? input.prompt : toAsyncIterable(input.prompt);
+  P.isString(input.prompt) ? input.prompt : toAsyncIterable(input.prompt);
 
 const withProbeHandle = <A>(
   runtime: AgentRuntimeService,

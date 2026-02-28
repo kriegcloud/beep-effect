@@ -1,5 +1,7 @@
 import { createSdkMcpServer as sdkCreateSdkMcpServer, query as sdkQuery } from "@anthropic-ai/claude-agent-sdk";
+import { $AiSdkId } from "@beep/identity/packages";
 import { Deferred, Effect, Fiber, Layer, ServiceMap } from "effect";
+import * as P from "effect/Predicate";
 import { AgentSdkConfig } from "./AgentSdkConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { McpError, TransportError } from "./Errors.js";
@@ -9,6 +11,8 @@ import { createInputQueue, pumpInput } from "./internal/streaming.js";
 import type { McpSdkServerConfigWithInstance } from "./Schema/Mcp.js";
 import type { SDKUserMessage } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
+
+const $I = $AiSdkId.create("core/AgentSdk");
 
 /**
  * @since 0.0.0
@@ -27,7 +31,7 @@ const makeAgentSdk = Effect.gen(function* () {
     options?: Options
   ) {
     const mergedOptions = mergeOptions(config.options, options);
-    const isStreamingInput = typeof prompt !== "string";
+    const isStreamingInput = !P.isString(prompt);
     const inputQueue = isStreamingInput ? yield* createInputQueue() : undefined;
     const inputFailure = inputQueue ? yield* Deferred.make<never, AgentSdkError>() : undefined;
     const sdkPrompt = inputQueue ? inputQueue.input : prompt;
@@ -116,6 +120,11 @@ const makeAgentSdk = Effect.gen(function* () {
 });
 
 /**
+ * @since 0.0.0
+ */
+export interface AgentSdkShape extends Effect.Success<typeof makeAgentSdk> {}
+
+/**
  * Effect service wrapper around `@anthropic-ai/claude-agent-sdk`.
  *
  * Access the service with `yield* AgentSdk` and call `query` or
@@ -133,9 +142,7 @@ const makeAgentSdk = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AgentSdk extends ServiceMap.Service<AgentSdk, Effect.Success<typeof makeAgentSdk>>()(
-  "@effect/claude-agent-sdk/AgentSdk"
-) {
+export class AgentSdk extends ServiceMap.Service<AgentSdk, AgentSdkShape>()($I`AgentSdk`) {
   /**
    * Build the AgentSdk service using the provided AgentSdkConfig service.
    */

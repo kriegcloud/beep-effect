@@ -1,8 +1,6 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import type { Duration, FileSystem, Path } from "effect";
 import { Effect, Layer } from "effect";
-import type * as Duration from "effect/Duration";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { ConflictPolicy } from "../Sync/index.js";
 import { SyncConfig, SyncService } from "../Sync/index.js";

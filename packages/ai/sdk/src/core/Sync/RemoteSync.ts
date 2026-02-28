@@ -1,4 +1,5 @@
-import type * as Layer from "effect/Layer";
+import type { Layer } from "effect";
+import * as P from "effect/Predicate";
 import { AgentRuntime, type RemoteSyncOptions } from "../AgentRuntime.js";
 import { ConflictPolicy } from "./ConflictPolicy.js";
 
@@ -53,7 +54,7 @@ export const buildRemoteUrl = (baseUrl: string, options?: RemoteUrlOptions) => {
 
 const resolveConflictPolicyLayer = (input?: ConflictPolicyOption) => {
   if (input === undefined) return undefined;
-  if (typeof input !== "string") return input;
+  if (!P.isString(input)) return input;
   switch (input) {
     case "firstWriteWins":
       return ConflictPolicy.layerFirstWriteWins;
@@ -77,7 +78,7 @@ export const withRemoteSync = (url: string, options?: RemoteSyncLayerOptions) =>
     ...(tenant !== undefined ? { tenant } : {}),
     ...(authToken !== undefined ? { authToken } : {}),
   };
-  const resolvedUrl = Object.keys(remoteUrlOptions).length > 0 ? buildRemoteUrl(url, remoteUrlOptions) : url;
+  const resolvedUrl = tenant !== undefined || authToken !== undefined ? buildRemoteUrl(url, remoteUrlOptions) : url;
   return AgentRuntime.layerWithRemoteSync({
     url: resolvedUrl,
     ...rest,

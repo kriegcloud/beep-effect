@@ -1,4 +1,6 @@
 import { Duration, Effect } from "effect";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { HookError } from "../Errors.js";
 import type {
   HookCallback,
@@ -99,7 +101,7 @@ export const matcher = (options: {
   readonly hooks: ReadonlyArray<HookCallback>;
 }): HookCallbackMatcher => ({
   matcher: options.matcher,
-  hooks: Array.from(options.hooks),
+  hooks: A.fromIterable(options.hooks),
   timeout: options.timeout ? Duration.toMillis(options.timeout) / 1000 : undefined,
 });
 
@@ -145,7 +147,7 @@ export const tap = <R>(
   options?: HookMatcherOptions
 ): Effect.Effect<HookMap, HookError, R> =>
   toMatcherEffect((input, context) => handler(input, context).pipe(Effect.as({})), options).pipe(
-    Effect.map((hookMatcher) => toHookMap(Array.isArray(events) ? events : [events], hookMatcher))
+    Effect.map((hookMatcher) => toHookMap(P.isString(events) ? [events] : events, hookMatcher))
   );
 
 /**

@@ -1,5 +1,6 @@
 import type { McpServerConfig as SdkMcpServerConfig, Query as SdkQuery } from "@anthropic-ai/claude-agent-sdk";
 import { Effect, Stream } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { AgentSdkError } from "../Errors.js";
 import { TransportError } from "../Errors.js";
@@ -81,7 +82,7 @@ export const makeQueryHandle = (
   );
   const broadcast = (config?: StreamBroadcastConfig) => {
     const resolved = config ?? defaultBroadcastConfig;
-    if (typeof resolved === "number") {
+    if (P.isNumber(resolved)) {
       return Stream.broadcast(stream, { capacity: resolved });
     }
     return Stream.broadcast(stream, resolved);

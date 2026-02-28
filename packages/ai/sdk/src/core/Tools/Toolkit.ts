@@ -1,6 +1,8 @@
-import { Effect, Layer, ServiceMap } from "effect";
+import { Effect, Layer, MutableHashMap, type Scope, ServiceMap } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import type * as Scope from "effect/Scope";
 import { ToolInputError, ToolNotFoundError, ToolOutputError } from "./Errors.js";
 import * as Tool from "./Tool.js";
 
@@ -106,6 +108,11 @@ export interface WithHandler<Tools extends Record<string, Tool.Any>> {
   >;
 }
 
+type HandlerBinding = {
+  readonly context: ServiceMap.ServiceMap<never>;
+  readonly handler: (params: any) => Effect.Effect<any, any, any>;
+};
+
 const Proto = {
   of: <Handlers>(handlers: Handlers) => handlers,
   toContext(
@@ -116,12 +123,14 @@ const Proto = {
     return Effect.gen(function* () {
       const context = yield* Effect.services<never>();
       const handlers = Effect.isEffect(build) ? yield* build : build;
-      const contextMap = new Map<string, unknown>();
-      for (const [name, handler] of Object.entries(handlers)) {
+      return A.reduce(R.toEntries(handlers), ServiceMap.empty(), (serviceMap, [name, handler]) => {
         const tool = tools[name]!;
-        contextMap.set(tool.id, { handler, context });
-      }
-      return ServiceMap.makeUnsafe(contextMap);
+        const binding = ServiceMap.Service<never, HandlerBinding>(tool.id);
+        return ServiceMap.add(serviceMap, binding, {
+          handler,
+          context,
+        });
+      });
     });
   },
   toLayer(
@@ -134,8 +143,8 @@ const Proto = {
     const tools = this.tools;
     return Effect.gen(function* () {
       const context = yield* Effect.services<never>();
-      const schemasCache = new WeakMap<
-        any,
+      const schemasCache = MutableHashMap.empty<
+        Tool.Any,
         {
           readonly context: ServiceMap.ServiceMap<never>;
           readonly handler: (params: any) => Effect.Effect<any, any, any>;
@@ -145,29 +154,27 @@ const Proto = {
         }
       >();
       const getSchemas = (tool: Tool.Any) => {
-        let schemas = schemasCache.get(tool);
-        if (schemas === undefined) {
-          const maybeHandler = context.mapUnsafe.get(tool.id);
-          if (maybeHandler === undefined) {
-            throw new Error(`Missing handler for tool '${tool.name}'`);
-          }
-          const handler = maybeHandler as {
-            readonly handler: (params: any) => Effect.Effect<any, any, any>;
-            readonly context: ServiceMap.ServiceMap<never>;
-          };
-          const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema) as any;
-          const resultSchema = S.Union([tool.successSchema, tool.failureSchema]);
-          const validateResult = S.decodeUnknownEffect(resultSchema) as any;
-          const encodeResult = S.encodeUnknownEffect(resultSchema) as any;
-          schemas = {
-            context: handler.context,
-            handler: handler.handler,
-            decodeParameters,
-            validateResult,
-            encodeResult,
-          };
-          schemasCache.set(tool, schemas);
+        const cached = MutableHashMap.get(schemasCache, tool);
+        if (O.isSome(cached)) {
+          return cached.value;
         }
+        const maybeHandler = context.mapUnsafe.get(tool.id);
+        if (maybeHandler === undefined) {
+          throw new Error(`Missing handler for tool '${tool.name}'`);
+        }
+        const handler = maybeHandler as HandlerBinding;
+        const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema) as any;
+        const resultSchema = S.Union([tool.successSchema, tool.failureSchema]);
+        const validateResult = S.decodeUnknownEffect(resultSchema) as any;
+        const encodeResult = S.encodeUnknownEffect(resultSchema) as any;
+        const schemas = {
+          context: handler.context,
+          handler: handler.handler,
+          decodeParameters,
+          validateResult,
+          encodeResult,
+        };
+        MutableHashMap.set(schemasCache, tool, schemas);
         return schemas;
       };
       const handle = (name: string, params: unknown) =>
@@ -176,7 +183,7 @@ const Proto = {
           if (tool === undefined) {
             return yield* ToolNotFoundError.make({
               name,
-              available: Object.keys(tools),
+              available: R.keys(tools),
             });
           }
           const activeTool = tool!;
@@ -231,7 +238,10 @@ const Proto = {
 };
 
 const makeProto = <Tools extends Record<string, Tool.Any>>(tools: Tools): Toolkit<Tools> =>
-  Object.assign(() => {}, Proto, { tools }) as any;
+  ({
+    ...Proto,
+    tools,
+  }) as any;
 
 const resolveInput = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Record<string, Tools[number]> => {
   const output = {} as Record<string, Tools[number]>;
@@ -294,7 +304,10 @@ export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>
     tools[name] = tool as any;
     handlers[name] = tool.handler as any;
   }
-  return Object.assign(makeProto(tools), { handlers: handlers as HandlersFrom<ToolsFromDefinitions<Defs>> }) as any;
+  return {
+    ...makeProto(tools),
+    handlers: handlers as HandlersFrom<ToolsFromDefinitions<Defs>>,
+  } as any;
 };
 
 /**
@@ -308,7 +321,7 @@ export const merge = <const Toolkits extends ReadonlyArray<Any>>(
 ): Toolkit<MergedTools<Toolkits>> => {
   const tools = {} as Record<string, Tool.Any>;
   for (const toolkit of toolkits) {
-    for (const tool of Object.values(toolkit.tools)) {
+    for (const tool of A.map(R.toEntries(toolkit.tools), ([, tool]) => tool)) {
       tools[tool.name] = tool;
     }
   }

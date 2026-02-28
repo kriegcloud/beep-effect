@@ -1,8 +1,11 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { mergeOptions } from "./internal/options.js";
 import type { Options } from "./Schema/Options.js";
+
+const $I = $AiSdkId.create("core/AgentRuntimeConfig");
 
 /**
  * @since 0.0.0
@@ -62,12 +65,16 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AgentRuntimeConfig extends ServiceMap.Service<
-  AgentRuntimeConfig,
-  {
-    settings: AgentRuntimeSettings;
-  }
->()("@effect/claude-agent-sdk/AgentRuntimeConfig") {
+export interface AgentRuntimeConfigShape {
+  readonly settings: AgentRuntimeSettings;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class AgentRuntimeConfig extends ServiceMap.Service<AgentRuntimeConfig, AgentRuntimeConfigShape>()(
+  $I`AgentRuntimeConfig`
+) {
   /**
    * Build AgentRuntimeConfig by reading configuration from environment variables.
    */

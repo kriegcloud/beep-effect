@@ -1,20 +1,23 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { withIdentifier } from "./Annotations.js";
+
+const $I = $AiSdkId.create("core/Schema/Sandbox");
 
 /**
  * @since 0.0.0
  */
-export const SandboxNetworkConfig = withIdentifier(
-  S.Struct({
-    allowedDomains: S.optional(S.Array(S.String)),
-    allowManagedDomainsOnly: S.optional(S.Boolean),
-    allowUnixSockets: S.optional(S.Array(S.String)),
-    allowAllUnixSockets: S.optional(S.Boolean),
-    allowLocalBinding: S.optional(S.Boolean),
-    httpProxyPort: S.optional(S.Number),
-    socksProxyPort: S.optional(S.Number),
-  }),
-  "SandboxNetworkConfig"
+export const SandboxNetworkConfig = S.Struct({
+  allowedDomains: S.optional(S.Array(S.String)),
+  allowManagedDomainsOnly: S.optional(S.Boolean),
+  allowUnixSockets: S.optional(S.Array(S.String)),
+  allowAllUnixSockets: S.optional(S.Boolean),
+  allowLocalBinding: S.optional(S.Boolean),
+  httpProxyPort: S.optional(S.Number),
+  socksProxyPort: S.optional(S.Number),
+}).annotate(
+  $I.annote("SandboxNetworkConfig", {
+    description: "Schema for SandboxNetworkConfig.",
+  })
 );
 
 /**
@@ -29,7 +32,11 @@ export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const SandboxIgnoreViolations = withIdentifier(S.Record(S.String, S.Array(S.String)), "SandboxIgnoreViolations");
+export const SandboxIgnoreViolations = S.Record(S.String, S.Array(S.String)).annotate(
+  $I.annote("SandboxIgnoreViolations", {
+    description: "Schema for SandboxIgnoreViolations.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -43,13 +50,14 @@ export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Enco
 /**
  * @since 0.0.0
  */
-export const SandboxFilesystemConfig = withIdentifier(
-  S.Struct({
-    allowWrite: S.optional(S.Array(S.String)),
-    denyWrite: S.optional(S.Array(S.String)),
-    denyRead: S.optional(S.Array(S.String)),
-  }),
-  "SandboxFilesystemConfig"
+export const SandboxFilesystemConfig = S.Struct({
+  allowWrite: S.optional(S.Array(S.String)),
+  denyWrite: S.optional(S.Array(S.String)),
+  denyRead: S.optional(S.Array(S.String)),
+}).annotate(
+  $I.annote("SandboxFilesystemConfig", {
+    description: "Schema for SandboxFilesystemConfig.",
+  })
 );
 
 /**
@@ -69,19 +77,20 @@ const SandboxRipgrepConfig = S.Struct({
 /**
  * @since 0.0.0
  */
-export const SandboxSettings = withIdentifier(
-  S.Struct({
-    enabled: S.optional(S.Boolean),
-    autoAllowBashIfSandboxed: S.optional(S.Boolean),
-    allowUnsandboxedCommands: S.optional(S.Boolean),
-    network: S.optional(SandboxNetworkConfig),
-    filesystem: S.optional(SandboxFilesystemConfig),
-    ignoreViolations: S.optional(SandboxIgnoreViolations),
-    enableWeakerNestedSandbox: S.optional(S.Boolean),
-    excludedCommands: S.optional(S.Array(S.String)),
-    ripgrep: S.optional(SandboxRipgrepConfig),
-  }),
-  "SandboxSettings"
+export const SandboxSettings = S.Struct({
+  enabled: S.optional(S.Boolean),
+  autoAllowBashIfSandboxed: S.optional(S.Boolean),
+  allowUnsandboxedCommands: S.optional(S.Boolean),
+  network: S.optional(SandboxNetworkConfig),
+  filesystem: S.optional(SandboxFilesystemConfig),
+  ignoreViolations: S.optional(SandboxIgnoreViolations),
+  enableWeakerNestedSandbox: S.optional(S.Boolean),
+  excludedCommands: S.optional(S.Array(S.String)),
+  ripgrep: S.optional(SandboxRipgrepConfig),
+}).annotate(
+  $I.annote("SandboxSettings", {
+    description: "Schema for SandboxSettings.",
+  })
 );
 
 /**

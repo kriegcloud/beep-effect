@@ -1,4 +1,7 @@
 import { Effect, Layer, Ref, Stream } from "effect";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import { defaultCloudflareLifecyclePolicy } from "../internal/lifecyclePolicy.js";
 import { decodeNdjson } from "../internal/ndjson.js";
 import { SDKMessage as SDKMessageSchema } from "../Schema/Message.js";
@@ -73,19 +76,22 @@ const staleResumeIndicators = [
 ];
 
 const collectStringFragments = (value: unknown): Array<string> => {
-  if (typeof value === "string") return [value];
+  if (P.isString(value)) return [value];
   if (value === null || value === undefined) return [];
-  if (Array.isArray(value)) {
-    return value.flatMap(collectStringFragments);
+  if (A.isArray(value)) {
+    return A.flatMap(value, collectStringFragments);
   }
-  if (typeof value === "object") {
-    return Object.values(value as Record<string, unknown>).flatMap(collectStringFragments);
+  if (P.isObject(value)) {
+    return A.flatMap(
+      A.map(R.toEntries(value as Record<string, unknown>), ([, entry]) => entry),
+      collectStringFragments
+    );
   }
   return [];
 };
 
 const isStaleResumeFailure = (error: unknown): boolean => {
-  if (!error || typeof error !== "object") return false;
+  if (!error || !P.isObject(error)) return false;
   const candidate = error as {
     readonly _tag?: string;
     readonly message?: string;
@@ -163,7 +169,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
       };
 
       // Set auth + runtime env vars in the sandbox once during layer startup.
-      if (Object.keys(baseEnvVars).length > 0) {
+      if (R.keys(baseEnvVars).length > 0) {
         yield* Effect.tryPromise({
           try: () => sandbox.setEnvVars(baseEnvVars),
           catch: (cause) => mapError("setEnvVars", cause),
@@ -422,7 +428,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                 Stream.share(stdoutStream, config ?? defaultCloudflareLifecyclePolicy.defaultShareConfig),
               broadcast: (config) => {
                 const resolved = config ?? defaultCloudflareLifecyclePolicy.defaultBroadcastLag;
-                if (typeof resolved === "number") {
+                if (P.isNumber(resolved)) {
                   return Stream.broadcast(stdoutStream, { capacity: resolved });
                 }
                 return Stream.broadcast(stdoutStream, resolved);

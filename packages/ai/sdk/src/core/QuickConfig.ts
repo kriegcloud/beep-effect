@@ -1,5 +1,6 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
 import { Duration, Layer, ManagedRuntime } from "effect";
+import * as P from "effect/Predicate";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";
 import { AgentRuntimeConfig } from "./AgentRuntimeConfig.js";
 import { AgentSdk } from "./AgentSdk.js";
@@ -83,7 +84,7 @@ const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const validateQuickConfig = (config: ResolvedQuickConfig) => {
   const backend = config.storageBackend;
   const mode = config.storageMode;
-  const isSyncPersistence = typeof config.persistence === "object" && "sync" in config.persistence;
+  const isSyncPersistence = P.isObject(config.persistence) && "sync" in config.persistence;
 
   if (backend === "kv" && mode === "journaled") {
     throw ConfigError.make({
@@ -124,15 +125,14 @@ const buildRuntimeParts = (config: ResolvedQuickConfig): RuntimeParts => {
     concurrencyLimit: config.concurrency,
     ...config.supervisor,
   });
-  const sdkOverrides: { apiKey?: string; model?: string } = {};
-  if (config.apiKey !== undefined) {
-    sdkOverrides.apiKey = config.apiKey;
-  }
-  if (config.model !== undefined) {
-    sdkOverrides.model = config.model;
-  }
+  const sdkOverrides = {
+    ...(config.apiKey !== undefined ? { apiKey: config.apiKey } : {}),
+    ...(config.model !== undefined ? { model: config.model } : {}),
+  };
   const sdkConfigLayer =
-    Object.keys(sdkOverrides).length > 0 ? AgentSdkConfig.layerWithOverrides(sdkOverrides) : AgentSdkConfig.layer;
+    config.apiKey !== undefined || config.model !== undefined
+      ? AgentSdkConfig.layerWithOverrides(sdkOverrides)
+      : AgentSdkConfig.layer;
 
   const sdkLayer = AgentSdk.layer.pipe(Layer.provide(sdkConfigLayer));
 
@@ -176,9 +176,7 @@ const resolveStorageLayers = (config: ResolvedQuickConfig) => {
   const backend = config.storageBackend ?? "bun";
   const mode = config.storageMode ?? "standard";
   const directory =
-    typeof config.persistence === "object" && "directory" in config.persistence
-      ? config.persistence.directory
-      : undefined;
+    P.isObject(config.persistence) && "directory" in config.persistence ? config.persistence.directory : undefined;
   const commonOptions = {
     mode,
     ...(config.allowUnsafeKv !== undefined ? { allowUnsafeKv: config.allowUnsafeKv } : {}),
@@ -249,7 +247,7 @@ export function runtimeLayer(config?: QuickConfig) {
     persistence = AgentRuntime.layerWithPersistence({
       layers: memoryPersistenceLayers(runtime),
     });
-  } else if (typeof resolved.persistence === "object" && "sync" in resolved.persistence) {
+  } else if (P.isObject(resolved.persistence) && "sync" in resolved.persistence) {
     persistence = AgentRuntime.layerWithRemoteSync({
       url: resolved.persistence.sync,
       layers: {

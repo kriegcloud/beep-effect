@@ -1,4 +1,5 @@
-import { Clock, Effect } from "effect";
+import { Clock, Effect, MutableHashMap } from "effect";
+import * as O from "effect/Option";
 import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js";
 import { onPermissionRequest, onPostToolUse, onPostToolUseFailure, onPreToolUse, tap } from "./Hook.js";
 import { mergeHookMaps } from "./utils.js";
@@ -87,12 +88,12 @@ export const autoDeny = (options: {
  */
 export const timing = <R>(onComplete: (toolName: string, durationMs: number) => Effect.Effect<void, never, R>) =>
   Effect.gen(function* () {
-    const startTimes = new Map<string, number>();
+    const startTimes = MutableHashMap.empty<string, number>();
     const onStart = yield* onPreToolUse((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.tap((now) =>
           Effect.sync(() => {
-            startTimes.set(input.tool_use_id, now);
+            MutableHashMap.set(startTimes, input.tool_use_id, now);
           })
         ),
         Effect.asVoid,
@@ -102,20 +103,20 @@ export const timing = <R>(onComplete: (toolName: string, durationMs: number) => 
     const onFinish = yield* onPostToolUse((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.flatMap((now) => {
-          const startedAt = startTimes.get(input.tool_use_id);
-          if (startedAt === undefined) return Effect.succeed({});
-          startTimes.delete(input.tool_use_id);
-          return onComplete(input.tool_name, Math.max(0, now - startedAt)).pipe(Effect.as({}));
+          const startedAt = MutableHashMap.get(startTimes, input.tool_use_id);
+          if (O.isNone(startedAt)) return Effect.succeed({});
+          MutableHashMap.remove(startTimes, input.tool_use_id);
+          return onComplete(input.tool_name, Math.max(0, now - startedAt.value)).pipe(Effect.as({}));
         })
       )
     );
     const onFailure = yield* onPostToolUseFailure((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.flatMap((now) => {
-          const startedAt = startTimes.get(input.tool_use_id);
-          if (startedAt === undefined) return Effect.succeed({});
-          startTimes.delete(input.tool_use_id);
-          return onComplete(input.tool_name, Math.max(0, now - startedAt)).pipe(Effect.as({}));
+          const startedAt = MutableHashMap.get(startTimes, input.tool_use_id);
+          if (O.isNone(startedAt)) return Effect.succeed({});
+          MutableHashMap.remove(startTimes, input.tool_use_id);
+          return onComplete(input.tool_name, Math.max(0, now - startedAt.value)).pipe(Effect.as({}));
         })
       )
     );

@@ -1,6 +1,7 @@
-import { Effect, Layer, ServiceMap } from "effect";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Effect, Layer, ServiceMap, type Stream } from "effect";
 import * as O from "effect/Option";
-import type * as Stream from "effect/Stream";
+import * as P from "effect/Predicate";
 import { makeSessionTurnDriver } from "./internal/sessionTurnDriver.js";
 import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
@@ -9,6 +10,8 @@ import type { SessionError, SessionHandle } from "./Session.js";
 import { resolveTurnTimeouts, SessionConfig } from "./SessionConfig.js";
 import { SessionManager } from "./SessionManager.js";
 import { ChatHistoryStore } from "./Storage/index.js";
+
+const $I = $AiSdkId.create("core/SessionService");
 
 /**
  * @since 0.0.0
@@ -34,17 +37,19 @@ const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
 /**
  * @since 0.0.0
  */
-export class SessionService extends ServiceMap.Service<
-  SessionService,
-  {
-    readonly handle: SessionHandle;
-    readonly sessionId: Effect.Effect<string, SessionError>;
-    readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
-    readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>;
-    readonly stream: Stream.Stream<SDKMessage, SessionError>;
-    readonly close: Effect.Effect<void, SessionError>;
-  }
->()("@effect/claude-agent-sdk/SessionService") {
+export interface SessionServiceShape {
+  readonly handle: SessionHandle;
+  readonly sessionId: Effect.Effect<string, SessionError>;
+  readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
+  readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>;
+  readonly stream: Stream.Stream<SDKMessage, SessionError>;
+  readonly close: Effect.Effect<void, SessionError>;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class SessionService extends ServiceMap.Service<SessionService, SessionServiceShape>()($I`SessionService`) {
   static readonly layer = (options: SDKSessionOptions) =>
     Layer.effect(
       SessionService,
@@ -97,7 +102,7 @@ export class SessionService extends ServiceMap.Service<
           );
 
         const recordInputMessage = (message: string | SDKUserMessage) =>
-          typeof message === "string"
+          P.isString(message)
             ? handle.sessionId.pipe(
                 Effect.flatMap((resolvedSessionId) =>
                   recordMessage(

@@ -1,4 +1,4 @@
-import { Clock, Duration, Effect } from "effect";
+import { Clock, Duration, Effect, HashSet } from "effect";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 /**
@@ -96,8 +96,8 @@ export const Compaction = {
             current = [];
             continue;
           }
-          const compactedIds = new Set(next[0].map((entry) => entry.idString));
-          current = current.filter((remoteEntry) => compactedIds.has(remoteEntry.entry.idString));
+          const compactedIds = HashSet.fromIterable(next[0].map((entry) => entry.idString));
+          current = current.filter((remoteEntry) => HashSet.has(compactedIds, remoteEntry.entry.idString));
         }
         return toBracket(current, entries);
       }),

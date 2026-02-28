@@ -1,12 +1,15 @@
-import { Config, Effect, Layer, Redacted, ServiceMap } from "effect";
-import type * as Duration from "effect/Duration";
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Config, type Duration, Effect, Layer, Redacted, ServiceMap } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import * as R from "effect/Record";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import { SessionPermissionMode } from "./Schema/Session.js";
+
+const $I = $AiSdkId.create("core/SessionConfig");
 
 /**
  * @since 0.0.0
@@ -48,6 +51,11 @@ export type SessionConfigSettings = {
   readonly runtime: SessionRuntimeSettings;
 };
 
+/**
+ * @since 0.0.0
+ */
+export interface SessionConfigShape extends SessionConfigSettings {}
+
 const normalizeRedacted = (value: O.Option<Redacted.Redacted>) =>
   O.flatMap(value, (redacted) => {
     const normalized = Redacted.value(redacted).trim();
@@ -73,7 +81,7 @@ const makeSessionConfig = Effect.gen(function* () {
     yield* Config.option(Config.redacted("CLAUDE_CODE_SESSION_ACCESS_TOKEN"))
   );
 
-  const executable = yield* Config.option(Config.schema(S.Literals(["bun", "node"]), "EXECUTABLE"));
+  const executable = yield* Config.option(Config.schema(LiteralKit(["bun", "node"]), "EXECUTABLE"));
   const pathToClaudeCodeExecutable = yield* Config.option(Config.string("PATH_TO_CLAUDE_CODE_EXECUTABLE"));
   const executableArgsValue = yield* Config.option(Config.string("EXECUTABLE_ARGS"));
   const permissionMode = yield* Config.option(Config.schema(SessionPermissionMode, "PERMISSION_MODE"));
@@ -90,15 +98,20 @@ const makeSessionConfig = Effect.gen(function* () {
 
   const processEnv = yield* Effect.sync(() => process.env);
   const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
-  const authEnvOverrides = {
-    ...(O.isSome(resolvedApiKey) ? { ANTHROPIC_API_KEY: Redacted.value(resolvedApiKey.value) } : {}),
-    ...(O.isSome(sessionAccessToken)
+  const authEnvEntries: Array<readonly [string, string]> = [];
+  if (O.isSome(resolvedApiKey)) {
+    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(resolvedApiKey.value)]);
+  }
+  if (O.isSome(sessionAccessToken)) {
+    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
+  }
+  const env =
+    authEnvEntries.length > 0
       ? {
-          CLAUDE_CODE_SESSION_ACCESS_TOKEN: Redacted.value(sessionAccessToken.value),
+          ...processEnv,
+          ...R.fromEntries(authEnvEntries),
         }
-      : {}),
-  };
-  const env = Object.keys(authEnvOverrides).length > 0 ? { ...processEnv, ...authEnvOverrides } : undefined;
+      : undefined;
 
   if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();
@@ -128,9 +141,7 @@ const makeSessionConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class SessionConfig extends ServiceMap.Service<SessionConfig, SessionConfigSettings>()(
-  "@effect/claude-agent-sdk/SessionConfig"
-) {
+export class SessionConfig extends ServiceMap.Service<SessionConfig, SessionConfigShape>()($I`SessionConfig`) {
   static readonly layer = Layer.effect(SessionConfig, makeSessionConfig);
 
   static readonly layerFromEnv = (prefix = "AGENTSDK") =>

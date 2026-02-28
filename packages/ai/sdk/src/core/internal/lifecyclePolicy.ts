@@ -1,4 +1,4 @@
-import type * as Duration from "effect/Duration";
+import type { Duration } from "effect";
 import type { StreamBroadcastConfig, StreamShareConfig } from "../Query.js";
 
 /**
