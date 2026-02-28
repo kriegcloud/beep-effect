@@ -1,0 +1,54 @@
+{
+  "spec": "ast-codebase-kg-visualizer",
+  "status": "pending",
+  "created": "2026-02-28",
+  "updated": "2026-02-28",
+  "frozenInputs": {
+    "bundleRoot": "outputs/kg-bundle",
+    "preserve": true
+  },
+  "phases": {
+    "pre": {
+      "name": "contract-alignment-and-mapping-freeze",
+      "status": "pending",
+      "output": "p-pre-contract-and-source-alignment.md",
+      "evidenceDir": "evidence/pre"
+    },
+    "p0": {
+      "name": "architecture-and-gates-freeze",
+      "status": "pending",
+      "output": "p0-architecture-and-gates.md",
+      "evidenceDir": "evidence/p0"
+    },
+    "p1": {
+      "name": "kg-export-cli",
+      "status": "pending",
+      "output": "p1-kg-export-cli.md",
+      "evidenceDir": "evidence/p1"
+    },
+    "p2": {
+      "name": "web-api-and-loader",
+      "status": "pending",
+      "output": "p2-web-api-and-loader.md",
+      "evidenceDir": "evidence/p2"
+    },
+    "p3": {
+      "name": "d3-ui-implementation",
+      "status": "pending",
+      "output": "p3-d3-ui-implementation.md",
+      "evidenceDir": "evidence/p3"
+    },
+    "p4": {
+      "name": "performance-and-e2e-validation",
+      "status": "pending",
+      "output": "p4-performance-and-e2e-validation.md",
+      "evidenceDir": "evidence/p4"
+    },
+    "p5": {
+      "name": "rollout-decision",
+      "status": "pending",
+      "output": "p5-rollout-decision.md",
+      "evidenceDir": "evidence/p5"
+    }
+  }
+}

@@ -64,7 +64,7 @@ type NodeKind =
   | "variable"
   | "decorator"
   | "jsx_component"
-  | "module_declaration";
+  | "module_declaration"
 
 type EdgeKind =
   | "imports"
@@ -92,7 +92,7 @@ type EdgeKind =
   | "conditional_calls"
   | "test_covers"
   | "uses_type"
-  | "exports";
+  | "exports"
 
 interface GraphNode {
   id: string;
@@ -310,7 +310,7 @@ function discoverPackages(rootDir: string, workspaceFile?: string): PackageInfo[
 
 class CodebaseGraphExtractor {
   private project: Project;
-  private rootDir: string;
+  private readonly rootDir: string;
   private nodes = new Map<string, GraphNode>();
   private edges: GraphEdge[] = [];
   private edgeSet = new Set<string>();
