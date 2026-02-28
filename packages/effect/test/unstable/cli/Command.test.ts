@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, FileSystem, Layer, Option, Path, ServiceMap } from "effect"
 import { TestConsole } from "effect/testing"
-import { Argument, CliOutput, Command, Flag } from "effect/unstable/cli"
+import { Argument, CliOutput, Command, Flag, GlobalFlag } from "effect/unstable/cli"
 import { toImpl } from "effect/unstable/cli/internal/command"
 import { ChildProcessSpawner } from "effect/unstable/process"
 import * as Cli from "./fixtures/ComprehensiveCli.ts"
@@ -26,7 +26,10 @@ const TestLayer = Layer.mergeAll(
   PathLayer,
   TerminalLayer,
   CliOutputLayer,
-  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
+  Layer.succeed(
+    ChildProcessSpawner.ChildProcessSpawner,
+    ChildProcessSpawner.make(() => Effect.die("Not implemented"))
+  )
 )
 
 const TestLayerWithoutFormatter = Layer.mergeAll(
@@ -35,7 +38,10 @@ const TestLayerWithoutFormatter = Layer.mergeAll(
   FileSystemLayer,
   PathLayer,
   TerminalLayer,
-  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
+  Layer.succeed(
+    ChildProcessSpawner.ChildProcessSpawner,
+    ChildProcessSpawner.make(() => Effect.die("Not implemented"))
+  )
 )
 
 describe("Command", () => {
@@ -239,6 +245,195 @@ describe("Command", () => {
           verbose: true,
           profile: "dev"
         }])
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should expose setting global flags to command handlers", () =>
+      Effect.gen(function*() {
+        const Region = GlobalFlag.setting("region")({
+          flag: Flag.string("region").pipe(Flag.optional)
+        })
+        const captured: Array<Option.Option<string>> = []
+
+        const command = Command.make("deploy", {}, () =>
+          Effect.gen(function*() {
+            captured.push(yield* Region)
+          })).pipe(
+            Command.withGlobalFlags([Region])
+          )
+
+        const runCommand = Command.runWith(command, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["--region", "us-east-1"])
+        yield* runCommand([])
+
+        assert.deepStrictEqual(captured, [Option.some("us-east-1"), Option.none()])
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should expose setting global flags with Flag.withDefault", () =>
+      Effect.gen(function*() {
+        const Region = GlobalFlag.setting("region")({
+          flag: Flag.string("region").pipe(Flag.withDefault("us-west-2"))
+        })
+        const captured: Array<string> = []
+
+        const command = Command.make("deploy", {}, () =>
+          Effect.gen(function*() {
+            captured.push(yield* Region)
+          })).pipe(
+            Command.withGlobalFlags([Region])
+          )
+
+        const runCommand = Command.runWith(command, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["--region", "eu-west-1"])
+        yield* runCommand([])
+
+        assert.deepStrictEqual(captured, ["eu-west-1", "us-west-2"])
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should support mixed action and setting global flags", () =>
+      Effect.gen(function*() {
+        const actions: Array<boolean> = []
+        const captured: Array<string> = []
+        let handlerInvocations = 0
+
+        const VerboseAction = GlobalFlag.action({
+          flag: Flag.boolean("verbose").pipe(Flag.withDefault(false)),
+          run: (value) =>
+            Effect.sync(() => {
+              actions.push(value)
+            })
+        })
+        const Format = GlobalFlag.setting("format")({
+          flag: Flag.string("format").pipe(Flag.withDefault("text"))
+        })
+
+        const command = Command.make("deploy", {}, () =>
+          Effect.gen(function*() {
+            handlerInvocations += 1
+            captured.push(yield* Format)
+          })).pipe(
+            Command.withGlobalFlags([VerboseAction, Format])
+          )
+
+        const runCommand = Command.runWith(command, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["--format", "json"])
+        yield* runCommand(["--verbose", "--format", "yaml"])
+
+        assert.deepStrictEqual(captured, ["json"])
+        assert.deepStrictEqual(actions, [true])
+        assert.strictEqual(handlerInvocations, 1)
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should expose setting global flags in Command.provide APIs", () =>
+      Effect.gen(function*() {
+        const Region = GlobalFlag.setting("region")({
+          flag: Flag.string("region").pipe(Flag.optional)
+        })
+        const RegionFromProvide = ServiceMap.Service<never, Option.Option<string>>(
+          "effect/test/unstable/cli/RegionFromProvide"
+        )
+        const capturedFromProvide: Array<Option.Option<string>> = []
+        const capturedFromProvideEffect: Array<Option.Option<string>> = []
+
+        const command = Command.make("deploy", {}, () =>
+          Effect.gen(function*() {
+            capturedFromProvide.push(yield* RegionFromProvide)
+          })).pipe(
+            Command.provide(() =>
+              Layer.effect(
+                RegionFromProvide,
+                Effect.gen(function*() {
+                  return yield* Region
+                })
+              )
+            ),
+            Command.provideEffectDiscard(() =>
+              Effect.gen(function*() {
+                capturedFromProvideEffect.push(yield* Region)
+              })
+            ),
+            Command.withGlobalFlags([Region])
+          )
+
+        const runCommand = Command.runWith(command, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["--region", "eu-west-1"])
+
+        assert.deepStrictEqual(capturedFromProvide, [Option.some("eu-west-1")])
+        assert.deepStrictEqual(capturedFromProvideEffect, [Option.some("eu-west-1")])
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should reject global flags that are out of scope for selected subcommand", () =>
+      Effect.gen(function*() {
+        const Region = GlobalFlag.setting("region")({
+          flag: Flag.string("region").pipe(Flag.withDefault("us-east-1"))
+        })
+        let dbInvoked = false
+        let deployInvoked = false
+
+        const deploy = Command.make("deploy", {}, () =>
+          Effect.sync(() => {
+            deployInvoked = true
+          })).pipe(
+            Command.withGlobalFlags([Region])
+          )
+
+        const db = Command.make("db", {}, () =>
+          Effect.sync(() => {
+            dbInvoked = true
+          }))
+
+        const root = Command.make("app", {}).pipe(Command.withSubcommands([deploy, db]))
+
+        const runCommand = Command.runWith(root, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["db", "--region", "eu-west-1"])
+
+        const stderr = yield* TestConsole.errorLines
+        assert.isTrue(
+          stderr.some((line) => String(line).includes("--region")),
+          "expected CLI to report out-of-scope global flag"
+        )
+        assert.isFalse(dbInvoked)
+        assert.isFalse(deployInvoked)
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should show only path-active global flags in subcommand help", () =>
+      Effect.gen(function*() {
+        const Region = GlobalFlag.setting("region")({
+          flag: Flag.string("region").pipe(Flag.withDefault("us-east-1"))
+        })
+
+        const deploy = Command.make("deploy", {}, () => Effect.void).pipe(
+          Command.withGlobalFlags([Region])
+        )
+        const db = Command.make("db", {}, () => Effect.void)
+        const root = Command.make("app", {}).pipe(Command.withSubcommands([deploy, db]))
+
+        const runCommand = Command.runWith(root, {
+          version: "1.0.0"
+        })
+
+        yield* runCommand(["deploy", "--help"])
+        const deployHelp = yield* TestConsole.logLines
+        assert.isTrue(deployHelp.some((line) => String(line).includes("--region")))
+
+        yield* runCommand(["db", "--help"])
+        const dbHelp = yield* TestConsole.logLines
+        const dbSection = dbHelp.slice(deployHelp.length)
+        assert.isFalse(dbSection.some((line) => String(line).includes("--region")))
       }).pipe(Effect.provide(TestLayer)))
 
     it.effect("should fail for malformed key=value flags", () =>

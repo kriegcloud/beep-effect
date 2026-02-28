@@ -153,6 +153,7 @@ export interface Bottom<
    * @throws {Error} The issue is contained in the error cause.
    */
   makeUnsafe(input: this["~type.make.in"], options?: MakeOptions): this["Type"]
+  makeOption(input: this["~type.make.in"], options?: MakeOptions): Option_.Option<this["Type"]>
 }
 
 /**
@@ -1635,6 +1636,27 @@ export interface Struct<Fields extends Struct.Fields> extends
   >
 {
   readonly "~rebuild.out": this
+  /**
+   * The field definitions of this struct. Spread them into a new struct to
+   * reuse fields across schemas.
+   *
+   * **Example** (Reusing fields across structs)
+   *
+   * ```ts
+   * import { Schema } from "effect"
+   *
+   * const Timestamped = Schema.Struct({
+   *   createdAt: Schema.Date,
+   *   updatedAt: Schema.Date
+   * })
+   *
+   * const User = Schema.Struct({
+   *   ...Timestamped.fields,
+   *   name: Schema.String,
+   *   email: Schema.String
+   * })
+   * ```
+   */
   readonly fields: Fields
   /**
    * Returns a new struct with the fields modified by the provided function.
@@ -1735,11 +1757,12 @@ export function encodeKeys<
     const fields: any = {}
     const reverseMapping: any = {}
     for (const k in self.fields) {
+      const encoded = toEncoded(self.fields[k])
       if (Object.hasOwn(mapping, k)) {
-        fields[mapping[k]!] = toEncoded(self.fields[k])
+        fields[mapping[k]!] = encoded
         reverseMapping[mapping[k]!] = k
       } else {
-        fields[k] = self.fields[k]
+        fields[k] = encoded
       }
     }
     return Struct(fields).pipe(decodeTo(
@@ -5422,6 +5445,63 @@ export function OptionFromNullOr<S extends Top>(schema: S): OptionFromNullOr<S> 
 /**
  * @since 4.0.0
  */
+export interface OptionFromUndefinedOr<S extends Top> extends decodeTo<Option<toType<S>>, UndefinedOr<S>> {}
+
+/**
+ * Decodes an undefined-or value `T` to a required `Option<T>` value.
+ *
+ * Decoding:
+ * - `undefined` is decoded as `None`
+ * - other values are decoded as `Some`
+ *
+ * Encoding:
+ * - `None` is encoded as `undefined`
+ * - `Some` is encoded as the value
+ *
+ * @category Option
+ * @since 4.0.0
+ */
+export function OptionFromUndefinedOr<S extends Top>(schema: S): OptionFromUndefinedOr<S> {
+  return UndefinedOr(schema).pipe(decodeTo(
+    Option(toType(schema)),
+    Transformation.optionFromUndefinedOr()
+  ))
+}
+
+/**
+ * @since 4.0.0
+ */
+export interface OptionFromNullishOr<S extends Top> extends decodeTo<Option<toType<S>>, NullishOr<S>> {}
+
+/**
+ * Decodes a nullish value `T` to a required `Option<T>` value.
+ *
+ * Decoding:
+ * - `null` and `undefined` are decoded as `None`
+ * - other values are decoded as `Some`
+ *
+ * Encoding:
+ * - `None` is encoded as `null` or `undefined` depending on the provided `options.onNoneEncoding` (defaults to `undefined`)
+ * - `Some` is encoded as the value
+ *
+ * @category Option
+ * @since 4.0.0
+ */
+export function OptionFromNullishOr<S extends Top>(
+  schema: S,
+  options?: {
+    onNoneEncoding: null | undefined
+  }
+): OptionFromNullishOr<S> {
+  return NullishOr(schema).pipe(decodeTo(
+    Option(toType(schema)),
+    Transformation.optionFromNullishOr(options)
+  ))
+}
+
+/**
+ * @since 4.0.0
+ */
 export interface OptionFromOptionalKey<S extends Top> extends decodeTo<Option<toType<S>>, optionalKey<S>> {}
 
 /**
@@ -7977,6 +8057,9 @@ function makeClass<
     }
     static makeUnsafe(input: S["~type.make.in"], options?: MakeOptions): Self {
       return new this(input, options)
+    }
+    static makeOption(input: S["~type.make.in"], options?: MakeOptions): Option_.Option<Self> {
+      return Parser.makeOption(getClassSchema(this) as any)(input, options) as any
     }
     static annotate(annotations: Annotations.Declaration<Self, readonly [S]>) {
       return this.rebuild(AST.annotate(this.ast, annotations))
