@@ -169,6 +169,7 @@
     "cspell": "^9.7.0",
     "sql-formatter": "^15.7.2",
     "markdownlint-cli2": "^0.21.0",
+    "picocolors": "^1.1.1",
     "@dotenvx/dotenvx": "^1.52.0",
     "@effect/ai-anthropic": "^4.0.0-beta.20",
     "@effect/ai-openai": "^4.0.0-beta.20",

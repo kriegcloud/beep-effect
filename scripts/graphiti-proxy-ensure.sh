@@ -9,6 +9,11 @@ LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/beep"
 LOG_FILE="${LOG_DIR}/graphiti-proxy.log"
 PORT_FROM_URL="$(printf '%s' "$HEALTH_URL" | sed -n 's#.*:\([0-9][0-9]*\)/.*#\1#p')"
 PROXY_PORT="${PORT_FROM_URL:-8123}"
+FALKOR_CONTAINER="${FALKOR_CONTAINER:-graphiti-mcp-falkordb-1}"
+GRAPHITI_CONTAINER="${GRAPHITI_CONTAINER:-graphiti-mcp-graphiti-mcp-1}"
+RECOVER_ON_UNHEALTHY="${GRAPHITI_PROXY_RECOVER_ON_UNHEALTHY:-true}"
+RECOVERY_MCP_URL="${GRAPHITI_PROXY_RECOVERY_MCP_URL:-http://127.0.0.1:8000/mcp}"
+RECOVERY_GROUP="${GRAPHITI_PROXY_RECOVERY_GROUP:-beep-dev}"
 
 log() {
   printf '[graphiti-proxy:ensure] %s\n' "$1"
@@ -18,12 +23,50 @@ check_health() {
   curl -fsS -m 2 "$HEALTH_URL" >/dev/null 2>&1
 }
 
+container_exists() {
+  docker inspect "$1" >/dev/null 2>&1
+}
+
+container_health() {
+  docker inspect --format '{{.State.Health.Status}}' "$1" 2>/dev/null || printf 'unknown'
+}
+
+recover_graphiti_stack() {
+  if [[ "$RECOVER_ON_UNHEALTHY" != "true" ]]; then
+    return 0
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    return 0
+  fi
+  if ! container_exists "$FALKOR_CONTAINER" || ! container_exists "$GRAPHITI_CONTAINER"; then
+    return 0
+  fi
+
+  local f_status g_status
+  f_status="$(container_health "$FALKOR_CONTAINER")"
+  g_status="$(container_health "$GRAPHITI_CONTAINER")"
+  if [[ "$f_status" == "healthy" && "$g_status" == "healthy" ]]; then
+    return 0
+  fi
+
+  log "Detected unhealthy graphiti stack (falkor=${f_status}, graphiti=${g_status}). Running recovery."
+  if [[ -f "$ROOT_DIR/scripts/graphiti-recover.sh" ]]; then
+    if ! bash "$ROOT_DIR/scripts/graphiti-recover.sh" --skip-republish --group "$RECOVERY_GROUP" --url "$RECOVERY_MCP_URL"; then
+      log "Recovery script failed; continuing ensure loop."
+    fi
+    return 0
+  fi
+
+  docker restart "$FALKOR_CONTAINER" "$GRAPHITI_CONTAINER" >/dev/null 2>&1 || true
+}
+
 if ! command -v bun >/dev/null 2>&1; then
   log "Missing required command: bun"
   exit 1
 fi
 
 mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
+recover_graphiti_stack
 
 start_proxy() {
   log "Starting proxy via 'bun run graphiti:proxy' (log: ${LOG_FILE})."

@@ -1,8 +1,8 @@
-import * as A from "effect/Array";
+import type * as A from "effect/Array";
 import { Struct } from "@beep/utils";
 import { pipe } from "effect";
 import { MappedLiteralKit } from "@beep/schema";
-import * as S from "effect/Schema";
+
 import { $SharedDomainId } from "@beep/identity/packages";
 
 const $I = $SharedDomainId.create("errors/DbError/ErrorEnum");
@@ -549,6 +549,13 @@ export type PairArray = A.NonEmptyReadonlyArray<Pair>;
 
 const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries) => entries as unknown as PairArray);
 
-export const ErrorCodeFromKey = MappedLiteralKit(
-  pgErrorEntries
+export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
+  $I.annote("ErrorCodeFromKey", {
+    description: "Maps error codes to their corresponding error messages",
+  })
 );
+
+export declare namespace ErrorCodeFromKey {
+  export type Type = typeof ErrorCodeFromKey.Type;
+  export type Encoded = typeof ErrorCodeFromKey.Encoded;
+}

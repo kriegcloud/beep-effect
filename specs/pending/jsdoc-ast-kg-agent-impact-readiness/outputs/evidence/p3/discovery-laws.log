@@ -1,0 +1,10 @@
+Codebase Laws
+Effect-first quality law summary and validation entry points.
+- Use Effect-first APIs and aliases defined by repository law.
+- Reject unsafe typing escapes and untyped runtime errors.
+- Keep domain logic free of native mutable runtime containers.
+- Finish only when check, lint, test, and docgen pass.
+- Run: bun run check
+- Run: bun run lint
+- Run: bun run test
+- Run: bun run docgen

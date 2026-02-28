@@ -30,6 +30,10 @@ const concurrency = parsePositiveInt(process.env.GRAPHITI_PROXY_CONCURRENCY, 1);
 const maxQueue = parsePositiveInt(process.env.GRAPHITI_PROXY_MAX_QUEUE, 500);
 const requestTimeoutMs = parsePositiveInt(process.env.GRAPHITI_PROXY_REQUEST_TIMEOUT_MS, 60_000);
 const verbose = parseBoolean(process.env.GRAPHITI_PROXY_VERBOSE, false);
+const dependencyHealthEnabled = parseBoolean(process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_ENABLED, true);
+const dependencyHealthTtlMs = parsePositiveInt(process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_TTL_MS, 5_000);
+const falkorContainer = process.env.GRAPHITI_PROXY_FALKOR_CONTAINER ?? "graphiti-mcp-falkordb-1";
+const graphitiContainer = process.env.GRAPHITI_PROXY_GRAPHITI_CONTAINER ?? "graphiti-mcp-graphiti-mcp-1";
 const upstreamBase = new URL(process.env.GRAPHITI_PROXY_UPSTREAM ?? "http://127.0.0.1:8000/mcp");
 
 const state = {
@@ -39,6 +43,15 @@ const state = {
   processed: 0,
   failed: 0,
   rejected: 0,
+};
+
+const dependencyState = {
+  checkedAtMs: 0,
+  status: "unknown",
+  details: {
+    falkor: "unknown",
+    graphiti: "unknown",
+  },
 };
 
 const logger = {
@@ -67,23 +80,78 @@ const queueStats = () => ({
   upstream: upstreamBase.toString(),
 });
 
-const healthResponse = () =>
-  new Response(
+const readContainerHealth = (containerName) => {
+  if (!dependencyHealthEnabled) {
+    return "unknown";
+  }
+
+  const result = Bun.spawnSync({
+    cmd: ["docker", "inspect", "--format", "{{.State.Health.Status}}", containerName],
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  if (!result.success) {
+    return "unknown";
+  }
+
+  const value = result.stdout.toString("utf8").trim().toLowerCase();
+  if (value === "healthy" || value === "unhealthy" || value === "starting") {
+    return value;
+  }
+  return "unknown";
+};
+
+const currentDependencySnapshot = () => {
+  const nowMs = Date.now();
+  if (nowMs - dependencyState.checkedAtMs < dependencyHealthTtlMs) {
+    return {
+      status: dependencyState.status,
+      details: dependencyState.details,
+    };
+  }
+
+  const falkor = readContainerHealth(falkorContainer);
+  const graphiti = readContainerHealth(graphitiContainer);
+  const status =
+    dependencyHealthEnabled && (falkor !== "healthy" || graphiti !== "healthy") ? "degraded" : "ok";
+
+  dependencyState.checkedAtMs = nowMs;
+  dependencyState.status = status;
+  dependencyState.details = {
+    falkor,
+    graphiti,
+  };
+
+  return {
+    status,
+    details: dependencyState.details,
+  };
+};
+
+const healthResponse = () => {
+  const dependency = currentDependencySnapshot();
+  const status = dependency.status === "ok" ? "ok" : "degraded";
+  const statusCode = status === "ok" ? 200 : 503;
+
+  return new Response(
     JSON.stringify(
       {
-        status: "ok",
+        status,
         ...queueStats(),
+        dependencies: dependency.details,
       },
       null,
       2
     ),
     {
-      status: 200,
+      status: statusCode,
       headers: {
         "content-type": "application/json",
       },
     }
   );
+};
 
 const forwardToUpstream = async (request) => {
   const inboundUrl = new URL(request.url);

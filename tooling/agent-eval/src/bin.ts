@@ -208,7 +208,7 @@ const run = () => {
               pricingFile: readFlag(flags, "pricing-file", "benchmarks/agent-reliability/pricing.json"),
               simulate: !readBoolFlag(flags, "live", false),
               trials: readIntFlag(flags, "trials", 2),
-              graphitiUrl: readFlag(flags, "graphiti-url", "http://localhost:8000/mcp"),
+              graphitiUrl: readFlag(flags, "graphiti-url", "http://127.0.0.1:8123/mcp"),
               graphitiGroupId: readFlag(flags, "graphiti-group-id", "beep-dev"),
               isolateInWorktree,
               worktreeRoot,
@@ -246,7 +246,7 @@ const run = () => {
                 handleIngest({
                   input: readFlag(flags, "input", "outputs/agent-reliability/runs/latest.json"),
                   output: readFlag(flags, "output", "outputs/agent-reliability/episodes/latest.json"),
-                  graphitiUrl: readFlag(flags, "graphiti-url", "http://localhost:8000/mcp"),
+                  graphitiUrl: readFlag(flags, "graphiti-url", "http://127.0.0.1:8123/mcp"),
                   graphitiGroupId: readFlag(flags, "graphiti-group-id", "beep-dev"),
                   publish: readBoolFlag(flags, "publish", false),
                 })

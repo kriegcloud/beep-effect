@@ -30,6 +30,9 @@ interface GraphitiGuardConfig {
   readonly retryMaxMs: number;
   readonly retryJitterMs: number;
   readonly requestTimeoutMs: number;
+  readonly preflightEnabled: boolean;
+  readonly preflightTimeoutMs: number;
+  readonly preflightTtlMs: number;
   readonly circuitEnabled: boolean;
   readonly circuitFailureThreshold: number;
   readonly circuitOpenMs: number;
@@ -39,6 +42,7 @@ type GraphitiToolName = "search_memory_facts" | "add_memory";
 
 const SessionByUrl = new Map<string, string>();
 const CircuitByUrl = new Map<string, { readonly consecutiveFailures: number; readonly openUntilMs: number }>();
+const PreflightByUrl = new Map<string, number>();
 const execFileAsync = promisify(execFile);
 
 const parseFactsFromJsonText = (text: string): ReadonlyArray<string> => {
@@ -89,6 +93,9 @@ const getGuardConfig = (): GraphitiGuardConfig => ({
   retryMaxMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_MAX_MS, 2_000),
   retryJitterMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_JITTER_MS, 125),
   requestTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_REQUEST_TIMEOUT_MS, 2_500),
+  preflightEnabled: parseBoolean(process.env.BEEP_GRAPHITI_PREFLIGHT, true),
+  preflightTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS, 2_000),
+  preflightTtlMs: parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TTL_MS, 5_000),
   circuitEnabled: parseBoolean(process.env.BEEP_GRAPHITI_CIRCUIT_ENABLED, true),
   circuitFailureThreshold: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_FAILURE_THRESHOLD, 1),
   circuitOpenMs: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_OPEN_MS, 60_000),
@@ -219,6 +226,9 @@ const clearCircuitState = (url: string): void => {
   CircuitByUrl.set(url, { consecutiveFailures: 0, openUntilMs: 0 });
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 const recordCircuitFailure = (config: GraphitiGuardConfig, url: string, nowMs: number): void => {
   if (!config.circuitEnabled) {
     return;
@@ -239,6 +249,102 @@ const recordCircuitSuccess = (config: GraphitiGuardConfig, url: string): void =>
   if (current.consecutiveFailures !== 0 || current.openUntilMs !== 0) {
     clearCircuitState(url);
   }
+};
+
+const isLoopbackHost = (host: string): boolean => {
+  const normalized = host.trim().toLowerCase();
+  return (
+    normalized === "localhost" ||
+    normalized === "127.0.0.1" ||
+    normalized === "::1" ||
+    normalized === "[::1]" ||
+    normalized === "0.0.0.0"
+  );
+};
+
+const toHealthUrl = (url: string): string | null => {
+  try {
+    const parsed = new URL(url);
+    if (!isLoopbackHost(parsed.hostname)) {
+      return null;
+    }
+    const normalizedPath = parsed.pathname.replace(/\/+$/, "");
+    if (normalizedPath !== "/mcp") {
+      return null;
+    }
+    return new URL("/healthz", parsed).toString();
+  } catch {
+    return null;
+  }
+};
+
+const readNestedString = (value: unknown, path: ReadonlyArray<string>): string | undefined => {
+  let current: unknown = value;
+  for (const key of path) {
+    if (!isRecord(current)) {
+      return undefined;
+    }
+    current = current[key];
+  }
+  return typeof current === "string" ? current : undefined;
+};
+
+const ensureProxyPreflight = async (config: GraphitiGuardConfig, url: string): Promise<void> => {
+  if (!config.preflightEnabled) {
+    return;
+  }
+
+  const healthUrl = toHealthUrl(url);
+  if (healthUrl === null) {
+    return;
+  }
+
+  const nowMs = Date.now();
+  const lastCheckedAt = PreflightByUrl.get(url);
+  if (lastCheckedAt !== undefined && nowMs - lastCheckedAt <= config.preflightTtlMs) {
+    return;
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(healthUrl, {
+      method: "GET",
+      signal: AbortSignal.timeout(config.preflightTimeoutMs),
+    });
+  } catch (cause) {
+    throw toProtocolError(
+      `Graphiti proxy preflight failed: ${healthUrl} unreachable within ${String(config.preflightTimeoutMs)}ms`,
+      cause
+    );
+  }
+
+  const responseText = await response.text();
+  if (!response.ok) {
+    throw toProtocolError(`Graphiti proxy preflight failed: HTTP ${String(response.status)} from ${healthUrl}`);
+  }
+
+  try {
+    const parsed = JSON.parse(responseText);
+    const status = readNestedString(parsed, ["status"]);
+    const falkor = readNestedString(parsed, ["dependencies", "falkor"]);
+    const graphiti = readNestedString(parsed, ["dependencies", "graphiti"]);
+    if (status !== undefined && status !== "ok") {
+      throw toProtocolError(
+        `Graphiti proxy preflight reported status=${status} (falkor=${falkor ?? "unknown"}, graphiti=${graphiti ?? "unknown"})`
+      );
+    }
+    if ((falkor !== undefined && falkor !== "healthy") || (graphiti !== undefined && graphiti !== "healthy")) {
+      throw toProtocolError(
+        `Graphiti dependency unhealthy (falkor=${falkor ?? "unknown"}, graphiti=${graphiti ?? "unknown"})`
+      );
+    }
+  } catch (cause) {
+    if (cause instanceof AgentEvalProtocolError) {
+      throw cause;
+    }
+  }
+
+  PreflightByUrl.set(url, nowMs);
 };
 
 const isTimeoutError = (cause: unknown): boolean => {
@@ -371,9 +477,10 @@ const callTool = async (
   return response.text();
 };
 
-const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolName, args: unknown): Promise<string> =>
-  withGlobalLock(() => {
-    const config = getGuardConfig();
+const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolName, args: unknown): Promise<string> => {
+  const config = getGuardConfig();
+  await ensureProxyPreflight(config, options.url);
+  return withGlobalLock(() => {
     return withRetry(
       `${toolName} operation`,
       async () => {
@@ -390,6 +497,7 @@ const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolNa
       }
     );
   });
+};
 
 /**
  * Search memory facts from Graphiti via MCP HTTP transport.

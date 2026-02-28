@@ -26,7 +26,7 @@
     },
     "p3": {
       "name": "semantic-coverage",
-      "status": "pending",
+      "status": "complete",
       "output": "p3-semantic-coverage.md"
     },
     "p4": {

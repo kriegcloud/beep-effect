@@ -1,0 +1,19 @@
+12:- Label-set definition: one label per `(exported symbol x required tag)` for `@domain`, `@provides`, `@depends`, `@errors`
+14:- Total labeled semantic-tag slots (denominator universe): `68` (`17 * 4`)
+19:2. Build labeled slots for required tags (`@domain/@provides/@depends/@errors`) per symbol.
+25:   - Required-tag parse success = `parsed_required_slots / labeled_required_slots`
+26:   - Semantic edge precision = `TP / (TP + FP)`
+27:   - Semantic edge recall = `TP / (TP + FN)`
+29:Precision zero-denominator policy used here:
+30:- If `(TP + FP) = 0`, precision is reported as `0.00%` and flagged denominator-undefined.
+36:| Required-tag parse success (`@domain/@provides/@depends/@errors`) | `parsed / labeled` | `0` | `68` | `0.00%` | `>= 99%` | FAIL |
+37:| Semantic edge precision (`@domain/@provides/@depends/@errors`) | `TP / (TP + FP)` | `0` | `0` | `0.00%`* | `>= 90%` | FAIL |
+38:| Semantic edge recall (`@domain/@provides/@depends/@errors`) | `TP / (TP + FN)` | `0` | `68` | `0.00%` | `>= 85%` | FAIL |
+40:`*` Precision denominator was zero because no required semantic edges were present on exported symbols in scope.
+71:| `@domain` | `17` | `0.00%` (`0/17`) | `0.00%` (`0/0`) | `0.00%` (`0/17`) |
+72:| `@provides` | `17` | `0.00%` (`0/17`) | `0.00%` (`0/0`) | `0.00%` (`0/17`) |
+73:| `@depends` | `17` | `0.00%` (`0/17`) | `0.00%` (`0/0`) | `0.00%` (`0/17`) |
+74:| `@errors` | `17` | `0.00%` (`0/17`) | `0.00%` (`0/0`) | `0.00%` (`0/17`) |
+78:1. Exported symbols in P1 scope currently document `@category` (and sometimes file-level `@module`) but do not provide per-symbol `@domain/@provides/@depends/@errors`.
+79:2. The labeled set shows zero observed required semantic tags across all 17 exported symbols, producing complete FN coverage (`68/68`).
+80:3. Because no required semantic edges are emitted, precision denominator is zero and recall is zero; gate evaluation therefore fails on all three P3 semantic metrics.
