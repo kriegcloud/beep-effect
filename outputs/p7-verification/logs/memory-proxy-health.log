@@ -1,0 +1,27 @@
+timestamp=2026-02-26T05:40:27Z
+[healthz]
+{
+  "status": "ok",
+  "active": 0,
+  "queued": 0,
+  "peakQueueDepth": 0,
+  "processed": 0,
+  "failed": 0,
+  "rejected": 0,
+  "concurrency": 1,
+  "maxQueue": 500,
+  "upstream": "http://127.0.0.1:8000/mcp"
+}
+[metrics]
+{
+  "status": "ok",
+  "active": 0,
+  "queued": 0,
+  "peakQueueDepth": 0,
+  "processed": 0,
+  "failed": 0,
+  "rejected": 0,
+  "concurrency": 1,
+  "maxQueue": 500,
+  "upstream": "http://127.0.0.1:8000/mcp"
+}

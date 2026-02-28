@@ -1,0 +1,12 @@
+{
+  "target": "falkor",
+  "group": "beep-ast-kg-smoke",
+  "commit": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+  "falkor": {
+    "nodeCount": 0,
+    "edgeCount": 0,
+    "fileCount": 0,
+    "commitCount": 0,
+    "commitContextCount": 0
+  }
+}

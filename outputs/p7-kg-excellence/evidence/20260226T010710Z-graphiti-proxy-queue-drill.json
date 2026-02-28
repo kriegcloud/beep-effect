@@ -1,0 +1,25 @@
+{
+  "timestamp": "20260226T010710Z",
+  "scenario": "graphiti_proxy_queue_burst",
+  "endpoint": "http://127.0.0.1:8134/mcp",
+  "upstream": "http://127.0.0.1:8000/mcp",
+  "requests": 20,
+  "parallelism": 20,
+  "response": {
+    "okCount": 20,
+    "nonOkCount": 0,
+    "firstNonOk": null
+  },
+  "metrics": {
+    "status": "ok",
+    "active": 0,
+    "queued": 0,
+    "peakQueueDepth": 18,
+    "processed": 20,
+    "failed": 0,
+    "rejected": 0,
+    "concurrency": 1,
+    "maxQueue": 200,
+    "upstream": "http://127.0.0.1:8000/mcp"
+  }
+}

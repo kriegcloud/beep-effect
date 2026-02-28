@@ -1,7 +1,7 @@
 # Agentic Codebase AST KG Enriched With JSDoc
 
 ## Status
-PENDING (P0 launch packet hardened for P1 execution)
+IN PROGRESS (P7 KG excellence gap-closure phase opened after P6 full-repo dual-write evidence)
 
 ## Owner
 @elpresidank
@@ -32,6 +32,28 @@ PENDING (P0 launch packet hardened for P1 execution)
 - [P3 Graphiti Engineer Prompt](./handoffs/P3_GRAPHITI_ENGINEER_PROMPT.md)
 - [P3 Hook Engineer Prompt](./handoffs/P3_HOOK_ENGINEER_PROMPT.md)
 - [P3 Eval Engineer Prompt](./handoffs/P3_EVAL_ENGINEER_PROMPT.md)
+- [P4 Handoff](./handoffs/HANDOFF_P4.md)
+- [P4 Orchestrator Prompt](./handoffs/P4_ORCHESTRATOR_PROMPT.md)
+- [P4 Validation Engineer Prompt](./handoffs/P4_VALIDATION_ENGINEER_PROMPT.md)
+- [P4 Rollout Engineer Prompt](./handoffs/P4_ROLLOUT_ENGINEER_PROMPT.md)
+- [P5 Orchestrator Prompt](./handoffs/P5_ORCHESTRATOR_PROMPT.md)
+- [P5 Ingestion Engineer Prompt](./handoffs/P5_INGESTION_ENGINEER_PROMPT.md)
+- [P5 Verification Engineer Prompt](./handoffs/P5_VERIFICATION_ENGINEER_PROMPT.md)
+- [P5 Handoff](./handoffs/HANDOFF_P5.md)
+- [P6 Orchestrator Prompt](./handoffs/P6_ORCHESTRATOR_PROMPT.md)
+- [P6 Schema Parity Engineer Prompt](./handoffs/P6_SCHEMA_PARITY_ENGINEER_PROMPT.md)
+- [P6 Dual Write Engineer Prompt](./handoffs/P6_DUAL_WRITE_ENGINEER_PROMPT.md)
+- [P6 Query API Engineer Prompt](./handoffs/P6_QUERY_API_ENGINEER_PROMPT.md)
+- [P6 Validation Engineer Prompt](./handoffs/P6_VALIDATION_ENGINEER_PROMPT.md)
+- [P6 Rollout Engineer Prompt](./handoffs/P6_ROLLOUT_ENGINEER_PROMPT.md)
+- [P6 -> P7 Handoff](./handoffs/HANDOFF_P6.md)
+- [P7 Orchestrator Prompt](./handoffs/P7_ORCHESTRATOR_PROMPT.md)
+- [P7 Performance Engineer Prompt](./handoffs/P7_PERFORMANCE_ENGINEER_PROMPT.md)
+- [P7 Reliability Engineer Prompt](./handoffs/P7_RELIABILITY_ENGINEER_PROMPT.md)
+- [P7 Query Engineer Prompt](./handoffs/P7_QUERY_ENGINEER_PROMPT.md)
+- [P7 Ticket Backlog](./outputs/p7-kg-excellence/tickets.md)
+- [P7 Milestone](https://github.com/kriegcloud/beep-effect/milestone/1)
+- [P7 Issues #61-#66](https://github.com/kriegcloud/beep-effect/issues?q=is%3Aissue%20state%3Aopen%20milestone%3A%22P7%20KG%20Excellence%22)
 - [Landscape Comparison](./outputs/p0-research/landscape-comparison.md)
 - [Reuse vs Build Matrix](./outputs/p0-research/reuse-vs-build-matrix.md)
 - [Constraints and Gaps](./outputs/p0-research/constraints-and-gaps.md)
@@ -86,6 +108,9 @@ No phase is complete until declared outputs exist, phase exit gates pass, and th
 | P2 | Contract and design freeze | `outputs/p2-design/*` | P1 complete | `TBD=0`, command surface fixed, schema + persistence + hook contracts frozen, and P3 handoff prompt set exists | Orchestrator + Schema + Graphiti Contract + Hook Contract |
 | P3 | Core implementation and integration | `outputs/p3-execution/*` + code changes | P2 complete | Full and delta indexing smoke pass, idempotent persistence pass, and P4 handoff prompt set exists | AST/Type + Semantic + Graphiti + Hook + Eval Engineers |
 | P4 | Validation + rollout readiness | `outputs/p4-validation/*` | P3 complete | Thresholds met and fallback drill pass | Validation + Rollout Engineers |
+| P5 | FalkorDB ingestion completion (gap closure) | `outputs/p5-falkordb-ingestion/*` | P4 complete | AST KG is published to Graphiti/FalkorDB group `beep-ast-kg`, verification queries return expected entities/edges, and P5 handoff prompt set exists | Orchestrator + Ingestion Engineer + Verification Engineer |
+| P6 | Dual-write + Falkor parity hardening | `outputs/p6-dual-write-parity/*` | P5 complete | Dual-write publish/verify/parity/replay commands are operational with evidence-backed manual signoff packet | Orchestrator + Schema Parity + Dual Write + Query API + Validation + Rollout Engineers |
+| P7 | KG excellence gap closure | `outputs/p7-kg-excellence/*` | P6 packet complete | All P6 known gaps ticketed and resolved with measured performance/reliability gains | Orchestrator + Performance + Query + Reliability + Operations Engineers |
 
 ## Quantitative Validation Targets
 

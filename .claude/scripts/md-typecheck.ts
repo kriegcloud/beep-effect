@@ -6,8 +6,7 @@ import * as O from "effect/Option";
 import type { PlatformError } from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ChildProcess } from "effect/unstable/process";
-import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 // ============================================================================
 // Data Types
@@ -215,18 +214,27 @@ const writeCodeBlocksToOutput = (
 // TypeScript Type Checking
 // ============================================================================
 
-const runTypeCheck = (outputDir: string): Effect.Effect<string, never, ChildProcessSpawner> =>
+const runTypeCheck = (outputDir: string) =>
   pipe(
-    ChildProcess.make("bunx", ["tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"], {
-      cwd: outputDir,
-    }),
-    ChildProcess.string,
-    Effect.catch(() =>
-      pipe(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(
         ChildProcess.make("bunx", ["tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"], {
           cwd: outputDir,
+        })
+      );
+    }),
+    Effect.catch(() =>
+      pipe(
+        Effect.gen(function* () {
+          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+          return yield* spawner.string(
+            ChildProcess.make("bunx", ["tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"], {
+              cwd: outputDir,
+            }),
+            { includeStderr: true }
+          );
         }),
-        ChildProcess.string({ includeStderr: true }),
         Effect.catch(() => Effect.succeed(""))
       )
     )

@@ -1,0 +1,142 @@
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Stream from "effect/Stream";
+import * as PersistedQueue from "effect/unstable/persistence/PersistedQueue";
+import { AgentSdk } from "../AgentSdk.js";
+import type { AgentSdkError } from "../Errors.js";
+import { TransportError } from "../Errors.js";
+import type { QueryHandle } from "../Query.js";
+import { SDKUserMessage } from "../Schema/Message.js";
+import type { Options } from "../Schema/Options.js";
+
+/**
+ * @since 0.0.0
+ */
+export * from "effect/unstable/persistence/PersistedQueue";
+
+/**
+ * In-memory persisted queue layer for development and tests.
+ */
+/**
+ * @since 0.0.0
+ */
+export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueue.layerStoreMemory));
+
+/**
+ * Create a persisted queue for SDK user messages.
+ *
+ * @example
+ * ```ts
+ * const program = Effect.gen(function*() {
+ *   const queue = yield* makeUserMessageQueue()
+ *   return queue
+ * }).pipe(Effect.provide(layerMemory))
+ * ```
+ */
+/**
+ * @since 0.0.0
+ */
+export const makeUserMessageQueue = (options?: { readonly name?: string }) =>
+  PersistedQueue.make({
+    name: options?.name ?? "claude-sdk-user-messages",
+    schema: SDKUserMessage,
+  });
+
+/**
+ * Adapter that exposes a persisted queue as query input.
+ */
+/**
+ * @since 0.0.0
+ */
+export type PersistedInputAdapter = {
+  readonly input: AsyncIterable<SDKUserMessage>;
+  readonly send: (message: SDKUserMessage) => Effect.Effect<void, AgentSdkError>;
+  readonly sendAll: (messages: Iterable<SDKUserMessage>) => Effect.Effect<void, AgentSdkError>;
+  readonly closeInput: Effect.Effect<void, AgentSdkError>;
+};
+
+const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);
+
+/**
+ * Build an input adapter from a persisted queue.
+ */
+/**
+ * @since 0.0.0
+ */
+export const makeInputAdapter = (
+  queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
+  options?: { readonly maxAttempts?: number }
+) =>
+  Effect.gen(function* () {
+    const stream = Stream.fromEffectRepeat(
+      queue.take((message) => Effect.succeed(message), {
+        maxAttempts: options?.maxAttempts,
+      })
+    ).pipe(Stream.mapError((cause) => toTransportError("Persisted queue input failed", cause)));
+    const input = yield* stream.pipe(Stream.toAsyncIterableEffect);
+
+    const send = (message: SDKUserMessage) =>
+      queue.offer(message).pipe(
+        Effect.asVoid,
+        Effect.mapError((cause) => toTransportError("Failed to enqueue persisted input message", cause))
+      );
+
+    const sendAll = (messages: Iterable<SDKUserMessage>) => Effect.forEach(messages, send, { discard: true });
+
+    return {
+      input,
+      send,
+      sendAll,
+      closeInput: Effect.void,
+    } satisfies PersistedInputAdapter;
+  });
+
+/**
+ * Override a QueryHandle's input methods with a persisted queue adapter.
+ */
+/**
+ * @since 0.0.0
+ */
+export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedInputAdapter): QueryHandle => ({
+  ...handle,
+  send: adapter.send,
+  sendAll: adapter.sendAll,
+  sendForked: (message) => Effect.forkScoped(adapter.send(message)).pipe(Effect.asVoid),
+  closeInput: adapter.closeInput.pipe(Effect.andThen(handle.closeInput)),
+});
+
+/**
+ * Create a query wired to a persisted queue for streaming input.
+ *
+ * @example
+ * ```ts
+ * const program = Effect.scoped(
+ *   Effect.gen(function*() {
+ *     const queue = yield* makeUserMessageQueue()
+ *     const handle = yield* queryWithPersistedInput(queue)
+ *     yield* handle.send({
+ *       type: "user",
+ *       session_id: "",
+ *       message: { role: "user", content: [{ type: "text", text: "Hi" }] },
+ *       parent_tool_use_id: null
+ *     })
+ *     return yield* Stream.runCollect(handle.stream)
+ *   }).pipe(
+ *     Effect.provide(layerMemory),
+ *     Effect.provide(AgentSdk.layerDefault)
+ *   )
+ * )
+ * ```
+ */
+/**
+ * @since 0.0.0
+ */
+export const queryWithPersistedInput = Effect.fn("PersistedQueue.queryWithPersistedInput")(function* (
+  queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
+  options?: Options
+) {
+  const adapter = yield* makeInputAdapter(queue);
+  const agentSdk = yield* AgentSdk;
+  const handle = yield* agentSdk.query(adapter.input, options);
+  return withPersistedInputQueue(handle, adapter);
+});

@@ -100,6 +100,8 @@ export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): 
     "",
     `- formatVersion: ${suite.formatVersion}`,
     `- runAtEpochMs: ${suite.runAtEpochMs}`,
+    `- runMode: ${suite.runMode ?? "unknown"}`,
+    `- executionBackend: ${suite.executionBackend ?? "unknown"}`,
     `- status: ${status}`,
     `- strictTaskCount: ${suite.strictTaskCount}`,
     `- plannedRunCount: ${plannedRunCount}`,

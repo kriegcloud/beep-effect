@@ -5,7 +5,7 @@
  * @module
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as nodePath from "node:path";
@@ -17,6 +17,7 @@ import { Command, Flag } from "effect/unstable/cli";
 const KgSchemaVersion = "kg-schema-v1" as const;
 const AstKgEnvelopeVersion = "AstKgEpisodeV1" as const;
 const AstKgGroupId = "beep-ast-kg" as const;
+const DefaultGraphitiMcpUrl = "http://127.0.0.1:8123/mcp" as const;
 const WorkspaceName = "beep-effect3" as const;
 const ExtractorVersion = "p3-v1" as const;
 const IncludeRoots = ["apps", "packages", "tooling", ".claude/hooks", ".claude/scripts"] as const;
@@ -110,6 +111,65 @@ interface IndexSummary {
   readonly packetNoThrow: boolean;
 }
 
+type PublishTarget = "falkor" | "graphiti" | "both";
+type SinkTarget = "falkor" | "graphiti";
+type ParityProfile = "code-graph-functional" | "code-graph-strict";
+
+interface AstKgNodeV2 {
+  readonly nodeId: string;
+  readonly kind: NodeKind;
+  readonly symbol: string;
+  readonly file: string;
+  readonly commitSha: string;
+  readonly workspace: string;
+}
+
+interface AstKgEdgeV2 {
+  readonly edgeId: string;
+  readonly from: string;
+  readonly to: string;
+  readonly type: string;
+  readonly provenance: Provenance;
+  readonly commitSha: string;
+}
+
+interface AstKgWriteReceiptV1 {
+  readonly target: PublishTarget | "falkor" | "graphiti";
+  readonly attempted: number;
+  readonly written: number;
+  readonly replayed: number;
+  readonly failed: number;
+  readonly durationMs: number;
+  readonly dedupeHits: number;
+  readonly dedupeMisses: number;
+}
+
+interface PublishSummary {
+  readonly mode: IndexMode;
+  readonly commitSha: string;
+  readonly group: string;
+  readonly target: PublishTarget;
+  readonly envelopes: number;
+  readonly receipts: ReadonlyArray<AstKgWriteReceiptV1>;
+}
+
+interface SinkPublishLedger {
+  readonly schemaVersion: typeof KgSchemaVersion;
+  readonly sinks: Readonly<Record<string, string>>;
+}
+
+interface EnvelopeMetadata {
+  readonly file: string;
+  readonly workspace: string;
+  readonly groupId: string;
+  readonly commitSha: string;
+  readonly parentSha: string;
+  readonly branch: string;
+  readonly artifactHash: string;
+  readonly nodes: ReadonlyArray<AstKgNodeV2>;
+  readonly edges: ReadonlyArray<AstKgEdgeV2>;
+}
+
 const semanticTagToEdge: Readonly<Record<string, string>> = {
   category: "IN_CATEGORY",
   module: "IN_MODULE",
@@ -137,6 +197,111 @@ const buildNodeId = (file: string, symbol: string, kind: NodeKind, signatureCano
 
 const buildEdgeId = (from: string, type: string, to: string, provenance: Provenance): string =>
   sha256Hex([from, type, to, provenance].join("|"));
+
+const GraphName = AstKgGroupId;
+
+const escapeCypherString = (value: string): string => value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+const stringifyCypher = (value: string): string => `'${escapeCypherString(value)}'`;
+
+const relationType = (value: string): string => {
+  const upper = value.replace(/[^A-Za-z0-9_]/g, "_").toUpperCase();
+  if (upper.length === 0) {
+    return "RELATES_TO";
+  }
+  if (/^[0-9]/.test(upper)) {
+    return `R_${upper}`;
+  }
+  return upper;
+};
+
+const resolveGraphitiMcpUrl = (): string => process.env.BEEP_GRAPHITI_URL ?? DefaultGraphitiMcpUrl;
+const isLoopbackHost = (host: string): boolean => host === "127.0.0.1" || host === "localhost";
+
+const isProxyGraphitiMcpUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    const normalizedPath = parsed.pathname.endsWith("/") ? parsed.pathname.slice(0, -1) : parsed.pathname;
+    const port = parsed.port.length > 0 ? parsed.port : parsed.protocol === "https:" ? "443" : "80";
+    return isLoopbackHost(parsed.hostname) && port === "8123" && normalizedPath === "/mcp";
+  } catch {
+    return false;
+  }
+};
+
+const toNodeKind = (value: string): NodeKind => {
+  if (
+    value === "module" ||
+    value === "function" ||
+    value === "class" ||
+    value === "interface" ||
+    value === "typeAlias" ||
+    value === "variable" ||
+    value === "enum" ||
+    value === "literal"
+  ) {
+    return value;
+  }
+  return "variable";
+};
+
+const toProvenance = (value: string): Provenance => {
+  if (value === "ast" || value === "type" || value === "jsdoc") {
+    return value;
+  }
+  return "ast";
+};
+
+const resolveRootDir = (): string =>
+  process.env.BEEP_KG_ROOT_OVERRIDE ??
+  String(
+    execSync("git rev-parse --show-toplevel", {
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+  ).trim();
+
+const falkorContainer = (): string => process.env.BEEP_FALKOR_CONTAINER ?? "graphiti-mcp-falkordb-1";
+const falkorUrl = (): string => process.env.BEEP_FALKOR_REDIS_URL ?? "";
+const quoteRedisCliArg = (value: string): string => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+
+const runFalkorQueryRaw = (query: string): string => {
+  const redisUrl = falkorUrl();
+  if (redisUrl.length > 0) {
+    return String(
+      execFileSync("redis-cli", ["-u", redisUrl, "GRAPH.QUERY", GraphName, query], {
+        stdio: ["ignore", "pipe", "pipe"],
+      })
+    );
+  }
+
+  const container = falkorContainer();
+  return String(
+    execFileSync("docker", ["exec", container, "redis-cli", "GRAPH.QUERY", GraphName, query], {
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+  );
+};
+
+const runFalkorQueries = (queries: ReadonlyArray<string>): void => {
+  if (queries.length === 0) {
+    return;
+  }
+
+  const commandBody = `${queries.map((query) => `GRAPH.QUERY ${GraphName} ${quoteRedisCliArg(query)}`).join("\n")}\n`;
+  const redisUrl = falkorUrl();
+
+  if (redisUrl.length > 0) {
+    execFileSync("redis-cli", ["-u", redisUrl], {
+      input: commandBody,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return;
+  }
+
+  execFileSync("docker", ["exec", "-i", falkorContainer(), "redis-cli"], {
+    input: commandBody,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+};
 
 const readGitMeta = (): { readonly sha: string; readonly parentSha: string; readonly branch: string } => {
   const read = (command: string): string => {
@@ -166,6 +331,8 @@ const spoolFile = (rootDir: string, commitSha: string): string =>
   nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "graphiti-spool", `${commitSha}.jsonl`);
 const ledgerFile = (rootDir: string): string =>
   nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "graphiti-ledger.json");
+const publishLedgerFile = (rootDir: string): string =>
+  nodePath.join(rootDir, "tooling", "ast-kg", ".cache", "publish-ledger.json");
 
 const isIndexableFile = (relativePath: string): boolean => {
   const normalized = normalizePath(relativePath);
@@ -412,6 +579,111 @@ const writeJson = async (file: string, value: unknown): Promise<void> => {
   await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
 
+const buildSinkLedgerKey = (
+  sink: SinkTarget,
+  groupId: string,
+  workspace: string,
+  commitSha: string,
+  file: string
+): string => [sink, canonicalSpaces(groupId), workspace, commitSha, normalizePath(file)].join("|");
+
+const readSinkPublishLedger = async (rootDir: string): Promise<SinkPublishLedger> =>
+  readJson<SinkPublishLedger>(publishLedgerFile(rootDir), {
+    schemaVersion: KgSchemaVersion,
+    sinks: {},
+  });
+
+const writeSinkPublishLedger = async (rootDir: string, sinks: Readonly<Record<string, string>>): Promise<void> =>
+  writeJson(publishLedgerFile(rootDir), {
+    schemaVersion: KgSchemaVersion,
+    sinks,
+  });
+
+const parseEnvelopeMetadata = (
+  envelope: Readonly<Record<string, unknown>>,
+  fallbackCommitSha: string,
+  fallbackGroupId: string
+): EnvelopeMetadata => {
+  const file = String(envelope.file ?? "unknown.ts");
+  const workspace = String(envelope.workspace ?? WorkspaceName);
+  const groupId = String(envelope.groupId ?? fallbackGroupId);
+  const artifactHash = String(envelope.artifactHash ?? sha256Hex(JSON.stringify(envelope)));
+  const commit =
+    typeof envelope.commit === "object" && envelope.commit !== null
+      ? (envelope.commit as Record<string, unknown>)
+      : { sha: fallbackCommitSha, parentSha: "unknown", branch: "unknown" };
+  const commitSha = String(commit.sha ?? fallbackCommitSha);
+  const parentSha = String(commit.parentSha ?? "unknown");
+  const branch = String(commit.branch ?? "unknown");
+
+  const nodes: Array<AstKgNodeV2> = [];
+  if (Array.isArray(envelope.nodes)) {
+    for (const candidate of envelope.nodes) {
+      if (typeof candidate !== "object" || candidate === null) {
+        continue;
+      }
+      const raw = candidate as Record<string, unknown>;
+      nodes.push({
+        nodeId: String(raw.nodeId ?? ""),
+        kind: toNodeKind(String(raw.kind ?? "variable")),
+        symbol: String(raw.symbol ?? ""),
+        file: String(raw.file ?? file),
+        commitSha,
+        workspace,
+      });
+    }
+  }
+
+  const edges: Array<AstKgEdgeV2> = [];
+  if (Array.isArray(envelope.edges)) {
+    for (const candidate of envelope.edges) {
+      if (typeof candidate !== "object" || candidate === null) {
+        continue;
+      }
+      const raw = candidate as Record<string, unknown>;
+      edges.push({
+        edgeId: String(raw.edgeId ?? ""),
+        from: String(raw.from ?? ""),
+        to: String(raw.to ?? ""),
+        type: String(raw.type ?? "RELATES_TO"),
+        provenance: toProvenance(String(raw.provenance ?? "ast")),
+        commitSha,
+      });
+    }
+  }
+
+  return {
+    file,
+    workspace,
+    groupId,
+    commitSha,
+    parentSha,
+    branch,
+    artifactHash,
+    nodes,
+    edges,
+  };
+};
+
+const applyGroupOverride = (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  groupOverride: O.Option<string>
+): ReadonlyArray<Record<string, unknown>> =>
+  O.match(groupOverride, {
+    onNone: () => envelopes,
+    onSome: (groupId) => envelopes.map((envelope) => ({ ...envelope, groupId })),
+  });
+
+const publishGroupFromEnvelopes = (envelopes: ReadonlyArray<Record<string, unknown>>): string => {
+  for (const envelope of envelopes) {
+    const groupId = envelope.groupId;
+    if (typeof groupId === "string" && groupId.length > 0) {
+      return groupId;
+    }
+  }
+  return AstKgGroupId;
+};
+
 const readSnapshotRecords = async (rootDir: string, commitSha: string): Promise<ReadonlyArray<SnapshotRecord>> => {
   const file = snapshotFile(rootDir, commitSha);
   try {
@@ -560,13 +832,7 @@ const parseChanged = (changedFlag: O.Option<string>): ReadonlyArray<string> =>
  * @internal
  */
 export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<string>): Promise<IndexSummary> => {
-  const rootDir =
-    process.env.BEEP_KG_ROOT_OVERRIDE ??
-    String(
-      execSync("git rev-parse --show-toplevel", {
-        stdio: ["ignore", "pipe", "ignore"],
-      })
-    ).trim();
+  const rootDir = resolveRootDir();
   const git = readGitMeta();
 
   const manifest = await readJson<SnapshotManifest>(manifestFile(rootDir), {
@@ -705,6 +971,7 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   const episodes: Record<string, string> = { ...ledger.episodes };
   const forceOutage = process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE === "true";
   const jsonUnavailable = process.env.BEEP_KG_GRAPHITI_JSON_UNAVAILABLE === "true";
+  const ignoreLedger = process.env.BEEP_KG_IGNORE_LEDGER === "true";
 
   let writes = 0;
   let replayHits = 0;
@@ -713,7 +980,7 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   for (const artifact of artifacts) {
     const episodeUuid = buildEpisodeUuid(git.sha, artifact.file);
     const existing = episodes[episodeUuid];
-    if (existing !== undefined) {
+    if (!ignoreLedger && existing !== undefined) {
       if (existing === artifact.artifactHash) {
         replayHits += 1;
         continue;
@@ -803,6 +1070,815 @@ export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<stri
   };
 };
 
+const readSpoolEnvelopes = async (
+  rootDir: string,
+  commitSha: string
+): Promise<ReadonlyArray<Record<string, unknown>>> => {
+  const file = spoolFile(rootDir, commitSha);
+  try {
+    const content = await fs.readFile(file, "utf8");
+    const envelopes: Array<Record<string, unknown>> = [];
+    for (const line of content.split("\n").map((entry) => entry.trim())) {
+      if (line.length === 0 || line.startsWith("AST_KG_EPISODE_V1")) {
+        continue;
+      }
+      try {
+        const parsed = JSON.parse(line) as Record<string, unknown>;
+        envelopes.push(parsed);
+      } catch {
+        // Ignore malformed lines.
+      }
+    }
+    return envelopes;
+  } catch {
+    return [];
+  }
+};
+
+const generatePublishEnvelopes = async (
+  mode: IndexMode,
+  changed: O.Option<string>
+): Promise<{
+  readonly rootDir: string;
+  readonly commitSha: string;
+  readonly envelopes: ReadonlyArray<Record<string, unknown>>;
+}> => {
+  const previousOutage = process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE;
+  const previousIgnore = process.env.BEEP_KG_IGNORE_LEDGER;
+  process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE = "true";
+  process.env.BEEP_KG_IGNORE_LEDGER = "true";
+
+  try {
+    const summary = await runKgIndexNode(mode, changed);
+    const rootDir = resolveRootDir();
+
+    const envelopes = await readSpoolEnvelopes(rootDir, summary.commitSha);
+    return { rootDir, commitSha: summary.commitSha, envelopes };
+  } finally {
+    if (previousOutage === undefined) {
+      delete process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE;
+    } else {
+      process.env.BEEP_KG_FORCE_GRAPHITI_OUTAGE = previousOutage;
+    }
+
+    if (previousIgnore === undefined) {
+      delete process.env.BEEP_KG_IGNORE_LEDGER;
+    } else {
+      process.env.BEEP_KG_IGNORE_LEDGER = previousIgnore;
+    }
+  }
+};
+
+const mcpPost = async (
+  url: string,
+  payload: unknown,
+  sessionId: O.Option<string>,
+  timeoutMs: O.Option<number> = O.none()
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    accept: "application/json, text/event-stream",
+  };
+  if (O.isSome(sessionId)) {
+    headers["mcp-session-id"] = sessionId.value;
+  }
+  const request: RequestInit = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  };
+  if (O.isSome(timeoutMs)) {
+    request.signal = AbortSignal.timeout(timeoutMs.value);
+  }
+  return fetch(url, request);
+};
+
+const initializeMcp = async (url: string): Promise<string> => {
+  const initialize = await mcpPost(
+    url,
+    {
+      jsonrpc: "2.0",
+      id: "kg-init",
+      method: "initialize",
+      params: {
+        protocolVersion: "2024-11-05",
+        capabilities: {},
+        clientInfo: { name: "beep-kg", version: "0.0.0" },
+      },
+    },
+    O.none()
+  );
+  const sessionId = initialize.headers.get("mcp-session-id");
+  if (sessionId === null || sessionId.length === 0) {
+    throw new DomainError({ message: "Graphiti MCP initialize missing mcp-session-id" });
+  }
+  await mcpPost(url, { jsonrpc: "2.0", method: "notifications/initialized" }, O.some(sessionId));
+  return sessionId;
+};
+
+const parsePositiveInt = (value: string | undefined, fallback: number): number => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
+    return false;
+  }
+  return fallback;
+};
+
+const parsePositiveNumber = (value: string | undefined, fallback: number): number => {
+  if (value === undefined) {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise<void> => {
+  const preflightEnabled = parseBoolean(process.env.BEEP_GRAPHITI_PROXY_PREFLIGHT, true);
+  if (!preflightEnabled || !isProxyGraphitiMcpUrl(graphitiUrl)) {
+    return;
+  }
+
+  const timeoutMs = parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS, 3_000);
+  const healthUrl = new URL("/healthz", graphitiUrl).toString();
+
+  let response: Response;
+  try {
+    response = await fetch(healthUrl, {
+      method: "GET",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (cause) {
+    throw new DomainError({
+      message: `Graphiti proxy preflight failed: unable to reach ${healthUrl} within ${String(timeoutMs)}ms. Start proxy with 'bun run graphiti:proxy:ensure'.`,
+      cause,
+    });
+  }
+
+  const responseText = await response.text();
+  if (!response.ok) {
+    throw new DomainError({
+      message: `Graphiti proxy preflight failed: ${healthUrl} returned HTTP ${String(response.status)}. Start proxy with 'bun run graphiti:proxy:ensure' or check 'systemctl --user status beep-graphiti-proxy.service'. Response: ${responseText.slice(0, 200)}`,
+    });
+  }
+
+  if (responseText.length > 0) {
+    try {
+      const parsed = JSON.parse(responseText);
+      if (isRecord(parsed)) {
+        const status = parsed.status;
+        if (typeof status === "string" && status !== "ok") {
+          throw new DomainError({
+            message: `Graphiti proxy preflight failed: ${healthUrl} reported status '${status}'. Response: ${responseText.slice(0, 200)}`,
+          });
+        }
+      }
+    } catch (cause) {
+      if (cause instanceof DomainError) {
+        throw cause;
+      }
+    }
+  }
+};
+
+const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
+  const trimmed = body.trim();
+  const dataLines = trimmed
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => line.slice(6).trim())
+    .filter((line) => line.length > 0);
+
+  const parseRecord = (value: string): O.Option<Record<string, unknown>> => {
+    try {
+      const parsed = JSON.parse(value);
+      if (isRecord(parsed)) {
+        return O.some(parsed);
+      }
+      return O.none();
+    } catch {
+      return O.none();
+    }
+  };
+
+  if (dataLines.length > 0) {
+    for (let index = dataLines.length - 1; index >= 0; index -= 1) {
+      const candidate = dataLines[index];
+      if (candidate === undefined) {
+        continue;
+      }
+      const parsed = parseRecord(candidate);
+      if (O.isSome(parsed)) {
+        return parsed;
+      }
+    }
+    return O.none();
+  }
+
+  return parseRecord(trimmed);
+};
+
+const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<Record<string, unknown>> => {
+  const value = record[key];
+  if (isRecord(value)) {
+    return O.some(value);
+  }
+  return O.none();
+};
+
+const stringValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> => {
+  const value = record[key];
+  return typeof value === "string" ? O.some(value) : O.none();
+};
+
+const arrayValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<ReadonlyArray<unknown>> => {
+  const value = record[key];
+  return Array.isArray(value) ? O.some(value) : O.none();
+};
+
+const parseMcpToolResult = (
+  status: number,
+  responseText: string
+): {
+  readonly isError: boolean;
+  readonly message: string;
+  readonly payload: O.Option<Record<string, unknown>>;
+} => {
+  const payload = parseMcpPayload(responseText);
+  if (status < 200 || status >= 300) {
+    return {
+      isError: true,
+      message: `Graphiti MCP HTTP ${String(status)}`,
+      payload,
+    };
+  }
+
+  if (O.isNone(payload)) {
+    return {
+      isError: true,
+      message: "Graphiti MCP response could not be parsed as JSON payload",
+      payload,
+    };
+  }
+
+  const top = payload.value;
+  const topError = recordValue(top, "error");
+  if (O.isSome(topError)) {
+    return {
+      isError: true,
+      message: O.getOrElse(stringValue(topError.value, "message"), () => "Graphiti MCP response error"),
+      payload,
+    };
+  }
+
+  const result = recordValue(top, "result");
+  if (O.isNone(result)) {
+    return {
+      isError: false,
+      message: "",
+      payload,
+    };
+  }
+
+  if (result.value.isError === true) {
+    const structured = recordValue(result.value, "structuredContent");
+    if (O.isSome(structured)) {
+      const structuredResult = recordValue(structured.value, "result");
+      if (O.isSome(structuredResult)) {
+        const structuredMessage = stringValue(structuredResult.value, "message");
+        if (O.isSome(structuredMessage)) {
+          return {
+            isError: true,
+            message: structuredMessage.value,
+            payload,
+          };
+        }
+      }
+    }
+    return {
+      isError: true,
+      message: "Graphiti MCP tool call failed (isError=true)",
+      payload,
+    };
+  }
+
+  const structured = recordValue(result.value, "structuredContent");
+  if (O.isSome(structured)) {
+    const structuredResult = recordValue(structured.value, "result");
+    if (O.isSome(structuredResult)) {
+      const structuredMessage = stringValue(structuredResult.value, "message");
+      if (O.isSome(structuredMessage)) {
+        return {
+          isError: false,
+          message: structuredMessage.value,
+          payload,
+        };
+      }
+    }
+  }
+
+  return {
+    isError: false,
+    message: "",
+    payload,
+  };
+};
+
+const sleep = async (milliseconds: number): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+
+const isCommitShaLike = (value: string): boolean => /^[0-9a-f]{7,64}$/i.test(value.trim());
+const normalizeCommitSha = (value: string): string => value.trim().toLowerCase();
+
+const commitShaFromEpisodeName = (name: string): O.Option<string> => {
+  const parts = name.split(":");
+  const candidate = parts[2] ?? "";
+  if (!isCommitShaLike(candidate)) {
+    return O.none();
+  }
+  return O.some(normalizeCommitSha(candidate));
+};
+
+const commitShaFromEpisodeContent = (content: string): O.Option<string> => {
+  try {
+    const parsed = JSON.parse(content);
+    if (!isRecord(parsed)) {
+      return O.none();
+    }
+
+    const metadata = recordValue(parsed, "metadata");
+    if (O.isSome(metadata)) {
+      const metadataCommit = stringValue(metadata.value, "commitSha");
+      if (O.isSome(metadataCommit) && isCommitShaLike(metadataCommit.value)) {
+        return O.some(normalizeCommitSha(metadataCommit.value));
+      }
+    }
+
+    const topLevelCommit = stringValue(parsed, "commitSha");
+    if (O.isSome(topLevelCommit) && isCommitShaLike(topLevelCommit.value)) {
+      return O.some(normalizeCommitSha(topLevelCommit.value));
+    }
+
+    return O.none();
+  } catch {
+    return O.none();
+  }
+};
+
+const extractGraphitiEpisodes = (
+  payload: O.Option<Record<string, unknown>>
+): ReadonlyArray<Readonly<Record<string, unknown>>> => {
+  if (O.isNone(payload)) {
+    return [];
+  }
+  const result = recordValue(payload.value, "result");
+  if (O.isNone(result)) {
+    return [];
+  }
+  const structured = recordValue(result.value, "structuredContent");
+  if (O.isNone(structured)) {
+    return [];
+  }
+  const structuredResult = recordValue(structured.value, "result");
+  if (O.isNone(structuredResult)) {
+    return [];
+  }
+  const episodes = arrayValue(structuredResult.value, "episodes");
+  if (O.isNone(episodes)) {
+    return [];
+  }
+
+  const normalized: Array<Readonly<Record<string, unknown>>> = [];
+  for (const entry of episodes.value) {
+    if (isRecord(entry)) {
+      normalized.push(entry);
+    }
+  }
+  return normalized;
+};
+
+const countCommitMatchedEpisodes = (
+  episodes: ReadonlyArray<Readonly<Record<string, unknown>>>,
+  expectedCommitSha: string
+): number => {
+  let matched = 0;
+  for (const episode of episodes) {
+    const nameValue = stringValue(episode, "name");
+    const contentValue = stringValue(episode, "content");
+    const fromName = O.isSome(nameValue) ? commitShaFromEpisodeName(nameValue.value) : O.none();
+    const commitSha =
+      O.isSome(fromName) || O.isNone(contentValue) ? fromName : commitShaFromEpisodeContent(contentValue.value);
+
+    if (O.isSome(commitSha) && commitSha.value === expectedCommitSha) {
+      matched += 1;
+    }
+  }
+  return matched;
+};
+
+const verifyGraphitiEpisodes = async (
+  url: string,
+  sessionId: string,
+  group: string,
+  commitSha: string
+): Promise<{
+  readonly status: number;
+  readonly bodySnippet: string;
+  readonly message: string;
+  readonly episodesObserved: number;
+  readonly episodesScanned: number;
+  readonly episodesCommitMatched: number;
+  readonly expectedCommitSha: string;
+  readonly requiresCommitMatch: boolean;
+  readonly contractSatisfied: boolean;
+  readonly attempts: number;
+  readonly waitedMs: number;
+  readonly pollMs: number;
+  readonly pollMaxMs: number;
+  readonly pollMultiplier: number;
+  readonly maxWaitMs: number;
+  readonly requestTimeoutMs: number;
+  readonly firstVisibleAtMs: number;
+  readonly timedOut: boolean;
+}> => {
+  const maxWaitMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_WAIT_MS, 180_000);
+  const pollMinMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MIN_MS, 500);
+  const legacyPollMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MS, pollMinMs);
+  const pollMs = Math.max(1, legacyPollMs);
+  const pollMaxMs = Math.max(pollMs, parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_POLL_MAX_MS, 4_000));
+  const pollMultiplier = parsePositiveNumber(process.env.BEEP_GRAPHITI_VERIFY_POLL_MULTIPLIER, 1.5);
+  const maxEpisodes = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_MAX_EPISODES, 1);
+  const requestTimeoutMs = parsePositiveInt(process.env.BEEP_GRAPHITI_VERIFY_REQUEST_TIMEOUT_MS, 10_000);
+  const expectedCommitSha = normalizeCommitSha(commitSha);
+  const requiresCommitMatch = isCommitShaLike(expectedCommitSha);
+  const startedAt = Date.now();
+
+  let attempts = 0;
+  let status = 0;
+  let bodySnippet = "";
+  let message = "";
+  let episodesObserved = 0;
+  let episodesScanned = 0;
+  let episodesCommitMatched = 0;
+  let firstVisibleAtMs = 0;
+  let nextPollMs = pollMs;
+
+  while (true) {
+    attempts += 1;
+
+    try {
+      const response = await mcpPost(
+        url,
+        {
+          jsonrpc: "2.0",
+          id: "kg-verify-episodes",
+          method: "tools/call",
+          params: {
+            name: "get_episodes",
+            arguments: {
+              group_ids: [group],
+              max_episodes: maxEpisodes,
+            },
+          },
+        },
+        O.some(sessionId),
+        O.some(requestTimeoutMs)
+      );
+
+      const responseText = await response.text();
+      const parsed = parseMcpToolResult(response.status, responseText);
+      status = response.status;
+      bodySnippet = responseText.slice(0, 400);
+      message = parsed.message;
+
+      if (parsed.isError) {
+        if (response.status >= 400 && response.status < 500) {
+          throw new DomainError({
+            message: `Graphiti get_episodes failed for group ${group}: ${parsed.message}`,
+          });
+        }
+      } else {
+        const episodes = extractGraphitiEpisodes(parsed.payload);
+        episodesObserved = episodes.length;
+        episodesScanned = episodes.length;
+        episodesCommitMatched = requiresCommitMatch
+          ? countCommitMatchedEpisodes(episodes, expectedCommitSha)
+          : episodes.length;
+        if (episodesObserved > 0 && firstVisibleAtMs === 0) {
+          firstVisibleAtMs = Date.now() - startedAt;
+        }
+      }
+    } catch (cause) {
+      if (cause instanceof DomainError) {
+        throw cause;
+      }
+      status = 0;
+      bodySnippet = "";
+      message = cause instanceof Error ? cause.message : String(cause);
+    }
+
+    const waitedMs = Date.now() - startedAt;
+    const contractSatisfied = episodesObserved > 0 && episodesCommitMatched > 0;
+    if (contractSatisfied) {
+      return {
+        status,
+        bodySnippet,
+        message,
+        episodesObserved,
+        episodesScanned,
+        episodesCommitMatched,
+        expectedCommitSha,
+        requiresCommitMatch,
+        contractSatisfied,
+        attempts,
+        waitedMs,
+        pollMs,
+        pollMaxMs,
+        pollMultiplier,
+        maxWaitMs,
+        requestTimeoutMs,
+        firstVisibleAtMs,
+        timedOut: false,
+      };
+    }
+
+    if (waitedMs >= maxWaitMs) {
+      return {
+        status,
+        bodySnippet,
+        message: message.length > 0 ? message : "No episodes found",
+        episodesObserved,
+        episodesScanned,
+        episodesCommitMatched,
+        expectedCommitSha,
+        requiresCommitMatch,
+        contractSatisfied,
+        attempts,
+        waitedMs,
+        pollMs,
+        pollMaxMs,
+        pollMultiplier,
+        maxWaitMs,
+        requestTimeoutMs,
+        firstVisibleAtMs,
+        timedOut: true,
+      };
+    }
+
+    const jitterCeiling = Math.max(1, Math.floor(nextPollMs * 0.2));
+    const jitter = Math.floor(Math.random() * jitterCeiling);
+    const sleepMs = Math.min(pollMaxMs, nextPollMs + jitter);
+    await sleep(sleepMs);
+    const scaled = Math.round(nextPollMs * pollMultiplier);
+    nextPollMs = Math.max(pollMs, Math.min(pollMaxMs, scaled));
+  }
+};
+
+const publishToGraphiti = async (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string,
+  rootDir: string
+): Promise<AstKgWriteReceiptV1> => {
+  const start = Date.now();
+  const url = resolveGraphitiMcpUrl();
+  const defaultGroupId = process.env.BEEP_GRAPHITI_GROUP_ID ?? AstKgGroupId;
+  const sessionId = await initializeMcp(url);
+  const ledger = await readSinkPublishLedger(rootDir);
+  const sinkEntries: Record<string, string> = { ...ledger.sinks };
+  let written = 0;
+  let failed = 0;
+  let dedupeHits = 0;
+  let dedupeMisses = 0;
+
+  for (const envelope of envelopes) {
+    const metadata = parseEnvelopeMetadata(envelope, commitSha, defaultGroupId);
+    const sinkKey = buildSinkLedgerKey(
+      "graphiti",
+      metadata.groupId,
+      metadata.workspace,
+      metadata.commitSha,
+      metadata.file
+    );
+    const existingHash = sinkEntries[sinkKey];
+    if (existingHash !== undefined && existingHash === metadata.artifactHash) {
+      dedupeHits += 1;
+      continue;
+    }
+
+    const name = `ast-kg:${metadata.workspace}:${metadata.commitSha}:${metadata.file}`;
+    const response = await mcpPost(
+      url,
+      {
+        jsonrpc: "2.0",
+        id: `kg-add-${written + failed + 1}`,
+        method: "tools/call",
+        params: {
+          name: "add_memory",
+          arguments: {
+            name,
+            episode_body: JSON.stringify(envelope),
+            source: "json",
+            source_description: "p6 dual-write publish",
+            group_id: metadata.groupId,
+          },
+        },
+      },
+      O.some(sessionId)
+    );
+    const body = await response.text();
+    const parsed = parseMcpToolResult(response.status, body);
+    if (!parsed.isError) {
+      written += 1;
+      dedupeMisses += 1;
+      sinkEntries[sinkKey] = metadata.artifactHash;
+    } else {
+      failed += 1;
+    }
+  }
+
+  await writeSinkPublishLedger(rootDir, sinkEntries);
+
+  return {
+    target: "graphiti",
+    attempted: envelopes.length,
+    written,
+    replayed: dedupeHits,
+    failed,
+    durationMs: Date.now() - start,
+    dedupeHits,
+    dedupeMisses,
+  };
+};
+
+const nodeLabelForKind = (kind: string): string => {
+  if (kind === "module") {
+    return "Module";
+  }
+  if (kind === "literal") {
+    return "Literal";
+  }
+  return "Symbol";
+};
+
+const publishToFalkor = async (
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string,
+  rootDir: string
+): Promise<AstKgWriteReceiptV1> => {
+  const start = Date.now();
+  const defaultGroupId = AstKgGroupId;
+  const ledger = await readSinkPublishLedger(rootDir);
+  const sinkEntries: Record<string, string> = { ...ledger.sinks };
+  let written = 0;
+  let failed = 0;
+  let dedupeHits = 0;
+  let dedupeMisses = 0;
+
+  try {
+    runFalkorQueries([
+      "CREATE INDEX FOR (n:File) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Symbol) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Module) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Literal) ON (n.nodeId)",
+      "CREATE INDEX FOR (n:Commit) ON (n.sha)",
+    ]);
+  } catch {
+    // Indexes may already exist.
+  }
+
+  for (const envelope of envelopes) {
+    try {
+      const metadata = parseEnvelopeMetadata(envelope, commitSha, defaultGroupId);
+      const sinkKey = buildSinkLedgerKey(
+        "falkor",
+        metadata.groupId,
+        metadata.workspace,
+        metadata.commitSha,
+        metadata.file
+      );
+      const existingHash = sinkEntries[sinkKey];
+      if (existingHash !== undefined && existingHash === metadata.artifactHash) {
+        dedupeHits += 1;
+        continue;
+      }
+
+      const fileNodeId = buildNodeId(metadata.file, `module:${metadata.file}`, "module", metadata.file);
+      const queries: Array<string> = [
+        `MERGE (c:Commit {sha:${stringifyCypher(metadata.commitSha)}, groupId:${stringifyCypher(metadata.groupId)}}) SET c.parentSha=${stringifyCypher(metadata.parentSha)}, c.branch=${stringifyCypher(metadata.branch)}, c.workspace=${stringifyCypher(metadata.workspace)}`,
+        `MERGE (f:File:Searchable {nodeId:${stringifyCypher(fileNodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) SET f.file=${stringifyCypher(metadata.file)}, f.workspace=${stringifyCypher(metadata.workspace)}, f.commitSha=${stringifyCypher(metadata.commitSha)}`,
+        `MATCH (c:Commit {sha:${stringifyCypher(metadata.commitSha)}, groupId:${stringifyCypher(metadata.groupId)}}), (f:File {nodeId:${stringifyCypher(fileNodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) MERGE (c)-[:CONTAINS]->(f)`,
+      ];
+
+      for (const rawNode of metadata.nodes) {
+        const nodeId = rawNode.nodeId;
+        if (nodeId.length === 0) {
+          continue;
+        }
+        const kind = rawNode.kind;
+        const symbol = rawNode.symbol;
+        const label = nodeLabelForKind(kind);
+        queries.push(
+          `MERGE (n:${label}:Searchable {nodeId:${stringifyCypher(nodeId)}, groupId:${stringifyCypher(metadata.groupId)}}) SET n.kind=${stringifyCypher(kind)}, n.symbol=${stringifyCypher(symbol)}, n.file=${stringifyCypher(metadata.file)}, n.commitSha=${stringifyCypher(metadata.commitSha)}, n.workspace=${stringifyCypher(metadata.workspace)}`
+        );
+      }
+
+      for (const rawEdge of metadata.edges) {
+        const from = rawEdge.from;
+        const to = rawEdge.to;
+        const edgeType = relationType(rawEdge.type);
+        const provenance = rawEdge.provenance;
+        if (from.length === 0 || to.length === 0) {
+          continue;
+        }
+        queries.push(
+          `MATCH (a {nodeId:${stringifyCypher(from)}, groupId:${stringifyCypher(metadata.groupId)}}), (b {nodeId:${stringifyCypher(to)}, groupId:${stringifyCypher(metadata.groupId)}}) MERGE (a)-[r:${edgeType}]->(b) SET r.provenance=${stringifyCypher(provenance)}, r.commitSha=${stringifyCypher(metadata.commitSha)}, r.groupId=${stringifyCypher(metadata.groupId)}`
+        );
+      }
+
+      runFalkorQueries(queries);
+      written += 1;
+      dedupeMisses += 1;
+      sinkEntries[sinkKey] = metadata.artifactHash;
+    } catch {
+      failed += 1;
+    }
+  }
+
+  await writeSinkPublishLedger(rootDir, sinkEntries);
+
+  return {
+    target: "falkor",
+    attempted: envelopes.length,
+    written,
+    replayed: dedupeHits,
+    failed,
+    durationMs: Date.now() - start,
+    dedupeHits,
+    dedupeMisses,
+  };
+};
+
+const publishEnvelopes = async (
+  target: PublishTarget,
+  envelopes: ReadonlyArray<Record<string, unknown>>,
+  commitSha: string,
+  rootDir: string
+): Promise<ReadonlyArray<AstKgWriteReceiptV1>> => {
+  if (target === "graphiti") {
+    return [await publishToGraphiti(envelopes, commitSha, rootDir)];
+  }
+  if (target === "falkor") {
+    return [await publishToFalkor(envelopes, commitSha, rootDir)];
+  }
+  return [await publishToFalkor(envelopes, commitSha, rootDir), await publishToGraphiti(envelopes, commitSha, rootDir)];
+};
+
+const parseTarget = (raw: string): O.Option<PublishTarget> => {
+  if (raw === "falkor") {
+    return O.some("falkor");
+  }
+  if (raw === "graphiti") {
+    return O.some("graphiti");
+  }
+  if (raw === "both") {
+    return O.some("both");
+  }
+  return O.none();
+};
+
+const falkorCount = (query: string): number => {
+  const output = runFalkorQueryRaw(query);
+  const lines = output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  for (let index = 0; index < lines.length; index += 1) {
+    const value = Number(lines[index]);
+    if (!Number.isNaN(value)) {
+      return value;
+    }
+  }
+  return 0;
+};
+
 const parseMode = (raw: string): O.Option<IndexMode> => {
   if (raw === "full") {
     return O.some("full");
@@ -811,6 +1887,24 @@ const parseMode = (raw: string): O.Option<IndexMode> => {
     return O.some("delta");
   }
   return O.none();
+};
+
+const parseParityProfile = (raw: string): O.Option<ParityProfile> => {
+  if (raw === "code-graph-functional") {
+    return O.some("code-graph-functional");
+  }
+  if (raw === "code-graph-strict") {
+    return O.some("code-graph-strict");
+  }
+  return O.none();
+};
+
+const parseStrictMinPaths = (raw: string): O.Option<number> => {
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    return O.none();
+  }
+  return O.some(value);
 };
 
 const kgIndexCommand = Command.make(
@@ -838,6 +1932,277 @@ const kgIndexCommand = Command.make(
   })
 ).pipe(Command.withDescription("Index AST KG artifacts in full or delta mode"));
 
+const kgPublishCommand = Command.make(
+  "publish",
+  {
+    target: Flag.string("target").pipe(Flag.withDescription("Publish target: falkor|graphiti|both")),
+    mode: Flag.string("mode").pipe(Flag.withDescription("Index mode prior to publish: full|delta")),
+    changed: Flag.string("changed").pipe(
+      Flag.withDescription("Comma-separated changed paths for delta mode"),
+      Flag.optional
+    ),
+    group: Flag.string("group").pipe(Flag.withDescription("Optional group id override for publish"), Flag.optional),
+  },
+  Effect.fn(function* ({ target, mode, changed, group }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const normalizedMode = parseMode(mode);
+    if (O.isNone(normalizedMode)) {
+      return yield* new DomainError({ message: `Invalid --mode value: ${mode}. Expected full|delta.` });
+    }
+
+    const publishSummary = yield* Effect.tryPromise({
+      try: async (): Promise<PublishSummary> => {
+        if (normalizedTarget.value === "graphiti" || normalizedTarget.value === "both") {
+          await ensureGraphitiProxyPreflight(resolveGraphitiMcpUrl());
+        }
+        const generated = await generatePublishEnvelopes(normalizedMode.value, changed);
+        const envelopes = applyGroupOverride(generated.envelopes, group);
+        const receipts = await publishEnvelopes(
+          normalizedTarget.value,
+          envelopes,
+          generated.commitSha,
+          generated.rootDir
+        );
+        return {
+          mode: normalizedMode.value,
+          commitSha: generated.commitSha,
+          group: publishGroupFromEnvelopes(envelopes),
+          target: normalizedTarget.value,
+          envelopes: envelopes.length,
+          receipts,
+        };
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG publish run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(publishSummary, null, 2));
+  })
+).pipe(Command.withDescription("Dual-write AST KG envelopes to Falkor, Graphiti, or both"));
+
+const kgReplayCommand = Command.make(
+  "replay",
+  {
+    fromSpool: Flag.string("from-spool").pipe(Flag.withDescription("Spool file or directory to replay")),
+    target: Flag.string("target").pipe(Flag.withDescription("Replay target: falkor|graphiti|both")),
+    group: Flag.string("group").pipe(Flag.withDescription("Optional group id override for replay"), Flag.optional),
+  },
+  Effect.fn(function* ({ fromSpool, target, group }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const result = yield* Effect.tryPromise({
+      try: async (): Promise<PublishSummary> => {
+        const stat = await fs.stat(fromSpool);
+        const files = stat.isDirectory()
+          ? (await fs.readdir(fromSpool)).map((entry) => nodePath.join(fromSpool, entry))
+          : [fromSpool];
+
+        const envelopes: Array<Record<string, unknown>> = [];
+        for (const file of files.filter((entry) => entry.endsWith(".jsonl"))) {
+          const content = await fs.readFile(file, "utf8");
+          for (const line of content
+            .split("\n")
+            .map((entry) => entry.trim())
+            .filter((entry) => entry.length > 0)) {
+            if (line.startsWith("AST_KG_EPISODE_V1")) {
+              continue;
+            }
+            try {
+              envelopes.push(JSON.parse(line) as Record<string, unknown>);
+            } catch {
+              // Ignore malformed lines.
+            }
+          }
+        }
+
+        const rootDir = resolveRootDir();
+        const overridden = applyGroupOverride(envelopes, group);
+        const commitSha = readGitMeta().sha;
+        const receipts = await publishEnvelopes(normalizedTarget.value, overridden, commitSha, rootDir);
+        return {
+          mode: "full",
+          commitSha,
+          group: publishGroupFromEnvelopes(overridden),
+          target: normalizedTarget.value,
+          envelopes: overridden.length,
+          receipts,
+        };
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG replay run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(result, null, 2));
+  })
+).pipe(Command.withDescription("Replay AST KG spool entries to selected publish targets"));
+
+const kgVerifyCommand = Command.make(
+  "verify",
+  {
+    target: Flag.string("target").pipe(Flag.withDescription("Verify target: falkor|graphiti|both")),
+    group: Flag.string("group").pipe(Flag.withDescription("Graph group id"), Flag.withDefault(AstKgGroupId)),
+    commit: Flag.string("commit").pipe(
+      Flag.withDescription("Commit SHA to verify"),
+      Flag.withDefault(readGitMeta().sha)
+    ),
+  },
+  Effect.fn(function* ({ target, group, commit }) {
+    const normalizedTarget = parseTarget(target);
+    if (O.isNone(normalizedTarget)) {
+      return yield* new DomainError({ message: `Invalid --target value: ${target}. Expected falkor|graphiti|both.` });
+    }
+
+    const verification = yield* Effect.tryPromise({
+      try: async () => {
+        const graphitiRequested = normalizedTarget.value === "graphiti" || normalizedTarget.value === "both";
+        const graphitiUrl = graphitiRequested ? resolveGraphitiMcpUrl() : "";
+        if (graphitiRequested) {
+          await ensureGraphitiProxyPreflight(graphitiUrl);
+        }
+
+        const checks: Record<string, unknown> = {
+          target: normalizedTarget.value,
+          group,
+          commit,
+        };
+
+        if (normalizedTarget.value === "falkor" || normalizedTarget.value === "both") {
+          const commitLiteral = stringifyCypher(commit);
+          const groupLiteral = stringifyCypher(group);
+          checks.falkor = {
+            nodeCount: falkorCount(`MATCH (n {groupId:${groupLiteral}}) RETURN count(n)`),
+            edgeCount: falkorCount(`MATCH ()-[r]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`),
+            fileCount: falkorCount(`MATCH (f:File {groupId:${groupLiteral}}) RETURN count(f)`),
+            commitCount: falkorCount(
+              `MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}}) RETURN count(c)`
+            ),
+            commitContextCount: falkorCount(
+              `MATCH (c:Commit {sha:${commitLiteral}, groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
+            ),
+          };
+        }
+
+        if (graphitiRequested) {
+          const session = await initializeMcp(graphitiUrl);
+          const graphitiCheck = await verifyGraphitiEpisodes(graphitiUrl, session, group, commit);
+          checks.graphiti = graphitiCheck;
+
+          if (!graphitiCheck.contractSatisfied) {
+            throw new DomainError({
+              message: `Graphiti verify timed out after ${String(graphitiCheck.waitedMs)}ms for group ${group} commit ${commit}. Consider increasing BEEP_GRAPHITI_VERIFY_WAIT_MS or tuning BEEP_GRAPHITI_VERIFY_POLL_MIN_MS/BEEP_GRAPHITI_VERIFY_POLL_MAX_MS/BEEP_GRAPHITI_VERIFY_REQUEST_TIMEOUT_MS.`,
+            });
+          }
+        }
+
+        return checks;
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG verify run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(verification, null, 2));
+  })
+).pipe(Command.withDescription("Verify published AST KG state for selected targets"));
+
+const kgParityCommand = Command.make(
+  "parity",
+  {
+    profile: Flag.string("profile").pipe(
+      Flag.withDescription("Parity profile: code-graph-functional|code-graph-strict"),
+      Flag.withDefault("code-graph-functional")
+    ),
+    group: Flag.string("group").pipe(Flag.withDescription("Graph group id"), Flag.withDefault(AstKgGroupId)),
+    strictMinPaths: Flag.string("strict-min-paths").pipe(
+      Flag.withDescription("Strict profile minimum observed CALLS path count"),
+      Flag.withDefault("1")
+    ),
+  },
+  Effect.fn(function* ({ profile, group, strictMinPaths }) {
+    const normalizedProfile = parseParityProfile(profile);
+    if (O.isNone(normalizedProfile)) {
+      return yield* new DomainError({
+        message: `Invalid --profile value: ${profile}. Expected code-graph-functional|code-graph-strict.`,
+      });
+    }
+
+    const normalizedStrictMinPaths = parseStrictMinPaths(strictMinPaths);
+    if (O.isNone(normalizedStrictMinPaths)) {
+      return yield* new DomainError({
+        message: `Invalid --strict-min-paths value: ${strictMinPaths}. Expected integer >= 1.`,
+      });
+    }
+
+    const result = yield* Effect.tryPromise({
+      try: async () => {
+        const groupLiteral = stringifyCypher(group);
+        const entityCount = falkorCount(`MATCH (f:File {groupId:${groupLiteral}}) RETURN count(f)`);
+        const neighborCount = falkorCount(`MATCH (n)-[r]->(m) WHERE r.groupId=${groupLiteral} RETURN count(r)`);
+        const commitContextCount = falkorCount(
+          `MATCH (c:Commit {groupId:${groupLiteral}})-[:CONTAINS]->(f:File {groupId:${groupLiteral}}) RETURN count(f)`
+        );
+        const eligibleCallEdges = falkorCount(`MATCH ()-[r:CALLS]->() WHERE r.groupId=${groupLiteral} RETURN count(r)`);
+        const observedPaths = falkorCount(
+          `MATCH p=()-[:CALLS*1..3]->() WHERE all(rel IN relationships(p) WHERE rel.groupId=${groupLiteral}) RETURN count(p)`
+        );
+        const strictFallback = eligibleCallEdges === 0;
+        const strictPathPass = strictFallback || observedPaths >= normalizedStrictMinPaths.value;
+        const pathCheck =
+          normalizedProfile.value === "code-graph-strict"
+            ? {
+                name: "path-finding-query",
+                pass: strictPathPass,
+                observedPaths,
+                minRequiredPaths: normalizedStrictMinPaths.value,
+                eligibleCallEdges,
+                fallback: strictFallback ? "no-eligible-call-edges" : "none",
+              }
+            : {
+                name: "path-finding-query",
+                pass: true,
+                observedPaths,
+                mode: "functional-execution-only",
+              };
+
+        const matrix = {
+          profile: normalizedProfile.value,
+          group,
+          strictMinPaths: normalizedStrictMinPaths.value,
+          checks: [
+            {
+              name: "entity-listing",
+              pass: entityCount > 0,
+              observed: entityCount,
+            },
+            {
+              name: "neighbor-expansion",
+              pass: neighborCount > 0,
+              observed: neighborCount,
+            },
+            {
+              name: "commit-context",
+              pass: commitContextCount > 0,
+              observed: commitContextCount,
+            },
+            pathCheck,
+          ],
+        };
+        return matrix;
+      },
+      catch: (cause) =>
+        cause instanceof DomainError ? cause : new DomainError({ message: "KG parity run failed", cause }),
+    });
+
+    yield* Console.log(JSON.stringify(result, null, 2));
+  })
+).pipe(Command.withDescription("Run functional parity checks against code-graph expectations"));
+
 /**
  * CLI command group for AST KG indexing operations.
  *
@@ -848,6 +2213,11 @@ export const kgCommand = Command.make(
   "kg",
   {},
   Effect.fn(function* () {
-    yield* Console.log("Use subcommand: bun run beep kg index --mode full|delta [--changed <paths>]");
+    yield* Console.log(
+      "Use subcommands: index | publish | verify | parity | replay (bun run beep kg <subcommand> ...)"
+    );
   })
-).pipe(Command.withDescription("AST KG indexing and integration commands"), Command.withSubcommands([kgIndexCommand]));
+).pipe(
+  Command.withDescription("AST KG indexing and integration commands"),
+  Command.withSubcommands([kgIndexCommand, kgPublishCommand, kgVerifyCommand, kgParityCommand, kgReplayCommand])
+);

@@ -1,0 +1,12 @@
+{
+  "target": "falkor",
+  "group": "beep-ast-kg-iso-b-20260226T004823Z",
+  "commit": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+  "falkor": {
+    "nodeCount": 2349,
+    "edgeCount": 3732,
+    "fileCount": 244,
+    "commitCount": 1,
+    "commitContextCount": 244
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "kg-schema-v1",
+  "extractorVersion": "p3-v1",
+  "snapshots": [
+    {
+      "commitSha": "50f2f9572704388a5aae02143b7ec51da2a612eb",
+      "mode": "full",
+      "createdAtEpochMs": 1772068998110,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "39be3bdefcb2c8e2449991a0776d5c0220ba10c15e106922919a38d741a9123a",
+      "records": 245
+    },
+    {
+      "commitSha": "d6269b991adfb5208f7ea0601d48ad8721a9459b",
+      "mode": "full",
+      "createdAtEpochMs": 1772068542395,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "a30e8ae90a52499beca7d15864f7552a19e345f6d04a9d5aaffd8e41e1f22b79",
+      "records": 245
+    },
+    {
+      "commitSha": "1f915b33fd99acf811ca6170a61c5a3f67a0dfc1",
+      "mode": "full",
+      "createdAtEpochMs": 1772068152578,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "d491e077a3fd2a51f5872c7b4c2bf97ed1af80360a16f02178249ab33d22b387",
+      "records": 245
+    },
+    {
+      "commitSha": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+      "mode": "full",
+      "createdAtEpochMs": 1772066865216,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "d528da782b2599b44b117b57bb581312d3f5a5a0707f235dbdc6fb664e723df3",
+      "records": 244
+    },
+    {
+      "commitSha": "096ab21c85c52d2edebc9dd5260a2626116a8ef7",
+      "mode": "full",
+      "createdAtEpochMs": 1772063802226,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "adda069691325f0018bc45d82ae04c199a1d7b621f6267499993f7958a850870",
+      "records": 244
+    },
+    {
+      "commitSha": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
+      "mode": "full",
+      "createdAtEpochMs": 1772056070866,
+      "schemaVersion": "kg-schema-v1",
+      "extractorVersion": "p3-v1",
+      "tsconfigHash": "838e049ea211e5dde95409c2f40527647b788a4f66e4901692dcb5cd948e824c",
+      "scopeHash": "9eae48073eecf467a16d078ab62354834da5a3925bd7412341fe86c5db155ad3",
+      "recordHash": "b24233497821fb13edf0422c01719e24bd5fea81603102802e32e9bc27105555",
+      "records": 244
+    }
+  ],
+  "consecutiveDeltaFailures": 0
+}

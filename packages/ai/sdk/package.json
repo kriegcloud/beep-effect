@@ -1,0 +1,67 @@
+{
+  "name": "@beep/ai-sdk",
+  "version": "0.0.0",
+  "description": "The shared agent sdk library for coding harness abstractions",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "bun test",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "@openai/codex-sdk": "catalog:",
+    "@anthropic-ai/claude-agent-sdk": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@cloudflare/sandbox": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/data": "workspace:^",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@types/node": "catalog:",
+    "@effect/vitest": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/ai/sdk"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/ai/sdk",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.ts",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

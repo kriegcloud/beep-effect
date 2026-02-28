@@ -1,25 +1,24 @@
-# Agent Reliability Benchmark Report
+# Agent Reliability Weekly (Confidence Smokes Aggregate)
 
 - formatVersion: 1
-- runAtEpochMs: 1772048638952
+- runAtEpochMs: 1772063516615
+- runMode: live
+- executionBackend: sdk
 - status: completed
-- strictTaskCount: 3
-- plannedRunCount: 24
-- completedRunCount: 24
-- totalRuns: 24
+- strictTaskCount: 18
+- plannedRunCount: 6
+- completedRunCount: 6
+- totalRuns: 6
 
 ## By Condition
 
 | Condition | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost |
 |---|---:|---:|---:|---:|---:|
-| adaptive | 6 | 0 | 0.00% | 0 | $0.0000 |
-| adaptive_kg | 6 | 0 | 0.00% | 0 | $0.0000 |
-| current | 6 | 0 | 0.00% | 0 | $0.0000 |
-| minimal | 6 | 0 | 0.00% | 0 | $0.0000 |
+| minimal | 6 | 0 | 0.00% | 23 | $0.0000 |
 
 ## By Agent
 
 | Agent:Model | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost |
 |---|---:|---:|---:|---:|---:|
-| claude:claude-sonnet-4-6 | 12 | 0 | 0.00% | 0 | $0.0000 |
-| codex:gpt-5.2 | 12 | 0 | 0.00% | 0 | $0.0000 |
+| claude:claude-sonnet-4-6 | 3 | 0 | 0.00% | 23 | $0.0000 |
+| codex:gpt-5.2 | 3 | 0 | 0.00% | 0 | $0.0000 |

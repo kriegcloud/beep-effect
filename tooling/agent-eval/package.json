@@ -18,10 +18,13 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "catalog:",
     "effect": "catalog:",
+    "@openai/codex-sdk": "catalog:",
     "@effect/platform-node": "catalog:",
     "@beep/identity": "workspace:^",
-    "@beep/repo-utils": "workspace:^"
+    "@beep/repo-utils": "workspace:^",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

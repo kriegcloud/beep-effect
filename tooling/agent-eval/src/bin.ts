@@ -17,6 +17,7 @@ import {
   parseBenchAgentsFlag,
   parseBenchConditionsFlag,
   parseClaudeEffortFlag,
+  parseExecutionBackendFlag,
   parseMaxWallMinutesFlag,
   parseModelFlag,
   parseReasoningFlag,
@@ -182,6 +183,10 @@ const run = () => {
               try: () => (agents.includes("claude") ? toClaudeCompatibleReasoning(effectiveReasoning) : undefined),
               catch: (cause) => toConfigError(cause, "Invalid reasoning configuration for Claude"),
             });
+            const executionBackend = yield* Effect.try({
+              try: () => parseExecutionBackendFlag(readOptionalFlag(flags, "execution-backend")),
+              catch: (cause) => toConfigError(cause, "Invalid --execution-backend flag"),
+            });
 
             return yield* handleBench({
               output,
@@ -211,6 +216,7 @@ const run = () => {
               claudeModel,
               claudeEffort: effectiveClaudeEffort,
               reasoningEffort: effectiveReasoning,
+              executionBackend,
               conditions,
               agents,
               taskIds,

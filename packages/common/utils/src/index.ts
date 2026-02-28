@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 
-export * from "./Struct.ts";
+export * as Struct from "./Struct.ts";
 
 /**
  * @since 0.0.0

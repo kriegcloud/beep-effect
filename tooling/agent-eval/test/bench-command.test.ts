@@ -31,6 +31,7 @@ const baseArgs = {
   claudeModel: "claude-sonnet-4-6",
   claudeEffort: undefined,
   reasoningEffort: undefined,
+  executionBackend: "auto" as const,
   conditions: ["minimal"] as const,
   agents: ["codex"] as const,
   maxWallMinutes: undefined,
@@ -60,6 +61,8 @@ describe("bench command targeting", () => {
     expect(diagnosticsLines.includes('"stdoutTail"')).toBe(true);
     expect(diagnosticsLines.includes('"stderrTail"')).toBe(true);
     expect(diagnosticsLines.includes('"tailCharLimit"')).toBe(true);
+    expect(diagnosticsLines.includes('"failedCommandDiagnostics"')).toBe(true);
+    expect(diagnosticsLines.includes('"backend"')).toBe(true);
   });
 
   it("fails when selected task ids contain unknown values", async () => {

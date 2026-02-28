@@ -1,0 +1,15 @@
+···· TSTyche 6.2.0 at /home/elpresidank/YeeBois/projects/beep-effect
+
+uses TypeScript 5.9.3
+
+pass ./outputs/p7-verification/tmp/type-runtime-alias-matrix.tst.ts
+pass ./packages/common/ontology/test/types/aggregate-query-primitives.tst.ts
+pass ./packages/common/ontology/test/types/object-specifier.tst.ts
+pass ./packages/common/ontology/test/types/p5-objectset-osdk-heavy.tst.ts
+pass ./packages/common/ontology/test/types/simple-property-def.tst.ts
+
+Targets:    1 passed, 1 total
+Test files: 5 passed, 5 total
+Tests:      31 passed, 31 total
+Assertions: 74 passed, 74 total
+Duration:   4.2s

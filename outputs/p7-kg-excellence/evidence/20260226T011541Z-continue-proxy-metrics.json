@@ -1,0 +1,12 @@
+{
+  "status": "ok",
+  "active": 0,
+  "queued": 0,
+  "peakQueueDepth": 1,
+  "processed": 250,
+  "failed": 0,
+  "rejected": 0,
+  "concurrency": 1,
+  "maxQueue": 500,
+  "upstream": "http://127.0.0.1:8000/mcp"
+}

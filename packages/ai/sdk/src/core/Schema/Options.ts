@@ -1,0 +1,209 @@
+import * as S from "effect/Schema";
+import { withIdentifier } from "./Annotations.js";
+import { SdkBeta, SdkPluginConfig } from "./Common.js";
+import { HookCallbackMatcher, HookEvent } from "./Hooks.js";
+import { McpServerConfig, McpServerConfigForProcessTransport } from "./Mcp.js";
+import { CanUseTool, PermissionMode } from "./Permission.js";
+import { AbortController, SpawnClaudeCodeProcess, StderrCallback } from "./Runtime.js";
+import { SandboxSettings } from "./Sandbox.js";
+
+/**
+ * @since 0.0.0
+ */
+export const SettingSource = withIdentifier(S.Literals(["user", "project", "local"]), "SettingSource");
+
+/**
+ * @since 0.0.0
+ */
+export type SettingSource = typeof SettingSource.Type;
+/**
+ * @since 0.0.0
+ */
+export type SettingSourceEncoded = typeof SettingSource.Encoded;
+
+const SystemPromptPreset = S.Struct({
+  type: S.Literal("preset"),
+  preset: S.Literal("claude_code"),
+  append: S.optional(S.String),
+});
+
+/**
+ * @since 0.0.0
+ */
+export const SystemPrompt = withIdentifier(S.Union([S.String, SystemPromptPreset]), "SystemPrompt");
+
+/**
+ * @since 0.0.0
+ */
+export type SystemPrompt = typeof SystemPrompt.Type;
+/**
+ * @since 0.0.0
+ */
+export type SystemPromptEncoded = typeof SystemPrompt.Encoded;
+
+const ToolsPreset = S.Struct({
+  type: S.Literal("preset"),
+  preset: S.Literal("claude_code"),
+});
+
+/**
+ * @since 0.0.0
+ */
+export const ToolsConfig = withIdentifier(S.Union([S.Array(S.String), ToolsPreset]), "ToolsConfig");
+
+/**
+ * @since 0.0.0
+ */
+export type ToolsConfig = typeof ToolsConfig.Type;
+/**
+ * @since 0.0.0
+ */
+export type ToolsConfigEncoded = typeof ToolsConfig.Encoded;
+
+/**
+ * @since 0.0.0
+ */
+export const JsonSchemaOutputFormat = withIdentifier(
+  S.Struct({
+    type: S.Literal("json_schema"),
+    schema: S.Record(S.String, S.Unknown),
+  }),
+  "JsonSchemaOutputFormat"
+);
+
+/**
+ * @since 0.0.0
+ */
+export type JsonSchemaOutputFormat = typeof JsonSchemaOutputFormat.Type;
+/**
+ * @since 0.0.0
+ */
+export type JsonSchemaOutputFormatEncoded = typeof JsonSchemaOutputFormat.Encoded;
+
+/**
+ * @since 0.0.0
+ */
+export const OutputFormat = withIdentifier(JsonSchemaOutputFormat, "OutputFormat");
+
+/**
+ * @since 0.0.0
+ */
+export type OutputFormat = typeof OutputFormat.Type;
+/**
+ * @since 0.0.0
+ */
+export type OutputFormatEncoded = typeof OutputFormat.Encoded;
+
+/**
+ * @since 0.0.0
+ */
+export const AgentDefinition = withIdentifier(
+  S.Struct({
+    description: S.String,
+    tools: S.optional(S.Array(S.String)),
+    disallowedTools: S.optional(S.Array(S.String)),
+    prompt: S.String,
+    model: S.optional(S.Literals(["sonnet", "opus", "haiku", "inherit"])),
+    mcpServers: S.optional(S.Union([S.Array(S.String), S.Record(S.String, McpServerConfigForProcessTransport)])),
+    criticalSystemReminder_EXPERIMENTAL: S.optional(S.String),
+    skills: S.optional(S.Array(S.String)),
+    maxTurns: S.optional(S.Number),
+  }),
+  "AgentDefinition"
+);
+
+/**
+ * @since 0.0.0
+ */
+export type AgentDefinition = typeof AgentDefinition.Type;
+/**
+ * @since 0.0.0
+ */
+export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded;
+
+/**
+ * @since 0.0.0
+ */
+export const AgentMcpServerSpec = withIdentifier(
+  S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]),
+  "AgentMcpServerSpec"
+);
+
+/**
+ * @since 0.0.0
+ */
+export type AgentMcpServerSpec = typeof AgentMcpServerSpec.Type;
+/**
+ * @since 0.0.0
+ */
+export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded;
+
+const HookMap = S.Record(S.optionalKey(HookEvent), S.UndefinedOr(S.Array(HookCallbackMatcher)));
+
+const ThinkingConfig = S.Union([
+  S.Struct({ type: S.Literal("adaptive") }),
+  S.Struct({ type: S.Literal("enabled"), budgetTokens: S.Number }),
+  S.Struct({ type: S.Literal("disabled") }),
+]);
+
+/**
+ * @since 0.0.0
+ */
+export const Options = withIdentifier(
+  S.Struct({
+    abortController: S.optional(AbortController),
+    additionalDirectories: S.optional(S.Array(S.String)),
+    agent: S.optional(S.String),
+    agents: S.optional(S.Record(S.String, AgentDefinition)),
+    allowDangerouslySkipPermissions: S.optional(S.Boolean),
+    allowedTools: S.optional(S.Array(S.String)),
+    betas: S.optional(S.Array(SdkBeta)),
+    canUseTool: S.optional(CanUseTool),
+    continue: S.optional(S.Boolean),
+    cwd: S.optional(S.String),
+    debug: S.optional(S.Boolean),
+    debugFile: S.optional(S.String),
+    disallowedTools: S.optional(S.Array(S.String)),
+    effort: S.optional(S.Literals(["low", "medium", "high", "max"])),
+    enableFileCheckpointing: S.optional(S.Boolean),
+    env: S.optional(S.Record(S.String, S.Union([S.String, S.Undefined]))),
+    executable: S.optional(S.Literals(["bun", "deno", "node"])),
+    executableArgs: S.optional(S.Array(S.String)),
+    extraArgs: S.optional(S.Record(S.String, S.Union([S.String, S.Null]))),
+    fallbackModel: S.optional(S.String),
+    forkSession: S.optional(S.Boolean),
+    hooks: S.optional(HookMap),
+    includePartialMessages: S.optional(S.Boolean),
+    maxBudgetUsd: S.optional(S.Number),
+    maxTurns: S.optional(S.Number),
+    mcpServers: S.optional(S.Record(S.String, McpServerConfig)),
+    model: S.optional(S.String),
+    outputFormat: S.optional(OutputFormat),
+    pathToClaudeCodeExecutable: S.optional(S.String),
+    permissionMode: S.optional(PermissionMode),
+    permissionPromptToolName: S.optional(S.String),
+    persistSession: S.optional(S.Boolean),
+    plugins: S.optional(S.Array(SdkPluginConfig)),
+    resume: S.optional(S.String),
+    resumeSessionAt: S.optional(S.String),
+    sandbox: S.optional(SandboxSettings),
+    sessionId: S.optional(S.String),
+    settingSources: S.optional(S.Array(SettingSource)),
+    stderr: S.optional(StderrCallback),
+    strictMcpConfig: S.optional(S.Boolean),
+    systemPrompt: S.optional(SystemPrompt),
+    thinking: S.optional(ThinkingConfig),
+    tools: S.optional(ToolsConfig),
+    spawnClaudeCodeProcess: S.optional(SpawnClaudeCodeProcess),
+  }),
+  "Options"
+);
+
+/**
+ * @since 0.0.0
+ */
+export type Options = typeof Options.Type;
+/**
+ * @since 0.0.0
+ */
+export type OptionsEncoded = typeof Options.Encoded;

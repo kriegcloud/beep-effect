@@ -3473,7 +3473,7 @@
   },
   {
     "name": "Effect v4 Type: unstable/ai/Chat.Persisted",
-    "episode_body": "Title: unstable/ai/Chat.Persisted\nCategory: type\nModule Path: effect/unstable/ai/Chat\nExport Kind: interface\nCategory Tag: models\nStability: unstable\n\nDescription: Attempts to retrieve the persisted chat from the backing persistence store with the specified chat identifer. If the chat does not exist in the persistence store, a `ChatNotFoundError` will be returned. / readonly get: (chatId: string, options?: { readonly timeToLive?: Duration.DurationInput | undefined }) => Effect.Effect<Persisted, ChatNotFoundError | PersistenceError> /** Attempts to retrieve the persisted chat from the backing persistence store with the specified chat identifer. If the chat \n\nSince: 4.0.0",
+    "episode_body": "Title: unstable/ai/Chat.Persisted\nCategory: type\nModule Path: effect/unstable/ai/Chat\nExport Kind: interface\nCategory Tag: models\nStability: unstable\n\nDescription: Attempts to retrieve the persisted chat from the backing persistence store with the specified chat identifer. If the chat does not exist in the persistence store, a `ChatNotFoundError` will be returned. / readonly get: (chatId: string, options?: { readonly timeToLive?: Duration.Input | undefined }) => Effect.Effect<Persisted, ChatNotFoundError | PersistenceError> /** Attempts to retrieve the persisted chat from the backing persistence store with the specified chat identifer. If the chat \n\nSince: 4.0.0",
     "source": "text",
     "source_description": "Effect v4 unstable unstable/ai/Chat module",
     "group_id": "effect-v4"
@@ -15625,7 +15625,7 @@
   },
   {
     "name": "Effect v4 Type: unstable/process/ChildProcess.StdinConfig",
-    "episode_body": "Title: unstable/process/ChildProcess.StdinConfig\nCategory: type\nModule Path: effect/unstable/process/ChildProcess\nExport Kind: interface\nCategory Tag: Models\nStability: unstable\n\nDescription: The default signal used to terminate the child process. Defaults to `\"SIGTERM\"`. / readonly killSignal?: Signal | undefined /** The duration of time to wait after the child process has been terminated before forcefully killing the child process by sending it the `\"SIGKILL\"` signal. Defaults to `undefined`, which means that no timeout will be enforced by default. / readonly forceKillAfter?: Duration.DurationInput | undefined } /** Configuration for the child process standard input stream.\n\nSince: 4.0.0",
+    "episode_body": "Title: unstable/process/ChildProcess.StdinConfig\nCategory: type\nModule Path: effect/unstable/process/ChildProcess\nExport Kind: interface\nCategory Tag: Models\nStability: unstable\n\nDescription: The default signal used to terminate the child process. Defaults to `\"SIGTERM\"`. / readonly killSignal?: Signal | undefined /** The duration of time to wait after the child process has been terminated before forcefully killing the child process by sending it the `\"SIGKILL\"` signal. Defaults to `undefined`, which means that no timeout will be enforced by default. / readonly forceKillAfter?: Duration.Input | undefined } /** Configuration for the child process standard input stream.\n\nSince: 4.0.0",
     "source": "text",
     "source_description": "Effect v4 unstable unstable/process/ChildProcess module",
     "group_id": "effect-v4"

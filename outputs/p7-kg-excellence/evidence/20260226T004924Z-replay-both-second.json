@@ -1,0 +1,29 @@
+{
+  "mode": "full",
+  "commitSha": "9a0013b0181fe594d0f92f63eedb44f657fb5c5d",
+  "group": "beep-ast-kg-replay-p7-20260226T004924Z",
+  "target": "both",
+  "envelopes": 244,
+  "receipts": [
+    {
+      "target": "falkor",
+      "attempted": 244,
+      "written": 0,
+      "replayed": 244,
+      "failed": 0,
+      "durationMs": 52,
+      "dedupeHits": 244,
+      "dedupeMisses": 0
+    },
+    {
+      "target": "graphiti",
+      "attempted": 244,
+      "written": 0,
+      "replayed": 244,
+      "failed": 0,
+      "durationMs": 18,
+      "dedupeHits": 244,
+      "dedupeMisses": 0
+    }
+  ]
+}

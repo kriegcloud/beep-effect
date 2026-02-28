@@ -907,6 +907,55 @@ type Encoded = {
 type Encoded = typeof schema.Encoded
 ```
 
+### Reusing Fields
+
+Every `Schema.Struct` exposes a `.fields` property containing its field definitions. You can spread these fields into a new struct to reuse them, similar to how TypeScript interfaces use `extends`.
+
+**Example** (Single inheritance)
+
+```ts
+import { Schema } from "effect"
+
+const Timestamped = Schema.Struct({
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date
+})
+
+const User = Schema.Struct({
+  ...Timestamped.fields,
+  name: Schema.String,
+  email: Schema.String
+})
+
+const Post = Schema.Struct({
+  ...Timestamped.fields,
+  title: Schema.String,
+  body: Schema.String
+})
+```
+
+**Example** (Multiple inheritance)
+
+```ts
+import { Schema } from "effect"
+
+const Timestamped = Schema.Struct({
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date
+})
+
+const SoftDeletable = Schema.Struct({
+  deletedAt: Schema.optionalKey(Schema.Date)
+})
+
+const User = Schema.Struct({
+  ...Timestamped.fields,
+  ...SoftDeletable.fields,
+  name: Schema.String,
+  email: Schema.String
+})
+```
+
 ### Deriving Structs
 
 You can derive new struct schemas from existing ones — picking, omitting, renaming, or transforming individual fields — without rewriting the schema from scratch. The `mapFields` method on `Schema.Struct` accepts a function that transforms the struct's fields and returns a new `Schema.Struct` based on the result.
@@ -2271,6 +2320,28 @@ export const makeGreaterThan = <T>(options: {
 # Constructors
 
 A constructor creates a value of the schema's type, running all validations at the time of creation. If the value does not satisfy the schema, the constructor throws an error. Every schema exposes a `makeUnsafe` method for this purpose.
+
+For a non-throwing alternative, use `Schema.makeOption` (or `SchemaParser.makeOption`), which returns `Option.Some` on success and `Option.None` on failure.
+
+```ts
+import { Schema, SchemaParser } from "effect"
+
+const schema = Schema.Struct({
+  a: Schema.Number.check(Schema.isGreaterThan(0))
+})
+
+console.log(schema.makeOption({ a: 1 }))
+// { _id: 'Option', _tag: 'Some', value: { a: 1 } }
+
+console.log(schema.makeOption({ a: -1 }))
+// { _id: 'Option', _tag: 'None' }
+
+// Equivalent standalone usage:
+const parse = SchemaParser.makeOption(schema)
+
+console.log(parse({ a: 1 }))
+// { _id: 'Option', _tag: 'Some', value: { a: 1 } }
+```
 
 ## Constructors in Composed Schemas
 

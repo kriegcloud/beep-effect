@@ -2484,6 +2484,67 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     await encoding.succeed(Option.some(1), "1")
   })
 
+  it("OptionFromUndefinedOr", async () => {
+    const schema = Schema.OptionFromUndefinedOr(Schema.FiniteFromString)
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(undefined, Option.none())
+    await decoding.succeed("1", Option.some(1))
+    await decoding.fail("a", `Expected a finite number, got NaN`)
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(Option.none(), undefined)
+    await encoding.succeed(Option.some(1), "1")
+  })
+
+  describe("OptionFromNullishOr", () => {
+    it("onNoneEncoding: null", async () => {
+      const schema = Schema.OptionFromNullishOr(Schema.FiniteFromString, { onNoneEncoding: null })
+      const asserts = new TestSchema.Asserts(schema)
+
+      if (verifyGeneration) {
+        const arbitrary = asserts.arbitrary()
+        arbitrary.verifyGeneration()
+      }
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(null, Option.none())
+      await decoding.succeed(undefined, Option.none())
+      await decoding.succeed("1", Option.some(1))
+      await decoding.fail("a", `Expected a finite number, got NaN`)
+
+      const encoding = asserts.encoding()
+      await encoding.succeed(Option.none(), null)
+      await encoding.succeed(Option.some(1), "1")
+    })
+
+    it("onNoneEncoding: undefined", async () => {
+      const schema = Schema.OptionFromNullishOr(Schema.FiniteFromString, { onNoneEncoding: undefined })
+      const asserts = new TestSchema.Asserts(schema)
+
+      if (verifyGeneration) {
+        const arbitrary = asserts.arbitrary()
+        arbitrary.verifyGeneration()
+      }
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(null, Option.none())
+      await decoding.succeed(undefined, Option.none())
+      await decoding.succeed("1", Option.some(1))
+      await decoding.fail("a", `Expected a finite number, got NaN`)
+
+      const encoding = asserts.encoding()
+      await encoding.succeed(Option.none(), undefined)
+      await encoding.succeed(Option.some(1), "1")
+    })
+  })
+
   it("OptionFromOptionalKey", async () => {
     const schema = Schema.Struct({
       a: Schema.OptionFromOptionalKey(Schema.FiniteFromString)
@@ -2807,6 +2868,20 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
         `Expected a value greater than 0, got -1
   at ["categories"][0]["a"]`
       )
+    })
+  })
+
+  describe("makeOption", () => {
+    it("Struct", () => {
+      const schema = Schema.Struct({ a: Schema.Number.check(Schema.isGreaterThan(0)) })
+      deepStrictEqual(schema.makeOption({ a: 1 }), Option.some({ a: 1 }))
+      deepStrictEqual(schema.makeOption({ a: -1 }), Option.none())
+    })
+
+    it("Class", () => {
+      class A extends Schema.Class<A>("A")(Schema.Struct({ a: Schema.Number.check(Schema.isGreaterThan(0)) })) {}
+      deepStrictEqual(A.makeOption({ a: 1 }), Option.some(new A({ a: 1 })))
+      deepStrictEqual(A.makeOption({ a: -1 }), Option.none())
     })
   })
 
@@ -6679,15 +6754,15 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     it("Struct", async () => {
       const schema = Schema.Struct({
         a: Schema.FiniteFromString,
-        b: Schema.String
+        b: Schema.FiniteFromString
       }).pipe(Schema.encodeKeys({ a: "c" }))
       const asserts = new TestSchema.Asserts(schema)
 
       const decoding = asserts.decoding()
-      await decoding.succeed({ c: "1", b: "b" }, { a: 1, b: "b" })
+      await decoding.succeed({ c: "1", b: "2" }, { a: 1, b: 2 })
 
       const encoding = asserts.encoding()
-      await encoding.succeed({ a: 1, b: "b" }, { c: "1", b: "b" })
+      await encoding.succeed({ a: 1, b: 2 }, { c: "1", b: "2" })
     })
 
     it("Class", async () => {

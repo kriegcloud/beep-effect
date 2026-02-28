@@ -1,0 +1,74 @@
+$ bunx turbo run lint lint:jsdoc lint:spell lint:markdown lint:circular lint:versions && bun run lint:effect-laws && bun run lint:tooling-tagged-errors && bun run agents:check && bun run agents:pathless:check && bun run lint:typos && bun run lint:repo && bun run lint:ox
+• turbo 2.8.11
+• Packages in scope: //, @beep/agent-eval, @beep/ai-sdk, @beep/claude, @beep/data, @beep/identity, @beep/messages, @beep/ontology, @beep/repo-cli, @beep/repo-utils, @beep/schema, @beep/shared-domain, @beep/shared-env, @beep/types, @beep/ui, @beep/utils, @beep/web, scratchpad
+• Running lint, lint:jsdoc, lint:spell, lint:markdown, lint:circular, lint:versions in 18 packages
+• Remote caching disabled
+@beep/ui:lint: cache miss, executing f6a766018d2d73ca
+@beep/shared-domain:lint: cache miss, executing b1ecd4374f50d366
+@beep/data:lint: cache miss, executing ca1012c1d2a35039
+@beep/types:lint: cache miss, executing ff908339a3960dac
+@beep/messages:lint: cache miss, executing 14b775db0e75c728
+//:lint:markdown: cache miss, executing 2557727c0bdc4056
+//:lint:jsdoc: cache miss, executing 156e30d31e1041e4
+//:lint:spell: cache miss, executing eeedf50395e0dd80
+//:lint:circular: cache miss, executing 96245260c98f7e24
+@beep/shared-env:lint: cache miss, executing 4b3897ff1e92759d
+@beep/shared-domain:lint: $ biome check .
+//:lint:jsdoc: $ eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' --ignore-pattern '.repos/**'
+//:lint:spell: $ cspell lint --no-progress '**/*.{ts,tsx,md}' '#.beep'
+//:lint:circular: $ node scripts/circular.mjs
+@beep/ui:lint: $ biome check src/ .storybook/
+//:lint:markdown: $ markdownlint-cli2 '**/*.md' '#node_modules' '#.repos' '#.next' '#.beep' '#.sst' '#outputs'
+@beep/types:lint: $ biome check .
+@beep/messages:lint: $ biome check .
+@beep/shared-env:lint: $ biome check .
+@beep/data:lint: $ biome check .
+@beep/ui:lint: Checked 10 files in 85ms. No fixes applied.
+@beep/messages:lint: Checked 7 files in 50ms. No fixes applied.
+@beep/data:lint: Checked 27 files in 133ms. No fixes applied.
+//:lint:versions: cache bypass, force executing 57d5de97f8b9057d
+@beep/shared-domain:lint: Checked 6 files in 54ms. No fixes applied.
+//:lint:versions: $ bun run beep version-sync --skip-network
+//:lint:versions: $ bun run tooling/cli/src/bin.ts -- version-sync --skip-network
+@beep/types:lint: Checked 8 files in 52ms. No fixes applied.
+@beep/utils:lint: cache miss, executing b07fc8fafb128de7
+@beep/identity:lint: cache miss, executing 0b362e016bca8e49
+@beep/utils:lint: $ biome check .
+@beep/identity:lint: $ biome check .
+@beep/shared-env:lint: Checked 6 files in 60ms. No fixes applied.
+@beep/identity:lint: src/packages.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/identity:lint: 
+@beep/identity:lint:   × Formatter would have printed the following content:
+@beep/identity:lint:   
+@beep/identity:lint:      41  41 │     "repo-utils",
+@beep/identity:lint:      42  42 │     "claude",
+@beep/identity:lint:      43     │ - → "ai-sdk"
+@beep/identity:lint:          43 │ + ··"ai-sdk"
+@beep/identity:lint:      44  44 │   );
+@beep/identity:lint:      45  45 │   
+@beep/identity:lint:     ······· │ 
+@beep/identity:lint:     157 157 │    */
+@beep/identity:lint:     158 158 │   export const $ClaudeId = composers.$ClaudeId;
+@beep/identity:lint:     159     │ - 
+@beep/identity:lint:     160 159 │   
+@beep/identity:lint:     161 160 │   /**
+@beep/identity:lint:   
+@beep/identity:lint: 
+@beep/identity:lint: Checked 10 files in 61ms. No fixes applied.
+@beep/identity:lint: Found 1 error.
+@beep/identity:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/identity:lint: 
+@beep/identity:lint:   × Some errors were emitted while running checks.
+@beep/identity:lint:   
+@beep/identity:lint: 
+@beep/identity:lint: error: script "lint" exited with code 1
+@beep/identity:lint: ERROR: command finished with error: command (/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity) /home/elpresidank/.bun/bin/bun run lint exited (1)
+@beep/identity#lint: command (/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity) /home/elpresidank/.bun/bin/bun run lint exited (1)
+
+ Tasks:    6 successful, 13 total
+Cached:    0 cached, 13 total
+  Time:    1.534s 
+Failed:    @beep/identity#lint
+
+ ERROR  run failed: command  exited (1)
+error: script "lint" exited with code 1

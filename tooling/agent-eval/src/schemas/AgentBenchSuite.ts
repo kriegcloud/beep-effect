@@ -57,6 +57,9 @@ export type AgentBenchSuite = {
   readonly runAtEpochMs: number;
   readonly strictTaskCount: number;
   readonly conditions: ReadonlyArray<BenchCondition>;
+  readonly runMode?: "simulate" | "live" | undefined;
+  readonly executionBackend?: "cli" | "sdk" | "mixed" | undefined;
+  readonly matrixFingerprint?: string | undefined;
   readonly status?: BenchSuiteStatus | undefined;
   readonly plannedRunCount?: number | undefined;
   readonly completedRunCount?: number | undefined;
@@ -95,6 +98,9 @@ export const AgentBenchSuiteSchema = S.Struct({
   runAtEpochMs: S.Int,
   strictTaskCount: S.Int,
   conditions: S.Array(BenchConditionSchema),
+  runMode: S.optional(S.Literals(["simulate", "live"])),
+  executionBackend: S.optional(S.Literals(["cli", "sdk", "mixed"])),
+  matrixFingerprint: S.optional(S.String),
   status: S.optional(BenchSuiteStatusSchema),
   plannedRunCount: S.optional(S.Int),
   completedRunCount: S.optional(S.Int),

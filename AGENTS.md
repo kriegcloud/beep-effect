@@ -18,3 +18,11 @@ Core rules:
 7. Exceptions require allowlist metadata with reason, owner, and issue context.
 8. Do not complete work with failing check, lint, test, or docgen.
 9. Keep agent instruction text pathless and run `bun run agents:pathless:check` after editing agent config surfaces.
+
+## Graphiti Memory Routing Policy
+
+1. Route graphiti-memory MCP traffic to host `127.0.0.1:8123` using route `mcp`.
+2. Do not target host `127.0.0.1:8000` directly from agents.
+3. Before parallel workloads, verify proxy health on host `127.0.0.1:8123` route `healthz`.
+4. During heavy fan-out, check queue pressure on host `127.0.0.1:8123` route `metrics` and reduce parallelism if rejections occur.
+5. If graphiti-memory is unavailable, continue task execution and report memory calls as skipped.

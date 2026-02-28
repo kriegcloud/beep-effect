@@ -1,0 +1,15 @@
+{
+  "target": "both",
+  "group": "beep-ast-kg",
+  "commit": "7adfa691212a59bbca23e36bee1fb3e403a61b89",
+  "falkor": {
+    "nodeCount": 337,
+    "edgeCount": 821,
+    "episodicCount": 28,
+    "commitCount": 0
+  },
+  "graphiti": {
+    "status": 200,
+    "bodySnippet": "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":\"kg-verify-episodes\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"message\\\": \\\"Episodes retrieved successfully\\\",\\n  \\\"episodes\\\": [\\n    {\\n      \\\"uuid\\\": \\\"f4018c02-a70f-4c77-9181-9b9ecba31b09\\\",\\n      \\\"name\\\": \\\"ast-kg:beep-effect3:7adfa691212a59bbca23e36bee1fb3e403a61b89:.claude/scripts/context-crawler.ts\\\",\\n      \\\"content\\\": \\\"{\\\\\\\"envelo"
+  }
+}

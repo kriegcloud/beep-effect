@@ -1,3 +1,4 @@
+import type { TUnsafe } from "@beep/types";
 import { Function as F, String as Str } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -110,7 +111,14 @@ type StructForPathTuple<S extends object, P extends ReadonlyArray<string>> = P e
 type StructValueForPathTuple<S extends object, P extends ReadonlyArray<string>> =
   P extends StructPathTuple<S> ? StructPathTupleValue<S, P> : never;
 type PathInput = string | ReadonlyArray<string>;
-type PathLookup = { readonly found: false } | { readonly found: true; readonly value: unknown };
+type PathLookup =
+  | {
+      readonly found: false;
+    }
+  | {
+      readonly found: true;
+      readonly value: unknown;
+    };
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
@@ -144,7 +152,10 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
     current = record[part];
   }
 
-  return { found: true, value: current };
+  return {
+    found: true,
+    value: current,
+  };
 };
 
 /**
@@ -209,3 +220,32 @@ export const dotGetOption: {
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
 };
 // bench
+
+/**
+ * Retrieves the entries (key-value pairs) of an object, where keys are strings,
+ * in a type-safe manner. Symbol keys are excluded from the result.
+ *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Struct from "@beep/utils/Struct"
+ *
+ * const c = Symbol("c")
+ * const value = { a: "foo", b: 1, [c]: true }
+ *
+ * const entries: Array<["a" | "b", string | number]> = Struct.entries(value)
+ *
+ * assert.deepStrictEqual(entries, [["a", "foo"], ["b", 1]])
+ * ```
+ *
+ * @since 3.17.0
+ */
+export const entries = <const R>(obj: R): Array<[keyof R & string, R[keyof R & string]]> =>
+  Object.entries(obj as TUnsafe.Any) as TUnsafe.Any;
+
+/**
+ * Re-exports all `Struct` helpers from Effect.
+ *
+ * @since 0.0.0
+ */
+export * from "effect/Struct";

@@ -1,0 +1,19 @@
+{
+  "mode": "full",
+  "commitSha": "50f2f9572704388a5aae02143b7ec51da2a612eb",
+  "group": "beep-ast-kg-verify-fix-20260226T012316Z",
+  "target": "graphiti",
+  "envelopes": 245,
+  "receipts": [
+    {
+      "target": "graphiti",
+      "attempted": 245,
+      "written": 245,
+      "replayed": 0,
+      "failed": 0,
+      "durationMs": 1211,
+      "dedupeHits": 0,
+      "dedupeMisses": 245
+    }
+  ]
+}
