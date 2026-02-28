@@ -115,7 +115,7 @@ const toHookMap = (events: ReadonlyArray<HookEvent>, hookMatcher: HookCallbackMa
 
 const toMatcherEffect = <R>(
   handler: HookHandler<R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ): Effect.Effect<HookCallbackMatcher, HookError, R> =>
   Effect.gen(function* () {
     const hookCallback = yield* callback(handler);
@@ -132,7 +132,7 @@ const toMatcherEffect = <R>(
 export const hook = <E extends HookEvent, R>(
   event: E,
   handler: HookHandlerFor<E, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ): Effect.Effect<HookMap, HookError, R> =>
   toMatcherEffect(handler as HookHandler<R>, options).pipe(
     Effect.map((hookMatcher) => toHookMap([event], hookMatcher))
@@ -144,7 +144,7 @@ export const hook = <E extends HookEvent, R>(
 export const tap = <R>(
   events: HookEvent | ReadonlyArray<HookEvent>,
   handler: HookTapHandler<R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ): Effect.Effect<HookMap, HookError, R> =>
   toMatcherEffect((input, context) => handler(input, context).pipe(Effect.as({})), options).pipe(
     Effect.map((hookMatcher) => toHookMap(P.isString(events) ? [events] : events, hookMatcher))
@@ -155,7 +155,7 @@ export const tap = <R>(
  */
 export const onPreToolUse = <R>(
   handler: (input: PreToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("PreToolUse", handler, options);
 
 /**
@@ -163,7 +163,7 @@ export const onPreToolUse = <R>(
  */
 export const onPostToolUse = <R>(
   handler: (input: PostToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("PostToolUse", handler, options);
 
 /**
@@ -171,7 +171,7 @@ export const onPostToolUse = <R>(
  */
 export const onPostToolUseFailure = <R>(
   handler: (input: PostToolUseFailureHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("PostToolUseFailure", handler, options);
 
 /**
@@ -179,7 +179,7 @@ export const onPostToolUseFailure = <R>(
  */
 export const onNotification = <R>(
   handler: (input: NotificationHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("Notification", handler, options);
 
 /**
@@ -187,7 +187,7 @@ export const onNotification = <R>(
  */
 export const onUserPromptSubmit = <R>(
   handler: (input: UserPromptSubmitHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("UserPromptSubmit", handler, options);
 
 /**
@@ -195,7 +195,7 @@ export const onUserPromptSubmit = <R>(
  */
 export const onSessionStart = <R>(
   handler: (input: SessionStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("SessionStart", handler, options);
 
 /**
@@ -203,7 +203,7 @@ export const onSessionStart = <R>(
  */
 export const onSessionEnd = <R>(
   handler: (input: SessionEndHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("SessionEnd", handler, options);
 
 /**
@@ -211,7 +211,7 @@ export const onSessionEnd = <R>(
  */
 export const onStop = <R>(
   handler: (input: StopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("Stop", handler, options);
 
 /**
@@ -219,7 +219,7 @@ export const onStop = <R>(
  */
 export const onSubagentStart = <R>(
   handler: (input: SubagentStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("SubagentStart", handler, options);
 
 /**
@@ -227,7 +227,7 @@ export const onSubagentStart = <R>(
  */
 export const onSubagentStop = <R>(
   handler: (input: SubagentStopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("SubagentStop", handler, options);
 
 /**
@@ -235,7 +235,7 @@ export const onSubagentStop = <R>(
  */
 export const onPreCompact = <R>(
   handler: (input: PreCompactHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("PreCompact", handler, options);
 
 /**
@@ -243,7 +243,7 @@ export const onPreCompact = <R>(
  */
 export const onPermissionRequest = <R>(
   handler: (input: PermissionRequestHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("PermissionRequest", handler, options);
 
 /**
@@ -251,7 +251,7 @@ export const onPermissionRequest = <R>(
  */
 export const onSetup = <R>(
   handler: (input: SetupHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
-  options?: HookMatcherOptions
+  options?: undefined | HookMatcherOptions
 ) => hook("Setup", handler, options);
 
 /**
@@ -271,7 +271,7 @@ export class HookBuilder<R = never> {
   on<E extends HookEvent, R2>(
     event: E,
     handler: HookHandlerFor<E, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(hook(event, handler, options));
   }
@@ -279,98 +279,98 @@ export class HookBuilder<R = never> {
   tap<R2>(
     events: HookEvent | ReadonlyArray<HookEvent>,
     handler: HookTapHandler<R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(tap(events, handler, options));
   }
 
   onPreToolUse<R2>(
     handler: (input: PreToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onPreToolUse(handler, options));
   }
 
   onPostToolUse<R2>(
     handler: (input: PostToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onPostToolUse(handler, options));
   }
 
   onPostToolUseFailure<R2>(
     handler: (input: PostToolUseFailureHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onPostToolUseFailure(handler, options));
   }
 
   onNotification<R2>(
     handler: (input: NotificationHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onNotification(handler, options));
   }
 
   onUserPromptSubmit<R2>(
     handler: (input: UserPromptSubmitHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onUserPromptSubmit(handler, options));
   }
 
   onSessionStart<R2>(
     handler: (input: SessionStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onSessionStart(handler, options));
   }
 
   onSessionEnd<R2>(
     handler: (input: SessionEndHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onSessionEnd(handler, options));
   }
 
   onStop<R2>(
     handler: (input: StopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onStop(handler, options));
   }
 
   onSubagentStart<R2>(
     handler: (input: SubagentStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onSubagentStart(handler, options));
   }
 
   onSubagentStop<R2>(
     handler: (input: SubagentStopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onSubagentStop(handler, options));
   }
 
   onPreCompact<R2>(
     handler: (input: PreCompactHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onPreCompact(handler, options));
   }
 
   onPermissionRequest<R2>(
     handler: (input: PermissionRequestHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onPermissionRequest(handler, options));
   }
 
   onSetup<R2>(
     handler: (input: SetupHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R2>,
-    options?: HookMatcherOptions
+    options?: undefined | HookMatcherOptions
   ): HookBuilder<R | R2> {
     return this.append(onSetup(handler, options));
   }
