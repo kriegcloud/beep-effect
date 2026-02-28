@@ -1,11 +1,18 @@
+// cspell:ignore codegraph
+import { Effect, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { GraphitiProtocolError, GraphitiToolCallError } from "./errors.js";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
-const parseJson = S.decodeUnknownSync(S.UnknownFromJsonString);
+const decodeJson = S.decodeUnknownOption(S.UnknownFromJsonString);
+const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
+const sseDataPrefix = "data: ";
+
+const parseRecord = (value: string): O.Option<Record<string, unknown>> => pipe(value, decodeJson, O.filter(isRecord));
 
 /**
  * Parse the latest JSON-RPC payload from an MCP response body.
@@ -14,53 +21,37 @@ const parseJson = S.decodeUnknownSync(S.UnknownFromJsonString);
  *
  * @param body - Raw HTTP response body returned by an MCP endpoint.
  * @returns The last valid JSON-RPC record found in the response body, if present.
- *
  * @category codegraph-graphiti
  * @since 0.0.0
  */
 export const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
-  const trimmed = body.trim();
-  const dataLines = trimmed
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith("data: "))
-    .map((line) => line.slice(6).trim())
-    .filter((line) => line.length > 0);
+  const trimmed = pipe(body, Str.trim);
+  const dataLines = pipe(
+    trimmed,
+    Str.linesIterator,
+    A.fromIterable,
+    A.filter(Str.startsWith(sseDataPrefix)),
+    A.map((line) => pipe(line, Str.slice(sseDataPrefix.length), Str.trim)),
+    A.filter(Str.isNonEmpty)
+  );
 
-  const parseRecord = (value: string): O.Option<Record<string, unknown>> => {
-    let decoded: unknown;
-    try {
-      decoded = parseJson(value);
-    } catch {
-      return O.none();
-    }
-    return isRecord(decoded) ? O.some(decoded) : O.none();
-  };
-
-  if (dataLines.length > 0) {
-    for (let index = dataLines.length - 1; index >= 0; index -= 1) {
-      const candidate = dataLines[index];
-      if (candidate === undefined) {
-        continue;
-      }
-      const parsed = parseRecord(candidate);
-      if (O.isSome(parsed)) {
-        return parsed;
-      }
-    }
-    return O.none();
+  if (A.isReadonlyArrayNonEmpty(dataLines)) {
+    return pipe(
+      dataLines,
+      A.findLast((line) => O.isSome(parseRecord(line))),
+      O.flatMap(parseRecord)
+    );
   }
 
   return parseRecord(trimmed);
 };
 
 const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<Record<string, unknown>> => {
-  const value = record[key];
-  return isRecord(value) ? O.some(value) : O.none();
+  return pipe(record, R.get(key), O.filter(isRecord));
 };
 
 const stringValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> => {
-  const value = record[key];
-  return P.isString(value) ? O.some(value) : O.none();
+  return pipe(record, R.get(key), O.filter(P.isString));
 };
 
 /**
@@ -81,7 +72,6 @@ export interface McpToolResult {
  * @param status - HTTP status code from the MCP tools/call request.
  * @param responseText - Raw response body text from the MCP tools/call request.
  * @returns A normalized tool-call result summary with error classification and parsed payload.
- *
  * @category codegraph-graphiti
  * @since 0.0.0
  */
@@ -173,38 +163,67 @@ export const parseMcpToolResult = (status: number, responseText: string): McpToo
  * @param payload - JSON-RPC payload body.
  * @param sessionId - Optional MCP session id header.
  * @param timeoutMs - Optional request timeout in milliseconds.
- * @returns The raw `fetch` response.
- *
+ * @returns Effect that performs MCP POST and yields the raw `fetch` response.
  * @category codegraph-graphiti
  * @since 0.0.0
  */
-export const mcpPost = async (
+export const mcpPost = Effect.fn("Graphiti.mcpPost")(function* (
   url: string,
   payload: unknown,
   sessionId: O.Option<string>,
   timeoutMs: O.Option<number> = O.none()
-): Promise<Response> => {
-  const headers: Record<string, string> = {
-    "content-type": "application/json",
-    accept: "application/json, text/event-stream",
-  };
-
-  if (O.isSome(sessionId)) {
-    headers["mcp-session-id"] = sessionId.value;
+) {
+  const encoded = encodeJson(payload);
+  if (O.isNone(encoded)) {
+    return yield* new GraphitiProtocolError({
+      message: "Graphiti MCP request payload could not be encoded as JSON.",
+    });
   }
 
-  const request: RequestInit = {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  };
-
-  if (O.isSome(timeoutMs)) {
-    request.signal = AbortSignal.timeout(timeoutMs.value);
+  const body = encoded.value;
+  const headers = pipe(
+    sessionId,
+    O.match({
+      onNone: (): Record<string, string> => ({
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+      }),
+      onSome: (id): Record<string, string> => ({
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+        "mcp-session-id": id,
+      }),
+    })
+  );
+  const request = pipe(
+    timeoutMs,
+    O.match({
+      onNone: (): RequestInit => ({
+        method: "POST",
+        headers,
+        body,
+      }),
+      onSome: (milliseconds): RequestInit => ({
+        method: "POST",
+        headers,
+        body,
+        signal: AbortSignal.timeout(milliseconds),
+      }),
+    })
+  );
+  if (P.isUndefined(request.body) || !P.isString(request.body)) {
+    return yield* new GraphitiProtocolError({ message: "Graphiti MCP request payload body is missing." });
   }
 
-  return fetch(url, request);
-};
+  return yield* Effect.tryPromise({
+    try: () => fetch(url, request),
+    catch: (cause) =>
+      new GraphitiProtocolError({
+        message: `Graphiti MCP POST failed for ${url}`,
+        cause,
+      }),
+  });
+});
 
 /**
  * Initialize an MCP session and return `mcp-session-id`.
@@ -213,18 +232,17 @@ export const mcpPost = async (
  * @param clientName - Client name sent in the initialize handshake.
  * @param clientVersion - Client version sent in the initialize handshake.
  * @param timeoutMs - Optional request timeout in milliseconds.
- * @returns The established MCP session id header value.
- *
+ * @returns Effect yielding established MCP session id header value.
  * @category codegraph-graphiti
  * @since 0.0.0
  */
-export const initializeMcpSession = async (
+export const initializeMcpSession = Effect.fn("Graphiti.initializeMcpSession")(function* (
   url: string,
   clientName: string,
   clientVersion: string,
   timeoutMs: O.Option<number> = O.none()
-): Promise<string> => {
-  const initialize = await mcpPost(
+) {
+  const initialize = yield* mcpPost(
     url,
     {
       jsonrpc: "2.0",
@@ -241,18 +259,25 @@ export const initializeMcpSession = async (
   );
 
   if (!initialize.ok) {
-    const body = await initialize.text();
-    throw new GraphitiProtocolError({
-      message: `Graphiti MCP initialize failed with HTTP ${String(initialize.status)}: ${body.slice(0, 300)}`,
+    const body = yield* Effect.tryPromise({
+      try: () => initialize.text(),
+      catch: (cause) =>
+        new GraphitiProtocolError({
+          message: `Graphiti MCP initialize failed with HTTP ${String(initialize.status)} and unreadable body`,
+          cause,
+        }),
+    });
+    return yield* new GraphitiProtocolError({
+      message: `Graphiti MCP initialize failed with HTTP ${String(initialize.status)}: ${pipe(body, Str.slice(0, 300))}`,
     });
   }
 
   const sessionId = initialize.headers.get("mcp-session-id");
   if (sessionId === null || sessionId.length === 0) {
-    throw new GraphitiProtocolError({ message: "Graphiti MCP initialize missing mcp-session-id" });
+    return yield* new GraphitiProtocolError({ message: "Graphiti MCP initialize missing mcp-session-id" });
   }
 
-  const initialized = await mcpPost(
+  const initialized = yield* mcpPost(
     url,
     { jsonrpc: "2.0", method: "notifications/initialized" },
     O.some(sessionId),
@@ -260,14 +285,21 @@ export const initializeMcpSession = async (
   );
 
   if (!initialized.ok) {
-    const body = await initialized.text();
-    throw new GraphitiProtocolError({
-      message: `Graphiti MCP initialized notification failed with HTTP ${String(initialized.status)}: ${body.slice(0, 300)}`,
+    const body = yield* Effect.tryPromise({
+      try: () => initialized.text(),
+      catch: (cause) =>
+        new GraphitiProtocolError({
+          message: `Graphiti MCP initialized notification failed with HTTP ${String(initialized.status)} and unreadable body`,
+          cause,
+        }),
+    });
+    return yield* new GraphitiProtocolError({
+      message: `Graphiti MCP initialized notification failed with HTTP ${String(initialized.status)}: ${pipe(body, Str.slice(0, 300))}`,
     });
   }
 
   return sessionId;
-};
+});
 
 /**
  * Call an MCP tool and return the raw response payload.
@@ -278,20 +310,19 @@ export const initializeMcpSession = async (
  * @param args - Tool call arguments payload.
  * @param requestId - JSON-RPC request identifier.
  * @param timeoutMs - Optional request timeout in milliseconds.
- * @returns Response status, raw body, and parsed result summary.
- *
+ * @returns Effect yielding response status, raw body, and parsed result summary.
  * @category codegraph-graphiti
  * @since 0.0.0
  */
-export const callMcpTool = async (
+export const callMcpTool = Effect.fn("Graphiti.callMcpTool")(function* (
   url: string,
   sessionId: string,
   toolName: string,
   args: Record<string, unknown>,
   requestId: string,
   timeoutMs: O.Option<number> = O.none()
-): Promise<{ readonly status: number; readonly body: string; readonly result: McpToolResult }> => {
-  const response = await mcpPost(
+) {
+  const response = yield* mcpPost(
     url,
     {
       jsonrpc: "2.0",
@@ -306,13 +337,20 @@ export const callMcpTool = async (
     timeoutMs
   );
 
-  const body = await response.text();
+  const body = yield* Effect.tryPromise({
+    try: () => response.text(),
+    catch: (cause) =>
+      new GraphitiProtocolError({
+        message: `Graphiti MCP tools/call response body read failed for ${toolName}`,
+        cause,
+      }),
+  });
   return {
     status: response.status,
     body,
     result: parseMcpToolResult(response.status, body),
   };
-};
+});
 
 /**
  * Call an MCP tool and fail when Graphiti returns an error summary.
@@ -323,27 +361,26 @@ export const callMcpTool = async (
  * @param args - Tool call arguments payload.
  * @param requestId - JSON-RPC request identifier.
  * @param timeoutMs - Optional request timeout in milliseconds.
- * @returns Parsed MCP payload when the tool call succeeds.
- *
+ * @returns Effect yielding parsed MCP payload when the tool call succeeds.
  * @category codegraph-graphiti
  * @since 0.0.0
  */
-export const callMcpToolOrFail = async (
+export const callMcpToolOrFail = Effect.fn("Graphiti.callMcpToolOrFail")(function* (
   url: string,
   sessionId: string,
   toolName: string,
   args: Record<string, unknown>,
   requestId: string,
   timeoutMs: O.Option<number> = O.none()
-): Promise<O.Option<Record<string, unknown>>> => {
-  const response = await callMcpTool(url, sessionId, toolName, args, requestId, timeoutMs);
+) {
+  const response = yield* callMcpTool(url, sessionId, toolName, args, requestId, timeoutMs);
   if (response.result.isError) {
-    throw new GraphitiToolCallError({
+    return yield* new GraphitiToolCallError({
       message: response.result.message,
       status: response.status,
-      bodySnippet: response.body.slice(0, 400),
+      bodySnippet: pipe(response.body, Str.slice(0, 400)),
     });
   }
 
   return response.result.payload;
-};
+});

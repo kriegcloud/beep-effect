@@ -1,3 +1,4 @@
+// cspell:ignore codegraph
 import { NonNegativeInt } from "@beep/schema";
 import { Effect, pipe, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -31,14 +32,8 @@ export const ChangedPathsCsv = S.String.pipe(
   S.decodeTo(
     S.Array(NormalizedPath),
     SchemaTransformation.transform<ReadonlyArray<string>, string>({
-      decode: (value): ReadonlyArray<string> =>
-        pipe(
-          value,
-          Str.split(","),
-          A.map(Str.trim),
-          A.filter((entry) => Str.isNonEmpty(entry))
-        ),
-      encode: (value) => A.join(",")(value),
+      decode: (value): ReadonlyArray<string> => pipe(value, Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty)),
+      encode: A.join(","),
     })
   )
 );
@@ -97,7 +92,6 @@ export const decodeJsonEnvelopeLine = S.decodeUnknownEffect(JsonEnvelopeLine);
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed positive integer or fallback.
- *
  * @category codegraph-kg
  * @since 0.0.0
  */
@@ -116,7 +110,6 @@ export const parsePositiveInt = (value: O.Option<string>, fallback: number): num
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed positive number or fallback.
- *
  * @category codegraph-kg
  * @since 0.0.0
  */
@@ -135,7 +128,6 @@ export const parsePositiveNumber = (value: O.Option<string>, fallback: number): 
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed boolean or fallback.
- *
  * @category codegraph-kg
  * @since 0.0.0
  */

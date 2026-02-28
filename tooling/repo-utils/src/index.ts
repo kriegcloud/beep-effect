@@ -4,6 +4,7 @@
  * @since 0.0.0
  * @packageDocumentation
  */
+// cspell:ignore codegraph
 
 /**
  * @since 0.0.0

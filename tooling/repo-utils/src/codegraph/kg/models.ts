@@ -1,3 +1,4 @@
+// cspell:ignore codegraph
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import * as S from "effect/Schema";

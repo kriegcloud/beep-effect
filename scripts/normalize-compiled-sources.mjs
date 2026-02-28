@@ -282,7 +282,7 @@ function cleanupConvertedText(input, title, sourceUrl) {
     .replace(/<style\b[\s\S]*?<\/style>/gi, "\n")
     .replace(/<!--[\s\S]*?-->/g, "\n")
     .replace(/<!doctype[^>]*>/gi, "\n")
-    .replace(/!\[[^\]]*\]\(data:image[^\)]*\)/gi, "")
+    .replace(/!\[[^\]]*\]\(data:image[^)]*\)/gi, "")
     .replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/g, "")
     .replace(/<\/?[^>\n]+>/g, "");
 
@@ -377,7 +377,7 @@ function cleanupMarkdownLike(input, title, sourceUrl) {
     .replace(/\u00A0/g, " ")
     .replace(/\u200B/g, "")
     .replace(/\uFEFF/g, "")
-    .replace(/!\[[^\]]*\]\(data:image[^\)]*\)/gi, "")
+    .replace(/!\[[^\]]*\]\(data:image[^)]*\)/gi, "")
     .replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/g, "");
 
   let lines = text.split("\n").map((line) => line.trimEnd());
@@ -481,7 +481,7 @@ function normalizeSectionHeadings(linesInput) {
     if (
       prevBlank &&
       nextBlank &&
-      /^[A-Z][A-Za-z0-9 ,:&'()\-]{4,120}$/.test(trimmed) &&
+      /^[A-Z][A-Za-z0-9 ,:&'()-]{4,120}$/.test(trimmed) &&
       !trimmed.startsWith("#")
     ) {
       lines[index] = `## ${trimmed}`;
@@ -495,10 +495,10 @@ function stripDataLinks(linesInput) {
   return linesInput
     .map((line) =>
       line
-        .replace(/\[[^\]]*\]\(data:[^\)]+\)/gi, "")
-        .replace(/!\[[^\]]*\]\([^\)]*viewerng\/thumb[^\)]*\)/gi, "")
+        .replace(/\[[^\]]*\]\(data:[^)]+\)/gi, "")
+        .replace(/!\[[^\]]*\]\([^)]*viewerng\/thumb[^)]*\)/gi, "")
         .replace(
-          /!\[[^\]]*\]\(https?:\/\/[^\)]*(framerusercontent|cdn\.prod\.website-files)\.[^\)]*\)/gi,
+          /!\[[^\]]*\]\(https?:\/\/[^)]*(framerusercontent|cdn\.prod\.website-files)\.[^)]*\)/gi,
           "",
         ),
     )
@@ -507,10 +507,10 @@ function stripDataLinks(linesInput) {
       if (trimmed.length === 0) {
         return true;
       }
-      if (/^!\[[^\]]*\]\([^\)]*\)$/i.test(trimmed)) {
+      if (/^!\[[^\]]*\]\([^)]*\)$/i.test(trimmed)) {
         return false;
       }
-      if (/^Loading…!?\s*!\[[^\]]*\]\([^\)]*\)$/i.test(trimmed)) {
+      if (/^Loading…!?\s*!\[[^\]]*\]\([^)]*\)$/i.test(trimmed)) {
         return false;
       }
       if (/^Try Potpie ?→?$/i.test(trimmed)) {

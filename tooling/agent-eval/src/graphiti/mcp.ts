@@ -15,6 +15,7 @@ import {
   parseBoolean as parseBooleanShared,
   parsePositiveInt as parsePositiveIntShared,
 } from "@beep/repo-utils";
+import { Effect } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { AgentEvalProtocolError } from "../errors.js";
@@ -250,7 +251,7 @@ const ensureProxyPreflight = async (config: GraphitiGuardConfig, url: string): P
   }
 
   try {
-    await ensureGraphitiProxyPreflight(url);
+    await Effect.runPromise(ensureGraphitiProxyPreflight(url));
   } catch (cause) {
     throw toProtocolError("Graphiti proxy preflight failed", cause);
   }
@@ -282,14 +283,14 @@ const initializeSession = async (config: GraphitiGuardConfig, url: string): Prom
     return cached;
   }
 
-  const sessionId = await initializeMcpSession(url, "agent-eval", "0.0.0", O.some(config.requestTimeoutMs)).catch(
-    (cause) => {
-      if (isTimeoutError(cause)) {
-        throw toProtocolError(`Graphiti initialize timed out after ${String(config.requestTimeoutMs)}ms`, cause);
-      }
-      throw toProtocolError("Graphiti MCP initialize failed", cause);
+  const sessionId = await Effect.runPromise(
+    initializeMcpSession(url, "agent-eval", "0.0.0", O.some(config.requestTimeoutMs))
+  ).catch((cause) => {
+    if (isTimeoutError(cause)) {
+      throw toProtocolError(`Graphiti initialize timed out after ${String(config.requestTimeoutMs)}ms`, cause);
     }
-  );
+    throw toProtocolError("Graphiti MCP initialize failed", cause);
+  });
 
   SessionByUrl.set(url, sessionId);
   return sessionId;
@@ -303,7 +304,9 @@ const callTool = async (
   args: unknown
 ): Promise<string> => {
   const safeArgs = isRecord(args) ? args : {};
-  return callMcpTool(url, sessionId, toolName, safeArgs, `${toolName}-call`, O.some(config.requestTimeoutMs))
+  return Effect.runPromise(
+    callMcpTool(url, sessionId, toolName, safeArgs, `${toolName}-call`, O.some(config.requestTimeoutMs))
+  )
     .then((response) => {
       if (response.result.isError) {
         throw toProtocolError(response.result.message);

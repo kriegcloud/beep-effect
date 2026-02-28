@@ -10,10 +10,13 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as nodePath from "node:path";
 import {
+  AstKgEnvelopeVersion,
+  AstKgGroupId,
   callMcpTool,
   DomainError,
   ensureGraphitiProxyPreflight as ensureGraphitiProxyPreflightShared,
   initializeMcpSession,
+  KgSchemaVersion,
   parsePositiveInt as parsePositiveIntShared,
   parsePositiveNumber as parsePositiveNumberShared,
 } from "@beep/repo-utils";
@@ -24,9 +27,6 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
-const KgSchemaVersion = "kg-schema-v1" as const;
-const AstKgEnvelopeVersion = "AstKgEpisodeV1" as const;
-const AstKgGroupId = "beep-ast-kg" as const;
 const DefaultGraphitiMcpUrl = "http://127.0.0.1:8123/mcp" as const;
 const WorkspaceName = "beep-effect3" as const;
 const ExtractorVersion = "p3-v1" as const;
@@ -1140,7 +1140,7 @@ const generatePublishEnvelopes = async (
 };
 
 const initializeMcp = async (url: string): Promise<string> => {
-  return initializeMcpSession(url, "beep-kg", "0.0.0").catch((cause) => {
+  return Effect.runPromise(initializeMcpSession(url, "beep-kg", "0.0.0")).catch((cause) => {
     throw cause instanceof DomainError ? cause : new DomainError({ message: "Graphiti MCP initialize failed", cause });
   });
 };
@@ -1156,7 +1156,7 @@ const parsePositiveNumber = (value: string | undefined, fallback: number): numbe
 const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise<void> => {
-  return ensureGraphitiProxyPreflightShared(graphitiUrl).catch((cause) => {
+  return Effect.runPromise(ensureGraphitiProxyPreflightShared(graphitiUrl)).catch((cause) => {
     throw cause instanceof DomainError
       ? cause
       : new DomainError({
@@ -1331,16 +1331,18 @@ const verifyGraphitiEpisodes = async (
     attempts += 1;
 
     try {
-      const response = await callMcpTool(
-        url,
-        sessionId,
-        "get_episodes",
-        {
-          group_ids: [group],
-          max_episodes: maxEpisodes,
-        },
-        "kg-verify-episodes",
-        O.some(requestTimeoutMs)
+      const response = await Effect.runPromise(
+        callMcpTool(
+          url,
+          sessionId,
+          "get_episodes",
+          {
+            group_ids: [group],
+            max_episodes: maxEpisodes,
+          },
+          "kg-verify-episodes",
+          O.some(requestTimeoutMs)
+        )
       );
 
       const parsed = response.result;
@@ -1463,18 +1465,20 @@ const publishToGraphiti = async (
     }
 
     const name = `ast-kg:${metadata.workspace}:${metadata.commitSha}:${metadata.file}`;
-    const response = await callMcpTool(
-      url,
-      sessionId,
-      "add_memory",
-      {
-        name,
-        episode_body: JSON.stringify(envelope),
-        source: "json",
-        source_description: "p6 dual-write publish",
-        group_id: metadata.groupId,
-      },
-      `kg-add-${written + failed + 1}`
+    const response = await Effect.runPromise(
+      callMcpTool(
+        url,
+        sessionId,
+        "add_memory",
+        {
+          name,
+          episode_body: JSON.stringify(envelope),
+          source: "json",
+          source_description: "p6 dual-write publish",
+          group_id: metadata.groupId,
+        },
+        `kg-add-${written + failed + 1}`
+      )
     );
     const parsed = response.result;
     if (!parsed.isError) {

@@ -1,7 +1,9 @@
-import { pipe, String as Str } from "effect";
+// cspell:ignore codegraph
+import { Effect, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { parseBoolean, parsePositiveInt } from "../kg/transforms.js";
 import { GraphitiPreflightError } from "./errors.js";
@@ -11,7 +13,6 @@ import { GraphitiPreflightError } from "./errors.js";
  *
  * @param host - Hostname or IP portion of a URL.
  * @returns `true` when host is a local loopback alias.
- *
  * @category codegraph-graphiti
  * @since 0.0.0
  */
@@ -31,55 +32,46 @@ export const isLoopbackHost = (host: string): boolean => {
  *
  * @param url - Candidate MCP URL.
  * @returns `true` when URL resolves to the local Graphiti proxy MCP endpoint.
- *
  * @category codegraph-graphiti
  * @since 0.0.0
  */
 export const isProxyGraphitiMcpUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url);
-    const normalizedPath = parsed.pathname.endsWith("/") ? parsed.pathname.slice(0, -1) : parsed.pathname;
-    const port = parsed.port.length > 0 ? parsed.port : parsed.protocol === "https:" ? "443" : "80";
-    return isLoopbackHost(parsed.hostname) && port === "8123" && normalizedPath === "/mcp";
-  } catch {
+  if (!URL.canParse(url)) {
     return false;
   }
+  const parsed = new URL(url);
+  const normalizedPath = Str.endsWith("/")(parsed.pathname) ? parsed.pathname.slice(0, -1) : parsed.pathname;
+  const port = parsed.port.length > 0 ? parsed.port : parsed.protocol === "https:" ? "443" : "80";
+  return isLoopbackHost(parsed.hostname) && port === "8123" && normalizedPath === "/mcp";
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
+const decodeJson = S.decodeUnknownOption(S.UnknownFromJsonString);
 
 const readNestedString = (value: unknown, path: ReadonlyArray<string>): O.Option<string> => {
-  let current: unknown = value;
-  for (const key of path) {
-    if (!isRecord(current)) {
-      return O.none();
-    }
-    current = current[key];
-  }
-  return P.isString(current) ? O.some(current) : O.none();
+  return pipe(
+    path,
+    A.reduce(O.some(value) as O.Option<unknown>, (current, key) =>
+      pipe(current, O.filter(isRecord), O.flatMap(R.get(key)))
+    ),
+    O.filter(P.isString)
+  );
 };
 
-const parseHealthPayload = (body: string): O.Option<Record<string, unknown>> => {
-  const parseJson = S.decodeUnknownSync(S.UnknownFromJsonString);
-  let decoded: unknown;
-  try {
-    decoded = parseJson(body);
-  } catch {
-    return O.none();
-  }
-  return isRecord(decoded) ? O.some(decoded) : O.none();
-};
+const parseHealthPayload = (body: string): O.Option<Record<string, unknown>> =>
+  pipe(body, decodeJson, O.filter(isRecord));
 
 /**
  * Ensure local graphiti proxy is healthy before MCP operations.
  *
  * @param graphitiUrl - MCP URL used for Graphiti operations.
- * @returns Resolves when preflight passes or is disabled.
- *
+ * @returns Effect that succeeds when preflight passes or is disabled.
  * @category codegraph-graphiti
  * @since 0.0.0
  */
-export const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise<void> => {
+export const ensureGraphitiProxyPreflight = Effect.fn("Graphiti.ensureGraphitiProxyPreflight")(function* (
+  graphitiUrl: string
+) {
   const preflightEnabled = parseBoolean(O.fromNullishOr(process.env.BEEP_GRAPHITI_PROXY_PREFLIGHT), true);
   if (!preflightEnabled || !isProxyGraphitiMcpUrl(graphitiUrl)) {
     return;
@@ -88,22 +80,30 @@ export const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise
   const timeoutMs = parsePositiveInt(O.fromNullishOr(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS), 3_000);
   const healthUrl = new URL("/healthz", graphitiUrl).toString();
 
-  let response: Response;
-  try {
-    response = await fetch(healthUrl, {
-      method: "GET",
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-  } catch (cause) {
-    throw new GraphitiPreflightError({
-      message: `Graphiti proxy preflight failed: unable to reach ${healthUrl} within ${String(timeoutMs)}ms.`,
-      cause,
-    });
-  }
+  const response = yield* Effect.tryPromise({
+    try: () =>
+      fetch(healthUrl, {
+        method: "GET",
+        signal: AbortSignal.timeout(timeoutMs),
+      }),
+    catch: (cause) =>
+      new GraphitiPreflightError({
+        message: `Graphiti proxy preflight failed: unable to reach ${healthUrl} within ${String(timeoutMs)}ms.`,
+        cause,
+      }),
+  });
 
-  const responseText = await response.text();
+  const responseText = yield* Effect.tryPromise({
+    try: () => response.text(),
+    catch: (cause) =>
+      new GraphitiPreflightError({
+        message: `Graphiti proxy preflight failed: unable to read ${healthUrl} response body.`,
+        cause,
+      }),
+  });
+
   if (!response.ok) {
-    throw new GraphitiPreflightError({
+    return yield* new GraphitiPreflightError({
       message: `Graphiti proxy preflight failed: ${healthUrl} returned HTTP ${String(response.status)}.`,
     });
   }
@@ -115,7 +115,7 @@ export const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise
 
   const status = readNestedString(payload.value, ["status"]);
   if (O.isSome(status) && status.value !== "ok") {
-    throw new GraphitiPreflightError({
+    return yield* new GraphitiPreflightError({
       message: `Graphiti proxy preflight failed: ${healthUrl} reported status '${status.value}'.`,
     });
   }
@@ -126,8 +126,8 @@ export const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise
     (O.isSome(falkor) && falkor.value !== "healthy") || (O.isSome(graphiti) && graphiti.value !== "healthy");
 
   if (unhealthy) {
-    throw new GraphitiPreflightError({
+    return yield* new GraphitiPreflightError({
       message: `Graphiti dependency unhealthy (falkor=${O.getOrElse(falkor, () => "unknown")}, graphiti=${O.getOrElse(graphiti, () => "unknown")}).`,
     });
   }
-};
+});

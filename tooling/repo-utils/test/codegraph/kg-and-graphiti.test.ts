@@ -8,6 +8,7 @@ import {
   SnapshotRecord,
 } from "@beep/repo-utils";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 describe("codegraph kg + graphiti helpers", () => {
@@ -17,9 +18,10 @@ describe("codegraph kg + graphiti helpers", () => {
   });
 
   it("encodes and decodes snapshot json lines", async () => {
+    const decodeSnapshot = S.decodeUnknownSync(SnapshotRecord);
     const line = await Effect.runPromise(
       encodeSnapshotRecordJsonLine(
-        new SnapshotRecord({
+        decodeSnapshot({
           schemaVersion: KgSchemaVersion,
           workspace: "beep-effect3",
           commitSha: "abc1234",
