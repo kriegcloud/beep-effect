@@ -1,0 +1,2 @@
+timestamp=20260228T105936Z
+group=beep-ast-kg-p7-batch-20260228T105611Z

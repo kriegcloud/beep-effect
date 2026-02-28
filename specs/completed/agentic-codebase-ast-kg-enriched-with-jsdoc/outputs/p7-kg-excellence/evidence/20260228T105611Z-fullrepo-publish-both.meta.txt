@@ -1,0 +1,7 @@
+timestamp=20260228T105611Z
+group=beep-ast-kg-p7-batch-20260228T105611Z
+start_iso=2026-02-28T10:56:11Z
+start_epoch=1772276171
+end_iso=2026-02-28T10:57:25Z
+end_epoch=1772276245
+wall_seconds=74
