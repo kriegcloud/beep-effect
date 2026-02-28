@@ -231,6 +231,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/shared/client": {
+      "name": "@beep/shared-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/shared/domain": {
       "name": "@beep/shared-domain",
       "version": "0.0.0",
@@ -244,6 +255,39 @@
     },
     "packages/shared/env": {
       "name": "@beep/shared-env",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/shared/server": {
+      "name": "@beep/shared-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/shared/tables": {
+      "name": "@beep/shared-tables",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/shared/ui": {
+      "name": "@beep/shared-ui",
       "version": "0.0.0",
       "dependencies": {
         "effect": "catalog:",
@@ -564,9 +608,17 @@
 
     "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
 
+    "@beep/shared-client": ["@beep/shared-client@workspace:packages/shared/client"],
+
     "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
 
     "@beep/shared-env": ["@beep/shared-env@workspace:packages/shared/env"],
+
+    "@beep/shared-server": ["@beep/shared-server@workspace:packages/shared/server"],
+
+    "@beep/shared-tables": ["@beep/shared-tables@workspace:packages/shared/tables"],
+
+    "@beep/shared-ui": ["@beep/shared-ui@workspace:packages/shared/ui"],
 
     "@beep/types": ["@beep/types@workspace:packages/common/types"],
 
