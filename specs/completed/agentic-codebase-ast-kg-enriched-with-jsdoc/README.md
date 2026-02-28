@@ -1,7 +1,7 @@
 # Agentic Codebase AST KG Enriched With JSDoc
 
 ## Status
-IN PROGRESS (P7 KG excellence gap-closure phase opened after P6 full-repo dual-write evidence)
+COMPLETED (P7 KG excellence closure gates passed with evidence on 2026-02-28)
 
 ## Owner
 @elpresidank
@@ -10,7 +10,7 @@ IN PROGRESS (P7 KG excellence gap-closure phase opened after P6 full-repo dual-w
 2026-02-25
 
 ## Updated
-2026-02-25
+2026-02-28
 
 ## Quick Navigation
 - [Quick Start](./QUICK_START.md)
@@ -52,8 +52,15 @@ IN PROGRESS (P7 KG excellence gap-closure phase opened after P6 full-repo dual-w
 - [P7 Reliability Engineer Prompt](./handoffs/P7_RELIABILITY_ENGINEER_PROMPT.md)
 - [P7 Query Engineer Prompt](./handoffs/P7_QUERY_ENGINEER_PROMPT.md)
 - [P7 Ticket Backlog](./outputs/p7-kg-excellence/tickets.md)
+- [P7 Falkor Batching Report](./outputs/p7-kg-excellence/falkor-batching-report.md)
+- [P7 Replay Receipt Contract](./outputs/p7-kg-excellence/replay-receipt-contract.md)
+- [P7 Group Isolation Runbook](./outputs/p7-kg-excellence/group-isolation-runbook.md)
+- [P7 Strict Parity Profile](./outputs/p7-kg-excellence/strict-parity-profile.md)
+- [P7 Recovery Automation Report](./outputs/p7-kg-excellence/recovery-automation-report.md)
+- [P7 Resilience Drill Report](./outputs/p7-kg-excellence/resilience-drill-report.md)
+- [P7 Final Excellence Scorecard](./outputs/p7-kg-excellence/final-excellence-scorecard.md)
 - [P7 Milestone](https://github.com/kriegcloud/beep-effect/milestone/1)
-- [P7 Issues #61-#66](https://github.com/kriegcloud/beep-effect/issues?q=is%3Aissue%20state%3Aopen%20milestone%3A%22P7%20KG%20Excellence%22)
+- [P7 Issues #61-#66](https://github.com/kriegcloud/beep-effect/issues?q=is%3Aissue%20milestone%3A%22P7%20KG%20Excellence%22)
 - [Landscape Comparison](./outputs/p0-research/landscape-comparison.md)
 - [Reuse vs Build Matrix](./outputs/p0-research/reuse-vs-build-matrix.md)
 - [Constraints and Gaps](./outputs/p0-research/constraints-and-gaps.md)

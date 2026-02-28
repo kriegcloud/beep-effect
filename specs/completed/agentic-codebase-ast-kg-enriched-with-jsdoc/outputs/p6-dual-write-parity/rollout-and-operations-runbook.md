@@ -8,7 +8,7 @@
 
 ## Required Preflight
 1. Falkor container reachable (`graphiti-mcp-falkordb-1`) or `BEEP_FALKOR_REDIS_URL` configured.
-2. Graphiti MCP reachable at `BEEP_GRAPHITI_URL` (default `http://localhost:8000/mcp`).
+2. Graphiti MCP reachable at `BEEP_GRAPHITI_URL` (default `http://127.0.0.1:8123/mcp` via queue proxy).
 3. Confirm target commit: `git rev-parse HEAD`.
 4. Confirm command surface: `bun run beep kg --help`.
 
