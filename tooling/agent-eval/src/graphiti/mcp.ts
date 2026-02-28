@@ -8,7 +8,15 @@
 import { execFile } from "node:child_process";
 import * as os from "node:os";
 import { promisify } from "node:util";
+import {
+  callMcpTool,
+  ensureGraphitiProxyPreflight,
+  initializeMcpSession,
+  parseBoolean as parseBooleanShared,
+  parsePositiveInt as parsePositiveIntShared,
+} from "@beep/repo-utils";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import { AgentEvalProtocolError } from "../errors.js";
 
 /**
@@ -60,46 +68,24 @@ const parseFactsFromJsonText = (text: string): ReadonlyArray<string> => {
   return facts;
 };
 
-const parsePositiveInt = (value: string | undefined, fallback: number): number => {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-};
-
-const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
-    return true;
-  }
-  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
-    return false;
-  }
-
-  return fallback;
-};
-
 const getGuardConfig = (): GraphitiGuardConfig => ({
-  serialize: parseBoolean(process.env.BEEP_GRAPHITI_SERIALIZE, true),
+  serialize: parseBooleanShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_SERIALIZE), true),
   lockDir: process.env.BEEP_GRAPHITI_LOCK_DIR ?? `${os.tmpdir()}/beep-graphiti-memory.lock`,
-  lockTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_LOCK_TIMEOUT_MS, 45_000),
-  retryAttempts: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_ATTEMPTS, 5),
-  retryBaseMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_BASE_MS, 200),
-  retryMaxMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_MAX_MS, 2_000),
-  retryJitterMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_JITTER_MS, 125),
-  requestTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_REQUEST_TIMEOUT_MS, 2_500),
-  preflightEnabled: parseBoolean(process.env.BEEP_GRAPHITI_PREFLIGHT, true),
-  preflightTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS, 2_000),
-  preflightTtlMs: parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TTL_MS, 5_000),
-  circuitEnabled: parseBoolean(process.env.BEEP_GRAPHITI_CIRCUIT_ENABLED, true),
-  circuitFailureThreshold: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_FAILURE_THRESHOLD, 1),
-  circuitOpenMs: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_OPEN_MS, 60_000),
+  lockTimeoutMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_LOCK_TIMEOUT_MS), 45_000),
+  retryAttempts: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_RETRY_ATTEMPTS), 5),
+  retryBaseMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_RETRY_BASE_MS), 200),
+  retryMaxMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_RETRY_MAX_MS), 2_000),
+  retryJitterMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_RETRY_JITTER_MS), 125),
+  requestTimeoutMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_REQUEST_TIMEOUT_MS), 2_500),
+  preflightEnabled: parseBooleanShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_PREFLIGHT), true),
+  preflightTimeoutMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS), 2_000),
+  preflightTtlMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_PREFLIGHT_TTL_MS), 5_000),
+  circuitEnabled: parseBooleanShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_CIRCUIT_ENABLED), true),
+  circuitFailureThreshold: parsePositiveIntShared(
+    O.fromNullishOr(process.env.BEEP_GRAPHITI_CIRCUIT_FAILURE_THRESHOLD),
+    1
+  ),
+  circuitOpenMs: parsePositiveIntShared(O.fromNullishOr(process.env.BEEP_GRAPHITI_CIRCUIT_OPEN_MS), 60_000),
 });
 
 const toProtocolError = (message: string, cause?: unknown): AgentEvalProtocolError =>
@@ -252,51 +238,8 @@ const recordCircuitSuccess = (config: GraphitiGuardConfig, url: string): void =>
   }
 };
 
-const isLoopbackHost = (host: string): boolean => {
-  const normalized = host.trim().toLowerCase();
-  return (
-    normalized === "localhost" ||
-    normalized === "127.0.0.1" ||
-    normalized === "::1" ||
-    normalized === "[::1]" ||
-    normalized === "0.0.0.0"
-  );
-};
-
-const toHealthUrl = (url: string): string | null => {
-  try {
-    const parsed = new URL(url);
-    if (!isLoopbackHost(parsed.hostname)) {
-      return null;
-    }
-    const normalizedPath = parsed.pathname.replace(/\/+$/, "");
-    if (normalizedPath !== "/mcp") {
-      return null;
-    }
-    return new URL("/healthz", parsed).toString();
-  } catch {
-    return null;
-  }
-};
-
-const readNestedString = (value: unknown, path: ReadonlyArray<string>): string | undefined => {
-  let current: unknown = value;
-  for (const key of path) {
-    if (!isRecord(current)) {
-      return undefined;
-    }
-    current = current[key];
-  }
-  return typeof current === "string" ? current : undefined;
-};
-
 const ensureProxyPreflight = async (config: GraphitiGuardConfig, url: string): Promise<void> => {
   if (!config.preflightEnabled) {
-    return;
-  }
-
-  const healthUrl = toHealthUrl(url);
-  if (healthUrl === null) {
     return;
   }
 
@@ -306,43 +249,10 @@ const ensureProxyPreflight = async (config: GraphitiGuardConfig, url: string): P
     return;
   }
 
-  let response: Response;
   try {
-    response = await fetch(healthUrl, {
-      method: "GET",
-      signal: AbortSignal.timeout(config.preflightTimeoutMs),
-    });
+    await ensureGraphitiProxyPreflight(url);
   } catch (cause) {
-    throw toProtocolError(
-      `Graphiti proxy preflight failed: ${healthUrl} unreachable within ${String(config.preflightTimeoutMs)}ms`,
-      cause
-    );
-  }
-
-  const responseText = await response.text();
-  if (!response.ok) {
-    throw toProtocolError(`Graphiti proxy preflight failed: HTTP ${String(response.status)} from ${healthUrl}`);
-  }
-
-  try {
-    const parsed = JSON.parse(responseText);
-    const status = readNestedString(parsed, ["status"]);
-    const falkor = readNestedString(parsed, ["dependencies", "falkor"]);
-    const graphiti = readNestedString(parsed, ["dependencies", "graphiti"]);
-    if (status !== undefined && status !== "ok") {
-      throw toProtocolError(
-        `Graphiti proxy preflight reported status=${status} (falkor=${falkor ?? "unknown"}, graphiti=${graphiti ?? "unknown"})`
-      );
-    }
-    if ((falkor !== undefined && falkor !== "healthy") || (graphiti !== undefined && graphiti !== "healthy")) {
-      throw toProtocolError(
-        `Graphiti dependency unhealthy (falkor=${falkor ?? "unknown"}, graphiti=${graphiti ?? "unknown"})`
-      );
-    }
-  } catch (cause) {
-    if (cause instanceof AgentEvalProtocolError) {
-      throw cause;
-    }
+    throw toProtocolError("Graphiti proxy preflight failed", cause);
   }
 
   PreflightByUrl.set(url, nowMs);
@@ -365,85 +275,21 @@ const isTimeoutError = (cause: unknown): boolean => {
   );
 };
 
-const postMcp = async (
-  config: GraphitiGuardConfig,
-  url: string,
-  headers: Record<string, string>,
-  payload: unknown,
-  operation: string
-): Promise<Response> => {
-  try {
-    return await fetch(url, {
-      method: "POST",
-      headers: {
-        accept: "application/json, text/event-stream",
-        ...headers,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(config.requestTimeoutMs),
-    });
-  } catch (cause) {
-    if (isTimeoutError(cause)) {
-      throw toProtocolError(`Graphiti ${operation} timed out after ${String(config.requestTimeoutMs)}ms`, cause);
-    }
-    throw toProtocolError(`Graphiti ${operation} request failed`, cause);
-  }
-};
-
-const ensureOk = async (response: Response, operation: string): Promise<void> => {
-  if (response.ok) {
-    return;
-  }
-  const body = await response.text();
-  throw toProtocolError(`Graphiti ${operation} returned HTTP ${String(response.status)}: ${body}`);
-};
-
 const initializeSession = async (config: GraphitiGuardConfig, url: string): Promise<string> => {
+  void config;
   const cached = SessionByUrl.get(url);
   if (cached !== undefined) {
     return cached;
   }
 
-  const initializeResponse = await postMcp(
-    config,
-    url,
-    { "content-type": "application/json" },
-    {
-      jsonrpc: "2.0",
-      id: "initialize",
-      method: "initialize",
-      params: {
-        protocolVersion: "2024-11-05",
-        capabilities: {},
-        clientInfo: {
-          name: "agent-eval",
-          version: "0.0.0",
-        },
-      },
-    },
-    "initialize"
+  const sessionId = await initializeMcpSession(url, "agent-eval", "0.0.0", O.some(config.requestTimeoutMs)).catch(
+    (cause) => {
+      if (isTimeoutError(cause)) {
+        throw toProtocolError(`Graphiti initialize timed out after ${String(config.requestTimeoutMs)}ms`, cause);
+      }
+      throw toProtocolError("Graphiti MCP initialize failed", cause);
+    }
   );
-  await ensureOk(initializeResponse, "initialize");
-
-  const sessionId = initializeResponse.headers.get("mcp-session-id");
-  if (!sessionId) {
-    throw toProtocolError("Graphiti MCP initialize missing mcp-session-id");
-  }
-
-  const initializedResponse = await postMcp(
-    config,
-    url,
-    {
-      "content-type": "application/json",
-      "mcp-session-id": sessionId,
-    },
-    {
-      jsonrpc: "2.0",
-      method: "notifications/initialized",
-    },
-    "initialized notification"
-  );
-  await ensureOk(initializedResponse, "initialized notification");
 
   SessionByUrl.set(url, sessionId);
   return sessionId;
@@ -456,26 +302,20 @@ const callTool = async (
   toolName: GraphitiToolName,
   args: unknown
 ): Promise<string> => {
-  const response = await postMcp(
-    config,
-    url,
-    {
-      "content-type": "application/json",
-      "mcp-session-id": sessionId,
-    },
-    {
-      jsonrpc: "2.0",
-      id: `${toolName}-call`,
-      method: "tools/call",
-      params: {
-        name: toolName,
-        arguments: args,
-      },
-    },
-    `${toolName} tool call`
-  );
-  await ensureOk(response, `${toolName} tool call`);
-  return response.text();
+  const safeArgs = isRecord(args) ? args : {};
+  return callMcpTool(url, sessionId, toolName, safeArgs, `${toolName}-call`, O.some(config.requestTimeoutMs))
+    .then((response) => {
+      if (response.result.isError) {
+        throw toProtocolError(response.result.message);
+      }
+      return response.body;
+    })
+    .catch((cause) => {
+      if (isTimeoutError(cause)) {
+        throw toProtocolError(`Graphiti ${toolName} timed out after ${String(config.requestTimeoutMs)}ms`, cause);
+      }
+      throw toProtocolError(`Graphiti ${toolName} tool call failed`, cause);
+    });
 };
 
 const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolName, args: unknown): Promise<string> => {

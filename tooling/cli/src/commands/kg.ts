@@ -9,9 +9,19 @@ import { execFileSync, execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as nodePath from "node:path";
-import { DomainError } from "@beep/repo-utils";
+import {
+  callMcpTool,
+  DomainError,
+  ensureGraphitiProxyPreflight as ensureGraphitiProxyPreflightShared,
+  initializeMcpSession,
+  parsePositiveInt as parsePositiveIntShared,
+  parsePositiveNumber as parsePositiveNumberShared,
+} from "@beep/repo-utils";
 import { Console, Effect } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
 const KgSchemaVersion = "kg-schema-v1" as const;
@@ -215,18 +225,6 @@ const relationType = (value: string): string => {
 };
 
 const resolveGraphitiMcpUrl = (): string => process.env.BEEP_GRAPHITI_URL ?? DefaultGraphitiMcpUrl;
-const isLoopbackHost = (host: string): boolean => host === "127.0.0.1" || host === "localhost";
-
-const isProxyGraphitiMcpUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url);
-    const normalizedPath = parsed.pathname.endsWith("/") ? parsed.pathname.slice(0, -1) : parsed.pathname;
-    const port = parsed.port.length > 0 ? parsed.port : parsed.protocol === "https:" ? "443" : "80";
-    return isLoopbackHost(parsed.hostname) && port === "8123" && normalizedPath === "/mcp";
-  } catch {
-    return false;
-  }
-};
 
 const toNodeKind = (value: string): NodeKind => {
   if (
@@ -1141,169 +1139,31 @@ const generatePublishEnvelopes = async (
   }
 };
 
-const mcpPost = async (
-  url: string,
-  payload: unknown,
-  sessionId: O.Option<string>,
-  timeoutMs: O.Option<number> = O.none()
-): Promise<Response> => {
-  const headers: Record<string, string> = {
-    "content-type": "application/json",
-    accept: "application/json, text/event-stream",
-  };
-  if (O.isSome(sessionId)) {
-    headers["mcp-session-id"] = sessionId.value;
-  }
-  const request: RequestInit = {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  };
-  if (O.isSome(timeoutMs)) {
-    request.signal = AbortSignal.timeout(timeoutMs.value);
-  }
-  return fetch(url, request);
-};
-
 const initializeMcp = async (url: string): Promise<string> => {
-  const initialize = await mcpPost(
-    url,
-    {
-      jsonrpc: "2.0",
-      id: "kg-init",
-      method: "initialize",
-      params: {
-        protocolVersion: "2024-11-05",
-        capabilities: {},
-        clientInfo: { name: "beep-kg", version: "0.0.0" },
-      },
-    },
-    O.none()
-  );
-  const sessionId = initialize.headers.get("mcp-session-id");
-  if (sessionId === null || sessionId.length === 0) {
-    throw new DomainError({ message: "Graphiti MCP initialize missing mcp-session-id" });
-  }
-  await mcpPost(url, { jsonrpc: "2.0", method: "notifications/initialized" }, O.some(sessionId));
-  return sessionId;
+  return initializeMcpSession(url, "beep-kg", "0.0.0").catch((cause) => {
+    throw cause instanceof DomainError ? cause : new DomainError({ message: "Graphiti MCP initialize failed", cause });
+  });
 };
 
 const parsePositiveInt = (value: string | undefined, fallback: number): number => {
-  if (value === undefined) {
-    return fallback;
-  }
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-};
-
-const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
-  if (value === undefined) {
-    return fallback;
-  }
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
-    return true;
-  }
-  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
-    return false;
-  }
-  return fallback;
+  return parsePositiveIntShared(O.fromNullishOr(value), fallback);
 };
 
 const parsePositiveNumber = (value: string | undefined, fallback: number): number => {
-  if (value === undefined) {
-    return fallback;
-  }
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  return parsePositiveNumberShared(O.fromNullishOr(value), fallback);
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 const ensureGraphitiProxyPreflight = async (graphitiUrl: string): Promise<void> => {
-  const preflightEnabled = parseBoolean(process.env.BEEP_GRAPHITI_PROXY_PREFLIGHT, true);
-  if (!preflightEnabled || !isProxyGraphitiMcpUrl(graphitiUrl)) {
-    return;
-  }
-
-  const timeoutMs = parsePositiveInt(process.env.BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS, 3_000);
-  const healthUrl = new URL("/healthz", graphitiUrl).toString();
-
-  let response: Response;
-  try {
-    response = await fetch(healthUrl, {
-      method: "GET",
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-  } catch (cause) {
-    throw new DomainError({
-      message: `Graphiti proxy preflight failed: unable to reach ${healthUrl} within ${String(timeoutMs)}ms. Start proxy with 'bun run graphiti:proxy:ensure'.`,
-      cause,
-    });
-  }
-
-  const responseText = await response.text();
-  if (!response.ok) {
-    throw new DomainError({
-      message: `Graphiti proxy preflight failed: ${healthUrl} returned HTTP ${String(response.status)}. Start proxy with 'bun run graphiti:proxy:ensure' or check 'systemctl --user status beep-graphiti-proxy.service'. Response: ${responseText.slice(0, 200)}`,
-    });
-  }
-
-  if (responseText.length > 0) {
-    try {
-      const parsed = JSON.parse(responseText);
-      if (isRecord(parsed)) {
-        const status = parsed.status;
-        if (typeof status === "string" && status !== "ok") {
-          throw new DomainError({
-            message: `Graphiti proxy preflight failed: ${healthUrl} reported status '${status}'. Response: ${responseText.slice(0, 200)}`,
-          });
-        }
-      }
-    } catch (cause) {
-      if (cause instanceof DomainError) {
-        throw cause;
-      }
-    }
-  }
-};
-
-const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
-  const trimmed = body.trim();
-  const dataLines = trimmed
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith("data: "))
-    .map((line) => line.slice(6).trim())
-    .filter((line) => line.length > 0);
-
-  const parseRecord = (value: string): O.Option<Record<string, unknown>> => {
-    try {
-      const parsed = JSON.parse(value);
-      if (isRecord(parsed)) {
-        return O.some(parsed);
-      }
-      return O.none();
-    } catch {
-      return O.none();
-    }
-  };
-
-  if (dataLines.length > 0) {
-    for (let index = dataLines.length - 1; index >= 0; index -= 1) {
-      const candidate = dataLines[index];
-      if (candidate === undefined) {
-        continue;
-      }
-      const parsed = parseRecord(candidate);
-      if (O.isSome(parsed)) {
-        return parsed;
-      }
-    }
-    return O.none();
-  }
-
-  return parseRecord(trimmed);
+  return ensureGraphitiProxyPreflightShared(graphitiUrl).catch((cause) => {
+    throw cause instanceof DomainError
+      ? cause
+      : new DomainError({
+          message: "Graphiti proxy preflight failed",
+          cause,
+        });
+  });
 };
 
 const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<Record<string, unknown>> => {
@@ -1316,100 +1176,12 @@ const recordValue = (record: Readonly<Record<string, unknown>>, key: string): O.
 
 const stringValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> => {
   const value = record[key];
-  return typeof value === "string" ? O.some(value) : O.none();
+  return P.isString(value) ? O.some(value) : O.none();
 };
 
 const arrayValue = (record: Readonly<Record<string, unknown>>, key: string): O.Option<ReadonlyArray<unknown>> => {
   const value = record[key];
-  return Array.isArray(value) ? O.some(value) : O.none();
-};
-
-const parseMcpToolResult = (
-  status: number,
-  responseText: string
-): {
-  readonly isError: boolean;
-  readonly message: string;
-  readonly payload: O.Option<Record<string, unknown>>;
-} => {
-  const payload = parseMcpPayload(responseText);
-  if (status < 200 || status >= 300) {
-    return {
-      isError: true,
-      message: `Graphiti MCP HTTP ${String(status)}`,
-      payload,
-    };
-  }
-
-  if (O.isNone(payload)) {
-    return {
-      isError: true,
-      message: "Graphiti MCP response could not be parsed as JSON payload",
-      payload,
-    };
-  }
-
-  const top = payload.value;
-  const topError = recordValue(top, "error");
-  if (O.isSome(topError)) {
-    return {
-      isError: true,
-      message: O.getOrElse(stringValue(topError.value, "message"), () => "Graphiti MCP response error"),
-      payload,
-    };
-  }
-
-  const result = recordValue(top, "result");
-  if (O.isNone(result)) {
-    return {
-      isError: false,
-      message: "",
-      payload,
-    };
-  }
-
-  if (result.value.isError === true) {
-    const structured = recordValue(result.value, "structuredContent");
-    if (O.isSome(structured)) {
-      const structuredResult = recordValue(structured.value, "result");
-      if (O.isSome(structuredResult)) {
-        const structuredMessage = stringValue(structuredResult.value, "message");
-        if (O.isSome(structuredMessage)) {
-          return {
-            isError: true,
-            message: structuredMessage.value,
-            payload,
-          };
-        }
-      }
-    }
-    return {
-      isError: true,
-      message: "Graphiti MCP tool call failed (isError=true)",
-      payload,
-    };
-  }
-
-  const structured = recordValue(result.value, "structuredContent");
-  if (O.isSome(structured)) {
-    const structuredResult = recordValue(structured.value, "result");
-    if (O.isSome(structuredResult)) {
-      const structuredMessage = stringValue(structuredResult.value, "message");
-      if (O.isSome(structuredMessage)) {
-        return {
-          isError: false,
-          message: structuredMessage.value,
-          payload,
-        };
-      }
-    }
-  }
-
-  return {
-    isError: false,
-    message: "",
-    payload,
-  };
+  return A.isArray(value) ? O.some(value) : O.none();
 };
 
 const sleep = async (milliseconds: number): Promise<void> =>
@@ -1430,29 +1202,31 @@ const commitShaFromEpisodeName = (name: string): O.Option<string> => {
 };
 
 const commitShaFromEpisodeContent = (content: string): O.Option<string> => {
+  const parseJson = S.decodeUnknownSync(S.UnknownFromJsonString);
+  let decoded: unknown;
   try {
-    const parsed = JSON.parse(content);
-    if (!isRecord(parsed)) {
-      return O.none();
-    }
-
-    const metadata = recordValue(parsed, "metadata");
-    if (O.isSome(metadata)) {
-      const metadataCommit = stringValue(metadata.value, "commitSha");
-      if (O.isSome(metadataCommit) && isCommitShaLike(metadataCommit.value)) {
-        return O.some(normalizeCommitSha(metadataCommit.value));
-      }
-    }
-
-    const topLevelCommit = stringValue(parsed, "commitSha");
-    if (O.isSome(topLevelCommit) && isCommitShaLike(topLevelCommit.value)) {
-      return O.some(normalizeCommitSha(topLevelCommit.value));
-    }
-
-    return O.none();
+    decoded = parseJson(content);
   } catch {
     return O.none();
   }
+  if (!isRecord(decoded)) {
+    return O.none();
+  }
+
+  const metadata = recordValue(decoded, "metadata");
+  if (O.isSome(metadata)) {
+    const metadataCommit = stringValue(metadata.value, "commitSha");
+    if (O.isSome(metadataCommit) && isCommitShaLike(metadataCommit.value)) {
+      return O.some(normalizeCommitSha(metadataCommit.value));
+    }
+  }
+
+  const topLevelCommit = stringValue(decoded, "commitSha");
+  if (O.isSome(topLevelCommit) && isCommitShaLike(topLevelCommit.value)) {
+    return O.some(normalizeCommitSha(topLevelCommit.value));
+  }
+
+  return O.none();
 };
 
 const extractGraphitiEpisodes = (
@@ -1557,28 +1331,21 @@ const verifyGraphitiEpisodes = async (
     attempts += 1;
 
     try {
-      const response = await mcpPost(
+      const response = await callMcpTool(
         url,
+        sessionId,
+        "get_episodes",
         {
-          jsonrpc: "2.0",
-          id: "kg-verify-episodes",
-          method: "tools/call",
-          params: {
-            name: "get_episodes",
-            arguments: {
-              group_ids: [group],
-              max_episodes: maxEpisodes,
-            },
-          },
+          group_ids: [group],
+          max_episodes: maxEpisodes,
         },
-        O.some(sessionId),
+        "kg-verify-episodes",
         O.some(requestTimeoutMs)
       );
 
-      const responseText = await response.text();
-      const parsed = parseMcpToolResult(response.status, responseText);
+      const parsed = response.result;
       status = response.status;
-      bodySnippet = responseText.slice(0, 400);
+      bodySnippet = response.body.slice(0, 400);
       message = parsed.message;
 
       if (parsed.isError) {
@@ -1696,27 +1463,20 @@ const publishToGraphiti = async (
     }
 
     const name = `ast-kg:${metadata.workspace}:${metadata.commitSha}:${metadata.file}`;
-    const response = await mcpPost(
+    const response = await callMcpTool(
       url,
+      sessionId,
+      "add_memory",
       {
-        jsonrpc: "2.0",
-        id: `kg-add-${written + failed + 1}`,
-        method: "tools/call",
-        params: {
-          name: "add_memory",
-          arguments: {
-            name,
-            episode_body: JSON.stringify(envelope),
-            source: "json",
-            source_description: "p6 dual-write publish",
-            group_id: metadata.groupId,
-          },
-        },
+        name,
+        episode_body: JSON.stringify(envelope),
+        source: "json",
+        source_description: "p6 dual-write publish",
+        group_id: metadata.groupId,
       },
-      O.some(sessionId)
+      `kg-add-${written + failed + 1}`
     );
-    const body = await response.text();
-    const parsed = parseMcpToolResult(response.status, body);
+    const parsed = response.result;
     if (!parsed.isError) {
       written += 1;
       dedupeMisses += 1;
