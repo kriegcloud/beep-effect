@@ -14,7 +14,6 @@ import { McpError, TransportError } from "./Errors.js";
 import { mergeOptions } from "./internal/options.js";
 import { makeQueryHandle } from "./internal/queryHandle.js";
 import { createInputQueue, pumpInput } from "./internal/streaming.js";
-import type { McpSdkServerConfigWithInstance } from "./Schema/Mcp.js";
 import type { SDKUserMessage } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
 
@@ -508,7 +507,7 @@ const makeAgentSdk = Effect.gen(function* () {
     });
   });
 
-  const closeSdkMcpServer = (server: McpSdkServerConfigWithInstance) =>
+  const closeSdkMcpServer = (server: ReturnType<typeof sdkCreateSdkMcpServer>) =>
     Effect.tryPromise({
       try: async () => {
         if (P.hasProperty(server.instance, "close") && P.isFunction(server.instance.close)) {

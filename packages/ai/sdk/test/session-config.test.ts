@@ -7,8 +7,7 @@ import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
-const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
+const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("SessionConfig reads defaults from config provider", async () => {
   const layer = SessionConfig.layer.pipe(

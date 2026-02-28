@@ -1,4 +1,4 @@
-import { AgentRuntime, SessionPool } from "@beep/ai-sdk";
+import { AgentRuntime, SessionPool, SessionPoolNotFoundError } from "@beep/ai-sdk";
 import type { QueryHandle } from "@beep/ai-sdk/Query";
 import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { layer as AgentRpcHandlers } from "@beep/ai-sdk/service/AgentRpcHandlers";
@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
+import type * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -22,12 +23,12 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   is_error: false,
   num_turns: 1,
   result,
-    total_cost_usd: 0,
-    usage: {},
-    modelUsage: {},
-    permission_denials: [],
-    uuid: "00000000-0000-4000-8000-000000000000",
-    session_id: "session-1",
+  total_cost_usd: 0,
+  usage: {},
+  modelUsage: {},
+  permission_denials: [],
+  uuid: "00000000-0000-4000-8000-000000000000",
+  session_id: "session-1",
 });
 
 const makeMetadataHandle = (): QueryHandle => {
@@ -293,11 +294,19 @@ test("agent RPC session routes enforce tenant scoping", async () => {
   const pool = SessionPool.of({
     create: (_overrides?: unknown, tenant?: string) => {
       captured.push(tenant);
-      return Effect.succeed(sessionHandle as never);
+      return Effect.succeed(sessionHandle);
     },
     get: (_sessionId: string, _overrides?: unknown, tenant?: string) => {
       captured.push(tenant);
-      return Effect.succeed(sessionHandle as never);
+      if (tenant !== "team-a") {
+        return Effect.fail(
+          SessionPoolNotFoundError.make({
+            message: "Session not found",
+            sessionId: "session-tenant",
+          })
+        );
+      }
+      return Effect.succeed(sessionHandle);
     },
     info: (_sessionId: string, tenant?: string) =>
       Effect.succeed({
@@ -359,7 +368,8 @@ test("agent RPC session routes enforce tenant scoping", async () => {
         })
       );
       expect(mismatch._tag).toBe("Failure");
-      expect(captured.length).toBe(2);
+      expect(captured[2]).toBe("team-b");
+      expect(captured.length).toBe(3);
     })
   );
 

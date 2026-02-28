@@ -7,8 +7,10 @@ import * as ServiceMap from "effect/ServiceMap";
 import { runEffectLive } from "./effect-test.js";
 
 const sharedIdentityKey = "sync-test-artifact-identity";
+const bunGlobal = Reflect.get(globalThis, "Bun");
+const hasBunServe = typeof bunGlobal === "object" && bunGlobal !== null && "serve" in bunGlobal;
 
-test("ArtifactStore.layerJournaledWithSyncWebSocket builds replicas", async () => {
+test("ArtifactStore.layerJournaledWithSyncWebSocket builds replicas", { skip: !hasBunServe }, async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const server = yield* Sync.EventLogRemoteServer;

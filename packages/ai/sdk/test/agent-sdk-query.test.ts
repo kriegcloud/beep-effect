@@ -1,10 +1,10 @@
 import { expect, test } from "@effect/vitest";
-import { vi } from "vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 const makeSdkQuery = (prompt: unknown) => {

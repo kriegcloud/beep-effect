@@ -1,5 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { SchemaAST as AST, Effect, Result } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { z } from "zod";
 
@@ -160,7 +161,7 @@ const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Res
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const templatePartRegex = (part: AST.AST): string | undefined => {
-  if (AST.isLiteral(part) && typeof part.literal === "string") {
+  if (AST.isLiteral(part) && P.isString(part.literal)) {
     return escapeRegex(part.literal);
   }
   if (AST.isString(part)) {

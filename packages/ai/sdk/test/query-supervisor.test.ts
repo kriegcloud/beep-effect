@@ -1,6 +1,5 @@
 import type { QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
 import { expect, test } from "@effect/vitest";
-import { vi } from "vitest";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -12,6 +11,7 @@ import * as Result from "effect/Result";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {

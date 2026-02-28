@@ -114,11 +114,10 @@ export const CallToolResult = S.Struct({
 /**
  * @since 0.0.0
  */
-export const McpServer = S.Json.pipe(
+export const McpServer = S.Unknown.pipe(
   S.annotate(
     $I.annote("McpServer", {
       description: "Schema for McpServer.",
-      jsonSchema: {},
     })
   )
 );

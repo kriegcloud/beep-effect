@@ -9,6 +9,7 @@ import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
@@ -93,6 +94,8 @@ const makeKVHarness = () => {
 };
 
 const makeKVNamespace = (): KVNamespace => makeKVHarness().namespace;
+const toFailureMessage = (failure: unknown) =>
+  P.hasProperty(failure, "message") && P.isString(failure.message) ? failure.message : undefined;
 
 const sampleMessage = (sessionId: string): SDKMessage =>
   ({
@@ -261,19 +264,18 @@ test("StorageLayers backend kv wires chat and artifact stores through KV", async
   expect(keys.some((key) => key.startsWith(defaultArtifactPrefix))).toBe(false);
 });
 
-const expectStorageLayersFailure = async (
-  options: Parameters<typeof storageLayers>[0],
-  message: string
-) => {
+const expectStorageLayersFailure = async (options: Parameters<typeof storageLayers>[0], message: string) => {
   const layers = storageLayers(options);
   const result = await runEffect(
-    Effect.result(
-      Effect.scoped(Effect.service(ChatHistoryStore).pipe(Effect.provide(layers.chatHistory)))
-    )
+    Effect.result(Effect.scoped(Effect.service(ChatHistoryStore).pipe(Effect.provide(layers.chatHistory))))
   );
   expect(Result.isFailure(result)).toBe(true);
   if (Result.isFailure(result)) {
-    expect(result.failure.message).toContain(message);
+    const failureMessage = toFailureMessage(result.failure);
+    expect(failureMessage).toBeDefined();
+    if (failureMessage !== undefined) {
+      expect(failureMessage).toContain(message);
+    }
   }
 };
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@effect/vitest";
-import { vi } from "vitest";
 import * as Effect from "effect/Effect";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let closeCalls = 0;

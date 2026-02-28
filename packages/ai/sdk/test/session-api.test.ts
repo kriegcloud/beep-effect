@@ -1,7 +1,7 @@
 import { expect, test } from "@effect/vitest";
-import { beforeEach, vi } from "vitest";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
+import { beforeEach, vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let createOptions: unknown;
@@ -113,7 +113,10 @@ test("Session.resumeSession passes session id and defaults executable", async ()
   const { resumeSession } = await import("../src/Session.js");
   const program = Effect.scoped(
     Effect.gen(function* () {
-      const handle = yield* resumeSession("session-42", { model: "claude-test", env: { ANTHROPIC_API_KEY: "test-key" } });
+      const handle = yield* resumeSession("session-42", {
+        model: "claude-test",
+        env: { ANTHROPIC_API_KEY: "test-key" },
+      });
       return yield* handle.sessionId;
     })
   );
@@ -132,9 +135,7 @@ test("Session.createSession maps errors to TransportError", async () => {
   createErrorModel = "claude-test-error";
 
   const { createSession } = await import("../src/Session.js");
-  const program = Effect.scoped(
-    createSession({ model: "claude-test-error", env: { ANTHROPIC_API_KEY: "test-key" } })
-  );
+  const program = Effect.scoped(createSession({ model: "claude-test-error", env: { ANTHROPIC_API_KEY: "test-key" } }));
   const result = await runEffect(Effect.result(program));
 
   expect(Result.isFailure(result)).toBe(true);

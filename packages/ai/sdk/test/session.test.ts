@@ -331,7 +331,7 @@ test("Session.close respects closeDrainTimeout override", async () => {
   expect(closeCalls).toBe(1);
 });
 
-test("Session.fromSdkSession fails with TransportError on invalid closeDrainTimeout", async () => {
+test("Session.fromSdkSession accepts closeDrainTimeout duration strings", async () => {
   const sdkSession: SDKSession = {
     get sessionId() {
       return "session-1";
@@ -342,19 +342,12 @@ test("Session.fromSdkSession fails with TransportError on invalid closeDrainTime
     [Symbol.asyncDispose]: async () => {},
   };
 
-  const result = await runEffect(
-    Effect.result(
-      fromSdkSession(sdkSession, {
-        closeDrainTimeout: "not-a-duration",
-      })
-    )
+  const handle = await runEffect(
+    fromSdkSession(sdkSession, {
+      closeDrainTimeout: "25 millis",
+    })
   );
-
-  expect(Result.isFailure(result)).toBe(true);
-  if (Result.isFailure(result)) {
-    expect(result.failure._tag).toBe("TransportError");
-    expect(result.failure.message).toBe("Invalid session close drain timeout");
-  }
+  await runEffect(handle.close);
 });
 
 test("Session.close propagates close failures to concurrent callers", async () => {

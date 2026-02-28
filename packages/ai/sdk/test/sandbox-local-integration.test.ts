@@ -11,10 +11,10 @@ import { layerLocal } from "@beep/ai-sdk/Sandbox/SandboxLocal";
 import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
 import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
-import { vi } from "vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 const sdkMessages: ReadonlyArray<SDKMessage> = [

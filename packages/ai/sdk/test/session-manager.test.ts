@@ -1,9 +1,9 @@
 import { expect, test } from "@effect/vitest";
-import { vi } from "vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let createOptions: unknown;
@@ -65,8 +65,7 @@ vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   },
 }));
 
-const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
+const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("SessionManager.create merges defaults and overrides", async () => {
   createOptions = undefined;

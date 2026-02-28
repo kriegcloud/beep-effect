@@ -4,23 +4,24 @@ import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
-const expectRuntimeLayerFailure = async (
-  options: Parameters<typeof runtimeLayer>[0],
-  message: string
-) => {
+const toFailureMessage = (failure: unknown) =>
+  P.hasProperty(failure, "message") && P.isString(failure.message) ? failure.message : undefined;
+
+const expectRuntimeLayerFailure = async (options: Parameters<typeof runtimeLayer>[0], message: string) => {
   const result = await runEffect(
-    Effect.result(
-      Effect.scoped(
-        Effect.service(QuerySupervisor).pipe(Effect.provide(runtimeLayer(options)))
-      )
-    )
+    Effect.result(Effect.scoped(Effect.service(QuerySupervisor).pipe(Effect.provide(runtimeLayer(options)))))
   );
   expect(Result.isFailure(result)).toBe(true);
   if (Result.isFailure(result)) {
-    expect(result.failure.message).toContain(message);
+    const failureMessage = toFailureMessage(result.failure);
+    expect(failureMessage).toBeDefined();
+    if (failureMessage !== undefined) {
+      expect(failureMessage).toContain(message);
+    }
   }
 };
 

@@ -322,6 +322,9 @@ const SDKResultErrorMaxStructuredOutputRetries = withSdkMessage(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export const SDKResultError = S.Union([
   SDKResultErrorDuringExecution,
   SDKResultErrorMaxTurns,
