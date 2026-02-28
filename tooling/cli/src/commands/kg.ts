@@ -579,6 +579,11 @@ const writeJson = async (file: string, value: unknown): Promise<void> => {
   await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
 
+const formatCliJson = (value: unknown): string => {
+  // CLI command summaries are intentionally machine-readable JSON payloads.
+  return JSON.stringify(value, null, 2);
+};
+
 const buildSinkLedgerKey = (
   sink: SinkTarget,
   groupId: string,
@@ -1931,7 +1936,7 @@ const kgIndexCommand = Command.make(
         cause instanceof DomainError ? cause : new DomainError({ message: "KG index run failed", cause }),
     });
 
-    yield* Console.log(JSON.stringify(summary, null, 2));
+    yield* Console.log(formatCliJson(summary));
   })
 ).pipe(Command.withDescription("Index AST KG artifacts in full or delta mode"));
 
@@ -1983,7 +1988,7 @@ const kgPublishCommand = Command.make(
         cause instanceof DomainError ? cause : new DomainError({ message: "KG publish run failed", cause }),
     });
 
-    yield* Console.log(JSON.stringify(publishSummary, null, 2));
+    yield* Console.log(formatCliJson(publishSummary));
   })
 ).pipe(Command.withDescription("Dual-write AST KG envelopes to Falkor, Graphiti, or both"));
 
@@ -2042,7 +2047,7 @@ const kgReplayCommand = Command.make(
         cause instanceof DomainError ? cause : new DomainError({ message: "KG replay run failed", cause }),
     });
 
-    yield* Console.log(JSON.stringify(result, null, 2));
+    yield* Console.log(formatCliJson(result));
   })
 ).pipe(Command.withDescription("Replay AST KG spool entries to selected publish targets"));
 
@@ -2110,7 +2115,7 @@ const kgVerifyCommand = Command.make(
         cause instanceof DomainError ? cause : new DomainError({ message: "KG verify run failed", cause }),
     });
 
-    yield* Console.log(JSON.stringify(verification, null, 2));
+    yield* Console.log(formatCliJson(verification));
   })
 ).pipe(Command.withDescription("Verify published AST KG state for selected targets"));
 
@@ -2202,7 +2207,7 @@ const kgParityCommand = Command.make(
         cause instanceof DomainError ? cause : new DomainError({ message: "KG parity run failed", cause }),
     });
 
-    yield* Console.log(JSON.stringify(result, null, 2));
+    yield* Console.log(formatCliJson(result));
   })
 ).pipe(Command.withDescription("Run functional parity checks against code-graph expectations"));
 
