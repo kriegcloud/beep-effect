@@ -4,8 +4,6 @@
   "include": ["./**/*.ts"],
   "exclude": [],
   "compilerOptions": {
-    "tsBuildInfoFile": "../dist/tsconfig.test.tsbuildinfo",
-    "noEmit": true,
     "composite": false,
     "incremental": false
   }
