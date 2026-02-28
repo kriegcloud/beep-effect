@@ -1,5 +1,4 @@
-import * as ConfigProvider from "effect/ConfigProvider";
-
+import { ConfigProvider } from "effect";
 import type { SettingSource } from "../Schema/Options.js";
 
 /**

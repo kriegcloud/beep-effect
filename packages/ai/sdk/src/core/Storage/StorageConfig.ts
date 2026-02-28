@@ -1,10 +1,10 @@
-import { ServiceMap } from "effect";
-import * as Config from "effect/Config";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import { layerConfigFromEnv } from "../internal/config.js";
+
+const $I = $AiSdkId.create("core/Storage/StorageConfig");
+
 /**
  * @since 0.0.0
  */
@@ -53,6 +53,11 @@ export type StorageConfigSettings = {
   readonly settings: StorageConfigData;
 };
 
+/**
+ * @since 0.0.0
+ */
+export interface StorageConfigShape extends StorageConfigSettings {}
+
 const defaultSettings: StorageConfigData = {
   enabled: {
     chatHistory: true,
@@ -91,16 +96,16 @@ const defaultSettings: StorageConfigData = {
   },
 };
 
-const normalizeBoolean = (value: Option.Option<boolean>, fallback: boolean) => Option.getOrElse(value, () => fallback);
+const normalizeBoolean = (value: O.Option<boolean>, fallback: boolean) => O.getOrElse(value, () => fallback);
 
-const normalizeNumber = (value: Option.Option<number>, fallback: number, min: number) =>
+const normalizeNumber = (value: O.Option<number>, fallback: number, min: number) =>
   Math.max(
     min,
-    Option.getOrElse(value, () => fallback)
+    O.getOrElse(value, () => fallback)
   );
 
-const normalizeDuration = (value: Option.Option<Duration.Duration>, fallback: Duration.Duration) =>
-  Option.getOrElse(value, () => fallback);
+const normalizeDuration = (value: O.Option<Duration.Duration>, fallback: Duration.Duration) =>
+  O.getOrElse(value, () => fallback);
 
 const makeStorageConfig = Effect.gen(function* () {
   const chatEnabled = yield* Config.option(Config.boolean("STORAGE_CHAT_ENABLED"));
@@ -171,12 +176,7 @@ const makeStorageConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class StorageConfig extends ServiceMap.Service<
-  StorageConfig,
-  {
-    settings: StorageConfigData;
-  }
->()("@effect/claude-agent-sdk/StorageConfig") {
+export class StorageConfig extends ServiceMap.Service<StorageConfig, StorageConfigShape>()($I`StorageConfig`) {
   /**
    * Build StorageConfig by reading configuration from environment variables.
    */

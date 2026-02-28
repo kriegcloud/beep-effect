@@ -1,8 +1,9 @@
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let createOptions: unknown;
@@ -24,6 +25,7 @@ const makeSession = (sessionId = "session-1") => ({
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
+      yield* [];
       return;
     }
     const iterator = generator();
@@ -63,8 +65,7 @@ vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   },
 }));
 
-const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
+const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("SessionManager.create merges defaults and overrides", async () => {
   createOptions = undefined;
@@ -73,8 +74,8 @@ test("SessionManager.create merges defaults and overrides", async () => {
   promptOptions = undefined;
   promptMessage = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -120,8 +121,8 @@ test("SessionManager.resume merges defaults and overrides", async () => {
   resumeOptions = undefined;
   resumeSessionId = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -163,8 +164,8 @@ test("SessionManager.prompt merges defaults and overrides", async () => {
   promptOptions = undefined;
   promptMessage = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -199,8 +200,8 @@ test("SessionManager.prompt merges defaults and overrides", async () => {
 });
 
 test("SessionManager.create fails when model is missing", async () => {
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -217,7 +218,7 @@ test("SessionManager.create fails when model is missing", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const manager = yield* SessionManager;
-      return yield* manager.create({} as any);
+      return yield* manager.create({ model: "" });
     }).pipe(Effect.provide(layer))
   );
 

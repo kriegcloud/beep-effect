@@ -79,7 +79,7 @@ test("Hook.callback aborts when signal is already aborted", async () => {
     );
     throw new Error("Expected hook callback to abort");
   } catch (error) {
-    expect(String(error)).toContain("FiberFailure");
+    expect(String(error)).toContain("All fibers interrupted without error");
   }
 });
 

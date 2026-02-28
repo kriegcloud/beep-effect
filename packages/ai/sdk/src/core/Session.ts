@@ -4,18 +4,18 @@ import {
   unstable_v2_prompt,
   unstable_v2_resumeSession,
 } from "@anthropic-ai/claude-agent-sdk";
-import * as Deferred from "effect/Deferred";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as Semaphore from "effect/Semaphore";
-import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { Deferred, Duration, Effect, Exit, Semaphore, Stream, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { TransportError } from "./Errors.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
-import type { SDKMessage, SDKResultMessage, SDKUserMessage } from "./Schema/Message.js";
+import {
+  type SDKMessage,
+  SDKMessage as SDKMessageSchema,
+  type SDKResultMessage,
+  type SDKUserMessage,
+} from "./Schema/Message.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 
 /**
@@ -24,8 +24,8 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
 /**
  * @since 0.0.0
  */
-export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
-  message: Schema.String,
+export class SessionClosedError extends S.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
+  message: S.String,
 }) {
   static readonly make = (message: string) => new SessionClosedError({ message });
 }
@@ -33,7 +33,7 @@ export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedErr
 /**
  * @since 0.0.0
  */
-export const SessionError = Schema.Union([SessionClosedError, TransportError]);
+export const SessionError = S.Union([SessionClosedError, TransportError]);
 
 /**
  * @since 0.0.0
@@ -131,6 +131,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
   sdkSession: SDKSession,
   runtimeOptions?: SessionRuntimeOptions
 ) {
+  const decodeSdkMessage = S.decodeUnknownEffect(SDKMessageSchema);
   const closeDrainTimeoutInput = runtimeOptions?.closeDrainTimeout ?? defaultSessionLifecyclePolicy.closeDrainTimeout;
   const closeDrainTimeout = Duration.fromInput(closeDrainTimeoutInput);
   if (closeDrainTimeout === undefined) {
@@ -197,7 +198,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
       () =>
         sendSemaphore.withPermits(1)(
           Effect.tryPromise({
-            try: () => sdkSession.send(typeof message === "string" ? message : normalizeUserMessage(message)),
+            try: () => sdkSession.send(P.isString(message) ? message : normalizeUserMessage(message)),
             catch: (cause) => toTransportError("Failed to send session message", cause),
           })
         ),
@@ -216,6 +217,11 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
           catch: (cause) => toTransportError("Failed to start session stream", cause),
         });
         return Stream.fromAsyncIterable(iterable, (cause) => toTransportError("Session stream failed", cause)).pipe(
+          Stream.mapEffect((message) =>
+            decodeSdkMessage(message).pipe(
+              Effect.mapError((cause) => toTransportError("Failed to decode session stream message", cause))
+            )
+          ),
           Stream.tap((message) => markSessionId(sessionIdDeferred, message))
         );
       })
@@ -280,7 +286,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
           yield* Deferred.succeed(action.idleSignal, undefined);
         }
         const idleResult = yield* Deferred.await(action.idleSignal).pipe(Effect.timeoutOption(closeDrainTimeout));
-        if (Option.isNone(idleResult)) {
+        if (O.isNone(idleResult)) {
           yield* Effect.logWarning("Session close timed out waiting for in-flight work. Forcing shutdown.");
         }
         yield* Effect.try({

@@ -1,21 +1,20 @@
 /**
- * Legacy OSDK object compatibility type.
+ * Backward-compatible alias for the canonical OSDK instance type.
  *
  * @since 0.0.0
  * @module @beep/ontology/OsdkObject
  */
-import type { PropertyValueWireToClient } from "./mapping/PropertyValueMapping.js";
-import type { PrimaryKeyTypes } from "./ontology/PrimaryKeyTypes.js";
+import type { Osdk } from "./OsdkObjectFrom.js";
+import type { ObjectOrInterfaceDefinition, PropertyKeys } from "./ontology/ObjectOrInterface.js";
 
 /**
- * Deprecated compatibility surface for legacy OSDK object instances.
+ * Legacy alias for {@link Osdk.Instance}.
  *
  * @since 0.0.0
- * @category models
- * @deprecated Use `OsdkBase`-family types.
+ * @category aliases
  */
-export type OsdkObject<N extends string> = {
-  readonly $apiName: N;
-  readonly $objectType: string;
-  readonly $primaryKey: PropertyValueWireToClient[PrimaryKeyTypes];
-};
+export type OsdkObject<
+  Q extends ObjectOrInterfaceDefinition,
+  OPTIONS extends never | "$rid" | "$allBaseProperties" | "$propertySecurities" = never,
+  P extends PropertyKeys<Q> = PropertyKeys<Q>,
+> = Osdk.Instance<Q, OPTIONS, P>;

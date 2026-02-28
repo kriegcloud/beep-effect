@@ -5,7 +5,6 @@
  * @module @beep/ontology/objectSet/BaseObjectSet
  */
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
-
 /**
  * Minimal object-set metadata carrier.
  *

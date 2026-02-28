@@ -1,12 +1,11 @@
-import { ServiceMap } from "effect";
-import * as Config from "effect/Config";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { mergeOptions } from "./internal/options.js";
 import type { Options } from "./Schema/Options.js";
+
+const $I = $AiSdkId.create("core/AgentRuntimeConfig");
 
 /**
  * @since 0.0.0
@@ -51,13 +50,13 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 
   const settings: AgentRuntimeSettings = {
     defaultOptions: defaultSettings.defaultOptions,
-    queryTimeout: Option.getOrElse(queryTimeout, () => defaultSettings.queryTimeout),
-    firstMessageTimeout: Option.getOrElse(firstMessageTimeout, () => defaultSettings.firstMessageTimeout),
+    queryTimeout: O.getOrElse(queryTimeout, () => defaultSettings.queryTimeout),
+    firstMessageTimeout: O.getOrElse(firstMessageTimeout, () => defaultSettings.firstMessageTimeout),
     retryMaxRetries: Math.max(
       0,
-      Option.getOrElse(retryMaxRetries, () => defaultSettings.retryMaxRetries)
+      O.getOrElse(retryMaxRetries, () => defaultSettings.retryMaxRetries)
     ),
-    retryBaseDelay: Option.getOrElse(retryBaseDelay, () => defaultSettings.retryBaseDelay),
+    retryBaseDelay: O.getOrElse(retryBaseDelay, () => defaultSettings.retryBaseDelay),
   };
 
   return { settings };
@@ -66,12 +65,16 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AgentRuntimeConfig extends ServiceMap.Service<
-  AgentRuntimeConfig,
-  {
-    settings: AgentRuntimeSettings;
-  }
->()("@effect/claude-agent-sdk/AgentRuntimeConfig") {
+export interface AgentRuntimeConfigShape {
+  readonly settings: AgentRuntimeSettings;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class AgentRuntimeConfig extends ServiceMap.Service<AgentRuntimeConfig, AgentRuntimeConfigShape>()(
+  $I`AgentRuntimeConfig`
+) {
   /**
    * Build AgentRuntimeConfig by reading configuration from environment variables.
    */

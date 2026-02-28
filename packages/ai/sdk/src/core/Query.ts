@@ -1,7 +1,4 @@
-import type * as Duration from "effect/Duration";
-import type * as Effect from "effect/Effect";
-import type * as Scope from "effect/Scope";
-import type * as Stream from "effect/Stream";
+import type { Duration, Effect, Scope, Stream } from "effect";
 import type { AgentSdkError } from "./Errors.js";
 import type { AccountInfo, ModelInfo, RewindFilesResult, SlashCommand } from "./Schema/Common.js";
 import type { PermissionMode } from "./Schema/index.js";

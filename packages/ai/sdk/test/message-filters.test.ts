@@ -1,5 +1,18 @@
 import { MessageFilters } from "@beep/ai-sdk";
-import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import type {
+  SDKAssistantMessage,
+  SDKAuthStatusMessage,
+  SDKMessage,
+  SDKPartialAssistantMessage,
+  SDKResultError,
+  SDKResultSuccess,
+  SDKStatusMessage,
+  SDKSystemMessage,
+  SDKToolProgressMessage,
+  SDKToolUseSummaryMessage,
+  SDKUserMessage,
+  SDKUserMessageReplay,
+} from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
@@ -9,39 +22,39 @@ import * as Stream from "effect/Stream";
 // Minimal mock messages
 // ---------------------------------------------------------------------------
 
-const assistantMsg = {
+const assistantMsg: SDKAssistantMessage = {
   type: "assistant",
   message: { content: [{ type: "text", text: "hello" }] },
   parent_tool_use_id: null,
   uuid: "a-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const streamEventMsg = {
+const streamEventMsg: SDKPartialAssistantMessage = {
   type: "stream_event",
   event: { delta: { text: "chunk" } },
   parent_tool_use_id: null,
   uuid: "se-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const userMsg = {
+const userMsg: SDKUserMessage = {
   type: "user",
   message: { role: "user", content: [{ type: "text", text: "hi" }] },
   parent_tool_use_id: null,
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const userReplayMsg = {
+const userReplayMsg: SDKUserMessageReplay = {
   type: "user",
   isReplay: true,
   message: { role: "user", content: [{ type: "text", text: "hi" }] },
   parent_tool_use_id: null,
   uuid: "ur-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const resultSuccessMsg = {
+const resultSuccessMsg: SDKResultSuccess = {
   type: "result",
   subtype: "success",
   duration_ms: 100,
@@ -55,9 +68,9 @@ const resultSuccessMsg = {
   permission_denials: [],
   uuid: "rs-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const resultErrorMsg = {
+const resultErrorMsg: SDKResultError = {
   type: "result",
   subtype: "error_during_execution",
   duration_ms: 100,
@@ -71,9 +84,9 @@ const resultErrorMsg = {
   errors: ["boom"],
   uuid: "re-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const systemInitMsg = {
+const systemInitMsg: SDKSystemMessage = {
   type: "system",
   subtype: "init",
   apiKeySource: "env",
@@ -89,9 +102,9 @@ const systemInitMsg = {
   plugins: [],
   uuid: "si-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const toolProgressMsg = {
+const toolProgressMsg: SDKToolProgressMessage = {
   type: "tool_progress",
   tool_use_id: "tu1",
   tool_name: "Read",
@@ -99,31 +112,31 @@ const toolProgressMsg = {
   elapsed_time_seconds: 1,
   uuid: "tp-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const toolUseSummaryMsg = {
+const toolUseSummaryMsg: SDKToolUseSummaryMessage = {
   type: "tool_use_summary",
   summary: "Read a file",
   preceding_tool_use_ids: ["tu1"],
   uuid: "tus-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const authStatusMsg = {
+const authStatusMsg: SDKAuthStatusMessage = {
   type: "auth_status",
   isAuthenticating: false,
   output: [],
   uuid: "as-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
-const statusMsg = {
+const statusMsg: SDKStatusMessage = {
   type: "system",
   subtype: "status",
   status: null,
   uuid: "st-uuid",
   session_id: "s1",
-} as unknown as SDKMessage;
+};
 
 const allMessages: ReadonlyArray<SDKMessage> = [
   assistantMsg,
@@ -354,7 +367,7 @@ test("fold handles all result error subtypes", () => {
   ] as const;
 
   for (const subtype of errorSubtypes) {
-    const msg = { ...resultErrorMsg, subtype } as unknown as SDKMessage;
+    const msg: SDKResultError = { ...resultErrorMsg, subtype };
     expect(describe(msg)).toBe(`result:${subtype}`);
   }
 });

@@ -1,0 +1,43 @@
+{
+  "spec": "jsdoc-ast-kg-agent-impact-readiness",
+  "status": "pending",
+  "created": "2026-02-28",
+  "updated": "2026-02-28",
+  "phases": {
+    "pre": {
+      "name": "kg-cli-refactor-and-ai-sdk-integration",
+      "status": "pending",
+      "output": "p-pre-kg-cli-refactor-and-ai-sdk.md"
+    },
+    "p0": {
+      "name": "baseline-and-gate-freeze",
+      "status": "pending",
+      "output": "p0-baseline-and-gates.md"
+    },
+    "p1": {
+      "name": "jsdoc-governance",
+      "status": "pending",
+      "output": "p1-jsdoc-governance.md"
+    },
+    "p2": {
+      "name": "retrieval-reliability",
+      "status": "pending",
+      "output": "p2-retrieval-reliability.md"
+    },
+    "p3": {
+      "name": "semantic-coverage",
+      "status": "pending",
+      "output": "p3-semantic-coverage.md"
+    },
+    "p4": {
+      "name": "ablation-benchmark",
+      "status": "pending",
+      "output": "p4-ablation-benchmark.md"
+    },
+    "p5": {
+      "name": "rollout-decision",
+      "status": "pending",
+      "output": "p5-rollout-decision.md"
+    }
+  }
+}

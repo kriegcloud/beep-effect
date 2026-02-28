@@ -1,23 +1,28 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
-import { withIdentifier, withSdkMessage } from "./Annotations.js";
+import { withSdkMessage } from "./Annotations.js";
 import { ApiKeySource, ModelUsage, NonNullableUsage, SDKPermissionDenial, UUID } from "./Common.js";
 import { BetaMessage, BetaRawMessageStreamEvent, MessageParam } from "./External.js";
 import { PermissionMode } from "./Permission.js";
 
+const $I = $AiSdkId.create("core/Schema/Message");
+
 /**
  * @since 0.0.0
  */
-export const SDKAssistantMessageError = withIdentifier(
-  S.Literals([
-    "authentication_failed",
-    "billing_error",
-    "rate_limit",
-    "invalid_request",
-    "server_error",
-    "unknown",
-    "max_output_tokens",
-  ]),
-  "SDKAssistantMessageError"
+export const SDKAssistantMessageError = LiteralKit([
+  "authentication_failed",
+  "billing_error",
+  "rate_limit",
+  "invalid_request",
+  "server_error",
+  "unknown",
+  "max_output_tokens",
+]).annotate(
+  $I.annote("SDKAssistantMessageError", {
+    description: "Schema for SDKAssistantMessageError.",
+  })
 );
 
 /**
@@ -41,7 +46,9 @@ export const SDKAssistantMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKAssistantMessage"
+  $I.annote("SDKAssistantMessage", {
+    description: "Schema for SDKAssistantMessage.",
+  })
 );
 
 /**
@@ -65,7 +72,9 @@ export const SDKAuthStatusMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKAuthStatusMessage"
+  $I.annote("SDKAuthStatusMessage", {
+    description: "Schema for SDKAuthStatusMessage.",
+  })
 );
 
 /**
@@ -85,13 +94,15 @@ export const SDKCompactBoundaryMessage = withSdkMessage(
     type: S.Literal("system"),
     subtype: S.Literal("compact_boundary"),
     compact_metadata: S.Struct({
-      trigger: S.Literals(["manual", "auto"]),
+      trigger: LiteralKit(["manual", "auto"]),
       pre_tokens: S.Number,
     }),
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKCompactBoundaryMessage"
+  $I.annote("SDKCompactBoundaryMessage", {
+    description: "Schema for SDKCompactBoundaryMessage.",
+  })
 );
 
 /**
@@ -117,11 +128,13 @@ export const SDKHookResponseMessage = withSdkMessage(
     stdout: S.String,
     stderr: S.String,
     exit_code: S.optional(S.Number),
-    outcome: S.Literals(["success", "error", "cancelled"]),
+    outcome: LiteralKit(["success", "error", "cancelled"]),
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKHookResponseMessage"
+  $I.annote("SDKHookResponseMessage", {
+    description: "Schema for SDKHookResponseMessage.",
+  })
 );
 
 /**
@@ -146,7 +159,9 @@ export const SDKHookStartedMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKHookStartedMessage"
+  $I.annote("SDKHookStartedMessage", {
+    description: "Schema for SDKHookStartedMessage.",
+  })
 );
 
 /**
@@ -174,7 +189,9 @@ export const SDKHookProgressMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKHookProgressMessage"
+  $I.annote("SDKHookProgressMessage", {
+    description: "Schema for SDKHookProgressMessage.",
+  })
 );
 
 /**
@@ -197,7 +214,9 @@ export const SDKPartialAssistantMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKPartialAssistantMessage"
+  $I.annote("SDKPartialAssistantMessage", {
+    description: "Schema for SDKPartialAssistantMessage.",
+  })
 );
 
 /**
@@ -230,7 +249,9 @@ export const SDKResultSuccess = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKResultSuccess"
+  $I.annote("SDKResultSuccess", {
+    description: "Schema for SDKResultSuccess.",
+  })
 );
 
 /**
@@ -245,29 +266,77 @@ export type SDKResultSuccessEncoded = typeof SDKResultSuccess.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKResultError = withSdkMessage(
+const sdkResultErrorFields = {
+  type: S.Literal("result"),
+  duration_ms: S.Number,
+  duration_api_ms: S.Number,
+  is_error: S.Boolean,
+  num_turns: S.Number,
+  stop_reason: S.optional(S.Union([S.String, S.Null])),
+  total_cost_usd: S.Number,
+  usage: NonNullableUsage,
+  modelUsage: S.Record(S.String, ModelUsage),
+  permission_denials: S.Array(SDKPermissionDenial),
+  errors: S.Array(S.String),
+  uuid: UUID,
+  session_id: S.String,
+} as const;
+
+const SDKResultErrorDuringExecution = withSdkMessage(
   S.Struct({
-    type: S.Literal("result"),
-    subtype: S.Literals([
-      "error_during_execution",
-      "error_max_turns",
-      "error_max_budget_usd",
-      "error_max_structured_output_retries",
-    ]),
-    duration_ms: S.Number,
-    duration_api_ms: S.Number,
-    is_error: S.Boolean,
-    num_turns: S.Number,
-    stop_reason: S.optional(S.Union([S.String, S.Null])),
-    total_cost_usd: S.Number,
-    usage: NonNullableUsage,
-    modelUsage: S.Record(S.String, ModelUsage),
-    permission_denials: S.Array(SDKPermissionDenial),
-    errors: S.Array(S.String),
-    uuid: UUID,
-    session_id: S.String,
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_during_execution"),
   }),
-  "SDKResultError"
+  $I.annote("SDKResultErrorDuringExecution", {
+    description: "Schema for SDK result execution errors.",
+  })
+);
+
+const SDKResultErrorMaxTurns = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_turns"),
+  }),
+  $I.annote("SDKResultErrorMaxTurns", {
+    description: "Schema for SDK result max-turn errors.",
+  })
+);
+
+const SDKResultErrorMaxBudget = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_budget_usd"),
+  }),
+  $I.annote("SDKResultErrorMaxBudget", {
+    description: "Schema for SDK result budget-limit errors.",
+  })
+);
+
+const SDKResultErrorMaxStructuredOutputRetries = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_structured_output_retries"),
+  }),
+  $I.annote("SDKResultErrorMaxStructuredOutputRetries", {
+    description: "Schema for SDK result structured output retry-limit errors.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ */
+export const SDKResultError = S.Union([
+  SDKResultErrorDuringExecution,
+  SDKResultErrorMaxTurns,
+  SDKResultErrorMaxBudget,
+  SDKResultErrorMaxStructuredOutputRetries,
+]).pipe(
+  S.toTaggedUnion("subtype"),
+  S.annotate(
+    $I.annote("SDKResultError", {
+      description: "Tagged union schema for SDKResultError variants.",
+    })
+  )
 );
 
 /**
@@ -282,7 +351,20 @@ export type SDKResultErrorEncoded = typeof SDKResultError.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKResultMessage = withIdentifier(S.Union([SDKResultSuccess, SDKResultError]), "SDKResultMessage");
+export const SDKResultMessage = S.Union([
+  SDKResultSuccess,
+  SDKResultErrorDuringExecution,
+  SDKResultErrorMaxTurns,
+  SDKResultErrorMaxBudget,
+  SDKResultErrorMaxStructuredOutputRetries,
+]).pipe(
+  S.toTaggedUnion("subtype"),
+  S.annotate(
+    $I.annote("SDKResultMessage", {
+      description: "Tagged union schema for result message variants.",
+    })
+  )
+);
 
 /**
  * @since 0.0.0
@@ -296,7 +378,11 @@ export type SDKResultMessageEncoded = typeof SDKResultMessage.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKStatus = withIdentifier(S.Union([S.Literal("compacting"), S.Null]), "SDKStatus");
+export const SDKStatus = S.Union([S.Literal("compacting"), S.Null]).annotate(
+  $I.annote("SDKStatus", {
+    description: "Schema for SDKStatus.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -319,7 +405,9 @@ export const SDKStatusMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKStatusMessage"
+  $I.annote("SDKStatusMessage", {
+    description: "Schema for SDKStatusMessage.",
+  })
 );
 
 /**
@@ -364,7 +452,9 @@ export const SDKSystemMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKSystemMessage"
+  $I.annote("SDKSystemMessage", {
+    description: "Schema for SDKSystemMessage.",
+  })
 );
 
 /**
@@ -384,13 +474,15 @@ export const SDKTaskNotificationMessage = withSdkMessage(
     type: S.Literal("system"),
     subtype: S.Literal("task_notification"),
     task_id: S.String,
-    status: S.Literals(["completed", "failed", "stopped"]),
+    status: LiteralKit(["completed", "failed", "stopped"]),
     output_file: S.String,
     summary: S.String,
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKTaskNotificationMessage"
+  $I.annote("SDKTaskNotificationMessage", {
+    description: "Schema for SDKTaskNotificationMessage.",
+  })
 );
 
 /**
@@ -416,7 +508,9 @@ export const SDKTaskStartedMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKTaskStartedMessage"
+  $I.annote("SDKTaskStartedMessage", {
+    description: "Schema for SDKTaskStartedMessage.",
+  })
 );
 
 /**
@@ -451,7 +545,9 @@ export const SDKFilesPersistedEvent = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKFilesPersistedEvent"
+  $I.annote("SDKFilesPersistedEvent", {
+    description: "Schema for SDKFilesPersistedEvent.",
+  })
 );
 
 /**
@@ -476,7 +572,9 @@ export const SDKToolProgressMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKToolProgressMessage"
+  $I.annote("SDKToolProgressMessage", {
+    description: "Schema for SDKToolProgressMessage.",
+  })
 );
 
 /**
@@ -499,7 +597,9 @@ export const SDKToolUseSummaryMessage = withSdkMessage(
     uuid: UUID,
     session_id: S.String,
   }),
-  "SDKToolUseSummaryMessage"
+  $I.annote("SDKToolUseSummaryMessage", {
+    description: "Schema for SDKToolUseSummaryMessage.",
+  })
 );
 
 /**
@@ -524,7 +624,9 @@ export const SDKUserMessage = withSdkMessage(
     uuid: S.optional(UUID),
     session_id: S.String,
   }),
-  "SDKUserMessage"
+  $I.annote("SDKUserMessage", {
+    description: "Schema for SDKUserMessage.",
+  })
 );
 
 /**
@@ -550,7 +652,9 @@ export const SDKUserMessageReplay = withSdkMessage(
     session_id: S.String,
     isReplay: S.Literal(true),
   }),
-  "SDKUserMessageReplay"
+  $I.annote("SDKUserMessageReplay", {
+    description: "Schema for SDKUserMessageReplay.",
+  })
 );
 
 /**
@@ -565,27 +669,28 @@ export type SDKUserMessageReplayEncoded = typeof SDKUserMessageReplay.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKMessage = withIdentifier(
-  S.Union([
-    SDKAssistantMessage,
-    SDKUserMessage,
-    SDKUserMessageReplay,
-    SDKResultMessage,
-    SDKSystemMessage,
-    SDKPartialAssistantMessage,
-    SDKCompactBoundaryMessage,
-    SDKStatusMessage,
-    SDKHookStartedMessage,
-    SDKHookProgressMessage,
-    SDKHookResponseMessage,
-    SDKToolProgressMessage,
-    SDKToolUseSummaryMessage,
-    SDKAuthStatusMessage,
-    SDKTaskNotificationMessage,
-    SDKTaskStartedMessage,
-    SDKFilesPersistedEvent,
-  ]),
-  "SDKMessage"
+export const SDKMessage = S.Union([
+  SDKAssistantMessage,
+  SDKUserMessage,
+  SDKUserMessageReplay,
+  SDKResultMessage,
+  SDKSystemMessage,
+  SDKPartialAssistantMessage,
+  SDKCompactBoundaryMessage,
+  SDKStatusMessage,
+  SDKHookStartedMessage,
+  SDKHookProgressMessage,
+  SDKHookResponseMessage,
+  SDKToolProgressMessage,
+  SDKToolUseSummaryMessage,
+  SDKAuthStatusMessage,
+  SDKTaskNotificationMessage,
+  SDKTaskStartedMessage,
+  SDKFilesPersistedEvent,
+]).annotate(
+  $I.annote("SDKMessage", {
+    description: "Schema for SDKMessage.",
+  })
 );
 
 /**

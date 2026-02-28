@@ -11,6 +11,7 @@
  * @since 0.0.0
  * @category models
  */
+
 export type ActionResults = (ObjectEdits | LargeScaleObjectEdits) & {
   editedObjectTypes: Array<string>;
 };

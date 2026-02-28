@@ -1,11 +1,9 @@
-import { ServiceMap } from "effect";
-import * as Config from "effect/Config";
-import * as ConfigProvider from "effect/ConfigProvider";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Redacted from "effect/Redacted";
-import * as Schema from "effect/Schema";
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Config, ConfigProvider, Effect, Layer, Redacted, ServiceMap } from "effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { ConfigError } from "./Errors.js";
 import { defaultSettingSources, layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
@@ -13,13 +11,15 @@ import { PermissionMode } from "./Schema/index.js";
 import { type Options, SettingSource } from "./Schema/Options.js";
 import { SandboxIgnoreViolations } from "./Schema/Sandbox.js";
 
-const SettingSourcesSchema = Schema.Array(SettingSource);
-const SandboxProviderSchema = Schema.Literals(["local", "cloudflare"]);
-const StorageBackendSchema = Schema.Literals(["bun", "filesystem", "r2", "kv"]);
-const StorageModeSchema = Schema.Literals(["standard", "journaled"]);
+const $I = $AiSdkId.create("core/AgentSdkConfig");
+
+const SettingSourcesSchema = S.Array(SettingSource);
+const SandboxProviderSchema = LiteralKit(["local", "cloudflare"]);
+const StorageBackendSchema = LiteralKit(["bun", "filesystem", "r2", "kv"]);
+const StorageModeSchema = LiteralKit(["standard", "journaled"]);
 
 const parseSettingSources = (value: string) =>
-  Schema.decodeUnknownEffect(SettingSourcesSchema)(
+  S.decodeUnknownEffect(SettingSourcesSchema)(
     value
       .split(",")
       .map((entry) => entry.trim())
@@ -39,16 +39,16 @@ const parseList = (value: string) =>
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0);
 
-const parseOptionalList = (value: Option.Option<string>) =>
-  Option.flatMap(value, (raw) => {
+const parseOptionalList = (value: O.Option<string>) =>
+  O.flatMap(value, (raw) => {
     const entries = parseList(raw);
-    return entries.length > 0 ? Option.some(entries) : Option.none();
+    return entries.length > 0 ? O.some(entries) : O.none();
   });
 
-const SandboxIgnoreViolationsSchema = Schema.fromJsonString(SandboxIgnoreViolations);
+const SandboxIgnoreViolationsSchema = S.fromJsonString(SandboxIgnoreViolations);
 
 const parseSandboxIgnoreViolations = (value: string) =>
-  Schema.decodeUnknownEffect(SandboxIgnoreViolationsSchema)(value).pipe(
+  S.decodeUnknownEffect(SandboxIgnoreViolationsSchema)(value).pipe(
     Effect.mapError((cause) =>
       ConfigError.make({
         message: "Invalid sandbox ignore violations",
@@ -57,10 +57,8 @@ const parseSandboxIgnoreViolations = (value: string) =>
     )
   );
 
-const normalizeRedacted = (value: Option.Option<Redacted.Redacted>) =>
-  Option.flatMap(value, (redacted) =>
-    Redacted.value(redacted).trim().length > 0 ? Option.some(redacted) : Option.none()
-  );
+const normalizeRedacted = (value: O.Option<Redacted.Redacted>) =>
+  O.flatMap(value, (redacted) => (Redacted.value(redacted).trim().length > 0 ? O.some(redacted) : O.none()));
 
 const makeAgentSdkConfig = Effect.gen(function* () {
   const apiKey = normalizeRedacted(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));
@@ -70,7 +68,7 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   );
   const model = yield* Config.option(Config.string("MODEL"));
   const cwd = yield* Config.option(Config.string("CWD"));
-  const executable = yield* Config.option(Config.schema(Schema.Literals(["bun", "deno", "node"]), "EXECUTABLE"));
+  const executable = yield* Config.option(Config.schema(LiteralKit(["bun", "deno", "node"]), "EXECUTABLE"));
   const allowDangerouslySkipPermissions = yield* Config.option(Config.boolean("ALLOW_DANGEROUSLY_SKIP_PERMISSIONS"));
   const permissionMode = yield* Config.option(Config.schema(PermissionMode, "PERMISSION_MODE"));
   const settingSourcesValue = yield* Config.option(Config.string("SETTING_SOURCES"));
@@ -97,28 +95,33 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   const storageModeValue = yield* Config.option(Config.schema(StorageModeSchema, "STORAGE_MODE"));
   const r2BucketBindingValue = yield* Config.option(Config.string("R2_BUCKET_BINDING"));
   const kvNamespaceBindingValue = yield* Config.option(Config.string("KV_NAMESPACE_BINDING"));
-  const settingSources = Option.isSome(settingSourcesValue)
+  const settingSources = O.isSome(settingSourcesValue)
     ? yield* parseSettingSources(settingSourcesValue.value)
     : defaultSettingSources;
   const processEnv = yield* Effect.sync(() => process.env);
-  const resolvedApiKey = Option.isSome(apiKey) ? apiKey : apiKeyFallback;
-  const authEnvOverrides = {
-    ...(Option.isSome(resolvedApiKey) ? { ANTHROPIC_API_KEY: Redacted.value(resolvedApiKey.value) } : {}),
-    ...(Option.isSome(sessionAccessToken)
+  const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
+  const authEnvEntries: Array<readonly [string, string]> = [];
+  if (O.isSome(resolvedApiKey)) {
+    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(resolvedApiKey.value)]);
+  }
+  if (O.isSome(sessionAccessToken)) {
+    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
+  }
+  const env =
+    authEnvEntries.length > 0
       ? {
-          CLAUDE_CODE_SESSION_ACCESS_TOKEN: Redacted.value(sessionAccessToken.value),
+          ...processEnv,
+          ...R.fromEntries(authEnvEntries),
         }
-      : {}),
-  };
-  const env = Object.keys(authEnvOverrides).length > 0 ? { ...processEnv, ...authEnvOverrides } : undefined;
+      : undefined;
   const cwdDefault = yield* Effect.sync(() => process.cwd());
 
-  if (!Option.isSome(resolvedApiKey) && !Option.isSome(sessionAccessToken)) {
+  if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();
   }
 
-  const resolvedPermissionMode = Option.getOrUndefined(permissionMode);
-  const allowDangerously = Option.getOrElse(allowDangerouslySkipPermissions, () => false);
+  const resolvedPermissionMode = O.getOrUndefined(permissionMode);
+  const allowDangerously = O.getOrElse(allowDangerouslySkipPermissions, () => false);
   if (resolvedPermissionMode === "bypassPermissions" && !allowDangerously) {
     yield* Effect.logError("PERMISSION_MODE=bypassPermissions requires ALLOW_DANGEROUSLY_SKIP_PERMISSIONS=true.");
   }
@@ -127,95 +130,91 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   const sandboxNetworkAllowedDomains = parseOptionalList(sandboxNetworkAllowedDomainsValue);
   const sandboxNetworkAllowUnixSockets = parseOptionalList(sandboxNetworkAllowUnixSocketsValue);
   const sandboxRipgrepArgs = parseOptionalList(sandboxRipgrepArgsValue);
-  const sandboxIgnoreViolations = Option.isSome(sandboxIgnoreViolationsValue)
-    ? Option.some(yield* parseSandboxIgnoreViolations(sandboxIgnoreViolationsValue.value))
-    : Option.none();
+  const sandboxIgnoreViolations = O.isSome(sandboxIgnoreViolationsValue)
+    ? O.some(yield* parseSandboxIgnoreViolations(sandboxIgnoreViolationsValue.value))
+    : O.none();
 
-  if (Option.isNone(sandboxRipgrepCommand) && Option.isSome(sandboxRipgrepArgs)) {
+  if (O.isNone(sandboxRipgrepCommand) && O.isSome(sandboxRipgrepArgs)) {
     yield* Effect.logError("SANDBOX_RIPGREP_ARGS requires SANDBOX_RIPGREP_COMMAND.");
   }
 
   const sandboxNetwork =
-    Option.isSome(sandboxNetworkAllowedDomains) ||
-    Option.isSome(sandboxNetworkAllowUnixSockets) ||
-    Option.isSome(sandboxNetworkAllowAllUnixSockets) ||
-    Option.isSome(sandboxNetworkAllowLocalBinding) ||
-    Option.isSome(sandboxNetworkHttpProxyPort) ||
-    Option.isSome(sandboxNetworkSocksProxyPort)
+    O.isSome(sandboxNetworkAllowedDomains) ||
+    O.isSome(sandboxNetworkAllowUnixSockets) ||
+    O.isSome(sandboxNetworkAllowAllUnixSockets) ||
+    O.isSome(sandboxNetworkAllowLocalBinding) ||
+    O.isSome(sandboxNetworkHttpProxyPort) ||
+    O.isSome(sandboxNetworkSocksProxyPort)
       ? {
-          ...(Option.isSome(sandboxNetworkAllowedDomains)
-            ? { allowedDomains: sandboxNetworkAllowedDomains.value }
-            : {}),
-          ...(Option.isSome(sandboxNetworkAllowUnixSockets)
+          ...(O.isSome(sandboxNetworkAllowedDomains) ? { allowedDomains: sandboxNetworkAllowedDomains.value } : {}),
+          ...(O.isSome(sandboxNetworkAllowUnixSockets)
             ? { allowUnixSockets: sandboxNetworkAllowUnixSockets.value }
             : {}),
-          ...(Option.isSome(sandboxNetworkAllowAllUnixSockets)
+          ...(O.isSome(sandboxNetworkAllowAllUnixSockets)
             ? { allowAllUnixSockets: sandboxNetworkAllowAllUnixSockets.value }
             : {}),
-          ...(Option.isSome(sandboxNetworkAllowLocalBinding)
+          ...(O.isSome(sandboxNetworkAllowLocalBinding)
             ? { allowLocalBinding: sandboxNetworkAllowLocalBinding.value }
             : {}),
-          ...(Option.isSome(sandboxNetworkHttpProxyPort) ? { httpProxyPort: sandboxNetworkHttpProxyPort.value } : {}),
-          ...(Option.isSome(sandboxNetworkSocksProxyPort)
-            ? { socksProxyPort: sandboxNetworkSocksProxyPort.value }
-            : {}),
+          ...(O.isSome(sandboxNetworkHttpProxyPort) ? { httpProxyPort: sandboxNetworkHttpProxyPort.value } : {}),
+          ...(O.isSome(sandboxNetworkSocksProxyPort) ? { socksProxyPort: sandboxNetworkSocksProxyPort.value } : {}),
         }
       : undefined;
 
-  const sandboxRipgrep = Option.isSome(sandboxRipgrepCommand)
+  const sandboxRipgrep = O.isSome(sandboxRipgrepCommand)
     ? {
         command: sandboxRipgrepCommand.value,
-        ...(Option.isSome(sandboxRipgrepArgs) ? { args: sandboxRipgrepArgs.value } : {}),
+        ...(O.isSome(sandboxRipgrepArgs) ? { args: sandboxRipgrepArgs.value } : {}),
       }
     : undefined;
 
   const sandbox =
-    Option.isSome(sandboxEnabled) ||
-    Option.isSome(sandboxAutoAllowBashIfSandboxed) ||
-    Option.isSome(sandboxAllowUnsandboxedCommands) ||
-    Option.isSome(sandboxEnableWeakerNestedSandbox) ||
-    Option.isSome(sandboxExcludedCommands) ||
-    Option.isSome(sandboxIgnoreViolations) ||
+    O.isSome(sandboxEnabled) ||
+    O.isSome(sandboxAutoAllowBashIfSandboxed) ||
+    O.isSome(sandboxAllowUnsandboxedCommands) ||
+    O.isSome(sandboxEnableWeakerNestedSandbox) ||
+    O.isSome(sandboxExcludedCommands) ||
+    O.isSome(sandboxIgnoreViolations) ||
     sandboxNetwork !== undefined ||
     sandboxRipgrep !== undefined
       ? {
-          ...(Option.isSome(sandboxEnabled) ? { enabled: sandboxEnabled.value } : {}),
-          ...(Option.isSome(sandboxAutoAllowBashIfSandboxed)
+          ...(O.isSome(sandboxEnabled) ? { enabled: sandboxEnabled.value } : {}),
+          ...(O.isSome(sandboxAutoAllowBashIfSandboxed)
             ? { autoAllowBashIfSandboxed: sandboxAutoAllowBashIfSandboxed.value }
             : {}),
-          ...(Option.isSome(sandboxAllowUnsandboxedCommands)
+          ...(O.isSome(sandboxAllowUnsandboxedCommands)
             ? {
                 allowUnsandboxedCommands: sandboxAllowUnsandboxedCommands.value,
               }
             : {}),
           ...(sandboxNetwork ? { network: sandboxNetwork } : {}),
-          ...(Option.isSome(sandboxIgnoreViolations) ? { ignoreViolations: sandboxIgnoreViolations.value } : {}),
-          ...(Option.isSome(sandboxEnableWeakerNestedSandbox)
+          ...(O.isSome(sandboxIgnoreViolations) ? { ignoreViolations: sandboxIgnoreViolations.value } : {}),
+          ...(O.isSome(sandboxEnableWeakerNestedSandbox)
             ? {
                 enableWeakerNestedSandbox: sandboxEnableWeakerNestedSandbox.value,
               }
             : {}),
-          ...(Option.isSome(sandboxExcludedCommands) ? { excludedCommands: sandboxExcludedCommands.value } : {}),
+          ...(O.isSome(sandboxExcludedCommands) ? { excludedCommands: sandboxExcludedCommands.value } : {}),
           ...(sandboxRipgrep ? { ripgrep: sandboxRipgrep } : {}),
         }
       : undefined;
 
   const options: Options = {
-    executable: Option.getOrUndefined(executable) ?? "bun",
-    cwd: Option.getOrUndefined(cwd) ?? cwdDefault,
-    model: Option.getOrUndefined(model),
-    allowDangerouslySkipPermissions: Option.getOrUndefined(allowDangerouslySkipPermissions),
-    permissionMode: Option.getOrUndefined(permissionMode),
+    executable: O.getOrUndefined(executable) ?? "bun",
+    cwd: O.getOrUndefined(cwd) ?? cwdDefault,
+    model: O.getOrUndefined(model),
+    allowDangerouslySkipPermissions: O.getOrUndefined(allowDangerouslySkipPermissions),
+    permissionMode: O.getOrUndefined(permissionMode),
     settingSources,
     env,
     ...(sandbox ? { sandbox } : {}),
   };
 
-  const sandboxProvider = Option.isSome(sandboxProviderValue) ? sandboxProviderValue : Option.some("local");
-  const storageBackend = Option.isSome(storageBackendValue) ? storageBackendValue : Option.some("bun");
-  const storageMode = Option.isSome(storageModeValue) ? storageModeValue : Option.some("standard");
-  const r2BucketBinding = Option.isSome(r2BucketBindingValue) ? r2BucketBindingValue : Option.some("BUCKET");
-  const kvNamespaceBinding = Option.isSome(kvNamespaceBindingValue) ? kvNamespaceBindingValue : Option.some("KV");
+  const sandboxProvider = O.isSome(sandboxProviderValue) ? sandboxProviderValue : O.some("local");
+  const storageBackend = O.isSome(storageBackendValue) ? storageBackendValue : O.some("bun");
+  const storageMode = O.isSome(storageModeValue) ? storageModeValue : O.some("standard");
+  const r2BucketBinding = O.isSome(r2BucketBindingValue) ? r2BucketBindingValue : O.some("BUCKET");
+  const kvNamespaceBinding = O.isSome(kvNamespaceBindingValue) ? kvNamespaceBindingValue : O.some("KV");
 
   return {
     options,
@@ -232,9 +231,12 @@ const makeAgentSdkConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, Effect.Success<typeof makeAgentSdkConfig>>()(
-  "@effect/claude-agent-sdk/AgentSdkConfig"
-) {
+export interface AgentSdkConfigShape extends Effect.Success<typeof makeAgentSdkConfig> {}
+
+/**
+ * @since 0.0.0
+ */
+export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, AgentSdkConfigShape>()($I`AgentSdkConfig`) {
   /**
    * Build AgentSdkConfig with explicit overrides layered on top of environment config.
    */
@@ -249,7 +251,10 @@ export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, Effect.Su
     if (entries.length === 0) {
       return AgentSdkConfig.layer;
     }
-    const provider = ConfigProvider.orElse(ConfigProvider.fromUnknown(new Map(entries)), ConfigProvider.fromEnv());
+    const provider = ConfigProvider.orElse(
+      ConfigProvider.fromUnknown(R.fromEntries(entries)),
+      ConfigProvider.fromEnv()
+    );
     return AgentSdkConfig.layer.pipe(Layer.provide(ConfigProvider.layerAdd(provider)));
   };
   /**

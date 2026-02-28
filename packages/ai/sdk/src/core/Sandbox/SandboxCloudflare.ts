@@ -1,7 +1,9 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Ref from "effect/Ref";
-import * as Stream from "effect/Stream";
+import { Effect, Layer, Match, Ref, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { defaultCloudflareLifecyclePolicy } from "../internal/lifecyclePolicy.js";
 import { decodeNdjson } from "../internal/ndjson.js";
 import { SDKMessage as SDKMessageSchema } from "../Schema/Message.js";
@@ -67,6 +69,23 @@ type ExecEvent = {
   error?: string;
 };
 
+type CloudflareSandboxModule = {
+  readonly getSandbox: (
+    binding: unknown,
+    id: string,
+    opts?: {
+      sleepAfter?: string | number;
+      keepAlive?: boolean;
+    }
+  ) => CloudflareSandboxHandle;
+  readonly parseSSEStream: <T>(stream: ReadableStream) => AsyncIterable<T>;
+};
+
+/**
+ * @since 0.0.0
+ */
+export const cloudflareSandboxModuleOverrideKey = "__beepAiSdkCloudflareSandboxModule";
+
 const staleResumeIndicators = [
   "session not found",
   "no such session",
@@ -75,20 +94,36 @@ const staleResumeIndicators = [
   "resume session not found",
 ];
 
+const decodeJsonLine = S.decodeUnknownOption(S.UnknownFromJsonString);
+
+const isCloudflareSandboxModule = (value: unknown): value is CloudflareSandboxModule => {
+  const getSandbox = P.isObject(value) ? Reflect.get(value, "getSandbox") : undefined;
+  const parseSSEStream = P.isObject(value) ? Reflect.get(value, "parseSSEStream") : undefined;
+  return P.isFunction(getSandbox) && P.isFunction(parseSSEStream);
+};
+
+const getCloudflareSandboxModuleOverride = (): O.Option<CloudflareSandboxModule> => {
+  const candidate = Reflect.get(globalThis, cloudflareSandboxModuleOverrideKey);
+  return isCloudflareSandboxModule(candidate) ? O.some(candidate) : O.none();
+};
+
 const collectStringFragments = (value: unknown): Array<string> => {
-  if (typeof value === "string") return [value];
+  if (P.isString(value)) return [value];
   if (value === null || value === undefined) return [];
-  if (Array.isArray(value)) {
-    return value.flatMap(collectStringFragments);
+  if (A.isArray(value)) {
+    return A.flatMap(value, collectStringFragments);
   }
-  if (typeof value === "object") {
-    return Object.values(value as Record<string, unknown>).flatMap(collectStringFragments);
+  if (P.isObject(value)) {
+    return A.flatMap(
+      A.map(R.toEntries(value as Record<string, unknown>), ([, entry]) => entry),
+      collectStringFragments
+    );
   }
   return [];
 };
 
 const isStaleResumeFailure = (error: unknown): boolean => {
-  if (!error || typeof error !== "object") return false;
+  if (!error || !P.isObject(error)) return false;
   const candidate = error as {
     readonly _tag?: string;
     readonly message?: string;
@@ -120,23 +155,24 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
     SandboxService,
     Effect.gen(function* () {
       // Dynamic import -- @cloudflare/sandbox is a peer dep.
-      // getSandbox returns synchronously (lazy container start on first operation).
-      // parseSSEStream converts execStream's ReadableStream into AsyncIterable<T>.
-      const { getSandbox, parseSSEStream } = yield* Effect.tryPromise({
-        try: () =>
-          import("@cloudflare/sandbox") as unknown as Promise<{
-            getSandbox: (
-              binding: unknown,
-              id: string,
-              opts?: {
-                sleepAfter?: string | number;
-                keepAlive?: boolean;
-              }
-            ) => CloudflareSandboxHandle;
-            parseSSEStream: <T>(stream: ReadableStream) => AsyncIterable<T>;
-          }>,
-        catch: (cause) => mapError("import", cause),
-      });
+      // Tests can inject an override module via globalThis to avoid requiring
+      // the real package.
+      const override = getCloudflareSandboxModuleOverride();
+      const sandboxModule = O.isSome(override)
+        ? override.value
+        : yield* Effect.tryPromise({
+            try: () => import("@cloudflare/sandbox"),
+            catch: (cause) => mapError("import", cause),
+          });
+      if (!isCloudflareSandboxModule(sandboxModule)) {
+        return yield* SandboxError.make({
+          message: "Invalid @cloudflare/sandbox module shape",
+          operation: "import",
+          provider: "cloudflare",
+          cause: sandboxModule,
+        });
+      }
+      const { getSandbox, parseSSEStream } = sandboxModule;
 
       // getSandbox is synchronous -- container starts lazily on first operation.
       // Acquire sandbox with scoped lifecycle -- destroy() on scope close.
@@ -162,11 +198,11 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
               CLAUDE_CODE_SESSION_ACCESS_TOKEN: options.sessionAccessToken,
             }
           : {}),
-        ...(options.envVars ?? {}),
+        ...options.envVars,
       };
 
       // Set auth + runtime env vars in the sandbox once during layer startup.
-      if (Object.keys(baseEnvVars).length > 0) {
+      if (R.keys(baseEnvVars).length > 0) {
         yield* Effect.tryPromise({
           try: () => sandbox.setEnvVars(baseEnvVars),
           catch: (cause) => mapError("setEnvVars", cause),
@@ -306,14 +342,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                           buffer = "";
                           break;
                         }
-                        const isCompleteJson = yield* Effect.sync(() => {
-                          try {
-                            JSON.parse(trimmed);
-                            return true;
-                          } catch {
-                            return false;
-                          }
-                        });
+                        const isCompleteJson = O.isSome(decodeJsonLine(trimmed));
                         if (isCompleteJson) {
                           lines.push(trimmed);
                           buffer = "";
@@ -324,54 +353,58 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                       return lines as ReadonlyArray<string>;
                     });
 
-                  const stdoutData = Stream.fromAsyncIterable(parseSSEStream<ExecEvent>(readable), (cause) =>
-                    mapError("runAgent.stream", cause)
-                  ).pipe(
-                    Stream.mapEffect((event) =>
-                      Effect.gen(function* () {
-                        switch (event.type) {
-                          case "stdout": {
-                            if (!event.data || event.data.length === 0) {
-                              return [] as ReadonlyArray<string>;
-                            }
-                            return yield* drainStdoutChunk(event.data);
+                  const handleExecEvent = (event: ExecEvent) =>
+                    Match.value(event.type).pipe(
+                      Match.when("stdout", () =>
+                        !event.data || event.data.length === 0
+                          ? Effect.succeed([] as ReadonlyArray<string>)
+                          : drainStdoutChunk(event.data)
+                      ),
+                      Match.when("stderr", () =>
+                        Effect.gen(function* () {
+                          if (event.data && event.data.length > 0) {
+                            const stderrLine = event.data;
+                            yield* Ref.update(stderrBuffer, (current) =>
+                              current.length > 0 ? `${current}\n${stderrLine}` : stderrLine
+                            );
                           }
-                          case "stderr": {
-                            if (event.data && event.data.length > 0) {
-                              const stderrLine = event.data;
-                              yield* Ref.update(stderrBuffer, (current) =>
-                                current.length > 0 ? `${current}\n${stderrLine}` : stderrLine
-                              );
-                            }
-                            return [] as ReadonlyArray<string>;
-                          }
-                          case "error": {
+                          return [] as ReadonlyArray<string>;
+                        })
+                      ),
+                      Match.when("error", () =>
+                        Effect.gen(function* () {
+                          const stderr = yield* Ref.get(stderrBuffer);
+                          return yield* SandboxError.make({
+                            message: event.error ?? "Sandbox process reported an error",
+                            operation: "runAgent.exec",
+                            provider: "cloudflare",
+                            cause: stderr.length > 0 ? { event, stderr } : event,
+                          });
+                        })
+                      ),
+                      Match.when("complete", () =>
+                        Effect.gen(function* () {
+                          const exitCode = event.exitCode ?? 0;
+                          if (exitCode !== 0) {
                             const stderr = yield* Ref.get(stderrBuffer);
                             return yield* SandboxError.make({
-                              message: event.error ?? "Sandbox process reported an error",
+                              message: `Sandbox process exited with code ${exitCode}`,
                               operation: "runAgent.exec",
                               provider: "cloudflare",
                               cause: stderr.length > 0 ? { event, stderr } : event,
                             });
                           }
-                          case "complete": {
-                            const exitCode = event.exitCode ?? 0;
-                            if (exitCode !== 0) {
-                              const stderr = yield* Ref.get(stderrBuffer);
-                              return yield* SandboxError.make({
-                                message: `Sandbox process exited with code ${exitCode}`,
-                                operation: "runAgent.exec",
-                                provider: "cloudflare",
-                                cause: stderr.length > 0 ? { event, stderr } : event,
-                              });
-                            }
-                            return [] as ReadonlyArray<string>;
-                          }
-                          default:
-                            return [] as ReadonlyArray<string>;
-                        }
-                      })
-                    ),
+                          return [] as ReadonlyArray<string>;
+                        })
+                      ),
+                      Match.when("start", () => Effect.succeed([] as ReadonlyArray<string>)),
+                      Match.exhaustive
+                    );
+
+                  const stdoutData = Stream.fromAsyncIterable(parseSSEStream<ExecEvent>(readable), (cause) =>
+                    mapError("runAgent.stream", cause)
+                  ).pipe(
+                    Stream.mapEffect((event) => handleExecEvent(event)),
                     Stream.flatMap((lines) => Stream.fromIterable(lines)),
                     Stream.concat(
                       Stream.unwrap(drainStdoutChunk("\n").pipe(Effect.map((lines) => Stream.fromIterable(lines))))
@@ -425,7 +458,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                 Stream.share(stdoutStream, config ?? defaultCloudflareLifecyclePolicy.defaultShareConfig),
               broadcast: (config) => {
                 const resolved = config ?? defaultCloudflareLifecyclePolicy.defaultBroadcastLag;
-                if (typeof resolved === "number") {
+                if (P.isNumber(resolved)) {
                   return Stream.broadcast(stdoutStream, { capacity: resolved });
                 }
                 return Stream.broadcast(stdoutStream, resolved);

@@ -1,4 +1,4 @@
-import { AgentRuntime, SessionPool } from "@beep/ai-sdk";
+import { AgentRuntime, SessionPool, SessionPoolNotFoundError } from "@beep/ai-sdk";
 import type { QueryHandle } from "@beep/ai-sdk/Query";
 import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { layer as AgentRpcHandlers } from "@beep/ai-sdk/service/AgentRpcHandlers";
@@ -9,7 +9,7 @@ import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
-import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -27,9 +27,58 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   usage: {},
   modelUsage: {},
   permission_denials: [],
-  uuid: "00000000-0000-0000-0000-000000000000",
+  uuid: "00000000-0000-4000-8000-000000000000",
   session_id: "session-1",
 });
+
+const makeMetadataHandle = (): QueryHandle => {
+  const stream: Stream.Stream<SDKMessage> = Stream.empty;
+  return {
+    stream,
+    send: () => Effect.void,
+    sendAll: () => Effect.void,
+    sendForked: () => Effect.void,
+    closeInput: Effect.void,
+    share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
+    broadcast: (config) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
+    interrupt: Effect.void,
+    setPermissionMode: () => Effect.void,
+    setModel: () => Effect.void,
+    setMaxThinkingTokens: () => Effect.void,
+    rewindFiles: () => Effect.succeed({ canRewind: false }),
+    supportedCommands: Effect.succeed([
+      {
+        name: "help",
+        description: "show help",
+        argumentHint: "",
+      },
+    ]),
+    supportedModels: Effect.succeed([
+      {
+        value: "claude-3-5",
+        displayName: "Claude 3.5",
+        description: "Test model",
+      },
+    ]),
+    mcpServerStatus: Effect.succeed([]),
+    setMcpServers: () => Effect.succeed({ added: [], removed: [], errors: {} }),
+    accountInfo: Effect.succeed({ email: "dev@example.com" }),
+    initializationResult: Effect.succeed({
+      commands: [],
+      output_style: "default",
+      available_output_styles: [],
+      models: [],
+      account: {},
+    }),
+    stopTask: () => Effect.void,
+  };
+};
 
 const toRequestInit = (request: HttpClientRequest.HttpClientRequest, signal: AbortSignal): RequestInit => {
   const init: RequestInit = {
@@ -100,30 +149,9 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
   );
 
 test("agent RPC API serves query and metadata", async () => {
-  const makeHandle = () =>
-    ({
-      supportedCommands: Effect.succeed([
-        {
-          name: "help",
-          description: "show help",
-          argumentHint: "",
-        },
-      ]),
-      supportedModels: Effect.succeed([
-        {
-          value: "claude-3-5",
-          displayName: "Claude 3.5",
-          description: "Test model",
-        },
-      ]),
-      accountInfo: Effect.succeed({ email: "dev@example.com" }),
-      closeInput: Effect.void,
-      interrupt: Effect.void,
-    }) as unknown as QueryHandle;
-
   const runtime = AgentRuntime.of({
-    query: () => Effect.succeed(makeHandle()),
-    queryRaw: () => Effect.succeed(makeHandle()),
+    query: () => Effect.succeed(makeMetadataHandle()),
+    queryRaw: () => Effect.succeed(makeMetadataHandle()),
     stream: () => Stream.fromIterable([makeSuccessMessage("ok")]),
     stats: Effect.succeed({
       active: 1,
@@ -187,30 +215,9 @@ test("agent RPC API serves query and metadata", async () => {
 });
 
 test("agent RPC metadata uses queryRaw", async () => {
-  const makeHandle = () =>
-    ({
-      supportedCommands: Effect.succeed([
-        {
-          name: "help",
-          description: "show help",
-          argumentHint: "",
-        },
-      ]),
-      supportedModels: Effect.succeed([
-        {
-          value: "claude-3-5",
-          displayName: "Claude 3.5",
-          description: "Test model",
-        },
-      ]),
-      accountInfo: Effect.succeed({ email: "dev@example.com" }),
-      closeInput: Effect.void,
-      interrupt: Effect.void,
-    }) as unknown as QueryHandle;
-
   const runtime = AgentRuntime.of({
     query: () => Effect.die("query should not be used for metadata"),
-    queryRaw: () => Effect.sync(makeHandle),
+    queryRaw: () => Effect.sync(makeMetadataHandle),
     stream: () => Stream.empty,
     stats: Effect.succeed({
       active: 0,
@@ -259,7 +266,7 @@ test("agent RPC metadata uses queryRaw", async () => {
   await runEffect(program);
 });
 
-test("agent RPC session routes enforce caller tenant header", async () => {
+test("agent RPC session routes enforce tenant scoping", async () => {
   const captured: Array<string | undefined> = [];
 
   const runtime = AgentRuntime.of({
@@ -287,11 +294,19 @@ test("agent RPC session routes enforce caller tenant header", async () => {
   const pool = SessionPool.of({
     create: (_overrides?: unknown, tenant?: string) => {
       captured.push(tenant);
-      return Effect.succeed(sessionHandle as never);
+      return Effect.succeed(sessionHandle);
     },
     get: (_sessionId: string, _overrides?: unknown, tenant?: string) => {
       captured.push(tenant);
-      return Effect.succeed(sessionHandle as never);
+      if (tenant !== "team-a") {
+        return Effect.fail(
+          SessionPoolNotFoundError.make({
+            message: "Session not found",
+            sessionId: "session-tenant",
+          })
+        );
+      }
+      return Effect.succeed(sessionHandle);
     },
     info: (_sessionId: string, tenant?: string) =>
       Effect.succeed({
@@ -328,25 +343,20 @@ test("agent RPC session routes enforce caller tenant header", async () => {
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const tenantClient = HttpClient.mapRequest(
-        makeWebHandlerClient(handler),
-        HttpClientRequest.setHeader("x-agent-tenant", "team-a")
-      );
-
       const clientLayer = RpcClient.layerProtocolHttp({
         url: "http://localhost/rpc",
       }).pipe(
-        Layer.provide(Layer.succeed(HttpClient.HttpClient, tenantClient)),
+        Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
         Layer.provide(RpcSerialization.layerNdjson)
       );
 
       const client = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(clientLayer));
 
-      const created = yield* client.CreateSession({ options: { model: "claude-test" } });
+      const created = yield* client.CreateSession({ options: { model: "claude-test" }, tenant: "team-a" });
       expect(created.sessionId).toBe("session-tenant");
       expect(captured[0]).toBe("team-a");
 
-      const listed = yield* client.ListSessionsByTenant({});
+      const listed = yield* client.ListSessionsByTenant({ tenant: "team-a" });
       expect(Array.isArray(listed)).toBe(true);
       expect(captured[1]).toBe("team-a");
 
@@ -358,7 +368,8 @@ test("agent RPC session routes enforce caller tenant header", async () => {
         })
       );
       expect(mismatch._tag).toBe("Failure");
-      expect(captured.length).toBe(2);
+      expect(captured[2]).toBe("team-b");
+      expect(captured.length).toBe(3);
     })
   );
 

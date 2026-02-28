@@ -1,10 +1,13 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import { thunkEffectVoid } from "@beep/utils";
-import * as Layer from "effect/Layer";
+import { Layer } from "effect";
 import * as S from "effect/Schema";
 import * as EventGroupModule from "effect/unstable/eventlog/EventGroup";
 import * as EventJournalModule from "effect/unstable/eventlog/EventJournal";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import { HookEvent } from "../Schema/Hooks.js";
+
+const $I = $AiSdkId.create("core/experimental/EventLog");
 
 /**
  * @since 0.0.0
@@ -46,37 +49,176 @@ export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(layerIdentityMemory)
 );
 
-const ToolUsePayload = S.Struct({
+const toolUsePayloadFields = {
   sessionId: S.String,
   toolName: S.String,
-  toolUseId: S.optional(S.String),
-  status: S.Literals(["start", "success", "failure"]),
-  durationMs: S.optional(S.Number),
-});
+  toolUseId: S.optionalKey(S.String),
+  durationMs: S.optionalKey(S.Number),
+} as const;
 
-const PermissionDecisionPayload = S.Struct({
+const ToolUsePayloadStart = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("start"),
+}).annotate(
+  $I.annote("ToolUsePayloadStart", {
+    description: "Payload emitted when a tool use starts.",
+  })
+);
+
+const ToolUsePayloadSuccess = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("success"),
+}).annotate(
+  $I.annote("ToolUsePayloadSuccess", {
+    description: "Payload emitted when a tool use succeeds.",
+  })
+);
+
+const ToolUsePayloadFailure = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("failure"),
+}).annotate(
+  $I.annote("ToolUsePayloadFailure", {
+    description: "Payload emitted when a tool use fails.",
+  })
+);
+
+const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
+  S.toTaggedUnion("status"),
+  S.annotate(
+    $I.annote("ToolUsePayload", {
+      description: "Tagged union payload for tool_use events.",
+    })
+  )
+);
+
+const permissionDecisionPayloadFields = {
   sessionId: S.String,
   toolName: S.String,
-  decision: S.Literals(["allow", "deny", "prompt"]),
   reason: S.optional(S.String),
-});
+} as const;
 
-const HookEventPayload = S.Struct({
+const PermissionDecisionPayloadAllow = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("allow"),
+}).annotate(
+  $I.annote("PermissionDecisionPayloadAllow", {
+    description: "Permission decision payload for allow outcomes.",
+  })
+);
+
+const PermissionDecisionPayloadDeny = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("deny"),
+}).annotate(
+  $I.annote("PermissionDecisionPayloadDeny", {
+    description: "Permission decision payload for deny outcomes.",
+  })
+);
+
+const PermissionDecisionPayloadPrompt = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("prompt"),
+}).annotate(
+  $I.annote("PermissionDecisionPayloadPrompt", {
+    description: "Permission decision payload for prompt outcomes.",
+  })
+);
+
+const PermissionDecisionPayload = S.Union([
+  PermissionDecisionPayloadAllow,
+  PermissionDecisionPayloadDeny,
+  PermissionDecisionPayloadPrompt,
+]).pipe(
+  S.toTaggedUnion("decision"),
+  S.annotate(
+    $I.annote("PermissionDecisionPayload", {
+      description: "Tagged union payload for permission_decision events.",
+    })
+  )
+);
+
+const hookEventPayloadFields = {
   sessionId: S.optional(S.String),
   hook: HookEvent,
   toolUseId: S.optional(S.String),
-  outcome: S.Literals(["success", "failure"]),
-});
+} as const;
 
-const SyncConflictPayload = S.Struct({
+const HookEventPayloadSuccess = S.Struct({
+  ...hookEventPayloadFields,
+  outcome: S.Literal("success"),
+}).annotate(
+  $I.annote("HookEventPayloadSuccess", {
+    description: "Hook event payload with successful outcome.",
+  })
+);
+
+const HookEventPayloadFailure = S.Struct({
+  ...hookEventPayloadFields,
+  outcome: S.Literal("failure"),
+}).annotate(
+  $I.annote("HookEventPayloadFailure", {
+    description: "Hook event payload with failure outcome.",
+  })
+);
+
+const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
+  S.toTaggedUnion("outcome"),
+  S.annotate(
+    $I.annote("HookEventPayload", {
+      description: "Tagged union payload for hook_event records.",
+    })
+  )
+);
+
+const syncConflictPayloadFields = {
   remoteId: S.String,
   event: S.String,
   primaryKey: S.String,
   entryId: S.String,
   conflictCount: S.Number,
-  resolution: S.Literals(["accept", "merge", "reject"]),
   resolvedEntryId: S.optional(S.String),
-});
+} as const;
+
+const SyncConflictPayloadAccept = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("accept"),
+}).annotate(
+  $I.annote("SyncConflictPayloadAccept", {
+    description: "Conflict payload for accept resolution.",
+  })
+);
+
+const SyncConflictPayloadMerge = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("merge"),
+}).annotate(
+  $I.annote("SyncConflictPayloadMerge", {
+    description: "Conflict payload for merge resolution.",
+  })
+);
+
+const SyncConflictPayloadReject = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("reject"),
+}).annotate(
+  $I.annote("SyncConflictPayloadReject", {
+    description: "Conflict payload for reject resolution.",
+  })
+);
+
+const SyncConflictPayload = S.Union([
+  SyncConflictPayloadAccept,
+  SyncConflictPayloadMerge,
+  SyncConflictPayloadReject,
+]).pipe(
+  S.toTaggedUnion("resolution"),
+  S.annotate(
+    $I.annote("SyncConflictPayload", {
+      description: "Tagged union payload for sync_conflict records.",
+    })
+  )
+);
 
 const SyncCompactionPayload = S.Struct({
   remoteId: S.String,
@@ -84,7 +226,11 @@ const SyncCompactionPayload = S.Struct({
   after: S.Number,
   events: S.optional(S.Array(S.String)),
   timestamp: S.Number,
-});
+}).annotate(
+  $I.annote("SyncCompactionPayload", {
+    description: "Payload for sync compaction audit events.",
+  })
+);
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.
@@ -159,4 +305,15 @@ export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handler
     .handle("hook_event", thunkEffectVoid)
     .handle("sync_conflict", thunkEffectVoid)
     .handle("sync_compaction", thunkEffectVoid)
+);
+
+/**
+ * In-memory event log layer with default audit handlers registered.
+ *
+ * @since 0.0.0
+ */
+export const layerMemoryWithAudit = EventLogModule.layerEventLog.pipe(
+  Layer.provide(EventJournalModule.layerMemory),
+  Layer.provide(layerIdentityMemory),
+  Layer.provide(layerAuditHandlers)
 );

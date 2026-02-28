@@ -1,12 +1,11 @@
-import { BunHttpServer } from "@effect/platform-bun";
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
+import { $AiSdkId } from "@beep/identity/packages";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
+import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
 import * as HttpServer from "effect/unstable/http/HttpServer";
+
+const $I = $AiSdkId.create("core/Sync/EventLogRemoteServer");
 
 /**
  * @since 0.0.0
@@ -22,36 +21,40 @@ export type EventLogRemoteServerOptions = {
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServerError extends Schema.TaggedErrorClass<EventLogRemoteServerError>()(
+export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemoteServerError>(
+  $I`EventLogRemoteServerError`
+)(
   "EventLogRemoteServerError",
   {
-    message: Schema.String,
-    cause: Schema.optional(Schema.Defect),
-  }
+    message: S.String,
+    cause: S.optional(S.Defect),
+  },
+  $I.annote("EventLogRemoteServerError", {
+    description: "Raised when the EventLogRemoteServer cannot derive or bind a valid websocket endpoint.",
+  })
 ) {
-  static readonly make = (params: Pick<EventLogRemoteServerError, "message" | "cause">) =>
+  static readonly make = (params: { readonly message: string; readonly cause?: unknown }) =>
     new EventLogRemoteServerError(params);
 }
 
 /**
  * Build a WebSocket URL from a bound server address.
- * Throws if the address is not a TCP address.
  *
  * @deprecated Prefer `toWebSocketUrlEffect`.
  */
 /**
  * @since 0.0.0
  */
-export const toWebSocketUrl = (
+export const toWebSocketUrl = Effect.fn("EventLogRemoteServer.toWebSocketUrl")(function* (
   address: HttpServer.Address,
   options?: {
     readonly path?: string;
     readonly hostname?: string;
     readonly scheme?: "ws" | "wss";
   }
-) => {
+) {
   if (address._tag !== "TcpAddress") {
-    throw EventLogRemoteServerError.make({
+    return yield* EventLogRemoteServerError.make({
       message: "EventLogRemoteServer requires a TCP address to build a WebSocket URL.",
     });
   }
@@ -83,7 +86,7 @@ export const toWebSocketUrl = (
   const scheme = options?.scheme ?? parsedHostname.scheme ?? "ws";
   const port = parsedHostname.port ?? address.port;
   return `${scheme}://${formattedHostname}:${port}${path}`;
-};
+});
 
 const toWebSocketUrlError = (cause: unknown) =>
   cause instanceof EventLogRemoteServerError
@@ -103,11 +106,15 @@ export const toWebSocketUrlEffect = (
     readonly hostname?: string;
     readonly scheme?: "ws" | "wss";
   }
-) =>
-  Effect.try({
-    try: () => toWebSocketUrl(address, options),
-    catch: toWebSocketUrlError,
-  });
+) => toWebSocketUrl(address, options).pipe(Effect.mapError(toWebSocketUrlError));
+
+/**
+ * @since 0.0.0
+ */
+export interface EventLogRemoteServerShape {
+  readonly address: HttpServer.Address;
+  readonly url: string;
+}
 
 const basePort = 20000 + (process.pid % 10000);
 let nextPort = basePort;
@@ -125,10 +132,9 @@ const findAvailablePort = () =>
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServer extends ServiceMap.Service<
-  EventLogRemoteServer,
-  { readonly address: HttpServer.Address; readonly url: string }
->()("@effect/claude-agent-sdk/EventLogRemoteServer") {}
+export class EventLogRemoteServer extends ServiceMap.Service<EventLogRemoteServer, EventLogRemoteServerShape>()(
+  $I`EventLogRemoteServer`
+) {}
 
 const buildBunWebSocketLayerWithServer = (
   options: EventLogRemoteServerOptions,
@@ -179,6 +185,7 @@ export const layerBunWebSocket = (options: EventLogRemoteServerOptions = {}) =>
 export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {}) =>
   Layer.unwrap(
     Effect.gen(function* () {
+      yield* Effect.void;
       const makeTestServer = Effect.gen(function* () {
         const maxAttempts = options.port ? 1 : 20;
         let lastError: unknown = undefined;
@@ -193,7 +200,12 @@ export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {})
           if (Exit.isSuccess(exit)) return exit.value;
           lastError = Cause.squash(exit.cause);
         }
-        return yield* toWebSocketUrlError(lastError ?? new Error("Failed to start test server."));
+        return yield* toWebSocketUrlError(
+          lastError ??
+            EventLogRemoteServerError.make({
+              message: "Failed to start test server.",
+            })
+        );
       });
       const httpServerLayer = Layer.effect(HttpServer.HttpServer, makeTestServer);
       return buildBunWebSocketLayerWithServer(options, httpServerLayer);

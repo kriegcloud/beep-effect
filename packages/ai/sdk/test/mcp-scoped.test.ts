@@ -1,5 +1,6 @@
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let closeCalls = 0;
@@ -7,6 +8,7 @@ let closeCalls = 0;
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
+      yield* [];
       return;
     }
     const iterator = generator();

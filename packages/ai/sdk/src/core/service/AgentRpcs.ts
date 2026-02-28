@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { AgentSdkError } from "../Errors.js";
 import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js";
@@ -16,7 +16,7 @@ import { SessionServiceError } from "./SessionErrors.js";
 /**
  * @since 0.0.0
  */
-export const AgentServiceError = AgentSdkError.pipe(Schema.annotate({ identifier: "AgentServiceError" }));
+export const AgentServiceError = AgentSdkError.pipe(S.annotate({ identifier: "AgentServiceError" }));
 
 /**
  * @since 0.0.0
@@ -46,15 +46,15 @@ export class AgentRpcs extends RpcGroup.make(
     success: QuerySupervisorStatsSchema,
   }),
   Rpc.make("InterruptAll", {
-    success: Schema.Void,
+    success: S.Void,
     error: AgentSdkError,
   }),
   Rpc.make("SupportedModels", {
-    success: Schema.Array(SdkSchema.ModelInfo),
+    success: S.Array(SdkSchema.ModelInfo),
     error: AgentServiceError,
   }),
   Rpc.make("SupportedCommands", {
-    success: Schema.Array(SdkSchema.SlashCommand),
+    success: S.Array(SdkSchema.SlashCommand),
     error: AgentServiceError,
   }),
   Rpc.make("AccountInfo", {
@@ -67,49 +67,49 @@ export class AgentRpcs extends RpcGroup.make(
     error: SessionServiceError,
   }),
   Rpc.make("ResumeSession", {
-    payload: Schema.Struct({
-      sessionId: Schema.String,
+    payload: S.Struct({
+      sessionId: S.String,
       options: SdkSchema.SDKSessionOptions,
-      tenant: Schema.optional(Tenant),
+      tenant: S.optional(Tenant),
     }),
     success: SessionCreateOutput,
     error: SessionServiceError,
   }),
   Rpc.make("SendSession", {
-    payload: Schema.Struct({
-      sessionId: Schema.String,
-      message: Schema.Union([Schema.String, SdkSchema.SDKUserMessage]),
-      tenant: Schema.optional(Tenant),
+    payload: S.Struct({
+      sessionId: S.String,
+      message: S.Union([S.String, SdkSchema.SDKUserMessage]),
+      tenant: S.optional(Tenant),
     }),
-    success: Schema.Void,
+    success: S.Void,
     error: SessionServiceError,
   }),
   Rpc.make("SessionStream", {
-    payload: Schema.Struct({
-      sessionId: Schema.String,
-      tenant: Schema.optional(Tenant),
+    payload: S.Struct({
+      sessionId: S.String,
+      tenant: S.optional(Tenant),
     }),
     success: SdkSchema.SDKMessage,
     error: SessionServiceError,
     stream: true,
   }),
   Rpc.make("CloseSession", {
-    payload: Schema.Struct({
-      sessionId: Schema.String,
-      tenant: Schema.optional(Tenant),
+    payload: S.Struct({
+      sessionId: S.String,
+      tenant: S.optional(Tenant),
     }),
-    success: Schema.Void,
+    success: S.Void,
     error: SessionServiceError,
   }),
   Rpc.make("ListSessionsByTenant", {
-    payload: Schema.Struct({
-      tenant: Schema.optional(Tenant),
+    payload: S.Struct({
+      tenant: S.optional(Tenant),
     }),
-    success: Schema.Array(SessionInfo),
+    success: S.Array(SessionInfo),
     error: SessionServiceError,
   }),
   Rpc.make("ListSessions", {
-    success: Schema.Array(SessionInfo),
+    success: S.Array(SessionInfo),
     error: SessionServiceError,
   })
 ) {}

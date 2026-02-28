@@ -7,7 +7,6 @@
 
 import type { OsdkBase } from "../OsdkBase.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
-
 /**
  * Bulk-link response row.
  *

@@ -9,7 +9,6 @@ import type { InterfaceDefinition } from "./InterfaceDefinition.js";
 import type { CompileTimeMetadata, ObjectTypeDefinition } from "./ObjectTypeDefinition.js";
 import type { SimplePropertyDef } from "./SimplePropertyDef.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
-
 /**
  * Canonical union of ontology object or interface definition contracts.
  *

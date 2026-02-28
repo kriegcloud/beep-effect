@@ -1,8 +1,5 @@
-import * as Clock from "effect/Clock";
-import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Ref from "effect/Ref";
-import type * as ServiceMap from "effect/ServiceMap";
+import { Clock, type Duration, Effect, HashMap, Ref, type ServiceMap } from "effect";
+import * as O from "effect/Option";
 import { HookError } from "../Errors.js";
 import type { HookCallback, HookEvent, HookInput, HookJSONOutput } from "../Schema/Hooks.js";
 import { AuditEventStore } from "../Storage/index.js";
@@ -241,13 +238,12 @@ const recordToolFinish = (
       )
     : Effect.void;
 
-const resolveDuration = (startRef: Ref.Ref<ReadonlyMap<string, number>>, toolUseId: string) =>
+const resolveDuration = (startRef: Ref.Ref<HashMap.HashMap<string, number>>, toolUseId: string) =>
   Ref.modify(startRef, (state) => {
-    const start = state.get(toolUseId);
-    if (start === undefined) return [undefined, state] as const;
-    const next = new Map(state);
-    next.delete(toolUseId);
-    return [start, next] as const;
+    const start = HashMap.get(state, toolUseId);
+    if (O.isNone(start)) return [undefined, state] as const;
+    const next = HashMap.remove(state, toolUseId);
+    return [start.value, next] as const;
   }).pipe(
     Effect.flatMap((start) =>
       start === undefined
@@ -267,7 +263,7 @@ export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function* (
   const strict = options?.strict ?? false;
   const logHookOutcomes = options?.logHookOutcomes ?? true;
   const logPermissionDecisions = options?.logPermissionDecisions ?? true;
-  const toolUseStarts = yield* Ref.make<ReadonlyMap<string, number>>(new Map());
+  const toolUseStarts = yield* Ref.make<HashMap.HashMap<string, number>>(HashMap.empty());
 
   const handler = (input: HookInput, context: HookContext) =>
     Effect.gen(function* () {
@@ -275,11 +271,7 @@ export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function* (
 
       if (input.hook_event_name === "PreToolUse") {
         const now = yield* Clock.currentTimeMillis;
-        yield* Ref.update(toolUseStarts, (state) => {
-          const next = new Map(state);
-          next.set(input.tool_use_id, now);
-          return next;
-        });
+        yield* Ref.update(toolUseStarts, (state) => HashMap.set(state, input.tool_use_id, now));
         yield* recordToolStart(store, strict, input, resolvedSessionId);
       }
 

@@ -1,4 +1,5 @@
 import type { SDKMessage, SDKResultMessage } from "@beep/ai-sdk/Schema/Message";
+import { ChatEvent } from "@beep/ai-sdk/Schema/Storage";
 import type { SessionHandle } from "@beep/ai-sdk/Session";
 import { SessionManager } from "@beep/ai-sdk/SessionManager";
 import { SessionService } from "@beep/ai-sdk/SessionService";
@@ -385,25 +386,25 @@ test("SessionService.layerWithHistory records turn output after consumer cancell
       appendMessage: (_sessionId, message) =>
         Effect.sync(() => {
           recordedTypes.push(message.type);
-          return {
+          return ChatEvent.make({
             sessionId: "session-history",
             sequence: recordedTypes.length,
             timestamp: 0,
             source: "sdk",
             message,
-          } as any;
+          });
         }),
       appendMessages: (_sessionId, messages) =>
         Effect.sync(() =>
           Array.from(messages).map((message) => {
             recordedTypes.push(message.type);
-            return {
+            return ChatEvent.make({
               sessionId: "session-history",
               sequence: recordedTypes.length,
               timestamp: 0,
               source: "sdk",
               message,
-            } as any;
+            });
           })
         ),
       list: (_sessionId, _options) => Effect.succeed([]),

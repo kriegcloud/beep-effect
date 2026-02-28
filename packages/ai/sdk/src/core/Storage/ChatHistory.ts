@@ -1,6 +1,6 @@
-import * as Effect from "effect/Effect";
-import type * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import type { ServiceMap } from "effect";
+import { Effect, Stream } from "effect";
+import * as A from "effect/Array";
 import type { QueryHandle } from "../Query.js";
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import type { ChatEventSource } from "../Schema/Storage.js";
@@ -76,7 +76,7 @@ export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function* (
 
   const sendAll = recordInput
     ? Effect.fn("ChatHistory.withRecorder.sendAll")((messages: Iterable<SDKUserMessage>) => {
-        const batch = Array.from(messages);
+        const batch = A.fromIterable(messages);
         return handle
           .sendAll(batch)
           .pipe(Effect.tap(() => recordMessages(store, sessionId, batch, inputSource, strict)));

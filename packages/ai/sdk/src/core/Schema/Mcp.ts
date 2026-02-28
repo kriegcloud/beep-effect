@@ -1,19 +1,22 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
-
-import { withIdentifier } from "./Annotations.js";
 import { McpServer } from "./External.js";
+
+const $I = $AiSdkId.create("core/Schema/Mcp");
 
 /**
  * @since 0.0.0
  */
-export const McpStdioServerConfig = withIdentifier(
-  S.Struct({
-    type: S.optional(S.Literal("stdio")),
-    command: S.String,
-    args: S.optional(S.Array(S.String)),
-    env: S.optional(S.Record(S.String, S.String)),
-  }),
-  "McpStdioServerConfig"
+export const McpStdioServerConfig = S.Struct({
+  type: S.optional(S.Literal("stdio")),
+  command: S.String,
+  args: S.optional(S.Array(S.String)),
+  env: S.optional(S.Record(S.String, S.String)),
+}).annotate(
+  $I.annote("McpStdioServerConfig", {
+    description: "Schema for McpStdioServerConfig.",
+  })
 );
 
 /**
@@ -28,13 +31,14 @@ export type McpStdioServerConfigEncoded = typeof McpStdioServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSSEServerConfig = withIdentifier(
-  S.Struct({
-    type: S.Literal("sse"),
-    url: S.String,
-    headers: S.optional(S.Record(S.String, S.String)),
-  }),
-  "McpSSEServerConfig"
+export const McpSSEServerConfig = S.Struct({
+  type: S.Literal("sse"),
+  url: S.String,
+  headers: S.optional(S.Record(S.String, S.String)),
+}).annotate(
+  $I.annote("McpSSEServerConfig", {
+    description: "Schema for McpSSEServerConfig.",
+  })
 );
 
 /**
@@ -49,13 +53,14 @@ export type McpSSEServerConfigEncoded = typeof McpSSEServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpHttpServerConfig = withIdentifier(
-  S.Struct({
-    type: S.Literal("http"),
-    url: S.String,
-    headers: S.optional(S.Record(S.String, S.String)),
-  }),
-  "McpHttpServerConfig"
+export const McpHttpServerConfig = S.Struct({
+  type: S.Literal("http"),
+  url: S.String,
+  headers: S.optional(S.Record(S.String, S.String)),
+}).annotate(
+  $I.annote("McpHttpServerConfig", {
+    description: "Schema for McpHttpServerConfig.",
+  })
 );
 
 /**
@@ -70,12 +75,13 @@ export type McpHttpServerConfigEncoded = typeof McpHttpServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSdkServerConfig = withIdentifier(
-  S.Struct({
-    type: S.Literal("sdk"),
-    name: S.String,
-  }),
-  "McpSdkServerConfig"
+export const McpSdkServerConfig = S.Struct({
+  type: S.Literal("sdk"),
+  name: S.String,
+}).annotate(
+  $I.annote("McpSdkServerConfig", {
+    description: "Schema for McpSdkServerConfig.",
+  })
 );
 
 /**
@@ -90,12 +96,13 @@ export type McpSdkServerConfigEncoded = typeof McpSdkServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSdkServerConfigWithInstance = withIdentifier(
-  S.Struct({
-    ...McpSdkServerConfig.fields,
-    instance: McpServer,
-  }),
-  "McpSdkServerConfigWithInstance"
+export const McpSdkServerConfigWithInstance = S.Struct({
+  ...McpSdkServerConfig.fields,
+  instance: McpServer,
+}).annotate(
+  $I.annote("McpSdkServerConfigWithInstance", {
+    description: "Schema for McpSdkServerConfigWithInstance.",
+  })
 );
 
 /**
@@ -107,12 +114,35 @@ export type McpSdkServerConfigWithInstance = typeof McpSdkServerConfigWithInstan
  */
 export type McpSdkServerConfigWithInstanceEncoded = typeof McpSdkServerConfigWithInstance.Encoded;
 
+const McpExplicitServerConfig = S.Union([McpSSEServerConfig, McpHttpServerConfig, McpSdkServerConfig]).pipe(
+  S.toTaggedUnion("type"),
+  S.annotate(
+    $I.annote("McpExplicitServerConfig", {
+      description: "Tagged union for explicit MCP transports that always carry a transport type discriminator.",
+    })
+  )
+);
+
+const McpExplicitServerConfigWithInstance = S.Union([
+  McpSSEServerConfig,
+  McpHttpServerConfig,
+  McpSdkServerConfigWithInstance,
+]).pipe(
+  S.toTaggedUnion("type"),
+  S.annotate(
+    $I.annote("McpExplicitServerConfigWithInstance", {
+      description: "Tagged union for explicit MCP transports including in-process SDK instances.",
+    })
+  )
+);
+
 /**
  * @since 0.0.0
  */
-export const McpServerConfig = withIdentifier(
-  S.Union([McpStdioServerConfig, McpSSEServerConfig, McpHttpServerConfig, McpSdkServerConfigWithInstance]),
-  "McpServerConfig"
+export const McpServerConfig = S.Union([McpStdioServerConfig, McpExplicitServerConfigWithInstance]).annotate(
+  $I.annote("McpServerConfig", {
+    description: "Schema for McpServerConfig.",
+  })
 );
 
 /**
@@ -127,9 +157,10 @@ export type McpServerConfigEncoded = typeof McpServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpServerConfigForProcessTransport = withIdentifier(
-  S.Union([McpStdioServerConfig, McpSSEServerConfig, McpHttpServerConfig, McpSdkServerConfig]),
-  "McpServerConfigForProcessTransport"
+export const McpServerConfigForProcessTransport = S.Union([McpStdioServerConfig, McpExplicitServerConfig]).annotate(
+  $I.annote("McpServerConfigForProcessTransport", {
+    description: "Schema for McpServerConfigForProcessTransport.",
+  })
 );
 
 /**
@@ -144,19 +175,20 @@ export type McpServerConfigForProcessTransportEncoded = typeof McpServerConfigFo
 /**
  * @since 0.0.0
  */
-export const McpServerStatus = withIdentifier(
-  S.Struct({
-    name: S.String,
-    status: S.Literals(["connected", "failed", "needs-auth", "pending", "disabled"]),
-    serverInfo: S.optional(
-      S.Struct({
-        name: S.String,
-        version: S.String,
-      })
-    ),
-    error: S.optional(S.String),
-  }),
-  "McpServerStatus"
+export const McpServerStatus = S.Struct({
+  name: S.String,
+  status: LiteralKit(["connected", "failed", "needs-auth", "pending", "disabled"]),
+  serverInfo: S.optional(
+    S.Struct({
+      name: S.String,
+      version: S.String,
+    })
+  ),
+  error: S.optional(S.String),
+}).annotate(
+  $I.annote("McpServerStatus", {
+    description: "Schema for McpServerStatus.",
+  })
 );
 
 /**
@@ -171,13 +203,14 @@ export type McpServerStatusEncoded = typeof McpServerStatus.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSetServersResult = withIdentifier(
-  S.Struct({
-    added: S.Array(S.String),
-    removed: S.Array(S.String),
-    errors: S.Record(S.String, S.String),
-  }),
-  "McpSetServersResult"
+export const McpSetServersResult = S.Struct({
+  added: S.Array(S.String),
+  removed: S.Array(S.String),
+  errors: S.Record(S.String, S.String),
+}).annotate(
+  $I.annote("McpSetServersResult", {
+    description: "Schema for McpSetServersResult.",
+  })
 );
 
 /**

@@ -1,8 +1,6 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-
-import * as ServiceMap from "effect/ServiceMap";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -14,6 +12,8 @@ import { defaultAuditEventJournalKey, defaultAuditIdentityKey, defaultStorageDir
 import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJournalKeyValueStore.js";
 import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
+
+const $I = $AiSdkId.create("core/Storage/AuditEventStore");
 
 /**
  * @since 0.0.0
@@ -76,7 +76,7 @@ const mapError = (operation: string, cause: unknown) => toStorageError(storeName
 
 const resolveEnabled = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  return Option.isNone(config) ? true : config.value.settings.enabled.auditLog;
+  return O.isNone(config) ? true : config.value.settings.enabled.auditLog;
 });
 
 const resolveAuditKeys = (options?: {
@@ -95,7 +95,7 @@ const auditEventTags = ["tool_use", "permission_decision", "hook_event", "sync_c
 const layerAuditJournalCompaction = Layer.effectDiscard(
   Effect.gen(function* () {
     const config = yield* Effect.serviceOption(StorageConfig);
-    if (Option.isNone(config)) return;
+    if (O.isNone(config)) return;
     const retention = config.value.settings.retention.audit;
     const strategies: Array<CompactionStrategy> = [];
     strategies.push(Compaction.byAge(retention.maxAge));
@@ -137,14 +137,16 @@ const makeStore = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export class AuditEventStore extends ServiceMap.Service<
-  AuditEventStore,
-  {
-    readonly write: (input: AuditEventInput) => Effect.Effect<void, StorageError>;
-    readonly entries: Effect.Effect<ReadonlyArray<EventJournal.Entry>, StorageError>;
-    readonly cleanup?: () => Effect.Effect<void, StorageError>;
-  }
->()("@effect/claude-agent-sdk/AuditEventStore") {
+export interface AuditEventStoreShape {
+  readonly write: (input: AuditEventInput) => Effect.Effect<void, StorageError>;
+  readonly entries: Effect.Effect<ReadonlyArray<EventJournal.Entry>, StorageError>;
+  readonly cleanup?: () => Effect.Effect<void, StorageError>;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class AuditEventStore extends ServiceMap.Service<AuditEventStore, AuditEventStoreShape>()($I`AuditEventStore`) {
   static readonly layerMemory = Layer.effect(AuditEventStore, makeStore).pipe(
     Layer.provide(
       (() => {
@@ -172,9 +174,7 @@ export class AuditEventStore extends ServiceMap.Service<
             Layer.provide(
               layerEventJournalKeyValueStore(options?.journalKey ? { key: options.journalKey } : undefined)
             ),
-            // Layer.provide(EventLog.layerEventLog.pipe(Layer.succeed({
-            //   key: options?.identityKey ?? defaultAuditIdentityKey
-            // }))),
+            Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
             Layer.provide(layerAuditHandlers),
             Layer.provide(conflictPolicyLayer)
           );

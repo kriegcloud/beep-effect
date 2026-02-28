@@ -1,6 +1,6 @@
-import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { type Duration, Effect, Layer } from "effect";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
 
 /**
@@ -134,8 +134,8 @@ export const rateLimitHandler =
   <A, E, R, B>(handler: (input: A) => Effect.Effect<B, E, R>, config: RateLimitHandlerConfig<A>) =>
   (input: A) => {
     const { tokens: tokensConfig, ...rest } = config;
-    const key = typeof rest.key === "function" ? rest.key(input) : rest.key;
-    const tokens = typeof tokensConfig === "function" ? tokensConfig(input) : tokensConfig;
+    const key = P.isFunction(rest.key) ? rest.key(input) : rest.key;
+    const tokens = P.isFunction(tokensConfig) ? tokensConfig(input) : tokensConfig;
     const limiterConfig = {
       ...rest,
       key,
@@ -144,7 +144,7 @@ export const rateLimitHandler =
     return withRateLimit(limiterConfig)(handler(input));
   };
 
-type AnyHandler = (input: any) => Effect.Effect<any, any, any>;
+type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
 
 /**
  * Apply rate limiting to a map of handlers using a shared window config.
@@ -164,7 +164,7 @@ type AnyHandler = (input: any) => Effect.Effect<any, any, any>;
 /**
  * @since 0.0.0
  */
-export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
+export const rateLimitHandlers = <Handlers extends Record<string, HandlerLike>>(
   handlers: Handlers,
   config: RateLimitWindowConfig | ((name: keyof Handlers) => RateLimitWindowConfig),
   options?: { readonly keyPrefix?: string }
@@ -172,9 +172,9 @@ export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
   const prefix = options?.keyPrefix ? `${options.keyPrefix}:` : "";
   const output = {} as Handlers;
 
-  for (const [name, handler] of Object.entries(handlers)) {
-    const resolved = typeof config === "function" ? config(name as keyof Handlers) : config;
-    output[name as keyof Handlers] = rateLimitHandler(handler as AnyHandler, {
+  for (const [name, handler] of R.toEntries(handlers)) {
+    const resolved = P.isFunction(config) ? config(name as keyof Handlers) : config;
+    output[name as keyof Handlers] = rateLimitHandler(handler, {
       ...resolved,
       key: `${prefix}${name}`,
     }) as Handlers[keyof Handlers];

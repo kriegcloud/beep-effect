@@ -4,14 +4,36 @@
  * @since 0.0.0
  * @module @beep/ontology/mapping/DurationMapping
  */
+import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 
+const $I = $OntologyId.create("mapping/DurationMapping");
 /**
  * Canonical duration units used by ontology relative-time query arguments.
  *
  * @since 0.0.0
  * @category models
  */
-export type TimeDurationUnit = "YEARS" | "MONTHS" | "WEEKS" | "DAYS" | "HOURS" | "MINUTES" | "SECONDS";
+export const TimeDurationUnit = LiteralKit([
+  "YEARS",
+  "MONTHS",
+  "WEEKS",
+  "DAYS",
+  "HOURS",
+  "MINUTES",
+  "SECONDS",
+]).annotate(
+  $I.annote("TimeDurationUnit", {
+    description: "Canonical duration units used by ontology relative-time query arguments.",
+  })
+);
+
+/**
+ * Runtime type of canonical duration units. {@link TimeDurationUnit}
+ * @since 0.0.0
+ * @category types
+ */
+export type TimeDurationUnit = typeof TimeDurationUnit.Type;
 
 /**
  * Mapping of shorthand query duration unit keys to canonical duration units.

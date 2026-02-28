@@ -7,7 +7,6 @@
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { InterfaceDefinition } from "./InterfaceDefinition.js";
 import type { ObjectTypeDefinition, ReleaseStatus } from "./ObjectTypeDefinition.js";
-
 /**
  * Metadata carried by ontology action definitions.
  *

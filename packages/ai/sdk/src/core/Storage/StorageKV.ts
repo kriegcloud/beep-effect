@@ -1,5 +1,5 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Clock, Effect, Layer, MutableHashMap } from "effect";
+import * as O from "effect/Option";
 import { KeyValueStore } from "effect/unstable/persistence";
 
 // Same storageError helper as StorageR2 (could be shared in a common file)
@@ -11,6 +11,7 @@ const storageError = (method: string, description: string, cause?: unknown) =>
   });
 
 const kvMinWriteIntervalMs = 1_000;
+const nowMillis = () => Effect.runSync(Clock.currentTimeMillis);
 
 type PendingMutation = { readonly kind: "set"; readonly value: string } | { readonly kind: "delete" };
 
@@ -104,12 +105,12 @@ export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyVa
   Layer.succeed(
     KeyValueStore.KeyValueStore,
     (() => {
-      const mutationStates = new Map<string, KeyMutationState>();
+      const mutationStates = MutableHashMap.empty<string, KeyMutationState>();
 
       const getState = (key: string): KeyMutationState => {
-        const existing = mutationStates.get(key);
-        if (existing) {
-          return existing;
+        const existing = MutableHashMap.get(mutationStates, key);
+        if (O.isSome(existing)) {
+          return existing.value;
         }
         const created: KeyMutationState = {
           inFlight: false,
@@ -118,13 +119,13 @@ export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyVa
           waiters: [],
           lastWriteAt: 0,
         };
-        mutationStates.set(key, created);
+        MutableHashMap.set(mutationStates, key, created);
         return created;
       };
 
       const maybeCleanupState = (key: string, state: KeyMutationState) => {
         if (!state.inFlight && state.timer === null && state.pending === undefined && state.waiters.length === 0) {
-          mutationStates.delete(key);
+          MutableHashMap.remove(mutationStates, key);
         }
       };
 
@@ -134,7 +135,7 @@ export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyVa
         } else {
           await namespace.delete(key);
         }
-        state.lastWriteAt = Date.now();
+        state.lastWriteAt = nowMillis();
       };
 
       const flushMutation = async (key: string, state: KeyMutationState) => {
@@ -172,7 +173,7 @@ export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyVa
           return;
         }
 
-        const elapsed = Date.now() - state.lastWriteAt;
+        const elapsed = nowMillis() - state.lastWriteAt;
         const delayMs = Math.max(0, kvMinWriteIntervalMs - elapsed);
         if (delayMs === 0) {
           void flushMutation(key, state);

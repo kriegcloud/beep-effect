@@ -1,6 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Queue from "effect/Queue";
-import * as Stream from "effect/Stream";
+import { Effect, Queue, Stream } from "effect";
 import type { AgentSdkError } from "../Errors.js";
 import { TransportError } from "../Errors.js";
 import type { SDKUserMessage } from "../Schema/Message.js";

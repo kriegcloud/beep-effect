@@ -1,8 +1,8 @@
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import type * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import type { ServiceMap } from "effect";
+import { Cause, Effect, Stream } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
@@ -21,9 +21,10 @@ type AgentRuntimeService = ServiceMap.Service.Shape<typeof AgentRuntime>;
 type SessionPoolService = ServiceMap.Service.Shape<typeof SessionPool>;
 
 const textEncoder = new TextEncoder();
+const encodeSsePayload = S.encodeUnknownOption(S.UnknownFromJsonString);
 
 const toSseChunk = (data: unknown, event?: string) => {
-  const payload = JSON.stringify(data);
+  const payload = O.getOrElse(encodeSsePayload(data), () => String(data));
   const eventLine = event ? `event: ${event}\n` : "";
   return textEncoder.encode(`${eventLine}data: ${payload}\n\n`);
 };
@@ -43,7 +44,7 @@ const toAsyncIterable = (messages: ReadonlyArray<SDKUserMessage>): AsyncIterable
 });
 
 const toPrompt = (input: QueryInputType): string | AsyncIterable<SDKUserMessage> =>
-  typeof input.prompt === "string" ? input.prompt : toAsyncIterable(input.prompt);
+  P.isString(input.prompt) ? input.prompt : toAsyncIterable(input.prompt);
 
 const withProbeHandle = <A>(
   runtime: AgentRuntimeService,
@@ -75,7 +76,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
     const requirePool = <A, E, R>(
       use: (pool: SessionPoolService) => Effect.Effect<A, E, R>
     ): Effect.Effect<A, E | SessionPoolUnavailableError, R> =>
-      Option.isSome(poolOption)
+      O.isSome(poolOption)
         ? use(poolOption.value)
         : Effect.fail(
             SessionPoolUnavailableError.make({

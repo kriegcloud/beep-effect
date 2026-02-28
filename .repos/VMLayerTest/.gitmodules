@@ -1,9 +1,0 @@
-[submodule ".claude"]
-	path = .claude
-	url = https://github.com/front-depiction/claude-setup.git
-[submodule ".context/effect"]
-	path = .context/effect
-	url = https://github.com/Effect-TS/effect.git
-[submodule ".context/effect-atom"]
-	path = .context/effect-atom
-	url = https://github.com/tim-smart/effect-atom.git

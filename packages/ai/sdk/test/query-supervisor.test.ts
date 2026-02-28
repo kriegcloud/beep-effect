@@ -1,5 +1,5 @@
 import type { QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -11,12 +11,12 @@ import * as Result from "effect/Result";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
-
-let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
 
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {
   async function* generator() {
+    yield* [];
     return;
   }
 
@@ -36,7 +36,7 @@ const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) =>
 };
 
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
-  query: ({ prompt }: { prompt: unknown }) => (sdkQueryHandler ? sdkQueryHandler(prompt) : makeSdkQuery()),
+  query: () => makeSdkQuery(),
   createSdkMcpServer: (_options: unknown) => ({}),
   tool: (
     name: string,
@@ -150,9 +150,9 @@ test("QuerySupervisor enforces concurrency limits", async () => {
 
 test("QuerySupervisor times out pending submissions", async () => {
   const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
+  const { AgentSdkConfig } = await import("../src/core/AgentSdkConfig.js");
+  const { QuerySupervisor } = await import("../src/core/QuerySupervisor.js");
+  const { QuerySupervisorConfig } = await import("../src/core/QuerySupervisorConfig.js");
 
   const settings: QuerySupervisorSettings = {
     ...baseSettings,
@@ -219,10 +219,10 @@ test("QuerySupervisor times out pending submissions", async () => {
 });
 
 test("QuerySupervisor fails pending work when scope closes", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
+  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/core/AgentSdkConfig.js");
+  const { QuerySupervisor } = await import("../src/core/QuerySupervisor.js");
+  const { QuerySupervisorConfig } = await import("../src/core/QuerySupervisorConfig.js");
 
   const layer = QuerySupervisor.layer.pipe(
     Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
@@ -288,10 +288,10 @@ test("QuerySupervisor fails pending work when scope closes", async () => {
 });
 
 test("QuerySupervisor drops when queue is full", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
+  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/core/AgentSdkConfig.js");
+  const { QuerySupervisor } = await import("../src/core/QuerySupervisor.js");
+  const { QuerySupervisorConfig } = await import("../src/core/QuerySupervisorConfig.js");
 
   const settings: QuerySupervisorSettings = {
     ...baseSettings,
@@ -371,10 +371,10 @@ test("QuerySupervisor drops when queue is full", async () => {
 });
 
 test("QuerySupervisor publishes lifecycle events", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
+  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/core/AgentSdkConfig.js");
+  const { QuerySupervisor } = await import("../src/core/QuerySupervisor.js");
+  const { QuerySupervisorConfig } = await import("../src/core/QuerySupervisorConfig.js");
 
   const settings: QuerySupervisorSettings = {
     ...baseSettings,

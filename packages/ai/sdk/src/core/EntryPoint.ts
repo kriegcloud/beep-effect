@@ -1,4 +1,4 @@
-import * as Layer from "effect/Layer";
+import { Layer } from "effect";
 import { AgentRuntime } from "./AgentRuntime.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import { SessionConfig } from "./SessionConfig.js";

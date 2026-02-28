@@ -1,9 +1,7 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
-import type * as Scope from "effect/Scope";
-import * as ServiceMap from "effect/ServiceMap";
-import type * as Stream from "effect/Stream";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Effect, Layer, type Scope, ServiceMap, type Stream } from "effect";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { ConfigError } from "./Errors.js";
 import { makeSessionTurnDriver } from "./internal/sessionTurnDriver.js";
 import type { SDKMessage, SDKResultMessage, SDKUserMessage } from "./Schema/Message.js";
@@ -23,10 +21,12 @@ import {
   type SessionRuntimeSettings,
 } from "./SessionConfig.js";
 
+const $I = $AiSdkId.create("core/SessionManager");
+
 /**
  * @since 0.0.0
  */
-export const SessionManagerError = Schema.Union([SessionError, ConfigError]);
+export const SessionManagerError = S.Union([SessionError, ConfigError]);
 
 /**
  * @since 0.0.0
@@ -40,7 +40,7 @@ export type SessionManagerErrorEncoded = typeof SessionManagerError.Encoded;
 const mergeRecord = <T>(
   base: Readonly<Record<string, T>> | undefined,
   override: Readonly<Record<string, T>> | undefined
-) => (base || override ? { ...(base ?? {}), ...(override ?? {}) } : undefined);
+) => (base || override ? { ...base, ...override } : undefined);
 
 const mergeDefaults = (defaults: SessionDefaults, options: SDKSessionOptions): SDKSessionOptions => {
   const env = mergeRecord(defaults.env, options.env);
@@ -52,7 +52,7 @@ const mergeDefaults = (defaults: SessionDefaults, options: SDKSessionOptions): S
 };
 
 const requireModel = (options: SDKSessionOptions) =>
-  typeof options.model === "string" && options.model.trim().length > 0
+  P.isString(options.model) && options.model.trim().length > 0
     ? Effect.succeed(options)
     : Effect.fail(
         ConfigError.make({
@@ -68,6 +68,27 @@ type ManagedSession = {
   readonly stream: Stream.Stream<SDKMessage, SessionErrorType>;
   readonly close: Effect.Effect<void, SessionErrorType>;
 };
+
+/**
+ * @since 0.0.0
+ */
+export interface SessionManagerShape {
+  readonly create: (
+    options: SDKSessionOptions
+  ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
+  readonly resume: (
+    sessionId: string,
+    options: SDKSessionOptions
+  ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
+  readonly prompt: (
+    message: string,
+    options: SDKSessionOptions
+  ) => Effect.Effect<SDKResultMessage, SessionErrorType | ConfigError>;
+  readonly withSession: <A, E, R>(
+    options: SDKSessionOptions,
+    use: (session: ManagedSession) => Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E | SessionErrorType | ConfigError, R>;
+}
 
 const makeSessionServiceWithRuntime = (
   handle: SessionHandle,
@@ -95,26 +116,7 @@ const makeSessionServiceWithRuntime = (
 /**
  * @since 0.0.0
  */
-export class SessionManager extends ServiceMap.Service<
-  SessionManager,
-  {
-    readonly create: (
-      options: SDKSessionOptions
-    ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
-    readonly resume: (
-      sessionId: string,
-      options: SDKSessionOptions
-    ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
-    readonly prompt: (
-      message: string,
-      options: SDKSessionOptions
-    ) => Effect.Effect<SDKResultMessage, SessionErrorType | ConfigError>;
-    readonly withSession: <A, E, R>(
-      options: SDKSessionOptions,
-      use: (session: ManagedSession) => Effect.Effect<A, E, R>
-    ) => Effect.Effect<A, E | SessionErrorType | ConfigError, R>;
-  }
->()("@effect/claude-agent-sdk/SessionManager") {
+export class SessionManager extends ServiceMap.Service<SessionManager, SessionManagerShape>()($I`SessionManager`) {
   static readonly layer = Layer.effect(
     SessionManager,
     Effect.gen(function* () {

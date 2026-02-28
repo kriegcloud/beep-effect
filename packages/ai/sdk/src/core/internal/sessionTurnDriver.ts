@@ -1,13 +1,5 @@
-import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Option from "effect/Option";
-import * as Queue from "effect/Queue";
-import * as Ref from "effect/Ref";
-import type * as Scope from "effect/Scope";
-import * as Sink from "effect/Sink";
-import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { type Duration, Effect, Exit, Queue, Ref, type Scope, Sink, Stream, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
 import { TransportError } from "../Errors.js";
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import { SessionClosedError, type SessionError } from "../Session.js";
@@ -94,7 +86,7 @@ const withOptionalTimeoutOutcome = <A, E extends SessionError, R>(
   duration === undefined
     ? Effect.map(effect, timeoutCompleted)
     : Effect.flatMap(Effect.timeoutOption(effect, duration), (result) =>
-        Option.isSome(result) ? Effect.succeed(timeoutCompleted(result.value)) : Effect.succeed(timeoutElapsed())
+        O.isSome(result) ? Effect.succeed(timeoutCompleted(result.value)) : Effect.succeed(timeoutElapsed())
       );
 
 const makeOutputStream = (request: TurnRequest): Stream.Stream<SDKMessage, SessionError> =>
@@ -304,7 +296,7 @@ export const makeSessionTurnDriver = ({
         let dropped = 0;
         while (true) {
           const next = yield* Queue.poll(turnQueue);
-          if (Option.isNone(next)) break;
+          if (O.isNone(next)) break;
           dropped += 1;
           yield* failTurn(next.value, error);
         }

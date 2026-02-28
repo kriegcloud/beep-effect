@@ -6,8 +6,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { runEffect } from "./effect-test.js";
 
-const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
+const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("StorageConfig reads overrides from config provider", async () => {
   const layer = Storage.StorageConfig.layer.pipe(

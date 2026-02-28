@@ -1,7 +1,8 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as ServiceMap from "effect/ServiceMap";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Effect, Layer, ServiceMap } from "effect";
 import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
+
+const $I = $AiSdkId.create("core/Sync/ConflictPolicy");
 
 /**
  * @since 0.0.0
@@ -53,12 +54,12 @@ const pickEarliest = (entries: ReadonlyArray<EventJournal.Entry>) => {
 /**
  * @since 0.0.0
  */
-export type ConflictPolicyService = {
+export interface ConflictPolicyService {
   readonly resolve: (options: {
     readonly entry: EventJournal.Entry;
     readonly conflicts: ReadonlyArray<EventJournal.Entry>;
   }) => Effect.Effect<ConflictResolution>;
-};
+}
 
 const defaultConflictPolicy: ConflictPolicyService = {
   resolve: ({ entry, conflicts }) => Effect.succeed(accept(pickLatest([entry, ...conflicts]) ?? entry)),
@@ -67,12 +68,9 @@ const defaultConflictPolicy: ConflictPolicyService = {
 /**
  * @since 0.0.0
  */
-export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()(
-  "@effect/claude-agent-sdk/ConflictPolicy",
-  {
-    make: Effect.succeed(defaultConflictPolicy),
-  }
-) {
+export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()($I`ConflictPolicy`, {
+  make: Effect.succeed(defaultConflictPolicy),
+}) {
   static readonly layerLastWriteWins = Layer.succeed(ConflictPolicy, ConflictPolicy.of(defaultConflictPolicy));
 
   static readonly layerFirstWriteWins = Layer.succeed(

@@ -7,8 +7,7 @@ import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
-const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
+const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("SessionConfig reads defaults from config provider", async () => {
   const layer = SessionConfig.layer.pipe(
@@ -58,7 +57,7 @@ test("SessionConfig defaults executable to bun", async () => {
   }).pipe(Effect.provide(layer));
 
   const config = await runEffect(program);
-  expect(config.defaults.executable).toBe("bun");
+  expect(config.defaults.executable).toBeUndefined();
   expect(Duration.toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();

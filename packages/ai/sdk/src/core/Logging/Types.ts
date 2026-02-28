@@ -1,4 +1,4 @@
-import type * as LogLevel from "effect/LogLevel";
+import type { LogLevel } from "effect";
 
 /**
  * @since 0.0.0

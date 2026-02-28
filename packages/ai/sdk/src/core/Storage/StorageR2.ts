@@ -1,6 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Schedule from "effect/Schedule";
+import { Effect, Layer, Schedule } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
 
 /**

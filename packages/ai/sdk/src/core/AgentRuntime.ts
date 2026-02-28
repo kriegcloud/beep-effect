@@ -1,11 +1,9 @@
-import * as Clock from "effect/Clock";
-import * as Deferred from "effect/Deferred";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Schedule from "effect/Schedule";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Clock, Deferred, Effect, Layer, Random, Schedule, ServiceMap, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
@@ -28,6 +26,8 @@ import {
 } from "./Storage/index.js";
 import { layerAuditEventStore } from "./Sync/index.js";
 
+const $I = $AiSdkId.create("core/AgentRuntime");
+
 type ChatHistoryStoreService = ServiceMap.Service.Shape<typeof ChatHistoryStore>;
 
 const decorateHandle = (handle: QueryHandle, settings: AgentRuntimeSettings) =>
@@ -44,7 +44,7 @@ const decorateHandle = (handle: QueryHandle, settings: AgentRuntimeSettings) =>
       yield* Effect.forkScoped(
         Deferred.await(firstMessage).pipe(
           Effect.timeoutOption(settings.firstMessageTimeout),
-          Effect.flatMap((result) => (Option.isNone(result) ? handle.interrupt.pipe(Effect.ignore) : Effect.void)),
+          Effect.flatMap((result) => (O.isNone(result) ? handle.interrupt.pipe(Effect.ignore) : Effect.void)),
           Effect.asVoid
         )
       );
@@ -105,17 +105,19 @@ export type RemoteSyncOptions = StorageSyncLayerOptions & {
   readonly audit?: AuditLoggingOptions;
 };
 
-const makeArtifactId = () => globalThis.crypto?.randomUUID?.() ?? `artifact-${Math.random().toString(36).slice(2)}`;
+const makeArtifactId = Effect.fn("AgentRuntime.makeArtifactId")(() =>
+  Random.nextUUIDv4.pipe(Effect.map((uuid) => `artifact-${uuid}`))
+);
 
 const resolveToolResultContent = (value: unknown) => {
-  if (typeof value === "string") {
+  if (P.isString(value)) {
     return { content: value, contentType: "text/plain" };
   }
-  try {
-    return { content: JSON.stringify(value), contentType: "application/json" };
-  } catch {
-    return { content: String(value), contentType: "text/plain" };
-  }
+  const encoded = S.encodeUnknownOption(S.UnknownFromJsonString)(value);
+  return O.match(encoded, {
+    onNone: () => ({ content: String(value), contentType: "text/plain" as const }),
+    onSome: (content) => ({ content, contentType: "application/json" as const }),
+  });
 };
 
 const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(function* (
@@ -123,6 +125,7 @@ const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(fu
   store: ChatHistoryStoreService,
   options?: RecorderOptions
 ) {
+  yield* Effect.void;
   const sessionId = options?.sessionId;
   const outputSource = options?.source ?? "sdk";
   const inputSource = options?.inputSource ?? "external";
@@ -157,7 +160,7 @@ const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(fu
 
   const sendAll = recordInput
     ? Effect.fn("AgentRuntime.sendAllWithHistory")((messages: Iterable<SDKUserMessage>) => {
-        const batch = Array.from(messages);
+        const batch = A.fromIterable(messages);
         return handle.sendAll(batch).pipe(Effect.tap(() => recordMessages(batch, inputSource)));
       })
     : handle.sendAll;
@@ -215,14 +218,17 @@ const makeAgentRuntime = Effect.gen(function* () {
 });
 
 /**
+ * @since 0.0.0
+ */
+export interface AgentRuntimeShape extends Effect.Success<typeof makeAgentRuntime> {}
+
+/**
  * AgentRuntime composes AgentSdk, QuerySupervisor, and runtime policies.
  */
 /**
  * @since 0.0.0
  */
-export class AgentRuntime extends ServiceMap.Service<AgentRuntime, Effect.Success<typeof makeAgentRuntime>>()(
-  "@effect/claude-agent-sdk/AgentRuntime"
-) {
+export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeShape>()($I`AgentRuntime`) {
   /**
    * Build the AgentRuntime service using AgentRuntimeConfig.
    */
@@ -298,8 +304,9 @@ export class AgentRuntime extends ServiceMap.Service<AgentRuntime, Effect.Succes
                 const { content, contentType } = resolveToolResultContent(message.tool_use_result);
                 const createdAt = yield* Clock.currentTimeMillis;
                 const sizeBytes = new TextEncoder().encode(content).length;
+                const artifactId = yield* makeArtifactId();
                 const record = ArtifactRecord.make({
-                  id: makeArtifactId(),
+                  id: artifactId,
                   sessionId: message.session_id,
                   kind: "tool_result",
                   toolUseId: message.parent_tool_use_id ?? undefined,

@@ -4,16 +4,31 @@
  * @since 0.0.0
  * @module @beep/ontology/object/FetchPageArgs
  */
+
+import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 
+const $I = $OntologyId.create("object/FetchPageArgs");
 /**
  * Nullability handling strategy for query/object-fetch decoding.
  *
  * @since 0.0.0
  * @category models
  */
-export type NullabilityAdherence = false | "throw" | "drop";
+export const NullabilityAdherence = LiteralKit([false, "throw", "drop"]).annotate(
+  $I.annote("NullabilityAdherence", {
+    description: "Strategy for handling null values in query/object-fetch decoding.",
+  })
+);
+/**
+ * Type NullabilityAdherence {@link NullabilityAdherence}
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type NullabilityAdherence = typeof NullabilityAdherence.Type;
 
 /**
  * Types for {@link NullabilityAdherence}.

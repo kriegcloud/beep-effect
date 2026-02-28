@@ -1,7 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Semaphore from "effect/Semaphore";
-import * as Sink from "effect/Sink";
-import * as Stream from "effect/Stream";
+import { Effect, Semaphore, Sink, Stream } from "effect";
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import type { SessionError } from "../Session.js";
 

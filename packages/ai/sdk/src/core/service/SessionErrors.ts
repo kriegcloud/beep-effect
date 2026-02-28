@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 import { SessionManagerError } from "../SessionManager.js";
 import { SessionPoolError } from "../SessionPool.js";
 import { SessionTenantAccessError } from "./TenantAccess.js";
@@ -6,10 +6,10 @@ import { SessionTenantAccessError } from "./TenantAccess.js";
 /**
  * @since 0.0.0
  */
-export class SessionPoolUnavailableError extends Schema.TaggedErrorClass<SessionPoolUnavailableError>()(
+export class SessionPoolUnavailableError extends S.TaggedErrorClass<SessionPoolUnavailableError>()(
   "SessionPoolUnavailableError",
   {
-    message: Schema.String,
+    message: S.String,
   }
 ) {
   static readonly make = (params: Pick<SessionPoolUnavailableError, "message">) =>
@@ -19,12 +19,12 @@ export class SessionPoolUnavailableError extends Schema.TaggedErrorClass<Session
 /**
  * @since 0.0.0
  */
-export const SessionServiceError = Schema.Union([
+export const SessionServiceError = S.Union([
   SessionManagerError,
   SessionPoolError,
   SessionTenantAccessError,
   SessionPoolUnavailableError,
-]).pipe(Schema.annotate({ identifier: "SessionServiceError" }));
+]).pipe(S.annotate({ identifier: "SessionServiceError" }));
 
 /**
  * @since 0.0.0

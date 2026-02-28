@@ -5,8 +5,9 @@ import * as Effect from "effect/Effect";
 
 test("PersistedQueue input adapter yields offered messages", async () => {
   const message = makeUserMessage("hello");
+  const queueName = `test-queue-${Date.now()}`;
   const queue = await Effect.runPromise(
-    PersistedQueue.makeUserMessageQueue({ name: "test-queue" }).pipe(Effect.provide(PersistedQueue.layerMemory))
+    PersistedQueue.makeUserMessageQueue({ name: queueName }).pipe(Effect.provide(PersistedQueue.layerMemory))
   );
   const adapter = await Effect.runPromise(PersistedQueue.makeInputAdapter(queue));
 

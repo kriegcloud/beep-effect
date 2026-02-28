@@ -1,0 +1,929 @@
+# Effect-First Development
+
+This document defines the working model behind Effect-first code in this repository.
+Treat it as the long-form companion to `standards/effect-laws-v1.md`.
+
+## Definition
+
+Effect-first development means domain code is written in Effect-native constructs first, and native JavaScript/TypeScript patterns only at explicit boundaries.
+
+The goal is to make failure, absence, decoding, and dependency wiring explicit and typed.
+
+## Primary References
+
+- [Effect LLMS guide](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/LLMS.md)
+- [Effect ai-docs index](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/ai-docs/src/index.md)
+- [Effect migration notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/MIGRATION.md)
+- [Effect Schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md)
+
+## Operating Model
+
+Use three layers:
+
+1. Boundary layer:
+   - Parse and decode unknown input with `S.decodeUnknown*`.
+   - Convert nullish values to `Option`.
+   - Convert throwable/rejecting APIs to typed Effect failures.
+2. Domain layer:
+   - Use Effect modules (`A`, `O`, `R`, `Str`, `HashMap`, `HashSet`) and typed services.
+   - Keep business logic pure, explicit, and exhaustive.
+3. Runtime layer:
+   - Compose layers and run effects.
+   - Keep platform concerns (process, filesystem, env, network) outside core domain logic.
+
+## Laws and Conventions
+
+### EF-1: Errors are data, not side effects
+
+- If logic can fail, return `Effect.Effect<A, E, R>` with a typed error `E`.
+- Use `S.TaggedErrorClass` for public or cross-module failures.
+- Do not `throw` or use `new Error(...)` in production domain logic.
+
+Example:
+
+```ts
+import { Effect } from "effect"
+import * as O from "effect/Option"
+import * as S from "effect/Schema"
+import { $PackageNameId } from "@beep/identity/packages"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+class MissingConfigError extends S.TaggedErrorClass<MissingConfigError>($I`MissingConfigError`)(
+  "MissingConfigError",
+  { key: S.String },
+  $I.annote("MissingConfigError", { description: "Required configuration key is missing" })
+) {}
+
+const requireEnv = (key: string) =>
+  Effect.sync(() => process.env[key]).pipe(
+    Effect.flatMap((value) =>
+      O.match(O.fromNullishOr(value), {
+        onNone: () => Effect.fail(new MissingConfigError({ key })),
+        onSome: Effect.succeed
+      })
+    )
+  )
+```
+
+### EF-2: Absence is `Option`
+
+- Inside domain code, avoid `| null` and `| undefined`.
+- Convert nullable values at boundaries via `O.fromNullishOr`.
+- Consume via `O.map`, `O.flatMap`, `O.match`, `O.getOrElse`.
+
+Example:
+
+```ts
+import { pipe } from "effect"
+import * as O from "effect/Option"
+
+const toDisplayName = (rawName: string | null | undefined) =>
+  pipe(
+    O.fromNullishOr(rawName),
+    O.map((name) => name.trim()),
+    O.filter((name) => name.length > 0),
+    O.getOrElse(() => "anonymous")
+  )
+```
+
+### EF-3: Decode unknown input with `Schema`
+
+- Unknown or external data must be decoded at the boundary.
+- Prefer `S.decodeUnknownEffect` for effectful paths and `S.decodeUnknownSync` only where sync failure handling is explicit.
+- Never use `JSON.parse` / `JSON.stringify`; use schema JSON codecs (`S.UnknownFromJsonString`, `S.fromJsonString`, `S.decodeUnknown*`, `S.encode*`).
+- Prefer `S.Class` over `S.Struct` for object/domain schemas.
+- Do not name schemas with a `Schema` suffix; schema constants should be named after the domain type.
+- For non-class schemas, export type aliases with the same identifier name as the schema value.
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class CreateTaskInput extends S.Class<CreateTaskInput>($I`CreateTaskInput`)({
+  id: S.String,
+  title: S.String,
+  priority: S.Int
+}) {}
+
+export const decodeCreateTaskInput = S.decodeUnknownEffect(CreateTaskInput)
+```
+
+### EF-4: Canonical imports
+
+- Required aliases:
+  - `import * as A from "effect/Array"`
+  - `import * as O from "effect/Option"`
+  - `import * as P from "effect/Predicate"`
+  - `import * as R from "effect/Record"`
+  - `import * as S from "effect/Schema"`
+- For other stable modules, prefer root imports from `"effect"`.
+- Keep unstable imports deliberate and local.
+
+### EF-5: Effect modules over native collection helpers
+
+- Use `A`, `R`, `Str`, `HashMap`, `HashSet`, `MutableHashMap`, `MutableHashSet`.
+- Avoid domain usage of native `Object`, `Map`, `Set`, `Date`, and direct native string helpers.
+
+Example:
+
+```ts
+import { pipe } from "effect"
+import * as A from "effect/Array"
+import * as O from "effect/Option"
+
+const findActiveEmail = (users: ReadonlyArray<{ readonly active: boolean; readonly email: string }>) =>
+  pipe(
+    users,
+    A.findFirst((user) => user.active),
+    O.map((user) => user.email)
+  )
+```
+
+### EF-6: Predicate checks over raw runtime checks
+
+- Prefer `P.isString`, `P.isNumber`, `P.isObject`, and predicate composition.
+- Avoid raw `typeof`/ad-hoc runtime checks when a Predicate helper exists.
+
+### EF-7: Branch with `Match`; model states with `Data.TaggedEnum`
+
+- For multi-branch domain states, use tagged unions and exhaustive matching.
+- Replace brittle if/else ladders with `Match`.
+- Do not use native `switch` statements for domain branching.
+
+Example:
+
+```ts
+import { Data } from "effect"
+
+type SyncState = Data.TaggedEnum<{
+  readonly Idle: {}
+  readonly Running: { readonly attempt: number }
+  readonly Failed: { readonly reason: string }
+}>
+
+const SyncState = Data.taggedEnum<SyncState>()
+
+const stateLabel = SyncState.$match({
+  Idle: () => "idle",
+  Running: ({ attempt }) => `running:${attempt}`,
+  Failed: ({ reason }) => `failed:${reason}`
+})
+```
+
+### EF-8: Services use `ServiceMap.Service` + `Layer`
+
+- Service identity comes from `@beep/identity` composer keys.
+- Service constructors are explicit and layered.
+- Dependency wiring happens in Layer composition, not hidden global state.
+- Service identity must use package-specific composer `.create("path")` and the tagged template key form `$I\`ServiceName\``.
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import { ServiceMap } from "effect"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class MyService extends ServiceMap.Service<MyService, {
+  readonly ping: () => string
+}>()($I`MyService`) {}
+```
+
+### EF-9: Time/randomness should be effectful
+
+- Prefer Effect runtime services such as `Clock` and `Random`.
+- Avoid direct `Date.now()` and `Math.random()` in domain logic.
+
+### EF-10: Tests stay effect-native
+
+- Use `@effect/vitest` and `it.effect(...)` for effectful tests.
+- Keep fixtures typed and schema-validated where useful.
+
+### EF-11: Public APIs are documented
+
+- Exported APIs in package/tooling source require JSDoc.
+- Examples must remain docgen-clean.
+
+### EF-12: Schema annotation is required
+
+- New schemas must include meaningful annotation metadata via canonical `$I.annote(...)`.
+- Annotation descriptions should encode intent, not repeat the symbol name.
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export const Tenant = S.String.annotate(
+  $I.annote("Tenant", {
+    description: "Logical tenant identifier used for request and storage partitioning."
+  })
+)
+
+export type Tenant = typeof Tenant.Type
+```
+
+### EF-13: Discriminated union schemas
+
+- Prefer `S.TaggedUnion` when using `_tag`-based variants.
+- Use `S.toTaggedUnion("fieldName")` for unions with non-`_tag` discriminants or external union sources.
+- Reference: [effect-smol schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:1934).
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export const JobEvent = S.TaggedUnion({
+  Created: { id: S.String },
+  Completed: { id: S.String, at: S.String }
+})
+
+export type JobEvent = typeof JobEvent.Type
+
+export class ExternalJobEventCreated extends S.Class<ExternalJobEventCreated>($I`ExternalJobEventCreated`)({
+  kind: S.tag("created"),
+  id: S.String
+}) {}
+
+export class ExternalJobEventCompleted extends S.Class<ExternalJobEventCompleted>($I`ExternalJobEventCompleted`)({
+  kind: S.tag("completed"),
+  id: S.String,
+  at: S.String
+}) {}
+
+export const ExternalJobEvent = S.Union([
+  ExternalJobEventCreated,
+  ExternalJobEventCompleted
+]).pipe(S.toTaggedUnion("kind"))
+
+export type ExternalJobEvent = typeof ExternalJobEvent.Type
+```
+
+### EF-14: Effect-returning functions use `Effect.fn` or `Effect.fnUntraced`
+
+- Prefer `Effect.fn("Name")(...)` for reusable/public effectful functions.
+- Use `Effect.fnUntraced(...)` for internal hot paths where tracing overhead is unnecessary.
+- Reference: [Effect.fn docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:12821).
+
+Example:
+
+```ts
+import { Effect } from "effect"
+import * as S from "effect/Schema"
+
+export const loadUser = Effect.fn("User.load")(function* (userId: string) {
+  yield* Effect.logDebug("loading user", userId)
+  return { userId }
+})
+
+const parseInternal = Effect.fnUntraced(function* (input: string) {
+  return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(input)
+})
+```
+
+### EF-15: Effects must be observable
+
+- Instrument key workflows with logs, log annotations, spans, and metrics.
+- Prefer built-in helpers:
+  - Logging: `Effect.logWithLevel`, `Effect.log`, `Effect.logFatal`, `Effect.logWarning`, `Effect.logError`, `Effect.logInfo`, `Effect.logDebug`, `Effect.logTrace`
+  - Logger/context: `Effect.withLogger`, `Effect.annotateLogs`, `Effect.annotateLogsScoped`, `Effect.withLogSpan`
+  - Metrics/tracking: `Effect.track`, `Effect.trackSuccesses`, `Effect.trackErrors`, `Effect.trackDefects`, `Effect.trackDuration`
+  - Tracing: `Effect.annotateSpans`, `Effect.annotateCurrentSpan`
+
+Example:
+
+```ts
+import { Effect } from "effect"
+import * as Metric from "effect/Metric"
+
+const durationMs = Metric.histogram("workflow_duration_ms", {
+  boundaries: Metric.boundariesFromIterable([10, 50, 100, 250, 500, 1000])
+})
+const failures = Metric.counter("workflow_failures_total")
+
+const workflow = Effect.fn("Workflow.run")(function* (requestId: string) {
+  yield* Effect.annotateCurrentSpan("requestId", requestId)
+  yield* Effect.logInfo("workflow started")
+  return "ok"
+}).pipe(
+  Effect.withLogSpan("workflow.run"),
+  Effect.annotateLogs({ service: "beep-effect" }),
+  Effect.trackDuration(durationMs),
+  Effect.trackErrors(failures)
+)
+```
+
+### EF-16: Durations and windows use `effect/Duration`
+
+- Model timeouts, intervals, and windows with `Duration`.
+- Avoid magic number time values in domain logic.
+
+Example:
+
+```ts
+import { Duration, Effect } from "effect"
+
+const timeout = Duration.seconds(30)
+const pollInterval = Duration.millis(250)
+
+const program = Effect.sleep(pollInterval).pipe(Effect.timeout(timeout))
+```
+
+### EF-17: Nullable/nullish schema fields should decode to `Option`
+
+- Use dedicated schema helpers for optional/null conversions:
+  - `S.OptionFromNullOr`
+  - `S.OptionFromNullishOr`
+  - `S.OptionFromOptionalKey`
+  - `S.OptionFromOptional`
+- Reference: [Schema Option helpers](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:636).
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class AccountInput extends S.Class<AccountInput>($I`AccountInput`)({
+  nickname: S.OptionFromNullishOr(S.String),
+  bio: S.OptionFromNullOr(S.String),
+  phone: S.OptionFromOptionalKey(S.String),
+  timezone: S.OptionFromOptional(S.String)
+}) {}
+```
+
+### EF-18: Exported helper APIs should be dual
+
+- For reusable helper combinators, support both styles:
+  - Data-first: `fn(self, arg)`
+  - Data-last: `pipe(self, fn(arg))`
+- Build these helpers with `dual` from `effect/Function`.
+- Reference: [dual API](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Function.ts:106).
+
+Example:
+
+```ts
+import { dual } from "effect/Function"
+import { pipe } from "effect"
+
+export const addPrefix: {
+  (prefix: string): (self: string) => string
+  (self: string, prefix: string): string
+} = dual(2, (self: string, prefix: string) => `${prefix}${self}`)
+
+const a = addPrefix("value", "p:")
+const b = pipe("value", addPrefix("p:"))
+```
+
+### EF-19: JSON parse/stringify must use Schema
+
+- Use `S.UnknownFromJsonString` for unknown JSON payloads.
+- Use `S.fromJsonString(MySchema)` for typed JSON string boundaries.
+- Avoid direct `JSON.parse` / `JSON.stringify` in Effect-first code.
+- Reference: [UnknownFromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:4011) and [fromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:4028).
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class User extends S.Class<User>($I`User`)({
+  id: S.String,
+  name: S.String
+}) {}
+
+const UserJson = S.fromJsonString(User)
+
+const decodeUserJson = S.decodeUnknownEffect(UserJson)
+const encodeUserJson = S.encodeUnknownEffect(UserJson)
+```
+
+### EF-20: Completion gate is strict
+
+You are not done if these fail:
+
+- `bun run check`
+- `bun run lint`
+- `bun run test`
+- `bun run docgen`
+
+If agent instruction surfaces changed, also run:
+
+- `bun run agents:pathless:check`
+
+### EF-21: Runtime execution stays at the boundary
+
+- Application entrypoints and tests may execute effects with `Effect.run*`.
+- Library and domain exports should return `Effect` values.
+- Keep runtime execution in one place so wiring, logging, and lifecycle behavior stay auditable.
+- Reference: [runPromise](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8423), [runSync](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8606), and [runFork](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8264).
+
+Example:
+
+```ts
+import { Effect } from "effect"
+
+export const runJob = Effect.fn("Job.run")(function* (id: string) {
+  return { id }
+})
+
+// Runtime boundary only (for example, in main.ts):
+// Effect.runPromise(runJob("job-1"))
+```
+
+### EF-22: Promise boundaries must be lifted into Effect
+
+- Use `Effect.tryPromise` for Promise APIs that may reject.
+- Keep Promise rejection details in typed failure values.
+- Domain APIs should return `Effect`, not raw `Promise`.
+
+Example:
+
+```ts
+import { Effect } from "effect"
+
+const fetchText = (url: string) =>
+  Effect.tryPromise({
+    try: () => fetch(url).then((response) => response.text()),
+    catch: (cause) => new HttpRequestError({ url, message: String(cause) })
+  })
+```
+
+### EF-23: Resource lifetime must be explicit and scoped
+
+- Use `Effect.acquireUseRelease` for acquisition/use/release flows.
+- Prefer `Effect.scoped` for helper composition that allocates resources.
+- Do not manually open resources without an explicit finalization strategy.
+- Reference: [acquireUseRelease](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6254) and [scoped](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6079).
+
+Example:
+
+```ts
+import { Effect } from "effect"
+
+const withConnection = <A, E, R>(
+  use: (conn: Connection) => Effect.Effect<A, E, R>
+) =>
+  Effect.acquireUseRelease(
+    openConnection,
+    use,
+    closeConnection
+  )
+```
+
+### EF-24: Retry policy is declarative
+
+- Encode retries with `Effect.retry` and `Schedule`.
+- Avoid manual retry loops and ad-hoc mutable counters.
+- Keep retry policy close to the failing effect.
+- Reference: [retry](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:3978).
+
+Example:
+
+```ts
+import { Effect, Schedule } from "effect"
+
+const resilientFetch = fetchRemote.pipe(
+  Effect.retry(Schedule.recurs(3))
+)
+```
+
+### EF-25: Timeouts are modeled outcomes
+
+- Use `Effect.timeoutOption` when timeout should become `Option.None`.
+- Use `Effect.timeoutOrElse` when timeout should produce a typed fallback effect.
+- Avoid manually racing ad-hoc timers for business logic timeouts.
+- Reference: [timeoutOption](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:4467).
+
+Example:
+
+```ts
+import { Duration, Effect } from "effect"
+
+const lookupCachedOnTimeout = slowLookup.pipe(
+  Effect.timeoutOrElse({
+    duration: Duration.seconds(2),
+    onTimeout: () => Effect.succeed("cached-value")
+  })
+)
+```
+
+### EF-26: Structured concurrency is the default
+
+- Prefer `Effect.forkChild` so lifecycle is supervised by parent scope.
+- Use `Effect.forkDetach` only for explicit daemon semantics.
+- Make fork intent explicit in code review and comments for detached work.
+- Reference: [forkChild](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:7978) and [forkDetach](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8121).
+
+Example:
+
+```ts
+import { Effect, Fiber } from "effect"
+
+const runWithHeartbeat = Effect.fn("Worker.run")(function* () {
+  const heartbeat = yield* Effect.forkChild(heartbeatLoop)
+  const result = yield* doWork
+  yield* Fiber.interrupt(heartbeat)
+  return result
+})
+```
+
+### EF-27: Parallel fan-out needs explicit concurrency
+
+- For non-trivial fan-out, set concurrency in `Effect.forEach`, `Effect.all`, or `Effect.validate`.
+- Avoid implicit unbounded parallelism on large collections.
+- Concurrency should be part of API intent for throughput-sensitive paths.
+- Reference: [forEach concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:990), [all concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:751), [withConcurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6001).
+
+Example:
+
+```ts
+import { Effect } from "effect"
+
+const hydrateUsers = (ids: ReadonlyArray<string>) =>
+  Effect.forEach(ids, fetchUser, { concurrency: 8 })
+```
+
+### EF-28: Configuration is an effect, not a global read
+
+- Use `Config` and `ConfigProvider` for configuration loading and parsing.
+- Keep direct `process.env` access out of domain code.
+- Layer/provide config sources explicitly for tests and non-default environments.
+- Reference: [Config](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Config.ts) and [ConfigProvider](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/ConfigProvider.ts:358).
+
+Example:
+
+```ts
+import { Config, Effect } from "effect"
+
+const loadPort = Effect.fn("Config.loadPort")(function* () {
+  return yield* Config.int("PORT")
+})
+```
+
+### EF-29: Secrets must stay redacted
+
+- Use `Config.redacted` for secret config values.
+- Use `Redacted.make` for sensitive values coming from non-config sources.
+- Never log secret values after unwrapping.
+- Reference: [Config.redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Config.ts:1161) and [Redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Redacted.ts).
+
+Example:
+
+```ts
+import { Config, Effect } from "effect"
+
+const loadApiKey = Effect.fn("Config.loadApiKey")(function* () {
+  const apiKey = yield* Config.redacted("API_KEY")
+  yield* Effect.logDebug(`apiKey=${String(apiKey)}`)
+  return apiKey
+})
+```
+
+### EF-30: Recovery should be precise, not blanket
+
+- Prefer `Effect.catchTag` and `Effect.catchFilter` for targeted recovery.
+- Do not hide unrelated failures behind broad fallback handlers.
+- Keep recoverable error cases explicit in code.
+
+Example:
+
+```ts
+import { Effect } from "effect"
+import * as O from "effect/Option"
+
+const findUserOptional = (id: string) =>
+  findUser(id).pipe(
+    Effect.map(O.some),
+    Effect.catchTag("UserNotFoundError", () => Effect.succeed(O.none()))
+  )
+```
+
+### EF-31: Separate expected failures from defects
+
+- Use `Effect.fail` for expected business/domain failures.
+- Reserve `Effect.die` / `Effect.orDie` for invariant violations and impossible states.
+- Do not model normal user-facing errors as defects.
+- Reference: [die](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:1745) and [orDie](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:3557).
+
+Example:
+
+```ts
+import { Effect } from "effect"
+
+const validateInput = Effect.fn("Input.validate")(function* (value: string) {
+  if (value.length === 0) {
+    return yield* Effect.fail(new ValidationError({ message: "value must be non-empty" }))
+  }
+
+  if (value === "__unreachable__") {
+    return yield* Effect.die("unreachable state")
+  }
+
+  return value
+})
+```
+
+### EF-32: Layer memoization isolation must be intentional
+
+- Understand that layer provisioning is shared by default.
+- When isolation is required, use `Effect.provide(..., { local: true })` or `Layer.fresh`.
+- Document why isolation is necessary for behavior-sensitive paths.
+- Reference: [Effect.provide local option](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:5592) and [Layer.fresh](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Layer.ts:1621).
+
+Example:
+
+```ts
+import { Effect, Layer } from "effect"
+
+const runIsolated = program.pipe(
+  Effect.provide(Layer.fresh(AppLayer), { local: true })
+)
+```
+
+### EF-33: Schema-first development for domain models
+
+- If a domain data model can be expressed as `Schema`, define the schema first.
+- Prefer `S.Class` (or another schema constructor) over plain `type` / `interface` for property-based domain shapes.
+- Derive runtime types from schema definitions instead of duplicating parallel `type` / `interface` models.
+- Keep plain `type` / `interface` for cases schema cannot represent cleanly (complex type-level transforms, utility types, overload-only surfaces).
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+// Prefer schema-first over plain interfaces for domain payloads.
+export class CreateOrderInput extends S.Class<CreateOrderInput>($I`CreateOrderInput`)(
+  {
+    orderId: S.String,
+    customerId: S.String
+  },
+  $I.annote("CreateOrderInput", {
+    description: "Input payload for creating an order."
+  })
+) {}
+```
+
+## Copy-Paste Templates
+
+### Template: Tagged error with Identity composer
+
+```ts
+import * as S from "effect/Schema"
+import { $PackageNameId } from "@beep/identity/packages"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`)(
+  "DomainError",
+  {
+    message: S.String
+  },
+  $I.annote("DomainError", { description: "Domain failure" })
+) {}
+```
+
+### Template: Safe nullable boundary conversion
+
+```ts
+import { pipe } from "effect"
+import * as O from "effect/Option"
+
+const fromNullableName = (name: string | null | undefined) =>
+  pipe(
+    O.fromNullishOr(name),
+    O.filter((value) => value.length > 0)
+  )
+```
+
+### Template: Decode unknown at API edge
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class Payload extends S.Class<Payload>($I`Payload`)({
+  query: S.String
+}) {}
+
+const decodePayload = S.decodeUnknownEffect(Payload)
+```
+
+### Template: Schema naming + type alias (no `Schema` suffix)
+
+```ts
+import * as S from "effect/Schema"
+
+export const OrderId = S.String
+export type OrderId = typeof OrderId.Type
+```
+
+### Template: Schema-first replacement for interface
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class UserProfile extends S.Class<UserProfile>($I`UserProfile`)(
+  {
+    id: S.String,
+    displayName: S.String
+  },
+  $I.annote("UserProfile", {
+    description: "User profile model used in domain workflows."
+  })
+) {}
+```
+
+### Template: Match over switch
+
+```ts
+import * as Match from "effect/Match"
+
+type Phase = "draft" | "running" | "done"
+
+const phaseLabel = (phase: Phase) =>
+  Match.value(phase).pipe(
+    Match.when("draft", () => "draft"),
+    Match.when("running", () => "running"),
+    Match.when("done", () => "done"),
+    Match.exhaustive
+  )
+```
+
+### Template: Effect-returning function constructor
+
+```ts
+import { Effect } from "effect"
+
+export const runTask = Effect.fn("Task.run")(function* (taskId: string) {
+  yield* Effect.logInfo("run task", taskId)
+  return taskId
+})
+```
+
+### Template: Option schema from nullish/optional
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class Input extends S.Class<Input>($I`Input`)({
+  maybeName: S.OptionFromNullishOr(S.String),
+  maybeEmail: S.OptionFromOptionalKey(S.String)
+}) {}
+```
+
+### Template: Dual helper (data-first + data-last)
+
+```ts
+import { dual } from "effect/Function"
+
+export const rename: {
+  (to: string): (self: { readonly name: string }) => { readonly name: string }
+  (self: { readonly name: string }, to: string): { readonly name: string }
+} = dual(2, (self, to) => ({ ...self, name: to }))
+```
+
+### Template: JSON boundary without native JSON APIs
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class Payload extends S.Class<Payload>($I`Payload`)({
+  query: S.String
+}) {}
+
+const PayloadJson = S.fromJsonString(Payload)
+
+export const decodePayloadJson = S.decodeUnknownEffect(PayloadJson)
+export const encodePayloadJson = S.encodeUnknownEffect(PayloadJson)
+```
+
+### Template: Runtime boundary execution
+
+```ts
+import { Effect } from "effect"
+
+export const buildReport = Effect.fn("Report.build")(function* () {
+  return "ok"
+})
+
+// runtime boundary only
+// Effect.runPromise(buildReport())
+```
+
+### Template: Scoped resource helper
+
+```ts
+import { Effect } from "effect"
+
+export const withResource = <A, E, R>(
+  use: (resource: Resource) => Effect.Effect<A, E, R>
+) =>
+  Effect.acquireUseRelease(
+    acquireResource,
+    use,
+    releaseResource
+  )
+```
+
+### Template: Retry + timeout
+
+```ts
+import { Duration, Effect, Schedule } from "effect"
+
+export const resilientTask = task.pipe(
+  Effect.retry(Schedule.recurs(3)),
+  Effect.timeoutOption(Duration.seconds(5))
+)
+```
+
+### Template: Config + redacted secret
+
+```ts
+import { Config, Effect } from "effect"
+
+export const loadConfig = Effect.fn("Config.load")(function* () {
+  const port = yield* Config.int("PORT")
+  const apiKey = yield* Config.redacted("API_KEY")
+  return { port, apiKey }
+})
+```
+
+### Template: Isolated layer provide
+
+```ts
+import { Effect, Layer } from "effect"
+
+export const runIsolated = program.pipe(
+  Effect.provide(Layer.fresh(AppLayer), { local: true })
+)
+```
+
+## LLM Review Checklist
+
+Use this before submitting code:
+
+1. No `any`, no type assertions, no `@ts-ignore`, no non-null assertions.
+2. No untyped error throwing in domain logic.
+3. Nullish converted to `Option` at boundaries.
+4. Unknown input decoded with `Schema`.
+5. `A/O/P/R/S` aliases present and used.
+6. No native `Object/Map/Set/Date/String` helpers in domain logic.
+7. Branching logic is exhaustive where appropriate (`Match.exhaustive` or `Data.TaggedEnum.$match`).
+8. No new schema constants end with `Schema`.
+9. For non-class schemas, new schema constants expose `export type X = typeof X.Type`.
+10. New schemas are annotated using `$I.annote(...)`.
+11. `Effect`-returning reusable functions are created with `Effect.fn`/`Effect.fnUntraced`.
+12. Critical flows include logs/spans/metrics instrumentation.
+13. Durations/time windows use `Duration` values.
+14. Nullish schema fields use `S.OptionFrom*` helpers when representing absence as `Option`.
+15. Exported helper combinators support dual API via `dual`.
+16. No `JSON.parse` / `JSON.stringify` in Effect-first domain paths.
+17. Prefer `S.Class` over `S.Struct` for new object schemas.
+18. Required verification commands are green.
+19. `Effect.run*` appears only in runtime boundaries (entrypoint/test harness).
+20. Promise-based APIs are lifted with `Effect.tryPromise`.
+21. Acquired resources use `Effect.acquireUseRelease` or `Effect.scoped`.
+22. Retries are declared with `Effect.retry` + `Schedule`.
+23. Timeouts use `Effect.timeoutOption` / `Effect.timeoutOrElse`.
+24. Forking intent is explicit (`forkChild` default; `forkDetach` justified).
+25. Large fan-out operations specify concurrency deliberately.
+26. Config values come from `Config` / `ConfigProvider`, not direct `process.env` in domain logic.
+27. Secrets are `Redacted` (`Config.redacted` / `Redacted.make`) and not logged raw.
+28. Recovery uses `catchTag` / `catchFilter` for targeted cases.
+29. Expected failures use `Effect.fail`; defects are reserved for invariants.
+30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
+31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.

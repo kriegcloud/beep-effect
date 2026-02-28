@@ -29,6 +29,7 @@ export const PropertyValueFormattingRule = S.Union([
   PropertyBooleanFormattingRule,
   PropertyKnownTypeFormattingRule,
 ]).pipe(
+  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("PropertyValueFormattingRule", {
       description: "Tagged union of all supported ontology property value formatting rule schemas.",

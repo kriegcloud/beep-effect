@@ -4,7 +4,12 @@
  * @since 0.0.0
  * @module @beep/ontology/timeseries/timeseries
  */
+
+import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { TimeDurationMapping } from "../mapping/DurationMapping.js";
+
+const $I = $OntologyId.create("timeseries/timeseries");
 
 /**
  * Supported duration units for time-series relative queries.
@@ -12,16 +17,28 @@ import { TimeDurationMapping } from "../mapping/DurationMapping.js";
  * @since 0.0.0
  * @category models
  */
-export type TimeseriesDurationUnits =
-  | "YEARS"
-  | "MONTHS"
-  | "WEEKS"
-  | "DAYS"
-  | "HOURS"
-  | "MINUTES"
-  | "SECONDS"
-  | "MILLISECONDS";
+export const TimeseriesDurationUnits = LiteralKit([
+  "YEARS",
+  "MONTHS",
+  "WEEKS",
+  "DAYS",
+  "HOURS",
+  "MINUTES",
+  "SECONDS",
+  "MILLISECONDS",
+]).annotate(
+  $I.annote("TimeseriesDurationUnits", {
+    description: "Supported duration units for time-series relative queries.",
+  })
+);
 
+/**
+ * Supported duration units for time-series relative queries.
+ * {@link TimeseriesDurationUnits}
+ * @since 0.0.0
+ * @category models
+ */
+export type TimeseriesDurationUnits = typeof TimeseriesDurationUnits.Type;
 /**
  * Mapping of shorthand duration unit keys to canonical timeseries units.
  *

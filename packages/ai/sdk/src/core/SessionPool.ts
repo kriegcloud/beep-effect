@@ -1,19 +1,25 @@
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-
-import * as Ref from "effect/Ref";
-import * as Schedule from "effect/Schedule";
-import * as Schema from "effect/Schema";
-import * as Scope from "effect/Scope";
-import * as Semaphore from "effect/Semaphore";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import { $AiSdkId } from "@beep/identity/packages";
+import {
+  Clock,
+  Duration,
+  Effect,
+  Exit,
+  Layer,
+  MutableHashMap,
+  Ref,
+  Schedule,
+  Scope,
+  Semaphore,
+  ServiceMap,
+  Stream,
+} from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import type { SessionError, SessionHandle } from "./Session.js";
 import { SessionManager, type SessionManagerError } from "./SessionManager.js";
+
+const $I = $AiSdkId.create("core/SessionPool");
 
 /**
  * @since 0.0.0
@@ -39,9 +45,9 @@ export type SessionPoolOptions = {
 /**
  * @since 0.0.0
  */
-export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
-  message: Schema.String,
-  maxSessions: Schema.Number,
+export class SessionPoolFullError extends S.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
+  message: S.String,
+  maxSessions: S.Number,
 }) {
   static readonly make = (params: Pick<SessionPoolFullError, "message" | "maxSessions">) =>
     new SessionPoolFullError(params);
@@ -50,11 +56,11 @@ export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFul
 /**
  * @since 0.0.0
  */
-export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoolNotFoundError>()(
+export class SessionPoolNotFoundError extends S.TaggedErrorClass<SessionPoolNotFoundError>()(
   "SessionPoolNotFoundError",
   {
-    message: Schema.String,
-    sessionId: Schema.String,
+    message: S.String,
+    sessionId: S.String,
   }
 ) {
   static readonly make = (params: Pick<SessionPoolNotFoundError, "message" | "sessionId">) =>
@@ -64,11 +70,11 @@ export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoo
 /**
  * @since 0.0.0
  */
-export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<SessionPoolInvalidTenantError>()(
+export class SessionPoolInvalidTenantError extends S.TaggedErrorClass<SessionPoolInvalidTenantError>()(
   "SessionPoolInvalidTenantError",
   {
-    message: Schema.String,
-    tenant: Schema.String,
+    message: S.String,
+    tenant: S.String,
   }
 ) {
   static readonly make = (params: Pick<SessionPoolInvalidTenantError, "message" | "tenant">) =>
@@ -78,7 +84,7 @@ export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<Sessi
 /**
  * @since 0.0.0
  */
-export const SessionPoolError = Schema.Union([
+export const SessionPoolError = S.Union([
   SessionPoolFullError,
   SessionPoolNotFoundError,
   SessionPoolInvalidTenantError,
@@ -137,8 +143,8 @@ const toInfo = (entry: SessionEntry): SessionInfo => ({
 
 const resolveOptions = (options: SessionPoolOptions, overrides?: Partial<SDKSessionOptions>): SDKSessionOptions => ({
   model: options.model,
-  ...(options.sessionOptions ?? {}),
-  ...(overrides ?? {}),
+  ...options.sessionOptions,
+  ...overrides,
 });
 
 const makeSessionPool = (options: SessionPoolOptions) =>
@@ -146,7 +152,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
     const manager = yield* SessionManager;
     const maxSessions = options.maxSessions ?? 100;
     const idleTimeoutMs = options.idleTimeout ? Duration.toMillis(options.idleTimeout) : undefined;
-    const sessionsRef = yield* Ref.make(new Map<string, SessionEntry>());
+    const sessionsRef = yield* Ref.make(MutableHashMap.empty<string, SessionEntry>());
     const lock = yield* Semaphore.make(1);
 
     const withLock = <A, E, R>(effect: Effect.Effect<A, E, R>) => lock.withPermits(1)(effect);
@@ -157,11 +163,11 @@ const makeSessionPool = (options: SessionPoolOptions) =>
           const now = yield* Clock.currentTimeMillis;
           const sessions = yield* Ref.get(sessionsRef);
           const key = sessionKey(sessionId, tenant);
-          const entry = sessions.get(key);
-          if (entry === undefined) {
+          const entry = MutableHashMap.get(sessions, key);
+          if (O.isNone(entry)) {
             return;
           }
-          sessions.set(key, { ...entry, lastUsedAt: now });
+          MutableHashMap.set(sessions, key, { ...entry.value, lastUsedAt: now });
         })
       );
 
@@ -177,16 +183,16 @@ const makeSessionPool = (options: SessionPoolOptions) =>
         Effect.gen(function* () {
           const sessions = yield* Ref.get(sessionsRef);
           const key = sessionKey(sessionId, tenant);
-          const entry = sessions.get(key);
-          if (entry === undefined) {
+          const entry = MutableHashMap.get(sessions, key);
+          if (O.isNone(entry)) {
             return yield* SessionPoolNotFoundError.make({
               message: "Session not found",
               sessionId,
             });
           }
 
-          sessions.delete(key);
-          yield* Scope.close(entry.scope, Exit.succeed(undefined));
+          MutableHashMap.remove(sessions, key);
+          yield* Scope.close(entry.value.scope, Exit.succeed(undefined));
 
           if (options.onSessionClosed) {
             yield* options.onSessionClosed(sessionId, reason, tenant);
@@ -206,7 +212,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
     const ensureCapacity = withLock(
       Effect.gen(function* () {
         const sessions = yield* Ref.get(sessionsRef);
-        if (sessions.size < maxSessions) {
+        if (MutableHashMap.size(sessions) < maxSessions) {
           return;
         }
         return yield* SessionPoolFullError.make({
@@ -230,7 +236,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
       withLock(
         Effect.gen(function* () {
           const sessions = yield* Ref.get(sessionsRef);
-          sessions.set(key, entry);
+          MutableHashMap.set(sessions, key, entry);
           if (options.onSessionCreated) {
             yield* options.onSessionCreated(entry.sessionId, entry.tenant);
           }
@@ -266,7 +272,9 @@ const makeSessionPool = (options: SessionPoolOptions) =>
     ) {
       const resolvedTenant = yield* resolveTenant(tenant);
       const key = sessionKey(sessionId, resolvedTenant);
-      const existing = yield* withLock(Ref.get(sessionsRef).pipe(Effect.map((sessions) => sessions.get(key))));
+      const existing = yield* withLock(
+        Ref.get(sessionsRef).pipe(Effect.map((sessions) => O.getOrUndefined(MutableHashMap.get(sessions, key))))
+      );
 
       if (existing !== undefined) {
         yield* touch(sessionId, resolvedTenant);
@@ -296,9 +304,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
       return yield* withLock(
         Ref.get(sessionsRef).pipe(
           Effect.map((sessions) =>
-            Array.from(sessions.values())
-              .filter((entry) => entry.tenant === resolvedTenant)
-              .map(toInfo)
+            [...MutableHashMap.values(sessions)].filter((entry) => entry.tenant === resolvedTenant).map(toInfo)
           )
         )
       );
@@ -311,14 +317,14 @@ const makeSessionPool = (options: SessionPoolOptions) =>
       return yield* withLock(
         Effect.gen(function* () {
           const sessions = yield* Ref.get(sessionsRef);
-          const entry = sessions.get(sessionKey(sessionId, resolvedTenant));
-          if (entry === undefined) {
+          const entry = MutableHashMap.get(sessions, sessionKey(sessionId, resolvedTenant));
+          if (O.isNone(entry)) {
             return yield* SessionPoolNotFoundError.make({
               message: "Session not found",
               sessionId,
             });
           }
-          return toInfo(entry);
+          return toInfo(entry.value);
         })
       );
     });
@@ -330,8 +336,8 @@ const makeSessionPool = (options: SessionPoolOptions) =>
     const closeAll = withLock(
       Effect.gen(function* () {
         const sessions = yield* Ref.get(sessionsRef);
-        const entries = Array.from(sessions.entries());
-        sessions.clear();
+        const entries = [...sessions];
+        MutableHashMap.clear(sessions);
 
         yield* Effect.forEach(
           entries,
@@ -361,13 +367,13 @@ const makeSessionPool = (options: SessionPoolOptions) =>
           withLock(
             Effect.gen(function* () {
               const sessions = yield* Ref.get(sessionsRef);
-              if (sessions.size === 0) {
+              if (MutableHashMap.size(sessions) === 0) {
                 return;
               }
 
               const now = yield* Clock.currentTimeMillis;
               const stale: Array<[string, SessionEntry]> = [];
-              for (const [key, entry] of sessions.entries()) {
+              for (const [key, entry] of sessions) {
                 if (now - entry.lastUsedAt >= idleTimeoutMs) {
                   stale.push([key, entry]);
                 }
@@ -378,7 +384,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
               }
 
               for (const [key, entry] of stale) {
-                sessions.delete(key);
+                MutableHashMap.remove(sessions, key);
                 yield* Scope.close(entry.scope, Exit.succeed(undefined));
                 if (options.onSessionClosed) {
                   yield* options.onSessionClosed(entry.sessionId, "idle", entry.tenant);
@@ -408,30 +414,32 @@ const makeSessionPool = (options: SessionPoolOptions) =>
 /**
  * @since 0.0.0
  */
-export class SessionPool extends ServiceMap.Service<
-  SessionPool,
-  {
-    readonly create: (
-      overrides?: Partial<SDKSessionOptions>,
-      tenant?: string
-    ) => Effect.Effect<SessionHandle, SessionManagerError | SessionPoolError>;
-    readonly get: (
-      sessionId: string,
-      overrides?: Partial<SDKSessionOptions>,
-      tenant?: string
-    ) => Effect.Effect<SessionHandle, SessionManagerError | SessionPoolError>;
-    readonly info: (sessionId: string, tenant?: string) => Effect.Effect<SessionInfo, SessionPoolError>;
-    readonly withSession: <A, E, R>(
-      sessionId: string,
-      use: (handle: SessionHandle) => Effect.Effect<A, E, R>,
-      tenant?: string
-    ) => Effect.Effect<A, E | SessionManagerError | SessionPoolError, R>;
-    readonly list: Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
-    readonly listByTenant: (tenant?: string) => Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
-    readonly close: (sessionId: string, tenant?: string) => Effect.Effect<void, SessionError | SessionPoolError>;
-    readonly closeAll: Effect.Effect<void, SessionError>;
-  }
->()("@effect/claude-agent-sdk/SessionPool") {
+export interface SessionPoolShape {
+  readonly create: (
+    overrides?: Partial<SDKSessionOptions>,
+    tenant?: string
+  ) => Effect.Effect<SessionHandle, SessionManagerError | SessionPoolError>;
+  readonly get: (
+    sessionId: string,
+    overrides?: Partial<SDKSessionOptions>,
+    tenant?: string
+  ) => Effect.Effect<SessionHandle, SessionManagerError | SessionPoolError>;
+  readonly info: (sessionId: string, tenant?: string) => Effect.Effect<SessionInfo, SessionPoolError>;
+  readonly withSession: <A, E, R>(
+    sessionId: string,
+    use: (handle: SessionHandle) => Effect.Effect<A, E, R>,
+    tenant?: string
+  ) => Effect.Effect<A, E | SessionManagerError | SessionPoolError, R>;
+  readonly list: Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
+  readonly listByTenant: (tenant?: string) => Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
+  readonly close: (sessionId: string, tenant?: string) => Effect.Effect<void, SessionError | SessionPoolError>;
+  readonly closeAll: Effect.Effect<void, SessionError>;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class SessionPool extends ServiceMap.Service<SessionPool, SessionPoolShape>()($I`SessionPool`) {
   static readonly layer = (options: SessionPoolOptions) =>
     Layer.effect(SessionPool, Effect.scoped(makeSessionPool(options)));
 

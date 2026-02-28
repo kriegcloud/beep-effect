@@ -1,6 +1,4 @@
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Clock, Effect, Layer } from "effect";
 import { AuditEventStore } from "../Storage/index.js";
 import type { SyncCompactionAudit, SyncConflictAudit } from "./SyncAudit.js";
 import { SyncAudit } from "./SyncAudit.js";

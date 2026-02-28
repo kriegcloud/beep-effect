@@ -1,4 +1,7 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+
+const $I = $AiSdkId.create("core/Schema/External");
 
 /**
  * @since 0.0.0
@@ -36,36 +39,61 @@ export type McpServer = unknown;
 /**
  * @since 0.0.0
  */
-export const BetaMessage = S.declare((_: unknown): _ is BetaMessage => true).pipe(
-  S.annotate({ identifier: "BetaMessage", jsonSchema: {} })
+export const BetaMessage = S.Json.pipe(
+  S.annotate(
+    $I.annote("BetaMessage", {
+      description: "Schema for BetaMessage.",
+      jsonSchema: {},
+    })
+  )
 );
 
 /**
  * @since 0.0.0
  */
-export const BetaRawMessageStreamEvent = S.declare((_: unknown): _ is BetaRawMessageStreamEvent => true).pipe(
-  S.annotate({ identifier: "BetaRawMessageStreamEvent", jsonSchema: {} })
+export const BetaRawMessageStreamEvent = S.Json.pipe(
+  S.annotate(
+    $I.annote("BetaRawMessageStreamEvent", {
+      description: "Schema for BetaRawMessageStreamEvent.",
+      jsonSchema: {},
+    })
+  )
 );
 
 /**
  * @since 0.0.0
  */
-export const BetaUsage = S.declare((_: unknown): _ is BetaUsage => true).pipe(
-  S.annotate({ identifier: "BetaUsage", jsonSchema: {} })
+export const BetaUsage = S.Json.pipe(
+  S.annotate(
+    $I.annote("BetaUsage", {
+      description: "Schema for BetaUsage.",
+      jsonSchema: {},
+    })
+  )
 );
 
 /**
  * @since 0.0.0
  */
-export const MessageParam = S.declare((_: unknown): _ is MessageParam => true).pipe(
-  S.annotate({ identifier: "MessageParam", jsonSchema: {} })
+export const MessageParam = S.Json.pipe(
+  S.annotate(
+    $I.annote("MessageParam", {
+      description: "Schema for MessageParam.",
+      jsonSchema: {},
+    })
+  )
 );
 
 /**
  * @since 0.0.0
  */
-export const JSONRPCMessage = S.declare((_: unknown): _ is JSONRPCMessage => true).pipe(
-  S.annotate({ identifier: "JSONRPCMessage", jsonSchema: {} })
+export const JSONRPCMessage = S.Json.pipe(
+  S.annotate(
+    $I.annote("JSONRPCMessage", {
+      description: "Schema for JSONRPCMessage.",
+      jsonSchema: {},
+    })
+  )
 );
 
 /**
@@ -75,11 +103,21 @@ export const CallToolResult = S.Struct({
   content: S.optional(S.Array(S.Unknown)),
   structuredContent: S.optional(S.Record(S.String, S.Unknown)),
   isError: S.optional(S.Boolean),
-}).pipe(S.annotate({ identifier: "CallToolResult" }));
+}).pipe(
+  S.annotate(
+    $I.annote("CallToolResult", {
+      description: "Schema for CallToolResult.",
+    })
+  )
+);
 
 /**
  * @since 0.0.0
  */
-export const McpServer = S.declare((_: unknown): _ is McpServer => true).pipe(
-  S.annotate({ identifier: "McpServer", jsonSchema: {} })
+export const McpServer = S.Unknown.pipe(
+  S.annotate(
+    $I.annote("McpServer", {
+      description: "Schema for McpServer.",
+    })
+  )
 );

@@ -1,9 +1,10 @@
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 const makeSdkQuery = (prompt: unknown) => {
@@ -62,6 +63,7 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
   const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* failingPrompt() {
+    yield* [];
     throw new Error("boom");
   }
 
@@ -104,6 +106,7 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
   const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* emptyPrompt() {
+    yield* [];
     return;
   }
 
@@ -135,5 +138,8 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
   );
 
   const result = await runEffect(program);
-  expect(Result.isSuccess(result)).toBe(true);
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("TransportError");
+  }
 });

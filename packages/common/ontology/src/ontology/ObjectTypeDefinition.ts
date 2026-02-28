@@ -5,6 +5,7 @@
  * @module @beep/ontology/ontology/ObjectTypeDefinition
  */
 import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "./ObjectOrInterface.js";
@@ -21,7 +22,7 @@ const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
  * @since 0.0.0
  * @category schemas
  */
-export const ObjectInterfaceBaseMetadataType = S.Union([S.Literal("object"), S.Literal("interface")]).pipe(
+export const ObjectInterfaceBaseMetadataType = LiteralKit(["object", "interface"]).pipe(
   S.annotate(
     $I.annote("ObjectInterfaceBaseMetadataType", {
       description: "Literal union for ontology metadata base kinds.",

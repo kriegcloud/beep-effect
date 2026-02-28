@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 import * as EventGroup from "effect/unstable/eventlog/EventGroup";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { ArtifactRecord, ChatEvent } from "../Schema/Storage.js";
@@ -20,10 +20,10 @@ export const ArtifactDeleteTag = "artifact_deleted" as const;
 /**
  * @since 0.0.0
  */
-export const ArtifactDelete = Schema.Struct({
-  id: Schema.String,
-  sessionId: Schema.String,
-  deletedAt: Schema.Number,
+export const ArtifactDelete = S.Struct({
+  id: S.String,
+  sessionId: S.String,
+  deletedAt: S.Number,
 });
 /**
  * @since 0.0.0

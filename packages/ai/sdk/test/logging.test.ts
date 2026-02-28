@@ -31,7 +31,7 @@ const makeLoggingLayer = (overrides?: Partial<AgentLoggingSettings>) =>
     AgentLoggingConfig.of({
       settings: {
         ...baseSettings,
-        ...(overrides ?? {}),
+        ...overrides,
       },
     })
   );

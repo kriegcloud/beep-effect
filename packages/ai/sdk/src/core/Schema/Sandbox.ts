@@ -1,20 +1,23 @@
-import * as Schema from "effect/Schema";
-import { withIdentifier } from "./Annotations.js";
+import { $AiSdkId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $AiSdkId.create("core/Schema/Sandbox");
 
 /**
  * @since 0.0.0
  */
-export const SandboxNetworkConfig = withIdentifier(
-  Schema.Struct({
-    allowedDomains: Schema.optional(Schema.Array(Schema.String)),
-    allowManagedDomainsOnly: Schema.optional(Schema.Boolean),
-    allowUnixSockets: Schema.optional(Schema.Array(Schema.String)),
-    allowAllUnixSockets: Schema.optional(Schema.Boolean),
-    allowLocalBinding: Schema.optional(Schema.Boolean),
-    httpProxyPort: Schema.optional(Schema.Number),
-    socksProxyPort: Schema.optional(Schema.Number),
-  }),
-  "SandboxNetworkConfig"
+export const SandboxNetworkConfig = S.Struct({
+  allowedDomains: S.optional(S.Array(S.String)),
+  allowManagedDomainsOnly: S.optional(S.Boolean),
+  allowUnixSockets: S.optional(S.Array(S.String)),
+  allowAllUnixSockets: S.optional(S.Boolean),
+  allowLocalBinding: S.optional(S.Boolean),
+  httpProxyPort: S.optional(S.Number),
+  socksProxyPort: S.optional(S.Number),
+}).annotate(
+  $I.annote("SandboxNetworkConfig", {
+    description: "Schema for SandboxNetworkConfig.",
+  })
 );
 
 /**
@@ -29,9 +32,10 @@ export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const SandboxIgnoreViolations = withIdentifier(
-  Schema.Record(Schema.String, Schema.Array(Schema.String)),
-  "SandboxIgnoreViolations"
+export const SandboxIgnoreViolations = S.Record(S.String, S.Array(S.String)).annotate(
+  $I.annote("SandboxIgnoreViolations", {
+    description: "Schema for SandboxIgnoreViolations.",
+  })
 );
 
 /**
@@ -46,13 +50,14 @@ export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Enco
 /**
  * @since 0.0.0
  */
-export const SandboxFilesystemConfig = withIdentifier(
-  Schema.Struct({
-    allowWrite: Schema.optional(Schema.Array(Schema.String)),
-    denyWrite: Schema.optional(Schema.Array(Schema.String)),
-    denyRead: Schema.optional(Schema.Array(Schema.String)),
-  }),
-  "SandboxFilesystemConfig"
+export const SandboxFilesystemConfig = S.Struct({
+  allowWrite: S.optional(S.Array(S.String)),
+  denyWrite: S.optional(S.Array(S.String)),
+  denyRead: S.optional(S.Array(S.String)),
+}).annotate(
+  $I.annote("SandboxFilesystemConfig", {
+    description: "Schema for SandboxFilesystemConfig.",
+  })
 );
 
 /**
@@ -64,27 +69,28 @@ export type SandboxFilesystemConfig = typeof SandboxFilesystemConfig.Type;
  */
 export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Encoded;
 
-const SandboxRipgrepConfig = Schema.Struct({
-  command: Schema.String,
-  args: Schema.optional(Schema.Array(Schema.String)),
+const SandboxRipgrepConfig = S.Struct({
+  command: S.String,
+  args: S.optional(S.Array(S.String)),
 });
 
 /**
  * @since 0.0.0
  */
-export const SandboxSettings = withIdentifier(
-  Schema.Struct({
-    enabled: Schema.optional(Schema.Boolean),
-    autoAllowBashIfSandboxed: Schema.optional(Schema.Boolean),
-    allowUnsandboxedCommands: Schema.optional(Schema.Boolean),
-    network: Schema.optional(SandboxNetworkConfig),
-    filesystem: Schema.optional(SandboxFilesystemConfig),
-    ignoreViolations: Schema.optional(SandboxIgnoreViolations),
-    enableWeakerNestedSandbox: Schema.optional(Schema.Boolean),
-    excludedCommands: Schema.optional(Schema.Array(Schema.String)),
-    ripgrep: Schema.optional(SandboxRipgrepConfig),
-  }),
-  "SandboxSettings"
+export const SandboxSettings = S.Struct({
+  enabled: S.optional(S.Boolean),
+  autoAllowBashIfSandboxed: S.optional(S.Boolean),
+  allowUnsandboxedCommands: S.optional(S.Boolean),
+  network: S.optional(SandboxNetworkConfig),
+  filesystem: S.optional(SandboxFilesystemConfig),
+  ignoreViolations: S.optional(SandboxIgnoreViolations),
+  enableWeakerNestedSandbox: S.optional(S.Boolean),
+  excludedCommands: S.optional(S.Array(S.String)),
+  ripgrep: S.optional(SandboxRipgrepConfig),
+}).annotate(
+  $I.annote("SandboxSettings", {
+    description: "Schema for SandboxSettings.",
+  })
 );
 
 /**

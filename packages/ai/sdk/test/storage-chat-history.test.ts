@@ -3,7 +3,7 @@ import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { Storage } from "../src/index.js";
+import { Storage } from "../src/core/index.js";
 
 const makeProgram = (layer: Layer.Layer<Storage.ChatHistoryStore>) =>
   Effect.gen(function* () {

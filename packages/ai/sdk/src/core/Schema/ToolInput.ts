@@ -1,7 +1,11 @@
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { withToolInput } from "./Annotations.js";
 
-const AgentModel = S.Literals(["sonnet", "opus", "haiku"]);
+const $I = $AiSdkId.create("core/Schema/ToolInput");
+
+const AgentModel = LiteralKit(["sonnet", "opus", "haiku"]);
 
 /**
  * @since 0.0.0
@@ -16,7 +20,9 @@ export const AgentInput = withToolInput(
     run_in_background: S.optional(S.Boolean),
     max_turns: S.optional(S.Number),
   }),
-  "AgentInput"
+  $I.annote("AgentInput", {
+    description: "Schema for AgentInput.",
+  })
 );
 
 /**
@@ -45,7 +51,9 @@ export const BashInput = withToolInput(
     dangerouslyDisableSandbox: S.optional(S.Boolean),
     _simulatedSedEdit: S.optional(SimulatedSedEdit),
   }),
-  "BashInput"
+  $I.annote("BashInput", {
+    description: "Schema for BashInput.",
+  })
 );
 
 /**
@@ -66,7 +74,9 @@ export const TaskOutputInput = withToolInput(
     block: S.Boolean,
     timeout: S.Number,
   }),
-  "TaskOutputInput"
+  $I.annote("TaskOutputInput", {
+    description: "Schema for TaskOutputInput.",
+  })
 );
 
 /**
@@ -95,7 +105,9 @@ const ExitPlanModeBase = S.Struct({
  */
 export const ExitPlanModeInput = withToolInput(
   S.StructWithRest(ExitPlanModeBase, [S.Record(S.String, S.Unknown)]),
-  "ExitPlanModeInput"
+  $I.annote("ExitPlanModeInput", {
+    description: "Schema for ExitPlanModeInput.",
+  })
 );
 
 /**
@@ -117,7 +129,9 @@ export const FileEditInput = withToolInput(
     new_string: S.String,
     replace_all: S.optional(S.Boolean),
   }),
-  "FileEditInput"
+  $I.annote("FileEditInput", {
+    description: "Schema for FileEditInput.",
+  })
 );
 
 /**
@@ -138,7 +152,9 @@ export const FileReadInput = withToolInput(
     offset: S.optional(S.Number),
     limit: S.optional(S.Number),
   }),
-  "FileReadInput"
+  $I.annote("FileReadInput", {
+    description: "Schema for FileReadInput.",
+  })
 );
 
 /**
@@ -158,7 +174,9 @@ export const FileWriteInput = withToolInput(
     file_path: S.String,
     content: S.String,
   }),
-  "FileWriteInput"
+  $I.annote("FileWriteInput", {
+    description: "Schema for FileWriteInput.",
+  })
 );
 
 /**
@@ -178,7 +196,9 @@ export const GlobInput = withToolInput(
     pattern: S.String,
     path: S.optional(S.String),
   }),
-  "GlobInput"
+  $I.annote("GlobInput", {
+    description: "Schema for GlobInput.",
+  })
 );
 
 /**
@@ -190,7 +210,7 @@ export type GlobInput = typeof GlobInput.Type;
  */
 export type GlobInputEncoded = typeof GlobInput.Encoded;
 
-const GrepOutputMode = S.Literals(["content", "files_with_matches", "count"]);
+const GrepOutputMode = LiteralKit(["content", "files_with_matches", "count"]);
 
 /**
  * @since 0.0.0
@@ -211,7 +231,9 @@ export const GrepInput = withToolInput(
     offset: S.optional(S.Number),
     multiline: S.optional(S.Boolean),
   }),
-  "GrepInput"
+  $I.annote("GrepInput", {
+    description: "Schema for GrepInput.",
+  })
 );
 
 /**
@@ -230,7 +252,9 @@ export const KillShellInput = withToolInput(
   S.Struct({
     shell_id: S.String,
   }),
-  "KillShellInput"
+  $I.annote("KillShellInput", {
+    description: "Schema for KillShellInput.",
+  })
 );
 
 /**
@@ -249,7 +273,9 @@ export const ListMcpResourcesInput = withToolInput(
   S.Struct({
     server: S.optional(S.String),
   }),
-  "ListMcpResourcesInput"
+  $I.annote("ListMcpResourcesInput", {
+    description: "Schema for ListMcpResourcesInput.",
+  })
 );
 
 /**
@@ -264,7 +290,12 @@ export type ListMcpResourcesInputEncoded = typeof ListMcpResourcesInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpInput = withToolInput(S.Record(S.String, S.Unknown), "McpInput");
+export const McpInput = withToolInput(
+  S.Record(S.String, S.Unknown),
+  $I.annote("McpInput", {
+    description: "Schema for McpInput.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -275,8 +306,8 @@ export type McpInput = typeof McpInput.Type;
  */
 export type McpInputEncoded = typeof McpInput.Encoded;
 
-const NotebookCellType = S.Literals(["code", "markdown"]);
-const NotebookEditMode = S.Literals(["replace", "insert", "delete"]);
+const NotebookCellType = LiteralKit(["code", "markdown"]);
+const NotebookEditMode = LiteralKit(["replace", "insert", "delete"]);
 
 /**
  * @since 0.0.0
@@ -289,7 +320,9 @@ export const NotebookEditInput = withToolInput(
     cell_type: S.optional(NotebookCellType),
     edit_mode: S.optional(NotebookEditMode),
   }),
-  "NotebookEditInput"
+  $I.annote("NotebookEditInput", {
+    description: "Schema for NotebookEditInput.",
+  })
 );
 
 /**
@@ -309,7 +342,9 @@ export const ReadMcpResourceInput = withToolInput(
     server: S.String,
     uri: S.String,
   }),
-  "ReadMcpResourceInput"
+  $I.annote("ReadMcpResourceInput", {
+    description: "Schema for ReadMcpResourceInput.",
+  })
 );
 
 /**
@@ -321,7 +356,7 @@ export type ReadMcpResourceInput = typeof ReadMcpResourceInput.Type;
  */
 export type ReadMcpResourceInputEncoded = typeof ReadMcpResourceInput.Encoded;
 
-const TodoStatus = S.Literals(["pending", "in_progress", "completed"]);
+const TodoStatus = LiteralKit(["pending", "in_progress", "completed"]);
 
 const TodoItem = S.Struct({
   content: S.String,
@@ -336,7 +371,9 @@ export const TodoWriteInput = withToolInput(
   S.Struct({
     todos: S.Array(TodoItem),
   }),
-  "TodoWriteInput"
+  $I.annote("TodoWriteInput", {
+    description: "Schema for TodoWriteInput.",
+  })
 );
 
 /**
@@ -356,7 +393,9 @@ export const WebFetchInput = withToolInput(
     url: S.String,
     prompt: S.String,
   }),
-  "WebFetchInput"
+  $I.annote("WebFetchInput", {
+    description: "Schema for WebFetchInput.",
+  })
 );
 
 /**
@@ -377,7 +416,9 @@ export const WebSearchInput = withToolInput(
     allowed_domains: S.optional(S.Array(S.String)),
     blocked_domains: S.optional(S.Array(S.String)),
   }),
-  "WebSearchInput"
+  $I.annote("WebSearchInput", {
+    description: "Schema for WebSearchInput.",
+  })
 );
 
 /**
@@ -414,7 +455,9 @@ export const AskUserQuestionInput = withToolInput(
     answers: S.optional(S.Record(S.String, S.String)),
     metadata: S.optional(QuestionMetadata),
   }),
-  "AskUserQuestionInput"
+  $I.annote("AskUserQuestionInput", {
+    description: "Schema for AskUserQuestionInput.",
+  })
 );
 
 /**
@@ -434,7 +477,9 @@ export const ConfigInput = withToolInput(
     setting: S.String,
     value: S.optional(S.Union([S.String, S.Boolean, S.Number])),
   }),
-  "ConfigInput"
+  $I.annote("ConfigInput", {
+    description: "Schema for ConfigInput.",
+  })
 );
 
 /**

@@ -1,19 +1,19 @@
-import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
+import { Effect, Stream } from "effect";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { AgentRuntime } from "./AgentRuntime.js";
 import { type RuntimeEntryOptions, runtimeLayer } from "./EntryPoint.js";
 import * as QueryResult from "./QueryResult.js";
 import type { SDKMessage, SDKResultSuccess } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
 
-const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  typeof value === "object" && value !== null;
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> => P.isObject(value);
 
 const toRecord = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
   isRecord(value) ? value : undefined;
 
 const extractTextFromContent = (content: unknown): ReadonlyArray<string> => {
-  if (!Array.isArray(content)) {
+  if (!A.isArray(content)) {
     return [];
   }
 
@@ -27,7 +27,7 @@ const extractTextFromContent = (content: unknown): ReadonlyArray<string> => {
       continue;
     }
     const text = record.text;
-    if (typeof text === "string" && text.length > 0) {
+    if (P.isString(text) && text.length > 0) {
       chunks.push(text);
     }
   }
@@ -42,18 +42,18 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   }
 
   const topText = record.text;
-  if (typeof topText === "string" && topText.length > 0) {
+  if (P.isString(topText) && topText.length > 0) {
     return [topText];
   }
 
   const delta = toRecord(record.delta);
   if (delta) {
     const deltaText = delta.text;
-    if (typeof deltaText === "string" && deltaText.length > 0) {
+    if (P.isString(deltaText) && deltaText.length > 0) {
       return [deltaText];
     }
     const deltaContent = delta.content;
-    if (typeof deltaContent === "string" && deltaContent.length > 0) {
+    if (P.isString(deltaContent) && deltaContent.length > 0) {
       return [deltaContent];
     }
   }
@@ -61,7 +61,7 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   const contentBlock = toRecord(record.content_block);
   if (contentBlock) {
     const text = contentBlock.text;
-    if (typeof text === "string" && text.length > 0) {
+    if (P.isString(text) && text.length > 0) {
       return [text];
     }
   }
@@ -124,8 +124,7 @@ export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
         const next: readonly [boolean, ReadonlyArray<string>] = [hasText, []];
         return next;
       }
-    ),
-    Stream.flatMap((chunks) => Stream.fromIterable(chunks))
+    )
   );
 
 /**

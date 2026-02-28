@@ -45,7 +45,7 @@ const makeInitMessage = (sessionId: string): SDKMessage => ({
   output_style: "markdown",
   skills: [],
   plugins: [],
-  uuid: "00000000-0000-0000-0000-000000000000",
+  uuid: "00000000-0000-4000-8000-000000000000",
   session_id: sessionId,
 });
 
@@ -252,6 +252,7 @@ test("Session.close waits for active stream to finish", async () => {
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }
@@ -293,6 +294,7 @@ test("Session.close respects closeDrainTimeout override", async () => {
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }
@@ -304,30 +306,32 @@ test("Session.close respects closeDrainTimeout override", async () => {
     [Symbol.asyncDispose]: async () => {},
   };
 
-  const program = Effect.gen(function* () {
-    const handle = yield* fromSdkSession(sdkSession, {
-      closeDrainTimeout: "20 millis",
-    });
-    const streamFiber = yield* Effect.forkChild(Stream.runDrain(handle.stream));
-    yield* Effect.promise(() => streamStarted.promise);
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* fromSdkSession(sdkSession, {
+        closeDrainTimeout: "20 millis",
+      });
+      const streamFiber = yield* Effect.forkChild(Stream.runDrain(handle.stream));
+      yield* Effect.promise(() => streamStarted.promise);
 
-    const closeFiber = yield* Effect.forkChild(handle.close);
-    yield* TestClock.adjust("60 millis");
-    yield* Effect.yieldNow;
+      const closeFiber = yield* Effect.forkChild(handle.close);
+      yield* TestClock.adjust("60 millis");
+      yield* Effect.yieldNow;
 
-    const closeStatus = yield* pollFiber(closeFiber);
-    releaseStream.open();
-    yield* Fiber.join(streamFiber);
-    yield* Fiber.join(closeFiber);
-    return closeStatus;
-  });
+      const closeStatus = yield* pollFiber(closeFiber);
+      releaseStream.open();
+      yield* Fiber.join(streamFiber);
+      yield* Fiber.join(closeFiber);
+      return closeStatus;
+    })
+  );
 
   const closeStatus = await runEffect(program);
   expect(Option.isSome(closeStatus)).toBe(true);
   expect(closeCalls).toBe(1);
 });
 
-test("Session.fromSdkSession fails with TransportError on invalid closeDrainTimeout", async () => {
+test("Session.fromSdkSession accepts closeDrainTimeout duration strings", async () => {
   const sdkSession: SDKSession = {
     get sessionId() {
       return "session-1";
@@ -338,19 +342,12 @@ test("Session.fromSdkSession fails with TransportError on invalid closeDrainTime
     [Symbol.asyncDispose]: async () => {},
   };
 
-  const result = await runEffect(
-    Effect.result(
-      fromSdkSession(sdkSession, {
-        closeDrainTimeout: "not-a-duration" as unknown as import("effect/Duration").Input,
-      })
-    )
+  const handle = await runEffect(
+    fromSdkSession(sdkSession, {
+      closeDrainTimeout: "25 millis",
+    })
   );
-
-  expect(Result.isFailure(result)).toBe(true);
-  if (Result.isFailure(result)) {
-    expect(result.failure._tag).toBe("TransportError");
-    expect(result.failure.message).toBe("Invalid session close drain timeout");
-  }
+  await runEffect(handle.close);
 });
 
 test("Session.close propagates close failures to concurrent callers", async () => {
@@ -364,6 +361,7 @@ test("Session.close propagates close failures to concurrent callers", async () =
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }

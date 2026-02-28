@@ -8,7 +8,6 @@
 import type { ObjectIdentifiers } from "../OsdkBase.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
-
 /**
  * Link type API names present on a definition.
  *

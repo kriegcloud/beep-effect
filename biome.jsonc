@@ -187,6 +187,21 @@
           }
         }
       }
+    },
+    {
+      // AI SDK runtime adapters still bridge external, weakly-typed contracts.
+      // Keep `any` tolerated in this package until the typed boundary migration lands.
+      "includes": [
+        "packages/ai/sdk/src/**/*.ts",
+        "packages/ai/sdk/test/**/*.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
     }
   ]
 }

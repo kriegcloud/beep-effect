@@ -1,17 +1,19 @@
 import type { AgentRuntimeSettings } from "@beep/ai-sdk/AgentRuntimeConfig";
 import type { QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import { TestClock } from "effect/testing";
+import { vi } from "vitest";
 import { runEffect } from "./effect-test.js";
 
 let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
 
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {
   async function* generator() {
+    yield* [];
     return;
   }
 

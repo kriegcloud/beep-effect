@@ -1,7 +1,7 @@
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import type * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import type { ServiceMap } from "effect";
+import { Effect, Stream } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { AgentRuntime } from "../AgentRuntime.js";
 import type { AgentSdkError } from "../Errors.js";
 import type { QueryHandle } from "../Query.js";
@@ -40,7 +40,7 @@ const toAsyncIterable = (messages: ReadonlyArray<SDKUserMessage>): AsyncIterable
 });
 
 const toPrompt = (input: QueryInputType): string | AsyncIterable<SDKUserMessage> =>
-  typeof input.prompt === "string" ? input.prompt : toAsyncIterable(input.prompt);
+  P.isString(input.prompt) ? input.prompt : toAsyncIterable(input.prompt);
 
 const toStream = (runtime: AgentRuntimeService, input: QueryInputType) =>
   runtime.stream(toPrompt(input), input.options);
@@ -70,7 +70,7 @@ export const layer = AgentRpcs.toLayer(
     const requirePool = <A, E, R>(
       use: (pool: SessionPoolService) => Effect.Effect<A, E, R>
     ): Effect.Effect<A, E | SessionPoolUnavailableError, R> =>
-      Option.isSome(poolOption)
+      O.isSome(poolOption)
         ? use(poolOption.value)
         : Effect.fail(
             SessionPoolUnavailableError.make({

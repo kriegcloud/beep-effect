@@ -1,6 +1,5 @@
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
+import { Duration, Effect } from "effect";
+import * as O from "effect/Option";
 import { type RemoteStatus, SyncService } from "../Sync/index.js";
 import { StorageConfig, type StorageConfigData } from "./StorageConfig.js";
 
@@ -23,7 +22,7 @@ export const status = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
   const sync = yield* Effect.serviceOption(SyncService);
 
-  const resolvedConfig = Option.isSome(config)
+  const resolvedConfig = O.isSome(config)
     ? {
         enabled: config.value.settings.enabled,
         cleanup: config.value.settings.cleanup,
@@ -31,7 +30,7 @@ export const status = Effect.gen(function* () {
       }
     : undefined;
 
-  const resolvedSync = Option.isSome(sync) ? yield* sync.value.status() : undefined;
+  const resolvedSync = O.isSome(sync) ? yield* sync.value.status() : undefined;
 
   return {
     ...(resolvedConfig ? { config: resolvedConfig } : {}),

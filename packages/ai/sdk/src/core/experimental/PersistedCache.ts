@@ -1,5 +1,5 @@
-import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
+import { type Duration, Effect, HashSet } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Persistable from "effect/unstable/persistence/Persistable";
 import * as PersistedCache from "effect/unstable/persistence/PersistedCache";
@@ -84,16 +84,17 @@ export type QueryMetadataCacheOptions = {
   readonly inMemoryTTL?: Duration.Input;
 };
 
-const cacheErrorTags = new Set(["ConfigError", "DecodeError", "TransportError", "HookError", "McpError"]);
+const cacheErrorTags = HashSet.fromIterable(["ConfigError", "DecodeError", "TransportError", "HookError", "McpError"]);
+
+const isAgentSdkError = (cause: unknown): cause is AgentSdkError =>
+  P.isObject(cause) &&
+  P.hasProperty("_tag")(cause) &&
+  P.isString(cause._tag) &&
+  HashSet.has(cacheErrorTags, cause._tag);
 
 const toCacheError = (message: string, cause: unknown): AgentSdkError => {
-  if (
-    typeof cause === "object" &&
-    cause !== null &&
-    "_tag" in cause &&
-    cacheErrorTags.has(String((cause as { _tag?: string })._tag))
-  ) {
-    return cause as AgentSdkError;
+  if (isAgentSdkError(cause)) {
+    return cause;
   }
   return TransportError.make(message, cause);
 };

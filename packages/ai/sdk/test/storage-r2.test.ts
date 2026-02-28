@@ -1,6 +1,6 @@
 import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
 import { expect, test } from "@effect/vitest";
-import { Effect, Option } from "effect";
+import { Effect } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
 
 const makeMockR2Bucket = (data: Record<string, string> = {}): R2Bucket => ({
@@ -45,10 +45,10 @@ test("R2 get/set/remove round-trip", async () => {
     const kv = yield* KeyValueStore.KeyValueStore;
     yield* kv.set("key1", "value1");
     const result = yield* kv.get("key1");
-    expect(result).toEqual(Option.some("value1"));
+    expect(result).toBe("value1");
     yield* kv.remove("key1");
     const after = yield* kv.get("key1");
-    expect(after).toEqual(Option.none());
+    expect(after).toBeUndefined();
   });
   await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
 });
@@ -126,6 +126,6 @@ test("R2 set retries transient errors with backoff", async () => {
   });
 
   const value = await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
-  expect(value).toEqual(Option.some("retry-value"));
+  expect(value).toBe("retry-value");
   expect(attempts).toBe(3);
 });

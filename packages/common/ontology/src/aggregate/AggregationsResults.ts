@@ -9,7 +9,6 @@ import type { AggregatableKeys, ValidAggregationKeys } from "./AggregatableKeys.
 import type { AggregateOpts } from "./AggregateOpts.js";
 import type { AggregationResultsWithGroups } from "./AggregationResultsWithGroups.js";
 import type { AggregationResultsWithoutGroups } from "./AggregationResultsWithoutGroups.js";
-
 /**
  * Resolve aggregate result shape or emit descriptive compile-time error text.
  *

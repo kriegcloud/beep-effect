@@ -10,7 +10,6 @@ import type {
   AggregationRangeKeyTypes,
   AggregationValueTypes,
 } from "../ontology/QueryDefinition.js";
-
 /**
  * Range bucket helper used by query aggregations.
  *

@@ -17,7 +17,6 @@ import type {
   ObjectTypeDefinition,
   ObjectTypeLinkKeysFrom2,
 } from "../ontology/ObjectTypeDefinition.js";
-
 /**
  * The `$link` container shape used on OSDK instances.
  *

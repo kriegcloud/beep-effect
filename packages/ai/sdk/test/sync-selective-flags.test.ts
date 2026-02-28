@@ -47,55 +47,51 @@ const makeReplicaLayer = (url: string, directory: string) => {
 
 const makeTempDir = async () => mkdtemp(path.join(os.tmpdir(), "agent-sync-"));
 
-maybeTest(
-  "Storage sync flags only sync artifacts when configured",
-  async () => {
-    const dirA = await makeTempDir();
-    const dirB = await makeTempDir();
+maybeTest("Storage sync flags only sync artifacts when configured", { timeout: 15000 }, async () => {
+  const dirA = await makeTempDir();
+  const dirB = await makeTempDir();
 
-    try {
-      const program = Effect.scoped(
-        Effect.gen(function* () {
-          const server = yield* Sync.EventLogRemoteServer;
-          const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, dirA));
-          const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, dirB));
+  try {
+    const program = Effect.scoped(
+      Effect.gen(function* () {
+        const server = yield* Sync.EventLogRemoteServer;
+        const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, dirA));
+        const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, dirB));
 
-          const chatA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
-          const chatB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
-          const artifactA = ServiceMap.get(replicaAContext, Storage.ArtifactStore);
-          const artifactB = ServiceMap.get(replicaBContext, Storage.ArtifactStore);
+        const chatA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+        const chatB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+        const artifactA = ServiceMap.get(replicaAContext, Storage.ArtifactStore);
+        const artifactB = ServiceMap.get(replicaBContext, Storage.ArtifactStore);
 
-          yield* chatA.appendMessage("session-1", makeUserMessage("hello"));
-          yield* Effect.sleep(Duration.millis(200));
-          const chatListB = yield* chatB.list("session-1");
+        yield* chatA.appendMessage("session-1", makeUserMessage("hello"));
+        yield* Effect.sleep(Duration.millis(200));
+        const chatListB = yield* chatB.list("session-1");
 
-          const record = ArtifactRecord.make({
-            id: "artifact-sync-1",
-            sessionId: "session-1",
-            kind: "file",
-            encoding: "utf8",
-            content: "sync me",
-            createdAt: Date.now(),
-          });
-          yield* artifactA.put(record);
+        const record = ArtifactRecord.make({
+          id: "artifact-sync-1",
+          sessionId: "session-1",
+          kind: "file",
+          encoding: "utf8",
+          content: "sync me",
+          createdAt: Date.now(),
+        });
+        yield* artifactA.put(record);
 
-          const artifactsB = yield* waitFor(
-            "replica B to receive artifact",
-            artifactB.list("session-1"),
-            (list) => list.length === 1
-          );
+        const artifactsB = yield* waitFor(
+          "replica B to receive artifact",
+          artifactB.list("session-1"),
+          (list) => list.length === 1
+        );
 
-          return { chatListB, artifactsB };
-        }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
-      );
+        return { chatListB, artifactsB };
+      }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
+    );
 
-      const result = await runEffectLive(program);
-      expect(result.chatListB).toHaveLength(0);
-      expect(result.artifactsB).toHaveLength(1);
-    } finally {
-      await rm(dirA, { recursive: true, force: true });
-      await rm(dirB, { recursive: true, force: true });
-    }
-  },
-  { timeout: 15000 }
-);
+    const result = await runEffectLive(program);
+    expect(result.chatListB).toHaveLength(0);
+    expect(result.artifactsB).toHaveLength(1);
+  } finally {
+    await rm(dirA, { recursive: true, force: true });
+    await rm(dirB, { recursive: true, force: true });
+  }
+});

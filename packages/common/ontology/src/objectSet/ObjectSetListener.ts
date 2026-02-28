@@ -9,7 +9,6 @@ import type { Osdk } from "../OsdkObjectFrom.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { WirePropertyTypes } from "../ontology/WirePropertyTypes.js";
-
 /**
  * Object-set subscription helper namespace.
  *

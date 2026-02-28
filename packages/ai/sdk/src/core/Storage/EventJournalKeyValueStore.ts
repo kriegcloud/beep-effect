@@ -1,9 +1,7 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as PubSub from "effect/PubSub";
-import * as Semaphore from "effect/Semaphore";
-import type * as ServiceMap from "effect/ServiceMap";
+import type { ServiceMap } from "effect";
+import { Effect, Layer, MutableHashMap, PubSub, Semaphore } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { ConflictResolution } from "../Sync/index.js";
@@ -30,7 +28,7 @@ const resolveDefaultConflict = (
 const loadEntries = (store: KeyValueStore.SchemaStore<typeof EventJournal.Entry.arrayMsgpack>, key: string) =>
   store.get(key).pipe(
     Effect.mapError((cause) => toJournalError("entries", cause)),
-    Effect.map((maybe) => Option.getOrElse(maybe, () => [] as ReadonlyArray<EventJournal.Entry>))
+    Effect.map((maybe) => O.getOrElse(maybe, () => [] as ReadonlyArray<EventJournal.Entry>))
   );
 
 const persistEntries = (
@@ -49,18 +47,18 @@ export const make = (options?: { readonly key?: string }) =>
     const key = options?.key ?? defaultKey;
     const pubsub = yield* PubSub.unbounded<EventJournal.Entry>();
     const journal = [...(yield* loadEntries(entryStore, key))];
-    const byId = new Map(journal.map((entry) => [entry.idString, entry]));
-    const remotes = new Map<string, { sequence: number; missing: Array<EventJournal.Entry> }>();
+    const byId = MutableHashMap.fromIterable(journal.map((entry) => [entry.idString, entry] as const));
+    const remotes = MutableHashMap.empty<string, { sequence: number; missing: Array<EventJournal.Entry> }>();
     const journalSemaphore = yield* Semaphore.make(1);
     const conflictKey = (entry: EventJournal.Entry) => `${entry.event}\u0000${entry.primaryKey}`;
-    const conflictIndex = new Map<string, Array<EventJournal.Entry>>();
+    const conflictIndex = MutableHashMap.empty<string, Array<EventJournal.Entry>>();
     for (const entry of journal) {
       const key = conflictKey(entry);
-      const existing = conflictIndex.get(key);
-      if (existing) {
-        existing.push(entry);
+      const existing = MutableHashMap.get(conflictIndex, key);
+      if (O.isSome(existing)) {
+        existing.value.push(entry);
       } else {
-        conflictIndex.set(key, [entry]);
+        MutableHashMap.set(conflictIndex, key, [entry]);
       }
     }
 
@@ -81,11 +79,11 @@ export const make = (options?: { readonly key?: string }) =>
 
     const addConflictIndex = (entry: EventJournal.Entry) => {
       const key = conflictKey(entry);
-      const existing = conflictIndex.get(key);
-      if (existing) {
-        existing.push(entry);
+      const existing = MutableHashMap.get(conflictIndex, key);
+      if (O.isSome(existing)) {
+        existing.value.push(entry);
       } else {
-        conflictIndex.set(key, [entry]);
+        MutableHashMap.set(conflictIndex, key, [entry]);
       }
     };
 
@@ -93,23 +91,21 @@ export const make = (options?: { readonly key?: string }) =>
 
     const commitEntry = (entry: EventJournal.Entry) => {
       insertSorted(journal, entry);
-      byId.set(entry.idString, entry);
+      MutableHashMap.set(byId, entry.idString, entry);
       addConflictIndex(entry);
     };
 
     const publishChange = (entry: EventJournal.Entry) => PubSub.publish(pubsub, entry).pipe(Effect.asVoid);
 
     const remoteIdToString = (remoteId: EventJournal.RemoteId) =>
-      Array.from(remoteId)
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join("");
+      [...remoteId].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 
     const ensureRemote = (remoteId: EventJournal.RemoteId) => {
       const remoteIdString = remoteIdToString(remoteId);
-      const existing = remotes.get(remoteIdString);
-      if (existing) return existing;
+      const existing = MutableHashMap.get(remotes, remoteIdString);
+      if (O.isSome(existing)) return existing.value;
       const created = { sequence: 0, missing: journal.slice() };
-      remotes.set(remoteIdString, created);
+      MutableHashMap.set(remotes, remoteIdString, created);
       return created;
     };
 
@@ -157,16 +153,16 @@ export const make = (options?: { readonly key?: string }) =>
           const value = yield* effect(entry);
           yield* withLock(
             Effect.suspend(() => {
-              if (byId.has(entry.idString)) return Effect.void;
+              if (MutableHashMap.has(byId, entry.idString)) return Effect.void;
               const persistedJournal = journal.slice();
               insertSorted(persistedJournal, entry);
               return persistEntries(entryStore, key, persistedJournal).pipe(
                 Effect.tap(() =>
                   Effect.sync(() => {
                     commitEntry(entry);
-                    remotes.forEach((remote) => {
+                    for (const [, remote] of remotes) {
                       remote.missing.push(entry);
-                    });
+                    }
                   })
                 ),
                 Effect.andThen(publishChange(entry))
@@ -187,7 +183,7 @@ export const make = (options?: { readonly key?: string }) =>
               if (remoteEntry.remoteSequence > nextRemoteSequence) {
                 nextRemoteSequence = remoteEntry.remoteSequence;
               }
-              if (!byId.has(remoteEntry.entry.idString)) {
+              if (!MutableHashMap.has(byId, remoteEntry.entry.idString)) {
                 uncommittedRemotes.push(remoteEntry);
                 uncommitted.push(remoteEntry.entry);
               }
@@ -202,7 +198,7 @@ export const make = (options?: { readonly key?: string }) =>
             const remoteIdString = remoteIdToString(options.remoteId);
 
             const resolveConflict = (entry: EventJournal.Entry, conflicts: ReadonlyArray<EventJournal.Entry>) =>
-              Option.isSome(policyOption)
+              O.isSome(policyOption)
                 ? policyOption.value.resolve({
                     entry,
                     conflicts,
@@ -214,7 +210,7 @@ export const make = (options?: { readonly key?: string }) =>
               conflicts: ReadonlyArray<EventJournal.Entry>,
               resolution: ConflictResolution
             ) =>
-              Option.isSome(auditOption)
+              O.isSome(auditOption)
                 ? auditOption.value.conflict({
                     remoteId: remoteIdString,
                     entry,
@@ -224,7 +220,7 @@ export const make = (options?: { readonly key?: string }) =>
                 : Effect.void;
 
             const emitCompaction = (before: number, after: number, events: ReadonlyArray<string>) =>
-              Option.isSome(auditOption)
+              O.isSome(auditOption)
                 ? auditOption.value.compaction({
                     remoteId: remoteIdString,
                     before,
@@ -236,19 +232,19 @@ export const make = (options?: { readonly key?: string }) =>
             const acceptedAll: Array<EventJournal.Entry> = [];
             for (const [compacted, remoteEntries] of brackets) {
               if (remoteEntries.length > compacted.length) {
-                const events = Array.from(new Set(remoteEntries.map((remoteEntry) => remoteEntry.entry.event)));
+                const events = A.dedupe(remoteEntries.map((remoteEntry) => remoteEntry.entry.event));
                 yield* emitCompaction(remoteEntries.length, compacted.length, events);
               }
 
               const accepted: Array<EventJournal.Entry> = [];
-              const acceptedIndex = new Map<string, Array<EventJournal.Entry>>();
+              const acceptedIndex = MutableHashMap.empty<string, Array<EventJournal.Entry>>();
               for (const originEntry of compacted) {
                 const conflicts: Array<EventJournal.Entry> = [];
                 const key = conflictKey(originEntry);
-                const existing = conflictIndex.get(key);
-                if (existing) conflicts.push(...existing);
-                const local = acceptedIndex.get(key);
-                if (local) conflicts.push(...local);
+                const existing = MutableHashMap.get(conflictIndex, key);
+                if (O.isSome(existing)) conflicts.push(...existing.value);
+                const local = MutableHashMap.get(acceptedIndex, key);
+                if (O.isSome(local)) conflicts.push(...local.value);
 
                 let resolution = resolveDefaultConflict(originEntry, conflicts);
                 if (conflicts.length > 0) {
@@ -258,18 +254,18 @@ export const make = (options?: { readonly key?: string }) =>
 
                 if (resolution._tag !== "reject") {
                   const resolvedEntry = resolution.entry;
-                  if (!byId.has(resolvedEntry.idString)) {
+                  if (!MutableHashMap.has(byId, resolvedEntry.idString)) {
                     yield* options.effect({
                       entry: resolvedEntry,
                       conflicts,
                     });
                     accepted.push(resolvedEntry);
                     const acceptedKey = conflictKey(resolvedEntry);
-                    const acceptedEntries = acceptedIndex.get(acceptedKey);
-                    if (acceptedEntries) {
-                      acceptedEntries.push(resolvedEntry);
+                    const acceptedEntries = MutableHashMap.get(acceptedIndex, acceptedKey);
+                    if (O.isSome(acceptedEntries)) {
+                      acceptedEntries.value.push(resolvedEntry);
                     } else {
-                      acceptedIndex.set(acceptedKey, [resolvedEntry]);
+                      MutableHashMap.set(acceptedIndex, acceptedKey, [resolvedEntry]);
                     }
                   }
                 }
@@ -303,9 +299,9 @@ export const make = (options?: { readonly key?: string }) =>
           Effect.tap(() =>
             Effect.sync(() => {
               journal.length = 0;
-              byId.clear();
-              remotes.clear();
-              conflictIndex.clear();
+              MutableHashMap.clear(byId);
+              MutableHashMap.clear(remotes);
+              MutableHashMap.clear(conflictIndex);
             })
           )
         )

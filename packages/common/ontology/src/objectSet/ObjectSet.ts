@@ -126,37 +126,29 @@ type ValidAsyncIterArgs<Q extends ObjectOrInterfaceDefinition, RDPs extends Reco
   | ObjectSetArgs.AsyncIter<Q, PropertyKeys<Q>, false, string & keyof RDPs>
   | AsyncIterArgs<Q, never, boolean, Augments, NullabilityAdherence, true, string & keyof RDPs>;
 
-interface FetchPageSignature<
-  Q extends ObjectOrInterfaceDefinition,
-  RDPs extends Record<string, SimplePropertyDef> = {},
-> {
-  /**
-   * Gets a page of objects of this type.
-   */
-  <
-    L extends PropertyKeys<Q> | (string & keyof RDPs),
-    R extends boolean,
-    const A extends Augments,
-    S extends NullabilityAdherence = NullabilityAdherence.Default,
-    T extends boolean = false,
-    ORDER_BY_OPTIONS extends ObjectSetArgs.OrderByOptions<L> = {},
-    PROPERTY_SECURITIES extends boolean = false,
-  >(
-    args?: FetchPageArgs<Q, L, R, A, S, T, never, ORDER_BY_OPTIONS, PROPERTY_SECURITIES>
-  ): Promise<
-    PageResult<
-      MaybeScore<
-        Osdk.Instance<
-          Q,
-          ExtractOptions<R, S, T, PROPERTY_SECURITIES>,
-          NoInfer<SubSelectKeys<Q, NonNullable<typeof args>>>,
-          SubSelectRDPs<RDPs, NonNullable<typeof args>>
-        >,
-        ORDER_BY_OPTIONS
-      >
+type FetchPageSignature<Q extends ObjectOrInterfaceDefinition, RDPs extends Record<string, SimplePropertyDef> = {}> = <
+  L extends PropertyKeys<Q> | (string & keyof RDPs),
+  R extends boolean,
+  const A extends Augments,
+  S extends NullabilityAdherence = NullabilityAdherence.Default,
+  T extends boolean = false,
+  ORDER_BY_OPTIONS extends ObjectSetArgs.OrderByOptions<L> = {},
+  PROPERTY_SECURITIES extends boolean = false,
+>(
+  args?: FetchPageArgs<Q, L, R, A, S, T, never, ORDER_BY_OPTIONS, PROPERTY_SECURITIES>
+) => Promise<
+  PageResult<
+    MaybeScore<
+      Osdk.Instance<
+        Q,
+        ExtractOptions<R, S, T, PROPERTY_SECURITIES>,
+        NoInfer<SubSelectKeys<Q, NonNullable<typeof args>>>,
+        SubSelectRDPs<RDPs, NonNullable<typeof args>>
+      >,
+      ORDER_BY_OPTIONS
     >
-  >;
-}
+  >
+>;
 
 interface NearestNeighbors<Q extends ObjectOrInterfaceDefinition> {
   /**
@@ -169,39 +161,34 @@ interface NearestNeighbors<Q extends ObjectOrInterfaceDefinition> {
   ) => this;
 }
 
-interface FetchPageWithErrorsSignature<
+type FetchPageWithErrorsSignature<
   Q extends ObjectOrInterfaceDefinition,
   RDPs extends Record<string, SimplePropertyDef> = {},
   PROPERTY_SECURITIES extends boolean = false,
-> {
-  /**
-   * Gets a page of objects of this type wrapped in `Result`.
-   */
-  <
-    L extends PropertyKeys<Q> | (string & keyof RDPs),
-    R extends boolean,
-    const A extends Augments,
-    S extends NullabilityAdherence = NullabilityAdherence.Default,
-    T extends boolean = false,
-    ORDER_BY_OPTIONS extends ObjectSetArgs.OrderByOptions<L> = {},
-  >(
-    args?: FetchPageArgs<Q, L, R, A, S, T, never, ORDER_BY_OPTIONS, PROPERTY_SECURITIES>
-  ): Promise<
-    Result<
-      PageResult<
-        MaybeScore<
-          Osdk.Instance<
-            Q,
-            ExtractOptions<R, S, T, PROPERTY_SECURITIES>,
-            NoInfer<SubSelectKeys<Q, NonNullable<typeof args>>>,
-            SubSelectRDPs<RDPs, NonNullable<typeof args>>
-          >,
-          ORDER_BY_OPTIONS
-        >
+> = <
+  L extends PropertyKeys<Q> | (string & keyof RDPs),
+  R extends boolean,
+  const A extends Augments,
+  S extends NullabilityAdherence = NullabilityAdherence.Default,
+  T extends boolean = false,
+  ORDER_BY_OPTIONS extends ObjectSetArgs.OrderByOptions<L> = {},
+>(
+  args?: FetchPageArgs<Q, L, R, A, S, T, never, ORDER_BY_OPTIONS, PROPERTY_SECURITIES>
+) => Promise<
+  Result<
+    PageResult<
+      MaybeScore<
+        Osdk.Instance<
+          Q,
+          ExtractOptions<R, S, T, PROPERTY_SECURITIES>,
+          NoInfer<SubSelectKeys<Q, NonNullable<typeof args>>>,
+          SubSelectRDPs<RDPs, NonNullable<typeof args>>
+        >,
+        ORDER_BY_OPTIONS
       >
     >
-  >;
-}
+  >
+>;
 
 interface Where<Q extends ObjectOrInterfaceDefinition, RDPs extends Record<string, SimplePropertyDef> = {}> {
   /**
@@ -308,47 +295,41 @@ interface PivotTo<Q extends ObjectOrInterfaceDefinition> {
   readonly pivotTo: <L extends LinkNames<Q>>(type: L) => ObjectSet<LinkedType<Q, L>>;
 }
 
-interface FetchOneSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> {
-  /** Fetches one object by primary key. */
-  <
-    const L extends PropertyKeys<Q> | (string & keyof RDPs),
-    const R extends boolean,
-    const S extends false | "throw" = NullabilityAdherence.Default,
-    PROPERTY_SECURITIES extends boolean = false,
-  >(
-    primaryKey: PrimaryKeyType<Q>,
-    options?: SelectArg<Q, L, R, S, never, PROPERTY_SECURITIES>
-  ): Promise<
+type FetchOneSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> = <
+  const L extends PropertyKeys<Q> | (string & keyof RDPs),
+  const R extends boolean,
+  const S extends false | "throw" = NullabilityAdherence.Default,
+  PROPERTY_SECURITIES extends boolean = false,
+>(
+  primaryKey: PrimaryKeyType<Q>,
+  options?: SelectArg<Q, L, R, S, never, PROPERTY_SECURITIES>
+) => Promise<
+  Osdk.Instance<
+    Q,
+    ExtractOptions<R, S, false, PROPERTY_SECURITIES>,
+    NoInfer<SubSelectKeys<Q, { $select: Array<L> }>>,
+    SubSelectRDPs<RDPs, { $select: Array<L> }>
+  >
+>;
+
+type FetchOneWithErrorsSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> = <
+  const L extends PropertyKeys<Q> | (string & keyof RDPs),
+  const R extends boolean,
+  const S extends false | "throw" = NullabilityAdherence.Default,
+  PROPERTY_SECURITIES extends boolean = false,
+>(
+  primaryKey: PrimaryKeyType<Q>,
+  options?: SelectArg<Q, L, R, S, never, PROPERTY_SECURITIES>
+) => Promise<
+  Result<
     Osdk.Instance<
       Q,
       ExtractOptions<R, S, false, PROPERTY_SECURITIES>,
       NoInfer<SubSelectKeys<Q, { $select: Array<L> }>>,
       SubSelectRDPs<RDPs, { $select: Array<L> }>
     >
-  >;
-}
-
-interface FetchOneWithErrorsSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> {
-  /** Fetches one object by primary key wrapped in `Result`. */
-  <
-    const L extends PropertyKeys<Q> | (string & keyof RDPs),
-    const R extends boolean,
-    const S extends false | "throw" = NullabilityAdherence.Default,
-    PROPERTY_SECURITIES extends boolean = false,
-  >(
-    primaryKey: PrimaryKeyType<Q>,
-    options?: SelectArg<Q, L, R, S, never, PROPERTY_SECURITIES>
-  ): Promise<
-    Result<
-      Osdk.Instance<
-        Q,
-        ExtractOptions<R, S, false, PROPERTY_SECURITIES>,
-        NoInfer<SubSelectKeys<Q, { $select: Array<L> }>>,
-        SubSelectRDPs<RDPs, { $select: Array<L> }>
-      >
-    >
-  >;
-}
+  >
+>;
 
 interface FetchOne<Q extends ObjectOrInterfaceDefinition, RDPs extends Record<string, SimplePropertyDef>> {
   readonly fetchOne: Q extends ObjectTypeDefinition ? FetchOneSignature<Q, RDPs> : never;

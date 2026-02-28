@@ -1,5 +1,7 @@
-import type * as Layer from "effect/Layer";
+import { Effect, Layer, Match } from "effect";
+import * as P from "effect/Predicate";
 import { AgentRuntime, type RemoteSyncOptions } from "../AgentRuntime.js";
+import { ConfigError } from "../Errors.js";
 import { ConflictPolicy } from "./ConflictPolicy.js";
 
 /**
@@ -29,17 +31,24 @@ const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 /**
  * @since 0.0.0
  */
-export const buildRemoteUrl = (baseUrl: string, options?: RemoteUrlOptions) => {
+export const buildRemoteUrl = Effect.fn("RemoteSync.buildRemoteUrl")(function* (
+  baseUrl: string,
+  options?: RemoteUrlOptions
+) {
   const url = new URL(baseUrl);
   const path = url.pathname === "/" ? "/event-log" : url.pathname;
   const isEventLogPath = path === "/event-log" || path === "/event-log/";
   if (isEventLogPath) {
     const tenant = options?.tenant;
     if (!tenant) {
-      throw new Error("Remote sync requires a tenant when using /event-log.");
+      return yield* ConfigError.make({
+        message: "Remote sync requires a tenant when using /event-log.",
+      });
     }
     if (!tenantPattern.test(tenant)) {
-      throw new Error("Invalid tenant format.");
+      return yield* ConfigError.make({
+        message: "Invalid tenant format.",
+      });
     }
     url.pathname = `/event-log/${encodeURIComponent(tenant)}`;
   } else {
@@ -49,19 +58,16 @@ export const buildRemoteUrl = (baseUrl: string, options?: RemoteUrlOptions) => {
     url.searchParams.set("token", options.authToken);
   }
   return url.toString();
-};
+});
 
 const resolveConflictPolicyLayer = (input?: ConflictPolicyOption) => {
   if (input === undefined) return undefined;
-  if (typeof input !== "string") return input;
-  switch (input) {
-    case "firstWriteWins":
-      return ConflictPolicy.layerFirstWriteWins;
-    case "reject":
-      return ConflictPolicy.layerReject();
-    default:
-      return ConflictPolicy.layerLastWriteWins;
-  }
+  if (!P.isString(input)) return input;
+  return Match.value(input).pipe(
+    Match.when("firstWriteWins", () => ConflictPolicy.layerFirstWriteWins),
+    Match.when("reject", () => ConflictPolicy.layerReject()),
+    Match.orElse(() => ConflictPolicy.layerLastWriteWins)
+  );
 };
 
 /**
@@ -77,10 +83,22 @@ export const withRemoteSync = (url: string, options?: RemoteSyncLayerOptions) =>
     ...(tenant !== undefined ? { tenant } : {}),
     ...(authToken !== undefined ? { authToken } : {}),
   };
-  const resolvedUrl = Object.keys(remoteUrlOptions).length > 0 ? buildRemoteUrl(url, remoteUrlOptions) : url;
-  return AgentRuntime.layerWithRemoteSync({
-    url: resolvedUrl,
-    ...rest,
-    ...(resolvedConflictPolicy !== undefined ? { conflictPolicy: resolvedConflictPolicy } : {}),
-  });
+  if (tenant === undefined && authToken === undefined) {
+    return AgentRuntime.layerWithRemoteSync({
+      url,
+      ...rest,
+      ...(resolvedConflictPolicy !== undefined ? { conflictPolicy: resolvedConflictPolicy } : {}),
+    });
+  }
+  return Layer.unwrap(
+    buildRemoteUrl(url, remoteUrlOptions).pipe(
+      Effect.map((resolvedUrl) =>
+        AgentRuntime.layerWithRemoteSync({
+          url: resolvedUrl,
+          ...rest,
+          ...(resolvedConflictPolicy !== undefined ? { conflictPolicy: resolvedConflictPolicy } : {}),
+        })
+      )
+    )
+  );
 };

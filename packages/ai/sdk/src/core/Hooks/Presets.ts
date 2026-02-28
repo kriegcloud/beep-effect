@@ -1,5 +1,6 @@
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
+import { Clock, Effect, MutableHashMap } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js";
 import { onPermissionRequest, onPostToolUse, onPostToolUseFailure, onPreToolUse, tap } from "./Hook.js";
 import { mergeHookMaps } from "./utils.js";
@@ -20,6 +21,8 @@ const allEvents: ReadonlyArray<HookEvent> = [
   "Setup",
 ];
 
+const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
+
 /**
  * @since 0.0.0
  */
@@ -30,7 +33,7 @@ export const consoleLogger = (options?: {
   tap(options?.events ?? allEvents, (input) =>
     Effect.sync(() => {
       if (options?.format === "json") {
-        console.log(JSON.stringify(input));
+        console.log(O.getOrElse(encodeJson(input), () => String(input)));
         return;
       }
       console.log(`[${input.hook_event_name}] ${input.session_id}`);
@@ -66,7 +69,7 @@ export const autoDeny = (options: {
       return Effect.succeed({});
     }
     if (options.match) {
-      const raw = JSON.stringify(input.tool_input ?? "");
+      const raw = O.getOrElse(encodeJson(input.tool_input ?? ""), () => String(input.tool_input ?? ""));
       if (!raw.includes(options.match)) {
         return Effect.succeed({});
       }
@@ -88,12 +91,12 @@ export const autoDeny = (options: {
  */
 export const timing = <R>(onComplete: (toolName: string, durationMs: number) => Effect.Effect<void, never, R>) =>
   Effect.gen(function* () {
-    const startTimes = new Map<string, number>();
+    const startTimes = MutableHashMap.empty<string, number>();
     const onStart = yield* onPreToolUse((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.tap((now) =>
           Effect.sync(() => {
-            startTimes.set(input.tool_use_id, now);
+            MutableHashMap.set(startTimes, input.tool_use_id, now);
           })
         ),
         Effect.asVoid,
@@ -103,20 +106,20 @@ export const timing = <R>(onComplete: (toolName: string, durationMs: number) => 
     const onFinish = yield* onPostToolUse((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.flatMap((now) => {
-          const startedAt = startTimes.get(input.tool_use_id);
-          if (startedAt === undefined) return Effect.succeed({});
-          startTimes.delete(input.tool_use_id);
-          return onComplete(input.tool_name, Math.max(0, now - startedAt)).pipe(Effect.as({}));
+          const startedAt = MutableHashMap.get(startTimes, input.tool_use_id);
+          if (O.isNone(startedAt)) return Effect.succeed({});
+          MutableHashMap.remove(startTimes, input.tool_use_id);
+          return onComplete(input.tool_name, Math.max(0, now - startedAt.value)).pipe(Effect.as({}));
         })
       )
     );
     const onFailure = yield* onPostToolUseFailure((input) =>
       Clock.currentTimeMillis.pipe(
         Effect.flatMap((now) => {
-          const startedAt = startTimes.get(input.tool_use_id);
-          if (startedAt === undefined) return Effect.succeed({});
-          startTimes.delete(input.tool_use_id);
-          return onComplete(input.tool_name, Math.max(0, now - startedAt)).pipe(Effect.as({}));
+          const startedAt = MutableHashMap.get(startTimes, input.tool_use_id);
+          if (O.isNone(startedAt)) return Effect.succeed({});
+          MutableHashMap.remove(startTimes, input.tool_use_id);
+          return onComplete(input.tool_name, Math.max(0, now - startedAt.value)).pipe(Effect.as({}));
         })
       )
     );

@@ -1,24 +1,31 @@
-import { BunSocket } from "@effect/platform-bun";
-import * as Cause from "effect/Cause";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as FiberMap from "effect/FiberMap";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Ref from "effect/Ref";
-import * as Schedule from "effect/Schedule";
-import * as Scope from "effect/Scope";
-import * as Semaphore from "effect/Semaphore";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
-import * as SubscriptionRef from "effect/SubscriptionRef";
+import { $AiSdkId } from "@beep/identity/packages";
+import * as BunSocket from "@effect/platform-bun/BunSocket";
+import {
+  Cause,
+  Clock,
+  Duration,
+  Effect,
+  FiberMap,
+  HashMap,
+  Layer,
+  Ref,
+  Schedule,
+  Scope,
+  Semaphore,
+  ServiceMap,
+  Stream,
+  SubscriptionRef,
+} from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import * as EventLogEncryption from "effect/unstable/eventlog/EventLogEncryption";
 import * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote";
 import * as Socket from "effect/unstable/socket/Socket";
 import { StorageConfig } from "../Storage/index.js";
 import { EventLogRemoteServer, layerBunWebSocketTest } from "./EventLogRemoteServer.js";
+
+const $I = $AiSdkId.create("core/Sync/SyncService");
 
 /**
  * @since 0.0.0
@@ -62,6 +69,11 @@ export type SyncConfigOptions = {
 /**
  * @since 0.0.0
  */
+export interface SyncConfigShape extends SyncConfigOptions {}
+
+/**
+ * @since 0.0.0
+ */
 export type SyncServiceWebSocketOptions = {
   readonly disablePing?: boolean;
   readonly protocols?: string | Array<string>;
@@ -70,46 +82,43 @@ export type SyncServiceWebSocketOptions = {
 type EventLogRemoteService = ServiceMap.Service.Shape<typeof EventLogRemote.EventLogRemote>;
 
 const remoteIdToString = (remoteId: Uint8Array) =>
-  Array.from(remoteId)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+  [...remoteId].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 
 const defaultSyncConfig: SyncConfigOptions = {};
 
 /**
  * @since 0.0.0
  */
-export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigOptions>()(
-  "@effect/claude-agent-sdk/SyncConfig",
-  {
-    make: Effect.succeed(defaultSyncConfig),
-  }
-) {
+export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigShape>()($I`SyncConfig`, {
+  make: Effect.succeed(defaultSyncConfig),
+}) {
   static readonly layer = (options: SyncConfigOptions) => Layer.succeed(SyncConfig, SyncConfig.of(options));
 }
 
 /**
  * @since 0.0.0
  */
-export class SyncService extends ServiceMap.Service<
-  SyncService,
-  {
-    readonly connect: (remote: EventLogRemoteService) => Effect.Effect<void>;
-    readonly connectWebSocket: (url: string, options?: SyncServiceWebSocketOptions) => Effect.Effect<void>;
-    /**
-     * Disconnects a remote by key (URL or remoteId hex).
-     */
-    readonly disconnect: (key: RemoteKey | string) => Effect.Effect<void>;
-    /**
-     * @deprecated Use `disconnect` instead.
-     */
-    readonly disconnectRemoteId: (remoteId: string) => Effect.Effect<void>;
-    readonly disconnectWebSocket: (url: string) => Effect.Effect<void>;
-    readonly syncNow: () => Effect.Effect<void>;
-    readonly status: () => Effect.Effect<ReadonlyArray<RemoteStatus>>;
-    readonly statusStream: () => Stream.Stream<ReadonlyArray<RemoteStatus>>;
-  }
->()("@effect/claude-agent-sdk/SyncService") {
+export interface SyncServiceShape {
+  readonly connect: (remote: EventLogRemoteService) => Effect.Effect<void>;
+  readonly connectWebSocket: (url: string, options?: SyncServiceWebSocketOptions) => Effect.Effect<void>;
+  /**
+   * Disconnects a remote by key (URL or remoteId hex).
+   */
+  readonly disconnect: (key: RemoteKey | string) => Effect.Effect<void>;
+  /**
+   * @deprecated Use `disconnect` instead.
+   */
+  readonly disconnectRemoteId: (remoteId: string) => Effect.Effect<void>;
+  readonly disconnectWebSocket: (url: string) => Effect.Effect<void>;
+  readonly syncNow: () => Effect.Effect<void>;
+  readonly status: () => Effect.Effect<ReadonlyArray<RemoteStatus>>;
+  readonly statusStream: () => Stream.Stream<ReadonlyArray<RemoteStatus>>;
+}
+
+/**
+ * @since 0.0.0
+ */
+export class SyncService extends ServiceMap.Service<SyncService, SyncServiceShape>()($I`SyncService`) {
   static readonly layer = Layer.effect(SyncService, make());
 
   static readonly layerSocket: (
@@ -190,9 +199,9 @@ function makeService() {
     const socketOption = yield* Effect.serviceOption(Socket.Socket);
     const fibers = yield* FiberMap.make<string>();
     const syncNowSemaphore = yield* Semaphore.make(1);
-    const statusRef = yield* SubscriptionRef.make<Map<string, RemoteStatus>>(new Map());
+    const statusRef = yield* SubscriptionRef.make<HashMap.HashMap<string, RemoteStatus>>(HashMap.empty());
     const connectorsRef = yield* Ref.make<
-      Map<
+      HashMap.HashMap<
         string,
         {
           readonly effect: Effect.Effect<void, never, Scope.Scope>;
@@ -201,7 +210,7 @@ function makeService() {
           readonly url?: string;
         }
       >
-    >(new Map());
+    >(HashMap.empty());
 
     const buildStatus = (input: {
       readonly key: string;
@@ -251,9 +260,9 @@ function makeService() {
       Effect.gen(function* () {
         const now = yield* Clock.currentTimeMillis;
         yield* SubscriptionRef.update(statusRef, (map) => {
-          const next = new Map(map);
-          const previous = next.get(key);
-          next.set(
+          const previous = O.getOrUndefined(HashMap.get(map, key));
+          return HashMap.set(
+            map,
             key,
             mergeStatus(previous, {
               key,
@@ -265,15 +274,14 @@ function makeService() {
               ...(url !== undefined ? { url } : {}),
             })
           );
-          return next;
         });
       });
 
     const markDisconnected = (key: string, error?: string) =>
       SubscriptionRef.update(statusRef, (map) => {
-        const next = new Map(map);
-        const previous = next.get(key);
-        next.set(
+        const previous = O.getOrUndefined(HashMap.get(map, key));
+        return HashMap.set(
+          map,
           key,
           mergeStatus(previous, {
             key,
@@ -281,19 +289,18 @@ function makeService() {
             ...(error !== undefined ? { lastError: error } : {}),
           })
         );
-        return next;
       });
 
     const markSynced = (key: string) =>
       Effect.gen(function* () {
         const now = yield* Clock.currentTimeMillis;
         yield* SubscriptionRef.update(statusRef, (map) => {
-          const next = new Map(map);
-          const previous = next.get(key);
-          if (!previous) {
-            return next;
+          const previous = O.getOrUndefined(HashMap.get(map, key));
+          if (previous === undefined) {
+            return map;
           }
-          next.set(
+          return HashMap.set(
+            map,
             key,
             mergeStatus(previous, {
               key,
@@ -302,17 +309,16 @@ function makeService() {
               lastError: null,
             })
           );
-          return next;
         });
       });
 
     const ensureStatus = (key: string, kind: RemoteKind, url?: string) =>
       SubscriptionRef.update(statusRef, (map) => {
-        if (map.has(key)) {
+        if (HashMap.has(map, key)) {
           return map;
         }
-        const next = new Map(map);
-        next.set(
+        return HashMap.set(
+          map,
           key,
           buildStatus({
             key,
@@ -322,14 +328,13 @@ function makeService() {
             ...(url !== undefined ? { url } : {}),
           })
         );
-        return next;
       });
 
     const updateRemoteId = (key: string, remoteId: string) =>
       SubscriptionRef.update(statusRef, (map) => {
-        const next = new Map(map);
-        const previous = next.get(key);
-        next.set(
+        const previous = O.getOrUndefined(HashMap.get(map, key));
+        return HashMap.set(
+          map,
           key,
           mergeStatus(previous, {
             key,
@@ -337,7 +342,6 @@ function makeService() {
             connected: previous?.connected ?? false,
           })
         );
-        return next;
       });
 
     const runTracked = <R>(
@@ -366,22 +370,15 @@ function makeService() {
       url?: string
     ) =>
       Ref.update(connectorsRef, (map) => {
-        const next = new Map(map);
-        next.set(key, {
+        return HashMap.set(map, key, {
           effect,
           key,
           kind,
           ...(url !== undefined ? { url } : {}),
         });
-        return next;
       });
 
-    const removeConnector = (key: string) =>
-      Ref.update(connectorsRef, (map) => {
-        const next = new Map(map);
-        next.delete(key);
-        return next;
-      });
+    const removeConnector = (key: string) => Ref.update(connectorsRef, (map) => HashMap.remove(map, key));
 
     const connectInternal = Effect.fn("SyncService.connectInternal")(function* (
       key: string,
@@ -394,7 +391,7 @@ function makeService() {
       const hasFiber = yield* FiberMap.has(fibers, key);
       if (hasFiber) {
         const statusMap = yield* SubscriptionRef.get(statusRef);
-        const previous = statusMap.get(key);
+        const previous = O.getOrUndefined(HashMap.get(statusMap, key));
         if (previous?.connected) {
           return;
         }
@@ -425,9 +422,8 @@ function makeService() {
       key: string,
       options?: SyncServiceWebSocketOptions
     ) {
-      const socket = yield* Option.match(socketOption, {
-        onNone: () =>
-          Effect.die(new Error("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet.")),
+      const socket = yield* O.match(socketOption, {
+        onNone: () => Effect.die("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet."),
         onSome: (service) => Effect.succeed(service),
       });
       const effect = EventLogRemote.fromSocket(options).pipe(
@@ -463,21 +459,19 @@ function makeService() {
       url: string,
       options?: SyncServiceWebSocketOptions
     ) {
-      const webSocketConstructor = yield* Option.match(webSocketConstructorOption, {
+      const webSocketConstructor = yield* O.match(webSocketConstructorOption, {
         onNone: () =>
           Effect.die(
-            new Error(
-              "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
-            )
+            "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
           ),
         onSome: (constructor) => Effect.succeed(constructor),
       });
       const socket = yield* Socket.makeWebSocket(url, {
         protocols: options?.protocols,
       }).pipe(Effect.provideService(Socket.WebSocketConstructor, webSocketConstructor));
-      const effect = EventLogRemote.fromSocket({
-        ...(options?.disablePing !== undefined ? { disablePing: options.disablePing } : {}),
-      }).pipe(
+      const effect = EventLogRemote.fromSocket(
+        options?.disablePing !== undefined ? { disablePing: options.disablePing } : {}
+      ).pipe(
         Effect.provideService(EventLogModule.EventLog, trackedEventLog(url)),
         Effect.provideService(EventLogEncryption.EventLogEncryption, encryption),
         Effect.provideService(Socket.Socket, socket),
@@ -493,7 +487,7 @@ function makeService() {
       yield* connectInternal(url, "url", effect, url);
     });
 
-    const toKey = (input: RemoteKey | string) => (typeof input === "string" ? input : input.key);
+    const toKey = (input: RemoteKey | string) => (P.isString(input) ? input : input.key);
 
     const disconnect = Effect.fn("SyncService.disconnect")((input: RemoteKey | string) => {
       const key = toKey(input);
@@ -511,7 +505,7 @@ function makeService() {
       syncNowSemaphore.withPermits(1)(
         Effect.gen(function* () {
           const connectors = yield* Ref.get(connectorsRef);
-          if (connectors.size === 0) {
+          if (HashMap.size(connectors) === 0) {
             return;
           }
           yield* Effect.forEach(
@@ -527,14 +521,14 @@ function makeService() {
     );
 
     const status = Effect.fn("SyncService.status")(() =>
-      SubscriptionRef.get(statusRef).pipe(Effect.map((map) => Array.from(map.values())))
+      SubscriptionRef.get(statusRef).pipe(Effect.map((map) => [...HashMap.values(map)]))
     );
 
-    const statusStream = () => SubscriptionRef.changes(statusRef).pipe(Stream.map((map) => Array.from(map.values())));
+    const statusStream = () => SubscriptionRef.changes(statusRef).pipe(Stream.map((map) => [...HashMap.values(map)]));
 
     yield* Effect.gen(function* () {
       const syncConfigOption = yield* Effect.serviceOption(SyncConfig);
-      if (Option.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
+      if (O.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
         const interval = syncConfigOption.value.syncInterval;
         if (Duration.toMillis(interval) <= 0) {
           return;
@@ -543,7 +537,7 @@ function makeService() {
         return;
       }
       const config = yield* Effect.serviceOption(StorageConfig);
-      if (Option.isNone(config)) {
+      if (O.isNone(config)) {
         return;
       }
       const interval = config.value.settings.sync.interval;

@@ -9,7 +9,6 @@ import { TimeDurationMapping } from "../mapping/DurationMapping.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { GroupByMapper } from "./GroupByMapper.js";
-
 /**
  * Group-by clause keyed by aggregatable properties.
  *

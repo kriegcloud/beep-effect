@@ -7,7 +7,6 @@
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { ObjectOrInterfaceDefinition } from "./ObjectOrInterface.js";
 import type { ObjectTypeDefinition } from "./ObjectTypeDefinition.js";
-
 /**
  * Metadata carried by ontology query definitions.
  *

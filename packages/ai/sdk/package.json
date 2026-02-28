@@ -36,8 +36,8 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    ".": "./src/core/index.ts",
+    "./*": "./src/core/*.ts",
     "./internal/*": null
   },
   "files": [
@@ -59,8 +59,8 @@
     "provenance": true,
     "exports": {
       "./package.json": "./package.json",
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      ".": "./dist/core/index.js",
+      "./*": "./dist/core/*.js",
       "./internal/*": null
     }
   }

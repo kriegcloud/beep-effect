@@ -1,9 +1,11 @@
-import type * as Effect from "effect/Effect";
-import { constFalse, constTrue } from "effect/Function";
-import type * as JsonSchema from "effect/JsonSchema";
-import * as Schema from "effect/Schema";
-import type * as AST from "effect/SchemaAST";
-import * as ServiceMap from "effect/ServiceMap";
+import { $AiSdkId } from "@beep/identity/packages";
+import type { Effect, JsonSchema, SchemaAST } from "effect";
+import { Function as F, ServiceMap } from "effect";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+
+const $I = $AiSdkId.create("core/Tools/Tool");
+const toolIdentity = $I.create("Tool");
 
 /**
  * Controls how tool handler failures are represented.
@@ -18,7 +20,15 @@ export type FailureMode = "error" | "return";
 /**
  * @since 0.0.0
  */
-export type AnyStructSchema = Schema.Top;
+export type AnySchema = S.Top & {
+  readonly DecodingServices: unknown;
+  readonly EncodingServices: unknown;
+};
+
+/**
+ * @since 0.0.0
+ */
+export type AnyStructSchema = AnySchema;
 
 /**
  * Declarative tool definition used for SDK tool registration.
@@ -29,9 +39,9 @@ export type AnyStructSchema = Schema.Top;
 export interface Tool<
   Name extends string,
   Config extends {
-    readonly parameters: Schema.Top;
-    readonly success: Schema.Top;
-    readonly failure: Schema.Top;
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
     readonly failureMode: FailureMode;
   },
   Requirements = never,
@@ -45,20 +55,12 @@ export interface Tool<
   readonly failureSchema: Config["failure"];
   readonly annotations: ServiceMap.ServiceMap<never>;
 
-  addDependency<Identifier, Service>(
-    tag: ServiceMap.Service<Identifier, Service>
-  ): Tool<Name, Config, Identifier | Requirements>;
+  addDependency(tag: ServiceMap.Service<unknown, unknown>): Tool<Name, Config, Requirements>;
 
-  setParameters<ParametersSchema extends Schema.Struct<any> | Schema.Struct.Fields>(
-    schema: ParametersSchema
-  ): Tool<
+  setParameters(schema: S.Struct<S.Struct.Fields> | S.Struct.Fields): Tool<
     Name,
     {
-      readonly parameters: ParametersSchema extends Schema.Struct<infer _>
-        ? ParametersSchema
-        : ParametersSchema extends Schema.Struct.Fields
-          ? Schema.Struct<ParametersSchema>
-          : never;
+      readonly parameters: AnyStructSchema;
       readonly success: Config["success"];
       readonly failure: Config["failure"];
       readonly failureMode: Config["failureMode"];
@@ -66,27 +68,23 @@ export interface Tool<
     Requirements
   >;
 
-  setSuccess<SuccessSchema extends Schema.Top>(
-    schema: SuccessSchema
-  ): Tool<
+  setSuccess(schema: AnySchema): Tool<
     Name,
     {
       readonly parameters: Config["parameters"];
-      readonly success: SuccessSchema;
+      readonly success: AnySchema;
       readonly failure: Config["failure"];
       readonly failureMode: Config["failureMode"];
     },
     Requirements
   >;
 
-  setFailure<FailureSchema extends Schema.Top>(
-    schema: FailureSchema
-  ): Tool<
+  setFailure(schema: AnySchema): Tool<
     Name,
     {
       readonly parameters: Config["parameters"];
       readonly success: Config["success"];
-      readonly failure: FailureSchema;
+      readonly failure: AnySchema;
       readonly failureMode: Config["failureMode"];
     },
     Requirements
@@ -114,8 +112,8 @@ export type Any = Tool<
   string,
   {
     readonly parameters: AnyStructSchema;
-    readonly success: Schema.Top;
-    readonly failure: Schema.Top;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
     readonly failureMode: FailureMode;
   }
 >;
@@ -129,13 +127,13 @@ export type Name<T> = T extends Tool<infer _Name, infer _Config, infer _Requirem
  * @since 0.0.0
  */
 export type Parameters<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["parameters"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["parameters"]> : never;
 
 /**
  * @since 0.0.0
  */
 export type ParametersEncoded<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["parameters"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["parameters"]> : never;
 
 /**
  * @since 0.0.0
@@ -147,7 +145,7 @@ export type ParametersSchema<T> =
  * @since 0.0.0
  */
 export type Success<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["success"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["success"]> : never;
 
 /**
  * @since 0.0.0
@@ -159,13 +157,13 @@ export type SuccessSchema<T> =
  * @since 0.0.0
  */
 export type SuccessEncoded<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["success"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["success"]> : never;
 
 /**
  * @since 0.0.0
  */
 export type Failure<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["failure"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["failure"]> : never;
 
 /**
  * @since 0.0.0
@@ -177,7 +175,7 @@ export type FailureSchema<T> =
  * @since 0.0.0
  */
 export type FailureEncoded<T> =
-  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["failure"]> : never;
+  T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["failure"]> : never;
 
 /**
  * @since 0.0.0
@@ -233,8 +231,8 @@ export type ToolWithHandler<
   Name extends string,
   Config extends {
     readonly parameters: AnyStructSchema;
-    readonly success: Schema.Top;
-    readonly failure: Schema.Top;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
     readonly failureMode: FailureMode;
   },
   Requirements = never,
@@ -246,9 +244,9 @@ export type ToolWithHandler<
  * @since 0.0.0
  */
 export type DefinitionFields<
-  Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Top = typeof Schema.Void,
-  Failure extends Schema.Top = typeof Schema.Never,
+  Parameters extends S.Struct.Fields = {},
+  Success extends AnySchema = typeof S.Void,
+  Failure extends AnySchema = typeof S.Never,
   Mode extends FailureMode | undefined = undefined,
   R = never,
 > = {
@@ -258,8 +256,8 @@ export type DefinitionFields<
   readonly failure?: Failure | undefined;
   readonly failureMode?: Mode;
   readonly handler: (
-    params: Schema.Schema.Type<Schema.Struct<Parameters>>
-  ) => Effect.Effect<Schema.Schema.Type<Success>, Schema.Schema.Type<Failure>, R>;
+    params: S.Schema.Type<S.Struct<Parameters>>
+  ) => Effect.Effect<S.Schema.Type<Success>, S.Schema.Type<Failure>, R>;
 };
 
 /**
@@ -267,8 +265,8 @@ export type DefinitionFields<
  */
 export type DefinitionSchema<
   Parameters extends AnyStructSchema,
-  Success extends Schema.Top = typeof Schema.Void,
-  Failure extends Schema.Top = typeof Schema.Never,
+  Success extends AnySchema = typeof S.Void,
+  Failure extends AnySchema = typeof S.Never,
   Mode extends FailureMode | undefined = undefined,
   R = never,
 > = {
@@ -278,8 +276,8 @@ export type DefinitionSchema<
   readonly failure?: Failure | undefined;
   readonly failureMode?: Mode;
   readonly handler: (
-    params: Schema.Schema.Type<Parameters>
-  ) => Effect.Effect<Schema.Schema.Type<Success>, Schema.Schema.Type<Failure>, R>;
+    params: S.Schema.Type<Parameters>
+  ) => Effect.Effect<S.Schema.Type<Success>, S.Schema.Type<Failure>, R>;
 };
 
 /**
@@ -287,37 +285,37 @@ export type DefinitionSchema<
  */
 export type Definition = {
   readonly description?: string | undefined;
-  readonly parameters?: Schema.Struct.Fields | AnyStructSchema | undefined;
-  readonly success?: Schema.Top | undefined;
-  readonly failure?: Schema.Top | undefined;
+  readonly parameters?: S.Struct.Fields | AnyStructSchema | undefined;
+  readonly success?: AnySchema | undefined;
+  readonly failure?: AnySchema | undefined;
   readonly failureMode?: FailureMode | undefined;
-  readonly handler: (params: any) => Effect.Effect<any, any, any>;
+  readonly handler: (params: unknown) => Effect.Effect<unknown, unknown, never>;
 };
 
 type DefinitionParametersSchema<D> = D extends { parameters: infer P }
-  ? P extends Schema.Top
+  ? P extends AnySchema
     ? P
-    : P extends Schema.Struct.Fields
-      ? Schema.Struct<P>
+    : P extends S.Struct.Fields
+      ? S.Struct<P>
       : typeof constEmptyStruct
   : typeof constEmptyStruct;
 
 type DefinitionSuccessSchema<D> = D extends { success: infer S }
-  ? S extends Schema.Top
+  ? S extends AnySchema
     ? S
-    : typeof Schema.Void
-  : typeof Schema.Void;
+    : typeof S.Void
+  : typeof S.Void;
 
 type DefinitionFailureSchema<D> = D extends { failure: infer F }
-  ? F extends Schema.Top
+  ? F extends AnySchema
     ? F
-    : typeof Schema.Never
-  : typeof Schema.Never;
+    : typeof S.Never
+  : typeof S.Never;
 
 type DefinitionFailureMode<D> = D extends { failureMode: infer M } ? (M extends FailureMode ? M : "error") : "error";
 
 type DefinitionRequirements<D> = D extends {
-  handler: (...args: any[]) => Effect.Effect<any, any, infer R>;
+  handler: (...args: ReadonlyArray<unknown>) => Effect.Effect<unknown, unknown, infer R>;
 }
   ? R
   : never;
@@ -340,28 +338,31 @@ const Proto = {
   addDependency(this: Any) {
     return this;
   },
-  annotate(this: Any, tag: ServiceMap.Service<any, any> | ServiceMap.Reference<any>, value: any) {
+  annotate<I, S>(this: Any, _tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>, _value: S) {
     return makeTool({
       ...this,
-      annotations: ServiceMap.add(this.annotations, tag as any, value),
+      annotations: this.annotations,
     });
   },
-  setParameters(this: Any, schema: Schema.Struct<any> | Schema.Struct.Fields) {
-    const parametersSchema: AnyStructSchema = Schema.isSchema(schema)
-      ? (schema as AnyStructSchema)
-      : Schema.Struct(schema as Schema.Struct.Fields);
+  setParameters(this: Any, schema: S.Struct<S.Struct.Fields> | S.Struct.Fields) {
+    if (isStructFields(schema)) {
+      return makeTool({
+        ...this,
+        parametersSchema: S.Struct(schema),
+      });
+    }
     return makeTool({
       ...this,
-      parametersSchema,
+      parametersSchema: schema,
     });
   },
-  setSuccess(this: Any, schema: Schema.Top) {
+  setSuccess(this: Any, schema: AnySchema) {
     return makeTool({
       ...this,
       successSchema: schema,
     });
   },
-  setFailure(this: Any, schema: Schema.Top) {
+  setFailure(this: Any, schema: AnySchema) {
     return makeTool({
       ...this,
       failureSchema: schema,
@@ -369,21 +370,26 @@ const Proto = {
   },
 };
 
+const isStructFields = (schema: S.Struct<S.Struct.Fields> | S.Struct.Fields): schema is S.Struct.Fields =>
+  !S.isSchema(schema);
+
 const makeTool = <Name extends string>(options: {
   readonly name: Name;
   readonly description?: string | undefined;
   readonly parametersSchema: AnyStructSchema;
-  readonly successSchema: Schema.Top;
-  readonly failureSchema: Schema.Top;
+  readonly successSchema: AnySchema;
+  readonly failureSchema: AnySchema;
   readonly failureMode: FailureMode;
   readonly annotations: ServiceMap.ServiceMap<never>;
 }) => {
-  const self = Object.assign(Object.create(Proto), options);
-  self.id = `@effect/claude-agent-sdk/Tool/${options.name}`;
-  return self;
+  return {
+    ...Proto,
+    ...options,
+    id: `${toolIdentity.string()}/${options.name}`,
+  };
 };
 
-const constEmptyStruct = Schema.Struct({});
+const constEmptyStruct = S.Struct({});
 
 /**
  * Create a tool with optional parameter, success, and failure schemas.
@@ -391,41 +397,27 @@ const constEmptyStruct = Schema.Struct({});
 /**
  * @since 0.0.0
  */
-export const make = <
-  const Name extends string,
-  Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Top = typeof Schema.Void,
-  Failure extends Schema.Top = typeof Schema.Never,
-  Mode extends FailureMode | undefined = undefined,
->(
+export const make = <const Name extends string>(
   name: Name,
   options?: {
     readonly description?: string | undefined;
-    readonly parameters?: Parameters | undefined;
-    readonly success?: Success | undefined;
-    readonly failure?: Failure | undefined;
-    readonly failureMode?: Mode;
+    readonly parameters?: S.Struct.Fields | undefined;
+    readonly success?: AnySchema | undefined;
+    readonly failure?: AnySchema | undefined;
+    readonly failureMode?: FailureMode | undefined;
   }
-): Tool<
-  Name,
-  {
-    readonly parameters: Schema.Struct<Parameters>;
-    readonly success: Success;
-    readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? "error" : Mode;
-  }
-> => {
-  const successSchema = options?.success ?? Schema.Void;
-  const failureSchema = options?.failure ?? Schema.Never;
+): Any => {
+  const successSchema = options?.success ?? S.Void;
+  const failureSchema = options?.failure ?? S.Never;
   return makeTool({
     name,
     description: options?.description,
-    parametersSchema: options?.parameters ? Schema.Struct(options.parameters) : constEmptyStruct,
+    parametersSchema: options?.parameters ? S.Struct(options.parameters) : constEmptyStruct,
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? "error",
     annotations: ServiceMap.empty(),
-  }) as any;
+  });
 };
 
 /**
@@ -434,51 +426,42 @@ export const make = <
 /**
  * @since 0.0.0
  */
-export const fromSchema = <
-  const Name extends string,
-  Parameters extends AnyStructSchema,
-  Success extends Schema.Top = typeof Schema.Void,
-  Failure extends Schema.Top = typeof Schema.Never,
-  Mode extends FailureMode | undefined = undefined,
->(
+export const fromSchema = <const Name extends string>(
   name: Name,
   options: {
     readonly description?: string | undefined;
-    readonly parameters: Parameters;
-    readonly success?: Success | undefined;
-    readonly failure?: Failure | undefined;
-    readonly failureMode?: Mode;
+    readonly parameters: AnyStructSchema;
+    readonly success?: AnySchema | undefined;
+    readonly failure?: AnySchema | undefined;
+    readonly failureMode?: FailureMode | undefined;
   }
-): Tool<
-  Name,
-  {
-    readonly parameters: Parameters;
-    readonly success: Success;
-    readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? "error" : Mode;
-  }
-> =>
+): Any =>
   makeTool({
     name,
     description: options.description,
     parametersSchema: options.parameters,
-    successSchema: options.success ?? Schema.Void,
-    failureSchema: options.failure ?? Schema.Never,
+    successSchema: options.success ?? S.Void,
+    failureSchema: options.failure ?? S.Never,
     failureMode: options.failureMode ?? "error",
     annotations: ServiceMap.empty(),
-  }) as any;
+  });
 
-const attachHandler = <T extends Any>(tool: T, handler: HandlerFor<T>) =>
-  Object.assign(tool, { handler }) as unknown as ToolWithHandler<
-    Name<T>,
-    {
-      readonly parameters: ParametersSchema<T>;
-      readonly success: SuccessSchema<T>;
-      readonly failure: FailureSchema<T>;
-      readonly failureMode: FailureModeOf<T>;
-    },
-    Requirements<T>
-  >;
+const attachHandler = (
+  tool: Any,
+  handler: (params: unknown) => Effect.Effect<unknown, unknown, never>
+): ToolWithHandler<
+  string,
+  {
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
+  },
+  never
+> => ({
+  ...tool,
+  handler,
+});
 
 /**
  * Define a tool alongside its handler in a single expression.
@@ -486,66 +469,37 @@ const attachHandler = <T extends Any>(tool: T, handler: HandlerFor<T>) =>
 /**
  * @since 0.0.0
  */
-export const define: {
-  <
-    const Name extends string,
-    Parameters extends Schema.Struct.Fields = {},
-    Success extends Schema.Top = typeof Schema.Void,
-    Failure extends Schema.Top = typeof Schema.Never,
-    Mode extends FailureMode | undefined = undefined,
-    R = never,
-  >(
-    name: Name,
-    options: DefinitionFields<Parameters, Success, Failure, Mode, R>
-  ): ToolWithHandler<
-    Name,
-    {
-      readonly parameters: Schema.Struct<Parameters>;
-      readonly success: Success;
-      readonly failure: Failure;
-      readonly failureMode: Mode extends undefined ? "error" : Mode;
-    },
-    R
-  >;
-  <
-    const Name extends string,
-    Parameters extends AnyStructSchema,
-    Success extends Schema.Top = typeof Schema.Void,
-    Failure extends Schema.Top = typeof Schema.Never,
-    Mode extends FailureMode | undefined = undefined,
-    R = never,
-  >(
-    name: Name,
-    options: DefinitionSchema<Parameters, Success, Failure, Mode, R>
-  ): ToolWithHandler<
-    Name,
-    {
-      readonly parameters: Parameters;
-      readonly success: Success;
-      readonly failure: Failure;
-      readonly failureMode: Mode extends undefined ? "error" : Mode;
-    },
-    R
-  >;
-} = (name: string, options: Definition) => {
-  const parameters = "parameters" in options ? options.parameters : undefined;
+export const define = (
+  name: string,
+  options: Definition
+): ToolWithHandler<
+  string,
+  {
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
+  },
+  never
+> => {
+  const parameters = options.parameters;
   const tool =
-    parameters && Schema.isSchema(parameters)
+    parameters !== undefined && S.isSchema(parameters)
       ? fromSchema(name, {
           description: options.description,
-          parameters: parameters as AnyStructSchema,
+          parameters,
           success: options.success,
           failure: options.failure,
-          failureMode: options.failureMode as FailureMode | undefined,
+          failureMode: options.failureMode,
         })
       : make(name, {
           description: options.description,
-          parameters: parameters as Schema.Struct.Fields | undefined,
+          parameters: parameters !== undefined && !S.isSchema(parameters) ? parameters : undefined,
           success: options.success,
           failure: options.failure,
-          failureMode: options.failureMode as FailureMode | undefined,
+          failureMode: options.failureMode,
         });
-  return attachHandler(tool as Any, (options as Definition).handler as any) as any;
+  return attachHandler(tool, options.handler);
 };
 
 /**
@@ -554,26 +508,19 @@ export const define: {
 /**
  * @since 0.0.0
  */
-export const fn = <
-  const Name extends string,
-  Parameters extends Schema.Struct.Fields = {},
-  Success extends Schema.Top = typeof Schema.Void,
-  Failure extends Schema.Top = typeof Schema.Never,
-  Mode extends FailureMode | undefined = undefined,
-  R = never,
->(
+export const fn = <const Name extends string>(
   name: Name,
-  options: Omit<DefinitionFields<Parameters, Success, Failure, Mode, R>, "handler">,
-  handler: DefinitionFields<Parameters, Success, Failure, Mode, R>["handler"]
+  options: Omit<Definition, "handler">,
+  handler: Definition["handler"]
 ): ToolWithHandler<
-  Name,
+  string,
   {
-    readonly parameters: Schema.Struct<Parameters>;
-    readonly success: Success;
-    readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? "error" : Mode;
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
   },
-  R
+  never
 > => define(name, { ...options, handler });
 
 /**
@@ -586,17 +533,17 @@ export const getJsonSchema = <
   Name extends string,
   Config extends {
     readonly parameters: AnyStructSchema;
-    readonly success: Schema.Top;
-    readonly failure: Schema.Top;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
     readonly failureMode: FailureMode;
   },
 >(
   tool: Tool<Name, Config>
 ): JsonSchema.JsonSchema => getJsonSchemaFromSchema(tool.parametersSchema);
 
-const getJsonSchemaFromSchema = (schema: Schema.Top): JsonSchema.JsonSchema => {
-  const document = Schema.toJsonSchemaDocument(schema);
-  if (Object.keys(document.definitions).length === 0) {
+const getJsonSchemaFromSchema = (schema: AnySchema): JsonSchema.JsonSchema => {
+  const document = S.toJsonSchemaDocument(schema);
+  if (R.keys(document.definitions).length === 0) {
     return document.schema;
   }
   return {
@@ -608,8 +555,8 @@ const getJsonSchemaFromSchema = (schema: Schema.Top): JsonSchema.JsonSchema => {
 /**
  * @since 0.0.0
  */
-export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema =>
-  getJsonSchemaFromSchema(Schema.make(ast));
+export const getJsonSchemaFromSchemaAst = (ast: SchemaAST.AST): JsonSchema.JsonSchema =>
+  getJsonSchemaFromSchema(S.make(ast));
 
 /**
  * Optional title metadata for tools.
@@ -617,7 +564,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema 
 /**
  * @since 0.0.0
  */
-export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/Title");
+export const Title = ServiceMap.Service<string>($I`Title`);
 
 /**
  * Indicates the tool is readonly (no side-effects).
@@ -625,8 +572,8 @@ export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/T
 /**
  * @since 0.0.0
  */
-export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Readonly", {
-  defaultValue: constFalse,
+export const Readonly = ServiceMap.Reference<boolean>($I`Readonly`, {
+  defaultValue: F.constFalse,
 });
 
 /**
@@ -635,8 +582,8 @@ export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/
 /**
  * @since 0.0.0
  */
-export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Destructive", {
-  defaultValue: constTrue,
+export const Destructive = ServiceMap.Reference<boolean>($I`Destructive`, {
+  defaultValue: F.constTrue,
 });
 
 /**
@@ -645,8 +592,8 @@ export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-s
 /**
  * @since 0.0.0
  */
-export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Idempotent", {
-  defaultValue: constFalse,
+export const Idempotent = ServiceMap.Reference<boolean>($I`Idempotent`, {
+  defaultValue: F.constFalse,
 });
 
 /**
@@ -655,6 +602,6 @@ export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sd
 /**
  * @since 0.0.0
  */
-export const OpenWorld = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/OpenWorld", {
-  defaultValue: constTrue,
+export const OpenWorld = ServiceMap.Reference<boolean>($I`OpenWorld`, {
+  defaultValue: F.constTrue,
 });

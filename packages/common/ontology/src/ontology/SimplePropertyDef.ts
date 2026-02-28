@@ -7,7 +7,6 @@
 import type { GetClientPropertyValueFromWire } from "../mapping/PropertyValueMapping.js";
 import type { ObjectMetadata, PropertyDef } from "./ObjectTypeDefinition.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
-
 /**
  * Compact property definition shorthand used by generated ontology surfaces.
  *

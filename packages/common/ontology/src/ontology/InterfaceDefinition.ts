@@ -10,7 +10,6 @@ import type {
   ObjectInterfaceCompileDefinition,
   ObjectTypeDefinition,
 } from "./ObjectTypeDefinition.js";
-
 /**
  * Metadata carried by ontology interface definitions.
  *

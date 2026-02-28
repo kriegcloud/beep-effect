@@ -15,35 +15,31 @@ export const sdkMessageParseOptions = {
   onExcessProperty: "preserve" as const,
 };
 
-/**
- * @since 0.0.0
- */
-export const withIdentifier = <S extends S.Top>(schema: S, identifier: string): S =>
-  schema.pipe(
-    S.annotate({
-      identifier,
-    })
-  ) as S;
-
 // Strict tool input decode: reject unknown fields unless schema allows them.
 /**
  * @since 0.0.0
  */
-export const withToolInput = <S extends S.Top>(schema: S, identifier: string): S =>
+export const withToolInput = <Schema extends S.Top>(
+  schema: Schema,
+  annotation: S.Annotations.Documentation<S.Schema.Type<Schema>>
+): Schema =>
   schema.pipe(
     S.annotate({
-      identifier,
+      ...annotation,
       parseOptions: toolInputParseOptions,
     })
-  ) as S;
+  ) as Schema;
 
 /**
  * @since 0.0.0
  */
-export const withSdkMessage = <S extends S.Top>(schema: S, identifier: string): S =>
+export const withSdkMessage = <Schema extends S.Top>(
+  schema: Schema,
+  annotation: S.Annotations.Documentation<S.Schema.Type<Schema>>
+): Schema =>
   schema.pipe(
     S.annotate({
-      identifier,
+      ...annotation,
       parseOptions: sdkMessageParseOptions,
     })
-  ) as S;
+  ) as Schema;

@@ -8,7 +8,6 @@ import type { GroupByClause } from "../groupby/GroupByClause.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { AggregateOpts } from "./AggregateOpts.js";
 import type { UnorderedAggregationClause } from "./AggregationsClause.js";
-
 /**
  * Aggregate option helper that:
  * - narrows invalid keys to `never` for clear compiler errors

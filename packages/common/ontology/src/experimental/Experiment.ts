@@ -4,7 +4,6 @@
  * @since 0.0.0
  * @module @beep/ontology/experimental/Experiment
  */
-
 /**
  * Stable metadata shape describing an experimental capability token.
  *

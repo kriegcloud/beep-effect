@@ -2,7 +2,7 @@ import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { Schema, Storage } from "../src/index.js";
+import { Schema, Storage } from "../src/core/index.js";
 
 const makeRecord = (id: string, sessionId: string) =>
   Schema.ArtifactRecord.make({

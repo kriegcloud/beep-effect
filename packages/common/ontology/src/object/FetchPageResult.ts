@@ -10,7 +10,6 @@ import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/Obje
 import type { SimplePropertyDef } from "../ontology/SimplePropertyDef.js";
 import type { PageResult } from "../PageResult.js";
 import type { NullabilityAdherence, ObjectSetArgs } from "./FetchPageArgs.js";
-
 /**
  * Resolve strict-nullability behavior from nullability adherence options.
  *

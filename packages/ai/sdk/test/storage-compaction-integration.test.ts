@@ -88,50 +88,46 @@ const makeReplicaLayer = (url: string, kv: KeyValueStore.KeyValueStore, options:
   );
 };
 
-maybeTest(
-  "ChatHistoryStore compaction retains last N events after remote sync",
-  async () => {
-    const program = Effect.scoped(
-      Effect.gen(function* () {
-        const server = yield* Sync.EventLogRemoteServer;
-        const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
-        const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
-        const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-a" }));
-        const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-b" }));
+maybeTest("ChatHistoryStore compaction retains last N events after remote sync", { timeout: 15000 }, async () => {
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      const server = yield* Sync.EventLogRemoteServer;
+      const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
+      const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
+      const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-a" }));
+      const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-b" }));
 
-        const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
-        const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
-        const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
-        const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
+      const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+      const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+      const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
+      const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
 
-        yield* waitFor("replica A to connect", syncA.status(), (statuses) =>
-          statuses.some((status) => status.key === server.url && status.connected)
-        );
-        yield* waitFor("replica B to connect", syncB.status(), (statuses) =>
-          statuses.some((status) => status.key === server.url && status.connected)
-        );
+      yield* waitFor("replica A to connect", syncA.status(), (statuses) =>
+        statuses.some((status) => status.key === server.url && status.connected)
+      );
+      yield* waitFor("replica B to connect", syncB.status(), (statuses) =>
+        statuses.some((status) => status.key === server.url && status.connected)
+      );
 
-        yield* storeA.appendMessage("session-1", makeUserMessage("one"));
-        yield* storeA.appendMessage("session-1", makeUserMessage("two"));
-        yield* storeA.appendMessage("session-1", makeUserMessage("three"));
+      yield* storeA.appendMessage("session-1", makeUserMessage("one"));
+      yield* storeA.appendMessage("session-1", makeUserMessage("two"));
+      yield* storeA.appendMessage("session-1", makeUserMessage("three"));
 
-        const listB = yield* waitFor(
-          "replica B to compact messages",
-          storeB.list("session-1"),
-          (list) => list.length === 2
-        );
+      const listB = yield* waitFor(
+        "replica B to compact messages",
+        storeB.list("session-1"),
+        (list) => list.length === 2
+      );
 
-        yield* syncA.disconnectWebSocket(server.url);
-        yield* syncB.disconnectWebSocket(server.url);
-        yield* Effect.sleep(Duration.millis(25));
+      yield* syncA.disconnectWebSocket(server.url);
+      yield* syncB.disconnectWebSocket(server.url);
+      yield* Effect.sleep(Duration.millis(25));
 
-        return listB;
-      }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
-    );
+      return listB;
+    }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
+  );
 
-    const listB = await runEffectLive(program);
-    expect(listB).toHaveLength(2);
-    expect(listB.map((event) => event.sequence)).toEqual([2, 3]);
-  },
-  { timeout: 15000 }
-);
+  const listB = await runEffectLive(program);
+  expect(listB).toHaveLength(2);
+  expect(listB.map((event) => event.sequence)).toEqual([2, 3]);
+});
