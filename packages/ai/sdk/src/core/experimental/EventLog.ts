@@ -52,8 +52,8 @@ export const layerMemory = EventLogModule.layerEventLog.pipe(
 const toolUsePayloadFields = {
   sessionId: S.String,
   toolName: S.String,
-  toolUseId: S.optional(S.String),
-  durationMs: S.optional(S.Number),
+  toolUseId: S.optionalKey(S.String),
+  durationMs: S.optionalKey(S.Number),
 } as const;
 
 const ToolUsePayloadStart = S.Struct({

@@ -53,70 +53,66 @@ const protocols = authToken ? `sync-auth.${authToken}` : undefined;
 
 const maybeTest = baseUrl ? test : test.skip;
 
-maybeTest(
-  "Cloudflare remote sync propagates messages (requires CLOUDFLARE_SYNC_URL)",
-  async () => {
-    const program = Effect.scoped(
-      Effect.gen(function* () {
-        if (baseUrl === undefined) {
-          return [];
-        }
-        const remoteUrl = yield* Sync.buildRemoteUrl(baseUrl, {
-          tenant,
-        });
-        const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
-        const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
+maybeTest("Cloudflare remote sync propagates messages (requires CLOUDFLARE_SYNC_URL)", { timeout: 30000 }, async () => {
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      if (baseUrl === undefined) {
+        return [];
+      }
+      const remoteUrl = yield* Sync.buildRemoteUrl(baseUrl, {
+        tenant,
+      });
+      const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
+      const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
 
-        const replicaAContext = yield* Layer.build(
-          makeReplicaLayer(remoteUrl, kv, {
-            prefix: "replica-a",
-            ...(protocols !== undefined ? { protocols } : {}),
-          })
-        );
-        const replicaBContext = yield* Layer.build(
-          makeReplicaLayer(remoteUrl, kv, {
-            prefix: "replica-b",
-            ...(protocols !== undefined ? { protocols } : {}),
-          })
-        );
+      const replicaAContext = yield* Layer.build(
+        makeReplicaLayer(remoteUrl, kv, {
+          prefix: "replica-a",
+          ...(protocols !== undefined ? { protocols } : {}),
+        })
+      );
+      const replicaBContext = yield* Layer.build(
+        makeReplicaLayer(remoteUrl, kv, {
+          prefix: "replica-b",
+          ...(protocols !== undefined ? { protocols } : {}),
+        })
+      );
 
-        const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
-        const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
-        const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
-        const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
+      const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+      const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+      const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
+      const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
 
-        yield* waitFor(
-          "replica A to connect",
-          syncA.status(),
-          (statuses) => statuses.some((status) => status.key === remoteUrl && status.connected),
-          { retries: 60 }
-        );
-        yield* waitFor(
-          "replica B to connect",
-          syncB.status(),
-          (statuses) => statuses.some((status) => status.key === remoteUrl && status.connected),
-          { retries: 60 }
-        );
+      yield* waitFor(
+        "replica A to connect",
+        syncA.status(),
+        (statuses) => statuses.some((status) => status.key === remoteUrl && status.connected),
+        { retries: 60 }
+      );
+      yield* waitFor(
+        "replica B to connect",
+        syncB.status(),
+        (statuses) => statuses.some((status) => status.key === remoteUrl && status.connected),
+        { retries: 60 }
+      );
 
-        yield* storeA.appendMessage("session-1", makeUserMessage("hello cloudflare"));
+      yield* storeA.appendMessage("session-1", makeUserMessage("hello cloudflare"));
 
-        const listB = yield* waitFor(
-          "replica B to receive message",
-          storeB.list("session-1"),
-          (list) => list.length === 1,
-          { retries: 160, interval: Duration.millis(100) }
-        );
+      const listB = yield* waitFor(
+        "replica B to receive message",
+        storeB.list("session-1"),
+        (list) => list.length === 1,
+        { retries: 160, interval: Duration.millis(100) }
+      );
 
-        yield* syncA.disconnectWebSocket(remoteUrl);
-        yield* syncB.disconnectWebSocket(remoteUrl);
-        yield* Effect.sleep(Duration.millis(50));
+      yield* syncA.disconnectWebSocket(remoteUrl);
+      yield* syncB.disconnectWebSocket(remoteUrl);
+      yield* Effect.sleep(Duration.millis(50));
 
-        return listB;
-      })
-    );
+      return listB;
+    })
+  );
 
-    const listB = await runEffectLive(program);
-    expect(listB).toHaveLength(1);
-  },
-  { timeout: 30000 }
-);
+  const listB = await runEffectLive(program);
+  expect(listB).toHaveLength(1);
+});

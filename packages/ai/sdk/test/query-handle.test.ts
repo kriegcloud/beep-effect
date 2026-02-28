@@ -1,4 +1,5 @@
 import type {
+  SDKMessage as ClaudeSDKMessage,
   SDKUserMessage as ClaudeSDKUserMessage,
   McpServerConfig,
   McpSetServersResult,
@@ -7,7 +8,6 @@ import type {
 import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
 import { makeQueryHandle, type SdkQueryLike } from "@beep/ai-sdk/internal/queryHandle";
 import { createInputQueue } from "@beep/ai-sdk/internal/streaming";
-import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
@@ -15,19 +15,29 @@ import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
 import { runEffect } from "./effect-test.js";
 
+const makeClaudeUserMessage = (prompt: string): ClaudeSDKUserMessage => ({
+  type: "user",
+  session_id: "",
+  message: {
+    role: "user",
+    content: [{ type: "text", text: prompt }],
+  },
+  parent_tool_use_id: null,
+});
+
 const makeSdkQuery = (
-  messages: ReadonlyArray<SDKMessage>,
+  messages: ReadonlyArray<ClaudeSDKMessage>,
   options?: {
     readonly interrupt?: () => Promise<void>;
   }
 ): SdkQueryLike => {
-  async function* iterator() {
+  const iterator: AsyncGenerator<ClaudeSDKMessage, void> = (async function* () {
     for (const message of messages) {
       yield message;
     }
-  }
+  })();
 
-  return Object.assign(iterator(), {
+  return Object.assign(iterator, {
     interrupt: options?.interrupt ?? (async () => {}),
     setPermissionMode: async (_mode: PermissionMode) => {},
     setModel: async (_model?: string) => {},
@@ -38,9 +48,11 @@ const makeSdkQuery = (
       available_output_styles: [],
       models: [],
       account: {},
+      agents: [],
     }),
     supportedCommands: async () => [],
     supportedModels: async () => [],
+    supportedAgents: async () => [],
     mcpServerStatus: async () => [],
     accountInfo: async () => ({}),
     rewindFiles: async (_userMessageId: string, _options?: { dryRun?: boolean }) => ({ canRewind: false }),
@@ -58,7 +70,7 @@ const makeSdkQuery = (
 };
 
 test("QueryHandle.share multicasts within scope", async () => {
-  const messages = [makeUserMessage("first"), makeUserMessage("second")];
+  const messages = [makeClaudeUserMessage("first"), makeClaudeUserMessage("second")];
   const handle = makeQueryHandle(makeSdkQuery(messages));
 
   const program = Effect.scoped(
@@ -76,7 +88,7 @@ test("QueryHandle.share multicasts within scope", async () => {
 });
 
 test("QueryHandle.broadcast multicasts within scope", async () => {
-  const messages = [makeUserMessage("alpha"), makeUserMessage("beta")];
+  const messages = [makeClaudeUserMessage("alpha"), makeClaudeUserMessage("beta")];
   const handle = makeQueryHandle(makeSdkQuery(messages));
 
   const program = Effect.scoped(

@@ -76,73 +76,69 @@ const makeReplicaLayer = (url: string, kv: KeyValueStore.KeyValueStore, options:
   return Layer.merge(baseLayer, syncLayer).pipe(Layer.provide(Layer.succeed(KeyValueStore.KeyValueStore, kv)));
 };
 
-maybeTest(
-  "Remote sync converges and resumes after reconnect",
-  async () => {
-    if (!(await canListen())) return;
-    const program = Effect.scoped(
-      Effect.gen(function* () {
-        const server = yield* Sync.EventLogRemoteServer;
-        const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
-        const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
-        yield* debugEffect("server", {
-          url: server.url,
-          address: server.address,
-        });
-        const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-a" }));
-        const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-b" }));
+maybeTest("Remote sync converges and resumes after reconnect", { timeout: 15000 }, async () => {
+  if (!(await canListen())) return;
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      const server = yield* Sync.EventLogRemoteServer;
+      const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
+      const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
+      yield* debugEffect("server", {
+        url: server.url,
+        address: server.address,
+      });
+      const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-a" }));
+      const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-b" }));
 
-        const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
-        const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
-        const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
-        const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
+      const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+      const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+      const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
+      const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
 
-        yield* waitFor("replica A to connect", syncA.status(), (statuses) =>
-          statuses.some((status) => status.key === server.url && status.connected)
-        );
-        yield* debugEffect("status after connect A", yield* syncA.status());
+      yield* waitFor("replica A to connect", syncA.status(), (statuses) =>
+        statuses.some((status) => status.key === server.url && status.connected)
+      );
+      yield* debugEffect("status after connect A", yield* syncA.status());
 
-        yield* waitFor("replica B to connect", syncB.status(), (statuses) =>
-          statuses.some((status) => status.key === server.url && status.connected)
-        );
-        yield* debugEffect("status after connect B", yield* syncB.status());
+      yield* waitFor("replica B to connect", syncB.status(), (statuses) =>
+        statuses.some((status) => status.key === server.url && status.connected)
+      );
+      yield* debugEffect("status after connect B", yield* syncB.status());
 
-        const firstMessage = makeUserMessage("hello");
-        yield* storeA.appendMessage("session-1", firstMessage);
+      const firstMessage = makeUserMessage("hello");
+      yield* storeA.appendMessage("session-1", firstMessage);
 
-        const listB = yield* waitFor(
-          "replica B to receive first message",
-          storeB.list("session-1"),
-          (list) => list.length === 1
-        );
-        yield* debugEffect("replica B list after first", listB);
+      const listB = yield* waitFor(
+        "replica B to receive first message",
+        storeB.list("session-1"),
+        (list) => list.length === 1
+      );
+      yield* debugEffect("replica B list after first", listB);
 
-        yield* syncA.disconnectWebSocket(server.url);
-        yield* debugEffect("status after disconnect A", yield* syncA.status());
+      yield* syncA.disconnectWebSocket(server.url);
+      yield* debugEffect("status after disconnect A", yield* syncA.status());
 
-        const secondMessage = makeUserMessage("hello again");
-        yield* storeB.appendMessage("session-1", secondMessage);
+      const secondMessage = makeUserMessage("hello again");
+      yield* storeB.appendMessage("session-1", secondMessage);
 
-        yield* syncA.connectWebSocket(server.url, { disablePing: true });
+      yield* syncA.connectWebSocket(server.url, { disablePing: true });
 
-        const listA = yield* waitFor(
-          "replica A to receive second message",
-          storeA.list("session-1"),
-          (list) => list.length === 2
-        );
-        yield* debugEffect("replica A list after second", listA);
+      const listA = yield* waitFor(
+        "replica A to receive second message",
+        storeA.list("session-1"),
+        (list) => list.length === 2
+      );
+      yield* debugEffect("replica A list after second", listA);
 
-        yield* syncA.disconnectWebSocket(server.url);
-        yield* syncB.disconnectWebSocket(server.url);
-        yield* Effect.sleep(Duration.millis(25));
+      yield* syncA.disconnectWebSocket(server.url);
+      yield* syncB.disconnectWebSocket(server.url);
+      yield* Effect.sleep(Duration.millis(25));
 
-        return { listA, listB };
-      }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
-    );
+      return { listA, listB };
+    }).pipe(Effect.provide(Sync.layerBunWebSocketTest()))
+  );
 
-    const result = await runEffectLive(program);
-    expect(result.listB).toHaveLength(1);
-    expect(result.listA.map((event) => event.sequence)).toEqual([1, 2]);
-  },
-  { timeout: 15000 }
-);
+  const result = await runEffectLive(program);
+  expect(result.listB).toHaveLength(1);
+  expect(result.listA.map((event) => event.sequence)).toEqual([1, 2]);
+});

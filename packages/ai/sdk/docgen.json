@@ -14,7 +14,7 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "effect": ["../../../packages/effect/src/index.ts"],
-      "@beep/ai-sdk": ["../../../packages/ai/sdk/src/index.ts"]
+      "@beep/ai-sdk": ["../../../packages/ai/sdk/src/core/index.ts"]
     }
   }
 }

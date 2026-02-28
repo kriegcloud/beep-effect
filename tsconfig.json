@@ -64,8 +64,8 @@
       "@beep/shared-env/*": ["./packages/shared/env/src/*.ts"],
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
       "@beep/ui/*": ["./packages/ui/ui/src/*.ts"],
-      "@beep/ai-sdk": ["./packages/ai/sdk/src/index.ts"],
-      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/*.ts"]
+      "@beep/ai-sdk": ["./packages/ai/sdk/src/core/index.ts"],
+      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/core/*.ts"]
     },
     "plugins": [
       {

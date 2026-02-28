@@ -74,8 +74,8 @@ test("SessionManager.create merges defaults and overrides", async () => {
   promptOptions = undefined;
   promptMessage = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -121,8 +121,8 @@ test("SessionManager.resume merges defaults and overrides", async () => {
   resumeOptions = undefined;
   resumeSessionId = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -164,8 +164,8 @@ test("SessionManager.prompt merges defaults and overrides", async () => {
   promptOptions = undefined;
   promptMessage = undefined;
 
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
@@ -200,8 +200,8 @@ test("SessionManager.prompt merges defaults and overrides", async () => {
 });
 
 test("SessionManager.create fails when model is missing", async () => {
-  const { SessionManager } = await import("../src/SessionManager.js");
-  const { SessionConfig } = await import("../src/SessionConfig.js");
+  const { SessionManager } = await import("../src/core/SessionManager.js");
+  const { SessionConfig } = await import("../src/core/SessionConfig.js");
 
   const layer = SessionManager.layer.pipe(
     Layer.provide(
