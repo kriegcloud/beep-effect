@@ -1,12 +1,16 @@
-import type * as A from "effect/Array";
+import { $SharedDomainId } from "@beep/identity/packages";
+import { MappedLiteralKit } from "@beep/schema";
 import { Struct } from "@beep/utils";
 import { pipe } from "effect";
-import { MappedLiteralKit } from "@beep/schema";
-
-import { $SharedDomainId } from "@beep/identity/packages";
+import type * as A from "effect/Array";
 
 const $I = $SharedDomainId.create("errors/DbError/ErrorEnum");
 
+/**
+ * Canonical PostgreSQL SQLSTATE code catalog.
+ *
+ * @since 0.0.0
+ */
 export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
   SUCCESSFUL_COMPLETION: "00000",
@@ -541,21 +545,59 @@ export const PostgresErrorEnum = {
   UNKNOWN: "UNKNOWN",
 } as const;
 
-export type Pair = readonly [
-  key: keyof typeof PostgresErrorEnum,
-  value: (typeof PostgresErrorEnum)[keyof typeof PostgresErrorEnum],
-];
+/**
+ * Single key/value tuple extracted from `PostgresErrorEnum`.
+ *
+ * @since 0.0.0
+ */
+export type Pair = {
+  readonly [K in keyof typeof PostgresErrorEnum]: readonly [key: K, value: (typeof PostgresErrorEnum)[K]];
+}[keyof typeof PostgresErrorEnum];
+
+/**
+ * Non-empty tuple collection used to derive the mapped literal schema.
+ *
+ * @since 0.0.0
+ */
 export type PairArray = A.NonEmptyReadonlyArray<Pair>;
 
 const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries) => entries as unknown as PairArray);
 
+/**
+ * Reverse lookup map from SQLSTATE code to symbolic key.
+ *
+ * @since 0.0.0
+ */
+export const ReversePgErrorEnum = Struct.reverse(PostgresErrorEnum);
+
+/**
+ * Literal schema representing the SQLSTATE codes from `PostgresErrorEnum`.
+ *
+ * @since 0.0.0
+ */
 export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
   $I.annote("ErrorCodeFromKey", {
     description: "Maps error codes to their corresponding error messages",
   })
 );
 
+/**
+ * Runtime-derived type aliases for `ErrorCodeFromKey`.
+ *
+ * @since 0.0.0
+ */
 export declare namespace ErrorCodeFromKey {
+  /**
+   * Decoded SQLSTATE union.
+   *
+   * @since 0.0.0
+   */
   export type Type = typeof ErrorCodeFromKey.Type;
+
+  /**
+   * Encoded SQLSTATE union.
+   *
+   * @since 0.0.0
+   */
   export type Encoded = typeof ErrorCodeFromKey.Encoded;
 }

@@ -1,0 +1,21 @@
+{
+  "id": "package_lib_p4_token_02",
+  "title": "Package lib retrieval token write B",
+  "category": "package_lib",
+  "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.",
+  "cwd": ".",
+  "acceptanceCommands": [
+    "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+    "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt)\" = \"2adfd7f9-281d-45de-b83d-f0424f4c0218\""
+  ],
+  "timeoutMinutes": 4,
+  "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_B"],
+  "requireExpectedTop5ForPass": true,
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.6 },
+    { "reviewerId": "panel_b", "score": 4.4 }
+  ],
+  "touchedPathAllowlist": [
+    "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt"
+  ]
+}

@@ -6,7 +6,6 @@
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category
  */
-export const VERSION = "0.0.0" as const;
-// bench
+export * from "./errors/index.js";

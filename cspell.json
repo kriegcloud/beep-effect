@@ -178,7 +178,21 @@
     "Uncommited",
     "Uncommitted",
     "unevaluable",
-    "Unsandboxed"
+    "Unsandboxed",
+    "Reverseable",
+    "SQLSTATE",
+    "sqlstate",
+    "sqlclient",
+    "sqlconnection",
+    "NTILE",
+    "ntile",
+    "TABLESAMPLE",
+    "tablesample",
+    "SAVEPOINT",
+    "savepoint",
+    "PSTATEMENT",
+    "plpgsql",
+    "PLPGSQL"
   ],
   "ignorePaths": [
     "bun.lock",

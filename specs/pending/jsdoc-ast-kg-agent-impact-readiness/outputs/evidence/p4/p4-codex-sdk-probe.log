@@ -1,0 +1,12 @@
+$ bun run tooling/agent-eval/src/bin.ts bench --live --execution-backend sdk --graphiti-url "http://127.0.0.1:8123/mcp" --graphiti-group-id beep-dev --conditions current --agents codex --trials "1" --task-ids "apps_web_01" --smoke --smoke-task-limit "1" --smoke-timeout-minutes "2" --max-wall-minutes "8" --output "outputs/agent-reliability/runs/p4-codex-sdk-probe.json" --report-output "outputs/agent-reliability/weekly/p4-codex-sdk-probe.md"
+[bench] suite started plannedRuns=1 strictTaskCount=1
+[bench] run 1/1 started apps_web_01:current:codex:1
+[bench] run 1/1 completed apps_web_01:current:codex:1 success=false
+[bench] suite completed status=completed completedRuns=1/1
+$ bun run tooling/agent-eval/src/bin.ts bench --live --execution-backend sdk --graphiti-url "http://127.0.0.1:8123/mcp" --graphiti-group-id beep-dev --conditions current --agents codex --trials "1" --task-ids "apps_web_01" --smoke --smoke-task-limit "1" --smoke-timeout-minutes "2" --max-wall-minutes "8" --diagnostics --diagnostics-output "outputs/agent-reliability/runs/p4-codex-sdk-probe.diagnostics.jsonl" --output "outputs/agent-reliability/runs/p4-codex-sdk-probe.json" --report-output "outputs/agent-reliability/weekly/p4-codex-sdk-probe.md"
+[bench] suite started plannedRuns=1 strictTaskCount=1
+[bench] run 1/1 started apps_web_01:current:codex:1
+[bench][diag] run apps_web_01:current:codex:1 success=false failureType=runtime allowlistPass=true firstViolationPath=none
+[bench] run 1/1 completed apps_web_01:current:codex:1 success=false
+[bench] suite completed status=completed completedRuns=1/1
+[bench][diag] suite metrics status=completed completedRuns=1/1 success=0

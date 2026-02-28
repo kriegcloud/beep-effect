@@ -41,18 +41,18 @@ const composers = $I.compose(
   "ai-sdk",
   // Shared Slice
   "shared-domain",
-	"shared-tables",
-	"shared-client",
-	"shared-server",
-	"shared-ui",
+  "shared-tables",
+  "shared-client",
+  "shared-server",
+  "shared-ui",
   "shared-env",
-	
-	// iam
-	"iam-domain",
-	"iam-tables",
-	"iam-client",
-	"iam-server",
-	"iam-ui",
+
+  // iam
+  "iam-domain",
+  "iam-tables",
+  "iam-client",
+  "iam-server",
+  "iam-ui"
 );
 
 // --- common ---
@@ -199,7 +199,6 @@ export const $SharedUiId = composers.$SharedUiId;
  */
 export const $SharedEnvId = composers.$SharedEnvId;
 
-
 // --- iam ---
 
 /**
@@ -231,4 +230,3 @@ export const $IamServerId = composers.$IamServerId;
  * @category iam
  */
 export const $IamUiId = composers.$IamUiId;
-

@@ -1,0 +1,21 @@
+{
+  "id": "tooling_cli_p4_token_01",
+  "title": "Tooling CLI retrieval token write",
+  "category": "tooling_cli",
+  "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.",
+  "cwd": ".",
+  "acceptanceCommands": [
+    "test -f benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+    "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt)\" = \"630bbf76-f535-44f0-83ea-96834fbece55\""
+  ],
+  "timeoutMinutes": 4,
+  "expectedTop5Targets": ["P4_TOKEN_TOOLING_CLI"],
+  "requireExpectedTop5ForPass": true,
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.2 },
+    { "reviewerId": "panel_b", "score": 4.4 }
+  ],
+  "touchedPathAllowlist": [
+    "benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt"
+  ]
+}

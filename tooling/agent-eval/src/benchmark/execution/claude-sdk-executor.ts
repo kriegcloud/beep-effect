@@ -1,20 +1,14 @@
 /**
- * Claude Agent SDK execution adapter.
+ * Claude execution adapter routed through @beep/ai-sdk runtime.
  *
  * @since 0.0.0
  * @module
  */
 
+import { run } from "@beep/ai-sdk";
+import type { Options } from "@beep/ai-sdk/Schema/Options";
 import { AgentEvalInvariantError } from "../../errors.js";
 import type { ExecutionRequest, ExecutionResult, SdkAvailability } from "./types.js";
-
-interface ClaudeQuery extends AsyncGenerator<unknown, void> {
-  close(): void;
-}
-
-interface ClaudeSdkModule {
-  query(params: { readonly prompt: string; readonly options?: Record<string, unknown> }): ClaudeQuery;
-}
 
 const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -30,18 +24,15 @@ const causeMessage = (cause: unknown): string => {
   return String(cause);
 };
 
-const isClaudeSdkModule = (value: unknown): value is ClaudeSdkModule =>
-  isObjectRecord(value) && typeof value.query === "function";
-
-const loadClaudeSdkModule = async (): Promise<ClaudeSdkModule> => {
-  const loaded = await import("@anthropic-ai/claude-agent-sdk");
-  if (isClaudeSdkModule(loaded)) {
-    return loaded;
-  }
-
-  throw new AgentEvalInvariantError({
-    message: "Loaded @anthropic-ai/claude-agent-sdk but missing query function.",
-  });
+const hasAuthCredentials = (): boolean => {
+  const anthropicApiKey = process.env.ANTHROPIC_API_KEY?.trim();
+  const genericApiKey = process.env.API_KEY?.trim();
+  const sessionToken = process.env.CLAUDE_CODE_SESSION_ACCESS_TOKEN?.trim();
+  return (
+    (anthropicApiKey !== undefined && anthropicApiKey.length > 0) ||
+    (genericApiKey !== undefined && genericApiKey.length > 0) ||
+    (sessionToken !== undefined && sessionToken.length > 0)
+  );
 };
 
 const stringifyEvent = (event: unknown): string => {
@@ -65,7 +56,12 @@ const stringifyEvent = (event: unknown): string => {
  */
 export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => {
   try {
-    await loadClaudeSdkModule();
+    if (!hasAuthCredentials()) {
+      return {
+        available: false,
+        reason: "Missing Claude credentials (ANTHROPIC_API_KEY/API_KEY/CLAUDE_CODE_SESSION_ACCESS_TOKEN).",
+      };
+    }
     return {
       available: true,
       reason: null,
@@ -91,7 +87,12 @@ export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => 
  * @category functions
  */
 export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<ExecutionResult> => {
-  const module = await loadClaudeSdkModule();
+  if (!hasAuthCredentials()) {
+    throw new AgentEvalInvariantError({
+      message: "Claude @beep/ai-sdk execution requires ANTHROPIC_API_KEY/API_KEY or CLAUDE_CODE_SESSION_ACCESS_TOKEN.",
+    });
+  }
+
   const abortController = new AbortController();
   const timeoutMs =
     request.timeoutCapMs === undefined
@@ -110,11 +111,11 @@ export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<
   let inputTokens = 0;
   let outputTokens = 0;
   let costUsd: number | null = null;
-  let assistantText = "";
   let completionObserved = false;
   let successResultObserved = false;
+  let assistantText = "";
 
-  const options: Record<string, unknown> = {
+  const options: Options = {
     cwd: request.cwd,
     model: request.model,
     includePartialMessages: true,
@@ -125,61 +126,37 @@ export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<
     stderr: (data: string) => {
       stderrLines.push(data);
     },
+    ...(request.claudeEffort === undefined ? {} : { effort: request.claudeEffort }),
   };
-  if (request.claudeEffort !== undefined) {
-    options.effort = request.claudeEffort;
-  }
-
-  const query = module.query({
-    prompt: request.promptPacket,
-    options,
-  });
 
   try {
-    for await (const event of query) {
-      stdoutLines.push(stringifyEvent(event));
-      if (!isObjectRecord(event)) {
-        continue;
-      }
+    const resultMessage = await run(request.promptPacket, options);
+    stdoutLines.push(stringifyEvent(resultMessage));
+    completionObserved = true;
+    if (resultMessage.is_error !== true) {
+      successResultObserved = true;
+    }
 
-      if (event.type !== "result") {
-        continue;
-      }
+    assistantText = resultMessage.result;
+    if (isNumber(resultMessage.total_cost_usd)) {
+      costUsd = resultMessage.total_cost_usd;
+    }
 
-      completionObserved = true;
-      const subtype = event.subtype;
-      const isError = event.is_error;
-      if (subtype === "success" && isError !== true) {
-        successResultObserved = true;
+    const usage = resultMessage.usage;
+    if (isObjectRecord(usage)) {
+      const maybeInput = usage.input_tokens;
+      const maybeOutput = usage.output_tokens;
+      if (isNumber(maybeInput) && Number.isInteger(maybeInput)) {
+        inputTokens = maybeInput;
       }
-
-      const maybeResult = event.result;
-      if (isString(maybeResult)) {
-        assistantText = maybeResult;
-      }
-
-      const maybeCost = event.total_cost_usd;
-      if (isNumber(maybeCost)) {
-        costUsd = maybeCost;
-      }
-
-      const usage = event.usage;
-      if (isObjectRecord(usage)) {
-        const maybeInput = usage.input_tokens;
-        const maybeOutput = usage.output_tokens;
-        if (isNumber(maybeInput) && Number.isInteger(maybeInput)) {
-          inputTokens = maybeInput;
-        }
-        if (isNumber(maybeOutput) && Number.isInteger(maybeOutput)) {
-          outputTokens = maybeOutput;
-        }
+      if (isNumber(maybeOutput) && Number.isInteger(maybeOutput)) {
+        outputTokens = maybeOutput;
       }
     }
   } catch (cause) {
     stderrLines.push(causeMessage(cause));
   } finally {
     clearTimeout(timer);
-    query.close();
   }
 
   const stdout = `${stdoutLines.join("\n")}${stdoutLines.length === 0 ? "" : "\n"}`;
@@ -188,7 +165,7 @@ export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<
 
   return {
     backend: "sdk",
-    commandDescription: `claude-agent-sdk query model=${request.model}`,
+    commandDescription: `@beep/ai-sdk run model=${request.model}`,
     success,
     timedOut,
     stdout,

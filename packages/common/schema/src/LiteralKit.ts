@@ -51,6 +51,10 @@ type MatchCases<L extends Literals> = {
   readonly [K in L[number] as LiteralToKey<K>]: (value: K) => unknown;
 };
 
+type Thunks<L extends Literals> = {
+  readonly [K in L[number] as LiteralToKey<K>]: () => K;
+};
+
 /**
  * Valid keys for a MatchCases object derived from the literal set.
  */
@@ -109,6 +113,15 @@ const makeGuards = <L extends Literals>(literals: L): IsGuards<L> =>
     A.reduce({} as IsGuards<L>, (acc, literal) => ({
       ...acc,
       [matchLiteral(literal)]: (i: unknown) => i === literal,
+    }))
+  );
+
+const makeThunks = <L extends Literals>(literals: L): Thunks<L> =>
+  pipe(
+    literals,
+    A.reduce({} as Thunks<L>, (acc, literal) => ({
+      ...acc,
+      [matchLiteral(literal)]: () => literal,
     }))
   );
 
@@ -202,6 +215,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
     subset: LSubset
   ) => A.NonEmptyReadonlyArray<Exclude<L[number], LSubset[number]>>;
   readonly $match: MatchFn<L>;
+  readonly thunk: Thunks<L>;
 };
 
 /**
@@ -238,6 +252,7 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
   const { pickOptions, omitOptions } = makeOptionsFns(literals);
   const $match = buildMatch(literals);
   const Enum = makeEnum(literals);
+  const thunk = makeThunks(literals);
 
   return Object.defineProperties(base, {
     Options: { value: literals, enumerable: true, writable: true, configurable: true },
@@ -246,5 +261,6 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
     pickOptions: { value: pickOptions, enumerable: true, writable: true, configurable: true },
     omitOptions: { value: omitOptions, enumerable: true, writable: true, configurable: true },
     $match: { value: $match, enumerable: true, writable: true, configurable: true },
+    thunk: { value: thunk, enumerable: true, writable: true, configurable: true },
   }) as LiteralKit<L>;
 }

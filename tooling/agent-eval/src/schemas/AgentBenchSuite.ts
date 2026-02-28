@@ -44,6 +44,26 @@ export type AgentRunRecord = {
   readonly touchedPaths: ReadonlyArray<string>;
   readonly transcript: AgentRunTranscript | null;
   readonly failureSignature: FailureSignature | null;
+  readonly retrievalTop5?:
+    | {
+        readonly labeled: boolean;
+        readonly expectedTargets: ReadonlyArray<string>;
+        readonly top5Facts: ReadonlyArray<string>;
+        readonly matchedTargets: ReadonlyArray<string>;
+        readonly hit: boolean | null;
+      }
+    | undefined;
+  readonly kgContextReview?:
+    | {
+        readonly reviewerScores: ReadonlyArray<{
+          readonly reviewerId: string;
+          readonly score: number;
+        }>;
+        readonly meanScore: number | null;
+        readonly minimumReviewers: number;
+        readonly qualifies: boolean;
+      }
+    | undefined;
 };
 
 /**
@@ -85,6 +105,28 @@ export const AgentRunRecordSchema = S.Struct({
   touchedPaths: S.Array(S.NonEmptyString),
   transcript: S.NullOr(AgentRunTranscriptSchema),
   failureSignature: S.NullOr(FailureSignatureSchema),
+  retrievalTop5: S.optional(
+    S.Struct({
+      labeled: S.Boolean,
+      expectedTargets: S.Array(S.NonEmptyString),
+      top5Facts: S.Array(S.NonEmptyString),
+      matchedTargets: S.Array(S.NonEmptyString),
+      hit: S.NullOr(S.Boolean),
+    })
+  ),
+  kgContextReview: S.optional(
+    S.Struct({
+      reviewerScores: S.Array(
+        S.Struct({
+          reviewerId: S.NonEmptyString,
+          score: S.Number,
+        })
+      ),
+      meanScore: S.NullOr(S.Number),
+      minimumReviewers: S.Int,
+      qualifies: S.Boolean,
+    })
+  ),
 });
 
 /**
