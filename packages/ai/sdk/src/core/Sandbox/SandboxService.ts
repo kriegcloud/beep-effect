@@ -5,14 +5,23 @@ import type { QueryHandle } from "../Query.js";
 import type { Options } from "../Schema/Options.js";
 import type { SandboxError } from "./SandboxError.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SandboxProvider = "local" | "cloudflare";
 
+/**
+ * @since 0.0.0
+ */
 export type ExecResult = {
   readonly stdout: string;
   readonly stderr: string;
   readonly exitCode: number;
 };
 
+/**
+ * @since 0.0.0
+ */
 export class SandboxService extends ServiceMap.Service<
   SandboxService,
   {

@@ -21,9 +21,9 @@ import type { QueryHandle } from "./Query.js";
 import type { PendingQueueStrategy } from "./QuerySupervisorConfig.js";
 import { QuerySupervisorConfig } from "./QuerySupervisorConfig.js";
 import {
-  QueryPendingCanceledError,
-  QueryPendingTimeoutError,
-  QueryQueueFullError,
+  QueryPendingCanceledError as QueryPendingCanceledError_,
+  QueryPendingTimeoutError as QueryPendingTimeoutError_,
+  QueryQueueFullError as QueryQueueFullError_,
   QuerySupervisorError as QuerySupervisorErrorSchema,
   type QuerySupervisorError as QuerySupervisorErrorType,
 } from "./QuerySupervisorError.js";
@@ -33,15 +33,31 @@ import type { HookInput } from "./Schema/Hooks.js";
 import type { SDKUserMessage } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
 
+/**
+ * @since 0.0.0
+ */
 export const QuerySupervisorError = QuerySupervisorErrorSchema;
+/**
+ * @since 0.0.0
+ */
 export type QuerySupervisorError = QuerySupervisorErrorType;
 
-export type { QuerySupervisorErrorEncoded } from "./QuerySupervisorError.js";
-export {
-  QueryPendingCanceledError,
-  QueryPendingTimeoutError,
-  QueryQueueFullError,
-} from "./QuerySupervisorError.js";
+/**
+ * @since 0.0.0
+ */
+export type QuerySupervisorErrorEncoded = typeof QuerySupervisorErrorSchema.Encoded;
+/**
+ * @since 0.0.0
+ */
+export const QueryPendingCanceledError = QueryPendingCanceledError_;
+/**
+ * @since 0.0.0
+ */
+export const QueryPendingTimeoutError = QueryPendingTimeoutError_;
+/**
+ * @since 0.0.0
+ */
+export const QueryQueueFullError = QueryQueueFullError_;
 
 const CompletionStatus = Schema.Literals(["success", "failure", "interrupted"]);
 
@@ -67,6 +83,9 @@ const QueryStartFailedEvent = Schema.TaggedStruct("QueryStartFailed", {
   errorTag: Schema.optional(Schema.String),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const QueryEvent = Schema.Union([
   QueryQueuedEvent,
   QueryStartedEvent,
@@ -74,9 +93,18 @@ export const QueryEvent = Schema.Union([
   QueryStartFailedEvent,
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export type QueryEvent = typeof QueryEvent.Type;
+/**
+ * @since 0.0.0
+ */
 export type QueryEventEncoded = typeof QueryEvent.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const QuerySupervisorStatsSchema = Schema.Struct({
   active: Schema.Number,
   pending: Schema.Number,
@@ -85,7 +113,13 @@ export const QuerySupervisorStatsSchema = Schema.Struct({
   pendingQueueStrategy: Schema.Literals(["disabled", "suspend", "dropping", "sliding"]),
 }).pipe(Schema.annotate({ identifier: "QuerySupervisorStats" }));
 
+/**
+ * @since 0.0.0
+ */
 export type QuerySupervisorStats = typeof QuerySupervisorStatsSchema.Type;
+/**
+ * @since 0.0.0
+ */
 export type QuerySupervisorStatsEncoded = typeof QuerySupervisorStatsSchema.Encoded;
 
 type PendingRequest = {
@@ -157,7 +191,14 @@ const exitStatus = (exit: Exit.Exit<unknown, unknown>): "success" | "failure" | 
 };
 
 const stripNonSerializableOptions = (options: Options): Options => {
-  const { hooks, canUseTool, stderr, spawnClaudeCodeProcess, abortController, ...rest } = options;
+  const {
+    hooks: _hooks,
+    canUseTool: _canUseTool,
+    stderr: _stderr,
+    spawnClaudeCodeProcess: _spawnClaudeCodeProcess,
+    abortController: _abortController,
+    ...rest
+  } = options;
   return rest;
 };
 
@@ -616,6 +657,9 @@ const makeQuerySupervisor = Effect.gen(function* () {
 
 /**
  * Supervisor for running Claude Agent SDK queries with concurrency limits.
+ */
+/**
+ * @since 0.0.0
  */
 export class QuerySupervisor extends ServiceMap.Service<QuerySupervisor, Effect.Success<typeof makeQuerySupervisor>>()(
   "@effect/claude-agent-sdk/QuerySupervisor"

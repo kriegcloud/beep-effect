@@ -106,11 +106,17 @@ const makeOutputStream = (request: TurnRequest): Stream.Stream<SDKMessage, Sessi
     )
   );
 
+/**
+ * @since 0.0.0
+ */
 export type SessionTurnDriverTimeouts = {
   readonly turnSendTimeout?: Duration.Input;
   readonly turnResultTimeout?: Duration.Input;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionTurnDriverOptions = {
   readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
   readonly stream: Stream.Stream<SDKMessage, SessionError>;
@@ -119,6 +125,9 @@ export type SessionTurnDriverOptions = {
   readonly onOutputMessage?: (message: SDKMessage) => Effect.Effect<void, never>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionTurnDriver = {
   readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>;
   readonly sendRaw: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
@@ -126,6 +135,9 @@ export type SessionTurnDriver = {
   readonly shutdown: Effect.Effect<void, never>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const makeSessionTurnDriver = ({
   send,
   stream,

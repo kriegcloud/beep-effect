@@ -10,6 +10,9 @@ import type { HookContext } from "./Hook.js";
 import { callback, matcher } from "./Hook.js";
 import type { HookMap } from "./utils.js";
 
+/**
+ * @since 0.0.0
+ */
 export type AuditLoggingOptions = {
   readonly strict?: undefined | boolean;
   readonly logHookOutcomes?: undefined | boolean;
@@ -155,6 +158,9 @@ const wrapPermissionCallback =
     return output;
   };
 
+/**
+ * @since 0.0.0
+ */
 export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(function* (
   hooks: HookMap,
   sessionId: string,
@@ -250,6 +256,9 @@ const resolveDuration = (startRef: Ref.Ref<ReadonlyMap<string, number>>, toolUse
     )
   );
 
+/**
+ * @since 0.0.0
+ */
 export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function* (
   sessionId: string,
   options?: undefined | AuditLoggingOptions

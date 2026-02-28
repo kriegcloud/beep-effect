@@ -3,6 +3,9 @@ import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/Sandbox/SandboxError");
 
+/**
+ * @since 0.0.0
+ */
 export class SandboxError extends S.TaggedErrorClass<SandboxError>($I`SandboxError`)(
   "SandboxError",
   {

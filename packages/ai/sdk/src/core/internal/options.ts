@@ -12,6 +12,9 @@ const mergeHooks = (base: HookMap | undefined, override: HookMap | undefined) =>
   return Struct.keys(merged).length === 0 ? undefined : merged;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const mergeOptions = (base: Options, override?: Partial<Options>): Options => {
   if (!override) return { ...base };
   const hooks = mergeHooks(base.hooks, override.hooks);

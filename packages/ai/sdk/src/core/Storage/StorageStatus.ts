@@ -4,6 +4,9 @@ import * as Option from "effect/Option";
 import { type RemoteStatus, SyncService } from "../Sync/index.js";
 import { StorageConfig, type StorageConfigData } from "./StorageConfig.js";
 
+/**
+ * @since 0.0.0
+ */
 export type StorageStatus = {
   readonly config?: {
     readonly enabled: StorageConfigData["enabled"];
@@ -13,6 +16,9 @@ export type StorageStatus = {
   readonly sync?: ReadonlyArray<RemoteStatus>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const status = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
   const sync = yield* Effect.serviceOption(SyncService);

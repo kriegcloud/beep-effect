@@ -9,6 +9,7 @@ Eff = "Eff"
 Somes = "Somes"
 annote = "annote"
 retriev = "retriev"
+Uncommited = "Uncommited"
 
 # Biome rule names
 Inferrable = "Inferrable"

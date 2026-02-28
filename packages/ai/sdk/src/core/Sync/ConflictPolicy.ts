@@ -3,6 +3,9 @@ import * as Layer from "effect/Layer";
 import * as ServiceMap from "effect/ServiceMap";
 import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
+/**
+ * @since 0.0.0
+ */
 export type ConflictResolution =
   | { readonly _tag: "accept"; readonly entry: EventJournal.Entry }
   | { readonly _tag: "reject"; readonly reason?: string }
@@ -47,6 +50,9 @@ const pickEarliest = (entries: ReadonlyArray<EventJournal.Entry>) => {
   return earliest;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ConflictPolicyService = {
   readonly resolve: (options: {
     readonly entry: EventJournal.Entry;
@@ -58,6 +64,9 @@ const defaultConflictPolicy: ConflictPolicyService = {
   resolve: ({ entry, conflicts }) => Effect.succeed(accept(pickLatest([entry, ...conflicts]) ?? entry)),
 };
 
+/**
+ * @since 0.0.0
+ */
 export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()(
   "@effect/claude-agent-sdk/ConflictPolicy",
   {

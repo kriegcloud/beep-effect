@@ -7,9 +7,18 @@ import { CanUseTool, PermissionMode } from "./Permission.js";
 import { AbortController, SpawnClaudeCodeProcess, StderrCallback } from "./Runtime.js";
 import { SandboxSettings } from "./Sandbox.js";
 
+/**
+ * @since 0.0.0
+ */
 export const SettingSource = withIdentifier(S.Literals(["user", "project", "local"]), "SettingSource");
 
+/**
+ * @since 0.0.0
+ */
 export type SettingSource = typeof SettingSource.Type;
+/**
+ * @since 0.0.0
+ */
 export type SettingSourceEncoded = typeof SettingSource.Encoded;
 
 const SystemPromptPreset = S.Struct({
@@ -18,9 +27,18 @@ const SystemPromptPreset = S.Struct({
   append: S.optional(S.String),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const SystemPrompt = withIdentifier(S.Union([S.String, SystemPromptPreset]), "SystemPrompt");
 
+/**
+ * @since 0.0.0
+ */
 export type SystemPrompt = typeof SystemPrompt.Type;
+/**
+ * @since 0.0.0
+ */
 export type SystemPromptEncoded = typeof SystemPrompt.Encoded;
 
 const ToolsPreset = S.Struct({
@@ -28,11 +46,23 @@ const ToolsPreset = S.Struct({
   preset: S.Literal("claude_code"),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const ToolsConfig = withIdentifier(S.Union([S.Array(S.String), ToolsPreset]), "ToolsConfig");
 
+/**
+ * @since 0.0.0
+ */
 export type ToolsConfig = typeof ToolsConfig.Type;
+/**
+ * @since 0.0.0
+ */
 export type ToolsConfigEncoded = typeof ToolsConfig.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const JsonSchemaOutputFormat = withIdentifier(
   S.Struct({
     type: S.Literal("json_schema"),
@@ -41,14 +71,32 @@ export const JsonSchemaOutputFormat = withIdentifier(
   "JsonSchemaOutputFormat"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type JsonSchemaOutputFormat = typeof JsonSchemaOutputFormat.Type;
+/**
+ * @since 0.0.0
+ */
 export type JsonSchemaOutputFormatEncoded = typeof JsonSchemaOutputFormat.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const OutputFormat = withIdentifier(JsonSchemaOutputFormat, "OutputFormat");
 
+/**
+ * @since 0.0.0
+ */
 export type OutputFormat = typeof OutputFormat.Type;
+/**
+ * @since 0.0.0
+ */
 export type OutputFormatEncoded = typeof OutputFormat.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const AgentDefinition = withIdentifier(
   S.Struct({
     description: S.String,
@@ -64,15 +112,30 @@ export const AgentDefinition = withIdentifier(
   "AgentDefinition"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type AgentDefinition = typeof AgentDefinition.Type;
+/**
+ * @since 0.0.0
+ */
 export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const AgentMcpServerSpec = withIdentifier(
   S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]),
   "AgentMcpServerSpec"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type AgentMcpServerSpec = typeof AgentMcpServerSpec.Type;
+/**
+ * @since 0.0.0
+ */
 export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded;
 
 const HookMap = S.Record(S.optionalKey(HookEvent), S.UndefinedOr(S.Array(HookCallbackMatcher)));
@@ -83,6 +146,9 @@ const ThinkingConfig = S.Union([
   S.Struct({ type: S.Literal("disabled") }),
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const Options = withIdentifier(
   S.Struct({
     abortController: S.optional(AbortController),
@@ -133,5 +199,11 @@ export const Options = withIdentifier(
   "Options"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type Options = typeof Options.Type;
+/**
+ * @since 0.0.0
+ */
 export type OptionsEncoded = typeof Options.Encoded;

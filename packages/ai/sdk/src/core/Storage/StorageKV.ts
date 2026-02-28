@@ -43,6 +43,9 @@ type KeyMutationState = {
  * - `list()` returns a discriminated union: `cursor` only exists when `list_complete: false`
  * - `put()` accepts `string | ArrayBuffer | ArrayBufferView | ReadableStream`
  */
+/**
+ * @since 0.0.0
+ */
 export type KVNamespace = {
   get(key: string, type?: "text"): Promise<string | null>;
   put(
@@ -93,6 +96,9 @@ type KVListResult =
  * NOT suitable for: Large artifacts, high-write-rate stores,
  * or stores requiring strong consistency.
  * NOT compatible with journaled mode (blocked at config validation).
+ */
+/**
+ * @since 0.0.0
  */
 export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyValueStore> =>
   Layer.succeed(

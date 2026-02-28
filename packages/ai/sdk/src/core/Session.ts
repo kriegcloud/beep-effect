@@ -21,19 +21,34 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
 /**
  * Raised when a session has been closed and cannot accept new work.
  */
+/**
+ * @since 0.0.0
+ */
 export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
   message: Schema.String,
 }) {
   static readonly make = (message: string) => new SessionClosedError({ message });
 }
 
+/**
+ * @since 0.0.0
+ */
 export const SessionError = Schema.Union([SessionClosedError, TransportError]);
 
+/**
+ * @since 0.0.0
+ */
 export type SessionError = typeof SessionError.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionErrorEncoded = typeof SessionError.Encoded;
 
 /**
  * Managed session wrapper around the SDK session API.
+ */
+/**
+ * @since 0.0.0
  */
 export interface SessionHandle {
   /**
@@ -68,6 +83,9 @@ type SessionState = {
   readonly closeSignal: Deferred.Deferred<Exit.Exit<void, SessionError>> | null;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionRuntimeOptions = {
   readonly closeDrainTimeout?: Duration.Input;
 };
@@ -105,6 +123,9 @@ const normalizeUserMessage = (message: SDKUserMessage): SdkSDKUserMessage => {
 
 /**
  * Convert an SDK session into an Effect-managed SessionHandle.
+ */
+/**
+ * @since 0.0.0
  */
 export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
   sdkSession: SDKSession,
@@ -320,17 +341,26 @@ const resumeSessionEffect = Effect.fn("Session.resumeSession")(function* (
 /**
  * Create a new SDK session and scope its lifetime to the Effect scope.
  */
+/**
+ * @since 0.0.0
+ */
 export const createSession = (options: SDKSessionOptions, runtimeOptions?: SessionRuntimeOptions) =>
   Effect.acquireRelease(createSessionEffect(options, runtimeOptions), closeQuietly);
 
 /**
  * Resume an existing SDK session and scope its lifetime to the Effect scope.
  */
+/**
+ * @since 0.0.0
+ */
 export const resumeSession = (sessionId: string, options: SDKSessionOptions, runtimeOptions?: SessionRuntimeOptions) =>
   Effect.acquireRelease(resumeSessionEffect(sessionId, options, runtimeOptions), closeQuietly);
 
 /**
  * Run a one-off prompt using the SDK session API.
+ */
+/**
+ * @since 0.0.0
  */
 export const prompt = Effect.fn("Session.prompt")(
   (message: string, options: SDKSessionOptions): Effect.Effect<SDKResultMessage, TransportError> =>

@@ -6,19 +6,40 @@ import * as EventJournalModule from "effect/unstable/eventlog/EventJournal";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import { HookEvent } from "../Schema/Hooks.js";
 
+/**
+ * @since 0.0.0
+ */
 export * as Event from "effect/unstable/eventlog/Event";
+/**
+ * @since 0.0.0
+ */
 export * as EventGroup from "effect/unstable/eventlog/EventGroup";
+/**
+ * @since 0.0.0
+ */
 export * as EventJournal from "effect/unstable/eventlog/EventJournal";
+/**
+ * @since 0.0.0
+ */
 export * from "effect/unstable/eventlog/EventLog";
+/**
+ * @since 0.0.0
+ */
 export * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote";
 
 /**
  * In-memory identity layer for event log auditing.
  */
+/**
+ * @since 0.0.0
+ */
 export const layerIdentityMemory = Layer.sync(EventLogModule.Identity, () => EventLogModule.makeIdentityUnsafe());
 
 /**
  * In-memory event log layer for local development and tests.
+ */
+/**
+ * @since 0.0.0
  */
 export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(EventJournalModule.layerMemory),
@@ -68,6 +89,9 @@ const SyncCompactionPayload = S.Struct({
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.
  */
+/**
+ * @since 0.0.0
+ */
 export const AuditEventGroup = EventGroupModule.empty
   .add({
     tag: "tool_use",
@@ -98,6 +122,9 @@ export const AuditEventGroup = EventGroupModule.empty
 /**
  * Schema derived from the audit event group.
  */
+/**
+ * @since 0.0.0
+ */
 export const AuditEventSchema = EventLogModule.schema(AuditEventGroup);
 
 /**
@@ -121,6 +148,9 @@ export const AuditEventSchema = EventLogModule.schema(AuditEventGroup);
  *   Effect.provide(layerAuditHandlers)
  * )
  * ```
+ */
+/**
+ * @since 0.0.0
  */
 export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handlers) =>
   handlers

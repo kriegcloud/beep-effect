@@ -15,6 +15,9 @@ import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJou
 import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
 
+/**
+ * @since 0.0.0
+ */
 export type AuditEventInput =
   | {
       readonly event: "tool_use";
@@ -131,6 +134,9 @@ const makeStore = Effect.gen(function* () {
   return AuditEventStore.of({ write, entries });
 });
 
+/**
+ * @since 0.0.0
+ */
 export class AuditEventStore extends ServiceMap.Service<
   AuditEventStore,
   {

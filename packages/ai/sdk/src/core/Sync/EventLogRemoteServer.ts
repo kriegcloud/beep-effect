@@ -8,6 +8,9 @@ import * as ServiceMap from "effect/ServiceMap";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
 import * as HttpServer from "effect/unstable/http/HttpServer";
 
+/**
+ * @since 0.0.0
+ */
 export type EventLogRemoteServerOptions = {
   readonly port?: number;
   readonly hostname?: string;
@@ -16,6 +19,9 @@ export type EventLogRemoteServerOptions = {
   readonly storage?: Layer.Layer<EventLogServer.Storage>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export class EventLogRemoteServerError extends Schema.TaggedErrorClass<EventLogRemoteServerError>()(
   "EventLogRemoteServerError",
   {
@@ -32,6 +38,9 @@ export class EventLogRemoteServerError extends Schema.TaggedErrorClass<EventLogR
  * Throws if the address is not a TCP address.
  *
  * @deprecated Prefer `toWebSocketUrlEffect`.
+ */
+/**
+ * @since 0.0.0
  */
 export const toWebSocketUrl = (
   address: HttpServer.Address,
@@ -84,6 +93,9 @@ const toWebSocketUrlError = (cause: unknown) =>
         cause,
       });
 
+/**
+ * @since 0.0.0
+ */
 export const toWebSocketUrlEffect = (
   address: HttpServer.Address,
   options?: {
@@ -110,6 +122,9 @@ const findAvailablePort = () =>
     return port;
   });
 
+/**
+ * @since 0.0.0
+ */
 export class EventLogRemoteServer extends ServiceMap.Service<
   EventLogRemoteServer,
   { readonly address: HttpServer.Address; readonly url: string }
@@ -152,9 +167,15 @@ const buildBunWebSocketLayer = (options: EventLogRemoteServerOptions, port: numb
     })
   );
 
+/**
+ * @since 0.0.0
+ */
 export const layerBunWebSocket = (options: EventLogRemoteServerOptions = {}) =>
   buildBunWebSocketLayer(options, options.port ?? 8787);
 
+/**
+ * @since 0.0.0
+ */
 export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {}) =>
   Layer.unwrap(
     Effect.gen(function* () {

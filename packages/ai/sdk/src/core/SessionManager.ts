@@ -23,9 +23,18 @@ import {
   type SessionRuntimeSettings,
 } from "./SessionConfig.js";
 
+/**
+ * @since 0.0.0
+ */
 export const SessionManagerError = Schema.Union([SessionError, ConfigError]);
 
+/**
+ * @since 0.0.0
+ */
 export type SessionManagerError = typeof SessionManagerError.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionManagerErrorEncoded = typeof SessionManagerError.Encoded;
 
 const mergeRecord = <T>(
@@ -83,6 +92,9 @@ const makeSessionServiceWithRuntime = (
     };
   });
 
+/**
+ * @since 0.0.0
+ */
 export class SessionManager extends ServiceMap.Service<
   SessionManager,
   {

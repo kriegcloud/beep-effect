@@ -2,13 +2,22 @@ import type * as Layer from "effect/Layer";
 import { AgentRuntime, type RemoteSyncOptions } from "../AgentRuntime.js";
 import { ConflictPolicy } from "./ConflictPolicy.js";
 
+/**
+ * @since 0.0.0
+ */
 export type RemoteUrlOptions = {
   readonly tenant?: string;
   readonly authToken?: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ConflictPolicyOption = "lastWriteWins" | "firstWriteWins" | "reject" | Layer.Layer<ConflictPolicy>;
 
+/**
+ * @since 0.0.0
+ */
 export type RemoteSyncLayerOptions = Omit<RemoteSyncOptions, "url" | "conflictPolicy"> & {
   readonly conflictPolicy?: ConflictPolicyOption;
   readonly tenant?: string;
@@ -17,6 +26,9 @@ export type RemoteSyncLayerOptions = Omit<RemoteSyncOptions, "url" | "conflictPo
 
 const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
+/**
+ * @since 0.0.0
+ */
 export const buildRemoteUrl = (baseUrl: string, options?: RemoteUrlOptions) => {
   const url = new URL(baseUrl);
   const path = url.pathname === "/" ? "/event-log" : url.pathname;
@@ -54,6 +66,9 @@ const resolveConflictPolicyLayer = (input?: ConflictPolicyOption) => {
 
 /**
  * One-liner helper to wire remote sync layers for the AgentRuntime.
+ */
+/**
+ * @since 0.0.0
  */
 export const withRemoteSync = (url: string, options?: RemoteSyncLayerOptions) => {
   const { conflictPolicy, tenant, authToken, ...rest } = options ?? {};

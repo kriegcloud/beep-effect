@@ -20,6 +20,9 @@ import * as Socket from "effect/unstable/socket/Socket";
 import { StorageConfig } from "../Storage/index.js";
 import { EventLogRemoteServer, layerBunWebSocketTest } from "./EventLogRemoteServer.js";
 
+/**
+ * @since 0.0.0
+ */
 export type RemoteKind = "remoteId" | "url";
 
 /**
@@ -28,11 +31,17 @@ export type RemoteKind = "remoteId" | "url";
  * - kind: "url" for WebSocket connections (key = URL)
  * - kind: "remoteId" for direct EventLogRemote connections (key = remoteId hex)
  */
+/**
+ * @since 0.0.0
+ */
 export type RemoteKey = {
   readonly key: string;
   readonly kind: RemoteKind;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type RemoteStatus = {
   readonly key: string;
   readonly kind: RemoteKind;
@@ -43,10 +52,16 @@ export type RemoteStatus = {
   readonly lastError?: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SyncConfigOptions = {
   readonly syncInterval?: Duration.Input;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SyncServiceWebSocketOptions = {
   readonly disablePing?: boolean;
   readonly protocols?: string | Array<string>;
@@ -61,6 +76,9 @@ const remoteIdToString = (remoteId: Uint8Array) =>
 
 const defaultSyncConfig: SyncConfigOptions = {};
 
+/**
+ * @since 0.0.0
+ */
 export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigOptions>()(
   "@effect/claude-agent-sdk/SyncConfig",
   {
@@ -70,6 +88,9 @@ export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigOptions
   static readonly layer = (options: SyncConfigOptions) => Layer.succeed(SyncConfig, SyncConfig.of(options));
 }
 
+/**
+ * @since 0.0.0
+ */
 export class SyncService extends ServiceMap.Service<
   SyncService,
   {

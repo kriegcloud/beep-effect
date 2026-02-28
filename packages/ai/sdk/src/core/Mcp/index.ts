@@ -8,6 +8,9 @@ import { schemaToZodObject } from "../internal/schemaToZod.js";
 import type * as Tool from "../Tools/Tool.js";
 import type * as Toolkit from "../Tools/Toolkit.js";
 
+/**
+ * @since 0.0.0
+ */
 export type ToolNameValidation = {
   readonly isValid: boolean;
   readonly warnings: ReadonlyArray<string>;
@@ -17,6 +20,9 @@ const TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 
 /**
  * Validate an MCP tool name against the naming guidelines.
+ */
+/**
+ * @since 0.0.0
  */
 export const validateToolName = (name: string): ToolNameValidation => {
   const warnings: Array<string> = [];
@@ -67,6 +73,9 @@ export const validateToolName = (name: string): ToolNameValidation => {
 /**
  * Log warnings for tool names that may cause MCP compatibility issues.
  */
+/**
+ * @since 0.0.0
+ */
 export const warnOnInvalidToolName = (name: string) => {
   const result = validateToolName(name);
   if (result.warnings.length > 0) {
@@ -83,6 +92,9 @@ export const warnOnInvalidToolName = (name: string) => {
 /**
  * Context passed to MCP tool handlers.
  */
+/**
+ * @since 0.0.0
+ */
 export type McpToolContext = {
   readonly signal: AbortSignal | undefined;
   readonly extra: unknown;
@@ -93,15 +105,24 @@ type SdkCallToolResult = Awaited<ReturnType<Parameters<typeof sdkTool>[3]>>;
 /**
  * Effectful MCP tool handler.
  */
+/**
+ * @since 0.0.0
+ */
 export type McpToolHandler<Parameters, R, E> = (
   params: Parameters,
   context: McpToolContext
 ) => Effect.Effect<SdkCallToolResult, E, R>;
 
+/**
+ * @since 0.0.0
+ */
 export type McpToolInputSchema = ZodRawShape | z.ZodTypeAny;
 
 /**
  * Options for building an MCP tool from an Effect handler.
+ */
+/**
+ * @since 0.0.0
  */
 export type McpToolOptions<ParametersSchema extends Schema.Top & { readonly DecodingServices: never }, R, E> = {
   readonly name: string;
@@ -111,12 +132,21 @@ export type McpToolOptions<ParametersSchema extends Schema.Top & { readonly Deco
   readonly inputSchema?: McpToolInputSchema;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ToolResultRenderer = (tool: Tool.Any, result: Tool.HandlerResult<Tool.Any>) => SdkCallToolResult;
 
+/**
+ * @since 0.0.0
+ */
 export type ToolErrorRenderer = (tool: Tool.Any, error: unknown) => SdkCallToolResult;
 
 /**
  * Optional overrides for building MCP tools from a toolkit.
+ */
+/**
+ * @since 0.0.0
  */
 export type ToolkitMcpOptions = {
   readonly inputSchema?: Record<string, McpToolInputSchema>;
@@ -201,6 +231,9 @@ const toStructuredContent = (value: unknown): Record<string, unknown> | undefine
 /**
  * Convert a value into an MCP CallToolResult.
  */
+/**
+ * @since 0.0.0
+ */
 export const makeCallToolResult = (value: unknown, isError = false): SdkCallToolResult => {
   const structuredContent = toStructuredContent(value);
   const base: SdkCallToolResult = {
@@ -222,6 +255,9 @@ const defaultRenderError: ToolErrorRenderer = (_tool, error) => makeCallToolResu
 
 /**
  * Create a single MCP tool from an Effect handler and Schema parameters.
+ */
+/**
+ * @since 0.0.0
  */
 export const tool = <ParametersSchema extends Schema.Top & { readonly DecodingServices: never }, R, E>(
   options: McpToolOptions<ParametersSchema, R, E>
@@ -285,6 +321,9 @@ type ToolkitRequirements<Tools extends Record<string, Tool.Any>> = Tool.Requirem
 /**
  * Convert a toolkit and handlers into MCP tools.
  */
+/**
+ * @since 0.0.0
+ */
 export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = never, RX = never>(
   toolkit: Toolkit.Toolkit<Tools>,
   handlers: Toolkit.HandlersFrom<Tools> | Effect.Effect<Toolkit.HandlersFrom<Tools>, EX, RX>,
@@ -339,6 +378,9 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
     );
   });
 
+/**
+ * @since 0.0.0
+ */
 export type CreateSdkMcpServerOptions<R = never> = {
   readonly name: string;
   readonly version?: string;
@@ -347,6 +389,9 @@ export type CreateSdkMcpServerOptions<R = never> = {
 
 /**
  * Create an MCP server using SDK tooling (optionally with Effect-built tools).
+ */
+/**
+ * @since 0.0.0
  */
 export const createSdkMcpServer: <R = never>(
   options: CreateSdkMcpServerOptions<R>
@@ -387,6 +432,9 @@ const closeSdkMcpServer = (server: { readonly instance?: { close?: () => Promise
 
 /**
  * Create an MCP server scoped to the current Effect scope.
+ */
+/**
+ * @since 0.0.0
  */
 export const createSdkMcpServerScoped: <R = never>(
   options: CreateSdkMcpServerOptions<R>

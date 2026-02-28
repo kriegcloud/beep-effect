@@ -15,8 +15,14 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
 import type { SessionError, SessionHandle } from "./Session.js";
 import { SessionManager, type SessionManagerError } from "./SessionManager.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionPoolCloseReason = "manual" | "idle" | "shutdown";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionPoolOptions = {
   readonly model: string;
   readonly sessionOptions?: Omit<SDKSessionOptions, "model">;
@@ -30,6 +36,9 @@ export type SessionPoolOptions = {
   ) => Effect.Effect<void>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
   message: Schema.String,
   maxSessions: Schema.Number,
@@ -38,6 +47,9 @@ export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFul
     new SessionPoolFullError(params);
 }
 
+/**
+ * @since 0.0.0
+ */
 export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoolNotFoundError>()(
   "SessionPoolNotFoundError",
   {
@@ -49,6 +61,9 @@ export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoo
     new SessionPoolNotFoundError(params);
 }
 
+/**
+ * @since 0.0.0
+ */
 export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<SessionPoolInvalidTenantError>()(
   "SessionPoolInvalidTenantError",
   {
@@ -60,15 +75,27 @@ export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<Sessi
     new SessionPoolInvalidTenantError(params);
 }
 
+/**
+ * @since 0.0.0
+ */
 export const SessionPoolError = Schema.Union([
   SessionPoolFullError,
   SessionPoolNotFoundError,
   SessionPoolInvalidTenantError,
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export type SessionPoolError = typeof SessionPoolError.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionPoolErrorEncoded = typeof SessionPoolError.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export type SessionInfo = {
   readonly sessionId: string;
   readonly tenant?: string;
@@ -378,6 +405,9 @@ const makeSessionPool = (options: SessionPoolOptions) =>
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export class SessionPool extends ServiceMap.Service<
   SessionPool,
   {

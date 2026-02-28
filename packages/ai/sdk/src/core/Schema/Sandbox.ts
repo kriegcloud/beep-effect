@@ -1,6 +1,9 @@
 import * as Schema from "effect/Schema";
 import { withIdentifier } from "./Annotations.js";
 
+/**
+ * @since 0.0.0
+ */
 export const SandboxNetworkConfig = withIdentifier(
   Schema.Struct({
     allowedDomains: Schema.optional(Schema.Array(Schema.String)),
@@ -14,17 +17,35 @@ export const SandboxNetworkConfig = withIdentifier(
   "SandboxNetworkConfig"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SandboxNetworkConfig = typeof SandboxNetworkConfig.Type;
+/**
+ * @since 0.0.0
+ */
 export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SandboxIgnoreViolations = withIdentifier(
   Schema.Record(Schema.String, Schema.Array(Schema.String)),
   "SandboxIgnoreViolations"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SandboxIgnoreViolations = typeof SandboxIgnoreViolations.Type;
+/**
+ * @since 0.0.0
+ */
 export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SandboxFilesystemConfig = withIdentifier(
   Schema.Struct({
     allowWrite: Schema.optional(Schema.Array(Schema.String)),
@@ -34,7 +55,13 @@ export const SandboxFilesystemConfig = withIdentifier(
   "SandboxFilesystemConfig"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SandboxFilesystemConfig = typeof SandboxFilesystemConfig.Type;
+/**
+ * @since 0.0.0
+ */
 export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Encoded;
 
 const SandboxRipgrepConfig = Schema.Struct({
@@ -42,6 +69,9 @@ const SandboxRipgrepConfig = Schema.Struct({
   args: Schema.optional(Schema.Array(Schema.String)),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const SandboxSettings = withIdentifier(
   Schema.Struct({
     enabled: Schema.optional(Schema.Boolean),
@@ -57,5 +87,11 @@ export const SandboxSettings = withIdentifier(
   "SandboxSettings"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SandboxSettings = typeof SandboxSettings.Type;
+/**
+ * @since 0.0.0
+ */
 export type SandboxSettingsEncoded = typeof SandboxSettings.Encoded;

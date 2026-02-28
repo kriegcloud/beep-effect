@@ -19,6 +19,9 @@ const resolveLogger = (format: LogFormat) => {
   }
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layer = Layer.unwrap(
   Effect.gen(function* () {
     const { settings } = yield* AgentLoggingConfig;
@@ -28,7 +31,13 @@ export const layer = Layer.unwrap(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export const layerDefault = layer.pipe(Layer.provide(AgentLoggingConfig.layer));
 
+/**
+ * @since 0.0.0
+ */
 export const layerDefaultFromEnv = (prefix = "AGENTSDK") =>
   layer.pipe(Layer.provide(AgentLoggingConfig.layerFromEnv(prefix)));

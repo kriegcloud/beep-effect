@@ -39,6 +39,9 @@ const persistEntries = (
   entries: ReadonlyArray<EventJournal.Entry>
 ) => store.set(key, entries).pipe(Effect.mapError((cause) => toJournalError("persist", cause)));
 
+/**
+ * @since 0.0.0
+ */
 export const make = (options?: { readonly key?: string }) =>
   Effect.gen(function* () {
     const kv = yield* KeyValueStore.KeyValueStore;
@@ -110,7 +113,7 @@ export const make = (options?: { readonly key?: string }) =>
       return created;
     };
 
-    const withRemoteUncommitted = <A, E, R>(
+    const withRemoteUncommited = <A, E, R>(
       remoteId: EventJournal.RemoteId,
       f: (entries: Array<EventJournal.Entry>) => Effect.Effect<A, E, R>
     ) =>
@@ -291,7 +294,7 @@ export const make = (options?: { readonly key?: string }) =>
             }
           })
         ),
-      withRemoteUncommitted,
+      withRemoteUncommited,
       nextRemoteSequence: (remoteId) => withLock(Effect.sync(() => ensureRemote(remoteId).sequence)),
       changes: PubSub.subscribe(pubsub),
       destroy: withLock(
@@ -310,11 +313,17 @@ export const make = (options?: { readonly key?: string }) =>
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const layerKeyValueStore = (options?: { readonly key?: string }) =>
   Layer.effect(EventJournal.EventJournal, make(options));
 
+/**
+ * @since 0.0.0
+ */
 export const withRemoteUncommitted = <A, E, R>(
   journal: ServiceMap.Service.Shape<typeof EventJournal.EventJournal>,
   remoteId: EventJournal.RemoteId,
   f: (entries: ReadonlyArray<EventJournal.Entry>) => Effect.Effect<A, E, R>
-) => journal.withRemoteUncommitted(remoteId, f);
+) => journal.withRemoteUncommited(remoteId, f);

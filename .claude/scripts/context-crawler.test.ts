@@ -3,7 +3,7 @@ import { Effect, FileSystem, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { ChildProcess } from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
 // Pure function tests - re-implement for testing since not exported
@@ -324,9 +324,9 @@ External lib`
     const runCrawlerInFixture = (args: ReadonlyArray<string>) =>
       Effect.gen(function* () {
         const fixtureDir = yield* setupFixture;
-        return yield* pipe(
-          ChildProcess.make("bun", [`${process.cwd()}/scripts/context-crawler.ts`, ...args], { cwd: fixtureDir }),
-          ChildProcess.string()
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return yield* spawner.string(
+          ChildProcess.make("bun", [`${process.cwd()}/scripts/context-crawler.ts`, ...args], { cwd: fixtureDir })
         );
       }).pipe(Effect.scoped, Effect.provide(BunServices.layer));
 

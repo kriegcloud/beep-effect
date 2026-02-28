@@ -64,6 +64,9 @@ const sseHeaders = {
   connection: "keep-alive",
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
   Effect.gen(function* () {
     const runtime = yield* AgentRuntime;

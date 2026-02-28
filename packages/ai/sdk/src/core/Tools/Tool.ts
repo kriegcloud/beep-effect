@@ -10,12 +10,21 @@ import * as ServiceMap from "effect/ServiceMap";
  * - "error": fail the effect
  * - "return": encode failure as a normal result
  */
+/**
+ * @since 0.0.0
+ */
 export type FailureMode = "error" | "return";
 
+/**
+ * @since 0.0.0
+ */
 export type AnyStructSchema = Schema.Top;
 
 /**
  * Declarative tool definition used for SDK tool registration.
+ */
+/**
+ * @since 0.0.0
  */
 export interface Tool<
   Name extends string,
@@ -86,12 +95,21 @@ export interface Tool<
   annotate<I, S>(tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>, value: S): Tool<Name, Config, Requirements>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export namespace Tool {
+  /**
+   * @since 0.0.0
+   */
   export interface Variance<Requirements> {
     readonly _R?: (_: Requirements) => void;
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export type Any = Tool<
   string,
   {
@@ -102,61 +120,115 @@ export type Any = Tool<
   }
 >;
 
+/**
+ * @since 0.0.0
+ */
 export type Name<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
 
+/**
+ * @since 0.0.0
+ */
 export type Parameters<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["parameters"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type ParametersEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["parameters"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type ParametersSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["parameters"] : never;
 
+/**
+ * @since 0.0.0
+ */
 export type Success<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["success"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type SuccessSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["success"] : never;
 
+/**
+ * @since 0.0.0
+ */
 export type SuccessEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["success"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type Failure<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Schema.Type<_Config["failure"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type FailureSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["failure"] : never;
 
+/**
+ * @since 0.0.0
+ */
 export type FailureEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? Schema.Codec.Encoded<_Config["failure"]> : never;
 
+/**
+ * @since 0.0.0
+ */
 export type FailureModeOf<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["failureMode"] : never;
 
+/**
+ * @since 0.0.0
+ */
 export type Handler<T> = (params: Parameters<T>) => Effect.Effect<Success<T>, Failure<T>, Requirements<T>>;
 
+/**
+ * @since 0.0.0
+ */
 export type Requirements<T> = T extends Tool<infer _Name, infer _Config, infer Requirements> ? Requirements : never;
 
+/**
+ * @since 0.0.0
+ */
 export type HandlerResult<T> = {
   readonly result: Success<T> | Failure<T>;
   readonly encodedResult: SuccessEncoded<T> | FailureEncoded<T>;
   readonly isFailure: boolean;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type RequiresHandler<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ? true : never;
 
+/**
+ * @since 0.0.0
+ */
 export type HandlerFor<T> =
   T extends Tool<infer _Name, infer _Config, infer Requirements>
     ? (params: Parameters<T>) => Effect.Effect<Success<T>, Failure<T>, Requirements>
     : never;
 
+/**
+ * @since 0.0.0
+ */
 export type HandlersFor<Tools extends Record<string, Any>> = {
   readonly [Name in keyof Tools as RequiresHandler<Tools[Name]> extends true ? Name : never]: (
     params: Parameters<Tools[Name]>
   ) => Effect.Effect<Success<Tools[Name]>, Failure<Tools[Name]>, Requirements<Tools[Name]>>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ToolWithHandler<
   Name extends string,
   Config extends {
@@ -170,6 +242,9 @@ export type ToolWithHandler<
   readonly handler: HandlerFor<Tool<Name, Config, Requirements>>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type DefinitionFields<
   Parameters extends Schema.Struct.Fields = {},
   Success extends Schema.Top = typeof Schema.Void,
@@ -187,6 +262,9 @@ export type DefinitionFields<
   ) => Effect.Effect<Schema.Schema.Type<Success>, Schema.Schema.Type<Failure>, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type DefinitionSchema<
   Parameters extends AnyStructSchema,
   Success extends Schema.Top = typeof Schema.Void,
@@ -204,6 +282,9 @@ export type DefinitionSchema<
   ) => Effect.Effect<Schema.Schema.Type<Success>, Schema.Schema.Type<Failure>, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type Definition = {
   readonly description?: string | undefined;
   readonly parameters?: Schema.Struct.Fields | AnyStructSchema | undefined;
@@ -241,6 +322,9 @@ type DefinitionRequirements<D> = D extends {
   ? R
   : never;
 
+/**
+ * @since 0.0.0
+ */
 export type ToolFromDefinition<Name extends string, Def> = ToolWithHandler<
   Name,
   {
@@ -304,6 +388,9 @@ const constEmptyStruct = Schema.Struct({});
 /**
  * Create a tool with optional parameter, success, and failure schemas.
  */
+/**
+ * @since 0.0.0
+ */
 export const make = <
   const Name extends string,
   Parameters extends Schema.Struct.Fields = {},
@@ -343,6 +430,9 @@ export const make = <
 
 /**
  * Create a tool using an existing parameter schema.
+ */
+/**
+ * @since 0.0.0
  */
 export const fromSchema = <
   const Name extends string,
@@ -392,6 +482,9 @@ const attachHandler = <T extends Any>(tool: T, handler: HandlerFor<T>) =>
 
 /**
  * Define a tool alongside its handler in a single expression.
+ */
+/**
+ * @since 0.0.0
  */
 export const define: {
   <
@@ -458,6 +551,9 @@ export const define: {
 /**
  * Define a tool by passing the handler as the last argument.
  */
+/**
+ * @since 0.0.0
+ */
 export const fn = <
   const Name extends string,
   Parameters extends Schema.Struct.Fields = {},
@@ -483,6 +579,9 @@ export const fn = <
 /**
  * Render tool parameters as JSON Schema (useful for MCP registration).
  */
+/**
+ * @since 0.0.0
+ */
 export const getJsonSchema = <
   Name extends string,
   Config extends {
@@ -506,16 +605,25 @@ const getJsonSchemaFromSchema = (schema: Schema.Top): JsonSchema.JsonSchema => {
   };
 };
 
+/**
+ * @since 0.0.0
+ */
 export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema =>
   getJsonSchemaFromSchema(Schema.make(ast));
 
 /**
  * Optional title metadata for tools.
  */
+/**
+ * @since 0.0.0
+ */
 export const Title = ServiceMap.Service<string>("@effect/claude-agent-sdk/Tool/Title");
 
 /**
  * Indicates the tool is readonly (no side-effects).
+ */
+/**
+ * @since 0.0.0
  */
 export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Readonly", {
   defaultValue: constFalse,
@@ -524,6 +632,9 @@ export const Readonly = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/
 /**
  * Indicates the tool is destructive (side-effects likely).
  */
+/**
+ * @since 0.0.0
+ */
 export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Destructive", {
   defaultValue: constTrue,
 });
@@ -531,12 +642,18 @@ export const Destructive = ServiceMap.Reference<boolean>("@effect/claude-agent-s
 /**
  * Indicates the tool is idempotent for repeated calls.
  */
+/**
+ * @since 0.0.0
+ */
 export const Idempotent = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/Idempotent", {
   defaultValue: constFalse,
 });
 
 /**
  * Indicates the tool can read or write beyond the repo (open-world).
+ */
+/**
+ * @since 0.0.0
  */
 export const OpenWorld = ServiceMap.Reference<boolean>("@effect/claude-agent-sdk/Tool/OpenWorld", {
   defaultValue: constTrue,

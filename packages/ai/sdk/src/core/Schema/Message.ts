@@ -4,6 +4,9 @@ import { ApiKeySource, ModelUsage, NonNullableUsage, SDKPermissionDenial, UUID }
 import { BetaMessage, BetaRawMessageStreamEvent, MessageParam } from "./External.js";
 import { PermissionMode } from "./Permission.js";
 
+/**
+ * @since 0.0.0
+ */
 export const SDKAssistantMessageError = withIdentifier(
   S.Literals([
     "authentication_failed",
@@ -17,9 +20,18 @@ export const SDKAssistantMessageError = withIdentifier(
   "SDKAssistantMessageError"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKAssistantMessageError = typeof SDKAssistantMessageError.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKAssistantMessageErrorEncoded = typeof SDKAssistantMessageError.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKAssistantMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("assistant"),
@@ -32,9 +44,18 @@ export const SDKAssistantMessage = withSdkMessage(
   "SDKAssistantMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKAssistantMessage = typeof SDKAssistantMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKAssistantMessageEncoded = typeof SDKAssistantMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKAuthStatusMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("auth_status"),
@@ -47,9 +68,18 @@ export const SDKAuthStatusMessage = withSdkMessage(
   "SDKAuthStatusMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKAuthStatusMessage = typeof SDKAuthStatusMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKAuthStatusMessageEncoded = typeof SDKAuthStatusMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKCompactBoundaryMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -64,9 +94,18 @@ export const SDKCompactBoundaryMessage = withSdkMessage(
   "SDKCompactBoundaryMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKCompactBoundaryMessage = typeof SDKCompactBoundaryMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKCompactBoundaryMessageEncoded = typeof SDKCompactBoundaryMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookResponseMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -85,9 +124,18 @@ export const SDKHookResponseMessage = withSdkMessage(
   "SDKHookResponseMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKHookResponseMessage = typeof SDKHookResponseMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKHookResponseMessageEncoded = typeof SDKHookResponseMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookStartedMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -101,9 +149,18 @@ export const SDKHookStartedMessage = withSdkMessage(
   "SDKHookStartedMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKHookStartedMessage = typeof SDKHookStartedMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKHookStartedMessageEncoded = typeof SDKHookStartedMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookProgressMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -120,9 +177,18 @@ export const SDKHookProgressMessage = withSdkMessage(
   "SDKHookProgressMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKHookProgressMessage = typeof SDKHookProgressMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKHookProgressMessageEncoded = typeof SDKHookProgressMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKPartialAssistantMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("stream_event"),
@@ -134,9 +200,18 @@ export const SDKPartialAssistantMessage = withSdkMessage(
   "SDKPartialAssistantMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKPartialAssistantMessage = typeof SDKPartialAssistantMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKPartialAssistantMessageEncoded = typeof SDKPartialAssistantMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKResultSuccess = withSdkMessage(
   S.Struct({
     type: S.Literal("result"),
@@ -158,9 +233,18 @@ export const SDKResultSuccess = withSdkMessage(
   "SDKResultSuccess"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKResultSuccess = typeof SDKResultSuccess.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKResultSuccessEncoded = typeof SDKResultSuccess.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKResultError = withSdkMessage(
   S.Struct({
     type: S.Literal("result"),
@@ -186,19 +270,46 @@ export const SDKResultError = withSdkMessage(
   "SDKResultError"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKResultError = typeof SDKResultError.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKResultErrorEncoded = typeof SDKResultError.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKResultMessage = withIdentifier(S.Union([SDKResultSuccess, SDKResultError]), "SDKResultMessage");
 
+/**
+ * @since 0.0.0
+ */
 export type SDKResultMessage = typeof SDKResultMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKResultMessageEncoded = typeof SDKResultMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKStatus = withIdentifier(S.Union([S.Literal("compacting"), S.Null]), "SDKStatus");
 
+/**
+ * @since 0.0.0
+ */
 export type SDKStatus = typeof SDKStatus.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKStatusEncoded = typeof SDKStatus.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKStatusMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -211,9 +322,18 @@ export const SDKStatusMessage = withSdkMessage(
   "SDKStatusMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKStatusMessage = typeof SDKStatusMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKStatusMessageEncoded = typeof SDKStatusMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKSystemMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -247,9 +367,18 @@ export const SDKSystemMessage = withSdkMessage(
   "SDKSystemMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKSystemMessage = typeof SDKSystemMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKSystemMessageEncoded = typeof SDKSystemMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKTaskNotificationMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -264,9 +393,18 @@ export const SDKTaskNotificationMessage = withSdkMessage(
   "SDKTaskNotificationMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKTaskNotificationMessage = typeof SDKTaskNotificationMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKTaskNotificationMessageEncoded = typeof SDKTaskNotificationMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKTaskStartedMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -281,9 +419,18 @@ export const SDKTaskStartedMessage = withSdkMessage(
   "SDKTaskStartedMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKTaskStartedMessage = typeof SDKTaskStartedMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKTaskStartedMessageEncoded = typeof SDKTaskStartedMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKFilesPersistedEvent = withSdkMessage(
   S.Struct({
     type: S.Literal("system"),
@@ -307,9 +454,18 @@ export const SDKFilesPersistedEvent = withSdkMessage(
   "SDKFilesPersistedEvent"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKFilesPersistedEvent = typeof SDKFilesPersistedEvent.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKFilesPersistedEventEncoded = typeof SDKFilesPersistedEvent.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKToolProgressMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("tool_progress"),
@@ -323,9 +479,18 @@ export const SDKToolProgressMessage = withSdkMessage(
   "SDKToolProgressMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKToolProgressMessage = typeof SDKToolProgressMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKToolProgressMessageEncoded = typeof SDKToolProgressMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKToolUseSummaryMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("tool_use_summary"),
@@ -337,9 +502,18 @@ export const SDKToolUseSummaryMessage = withSdkMessage(
   "SDKToolUseSummaryMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKToolUseSummaryMessage = typeof SDKToolUseSummaryMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKToolUseSummaryMessageEncoded = typeof SDKToolUseSummaryMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKUserMessage = withSdkMessage(
   S.Struct({
     type: S.Literal("user"),
@@ -353,9 +527,18 @@ export const SDKUserMessage = withSdkMessage(
   "SDKUserMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKUserMessage = typeof SDKUserMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKUserMessageEncoded = typeof SDKUserMessage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKUserMessageReplay = withSdkMessage(
   S.Struct({
     type: S.Literal("user"),
@@ -370,9 +553,18 @@ export const SDKUserMessageReplay = withSdkMessage(
   "SDKUserMessageReplay"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKUserMessageReplay = typeof SDKUserMessageReplay.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKUserMessageReplayEncoded = typeof SDKUserMessageReplay.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKMessage = withIdentifier(
   S.Union([
     SDKAssistantMessage,
@@ -396,5 +588,11 @@ export const SDKMessage = withIdentifier(
   "SDKMessage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKMessage = typeof SDKMessage.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKMessageEncoded = typeof SDKMessage.Encoded;

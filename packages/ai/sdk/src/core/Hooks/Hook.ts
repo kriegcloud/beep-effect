@@ -26,6 +26,9 @@ import { type HookMap, mergeHookMaps } from "./utils.js";
 /**
  * Context passed to hook handlers by the SDK.
  */
+/**
+ * @since 0.0.0
+ */
 export type HookContext = {
   readonly toolUseID: string | undefined;
   readonly signal: AbortSignal;
@@ -34,15 +37,27 @@ export type HookContext = {
 /**
  * Effectful hook handler that returns JSON-serializable output.
  */
+/**
+ * @since 0.0.0
+ */
 export type HookHandler<R> = (input: HookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>;
 
+/**
+ * @since 0.0.0
+ */
 export type HookHandlerFor<E extends HookEvent, R> = (
   input: Extract<HookInput, { hook_event_name: E }>,
   context: HookContext
 ) => Effect.Effect<HookJSONOutput, HookError, R>;
 
+/**
+ * @since 0.0.0
+ */
 export type HookTapHandler<R> = (input: HookInput, context: HookContext) => Effect.Effect<void, HookError, R>;
 
+/**
+ * @since 0.0.0
+ */
 export type HookMatcherOptions = {
   readonly matcher?: string | undefined;
   readonly timeout?: Duration.Input | undefined;
@@ -50,6 +65,9 @@ export type HookMatcherOptions = {
 
 /**
  * Convert an Effect hook handler into the SDK callback shape.
+ */
+/**
+ * @since 0.0.0
  */
 export const callback = <R>(handler: HookHandler<R>) =>
   Effect.gen(function* () {
@@ -72,6 +90,9 @@ export const callback = <R>(handler: HookHandler<R>) =>
 
 /**
  * Build a HookCallbackMatcher for SDK hooks with optional matcher and timeout.
+ */
+/**
+ * @since 0.0.0
  */
 export const matcher = (options: {
   readonly matcher?: string | undefined;
@@ -104,6 +125,9 @@ const toMatcherEffect = <R>(
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const hook = <E extends HookEvent, R>(
   event: E,
   handler: HookHandlerFor<E, R>,
@@ -113,6 +137,9 @@ export const hook = <E extends HookEvent, R>(
     Effect.map((hookMatcher) => toHookMap([event], hookMatcher))
   );
 
+/**
+ * @since 0.0.0
+ */
 export const tap = <R>(
   events: HookEvent | ReadonlyArray<HookEvent>,
   handler: HookTapHandler<R>,
@@ -122,71 +149,113 @@ export const tap = <R>(
     Effect.map((hookMatcher) => toHookMap(Array.isArray(events) ? events : [events], hookMatcher))
   );
 
+/**
+ * @since 0.0.0
+ */
 export const onPreToolUse = <R>(
   handler: (input: PreToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("PreToolUse", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onPostToolUse = <R>(
   handler: (input: PostToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("PostToolUse", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onPostToolUseFailure = <R>(
   handler: (input: PostToolUseFailureHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("PostToolUseFailure", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onNotification = <R>(
   handler: (input: NotificationHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("Notification", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onUserPromptSubmit = <R>(
   handler: (input: UserPromptSubmitHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("UserPromptSubmit", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onSessionStart = <R>(
   handler: (input: SessionStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("SessionStart", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onSessionEnd = <R>(
   handler: (input: SessionEndHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("SessionEnd", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onStop = <R>(
   handler: (input: StopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("Stop", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onSubagentStart = <R>(
   handler: (input: SubagentStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("SubagentStart", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onSubagentStop = <R>(
   handler: (input: SubagentStopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("SubagentStop", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onPreCompact = <R>(
   handler: (input: PreCompactHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("PreCompact", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onPermissionRequest = <R>(
   handler: (input: PermissionRequestHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("PermissionRequest", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export const onSetup = <R>(
   handler: (input: SetupHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
   options?: HookMatcherOptions
 ) => hook("Setup", handler, options);
 
+/**
+ * @since 0.0.0
+ */
 export class HookBuilder<R = never> {
   private readonly entries: ReadonlyArray<Effect.Effect<HookMap, HookError, R>>;
 
@@ -313,4 +382,7 @@ export class HookBuilder<R = never> {
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export const builder = () => new HookBuilder();

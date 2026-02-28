@@ -47,6 +47,9 @@ const makeSdkEvent = (
   },
 });
 
+/**
+ * @since 0.0.0
+ */
 export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   Match.when({ type: "assistant", error: Match.string }, (message) =>
     makeSdkEvent(message, {
@@ -379,6 +382,9 @@ const makeQueryEvent = (
   },
 });
 
+/**
+ * @since 0.0.0
+ */
 export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   Match.tag("QueryQueued", (event) =>
     makeQueryEvent(event, {
@@ -464,6 +470,9 @@ const makeHookEvent = (
   },
 });
 
+/**
+ * @since 0.0.0
+ */
 export const matchHookInput = Match.type<HookInput>().pipe(
   Match.when({ hook_event_name: "PreToolUse" }, (input) =>
     makeHookEvent(input, {

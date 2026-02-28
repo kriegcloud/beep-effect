@@ -104,10 +104,7 @@ export class ProjectStructureCapture extends ServiceMap.Service<
 // Service Implementations
 // ============================================================================
 
-const ProjectDirConfig = pipe(
-  Config.string("CLAUDE_PROJECT_DIR"),
-  Config.withDefault(() => ".")
-);
+const ProjectDirConfig = pipe(Config.string("CLAUDE_PROJECT_DIR"), Config.withDefault("."));
 
 export const AgentConfigLive = Layer.effect(
   AgentConfig,
@@ -137,12 +134,12 @@ export const ProjectStructureCaptureLive = Layer.effect(
     return {
       capture: () =>
         pipe(
-          ChildProcess.make({
-            cwd: config.projectDir,
-          })`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`,
-          ChildProcess.string,
-          Effect.catch(() => Effect.succeed("(tree unavailable)")),
-          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner)(spawner)
+          spawner.string(
+            ChildProcess.make({
+              cwd: config.projectDir,
+            })`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`
+          ),
+          Effect.catch(() => Effect.succeed("(tree unavailable)"))
         ),
     };
   })
@@ -160,7 +157,10 @@ export const AppLive = ProjectStructureCaptureLive.pipe(
 const run =
   (cwd: string) =>
   (cmd: TemplateStringsArray, ...args: Array<string>) =>
-    pipe(ChildProcess.make({ cwd })(cmd, ...args), ChildProcess.string);
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(ChildProcess.make({ cwd })(cmd, ...args));
+    });
 
 export const program = Effect.gen(function* () {
   const config = yield* AgentConfig;

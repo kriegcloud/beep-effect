@@ -22,7 +22,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ChildProcess } from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const LenientUserPromptInput = S.Struct({
   session_id: S.String,
@@ -111,8 +111,10 @@ const shouldShowMiseTasks = (prompt: string): boolean => {
 const fetchMiseTasks = (cwd: string) =>
   Effect.gen(function* () {
     const result = yield* pipe(
-      ChildProcess.make({ cwd })`mise tasks --json`,
-      ChildProcess.string,
+      Effect.gen(function* () {
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return yield* spawner.string(ChildProcess.make({ cwd })`mise tasks --json`);
+      }),
       Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
       Effect.map(formatMiseTasks),
       Effect.catch(() => Effect.succeed(""))
@@ -294,8 +296,12 @@ const searchModules = (prompt: string, cwd: string) =>
     const pattern = words[0];
 
     const result = yield* pipe(
-      ChildProcess.make("bun", [".claude/scripts/context-crawler.ts", "--search", pattern], { cwd }),
-      ChildProcess.string,
+      Effect.gen(function* () {
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return yield* spawner.string(
+          ChildProcess.make("bun", [".claude/scripts/context-crawler.ts", "--search", pattern], { cwd })
+        );
+      }),
       Effect.catch(() => Effect.succeed(""))
     );
 
@@ -682,8 +688,12 @@ Prefer these over manual exploration and memory management.
 </memory-and-modules>`);
 
   const version = yield* pipe(
-    ChildProcess.make("bun", ["-e", "console.log(require('./package.json').version)"], { cwd: input.cwd }),
-    ChildProcess.string,
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(
+        ChildProcess.make("bun", ["-e", "console.log(require('./package.json').version)"], { cwd: input.cwd })
+      );
+    }),
     Effect.map((v) => Str.trim(v)),
     Effect.catch(() => Effect.succeed("unknown"))
   );

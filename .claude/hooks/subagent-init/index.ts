@@ -21,7 +21,7 @@ import { Config, Console, Effect, Layer, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ChildProcess } from "effect/unstable/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
 
@@ -53,10 +53,7 @@ export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`Ag
 
 export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
 
-const ProjectDirConfig = pipe(
-  Config.string("CLAUDE_PROJECT_DIR"),
-  Config.withDefault(() => ".")
-);
+const ProjectDirConfig = pipe(Config.string("CLAUDE_PROJECT_DIR"), Config.withDefault("."));
 
 export const AgentConfigLive = Layer.effect(
   AgentConfig,
@@ -97,7 +94,10 @@ function listMemories(): string {
 const run =
   (cwd: string) =>
   (cmd: TemplateStringsArray, ...args: Array<string>) =>
-    pipe(ChildProcess.make({ cwd })(cmd, ...args), ChildProcess.string);
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(ChildProcess.make({ cwd })(cmd, ...args));
+    });
 
 const program = Effect.gen(function* () {
   const config = yield* AgentConfig;

@@ -8,6 +8,9 @@ import { layerConfigFromEnv } from "./internal/config.js";
 import { mergeOptions } from "./internal/options.js";
 import type { Options } from "./Schema/Options.js";
 
+/**
+ * @since 0.0.0
+ */
 export type AgentRuntimeSettings = {
   readonly defaultOptions: Options;
   readonly queryTimeout: Duration.Duration | undefined;
@@ -60,6 +63,9 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
   return { settings };
 });
 
+/**
+ * @since 0.0.0
+ */
 export class AgentRuntimeConfig extends ServiceMap.Service<
   AgentRuntimeConfig,
   {

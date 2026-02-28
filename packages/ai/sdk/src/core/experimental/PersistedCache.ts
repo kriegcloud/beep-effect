@@ -7,7 +7,13 @@ import { AgentSdkError, TransportError } from "../Errors.js";
 import type { QueryHandle } from "../Query.js";
 import { AccountInfo, ModelInfo, SlashCommand } from "../Schema/Common.js";
 
+/**
+ * @since 0.0.0
+ */
 export * from "effect/unstable/persistence/PersistedCache";
+/**
+ * @since 0.0.0
+ */
 export * as Persistence from "effect/unstable/persistence/Persistence";
 
 const SupportedCommandsSchema = S.Array(SlashCommand);
@@ -15,6 +21,9 @@ const SupportedModelsSchema = S.Array(ModelInfo);
 
 /**
  * Persisted request for supported slash commands.
+ */
+/**
+ * @since 0.0.0
  */
 export class SupportedCommandsRequest extends Persistable.Class()("SupportedCommandsRequest", {
   success: SupportedCommandsSchema,
@@ -25,6 +34,9 @@ export class SupportedCommandsRequest extends Persistable.Class()("SupportedComm
 /**
  * Persisted request for supported models.
  */
+/**
+ * @since 0.0.0
+ */
 export class SupportedModelsRequest extends Persistable.Class()("SupportedModelsRequest", {
   success: SupportedModelsSchema,
   error: AgentSdkError,
@@ -33,6 +45,9 @@ export class SupportedModelsRequest extends Persistable.Class()("SupportedModels
 
 /**
  * Persisted request for account info.
+ */
+/**
+ * @since 0.0.0
  */
 export class AccountInfoRequest extends Persistable.Class()("AccountInfoRequest", {
   success: AccountInfo,
@@ -47,6 +62,9 @@ const accountInfoKey = new AccountInfoRequest();
 /**
  * Cache entries for query metadata calls.
  */
+/**
+ * @since 0.0.0
+ */
 export type QueryMetadataCache = {
   readonly supportedCommands: PersistedCache.PersistedCache<SupportedCommandsRequest>;
   readonly supportedModels: PersistedCache.PersistedCache<SupportedModelsRequest>;
@@ -55,6 +73,9 @@ export type QueryMetadataCache = {
 
 /**
  * Options for metadata caching.
+ */
+/**
+ * @since 0.0.0
  */
 export type QueryMetadataCacheOptions = {
   readonly storeIdPrefix?: string;
@@ -79,6 +100,9 @@ const toCacheError = (message: string, cause: unknown): AgentSdkError => {
 
 /**
  * Build metadata caches for a query handle.
+ */
+/**
+ * @since 0.0.0
  */
 export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadataCache")(function* (
   handle: QueryHandle,
@@ -121,6 +145,9 @@ export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadat
 /**
  * Override a QueryHandle to use cached metadata lookups.
  */
+/**
+ * @since 0.0.0
+ */
 export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadataCache): QueryHandle => ({
   ...handle,
   supportedCommands: cache.supportedCommands
@@ -148,6 +175,9 @@ export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadata
  *   })
  * )
  * ```
+ */
+/**
+ * @since 0.0.0
  */
 export const makeCachedQueryHandle = Effect.fn("PersistedCache.makeCachedQueryHandle")(function* (
   handle: QueryHandle,

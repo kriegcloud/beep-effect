@@ -35,8 +35,17 @@ const logIfEnabled = (event: AgentLogEvent) =>
     enabled ? logAgentEvent(event).pipe(Effect.asVoid) : Effect.void
   );
 
+/**
+ * @since 0.0.0
+ */
 export const logSdkMessage = (message: SDKMessage) => logIfEnabled(matchSdkMessage(message));
 
+/**
+ * @since 0.0.0
+ */
 export const logQueryEvent = (event: QueryEvent) => logIfEnabled(matchQueryEvent(event));
 
+/**
+ * @since 0.0.0
+ */
 export const logHookInput = (input: HookInput) => logIfEnabled(matchHookInput(input));

@@ -14,6 +14,9 @@ const missingCredentialsMessage = [
   "See: https://docs.anthropic.com/en/docs/quickstart",
 ].join("\n");
 
+/**
+ * @since 0.0.0
+ */
 export const missingCredentialsError = () =>
   ConfigError.make({
     message: missingCredentialsMessage,

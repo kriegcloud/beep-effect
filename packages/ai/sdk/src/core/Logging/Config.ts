@@ -9,12 +9,24 @@ import { ConfigError } from "../Errors.js";
 import { layerConfigFromEnv } from "../internal/config.js";
 import type { AgentLogCategory } from "./Types.js";
 
+/**
+ * @since 0.0.0
+ */
 export const LogFormat = Schema.Literals(["pretty", "structured", "json", "logfmt", "string"]);
 
+/**
+ * @since 0.0.0
+ */
 export type LogFormat = typeof LogFormat.Type;
 
+/**
+ * @since 0.0.0
+ */
 export type AgentLoggingCategories = Record<AgentLogCategory, boolean>;
 
+/**
+ * @since 0.0.0
+ */
 export type AgentLoggingSettings = {
   readonly format: LogFormat;
   readonly minLevel: LogLevel.LogLevel;
@@ -75,6 +87,9 @@ const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigEr
   }
 };
 
+/**
+ * @since 0.0.0
+ */
 export class AgentLoggingConfig extends ServiceMap.Service<
   AgentLoggingConfig,
   {

@@ -10,7 +10,7 @@ export const OpenAiClientLayer = OpenAiClient.layer({
   apiKey: Redacted.make(OpenAiApiKey),
 }).pipe(Layer.provide(FetchHttpClient.layer));
 
-const OpenAiModelConfig = Config.string("OPENAI_MODEL").pipe(Config.withDefault(() => "gpt-4o-mini"));
+const OpenAiModelConfig = Config.string("OPENAI_MODEL").pipe(Config.withDefault("gpt-4o-mini"));
 
 export const OpenAiLanguageModelLayer = Layer.unwrap(
   Effect.gen(function* () {

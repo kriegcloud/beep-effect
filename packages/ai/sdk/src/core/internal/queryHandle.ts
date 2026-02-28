@@ -1,44 +1,19 @@
-import type {
-  McpServerConfig as SdkMcpServerConfig,
-  PermissionMode as SdkPermissionMode,
-} from "@anthropic-ai/claude-agent-sdk";
+import type { McpServerConfig as SdkMcpServerConfig, Query as SdkQuery } from "@anthropic-ai/claude-agent-sdk";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
 import type { AgentSdkError } from "../Errors.js";
 import { TransportError } from "../Errors.js";
 import type { QueryHandle, StreamBroadcastConfig, StreamShareConfig } from "../Query.js";
-import type { AccountInfo, ModelInfo, RewindFilesResult, SlashCommand } from "../Schema/Common.js";
 import type { PermissionMode } from "../Schema/index.js";
-import type { McpServerConfig, McpServerStatus, McpSetServersResult } from "../Schema/Mcp.js";
+import type { McpServerConfig } from "../Schema/Mcp.js";
 import { SDKMessage as SDKMessageSchema, type SDKUserMessage } from "../Schema/Message.js";
 import type { InputQueue } from "./streaming.js";
 
-export type SdkQueryLike = AsyncIterable<unknown> & {
-  interrupt: () => Promise<void>;
-  setPermissionMode: (mode: SdkPermissionMode) => Promise<void>;
-  setModel: (model?: string) => Promise<void>;
-  setMaxThinkingTokens: (maxTokens: number | null) => Promise<void>;
-  rewindFiles: (
-    userMessageUuid: string,
-    options?: {
-      readonly dryRun?: undefined | boolean;
-    }
-  ) => Promise<RewindFilesResult>;
-  supportedCommands: () => Promise<ReadonlyArray<SlashCommand>>;
-  supportedModels: () => Promise<ReadonlyArray<ModelInfo>>;
-  mcpServerStatus: () => Promise<ReadonlyArray<McpServerStatus>>;
-  setMcpServers: (servers: Record<string, SdkMcpServerConfig>) => Promise<McpSetServersResult>;
-  accountInfo: () => Promise<AccountInfo>;
-  initializationResult: () => Promise<{
-    commands: ReadonlyArray<SlashCommand>;
-    output_style: string;
-    available_output_styles: ReadonlyArray<string>;
-    models: ReadonlyArray<ModelInfo>;
-    account: AccountInfo;
-  }>;
-  stopTask: (taskId: string) => Promise<void>;
-};
+/**
+ * @since 0.0.0
+ */
+export type SdkQueryLike = SdkQuery;
 
 const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);
 
@@ -50,6 +25,9 @@ const sdkPromise = <A>(label: string, effect: () => Promise<A>) =>
 
 const inputUnavailable = (label: string) => Effect.fail(TransportError.make(label));
 
+/**
+ * @since 0.0.0
+ */
 export const makeQueryHandle = (
   sdkQueryInstance: SdkQueryLike,
   inputQueue?: InputQueue,
@@ -125,8 +103,10 @@ export const makeQueryHandle = (
     sdkPromise("Failed to set max thinking tokens", () => sdkQueryInstance.setMaxThinkingTokens(maxTokens))
   );
   const rewindFiles = Effect.fn("QueryHandle.rewindFiles")(
-    (userMessageUuid: string, options?: { readonly dryRun?: undefined | boolean }) =>
-      sdkPromise("Failed to rewind files", () => sdkQueryInstance.rewindFiles(userMessageUuid, options))
+    (userMessageUuid: string, options?: { readonly dryRun?: undefined | boolean }) => {
+      const sdkOptions = options?.dryRun === undefined ? undefined : { dryRun: options.dryRun };
+      return sdkPromise("Failed to rewind files", () => sdkQueryInstance.rewindFiles(userMessageUuid, sdkOptions));
+    }
   );
   const supportedCommands = sdkPromise("Failed to load supported commands", () => sdkQueryInstance.supportedCommands());
   const supportedModels = sdkPromise("Failed to load supported models", () => sdkQueryInstance.supportedModels());

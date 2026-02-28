@@ -26,19 +26,34 @@ import { SessionIndexStore } from "./SessionIndexStore.js";
 import { type KVNamespace, layerKV } from "./StorageKV.js";
 import { layerR2, type R2Bucket } from "./StorageR2.js";
 
+/**
+ * @since 0.0.0
+ */
 export type StorageLayerOptions = {
   readonly directory?: string;
   readonly tenant?: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageBackend = "filesystem" | "bun" | "r2" | "kv";
+/**
+ * @since 0.0.0
+ */
 export type StorageMode = "standard" | "journaled";
 
+/**
+ * @since 0.0.0
+ */
 export type CloudflareStorageBindings = {
   readonly r2Bucket?: R2Bucket;
   readonly kvNamespace?: KVNamespace;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageLayers<E = unknown, R = unknown> = {
   readonly chatHistory: Layer.Layer<ChatHistoryStore, E, R>;
   readonly artifacts: Layer.Layer<ArtifactStore, E, R>;
@@ -46,10 +61,16 @@ export type StorageLayers<E = unknown, R = unknown> = {
   readonly sessionIndex: Layer.Layer<SessionIndexStore, E, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageLayersWithSync<E = unknown, R = unknown> = StorageLayers<E, R> & {
   readonly sync?: Layer.Layer<SyncService, E, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
   readonly syncInterval?: Duration.Input;
   readonly disablePing?: boolean;
@@ -60,10 +81,16 @@ export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
   readonly exposeSync?: boolean;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageSyncOptions<R = never> = Omit<StorageSyncLayerOptions<R>, "directory"> & {
   readonly url: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageLayerBundleOptions<R = never> = StorageLayerOptions & {
   readonly backend?: StorageBackend;
   readonly mode?: StorageMode;
@@ -227,39 +254,63 @@ const provideBunLayers = <E, R>(layers: StorageLayers<E, R>): StorageLayers<E, E
   sessionIndex: layers.sessionIndex.pipe(Layer.provide([bunFileSystemLayer, bunPathLayer])),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const layersFileSystem = (options?: StorageLayerOptions) => resolveLayers(options, "filesystem", "standard");
 
+/**
+ * @since 0.0.0
+ */
 export const layersFileSystemJournaled = (options?: StorageLayerOptions) =>
   resolveLayers(options, "filesystem", "journaled");
 
 const bunFileSystemLayer = BunFileSystem.layer;
 const bunPathLayer = BunPath.layer;
 
+/**
+ * @since 0.0.0
+ */
 export const layersFileSystemBun = (options?: StorageLayerOptions): StorageLayers => {
   const layers = resolveLayers(options, "bun", "standard");
   return provideBunLayers(layers);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): StorageLayers => {
   const layers = resolveLayers(options, "bun", "journaled");
   return provideBunLayers(layers);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layerFileSystem = (options?: StorageLayerOptions) => {
   const layers = resolveLayers(options, "filesystem", "standard");
   return mergeLayers(layers);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layerFileSystemBun = (options?: StorageLayerOptions) => {
   const layers = layersFileSystemBun(options);
   return mergeLayers(layers);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layerFileSystemJournaled = (options?: StorageLayerOptions) => {
   const layers = resolveLayers(options, "filesystem", "journaled");
   return mergeLayers(layers);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layerFileSystemBunJournaled = (options?: StorageLayerOptions) => {
   const layers = layersFileSystemBunJournaled(options);
   return mergeLayers(layers);
@@ -363,6 +414,9 @@ const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
   return buildJournaledSyncLayers(url, options, baseLayers, kvsLayer);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
   options?: StorageSyncLayerOptions<R>
@@ -378,6 +432,9 @@ export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   return buildJournaledSyncLayers(url, options, baseLayers, kvsLayer);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const layerFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
   options?: StorageSyncLayerOptions<R>
@@ -387,21 +444,39 @@ export const layerFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   return layers.sync ? Layer.merge(combined, layers.sync) : combined;
 };
 
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options?: StorageLayerBundleOptions & { readonly backend?: "bun" }
 ): StorageLayersWithSync<unknown, never>;
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "filesystem" }
 ): StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "r2" }
 ): StorageLayersWithSync<unknown, never>;
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "kv" }
 ): StorageLayersWithSync<unknown, never>;
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options?: StorageLayerBundleOptions
 ): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
+/**
+ * @since 0.0.0
+ */
 export function layers(
   options: StorageLayerBundleOptions = {}
 ): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path> {

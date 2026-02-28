@@ -14,11 +14,17 @@ import { SessionIndexStore } from "./SessionIndexStore.js";
 import { StorageConfig } from "./StorageConfig.js";
 import type { StorageError } from "./StorageError.js";
 
+/**
+ * @since 0.0.0
+ */
 export type ArtifactListOptions = {
   readonly offset?: number;
   readonly limit?: number;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ArtifactJournaledOptions<R = never> = {
   readonly prefix?: string;
   readonly journalKey?: string;
@@ -26,6 +32,9 @@ export type ArtifactJournaledOptions<R = never> = {
   readonly conflictPolicy?: Layer.Layer<ConflictPolicy, unknown, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ArtifactSyncOptions<R = never> = ArtifactJournaledOptions<R> & {
   readonly disablePing?: boolean;
   readonly protocols?: string | Array<string>;
@@ -266,6 +275,9 @@ const makeMemoryStore = Effect.gen(function* () {
   });
 });
 
+/**
+ * @since 0.0.0
+ */
 export class ArtifactStore extends ServiceMap.Service<ArtifactStore, ArtifactStoreService>()(
   "@effect/claude-agent-sdk/ArtifactStore"
 ) {

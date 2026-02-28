@@ -3,6 +3,9 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
 
+/**
+ * @since 0.0.0
+ */
 export * from "effect/unstable/persistence/RateLimiter";
 
 /**
@@ -15,30 +18,48 @@ export * from "effect/unstable/persistence/RateLimiter";
  * }).pipe(Effect.provide(layerMemory))
  * ```
  */
+/**
+ * @since 0.0.0
+ */
 export const layerMemory = RateLimiter.layer.pipe(Layer.provide(RateLimiter.layerStoreMemory));
 
 /**
  * Namespace a limiter key by session id.
+ */
+/**
+ * @since 0.0.0
  */
 export const keyForSession = (sessionId: string) => `session:${sessionId}`;
 
 /**
  * Namespace a limiter key by tool name.
  */
+/**
+ * @since 0.0.0
+ */
 export const keyForTool = (toolName: string) => `tool:${toolName}`;
 
 /**
  * Namespace a limiter key by endpoint name.
+ */
+/**
+ * @since 0.0.0
  */
 export const keyForEndpoint = (endpoint: string) => `endpoint:${endpoint}`;
 
 /**
  * Namespace a limiter key by session id and tool name.
  */
+/**
+ * @since 0.0.0
+ */
 export const keyForSessionTool = (sessionId: string, toolName: string) => `${keyForSession(sessionId)}:${toolName}`;
 
 /**
  * Configuration for a shared rate limiting window.
+ */
+/**
+ * @since 0.0.0
  */
 export type RateLimitWindowConfig = {
   readonly algorithm?: "fixed-window" | "token-bucket";
@@ -50,6 +71,9 @@ export type RateLimitWindowConfig = {
 
 /**
  * Per-handler rate limit configuration.
+ */
+/**
+ * @since 0.0.0
  */
 export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & {
   readonly key: string | ((input: A) => string);
@@ -67,6 +91,9 @@ export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & 
  *   limit: 10
  * })(Effect.succeed("ok"))
  * ```
+ */
+/**
+ * @since 0.0.0
  */
 export const withRateLimit =
   (config: {
@@ -100,6 +127,9 @@ export const withRateLimit =
  * )
  * ```
  */
+/**
+ * @since 0.0.0
+ */
 export const rateLimitHandler =
   <A, E, R, B>(handler: (input: A) => Effect.Effect<B, E, R>, config: RateLimitHandlerConfig<A>) =>
   (input: A) => {
@@ -130,6 +160,9 @@ type AnyHandler = (input: any) => Effect.Effect<any, any, any>;
  *   { keyPrefix: "agent" }
  * )
  * ```
+ */
+/**
+ * @since 0.0.0
  */
 export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
   handlers: Handlers,

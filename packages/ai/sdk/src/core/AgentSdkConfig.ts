@@ -229,6 +229,9 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   };
 });
 
+/**
+ * @since 0.0.0
+ */
 export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, Effect.Success<typeof makeAgentSdkConfig>>()(
   "@effect/claude-agent-sdk/AgentSdkConfig"
 ) {

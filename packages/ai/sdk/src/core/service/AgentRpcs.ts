@@ -13,11 +13,23 @@ import {
 } from "../Schema/Service.js";
 import { SessionServiceError } from "./SessionErrors.js";
 
+/**
+ * @since 0.0.0
+ */
 export const AgentServiceError = AgentSdkError.pipe(Schema.annotate({ identifier: "AgentServiceError" }));
 
+/**
+ * @since 0.0.0
+ */
 export type AgentServiceError = typeof AgentServiceError.Type;
+/**
+ * @since 0.0.0
+ */
 export type AgentServiceErrorEncoded = typeof AgentServiceError.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export class AgentRpcs extends RpcGroup.make(
   Rpc.make("QueryStream", {
     payload: QueryInput,

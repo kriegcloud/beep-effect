@@ -5,6 +5,9 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import { layerConfigFromEnv } from "../internal/config.js";
+/**
+ * @since 0.0.0
+ */
 export type StorageConfigData = {
   readonly enabled: {
     readonly chatHistory: boolean;
@@ -43,6 +46,9 @@ export type StorageConfigData = {
   };
 };
 
+/**
+ * @since 0.0.0
+ */
 export type StorageConfigSettings = {
   readonly settings: StorageConfigData;
 };
@@ -162,6 +168,9 @@ const makeStorageConfig = Effect.gen(function* () {
 });
 // export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
 //  Effect.Effect<, Config.ConfigError, never>
+/**
+ * @since 0.0.0
+ */
 export class StorageConfig extends ServiceMap.Service<
   StorageConfig,
   {

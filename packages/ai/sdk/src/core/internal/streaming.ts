@@ -5,6 +5,9 @@ import type { AgentSdkError } from "../Errors.js";
 import { TransportError } from "../Errors.js";
 import type { SDKUserMessage } from "../Schema/Message.js";
 
+/**
+ * @since 0.0.0
+ */
 export type InputQueue = {
   readonly queue: Queue.Queue<SDKUserMessage>;
   readonly input: AsyncIterable<SDKUserMessage>;
@@ -15,6 +18,9 @@ export type InputQueue = {
 
 const queueError = (message: string, cause: unknown) => TransportError.make(message, cause);
 
+/**
+ * @since 0.0.0
+ */
 export const createInputQueue = (capacity = 16) =>
   Effect.gen(function* () {
     const queue = yield* Queue.bounded<SDKUserMessage>(capacity);
@@ -39,6 +45,9 @@ export const createInputQueue = (capacity = 16) =>
     return { queue, input, send, sendAll, closeInput } as const;
   });
 
+/**
+ * @since 0.0.0
+ */
 export const pumpInput = (queue: Queue.Queue<SDKUserMessage>, prompt: AsyncIterable<SDKUserMessage>) =>
   Stream.fromAsyncIterable(prompt, (cause) => queueError("Input stream failed", cause)).pipe(
     Stream.runForEach((message) => Queue.offer(queue, message)),

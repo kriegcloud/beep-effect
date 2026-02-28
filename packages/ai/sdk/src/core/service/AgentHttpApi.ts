@@ -112,4 +112,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
     })
   ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class AgentHttpApi extends HttpApi.make("agent").add(AgentHttpGroup) {}

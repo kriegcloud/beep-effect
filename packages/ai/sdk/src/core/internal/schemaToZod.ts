@@ -117,8 +117,14 @@ const compile = (ast: AST.AST, path: ReadonlyArray<string>): z.ZodTypeAny => {
   return unsupported(`Unsupported schema (${ast._tag})`, path);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const schemaToZod = (schema: Schema.Top): z.ZodTypeAny => compile(schema.ast, []);
 
+/**
+ * @since 0.0.0
+ */
 export const schemaToZodObject = (schema: Schema.Top): z.ZodObject<any> => {
   const compiled = schemaToZod(schema);
   if (compiled instanceof z.ZodObject) {

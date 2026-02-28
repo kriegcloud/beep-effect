@@ -3,8 +3,14 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
+/**
+ * @since 0.0.0
+ */
 export type CompactionBracket = [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>];
 
+/**
+ * @since 0.0.0
+ */
 export type CompactionStrategy = (
   entries: ReadonlyArray<EventJournal.RemoteEntry>
 ) => Effect.Effect<ReadonlyArray<CompactionBracket>>;
@@ -23,6 +29,9 @@ const toRemoteEntries = (entries: ReadonlyArray<EventJournal.Entry>) =>
       })
   );
 
+/**
+ * @since 0.0.0
+ */
 export const compactEntries = (strategy: CompactionStrategy, entries: ReadonlyArray<EventJournal.Entry>) =>
   strategy(toRemoteEntries(entries)).pipe(
     Effect.map((brackets) => {
@@ -34,6 +43,9 @@ export const compactEntries = (strategy: CompactionStrategy, entries: ReadonlyAr
 const estimateEntrySize = (entry: EventJournal.Entry) =>
   entry.payload.byteLength + entry.event.length + entry.primaryKey.length + entry.id.byteLength;
 
+/**
+ * @since 0.0.0
+ */
 export const Compaction = {
   byAge:
     (maxAge: Duration.Input): CompactionStrategy =>

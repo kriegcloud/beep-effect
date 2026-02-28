@@ -7,6 +7,9 @@ import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const callerTenantHeader = "x-agent-tenant";
 
+/**
+ * @since 0.0.0
+ */
 export class SessionTenantAccessError extends Schema.TaggedErrorClass<SessionTenantAccessError>()(
   "SessionTenantAccessError",
   {
@@ -36,6 +39,9 @@ const validateTenant = (tenant: string | undefined, source: "requested" | "calle
         })
       );
 
+/**
+ * @since 0.0.0
+ */
 export const resolveRequestTenant = (requestedTenant?: string) =>
   Effect.gen(function* () {
     const requestOption = yield* Effect.serviceOption(HttpServerRequest.HttpServerRequest);

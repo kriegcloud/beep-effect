@@ -7,10 +7,19 @@ import * as Schema from "effect/Schema";
 import * as ServiceMap from "effect/ServiceMap";
 import { layerConfigFromEnv } from "./internal/config.js";
 
+/**
+ * @since 0.0.0
+ */
 export const PendingQueueStrategy = Schema.Literals(["suspend", "dropping", "sliding"]);
 
+/**
+ * @since 0.0.0
+ */
 export type PendingQueueStrategy = typeof PendingQueueStrategy.Type;
 
+/**
+ * @since 0.0.0
+ */
 export type QuerySupervisorSettings = {
   readonly concurrencyLimit: number;
   readonly pendingQueueCapacity: number;
@@ -83,6 +92,9 @@ const makeQuerySupervisorConfig = Effect.gen(function* () {
   return { settings };
 });
 
+/**
+ * @since 0.0.0
+ */
 export class QuerySupervisorConfig extends ServiceMap.Service<
   QuerySupervisorConfig,
   {

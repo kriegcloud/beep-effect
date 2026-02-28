@@ -12,14 +12,23 @@ import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import { SessionPermissionMode } from "./Schema/Session.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionDefaults = Omit<SDKSessionOptions, "model">;
 
+/**
+ * @since 0.0.0
+ */
 export type SessionRuntimeSettings = {
   readonly closeDrainTimeout: Duration.Input;
   readonly turnSendTimeout?: Duration.Input;
   readonly turnResultTimeout?: Duration.Input;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const resolveTurnTimeouts = (
   runtime: SessionRuntimeSettings
 ):
@@ -35,6 +44,9 @@ export const resolveTurnTimeouts = (
       }
     : undefined;
 
+/**
+ * @since 0.0.0
+ */
 export type SessionConfigSettings = {
   readonly defaults: SessionDefaults;
   readonly runtime: SessionRuntimeSettings;
@@ -117,6 +129,9 @@ const makeSessionConfig = Effect.gen(function* () {
   return { defaults, runtime } satisfies SessionConfigSettings;
 });
 
+/**
+ * @since 0.0.0
+ */
 export class SessionConfig extends ServiceMap.Service<SessionConfig, SessionConfigSettings>()(
   "@effect/claude-agent-sdk/SessionConfig"
 ) {

@@ -7,6 +7,7 @@ import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
@@ -20,7 +21,10 @@ const BaseLayers = Layer.mergeAll(
   NodePath.layer,
   NodeTerminal.layer,
   TestConsole.layer,
-  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
+  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({
+    streamString: () => Stream.empty,
+    streamLines: () => Stream.empty,
+  })
 );
 
 const TestLayers = FsUtilsLive.pipe(Layer.provideMerge(BaseLayers));

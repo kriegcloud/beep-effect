@@ -89,7 +89,7 @@ export const loadPatterns = Effect.gen(function* () {
   const path = yield* Path.Path;
 
   // For tests running from .claude, detect and use parent as project root
-  const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault(() => "."));
+  const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault("."));
   const cwd = process.cwd();
   const projectDir = cwd.endsWith(".claude") ? path.join(cwd, "..") : configDir;
   const root = path.join(projectDir, ".claude", "patterns");

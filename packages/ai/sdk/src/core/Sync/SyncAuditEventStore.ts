@@ -5,6 +5,9 @@ import { AuditEventStore } from "../Storage/index.js";
 import type { SyncCompactionAudit, SyncConflictAudit } from "./SyncAudit.js";
 import { SyncAudit } from "./SyncAudit.js";
 
+/**
+ * @since 0.0.0
+ */
 export const layerAuditEventStore = Layer.effect(
   SyncAudit,
   Effect.gen(function* () {

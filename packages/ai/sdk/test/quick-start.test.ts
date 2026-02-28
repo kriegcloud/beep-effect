@@ -71,7 +71,7 @@ test("run returns the final result without Effect plumbing", async () => {
 
 test("streamText yields streamed chunks and ignores result duplication", async () => {
   const runtime = makeRuntime(
-    Stream.fromIterable([makeDeltaMessage("Hel"), makeDeltaMessage("lo"), makeSuccessMessage("Hello")])
+    Stream.fromIterable([makeDeltaMessage("He"), makeDeltaMessage("llo"), makeSuccessMessage("Hello")])
   );
   const entry = {
     layers: { runtime: Layer.succeed(AgentRuntime, runtime) },
@@ -79,7 +79,7 @@ test("streamText yields streamed chunks and ignores result duplication", async (
 
   const chunks = await collect(streamText("hello", undefined, entry));
   expect(chunks.join("")).toBe("Hello");
-  expect(chunks).toEqual(["Hel", "lo"]);
+  expect(chunks).toEqual(["He", "llo"]);
 });
 
 test("streamText falls back to result text when no deltas exist", async () => {

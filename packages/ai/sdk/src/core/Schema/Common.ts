@@ -2,28 +2,67 @@ import * as S from "effect/Schema";
 
 import { withIdentifier } from "./Annotations.js";
 
+/**
+ * @since 0.0.0
+ */
 export const UUID = withIdentifier(S.String.check(S.isUUID(4)), "UUID");
+/**
+ * @since 0.0.0
+ */
 export type UUID = typeof UUID.Type;
+/**
+ * @since 0.0.0
+ */
 export type UUIDEncoded = typeof UUID.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const ApiKeySource = withIdentifier(S.String, "ApiKeySource");
 
+/**
+ * @since 0.0.0
+ */
 export type ApiKeySource = typeof ApiKeySource.Type;
+/**
+ * @since 0.0.0
+ */
 export type ApiKeySourceEncoded = typeof ApiKeySource.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SdkBeta = withIdentifier(S.Literal("context-1m-2025-08-07"), "SdkBeta");
 
+/**
+ * @since 0.0.0
+ */
 export type SdkBeta = typeof SdkBeta.Type;
+/**
+ * @since 0.0.0
+ */
 export type SdkBetaEncoded = typeof SdkBeta.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const ExitReason = withIdentifier(
   S.Literals(["clear", "logout", "prompt_input_exit", "other", "bypass_permissions_disabled"]),
   "ExitReason"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ExitReason = typeof ExitReason.Type;
+/**
+ * @since 0.0.0
+ */
 export type ExitReasonEncoded = typeof ExitReason.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SlashCommand = withIdentifier(
   S.Struct({
     name: S.String,
@@ -33,9 +72,18 @@ export const SlashCommand = withIdentifier(
   "SlashCommand"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SlashCommand = typeof SlashCommand.Type;
+/**
+ * @since 0.0.0
+ */
 export type SlashCommandEncoded = typeof SlashCommand.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const ModelInfo = withIdentifier(
   S.Struct({
     value: S.String,
@@ -45,9 +93,18 @@ export const ModelInfo = withIdentifier(
   "ModelInfo"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ModelInfo = typeof ModelInfo.Type;
+/**
+ * @since 0.0.0
+ */
 export type ModelInfoEncoded = typeof ModelInfo.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const ModelUsage = withIdentifier(
   S.Struct({
     inputTokens: S.Number,
@@ -62,14 +119,32 @@ export const ModelUsage = withIdentifier(
   "ModelUsage"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ModelUsage = typeof ModelUsage.Type;
+/**
+ * @since 0.0.0
+ */
 export type ModelUsageEncoded = typeof ModelUsage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const NonNullableUsage = withIdentifier(S.Record(S.String, S.Unknown), "NonNullableUsage");
 
+/**
+ * @since 0.0.0
+ */
 export type NonNullableUsage = typeof NonNullableUsage.Type;
+/**
+ * @since 0.0.0
+ */
 export type NonNullableUsageEncoded = typeof NonNullableUsage.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const AccountInfo = withIdentifier(
   S.Struct({
     email: S.optional(S.String),
@@ -81,9 +156,18 @@ export const AccountInfo = withIdentifier(
   "AccountInfo"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type AccountInfo = typeof AccountInfo.Type;
+/**
+ * @since 0.0.0
+ */
 export type AccountInfoEncoded = typeof AccountInfo.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SDKPermissionDenial = withIdentifier(
   S.Struct({
     tool_name: S.String,
@@ -93,9 +177,18 @@ export const SDKPermissionDenial = withIdentifier(
   "SDKPermissionDenial"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SDKPermissionDenial = typeof SDKPermissionDenial.Type;
+/**
+ * @since 0.0.0
+ */
 export type SDKPermissionDenialEncoded = typeof SDKPermissionDenial.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const RewindFilesResult = withIdentifier(
   S.Struct({
     canRewind: S.Boolean,
@@ -107,9 +200,18 @@ export const RewindFilesResult = withIdentifier(
   "RewindFilesResult"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type RewindFilesResult = typeof RewindFilesResult.Type;
+/**
+ * @since 0.0.0
+ */
 export type RewindFilesResultEncoded = typeof RewindFilesResult.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SdkPluginConfig = withIdentifier(
   S.Struct({
     type: S.Literal("local"),
@@ -118,5 +220,11 @@ export const SdkPluginConfig = withIdentifier(
   "SdkPluginConfig"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SdkPluginConfig = typeof SdkPluginConfig.Type;
+/**
+ * @since 0.0.0
+ */
 export type SdkPluginConfigEncoded = typeof SdkPluginConfig.Encoded;

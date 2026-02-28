@@ -8,6 +8,9 @@ const $I = $AiSdkId.create("core/Errors");
 /**
  * Configuration loading or validation failure.
  */
+/**
+ * @since 0.0.0
+ */
 export class ConfigError extends S.TaggedErrorClass<ConfigError>($I`ConfigError`)(
   "ConfigError",
   {
@@ -23,6 +26,9 @@ export class ConfigError extends S.TaggedErrorClass<ConfigError>($I`ConfigError`
 
 /**
  * Failure while decoding or validating SDK payloads.
+ */
+/**
+ * @since 0.0.0
  */
 export class DecodeError extends S.TaggedErrorClass<DecodeError>($I`DecodeError`)(
   "DecodeError",
@@ -40,6 +46,9 @@ export class DecodeError extends S.TaggedErrorClass<DecodeError>($I`DecodeError`
 
 /**
  * Errors originating from the underlying SDK transport or process.
+ */
+/**
+ * @since 0.0.0
  */
 export class TransportError extends S.TaggedErrorClass<TransportError>($I`TransportError`)(
   "TransportError",
@@ -61,6 +70,9 @@ export class TransportError extends S.TaggedErrorClass<TransportError>($I`Transp
 /**
  * Failure while executing hook callbacks.
  */
+/**
+ * @since 0.0.0
+ */
 export class HookError extends S.TaggedErrorClass<HookError>($I`HookError`)(
   "HookError",
   {
@@ -74,6 +86,9 @@ export class HookError extends S.TaggedErrorClass<HookError>($I`HookError`)(
 
 /**
  * Errors produced by MCP tool wrappers.
+ */
+/**
+ * @since 0.0.0
  */
 export class McpError extends S.TaggedErrorClass<McpError>($I`McpError`)(
   "McpError",
@@ -90,6 +105,9 @@ export class McpError extends S.TaggedErrorClass<McpError>($I`McpError`)(
 
 /**
  * Union of all public errors for the Effect wrapper.
+ */
+/**
+ * @since 0.0.0
  */
 export const AgentSdkError = S.Union([
   ConfigError,
@@ -108,7 +126,16 @@ export const AgentSdkError = S.Union([
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type AgentSdkError = typeof AgentSdkError.Type;
+/**
+ * @since 0.0.0
+ */
 export type AgentSdkErrorEncoded = typeof AgentSdkError.Encoded;
 
-export { SandboxError };
+/**
+ * @since 0.0.0
+ */
+export * from "./Sandbox/index.js";

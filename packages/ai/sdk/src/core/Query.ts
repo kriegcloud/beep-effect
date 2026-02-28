@@ -11,6 +11,9 @@ import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js";
 /**
  * Configuration for sharing a single query stream across multiple consumers.
  */
+/**
+ * @since 0.0.0
+ */
 export type StreamShareConfig =
   | {
       readonly capacity: "unbounded";
@@ -27,6 +30,9 @@ export type StreamShareConfig =
 /**
  * Configuration for broadcasting a query stream to multiple consumers.
  */
+/**
+ * @since 0.0.0
+ */
 export type StreamBroadcastConfig =
   | number
   | {
@@ -41,6 +47,9 @@ export type StreamBroadcastConfig =
 
 /**
  * Handle returned by AgentSdk.query. Provides the output stream and input controls.
+ */
+/**
+ * @since 0.0.0
  */
 export interface QueryHandle {
   /**

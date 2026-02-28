@@ -14,6 +14,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Stream from "effect/Stream";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -29,7 +30,10 @@ const BaseLayers = Layer.mergeAll(
   NodeTerminal.layer,
   TestConsole.layer,
   FetchHttpClient.layer,
-  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
+  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({
+    streamString: () => Stream.empty,
+    streamLines: () => Stream.empty,
+  })
 );
 
 const TestLayers = FsUtilsLive.pipe(Layer.provideMerge(BaseLayers));

@@ -8,9 +8,15 @@ const isResultMessage = (message: SDKMessage): message is SDKResultMessage => me
 
 const isResultSuccess = (message: SDKResultMessage): message is SDKResultSuccess => message.subtype === "success";
 
+/**
+ * @since 0.0.0
+ */
 export const collectResultMessage = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(Stream.filter(isResultMessage), Stream.runLast);
 
+/**
+ * @since 0.0.0
+ */
 export const collectResultSuccess = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   collectResultMessage(stream).pipe(
     Effect.flatMap((result) => {

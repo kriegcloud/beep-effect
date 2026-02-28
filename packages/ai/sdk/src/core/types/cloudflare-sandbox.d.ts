@@ -1,8 +1,14 @@
 declare module "@cloudflare/sandbox" {
+  /**
+   * @since 0.0.0
+   */
   export class Sandbox<Env = unknown> {
     fetch(request: Request): Promise<Response>;
   }
 
+  /**
+   * @since 0.0.0
+   */
   export type SandboxHandle = {
     exec(
       command: string,
@@ -50,11 +56,17 @@ declare module "@cloudflare/sandbox" {
     destroy(): Promise<void>;
   };
 
+  /**
+   * @since 0.0.0
+   */
   export function getSandbox(
     binding: unknown,
     id: string,
     options?: { sleepAfter?: string | number; keepAlive?: boolean }
   ): SandboxHandle;
 
+  /**
+   * @since 0.0.0
+   */
   export function parseSSEStream<T>(stream: ReadableStream): AsyncIterable<T>;
 }

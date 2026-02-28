@@ -59,6 +59,9 @@ const withProbeHandle = <A>(
     )
   );
 
+/**
+ * @since 0.0.0
+ */
 export const layer = AgentRpcs.toLayer(
   Effect.gen(function* () {
     const runtime = yield* AgentRuntime;

@@ -6,6 +6,9 @@ import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import type { ChatEventSource } from "../Schema/Storage.js";
 import { ChatHistoryStore } from "./ChatHistoryStore.js";
 
+/**
+ * @since 0.0.0
+ */
 export type RecorderOptions = {
   readonly sessionId?: string;
   readonly source?: ChatEventSource;
@@ -46,6 +49,9 @@ const recordMessages = (
   return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catch(() => Effect.void));
 };
 
+/**
+ * @since 0.0.0
+ */
 export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function* (
   handle: QueryHandle,
   options: RecorderOptions
@@ -92,6 +98,9 @@ export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function* (
   };
 });
 
+/**
+ * @since 0.0.0
+ */
 export const ChatHistory = {
   withRecorder,
 };

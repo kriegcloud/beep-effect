@@ -12,6 +12,9 @@ import { resolveTurnTimeouts, SessionConfig } from "./SessionConfig.js";
 import { SessionManager } from "./SessionManager.js";
 import { ChatHistoryStore } from "./Storage/index.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionHistoryOptions = {
   readonly source?: ChatEventSource;
   readonly inputSource?: ChatEventSource;
@@ -30,6 +33,9 @@ const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export class SessionService extends ServiceMap.Service<
   SessionService,
   {

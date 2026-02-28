@@ -12,6 +12,9 @@ import { defaultIndexPageSize, defaultSessionIndexPrefix, defaultStorageDirector
 import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexListOptions = {
   readonly offset?: number;
   readonly limit?: number;
@@ -20,19 +23,34 @@ export type SessionIndexListOptions = {
   readonly cursor?: SessionIndexCursor;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexTouchOptions = {
   readonly createdAt?: number;
   readonly updatedAt?: number;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexOrderBy = "updatedAt" | "createdAt";
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexDirection = "asc" | "desc";
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexCursor = {
   readonly value: number;
   readonly sessionId: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexPage = {
   readonly items: ReadonlyArray<SessionMeta>;
   readonly nextCursor?: SessionIndexCursor;
@@ -102,6 +120,9 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
   return sorted;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = defaultOrderBy): SessionIndexCursor => ({
   value: orderBy === "createdAt" ? meta.createdAt : meta.updatedAt,
   sessionId: meta.sessionId,
@@ -117,6 +138,9 @@ const emptyState: SessionIndexState = {
   meta: new Map(),
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SessionIndexStoreService = {
   readonly touch: (sessionId: string, options?: SessionIndexTouchOptions) => Effect.Effect<SessionMeta, StorageError>;
   readonly get: (sessionId: string) => Effect.Effect<Option.Option<SessionMeta>, StorageError>;
@@ -126,6 +150,9 @@ export type SessionIndexStoreService = {
   readonly listPage: (options?: SessionIndexListOptions) => Effect.Effect<SessionIndexPage, StorageError>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const defaultSessionIndexStore: SessionIndexStoreService = {
   touch: (sessionId, options) =>
     Effect.succeed(
@@ -142,6 +169,9 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
   listPage: () => Effect.succeed({ items: [] }),
 };
 
+/**
+ * @since 0.0.0
+ */
 export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, SessionIndexStoreService>()(
   "@effect/claude-agent-sdk/SessionIndexStore",
   {

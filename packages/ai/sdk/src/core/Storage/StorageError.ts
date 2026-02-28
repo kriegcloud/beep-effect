@@ -1,5 +1,8 @@
 import * as S from "effect/Schema";
 
+/**
+ * @since 0.0.0
+ */
 export class StorageError extends S.TaggedErrorClass<StorageError>()("StorageError", {
   store: S.String,
   operation: S.String,
@@ -10,8 +13,14 @@ export class StorageError extends S.TaggedErrorClass<StorageError>()("StorageErr
     new StorageError(params);
 }
 
+/**
+ * @since 0.0.0
+ */
 export type StorageErrorEncoded = typeof StorageError.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const toStorageError = (store: string, operation: string, cause: unknown, message?: undefined | string) =>
   StorageError.make({
     store,

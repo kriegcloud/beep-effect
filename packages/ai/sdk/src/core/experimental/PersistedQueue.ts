@@ -9,10 +9,16 @@ import type { QueryHandle } from "../Query.js";
 import { SDKUserMessage } from "../Schema/Message.js";
 import type { Options } from "../Schema/Options.js";
 
+/**
+ * @since 0.0.0
+ */
 export * from "effect/unstable/persistence/PersistedQueue";
 
 /**
  * In-memory persisted queue layer for development and tests.
+ */
+/**
+ * @since 0.0.0
  */
 export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueue.layerStoreMemory));
 
@@ -27,6 +33,9 @@ export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueu
  * }).pipe(Effect.provide(layerMemory))
  * ```
  */
+/**
+ * @since 0.0.0
+ */
 export const makeUserMessageQueue = (options?: { readonly name?: string }) =>
   PersistedQueue.make({
     name: options?.name ?? "claude-sdk-user-messages",
@@ -35,6 +44,9 @@ export const makeUserMessageQueue = (options?: { readonly name?: string }) =>
 
 /**
  * Adapter that exposes a persisted queue as query input.
+ */
+/**
+ * @since 0.0.0
  */
 export type PersistedInputAdapter = {
   readonly input: AsyncIterable<SDKUserMessage>;
@@ -47,6 +59,9 @@ const toTransportError = (message: string, cause: unknown) => TransportError.mak
 
 /**
  * Build an input adapter from a persisted queue.
+ */
+/**
+ * @since 0.0.0
  */
 export const makeInputAdapter = (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
@@ -79,6 +94,9 @@ export const makeInputAdapter = (
 /**
  * Override a QueryHandle's input methods with a persisted queue adapter.
  */
+/**
+ * @since 0.0.0
+ */
 export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedInputAdapter): QueryHandle => ({
   ...handle,
   send: adapter.send,
@@ -109,6 +127,9 @@ export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedI
  *   )
  * )
  * ```
+ */
+/**
+ * @since 0.0.0
  */
 export const queryWithPersistedInput = Effect.fn("PersistedQueue.queryWithPersistedInput")(function* (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,

@@ -21,6 +21,9 @@ import { type ExecResult, SandboxService } from "./SandboxService.js";
  *
  * See: https://developers.cloudflare.com/sandbox/configuration/wrangler/
  */
+/**
+ * @since 0.0.0
+ */
 export type CloudflareSandboxEnv = {
   // DurableObjectNamespace<Sandbox> from @cloudflare/sandbox
   // Typed as `unknown` to avoid hard import; actual type:
@@ -29,6 +32,9 @@ export type CloudflareSandboxEnv = {
   readonly Sandbox: unknown;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type CloudflareSandboxOptions = {
   /** Cloudflare Worker env bindings. */
   readonly env: CloudflareSandboxEnv;
@@ -106,6 +112,9 @@ const isStaleResumeFailure = (error: unknown): boolean => {
 // automatically when the layer's scope closes. This prevents sandbox
 // leaks if the consumer forgets to call service.destroy explicitly.
 // The destroy method is still exposed on the service for early cleanup.
+/**
+ * @since 0.0.0
+ */
 export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<SandboxService, SandboxError> =>
   Layer.effect(
     SandboxService,

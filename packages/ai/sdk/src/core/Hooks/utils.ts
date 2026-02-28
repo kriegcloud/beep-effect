@@ -1,6 +1,9 @@
 import type { HookCallbackMatcher, HookEvent } from "../Schema/Hooks.js";
 import type { Options } from "../Schema/Options.js";
 
+/**
+ * @since 0.0.0
+ */
 export type HookMap = NonNullable<Options["hooks"]>;
 
 type MutableHookMap = { -readonly [K in keyof HookMap]: HookMap[K] };
@@ -44,6 +47,9 @@ const emptyHookMap = (): MutableHookMap => ({
 const hasHooks = (hooks: HookMap | undefined): boolean =>
   hooks !== undefined && hookEvents.some((event) => (hooks[event]?.length ?? 0) > 0);
 
+/**
+ * @since 0.0.0
+ */
 export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): HookMap => {
   const merged = emptyHookMap();
   for (const map of maps) {
@@ -58,12 +64,18 @@ export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): Hook
   return merged;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const withHook = (event: HookEvent, matcher: HookCallbackMatcher): HookMap => {
   const hooks = emptyHookMap();
   hooks[event] = [matcher];
   return hooks;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const withHooks = (options: Options, hooks: HookMap): Options => {
   if (!hasHooks(options.hooks) && !hasHooks(hooks)) return options;
   const merged = mergeHookMaps(options.hooks, hooks);

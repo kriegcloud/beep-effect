@@ -77,6 +77,9 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   return extractTextFromContent(record.content);
 };
 
+/**
+ * @since 0.0.0
+ */
 export const extractTextChunks = (message: SDKMessage): ReadonlyArray<string> => {
   if (message.type === "assistant") {
     const envelope = toRecord(message.message);
@@ -90,9 +93,15 @@ export const extractTextChunks = (message: SDKMessage): ReadonlyArray<string> =>
   return [];
 };
 
+/**
+ * @since 0.0.0
+ */
 export const extractResultText = (message: SDKMessage): string | undefined =>
   message.type === "result" && message.subtype === "success" ? message.result : undefined;
 
+/**
+ * @since 0.0.0
+ */
 export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(
     Stream.mapAccum(
@@ -119,6 +128,9 @@ export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
     Stream.flatMap((chunks) => Stream.fromIterable(chunks))
   );
 
+/**
+ * @since 0.0.0
+ */
 export const run = (prompt: string, options?: Options, entry?: RuntimeEntryOptions): Promise<SDKResultSuccess> =>
   Effect.runPromise(
     Effect.scoped(
@@ -129,6 +141,9 @@ export const run = (prompt: string, options?: Options, entry?: RuntimeEntryOptio
     )
   );
 
+/**
+ * @since 0.0.0
+ */
 export const streamText = (prompt: string, options?: Options, entry?: RuntimeEntryOptions): AsyncIterable<string> =>
   (async function* () {
     const iterable = await Effect.runPromise(

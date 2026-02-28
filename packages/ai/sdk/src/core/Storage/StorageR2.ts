@@ -39,6 +39,9 @@ const tryR2 = <A>(method: string, description: string, run: () => Promise<A>) =>
  * - `list()` returns a discriminated union: `cursor` only exists when `truncated: true`
  * - `put()` accepts `ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob`
  */
+/**
+ * @since 0.0.0
+ */
 export type R2Bucket = {
   put(
     key: string,
@@ -86,6 +89,9 @@ type R2ListResult =
  * - Key max length: 1024 bytes
  * - No per-key rate limit (unlike KV's 1 write/sec/key)
  * - Strongly consistent within a region
+ */
+/**
+ * @since 0.0.0
  */
 export const layerR2 = (bucket: R2Bucket): Layer.Layer<KeyValueStore.KeyValueStore> =>
   Layer.succeed(

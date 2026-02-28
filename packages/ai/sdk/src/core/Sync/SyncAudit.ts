@@ -4,6 +4,9 @@ import * as ServiceMap from "effect/ServiceMap";
 import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import type { ConflictResolution } from "./ConflictPolicy.js";
 
+/**
+ * @since 0.0.0
+ */
 export type SyncConflictAudit = {
   readonly remoteId: string;
   readonly entry: EventJournal.Entry;
@@ -11,6 +14,9 @@ export type SyncConflictAudit = {
   readonly resolution: ConflictResolution;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SyncCompactionAudit = {
   readonly remoteId: string;
   readonly before: number;
@@ -18,6 +24,9 @@ export type SyncCompactionAudit = {
   readonly events: ReadonlyArray<string>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type SyncAuditService = {
   readonly conflict: (input: SyncConflictAudit) => Effect.Effect<void>;
   readonly compaction: (input: SyncCompactionAudit) => Effect.Effect<void>;
@@ -28,6 +37,9 @@ const defaultSyncAudit: SyncAuditService = {
   compaction: () => Effect.void,
 };
 
+/**
+ * @since 0.0.0
+ */
 export class SyncAudit extends ServiceMap.Service<SyncAudit, SyncAuditService>()("@effect/claude-agent-sdk/SyncAudit", {
   make: Effect.succeed(defaultSyncAudit),
 }) {

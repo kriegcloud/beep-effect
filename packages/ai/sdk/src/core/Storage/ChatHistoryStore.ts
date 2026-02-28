@@ -26,11 +26,17 @@ import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
 import { ChatEventGroup, ChatEventSchema, ChatEventTag } from "./StorageEventGroups.js";
 
+/**
+ * @since 0.0.0
+ */
 export type ChatHistoryAppendOptions = {
   readonly timestamp?: number;
   readonly source?: ChatEventSource;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ChatHistoryListOptions = {
   readonly startSequence?: number;
   readonly endSequence?: number;
@@ -38,6 +44,9 @@ export type ChatHistoryListOptions = {
   readonly reverse?: boolean;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ChatHistoryJournaledOptions<R = never> = {
   readonly prefix?: string;
   readonly journalKey?: string;
@@ -45,6 +54,9 @@ export type ChatHistoryJournaledOptions<R = never> = {
   readonly conflictPolicy?: Layer.Layer<ConflictPolicy, unknown, R>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type ChatHistorySyncOptions<R = never> = ChatHistoryJournaledOptions<R> & {
   readonly disablePing?: boolean;
   readonly protocols?: string | Array<string>;
@@ -627,6 +639,9 @@ const makeJournaledStore = (options?: {
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export class ChatHistoryStore extends ServiceMap.Service<
   ChatHistoryStore,
   {

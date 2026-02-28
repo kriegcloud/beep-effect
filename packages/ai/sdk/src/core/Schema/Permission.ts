@@ -1,27 +1,57 @@
 import * as Schema from "effect/Schema";
 import { withIdentifier } from "./Annotations.js";
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionMode = withIdentifier(
   Schema.Literals(["default", "acceptEdits", "bypassPermissions", "plan", "delegate", "dontAsk"]),
   "PermissionMode"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionMode = typeof PermissionMode.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionModeEncoded = typeof PermissionMode.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionBehavior = withIdentifier(Schema.Literals(["allow", "deny", "ask"]), "PermissionBehavior");
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionBehavior = typeof PermissionBehavior.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionBehaviorEncoded = typeof PermissionBehavior.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionUpdateDestination = withIdentifier(
   Schema.Literals(["userSettings", "projectSettings", "localSettings", "session", "cliArg"]),
   "PermissionUpdateDestination"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionUpdateDestination = typeof PermissionUpdateDestination.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionUpdateDestinationEncoded = typeof PermissionUpdateDestination.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionRuleValue = withIdentifier(
   Schema.Struct({
     toolName: Schema.String,
@@ -30,7 +60,13 @@ export const PermissionRuleValue = withIdentifier(
   "PermissionRuleValue"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionRuleValue = typeof PermissionRuleValue.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionRuleValueEncoded = typeof PermissionRuleValue.Encoded;
 
 const RulesPayload = Schema.Struct({
@@ -39,6 +75,9 @@ const RulesPayload = Schema.Struct({
   destination: PermissionUpdateDestination,
 });
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionUpdate = withIdentifier(
   Schema.Union([
     Schema.Struct({
@@ -72,9 +111,18 @@ export const PermissionUpdate = withIdentifier(
   "PermissionUpdate"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionUpdate = typeof PermissionUpdate.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionResult = withIdentifier(
   Schema.Union([
     Schema.Struct({
@@ -93,9 +141,18 @@ export const PermissionResult = withIdentifier(
   "PermissionResult"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionResult = typeof PermissionResult.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionResultEncoded = typeof PermissionResult.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionRequestHookSpecificOutput = withIdentifier(
   Schema.Struct({
     hookEventName: Schema.Literal("PermissionRequest"),
@@ -115,9 +172,18 @@ export const PermissionRequestHookSpecificOutput = withIdentifier(
   "PermissionRequestHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionRequestHookSpecificOutput = typeof PermissionRequestHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionRequestHookSpecificOutputEncoded = typeof PermissionRequestHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const CanUseTool = Schema.declare(
   (
     _: unknown
@@ -135,5 +201,11 @@ export const CanUseTool = Schema.declare(
   ) => Promise<PermissionResult> => true
 ).annotate({ identifier: "CanUseTool", jsonSchema: {} });
 
+/**
+ * @since 0.0.0
+ */
 export type CanUseTool = typeof CanUseTool.Type;
+/**
+ * @since 0.0.0
+ */
 export type CanUseToolEncoded = typeof CanUseTool.Encoded;

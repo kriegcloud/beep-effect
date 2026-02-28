@@ -1,8 +1,17 @@
 import * as Effect from "effect/Effect";
 
+/**
+ * @since 0.0.0
+ */
 export type DiagnosticStatus = "ok" | "missing" | "invalid" | "unknown";
+/**
+ * @since 0.0.0
+ */
 export type DiagnosticSeverity = "error" | "warning";
 
+/**
+ * @since 0.0.0
+ */
 export type DiagnosticCheck = {
   readonly status: DiagnosticStatus;
   readonly message?: string;
@@ -11,12 +20,18 @@ export type DiagnosticCheck = {
   readonly path?: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type DiagnosticIssue = {
   readonly severity: DiagnosticSeverity;
   readonly message: string;
   readonly fix?: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type DiagnosticResult = {
   readonly valid: boolean;
   readonly checks: Record<string, DiagnosticCheck>;
@@ -128,6 +143,9 @@ const checkClaudeCodeCli = () =>
 
 /**
  * Validate the current environment and return actionable diagnostics.
+ */
+/**
+ * @since 0.0.0
  */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
   Effect.gen(function* () {

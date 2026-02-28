@@ -11,6 +11,9 @@ const BaseHookInput = S.Struct({
   permission_mode: S.optional(S.String),
 });
 
+/**
+ * @since 0.0.0
+ */
 export const HookEvent = withIdentifier(
   S.Literals([
     "PreToolUse",
@@ -32,9 +35,18 @@ export const HookEvent = withIdentifier(
   "HookEvent"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type HookEvent = typeof HookEvent.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookEventEncoded = typeof HookEvent.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const NotificationHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -46,9 +58,18 @@ export const NotificationHookInput = withIdentifier(
   "NotificationHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NotificationHookInput = typeof NotificationHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type NotificationHookInputEncoded = typeof NotificationHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const UserPromptSubmitHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -58,9 +79,18 @@ export const UserPromptSubmitHookInput = withIdentifier(
   "UserPromptSubmitHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type UserPromptSubmitHookInput = typeof UserPromptSubmitHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type UserPromptSubmitHookInputEncoded = typeof UserPromptSubmitHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SessionStartHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -72,9 +102,18 @@ export const SessionStartHookInput = withIdentifier(
   "SessionStartHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SessionStartHookInput = typeof SessionStartHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionStartHookInputEncoded = typeof SessionStartHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SessionEndHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -84,9 +123,18 @@ export const SessionEndHookInput = withIdentifier(
   "SessionEndHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SessionEndHookInput = typeof SessionEndHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionEndHookInputEncoded = typeof SessionEndHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const StopHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -96,9 +144,18 @@ export const StopHookInput = withIdentifier(
   "StopHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type StopHookInput = typeof StopHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type StopHookInputEncoded = typeof StopHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SubagentStartHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -109,9 +166,18 @@ export const SubagentStartHookInput = withIdentifier(
   "SubagentStartHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SubagentStartHookInput = typeof SubagentStartHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SubagentStartHookInputEncoded = typeof SubagentStartHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SubagentStopHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -124,9 +190,18 @@ export const SubagentStopHookInput = withIdentifier(
   "SubagentStopHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SubagentStopHookInput = typeof SubagentStopHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SubagentStopHookInputEncoded = typeof SubagentStopHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PreCompactHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -137,9 +212,18 @@ export const PreCompactHookInput = withIdentifier(
   "PreCompactHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PreCompactHookInput = typeof PreCompactHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PreCompactHookInputEncoded = typeof PreCompactHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PreToolUseHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -151,9 +235,18 @@ export const PreToolUseHookInput = withIdentifier(
   "PreToolUseHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PreToolUseHookInput = typeof PreToolUseHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PreToolUseHookInputEncoded = typeof PreToolUseHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PostToolUseHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -166,9 +259,18 @@ export const PostToolUseHookInput = withIdentifier(
   "PostToolUseHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseHookInput = typeof PostToolUseHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseHookInputEncoded = typeof PostToolUseHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PostToolUseFailureHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -182,9 +284,18 @@ export const PostToolUseFailureHookInput = withIdentifier(
   "PostToolUseFailureHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseFailureHookInput = typeof PostToolUseFailureHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseFailureHookInputEncoded = typeof PostToolUseFailureHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionRequestHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -196,9 +307,18 @@ export const PermissionRequestHookInput = withIdentifier(
   "PermissionRequestHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionRequestHookInput = typeof PermissionRequestHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PermissionRequestHookInputEncoded = typeof PermissionRequestHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SetupHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -208,9 +328,18 @@ export const SetupHookInput = withIdentifier(
   "SetupHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SetupHookInput = typeof SetupHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SetupHookInputEncoded = typeof SetupHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const TeammateIdleHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -221,9 +350,18 @@ export const TeammateIdleHookInput = withIdentifier(
   "TeammateIdleHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TeammateIdleHookInput = typeof TeammateIdleHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type TeammateIdleHookInputEncoded = typeof TeammateIdleHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const TaskCompletedHookInput = withIdentifier(
   S.Struct({
     ...BaseHookInput.fields,
@@ -237,9 +375,18 @@ export const TaskCompletedHookInput = withIdentifier(
   "TaskCompletedHookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TaskCompletedHookInput = typeof TaskCompletedHookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type TaskCompletedHookInputEncoded = typeof TaskCompletedHookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const HookInput = withIdentifier(
   S.Union([
     PreToolUseHookInput,
@@ -261,9 +408,18 @@ export const HookInput = withIdentifier(
   "HookInput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type HookInput = typeof HookInput.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookInputEncoded = typeof HookInput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PreToolUseHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("PreToolUse"),
@@ -275,9 +431,18 @@ export const PreToolUseHookSpecificOutput = withIdentifier(
   "PreToolUseHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PreToolUseHookSpecificOutput = typeof PreToolUseHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PreToolUseHookSpecificOutputEncoded = typeof PreToolUseHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const UserPromptSubmitHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("UserPromptSubmit"),
@@ -286,9 +451,18 @@ export const UserPromptSubmitHookSpecificOutput = withIdentifier(
   "UserPromptSubmitHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type UserPromptSubmitHookSpecificOutput = typeof UserPromptSubmitHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type UserPromptSubmitHookSpecificOutputEncoded = typeof UserPromptSubmitHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SessionStartHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("SessionStart"),
@@ -297,9 +471,18 @@ export const SessionStartHookSpecificOutput = withIdentifier(
   "SessionStartHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SessionStartHookSpecificOutput = typeof SessionStartHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SessionStartHookSpecificOutputEncoded = typeof SessionStartHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SetupHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("Setup"),
@@ -308,9 +491,18 @@ export const SetupHookSpecificOutput = withIdentifier(
   "SetupHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SetupHookSpecificOutput = typeof SetupHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SetupHookSpecificOutputEncoded = typeof SetupHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SubagentStartHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("SubagentStart"),
@@ -319,9 +511,18 @@ export const SubagentStartHookSpecificOutput = withIdentifier(
   "SubagentStartHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SubagentStartHookSpecificOutput = typeof SubagentStartHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SubagentStartHookSpecificOutputEncoded = typeof SubagentStartHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PostToolUseHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("PostToolUse"),
@@ -331,9 +532,18 @@ export const PostToolUseHookSpecificOutput = withIdentifier(
   "PostToolUseHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseHookSpecificOutput = typeof PostToolUseHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseHookSpecificOutputEncoded = typeof PostToolUseHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PostToolUseFailureHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("PostToolUseFailure"),
@@ -342,9 +552,18 @@ export const PostToolUseFailureHookSpecificOutput = withIdentifier(
   "PostToolUseFailureHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseFailureHookSpecificOutput = typeof PostToolUseFailureHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type PostToolUseFailureHookSpecificOutputEncoded = typeof PostToolUseFailureHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const NotificationHookSpecificOutput = withIdentifier(
   S.Struct({
     hookEventName: S.Literal("Notification"),
@@ -353,9 +572,18 @@ export const NotificationHookSpecificOutput = withIdentifier(
   "NotificationHookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NotificationHookSpecificOutput = typeof NotificationHookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type NotificationHookSpecificOutputEncoded = typeof NotificationHookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const HookSpecificOutput = withIdentifier(
   S.Union([
     PreToolUseHookSpecificOutput,
@@ -371,9 +599,18 @@ export const HookSpecificOutput = withIdentifier(
   "HookSpecificOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type HookSpecificOutput = typeof HookSpecificOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookSpecificOutputEncoded = typeof HookSpecificOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const SyncHookJSONOutput = withIdentifier(
   S.Struct({
     continue: S.optional(S.Boolean),
@@ -387,9 +624,18 @@ export const SyncHookJSONOutput = withIdentifier(
   "SyncHookJSONOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SyncHookJSONOutput = typeof SyncHookJSONOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type SyncHookJSONOutputEncoded = typeof SyncHookJSONOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const AsyncHookJSONOutput = withIdentifier(
   S.Struct({
     async: S.Literal(true),
@@ -398,14 +644,32 @@ export const AsyncHookJSONOutput = withIdentifier(
   "AsyncHookJSONOutput"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type AsyncHookJSONOutput = typeof AsyncHookJSONOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type AsyncHookJSONOutputEncoded = typeof AsyncHookJSONOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const HookJSONOutput = withIdentifier(S.Union([AsyncHookJSONOutput, SyncHookJSONOutput]), "HookJSONOutput");
 
+/**
+ * @since 0.0.0
+ */
 export type HookJSONOutput = typeof HookJSONOutput.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookJSONOutputEncoded = typeof HookJSONOutput.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const HookCallback = S.declare(
   (
     _: unknown
@@ -416,9 +680,18 @@ export const HookCallback = S.declare(
   ) => Promise<HookJSONOutput> => true
 ).pipe(S.annotate({ identifier: "HookCallback", jsonSchema: {} }));
 
+/**
+ * @since 0.0.0
+ */
 export type HookCallback = typeof HookCallback.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookCallbackEncoded = typeof HookCallback.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const HookCallbackMatcher = withIdentifier(
   S.Struct({
     matcher: S.optional(S.String),
@@ -428,5 +701,11 @@ export const HookCallbackMatcher = withIdentifier(
   "HookCallbackMatcher"
 );
 
+/**
+ * @since 0.0.0
+ */
 export type HookCallbackMatcher = typeof HookCallbackMatcher.Type;
+/**
+ * @since 0.0.0
+ */
 export type HookCallbackMatcherEncoded = typeof HookCallbackMatcher.Encoded;

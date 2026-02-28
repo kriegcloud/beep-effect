@@ -34,6 +34,9 @@ const runCleanup = Effect.gen(function* () {
   yield* Effect.forEach(tasks, (task) => task, { discard: true, concurrency: 1 });
 });
 
+/**
+ * @since 0.0.0
+ */
 export class StorageCleanup extends ServiceMap.Service<
   StorageCleanup,
   {

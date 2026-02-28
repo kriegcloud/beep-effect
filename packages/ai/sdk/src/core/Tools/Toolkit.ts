@@ -9,6 +9,9 @@ import * as Tool from "./Tool.js";
 /**
  * Toolkit bundles tools with their handlers and validation logic.
  */
+/**
+ * @since 0.0.0
+ */
 export interface Toolkit<Tools extends Record<string, Tool.Any>> {
   /**
    * Registered tool definitions.
@@ -40,16 +43,28 @@ export interface Toolkit<Tools extends Record<string, Tool.Any>> {
   >;
 }
 
+/**
+ * @since 0.0.0
+ */
 export interface ToolkitWithHandlers<Tools extends Record<string, Tool.Any>> extends Toolkit<Tools> {
   readonly handlers: HandlersFrom<Tools>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export interface Any {
   readonly tools: Record<string, Tool.Any>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export type Tools<T> = T extends Toolkit<infer Tools> ? Tools : never;
 
+/**
+ * @since 0.0.0
+ */
 export type ToolsByName<Tools> =
   Tools extends Record<string, Tool.Any>
     ? { readonly [Name in keyof Tools]: Tools[Name] }
@@ -57,18 +72,30 @@ export type ToolsByName<Tools> =
       ? { readonly [Tool in Tools[number] as Tool["name"]]: Tool }
       : never;
 
+/**
+ * @since 0.0.0
+ */
 export type ToolsFromDefinitions<Defs extends Record<string, Tool.Definition>> = SimplifyRecord<{
   readonly [Name in keyof Defs]: Tool.ToolFromDefinition<Name & string, Defs[Name]>;
 }>;
 
+/**
+ * @since 0.0.0
+ */
 export type HandlersFrom<Tools extends Record<string, Tool.Any>> = {
   readonly [Name in keyof Tools as Tool.RequiresHandler<Tools[Name]> extends true ? Name : never]: (
     params: Tool.Parameters<Tools[Name]>
   ) => Effect.Effect<Tool.Success<Tools[Name]>, Tool.Failure<Tools[Name]>, Tool.Requirements<Tools[Name]>>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type WithHandlerTools<T> = T extends WithHandler<infer Tools> ? Tools : never;
 
+/**
+ * @since 0.0.0
+ */
 export interface WithHandler<Tools extends Record<string, Tool.Any>> {
   readonly tools: Tools;
   readonly handle: <Name extends keyof Tools>(
@@ -220,16 +247,28 @@ const resolveInput = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): R
 /**
  * Empty toolkit (useful as a base for composition).
  */
+/**
+ * @since 0.0.0
+ */
 export const empty: Toolkit<{}> = makeProto({});
 
 /**
  * Build a toolkit from a list of tools.
  */
+/**
+ * @since 0.0.0
+ */
 export const make = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Toolkit<ToolsByName<Tools>> =>
   makeProto(resolveInput(...tools)) as any;
 
+/**
+ * @since 0.0.0
+ */
 export type SimplifyRecord<T> = { [K in keyof T]: T[K] } & {};
 
+/**
+ * @since 0.0.0
+ */
 export type MergeRecords<U> = {
   readonly [K in Extract<U extends unknown ? keyof U : never, string>]: Extract<
     U extends Record<K, infer V> ? V : never,
@@ -237,10 +276,16 @@ export type MergeRecords<U> = {
   >;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type MergedTools<Toolkits extends ReadonlyArray<Any>> = SimplifyRecord<MergeRecords<Tools<Toolkits[number]>>>;
 
 /**
  * Build a toolkit from tool definitions that already include handlers.
+ */
+/**
+ * @since 0.0.0
  */
 export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>(
   definitions: Defs
@@ -257,6 +302,9 @@ export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>
 
 /**
  * Merge multiple toolkits into a single toolkit.
+ */
+/**
+ * @since 0.0.0
  */
 export const merge = <const Toolkits extends ReadonlyArray<Any>>(
   ...toolkits: Toolkits

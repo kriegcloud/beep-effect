@@ -31,6 +31,9 @@ type QuickConfigCloudflareSandbox = {
   readonly execTimeoutMs?: number;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type QuickConfig = {
   readonly apiKey?: string;
   readonly model?: string;
@@ -223,10 +226,19 @@ const resolveStorageLayers = (config: ResolvedQuickConfig) => {
  * The returned layer provides `AgentRuntime` and `QuerySupervisor`.
  * When `sandbox` is configured, `SandboxService` is also provided.
  */
+/**
+ * @since 0.0.0
+ */
 export function runtimeLayer(
   config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
 ): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, unknown, unknown>;
+/**
+ * @since 0.0.0
+ */
 export function runtimeLayer(config?: QuickConfig): Layer.Layer<AgentRuntime | QuerySupervisor, unknown, unknown>;
+/**
+ * @since 0.0.0
+ */
 export function runtimeLayer(config?: QuickConfig) {
   const resolved = resolveQuickConfig(config);
   validateQuickConfig(resolved);
@@ -279,12 +291,21 @@ export function runtimeLayer(config?: QuickConfig) {
  * - Multi-query sessions (avoid rebuilding layers per call)
  * - Scripts that want simpler lifecycle management
  */
+/**
+ * @since 0.0.0
+ */
 export function managedRuntime(
   config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
 ): ManagedRuntime.ManagedRuntime<AgentRuntime | QuerySupervisor | SandboxService, unknown>;
+/**
+ * @since 0.0.0
+ */
 export function managedRuntime(
   config?: QuickConfig
 ): ManagedRuntime.ManagedRuntime<AgentRuntime | QuerySupervisor, unknown>;
+/**
+ * @since 0.0.0
+ */
 export function managedRuntime(config?: QuickConfig) {
   const resolved = resolveQuickConfig(config);
   validateQuickConfig(resolved);

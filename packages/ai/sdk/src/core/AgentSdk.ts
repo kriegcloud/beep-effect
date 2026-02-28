@@ -14,6 +14,9 @@ import type { McpSdkServerConfigWithInstance } from "./Schema/Mcp.js";
 import type { SDKUserMessage } from "./Schema/Message.js";
 import type { Options } from "./Schema/Options.js";
 
+/**
+ * @since 0.0.0
+ */
 export type CreateSdkMcpServerOptions = {
   readonly name: string;
   readonly version?: string;
@@ -130,6 +133,9 @@ const makeAgentSdk = Effect.gen(function* () {
  *     return yield* Stream.runCollect(handle.stream)
  *   }).pipe(Effect.provide(AgentSdk.layerDefault))
  * )
+ */
+/**
+ * @since 0.0.0
  */
 export class AgentSdk extends ServiceMap.Service<AgentSdk, Effect.Success<typeof makeAgentSdk>>()(
   "@effect/claude-agent-sdk/AgentSdk"

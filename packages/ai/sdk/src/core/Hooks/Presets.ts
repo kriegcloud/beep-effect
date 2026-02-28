@@ -20,6 +20,9 @@ const allEvents: ReadonlyArray<HookEvent> = [
   "Setup",
 ];
 
+/**
+ * @since 0.0.0
+ */
 export const consoleLogger = (options?: {
   readonly events?: ReadonlyArray<HookEvent>;
   readonly format?: "json" | "pretty";
@@ -34,6 +37,9 @@ export const consoleLogger = (options?: {
     })
   );
 
+/**
+ * @since 0.0.0
+ */
 export const autoApprove = (tools: ReadonlyArray<string>) =>
   onPermissionRequest((input: PermissionRequestHookInput) =>
     tools.includes(input.tool_name)
@@ -46,6 +52,9 @@ export const autoApprove = (tools: ReadonlyArray<string>) =>
       : Effect.succeed({})
   );
 
+/**
+ * @since 0.0.0
+ */
 export const autoDeny = (options: {
   readonly tools: ReadonlyArray<string>;
   readonly match?: string;
@@ -74,6 +83,9 @@ export const autoDeny = (options: {
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const timing = <R>(onComplete: (toolName: string, durationMs: number) => Effect.Effect<void, never, R>) =>
   Effect.gen(function* () {
     const startTimes = new Map<string, number>();

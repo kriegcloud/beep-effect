@@ -3,6 +3,9 @@ import * as Schema from "effect/Schema";
 /**
  * Tool name was not found in the toolkit.
  */
+/**
+ * @since 0.0.0
+ */
 export class ToolNotFoundError extends Schema.TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
   name: Schema.String,
   available: Schema.Array(Schema.String),
@@ -12,6 +15,9 @@ export class ToolNotFoundError extends Schema.TaggedErrorClass<ToolNotFoundError
 
 /**
  * Tool parameters failed decoding or validation.
+ */
+/**
+ * @since 0.0.0
  */
 export class ToolInputError extends Schema.TaggedErrorClass<ToolInputError>()("ToolInputError", {
   name: Schema.String,
@@ -26,6 +32,9 @@ export class ToolInputError extends Schema.TaggedErrorClass<ToolInputError>()("T
 /**
  * Tool output failed validation or encoding.
  */
+/**
+ * @since 0.0.0
+ */
 export class ToolOutputError extends Schema.TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
   name: Schema.String,
   message: Schema.String,
@@ -39,7 +48,16 @@ export class ToolOutputError extends Schema.TaggedErrorClass<ToolOutputError>()(
 /**
  * Union of all tool-related errors.
  */
+/**
+ * @since 0.0.0
+ */
 export const ToolError = Schema.Union([ToolNotFoundError, ToolInputError, ToolOutputError]);
 
+/**
+ * @since 0.0.0
+ */
 export type ToolError = typeof ToolError.Type;
+/**
+ * @since 0.0.0
+ */
 export type ToolErrorEncoded = typeof ToolError.Encoded;

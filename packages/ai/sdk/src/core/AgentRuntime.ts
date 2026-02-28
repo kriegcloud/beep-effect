@@ -73,6 +73,9 @@ const applyRetry = <A, E, R>(effect: Effect.Effect<A, E, R>, settings: AgentRunt
       )
     : effect;
 
+/**
+ * @since 0.0.0
+ */
 export type PersistenceLayers = {
   readonly runtime?: Layer.Layer<AgentRuntime, unknown, unknown>;
   readonly chatHistory?: Layer.Layer<ChatHistoryStore, unknown, unknown>;
@@ -82,12 +85,18 @@ export type PersistenceLayers = {
   readonly storageConfig?: Layer.Layer<StorageConfig, unknown, unknown>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type PersistenceOptions = {
   readonly layers?: PersistenceLayers;
   readonly history?: RecorderOptions;
   readonly audit?: AuditLoggingOptions;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type RemoteSyncOptions = StorageSyncLayerOptions & {
   readonly url: string;
   readonly provider?: "bun" | "cloudflare";
@@ -207,6 +216,9 @@ const makeAgentRuntime = Effect.gen(function* () {
 
 /**
  * AgentRuntime composes AgentSdk, QuerySupervisor, and runtime policies.
+ */
+/**
+ * @since 0.0.0
  */
 export class AgentRuntime extends ServiceMap.Service<AgentRuntime, Effect.Success<typeof makeAgentRuntime>>()(
   "@effect/claude-agent-sdk/AgentRuntime"

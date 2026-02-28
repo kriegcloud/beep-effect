@@ -16,6 +16,9 @@ const takeTurn = (stream: Stream.Stream<SDKMessage, SessionError>) =>
     Stream.flatMap((messages) => Stream.fromIterable(messages))
   );
 
+/**
+ * @since 0.0.0
+ */
 export const makeTurnStream = (
   _label: string,
   send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>,
