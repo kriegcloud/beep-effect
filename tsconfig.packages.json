@@ -56,6 +56,33 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+    {
+      "path": "packages/iam/domain"
+    },
+    {
+      "path": "packages/iam/tables"
+    },
+    {
+      "path": "packages/iam/server"
+    },
+    {
+      "path": "packages/iam/client"
+    },
+    {
+      "path": "packages/iam/ui"
+    },
+    {
+      "path": "packages/shared/ui"
+    },
+    {
+      "path": "packages/shared/tables"
+    },
+    {
+      "path": "packages/shared/server"
+    },
+    {
+      "path": "packages/shared/client"
     }
   ]
 }

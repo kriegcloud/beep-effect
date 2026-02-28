@@ -69,9 +69,9 @@ and migrating Claude benchmark SDK execution to `@beep/ai-sdk`.
 | Command | Inputs/flags that must remain stable | Required side effects | Output contract |
 |---|---|---|---|
 | `kg index` | `--mode full|delta`, `--changed` semantics unchanged | same snapshot/index/ledger/spool writes for same inputs | same JSON shape and success/failure semantics |
-| `kg publish` | `--target falkor|graphiti|both`, `--mode`, `--changed`, `--group` | same preflight behavior, same sink fanout and ledger updates | same JSON summary fields and per-sink receipts |
+| `kg publish` | `--target falkor|graphiti|both`, `--mode`, `--changed`, `--group` | same preflight behavior (including Graphiti proxy health gate at `127.0.0.1:8123/healthz` when Graphiti is targeted), same sink fanout and ledger updates | same JSON summary fields and per-sink receipts |
 | `kg verify` | `--target`, `--group`, `--commit` default behavior | same Falkor counts and Graphiti episode verification logic | same `checks` structure and pass/fail behavior |
-| `kg parity` | `--profile code-graph-functional|strict`, `--group`, `--strict-min-paths` | no new writes | same matrix semantics and strict threshold behavior |
+| `kg parity` | `--profile code-graph-functional|code-graph-strict`, `--group`, `--strict-min-paths` | no new writes | same matrix semantics and strict threshold behavior |
 | `kg replay` | `--from-spool`, `--target`, `--group` | same spool read/parse behavior and publish routing | same replay summary JSON and sink receipts |
 
 ## Effect-First and Typed Tooling Error Contract

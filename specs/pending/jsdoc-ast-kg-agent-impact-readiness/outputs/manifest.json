@@ -6,7 +6,7 @@
   "phases": {
     "pre": {
       "name": "kg-cli-refactor-and-ai-sdk-integration",
-      "status": "pending",
+      "status": "complete",
       "output": "p-pre-kg-cli-refactor-and-ai-sdk.md"
     },
     "p0": {

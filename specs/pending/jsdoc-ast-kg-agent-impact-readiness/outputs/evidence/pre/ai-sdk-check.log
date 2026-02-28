@@ -1,0 +1,42 @@
+$ bunx turbo run check --filter=@beep/ai-sdk
+• turbo 2.8.12
+• Packages in scope: @beep/ai-sdk
+• Running check in 1 packages
+• Remote caching disabled
+@beep/data:build: cache miss, executing 22c9a4ad48b49f3c
+@beep/types:check: cache miss, executing 327e30cef979cee4
+@beep/data:check: cache miss, executing 40fb05480d1d4152
+@beep/types:build: cache miss, executing ed62d5139778f630
+@beep/types:check: $ tsc -b tsconfig.json
+@beep/data:build: $ tsc -b tsconfig.json && bun run babel
+@beep/data:check: $ tsc -b tsconfig.json
+@beep/types:build: $ tsc -b tsconfig.json && bun run babel
+@beep/data:build: $ babel dist --plugins annotate-pure-calls --out-dir dist --source-maps
+@beep/types:build: $ babel dist --plugins annotate-pure-calls --out-dir dist --source-maps
+@beep/types:build: Successfully compiled 3 files with Babel (138ms).
+@beep/utils:check: cache miss, executing 8e37f5fd55ef30cc
+@beep/identity:build: cache miss, executing 5a4124ff9ed36a21
+@beep/utils:build: cache miss, executing 0a24d349c7befcca
+@beep/identity:check: cache miss, executing 46c9392c9765b95d
+@beep/utils:check: $ tsc -b tsconfig.json
+@beep/utils:build: $ tsc -b tsconfig.json && bun run babel
+@beep/identity:check: $ tsc -b tsconfig.json
+@beep/identity:build: $ tsc -b tsconfig.json && bun run babel
+@beep/data:build: Successfully compiled 20 files with Babel (406ms).
+@beep/identity:build: $ babel dist --plugins annotate-pure-calls --out-dir dist --source-maps
+@beep/utils:build: $ babel dist --plugins annotate-pure-calls --out-dir dist --source-maps
+@beep/utils:build: Successfully compiled 3 files with Babel (149ms).
+@beep/identity:build: Successfully compiled 3 files with Babel (258ms).
+@beep/schema:check: cache miss, executing 5c58dbdd9789efec
+@beep/schema:build: cache miss, executing c00eb59ed6e42b44
+@beep/schema:check: $ tsc -b tsconfig.json
+@beep/schema:build: $ tsc -b tsconfig.json && bun run babel
+@beep/schema:build: $ babel dist --plugins annotate-pure-calls --out-dir dist --source-maps
+@beep/schema:build: Successfully compiled 5 files with Babel (204ms).
+@beep/ai-sdk:check: cache miss, executing b97d4c1a147256ed
+@beep/ai-sdk:check: $ tsc -b tsconfig.json
+
+ Tasks:    11 successful, 11 total
+Cached:    0 cached, 11 total
+  Time:    2.969s 
+

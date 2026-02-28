@@ -66,6 +66,10 @@
       "dependsOn": ["^build", "^check"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+    },
     "docgen": {
       "cache": true,
       "dependsOn": ["^docgen"],

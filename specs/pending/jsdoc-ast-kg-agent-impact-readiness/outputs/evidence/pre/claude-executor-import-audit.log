@@ -1,0 +1,3 @@
+$ rg -n '@anthropic-ai/claude-agent-sdk|@beep/ai-sdk' tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts
+37:  const loaded = await import("@anthropic-ai/claude-agent-sdk");
+43:    message: "Loaded @anthropic-ai/claude-agent-sdk but missing query function.",

@@ -1,0 +1,56 @@
+{
+  "name": "@beep/shared-server",
+  "version": "0.0.0",
+  "description": "The server package for the shared slice",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
+  },
+  "dependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@effect/vitest": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/shared/server"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/server",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.ts",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

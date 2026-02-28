@@ -9,7 +9,16 @@
     "packages/shared/domain/dtslint/**/*.tst.*",
     "packages/shared/env/dtslint/**/*.tst.*",
     "packages/ui/ui/dtslint/**/*.tst.*",
-    "packages/ai/sdk/dtslint/**/*.tst.*"
+    "packages/ai/sdk/dtslint/**/*.tst.*",
+    "packages/iam/domain/dtslint/**/*.tst.*",
+    "packages/iam/tables/dtslint/**/*.tst.*",
+    "packages/iam/server/dtslint/**/*.tst.*",
+    "packages/iam/client/dtslint/**/*.tst.*",
+    "packages/iam/ui/dtslint/**/*.tst.*",
+    "packages/shared/ui/dtslint/**/*.tst.*",
+    "packages/shared/tables/dtslint/**/*.tst.*",
+    "packages/shared/server/dtslint/**/*.tst.*",
+    "packages/shared/client/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }
