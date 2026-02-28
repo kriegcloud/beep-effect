@@ -17,7 +17,10 @@
     "docgen": "bunx @effect/docgen"
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

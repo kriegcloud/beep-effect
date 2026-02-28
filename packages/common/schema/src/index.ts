@@ -15,6 +15,11 @@ export const VERSION = "0.0.0" as const;
  * @category schemas
  */
 export * from "./LiteralKit.js";
+/**
+ * @since 0.0.0
+ * @category schemas
+ */
+export * from "./MappedLiteralKit.js";
 
 // bench
 

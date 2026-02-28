@@ -1,0 +1,1 @@
+$ bun run tooling/cli/src/bin.ts -- kg verify --target both --group beep-ast-kg

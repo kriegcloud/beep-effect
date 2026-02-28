@@ -30,8 +30,6 @@ const composers = $I.compose(
   "schema",
   "types",
   "utils",
-  "shared-domain",
-  "shared-env",
   "ui",
   "web",
   "beep-sync",
@@ -40,7 +38,21 @@ const composers = $I.compose(
   "codebase-search",
   "repo-utils",
   "claude",
-  "ai-sdk"
+  "ai-sdk",
+  // Shared Slice
+  "shared-domain",
+	"shared-tables",
+	"shared-client",
+	"shared-server",
+	"shared-ui",
+  "shared-env",
+	
+	// iam
+	"iam-domain",
+	"iam-tables",
+	"iam-client",
+	"iam-server",
+	"iam-ui",
 );
 
 // --- common ---
@@ -86,20 +98,6 @@ export const $TypesId = composers.$TypesId;
  * @category common
  */
 export const $UtilsId = composers.$UtilsId;
-
-// --- shared ---
-
-/**
- * @since 0.0.0
- * @category shared
- */
-export const $SharedDomainId = composers.$SharedDomainId;
-
-/**
- * @since 0.0.0
- * @category shared
- */
-export const $SharedEnvId = composers.$SharedEnvId;
 
 // --- ui ---
 
@@ -162,3 +160,75 @@ export const $ClaudeId = composers.$ClaudeId;
  * @category claude
  */
 export const $AiSdkId = composers.$AiSdkId;
+
+// --- shared ---
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedDomainId = composers.$SharedDomainId;
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedTablesId = composers.$SharedTablesId;
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedClientId = composers.$SharedClientId;
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedServerId = composers.$SharedServerId;
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedUiId = composers.$SharedUiId;
+
+/**
+ * @since 0.0.0
+ * @category shared
+ */
+export const $SharedEnvId = composers.$SharedEnvId;
+
+
+// --- iam ---
+
+/**
+ * @since 0.0.0
+ * @category iam
+ */
+export const $IamDomainId = composers.$IamDomainId;
+
+/**
+ * @since 0.0.0
+ * @category iam
+ */
+export const $IamTablesId = composers.$IamTablesId;
+
+/**
+ * @since 0.0.0
+ * @category iam
+ */
+export const $IamClientId = composers.$IamClientId;
+
+/**
+ * @since 0.0.0
+ * @category iam
+ */
+export const $IamServerId = composers.$IamServerId;
+
+/**
+ * @since 0.0.0
+ * @category iam
+ */
+export const $IamUiId = composers.$IamUiId;
+

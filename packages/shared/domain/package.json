@@ -17,11 +17,17 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "pg-protocol": "catalog:",
+    "sql-formatter": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@beep/types": "workspace:^"
   },
   "exports": {
     "./package.json": "./package.json",

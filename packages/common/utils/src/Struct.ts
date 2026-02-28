@@ -1,5 +1,6 @@
 import type { TUnsafe } from "@beep/types";
 import { Function as F, String as Str } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 
@@ -249,3 +250,81 @@ export const entries = <const R>(obj: R): Array<[keyof R & string, R[keyof R & s
  * @since 0.0.0
  */
 export * from "effect/Struct";
+
+/**
+ * Struct shape accepted by {@link reverse}.
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export interface ReverseableStruct {
+  readonly [key: string]: PropertyKey;
+  readonly [key: symbol]: PropertyKey;
+}
+
+/**
+ * Type-level inversion of a struct where each value becomes a key.
+ *
+ * When multiple keys share the same value, the reversed key type is the union
+ * of all matching original keys.
+ *
+ * @example
+ * import type { ReverseStruct } from "@beep/utils/Struct";
+ *
+ * type Direction = ReverseStruct<{ readonly up: "north"; readonly down: "south" }>;
+ * let example!: Direction;
+ * void example;
+ *
+ * @category models
+ * @since 0.1.0
+ */
+export type ReverseStruct<T extends ReverseableStruct> = {
+  readonly [P in T[keyof T]]: {
+    readonly [K in keyof T]: T[K] extends P ? K : never;
+  }[keyof T];
+};
+
+/**
+ * Reverses a struct mapping, producing a new struct where original values
+ * become keys and original keys become values.
+ *
+ * Supports a dual API:
+ * - Data-last: `reverse()(self)`
+ * - Data-first: `reverse(self)`
+ *
+ * When duplicate values exist, the last encountered key wins at runtime.
+ *
+ * @example
+ * import { Struct } from "@beep/utils";
+ *
+ * const ErrorCode = {
+ *   SUCCESSFUL_COMPLETION: "00000",
+ *   WARNING: "01000",
+ * } as const;
+ *
+ * const reversed = Struct.reverse(ErrorCode);
+ *
+ * reversed["00000"]; // "SUCCESSFUL_COMPLETION"
+ * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
+export const reverse: {
+  <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;
+  <S extends ReverseableStruct>(self: S): ReverseStruct<S>;
+} = dual(
+  (args) => args.length === 1,
+  <S extends ReverseableStruct>(self: S): ReverseStruct<S> => {
+    const out: Record<PropertyKey, PropertyKey> = {};
+
+    for (const [key, value] of entries(self)) {
+      out[value] = key;
+    }
+    for (const key of Object.getOwnPropertySymbols(self)) {
+      out[self[key]] = key;
+    }
+
+    return F.coerceUnsafe<Record<PropertyKey, PropertyKey>, ReverseStruct<S>>(out);
+  }
+);

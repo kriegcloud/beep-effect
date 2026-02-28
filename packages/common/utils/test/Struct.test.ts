@@ -66,3 +66,50 @@ describe("@beep/utils Struct.dotGet", () => {
   });
 });
 // bench
+
+describe("@beep/utils Struct.reverse", () => {
+  it("reverses key/value mappings and preserves literals", () => {
+    const ErrorEnum = {
+      SUCCESSFUL_COMPLETION: "00000",
+      WARNING: "01000",
+    } as const;
+
+    const reversed = Struct.reverse(ErrorEnum);
+    const reversedFromPipe = pipe(ErrorEnum, Struct.reverse());
+
+    expect(reversed[ErrorEnum.SUCCESSFUL_COMPLETION]).toBe("SUCCESSFUL_COMPLETION");
+    expect(reversedFromPipe[ErrorEnum.SUCCESSFUL_COMPLETION]).toBe("SUCCESSFUL_COMPLETION");
+    expect(ErrorEnum[reversed["00000"]]).toBe("00000");
+    expectTypeOf(reversed["00000"]).toEqualTypeOf<"SUCCESSFUL_COMPLETION">();
+    expectTypeOf(reversed["01000"]).toEqualTypeOf<"WARNING">();
+    expectTypeOf(reversedFromPipe["00000"]).toEqualTypeOf<"SUCCESSFUL_COMPLETION">();
+  });
+
+  it("supports symbol keys", () => {
+    const FOO = Symbol("FOO");
+    const BAR = Symbol("BAR");
+    const source = {
+      [FOO]: "foo",
+      [BAR]: "bar",
+    } as const;
+
+    const reversed = Struct.reverse(source);
+
+    expect(reversed.foo).toBe(FOO);
+    expect(reversed.bar).toBe(BAR);
+    expectTypeOf(reversed.foo).toEqualTypeOf<typeof FOO>();
+    expectTypeOf(reversed.bar).toEqualTypeOf<typeof BAR>();
+  });
+
+  it("models duplicate values as key unions", () => {
+    const source = {
+      FIRST: "X",
+      SECOND: "X",
+    } as const;
+
+    const reversed = Struct.reverse(source);
+
+    expect(reversed.X).toBe("SECOND");
+    expectTypeOf(reversed.X).toEqualTypeOf<"FIRST" | "SECOND">();
+  });
+});

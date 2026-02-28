@@ -170,6 +170,39 @@ describe("Graphiti MCP helpers", () => {
     );
   });
 
+  it("surfaces timeout-classified errors and supports deterministic [] fallback", async () => {
+    await withEnv(
+      {
+        BEEP_GRAPHITI_SERIALIZE: "false",
+        BEEP_GRAPHITI_RETRY_ATTEMPTS: "1",
+        BEEP_GRAPHITI_REQUEST_TIMEOUT_MS: "5",
+        BEEP_GRAPHITI_CIRCUIT_ENABLED: "true",
+        BEEP_GRAPHITI_CIRCUIT_FAILURE_THRESHOLD: "1",
+        BEEP_GRAPHITI_CIRCUIT_OPEN_MS: "60000",
+      },
+      async () => {
+        const fetchMock = vi.fn(async (): Promise<Response> => {
+          throw new Error("TimeoutError: simulated timeout");
+        });
+
+        vi.stubGlobal("fetch", fetchMock);
+        try {
+          const options = { url: "http://graphiti.test/timeout", groupId: "beep-dev" };
+
+          await expect(searchMemoryFacts(options, "timeout", 5)).rejects.toMatchObject({
+            message: expect.stringContaining("timed out after 5ms"),
+          });
+
+          const fallbackFacts = await searchMemoryFacts(options, "timeout", 5);
+          expect(fallbackFacts).toEqual([]);
+          expect(fetchMock).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.unstubAllGlobals();
+        }
+      }
+    );
+  });
+
   it("serializes concurrent operations when lock mode is enabled", async () => {
     const lockDir = `/tmp/beep-graphiti-memory-test-${String(Date.now())}`;
     await withEnv(

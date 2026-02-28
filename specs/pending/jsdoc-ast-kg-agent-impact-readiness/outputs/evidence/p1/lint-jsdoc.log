@@ -1,0 +1,7 @@
+$ eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' --ignore-pattern '.repos/**'
+
+/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/utils/src/Struct.ts
+  3:1  warning  Prefer root imports from "effect" for stable modules. Replace effect/Function with named import from "effect"  beep-laws/effect-import-style
+
+✖ 1 problem (0 errors, 1 warning)
+

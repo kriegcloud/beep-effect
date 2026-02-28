@@ -1,4 +1,5 @@
 import { Struct } from "@beep/utils";
+import { pipe } from "effect/Function";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
 
@@ -44,3 +45,54 @@ describe("dotGet", () => {
   });
 });
 // bench
+
+describe("reverse", () => {
+  it("supports data-first and data-last usage with preserved literals", () => {
+    const ErrorEnum = {
+      SUCCESSFUL_COMPLETION: "00000",
+      WARNING: "01000",
+    } as const;
+
+    const dataFirst = Struct.reverse(ErrorEnum);
+    const dataLast = pipe(ErrorEnum, Struct.reverse());
+
+    expect(dataFirst).type.toBe<{
+      readonly "00000": "SUCCESSFUL_COMPLETION";
+      readonly "01000": "WARNING";
+    }>();
+    expect(dataLast).type.toBe<{
+      readonly "00000": "SUCCESSFUL_COMPLETION";
+      readonly "01000": "WARNING";
+    }>();
+  });
+
+  it("supports symbol keys", () => {
+    const FOO = Symbol("FOO");
+    const BAR = Symbol("BAR");
+    const source = {
+      [FOO]: "foo",
+      [BAR]: "bar",
+    } as const;
+
+    const reversed = Struct.reverse(source);
+
+    expect(reversed.foo).type.toBe<typeof FOO>();
+    expect(reversed.bar).type.toBe<typeof BAR>();
+  });
+
+  it("models duplicate values as key unions", () => {
+    const source = {
+      FIRST: "X",
+      SECOND: "X",
+    } as const;
+
+    expect(Struct.reverse(source).X).type.toBe<"FIRST" | "SECOND">();
+  });
+
+  it("rejects non PropertyKey values", () => {
+    const invalid = { a: { nested: 1 } } as const;
+
+    // @ts-expect-error not assignable to parameter of type
+    Struct.reverse(invalid);
+  });
+});

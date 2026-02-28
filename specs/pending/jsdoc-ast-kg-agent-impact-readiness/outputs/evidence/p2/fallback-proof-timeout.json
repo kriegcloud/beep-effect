@@ -1,0 +1,10 @@
+{
+  "attemptedAt": "2026-02-28T13:12:58.961Z",
+  "requestTimeoutMs": 500,
+  "firstMs": 588,
+  "secondMs": 0,
+  "firstFactCount": 0,
+  "secondFactCount": 0,
+  "deterministicFallback": true,
+  "fallbackFacts": []
+}

@@ -29,11 +29,16 @@ interface GraphitiGuardConfig {
   readonly retryBaseMs: number;
   readonly retryMaxMs: number;
   readonly retryJitterMs: number;
+  readonly requestTimeoutMs: number;
+  readonly circuitEnabled: boolean;
+  readonly circuitFailureThreshold: number;
+  readonly circuitOpenMs: number;
 }
 
 type GraphitiToolName = "search_memory_facts" | "add_memory";
 
 const SessionByUrl = new Map<string, string>();
+const CircuitByUrl = new Map<string, { readonly consecutiveFailures: number; readonly openUntilMs: number }>();
 const execFileAsync = promisify(execFile);
 
 const parseFactsFromJsonText = (text: string): ReadonlyArray<string> => {
@@ -83,6 +88,10 @@ const getGuardConfig = (): GraphitiGuardConfig => ({
   retryBaseMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_BASE_MS, 200),
   retryMaxMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_MAX_MS, 2_000),
   retryJitterMs: parsePositiveInt(process.env.BEEP_GRAPHITI_RETRY_JITTER_MS, 125),
+  requestTimeoutMs: parsePositiveInt(process.env.BEEP_GRAPHITI_REQUEST_TIMEOUT_MS, 2_500),
+  circuitEnabled: parseBoolean(process.env.BEEP_GRAPHITI_CIRCUIT_ENABLED, true),
+  circuitFailureThreshold: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_FAILURE_THRESHOLD, 1),
+  circuitOpenMs: parsePositiveInt(process.env.BEEP_GRAPHITI_CIRCUIT_OPEN_MS, 60_000),
 });
 
 const toProtocolError = (message: string, cause?: unknown): AgentEvalProtocolError =>
@@ -157,7 +166,7 @@ const createLockDir = async (lockDir: string): Promise<boolean> => {
 
 const removeLockDir = async (lockDir: string): Promise<void> => {
   try {
-    await execFileAsync("rm", ["-rf", lockDir]);
+    await execFileAsync("rmdir", [lockDir]);
   } catch {
     // Best effort lock cleanup.
   }
@@ -201,7 +210,56 @@ const invalidateSession = (url: string): void => {
   SessionByUrl.delete(url);
 };
 
+const getCircuitState = (url: string): { readonly consecutiveFailures: number; readonly openUntilMs: number } =>
+  CircuitByUrl.get(url) ?? { consecutiveFailures: 0, openUntilMs: 0 };
+
+const isCircuitOpen = (url: string, nowMs: number): boolean => getCircuitState(url).openUntilMs > nowMs;
+
+const clearCircuitState = (url: string): void => {
+  CircuitByUrl.set(url, { consecutiveFailures: 0, openUntilMs: 0 });
+};
+
+const recordCircuitFailure = (config: GraphitiGuardConfig, url: string, nowMs: number): void => {
+  if (!config.circuitEnabled) {
+    return;
+  }
+
+  const current = getCircuitState(url);
+  const consecutiveFailures = current.consecutiveFailures + 1;
+  const openUntilMs =
+    consecutiveFailures >= config.circuitFailureThreshold ? nowMs + config.circuitOpenMs : current.openUntilMs;
+  CircuitByUrl.set(url, { consecutiveFailures, openUntilMs });
+};
+
+const recordCircuitSuccess = (config: GraphitiGuardConfig, url: string): void => {
+  if (!config.circuitEnabled) {
+    return;
+  }
+  const current = getCircuitState(url);
+  if (current.consecutiveFailures !== 0 || current.openUntilMs !== 0) {
+    clearCircuitState(url);
+  }
+};
+
+const isTimeoutError = (cause: unknown): boolean => {
+  if (typeof cause !== "object" || cause === null) {
+    return false;
+  }
+
+  const name = "name" in cause && typeof cause.name === "string" ? cause.name.toLowerCase() : "";
+  const message = "message" in cause && typeof cause.message === "string" ? cause.message.toLowerCase() : "";
+
+  return (
+    name.includes("timeout") ||
+    name.includes("abort") ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("aborted")
+  );
+};
+
 const postMcp = async (
+  config: GraphitiGuardConfig,
   url: string,
   headers: Record<string, string>,
   payload: unknown,
@@ -215,8 +273,12 @@ const postMcp = async (
         ...headers,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(config.requestTimeoutMs),
     });
   } catch (cause) {
+    if (isTimeoutError(cause)) {
+      throw toProtocolError(`Graphiti ${operation} timed out after ${String(config.requestTimeoutMs)}ms`, cause);
+    }
     throw toProtocolError(`Graphiti ${operation} request failed`, cause);
   }
 };
@@ -229,13 +291,14 @@ const ensureOk = async (response: Response, operation: string): Promise<void> =>
   throw toProtocolError(`Graphiti ${operation} returned HTTP ${String(response.status)}: ${body}`);
 };
 
-const initializeSession = async (url: string): Promise<string> => {
+const initializeSession = async (config: GraphitiGuardConfig, url: string): Promise<string> => {
   const cached = SessionByUrl.get(url);
   if (cached !== undefined) {
     return cached;
   }
 
   const initializeResponse = await postMcp(
+    config,
     url,
     { "content-type": "application/json" },
     {
@@ -261,6 +324,7 @@ const initializeSession = async (url: string): Promise<string> => {
   }
 
   const initializedResponse = await postMcp(
+    config,
     url,
     {
       "content-type": "application/json",
@@ -278,8 +342,15 @@ const initializeSession = async (url: string): Promise<string> => {
   return sessionId;
 };
 
-const callTool = async (url: string, sessionId: string, toolName: GraphitiToolName, args: unknown): Promise<string> => {
+const callTool = async (
+  config: GraphitiGuardConfig,
+  url: string,
+  sessionId: string,
+  toolName: GraphitiToolName,
+  args: unknown
+): Promise<string> => {
   const response = await postMcp(
+    config,
     url,
     {
       "content-type": "application/json",
@@ -301,13 +372,14 @@ const callTool = async (url: string, sessionId: string, toolName: GraphitiToolNa
 };
 
 const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolName, args: unknown): Promise<string> =>
-  withGlobalLock(() =>
-    withRetry(
+  withGlobalLock(() => {
+    const config = getGuardConfig();
+    return withRetry(
       `${toolName} operation`,
       async () => {
-        const sessionId = await initializeSession(options.url);
+        const sessionId = await initializeSession(config, options.url);
         try {
-          return await callTool(options.url, sessionId, toolName, args);
+          return await callTool(config, options.url, sessionId, toolName, args);
         } catch (cause) {
           invalidateSession(options.url);
           throw cause;
@@ -316,8 +388,8 @@ const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolNa
       () => {
         invalidateSession(options.url);
       }
-    )
-  );
+    );
+  });
 
 /**
  * Search memory facts from Graphiti via MCP HTTP transport.
@@ -334,12 +406,24 @@ export const searchMemoryFacts = async (
   query: string,
   maxFacts: number
 ): Promise<ReadonlyArray<string>> => {
-  const text = await executeTool(options, "search_memory_facts", {
-    query,
-    group_ids: [options.groupId],
-    max_facts: maxFacts,
-  });
-  return parseFactsFromJsonText(text);
+  const config = getGuardConfig();
+  const nowMs = Date.now();
+  if (config.circuitEnabled && isCircuitOpen(options.url, nowMs)) {
+    return [];
+  }
+
+  try {
+    const text = await executeTool(options, "search_memory_facts", {
+      query,
+      group_ids: [options.groupId],
+      max_facts: maxFacts,
+    });
+    recordCircuitSuccess(config, options.url);
+    return parseFactsFromJsonText(text);
+  } catch (cause) {
+    recordCircuitFailure(config, options.url, nowMs);
+    throw cause;
+  }
 };
 
 /**
