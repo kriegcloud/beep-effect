@@ -835,6 +835,10 @@ const parseChanged = (changedFlag: O.Option<string>): ReadonlyArray<string> =>
  * @param mode - Requested indexing mode (`full` or `delta`).
  * @param changedFlag - Optional comma-separated changed-file list used for delta mode selection.
  * @returns Structured summary for the indexing run and emitted artifact counts.
+ * @domain kg-cli
+ * @provides IndexSummary
+ * @depends FileSystem, Git, SnapshotStore
+ * @errors DomainError
  * @since 0.0.0
  * @category commands
  * @internal
@@ -2214,6 +2218,10 @@ const kgParityCommand = Command.make(
 /**
  * CLI command group for AST KG indexing operations.
  *
+ * @domain kg-cli
+ * @provides KgCliCommandGroup
+ * @depends EffectCli, Console
+ * @errors DomainError
  * @since 0.0.0
  * @category commands
  */

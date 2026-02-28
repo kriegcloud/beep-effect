@@ -277,6 +277,10 @@ const renderClaudeCommandDescription = (model: string, claudeEffort: ExecutionRe
  *
  * @param request - Execution request normalized by the runner.
  * @returns Normalized execution result including command output and token usage.
+ * @domain agent-eval
+ * @provides ExecutionResult
+ * @depends CodexCli, ClaudeCli, ProcessRunner
+ * @errors none
  * @since 0.0.0
  * @category functions
  */

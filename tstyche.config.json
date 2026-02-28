@@ -18,7 +18,8 @@
     "packages/shared/ui/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
     "packages/shared/server/dtslint/**/*.tst.*",
-    "packages/shared/client/dtslint/**/*.tst.*"
+    "packages/shared/client/dtslint/**/*.tst.*",
+    "packages/_internal/db-admin/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }

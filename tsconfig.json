@@ -89,6 +89,12 @@
       ],
       "@beep/shared-client/*": [
         "./packages/shared/client/src/*.ts"
+      ],
+      "@beep/db-admin": [
+        "./packages/_internal/db-admin/src/index.ts"
+      ],
+      "@beep/db-admin/*": [
+        "./packages/_internal/db-admin/src/*.ts"
       ]
     },
     "plugins": [

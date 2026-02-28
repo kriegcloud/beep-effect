@@ -56,6 +56,10 @@ const stringifyEvent = (event: unknown): string => {
  * Probe runtime availability of the Claude Agent SDK module.
  *
  * @returns Availability status and unavailability reason when probing fails.
+ * @domain agent-eval
+ * @provides SdkAvailability
+ * @depends ClaudeAgentSdk
+ * @errors none
  * @since 0.0.0
  * @category functions
  */
@@ -79,6 +83,10 @@ export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => 
  *
  * @param request - Normalized execution request.
  * @returns Normalized execution result compatible with runner contracts.
+ * @domain agent-eval
+ * @provides ExecutionResult
+ * @depends ClaudeAgentSdk, AbortController
+ * @errors none
  * @since 0.0.0
  * @category functions
  */

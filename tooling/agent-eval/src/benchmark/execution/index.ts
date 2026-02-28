@@ -29,6 +29,10 @@ interface ExecutionResolverDependencies {
 /**
  * Options for runtime execution resolver construction.
  *
+ * @domain agent-eval
+ * @provides CreateExecutionResolverOptions
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -88,6 +92,10 @@ const causeMessage = (cause: unknown): string => {
  * @param options - Selected execution mode and requested agents.
  * @param dependencies - Optional dependency overrides for deterministic tests.
  * @returns Resolver with per-run execute function and probed SDK availability.
+ * @domain agent-eval
+ * @provides ExecutionResolver
+ * @depends CliExecutor, CodexSdkExecutor, ClaudeSdkExecutor
+ * @errors AgentEvalInvariantError
  * @since 0.0.0
  * @category functions
  */

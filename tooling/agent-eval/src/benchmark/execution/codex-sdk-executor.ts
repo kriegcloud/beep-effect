@@ -64,6 +64,10 @@ const stringifyEvent = (event: unknown): string => {
  * Probe runtime availability of the Codex SDK module.
  *
  * @returns Availability status and unavailability reason when probing fails.
+ * @domain agent-eval
+ * @provides SdkAvailability
+ * @depends CodexSdk
+ * @errors none
  * @since 0.0.0
  * @category functions
  */
@@ -96,6 +100,10 @@ const mapCodexReasoningEffort = (
  *
  * @param request - Normalized execution request.
  * @returns Normalized execution result compatible with runner contracts.
+ * @domain agent-eval
+ * @provides ExecutionResult
+ * @depends CodexSdk, AbortController
+ * @errors none
  * @since 0.0.0
  * @category functions
  */

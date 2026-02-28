@@ -10,6 +10,10 @@ import type { AgentName } from "../../schemas/index.js";
 /**
  * Backend selection mode accepted from CLI.
  *
+ * @domain agent-eval
+ * @provides ExecutionBackendMode
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -18,6 +22,10 @@ export type ExecutionBackendMode = "auto" | "cli" | "sdk";
 /**
  * Concrete backend used by one run.
  *
+ * @domain agent-eval
+ * @provides ExecutionBackend
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -26,6 +34,10 @@ export type ExecutionBackend = "cli" | "sdk";
 /**
  * Unified reasoning effort levels supported by benchmark CLI.
  *
+ * @domain agent-eval
+ * @provides BenchmarkReasoningEffort
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -34,6 +46,10 @@ export type BenchmarkReasoningEffort = "none" | "minimal" | "low" | "medium" | "
 /**
  * Claude effort levels supported by benchmark CLI.
  *
+ * @domain agent-eval
+ * @provides BenchmarkClaudeEffort
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -42,6 +58,10 @@ export type BenchmarkClaudeEffort = "low" | "medium" | "high";
 /**
  * Execution request payload normalized across backends.
  *
+ * @domain agent-eval
+ * @provides ExecutionRequest
+ * @depends AgentName
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -59,6 +79,10 @@ export interface ExecutionRequest {
 /**
  * Result payload normalized across CLI and SDK paths.
  *
+ * @domain agent-eval
+ * @provides ExecutionResult
+ * @depends ExecutionBackend
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -82,6 +106,10 @@ export interface ExecutionResult {
 /**
  * Availability probe result for one SDK path.
  *
+ * @domain agent-eval
+ * @provides SdkAvailability
+ * @depends none
+ * @errors none
  * @since 0.0.0
  * @category models
  */
@@ -93,6 +121,10 @@ export interface SdkAvailability {
 /**
  * Runtime resolver returned by backend selection.
  *
+ * @domain agent-eval
+ * @provides ExecutionResolver
+ * @depends SdkAvailability, ExecutionRequest, ExecutionResult
+ * @errors none
  * @since 0.0.0
  * @category models
  */
