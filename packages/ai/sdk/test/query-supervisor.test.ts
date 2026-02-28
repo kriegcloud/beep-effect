@@ -1,16 +1,16 @@
-import { expect, mock, test } from "bun:test";
+import type { QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
+import { expect, test, vi } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import * as Result from "effect/Result";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import * as TestClock from "effect/TestClock";
-import type { QuerySupervisorSettings } from "../src/QuerySupervisorConfig.js";
+import { TestClock } from "effect/testing";
 import { runEffect } from "./effect-test.js";
 
 let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
@@ -35,7 +35,7 @@ const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) =>
   });
 };
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: ({ prompt }: { prompt: unknown }) => (sdkQueryHandler ? sdkQueryHandler(prompt) : makeSdkQuery()),
   createSdkMcpServer: (_options: unknown) => ({}),
   tool: (
@@ -74,19 +74,19 @@ const baseSettings: QuerySupervisorSettings = {
 };
 
 test("QuerySupervisor enforces concurrency limits", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
+  const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
+  const { QuerySupervisor } = await import("@beep/ai-sdk/QuerySupervisor");
+  const { QuerySupervisorConfig } = await import("@beep/ai-sdk/QuerySupervisorConfig");
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
           Layer.succeed(
             AgentSdkConfig,
-            AgentSdkConfig.make({
+            AgentSdkConfig.of({
               options: {},
               sandboxProvider: Option.some("local"),
               sandboxId: Option.none(),
@@ -109,7 +109,7 @@ test("QuerySupervisor enforces concurrency limits", async () => {
       const firstStarted = yield* Deferred.make<void>();
       const secondStarted = yield* Deferred.make<void>();
 
-      const firstFiber = yield* Effect.fork(
+      const firstFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("first");
@@ -124,7 +124,7 @@ test("QuerySupervisor enforces concurrency limits", async () => {
       const stats = yield* supervisor.stats;
       expect(stats.active).toBe(1);
 
-      const secondFiber = yield* Effect.fork(
+      const secondFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("second");
@@ -133,7 +133,7 @@ test("QuerySupervisor enforces concurrency limits", async () => {
         )
       );
 
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
       const startedEarly = yield* Deferred.isDone(secondStarted);
       expect(startedEarly).toBe(false);
 
@@ -149,7 +149,7 @@ test("QuerySupervisor enforces concurrency limits", async () => {
 });
 
 test("QuerySupervisor times out pending submissions", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
   const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
   const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
   const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
@@ -160,13 +160,13 @@ test("QuerySupervisor times out pending submissions", async () => {
   };
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
           Layer.succeed(
             AgentSdkConfig,
-            AgentSdkConfig.make({
+            AgentSdkConfig.of({
               options: {},
               sandboxProvider: Option.some("local"),
               sandboxId: Option.none(),
@@ -188,7 +188,7 @@ test("QuerySupervisor times out pending submissions", async () => {
       const block = yield* Deferred.make<void>();
       const started = yield* Deferred.make<void>();
 
-      const firstFiber = yield* Effect.fork(
+      const firstFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("first");
@@ -200,14 +200,14 @@ test("QuerySupervisor times out pending submissions", async () => {
 
       yield* Deferred.await(started);
 
-      const secondFiber = yield* Effect.fork(Effect.either(supervisor.submit("second")));
+      const secondFiber = yield* Effect.forkChild(Effect.result(supervisor.submit("second")));
 
       yield* TestClock.adjust("2 seconds");
 
       const result = yield* Fiber.join(secondFiber);
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect(result.left._tag).toBe("QueryPendingTimeoutError");
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result)) {
+        expect(result.failure._tag).toBe("QueryPendingTimeoutError");
       }
 
       yield* Deferred.succeed(block, undefined);
@@ -225,13 +225,13 @@ test("QuerySupervisor fails pending work when scope closes", async () => {
   const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
           Layer.succeed(
             AgentSdkConfig,
-            AgentSdkConfig.make({
+            AgentSdkConfig.of({
               options: {},
               sandboxProvider: Option.some("local"),
               sandboxId: Option.none(),
@@ -253,7 +253,7 @@ test("QuerySupervisor fails pending work when scope closes", async () => {
       const block = yield* Deferred.make<void>();
       const started = yield* Deferred.make<void>();
 
-      const firstFiber = yield* Effect.fork(
+      const firstFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("first");
@@ -266,17 +266,17 @@ test("QuerySupervisor fails pending work when scope closes", async () => {
       yield* Deferred.await(started);
 
       const pendingScope = yield* Scope.make();
-      const submitFiber = yield* Effect.fork(
-        Effect.either(supervisor.submit("second").pipe(Scope.extend(pendingScope)))
+      const submitFiber = yield* Effect.forkChild(
+        Scope.provide(pendingScope)(Effect.result(supervisor.submit("second")))
       );
 
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
       yield* Scope.close(pendingScope, Exit.void);
 
       const result = yield* Fiber.join(submitFiber);
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect(result.left._tag).toBe("QueryPendingCanceledError");
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result)) {
+        expect(result.failure._tag).toBe("QueryPendingCanceledError");
       }
 
       yield* Deferred.succeed(block, undefined);
@@ -300,13 +300,13 @@ test("QuerySupervisor drops when queue is full", async () => {
   };
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
           Layer.succeed(
             AgentSdkConfig,
-            AgentSdkConfig.make({
+            AgentSdkConfig.of({
               options: {},
               sandboxProvider: Option.some("local"),
               sandboxId: Option.none(),
@@ -328,7 +328,7 @@ test("QuerySupervisor drops when queue is full", async () => {
       const block = yield* Deferred.make<void>();
       const started = yield* Deferred.make<void>();
 
-      const firstFiber = yield* Effect.fork(
+      const firstFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("first");
@@ -340,15 +340,15 @@ test("QuerySupervisor drops when queue is full", async () => {
 
       yield* Deferred.await(started);
 
-      const secondFiber = yield* Effect.fork(Effect.scoped(supervisor.submit("second").pipe(Effect.asVoid)));
+      const secondFiber = yield* Effect.forkChild(Effect.scoped(supervisor.submit("second").pipe(Effect.asVoid)));
 
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
 
-      const thirdFiber = yield* Effect.fork(
-        supervisor.submit("third").pipe(Effect.either, Effect.timeoutOption("50 millis"))
+      const thirdFiber = yield* Effect.forkChild(
+        supervisor.submit("third").pipe(Effect.result, Effect.timeoutOption("50 millis"))
       );
-      const fourthFiber = yield* Effect.fork(
-        supervisor.submit("fourth").pipe(Effect.either, Effect.timeoutOption("50 millis"))
+      const fourthFiber = yield* Effect.forkChild(
+        supervisor.submit("fourth").pipe(Effect.result, Effect.timeoutOption("50 millis"))
       );
 
       yield* TestClock.adjust("50 millis");
@@ -357,7 +357,7 @@ test("QuerySupervisor drops when queue is full", async () => {
       const fourthResult = yield* Fiber.join(fourthFiber);
       const dropped = [thirdResult, fourthResult].filter(
         (result) =>
-          Option.isSome(result) && Either.isLeft(result.value) && result.value.left._tag === "QueryQueueFullError"
+          Option.isSome(result) && Result.isFailure(result.value) && result.value.failure._tag === "QueryQueueFullError"
       );
       expect(dropped.length).toBeGreaterThanOrEqual(1);
 
@@ -384,13 +384,13 @@ test("QuerySupervisor publishes lifecycle events", async () => {
   };
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
           Layer.succeed(
             AgentSdkConfig,
-            AgentSdkConfig.make({
+            AgentSdkConfig.of({
               options: {},
               sandboxProvider: Option.some("local"),
               sandboxId: Option.none(),
@@ -410,7 +410,7 @@ test("QuerySupervisor publishes lifecycle events", async () => {
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
 
-      const eventsFiber = yield* Effect.fork(
+      const eventsFiber = yield* Effect.forkChild(
         Stream.runCollect(
           supervisor.events.pipe(
             Stream.filter((event) => event._tag === "QueryStarted" || event._tag === "QueryCompleted"),
@@ -418,7 +418,7 @@ test("QuerySupervisor publishes lifecycle events", async () => {
           )
         )
       );
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
 
       yield* Effect.scoped(supervisor.submit("event-test").pipe(Effect.asVoid));
 

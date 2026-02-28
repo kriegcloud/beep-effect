@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
+import { MessageFilters } from "@beep/ai-sdk";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as Stream from "effect/Stream";
-import { MessageFilters } from "../src/index.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
 
 // ---------------------------------------------------------------------------
 // Minimal mock messages

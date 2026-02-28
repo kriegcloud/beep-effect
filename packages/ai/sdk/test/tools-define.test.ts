@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import { Mcp, Tools } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
-import { Mcp, Tools } from "../src/index.js";
 
 test("Tool.define attaches handler and accepts schema parameters", async () => {
   const Params = Schema.Struct({

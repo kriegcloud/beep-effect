@@ -1,11 +1,12 @@
-import { expect, test } from "bun:test";
+import { AgentRuntime, Storage } from "@beep/ai-sdk";
+import type { QueryHandle, StreamBroadcastConfig } from "@beep/ai-sdk/Query";
+import type { QuerySupervisorStats } from "@beep/ai-sdk/QuerySupervisor";
+import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
-import { AgentRuntime, Storage } from "../src/index.js";
-import type { QueryHandle } from "../src/Query.js";
-import type { QuerySupervisorStats } from "../src/QuerySupervisor.js";
-import type { SDKMessage, SDKUserMessage } from "../src/Schema/Message.js";
+import { runEffect } from "./effect-test.js";
 
 const makeHandle = (messages: ReadonlyArray<SDKMessage>): QueryHandle => {
   const stream = Stream.fromIterable(messages);
@@ -16,7 +17,13 @@ const makeHandle = (messages: ReadonlyArray<SDKMessage>): QueryHandle => {
     sendForked: (_message: SDKUserMessage) => Effect.void,
     closeInput: Effect.void,
     share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
-    broadcast: (n, maximumLag) => Stream.broadcast(stream, n, maximumLag ?? 16),
+    broadcast: (config?: StreamBroadcastConfig) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
     interrupt: Effect.void,
     setPermissionMode: (_mode) => Effect.die("not-implemented"),
     setModel: (_model) => Effect.die("not-implemented"),
@@ -27,6 +34,8 @@ const makeHandle = (messages: ReadonlyArray<SDKMessage>): QueryHandle => {
     mcpServerStatus: Effect.die("not-implemented"),
     setMcpServers: (_servers) => Effect.die("not-implemented"),
     accountInfo: Effect.die("not-implemented"),
+    initializationResult: Effect.die("not-implemented"),
+    stopTask: (_taskId) => Effect.die("not-implemented"),
   };
 };
 
@@ -41,7 +50,7 @@ const makeRuntimeLayer = (messages: ReadonlyArray<SDKMessage>) => {
   const handle = makeHandle(messages);
   return Layer.succeed(
     AgentRuntime,
-    AgentRuntime.make({
+    AgentRuntime.of({
       query: (_prompt, _options) => Effect.succeed(handle),
       queryRaw: (_prompt, _options) => Effect.succeed(handle),
       stream: (_prompt, _options) => handle.stream,
@@ -66,17 +75,15 @@ test("AgentRuntime.layerWithPersistence records chat history and artifacts", asy
 
   const chatHistoryLayer = Storage.ChatHistoryStore.layerMemory;
   const artifactLayer = Storage.ArtifactStore.layerMemory;
-  const layer = Layer.mergeAll(
-    AgentRuntime.layerWithPersistence({
-      layers: {
-        runtime: makeRuntimeLayer([message]),
-        chatHistory: chatHistoryLayer,
-        artifacts: artifactLayer,
-      },
-    }),
-    chatHistoryLayer,
-    artifactLayer
-  );
+  const storageLayer = Layer.merge(chatHistoryLayer, artifactLayer);
+  const runtimeLayer = AgentRuntime.layerWithPersistence({
+    layers: {
+      runtime: makeRuntimeLayer([message]),
+      chatHistory: chatHistoryLayer,
+      artifacts: artifactLayer,
+    },
+  }).pipe(Layer.provideMerge(storageLayer));
+  const layer = Layer.merge(runtimeLayer, storageLayer);
 
   const program = Effect.scoped(
     Effect.gen(function* () {
@@ -91,7 +98,7 @@ test("AgentRuntime.layerWithPersistence records chat history and artifacts", asy
     }).pipe(Effect.provide(layer))
   );
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.events.length).toBe(1);
   expect(result.records.length).toBe(1);
 });

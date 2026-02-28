@@ -1,11 +1,11 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
-import * as Context from "effect/Context";
+import { Storage, Sync } from "@beep/ai-sdk";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Storage, Sync } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
+import * as ServiceMap from "effect/ServiceMap";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffectLive } from "./effect-test.js";
 
 const allowServe = Bun.env.SYNC_TEST_ALLOW_SERVE === "1" || Bun.env.SYNC_TEST_ALLOW_SERVE === "true";
@@ -47,7 +47,7 @@ const waitFor = <A, E>(
   predicate: (value: A) => boolean,
   options?: {
     readonly retries?: number;
-    readonly interval?: Duration.DurationInput;
+    readonly interval?: Duration.Input;
   }
 ) =>
   Effect.gen(function* () {
@@ -84,7 +84,7 @@ maybeTest(
       Effect.gen(function* () {
         const server = yield* Sync.EventLogRemoteServer;
         const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
-        const kv = Context.get(kvContext, KeyValueStore.KeyValueStore);
+        const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
         yield* debugEffect("server", {
           url: server.url,
           address: server.address,
@@ -92,10 +92,10 @@ maybeTest(
         const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-a" }));
         const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, kv, { prefix: "replica-b" }));
 
-        const storeA = Context.get(replicaAContext, Storage.ChatHistoryStore);
-        const storeB = Context.get(replicaBContext, Storage.ChatHistoryStore);
-        const syncA = Context.get(replicaAContext, Sync.SyncService);
-        const syncB = Context.get(replicaBContext, Sync.SyncService);
+        const storeA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+        const storeB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+        const syncA = ServiceMap.get(replicaAContext, Sync.SyncService);
+        const syncB = ServiceMap.get(replicaBContext, Sync.SyncService);
 
         yield* waitFor("replica A to connect", syncA.status(), (statuses) =>
           statuses.some((status) => status.key === server.url && status.connected)

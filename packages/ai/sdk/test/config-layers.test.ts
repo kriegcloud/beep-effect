@@ -1,17 +1,17 @@
-import { expect, test } from "bun:test";
+import { AgentRuntimeConfig } from "@beep/ai-sdk/AgentRuntimeConfig";
+import { AgentSdkConfig } from "@beep/ai-sdk/AgentSdkConfig";
+import { QuerySupervisorConfig } from "@beep/ai-sdk/QuerySupervisorConfig";
+import { expect, test } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import { AgentRuntimeConfig } from "../src/AgentRuntimeConfig.js";
-import { AgentSdkConfig } from "../src/AgentSdkConfig.js";
-import { QuerySupervisorConfig } from "../src/QuerySupervisorConfig.js";
+import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  Layer.setConfigProvider(ConfigProvider.fromMap(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
 
 test("AgentSdkConfig reads options from config provider", async () => {
   const layer = AgentSdkConfig.layer.pipe(
@@ -103,7 +103,7 @@ test("AgentSdkConfig reads deployment profile hints", async () => {
     )
   );
 
-  const program = AgentSdkConfig.pipe(Effect.provide(layer));
+  const program = Effect.service(AgentSdkConfig).pipe(Effect.provide(layer));
 
   const config = await runEffect(program);
   expect(config.sandboxProvider).toEqual(Option.some("cloudflare"));
@@ -125,27 +125,27 @@ test("AgentSdkConfig rejects invalid setting sources", async () => {
     )
   );
 
-  const program = AgentSdkConfig.pipe(Effect.provide(layer));
+  const program = Effect.service(AgentSdkConfig).pipe(Effect.provide(layer));
 
-  const result = await runEffect(Effect.either(program));
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("ConfigError");
+  const result = await runEffect(Effect.result(program));
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("ConfigError");
   }
 });
 
 test("AgentSdkConfig fails fast when credentials are missing", async () => {
   const layer = AgentSdkConfig.layer.pipe(Layer.provide(configLayer({})));
 
-  const program = AgentSdkConfig.pipe(Effect.provide(layer));
+  const program = Effect.service(AgentSdkConfig).pipe(Effect.provide(layer));
 
-  const result = await runEffect(Effect.either(program));
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("ConfigError");
-    expect(result.left.message).toContain("Missing API credentials");
-    expect(result.left.message).toContain("ANTHROPIC_API_KEY");
-    expect(result.left.message).toContain("CLAUDE_CODE_SESSION_ACCESS_TOKEN");
+  const result = await runEffect(Effect.result(program));
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("ConfigError");
+    expect(result.failure.message).toContain("Missing API credentials");
+    expect(result.failure.message).toContain("ANTHROPIC_API_KEY");
+    expect(result.failure.message).toContain("CLAUDE_CODE_SESSION_ACCESS_TOKEN");
   }
 });
 

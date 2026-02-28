@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
+import type { QueryHandle, StreamBroadcastConfig } from "@beep/ai-sdk/Query";
+import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { Storage } from "../src/index.js";
-import type { QueryHandle } from "../src/Query.js";
-import type { SDKMessage, SDKUserMessage } from "../src/Schema/Message.js";
 
 const makeUserMessage = (sessionId: string, text: string): SDKUserMessage => ({
   type: "user",
@@ -24,7 +24,13 @@ const makeHandle = (messages: ReadonlyArray<SDKMessage>): QueryHandle => {
     sendForked: (_message) => Effect.void,
     closeInput: Effect.void,
     share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
-    broadcast: (n, maximumLag) => Stream.broadcast(stream, n, maximumLag ?? 16),
+    broadcast: (config?: StreamBroadcastConfig) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
     interrupt: Effect.void,
     setPermissionMode: (_mode) => Effect.die("not-implemented"),
     setModel: (_model) => Effect.die("not-implemented"),
@@ -35,6 +41,8 @@ const makeHandle = (messages: ReadonlyArray<SDKMessage>): QueryHandle => {
     mcpServerStatus: Effect.die("not-implemented"),
     setMcpServers: (_servers) => Effect.die("not-implemented"),
     accountInfo: Effect.die("not-implemented"),
+    initializationResult: Effect.die("not-implemented"),
+    stopTask: (_taskId) => Effect.die("not-implemented"),
   };
 };
 

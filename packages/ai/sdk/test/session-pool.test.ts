@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
 import type { SDKSessionOptions } from "../src/Schema/Session.js";
 import type { SessionHandle } from "../src/Session.js";
@@ -27,7 +27,7 @@ const makeManagerLayer = (resumeCalls: Array<string>) =>
       },
       prompt: () => Effect.succeed({ type: "result", subtype: "success" } as never),
       withSession: ((_: SDKSessionOptions, _use: unknown) =>
-        Effect.dieMessage("SessionManager.withSession not used in SessionPool tests")) as never,
+        Effect.die("SessionManager.withSession not used in SessionPool tests")) as never,
     })
   );
 
@@ -71,13 +71,13 @@ test("SessionPool rejects invalid tenant format", async () => {
     Effect.scoped(
       Effect.gen(function* () {
         const pool = yield* SessionPool.make({ model: "claude-test" });
-        return yield* Effect.either(pool.get("session-1", undefined, "bad/tenant"));
+        return yield* Effect.result(pool.get("session-1", undefined, "bad/tenant"));
       }).pipe(Effect.provide(managerLayer))
     )
   );
 
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("SessionPoolInvalidTenantError");
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("SessionPoolInvalidTenantError");
   }
 });

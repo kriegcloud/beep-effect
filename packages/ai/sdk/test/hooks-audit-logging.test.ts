@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import { Hooks, Storage } from "@beep/ai-sdk";
+import type { PermissionRequestHookInput, PostToolUseHookInput, PreToolUseHookInput } from "@beep/ai-sdk/Schema/Hooks";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { Hooks, Storage } from "../src/index.js";
-import type { PermissionRequestHookInput, PostToolUseHookInput, PreToolUseHookInput } from "../src/Schema/Hooks.js";
 
 const baseInput = {
   session_id: "session-1",
@@ -56,28 +56,19 @@ test("Hooks.withAuditLogging emits audit entries", async () => {
 
 test("Hooks.wrapPermissionHooks logs permission decisions", async () => {
   const program = Effect.gen(function* () {
-    const wrapped = yield* Hooks.wrapPermissionHooks(
-      {
-        PermissionRequest: [
-          {
-            matcher: undefined,
-            timeout: undefined,
-            hooks: [
-              async () => ({
-                hookSpecificOutput: {
-                  hookEventName: "PermissionRequest",
-                  decision: {
-                    behavior: "deny",
-                    message: "nope",
-                  },
-                },
-              }),
-            ],
+    const permissionHooks = yield* Hooks.onPermissionRequest(() =>
+      Effect.succeed({
+        hookSpecificOutput: {
+          hookEventName: "PermissionRequest",
+          decision: {
+            behavior: "deny",
+            message: "nope",
           },
-        ],
-      },
-      ""
+        },
+      })
     );
+
+    const wrapped = yield* Hooks.wrapPermissionHooks(permissionHooks, "");
 
     const hook = wrapped.PermissionRequest?.[0]?.hooks[0];
     if (!hook) return [] as ReadonlyArray<string>;
@@ -107,26 +98,17 @@ test("Hooks.wrapPermissionHooks logs permission decisions", async () => {
 
 test("Hooks.wrapPermissionHooks logs PreToolUse permission decisions", async () => {
   const program = Effect.gen(function* () {
-    const wrapped = yield* Hooks.wrapPermissionHooks(
-      {
-        PreToolUse: [
-          {
-            matcher: undefined,
-            timeout: undefined,
-            hooks: [
-              async () => ({
-                hookSpecificOutput: {
-                  hookEventName: "PreToolUse",
-                  permissionDecision: "deny",
-                  permissionDecisionReason: "nope",
-                },
-              }),
-            ],
-          },
-        ],
-      },
-      ""
+    const preToolHooks = yield* Hooks.onPreToolUse(() =>
+      Effect.succeed({
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: "deny",
+          permissionDecisionReason: "nope",
+        },
+      })
     );
+
+    const wrapped = yield* Hooks.wrapPermissionHooks(preToolHooks, "");
 
     const hook = wrapped.PreToolUse?.[0]?.hooks[0];
     if (!hook) return [] as ReadonlyArray<string>;

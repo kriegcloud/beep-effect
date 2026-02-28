@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
-import * as EventJournal from "@effect/experimental/EventJournal";
+import { Sync } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import * as TestClock from "effect/TestClock";
-import { Sync } from "../src/index.js";
+import { TestClock } from "effect/testing";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import { runEffect } from "./effect-test.js";
 
 const makeEntry = (
@@ -15,7 +15,7 @@ const makeEntry = (
   }
 ) =>
   new EventJournal.Entry({
-    id: EventJournal.makeEntryId({ msecs }),
+    id: EventJournal.makeEntryIdUnsafe({ msecs }),
     event: options?.event ?? "event",
     primaryKey: options?.primaryKey ?? "pk",
     payload: options?.payload ?? new TextEncoder().encode(`payload-${msecs}`),

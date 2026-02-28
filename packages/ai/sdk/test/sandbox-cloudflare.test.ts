@@ -1,11 +1,11 @@
-import { expect, mock, test } from "bun:test";
+import type { CloudflareSandboxOptions } from "@beep/ai-sdk/Sandbox/SandboxCloudflare";
+import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
+import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
+import * as Result from "effect/Result";
 import type * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import type { CloudflareSandboxOptions } from "../src/Sandbox/SandboxCloudflare.js";
-import { SandboxService } from "../src/Sandbox/SandboxService.js";
-import type { SDKMessage, SDKUserMessage } from "../src/Schema/Message.js";
 import { runEffect } from "./effect-test.js";
 
 type MockSandboxCall = {
@@ -89,7 +89,7 @@ const makeState = (): MockSandboxState => ({
 
 let state = makeState();
 
-mock.module("@cloudflare/sandbox", () => ({
+vi.mock("@cloudflare/sandbox", () => ({
   parseSSEStream: async function* <T>(stream: ReadableStream): AsyncIterable<T> {
     const queuedEvents = state.sseEventsQueue?.shift();
     if (queuedEvents) {
@@ -189,7 +189,7 @@ const runInSandbox = async <A>(
   effect: Effect.Effect<A, unknown, SandboxService | Scope.Scope>,
   options?: Partial<CloudflareSandboxOptions>
 ) => {
-  const { layerCloudflare } = await import("../src/Sandbox/SandboxCloudflare.js");
+  const { layerCloudflare } = await import("@beep/ai-sdk/Sandbox/SandboxCloudflare");
   return runEffect(Effect.scoped(effect.pipe(Effect.provide(layerCloudflare(makeOptions(options))))));
 };
 
@@ -220,10 +220,10 @@ const makeSuccessResultMessage = (result: string, uuid: string, sessionId: strin
     session_id: sessionId,
   }) as SDKMessage;
 
-const assertSandboxError = (result: Either.Either<unknown, unknown>, operation: string) => {
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    const error = result.left as { _tag?: string; operation?: string };
+const assertSandboxError = (result: Result.Result<unknown, unknown>, operation: string) => {
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    const error = result.failure as { _tag?: string; operation?: string };
     expect(error._tag).toBe("SandboxError");
     expect(error.operation).toBe(operation);
   }
@@ -381,7 +381,7 @@ test("SandboxCloudflare.runAgent returns error when resume fallback retry also f
         model: "haiku",
         resume: "abc-session-123",
       });
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     })
   );
 
@@ -405,7 +405,7 @@ test("SandboxCloudflare.runAgent does not retry non-stale resume failures", asyn
         model: "haiku",
         resume: "abc-session-123",
       });
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     })
   );
 
@@ -498,11 +498,11 @@ test("SandboxCloudflare.runAgent returns SandboxError for unsupported input meth
     Effect.gen(function* () {
       const sandbox = yield* SandboxService;
       const handle = yield* sandbox.runAgent("unsupported");
-      const send = yield* Effect.either(handle.send(userMessage));
-      const sendAll = yield* Effect.either(handle.sendAll([userMessage]));
-      const sendForked = yield* Effect.either(handle.sendForked(userMessage));
-      const setMcpServers = yield* Effect.either(handle.setMcpServers({}));
-      const accountInfo = yield* Effect.either(handle.accountInfo);
+      const send = yield* Effect.result(handle.send(userMessage));
+      const sendAll = yield* Effect.result(handle.sendAll([userMessage]));
+      const sendForked = yield* Effect.result(handle.sendForked(userMessage));
+      const setMcpServers = yield* Effect.result(handle.setMcpServers({}));
+      const accountInfo = yield* Effect.result(handle.accountInfo);
       yield* handle.closeInput;
       const supportedCommands = yield* handle.supportedCommands;
       const supportedModels = yield* handle.supportedModels;
@@ -636,8 +636,8 @@ test("SandboxCloudflare.runAgent share and broadcast fan out output", async () =
     Effect.gen(function* () {
       const sandbox = yield* SandboxService;
       const handle = yield* sandbox.runAgent("broadcast");
-      const [left, right] = yield* handle.broadcast(2);
-      const [first, second] = yield* Effect.all([Stream.runCollect(left), Stream.runCollect(right)], {
+      const broadcast = yield* handle.broadcast(2);
+      const [first, second] = yield* Effect.all([Stream.runCollect(broadcast), Stream.runCollect(broadcast)], {
         concurrency: "unbounded",
       });
       return [Array.from(first), Array.from(second)] as const;
@@ -665,13 +665,13 @@ test("SandboxCloudflare.runAgent maps stream failures and still cleans prompt fi
     Effect.gen(function* () {
       const sandbox = yield* SandboxService;
       const handle = yield* sandbox.runAgent("explode");
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     })
   );
 
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    const error = result.left as { _tag?: string; operation?: string };
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    const error = result.failure as { _tag?: string; operation?: string };
     expect(error._tag).toBe("SandboxError");
     expect(error.operation !== undefined).toBe(true);
     if (error.operation !== undefined) {
@@ -694,7 +694,7 @@ test("SandboxCloudflare.runAgent fails when sandbox emits an error SSE event", a
     Effect.gen(function* () {
       const sandbox = yield* SandboxService;
       const handle = yield* sandbox.runAgent("explode");
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     })
   );
 
@@ -714,7 +714,7 @@ test("SandboxCloudflare.runAgent fails on non-zero complete exit code", async ()
     Effect.gen(function* () {
       const sandbox = yield* SandboxService;
       const handle = yield* sandbox.runAgent("exit");
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     })
   );
 

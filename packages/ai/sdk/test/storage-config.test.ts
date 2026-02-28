@@ -1,13 +1,13 @@
-import { expect, test } from "bun:test";
+import { Storage } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Storage } from "../src/index.js";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  Layer.setConfigProvider(ConfigProvider.fromMap(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
 
 test("StorageConfig reads overrides from config provider", async () => {
   const layer = Storage.StorageConfig.layer.pipe(

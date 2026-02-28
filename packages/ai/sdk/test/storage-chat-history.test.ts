@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { Storage } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
 
 const makeProgram = (layer: Layer.Layer<Storage.ChatHistoryStore>) =>
   Effect.gen(function* () {

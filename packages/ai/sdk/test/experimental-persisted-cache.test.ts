@@ -1,8 +1,9 @@
-import { expect, test } from "bun:test";
+import * as PersistedCache from "@beep/ai-sdk/experimental/PersistedCache";
+import type { QueryHandle } from "@beep/ai-sdk/Query";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Ref from "effect/Ref";
-import * as PersistedCache from "../src/experimental/PersistedCache.js";
-import type { QueryHandle } from "../src/Query.js";
+import { runEffect } from "./effect-test.js";
 
 test("PersistedCache metadata wrapper reuses cached commands", async () => {
   const program = Effect.scoped(
@@ -10,7 +11,7 @@ test("PersistedCache metadata wrapper reuses cached commands", async () => {
       const counter = yield* Ref.make(0);
       const handle = {
         supportedCommands: Ref.update(counter, (n) => n + 1).pipe(
-          Effect.zipRight(
+          Effect.andThen(() =>
             Effect.succeed([
               {
                 name: "help",
@@ -32,9 +33,9 @@ test("PersistedCache metadata wrapper reuses cached commands", async () => {
       yield* cached.supportedCommands;
 
       return yield* Ref.get(counter);
-    }).pipe(Effect.provide(PersistedCache.Persistence.layerResultMemory))
+    }).pipe(Effect.provide(PersistedCache.Persistence.layerMemory))
   );
 
-  const invocations = await Effect.runPromise(program);
+  const invocations = await runEffect(program);
   expect(invocations).toBe(1);
 });

@@ -1,7 +1,3 @@
-import { expect, mock, test } from "bun:test";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Stream from "effect/Stream";
 import {
   AgentRuntime,
   AgentRuntimeConfig,
@@ -9,10 +5,15 @@ import {
   AgentSdkConfig,
   QuerySupervisor,
   QuerySupervisorConfig,
-  Sandbox,
   Storage,
-} from "../src/index.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
+} from "@beep/ai-sdk";
+import { layerLocal } from "@beep/ai-sdk/Sandbox/SandboxLocal";
+import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test, vi } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Stream from "effect/Stream";
 import { runEffect } from "./effect-test.js";
 
 const sdkMessages: ReadonlyArray<SDKMessage> = [
@@ -67,7 +68,7 @@ const makeSdkQuery = () => {
   });
 };
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: ({ prompt }: { prompt: unknown }) => {
     queryCalls += 1;
     prompts.push(prompt);
@@ -119,7 +120,7 @@ test("end-to-end with layerLocal sandbox and memory persistence", async () => {
     Layer.provide(sdkLayer)
   );
 
-  const sandboxLocalLayer = Sandbox.layerLocal.pipe(Layer.provide(supervisorLayer));
+  const sandboxLocalLayer = layerLocal.pipe(Layer.provide(supervisorLayer));
 
   const runtimeCoreLayer = AgentRuntime.layer.pipe(
     Layer.provide(AgentRuntimeConfig.layerWith({})),
@@ -129,22 +130,21 @@ test("end-to-end with layerLocal sandbox and memory persistence", async () => {
   const chatHistoryLayer = Storage.ChatHistoryStore.layerMemory;
   const artifactLayer = Storage.ArtifactStore.layerMemory;
 
-  const layer = Layer.mergeAll(
-    AgentRuntime.layerWithPersistence({
-      layers: {
-        runtime: runtimeCoreLayer,
-        chatHistory: chatHistoryLayer,
-        artifacts: artifactLayer,
-      },
-    }),
-    sandboxLocalLayer,
-    chatHistoryLayer,
-    artifactLayer
+  const persistenceLayer = AgentRuntime.layerWithPersistence({
+    layers: {
+      runtime: runtimeCoreLayer,
+      chatHistory: chatHistoryLayer,
+      artifacts: artifactLayer,
+    },
+  });
+
+  const layer = Layer.mergeAll(sandboxLocalLayer, chatHistoryLayer, artifactLayer).pipe(
+    Layer.provideMerge(persistenceLayer)
   );
 
   const program = Effect.scoped(
     Effect.gen(function* () {
-      const sandbox = yield* Sandbox.SandboxService;
+      const sandbox = yield* SandboxService;
       const runtime = yield* AgentRuntime;
 
       expect(sandbox.provider).toBe("local");

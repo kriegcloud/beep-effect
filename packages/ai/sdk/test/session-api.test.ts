@@ -1,13 +1,11 @@
-import { expect, mock, test } from "bun:test";
+import { expect, test, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
+import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 let createOptions: unknown;
 let resumeOptions: unknown;
 let resumeSessionId: string | undefined;
-let promptOptions: unknown;
-let promptMessage: string | undefined;
 let closeCalls = 0;
 let createError: Error | undefined;
 let promptError: Error | undefined;
@@ -24,7 +22,7 @@ const makeSession = (sessionId = "session-1") => ({
   [Symbol.asyncDispose]: async () => {},
 });
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
       return;
@@ -62,8 +60,8 @@ mock.module("@anthropic-ai/claude-agent-sdk", () => ({
   },
   unstable_v2_prompt: (message: string, options: unknown) => {
     if (promptError) throw promptError;
-    promptMessage = message;
-    promptOptions = options;
+    void message;
+    void options;
     return Promise.resolve({ type: "result", subtype: "success" });
   },
 }));
@@ -73,7 +71,7 @@ test("Session.createSession defaults executable and closes on scope exit", async
   createOptions = undefined;
   createError = undefined;
 
-  const { createSession } = await import("../src/Session.js");
+  const { createSession } = await import("@beep/ai-sdk/Session");
   const program = Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* createSession({ model: "claude-test" });
@@ -116,12 +114,12 @@ test("Session.createSession maps errors to TransportError", async () => {
 
   const { createSession } = await import("../src/Session.js");
   const program = Effect.scoped(createSession({ model: "claude-test" }));
-  const result = await runEffect(Effect.either(program));
+  const result = await runEffect(Effect.result(program));
 
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("TransportError");
-    expect(result.left.message).toBe("Failed to create session");
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("TransportError");
+    expect(result.failure.message).toBe("Failed to create session");
   }
 
   createError = undefined;
@@ -131,12 +129,12 @@ test("Session.prompt maps errors to TransportError", async () => {
   promptError = new Error("boom");
 
   const { prompt } = await import("../src/Session.js");
-  const result = await runEffect(Effect.either(prompt("hello", { model: "claude-test" })));
+  const result = await runEffect(Effect.result(prompt("hello", { model: "claude-test" })));
 
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("TransportError");
-    expect(result.left.message).toBe("Failed to run session prompt");
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("TransportError");
+    expect(result.failure.message).toBe("Failed to run session prompt");
   }
 
   promptError = undefined;

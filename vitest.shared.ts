@@ -20,7 +20,7 @@ const config: ViteUserConfig = {
     },
   },
   test: {
-    exclude: ["**/.context/**", "**/node_modules/**", "packages/ai/sdk/test/**"],
+    exclude: ["**/.context/**", "**/node_modules/**"],
     setupFiles: [path.join(__dirname, "vitest.setup.ts")],
     fakeTimers: {
       toFake: undefined,
