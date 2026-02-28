@@ -47,6 +47,7 @@ Environment knobs:
 Run one local proxy that serializes/queues all MCP traffic before forwarding to Graphiti:
 
 - Start: `bun run graphiti:proxy`
+- Ensure running (start if needed): `bun run graphiti:proxy:ensure`
 - Health: `http://127.0.0.1:8123/healthz`
 - Metrics: `http://127.0.0.1:8123/metrics`
 
@@ -63,5 +64,20 @@ Proxy knobs:
 Route all clones/tools to the proxy MCP URL:
 
 - `http://127.0.0.1:8123/mcp`
+- `beep kg` commands now default to this proxy URL when `BEEP_GRAPHITI_URL` is unset.
+- `beep kg publish` / `beep kg verify` now run strict proxy preflight (`/healthz`) when using proxy URL.
+  - Disable preflight (not recommended): `BEEP_GRAPHITI_PROXY_PREFLIGHT=false`
+  - Preflight timeout override: `BEEP_GRAPHITI_PREFLIGHT_TIMEOUT_MS=3000`
+- One-shot KG wrapper with proxy preflight:
+  - `bun run kg:proxy -- publish --target both --mode full --group <run-group>`
+  - `bun run kg:proxy -- verify --target both --group <run-group> --commit <sha>`
 
 This allows one shared queue across multiple repo clones and agent processes, instead of each process overloading Graphiti directly.
+
+### Persistent user service (systemd)
+
+To keep the proxy running across terminal restarts, install a user-level service:
+
+- `bun run graphiti:proxy:service:install`
+
+The installer writes `~/.config/systemd/user/beep-graphiti-proxy.service`, enables it, and starts it immediately.

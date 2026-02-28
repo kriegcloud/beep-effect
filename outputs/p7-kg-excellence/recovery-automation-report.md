@@ -31,3 +31,6 @@ Recovery automation now has deterministic preflight validation and successful en
 
 ## Note: Graphiti Async Ingestion
 Graphiti `add_memory` acknowledgements are queue-based. Verification now accounts for this by polling `get_episodes` until episodes are observed (or timeout) to avoid false "No episodes found" reads immediately after publish.
+
+Latest verification probe artifact:
+- `outputs/p7-kg-excellence/evidence/20260226T013753Z-continue3-verify-graphiti-probe.json`

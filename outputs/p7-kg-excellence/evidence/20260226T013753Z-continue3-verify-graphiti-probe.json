@@ -1,0 +1,16 @@
+{
+  "target": "graphiti",
+  "group": "beep-ast-kg-verify-probe-20260226T013753Z",
+  "commit": "a8373cb846226d3de57cced8f8138c450acb7089",
+  "graphiti": {
+    "status": 200,
+    "bodySnippet": "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":\"kg-verify-episodes\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"message\\\": \\\"Episodes retrieved successfully\\\",\\n  \\\"episodes\\\": [\\n    {\\n      \\\"uuid\\\": \\\"6507c29b-aeb0-439c-9325-39103d55922e\\\",\\n      \\\"name\\\": \\\"p7-verify-probe\\\",\\n      \\\"content\\\": \\\"probe 20260226T013753Z\\\",\\n      \\\"created_at\\\": \\\"2026-02-26T01:37:53.994549+00:00\\\",\\n   ",
+    "message": "Episodes retrieved successfully",
+    "episodesObserved": 1,
+    "attempts": 4,
+    "waitedMs": 42261,
+    "pollMs": 2000,
+    "maxWaitMs": 120000,
+    "timedOut": false
+  }
+}
