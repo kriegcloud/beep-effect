@@ -6,6 +6,13 @@
   "cwd": "apps/web",
   "acceptanceCommands": ["bun run lint"],
   "timeoutMinutes": 12,
+  "expectedTop5Targets": [
+    "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+  ],
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.4 },
+    { "reviewerId": "panel_b", "score": 4.2 }
+  ],
   "touchedPathAllowlist": [
     "apps/web/src/app/api/chat/route.ts",
     "apps/web/src/lib/ai"

@@ -1,0 +1,15 @@
+{
+  "runMode": "live",
+  "executionBackend": "cli",
+  "status": "completed",
+  "strictTaskCount": 1,
+  "plannedRunCount": 8,
+  "completedRunCount": 8,
+  "conditions": [
+    "current",
+    "minimal",
+    "adaptive",
+    "adaptive_kg"
+  ],
+  "recordCount": 8
+}

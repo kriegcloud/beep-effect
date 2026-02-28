@@ -1,0 +1,38 @@
+{
+  "baseline": {
+    "runs": 2,
+    "successes": 0,
+    "firstPass": 0,
+    "wrongApiRate": 0.0,
+    "medianCost": 0.42455875,
+    "top5HitRate": 0.0,
+    "kgMean": null
+  },
+  "semantic_only": {
+    "runs": 2,
+    "successes": 0,
+    "firstPass": 0,
+    "wrongApiRate": 0.0,
+    "medianCost": 0.396506875,
+    "top5HitRate": 0.0,
+    "kgMean": null
+  },
+  "ast_only": {
+    "runs": 2,
+    "successes": 0,
+    "firstPass": 0,
+    "wrongApiRate": 0.0,
+    "medianCost": 0.5336393749999999,
+    "top5HitRate": 0.0,
+    "kgMean": null
+  },
+  "ast_jsdoc_hybrid": {
+    "runs": 2,
+    "successes": 2,
+    "firstPass": 2,
+    "wrongApiRate": 0.0,
+    "medianCost": 0.57867125,
+    "top5HitRate": 100.0,
+    "kgMean": 4.4
+  }
+}

@@ -196,6 +196,7 @@ interface LiveExecutionResult {
   readonly statusPorcelainRaw: string;
   readonly statusPorcelainParsed: ReadonlyArray<StatusPorcelainParseEntry>;
   readonly executionCwd: string;
+  readonly acceptance: AcceptanceCommandResult;
 }
 
 /**
@@ -460,6 +461,97 @@ const relevantCorrectionFacts = (prompt: string, index: ReadonlyArray<Correction
   return facts;
 };
 
+const normalizeUniqueNonEmpty = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const unique: Array<string> = [];
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      continue;
+    }
+    if (!unique.includes(trimmed)) {
+      unique.push(trimmed);
+    }
+  }
+  return unique;
+};
+
+const evaluateRetrievalTop5 = (
+  expectedTargets: ReadonlyArray<string> | undefined,
+  retrievedFacts: ReadonlyArray<string>
+): {
+  readonly labeled: boolean;
+  readonly expectedTargets: ReadonlyArray<string>;
+  readonly top5Facts: ReadonlyArray<string>;
+  readonly matchedTargets: ReadonlyArray<string>;
+  readonly hit: boolean | null;
+} => {
+  const normalizedTargets = normalizeUniqueNonEmpty(expectedTargets ?? []);
+  const top5Facts = retrievedFacts.slice(0, 5);
+  const loweredTop5Facts = top5Facts.map((fact) => Str.toLowerCase(fact));
+  const matchedTargets: Array<string> = [];
+
+  for (const target of normalizedTargets) {
+    const loweredTarget = Str.toLowerCase(target);
+    const matched = loweredTop5Facts.some((fact) => fact.includes(loweredTarget));
+    if (matched) {
+      matchedTargets.push(target);
+    }
+  }
+
+  return {
+    labeled: normalizedTargets.length > 0,
+    expectedTargets: normalizedTargets,
+    top5Facts,
+    matchedTargets,
+    hit: normalizedTargets.length === 0 ? null : matchedTargets.length > 0,
+  };
+};
+
+const minimumKgContextReviewers = 2;
+
+const evaluateKgContextReview = (
+  condition: BenchCondition,
+  reviewerScores:
+    | ReadonlyArray<{
+        readonly reviewerId: string;
+        readonly score: number;
+      }>
+    | undefined
+): {
+  readonly reviewerScores: ReadonlyArray<{
+    readonly reviewerId: string;
+    readonly score: number;
+  }>;
+  readonly meanScore: number | null;
+  readonly minimumReviewers: number;
+  readonly qualifies: boolean;
+} => {
+  if (condition !== "adaptive_kg") {
+    return {
+      reviewerScores: [],
+      meanScore: null,
+      minimumReviewers: minimumKgContextReviewers,
+      qualifies: false,
+    };
+  }
+
+  const sanitizedScores = (reviewerScores ?? []).filter(
+    (entry) => entry.reviewerId.trim().length > 0 && Number.isFinite(entry.score)
+  );
+  const scoreValues = sanitizedScores.map((entry) => entry.score);
+  const meanScore =
+    scoreValues.length === 0
+      ? null
+      : scoreValues.reduce((accumulator, score) => accumulator + score, 0) / scoreValues.length;
+
+  return {
+    reviewerScores: sanitizedScores,
+    meanScore,
+    minimumReviewers: minimumKgContextReviewers,
+    qualifies: sanitizedScores.length >= minimumKgContextReviewers,
+  };
+};
+
 const resolveTaskCwd = (pathApi: Path.Path, repoRoot: string, taskCwd: string): string =>
   pathApi.isAbsolute(taskCwd) ? taskCwd : pathApi.join(repoRoot, taskCwd);
 
@@ -563,9 +655,7 @@ const runOneCommand = async (
   timeoutMinutes: number,
   suiteDeadlineMs: number | undefined
 ): Promise<ProcessResult> => {
-  const shell = process.env.SHELL;
-  const resolvedShell = typeof shell === "string" && shell.length > 0 ? shell : "sh";
-  return runProcess(resolvedShell, ["-lc", command], cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
+  return runProcess("/bin/bash", ["-lc", command], cwd, timeoutMinutes, remainingTimeoutCapMs(suiteDeadlineMs));
 };
 
 const runAcceptanceCommands = async (
@@ -946,13 +1036,17 @@ const executeLiveRun = async (
       exitCode: executionResult.exitCode,
       signal: executionResult.signal,
     };
+    const commandPass = executionResult.success && !executionResult.timedOut;
+    const acceptance = shouldRunAcceptanceCommands(false, commandPass)
+      ? await runAcceptanceCommands(tuple.task, executionCwd, false, suiteDeadlineMs)
+      : skippedAcceptanceResult();
 
     return {
       transcript,
       allowlistPass: allowlistOk,
       touchedPaths,
       touchedSourceFiles,
-      commandPass: executionResult.success && !executionResult.timedOut,
+      commandPass,
       commandTimedOut: executionResult.timedOut,
       commandStdoutTail: commandStdout.tail,
       commandStderrTail: commandStderr.tail,
@@ -969,6 +1063,7 @@ const executeLiveRun = async (
       statusPorcelainRaw: statusResult.stdout,
       statusPorcelainParsed: parsedStatus.parsedEntries,
       executionCwd,
+      acceptance,
     };
   });
 
@@ -1080,7 +1175,8 @@ const executeRunTuple = async (
   const remainingMsAtRunStart = remainingTimeoutCapMs(suiteDeadlineMs) ?? null;
   const policy = selectPolicyPacket(options.policyOverlays, tuple.condition, tuple.task.category);
   const skills = selectFocusedSkills(tuple.task.prompt, tuple.task.category, Math.min(3, policy.maxSkills));
-  const correctionFacts = relevantCorrectionFacts(tuple.task.prompt, options.correctionIndex);
+  const correctionFacts =
+    tuple.condition === "current" ? [] : relevantCorrectionFacts(tuple.task.prompt, options.correctionIndex);
 
   const kgFacts =
     tuple.condition === "adaptive_kg" && !options.simulate
@@ -1093,6 +1189,7 @@ const executeRunTuple = async (
 
   const packet = buildRetrievalPacket([...correctionFacts, ...kgFacts], policy.maxFacts, policy.maxChars);
   const promptPacket = renderPromptPacket(tuple.task, tuple.condition, policy.selectedPolicyIds, skills, packet.facts);
+  const retrievalTop5 = evaluateRetrievalTop5(tuple.task.expectedTop5Targets, packet.facts);
 
   const runId = `${tuple.task.id}:${tuple.condition}:${tuple.agent}:${tuple.trial}`;
   const model = modelForAgent(tuple.agent, options);
@@ -1119,9 +1216,9 @@ const executeRunTuple = async (
       );
 
   const executionCwd = liveExecution?.executionCwd ?? taskCwd;
-  const acceptance = shouldRunAcceptanceCommands(options.simulate, liveExecution?.commandPass)
-    ? await runAcceptanceCommands(tuple.task, executionCwd, options.simulate, suiteDeadlineMs)
-    : skippedAcceptanceResult();
+  const acceptance = options.simulate
+    ? skippedAcceptanceResult()
+    : (liveExecution?.acceptance ?? skippedAcceptanceResult());
 
   const touchedSourceFiles = liveExecution?.touchedSourceFiles ?? [];
   const detectorInput = touchedSourceFiles
@@ -1132,15 +1229,34 @@ const executeRunTuple = async (
   const endMs = monotonicNowMs();
 
   const estimatedTokens = estimateTokens(tuple.task.prompt, tuple.condition);
-  const inputTokens = liveExecution?.transcript.inputTokens ?? estimatedTokens.input;
-  const outputTokens = liveExecution?.transcript.outputTokens ?? estimatedTokens.output;
-  const costUsd =
-    liveExecution?.transcript.costUsd ?? estimateCost(options.pricingTable, model, inputTokens, outputTokens);
+  const hasLiveTokenTelemetry =
+    (liveExecution?.transcript.inputTokens ?? 0) > 0 ||
+    (liveExecution?.transcript.outputTokens ?? 0) > 0 ||
+    (liveExecution?.transcript.costUsd ?? 0) > 0;
+  const timedOutWithoutTelemetry = (liveExecution?.commandTimedOut ?? false) && hasLiveTokenTelemetry === false;
+  const fallbackTokens = timedOutWithoutTelemetry
+    ? {
+        input: Math.max(estimatedTokens.input, Math.round(tuple.task.timeoutMinutes * 150_000)),
+        output: Math.max(estimatedTokens.output, Math.round(tuple.task.timeoutMinutes * 12_000)),
+      }
+    : estimatedTokens;
+  const useEstimatedTelemetry = liveExecution !== null && hasLiveTokenTelemetry === false;
+  const inputTokens = useEstimatedTelemetry
+    ? fallbackTokens.input
+    : (liveExecution?.transcript.inputTokens ?? fallbackTokens.input);
+  const outputTokens = useEstimatedTelemetry
+    ? fallbackTokens.output
+    : (liveExecution?.transcript.outputTokens ?? fallbackTokens.output);
+  const costUsd = useEstimatedTelemetry
+    ? estimateCost(options.pricingTable, model, inputTokens, outputTokens)
+    : (liveExecution?.transcript.costUsd ?? estimateCost(options.pricingTable, model, inputTokens, outputTokens));
 
   const touchedPaths = liveExecution?.touchedPaths ?? [];
   const disallowedPaths = disallowedTouchedPaths(touchedPaths, tuple.task.touchedPathAllowlist);
   const allowlistOk = disallowedPaths.length === 0;
-  const runPassed = (liveExecution?.commandPass ?? true) && acceptance.success;
+  const commandPass = liveExecution?.commandPass ?? true;
+  const retrievalRequirementMet = tuple.task.requireExpectedTop5ForPass === true ? retrievalTop5.hit === true : true;
+  const runPassed = commandPass && acceptance.success && retrievalRequirementMet;
   const criticalIncidentCount = wrongApi.criticalCount + effectCompliance.criticalCount;
 
   const result: AgentRunResult = {
@@ -1166,10 +1282,11 @@ const executeRunTuple = async (
         wrongApi.incidents.map((incident) => incident.ruleId),
         effectCompliance.incidents.map((incident) => incident.ruleId),
         touchedPaths,
-        liveExecution?.commandPass ?? true,
+        commandPass,
         acceptance.success,
         allowlistOk
       );
+  const kgContextReview = evaluateKgContextReview(tuple.condition, tuple.task.kgContextReviewerScores);
 
   await emitDiagnostic(options, {
     type: "run.diagnostic",
@@ -1244,6 +1361,8 @@ const executeRunTuple = async (
     touchedPaths,
     transcript: liveExecution?.transcript ?? null,
     failureSignature,
+    retrievalTop5,
+    kgContextReview,
   };
 };
 

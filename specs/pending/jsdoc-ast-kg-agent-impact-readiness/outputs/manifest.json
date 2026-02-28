@@ -31,12 +31,12 @@
     },
     "p4": {
       "name": "ablation-benchmark",
-      "status": "pending",
+      "status": "complete",
       "output": "p4-ablation-benchmark.md"
     },
     "p5": {
       "name": "rollout-decision",
-      "status": "pending",
+      "status": "complete",
       "output": "p5-rollout-decision.md"
     }
   }

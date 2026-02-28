@@ -1,16 +1,21 @@
 import { LiteralKit } from "@beep/schema";
-import { identity, Match, pipe, Result } from "effect";
+import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
+import { Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
 import pc from "picocolors";
 import { format } from "sql-formatter";
 import { ErrorCodeFromKey } from "./ErrorEnum.js";
 
+/**
+ * Unicode box-drawing characters used by the database error formatter.
+ *
+ * @since 0.0.0
+ */
 export const BOX = {
   topLeft: "╭",
   topRight: "╮",
@@ -20,8 +25,13 @@ export const BOX = {
   vertical: "│",
   teeRight: "├",
   teeLeft: "┤",
-} as const;
+};
 
+/**
+ * SQL keywords highlighted in formatted query output.
+ *
+ * @since 0.0.0
+ */
 export const SqlKeyword = LiteralKit([
   "select",
   "from",
@@ -123,8 +133,33 @@ const SqlFunction = LiteralKit([
   "substring",
 ]);
 
+const isSqlKeyword = S.is(SqlKeyword);
+const isSqlFunction = S.is(SqlFunction);
+const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
+const RawDate = S.instanceOf(Date);
+const RawError = S.instanceOf(Error);
+const RawSqlError = S.instanceOf(SqlError.SqlError);
+const stringTokenPrefix = "__BEEP_SQL_STR_";
+const quotedIdentifierTokenPrefix = "__BEEP_SQL_QID_";
+const stringTokenRegex = /__BEEP_SQL_STR_(\d+)__/g;
+const quotedIdentifierTokenRegex = /__BEEP_SQL_QID_(\d+)__/g;
+const ansiEscapeRegex = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
+
+const makeStringToken = (index: number): string => `${stringTokenPrefix}${String(index)}__`;
+const makeQuotedIdentifierToken = (index: number): string => `${quotedIdentifierTokenPrefix}${String(index)}__`;
+
+/**
+ * Supported query categories for styled SQL error output.
+ *
+ * @since 0.0.0
+ */
 export const QueryType = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE", "BEGIN", "COMMIT", "ROLLBACK", "OTHER"]);
 
+/**
+ * Pattern matcher that derives a query category from a lower-cased SQL prefix.
+ *
+ * @since 0.0.0
+ */
 export const matchQueryType = Match.type<string>().pipe(
   Match.when(Str.startsWith("select"), () => QueryType.Enum.SELECT),
   Match.when(Str.startsWith("insert"), () => QueryType.Enum.INSERT),
@@ -136,8 +171,18 @@ export const matchQueryType = Match.type<string>().pipe(
   Match.orElse(() => QueryType.Enum.OTHER)
 );
 
+/**
+ * Classifies an arbitrary SQL statement into a known query category.
+ *
+ * @since 0.0.0
+ */
 export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLowerCase, matchQueryType);
 
+/**
+ * Maps a query category to terminal styling tokens used by the formatter.
+ *
+ * @since 0.0.0
+ */
 export const getQueryTypeStyle = QueryType.$match({
   SELECT: (t) => ({ badge: pc.bgBlue(pc.white(pc.bold(` ${t} `))), color: pc.blue }),
   INSERT: (t) => ({ badge: pc.bgGreen(pc.white(pc.bold(` ${t} `))), color: pc.green }),
@@ -152,12 +197,12 @@ export const getQueryTypeStyle = QueryType.$match({
 const processLineHighlight = (line: string) => {
   // 1. Protect and highlight strings first (highest priority, don't touch contents)
   const afterStrings = pipe({ result: line, strings: A.empty<string>(), quotedIds: A.empty<string>() }, (state) => {
-    const matches = state.result.match(/'[^']*'/g) ?? [];
+    const matches = pipe(state.result, Str.match(/'[^']*'/g)) ?? A.empty<string>();
     const highlighted = pipe(matches, A.map(pc.green));
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
-        result: acc.result.replace(/'[^']*'/, `\x00STR${i}\x00`),
+        result: acc.result.replace(/'[^']*'/, makeStringToken(i)),
         index: i + 1,
       }))
     );
@@ -166,12 +211,12 @@ const processLineHighlight = (line: string) => {
 
   // 2. Protect and highlight quoted identifiers
   const afterQuotedIds = pipe(afterStrings, (state) => {
-    const matches = state.result.match(/"[^"]+"/g) ?? A.empty();
+    const matches = pipe(state.result, Str.match(/"[^"]+"/g)) ?? A.empty<string>();
     const highlighted = pipe(matches, A.map(pc.white));
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
-        result: acc.result.replace(/"[^"]+"/, `\x00QID${i}\x00`),
+        result: acc.result.replace(/"[^"]+"/, makeQuotedIdentifierToken(i)),
         index: i + 1,
       }))
     );
@@ -187,16 +232,13 @@ const processLineHighlight = (line: string) => {
   const afterKeywords = pipe(afterPlaceholders, (s) =>
     s.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (match) => {
       const lower = pipe(match, Str.toLowerCase);
-      if (
-        (Object.values(SqlKeyword) as Array<string>).includes(lower) &&
-        new Set(SqlKeyword.Options as ReadonlyArray<string>).has(lower)
-      ) {
-        return pc.magenta(pc.bold(match));
-      }
-      if (S.is(SqlFunction)(lower) && new Set(SqlFunction.Options).has(lower)) {
-        return pc.blue(match);
-      }
-      return match;
+      return pipe(
+        lower,
+        Match.value,
+        Match.when(isSqlKeyword, () => pc.magenta(pc.bold(match))),
+        Match.when(isSqlFunction, () => pc.blue(match)),
+        Match.orElse(() => match)
+      );
     })
   );
 
@@ -207,24 +249,31 @@ const processLineHighlight = (line: string) => {
   return pipe(
     afterOperators,
     (s) =>
-      s.replace(/\x00STR(\d+)\x00/g, (_, i) =>
-        pipe(
-          afterQuotedIds.strings,
-          A.get(Number.parseInt(i, 10)),
-          O.getOrElse(() => "")
-        )
+      s.replace(stringTokenRegex, (_, i) =>
+        pipe(afterQuotedIds.strings, A.get(Number.parseInt(i, 10)), O.getOrElse(thunkEmptyStr))
       ),
     (s) =>
-      s.replace(/\x00QID(\d+)\x00/g, (_, i) =>
-        pipe(
-          afterQuotedIds.quotedIds,
-          A.get(Number.parseInt(i, 10)),
-          O.getOrElse(() => "")
-        )
+      s.replace(quotedIdentifierTokenRegex, (_, i) =>
+        pipe(afterQuotedIds.quotedIds, A.get(Number.parseInt(i, 10)), O.getOrElse(thunkEmptyStr))
       )
   );
 };
 
+const truncateForPreview = (value: string, maxLength: number): string =>
+  Str.length(value) > maxLength ? `${pipe(value, Str.slice(0, maxLength - 3))}...` : value;
+
+/**
+ * Formats and colorizes SQL for terminal-friendly diagnostics.
+ *
+ * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { highlightSql } from "@beep/shared-domain/errors/DbError/utils";
+ *
+ * highlightSql("select * from users where id = $1");
+ * ```
+ */
 export const highlightSql = (sql: string): string => {
   const formatted = format(sql, {
     language: "postgresql",
@@ -236,285 +285,391 @@ export const highlightSql = (sql: string): string => {
   return pipe(formatted, Str.split("\n"), A.map(processLineHighlight), A.join("\n"));
 };
 
+/**
+ * Renders a single SQL parameter preview for error output.
+ *
+ * @since 0.0.0
+ */
 export const formatParam = (value: unknown, index: number): string => {
   const paramLabel = pc.yellow(pc.bold(`$${index + 1}`));
   const sep = pc.dim("=");
-
-  if (P.isNull(value)) {
-    return `${paramLabel}${sep}${pc.dim("null")}`;
-  }
-  if (P.isUndefined(value)) {
-    return `${paramLabel}${sep}${pc.dim("undefined")}`;
-  }
-  if (P.isString(value)) {
-    const truncated = Str.length(value) > 40 ? `${pipe(value, Str.slice(0, 37))}…` : value;
-    return `${paramLabel}${sep}${pc.green(`"${truncated}"`)}`;
-  }
-  if (P.isNumber(value)) {
-    return `${paramLabel}${sep}${pc.cyan(String(value))}`;
-  }
-  if (P.isBoolean(value)) {
-    return `${paramLabel}${sep}${pc.blue(String(value))}`;
-  }
-  if (S.is(S.instanceOf(Date))(value)) {
-    return `${paramLabel}${sep}${pc.magenta(value.toISOString())}`;
-  }
-  if (A.isArray(value)) {
-    const preview =
-      A.length(value) > 3
-        ? `[${pipe(
-            value,
-            A.take(3),
-            A.map((v) => JSON.stringify(v)),
-            A.join(", ")
-          )}, …]`
-        : JSON.stringify(value);
-    return `${paramLabel}${sep}${pc.cyan(preview)}`;
-  }
-  if (P.isObject(value)) {
-    return Result.try({
-      try: () => {
-        const str = JSON.stringify(value);
-        const truncated = Str.length(str) > 50 ? `${pipe(str, Str.slice(0, 47))}…` : str;
-        return `${paramLabel}${sep}${pc.gray(truncated)}`;
-      },
-      catch: () => `${paramLabel}${sep}${pc.gray("[Object]")}`,
-    }).pipe(
-      Result.match({
-        onFailure: identity,
-        onSuccess: identity,
-      })
-    );
-  }
-  return `${paramLabel}${sep}${pc.gray(String(value))}`;
+  return pipe(
+    value,
+    Match.value,
+    Match.when(P.isNull, () => `${paramLabel}${sep}${pc.dim("null")}`),
+    Match.when(P.isUndefined, () => `${paramLabel}${sep}${pc.dim("undefined")}`),
+    Match.when(
+      P.isString,
+      (stringValue) => `${paramLabel}${sep}${pc.green(`"${truncateForPreview(stringValue, 40)}"`)}`
+    ),
+    Match.when(P.isNumber, (numberValue) => `${paramLabel}${sep}${pc.cyan(String(numberValue))}`),
+    Match.when(P.isBoolean, (booleanValue) => `${paramLabel}${sep}${pc.blue(String(booleanValue))}`),
+    Match.when(S.is(RawDate), (dateValue) => `${paramLabel}${sep}${pc.magenta(dateValue.toISOString())}`),
+    Match.when(A.isArray, (arrayValue) => {
+      const preview = pipe(
+        A.length(arrayValue) > 3 ? A.take(arrayValue, 3) : arrayValue,
+        encodeJson,
+        O.map((encoded) => (A.length(arrayValue) > 3 ? `${encoded} ...` : encoded)),
+        O.getOrElse(() => "[Array]")
+      );
+      return `${paramLabel}${sep}${pc.cyan(preview)}`;
+    }),
+    Match.when(P.isObject, (objectValue) =>
+      pipe(
+        encodeJson(objectValue),
+        O.map((encoded) => truncateForPreview(encoded, 50)),
+        O.map((encoded) => `${paramLabel}${sep}${pc.gray(encoded)}`),
+        O.getOrElse(() => `${paramLabel}${sep}${pc.gray("[Object]")}`)
+      )
+    ),
+    Match.orElse((unknownValue) => `${paramLabel}${sep}${pc.gray(String(unknownValue))}`)
+  );
 };
 
-export const stripAnsi = (str: string): string => pipe(str, Str.replace(/\x1b\[[0-9;]*m/g, Str.empty));
+/**
+ * Removes terminal ANSI color sequences from a string.
+ *
+ * @since 0.0.0
+ */
+export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEscapeRegex, Str.empty));
 
+/**
+ * Computes display width by stripping ANSI escapes before measuring length.
+ *
+ * @since 0.0.0
+ */
 export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.length);
 
+/**
+ * Pads a string to a target visual width while preserving ANSI styling.
+ *
+ * @since 0.0.0
+ */
 export const padEnd = (str: string, targetLen: number): string => {
   const currentLen = visualLength(str);
-  if (currentLen >= targetLen) return str;
-  const padding = pipe(A.replicate(" ", targetLen - currentLen), A.join(Str.empty));
-  return `${str}${padding}`;
+  return pipe(
+    currentLen >= targetLen,
+    Match.value,
+    Match.when(true, () => str),
+    Match.orElse(() => `${str}${pipe(A.replicate(" ", targetLen - currentLen), A.join(Str.empty))}`)
+  );
 };
 
+/**
+ * Formats query parameters as either a compact inline block or a 3-column grid.
+ *
+ * @since 0.0.0
+ */
 export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string => {
-  if (A.length(params) === 0) return Str.empty;
-
   const formattedParams = pipe(
     params,
     A.map((p, i) => formatParam(p, i))
   );
   const prefix = boxColor(BOX.teeRight);
+  return pipe(
+    A.length(params),
+    Match.value,
+    Match.when(0, thunkEmptyStr),
+    Match.when(
+      (count) => count <= 3,
+      () => `${prefix} ${pc.dim("params")} ${pipe(formattedParams, A.join(pc.dim("  ")))}`
+    ),
+    Match.orElse(() => {
+      // Calculate max width for each column using reduce.
+      const colWidths = pipe(
+        formattedParams,
+        A.map((param, i): readonly [number, number] => [i % 3, visualLength(param)]),
+        A.reduce({ col0: 0, col1: 0, col2: 0 }, (widths, [col, len]) =>
+          pipe(
+            col,
+            Match.value,
+            Match.when(0, () => ({ ...widths, col0: Math.max(widths.col0, len) })),
+            Match.when(1, () => ({ ...widths, col1: Math.max(widths.col1, len) })),
+            Match.orElse(() => ({ ...widths, col2: Math.max(widths.col2, len) }))
+          )
+        ),
+        (w): readonly [number, number, number] => [w.col0, w.col1, w.col2]
+      );
 
-  if (A.length(params) <= 3) {
-    return `${prefix} ${pc.dim("params")} ${pipe(formattedParams, A.join(pc.dim("  ")))}`;
-  }
+      // Grid layout for many params (3 per row).
+      const rows = pipe(
+        formattedParams,
+        A.chunksOf(3),
+        A.map((chunk, rowIndex) => {
+          const rowItems = pipe(
+            chunk,
+            A.map((item, col) => padEnd(item, pipe(colWidths, A.get(col), O.getOrElse(thunk0))))
+          );
+          const linePrefix = rowIndex === 0 ? `${prefix} ${pc.dim("params")} ` : `${boxColor(BOX.vertical)}        `;
+          return `${linePrefix}${pipe(rowItems, A.join(pc.dim("  ")))}`;
+        })
+      );
 
-  // Calculate max width for each column using reduce
-  const colWidths = pipe(
-    formattedParams,
-    A.map((param, i): readonly [number, number] => [i % 3, visualLength(param)]),
-    A.reduce({ col0: 0, col1: 0, col2: 0 }, (widths, [col, len]) => {
-      if (col === 0) return { ...widths, col0: Math.max(widths.col0, len) };
-      if (col === 1) return { ...widths, col1: Math.max(widths.col1, len) };
-      return { ...widths, col2: Math.max(widths.col2, len) };
-    }),
-    (w) => [w.col0, w.col1, w.col2] as const
+      return pipe(rows, A.join("\n"));
+    })
+  );
+};
+
+/**
+ * Runtime schema for raw PostgreSQL protocol errors.
+ *
+ * @since 0.0.0
+ */
+export const RawPgError = S.instanceOf(PgDatabaseError);
+
+const stackFramePattern = /at\s+(?:.*?\s+)?\(?([^()]+):(\d+):(\d+)\)?/;
+
+type DrizzleQueryExtraction = {
+  readonly query: string | null;
+  readonly params: ReadonlyArray<string>;
+};
+
+const emptyDrizzleQueryExtraction: DrizzleQueryExtraction = {
+  query: null,
+  params: A.empty<string>(),
+};
+
+const readStringProperty = (value: unknown, key: string): string | undefined => {
+  const hasStringProperty = (input: unknown): input is Readonly<Record<string, string>> =>
+    P.isObject(input) && P.hasProperty(input, key) && P.isString(input[key]);
+
+  return pipe(
+    value,
+    Match.value,
+    Match.when(hasStringProperty, (input) => input[key]),
+    Match.orElse(thunkUndefined)
+  );
+};
+
+const extractPgErrorOption = (error: unknown): O.Option<PgDatabaseError> =>
+  pipe(
+    error,
+    Match.value,
+    Match.when(S.is(RawPgError), (pgError): O.Option<PgDatabaseError> => O.some(pgError)),
+    Match.when(
+      S.is(RawSqlError),
+      (sqlError): O.Option<PgDatabaseError> => pipe(sqlError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
+    ),
+    Match.when(
+      S.is(RawError),
+      (typedError): O.Option<PgDatabaseError> =>
+        pipe(typedError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
+    ),
+    Match.orElse(O.none<PgDatabaseError>)
   );
 
-  // Grid layout for many params (3 per row)
-  const rows = pipe(
-    formattedParams,
-    A.chunksOf(3),
-    A.map((chunk, rowIndex) => {
-      const rowItems = pipe(
-        chunk,
-        A.map((item, col) =>
-          padEnd(
-            item,
-            pipe(
-              colWidths,
-              A.get(col),
-              O.getOrElse(() => 0)
-            )
-          )
-        )
+const extractSourceLocationFromLine = (line: string): O.Option<string> =>
+  pipe(
+    line,
+    Str.match(stackFramePattern),
+    O.fromNullishOr,
+    O.flatMap((match) => {
+      const filePath = match[1];
+      const lineNum = match[2];
+      const colNum = match[3];
+      const isValidPath = (path: string): boolean =>
+        pipe(path, Str.startsWith("/")) &&
+        !Str.includes("node_modules")(path) &&
+        !Str.includes("shared/server/src/internal")(path);
+
+      return pipe(
+        O.all({
+          filePath: pipe(filePath, O.liftPredicate(P.isString)),
+          lineNum: pipe(lineNum, O.liftPredicate(P.isString)),
+          colNum: pipe(colNum, O.liftPredicate(P.isString)),
+        }),
+        O.filter(({ filePath }) => isValidPath(filePath)),
+        O.map(({ filePath, lineNum, colNum }) => `${filePath}:${lineNum}:${colNum}`)
       );
-      const linePrefix = rowIndex === 0 ? `${prefix} ${pc.dim("params")} ` : `${boxColor(BOX.vertical)}        `;
-      return `${linePrefix}${pipe(rowItems, A.join(pc.dim("  ")))}`;
     })
   );
 
-  return pipe(rows, A.join("\n"));
-};
-export const RawPgError = S.declare((error: unknown): error is PgDatabaseError => error instanceof PgDatabaseError);
+const findSourceLocationInStack = (stack: string): O.Option<string> =>
+  pipe(
+    stack,
+    Str.split("\n"),
+    A.reduce(O.none<string>(), (found, line) =>
+      pipe(
+        found,
+        O.orElse(() => extractSourceLocationFromLine(line))
+      )
+    )
+  );
 
-export const extractPgError = (error: unknown): PgDatabaseError | null => {
-  // Direct pg.DatabaseError
-  if (S.is(RawPgError)(error)) {
-    return error;
-  }
+const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
+  pipe(
+    message,
+    Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s),
+    O.fromNullishOr,
+    O.map((failedQueryMatch): DrizzleQueryExtraction => {
+      const query = pipe(failedQueryMatch[1], O.fromNullishOr, O.map(Str.trim), O.getOrNull);
+      const params = pipe(
+        failedQueryMatch[2],
+        O.fromNullishOr,
+        O.map(Str.trim),
+        O.filter((value) => Str.length(value) > 0),
+        O.map((value) => pipe(value, Str.split(","), A.map(Str.trim))),
+        O.getOrElse(A.empty<string>)
+      );
+      return { query, params };
+    }),
+    O.getOrElse(() => emptyDrizzleQueryExtraction)
+  );
 
-  // SqlError
-  if (error instanceof SqlError.SqlError && error.cause) {
-    return extractPgError(error.cause);
-  }
+/**
+ * Recursively unwraps wrapped errors to locate the originating `pg` protocol error.
+ *
+ * @since 0.0.0
+ */
+export const extractPgError = (error: unknown): PgDatabaseError | null =>
+  pipe(error, extractPgErrorOption, O.getOrNull);
 
-  // Drizzle wraps errors - check the cause chain
-  if (error instanceof Error && error.cause) {
-    return extractPgError(error.cause);
-  }
-  return null;
-};
+/**
+ * Extracts the first non-internal filesystem location from an error stack.
+ *
+ * @since 0.0.0
+ */
+export const extractSourceLocation = (error: unknown): string | null =>
+  pipe(
+    error,
+    Match.value,
+    Match.when(S.is(RawError), (typedError) =>
+      pipe(typedError.stack, O.fromNullishOr, O.flatMap(findSourceLocationInStack), O.getOrNull)
+    ),
+    Match.orElse(thunkNull)
+  );
 
-export const extractSourceLocation = (error: unknown): string | null => {
-  if (!(error instanceof Error) || !error.stack) return null;
+/**
+ * Pulls query text and params from Drizzle's "Failed query" wrapper error message.
+ *
+ * @since 0.0.0
+ */
+export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtraction =>
+  pipe(
+    error,
+    Match.value,
+    Match.when(S.is(RawError), (typedError) => extractQueryFromMessage(typedError.message)),
+    Match.orElse(() => emptyDrizzleQueryExtraction)
+  );
 
-  const stackLines = pipe(error.stack, Str.split("\n"));
-  // Skip the error message line(s) and find actual stack frames
-  for (const line of stackLines) {
-    // Match stack frame patterns: "at ... (path:line:col)" or "at path:line:col"
-    const match = line.match(/at\s+(?:.*?\s+)?\(?([^()]+):(\d+):(\d+)\)?/);
-    if (match) {
-      const [, filePath, lineNum, colNum] = match;
-      // Skip internal paths, node_modules, and non-file paths (native, etc.)
-      if (
-        filePath?.startsWith("/") && // Must be an absolute file path
-        !Str.includes("node_modules")(filePath) &&
-        !Str.includes("shared/server/src/internal")(filePath) // Skip our internal db code
-      ) {
-        return `${filePath}:${lineNum}:${colNum}`;
-      }
-    }
-  }
-  return null;
-};
+/**
+ * Builds a rich, terminal-friendly database error report.
+ *
+ * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { formatDbError } from "@beep/shared-domain/errors/DbError/utils";
+ *
+ * const error = new Error("Query failed");
+ *
+ * formatDbError(error, "select * from users where id = $1", [42]);
+ * ```
+ */
+export const formatDbError = (error: unknown, query?: string, params?: ReadonlyArray<unknown>): string => {
+  let lines = A.empty<string>();
+  const appendLine = (line: string): void => {
+    lines = pipe(lines, A.append(line));
+  };
+  const appendLines = (nextLines: ReadonlyArray<string>): void => {
+    lines = pipe(lines, A.appendAll(nextLines));
+  };
 
-export const extractQueryFromDrizzleError = (
-  error: unknown
-): { readonly query: string | null; readonly params: string[] } => {
-  if (!(error instanceof Error)) return { query: null, params: [] };
-
-  const message = error.message;
-  const failedQueryMatch = message.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
-
-  if (failedQueryMatch) {
-    const query = failedQueryMatch[1] ? Str.trim(failedQueryMatch[1]) : null;
-    const paramsStr = failedQueryMatch[2] ? Str.trim(failedQueryMatch[2]) : "";
-    // Parse comma-separated params (basic parsing, values may contain commas in strings)
-    const params = paramsStr ? pipe(paramsStr, Str.split(","), A.map(Str.trim)) : [];
-    return { query, params };
-  }
-
-  return { query: null, params: [] };
-};
-
-export const formatDbError = (error: unknown, query?: string, params?: unknown[]): string => {
-  const lines: string[] = [];
   const boxColor = pc.red;
 
-  // Extract the underlying pg error if wrapped by Drizzle
+  // Extract the underlying pg error if wrapped by Drizzle.
   const pgError = extractPgError(error);
   const displayError = pgError ?? error;
 
-  // Try to extract query from Drizzle wrapper if not provided
+  // Try to extract query from Drizzle wrapper if not provided.
   let displayQuery = query;
   let displayParams = params;
-  if (!displayQuery && error instanceof Error) {
+  if (P.isUndefined(displayQuery) && S.is(RawError)(error)) {
     const extracted = extractQueryFromDrizzleError(error);
     displayQuery = extracted.query ?? undefined;
-    if (!displayParams && extracted.params.length > 0) {
+    if (P.isUndefined(displayParams) && A.length(extracted.params) > 0) {
       displayParams = extracted.params;
     }
   }
 
-  // Extract source location - try the error first, then use current stack as fallback
-  // (the current stack will point to where format() was called, which is usually in the error handler)
-  let sourceLocation = extractSourceLocation(error);
-  if (!sourceLocation) {
-    // Capture current stack trace to find the call site
-    const currentStack = new Error();
-    sourceLocation = extractSourceLocation(currentStack);
-  }
+  // Try the original error stack first, then fallback to formatter call-site stack.
+  const sourceLocation = pipe(
+    extractSourceLocation(error),
+    O.fromNullishOr,
+    O.orElse(() => O.fromNullishOr(extractSourceLocation(globalThis.Error()))),
+    O.getOrNull
+  );
 
-  // Header with clickable source location
-  if (sourceLocation) {
-    lines.push(
-      `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))} ${pc.dim("at")} ${pc.underline(pc.cyan(sourceLocation))}`
-    );
-  } else {
-    lines.push(`${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))}`);
-  }
+  // Header with clickable source location.
+  appendLine(
+    sourceLocation
+      ? `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))} ${pc.dim("at")} ${pc.underline(pc.cyan(sourceLocation))}`
+      : `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))}`
+  );
 
-  // Error type and message
-  if (displayError instanceof Error) {
-    lines.push(`${boxColor(BOX.vertical)}`);
-    lines.push(`${boxColor(BOX.vertical)} ${pc.red(pc.bold(displayError.name))}: ${pc.white(displayError.message)}`);
+  // Error type and message.
+  if (S.is(RawError)(displayError)) {
+    appendLine(`${boxColor(BOX.vertical)}`);
+    appendLine(`${boxColor(BOX.vertical)} ${pc.red(pc.bold(displayError.name))}: ${pc.white(displayError.message)}`);
 
-    // PostgreSQL specific error details (from pg.DatabaseError)
-    const pgDetails = displayError as {
-      readonly code?: undefined | string;
-      readonly detail?: undefined | string;
-      readonly hint?: undefined | string;
-      readonly where?: undefined | string;
-      readonly table?: undefined | string;
-      readonly column?: undefined | string;
-      readonly constraint?: undefined | string;
-      readonly schema?: undefined | string;
-      readonly severity?: undefined | string;
-    };
+    const code = readStringProperty(displayError, "code");
+    const detail = readStringProperty(displayError, "detail");
+    const hint = readStringProperty(displayError, "hint");
+    const where = readStringProperty(displayError, "where");
+    const table = readStringProperty(displayError, "table");
+    const column = readStringProperty(displayError, "column");
+    const constraint = readStringProperty(displayError, "constraint");
+    const schema = readStringProperty(displayError, "schema");
+    const severity = readStringProperty(displayError, "severity");
 
-    if (pgDetails.code || pgDetails.severity) {
-      lines.push(`${boxColor(BOX.vertical)}`);
+    if (P.isString(code) || P.isString(severity)) {
+      appendLine(`${boxColor(BOX.vertical)}`);
     }
-    if (pgDetails.severity) {
-      lines.push(
-        `${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("severity")}   ${pc.red(pc.bold(pgDetails.severity))}`
+    if (P.isString(severity)) {
+      appendLine(
+        `${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("severity")}   ${pc.red(pc.bold(severity))}`
       );
     }
-    if (S.is(ErrorCodeFromKey)(pgDetails.code)) {
-      const codeLabel = ErrorCodeFromKey.To.Enum[pgDetails.code];
-      lines.push(
-        `${boxColor(BOX.vertical)}  ${pc.dim("code")}       ${pc.yellow(pgDetails.code)}${codeLabel ? pc.dim(` (${codeLabel})`) : ""}`
+    if (P.isString(code) && S.is(ErrorCodeFromKey)(code)) {
+      const codeLabel = ErrorCodeFromKey.To.Enum[code];
+      appendLine(
+        `${boxColor(BOX.vertical)}  ${pc.dim("code")}       ${pc.yellow(code)}${codeLabel ? pc.dim(` (${codeLabel})`) : ""}`
       );
     }
-    if (pgDetails.schema) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("schema")}     ${pc.cyan(pgDetails.schema)}`);
+    if (P.isString(schema)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("schema")}     ${pc.cyan(schema)}`);
     }
-    if (pgDetails.table) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("table")}      ${pc.cyan(pgDetails.table)}`);
+    if (P.isString(table)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("table")}      ${pc.cyan(table)}`);
     }
-    if (pgDetails.column) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("column")}     ${pc.cyan(pgDetails.column)}`);
+    if (P.isString(column)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("column")}     ${pc.cyan(column)}`);
     }
-    if (pgDetails.constraint) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("constraint")}  ${pc.magenta(pgDetails.constraint)}`);
+    if (P.isString(constraint)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("constraint")}  ${pc.magenta(constraint)}`);
     }
-    if (pgDetails.detail) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("detail")}     ${pc.white(pgDetails.detail)}`);
+    if (P.isString(detail)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("detail")}     ${pc.white(detail)}`);
     }
-    if (pgDetails.hint) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("hint")}       ${pc.green(pgDetails.hint)}`);
+    if (P.isString(hint)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("hint")}       ${pc.green(hint)}`);
     }
-    if (pgDetails.where) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("where")}      ${pc.gray(pgDetails.where)}`);
+    if (P.isString(where)) {
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("where")}      ${pc.gray(where)}`);
     }
   } else {
-    lines.push(`${boxColor(BOX.vertical)} ${pc.white(String(displayError))}`);
+    appendLine(`${boxColor(BOX.vertical)} ${pc.white(String(displayError))}`);
   }
 
-  // Show the query that caused the error
-  if (displayQuery) {
-    lines.push(`${boxColor(BOX.vertical)}`);
-    lines.push(`${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("query")}`);
+  // Show the query that caused the error.
+  if (P.isString(displayQuery)) {
+    appendLine(`${boxColor(BOX.vertical)}`);
+    appendLine(`${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("query")}`);
 
     const queryType = getQueryType(displayQuery);
     const { badge } = getQueryTypeStyle(queryType);
 
-    // Format and highlight the query
+    // Format and highlight the query.
     const formattedQuery = format(displayQuery, {
       language: "postgresql",
       tabWidth: 2,
@@ -522,28 +677,28 @@ export const formatDbError = (error: unknown, query?: string, params?: unknown[]
     });
     const highlightedQuery = highlightSql(displayQuery);
 
-    lines.push(`${boxColor(BOX.vertical)}  ${badge}`);
-    pipe(
-      highlightedQuery,
-      Str.split("\n"),
-      A.take(15),
-      A.forEach((line) => {
-        lines.push(`${boxColor(BOX.vertical)}  ${line}`);
-      })
+    appendLine(`${boxColor(BOX.vertical)}  ${badge}`);
+    appendLines(
+      pipe(
+        highlightedQuery,
+        Str.split("\n"),
+        A.take(15),
+        A.map((line) => `${boxColor(BOX.vertical)}  ${line}`)
+      )
     );
 
     if (pipe(formattedQuery, Str.split("\n"), A.length) > 15) {
-      lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("… (truncated)")}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("… (truncated)")}`);
     }
   }
 
-  // Show params if present
-  if (displayParams && displayParams.length > 0) {
-    lines.push(formatParamsBlock(displayParams, boxColor));
+  // Show params if present.
+  if (P.isNotUndefined(displayParams) && A.length(displayParams) > 0) {
+    appendLine(formatParamsBlock(displayParams, boxColor));
   }
 
-  // Footer
-  lines.push(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
+  // Footer.
+  appendLine(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
 
   return pipe(lines, A.join("\n"));
 };

@@ -1,0 +1,21 @@
+{
+  "id": "apps_web_p4_token_01",
+  "title": "Apps web retrieval token write",
+  "category": "apps_web",
+  "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.",
+  "cwd": ".",
+  "acceptanceCommands": [
+    "test -f benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+    "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt)\" = \"8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea\""
+  ],
+  "timeoutMinutes": 4,
+  "expectedTop5Targets": ["P4_TOKEN_APPS_WEB"],
+  "requireExpectedTop5ForPass": true,
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.5 },
+    { "reviewerId": "panel_b", "score": 4.3 }
+  ],
+  "touchedPathAllowlist": [
+    "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt"
+  ]
+}

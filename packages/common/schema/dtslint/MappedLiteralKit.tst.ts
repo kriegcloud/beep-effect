@@ -37,6 +37,21 @@ describe("MappedLiteralKit", () => {
     expect<typeof SqlState.To.Type>().type.toBe<"SUCCESSFUL_COMPLETION" | "WARNING">();
     expect<typeof SqlState.To.Encoded>().type.toBe<"00000" | "01000">();
   });
+
+  it("preserves key-to-value enum narrowing from non-tuple pair arrays", () => {
+    type Pair = readonly ["SUCCESSFUL_COMPLETION", "00000"] | readonly ["WARNING", "01000"];
+
+    const pairArray: readonly [Pair, ...ReadonlyArray<Pair>] = [
+      ["SUCCESSFUL_COMPLETION", "00000"],
+      ["WARNING", "01000"],
+    ];
+
+    const SqlStateFromPairs = MappedLiteralKit(pairArray);
+
+    expect(SqlStateFromPairs.Enum.SUCCESSFUL_COMPLETION).type.toBe<"00000">();
+    expect(SqlStateFromPairs.From.Enum.SUCCESSFUL_COMPLETION).type.toBe<"00000">();
+    expect(SqlStateFromPairs.To.Enum["00000"]).type.toBe<"SUCCESSFUL_COMPLETION">();
+  });
 });
 
 describe("MappedLiteralDuplicateError", () => {

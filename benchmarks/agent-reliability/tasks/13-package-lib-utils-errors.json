@@ -6,5 +6,12 @@
   "cwd": "packages/common/utils",
   "acceptanceCommands": ["bun run check"],
   "timeoutMinutes": 8,
+  "expectedTop5Targets": [
+    "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag."
+  ],
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.0 },
+    { "reviewerId": "panel_b", "score": 4.3 }
+  ],
   "touchedPathAllowlist": ["packages/common/utils/src"]
 }

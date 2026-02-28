@@ -50,7 +50,9 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "@effect/platform-node": "catalog:",
-    "glob": "catalog:"
+    "glob": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

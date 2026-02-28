@@ -7,7 +7,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { HashSet, Match, pipe, type SchemaAST, type Unify } from "effect";
+import { HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -51,6 +51,10 @@ type MatchCases<L extends Literals> = {
   readonly [K in L[number] as LiteralToKey<K>]: (value: K) => unknown;
 };
 
+type Thunks<L extends Literals> = {
+  readonly [K in L[number] as LiteralToKey<K>]: () => K;
+};
+
 /**
  * Valid keys for a MatchCases object derived from the literal set.
  */
@@ -74,6 +78,56 @@ type MatchFn<L extends Literals> = {
     cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L>>]: never }
   ): Unify.Unify<MatchReturn<Cases>>;
 };
+
+type PropertyKeyLiteral = Extract<SchemaAST.LiteralValue, PropertyKey>;
+
+type PropertyKeyLiterals<L extends Literals> = {
+  readonly [I in keyof L]: Extract<L[I], PropertyKeyLiteral>;
+};
+
+type StructFields = Readonly<Record<string, S.Top>>;
+
+type TaggedUnionCases<L extends ReadonlyArray<PropertyKeyLiteral>> = {
+  readonly [K in L[number] as LiteralToKey<K>]: StructFields;
+};
+
+type TaggedUnionCaseFields<
+  L extends ReadonlyArray<PropertyKeyLiteral>,
+  Tag extends string,
+  Cases extends TaggedUnionCases<L>,
+  Literal extends L[number],
+> = Struct.Simplify<{ readonly [K in Tag]: S.tag<Literal> } & Cases[LiteralToKey<Literal> & keyof Cases]>;
+
+type TaggedUnionMember<
+  L extends ReadonlyArray<PropertyKeyLiteral>,
+  Tag extends string,
+  Cases extends TaggedUnionCases<L>,
+  Literal extends L[number] = L[number],
+> = Literal extends L[number]
+  ? S.Struct<TaggedUnionCaseFields<L, Tag, Cases, Literal>> & {
+      readonly Type: Struct.Simplify<{ readonly [K in Tag]: Literal }>;
+    }
+  : never;
+
+type TaggedUnionMembers<
+  L extends ReadonlyArray<PropertyKeyLiteral>,
+  Tag extends string,
+  Cases extends TaggedUnionCases<L>,
+> = {
+  readonly [I in keyof L]: L[I] extends infer Literal extends L[number]
+    ? TaggedUnionMember<L, Tag, Cases, Literal>
+    : never;
+};
+
+type NoTagCollision<Tag extends string, Cases extends Record<string, StructFields>> = {
+  readonly [K in keyof Cases]: Cases[K] & { readonly [P in Tag]?: never };
+};
+
+type ToTaggedUnionFn<L extends ReadonlyArray<PropertyKeyLiteral>> = <const Tag extends string>(
+  tag: Tag
+) => <const Cases extends TaggedUnionCases<L>>(
+  cases: Cases & NoTagCollision<Tag, Cases> & { readonly [K in Exclude<keyof Cases, LiteralToKey<L[number]>>]: never }
+) => S.toTaggedUnion<Tag, TaggedUnionMembers<L, Tag, Cases>>;
 
 // ============================================================================
 // Utility Functions
@@ -109,6 +163,15 @@ const makeGuards = <L extends Literals>(literals: L): IsGuards<L> =>
     A.reduce({} as IsGuards<L>, (acc, literal) => ({
       ...acc,
       [matchLiteral(literal)]: (i: unknown) => i === literal,
+    }))
+  );
+
+const makeThunks = <L extends Literals>(literals: L): Thunks<L> =>
+  pipe(
+    literals,
+    A.reduce({} as Thunks<L>, (acc, literal) => ({
+      ...acc,
+      [matchLiteral(literal)]: () => literal,
     }))
   );
 
@@ -202,6 +265,8 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
     subset: LSubset
   ) => A.NonEmptyReadonlyArray<Exclude<L[number], LSubset[number]>>;
   readonly $match: MatchFn<L>;
+  readonly thunk: Thunks<L>;
+  readonly toTaggedUnion: L[number] extends PropertyKeyLiteral ? ToTaggedUnionFn<PropertyKeyLiterals<L>> : never;
 };
 
 /**
@@ -210,6 +275,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * @example
  * ```ts
  * import { LiteralKit } from "@beep/schema";
+ * import * as S from "effect/Schema";
  *
  * const Status = LiteralKit([1, 20n, true, false, "hello"]);
  *
@@ -226,6 +292,17 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  *   false: (v) => `got ${v}`,
  *   hello: (v) => `got ${v}`,
  * });
+ *
+ * const EventKind = LiteralKit(["created", "deleted"] as const);
+ *
+ * const Event = EventKind.toTaggedUnion("kind")({
+ *   created: {
+ *     value: S.Literal(1),
+ *   },
+ *   deleted: {
+ *     value: S.Literal(2),
+ *   },
+ * });
  * ```
  *
  * @category constructors
@@ -238,13 +315,43 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
   const { pickOptions, omitOptions } = makeOptionsFns(literals);
   const $match = buildMatch(literals);
   const Enum = makeEnum(literals);
+  const thunk = makeThunks(literals);
+  const toTaggedUnion =
+    <const Tag extends string>(tag: Tag) =>
+    <const Cases extends Record<string, StructFields>>(cases: Cases) => {
+      const union = base.mapMembers((members) =>
+        members.map((member) => {
+          if (!P.isPropertyKey(member.literal)) {
+            throw new globalThis.Error("LiteralKit.toTaggedUnion requires property-key literals.");
+          }
+
+          return S.Struct({
+            [tag]: S.tag(member.literal),
+            ...cases[matchLiteral(member.literal)],
+          });
+        })
+      );
+
+      return S.toTaggedUnion(tag)(
+        union as unknown as S.Union<ReadonlyArray<S.Top & { readonly Type: { readonly [K in Tag]: PropertyKey } }>>
+      );
+    };
+
+  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
+    value,
+    enumerable: true,
+    writable: false,
+    configurable: false,
+  });
 
   return Object.defineProperties(base, {
-    Options: { value: literals, enumerable: true, writable: true, configurable: true },
-    is: { value: is, enumerable: true, writable: true, configurable: true },
-    Enum: { value: Enum, enumerable: true, writable: true, configurable: true },
-    pickOptions: { value: pickOptions, enumerable: true, writable: true, configurable: true },
-    omitOptions: { value: omitOptions, enumerable: true, writable: true, configurable: true },
-    $match: { value: $match, enumerable: true, writable: true, configurable: true },
+    Options: readonlyProperty(literals),
+    is: readonlyProperty(is),
+    Enum: readonlyProperty(Enum),
+    pickOptions: readonlyProperty(pickOptions),
+    omitOptions: readonlyProperty(omitOptions),
+    $match: readonlyProperty($match),
+    thunk: readonlyProperty(thunk),
+    toTaggedUnion: readonlyProperty(toTaggedUnion),
   }) as LiteralKit<L>;
 }

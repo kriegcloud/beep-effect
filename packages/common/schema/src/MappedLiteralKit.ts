@@ -6,20 +6,18 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { HashMap, pipe } from "effect";
+import { HashMap, pipe, type SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { LiteralValue } from "effect/SchemaAST";
 import { LiteralKit, type LiteralKit as LiteralKitSchema, type LiteralToKey, matchLiteral } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("MappedLiteralKit");
 
+type LiteralValue = SchemaAST.LiteralValue;
 type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
 type MappedPair = readonly [LiteralValue, LiteralValue];
 type MappedPairs = A.NonEmptyReadonlyArray<MappedPair>;
-
-type TupleIndices<T extends ReadonlyArray<unknown>> = Exclude<keyof T, keyof ReadonlyArray<unknown>>;
 
 type FromLiterals<M extends MappedPairs> = {
   readonly [I in keyof M]: M[I] extends readonly [infer From extends LiteralValue, LiteralValue] ? From : never;
@@ -29,14 +27,20 @@ type ToLiterals<M extends MappedPairs> = {
   readonly [I in keyof M]: M[I] extends readonly [LiteralValue, infer To extends LiteralValue] ? To : never;
 };
 
-type EnumMap<From extends Literals, To extends { readonly [I in keyof From]: LiteralValue }> = {
-  readonly [I in TupleIndices<From> as From[I] extends LiteralValue ? LiteralToKey<From[I]> : never]: To[I];
+type PairUnion<M extends MappedPairs> = M[number];
+
+type ForwardEnumMap<M extends MappedPairs> = {
+  readonly [Pair in PairUnion<M> as LiteralToKey<Pair[0]>]: Pair[1];
 };
 
-type DirectionalHelpers<From extends Literals, To extends { readonly [I in keyof From]: LiteralValue }> = {
+type ReverseEnumMap<M extends MappedPairs> = {
+  readonly [Pair in PairUnion<M> as LiteralToKey<Pair[1]>]: Pair[0];
+};
+
+type DirectionalHelpers<From extends Literals, Enum extends Record<string, LiteralValue>> = {
   readonly Options: LiteralKitSchema<From>["Options"];
   readonly is: LiteralKitSchema<From>["is"];
-  readonly Enum: EnumMap<From, To>;
+  readonly Enum: Enum;
   readonly pickOptions: LiteralKitSchema<From>["pickOptions"];
   readonly omitOptions: LiteralKitSchema<From>["omitOptions"];
   readonly $match: LiteralKitSchema<From>["$match"];
@@ -50,7 +54,8 @@ type TransformedLiteralsSchema<
 type DirectionalKit<
   From extends Literals,
   To extends { readonly [I in keyof From]: LiteralValue },
-> = TransformedLiteralsSchema<From, To> & DirectionalHelpers<From, To>;
+  Enum extends Record<string, LiteralValue>,
+> = TransformedLiteralsSchema<From, To> & DirectionalHelpers<From, Enum>;
 
 /**
  * Error thrown when `MappedLiteralKit` receives duplicate literals on either side.
@@ -79,15 +84,21 @@ type SeenState = {
   readonly to: HashMap.HashMap<LiteralValue, number>;
 };
 
-const makeMappedEnum = <From extends Literals, To extends { readonly [I in keyof From]: LiteralValue }>(
-  from: From,
-  to: To
-): EnumMap<From, To> =>
+const makeForwardEnum = <M extends MappedPairs>(mappings: M): ForwardEnumMap<M> =>
   pipe(
-    from,
-    A.reduce({} as EnumMap<From, To>, (acc, fromLiteral, index) => ({
+    mappings,
+    A.reduce({} as ForwardEnumMap<M>, (acc, [fromLiteral, toLiteral]) => ({
       ...acc,
-      [matchLiteral(fromLiteral)]: to[index],
+      [matchLiteral(fromLiteral)]: toLiteral,
+    }))
+  );
+
+const makeReverseEnum = <M extends MappedPairs>(mappings: M): ReverseEnumMap<M> =>
+  pipe(
+    mappings,
+    A.reduce({} as ReverseEnumMap<M>, (acc, [fromLiteral, toLiteral]) => ({
+      ...acc,
+      [matchLiteral(toLiteral)]: fromLiteral,
     }))
   );
 
@@ -145,22 +156,32 @@ const splitMappings = <M extends MappedPairs>(
   ) as ToLiterals<M>,
 });
 
-const makeDirectionalKit = <From extends Literals, To extends { readonly [I in keyof From]: LiteralValue }>(
+const makeDirectionalKit = <
+  From extends Literals,
+  To extends { readonly [I in keyof From]: LiteralValue },
+  Enum extends Record<string, LiteralValue>,
+>(
   from: From,
-  to: To
-): DirectionalKit<From, To> => {
+  to: To,
+  Enum: Enum
+): DirectionalKit<From, To, Enum> => {
   const base = S.Literals(from).transform(to);
   const literalKit = LiteralKit(from);
-  const Enum = makeMappedEnum(from, to);
+  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
+    value,
+    enumerable: true,
+    writable: false,
+    configurable: false,
+  });
 
   return Object.defineProperties(base, {
-    Options: { value: literalKit.Options, enumerable: true, writable: true, configurable: true },
-    is: { value: literalKit.is, enumerable: true, writable: true, configurable: true },
-    Enum: { value: Enum, enumerable: true, writable: true, configurable: true },
-    pickOptions: { value: literalKit.pickOptions, enumerable: true, writable: true, configurable: true },
-    omitOptions: { value: literalKit.omitOptions, enumerable: true, writable: true, configurable: true },
-    $match: { value: literalKit.$match, enumerable: true, writable: true, configurable: true },
-  }) as DirectionalKit<From, To>;
+    Options: readonlyProperty(literalKit.Options),
+    is: readonlyProperty(literalKit.is),
+    Enum: readonlyProperty(Enum),
+    pickOptions: readonlyProperty(literalKit.pickOptions),
+    omitOptions: readonlyProperty(literalKit.omitOptions),
+    $match: readonlyProperty(literalKit.$match),
+  }) as DirectionalKit<From, To, Enum>;
 };
 
 /**
@@ -191,9 +212,18 @@ const makeDirectionalKit = <From extends Literals, To extends { readonly [I in k
  * @category constructors
  * @since 0.0.0
  */
-export type MappedLiteralKit<M extends MappedPairs> = DirectionalKit<FromLiterals<M>, ToLiterals<M>> & {
-  readonly From: DirectionalKit<FromLiterals<M>, ToLiterals<M>>;
-  readonly To: DirectionalKit<ToLiterals<M>, FromLiterals<M>>;
+type ForwardDirectionalKit<M extends MappedPairs> = DirectionalKit<FromLiterals<M>, ToLiterals<M>, ForwardEnumMap<M>>;
+type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>, FromLiterals<M>, ReverseEnumMap<M>>;
+
+/**
+ * Runtime type for {@link MappedLiteralKit} constructor output.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> & {
+  readonly From: ForwardDirectionalKit<M>;
+  readonly To: ReverseDirectionalKit<M>;
 };
 
 /**
@@ -207,12 +237,21 @@ export type MappedLiteralKit<M extends MappedPairs> = DirectionalKit<FromLiteral
 export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): MappedLiteralKit<M> {
   validateMappings(mappings);
   const { from, to } = splitMappings(mappings);
+  const forwardEnum = makeForwardEnum(mappings);
+  const reverseEnum = makeReverseEnum(mappings);
 
-  const From = makeDirectionalKit(from, to);
-  const To = makeDirectionalKit(to, from);
+  const From = makeDirectionalKit(from, to, forwardEnum);
+  const To = makeDirectionalKit(to, from, reverseEnum);
+
+  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
+    value,
+    enumerable: true,
+    writable: false,
+    configurable: false,
+  });
 
   return Object.defineProperties(From, {
-    From: { value: From, enumerable: true, writable: true, configurable: true },
-    To: { value: To, enumerable: true, writable: true, configurable: true },
+    From: readonlyProperty(From),
+    To: readonlyProperty(To),
   }) as MappedLiteralKit<M>;
 }

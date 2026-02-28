@@ -1,0 +1,10 @@
+{"type":"suite.started","atEpochMs":1772299094258,"plannedRunCount":16,"strictTaskCount":4,"maxWallMinutes":50}
+{"type":"run.started","atEpochMs":1772299094259,"runId":"apps_web_p4_token_01:current:codex:1","runIndex":1,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"current","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772299216876,"runId":"apps_web_p4_token_01:current:codex:1","runIndex":1,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":122614.679829}
+{"type":"run.started","atEpochMs":1772299216876,"runId":"apps_web_p4_token_01:minimal:codex:1","runIndex":2,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772299340418,"runId":"apps_web_p4_token_01:minimal:codex:1","runIndex":2,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":123539.04932699999}
+{"type":"run.started","atEpochMs":1772299340420,"runId":"apps_web_p4_token_01:adaptive:codex:1","runIndex":3,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"adaptive","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772299464084,"runId":"apps_web_p4_token_01:adaptive:codex:1","runIndex":3,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":123662.15367900001}
+{"type":"run.started","atEpochMs":1772299464088,"runId":"apps_web_p4_token_01:adaptive_kg:codex:1","runIndex":4,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"adaptive_kg","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772299593722,"runId":"apps_web_p4_token_01:adaptive_kg:codex:1","runIndex":4,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":122751.95273399999}
+{"type":"run.started","atEpochMs":1772299593722,"runId":"tooling_cli_p4_token_01:current:codex:1","runIndex":5,"totalRuns":16,"taskId":"tooling_cli_p4_token_01","condition":"current","agent":"codex","trial":1}

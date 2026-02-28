@@ -1,0 +1,35 @@
+$ bun run tooling/agent-eval/src/bin.ts bench --live --execution-backend sdk --graphiti-url "http://127.0.0.1:8123/mcp" --graphiti-group-id beep-dev --conditions "current,minimal,adaptive,adaptive_kg" --agents claude --trials "1" --task-ids "apps_web_01,tooling_cli_01,package_lib_01,package_lib_03" --smoke --smoke-task-limit "4" --smoke-timeout-minutes "1" --max-wall-minutes "25" --output "outputs/agent-reliability/runs/p4-ablation-live.json" --report-output "outputs/agent-reliability/weekly/p4-ablation-live-report.md"
+[bench] suite started plannedRuns=16 strictTaskCount=4
+[bench] run 1/16 started apps_web_01:current:claude:1
+[bench] run 1/16 completed apps_web_01:current:claude:1 success=false
+[bench] run 2/16 started apps_web_01:minimal:claude:1
+[bench] run 2/16 completed apps_web_01:minimal:claude:1 success=false
+[bench] run 3/16 started apps_web_01:adaptive:claude:1
+[bench] run 3/16 completed apps_web_01:adaptive:claude:1 success=false
+[bench] run 4/16 started apps_web_01:adaptive_kg:claude:1
+[bench] run 4/16 completed apps_web_01:adaptive_kg:claude:1 success=false
+[bench] run 5/16 started tooling_cli_01:current:claude:1
+[bench] run 5/16 completed tooling_cli_01:current:claude:1 success=false
+[bench] run 6/16 started tooling_cli_01:minimal:claude:1
+[bench] run 6/16 completed tooling_cli_01:minimal:claude:1 success=false
+[bench] run 7/16 started tooling_cli_01:adaptive:claude:1
+[bench] run 7/16 completed tooling_cli_01:adaptive:claude:1 success=false
+[bench] run 8/16 started tooling_cli_01:adaptive_kg:claude:1
+[bench] run 8/16 completed tooling_cli_01:adaptive_kg:claude:1 success=false
+[bench] run 9/16 started package_lib_01:current:claude:1
+[bench] run 9/16 completed package_lib_01:current:claude:1 success=false
+[bench] run 10/16 started package_lib_01:minimal:claude:1
+[bench] run 10/16 completed package_lib_01:minimal:claude:1 success=false
+[bench] run 11/16 started package_lib_01:adaptive:claude:1
+[bench] run 11/16 completed package_lib_01:adaptive:claude:1 success=false
+[bench] run 12/16 started package_lib_01:adaptive_kg:claude:1
+[bench] run 12/16 completed package_lib_01:adaptive_kg:claude:1 success=false
+[bench] run 13/16 started package_lib_03:current:claude:1
+[bench] run 13/16 completed package_lib_03:current:claude:1 success=false
+[bench] run 14/16 started package_lib_03:minimal:claude:1
+[bench] run 14/16 completed package_lib_03:minimal:claude:1 success=false
+[bench] run 15/16 started package_lib_03:adaptive:claude:1
+[bench] run 15/16 completed package_lib_03:adaptive:claude:1 success=false
+[bench] run 16/16 started package_lib_03:adaptive_kg:claude:1
+[bench] run 16/16 completed package_lib_03:adaptive_kg:claude:1 success=false
+[bench] suite completed status=completed completedRuns=16/16

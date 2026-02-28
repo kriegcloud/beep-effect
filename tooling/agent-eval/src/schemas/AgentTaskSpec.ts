@@ -31,6 +31,14 @@ export type AgentTaskSpec = {
   readonly acceptanceCommands: ReadonlyArray<string>;
   readonly timeoutMinutes: number;
   readonly touchedPathAllowlist: ReadonlyArray<string>;
+  readonly expectedTop5Targets?: ReadonlyArray<string> | undefined;
+  readonly requireExpectedTop5ForPass?: boolean | undefined;
+  readonly kgContextReviewerScores?:
+    | ReadonlyArray<{
+        readonly reviewerId: string;
+        readonly score: number;
+      }>
+    | undefined;
 };
 
 /**
@@ -48,4 +56,14 @@ export const AgentTaskSpecSchema = S.Struct({
   acceptanceCommands: S.Array(S.NonEmptyString),
   timeoutMinutes: S.Int,
   touchedPathAllowlist: S.Array(S.NonEmptyString),
+  expectedTop5Targets: S.optional(S.Array(S.NonEmptyString)),
+  requireExpectedTop5ForPass: S.optional(S.Boolean),
+  kgContextReviewerScores: S.optional(
+    S.Array(
+      S.Struct({
+        reviewerId: S.NonEmptyString,
+        score: S.Number,
+      })
+    )
+  ),
 });

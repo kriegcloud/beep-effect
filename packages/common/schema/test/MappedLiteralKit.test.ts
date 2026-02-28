@@ -33,6 +33,20 @@ describe("MappedLiteralKit", () => {
     expect(SqlState.is.SUCCESSFUL_COMPLETION("WARNING")).toBe(false);
   });
 
+  it("defines helper properties as readonly and non-configurable", () => {
+    const fromDescriptor = Object.getOwnPropertyDescriptor(SqlState, "From");
+    const toDescriptor = Object.getOwnPropertyDescriptor(SqlState, "To");
+    const enumDescriptor = Object.getOwnPropertyDescriptor(SqlState, "Enum");
+
+    expect(fromDescriptor?.enumerable).toBe(true);
+    expect(fromDescriptor?.writable).toBe(false);
+    expect(fromDescriptor?.configurable).toBe(false);
+    expect(toDescriptor?.writable).toBe(false);
+    expect(toDescriptor?.configurable).toBe(false);
+    expect(enumDescriptor?.writable).toBe(false);
+    expect(enumDescriptor?.configurable).toBe(false);
+  });
+
   it("retains LiteralKit helper behavior on directional kits", () => {
     expect(SqlState.pickOptions(["WARNING"] as const)).toEqual(["WARNING"]);
     expect(SqlState.To.pickOptions(["01000"] as const)).toEqual(["01000"]);

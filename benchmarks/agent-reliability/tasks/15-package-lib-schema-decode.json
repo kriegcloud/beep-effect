@@ -6,5 +6,12 @@
   "cwd": "packages/common/schema",
   "acceptanceCommands": ["bun run check"],
   "timeoutMinutes": 8,
+  "expectedTop5Targets": [
+    "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+  ],
+  "kgContextReviewerScores": [
+    { "reviewerId": "panel_a", "score": 4.5 },
+    { "reviewerId": "panel_b", "score": 4.4 }
+  ],
   "touchedPathAllowlist": ["packages/common/schema/src"]
 }

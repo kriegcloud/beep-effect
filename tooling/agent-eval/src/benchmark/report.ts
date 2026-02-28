@@ -28,6 +28,10 @@ const summarizeByKey = (
   readonly successes: number;
   readonly wrongApi: number;
   readonly medianCost: number;
+  readonly labeledPrompts: number;
+  readonly top5Hits: number;
+  readonly reviewerScoreCount: number;
+  readonly reviewerScoreMean: number | null;
 }> => {
   const keys: Array<string> = [];
   const groups: Array<Array<AgentBenchSuite["records"][number]>> = [];
@@ -49,6 +53,10 @@ const summarizeByKey = (
     readonly successes: number;
     readonly wrongApi: number;
     readonly medianCost: number;
+    readonly labeledPrompts: number;
+    readonly top5Hits: number;
+    readonly reviewerScoreCount: number;
+    readonly reviewerScoreMean: number | null;
   }> = [];
 
   for (let index = 0; index < keys.length; index += 1) {
@@ -58,8 +66,28 @@ const summarizeByKey = (
     const successes = records.filter((record) => record.result.success).length;
     const wrongApi = records.reduce((acc, record) => acc + record.result.wrongApiIncidentCount, 0);
     const medianCost = median(records.map((record) => record.result.costUsd));
+    const labeledPrompts = records.filter((record) => record.retrievalTop5?.labeled === true).length;
+    const top5Hits = records.filter((record) => record.retrievalTop5?.hit === true).length;
+    const reviewerScores = records.flatMap(
+      (record) => record.kgContextReview?.reviewerScores.map((entry) => entry.score) ?? []
+    );
+    const reviewerScoreCount = reviewerScores.length;
+    const reviewerScoreMean =
+      reviewerScores.length === 0
+        ? null
+        : reviewerScores.reduce((accumulator, score) => accumulator + score, 0) / reviewerScores.length;
 
-    rows.push({ key, runs, successes, wrongApi, medianCost });
+    rows.push({
+      key,
+      runs,
+      successes,
+      wrongApi,
+      medianCost,
+      labeledPrompts,
+      top5Hits,
+      reviewerScoreCount,
+      reviewerScoreMean,
+    });
   }
 
   return rows.sort((left, right) => Str.localeCompare(right.key)(left.key));
@@ -84,14 +112,20 @@ export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): 
   const conditionRows = byCondition
     .map((row) => {
       const successRate = row.runs === 0 ? 0 : (row.successes / row.runs) * 100;
-      return `| ${row.key} | ${row.runs} | ${row.successes} | ${successRate.toFixed(2)}% | ${row.wrongApi} | $${row.medianCost.toFixed(4)} |`;
+      const top5HitRate =
+        row.labeledPrompts === 0 ? "n/a" : `${((row.top5Hits / row.labeledPrompts) * 100).toFixed(2)}%`;
+      const reviewerMean = row.reviewerScoreMean === null ? "n/a" : row.reviewerScoreMean.toFixed(2);
+      return `| ${row.key} | ${row.runs} | ${row.successes} | ${successRate.toFixed(2)}% | ${row.wrongApi} | $${row.medianCost.toFixed(4)} | ${top5HitRate} | ${reviewerMean} |`;
     })
     .join("\n");
 
   const agentRows = byAgent
     .map((row) => {
       const successRate = row.runs === 0 ? 0 : (row.successes / row.runs) * 100;
-      return `| ${row.key} | ${row.runs} | ${row.successes} | ${successRate.toFixed(2)}% | ${row.wrongApi} | $${row.medianCost.toFixed(4)} |`;
+      const top5HitRate =
+        row.labeledPrompts === 0 ? "n/a" : `${((row.top5Hits / row.labeledPrompts) * 100).toFixed(2)}%`;
+      const reviewerMean = row.reviewerScoreMean === null ? "n/a" : row.reviewerScoreMean.toFixed(2);
+      return `| ${row.key} | ${row.runs} | ${row.successes} | ${successRate.toFixed(2)}% | ${row.wrongApi} | $${row.medianCost.toFixed(4)} | ${top5HitRate} | ${reviewerMean} |`;
     })
     .join("\n");
 
@@ -119,14 +153,14 @@ export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): 
     "",
     "## By Condition",
     "",
-    "| Condition | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost |",
-    "|---|---:|---:|---:|---:|---:|",
+    "| Condition | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost | Retrieval Top-5 Hit Rate | KG Relevance Mean |",
+    "|---|---:|---:|---:|---:|---:|---:|---:|",
     conditionRows,
     "",
     "## By Agent",
     "",
-    "| Agent:Model | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost |",
-    "|---|---:|---:|---:|---:|---:|",
+    "| Agent:Model | Runs | Successes | Success Rate | Wrong-API Incidents | Median Cost | Retrieval Top-5 Hit Rate | KG Relevance Mean |",
+    "|---|---:|---:|---:|---:|---:|---:|---:|",
     agentRows,
     "",
   ].join("\n");
