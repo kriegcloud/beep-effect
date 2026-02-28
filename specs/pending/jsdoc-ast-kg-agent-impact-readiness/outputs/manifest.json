@@ -36,7 +36,7 @@
     },
     "p5": {
       "name": "rollout-decision",
-      "status": "pending",
+      "status": "complete",
       "output": "p5-rollout-decision.md"
     }
   }

@@ -358,6 +358,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "catalog:",
+        "@beep/ai-sdk": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -395,6 +396,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
         "glob": "catalog:",

@@ -1,0 +1,47 @@
+9:**NO GO (current post-optimization build, v10)**
+11:Historical pre-optimization decision (v9 evidence) was `LIMITED GO`, but current rollout is blocked after v10 revalidation.
+46:| PRE-G1 | 100% command-surface mapping | Present | PASS | `outputs/p-pre-kg-cli-refactor-and-ai-sdk.md` |
+47:| PRE-G2 | Effect-first policy completeness | Present | PASS | `outputs/p-pre-kg-cli-refactor-and-ai-sdk.md` |
+48:| PRE-G3 | Direct vendor Claude SDK calls in benchmark path = 0 | No direct vendor import in benchmark execution path | PASS | `outputs/evidence/p4/p4-claude-sdk-path.log` |
+49:| PRE-G4 | `@beep/ai-sdk` check+lint+test pass | All pass | PASS | `outputs/evidence/pre/ai-sdk-check.log`, `outputs/evidence/pre/ai-sdk-lint.log`, `outputs/evidence/pre/ai-sdk-test.log` |
+50:| PRE-G5 | KG CLI parity guardrails present | Present | PASS | `outputs/p-pre-kg-cli-refactor-and-ai-sdk.md` |
+56:| G01 Top-5 hit rate | `>= 80%` | `100.00%` | PASS | `outputs/p4-ablation-benchmark.md` |
+57:| G02 KG relevance score | `>= 4.0/5` | `4.4/5` | PASS | `outputs/p4-ablation-benchmark.md` |
+58:| G03 Task success delta | `>= +10pp` | `+100.00pp` | PASS | `outputs/p4-ablation-benchmark.md` |
+59:| G04 Wrong-API delta | `<= -30%` | `0.00pp` non-regression from zero baseline | PASS | `outputs/p4-ablation-benchmark.md` |
+60:| G05 First-pass check+lint delta | `>= +20pp` | `+100.00pp` | PASS | `outputs/p4-ablation-benchmark.md` |
+61:| G06 Median cost delta | `<= -10%` | `+36.30%` | FAIL | `outputs/p4-ablation-benchmark.md`, `outputs/evidence/p4/p4-v9-gate-metrics.json` |
+62:| G07 Retrieval timeout rate | `<= 1%` | `0.50%` | PASS | `outputs/p2-retrieval-reliability.md`, `outputs/evidence/p2/retrieval-live-stats.json` |
+63:| G08 Retrieval p95 latency | `<= 1.5s` | `0ms` | PASS | `outputs/p2-retrieval-reliability.md`, `outputs/evidence/p2/retrieval-live-stats.json` |
+64:| G09 Retrieval p99 latency | `<= 2.5s` | `0ms` | PASS | `outputs/p2-retrieval-reliability.md`, `outputs/evidence/p2/retrieval-live-stats.json` |
+65:| G10 Required-tag parse success | `>= 99%` | `100.00%` | PASS | `outputs/p3-semantic-coverage.md` |
+66:| G11 Semantic edge precision | `>= 90%` | `100.00%` | PASS | `outputs/p3-semantic-coverage.md` |
+67:| G12 Semantic edge recall | `>= 85%` | `100.00%` | PASS | `outputs/p3-semantic-coverage.md` |
+71:1. Historical v9 decision was `LIMITED GO` because only G06 failed.
+73:3. Current rollout classification is **NO GO** until retrieval quality regression is corrected.
+83:| PRE-G1..PRE-G5 | PASS |
+84:| G01, G02, G03, G04, G05 | PASS |
+85:| G07, G08, G09 | PASS |
+86:| G10, G11, G12 | PASS |
+92:| G06 Median cost delta | Record as `PASS`/`FAIL` but never block promotion |
+96:1. **GO**: all blocking gates pass.
+97:2. **LIMITED GO**: any blocking gate is passable only with explicit temporary waiver and owner sign-off.
+98:3. **NO GO**: any reliability or quality blocking gate fails.
+102:**NO GO (quality-first rubric)** because blocking quality gates regressed in v10 post-optimization evidence.
+108:| Stage 0 (Canary) | 10% of internal benchmark + dogfood traffic, minimum 40 tasks over 48h | PRE-G1..PRE-G5 PASS; G01 `>= 80%`; G02 `>= 4.0`; G03 `>= +10pp`; G04 non-regression; G05 `>= +20pp`; G07-G09 PASS; G10-G12 PASS | Agent Eval Rollout Owner (`tooling/agent-eval` maintainers) |
+110:| Stage 2 (Broad) | 50% production traffic, minimum 300 tasks over 7 days | Stage 1 criteria maintained; two consecutive daily reports with all blocking gates PASS | Agent Eval Rollout Owner |
+117:| QF-RB-01 | Any of G07-G09 fails in production window | Graphiti Reliability Owner | Immediate rollback one stage and freeze promotions |
+118:| QF-RB-02 | Any of G01-G05 fails in production window | Agent Eval Rollout Owner | Immediate rollback one stage and require fresh ablation before re-promotion |
+119:| QF-RB-03 | Any of G10-G12 fails in production window | JSDoc Governance Owner | Immediate rollback one stage and restore prior known-good semantic tagging set |
+120:| QF-RB-04 | Wrong-API/resource hallucination regresses above baseline by `> 5pp` | KG CLI Quality Owner | Immediate rollback one stage and defect triage before re-enable |
+121:| QF-RB-05 | Task success delta falls below `+10pp` vs baseline for stage sample | Agent Eval Rollout Owner | Immediate rollback one stage and re-run gating suite |
+127:| Stage 0 (Canary) | 10% of internal benchmark + dogfood traffic, minimum 40 tasks over 48h | G07-G09 `PASS`; G01 `>= 80%`; G02 `>= 4.0`; G03 `>= +10pp`; G05 `>= +20pp`; G04 non-regression; cost delta `<= +20%` | Agent Eval Rollout Owner (`tooling/agent-eval` maintainers) |
+129:| Stage 2 (Broad) | 50% production traffic, minimum 300 tasks over 7 days | Stage 1 criteria maintained; two consecutive daily reports with reliability and quality gates all `PASS` | Agent Eval Rollout Owner |
+130:| Stage 3 (Full) | 100% production traffic | Full `GO` re-evaluation passes on fresh ablation: G01-G12 all `PASS` including G06 `<= -10%` on a larger cross-task cohort | Release Decision Owner (spec maintainer for this track) |
+146:- Rollout decision owner: spec maintainer for `jsdoc-ast-kg-agent-impact-readiness` (approves stage promotion).
+147:- Operational rollout owner: `tooling/agent-eval` maintainers.
+148:- Reliability owner: Graphiti proxy/health maintainers.
+149:- Quality owner: `tooling/cli/src/commands/kg/**` maintainers.
+150:- Governance owner: P1 semantic-tag governance maintainers.
+154:- [x] Decision is explicit (`NO GO` for current post-optimization build, with historical v9 context retained).
+157:- [x] Rollback triggers and ownership are defined.

@@ -1,5 +1,6 @@
 import { LiteralKit, LiteralNotInSetError } from "@beep/schema/LiteralKit";
 import { describe, expect, it } from "@effect/vitest";
+import * as S from "effect/Schema";
 
 describe("LiteralKit", () => {
   const Status = LiteralKit([1, 20n, true, false, "hello"] as const);
@@ -28,6 +29,17 @@ describe("LiteralKit", () => {
     expect(Status.is.hello("hello")).toBe(true);
     expect(Status.is.hello("world")).toBe(false);
     expect(Status.is.number1(null)).toBe(false);
+  });
+
+  it("defines helper properties as readonly and non-configurable", () => {
+    const enumDescriptor = Object.getOwnPropertyDescriptor(Status, "Enum");
+    const matchDescriptor = Object.getOwnPropertyDescriptor(Status, "$match");
+
+    expect(enumDescriptor?.enumerable).toBe(true);
+    expect(enumDescriptor?.writable).toBe(false);
+    expect(enumDescriptor?.configurable).toBe(false);
+    expect(matchDescriptor?.writable).toBe(false);
+    expect(matchDescriptor?.configurable).toBe(false);
   });
 
   it("returns the provided subset with pickOptions", () => {
@@ -100,6 +112,15 @@ describe("LiteralKit", () => {
 
 describe("LiteralKit (string-only)", () => {
   const Direction = LiteralKit(["up", "down", "left", "right"] as const);
+  const EventKind = LiteralKit(["created", "deleted"] as const);
+  const Event = EventKind.toTaggedUnion("kind")({
+    created: {
+      value: S.Literal(1),
+    },
+    deleted: {
+      value: S.Literal(2),
+    },
+  });
 
   it("uses string values as-is for keys (same as StringLiteralKit)", () => {
     expect(Direction.Enum.up).toBe("up");
@@ -116,6 +137,55 @@ describe("LiteralKit (string-only)", () => {
       right: () => 3,
     });
     expect(result).toBe(0);
+  });
+
+  it("builds tagged unions from literal members", () => {
+    expect(
+      S.decodeSync(Event)({
+        kind: "created",
+        value: 1,
+      })
+    ).toEqual({
+      kind: "created",
+      value: 1,
+    });
+    expect(Event.guards.created({ kind: "created", value: 1 })).toBe(true);
+    expect(Event.guards.deleted({ kind: "created", value: 1 })).toBe(false);
+    expect(
+      Event.match(
+        { kind: "deleted", value: 2 },
+        {
+          created: () => "created" as const,
+          deleted: () => "deleted" as const,
+        }
+      )
+    ).toBe("deleted");
+  });
+});
+
+describe("LiteralKit toTaggedUnion (number keys)", () => {
+  const NumberKind = LiteralKit([1, 2] as const);
+  const NumberEvent = NumberKind.toTaggedUnion("kind")({
+    number1: {
+      value: S.Literal("one"),
+    },
+    number2: {
+      value: S.Literal("two"),
+    },
+  });
+
+  it("uses LiteralToKey keys for numeric literals and preserves numeric tags", () => {
+    expect(
+      NumberEvent.match(
+        { kind: 1, value: "one" },
+        {
+          1: () => "one" as const,
+          2: () => "two" as const,
+        }
+      )
+    ).toBe("one");
+    expect(NumberEvent.guards[1]({ kind: 1, value: "one" })).toBe(true);
+    expect(NumberEvent.guards[2]({ kind: 1, value: "one" })).toBe(false);
   });
 });
 // bench

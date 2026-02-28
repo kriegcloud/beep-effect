@@ -1,0 +1,3075 @@
+{
+  "nodes": [
+    {
+      "id": "file::src/index.ts",
+      "label": "index.ts",
+      "kind": "file",
+      "filePath": "src/index.ts",
+      "line": 1,
+      "endLine": 7,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/index.ts",
+        "lineCount": 7,
+        "isTestFile": false,
+        "isBarrelFile": true,
+        "directory": "src"
+      }
+    },
+    {
+      "id": "file::src/models/types.ts",
+      "label": "types.ts",
+      "kind": "file",
+      "filePath": "src/models/types.ts",
+      "line": 1,
+      "endLine": 42,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/models/types.ts",
+        "lineCount": 42,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/models"
+      }
+    },
+    {
+      "id": "interface::src/models/types.ts::Entity",
+      "label": "Entity",
+      "kind": "interface",
+      "filePath": "src/models/types.ts",
+      "line": 1,
+      "endLine": 5,
+      "exported": true,
+      "meta": {
+        "propertyCount": 3,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 0,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Entity.id",
+      "label": "Entity.id",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 2,
+      "endLine": 2,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Entity",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Entity.createdAt",
+      "label": "Entity.createdAt",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 3,
+      "endLine": 3,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Entity",
+        "type": "Date",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Entity.updatedAt",
+      "label": "Entity.updatedAt",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 4,
+      "endLine": 4,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Entity",
+        "type": "Date",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "interface::src/models/types.ts::User",
+      "label": "User",
+      "kind": "interface",
+      "filePath": "src/models/types.ts",
+      "line": 7,
+      "endLine": 11,
+      "exported": true,
+      "meta": {
+        "propertyCount": 3,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 1,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::User.email",
+      "label": "User.email",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 8,
+      "endLine": 8,
+      "exported": false,
+      "meta": {
+        "parentInterface": "User",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::User.name",
+      "label": "User.name",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 9,
+      "endLine": 9,
+      "exported": false,
+      "meta": {
+        "parentInterface": "User",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::User.role",
+      "label": "User.role",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 10,
+      "endLine": 10,
+      "exported": false,
+      "meta": {
+        "parentInterface": "User",
+        "type": "UserRole",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "interface::src/models/types.ts::Account",
+      "label": "Account",
+      "kind": "interface",
+      "filePath": "src/models/types.ts",
+      "line": 13,
+      "endLine": 18,
+      "exported": true,
+      "meta": {
+        "propertyCount": 4,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 1,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Account.userId",
+      "label": "Account.userId",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 14,
+      "endLine": 14,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Account",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Account.balance",
+      "label": "Account.balance",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 15,
+      "endLine": 15,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Account",
+        "type": "number",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Account.currency",
+      "label": "Account.currency",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 16,
+      "endLine": 16,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Account",
+        "type": "Currency",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Account.holdings",
+      "label": "Account.holdings",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 17,
+      "endLine": 17,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Account",
+        "type": "Holding[]",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "interface::src/models/types.ts::Holding",
+      "label": "Holding",
+      "kind": "interface",
+      "filePath": "src/models/types.ts",
+      "line": 20,
+      "endLine": 24,
+      "exported": true,
+      "meta": {
+        "propertyCount": 3,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 0,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Holding.symbol",
+      "label": "Holding.symbol",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 21,
+      "endLine": 21,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Holding",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Holding.quantity",
+      "label": "Holding.quantity",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 22,
+      "endLine": 22,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Holding",
+        "type": "number",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Holding.costBasis",
+      "label": "Holding.costBasis",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 23,
+      "endLine": 23,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Holding",
+        "type": "number",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "interface::src/models/types.ts::Transaction",
+      "label": "Transaction",
+      "kind": "interface",
+      "filePath": "src/models/types.ts",
+      "line": 26,
+      "endLine": 31,
+      "exported": true,
+      "meta": {
+        "propertyCount": 4,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 1,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Transaction.accountId",
+      "label": "Transaction.accountId",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 27,
+      "endLine": 27,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Transaction",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Transaction.type",
+      "label": "Transaction.type",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 28,
+      "endLine": 28,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Transaction",
+        "type": "TransactionType",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Transaction.amount",
+      "label": "Transaction.amount",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 29,
+      "endLine": 29,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Transaction",
+        "type": "number",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/models/types.ts::Transaction.description",
+      "label": "Transaction.description",
+      "kind": "property",
+      "filePath": "src/models/types.ts",
+      "line": 30,
+      "endLine": 30,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Transaction",
+        "type": "string",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "type_alias::src/models/types.ts::UserRole",
+      "label": "UserRole",
+      "kind": "type_alias",
+      "filePath": "src/models/types.ts",
+      "line": 33,
+      "endLine": 33,
+      "exported": true,
+      "meta": {
+        "type": "\"admin\" | \"advisor\" | \"client\"",
+        "typeParameterCount": 0,
+        "isUnion": true,
+        "isIntersection": false
+      }
+    },
+    {
+      "id": "type_alias::src/models/types.ts::Currency",
+      "label": "Currency",
+      "kind": "type_alias",
+      "filePath": "src/models/types.ts",
+      "line": 34,
+      "endLine": 34,
+      "exported": true,
+      "meta": {
+        "type": "\"USD\" | \"EUR\" | \"GBP\"",
+        "typeParameterCount": 0,
+        "isUnion": true,
+        "isIntersection": false
+      }
+    },
+    {
+      "id": "type_alias::src/models/types.ts::TransactionType",
+      "label": "TransactionType",
+      "kind": "type_alias",
+      "filePath": "src/models/types.ts",
+      "line": 35,
+      "endLine": 35,
+      "exported": true,
+      "meta": {
+        "type": "\"deposit\" | \"withdrawal\" | \"trade\" | \"fee\"",
+        "typeParameterCount": 0,
+        "isUnion": true,
+        "isIntersection": false
+      }
+    },
+    {
+      "id": "enum::src/models/types.ts::AccountStatus",
+      "label": "AccountStatus",
+      "kind": "enum",
+      "filePath": "src/models/types.ts",
+      "line": 37,
+      "endLine": 41,
+      "exported": true,
+      "meta": {
+        "memberCount": 3,
+        "isConst": false
+      }
+    },
+    {
+      "id": "enum_member::src/models/types.ts::AccountStatus.Active",
+      "label": "AccountStatus.Active",
+      "kind": "enum_member",
+      "filePath": "src/models/types.ts",
+      "line": 38,
+      "endLine": 38,
+      "exported": false,
+      "meta": {
+        "parentEnum": "AccountStatus",
+        "value": "active"
+      }
+    },
+    {
+      "id": "enum_member::src/models/types.ts::AccountStatus.Suspended",
+      "label": "AccountStatus.Suspended",
+      "kind": "enum_member",
+      "filePath": "src/models/types.ts",
+      "line": 39,
+      "endLine": 39,
+      "exported": false,
+      "meta": {
+        "parentEnum": "AccountStatus",
+        "value": "suspended"
+      }
+    },
+    {
+      "id": "enum_member::src/models/types.ts::AccountStatus.Closed",
+      "label": "AccountStatus.Closed",
+      "kind": "enum_member",
+      "filePath": "src/models/types.ts",
+      "line": 40,
+      "endLine": 40,
+      "exported": false,
+      "meta": {
+        "parentEnum": "AccountStatus",
+        "value": "closed"
+      }
+    },
+    {
+      "id": "file::src/services/account-service.ts",
+      "label": "account-service.ts",
+      "kind": "file",
+      "filePath": "src/services/account-service.ts",
+      "line": 1,
+      "endLine": 96,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/services/account-service.ts",
+        "lineCount": 96,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/services"
+      }
+    },
+    {
+      "id": "class::src/services/account-service.ts::AccountService",
+      "label": "AccountService",
+      "kind": "class",
+      "filePath": "src/services/account-service.ts",
+      "line": 10,
+      "endLine": 95,
+      "exported": true,
+      "meta": {
+        "abstract": false,
+        "methodCount": 5,
+        "propertyCount": 0,
+        "constructorCount": 1,
+        "getterCount": 0,
+        "setterCount": 0,
+        "typeParameterCount": 0,
+        "staticMethodCount": 0,
+        "implementsCount": 0
+      }
+    },
+    {
+      "id": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "label": "AccountService.constructor",
+      "kind": "constructor",
+      "filePath": "src/services/account-service.ts",
+      "line": 11,
+      "endLine": 17,
+      "exported": false,
+      "meta": {
+        "className": "AccountService",
+        "params": "repo: Repository<Account>, userService: UserService, txRepo: Repository<Transaction>",
+        "parameterCount": 3,
+        "parameterPropertyCount": 2,
+        "overloads": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.constructor.repo",
+      "label": "repo",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "type": "Repository<Account>",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.constructor.userService",
+      "label": "userService",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 13,
+      "endLine": 13,
+      "exported": false,
+      "meta": {
+        "type": "UserService",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.constructor.txRepo",
+      "label": "txRepo",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 14,
+      "endLine": 14,
+      "exported": false,
+      "meta": {
+        "type": "Repository<Transaction>",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "property::src/services/account-service.ts::AccountService.userService",
+      "label": "AccountService.userService",
+      "kind": "property",
+      "filePath": "src/services/account-service.ts",
+      "line": 13,
+      "endLine": 13,
+      "exported": false,
+      "meta": {
+        "className": "AccountService",
+        "type": "UserService",
+        "visibility": "private",
+        "readonly": true,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "property::src/services/account-service.ts::AccountService.txRepo",
+      "label": "AccountService.txRepo",
+      "kind": "property",
+      "filePath": "src/services/account-service.ts",
+      "line": 14,
+      "endLine": 14,
+      "exported": false,
+      "meta": {
+        "className": "AccountService",
+        "type": "Repository<Transaction>",
+        "visibility": "private",
+        "readonly": true,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "method::src/services/account-service.ts::AccountService.createAccount",
+      "label": "AccountService.createAccount",
+      "kind": "method",
+      "filePath": "src/services/account-service.ts",
+      "line": 19,
+      "endLine": 34,
+      "exported": true,
+      "meta": {
+        "className": "AccountService",
+        "params": "userId: string, currency: import(\"/home/claude/codebase-graph/sample-project/src/index\").Currency",
+        "returnType": "Promise<Account>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.createAccount.userId",
+      "label": "userId",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 20,
+      "endLine": 20,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.createAccount.currency",
+      "label": "currency",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 21,
+      "endLine": 21,
+      "exported": false,
+      "meta": {
+        "type": "import(\"/home/claude/codebase-graph/sample-project/src/index\").Currency",
+        "optional": true,
+        "rest": false,
+        "hasDefault": true,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/account-service.ts::AccountService.deposit",
+      "label": "AccountService.deposit",
+      "kind": "method",
+      "filePath": "src/services/account-service.ts",
+      "line": 36,
+      "endLine": 55,
+      "exported": true,
+      "meta": {
+        "className": "AccountService",
+        "params": "accountId: string, amount: number",
+        "returnType": "Promise<Account>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.deposit.accountId",
+      "label": "accountId",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 36,
+      "endLine": 36,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.deposit.amount",
+      "label": "amount",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 36,
+      "endLine": 36,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/account-service.ts::AccountService.withdraw",
+      "label": "AccountService.withdraw",
+      "kind": "method",
+      "filePath": "src/services/account-service.ts",
+      "line": 57,
+      "endLine": 73,
+      "exported": true,
+      "meta": {
+        "className": "AccountService",
+        "params": "accountId: string, amount: number",
+        "returnType": "Promise<Account>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.withdraw.accountId",
+      "label": "accountId",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 57,
+      "endLine": 57,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.withdraw.amount",
+      "label": "amount",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 57,
+      "endLine": 57,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "label": "AccountService.getPortfolioValue",
+      "kind": "method",
+      "filePath": "src/services/account-service.ts",
+      "line": 75,
+      "endLine": 81,
+      "exported": true,
+      "meta": {
+        "className": "AccountService",
+        "params": "accountId: string",
+        "returnType": "Promise<string>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 1,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.getPortfolioValue.accountId",
+      "label": "accountId",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 75,
+      "endLine": 75,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "label": "AccountService.recordTransaction",
+      "kind": "method",
+      "filePath": "src/services/account-service.ts",
+      "line": 83,
+      "endLine": 94,
+      "exported": true,
+      "meta": {
+        "className": "AccountService",
+        "params": "accountId: string, type: import(\"/home/claude/codebase-graph/sample-project/src/index\").TransactionType, amount: number",
+        "returnType": "Promise<Transaction>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "private",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 3,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.recordTransaction.accountId",
+      "label": "accountId",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 84,
+      "endLine": 84,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.recordTransaction.type",
+      "label": "type",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 85,
+      "endLine": 85,
+      "exported": false,
+      "meta": {
+        "type": "import(\"/home/claude/codebase-graph/sample-project/src/index\").TransactionType",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/account-service.ts::AccountService.recordTransaction.amount",
+      "label": "amount",
+      "kind": "parameter",
+      "filePath": "src/services/account-service.ts",
+      "line": 86,
+      "endLine": 86,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "file::src/services/base.ts",
+      "label": "base.ts",
+      "kind": "file",
+      "filePath": "src/services/base.ts",
+      "line": 1,
+      "endLine": 22,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/services/base.ts",
+        "lineCount": 22,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/services"
+      }
+    },
+    {
+      "id": "class::src/services/base.ts::BaseService",
+      "label": "BaseService",
+      "kind": "class",
+      "filePath": "src/services/base.ts",
+      "line": 11,
+      "endLine": 21,
+      "exported": true,
+      "meta": {
+        "abstract": true,
+        "methodCount": 2,
+        "propertyCount": 0,
+        "constructorCount": 1,
+        "getterCount": 0,
+        "setterCount": 0,
+        "typeParameterCount": 1,
+        "staticMethodCount": 0,
+        "implementsCount": 0
+      }
+    },
+    {
+      "id": "constructor::src/services/base.ts::BaseService.constructor",
+      "label": "BaseService.constructor",
+      "kind": "constructor",
+      "filePath": "src/services/base.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "className": "BaseService",
+        "params": "repo: Repository<T>",
+        "parameterCount": 1,
+        "parameterPropertyCount": 1,
+        "overloads": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/base.ts::BaseService.constructor.repo",
+      "label": "repo",
+      "kind": "parameter",
+      "filePath": "src/services/base.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "type": "Repository<T>",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "property::src/services/base.ts::BaseService.repo",
+      "label": "BaseService.repo",
+      "kind": "property",
+      "filePath": "src/services/base.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "className": "BaseService",
+        "type": "Repository<T>",
+        "visibility": "protected",
+        "readonly": true,
+        "parameterProperty": true
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::BaseService.getById",
+      "label": "BaseService.getById",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 14,
+      "endLine": 16,
+      "exported": true,
+      "meta": {
+        "className": "BaseService",
+        "params": "id: string",
+        "returnType": "Promise<T | null>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 1,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/base.ts::BaseService.getById.id",
+      "label": "id",
+      "kind": "parameter",
+      "filePath": "src/services/base.ts",
+      "line": 14,
+      "endLine": 14,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::BaseService.getAll",
+      "label": "BaseService.getAll",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 18,
+      "endLine": 20,
+      "exported": true,
+      "meta": {
+        "className": "BaseService",
+        "params": "",
+        "returnType": "Promise<T[]>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 0,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "interface::src/services/base.ts::Repository",
+      "label": "Repository",
+      "kind": "interface",
+      "filePath": "src/services/base.ts",
+      "line": 3,
+      "endLine": 9,
+      "exported": true,
+      "meta": {
+        "propertyCount": 0,
+        "methodCount": 5,
+        "typeParameterCount": 1,
+        "extendsCount": 0,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::Repository.findById",
+      "label": "Repository.findById",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 4,
+      "endLine": 4,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Repository",
+        "params": "id: string",
+        "returnType": "Promise<T | null>",
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::Repository.findAll",
+      "label": "Repository.findAll",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 5,
+      "endLine": 5,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Repository",
+        "params": "",
+        "returnType": "Promise<T[]>",
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::Repository.create",
+      "label": "Repository.create",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 6,
+      "endLine": 6,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Repository",
+        "params": "data: Omit<T, \"id\" | \"createdAt\" | \"updatedAt\">",
+        "returnType": "Promise<T>",
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::Repository.update",
+      "label": "Repository.update",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 7,
+      "endLine": 7,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Repository",
+        "params": "id: string, data: Partial<T>",
+        "returnType": "Promise<T>",
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "method::src/services/base.ts::Repository.delete",
+      "label": "Repository.delete",
+      "kind": "method",
+      "filePath": "src/services/base.ts",
+      "line": 8,
+      "endLine": 8,
+      "exported": false,
+      "meta": {
+        "parentInterface": "Repository",
+        "params": "id: string",
+        "returnType": "Promise<void>",
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "file::src/services/user-service.ts",
+      "label": "user-service.ts",
+      "kind": "file",
+      "filePath": "src/services/user-service.ts",
+      "line": 1,
+      "endLine": 46,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/services/user-service.ts",
+        "lineCount": 46,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/services"
+      }
+    },
+    {
+      "id": "class::src/services/user-service.ts::UserService",
+      "label": "UserService",
+      "kind": "class",
+      "filePath": "src/services/user-service.ts",
+      "line": 6,
+      "endLine": 45,
+      "exported": true,
+      "meta": {
+        "abstract": false,
+        "methodCount": 3,
+        "propertyCount": 0,
+        "constructorCount": 1,
+        "getterCount": 0,
+        "setterCount": 0,
+        "typeParameterCount": 0,
+        "staticMethodCount": 0,
+        "implementsCount": 0
+      }
+    },
+    {
+      "id": "constructor::src/services/user-service.ts::UserService.constructor",
+      "label": "UserService.constructor",
+      "kind": "constructor",
+      "filePath": "src/services/user-service.ts",
+      "line": 7,
+      "endLine": 9,
+      "exported": false,
+      "meta": {
+        "className": "UserService",
+        "params": "repo: Repository<User>",
+        "parameterCount": 1,
+        "parameterPropertyCount": 0,
+        "overloads": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.constructor.repo",
+      "label": "repo",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 7,
+      "endLine": 7,
+      "exported": false,
+      "meta": {
+        "type": "Repository<User>",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/user-service.ts::UserService.createUser",
+      "label": "UserService.createUser",
+      "kind": "method",
+      "filePath": "src/services/user-service.ts",
+      "line": 11,
+      "endLine": 35,
+      "exported": true,
+      "meta": {
+        "className": "UserService",
+        "params": "email: string, name: string, role: import(\"/home/claude/codebase-graph/sample-project/src/index\").UserRole",
+        "returnType": "Promise<User>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 3,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.createUser.email",
+      "label": "email",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.createUser.name",
+      "label": "name",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 13,
+      "endLine": 13,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.createUser.role",
+      "label": "role",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 14,
+      "endLine": 14,
+      "exported": false,
+      "meta": {
+        "type": "import(\"/home/claude/codebase-graph/sample-project/src/index\").UserRole",
+        "optional": true,
+        "rest": false,
+        "hasDefault": true,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/user-service.ts::UserService.findByEmail",
+      "label": "UserService.findByEmail",
+      "kind": "method",
+      "filePath": "src/services/user-service.ts",
+      "line": 37,
+      "endLine": 40,
+      "exported": true,
+      "meta": {
+        "className": "UserService",
+        "params": "email: string",
+        "returnType": "Promise<User | null>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 1,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.findByEmail.email",
+      "label": "email",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 37,
+      "endLine": 37,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/services/user-service.ts::UserService.updateRole",
+      "label": "UserService.updateRole",
+      "kind": "method",
+      "filePath": "src/services/user-service.ts",
+      "line": 42,
+      "endLine": 44,
+      "exported": true,
+      "meta": {
+        "className": "UserService",
+        "params": "userId: string, role: import(\"/home/claude/codebase-graph/sample-project/src/index\").UserRole",
+        "returnType": "Promise<User>",
+        "static": false,
+        "async": true,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.updateRole.userId",
+      "label": "userId",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 42,
+      "endLine": 42,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/services/user-service.ts::UserService.updateRole.role",
+      "label": "role",
+      "kind": "parameter",
+      "filePath": "src/services/user-service.ts",
+      "line": 42,
+      "endLine": 42,
+      "exported": false,
+      "meta": {
+        "type": "import(\"/home/claude/codebase-graph/sample-project/src/index\").UserRole",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "file::src/utils/helpers.ts",
+      "label": "helpers.ts",
+      "kind": "file",
+      "filePath": "src/utils/helpers.ts",
+      "line": 1,
+      "endLine": 26,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/utils/helpers.ts",
+        "lineCount": 26,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/utils"
+      }
+    },
+    {
+      "id": "function::src/utils/helpers.ts::generateId",
+      "label": "generateId",
+      "kind": "function",
+      "filePath": "src/utils/helpers.ts",
+      "line": 1,
+      "endLine": 3,
+      "exported": true,
+      "meta": {
+        "params": "",
+        "returnType": "string",
+        "async": false,
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 0,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "function::src/utils/helpers.ts::formatCurrency",
+      "label": "formatCurrency",
+      "kind": "function",
+      "filePath": "src/utils/helpers.ts",
+      "line": 5,
+      "endLine": 10,
+      "exported": true,
+      "meta": {
+        "params": "amount: number, currency: string",
+        "returnType": "string",
+        "async": false,
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::formatCurrency.amount",
+      "label": "amount",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 5,
+      "endLine": 5,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::formatCurrency.currency",
+      "label": "currency",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 5,
+      "endLine": 5,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "function::src/utils/helpers.ts::validateEmail",
+      "label": "validateEmail",
+      "kind": "function",
+      "filePath": "src/utils/helpers.ts",
+      "line": 12,
+      "endLine": 15,
+      "exported": true,
+      "meta": {
+        "params": "email: string",
+        "returnType": "boolean",
+        "async": false,
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 1,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::validateEmail.email",
+      "label": "email",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 12,
+      "endLine": 12,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "function::src/utils/helpers.ts::calculatePortfolioValue",
+      "label": "calculatePortfolioValue",
+      "kind": "function",
+      "filePath": "src/utils/helpers.ts",
+      "line": 21,
+      "endLine": 25,
+      "exported": true,
+      "meta": {
+        "params": "holdings: { quantity: number; costBasis: number; }[]",
+        "returnType": "number",
+        "async": false,
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 1,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::calculatePortfolioValue.holdings",
+      "label": "holdings",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 22,
+      "endLine": 22,
+      "exported": false,
+      "meta": {
+        "type": "{ quantity: number; costBasis: number; }[]",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "function::src/utils/helpers.ts::clamp",
+      "label": "clamp",
+      "kind": "function",
+      "filePath": "src/utils/helpers.ts",
+      "line": 17,
+      "endLine": 19,
+      "exported": true,
+      "meta": {
+        "params": "value: number, min: number, max: number",
+        "returnType": "number",
+        "arrow": true,
+        "async": false,
+        "parameterCount": 3,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::clamp.value",
+      "label": "value",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 17,
+      "endLine": 17,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::clamp.min",
+      "label": "min",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 17,
+      "endLine": 17,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/helpers.ts::clamp.max",
+      "label": "max",
+      "kind": "parameter",
+      "filePath": "src/utils/helpers.ts",
+      "line": 17,
+      "endLine": 17,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "file::src/utils/validator.ts",
+      "label": "validator.ts",
+      "kind": "file",
+      "filePath": "src/utils/validator.ts",
+      "line": 1,
+      "endLine": 46,
+      "exported": false,
+      "meta": {
+        "fullPath": "src/utils/validator.ts",
+        "lineCount": 46,
+        "isTestFile": false,
+        "isBarrelFile": false,
+        "directory": "src/utils"
+      }
+    },
+    {
+      "id": "class::src/utils/validator.ts::Validator",
+      "label": "Validator",
+      "kind": "class",
+      "filePath": "src/utils/validator.ts",
+      "line": 8,
+      "endLine": 45,
+      "exported": true,
+      "meta": {
+        "abstract": false,
+        "methodCount": 5,
+        "propertyCount": 1,
+        "constructorCount": 0,
+        "getterCount": 0,
+        "setterCount": 0,
+        "typeParameterCount": 0,
+        "staticMethodCount": 0,
+        "implementsCount": 0
+      }
+    },
+    {
+      "id": "method::src/utils/validator.ts::Validator.required",
+      "label": "Validator.required",
+      "kind": "method",
+      "filePath": "src/utils/validator.ts",
+      "line": 11,
+      "endLine": 16,
+      "exported": true,
+      "meta": {
+        "className": "Validator",
+        "params": "value: unknown, field: string",
+        "returnType": "this",
+        "static": false,
+        "async": false,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.required.value",
+      "label": "value",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 11,
+      "endLine": 11,
+      "exported": false,
+      "meta": {
+        "type": "unknown",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.required.field",
+      "label": "field",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 11,
+      "endLine": 11,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/utils/validator.ts::Validator.email",
+      "label": "Validator.email",
+      "kind": "method",
+      "filePath": "src/utils/validator.ts",
+      "line": 18,
+      "endLine": 23,
+      "exported": true,
+      "meta": {
+        "className": "Validator",
+        "params": "value: string, field: string",
+        "returnType": "this",
+        "static": false,
+        "async": false,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.email.value",
+      "label": "value",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 18,
+      "endLine": 18,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.email.field",
+      "label": "field",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 18,
+      "endLine": 18,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/utils/validator.ts::Validator.minLength",
+      "label": "Validator.minLength",
+      "kind": "method",
+      "filePath": "src/utils/validator.ts",
+      "line": 25,
+      "endLine": 30,
+      "exported": true,
+      "meta": {
+        "className": "Validator",
+        "params": "value: string, min: number, field: string",
+        "returnType": "this",
+        "static": false,
+        "async": false,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 3,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.minLength.value",
+      "label": "value",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 25,
+      "endLine": 25,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.minLength.min",
+      "label": "min",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 25,
+      "endLine": 25,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.minLength.field",
+      "label": "field",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 25,
+      "endLine": 25,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/utils/validator.ts::Validator.positive",
+      "label": "Validator.positive",
+      "kind": "method",
+      "filePath": "src/utils/validator.ts",
+      "line": 32,
+      "endLine": 37,
+      "exported": true,
+      "meta": {
+        "className": "Validator",
+        "params": "value: number, field: string",
+        "returnType": "this",
+        "static": false,
+        "async": false,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 2,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.positive.value",
+      "label": "value",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 32,
+      "endLine": 32,
+      "exported": false,
+      "meta": {
+        "type": "number",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "parameter::src/utils/validator.ts::Validator.positive.field",
+      "label": "field",
+      "kind": "parameter",
+      "filePath": "src/utils/validator.ts",
+      "line": 32,
+      "endLine": 32,
+      "exported": false,
+      "meta": {
+        "type": "string",
+        "optional": false,
+        "rest": false,
+        "hasDefault": false,
+        "parameterProperty": false
+      }
+    },
+    {
+      "id": "method::src/utils/validator.ts::Validator.result",
+      "label": "Validator.result",
+      "kind": "method",
+      "filePath": "src/utils/validator.ts",
+      "line": 39,
+      "endLine": 44,
+      "exported": true,
+      "meta": {
+        "className": "Validator",
+        "params": "",
+        "returnType": "ValidationResult",
+        "static": false,
+        "async": false,
+        "abstract": false,
+        "visibility": "public",
+        "generator": false,
+        "overloads": 0,
+        "parameterCount": 0,
+        "typeParameterCount": 0
+      }
+    },
+    {
+      "id": "property::src/utils/validator.ts::Validator.errors",
+      "label": "Validator.errors",
+      "kind": "property",
+      "filePath": "src/utils/validator.ts",
+      "line": 9,
+      "endLine": 9,
+      "exported": false,
+      "meta": {
+        "className": "Validator",
+        "type": "string[]",
+        "static": false,
+        "readonly": false,
+        "abstract": false,
+        "optional": false,
+        "visibility": "private",
+        "hasInitializer": true
+      }
+    },
+    {
+      "id": "interface::src/utils/validator.ts::ValidationResult",
+      "label": "ValidationResult",
+      "kind": "interface",
+      "filePath": "src/utils/validator.ts",
+      "line": 3,
+      "endLine": 6,
+      "exported": true,
+      "meta": {
+        "propertyCount": 2,
+        "methodCount": 0,
+        "typeParameterCount": 0,
+        "extendsCount": 0,
+        "callSignatureCount": 0,
+        "indexSignatureCount": 0
+      }
+    },
+    {
+      "id": "property::src/utils/validator.ts::ValidationResult.valid",
+      "label": "ValidationResult.valid",
+      "kind": "property",
+      "filePath": "src/utils/validator.ts",
+      "line": 4,
+      "endLine": 4,
+      "exported": false,
+      "meta": {
+        "parentInterface": "ValidationResult",
+        "type": "boolean",
+        "optional": false,
+        "readonly": false
+      }
+    },
+    {
+      "id": "property::src/utils/validator.ts::ValidationResult.errors",
+      "label": "ValidationResult.errors",
+      "kind": "property",
+      "filePath": "src/utils/validator.ts",
+      "line": 5,
+      "endLine": 5,
+      "exported": false,
+      "meta": {
+        "parentInterface": "ValidationResult",
+        "type": "string[]",
+        "optional": false,
+        "readonly": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "file::src/models/types.ts",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/models/types.ts::Entity",
+      "target": "property::src/models/types.ts::Entity.id",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Entity",
+      "target": "property::src/models/types.ts::Entity.createdAt",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Entity",
+      "target": "property::src/models/types.ts::Entity.updatedAt",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "interface::src/models/types.ts::User",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/models/types.ts::User",
+      "target": "property::src/models/types.ts::User.email",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::User",
+      "target": "property::src/models/types.ts::User.name",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::User",
+      "target": "property::src/models/types.ts::User.role",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "interface::src/models/types.ts::Account",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/models/types.ts::Account",
+      "target": "property::src/models/types.ts::Account.userId",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Account",
+      "target": "property::src/models/types.ts::Account.balance",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Account",
+      "target": "property::src/models/types.ts::Account.currency",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Account",
+      "target": "property::src/models/types.ts::Account.holdings",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "interface::src/models/types.ts::Holding",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/models/types.ts::Holding",
+      "target": "property::src/models/types.ts::Holding.symbol",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Holding",
+      "target": "property::src/models/types.ts::Holding.quantity",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Holding",
+      "target": "property::src/models/types.ts::Holding.costBasis",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "interface::src/models/types.ts::Transaction",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/models/types.ts::Transaction",
+      "target": "property::src/models/types.ts::Transaction.accountId",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Transaction",
+      "target": "property::src/models/types.ts::Transaction.type",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Transaction",
+      "target": "property::src/models/types.ts::Transaction.amount",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/models/types.ts::Transaction",
+      "target": "property::src/models/types.ts::Transaction.description",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "type_alias::src/models/types.ts::UserRole",
+      "kind": "contains"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "type_alias::src/models/types.ts::Currency",
+      "kind": "contains"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "type_alias::src/models/types.ts::TransactionType",
+      "kind": "contains"
+    },
+    {
+      "source": "file::src/models/types.ts",
+      "target": "enum::src/models/types.ts::AccountStatus",
+      "kind": "contains"
+    },
+    {
+      "source": "enum::src/models/types.ts::AccountStatus",
+      "target": "enum_member::src/models/types.ts::AccountStatus.Active",
+      "kind": "has_member"
+    },
+    {
+      "source": "enum::src/models/types.ts::AccountStatus",
+      "target": "enum_member::src/models/types.ts::AccountStatus.Suspended",
+      "kind": "has_member"
+    },
+    {
+      "source": "enum::src/models/types.ts::AccountStatus",
+      "target": "enum_member::src/models/types.ts::AccountStatus.Closed",
+      "kind": "has_member"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "class::src/services/account-service.ts::AccountService",
+      "kind": "contains"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "kind": "has_constructor"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "parameter::src/services/account-service.ts::AccountService.constructor.repo",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "parameter::src/services/account-service.ts::AccountService.constructor.userService",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "parameter::src/services/account-service.ts::AccountService.constructor.txRepo",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "property::src/services/account-service.ts::AccountService.userService",
+      "kind": "has_property"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "property::src/services/account-service.ts::AccountService.txRepo",
+      "kind": "has_property"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "method::src/services/account-service.ts::AccountService.createAccount",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "parameter::src/services/account-service.ts::AccountService.createAccount.userId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "parameter::src/services/account-service.ts::AccountService.createAccount.currency",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "method::src/services/account-service.ts::AccountService.deposit",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "parameter::src/services/account-service.ts::AccountService.deposit.accountId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "parameter::src/services/account-service.ts::AccountService.deposit.amount",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "method::src/services/account-service.ts::AccountService.withdraw",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "parameter::src/services/account-service.ts::AccountService.withdraw.accountId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "parameter::src/services/account-service.ts::AccountService.withdraw.amount",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "target": "parameter::src/services/account-service.ts::AccountService.getPortfolioValue.accountId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "target": "parameter::src/services/account-service.ts::AccountService.recordTransaction.accountId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "target": "parameter::src/services/account-service.ts::AccountService.recordTransaction.type",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "target": "parameter::src/services/account-service.ts::AccountService.recordTransaction.amount",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/services/base.ts",
+      "target": "class::src/services/base.ts::BaseService",
+      "kind": "contains"
+    },
+    {
+      "source": "class::src/services/base.ts::BaseService",
+      "target": "constructor::src/services/base.ts::BaseService.constructor",
+      "kind": "has_constructor"
+    },
+    {
+      "source": "constructor::src/services/base.ts::BaseService.constructor",
+      "target": "parameter::src/services/base.ts::BaseService.constructor.repo",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/base.ts::BaseService",
+      "target": "property::src/services/base.ts::BaseService.repo",
+      "kind": "has_property"
+    },
+    {
+      "source": "class::src/services/base.ts::BaseService",
+      "target": "method::src/services/base.ts::BaseService.getById",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/base.ts::BaseService.getById",
+      "target": "parameter::src/services/base.ts::BaseService.getById.id",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/base.ts::BaseService",
+      "target": "method::src/services/base.ts::BaseService.getAll",
+      "kind": "has_method"
+    },
+    {
+      "source": "file::src/services/base.ts",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "method::src/services/base.ts::Repository.findById",
+      "kind": "has_method"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "method::src/services/base.ts::Repository.findAll",
+      "kind": "has_method"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "method::src/services/base.ts::Repository.create",
+      "kind": "has_method"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "method::src/services/base.ts::Repository.update",
+      "kind": "has_method"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "method::src/services/base.ts::Repository.delete",
+      "kind": "has_method"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "class::src/services/user-service.ts::UserService",
+      "kind": "contains"
+    },
+    {
+      "source": "class::src/services/user-service.ts::UserService",
+      "target": "constructor::src/services/user-service.ts::UserService.constructor",
+      "kind": "has_constructor"
+    },
+    {
+      "source": "constructor::src/services/user-service.ts::UserService.constructor",
+      "target": "parameter::src/services/user-service.ts::UserService.constructor.repo",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/user-service.ts::UserService",
+      "target": "method::src/services/user-service.ts::UserService.createUser",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "parameter::src/services/user-service.ts::UserService.createUser.email",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "parameter::src/services/user-service.ts::UserService.createUser.name",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "parameter::src/services/user-service.ts::UserService.createUser.role",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/user-service.ts::UserService",
+      "target": "method::src/services/user-service.ts::UserService.findByEmail",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.findByEmail",
+      "target": "parameter::src/services/user-service.ts::UserService.findByEmail.email",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/services/user-service.ts::UserService",
+      "target": "method::src/services/user-service.ts::UserService.updateRole",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.updateRole",
+      "target": "parameter::src/services/user-service.ts::UserService.updateRole.userId",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.updateRole",
+      "target": "parameter::src/services/user-service.ts::UserService.updateRole.role",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/utils/helpers.ts",
+      "target": "function::src/utils/helpers.ts::generateId",
+      "kind": "contains"
+    },
+    {
+      "source": "file::src/utils/helpers.ts",
+      "target": "function::src/utils/helpers.ts::formatCurrency",
+      "kind": "contains"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::formatCurrency",
+      "target": "parameter::src/utils/helpers.ts::formatCurrency.amount",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::formatCurrency",
+      "target": "parameter::src/utils/helpers.ts::formatCurrency.currency",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/utils/helpers.ts",
+      "target": "function::src/utils/helpers.ts::validateEmail",
+      "kind": "contains"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::validateEmail",
+      "target": "parameter::src/utils/helpers.ts::validateEmail.email",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/utils/helpers.ts",
+      "target": "function::src/utils/helpers.ts::calculatePortfolioValue",
+      "kind": "contains"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::calculatePortfolioValue",
+      "target": "parameter::src/utils/helpers.ts::calculatePortfolioValue.holdings",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/utils/helpers.ts",
+      "target": "function::src/utils/helpers.ts::clamp",
+      "kind": "contains"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::clamp",
+      "target": "parameter::src/utils/helpers.ts::clamp.value",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::clamp",
+      "target": "parameter::src/utils/helpers.ts::clamp.min",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "function::src/utils/helpers.ts::clamp",
+      "target": "parameter::src/utils/helpers.ts::clamp.max",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "file::src/utils/validator.ts",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "contains"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "method::src/utils/validator.ts::Validator.required",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.required",
+      "target": "parameter::src/utils/validator.ts::Validator.required.value",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.required",
+      "target": "parameter::src/utils/validator.ts::Validator.required.field",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "method::src/utils/validator.ts::Validator.email",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.email",
+      "target": "parameter::src/utils/validator.ts::Validator.email.value",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.email",
+      "target": "parameter::src/utils/validator.ts::Validator.email.field",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "method::src/utils/validator.ts::Validator.minLength",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.minLength",
+      "target": "parameter::src/utils/validator.ts::Validator.minLength.value",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.minLength",
+      "target": "parameter::src/utils/validator.ts::Validator.minLength.min",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.minLength",
+      "target": "parameter::src/utils/validator.ts::Validator.minLength.field",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "method::src/utils/validator.ts::Validator.positive",
+      "kind": "has_method"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.positive",
+      "target": "parameter::src/utils/validator.ts::Validator.positive.value",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.positive",
+      "target": "parameter::src/utils/validator.ts::Validator.positive.field",
+      "kind": "has_parameter"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "method::src/utils/validator.ts::Validator.result",
+      "kind": "has_method"
+    },
+    {
+      "source": "class::src/utils/validator.ts::Validator",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/utils/validator.ts",
+      "target": "interface::src/utils/validator.ts::ValidationResult",
+      "kind": "contains"
+    },
+    {
+      "source": "interface::src/utils/validator.ts::ValidationResult",
+      "target": "property::src/utils/validator.ts::ValidationResult.valid",
+      "kind": "has_property"
+    },
+    {
+      "source": "interface::src/utils/validator.ts::ValidationResult",
+      "target": "property::src/utils/validator.ts::ValidationResult.errors",
+      "kind": "has_property"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/models/types.ts",
+      "kind": "re_exports",
+      "label": "* from ./models/types"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/services/base.ts",
+      "kind": "re_exports",
+      "label": "* from ./services/base"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/services/user-service.ts",
+      "kind": "re_exports",
+      "label": "* from ./services/user-service"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/services/account-service.ts",
+      "kind": "re_exports",
+      "label": "* from ./services/account-service"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/utils/helpers.ts",
+      "kind": "re_exports",
+      "label": "* from ./utils/helpers"
+    },
+    {
+      "source": "file::src/index.ts",
+      "target": "file::src/utils/validator.ts",
+      "kind": "re_exports",
+      "label": "* from ./utils/validator"
+    },
+    {
+      "source": "interface::src/models/types.ts::User",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "extends"
+    },
+    {
+      "source": "interface::src/models/types.ts::Account",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "extends"
+    },
+    {
+      "source": "interface::src/models/types.ts::Transaction",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "extends"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "file::src/models/types.ts",
+      "kind": "imports",
+      "label": "../models/types"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "interface::src/models/types.ts::Account",
+      "kind": "imports",
+      "label": "Account"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "interface::src/models/types.ts::Transaction",
+      "kind": "imports",
+      "label": "Transaction"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "interface::src/models/types.ts::Holding",
+      "kind": "imports",
+      "label": "Holding"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "file::src/services/base.ts",
+      "kind": "imports",
+      "label": "./base"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "class::src/services/base.ts::BaseService",
+      "kind": "imports",
+      "label": "BaseService"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "imports",
+      "label": "Repository"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "file::src/services/user-service.ts",
+      "kind": "imports",
+      "label": "./user-service"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "class::src/services/user-service.ts::UserService",
+      "kind": "imports",
+      "label": "UserService"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "file::src/utils/validator.ts",
+      "kind": "imports",
+      "label": "../utils/validator"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "imports",
+      "label": "Validator"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "file::src/utils/helpers.ts",
+      "kind": "imports",
+      "label": "../utils/helpers"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "function::src/utils/helpers.ts::formatCurrency",
+      "kind": "imports",
+      "label": "formatCurrency"
+    },
+    {
+      "source": "file::src/services/account-service.ts",
+      "target": "function::src/utils/helpers.ts::calculatePortfolioValue",
+      "kind": "imports",
+      "label": "calculatePortfolioValue"
+    },
+    {
+      "source": "class::src/services/account-service.ts::AccountService",
+      "target": "class::src/services/base.ts::BaseService",
+      "kind": "extends"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "method::src/services/base.ts::BaseService.getById",
+      "kind": "calls",
+      "label": "getById"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "method::src/services/base.ts::Repository.create",
+      "kind": "calls",
+      "label": "create"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/utils/validator.ts::Validator.result",
+      "kind": "calls",
+      "label": "result"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/utils/validator.ts::Validator.positive",
+      "kind": "calls",
+      "label": "positive"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/services/base.ts::Repository.findById",
+      "kind": "calls",
+      "label": "findById"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/services/base.ts::Repository.update",
+      "kind": "calls",
+      "label": "update"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "kind": "calls",
+      "label": "recordTransaction"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "method::src/services/base.ts::Repository.findById",
+      "kind": "calls",
+      "label": "findById"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "method::src/services/base.ts::Repository.update",
+      "kind": "calls",
+      "label": "update"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "kind": "calls",
+      "label": "recordTransaction"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "target": "method::src/services/base.ts::Repository.findById",
+      "kind": "calls",
+      "label": "findById"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "target": "method::src/services/base.ts::Repository.create",
+      "kind": "calls",
+      "label": "create"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "property::src/utils/validator.ts::ValidationResult.valid",
+      "kind": "reads_property",
+      "label": "valid"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "property::src/utils/validator.ts::ValidationResult.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "property::src/models/types.ts::Account.balance",
+      "kind": "reads_property",
+      "label": "balance"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "property::src/models/types.ts::Account.balance",
+      "kind": "reads_property",
+      "label": "balance"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "property::src/models/types.ts::Account.currency",
+      "kind": "reads_property",
+      "label": "currency"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "target": "property::src/models/types.ts::Account.holdings",
+      "kind": "reads_property",
+      "label": "holdings"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "target": "property::src/models/types.ts::Account.currency",
+      "kind": "reads_property",
+      "label": "currency"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "method::src/services/account-service.ts::AccountService.createAccount",
+      "kind": "throws",
+      "label": "Error",
+      "meta": {
+        "errorType": "Error",
+        "external": true
+      }
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.deposit",
+      "target": "method::src/services/account-service.ts::AccountService.deposit",
+      "kind": "throws",
+      "label": "Error",
+      "meta": {
+        "errorType": "Error",
+        "external": true
+      }
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.withdraw",
+      "target": "method::src/services/account-service.ts::AccountService.withdraw",
+      "kind": "throws",
+      "label": "Error",
+      "meta": {
+        "errorType": "Error",
+        "external": true
+      }
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "target": "method::src/services/account-service.ts::AccountService.getPortfolioValue",
+      "kind": "throws",
+      "label": "Error",
+      "meta": {
+        "errorType": "Error",
+        "external": true
+      }
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.createAccount",
+      "target": "type_alias::src/models/types.ts::Currency",
+      "kind": "type_reference"
+    },
+    {
+      "source": "method::src/services/account-service.ts::AccountService.recordTransaction",
+      "target": "type_alias::src/models/types.ts::TransactionType",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "interface::src/models/types.ts::Account",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "class::src/services/user-service.ts::UserService",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/account-service.ts::AccountService.constructor",
+      "target": "interface::src/models/types.ts::Transaction",
+      "kind": "type_reference"
+    },
+    {
+      "source": "file::src/services/base.ts",
+      "target": "file::src/models/types.ts",
+      "kind": "imports",
+      "label": "../models/types"
+    },
+    {
+      "source": "file::src/services/base.ts",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "imports",
+      "label": "Entity"
+    },
+    {
+      "source": "method::src/services/base.ts::BaseService.getById",
+      "target": "method::src/services/base.ts::Repository.findById",
+      "kind": "calls",
+      "label": "findById"
+    },
+    {
+      "source": "method::src/services/base.ts::BaseService.getAll",
+      "target": "method::src/services/base.ts::Repository.findAll",
+      "kind": "calls",
+      "label": "findAll"
+    },
+    {
+      "source": "class::src/services/base.ts::BaseService",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "generic_constraint",
+      "label": "T"
+    },
+    {
+      "source": "interface::src/services/base.ts::Repository",
+      "target": "interface::src/models/types.ts::Entity",
+      "kind": "generic_constraint",
+      "label": "T"
+    },
+    {
+      "source": "constructor::src/services/base.ts::BaseService.constructor",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "type_reference"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "file::src/models/types.ts",
+      "kind": "imports",
+      "label": "../models/types"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "interface::src/models/types.ts::User",
+      "kind": "imports",
+      "label": "User"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "file::src/services/base.ts",
+      "kind": "imports",
+      "label": "./base"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "class::src/services/base.ts::BaseService",
+      "kind": "imports",
+      "label": "BaseService"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "imports",
+      "label": "Repository"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "file::src/utils/validator.ts",
+      "kind": "imports",
+      "label": "../utils/validator"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "imports",
+      "label": "Validator"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "file::src/utils/helpers.ts",
+      "kind": "imports",
+      "label": "../utils/helpers"
+    },
+    {
+      "source": "file::src/services/user-service.ts",
+      "target": "function::src/utils/helpers.ts::generateId",
+      "kind": "imports",
+      "label": "generateId"
+    },
+    {
+      "source": "class::src/services/user-service.ts::UserService",
+      "target": "class::src/services/base.ts::BaseService",
+      "kind": "extends"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/utils/validator.ts::Validator.result",
+      "kind": "calls",
+      "label": "result"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/utils/validator.ts::Validator.minLength",
+      "kind": "calls",
+      "label": "minLength"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/utils/validator.ts::Validator.required",
+      "kind": "calls",
+      "label": "required"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/utils/validator.ts::Validator.email",
+      "kind": "calls",
+      "label": "email"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/services/user-service.ts::UserService.findByEmail",
+      "kind": "calls",
+      "label": "findByEmail"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/services/base.ts::Repository.create",
+      "kind": "calls",
+      "label": "create"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.findByEmail",
+      "target": "method::src/services/base.ts::Repository.findAll",
+      "kind": "calls",
+      "label": "findAll"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.updateRole",
+      "target": "method::src/services/base.ts::Repository.update",
+      "kind": "calls",
+      "label": "update"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "property::src/utils/validator.ts::ValidationResult.valid",
+      "kind": "reads_property",
+      "label": "valid"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "property::src/utils/validator.ts::ValidationResult.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.findByEmail",
+      "target": "property::src/models/types.ts::User.email",
+      "kind": "reads_property",
+      "label": "email"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "method::src/services/user-service.ts::UserService.createUser",
+      "kind": "throws",
+      "label": "Error",
+      "meta": {
+        "errorType": "Error",
+        "external": true
+      }
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.createUser",
+      "target": "type_alias::src/models/types.ts::UserRole",
+      "kind": "type_reference"
+    },
+    {
+      "source": "method::src/services/user-service.ts::UserService.updateRole",
+      "target": "type_alias::src/models/types.ts::UserRole",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/user-service.ts::UserService.constructor",
+      "target": "interface::src/services/base.ts::Repository",
+      "kind": "type_reference"
+    },
+    {
+      "source": "constructor::src/services/user-service.ts::UserService.constructor",
+      "target": "interface::src/models/types.ts::User",
+      "kind": "type_reference"
+    },
+    {
+      "source": "file::src/utils/validator.ts",
+      "target": "file::src/utils/helpers.ts",
+      "kind": "imports",
+      "label": "./helpers"
+    },
+    {
+      "source": "file::src/utils/validator.ts",
+      "target": "function::src/utils/helpers.ts::validateEmail",
+      "kind": "imports",
+      "label": "validateEmail"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.required",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.email",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.minLength",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.positive",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.result",
+      "target": "property::src/utils/validator.ts::Validator.errors",
+      "kind": "reads_property",
+      "label": "errors"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.required",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "return_type"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.email",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "return_type"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.minLength",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "return_type"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.positive",
+      "target": "class::src/utils/validator.ts::Validator",
+      "kind": "return_type"
+    },
+    {
+      "source": "method::src/utils/validator.ts::Validator.result",
+      "target": "interface::src/utils/validator.ts::ValidationResult",
+      "kind": "return_type"
+    }
+  ],
+  "meta": {
+    "extractedAt": "2026-02-28T19:05:04.473Z",
+    "fileCount": 7,
+    "nodeCount": 114,
+    "edgeCount": 205,
+    "rootDir": "/home/claude/codebase-graph/sample-project",
+    "nodeKinds": {
+      "file": 7,
+      "interface": 7,
+      "property": 23,
+      "type_alias": 3,
+      "enum": 1,
+      "enum_member": 3,
+      "class": 4,
+      "constructor": 3,
+      "parameter": 38,
+      "method": 20,
+      "function": 5
+    },
+    "edgeKinds": {
+      "contains": 20,
+      "has_property": 23,
+      "has_member": 3,
+      "has_constructor": 3,
+      "has_parameter": 38,
+      "has_method": 20,
+      "re_exports": 6,
+      "extends": 5,
+      "imports": 27,
+      "calls": 22,
+      "reads_property": 15,
+      "throws": 5,
+      "type_reference": 11,
+      "generic_constraint": 2,
+      "return_type": 5
+    }
+  }
+}

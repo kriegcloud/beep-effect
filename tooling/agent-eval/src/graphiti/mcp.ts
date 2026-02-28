@@ -8,6 +8,7 @@
 import { execFile } from "node:child_process";
 import * as os from "node:os";
 import { promisify } from "node:util";
+import * as A from "effect/Array";
 import { AgentEvalProtocolError } from "../errors.js";
 
 /**
@@ -227,7 +228,7 @@ const clearCircuitState = (url: string): void => {
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === "object" && value !== null && !A.isArray(value);
 
 const recordCircuitFailure = (config: GraphitiGuardConfig, url: string, nowMs: number): void => {
   if (!config.circuitEnabled) {

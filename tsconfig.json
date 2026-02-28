@@ -58,8 +58,6 @@
       "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
       "@beep/data/*": ["./packages/common/data/src/*.ts"],
-      "@beep/ai-sdk": ["./packages/ai/sdk/src/core/index.ts"],
-      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/core/*.ts"],
       "@beep/ai-sdk/internal/*": ["./packages/ai/sdk/src/core/internal/*.ts"],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*.ts"],
@@ -74,11 +72,7 @@
       "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
       "@beep/shared-server/*": ["./packages/shared/server/src/*.ts"],
       "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"],
-      "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
-      "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*.ts"],
-      "@beep/test-utils": ["./tooling/test-utils/test-utils/src/index.ts"],
-      "@beep/test-utils/*": ["./tooling/test-utils/test-utils/src/*.ts"]
+      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"]
     },
     "plugins": [
       {

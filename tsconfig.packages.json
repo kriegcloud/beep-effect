@@ -68,12 +68,6 @@
     },
     {
       "path": "tooling/repo-utils"
-    },
-    {
-      "path": "packages/_internal/db-admin"
-    },
-    {
-      "path": "tooling/test-utils/test-utils"
     }
   ]
 }

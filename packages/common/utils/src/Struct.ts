@@ -1,6 +1,5 @@
 import type { TUnsafe } from "@beep/types";
 import { Function as F, String as Str } from "effect";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 
@@ -313,7 +312,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;
   <S extends ReverseableStruct>(self: S): ReverseStruct<S>;
-} = dual(
+} = F.dual(
   (args) => args.length === 1,
   <S extends ReverseableStruct>(self: S): ReverseStruct<S> => {
     const out: Record<PropertyKey, PropertyKey> = {};

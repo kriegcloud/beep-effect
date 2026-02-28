@@ -3,7 +3,7 @@ import { $SchemaId } from "@beep/identity/packages";
 import { Struct } from "@beep/utils";
 import { pipe } from "effect";
 import * as A from "effect/Array";
-import { LiteralKit } from "./LiteralKit.ts";
+import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("MimeType");
 
@@ -15,6 +15,21 @@ type MimeTypeProperty = {
 };
 
 type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][number];
+
+type MimeTypeKinds = {
+  readonly Application: LiteralKitSchema<
+    A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.application, string>>
+  >;
+  readonly Video: LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.video, string>>>;
+  readonly Text: LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.text, string>>>;
+  readonly Image: LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.image, string>>>;
+  readonly Audio: LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.audio, string>>>;
+  readonly Misc: LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.misc, string>>>;
+};
+
+type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.mimes, string>>> & {
+  readonly kinds: MimeTypeKinds;
+};
 
 /**
  * Extracts all file extensions from a mime-type dictionary.
@@ -45,7 +60,7 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
  *
  * @since 0.0.0
  */
-export const MimeType = pipe(
+export const MimeType: MimeTypeSchema = pipe(
   {
     Application: LiteralKit(extractMimeTypes(MimeTypesData.application)),
     Video: LiteralKit(extractMimeTypes(MimeTypesData.video)),
@@ -68,7 +83,7 @@ export const MimeType = pipe(
         description: "a mime type.",
       })
     );
-    return Object.assign(base, { kinds });
+    return Object.assign(base, { kinds }) as MimeTypeSchema;
   }
 );
 

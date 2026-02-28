@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codebase Graph Explorer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+  :root {
+    --bg: #08090d;
+    --surface: #101318;
+    --surface2: #181c24;
+    --border: #232a38;
+    --border-accent: #2e3a4e;
+    --text: #bec8d8;
+    --text-muted: #5c687e;
+    --accent: #4c9aff;
+
+    --c-package: #ff9f43;
+    --c-file: #e77f34;
+    --c-namespace: #d4a055;
+    --c-class: #c07cf8;
+    --c-interface: #4c9aff;
+    --c-type-alias: #36c5d0;
+    --c-enum: #f76ea3;
+    --c-enum-member: #e8619a;
+    --c-function: #3dbd5d;
+    --c-method: #6fe09a;
+    --c-constructor: #a78bfa;
+    --c-getter: #5cd8a0;
+    --c-setter: #4bc88e;
+    --c-property: #8aa0c0;
+    --c-parameter: #637590;
+    --c-variable: #cba6ff;
+    --c-decorator: #fbbf24;
+    --c-jsx-component: #61dafb;
+    --c-module-declaration: #cc8844;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', system-ui; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+  svg { width: 100%; height: 100%; display: block; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+
+  /* ── Panels ──────────────────────────────────────── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    backdrop-filter: blur(12px);
+  }
+
+  .toolbar {
+    position: fixed; top: 14px; left: 14px; z-index: 100;
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: calc(100vh - 28px); overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+
+  .toolbar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    padding: 10px 14px;
+  }
+  .toolbar-title span { color: var(--text-muted); font-weight: 400; font-size: 10px; margin-left: 6px; }
+
+  .filter-panel { padding: 10px 13px; display: flex; flex-direction: column; gap: 2px; }
+
+  .filter-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px; margin-top: 4px;
+  }
+  .filter-section-label:first-child { margin-top: 0; }
+
+  .filter-row {
+    display: flex; align-items: center; gap: 7px;
+    cursor: pointer; padding: 2.5px 0; user-select: none;
+    transition: opacity 0.15s;
+  }
+  .filter-row:hover { opacity: 0.75; }
+
+  .filter-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: opacity 0.2s;
+  }
+  .filter-dot.off { opacity: 0.12; }
+
+  .filter-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--text); transition: opacity 0.2s; white-space: nowrap;
+  }
+  .filter-label.off { opacity: 0.25; }
+
+  .filter-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--text-muted); margin-left: auto;
+  }
+
+  .edge-legend-line {
+    width: 14px; height: 2px; border-radius: 1px; flex-shrink: 0; transition: opacity 0.2s;
+  }
+  .edge-legend-line.off { opacity: 0.12; }
+  .edge-legend-line.dashed { background: none !important; border-top: 2px dashed; }
+
+  /* ── Search ──────────────────────────────────────── */
+  .search-box { position: fixed; top: 14px; right: 14px; z-index: 100; }
+  .search-box input {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 13px; color: var(--text);
+    width: 200px; outline: none; transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--text-muted); }
+
+  /* ── Info Panel ──────────────────────────────────── */
+  .info-panel {
+    position: fixed; bottom: 14px; right: 14px; z-index: 100;
+    padding: 14px 16px; min-width: 260px; max-width: 360px;
+    font-family: 'JetBrains Mono', monospace;
+    display: none; animation: slideUp 0.18s ease-out;
+    max-height: 60vh; overflow-y: auto;
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .info-panel.visible { display: block; }
+  .info-kind { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .info-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; word-break: break-all; }
+  .info-path { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+  .info-meta { display: flex; flex-direction: column; gap: 2px; }
+  .info-meta-row { display: flex; justify-content: space-between; font-size: 10px; gap: 10px; }
+  .info-meta-key { color: var(--text-muted); flex-shrink: 0; }
+  .info-meta-val { color: var(--text); text-align: right; word-break: break-all; max-width: 200px; }
+  .info-edges { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .info-edge-item { font-size: 9px; color: var(--text-muted); padding: 1.5px 0; }
+  .info-edge-item .kind {
+    display: inline-block; padding: 1px 4px; border-radius: 3px;
+    font-size: 8px; font-weight: 600; margin-right: 3px;
+  }
+
+  /* ── Stats ───────────────────────────────────────── */
+  .stats {
+    position: fixed; bottom: 14px; left: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--text-muted); z-index: 100;
+  }
+
+  /* ── Upload ──────────────────────────────────────── */
+  .upload-overlay {
+    position: fixed; inset: 0; z-index: 200; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  }
+  .upload-overlay.hidden { display: none; }
+  .upload-title { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: #fff; }
+  .upload-sub { font-size: 13px; color: var(--text-muted); max-width: 420px; text-align: center; line-height: 1.6; }
+  .upload-drop {
+    width: 380px; height: 140px;
+    border: 2px dashed var(--border); border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  }
+  .upload-drop:hover, .upload-drop.dragover { border-color: var(--accent); background: rgba(76,154,255,0.03); }
+  .upload-drop-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .upload-drop-hint { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); opacity: 0.5; }
+  .btn-demo {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--accent); background: transparent;
+    border: 1px solid var(--accent); border-radius: 6px; padding: 7px 14px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-demo:hover { background: rgba(76,154,255,0.08); }
+
+  /* ── Depth slider ────────────────────────────────── */
+  .depth-control {
+    padding: 10px 13px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .depth-control input[type="range"] {
+    width: 100%; accent-color: var(--accent); height: 4px;
+  }
+  .depth-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--text); display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="upload-overlay" id="uploadOverlay">
+  <div class="upload-title">Codebase Graph Explorer</div>
+  <div class="upload-sub">
+    Drop a <code>codebase-graph.json</code> from the ts-morph extractor, or load the embedded demo.
+  </div>
+  <div class="upload-drop" id="dropZone">
+    <div class="upload-drop-label">Drop JSON graph here</div>
+    <div class="upload-drop-hint">or click to browse</div>
+    <input type="file" id="fileInput" accept=".json" style="display:none">
+  </div>
+  <button class="btn-demo" id="btnDemo">Load embedded demo</button>
+</div>
+
+<svg id="graph"></svg>
+
+<div class="toolbar" id="toolbar" style="display:none">
+  <div class="panel toolbar-title" id="toolbarTitle">
+    Codebase Graph <span id="graphStats"></span>
+  </div>
+
+  <div class="panel depth-control" id="depthControl">
+    <div class="filter-section-label">Detail Level</div>
+    <input type="range" id="depthSlider" min="1" max="5" value="3" step="1">
+    <div class="depth-label"><span>Files</span><span id="depthLabel">Balanced</span><span>All</span></div>
+  </div>
+
+  <div class="panel filter-panel" id="nodeFilters"></div>
+  <div class="panel filter-panel" id="edgeFilters"></div>
+</div>
+
+<div class="search-box" id="searchBox" style="display:none">
+  <input type="text" id="searchInput" placeholder="/ to search…" class="panel" />
+</div>
+
+<div class="panel info-panel" id="infoPanel"></div>
+<div class="stats" id="statsBar" style="display:none"></div>
+
+<script>
+// ─── Color & Size Maps ─────────────────────────────────────────────────────
+
+const NC = {
+  package:'#ff9f43', file:'#e77f34', namespace:'#d4a055',
+  class:'#c07cf8', interface:'#4c9aff', type_alias:'#36c5d0',
+  enum:'#f76ea3', enum_member:'#e8619a',
+  function:'#3dbd5d', method:'#6fe09a', constructor:'#a78bfa',
+  getter:'#5cd8a0', setter:'#4bc88e',
+  property:'#8aa0c0', parameter:'#637590',
+  variable:'#cba6ff', decorator:'#fbbf24',
+  jsx_component:'#61dafb', module_declaration:'#cc8844',
+};
+
+const NR = {
+  package:12, file:8, namespace:7,
+  class:7, interface:6, type_alias:5, enum:5, enum_member:3,
+  function:5, method:4, constructor:5, getter:4, setter:4,
+  property:3, parameter:2.5, variable:4, decorator:3.5,
+  jsx_component:6, module_declaration:6,
+};
+
+const EC = {
+  imports:'#4c9aff', re_exports:'#e77f34', exports:'#e77f34',
+  calls:'#f09030', conditional_calls:'#f0903088', instantiates:'#c07cf8',
+  extends:'#c07cf8', implements:'#36c5d0', overrides:'#a78bfa',
+  contains:'#ffffff', has_method:'#ffffff', has_constructor:'#ffffff',
+  has_property:'#ffffff', has_getter:'#ffffff', has_setter:'#ffffff',
+  has_parameter:'#ffffff', has_member:'#ffffff',
+  type_reference:'#36c5d0', return_type:'#3dbd5d', generic_constraint:'#f76ea3',
+  reads_property:'#8aa0c0', writes_property:'#ff6b6b',
+  decorates:'#fbbf24', throws:'#ff6b6b', test_covers:'#3dbd5d',
+  uses_type:'#36c5d0',
+};
+
+const EO = {
+  imports:0.25, re_exports:0.3, exports:0.2,
+  calls:0.4, conditional_calls:0.3, instantiates:0.45,
+  extends:0.5, implements:0.45, overrides:0.4,
+  contains:0.04, has_method:0.04, has_constructor:0.04,
+  has_property:0.04, has_getter:0.04, has_setter:0.04,
+  has_parameter:0.03, has_member:0.04,
+  type_reference:0.2, return_type:0.2, generic_constraint:0.35,
+  reads_property:0.25, writes_property:0.3,
+  decorates:0.4, throws:0.35, test_covers:0.2,
+  uses_type:0.2,
+};
+
+// Group edges by category for the legend
+const EDGE_GROUPS = {
+  'Structure': ['contains','has_method','has_constructor','has_property','has_getter','has_setter','has_parameter','has_member'],
+  'Dependencies': ['imports','re_exports','exports'],
+  'Invocation': ['calls','conditional_calls','instantiates'],
+  'Inheritance': ['extends','implements','overrides'],
+  'Types': ['type_reference','return_type','generic_constraint','uses_type'],
+  'Access': ['reads_property','writes_property'],
+  'Other': ['decorates','throws','test_covers'],
+};
+
+// Depth presets: which node kinds to show at each level
+const DEPTH_PRESETS = [
+  [], // unused (slider is 1-indexed)
+  ['package','file'],
+  ['package','file','class','interface','function','enum','jsx_component','variable','namespace','module_declaration'],
+  ['package','file','class','interface','function','enum','jsx_component','variable','namespace','module_declaration','method','constructor','type_alias','getter','setter','decorator'],
+  ['package','file','class','interface','function','enum','jsx_component','variable','namespace','module_declaration','method','constructor','type_alias','getter','setter','decorator','property','enum_member'],
+  null, // all
+];
+
+const DEPTH_LABELS = ['','Files only','Symbols','Balanced','Detailed','Everything'];
+
+// ─── State ──────────────────────────────────────────────────────────────────
+
+let graphData = null;
+let simulation = null;
+let visibleNodeKinds = new Set();
+let visibleEdgeKinds = new Set();
+let svgGroup = null;
+
+// ─── Upload ─────────────────────────────────────────────────────────────────
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+document.getElementById('btnDemo').addEventListener('click', () => {
+  if (window.__EMBEDDED_GRAPH__) return initGraph(window.__EMBEDDED_GRAPH__);
+  fetch('sample-graph-v2.json').then(r=>r.json()).then(initGraph)
+    .catch(() => alert('No embedded graph. Drop a JSON file.'));
+});
+
+function loadFile(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.nodes || !d.edges) throw new Error('Invalid');
+      initGraph(d);
+    } catch (err) { alert('Invalid graph: ' + err.message); }
+  };
+  r.readAsText(file);
+}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+
+function initGraph(data) {
+  graphData = data;
+  document.getElementById('uploadOverlay').classList.add('hidden');
+  document.getElementById('toolbar').style.display = '';
+  document.getElementById('searchBox').style.display = '';
+  document.getElementById('statsBar').style.display = '';
+  document.getElementById('graphStats').textContent = `${data.nodes.length} nodes · ${data.edges.length} edges`;
+
+  visibleNodeKinds = new Set(data.nodes.map(n => n.kind));
+  visibleEdgeKinds = new Set(data.edges.map(e => e.kind));
+
+  buildFilters(data);
+  setupDepthSlider(data);
+  setupSearch();
+  renderGraph(data);
+
+  // Start at "balanced" depth
+  document.getElementById('depthSlider').value = 3;
+  applyDepth(3, data);
+}
+
+// ─── Depth Slider ───────────────────────────────────────────────────────────
+
+function setupDepthSlider(data) {
+  const slider = document.getElementById('depthSlider');
+  slider.addEventListener('input', () => applyDepth(+slider.value, data));
+}
+
+function applyDepth(level, data) {
+  document.getElementById('depthLabel').textContent = DEPTH_LABELS[level];
+  const preset = DEPTH_PRESETS[level];
+  const allKinds = new Set(data.nodes.map(n => n.kind));
+
+  if (preset === null) {
+    visibleNodeKinds = new Set(allKinds);
+  } else {
+    visibleNodeKinds = new Set(preset.filter(k => allKinds.has(k)));
+  }
+
+  // Update filter dot/label UI
+  for (const kind of allKinds) {
+    const on = visibleNodeKinds.has(kind);
+    document.querySelectorAll(`.filter-dot[data-kind="${kind}"]`).forEach(el => el.classList.toggle('off', !on));
+    document.querySelectorAll(`.node-label[data-kind="${kind}"]`).forEach(el => el.classList.toggle('off', !on));
+  }
+
+  updateVisibility();
+}
+
+// ─── Filters ────────────────────────────────────────────────────────────────
+
+function buildFilters(data) {
+  const nodeCounts = Object.create(null);
+  data.nodes.forEach(n => nodeCounts[n.kind] = (nodeCounts[n.kind]||0)+1);
+
+  const np = document.getElementById('nodeFilters');
+  np.innerHTML = '<div class="filter-section-label">Nodes</div>';
+  for (const [kind, count] of Object.entries(nodeCounts).sort((a,b) => b[1]-a[1])) {
+    const row = document.createElement('div');
+    row.className = 'filter-row';
+    row.innerHTML = `<div class="filter-dot" style="background:${NC[kind]||'#666'}" data-kind="${kind}"></div>
+      <div class="filter-label node-label" data-kind="${kind}">${kind.replace(/_/g,' ')}</div>
+      <div class="filter-count">${count}</div>`;
+    row.addEventListener('click', () => {
+      if (visibleNodeKinds.has(kind)) visibleNodeKinds.delete(kind); else visibleNodeKinds.add(kind);
+      row.querySelector('.filter-dot').classList.toggle('off');
+      row.querySelector('.filter-label').classList.toggle('off');
+      updateVisibility();
+    });
+    np.appendChild(row);
+  }
+
+  const edgeCounts = Object.create(null);
+  data.edges.forEach(e => edgeCounts[e.kind] = (edgeCounts[e.kind]||0)+1);
+
+  const ep = document.getElementById('edgeFilters');
+  ep.innerHTML = '';
+  for (const [group, kinds] of Object.entries(EDGE_GROUPS)) {
+    const present = kinds.filter(k => edgeCounts[k]);
+    if (present.length === 0) continue;
+    const lbl = document.createElement('div');
+    lbl.className = 'filter-section-label';
+    lbl.textContent = group;
+    ep.appendChild(lbl);
+
+    for (const kind of present) {
+      const row = document.createElement('div');
+      row.className = 'filter-row';
+      const isStructural = EDGE_GROUPS['Structure'].includes(kind);
+      row.innerHTML = `<div class="edge-legend-line${isStructural?' dashed':''}" style="background:${EC[kind]||'#666'};${isStructural?'border-color:'+(EC[kind]||'#666'):''}" data-kind="${kind}"></div>
+        <div class="filter-label edge-label" data-kind="${kind}">${kind.replace(/_/g,' ')}</div>
+        <div class="filter-count">${edgeCounts[kind]}</div>`;
+      row.addEventListener('click', () => {
+        if (visibleEdgeKinds.has(kind)) visibleEdgeKinds.delete(kind); else visibleEdgeKinds.add(kind);
+        row.querySelector('.edge-legend-line').classList.toggle('off');
+        row.querySelector('.filter-label').classList.toggle('off');
+        updateVisibility();
+      });
+      ep.appendChild(row);
+    }
+  }
+}
+
+function updateVisibility() {
+  d3.selectAll('.graph-node')
+    .style('opacity', d => visibleNodeKinds.has(d.kind) ? 1 : 0.03)
+    .style('pointer-events', d => visibleNodeKinds.has(d.kind) ? 'all' : 'none');
+
+  d3.selectAll('.graph-edge').style('opacity', d => {
+    const s = graphData.nodes.find(n => n.id === (d.source.id||d.source));
+    const t = graphData.nodes.find(n => n.id === (d.target.id||d.target));
+    const ok = s && t && visibleNodeKinds.has(s.kind) && visibleNodeKinds.has(t.kind) && visibleEdgeKinds.has(d.kind);
+    return ok ? (EO[d.kind]||0.2) : 0;
+  });
+
+  d3.selectAll('.graph-label').style('opacity', d => visibleNodeKinds.has(d.kind) ? 0.75 : 0);
+
+  const vn = graphData.nodes.filter(n => visibleNodeKinds.has(n.kind)).length;
+  const ve = graphData.edges.filter(e => visibleEdgeKinds.has(e.kind)).length;
+  document.getElementById('statsBar').textContent = `${vn}/${graphData.nodes.length} nodes · ${ve}/${graphData.edges.length} edges`;
+}
+
+// ─── Search ─────────────────────────────────────────────────────────────────
+
+function setupSearch() {
+  const input = document.getElementById('searchInput');
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    if (!q) { updateVisibility(); return; }
+    d3.selectAll('.graph-node').style('opacity', d =>
+      !visibleNodeKinds.has(d.kind) ? 0.03 : d.label.toLowerCase().includes(q) ? 1 : 0.05);
+    d3.selectAll('.graph-label').style('opacity', d =>
+      !visibleNodeKinds.has(d.kind) ? 0 : d.label.toLowerCase().includes(q) ? 1 : 0.03);
+  });
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+
+function renderGraph(data) {
+  const svg = d3.select('#graph');
+  const W = window.innerWidth, H = window.innerHeight;
+  svg.selectAll('*').remove();
+
+  const defs = svg.append('defs');
+  for (const [kind, color] of Object.entries(EC)) {
+    defs.append('marker').attr('id', `a-${kind}`).attr('viewBox','0 -4 8 8')
+      .attr('refX',16).attr('refY',0).attr('markerWidth',3.5).attr('markerHeight',3.5)
+      .attr('orient','auto')
+      .append('path').attr('d','M0,-4L8,0L0,4').attr('fill',color).attr('opacity',0.5);
+  }
+
+  svgGroup = svg.append('g');
+  svg.call(d3.zoom().scaleExtent([0.05,8]).on('zoom', e => svgGroup.attr('transform', e.transform)));
+
+  const STRUCTURAL = new Set(EDGE_GROUPS['Structure']);
+
+  const link = svgGroup.append('g').selectAll('line').data(data.edges).join('line')
+    .attr('class','graph-edge')
+    .attr('stroke', d => EC[d.kind]||'#444')
+    .attr('stroke-width', d => {
+      if (d.kind==='extends'||d.kind==='implements') return 1.4;
+      if (d.kind==='calls'||d.kind==='instantiates') return 1;
+      if (STRUCTURAL.has(d.kind)) return 0.3;
+      return 0.6;
+    })
+    .attr('stroke-opacity', d => EO[d.kind]||0.15)
+    .attr('stroke-dasharray', d => d.kind==='conditional_calls' ? '4,3' : d.kind==='throws' ? '2,2' : null)
+    .attr('marker-end', d => STRUCTURAL.has(d.kind) ? null : `url(#a-${d.kind})`);
+
+  const node = svgGroup.append('g').selectAll('circle').data(data.nodes).join('circle')
+    .attr('class','graph-node')
+    .attr('r', d => NR[d.kind]||4)
+    .attr('fill', d => NC[d.kind]||'#666')
+    .attr('stroke', d => NC[d.kind]||'#666')
+    .attr('stroke-width', 0.4).attr('stroke-opacity', 0.25).attr('cursor','pointer')
+    .on('click', (_,d) => selectNode(d, data))
+    .on('mouseenter', (_,d) => highlight(d, data, true))
+    .on('mouseleave', (_,d) => highlight(d, data, false))
+    .call(d3.drag().on('start',ds).on('drag',dr).on('end',de));
+
+  const label = svgGroup.append('g').selectAll('text').data(data.nodes).join('text')
+    .attr('class','graph-label')
+    .text(d => d.label)
+    .attr('font-family',"'JetBrains Mono',monospace")
+    .attr('font-size', d => d.kind==='file'||d.kind==='package' ? 9 : d.kind==='parameter'||d.kind==='enum_member' ? 6 : 7)
+    .attr('fill', d => NC[d.kind]||'#888')
+    .attr('opacity', 0.75)
+    .attr('dx', d => (NR[d.kind]||4) + 3).attr('dy', 2.5)
+    .style('pointer-events','none');
+
+  simulation = d3.forceSimulation(data.nodes)
+    .force('link', d3.forceLink(data.edges).id(d=>d.id)
+      .distance(d => {
+        if (STRUCTURAL.has(d.kind)) return d.kind==='has_parameter' ? 20 : 25;
+        if (d.kind==='calls'||d.kind==='conditional_calls') return 90;
+        if (d.kind==='extends'||d.kind==='implements') return 50;
+        return 100;
+      })
+      .strength(d => {
+        if (STRUCTURAL.has(d.kind)) return d.kind==='has_parameter' ? 0.9 : 0.7;
+        if (d.kind==='extends'||d.kind==='implements') return 0.4;
+        return 0.1;
+      })
+    )
+    .force('charge', d3.forceManyBody().strength(d => {
+      if (d.kind==='package') return -500;
+      if (d.kind==='file') return -200;
+      if (d.kind==='parameter'||d.kind==='enum_member') return -10;
+      if (d.kind==='property') return -20;
+      return -60;
+    }))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collision', d3.forceCollide().radius(d => (NR[d.kind]||4)+2))
+    .on('tick', () => {
+      link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      node.attr('cx',d=>d.x).attr('cy',d=>d.y);
+      label.attr('x',d=>d.x).attr('y',d=>d.y);
+    });
+
+  setTimeout(() => {
+    const b = svgGroup.node().getBBox();
+    const sc = 0.8 / Math.max(b.width/W, b.height/H);
+    const tx = W/2 - sc*(b.x+b.width/2), ty = H/2 - sc*(b.y+b.height/2);
+    svg.transition().duration(800).call(
+      d3.zoom().scaleExtent([0.05,8]).on('zoom', e=>svgGroup.attr('transform',e.transform)).transform,
+      d3.zoomIdentity.translate(tx,ty).scale(sc)
+    );
+  }, 2500);
+
+  updateVisibility();
+}
+
+function ds(e,d){if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;}
+function dr(e,d){d.fx=e.x;d.fy=e.y;}
+function de(e,d){if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;}
+
+// ─── Hover Highlight ────────────────────────────────────────────────────────
+
+function highlight(d, data, on) {
+  if (on) {
+    const ids = new Set([d.id]);
+    data.edges.forEach(e => {
+      const s=e.source.id||e.source, t=e.target.id||e.target;
+      if(s===d.id) ids.add(t); if(t===d.id) ids.add(s);
+    });
+    d3.selectAll('.graph-node').attr('opacity', n=>ids.has(n.id)?1:0.05);
+    d3.selectAll('.graph-label').attr('opacity', n=>ids.has(n.id)?1:0.02);
+    d3.selectAll('.graph-edge')
+      .style('opacity', e=>{const s=e.source.id||e.source,t=e.target.id||e.target;return(s===d.id||t===d.id)?0.7:0.01;})
+      .attr('stroke-width', e=>{const s=e.source.id||e.source,t=e.target.id||e.target;return(s===d.id||t===d.id)?2:0.3;});
+  } else {
+    d3.selectAll('.graph-node').attr('opacity',n=>visibleNodeKinds.has(n.kind)?1:0.03);
+    d3.selectAll('.graph-label').attr('opacity',n=>visibleNodeKinds.has(n.kind)?0.75:0);
+    updateVisibility();
+  }
+}
+
+// ─── Info Panel ─────────────────────────────────────────────────────────────
+
+function selectNode(d, data) {
+  const p = document.getElementById('infoPanel');
+  const inb = data.edges.filter(e=>(e.target.id||e.target)===d.id);
+  const out = data.edges.filter(e=>(e.source.id||e.source)===d.id);
+
+  let h = `<div class="info-kind" style="color:${NC[d.kind]}">${d.kind.replace(/_/g,' ')}</div>
+    <div class="info-name">${d.label}</div>
+    <div class="info-path">${d.filePath}:${d.line}</div><div class="info-meta">`;
+  if (d.exported) h += `<div class="info-meta-row"><span class="info-meta-key">exported</span><span class="info-meta-val">✓</span></div>`;
+  if (d.meta) {
+    for (const [k,v] of Object.entries(d.meta)) {
+      if (k==='fullPath'||v===undefined||v===null||v==='') continue;
+      const display = typeof v === 'string' && v.length > 45 ? v.substring(0,45)+'…' : String(v);
+      h += `<div class="info-meta-row"><span class="info-meta-key">${k.replace(/([A-Z])/g,' $1').toLowerCase()}</span><span class="info-meta-val">${display}</span></div>`;
+    }
+  }
+  h += '</div>';
+
+  if (inb.length||out.length) {
+    h += '<div class="info-edges">';
+    if (inb.length) {
+      h += `<div class="filter-section-label" style="margin-bottom:3px">← Inbound (${inb.length})</div>`;
+      for (const e of inb.slice(0,10)) {
+        const sn = data.nodes.find(n=>n.id===(e.source.id||e.source));
+        h += `<div class="info-edge-item"><span class="kind" style="background:${EC[e.kind]}20;color:${EC[e.kind]}">${e.kind.replace(/_/g,' ')}</span>${sn?sn.label:'?'}</div>`;
+      }
+      if (inb.length>10) h += `<div class="info-edge-item">…+${inb.length-10} more</div>`;
+    }
+    if (out.length) {
+      h += `<div class="filter-section-label" style="margin-top:6px;margin-bottom:3px">→ Outbound (${out.length})</div>`;
+      for (const e of out.slice(0,10)) {
+        const tn = data.nodes.find(n=>n.id===(e.target.id||e.target));
+        h += `<div class="info-edge-item"><span class="kind" style="background:${EC[e.kind]}20;color:${EC[e.kind]}">${e.kind.replace(/_/g,' ')}</span>${tn?tn.label:'?'}</div>`;
+      }
+      if (out.length>10) h += `<div class="info-edge-item">…+${out.length-10} more</div>`;
+    }
+    h += '</div>';
+  }
+
+  p.innerHTML = h;
+  p.classList.add('visible');
+}
+
+document.getElementById('graph').addEventListener('click', e => {
+  if (e.target.tagName==='svg') document.getElementById('infoPanel').classList.remove('visible');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key==='/' && e.target.tagName!=='INPUT') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+  if (e.key==='Escape') {
+    const si = document.getElementById('searchInput');
+    si.value=''; si.dispatchEvent(new Event('input')); si.blur();
+    document.getElementById('infoPanel').classList.remove('visible');
+  }
+});
+</script>
+<script id="eg">
+// window.__EMBEDDED_GRAPH__ = { ... };
+</script>
+</body>
+</html>

@@ -10,6 +10,9 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
+      "path": "../../packages/ai/sdk/tsconfig.json"
+    },
+    {
       "path": "../../packages/common/identity/tsconfig.json"
     },
     {

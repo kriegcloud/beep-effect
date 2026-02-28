@@ -139,6 +139,14 @@ const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
 const RawDate = S.instanceOf(Date);
 const RawError = S.instanceOf(Error);
 const RawSqlError = S.instanceOf(SqlError.SqlError);
+const stringTokenPrefix = "__BEEP_SQL_STR_";
+const quotedIdentifierTokenPrefix = "__BEEP_SQL_QID_";
+const stringTokenRegex = /__BEEP_SQL_STR_(\d+)__/g;
+const quotedIdentifierTokenRegex = /__BEEP_SQL_QID_(\d+)__/g;
+const ansiEscapeRegex = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
+
+const makeStringToken = (index: number): string => `${stringTokenPrefix}${String(index)}__`;
+const makeQuotedIdentifierToken = (index: number): string => `${quotedIdentifierTokenPrefix}${String(index)}__`;
 
 /**
  * Supported query categories for styled SQL error output.
@@ -194,7 +202,7 @@ const processLineHighlight = (line: string) => {
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
-        result: acc.result.replace(/'[^']*'/, `\x00STR${i}\x00`),
+        result: acc.result.replace(/'[^']*'/, makeStringToken(i)),
         index: i + 1,
       }))
     );
@@ -208,7 +216,7 @@ const processLineHighlight = (line: string) => {
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
-        result: acc.result.replace(/"[^"]+"/, `\x00QID${i}\x00`),
+        result: acc.result.replace(/"[^"]+"/, makeQuotedIdentifierToken(i)),
         index: i + 1,
       }))
     );
@@ -241,11 +249,11 @@ const processLineHighlight = (line: string) => {
   return pipe(
     afterOperators,
     (s) =>
-      s.replace(/\x00STR(\d+)\x00/g, (_, i) =>
+      s.replace(stringTokenRegex, (_, i) =>
         pipe(afterQuotedIds.strings, A.get(Number.parseInt(i, 10)), O.getOrElse(thunkEmptyStr))
       ),
     (s) =>
-      s.replace(/\x00QID(\d+)\x00/g, (_, i) =>
+      s.replace(quotedIdentifierTokenRegex, (_, i) =>
         pipe(afterQuotedIds.quotedIds, A.get(Number.parseInt(i, 10)), O.getOrElse(thunkEmptyStr))
       )
   );
@@ -323,7 +331,7 @@ export const formatParam = (value: unknown, index: number): string => {
  *
  * @since 0.0.0
  */
-export const stripAnsi = (str: string): string => pipe(str, Str.replace(/\x1b\[[0-9;]*m/g, Str.empty));
+export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEscapeRegex, Str.empty));
 
 /**
  * Computes display width by stripping ANSI escapes before measuring length.

@@ -6,15 +6,15 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { HashMap, pipe } from "effect";
+import { HashMap, pipe, type SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { LiteralValue } from "effect/SchemaAST";
 import { LiteralKit, type LiteralKit as LiteralKitSchema, type LiteralToKey, matchLiteral } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("MappedLiteralKit");
 
+type LiteralValue = SchemaAST.LiteralValue;
 type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
 type MappedPair = readonly [LiteralValue, LiteralValue];
 type MappedPairs = A.NonEmptyReadonlyArray<MappedPair>;
@@ -167,14 +167,20 @@ const makeDirectionalKit = <
 ): DirectionalKit<From, To, Enum> => {
   const base = S.Literals(from).transform(to);
   const literalKit = LiteralKit(from);
+  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
+    value,
+    enumerable: true,
+    writable: false,
+    configurable: false,
+  });
 
   return Object.defineProperties(base, {
-    Options: { value: literalKit.Options, enumerable: true, writable: true, configurable: true },
-    is: { value: literalKit.is, enumerable: true, writable: true, configurable: true },
-    Enum: { value: Enum, enumerable: true, writable: true, configurable: true },
-    pickOptions: { value: literalKit.pickOptions, enumerable: true, writable: true, configurable: true },
-    omitOptions: { value: literalKit.omitOptions, enumerable: true, writable: true, configurable: true },
-    $match: { value: literalKit.$match, enumerable: true, writable: true, configurable: true },
+    Options: readonlyProperty(literalKit.Options),
+    is: readonlyProperty(literalKit.is),
+    Enum: readonlyProperty(Enum),
+    pickOptions: readonlyProperty(literalKit.pickOptions),
+    omitOptions: readonlyProperty(literalKit.omitOptions),
+    $match: readonlyProperty(literalKit.$match),
   }) as DirectionalKit<From, To, Enum>;
 };
 
@@ -237,8 +243,15 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
   const From = makeDirectionalKit(from, to, forwardEnum);
   const To = makeDirectionalKit(to, from, reverseEnum);
 
+  const readonlyProperty = <T>(value: T): PropertyDescriptor => ({
+    value,
+    enumerable: true,
+    writable: false,
+    configurable: false,
+  });
+
   return Object.defineProperties(From, {
-    From: { value: From, enumerable: true, writable: true, configurable: true },
-    To: { value: To, enumerable: true, writable: true, configurable: true },
+    From: readonlyProperty(From),
+    To: readonlyProperty(To),
   }) as MappedLiteralKit<M>;
 }

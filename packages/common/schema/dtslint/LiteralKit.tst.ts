@@ -1,5 +1,6 @@
 import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "@beep/schema";
 import type * as A from "effect/Array";
+import * as S from "effect/Schema";
 import type { LiteralValue } from "effect/SchemaAST";
 import { describe, expect, it } from "tstyche";
 
@@ -100,14 +101,103 @@ describe("LiteralKit", () => {
       },
     });
   });
+
+  it("does not expose toTaggedUnion when literals include non-property-key values", () => {
+    expect(Status.toTaggedUnion).type.toBe<never>();
+  });
 });
 
 describe("LiteralKit (string-only)", () => {
   const Dir = LiteralKit(["up", "down"] as const);
+  const EventKind = LiteralKit(["created", "deleted"] as const);
 
   it("uses string values directly as keys", () => {
     expect(Dir.Enum.up).type.toBe<"up">();
     expect(Dir.Enum.down).type.toBe<"down">();
+  });
+
+  it("toTaggedUnion preserves per-case literal narrowing", () => {
+    const Event = EventKind.toTaggedUnion("kind")({
+      created: {
+        value: S.Literal(1),
+      },
+      deleted: {
+        value: S.Literal(2),
+      },
+    });
+
+    expect(Event).type.toBe<
+      S.toTaggedUnion<
+        "kind",
+        readonly [
+          S.Struct<{ readonly kind: S.tag<"created">; readonly value: S.Literal<1> }>,
+          S.Struct<{ readonly kind: S.tag<"deleted">; readonly value: S.Literal<2> }>,
+        ]
+      >
+    >();
+
+    expect(Event.cases.created).type.toBe<
+      S.Struct<{ readonly kind: S.tag<"created">; readonly value: S.Literal<1> }>
+    >();
+    expect(Event.cases.deleted).type.toBe<
+      S.Struct<{ readonly kind: S.tag<"deleted">; readonly value: S.Literal<2> }>
+    >();
+    expect(Event.guards.created).type.toBe<(u: unknown) => u is { readonly kind: "created"; readonly value: 1 }>();
+    expect(Event.guards.deleted).type.toBe<(u: unknown) => u is { readonly kind: "deleted"; readonly value: 2 }>();
+  });
+
+  it("toTaggedUnion enforces exhaustive keys and disallows extras", () => {
+    // @ts-expect-error!
+    EventKind.toTaggedUnion("kind")({
+      created: {
+        value: S.Literal(1),
+      },
+    });
+
+    EventKind.toTaggedUnion("kind")({
+      created: {
+        value: S.Literal(1),
+      },
+      deleted: {
+        value: S.Literal(2),
+      },
+      // @ts-expect-error!
+      updated: {
+        value: S.Literal(3),
+      },
+    });
+  });
+
+  it("toTaggedUnion disallows defining the discriminator field in cases", () => {
+    EventKind.toTaggedUnion("kind")({
+      created: {
+        // @ts-expect-error!
+        kind: S.String,
+        // @ts-expect-error!
+        value: S.Literal(1),
+      },
+      deleted: {
+        value: S.Literal(2),
+      },
+    });
+  });
+});
+
+describe("LiteralKit toTaggedUnion (number keys)", () => {
+  const NumberKind = LiteralKit([1, 2] as const);
+
+  it("uses LiteralToKey for case object keys", () => {
+    const NumberEvent = NumberKind.toTaggedUnion("kind")({
+      number1: {
+        value: S.Literal("one"),
+      },
+      number2: {
+        value: S.Literal("two"),
+      },
+    });
+
+    expect(NumberEvent.guards[1]).type.toBe<(u: unknown) => u is { readonly kind: 1; readonly value: "one" }>();
+    expect(NumberEvent.guards[2]).type.toBe<(u: unknown) => u is { readonly kind: 2; readonly value: "two" }>();
   });
 });
 

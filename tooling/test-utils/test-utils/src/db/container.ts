@@ -17,3 +17,6 @@
 // const POSTGRES_USER = "test";
 // const POSTGRES_PASSWORD = "test";
 // const POSTGRES_DB = "test";
+
+// Intentionally left as a scaffold for future test-container restoration.
+export {};
