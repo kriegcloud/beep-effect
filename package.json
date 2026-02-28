@@ -10,7 +10,9 @@
     "packages/common/*",
     "packages/shared/*",
     "packages/ui/*",
-    "tooling/*",
+    "tooling/agent-eval",
+    "tooling/cli",
+    "tooling/repo-utils",
     "apps/*"
   ],
   "repository": {
