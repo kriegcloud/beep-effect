@@ -55,3 +55,23 @@ Candidate metadata:
 ## Final decision
 
 - Go/No-Go: `NO-GO`
+
+## Post-scorecard validation (February 28, 2026)
+
+Fresh live probe (CLI backend) was executed after the scorecard:
+
+- Artifact: `outputs/agent-reliability/runs/probe-live-cli-codex-apps_web_01-minimal.json`
+- Scope: `apps_web_01`, `minimal`, `codex`, `1` trial
+- Result: `0/1` success, `wrongApiIncidentCount=3`
+- Diagnostic signal: `command.timedOut=true`, `completionObserved=false`, wall time `~722s`
+
+Interpretation:
+
+1. Runtime timeout behavior remains present under CLI backend for this probe.
+2. Detector incidents remain active when partial edits are produced before timeout.
+3. Promotion remains blocked pending reliable run completion and comparable matrix evidence.
+
+Closure note:
+
+- P6 implementation deliverables are now complete (`outputs/p6-final-scorecard.md` and `docs/agent-reliability-playbook.md`).
+- Reliability policy promotion outcome remains `NO-GO`.
