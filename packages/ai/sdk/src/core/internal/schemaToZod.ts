@@ -1,16 +1,41 @@
-import { SchemaAST as AST } from "effect";
-import type * as S from "effect/Schema";
+import { $AiSdkId } from "@beep/identity/packages";
+import { Effect, SchemaAST as AST } from "effect";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import { z } from "zod";
 
-const unsupported = (message: string, path: ReadonlyArray<string>): never => {
-  const location = path.length === 0 ? "root" : path.join(".");
-  throw new Error(`${message} at ${location}`);
-};
+const $I = $AiSdkId.create("core/internal/schemaToZod");
 
-const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): z.ZodTypeAny => {
+/**
+ * @since 0.0.0
+ */
+export class SchemaToZodError extends S.TaggedErrorClass<SchemaToZodError>($I`SchemaToZodError`)(
+  "SchemaToZodError",
+  {
+    message: S.String,
+    location: S.String,
+  },
+  $I.annote("SchemaToZodError", {
+    description: "Raised when an Effect schema cannot be compiled to a compatible Zod schema.",
+  })
+) {
+  static readonly make = (message: string, path: ReadonlyArray<string>) =>
+    new SchemaToZodError({
+      message,
+      location: path.length === 0 ? "root" : path.join("."),
+    });
+}
+
+const unsupported = <A>(message: string, path: ReadonlyArray<string>): Result.Result<A, SchemaToZodError> =>
+  Result.fail(SchemaToZodError.make(message, path));
+
+const compileUnion = (
+  ast: AST.Union,
+  path: ReadonlyArray<string>
+): Result.Result<z.ZodType, SchemaToZodError> => {
   const members = ast.types;
   if (members.length === 0) {
-    return z.never();
+    return Result.succeed(z.never());
   }
   if (members.length === 1) {
     return compile(members[0], path);
@@ -19,116 +44,161 @@ const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): z.ZodTypeAny
   const undefinedIndex = members.findIndex(AST.isUndefined);
   if (undefinedIndex >= 0 && members.length === 2) {
     const other = members[undefinedIndex === 0 ? 1 : 0];
-    return compile(other, path).optional();
+    return Result.map(compile(other, path), (compiled: z.ZodType) => compiled.optional());
   }
 
-  const compiled = members.map((member) => compile(member, path));
-  let result: z.ZodTypeAny = z.union([compiled[0], compiled[1]]);
-  for (let index = 2; index < compiled.length; index += 1) {
-    result = z.union([result, compiled[index]]);
+  const compiledMembers: Array<z.ZodType> = [];
+  for (const member of members) {
+    const compiled = compile(member, path);
+    if (Result.isFailure(compiled)) {
+      return compiled;
+    }
+    compiledMembers.push(compiled.success);
   }
-  return result;
+
+  const [head, next, ...rest] = compiledMembers;
+  if (!head || !next) {
+    return Result.succeed(z.never());
+  }
+
+  let schema: z.ZodType = z.union([head, next]);
+  for (const item of rest) {
+    schema = z.union([schema, item]);
+  }
+  return Result.succeed(schema);
 };
 
-const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): z.ZodTypeAny => {
-  const shape: Record<string, z.ZodTypeAny> = {};
+const compileObjects = (
+  ast: AST.Objects,
+  path: ReadonlyArray<string>
+): Result.Result<z.ZodType, SchemaToZodError> => {
+  const shape: Record<string, z.ZodType> = {};
 
   for (const property of ast.propertySignatures) {
     const key = String(property.name);
     const schema = compile(property.type, path.concat(key));
-    shape[key] = AST.isOptional(property.type) ? schema.optional() : schema;
+    if (Result.isFailure(schema)) {
+      return schema;
+    }
+    shape[key] = AST.isOptional(property.type) ? schema.success.optional() : schema.success;
   }
 
   const base = z.object(shape);
 
   if (ast.indexSignatures.length === 0) {
-    return base.strict();
+    return Result.succeed(base.strict());
   }
 
   if (ast.indexSignatures.length === 1) {
     const index = ast.indexSignatures[0];
     if (!AST.isString(index.parameter)) {
-      unsupported("Unsupported index signature parameter", path);
+      return unsupported("Unsupported index signature parameter", path);
     }
     const valueSchema = compile(index.type, path.concat("[key]"));
-    return base.catchall(valueSchema);
+    if (Result.isFailure(valueSchema)) {
+      return valueSchema;
+    }
+    return Result.succeed(base.catchall(valueSchema.success));
   }
 
   return unsupported("Multiple index signatures are unsupported", path);
 };
 
-const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): z.ZodTypeAny => {
+const compileArrays = (
+  ast: AST.Arrays,
+  path: ReadonlyArray<string>
+): Result.Result<z.ZodType, SchemaToZodError> => {
   if (ast.elements.length === 0 && ast.rest.length === 1) {
-    return z.array(compile(ast.rest[0], path));
+    return Result.map(compile(ast.rest[0], path), (schema: z.ZodType) => z.array(schema));
   }
 
   if (ast.elements.length === 0 && ast.rest.length === 0) {
-    return z.tuple([]);
+    return Result.succeed(z.tuple([]));
   }
 
   if (ast.elements.length > 0 && ast.rest.length === 0) {
-    return z.array(z.any());
+    return Result.succeed(z.array(z.unknown()));
   }
 
   if (ast.rest.length === 1) {
-    return z.array(compile(ast.rest[0], path.concat("[rest]")));
+    return Result.map(compile(ast.rest[0], path.concat("[rest]")), (schema: z.ZodType) => z.array(schema));
   }
 
   return unsupported("Array shape is not supported", path);
 };
 
-const compileEnum = (ast: AST.Enum): z.ZodTypeAny => {
+const compileEnum = (ast: AST.Enum): Result.Result<z.ZodType, SchemaToZodError> => {
   const literals = ast.enums.map((entry) => z.literal(entry[1]));
 
   if (literals.length === 0) {
-    return z.never();
+    return Result.succeed(z.never());
   }
 
   if (literals.length === 1) {
-    return literals[0];
+    return Result.succeed(literals[0]);
   }
 
-  let result: z.ZodTypeAny = z.union([literals[0], literals[1]]);
-  for (let index = 2; index < literals.length; index += 1) {
-    result = z.union([result, literals[index]]);
+  const [head, next, ...rest] = literals;
+  if (!head || !next) {
+    return Result.succeed(z.never());
   }
-  return result;
+
+  let schema: z.ZodType = z.union([head, next]);
+  for (const literal of rest) {
+    schema = z.union([schema, literal]);
+  }
+  return Result.succeed(schema);
 };
 
-const compile = (ast: AST.AST, path: ReadonlyArray<string>): z.ZodTypeAny => {
-  if (AST.isDeclaration(ast)) return z.any();
-  if (AST.isString(ast)) return z.string();
-  if (AST.isNumber(ast)) return z.number();
-  if (AST.isBoolean(ast)) return z.boolean();
-  if (AST.isBigInt(ast)) return z.bigint();
-  if (AST.isSymbol(ast) || AST.isUniqueSymbol(ast)) return z.symbol();
-  if (AST.isLiteral(ast)) return z.literal(ast.literal);
+const compile = (ast: AST.AST, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
+  if (AST.isDeclaration(ast)) return Result.succeed(z.unknown());
+  if (AST.isString(ast)) return Result.succeed(z.string());
+  if (AST.isNumber(ast)) return Result.succeed(z.number());
+  if (AST.isBoolean(ast)) return Result.succeed(z.boolean());
+  if (AST.isBigInt(ast)) return Result.succeed(z.bigint());
+  if (AST.isSymbol(ast) || AST.isUniqueSymbol(ast)) return Result.succeed(z.symbol());
+  if (AST.isLiteral(ast)) return Result.succeed(z.literal(ast.literal));
   if (AST.isEnum(ast)) return compileEnum(ast);
   if (AST.isArrays(ast)) return compileArrays(ast, path);
   if (AST.isObjects(ast)) return compileObjects(ast, path);
   if (AST.isUnion(ast)) return compileUnion(ast, path);
-  if (AST.isSuspend(ast)) return z.lazy(() => compile(ast.thunk(), path));
-  if (AST.isTemplateLiteral(ast)) return z.string();
-  if (AST.isUndefined(ast)) return z.undefined();
-  if (AST.isVoid(ast)) return z.void();
-  if (AST.isNever(ast)) return z.never();
-  if (AST.isUnknown(ast) || AST.isAny(ast)) return z.any();
-  if (AST.isObjectKeyword(ast)) return z.record(z.string(), z.any());
+  if (AST.isSuspend(ast)) {
+    return Result.succeed(
+      z.lazy(() => {
+        const suspended = compile(ast.thunk(), path);
+        return Result.isSuccess(suspended) ? suspended.success : z.never();
+      })
+    );
+  }
+  if (AST.isTemplateLiteral(ast)) return Result.succeed(z.string());
+  if (AST.isUndefined(ast)) return Result.succeed(z.undefined());
+  if (AST.isVoid(ast)) return Result.succeed(z.void());
+  if (AST.isNever(ast)) return Result.succeed(z.never());
+  if (AST.isUnknown(ast) || AST.isAny(ast)) return Result.succeed(z.unknown());
+  if (AST.isObjectKeyword(ast)) return Result.succeed(z.record(z.string(), z.unknown()));
   return unsupported(`Unsupported schema (${ast._tag})`, path);
 };
 
-/**
- * @since 0.0.0
- */
-export const schemaToZod = (schema: S.Top): z.ZodTypeAny => compile(schema.ast, []);
+const fromResult = <A, E>(value: Result.Result<A, E>): Effect.Effect<A, E> =>
+  Result.match(value, {
+    onFailure: (failure) => Effect.fail(failure),
+    onSuccess: (success) => Effect.succeed(success),
+  });
 
 /**
  * @since 0.0.0
  */
-export const schemaToZodObject = (schema: S.Top): z.ZodObject<any> => {
-  const compiled = schemaToZod(schema);
-  if (compiled instanceof z.ZodObject) {
-    return compiled;
-  }
-  throw new Error("Tool parameters schema must be an object");
-};
+export const schemaToZod = (schema: S.Top): Effect.Effect<z.ZodType, SchemaToZodError> =>
+  fromResult(compile(schema.ast, []));
+
+/**
+ * @since 0.0.0
+ */
+export const schemaToZodObject = (schema: S.Top): Effect.Effect<z.ZodObject<z.ZodRawShape>, SchemaToZodError> =>
+  schemaToZod(schema).pipe(
+    Effect.flatMap((compiled) =>
+      compiled instanceof z.ZodObject
+        ? Effect.succeed(compiled)
+        : Effect.fail(SchemaToZodError.make("Tool parameters schema must be an object", []))
+    )
+  );

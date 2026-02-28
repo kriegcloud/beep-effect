@@ -343,7 +343,7 @@ test("Session.fromSdkSession fails with TransportError on invalid closeDrainTime
   const result = await runEffect(
     Effect.result(
       fromSdkSession(sdkSession, {
-        closeDrainTimeout: "not-a-duration" as unknown as import("effect/Duration").Input,
+        closeDrainTimeout: "1e309 millis",
       })
     )
   );

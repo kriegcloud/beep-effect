@@ -1,4 +1,7 @@
 import { Effect } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 
 /**
  * @since 0.0.0
@@ -36,6 +39,36 @@ export type DiagnosticResult = {
   readonly valid: boolean;
   readonly checks: Record<string, DiagnosticCheck>;
   readonly issues: ReadonlyArray<DiagnosticIssue>;
+};
+
+const PackageVersion = S.Struct({
+  version: S.optional(S.String),
+});
+
+const PackageVersionFromJson = S.fromJsonString(PackageVersion);
+
+type BunLike = {
+  readonly file?: (path: string | URL) => {
+    readonly text: () => Promise<string>;
+  };
+  readonly spawnSync?: (options: { readonly cmd: Array<string> }) => {
+    readonly exitCode: number;
+    readonly stdout: Uint8Array | undefined;
+  };
+};
+
+const resolveImport = (specifier: string): string | undefined => {
+  const resolver = Reflect.get(import.meta, "resolve");
+  if (!P.isFunction(resolver)) {
+    return undefined;
+  }
+  const resolved = resolver(specifier);
+  return P.isString(resolved) ? resolved : undefined;
+};
+
+const getBun = (): BunLike | undefined => {
+  const bun = Reflect.get(globalThis, "Bun");
+  return P.isObject(bun) ? bun : undefined;
 };
 
 const checkApiKey = (): readonly [DiagnosticCheck, ReadonlyArray<DiagnosticIssue>] => {
@@ -76,27 +109,19 @@ const checkApiKey = (): readonly [DiagnosticCheck, ReadonlyArray<DiagnosticIssue
 const tryResolvePackageVersion = (specifier: string) =>
   Effect.tryPromise({
     try: async () => {
-      const resolver = (
-        import.meta as unknown as {
-          resolve?: (input: string) => string;
-        }
-      ).resolve;
-      if (!resolver) return undefined;
-      const url = resolver(`${specifier}/package.json`);
-      const bun = (
-        globalThis as unknown as {
-          Bun?: { file: (path: string | URL) => { text: () => Promise<string> } };
-        }
-      ).Bun;
+      const url = resolveImport(`${specifier}/package.json`);
+      if (!url) return undefined;
+      const bun = getBun();
       if (bun?.file) {
         const text = await bun.file(url).text();
-        const json = JSON.parse(text) as { version?: string };
-        return json.version;
+        const decoded = S.decodeUnknownOption(PackageVersionFromJson)(text);
+        return O.isSome(decoded) ? decoded.value.version : undefined;
       }
       const response = await fetch(url);
       if (!response.ok) return undefined;
-      const json = (await response.json()) as { version?: string };
-      return json.version;
+      const json = await response.json();
+      const decoded = S.decodeUnknownOption(PackageVersion)(json);
+      return O.isSome(decoded) ? decoded.value.version : undefined;
     },
     catch: () => undefined,
   }).pipe(Effect.catch(() => Effect.void));
@@ -104,41 +129,44 @@ const tryResolvePackageVersion = (specifier: string) =>
 const checkClaudeCodeCli = () =>
   Effect.tryPromise({
     try: async () => {
-      const bun = (
-        globalThis as unknown as {
-          Bun?: { spawnSync?: (options: { cmd: string[] }) => { exitCode: number; stdout: Uint8Array } };
-        }
-      ).Bun;
+      const bun = getBun();
       if (!bun?.spawnSync) {
-        return {
-          status: "unknown" as const,
+        const check: DiagnosticCheck = {
+          status: "unknown",
           message: "Unable to detect Claude Code CLI in this runtime",
         };
+        return check;
       }
       const result = bun.spawnSync({ cmd: ["which", "claude"] });
       if (result.exitCode === 0) {
-        const path = new TextDecoder().decode(result.stdout).trim();
-        return {
-          status: "ok" as const,
+        const path = new TextDecoder().decode(result.stdout ?? new Uint8Array()).trim();
+        const check: DiagnosticCheck = {
+          status: "ok",
           path,
         };
+        return check;
       }
-      return {
-        status: "missing" as const,
+      const check: DiagnosticCheck = {
+        status: "missing",
         fix: "Install Claude Code CLI (https://docs.anthropic.com/en/docs/claude-code)",
       };
+      return check;
     },
-    catch: () => ({
-      status: "unknown" as const,
-      message: "Unable to detect Claude Code CLI",
-    }),
-  }).pipe(
-    Effect.catch(() =>
-      Effect.succeed({
-        status: "unknown" as const,
+    catch: () => {
+      const check: DiagnosticCheck = {
+        status: "unknown",
         message: "Unable to detect Claude Code CLI",
-      })
-    )
+      };
+      return check;
+    },
+  }).pipe(
+    Effect.catch(() => {
+      const check: DiagnosticCheck = {
+        status: "unknown",
+        message: "Unable to detect Claude Code CLI",
+      };
+      return Effect.succeed(check);
+    })
   );
 
 /**
@@ -162,7 +190,7 @@ export const diagnose = (): Effect.Effect<DiagnosticResult> =>
       issues.push({
         severity: "warning",
         message: "Claude Code CLI not found",
-        fix: cliCheck.fix,
+        ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : {}),
       });
     }
 

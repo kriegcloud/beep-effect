@@ -31,16 +31,33 @@ const collectSourceFiles = async (directory: string): Promise<ReadonlyArray<Sour
 const findPatternHits = (files: ReadonlyArray<SourceFile>, pattern: string) =>
   files.filter((file) => file.content.includes(pattern)).map((file) => file.path);
 
+const findRegexHits = (files: ReadonlyArray<SourceFile>, pattern: RegExp) =>
+  files.filter((file) => pattern.test(file.content)).map((file) => file.path);
+
 test("core schema and identity conventions disallow legacy patterns", async () => {
   const files = await collectSourceFiles(coreDir.pathname);
 
   const withIdentifierHits = findPatternHits(files, "withIdentifier(");
   const literalsHits = findPatternHits(files, "S.Literals(");
   const rawLegacyIdHits = findPatternHits(files, "@effect/claude-agent-sdk/");
+  const jsonParseHits = findPatternHits(files, "JSON.parse(");
+  const jsonStringifyHits = findPatternHits(files, "JSON.stringify(");
+  const switchHits = findPatternHits(files, "switch (");
+  const throwHits = findRegexHits(files, /\bthrow\s+/);
+  const newErrorHits = findPatternHits(files, "new Error(");
+  const castHits = findPatternHits(files, "as unknown as");
+  const anyHits = findRegexHits(files, /\bany\b/);
 
   expect(withIdentifierHits).toEqual([]);
   expect(literalsHits).toEqual([]);
   expect(rawLegacyIdHits).toEqual([]);
+  expect(jsonParseHits).toEqual([]);
+  expect(jsonStringifyHits).toEqual([]);
+  expect(switchHits).toEqual([]);
+  expect(throwHits).toEqual([]);
+  expect(newErrorHits).toEqual([]);
+  expect(castHits).toEqual([]);
+  expect(anyHits).toEqual([]);
 });
 
 test("discriminator-heavy schema modules include tagged-union modeling", async () => {

@@ -31,6 +31,55 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   session_id: "session-1",
 });
 
+const makeMetadataHandle = (): QueryHandle => {
+  const stream: Stream.Stream<SDKMessage> = Stream.empty;
+  return {
+    stream,
+    send: () => Effect.void,
+    sendAll: () => Effect.void,
+    sendForked: () => Effect.void,
+    closeInput: Effect.void,
+    share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
+    broadcast: (config) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
+    interrupt: Effect.void,
+    setPermissionMode: () => Effect.void,
+    setModel: () => Effect.void,
+    setMaxThinkingTokens: () => Effect.void,
+    rewindFiles: () => Effect.succeed({ canRewind: false }),
+    supportedCommands: Effect.succeed([
+      {
+        name: "help",
+        description: "show help",
+        argumentHint: "",
+      },
+    ]),
+    supportedModels: Effect.succeed([
+      {
+        value: "claude-3-5",
+        displayName: "Claude 3.5",
+        description: "Test model",
+      },
+    ]),
+    mcpServerStatus: Effect.succeed([]),
+    setMcpServers: () => Effect.succeed({ added: [], removed: [], errors: {} }),
+    accountInfo: Effect.succeed({ email: "dev@example.com" }),
+    initializationResult: Effect.succeed({
+      commands: [],
+      output_style: "default",
+      available_output_styles: [],
+      models: [],
+      account: {},
+    }),
+    stopTask: () => Effect.void,
+  };
+};
+
 const toRequestInit = (request: HttpClientRequest.HttpClientRequest, signal: AbortSignal): RequestInit => {
   const init: RequestInit = {
     method: request.method,
@@ -100,30 +149,9 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
   );
 
 test("agent RPC API serves query and metadata", async () => {
-  const makeHandle = () =>
-    ({
-      supportedCommands: Effect.succeed([
-        {
-          name: "help",
-          description: "show help",
-          argumentHint: "",
-        },
-      ]),
-      supportedModels: Effect.succeed([
-        {
-          value: "claude-3-5",
-          displayName: "Claude 3.5",
-          description: "Test model",
-        },
-      ]),
-      accountInfo: Effect.succeed({ email: "dev@example.com" }),
-      closeInput: Effect.void,
-      interrupt: Effect.void,
-    }) as unknown as QueryHandle;
-
   const runtime = AgentRuntime.of({
-    query: () => Effect.succeed(makeHandle()),
-    queryRaw: () => Effect.succeed(makeHandle()),
+    query: () => Effect.succeed(makeMetadataHandle()),
+    queryRaw: () => Effect.succeed(makeMetadataHandle()),
     stream: () => Stream.fromIterable([makeSuccessMessage("ok")]),
     stats: Effect.succeed({
       active: 1,
@@ -187,30 +215,9 @@ test("agent RPC API serves query and metadata", async () => {
 });
 
 test("agent RPC metadata uses queryRaw", async () => {
-  const makeHandle = () =>
-    ({
-      supportedCommands: Effect.succeed([
-        {
-          name: "help",
-          description: "show help",
-          argumentHint: "",
-        },
-      ]),
-      supportedModels: Effect.succeed([
-        {
-          value: "claude-3-5",
-          displayName: "Claude 3.5",
-          description: "Test model",
-        },
-      ]),
-      accountInfo: Effect.succeed({ email: "dev@example.com" }),
-      closeInput: Effect.void,
-      interrupt: Effect.void,
-    }) as unknown as QueryHandle;
-
   const runtime = AgentRuntime.of({
     query: () => Effect.die("query should not be used for metadata"),
-    queryRaw: () => Effect.sync(makeHandle),
+    queryRaw: () => Effect.sync(makeMetadataHandle),
     stream: () => Stream.empty,
     stats: Effect.succeed({
       active: 0,

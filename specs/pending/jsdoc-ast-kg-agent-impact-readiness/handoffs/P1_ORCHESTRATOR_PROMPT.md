@@ -4,7 +4,7 @@ Design the governance layer for semantic correctness.
 
 Deliver:
 
-1. `outputs/p1-jsdoc-governance.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p1-jsdoc-governance.md`
 
 Constraints:
 

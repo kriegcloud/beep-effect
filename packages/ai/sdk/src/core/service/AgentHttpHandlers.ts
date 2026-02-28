@@ -2,6 +2,7 @@ import type { ServiceMap } from "effect";
 import { Cause, Effect, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
@@ -20,9 +21,10 @@ type AgentRuntimeService = ServiceMap.Service.Shape<typeof AgentRuntime>;
 type SessionPoolService = ServiceMap.Service.Shape<typeof SessionPool>;
 
 const textEncoder = new TextEncoder();
+const encodeSsePayload = S.encodeUnknownOption(S.UnknownFromJsonString);
 
 const toSseChunk = (data: unknown, event?: string) => {
-  const payload = JSON.stringify(data);
+  const payload = O.getOrElse(encodeSsePayload(data), () => String(data));
   const eventLine = event ? `event: ${event}\n` : "";
   return textEncoder.encode(`${eventLine}data: ${payload}\n\n`);
 };

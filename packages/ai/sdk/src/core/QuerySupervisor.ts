@@ -8,6 +8,7 @@ import {
   Exit,
   HashMap,
   Layer,
+  Match,
   Metric,
   MutableHashMap,
   MutableHashSet,
@@ -18,6 +19,7 @@ import {
   ServiceMap,
   Stream,
   SynchronizedRef,
+  Random,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -165,29 +167,24 @@ const queryDurationMetric = Metric.histogram("agent_query_duration_ms", {
   boundaries: Metric.boundariesFromIterable([50, 100, 250, 500, 1000, 2000, 5000, 10000, 30000]),
 });
 
-const makeQueryId = () =>
-  Effect.sync(() => globalThis.crypto?.randomUUID?.() ?? `query-${Math.random().toString(36).slice(2)}`);
+const makeQueryId = Effect.fn("QuerySupervisor.makeQueryId")(() =>
+  Random.nextUUIDv4.pipe(Effect.map((uuid) => `query-${uuid}`))
+);
 
 const makePendingQueue = (strategy: PendingQueueStrategy, capacity: number) => {
-  switch (strategy) {
-    case "dropping":
-      return Queue.dropping<PendingRequest>(capacity);
-    case "sliding":
-      return Queue.sliding<PendingRequest>(capacity);
-    default:
-      return Queue.bounded<PendingRequest>(capacity);
-  }
+  return Match.value(strategy).pipe(
+    Match.when("dropping", () => Queue.dropping<PendingRequest>(capacity)),
+    Match.when("sliding", () => Queue.sliding<PendingRequest>(capacity)),
+    Match.orElse(() => Queue.bounded<PendingRequest>(capacity))
+  );
 };
 
 const makeEventBus = (strategy: PendingQueueStrategy, capacity: number) => {
-  switch (strategy) {
-    case "dropping":
-      return PubSub.dropping<QueryEvent>(capacity);
-    case "sliding":
-      return PubSub.sliding<QueryEvent>(capacity);
-    default:
-      return PubSub.bounded<QueryEvent>(capacity);
-  }
+  return Match.value(strategy).pipe(
+    Match.when("dropping", () => PubSub.dropping<QueryEvent>(capacity)),
+    Match.when("sliding", () => PubSub.sliding<QueryEvent>(capacity)),
+    Match.orElse(() => PubSub.bounded<QueryEvent>(capacity))
+  );
 };
 
 const exitStatus = (exit: Exit.Exit<unknown, unknown>): "success" | "failure" | "interrupted" => {

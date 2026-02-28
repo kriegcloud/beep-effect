@@ -34,10 +34,10 @@ const makeDeltaMessage = (text: string): SDKMessage =>
   }) as SDKMessage;
 
 const makeRuntime = (stream: Stream.Stream<SDKMessage>) => {
-  const notUsed = Effect.die("not used") as Effect.Effect<any, any, any>;
+  const notUsed = Effect.die("not used");
   return AgentRuntime.of({
-    query: () => notUsed as any,
-    queryRaw: () => notUsed as any,
+    query: () => notUsed,
+    queryRaw: () => notUsed,
     stream: () => stream,
     stats: Effect.succeed({
       active: 0,

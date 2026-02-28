@@ -4,7 +4,7 @@ Execute pre-phase foundation work planning.
 
 Deliver:
 
-1. `outputs/p-pre-kg-cli-refactor-and-ai-sdk.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p-pre-kg-cli-refactor-and-ai-sdk.md`
 
 Constraints:
 

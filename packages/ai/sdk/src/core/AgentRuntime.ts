@@ -1,8 +1,9 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { Clock, Deferred, Effect, Layer, Schedule, ServiceMap, Stream } from "effect";
+import { Clock, Deferred, Effect, Layer, Random, Schedule, ServiceMap, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
@@ -104,17 +105,19 @@ export type RemoteSyncOptions = StorageSyncLayerOptions & {
   readonly audit?: AuditLoggingOptions;
 };
 
-const makeArtifactId = () => globalThis.crypto?.randomUUID?.() ?? `artifact-${Math.random().toString(36).slice(2)}`;
+const makeArtifactId = Effect.fn("AgentRuntime.makeArtifactId")(() =>
+  Random.nextUUIDv4.pipe(Effect.map((uuid) => `artifact-${uuid}`))
+);
 
 const resolveToolResultContent = (value: unknown) => {
   if (P.isString(value)) {
     return { content: value, contentType: "text/plain" };
   }
-  try {
-    return { content: JSON.stringify(value), contentType: "application/json" };
-  } catch {
-    return { content: String(value), contentType: "text/plain" };
-  }
+  const encoded = S.encodeUnknownOption(S.UnknownFromJsonString)(value);
+  return O.match(encoded, {
+    onNone: () => ({ content: String(value), contentType: "text/plain" as const }),
+    onSome: (content) => ({ content, contentType: "application/json" as const }),
+  });
 };
 
 const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(function* (
@@ -301,8 +304,9 @@ export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeS
                 const { content, contentType } = resolveToolResultContent(message.tool_use_result);
                 const createdAt = yield* Clock.currentTimeMillis;
                 const sizeBytes = new TextEncoder().encode(content).length;
+                const artifactId = yield* makeArtifactId();
                 const record = ArtifactRecord.make({
-                  id: makeArtifactId(),
+                  id: artifactId,
                   sessionId: message.session_id,
                   kind: "tool_result",
                   toolUseId: message.parent_tool_use_id ?? undefined,

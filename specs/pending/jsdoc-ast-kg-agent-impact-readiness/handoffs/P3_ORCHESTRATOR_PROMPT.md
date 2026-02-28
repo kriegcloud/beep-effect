@@ -4,7 +4,7 @@ Run semantic quality and coverage evaluation.
 
 Deliver:
 
-1. `outputs/p3-semantic-coverage.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p3-semantic-coverage.md`
 
 Constraints:
 

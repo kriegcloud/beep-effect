@@ -1,8 +1,13 @@
 # Agent Reliability Benchmark Report
 
 - formatVersion: 1
-- runAtEpochMs: 1772004209946
+- runAtEpochMs: 1772265104247
+- runMode: simulate
+- executionBackend: mixed
+- status: completed
 - strictTaskCount: 18
+- plannedRunCount: 288
+- completedRunCount: 288
 - totalRuns: 288
 
 ## By Condition

@@ -35,10 +35,10 @@ const makeAgentSdk = Effect.gen(function* () {
     const inputQueue = isStreamingInput ? yield* createInputQueue() : undefined;
     const inputFailure = inputQueue ? yield* Deferred.make<never, AgentSdkError>() : undefined;
     const sdkPrompt = inputQueue ? inputQueue.input : prompt;
-    const sdkParams = {
+    const sdkParams: Parameters<typeof sdkQuery>[0] = {
       prompt: sdkPrompt,
       options: mergedOptions,
-    } as unknown as Parameters<typeof sdkQuery>[0];
+    };
     const sdkQueryInstance = yield* Effect.try({
       try: () => sdkQuery(sdkParams),
       catch: (cause) => TransportError.make("Failed to start SDK query", cause),
@@ -80,7 +80,11 @@ const makeAgentSdk = Effect.gen(function* () {
   });
 
   const createSdkMcpServer = Effect.fn("AgentSdk.createSdkMcpServer")(function* (options: CreateSdkMcpServerOptions) {
-    const sdkOptions = options as unknown as Parameters<typeof sdkCreateSdkMcpServer>[0];
+    const sdkOptions: Parameters<typeof sdkCreateSdkMcpServer>[0] = {
+      name: options.name,
+      ...(options.version !== undefined ? { version: options.version } : {}),
+      ...(options.tools !== undefined ? { tools: options.tools } : {}),
+    };
     return yield* Effect.try({
       try: () => sdkCreateSdkMcpServer(sdkOptions),
       catch: (cause) =>

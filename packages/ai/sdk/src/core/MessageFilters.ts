@@ -199,49 +199,16 @@ export const fold = <R>(handlers: {
   readonly stream_event: (msg: SDKPartialAssistantMessage) => R;
   readonly tool: (msg: ToolMessage) => R;
   readonly auth_status: (msg: SDKAuthStatusMessage) => R;
-}): ((msg: SDKMessage) => R) => {
-  const matcher = Match.type<SDKMessage>().pipe(
-    Match.when({ type: "assistant" }, handlers.assistant),
-    Match.when({ type: "user", isReplay: true }, (msg) => handlers.user(msg as unknown as UserLikeMessage)),
-    Match.when({ type: "user" }, (msg) => handlers.user(msg as unknown as UserLikeMessage)),
-    Match.when({ type: "result", subtype: "success" }, handlers.result),
-    Match.whenOr(
-      { type: "result", subtype: "error_during_execution" },
-      { type: "result", subtype: "error_max_turns" },
-      { type: "result", subtype: "error_max_budget_usd" },
-      { type: "result", subtype: "error_max_structured_output_retries" },
-      handlers.result
-    ),
-    Match.when({ type: "stream_event" }, handlers.stream_event),
-    Match.when({ type: "tool_progress" }, handlers.tool),
-    Match.when({ type: "tool_use_summary" }, handlers.tool),
-    Match.when({ type: "auth_status" }, handlers.auth_status),
-    Match.when({ type: "system", subtype: "init" }, (msg) => handlers.system(msg as unknown as SystemLikeMessage)),
-    Match.when({ type: "system", subtype: "compact_boundary" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "status" }, (msg) => handlers.system(msg as unknown as SystemLikeMessage)),
-    Match.when({ type: "system", subtype: "hook_started" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "hook_progress" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "hook_response" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "files_persisted" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "task_notification" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.when({ type: "system", subtype: "task_started" }, (msg) =>
-      handlers.system(msg as unknown as SystemLikeMessage)
-    ),
-    Match.exhaustive
-  );
-  return matcher as unknown as (msg: SDKMessage) => R;
+}): ((msg: SDKMessage) => R) => (msg: SDKMessage) => {
+  if (isAssistant(msg)) return handlers.assistant(msg);
+  if (isUser(msg)) return handlers.user(msg);
+  if (isResult(msg)) return handlers.result(msg);
+  if (isStreamEvent(msg)) return handlers.stream_event(msg);
+  if (isToolProgress(msg) || isToolUseSummary(msg)) return handlers.tool(msg);
+  if (isAuthStatus(msg)) return handlers.auth_status(msg);
+  if (msg.type === "system") return handlers.system(msg);
+  const unexpected: never = msg;
+  return unexpected;
 };
 
 // ---------------------------------------------------------------------------

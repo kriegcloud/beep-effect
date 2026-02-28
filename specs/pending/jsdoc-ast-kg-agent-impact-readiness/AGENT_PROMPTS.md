@@ -6,7 +6,7 @@ Define and lock pre-phase implementation details for refactoring `kg.ts` and int
 
 Write:
 
-- `outputs/p-pre-kg-cli-refactor-and-ai-sdk.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p-pre-kg-cli-refactor-and-ai-sdk.md`
 
 Must include:
 
@@ -22,7 +22,7 @@ Freeze the baseline and all success gates for evaluating JSDoc-enriched AST KG i
 
 Write:
 
-- `outputs/p0-baseline-and-gates.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p0-baseline-and-gates.md`
 
 Must include:
 
@@ -38,7 +38,7 @@ Define and lock the JSDoc semantic governance contract for high-value modules.
 
 Write:
 
-- `outputs/p1-jsdoc-governance.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p1-jsdoc-governance.md`
 
 Must include:
 
@@ -53,7 +53,7 @@ Harden and verify retrieval reliability for agent runtime usage.
 
 Write:
 
-- `outputs/p2-retrieval-reliability.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p2-retrieval-reliability.md`
 
 Must include:
 
@@ -68,7 +68,7 @@ Measure semantic coverage and semantic edge quality on a labeled set.
 
 Write:
 
-- `outputs/p3-semantic-coverage.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p3-semantic-coverage.md`
 
 Must include:
 
@@ -83,7 +83,7 @@ Run live four-way ablation benchmark and report comparative outcomes.
 
 Write:
 
-- `outputs/p4-ablation-benchmark.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p4-ablation-benchmark.md`
 
 Must include:
 
@@ -100,7 +100,7 @@ Make final rollout recommendation using locked rubrics.
 
 Write:
 
-- `outputs/p5-rollout-decision.md`
+- `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p5-rollout-decision.md`
 
 Must include:
 

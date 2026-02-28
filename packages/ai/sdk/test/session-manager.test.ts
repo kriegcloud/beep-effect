@@ -218,7 +218,7 @@ test("SessionManager.create fails when model is missing", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const manager = yield* SessionManager;
-      return yield* manager.create({} as any);
+      return yield* manager.create({ model: "" });
     }).pipe(Effect.provide(layer))
   );
 

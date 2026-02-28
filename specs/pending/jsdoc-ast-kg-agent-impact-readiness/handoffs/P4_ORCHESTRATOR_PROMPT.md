@@ -4,7 +4,7 @@ Execute live ablation benchmark for KG strategy comparison.
 
 Deliver:
 
-1. `outputs/p4-ablation-benchmark.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p4-ablation-benchmark.md`
 
 Constraints:
 

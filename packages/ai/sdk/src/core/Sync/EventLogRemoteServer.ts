@@ -39,23 +39,22 @@ export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemote
 
 /**
  * Build a WebSocket URL from a bound server address.
- * Throws if the address is not a TCP address.
  *
  * @deprecated Prefer `toWebSocketUrlEffect`.
  */
 /**
  * @since 0.0.0
  */
-export const toWebSocketUrl = (
+export const toWebSocketUrl = Effect.fn("EventLogRemoteServer.toWebSocketUrl")(function* (
   address: HttpServer.Address,
   options?: {
     readonly path?: string;
     readonly hostname?: string;
     readonly scheme?: "ws" | "wss";
   }
-) => {
+) {
   if (address._tag !== "TcpAddress") {
-    throw EventLogRemoteServerError.make({
+    return yield* EventLogRemoteServerError.make({
       message: "EventLogRemoteServer requires a TCP address to build a WebSocket URL.",
     });
   }
@@ -87,7 +86,7 @@ export const toWebSocketUrl = (
   const scheme = options?.scheme ?? parsedHostname.scheme ?? "ws";
   const port = parsedHostname.port ?? address.port;
   return `${scheme}://${formattedHostname}:${port}${path}`;
-};
+});
 
 const toWebSocketUrlError = (cause: unknown) =>
   cause instanceof EventLogRemoteServerError
@@ -108,10 +107,7 @@ export const toWebSocketUrlEffect = (
     readonly scheme?: "ws" | "wss";
   }
 ) =>
-  Effect.try({
-    try: () => toWebSocketUrl(address, options),
-    catch: toWebSocketUrlError,
-  });
+  toWebSocketUrl(address, options).pipe(Effect.mapError(toWebSocketUrlError));
 
 /**
  * @since 0.0.0
@@ -205,7 +201,12 @@ export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {})
           if (Exit.isSuccess(exit)) return exit.value;
           lastError = Cause.squash(exit.cause);
         }
-        return yield* toWebSocketUrlError(lastError ?? new Error("Failed to start test server."));
+        return yield* toWebSocketUrlError(
+          lastError ??
+            EventLogRemoteServerError.make({
+              message: "Failed to start test server.",
+            })
+        );
       });
       const httpServerLayer = Layer.effect(HttpServer.HttpServer, makeTestServer);
       return buildBunWebSocketLayerWithServer(options, httpServerLayer);

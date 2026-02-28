@@ -144,7 +144,7 @@ export const rateLimitHandler =
     return withRateLimit(limiterConfig)(handler(input));
   };
 
-type AnyHandler = (input: any) => Effect.Effect<any, any, any>;
+type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
 
 /**
  * Apply rate limiting to a map of handlers using a shared window config.
@@ -164,7 +164,7 @@ type AnyHandler = (input: any) => Effect.Effect<any, any, any>;
 /**
  * @since 0.0.0
  */
-export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
+export const rateLimitHandlers = <Handlers extends Record<string, HandlerLike>>(
   handlers: Handlers,
   config: RateLimitWindowConfig | ((name: keyof Handlers) => RateLimitWindowConfig),
   options?: { readonly keyPrefix?: string }
@@ -174,7 +174,7 @@ export const rateLimitHandlers = <Handlers extends Record<string, AnyHandler>>(
 
   for (const [name, handler] of R.toEntries(handlers)) {
     const resolved = P.isFunction(config) ? config(name as keyof Handlers) : config;
-    output[name as keyof Handlers] = rateLimitHandler(handler as AnyHandler, {
+    output[name as keyof Handlers] = rateLimitHandler(handler, {
       ...resolved,
       key: `${prefix}${name}`,
     }) as Handlers[keyof Handlers];

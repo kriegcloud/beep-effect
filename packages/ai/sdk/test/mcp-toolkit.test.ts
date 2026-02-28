@@ -1,12 +1,38 @@
 import { Mcp, Tools } from "@beep/ai-sdk";
+import { CallToolResult, type CallToolResult as CallToolResultType } from "@beep/ai-sdk/Schema/External";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
 import { z } from "zod";
 
 class ExplosionError extends Error {
   readonly _tag = "ExplosionError";
 }
+
+const requireFirst = <A>(items: ReadonlyArray<A>): A => {
+  const first = items[0];
+  if (first === undefined) {
+    throw new Error("Expected at least one item");
+  }
+  return first;
+};
+
+const decodeCallToolResult = Schema.decodeUnknownSync(CallToolResult);
+
+const invokeTool = async (
+  tool: unknown,
+  params: Record<string, unknown>
+): Promise<CallToolResultType> => {
+  if (!Predicate.isObject(tool)) {
+    throw new Error("Expected MCP tool object");
+  }
+  const handler = Reflect.get(tool, "handler");
+  if (!Predicate.isFunction(handler)) {
+    throw new Error("Expected MCP tool handler");
+  }
+  return decodeCallToolResult(await handler(params, {}));
+};
 
 test("Mcp.toolsFromToolkit builds tools and renders success results", async () => {
   const Echo = Tools.Tool.make("echo", {
@@ -25,10 +51,10 @@ test("Mcp.toolsFromToolkit builds tools and renders success results", async () =
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
   expect(tools).toHaveLength(1);
 
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
   expect(z.object(tool.inputSchema).safeParse({ message: "hi" }).success).toBe(true);
 
-  const result = await tool.handler({ message: "hi" }, {});
+  const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(false);
   expect(result.structuredContent).toEqual({ message: "hi" });
 });
@@ -49,9 +75,9 @@ test("Mcp.toolsFromToolkit renders failure-mode results as errors", async () => 
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ reason: "nope" }, {});
+  const result = await invokeTool(tool, { reason: "nope" });
   expect(result.isError).toBe(true);
   expect(result.structuredContent).toEqual({ reason: "nope" });
 });
@@ -71,9 +97,9 @@ test("Mcp.toolsFromToolkit maps handler errors to CallToolResult", async () => {
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ message: 123 }, {});
+  const result = await invokeTool(tool, { message: 123 });
   expect(result.isError).toBe(true);
   expect(result.structuredContent).toBeDefined();
   if (result.structuredContent) {
@@ -98,9 +124,9 @@ test("Mcp.toolsFromToolkit serializes error instances in structuredContent", asy
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ message: "hi" }, {});
+  const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(true);
   expect(result.structuredContent).toBeDefined();
   if (result.structuredContent) {

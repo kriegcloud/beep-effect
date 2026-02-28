@@ -1,5 +1,5 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
-import { Duration, Layer, ManagedRuntime } from "effect";
+import { Duration, Effect, Layer, Match } from "effect";
 import * as P from "effect/Predicate";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";
 import { AgentRuntimeConfig } from "./AgentRuntimeConfig.js";
@@ -81,36 +81,38 @@ const resolveQuickConfig = (config?: QuickConfig): ResolvedQuickConfig => ({
 
 const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
-const validateQuickConfig = (config: ResolvedQuickConfig) => {
+const failConfig = (message: string): Effect.Effect<never, ConfigError> =>
+  Effect.fail(
+    ConfigError.make({
+      message,
+    })
+  );
+
+const validateQuickConfig = Effect.fn("QuickConfig.validateQuickConfig")(function* (config: ResolvedQuickConfig) {
   const backend = config.storageBackend;
   const mode = config.storageMode;
   const isSyncPersistence = P.isObject(config.persistence) && "sync" in config.persistence;
 
   if (backend === "kv" && mode === "journaled") {
-    throw ConfigError.make({
-      message: "QuickConfig: storageBackend 'kv' cannot be used with storageMode 'journaled'.",
-    });
+    return yield* failConfig("QuickConfig: storageBackend 'kv' cannot be used with storageMode 'journaled'.");
   }
 
   if (backend === "kv" && config.allowUnsafeKv !== true) {
-    throw ConfigError.make({
-      message:
-        "QuickConfig: storageBackend 'kv' is disabled by default due KV's 1 write/sec/key limit. Prefer storageBackend 'r2', or set allowUnsafeKv: true to override.",
-    });
+    return yield* failConfig(
+      "QuickConfig: storageBackend 'kv' is disabled by default due KV's 1 write/sec/key limit. Prefer storageBackend 'r2', or set allowUnsafeKv: true to override."
+    );
   }
 
   if (isSyncPersistence && (backend === "r2" || backend === "kv")) {
-    throw ConfigError.make({
-      message: `QuickConfig: persistence.sync is not supported with storageBackend '${backend}'. Use backend 'bun' or 'filesystem'.`,
-    });
+    return yield* failConfig(
+      `QuickConfig: persistence.sync is not supported with storageBackend '${backend}'. Use backend 'bun' or 'filesystem'.`
+    );
   }
 
   if (config.tenant !== undefined && !tenantPattern.test(config.tenant)) {
-    throw ConfigError.make({
-      message: "QuickConfig: invalid tenant format. Expected /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.",
-    });
+    return yield* failConfig("QuickConfig: invalid tenant format. Expected /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.");
   }
-};
+});
 
 type RuntimeParts = {
   readonly runtime: Layer.Layer<AgentRuntime, unknown, never>;
@@ -154,7 +156,7 @@ const memoryPersistenceLayers = (runtime: Layer.Layer<AgentRuntime, unknown, nev
 
 const resolveSandboxLayer = (
   config: ResolvedQuickConfig
-): Layer.Layer<SandboxService, unknown, QuerySupervisor> | Layer.Layer<SandboxService, unknown> | undefined => {
+): Layer.Layer<SandboxService, unknown, QuerySupervisor> | Layer.Layer<SandboxService, unknown, never> | undefined => {
   if (!config.sandbox) return undefined;
   if (config.sandbox === "local") {
     return layerLocal;
@@ -184,8 +186,9 @@ const resolveStorageLayers = (config: ResolvedQuickConfig) => {
     ...(directory !== undefined ? { directory } : {}),
     ...(config.storageBindings !== undefined ? { bindings: config.storageBindings } : {}),
   };
-  switch (backend) {
-    case "filesystem": {
+
+  return Match.value(backend).pipe(
+    Match.when("filesystem", () => {
       const layers = storageLayers({
         backend: "filesystem",
         ...commonOptions,
@@ -197,47 +200,29 @@ const resolveStorageLayers = (config: ResolvedQuickConfig) => {
         auditLog: layers.auditLog.pipe(Layer.provide(bunFileSystemLayer)),
         sessionIndex: layers.sessionIndex.pipe(Layer.provide(bunFileSystemLayer)),
       };
-    }
-    case "r2":
-      return storageLayers({
+    }),
+    Match.when("r2", () =>
+      storageLayers({
         backend: "r2",
         ...commonOptions,
-      });
-    case "kv":
-      return storageLayers({
+      })
+    ),
+    Match.when("kv", () =>
+      storageLayers({
         backend: "kv",
         ...commonOptions,
-      });
-    default:
-      return storageLayers({
+      })
+    ),
+    Match.orElse(() =>
+      storageLayers({
         backend: "bun",
         ...commonOptions,
-      });
-  }
+      })
+    )
+  );
 };
 
-/**
- * Build a convenience AgentRuntime layer using simplified configuration.
- *
- * The returned layer provides `AgentRuntime` and `QuerySupervisor`.
- * When `sandbox` is configured, `SandboxService` is also provided.
- */
-/**
- * @since 0.0.0
- */
-export function runtimeLayer(
-  config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
-): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, unknown, unknown>;
-/**
- * @since 0.0.0
- */
-export function runtimeLayer(config?: QuickConfig): Layer.Layer<AgentRuntime | QuerySupervisor, unknown, unknown>;
-/**
- * @since 0.0.0
- */
-export function runtimeLayer(config?: QuickConfig) {
-  const resolved = resolveQuickConfig(config);
-  validateQuickConfig(resolved);
+const buildRuntimeLayer = (resolved: ResolvedQuickConfig) => {
   const { runtime, supervisor } = buildRuntimeParts(resolved);
   const sandboxLayer = resolveSandboxLayer(resolved);
 
@@ -273,42 +258,56 @@ export function runtimeLayer(config?: QuickConfig) {
     return sandboxLayer.pipe(Layer.provideMerge(withSupervisor));
   }
   return withSupervisor;
-}
+};
 
 /**
- * Build a ManagedRuntime from QuickConfig.
+ * Build a convenience AgentRuntime layer using simplified configuration.
  *
- * Unlike `runtimeLayer()` (which returns a Layer for composition),
- * `managedRuntime()` returns a lifecycle-managed runtime with `.runPromise()`
- * and `.dispose()`. Services are baked in — no `Effect.provide` needed.
- *
- * Ideal for:
- * - Cloudflare Workers (cache per-isolate, reuse across requests)
- * - Multi-query sessions (avoid rebuilding layers per call)
- * - Scripts that want simpler lifecycle management
+ * The returned layer provides `AgentRuntime` and `QuerySupervisor`.
+ * When `sandbox` is configured, `SandboxService` is also provided.
  */
 /**
  * @since 0.0.0
  */
-export function managedRuntime(
+export function runtimeLayer(
   config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
-): ManagedRuntime.ManagedRuntime<AgentRuntime | QuerySupervisor | SandboxService, unknown>;
+): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, unknown, unknown>;
 /**
  * @since 0.0.0
  */
-export function managedRuntime(
-  config?: QuickConfig
-): ManagedRuntime.ManagedRuntime<AgentRuntime | QuerySupervisor, unknown>;
+export function runtimeLayer(config?: QuickConfig): Layer.Layer<AgentRuntime | QuerySupervisor, unknown, unknown>;
 /**
  * @since 0.0.0
  */
-export function managedRuntime(config?: QuickConfig) {
+export function runtimeLayer(config?: QuickConfig) {
   const resolved = resolveQuickConfig(config);
-  validateQuickConfig(resolved);
-  const { runtime, supervisor } = buildRuntimeParts(resolved);
-  const withSupervisor = Layer.merge(runtime, supervisor);
-  const sandboxLayer = resolveSandboxLayer(resolved);
-  const runtimeServices = sandboxLayer ? sandboxLayer.pipe(Layer.provideMerge(withSupervisor)) : withSupervisor;
-
-  return ManagedRuntime.make(runtimeServices.pipe(Layer.provide(BunFileSystem.layer), Layer.provide(BunPath.layer)));
+  return Layer.unwrap(validateQuickConfig(resolved).pipe(Effect.map(() => buildRuntimeLayer(resolved))));
 }
+
+type RuntimeCreator = ReturnType<typeof runtimeLayer>;
+
+/**
+ * Build a convenience AgentRuntime layer using simplified configuration.
+ *
+ * The returned layer provides `AgentRuntime` and `QuerySupervisor`.
+ * When `sandbox` is configured, `SandboxService` is also provided.
+ */
+/**
+ * @since 0.0.0
+ */
+export function managedRuntime(config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }): RuntimeCreator;
+/**
+ * @since 0.0.0
+ */
+export function managedRuntime(config?: QuickConfig): RuntimeCreator;
+/**
+ * @since 0.0.0
+ */
+export function managedRuntime(config?: QuickConfig): RuntimeCreator {
+  return runtimeLayer(config);
+}
+
+/**
+ * @since 0.0.0
+ */
+export const makeManagedRuntime = (config?: QuickConfig) => runtimeLayer(config);

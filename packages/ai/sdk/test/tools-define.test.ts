@@ -1,7 +1,33 @@
 import { Mcp, Tools } from "@beep/ai-sdk";
+import { CallToolResult, type CallToolResult as CallToolResultType } from "@beep/ai-sdk/Schema/External";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
+
+const requireFirst = <A>(items: ReadonlyArray<A>): A => {
+  const first = items[0];
+  if (first === undefined) {
+    throw new Error("Expected at least one item");
+  }
+  return first;
+};
+
+const decodeCallToolResult = Schema.decodeUnknownSync(CallToolResult);
+
+const invokeTool = async (
+  tool: unknown,
+  params: Record<string, unknown>
+): Promise<CallToolResultType> => {
+  if (!Predicate.isObject(tool)) {
+    throw new Error("Expected MCP tool object");
+  }
+  const handler = Reflect.get(tool, "handler");
+  if (!Predicate.isFunction(handler)) {
+    throw new Error("Expected MCP tool handler");
+  }
+  return decodeCallToolResult(await handler(params, {}));
+};
 
 test("Tool.define attaches handler and accepts schema parameters", async () => {
   const Params = Schema.Struct({
@@ -23,9 +49,9 @@ test("Tool.define attaches handler and accepts schema parameters", async () => {
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ message: "hi" }, {});
+  const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(false);
   expect(result.structuredContent).toEqual({ message: "hi" });
 });
@@ -49,9 +75,9 @@ test("Tool.fn defines a tool with handler as last argument", async () => {
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ message: "hi" }, {});
+  const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(false);
   expect(result.structuredContent).toEqual({ message: "hi" });
 });
@@ -69,9 +95,9 @@ test("Toolkit.fromHandlers builds toolkit and handler map", async () => {
   });
 
   const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, toolkit.handlers));
-  const tool = tools[0] as any;
+  const tool = requireFirst(tools);
 
-  const result = await tool.handler({ message: "hi" }, {});
+  const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(false);
   expect(result.structuredContent).toEqual({ message: "hi" });
 });

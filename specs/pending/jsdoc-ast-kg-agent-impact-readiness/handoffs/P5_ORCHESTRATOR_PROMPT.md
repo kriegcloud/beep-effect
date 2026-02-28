@@ -4,7 +4,7 @@ Finalize go/no-go decision for JSDoc-enriched AST KG rollout.
 
 Deliver:
 
-1. `outputs/p5-rollout-decision.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p5-rollout-decision.md`
 
 Constraints:
 

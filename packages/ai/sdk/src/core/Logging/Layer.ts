@@ -1,20 +1,15 @@
-import { Effect, Layer, Logger, References } from "effect";
+import { Effect, Layer, Logger, Match, References } from "effect";
 import { AgentLoggingConfig, type LogFormat } from "./Config.js";
 
-const resolveLogger = (format: LogFormat) => {
-  switch (format) {
-    case "pretty":
-      return Logger.consolePretty();
-    case "structured":
-      return Logger.consoleStructured;
-    case "json":
-      return Logger.consoleJson;
-    case "logfmt":
-      return Logger.consoleLogFmt;
-    case "string":
-      return Logger.withConsoleLog(Logger.formatSimple);
-  }
-};
+const resolveLogger = (format: LogFormat) =>
+  Match.value(format).pipe(
+    Match.when("pretty", () => Logger.consolePretty()),
+    Match.when("structured", () => Logger.consoleStructured),
+    Match.when("json", () => Logger.consoleJson),
+    Match.when("logfmt", () => Logger.consoleLogFmt),
+    Match.when("string", () => Logger.withConsoleLog(Logger.formatSimple)),
+    Match.exhaustive
+  );
 
 /**
  * @since 0.0.0

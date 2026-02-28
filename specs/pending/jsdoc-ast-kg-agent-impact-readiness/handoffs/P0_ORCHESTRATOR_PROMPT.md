@@ -4,7 +4,7 @@ Execute P0 gate freeze for JSDoc-enriched AST KG impact readiness.
 
 Deliver:
 
-1. `outputs/p0-baseline-and-gates.md`
+1. `specs/pending/jsdoc-ast-kg-agent-impact-readiness/outputs/p0-baseline-and-gates.md`
 
 Constraints:
 

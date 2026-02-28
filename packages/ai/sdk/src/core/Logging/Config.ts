@@ -1,6 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Config, Effect, Layer, type LogLevel, ServiceMap } from "effect";
+import { Config, Effect, Layer, Match, type LogLevel, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ConfigError } from "../Errors.js";
@@ -59,32 +59,23 @@ const parseLogFormat = (value: string) => {
 
 const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigError> => {
   const normalized = value.trim().toLowerCase();
-  switch (normalized) {
-    case "all":
-      return Effect.succeed("All");
-    case "trace":
-      return Effect.succeed("Trace");
-    case "debug":
-      return Effect.succeed("Debug");
-    case "info":
-      return Effect.succeed("Info");
-    case "warn":
-    case "warning":
-      return Effect.succeed("Warn");
-    case "error":
-      return Effect.succeed("Error");
-    case "fatal":
-      return Effect.succeed("Fatal");
-    case "off":
-    case "none":
-      return Effect.succeed("None");
-    default:
-      return Effect.fail(
+  return Match.value(normalized).pipe(
+    Match.when("all", () => Effect.succeed<LogLevel.LogLevel>("All")),
+    Match.when("trace", () => Effect.succeed<LogLevel.LogLevel>("Trace")),
+    Match.when("debug", () => Effect.succeed<LogLevel.LogLevel>("Debug")),
+    Match.when("info", () => Effect.succeed<LogLevel.LogLevel>("Info")),
+    Match.whenOr("warn", "warning", () => Effect.succeed<LogLevel.LogLevel>("Warn")),
+    Match.when("error", () => Effect.succeed<LogLevel.LogLevel>("Error")),
+    Match.when("fatal", () => Effect.succeed<LogLevel.LogLevel>("Fatal")),
+    Match.whenOr("off", "none", () => Effect.succeed<LogLevel.LogLevel>("None")),
+    Match.orElse(() =>
+      Effect.fail(
         ConfigError.make({
           message: `Invalid log level: ${value}`,
         })
-      );
-  }
+      )
+    )
+  );
 };
 
 /**

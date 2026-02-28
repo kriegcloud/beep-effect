@@ -424,7 +424,7 @@ function makeService() {
     ) {
       const socket = yield* O.match(socketOption, {
         onNone: () =>
-          Effect.die(new Error("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet.")),
+          Effect.die("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet."),
         onSome: (service) => Effect.succeed(service),
       });
       const effect = EventLogRemote.fromSocket(options).pipe(
@@ -463,9 +463,7 @@ function makeService() {
       const webSocketConstructor = yield* O.match(webSocketConstructorOption, {
         onNone: () =>
           Effect.die(
-            new Error(
-              "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
-            )
+            "SyncService.connectWebSocket requires Socket.WebSocketConstructor. Provide BunSocket.layerWebSocketConstructor."
           ),
         onSome: (constructor) => Effect.succeed(constructor),
       });

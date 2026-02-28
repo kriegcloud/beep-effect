@@ -1,5 +1,6 @@
 import { Clock, Effect, MutableHashMap } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js";
 import { onPermissionRequest, onPostToolUse, onPostToolUseFailure, onPreToolUse, tap } from "./Hook.js";
 import { mergeHookMaps } from "./utils.js";
@@ -20,6 +21,8 @@ const allEvents: ReadonlyArray<HookEvent> = [
   "Setup",
 ];
 
+const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
+
 /**
  * @since 0.0.0
  */
@@ -30,7 +33,7 @@ export const consoleLogger = (options?: {
   tap(options?.events ?? allEvents, (input) =>
     Effect.sync(() => {
       if (options?.format === "json") {
-        console.log(JSON.stringify(input));
+        console.log(O.getOrElse(encodeJson(input), () => String(input)));
         return;
       }
       console.log(`[${input.hook_event_name}] ${input.session_id}`);
@@ -66,7 +69,7 @@ export const autoDeny = (options: {
       return Effect.succeed({});
     }
     if (options.match) {
-      const raw = JSON.stringify(input.tool_input ?? "");
+      const raw = O.getOrElse(encodeJson(input.tool_input ?? ""), () => String(input.tool_input ?? ""));
       if (!raw.includes(options.match)) {
         return Effect.succeed({});
       }
