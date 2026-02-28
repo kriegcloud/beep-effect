@@ -1,19 +1,17 @@
-import { expect, test } from "bun:test";
-import * as EventJournal from "@effect/experimental/EventJournal";
-import * as EventLog from "@effect/experimental/EventLog";
-import * as EventLogEncryption from "@effect/experimental/EventLogEncryption";
-import { KeyValueStore } from "@effect/platform";
-import * as Context from "effect/Context";
+import { Sync } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Sync } from "../src/index.js";
+import * as ServiceMap from "effect/ServiceMap";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
+import * as EventLog from "effect/unstable/eventlog/EventLog";
+import * as EventLogEncryption from "effect/unstable/eventlog/EventLogEncryption";
 import { runEffect } from "./effect-test.js";
 
 test("SyncService.layer builds without WebSocketConstructor", async () => {
   const eventLogLayer = EventLog.layerEventLog.pipe(
     Layer.provide(EventJournal.layerMemory),
-    Layer.provide(EventLog.layerIdentityKvs({ key: "sync-test-identity" })),
-    Layer.provide(KeyValueStore.layerMemory)
+    Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe()))
   );
 
   const layer = Sync.SyncService.layer.pipe(
@@ -25,7 +23,7 @@ test("SyncService.layer builds without WebSocketConstructor", async () => {
     Effect.scoped(
       Effect.gen(function* () {
         const context = yield* Layer.build(layer);
-        const service = Context.get(context, Sync.SyncService);
+        const service = ServiceMap.get(context, Sync.SyncService);
         return yield* service.status();
       })
     )

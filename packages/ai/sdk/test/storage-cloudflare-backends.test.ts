@@ -1,16 +1,15 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import type { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { ArtifactStore } from "@beep/ai-sdk/Storage/ArtifactStore";
+import { ChatHistoryStore } from "@beep/ai-sdk/Storage/ChatHistoryStore";
+import { defaultArtifactPrefix, defaultChatHistoryPrefix } from "@beep/ai-sdk/Storage/defaults";
+import { type KVNamespace, layerKV } from "@beep/ai-sdk/Storage/StorageKV";
+import { layers as storageLayers } from "@beep/ai-sdk/Storage/StorageLayers";
+import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import type { SDKMessage } from "../src/Schema/Message.js";
-import type { ArtifactRecord } from "../src/Schema/Storage.js";
-import { ArtifactStore } from "../src/Storage/ArtifactStore.js";
-import { ChatHistoryStore } from "../src/Storage/ChatHistoryStore.js";
-import { defaultArtifactPrefix, defaultChatHistoryPrefix } from "../src/Storage/defaults.js";
-import { type KVNamespace, layerKV } from "../src/Storage/StorageKV.js";
-import { layers as storageLayers } from "../src/Storage/StorageLayers.js";
-import { layerR2, type R2Bucket } from "../src/Storage/StorageR2.js";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
 
 const makeR2Harness = () => {
@@ -124,7 +123,7 @@ test("StorageR2 layer supports key-value operations", async () => {
     yield* kv.remove("k1");
     const hasAfter = yield* kv.has("k1");
     return {
-      value: Option.getOrUndefined(value),
+      value,
       hasBefore,
       hasAfter,
     };
@@ -145,7 +144,7 @@ test("StorageKV layer supports key-value operations", async () => {
     yield* kv.remove("k1");
     const hasAfter = yield* kv.has("k1");
     return {
-      value: Option.getOrUndefined(value),
+      value,
       hasBefore,
       hasAfter,
     };

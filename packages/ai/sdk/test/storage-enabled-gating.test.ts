@@ -1,14 +1,14 @@
-import { expect, test } from "bun:test";
+import { Storage } from "@beep/ai-sdk";
+import type { SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
+import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { expect, test } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Storage } from "../src/index.js";
-import type { SDKUserMessage } from "../src/Schema/Message.js";
-import { ArtifactRecord } from "../src/Schema/Storage.js";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  Layer.setConfigProvider(ConfigProvider.fromMap(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
 
 const makeUserMessage = (sessionId: string, text: string): SDKUserMessage => ({
   type: "user",

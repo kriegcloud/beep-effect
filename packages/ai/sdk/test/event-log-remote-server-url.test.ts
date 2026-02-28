@@ -1,6 +1,6 @@
-import { expect, test } from "bun:test";
-import type * as HttpServer from "@effect/platform/HttpServer";
-import { Sync } from "../src/index.js";
+import { Sync } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
+import type * as HttpServer from "effect/unstable/http/HttpServer";
 import { runEffect } from "./effect-test.js";
 
 test("toWebSocketUrlEffect maps 0.0.0.0 to 127.0.0.1", async () => {

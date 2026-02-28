@@ -1,8 +1,8 @@
-import { expect, test } from "bun:test";
+import { Mcp, Tools } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import { z } from "zod";
-import { Mcp, Tools } from "../src/index.js";
 
 class ExplosionError extends Error {
   readonly _tag = "ExplosionError";

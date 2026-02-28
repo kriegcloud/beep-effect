@@ -1,11 +1,10 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
-import * as PlatformError from "@effect/platform/Error";
+import { Schema, Storage } from "@beep/ai-sdk";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import { Schema, Storage } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
 
 const makeArtifactRecord = (id: string, sessionId: string) =>
@@ -23,11 +22,9 @@ const makeControlledKeyValueLayer = () => {
   const getCalls: Array<string> = [];
   let failSetFor: (key: string) => boolean = () => false;
   const setFailure = (key: string) =>
-    new PlatformError.SystemError({
-      reason: "Unknown",
-      module: "KeyValueStore",
+    new KeyValueStore.KeyValueStoreError({
       method: "set",
-      description: `set failed for key=${key}`,
+      message: `set failed for key=${key}`,
     });
 
   const layer = Layer.succeed(
@@ -36,7 +33,7 @@ const makeControlledKeyValueLayer = () => {
       get: (key) =>
         Effect.sync(() => {
           getCalls.push(key);
-          return Option.fromNullable(map.get(key));
+          return map.get(key);
         }),
       set: (key, value) =>
         failSetFor(key)
@@ -79,13 +76,13 @@ test("ArtifactStore.put compensates record write when index save fails", async (
     Effect.gen(function* () {
       const store = yield* Storage.ArtifactStore;
       const record = makeArtifactRecord("artifact-1", sessionId);
-      const putResult = yield* Effect.either(store.put(record));
+      const putResult = yield* Effect.result(store.put(record));
       const stored = yield* store.get(record.id);
       return { putResult, stored };
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.putResult._tag).toBe("Left");
+  expect(result.putResult._tag).toBe("Failure");
   expect(Option.isNone(result.stored)).toBe(true);
 });
 
@@ -103,7 +100,7 @@ test("ArtifactStore.delete restores record when index save fails", async () => {
       yield* store.put(record);
 
       control.setFailPredicate((key) => key === `${prefix}/by-session/${sessionId}`);
-      const deleteResult = yield* Effect.either(store.delete(record.id));
+      const deleteResult = yield* Effect.result(store.delete(record.id));
       control.setFailPredicate(() => false);
 
       const stored = yield* store.get(record.id);
@@ -111,7 +108,7 @@ test("ArtifactStore.delete restores record when index save fails", async () => {
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.deleteResult._tag).toBe("Left");
+  expect(result.deleteResult._tag).toBe("Failure");
   expect(Option.isSome(result.stored)).toBe(true);
 });
 
@@ -158,7 +155,7 @@ test("ChatHistoryStore.appendMessage compensates event write when meta save fail
   const result = await runEffect(
     Effect.gen(function* () {
       const store = yield* Storage.ChatHistoryStore;
-      const appendResult = yield* Effect.either(store.appendMessage(sessionId, makeUserMessage("hello")));
+      const appendResult = yield* Effect.result(store.appendMessage(sessionId, makeUserMessage("hello")));
       control.setFailPredicate(() => false);
       const events = yield* store.list(sessionId);
       const eventKey = `${prefix}/${sessionId}/event/1`;
@@ -166,7 +163,7 @@ test("ChatHistoryStore.appendMessage compensates event write when meta save fail
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.appendResult._tag).toBe("Left");
+  expect(result.appendResult._tag).toBe("Failure");
   expect(result.events).toEqual([]);
   expect(result.hasEventKey).toBe(false);
 });

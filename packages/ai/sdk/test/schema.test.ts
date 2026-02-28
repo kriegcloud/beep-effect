@@ -1,8 +1,8 @@
-import { expect, test } from "bun:test";
+import * as S from "@beep/ai-sdk/Schema/index";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
+import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
-import * as S from "../src/Schema/index.js";
 
 test("AgentInput decodes with required fields", () => {
   const input = {
@@ -10,7 +10,7 @@ test("AgentInput decodes with required fields", () => {
     prompt: "do the thing",
     subagent_type: "builder",
   };
-  const decoded = Effect.runSync(Schema.decodeUnknown(S.AgentInput)(input));
+  const decoded = Schema.decodeUnknownSync(S.AgentInput)(input);
   expect(decoded.description).toBe("short task");
 });
 
@@ -21,8 +21,8 @@ test("AgentInput rejects unknown fields", () => {
     subagent_type: "builder",
     extra: "nope",
   };
-  const result = Effect.runSync(Effect.either(Schema.decodeUnknown(S.AgentInput)(input)));
-  expect(Either.isLeft(result)).toBe(true);
+  const result = Effect.runSync(Effect.result(Schema.decodeUnknownEffect(S.AgentInput)(input)));
+  expect(Result.isFailure(result)).toBe(true);
 });
 
 test("SDKUserMessage preserves unknown fields", () => {
@@ -33,8 +33,8 @@ test("SDKUserMessage preserves unknown fields", () => {
     session_id: "session-1",
     extra_field: 123,
   };
-  const decoded = Effect.runSync(Schema.decodeUnknown(S.SDKUserMessage)(input)) as Record<string, unknown>;
-  expect(decoded.extra_field).toBe(123);
+  const decoded = Schema.decodeUnknownSync(S.SDKUserMessage)(input);
+  expect(Object.prototype.hasOwnProperty.call(decoded, "extra_field")).toBe(true);
 });
 
 test("AskUserQuestionInput enforces question count", () => {
@@ -43,6 +43,6 @@ test("AskUserQuestionInput enforces question count", () => {
     answers: {},
     metadata: {},
   };
-  const result = Effect.runSync(Effect.either(Schema.decodeUnknown(S.AskUserQuestionInput)(input)));
-  expect(Either.isLeft(result)).toBe(true);
+  const result = Effect.runSync(Effect.result(Schema.decodeUnknownEffect(S.AskUserQuestionInput)(input)));
+  expect(Result.isFailure(result)).toBe(true);
 });

@@ -1,18 +1,18 @@
-import { expect, test } from "bun:test";
+import { AgentSdkError } from "@beep/ai-sdk/Errors";
+import type { QueryHandle, StreamBroadcastConfig } from "@beep/ai-sdk/Query";
+import { QueryPendingTimeoutError, QueryQueueFullError, QuerySupervisor } from "@beep/ai-sdk/QuerySupervisor";
+import { SandboxError } from "@beep/ai-sdk/Sandbox/SandboxError";
+import { layerLocal } from "@beep/ai-sdk/Sandbox/SandboxLocal";
+import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { AgentSdkError } from "../src/Errors.js";
-import type { QueryHandle } from "../src/Query.js";
-import { QueryPendingTimeoutError, QueryQueueFullError, QuerySupervisor } from "../src/QuerySupervisor.js";
-import { SandboxError } from "../src/Sandbox/SandboxError.js";
-import { layerLocal } from "../src/Sandbox/SandboxLocal.js";
-import { SandboxService } from "../src/Sandbox/SandboxService.js";
 import { runEffect } from "./effect-test.js";
 
 const makeHandle = (): QueryHandle => {
-  const stream = Stream.empty;
+  const stream: Stream.Stream<never> = Stream.empty;
   return {
     stream,
     send: () => Effect.void,
@@ -20,7 +20,13 @@ const makeHandle = (): QueryHandle => {
     sendForked: () => Effect.void,
     closeInput: Effect.void,
     share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
-    broadcast: (n, maximumLag) => Stream.broadcast(stream, n, maximumLag ?? 16),
+    broadcast: (config?: StreamBroadcastConfig) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
     interrupt: Effect.void,
     setPermissionMode: () => Effect.void,
     setModel: () => Effect.void,
@@ -30,7 +36,15 @@ const makeHandle = (): QueryHandle => {
     supportedModels: Effect.succeed([]),
     mcpServerStatus: Effect.succeed([]),
     setMcpServers: () => Effect.succeed({ added: [], removed: [], errors: {} }),
-    accountInfo: Effect.succeed({} as never),
+    accountInfo: Effect.succeed({}),
+    initializationResult: Effect.succeed({
+      commands: [],
+      output_style: "default",
+      available_output_styles: [],
+      models: [],
+      account: {},
+    }),
+    stopTask: () => Effect.void,
   };
 };
 
@@ -52,7 +66,7 @@ test("QuerySupervisor errors are part of AgentSdkError union", () => {
     queryId: "query-1",
     timeoutMs: 1000,
   });
-  const queueError = QueryQueueFullError.make({
+  const queueError = new QueryQueueFullError({
     message: "queue full",
     queryId: "query-2",
     capacity: 4,
@@ -65,7 +79,7 @@ test("QuerySupervisor errors are part of AgentSdkError union", () => {
 });
 
 test("SandboxLocal.exec uses non-shell arg handling", async () => {
-  const supervisor = QuerySupervisor.make({
+  const supervisor = QuerySupervisor.of({
     submit: () => Effect.succeed(makeHandle()),
     submitStream: () => Stream.empty,
     stats: Effect.succeed({
@@ -94,7 +108,7 @@ test("SandboxLocal.exec uses non-shell arg handling", async () => {
 });
 
 test("SandboxLocal.writeFile/readFile roundtrip", async () => {
-  const supervisor = QuerySupervisor.make({
+  const supervisor = QuerySupervisor.of({
     submit: () => Effect.succeed(makeHandle()),
     submitStream: () => Stream.empty,
     stats: Effect.succeed({
@@ -129,7 +143,7 @@ test("SandboxLocal.runAgent delegates to QuerySupervisor.submit", async () => {
   let capturedOptions: unknown;
 
   const handle = makeHandle();
-  const supervisor = QuerySupervisor.make({
+  const supervisor = QuerySupervisor.of({
     submit: (prompt, options) =>
       Effect.sync(() => {
         capturedPrompt = prompt as string;

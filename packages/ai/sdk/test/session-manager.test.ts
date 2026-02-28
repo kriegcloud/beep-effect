@@ -1,8 +1,8 @@
-import { expect, mock, test } from "bun:test";
+import { expect, test, vi } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 let createOptions: unknown;
@@ -21,7 +21,7 @@ const makeSession = (sessionId = "session-1") => ({
   [Symbol.asyncDispose]: async () => {},
 });
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
       return;
@@ -64,7 +64,7 @@ mock.module("@anthropic-ai/claude-agent-sdk", () => ({
 }));
 
 const configLayer = (entries: Record<string, string>) =>
-  Layer.setConfigProvider(ConfigProvider.fromMap(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
 
 test("SessionManager.create merges defaults and overrides", async () => {
   createOptions = undefined;
@@ -221,9 +221,9 @@ test("SessionManager.create fails when model is missing", async () => {
     }).pipe(Effect.provide(layer))
   );
 
-  const result = await runEffect(Effect.either(program));
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("ConfigError");
+  const result = await runEffect(Effect.result(program));
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("ConfigError");
   }
 });

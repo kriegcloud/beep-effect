@@ -1,8 +1,8 @@
-import { expect, mock, test } from "bun:test";
+import { expect, test, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
 import { runEffect } from "./effect-test.js";
 
@@ -31,7 +31,7 @@ const makeSdkQuery = (prompt: unknown) => {
   });
 };
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: ({ prompt }: { prompt: unknown }) => makeSdkQuery(prompt),
   createSdkMcpServer: (_options: unknown) => ({}),
   tool: (
@@ -58,8 +58,8 @@ mock.module("@anthropic-ai/claude-agent-sdk", () => ({
 }));
 
 test("AgentSdk.query surfaces failures from streaming prompt", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
+  const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* failingPrompt() {
     throw new Error("boom");
@@ -69,7 +69,7 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
     Layer.provide(
       Layer.succeed(
         AgentSdkConfig,
-        AgentSdkConfig.make({
+        AgentSdkConfig.of({
           options: {},
           sandboxProvider: Option.some("local"),
           sandboxId: Option.none(),
@@ -87,21 +87,21 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
     Effect.gen(function* () {
       const sdk = yield* AgentSdk;
       const handle = yield* sdk.query(failingPrompt());
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     }).pipe(Effect.provide(layer))
   );
 
   const result = await runEffect(program);
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("TransportError");
-    expect(result.left.message).toBe("Input stream failed");
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("TransportError");
+    expect(result.failure.message).toBe("Input stream failed");
   }
 });
 
 test("AgentSdk.query closeInput does not fail output stream", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
+  const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* emptyPrompt() {
     return;
@@ -111,7 +111,7 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
     Layer.provide(
       Layer.succeed(
         AgentSdkConfig,
-        AgentSdkConfig.make({
+        AgentSdkConfig.of({
           options: {},
           sandboxProvider: Option.some("local"),
           sandboxId: Option.none(),
@@ -130,10 +130,10 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
       const sdk = yield* AgentSdk;
       const handle = yield* sdk.query(emptyPrompt());
       yield* handle.closeInput;
-      return yield* Effect.either(Stream.runCollect(handle.stream));
+      return yield* Effect.result(Stream.runCollect(handle.stream));
     }).pipe(Effect.provide(layer))
   );
 
   const result = await runEffect(program);
-  expect(Either.isRight(result)).toBe(true);
+  expect(Result.isSuccess(result)).toBe(true);
 });

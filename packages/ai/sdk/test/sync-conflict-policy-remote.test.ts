@@ -1,14 +1,14 @@
-import { expect, test } from "bun:test";
-import * as EventJournal from "@effect/experimental/EventJournal";
-import { KeyValueStore } from "@effect/platform";
+import { Storage, Sync } from "@beep/ai-sdk";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Storage, Sync } from "../src/index.js";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
 
 const makeEntry = (msecs: number, label: string) =>
   new EventJournal.Entry({
-    id: EventJournal.makeEntryId({ msecs }),
+    id: EventJournal.makeEntryIdUnsafe({ msecs }),
     event: "event-conflict",
     primaryKey: "pk",
     payload: new TextEncoder().encode(label),
@@ -18,7 +18,7 @@ const writeConflict = (layer: Layer.Layer<Sync.ConflictPolicy>, order: "ascendin
   runEffect(
     Effect.gen(function* () {
       const journal = yield* EventJournal.EventJournal;
-      const remoteId = EventJournal.makeRemoteId();
+      const remoteId = EventJournal.makeRemoteIdUnsafe();
       const first = makeEntry(1000, "first");
       const second = makeEntry(2000, "second");
 

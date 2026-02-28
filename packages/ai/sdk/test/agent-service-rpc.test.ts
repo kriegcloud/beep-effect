@@ -1,19 +1,18 @@
-import { expect, test } from "bun:test";
-import * as HttpClient from "@effect/platform/HttpClient";
-import * as HttpClientError from "@effect/platform/HttpClientError";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
-import * as HttpServer from "@effect/platform/HttpServer";
-import { RpcClient, RpcSerialization, RpcServer } from "@effect/rpc";
+import { AgentRuntime, SessionPool } from "@beep/ai-sdk";
+import type { QueryHandle } from "@beep/ai-sdk/Query";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { layer as AgentRpcHandlers } from "@beep/ai-sdk/service/AgentRpcHandlers";
+import { AgentRpcs } from "@beep/ai-sdk/service/AgentRpcs";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
-import { AgentRuntime } from "../src/AgentRuntime.js";
-import type { QueryHandle } from "../src/Query.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
-import { SessionPool } from "../src/SessionPool.js";
-import { layer as AgentRpcHandlers } from "../src/service/AgentRpcHandlers.js";
-import { AgentRpcs } from "../src/service/AgentRpcs.js";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientError from "effect/unstable/http/HttpClientError";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { runEffect } from "./effect-test.js";
 
 const makeSuccessMessage = (result: string): SDKMessage => ({
@@ -94,10 +93,8 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
         return HttpClientResponse.fromWeb(request, response);
       },
       catch: (cause) =>
-        new HttpClientError.RequestError({
-          request,
-          reason: "Transport",
-          cause,
+        new HttpClientError.HttpClientError({
+          reason: new HttpClientError.TransportError({ request, cause }),
         }),
     })
   );
@@ -124,7 +121,7 @@ test("agent RPC API serves query and metadata", async () => {
       interrupt: Effect.void,
     }) as unknown as QueryHandle;
 
-  const runtime = AgentRuntime.make({
+  const runtime = AgentRuntime.of({
     query: () => Effect.succeed(makeHandle()),
     queryRaw: () => Effect.succeed(makeHandle()),
     stream: () => Stream.fromIterable([makeSuccessMessage("ok")]),
@@ -141,12 +138,14 @@ test("agent RPC API serves query and metadata", async () => {
 
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
   const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer));
-  const serverLayer = Layer.mergeAll(handlersLayer, RpcSerialization.layerNdjson, HttpServer.layerContext);
+  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
+  const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
+  const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
 
   const program = Effect.scoped(
     Effect.gen(function* () {
       const { handler } = yield* Effect.acquireRelease(
-        Effect.sync(() => RpcServer.toWebHandler(AgentRpcs, { layer: serverLayer })),
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
         ({ dispose }) => Effect.promise(dispose)
       );
 
@@ -209,8 +208,8 @@ test("agent RPC metadata uses queryRaw", async () => {
       interrupt: Effect.void,
     }) as unknown as QueryHandle;
 
-  const runtime = AgentRuntime.make({
-    query: () => Effect.dieMessage("query should not be used for metadata"),
+  const runtime = AgentRuntime.of({
+    query: () => Effect.die("query should not be used for metadata"),
     queryRaw: () => Effect.sync(makeHandle),
     stream: () => Stream.empty,
     stats: Effect.succeed({
@@ -226,12 +225,14 @@ test("agent RPC metadata uses queryRaw", async () => {
 
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
   const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer));
-  const serverLayer = Layer.mergeAll(handlersLayer, RpcSerialization.layerNdjson, HttpServer.layerContext);
+  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
+  const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
+  const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
 
   const program = Effect.scoped(
     Effect.gen(function* () {
       const { handler } = yield* Effect.acquireRelease(
-        Effect.sync(() => RpcServer.toWebHandler(AgentRpcs, { layer: serverLayer })),
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
         ({ dispose }) => Effect.promise(dispose)
       );
 
@@ -261,9 +262,9 @@ test("agent RPC metadata uses queryRaw", async () => {
 test("agent RPC session routes enforce caller tenant header", async () => {
   const captured: Array<string | undefined> = [];
 
-  const runtime = AgentRuntime.make({
-    query: () => Effect.dieMessage("query should not be used in session route test"),
-    queryRaw: () => Effect.dieMessage("queryRaw should not be used in session route test"),
+  const runtime = AgentRuntime.of({
+    query: () => Effect.die("query should not be used in session route test"),
+    queryRaw: () => Effect.die("queryRaw should not be used in session route test"),
     stream: () => Stream.empty,
     stats: Effect.succeed({
       active: 0,
@@ -300,7 +301,7 @@ test("agent RPC session routes enforce caller tenant header", async () => {
         lastUsedAt: 1,
       }),
     withSession: (_sessionId: string, _use: unknown, _tenant?: string) =>
-      Effect.dieMessage("withSession not used in test") as never,
+      Effect.die("withSession not used in test") as never,
     list: Effect.succeed([]),
     listByTenant: (tenant?: string) => {
       captured.push(tenant);
@@ -316,12 +317,14 @@ test("agent RPC session routes enforce caller tenant header", async () => {
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
   const poolLayer = Layer.succeed(SessionPool, pool);
   const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(poolLayer));
-  const serverLayer = Layer.mergeAll(handlersLayer, RpcSerialization.layerNdjson, HttpServer.layerContext);
+  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
+  const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
+  const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
 
   const program = Effect.scoped(
     Effect.gen(function* () {
       const { handler } = yield* Effect.acquireRelease(
-        Effect.sync(() => RpcServer.toWebHandler(AgentRpcs, { layer: serverLayer })),
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
         ({ dispose }) => Effect.promise(dispose)
       );
 
@@ -347,14 +350,14 @@ test("agent RPC session routes enforce caller tenant header", async () => {
       expect(Array.isArray(listed)).toBe(true);
       expect(captured[1]).toBe("team-a");
 
-      const mismatch = yield* Effect.either(
+      const mismatch = yield* Effect.result(
         client.SendSession({
           sessionId: "session-tenant",
           message: "hello",
           tenant: "team-b",
         })
       );
-      expect(mismatch._tag).toBe("Left");
+      expect(mismatch._tag).toBe("Failure");
       expect(captured.length).toBe(2);
     })
   );

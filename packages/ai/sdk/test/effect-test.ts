@@ -1,28 +1,29 @@
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Fiber from "effect/Fiber";
-import * as Logger from "effect/Logger";
-import * as TestContext from "effect/TestContext";
-import * as TestServices from "effect/TestServices";
+import * as ServiceMap from "effect/ServiceMap";
+import { TestClock } from "effect/testing";
 
-const testLayers = [TestContext.TestContext, Logger.remove(Logger.defaultLogger)] as const;
+const failWithPrettyCause = (cause: Cause.Cause<unknown>) =>
+  Effect.gen(function* () {
+    if (Cause.hasInterruptsOnly(cause)) {
+      return yield* Effect.die("All fibers interrupted without errors.");
+    }
+    const errors = Cause.prettyErrors(cause);
+    for (let i = 1; i < errors.length; i++) {
+      yield* Effect.logError(errors[i]);
+    }
+    const firstError = errors[0] ?? Cause.pretty(cause);
+    return yield* Effect.die(firstError);
+  });
 
-export const runEffect = <A, E>(effect: Effect.Effect<A, E>) =>
-  Effect.runPromise(
-    Effect.gen(function* () {
-      const exitFiber = yield* Effect.fork(Effect.exit(effect));
-      const exit = yield* Fiber.join(exitFiber);
-      if (Exit.isSuccess(exit)) return exit.value;
-      if (Cause.isInterruptedOnly(exit.cause)) {
-        return yield* Effect.die(new Error("All fibers interrupted without errors."));
-      }
-      const errors = Cause.prettyErrors(exit.cause);
-      for (let i = 1; i < errors.length; i++) {
-        yield* Effect.logError(errors[i]);
-      }
-      return yield* Effect.die(errors[0]);
-    }).pipe(Effect.provide(testLayers))
+export const runEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  Effect.runPromiseWith(ServiceMap.makeUnsafe<R>(new Map()))(
+    effect.pipe(
+      Effect.matchCauseEffect({
+        onSuccess: Effect.succeed,
+        onFailure: failWithPrettyCause,
+      })
+    )
   );
 
-export const runEffectLive = <A, E>(effect: Effect.Effect<A, E>) => runEffect(TestServices.provideLive(effect));
+export const runEffectLive = <A, E, R>(effect: Effect.Effect<A, E, R>) => runEffect(TestClock.withLive(effect));

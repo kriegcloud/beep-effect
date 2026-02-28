@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import { type KVNamespace, layerKV } from "@beep/ai-sdk/Storage/StorageKV";
+import { expect, test } from "@effect/vitest";
 import { Effect, Option } from "effect";
-import { type KVNamespace, layerKV } from "../src/Storage/StorageKV.js";
+import { KeyValueStore } from "effect/unstable/persistence";
 
 const makeMockKVNamespace = (data: Record<string, string> = {}): KVNamespace => ({
   get: async (key, _type?) => data[key] ?? null,

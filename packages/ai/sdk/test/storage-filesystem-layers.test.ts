@@ -1,10 +1,11 @@
-import { expect, test } from "bun:test";
-import { FileSystem } from "@effect/platform";
-import { BunFileSystem } from "@effect/platform-bun";
+import { Schema, Storage } from "@beep/ai-sdk";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import { expect, test } from "@effect/vitest";
+import { FileSystem } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Schema, Storage } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
+import * as EventLog from "effect/unstable/eventlog/EventLog";
 
 const withTempDir = <A, E, R>(prefix: string, effect: (dir: string) => Effect.Effect<A, E, R>) =>
   Effect.scoped(
@@ -76,8 +77,16 @@ test("ArtifactStore layerFileSystemBun persists records", async () => {
 test("AuditEventStore layerFileSystemBun persists entries", async () => {
   const program = withTempDir("audit-store-", (dir) =>
     Effect.gen(function* () {
-      const layerA = Storage.AuditEventStore.layerFileSystemBun({ directory: dir }).pipe(Layer.orDie);
-      const layerB = Storage.AuditEventStore.layerFileSystemBun({ directory: dir }).pipe(Layer.orDie);
+      const layerA = Storage.AuditEventStore.layerFileSystemBun({ directory: dir }).pipe(
+        Layer.provide([BunFileSystem.layer, BunPath.layer]),
+        Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
+        Layer.orDie
+      );
+      const layerB = Storage.AuditEventStore.layerFileSystemBun({ directory: dir }).pipe(
+        Layer.provide([BunFileSystem.layer, BunPath.layer]),
+        Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
+        Layer.orDie
+      );
 
       yield* Effect.gen(function* () {
         const store = yield* Storage.AuditEventStore;

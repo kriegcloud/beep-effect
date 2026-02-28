@@ -1,5 +1,5 @@
-import { expect, test } from "bun:test";
-import { buildRemoteUrl } from "../src/Sync/RemoteSync.js";
+import { buildRemoteUrl } from "@beep/ai-sdk/Sync/RemoteSync";
+import { expect, test } from "@effect/vitest";
 
 test("buildRemoteUrl requires a tenant for event-log", () => {
   expect(() => buildRemoteUrl("wss://sync.example.com")).toThrow(

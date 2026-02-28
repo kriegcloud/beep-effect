@@ -1,10 +1,10 @@
-import { expect, mock, test } from "bun:test";
+import { expect, test, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { runEffect } from "./effect-test.js";
 
 let closeCalls = 0;
 
-mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
       return;
@@ -57,7 +57,7 @@ mock.module("@anthropic-ai/claude-agent-sdk", () => ({
 
 test("Mcp.createSdkMcpServerScoped closes server on scope exit", async () => {
   closeCalls = 0;
-  const { createSdkMcpServerScoped } = await import("../src/Mcp/index.js");
+  const { createSdkMcpServerScoped } = await import("@beep/ai-sdk/Mcp/index");
 
   const program = Effect.scoped(
     Effect.gen(function* () {

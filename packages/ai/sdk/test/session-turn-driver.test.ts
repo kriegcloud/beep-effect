@@ -1,12 +1,12 @@
-import { expect, test } from "bun:test";
+import { TransportError } from "@beep/ai-sdk/Errors";
+import { makeSessionTurnDriver } from "@beep/ai-sdk/internal/sessionTurnDriver";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Fiber from "effect/Fiber";
+import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
-import * as TestClock from "effect/TestClock";
-import { TransportError } from "../src/Errors.js";
-import { makeSessionTurnDriver } from "../src/internal/sessionTurnDriver.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
+import { TestClock } from "effect/testing";
 import { runEffect } from "./effect-test.js";
 
 const createGate = () => {
@@ -96,7 +96,7 @@ test("SessionTurnDriver serializes concurrent turns in FIFO order", async () => 
           Effect.sync(() => {
             sendCalls.push(typeof message === "string" ? message : "object");
           }),
-        stream: Stream.unwrapScoped(
+        stream: Stream.unwrap(
           Effect.sync(() => {
             streamRuns += 1;
             if (streamRuns === 1) {
@@ -116,10 +116,10 @@ test("SessionTurnDriver serializes concurrent turns in FIFO order", async () => 
         close: Effect.void,
       });
 
-      const firstFiber = yield* Effect.fork(Stream.runCollect(driver.turn("first")));
+      const firstFiber = yield* Effect.forkChild(Stream.runCollect(driver.turn("first")));
       yield* Effect.promise(() => firstTurnStarted.promise);
-      const secondFiber = yield* Effect.fork(Stream.runCollect(driver.turn("second")));
-      yield* Effect.yieldNow();
+      const secondFiber = yield* Effect.forkChild(Stream.runCollect(driver.turn("second")));
+      yield* Effect.yieldNow;
 
       const beforeRelease = [...sendCalls];
       releaseFirstTurn.open();
@@ -164,9 +164,9 @@ test("SessionTurnDriver rejects raw operations while turn work is active", async
         close: Effect.void,
       });
 
-      const turnFiber = yield* Effect.fork(Stream.runDrain(driver.turn("first")));
+      const turnFiber = yield* Effect.forkChild(Stream.runDrain(driver.turn("first")));
       yield* Effect.promise(() => firstTurnStarted.promise);
-      const rawResult = yield* Effect.either(driver.sendRaw("raw"));
+      const rawResult = yield* Effect.result(driver.sendRaw("raw"));
       releaseFirstTurn.open();
       yield* Fiber.join(turnFiber);
       return rawResult;
@@ -174,9 +174,9 @@ test("SessionTurnDriver rejects raw operations while turn work is active", async
   );
 
   const rawResult = await runEffect(program);
-  expect(Either.isLeft(rawResult)).toBe(true);
-  if (Either.isLeft(rawResult)) {
-    expect(rawResult.left._tag).toBe("TransportError");
+  expect(Result.isFailure(rawResult)).toBe(true);
+  if (Result.isFailure(rawResult)) {
+    expect(rawResult.failure._tag).toBe("TransportError");
   }
 });
 
@@ -197,18 +197,18 @@ test("SessionTurnDriver rejects turns while raw stream is active", async () => {
         close: Effect.void,
       });
 
-      const rawFiber = yield* Effect.fork(Stream.runDrain(driver.streamRaw));
+      const rawFiber = yield* Effect.forkChild(Stream.runDrain(driver.streamRaw));
       yield* Effect.promise(() => rawStarted.promise);
-      const turnResult = yield* Effect.either(Stream.runCollect(driver.turn("hello")));
+      const turnResult = yield* Effect.result(Stream.runCollect(driver.turn("hello")));
       yield* Fiber.interrupt(rawFiber);
       return turnResult;
     })
   );
 
   const turnResult = await runEffect(program);
-  expect(Either.isLeft(turnResult)).toBe(true);
-  if (Either.isLeft(turnResult)) {
-    expect(turnResult.left._tag).toBe("TransportError");
+  expect(Result.isFailure(turnResult)).toBe(true);
+  if (Result.isFailure(turnResult)) {
+    expect(turnResult.failure._tag).toBe("TransportError");
   }
 });
 
@@ -229,7 +229,7 @@ test("SessionTurnDriver continues draining to result when turn consumer cancels 
           Effect.sync(() => {
             sendCalls.push(typeof message === "string" ? message : "object");
           }),
-        stream: Stream.unwrapScoped(
+        stream: Stream.unwrap(
           Effect.sync(() => {
             streamRuns += 1;
             if (streamRuns === 1) {
@@ -249,10 +249,10 @@ test("SessionTurnDriver continues draining to result when turn consumer cancels 
         close: Effect.void,
       });
 
-      const firstFiber = yield* Effect.fork(Stream.runCollect(driver.turn("first").pipe(Stream.take(1))));
+      const firstFiber = yield* Effect.forkChild(Stream.runCollect(driver.turn("first").pipe(Stream.take(1))));
       yield* Effect.promise(() => firstTurnStatusSent.promise);
-      const secondFiber = yield* Effect.fork(Stream.runCollect(driver.turn("second")));
-      yield* Effect.yieldNow();
+      const secondFiber = yield* Effect.forkChild(Stream.runCollect(driver.turn("second")));
+      yield* Effect.yieldNow;
       const beforeRelease = [...sendCalls];
 
       releaseFirstTurn.open();
@@ -287,17 +287,17 @@ test("SessionTurnDriver fails a turn when send timeout elapses", async () => {
         },
       });
 
-      const turnFiber = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("hello"))));
+      const turnFiber = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("hello"))));
       yield* TestClock.adjust("50 millis");
       return yield* Fiber.join(turnFiber);
     })
   );
 
   const turnResult = await runEffect(program);
-  expect(Either.isLeft(turnResult)).toBe(true);
-  if (Either.isLeft(turnResult)) {
-    expect(turnResult.left._tag).toBe("TransportError");
-    expect(turnResult.left.message).toContain("send timed out");
+  expect(Result.isFailure(turnResult)).toBe(true);
+  if (Result.isFailure(turnResult)) {
+    expect(turnResult.failure._tag).toBe("TransportError");
+    expect(turnResult.failure.message).toContain("send timed out");
   }
 });
 
@@ -318,19 +318,19 @@ test("SessionTurnDriver fails a turn on result timeout and triggers session clos
         },
       });
 
-      const turnFiber = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("hello"))));
+      const turnFiber = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("hello"))));
       yield* TestClock.adjust("50 millis");
       const result = yield* Fiber.join(turnFiber);
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
       return { result, closeCalls };
     })
   );
 
   const output = await runEffect(program);
-  expect(Either.isLeft(output.result)).toBe(true);
-  if (Either.isLeft(output.result)) {
-    expect(output.result.left._tag).toBe("TransportError");
-    expect(output.result.left.message).toContain("timed out waiting for result");
+  expect(Result.isFailure(output.result)).toBe(true);
+  if (Result.isFailure(output.result)) {
+    expect(output.result.failure._tag).toBe("TransportError");
+    expect(output.result.failure.message).toContain("timed out waiting for result");
   }
   expect(output.closeCalls).toBe(1);
 });
@@ -342,11 +342,7 @@ test("SessionTurnDriver timeout recovery is not triggered by matching TransportE
     Effect.gen(function* () {
       const driver = yield* makeSessionTurnDriver({
         send: (_message) => Effect.void,
-        stream: Stream.fail(
-          TransportError.make({
-            message: "Session turn timed out waiting for result",
-          })
-        ),
+        stream: Stream.fail(TransportError.make("Session turn timed out waiting for result")),
         close: Effect.sync(() => {
           closeCalls += 1;
         }),
@@ -355,13 +351,13 @@ test("SessionTurnDriver timeout recovery is not triggered by matching TransportE
         },
       });
 
-      const result = yield* Effect.either(Stream.runCollect(driver.turn("hello")));
+      const result = yield* Effect.result(Stream.runCollect(driver.turn("hello")));
       return { result, closeCalls };
     })
   );
 
   const output = await runEffect(program);
-  expect(Either.isLeft(output.result)).toBe(true);
+  expect(Result.isFailure(output.result)).toBe(true);
   expect(output.closeCalls).toBe(0);
 });
 
@@ -382,9 +378,9 @@ test("SessionTurnDriver result timeout shuts down driver and fails queued turns"
         },
       });
 
-      const firstTurn = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("first"))));
-      yield* Effect.yieldNow();
-      const secondTurn = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("second"))));
+      const firstTurn = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("first"))));
+      yield* Effect.yieldNow;
+      const secondTurn = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("second"))));
       yield* TestClock.adjust("50 millis");
 
       return {
@@ -396,13 +392,13 @@ test("SessionTurnDriver result timeout shuts down driver and fails queued turns"
   );
 
   const output = await runEffect(program);
-  expect(Either.isLeft(output.first)).toBe(true);
-  if (Either.isLeft(output.first)) {
-    expect(output.first.left._tag).toBe("TransportError");
+  expect(Result.isFailure(output.first)).toBe(true);
+  if (Result.isFailure(output.first)) {
+    expect(output.first.failure._tag).toBe("TransportError");
   }
-  expect(Either.isLeft(output.second)).toBe(true);
-  if (Either.isLeft(output.second)) {
-    expect(output.second.left._tag).toBe("SessionClosedError");
+  expect(Result.isFailure(output.second)).toBe(true);
+  if (Result.isFailure(output.second)) {
+    expect(output.second.failure._tag).toBe("SessionClosedError");
   }
   expect(output.closeCalls).toBe(1);
 });
@@ -424,7 +420,7 @@ test("SessionTurnDriver shutdown fails pending requests and rejects new work", a
           Effect.sync(() => {
             sendCalls.push(typeof message === "string" ? message : "object");
           }),
-        stream: Stream.unwrapScoped(
+        stream: Stream.unwrap(
           Effect.sync(() => {
             streamRuns += 1;
             if (streamRuns === 1) {
@@ -444,15 +440,15 @@ test("SessionTurnDriver shutdown fails pending requests and rejects new work", a
         close: Effect.void,
       });
 
-      const firstTurn = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("first"))));
+      const firstTurn = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("first"))));
       yield* Effect.promise(() => firstTurnStarted.promise);
-      const secondTurn = yield* Effect.fork(Effect.either(Stream.runCollect(driver.turn("second"))));
-      yield* Effect.yieldNow();
+      const secondTurn = yield* Effect.forkChild(Effect.result(Stream.runCollect(driver.turn("second"))));
+      yield* Effect.yieldNow;
 
       yield* driver.shutdown;
       const pendingResult = yield* Fiber.join(secondTurn);
-      const postShutdownTurn = yield* Effect.either(Stream.runCollect(driver.turn("third")));
-      const postShutdownRaw = yield* Effect.either(driver.sendRaw("raw"));
+      const postShutdownTurn = yield* Effect.result(Stream.runCollect(driver.turn("third")));
+      const postShutdownRaw = yield* Effect.result(driver.sendRaw("raw"));
 
       releaseFirstTurn.open();
       const firstResult = yield* Fiber.join(firstTurn);
@@ -468,20 +464,20 @@ test("SessionTurnDriver shutdown fails pending requests and rejects new work", a
 
   const output = await runEffect(program);
   expect(output.sendCalls).toEqual(["first"]);
-  expect(Either.isRight(output.firstResult)).toBe(true);
-  if (Either.isRight(output.firstResult)) {
-    expect(Array.from(output.firstResult.right)).toEqual([status1, result1]);
+  expect(Result.isSuccess(output.firstResult)).toBe(true);
+  if (Result.isSuccess(output.firstResult)) {
+    expect(Array.from(output.firstResult.success)).toEqual([status1, result1]);
   }
-  expect(Either.isLeft(output.pendingResult)).toBe(true);
-  if (Either.isLeft(output.pendingResult)) {
-    expect(output.pendingResult.left._tag).toBe("SessionClosedError");
+  expect(Result.isFailure(output.pendingResult)).toBe(true);
+  if (Result.isFailure(output.pendingResult)) {
+    expect(output.pendingResult.failure._tag).toBe("SessionClosedError");
   }
-  expect(Either.isLeft(output.postShutdownTurn)).toBe(true);
-  if (Either.isLeft(output.postShutdownTurn)) {
-    expect(output.postShutdownTurn.left._tag).toBe("SessionClosedError");
+  expect(Result.isFailure(output.postShutdownTurn)).toBe(true);
+  if (Result.isFailure(output.postShutdownTurn)) {
+    expect(output.postShutdownTurn.failure._tag).toBe("SessionClosedError");
   }
-  expect(Either.isLeft(output.postShutdownRaw)).toBe(true);
-  if (Either.isLeft(output.postShutdownRaw)) {
-    expect(output.postShutdownRaw.left._tag).toBe("SessionClosedError");
+  expect(Result.isFailure(output.postShutdownRaw)).toBe(true);
+  if (Result.isFailure(output.postShutdownRaw)) {
+    expect(output.postShutdownRaw.failure._tag).toBe("SessionClosedError");
   }
 });

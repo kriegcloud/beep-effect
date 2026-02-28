@@ -1,48 +1,46 @@
-import { expect, test } from "bun:test";
+import { schemaToZod } from "@beep/ai-sdk/internal/schemaToZod";
+import * as Tool from "@beep/ai-sdk/Tools/Tool";
+import { expect, test } from "@effect/vitest";
 import * as Schema from "effect/Schema";
-import { schemaToZod } from "../src/internal/schemaToZod.js";
-import * as Tool from "../src/Tools/Tool.js";
 
 test("getJsonSchemaFromSchemaAst preserves record additionalProperties", () => {
-  const schema = Schema.Record({ key: Schema.String, value: Schema.String });
-  const json = Tool.getJsonSchemaFromSchemaAst(schema.ast) as {
-    readonly additionalProperties?: unknown;
-  };
-  expect((json as { type?: string }).type).toBe("object");
-  expect(typeof json.additionalProperties).toBe("object");
-  expect((json.additionalProperties as { type?: string }).type).toBe("string");
+  const schema = Schema.Record(Schema.String, Schema.String);
+  const json = Tool.getJsonSchemaFromSchemaAst(schema.ast);
+  expect(json).toMatchObject({ type: "object" });
+  if ("additionalProperties" in json) {
+    expect(json.additionalProperties).toMatchObject({ type: "string" });
+  } else {
+    throw new Error("Expected additionalProperties in record JSON schema");
+  }
 });
 
 test("getJsonSchemaFromSchemaAst renders empty struct as strict object", () => {
   const schema = Schema.Struct({});
-  const json = Tool.getJsonSchemaFromSchemaAst(schema.ast) as {
-    readonly type?: string;
-    readonly properties?: unknown;
-    readonly required?: unknown;
-    readonly additionalProperties?: unknown;
-  };
-  expect(json.type).toBe("object");
-  expect(json.properties).toEqual({});
-  expect(json.required).toEqual([]);
-  expect(json.additionalProperties).toBe(false);
+  const json = Tool.getJsonSchemaFromSchemaAst(schema.ast);
+  expect(json).toMatchObject({
+    type: "object",
+    properties: {},
+    required: [],
+    additionalProperties: false,
+  });
 });
 
 test("schemaToZod compiles template literals to regex", () => {
-  const schema = Schema.TemplateLiteral("user-", Schema.Number);
+  const schema = Schema.TemplateLiteral(["user-", Schema.Number]);
   const zod = schemaToZod(schema);
   expect(zod.safeParse("user-42").success).toBe(true);
   expect(zod.safeParse("user-abc").success).toBe(false);
 });
 
 test("schemaToZod compiles records to catchall objects", () => {
-  const schema = Schema.Record({ key: Schema.String, value: Schema.Number });
+  const schema = Schema.Record(Schema.String, Schema.Number);
   const zod = schemaToZod(schema);
   expect(zod.safeParse({ a: 1 }).success).toBe(true);
   expect(zod.safeParse({ a: "nope" }).success).toBe(false);
 });
 
 test("schemaToZod treats union with undefined as optional", () => {
-  const schema = Schema.Union(Schema.String, Schema.Undefined);
+  const schema = Schema.Union([Schema.String, Schema.Undefined]);
   const zod = schemaToZod(schema);
   expect(zod.safeParse("ok").success).toBe(true);
   expect(zod.safeParse(undefined).success).toBe(true);
@@ -50,7 +48,7 @@ test("schemaToZod treats union with undefined as optional", () => {
 });
 
 test("schemaToZod handles discriminated unions", () => {
-  const schema = Schema.Union(
+  const schema = Schema.Union([
     Schema.Struct({
       kind: Schema.Literal("alpha"),
       value: Schema.String,
@@ -58,8 +56,8 @@ test("schemaToZod handles discriminated unions", () => {
     Schema.Struct({
       kind: Schema.Literal("beta"),
       value: Schema.Number,
-    })
-  );
+    }),
+  ]);
   const zod = schemaToZod(schema);
   expect(zod.safeParse({ kind: "alpha", value: "ok" }).success).toBe(true);
   expect(zod.safeParse({ kind: "beta", value: 2 }).success).toBe(true);
@@ -67,7 +65,7 @@ test("schemaToZod handles discriminated unions", () => {
 });
 
 test("schemaToZod handles tuples and non-empty arrays", () => {
-  const tupleSchema = Schema.Tuple(Schema.String, Schema.Number);
+  const tupleSchema = Schema.Tuple([Schema.String, Schema.Number]);
   const tupleZod = schemaToZod(tupleSchema);
   expect(tupleZod.safeParse(["ok", 1]).success).toBe(true);
   expect(tupleZod.safeParse(["ok"]).success).toBe(false);
@@ -83,7 +81,7 @@ test("schemaToZod handles enums", () => {
     Red = "red",
     Blue = "blue",
   }
-  const schema = Schema.Enums(Color);
+  const schema = Schema.Enum(Color);
   const zod = schemaToZod(schema);
   expect(zod.safeParse("red").success).toBe(true);
   expect(zod.safeParse("green").success).toBe(false);

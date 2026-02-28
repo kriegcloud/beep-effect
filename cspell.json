@@ -164,6 +164,7 @@
     "Geospatial",
     "Geotime",
     "groupby",
+    "healthz",
     "httpapi",
     "Journaled",
     "logfmt",
