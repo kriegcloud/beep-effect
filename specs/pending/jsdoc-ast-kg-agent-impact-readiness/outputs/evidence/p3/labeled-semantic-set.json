@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T13:46:27.345Z",
+  "generatedAt": "2026-02-28T13:55:32.167Z",
   "frozenLabelSet": {
     "name": "p3-semantic-edge-adjudication-set-v1",
     "scopeFiles": [
@@ -21,46 +21,46 @@
     "definition": "One label per (exported symbol x required semantic tag). Each label requires exactly one semantic edge candidate. Domain labels also require expected domain value by scope."
   },
   "aggregate": {
-    "tp": 0,
+    "tp": 68,
     "fp": 0,
-    "fn": 68,
-    "present": 0,
-    "parsed": 0,
-    "precision": 0,
-    "recall": 0,
-    "parseSuccess": 0,
-    "presenceCoverage": 0,
-    "precisionDenominator": 0,
+    "fn": 0,
+    "present": 68,
+    "parsed": 68,
+    "precision": 1,
+    "recall": 1,
+    "parseSuccess": 1,
+    "presenceCoverage": 1,
+    "precisionDenominator": 68,
     "recallDenominator": 68,
     "parseDenominator": 68
   },
   "byModule": {
     "kg-cli-command": {
-      "tp": 0,
+      "tp": 8,
       "fp": 0,
-      "fn": 8,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 8,
+      "parsed": 8,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 8,
       "recallDenominator": 8,
       "parseDenominator": 8,
       "symbols": 2
     },
     "agent-eval-execution": {
-      "tp": 0,
+      "tp": 60,
       "fp": 0,
-      "fn": 60,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 60,
+      "parsed": 60,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 60,
       "recallDenominator": 60,
       "parseDenominator": 60,
       "symbols": 15
@@ -68,91 +68,91 @@
   },
   "byFile": {
     "tooling/cli/src/commands/kg.ts": {
-      "tp": 0,
+      "tp": 8,
       "fp": 0,
-      "fn": 8,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 8,
+      "parsed": 8,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 8,
       "recallDenominator": 8,
       "parseDenominator": 8,
       "symbols": 2
     },
     "tooling/agent-eval/src/benchmark/execution/cli-executor.ts": {
-      "tp": 0,
+      "tp": 4,
       "fp": 0,
-      "fn": 4,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 4,
+      "parsed": 4,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 4,
       "recallDenominator": 4,
       "parseDenominator": 4,
       "symbols": 1
     },
     "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts": {
-      "tp": 0,
+      "tp": 8,
       "fp": 0,
-      "fn": 8,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 8,
+      "parsed": 8,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 8,
       "recallDenominator": 8,
       "parseDenominator": 8,
       "symbols": 2
     },
     "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts": {
-      "tp": 0,
+      "tp": 8,
       "fp": 0,
-      "fn": 8,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 8,
+      "parsed": 8,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 8,
       "recallDenominator": 8,
       "parseDenominator": 8,
       "symbols": 2
     },
     "tooling/agent-eval/src/benchmark/execution/index.ts": {
-      "tp": 0,
+      "tp": 8,
       "fp": 0,
-      "fn": 8,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 8,
+      "parsed": 8,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 8,
       "recallDenominator": 8,
       "parseDenominator": 8,
       "symbols": 2
     },
     "tooling/agent-eval/src/benchmark/execution/types.ts": {
-      "tp": 0,
+      "tp": 32,
       "fp": 0,
-      "fn": 32,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 32,
+      "parsed": 32,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 32,
       "recallDenominator": 32,
       "parseDenominator": 32,
       "symbols": 8
@@ -160,58 +160,58 @@
   },
   "byTag": {
     "domain": {
-      "tp": 0,
+      "tp": 17,
       "fp": 0,
-      "fn": 17,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 17,
+      "parsed": 17,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 17,
       "recallDenominator": 17,
       "parseDenominator": 17
     },
     "provides": {
-      "tp": 0,
+      "tp": 17,
       "fp": 0,
-      "fn": 17,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 17,
+      "parsed": 17,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 17,
       "recallDenominator": 17,
       "parseDenominator": 17
     },
     "depends": {
-      "tp": 0,
+      "tp": 17,
       "fp": 0,
-      "fn": 17,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 17,
+      "parsed": 17,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 17,
       "recallDenominator": 17,
       "parseDenominator": 17
     },
     "errors": {
-      "tp": 0,
+      "tp": 17,
       "fp": 0,
-      "fn": 17,
-      "present": 0,
-      "parsed": 0,
-      "precision": 0,
-      "recall": 0,
-      "parseSuccess": 0,
-      "presenceCoverage": 0,
-      "precisionDenominator": 0,
+      "fn": 0,
+      "present": 17,
+      "parsed": 17,
+      "precision": 1,
+      "recall": 1,
+      "parseSuccess": 1,
+      "presenceCoverage": 1,
+      "precisionDenominator": 17,
       "recallDenominator": 17,
       "parseDenominator": 17
     }
@@ -226,13 +226,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "kg-cli",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "kg-cli",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "kg-cli"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::runKgIndexNode::provides",
@@ -243,13 +245,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "IndexSummary",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "IndexSummary"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::runKgIndexNode::depends",
@@ -260,13 +264,17 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "FileSystem, Git, SnapshotStore",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "FileSystem",
+        "Git",
+        "SnapshotStore"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::runKgIndexNode::errors",
@@ -277,13 +285,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "DomainError",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "DomainError"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::kgCommand::domain",
@@ -294,13 +304,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "kg-cli",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "kg-cli",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "kg-cli"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::kgCommand::provides",
@@ -311,13 +323,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "KgCliCommandGroup",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "KgCliCommandGroup"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::kgCommand::depends",
@@ -328,13 +342,16 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "EffectCli, Console",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "EffectCli",
+        "Console"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/cli/src/commands/kg.ts::kgCommand::errors",
@@ -345,13 +362,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "DomainError",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "DomainError"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/cli-executor.ts::runCliExecution::domain",
@@ -362,13 +381,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/cli-executor.ts::runCliExecution::provides",
@@ -379,13 +400,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResult",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResult"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/cli-executor.ts::runCliExecution::depends",
@@ -396,13 +419,17 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "CodexCli, ClaudeCli, ProcessRunner",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "CodexCli",
+        "ClaudeCli",
+        "ProcessRunner"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/cli-executor.ts::runCliExecution::errors",
@@ -413,13 +440,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::probeClaudeSdkAvailability::domain",
@@ -430,13 +459,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::probeClaudeSdkAvailability::provides",
@@ -447,13 +478,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "SdkAvailability",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "SdkAvailability"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::probeClaudeSdkAvailability::depends",
@@ -464,13 +497,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ClaudeAgentSdk",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ClaudeAgentSdk"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::probeClaudeSdkAvailability::errors",
@@ -481,13 +516,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::runClaudeSdkExecution::domain",
@@ -498,13 +535,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::runClaudeSdkExecution::provides",
@@ -515,13 +554,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResult",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResult"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::runClaudeSdkExecution::depends",
@@ -532,13 +573,16 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ClaudeAgentSdk, AbortController",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ClaudeAgentSdk",
+        "AbortController"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts::runClaudeSdkExecution::errors",
@@ -549,13 +593,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::probeCodexSdkAvailability::domain",
@@ -566,13 +612,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::probeCodexSdkAvailability::provides",
@@ -583,13 +631,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "SdkAvailability",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "SdkAvailability"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::probeCodexSdkAvailability::depends",
@@ -600,13 +650,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "CodexSdk",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "CodexSdk"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::probeCodexSdkAvailability::errors",
@@ -617,13 +669,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::runCodexSdkExecution::domain",
@@ -634,13 +688,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::runCodexSdkExecution::provides",
@@ -651,13 +707,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResult",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResult"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::runCodexSdkExecution::depends",
@@ -668,13 +726,16 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "CodexSdk, AbortController",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "CodexSdk",
+        "AbortController"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/codex-sdk-executor.ts::runCodexSdkExecution::errors",
@@ -685,13 +746,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::CreateExecutionResolverOptions::domain",
@@ -702,13 +765,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::CreateExecutionResolverOptions::provides",
@@ -719,13 +784,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "CreateExecutionResolverOptions",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "CreateExecutionResolverOptions"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::CreateExecutionResolverOptions::depends",
@@ -736,13 +803,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::CreateExecutionResolverOptions::errors",
@@ -753,13 +822,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::createExecutionResolver::domain",
@@ -770,13 +841,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::createExecutionResolver::provides",
@@ -787,13 +860,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResolver",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResolver"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::createExecutionResolver::depends",
@@ -804,13 +879,17 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "CliExecutor, CodexSdkExecutor, ClaudeSdkExecutor",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "CliExecutor",
+        "CodexSdkExecutor",
+        "ClaudeSdkExecutor"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/index.ts::createExecutionResolver::errors",
@@ -821,13 +900,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "AgentEvalInvariantError",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "AgentEvalInvariantError"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackendMode::domain",
@@ -838,13 +919,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackendMode::provides",
@@ -855,13 +938,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionBackendMode",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionBackendMode"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackendMode::depends",
@@ -872,13 +957,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackendMode::errors",
@@ -889,13 +976,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackend::domain",
@@ -906,13 +995,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackend::provides",
@@ -923,13 +1014,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionBackend",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionBackend"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackend::depends",
@@ -940,13 +1033,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionBackend::errors",
@@ -957,13 +1052,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkReasoningEffort::domain",
@@ -974,13 +1071,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkReasoningEffort::provides",
@@ -991,13 +1090,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "BenchmarkReasoningEffort",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "BenchmarkReasoningEffort"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkReasoningEffort::depends",
@@ -1008,13 +1109,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkReasoningEffort::errors",
@@ -1025,13 +1128,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkClaudeEffort::domain",
@@ -1042,13 +1147,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkClaudeEffort::provides",
@@ -1059,13 +1166,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "BenchmarkClaudeEffort",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "BenchmarkClaudeEffort"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkClaudeEffort::depends",
@@ -1076,13 +1185,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::BenchmarkClaudeEffort::errors",
@@ -1093,13 +1204,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionRequest::domain",
@@ -1110,13 +1223,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionRequest::provides",
@@ -1127,13 +1242,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionRequest",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionRequest"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionRequest::depends",
@@ -1144,13 +1261,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "AgentName",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "AgentName"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionRequest::errors",
@@ -1161,13 +1280,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResult::domain",
@@ -1178,13 +1299,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResult::provides",
@@ -1195,13 +1318,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResult",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResult"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResult::depends",
@@ -1212,13 +1337,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionBackend",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionBackend"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResult::errors",
@@ -1229,13 +1356,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::SdkAvailability::domain",
@@ -1246,13 +1375,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::SdkAvailability::provides",
@@ -1263,13 +1394,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "SdkAvailability",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "SdkAvailability"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::SdkAvailability::depends",
@@ -1280,13 +1413,15 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::SdkAvailability::errors",
@@ -1297,13 +1432,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResolver::domain",
@@ -1314,13 +1451,15 @@
       "tag": "domain",
       "expectedEdge": true,
       "expectedDomain": "agent-eval",
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
-      "parsedMatchesDomain": false,
-      "isTruePositive": false
+      "observedPresent": true,
+      "observedRawValue": "agent-eval",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "agent-eval"
+      ],
+      "parsedMatchesDomain": true,
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResolver::provides",
@@ -1331,13 +1470,15 @@
       "tag": "provides",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "ExecutionResolver",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "ExecutionResolver"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResolver::depends",
@@ -1348,13 +1489,17 @@
       "tag": "depends",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "SdkAvailability, ExecutionRequest, ExecutionResult",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "SdkAvailability",
+        "ExecutionRequest",
+        "ExecutionResult"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     },
     {
       "labelId": "tooling/agent-eval/src/benchmark/execution/types.ts::ExecutionResolver::errors",
@@ -1365,13 +1510,15 @@
       "tag": "errors",
       "expectedEdge": true,
       "expectedDomain": null,
-      "observedPresent": false,
-      "observedRawValue": null,
-      "observedTagOccurrences": 0,
-      "observedParsed": false,
-      "observedParsedValues": [],
+      "observedPresent": true,
+      "observedRawValue": "none",
+      "observedTagOccurrences": 1,
+      "observedParsed": true,
+      "observedParsedValues": [
+        "none"
+      ],
       "parsedMatchesDomain": true,
-      "isTruePositive": false
+      "isTruePositive": true
     }
   ]
 }
