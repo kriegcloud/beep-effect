@@ -9,7 +9,10 @@ import type { Attachment, AttachmentUpload } from "../object/Attachment.js";
 import type { Media, MediaReference } from "../object/Media.js";
 import type { GeotimeSeriesProperty, TimeSeriesProperty } from "../timeseries/timeseries.js";
 import type { GeoPoint, GeoShape } from "./DataValueMapping.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("mapping/PropertyValueMapping");
 /**
  * Map from wire property types to client-facing property runtime values.
  *

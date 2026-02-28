@@ -4,7 +4,10 @@
  * @since 0.0.0
  * @module @beep/ontology/experimental/Experiment
  */
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("experimental/Experiment");
 /**
  * Stable metadata shape describing an experimental capability token.
  *

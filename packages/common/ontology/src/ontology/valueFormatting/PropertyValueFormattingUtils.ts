@@ -10,71 +10,39 @@ import * as S from "effect/Schema";
 const $I = $OntologyId.create("ontology/valueFormatting/PropertyValueFormattingUtils");
 
 /**
- * Constant string literal value for formatting configuration.
- *
- * @since 0.0.0
- * @category models
- */
-export interface StringConstant {
-  readonly type: "constant";
-  readonly value: string;
-}
-
-/**
- * Runtime schema for {@link StringConstant}.
+ * Runtime schema for StringConstant.
  *
  * @since 0.0.0
  * @category schemas
  */
-export const StringConstant = S.Struct({
-  type: S.Literal("constant"),
-  value: S.String,
-}).pipe(
-  S.annotate(
-    $I.annote("StringConstant", {
-      description: "Static string value used directly in formatting configuration fields.",
-    })
-  )
-);
+export class StringConstant extends S.Class<StringConstant>($I`StringConstant`)(
+  {
+    type: S.tag("constant"),
+    value: S.String,
+  },
+  $I.annote("StringConstant", {
+    description: "Static string value used directly in formatting configuration fields.",
+  })
+) {}
 
 /**
- * Reference to another property type name used in formatting configuration.
- *
- * @since 0.0.0
- * @category models
- */
-export interface PropertyTypeReference {
-  readonly type: "propertyType";
-  readonly propertyApiName: string;
-}
-
-/**
- * Runtime schema for {@link PropertyTypeReference}.
+ * Runtime schema for PropertyTypeReference.
  *
  * @since 0.0.0
  * @category schemas
  */
-export const PropertyTypeReference = S.Struct({
-  type: S.Literal("propertyType"),
-  propertyApiName: S.String,
-}).pipe(
-  S.annotate(
-    $I.annote("PropertyTypeReference", {
-      description: "Reference to another ontology property API name used as a dynamic formatting source.",
-    })
-  )
-);
+export class PropertyTypeReference extends S.Class<PropertyTypeReference>($I`PropertyTypeReference`)(
+  {
+    type: S.tag("propertyType"),
+    propertyApiName: S.String,
+  },
+  $I.annote("PropertyTypeReference", {
+    description: "Reference to another ontology property API name used as a dynamic formatting source.",
+  })
+) {}
 
 /**
- * Either a fixed constant string or a property type reference.
- *
- * @since 0.0.0
- * @category models
- */
-export type PropertyTypeReferenceOrStringConstant = StringConstant | PropertyTypeReference;
-
-/**
- * Runtime schema for {@link PropertyTypeReferenceOrStringConstant}.
+ * Runtime schema for PropertyTypeReferenceOrStringConstant.
  *
  * @since 0.0.0
  * @category schemas

@@ -9,7 +9,10 @@ import type { ExtractOptions, Osdk } from "../OsdkObjectFrom.js";
 import type { NullabilityAdherence, SelectArg } from "../object/FetchPageArgs.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { Experiment } from "./Experiment.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("experimental/fetchOneByRid");
 /**
  * Fetches a single object by RID for a concrete ontology type.
  *

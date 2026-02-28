@@ -5,7 +5,7 @@
  * @module @beep/ontology/ontology/PrimaryKeyTypes
  */
 import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
+import { LiteralKit } from "@beep/schema";
 
 const $I = $OntologyId.create("ontology/PrimaryKeyTypes");
 
@@ -15,21 +15,19 @@ const $I = $OntologyId.create("ontology/PrimaryKeyTypes");
  * @since 0.0.0
  * @category schemas
  */
-export const PrimaryKeyTypes = S.Union([
-  S.Literal("string"),
-  S.Literal("datetime"),
-  S.Literal("double"),
-  S.Literal("integer"),
-  S.Literal("timestamp"),
-  S.Literal("short"),
-  S.Literal("long"),
-  S.Literal("byte"),
-]).pipe(
-  S.annotate(
-    $I.annote("PrimaryKeyTypes", {
-      description: "Supported scalar wire types used by ontology object primary keys.",
-    })
-  )
+export const PrimaryKeyTypes = LiteralKit([
+  "string",
+  "datetime",
+  "double",
+  "integer",
+  "timestamp",
+  "short",
+  "long",
+  "byte",
+]).annotate(
+  $I.annote("PrimaryKeyTypes", {
+    description: "Supported scalar wire types used by ontology object primary keys.",
+  })
 );
 
 /**

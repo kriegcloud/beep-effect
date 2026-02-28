@@ -9,7 +9,10 @@ import type { InterfaceDefinition } from "./InterfaceDefinition.js";
 import type { CompileTimeMetadata, ObjectTypeDefinition } from "./ObjectTypeDefinition.js";
 import type { SimplePropertyDef } from "./SimplePropertyDef.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("ontology/ObjectOrInterface");
 /**
  * Canonical union of ontology object or interface definition contracts.
  *

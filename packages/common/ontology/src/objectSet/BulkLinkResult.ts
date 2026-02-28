@@ -7,7 +7,10 @@
 
 import type { OsdkBase } from "../OsdkBase.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("objectSet/BulkLinkResult");
 /**
  * Bulk-link response row.
  *

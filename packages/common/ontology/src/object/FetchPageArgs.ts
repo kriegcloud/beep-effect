@@ -6,7 +6,10 @@
  */
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("object/FetchPageArgs");
 /**
  * Nullability handling strategy for query/object-fetch decoding.
  *

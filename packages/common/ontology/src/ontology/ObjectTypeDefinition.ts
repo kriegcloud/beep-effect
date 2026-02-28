@@ -12,6 +12,7 @@ import type { PrimaryKeyTypes } from "./PrimaryKeyTypes.js";
 import type { VersionString } from "./VersionString.js";
 import type { PropertyValueFormattingRule } from "./valueFormatting/PropertyValueFormattingRule.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
+import {LiteralKit} from "@beep/schema";
 
 const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
 
@@ -21,7 +22,7 @@ const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
  * @since 0.0.0
  * @category schemas
  */
-export const ObjectInterfaceBaseMetadataType = S.Union([S.Literal("object"), S.Literal("interface")]).pipe(
+export const ObjectInterfaceBaseMetadataType = LiteralKit(["object", "interface"]).pipe(
   S.annotate(
     $I.annote("ObjectInterfaceBaseMetadataType", {
       description: "Literal union for ontology metadata base kinds.",

@@ -4,14 +4,43 @@
  * @since 0.0.0
  * @module @beep/ontology/derivedProperties/Expressions
  */
+
+import { $OntologyId } from "@beep/identity/packages";
+import {LiteralKit} from "@beep/schema";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { SimplePropertyDef } from "../ontology/SimplePropertyDef.js";
 import type { WirePropertyTypes } from "../ontology/WirePropertyTypes.js";
 import type { DerivedProperty } from "./DerivedProperty.js";
 
-type WithPropertiesNumerics = "integer" | "double" | "float" | "short" | "long";
-type WithPropertiesDatetime = "datetime" | "timestamp";
+const $I = $OntologyId.create("derivedProperties/Expressions");
+
+export const WithPropertiesNumerics = LiteralKit(
+  [
+    "integer",
+    "double",
+    "float",
+    "short",
+    "long"
+  ]
+).annotate(
+  $I.annote("WithPropertiesNumerics", {
+    description: "Numeric types supported for derived properties with properties aggregation"
+  })
+)
+export type WithPropertiesNumerics = typeof WithPropertiesNumerics.Type;
+
+export const WithPropertiesDatetime = LiteralKit(
+  [
+    "datetime",
+    "timestamp"
+  ]
+).annotate(
+  $I.annote("WithPropertiesDatetime", {
+    description: "Datetime types supported for derived properties with properties aggregation"
+  })
+)
+export type WithPropertiesDatetime = typeof WithPropertiesNumerics.Type;
 
 /**
  * Resolve the derived-property definition flavor for a property type.

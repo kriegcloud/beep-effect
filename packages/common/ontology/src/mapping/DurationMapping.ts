@@ -4,7 +4,10 @@
  * @since 0.0.0
  * @module @beep/ontology/mapping/DurationMapping
  */
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("mapping/DurationMapping");
 /**
  * Canonical duration units used by ontology relative-time query arguments.
  *

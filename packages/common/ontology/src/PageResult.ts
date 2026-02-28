@@ -17,7 +17,7 @@ const $I = $OntologyId.create("PageResult");
  */
 export interface PageResult<T> {
   readonly data: Array<T>;
-  readonly nextPageToken?: string;
+  readonly nextPageToken?: undefined | string;
   readonly totalCount: string;
 }
 
@@ -32,10 +32,8 @@ export const PageResult = <const T extends S.Top>(schema: T) =>
     data: S.Array(schema),
     nextPageToken: S.optionalKey(S.String),
     totalCount: S.String,
-  }).pipe(
-    S.annotate(
-      $I.annote("PageResult", {
-        description: "Paged result envelope containing data, next-page token, and total count.",
-      })
-    )
+  }).annotate(
+    $I.annote("PageResult", {
+      description: "Paged result envelope containing data, next-page token, and total count.",
+    })
   );

@@ -6,6 +6,7 @@
  */
 import { $OntologyId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import {LiteralKit} from "@beep/schema";
 
 const $I = $OntologyId.create("ontology/WirePropertyTypes");
 
@@ -15,35 +16,33 @@ const $I = $OntologyId.create("ontology/WirePropertyTypes");
  * @since 0.0.0
  * @category schemas
  */
-export const BaseWirePropertyTypes = S.Union([
-  S.Literal("string"),
-  S.Literal("datetime"),
-  S.Literal("double"),
-  S.Literal("boolean"),
-  S.Literal("integer"),
-  S.Literal("timestamp"),
-  S.Literal("short"),
-  S.Literal("long"),
-  S.Literal("float"),
-  S.Literal("decimal"),
-  S.Literal("byte"),
-  S.Literal("marking"),
-  S.Literal("mediaReference"),
-  S.Literal("numericTimeseries"),
-  S.Literal("stringTimeseries"),
-  S.Literal("sensorTimeseries"),
-  S.Literal("attachment"),
-  S.Literal("geopoint"),
-  S.Literal("geoshape"),
-  S.Literal("geotimeSeriesReference"),
-  S.Literal("vector"),
-]).pipe(
-  S.annotate(
+export const BaseWirePropertyTypes = LiteralKit([
+  "string",
+  "datetime",
+  "double",
+  "boolean",
+  "integer",
+  "timestamp",
+  "short",
+  "long",
+  "float",
+  "decimal",
+  "byte",
+  "marking",
+  "mediaReference",
+  "numericTimeseries",
+  "stringTimeseries",
+  "sensorTimeseries",
+  "attachment",
+  "geopoint",
+  "geoshape",
+  "geotimeSeriesReference",
+  "vector",
+]).annotate(
     $I.annote("BaseWirePropertyTypes", {
       description: "Union of scalar and complex ontology wire property type identifiers.",
     })
   )
-);
 
 /**
  * Type for {@link BaseWirePropertyTypes}.

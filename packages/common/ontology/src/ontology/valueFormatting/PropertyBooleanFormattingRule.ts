@@ -19,7 +19,7 @@ export class PropertyBooleanFormattingRule extends S.Class<PropertyBooleanFormat
   $I`PropertyBooleanFormattingRule`
 )(
   {
-    type: S.Literal("boolean"),
+    type: S.tag("boolean"),
     valueIfTrue: S.String,
     valueIfFalse: S.String,
   },

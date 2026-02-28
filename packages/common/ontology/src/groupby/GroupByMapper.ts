@@ -11,6 +11,10 @@ import type {
   StringGroupByValue,
   TimestampGroupByValue,
 } from "./GroupByClause.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $OntologyId.create("groupby/GroupByMapper");
 
 /**
  * Group-by value contract per ontology property wire type.

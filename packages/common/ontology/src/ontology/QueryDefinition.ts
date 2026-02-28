@@ -7,7 +7,10 @@
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { ObjectOrInterfaceDefinition } from "./ObjectOrInterface.js";
 import type { ObjectTypeDefinition } from "./ObjectTypeDefinition.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("ontology/QueryDefinition");
 /**
  * Metadata carried by ontology query definitions.
  *

@@ -130,7 +130,7 @@ export class PropertyMarkingsPropertySecurity extends PropertyMarkings.extend<Pr
   $I`PropertyMarkingsPropertySecurity`
 )(
   {
-    type: S.Literal("propertyMarkings"),
+    type: S.tag("propertyMarkings"),
   },
   $I.annote("PropertyMarkingsPropertySecurity", {
     description: "Property security result that includes computed property markings.",
@@ -147,7 +147,7 @@ export class UnsupportedPolicyPropertySecurity extends S.Class<UnsupportedPolicy
   $I`UnsupportedPolicyPropertySecurity`
 )(
   {
-    type: S.Literal("unsupportedPolicy"),
+    type: S.tag("unsupportedPolicy"),
   },
   $I.annote("UnsupportedPolicyPropertySecurity", {
     description: "Property security result indicating policy evaluation is unsupported for this property.",
@@ -164,7 +164,7 @@ export class ErrorComputingSecurityPropertySecurity extends S.Class<ErrorComputi
   $I`ErrorComputingSecurityPropertySecurity`
 )(
   {
-    type: S.Literal("errorComputingSecurity"),
+    type: S.tag("errorComputingSecurity"),
   },
   $I.annote("ErrorComputingSecurityPropertySecurity", {
     description: "Property security result indicating the server could not compute security markings.",

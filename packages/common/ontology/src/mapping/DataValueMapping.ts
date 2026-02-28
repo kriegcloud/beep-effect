@@ -6,7 +6,10 @@
  */
 import type { Attachment, AttachmentUpload } from "../object/Attachment.js";
 import type { MediaReference, MediaUpload } from "../object/Media.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("mapping/DataValueMapping");
 /**
  * Allowed primitive bucket value types.
  *

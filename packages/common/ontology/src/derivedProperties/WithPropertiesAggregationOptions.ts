@@ -4,14 +4,22 @@
  * @since 0.0.0
  * @module @beep/ontology/derivedProperties/WithPropertiesAggregationOptions
  */
+import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 
+const $I = $OntologyId.create("derivedProperties/WithPropertiesAggregationOptions");
 /**
  * Distinct aggregate options for with-properties aggregations.
  *
  * @since 0.0.0
  * @category models
  */
-export type DistinctWithPropAggregateOption = "approximateDistinct" | "exactDistinct";
+export const DistinctWithPropAggregateOption = LiteralKit(["approximateDistinct", "exactDistinct"]).annotate(
+  $I.annote("DistinctWithPropAggregateOption", {
+    description: "Distinct aggregate options for with-properties aggregations.",
+  })
+);
+export type DistinctWithPropAggregateOption = typeof DistinctWithPropAggregateOption.Type;
 
 /**
  * Collection aggregate options for with-properties aggregations.
@@ -19,7 +27,18 @@ export type DistinctWithPropAggregateOption = "approximateDistinct" | "exactDist
  * @since 0.0.0
  * @category models
  */
-export type CollectWithPropAggregations = "collectSet" | "collectList";
+export const CollectWithPropAggregations = LiteralKit(["collectSet", "collectList"]).annotate(
+  $I.annote("CollectWithPropAggregations", {
+    description: "Collection aggregate options for with-properties aggregations.",
+  })
+);
+
+/**
+ * Collection aggregate options for with-properties aggregations. {@link CollectWithPropAggregations}
+ * @since 0.0.0
+ * @category models
+ */
+export type CollectWithPropAggregations = typeof CollectWithPropAggregations.Type;
 
 /**
  * Base aggregate options that all supported with-properties types can use.
@@ -35,7 +54,20 @@ export type BaseWithPropAggregations = DistinctWithPropAggregateOption | Collect
  * @since 0.0.0
  * @category models
  */
-export type MinMaxWithPropAggregateOption = "min" | "max";
+export const MinMaxWithPropAggregateOption = LiteralKit(["min", "max"]).annotate(
+  $I.annote("MinMaxWithPropAggregateOption", {
+    description: "Min/max aggregate options for with-properties aggregations.",
+  })
+);
+
+/**
+ *
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type MinMaxWithPropAggregateOption = typeof MinMaxWithPropAggregateOption.Type;
+
 
 /**
  * Datetime/timestamp with-properties aggregate options.

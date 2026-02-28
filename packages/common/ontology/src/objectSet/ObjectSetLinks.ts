@@ -8,7 +8,10 @@
 import type { ObjectIdentifiers } from "../OsdkBase.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("objectSet/ObjectSetLinks");
 /**
  * Link type API names present on a definition.
  *

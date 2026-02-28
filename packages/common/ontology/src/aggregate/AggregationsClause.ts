@@ -6,7 +6,6 @@
  */
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { ValidAggregationKeys } from "./AggregatableKeys.js";
-
 /**
  * Aggregate selector map that allows only unordered metrics.
  *

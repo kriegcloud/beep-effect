@@ -11,6 +11,11 @@
  * @since 0.0.0
  * @category models
  */
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $OntologyId.create("actions/ActionResults");
+
 export type ActionResults = (ObjectEdits | LargeScaleObjectEdits) & {
   editedObjectTypes: Array<string>;
 };

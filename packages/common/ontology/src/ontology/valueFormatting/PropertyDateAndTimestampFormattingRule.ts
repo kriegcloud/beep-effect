@@ -16,14 +16,14 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyDateAndTimestamp
  * @since 0.0.0
  * @category schemas
  */
-export const DatetimeLocalizedFormatType = S.Union([
-  S.Literal("DATE_FORMAT_RELATIVE_TO_NOW"),
-  S.Literal("DATE_FORMAT_DATE"),
-  S.Literal("DATE_FORMAT_YEAR_AND_MONTH"),
-  S.Literal("DATE_FORMAT_DATE_TIME"),
-  S.Literal("DATE_FORMAT_DATE_TIME_SHORT"),
-  S.Literal("DATE_FORMAT_TIME"),
-  S.Literal("DATE_FORMAT_ISO_INSTANT"),
+export const DatetimeLocalizedFormatType = S.Literals([
+ "DATE_FORMAT_RELATIVE_TO_NOW",
+"DATE_FORMAT_DATE",
+"DATE_FORMAT_YEAR_AND_MONTH",
+"DATE_FORMAT_DATE_TIME",
+"DATE_FORMAT_DATE_TIME_SHORT",
+"DATE_FORMAT_TIME",
+"DATE_FORMAT_ISO_INSTANT",
 ]).pipe(
   S.annotate(
     $I.annote("DatetimeLocalizedFormatType", {
@@ -48,7 +48,7 @@ export type DatetimeLocalizedFormatType = typeof DatetimeLocalizedFormatType.Typ
  */
 export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`DatetimeTimezoneStatic`)(
   {
-    type: S.Literal("static"),
+    type: S.tag("static"),
     zoneId: PropertyTypeReferenceOrStringConstant,
   },
   $I.annote("DatetimeTimezoneStatic", {
@@ -64,7 +64,7 @@ export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`D
  */
 export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`DatetimeTimezoneUser`)(
   {
-    type: S.Literal("user"),
+    type: S.tag("user"),
   },
   $I.annote("DatetimeTimezoneUser", {
     description: "Uses the viewing user's local timezone when formatting timestamp values.",
@@ -78,6 +78,7 @@ export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`Datet
  * @category schemas
  */
 export const DatetimeTimezone = S.Union([DatetimeTimezoneStatic, DatetimeTimezoneUser]).pipe(
+  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("DatetimeTimezone", {
       description:
@@ -102,7 +103,7 @@ export type DatetimeTimezone = typeof DatetimeTimezone.Type;
  */
 export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I`DatetimeLocalizedFormat`)(
   {
-    type: S.Literal("localizedFormat"),
+    type: S.tag("localizedFormat"),
     format: DatetimeLocalizedFormatType,
   },
   $I.annote("DatetimeLocalizedFormat", {
@@ -118,7 +119,7 @@ export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I
  */
 export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`DatetimeStringFormat`)(
   {
-    type: S.Literal("stringFormat"),
+    type: S.tag("stringFormat"),
     pattern: S.String,
   },
   $I.annote("DatetimeStringFormat", {
@@ -133,6 +134,7 @@ export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`Datet
  * @category schemas
  */
 export const DatetimeFormat = S.Union([DatetimeLocalizedFormat, DatetimeStringFormat]).pipe(
+  S.toTaggedUnion("type"),
   S.annotate(
     $I.annote("DatetimeFormat", {
       description:
@@ -157,7 +159,7 @@ export type DatetimeFormat = typeof DatetimeFormat.Type;
  */
 export class PropertyDateFormattingRule extends S.Class<PropertyDateFormattingRule>($I`PropertyDateFormattingRule`)(
   {
-    type: S.Literal("date"),
+    type: S.tag("date"),
     format: DatetimeFormat,
   },
   $I.annote("PropertyDateFormattingRule", {
@@ -175,7 +177,7 @@ export class PropertyTimestampFormattingRule extends S.Class<PropertyTimestampFo
   $I`PropertyTimestampFormattingRule`
 )(
   {
-    type: S.Literal("timestamp"),
+    type: S.tag("timestamp"),
     format: DatetimeFormat,
     displayTimezone: DatetimeTimezone,
   },

@@ -11,4 +11,8 @@
  * @since 0.0.0
  * @category constants
  */
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $OntologyId.create("actions/NullValue");
 export const NULL_VALUE = Symbol.for("NULL_VALUE");

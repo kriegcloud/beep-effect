@@ -10,7 +10,6 @@ import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/Obje
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { AggregationResultsWithoutGroups } from "./AggregationResultsWithoutGroups.js";
 import type { OrderedAggregationClause, UnorderedAggregationClause } from "./AggregationsClause.js";
-
 /**
  * Aggregate response shape when `$groupBy` is provided.
  *

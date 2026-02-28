@@ -10,6 +10,10 @@ import type {
   ApplyActionOptions,
   ApplyBatchActionOptions,
 } from "./Actions.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $OntologyId.create("actions/ActionReturnTypeForOptions");
 
 /**
  * Resolve action return payload from a validate/edit option shape.

@@ -24,6 +24,10 @@ import type {
   ThreeDimensionalAggregation,
   TwoDimensionalAggregation,
 } from "./Aggregations.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $OntologyId.create("queries/Queries");
 
 /**
  * Query parameter conversion helper namespace.

@@ -72,13 +72,11 @@ export function VersionString<const Major extends number, const Minor extends nu
     });
   }
 
-  return S.TemplateLiteral([`${parts.major}`, ".", `${parts.minor}`, ".", `${parts.patch}`]).pipe(
-    S.annotate(
+  return S.TemplateLiteral([`${parts.major}`, ".", `${parts.minor}`, ".", `${parts.patch}`]).annotate(
       $I.annote("VersionString", {
         description: "Template-literal schema constrained to an exact major.minor.patch version.",
       })
     )
-  );
 }
 
 /**

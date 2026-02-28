@@ -6,7 +6,6 @@
  */
 import type { BaseFilterOptions } from "./BaseFilter.js";
 import type { Just } from "./Just.js";
-
 interface BooleanFilterOptions extends BaseFilterOptions<boolean> {}
 
 /**

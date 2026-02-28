@@ -39,7 +39,10 @@ import type { LinkedType, LinkNames } from "../util/LinkUtils.js";
 import type { BaseObjectSet } from "./BaseObjectSet.js";
 import type { LinkTypeApiNamesFor, MinimalDirectedObjectLinkInstance } from "./ObjectSetLinks.js";
 import type { ObjectSetSubscription } from "./ObjectSetListener.js";
+import { $OntologyId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
+const $I = $OntologyId.create("objectSet/ObjectSet");
 type MergeObjectSet<
   Q extends ObjectOrInterfaceDefinition,
   D extends Record<string, SimplePropertyDef> = {},
