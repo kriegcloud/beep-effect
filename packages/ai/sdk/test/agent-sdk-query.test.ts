@@ -1,22 +1,22 @@
-import { test, expect, mock } from "bun:test"
-import * as Effect from "effect/Effect"
-import * as Either from "effect/Either"
-import * as Layer from "effect/Layer"
-import * as Option from "effect/Option"
-import * as Stream from "effect/Stream"
-import { runEffect } from "./effect-test.js"
+import { expect, mock, test } from "bun:test";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
+import * as Stream from "effect/Stream";
+import { runEffect } from "./effect-test.js";
 
 const makeSdkQuery = (prompt: unknown) => {
   async function* generator() {
     if (typeof prompt === "string") {
-      return
+      return;
     }
     for await (const message of prompt as AsyncIterable<unknown>) {
-      yield message
+      yield message;
     }
   }
 
-  const iterator = generator()
+  const iterator = generator();
   return Object.assign(iterator, {
     interrupt: async () => {},
     setPermissionMode: async () => {},
@@ -27,37 +27,42 @@ const makeSdkQuery = (prompt: unknown) => {
     supportedModels: async () => [],
     mcpServerStatus: async () => [],
     setMcpServers: async () => ({ added: [], removed: [], errors: {} }),
-    accountInfo: async () => ({})
-  })
-}
+    accountInfo: async () => ({}),
+  });
+};
 
 mock.module("@anthropic-ai/claude-agent-sdk", () => ({
   query: ({ prompt }: { prompt: unknown }) => makeSdkQuery(prompt),
   createSdkMcpServer: (_options: unknown) => ({}),
-  tool: (name: string, description: string, inputSchema: unknown, handler: (args: unknown, extra: unknown) => Promise<unknown>) => ({ name, description, inputSchema, handler }),
+  tool: (
+    name: string,
+    description: string,
+    inputSchema: unknown,
+    handler: (args: unknown, extra: unknown) => Promise<unknown>
+  ) => ({ name, description, inputSchema, handler }),
   unstable_v2_createSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
   unstable_v2_resumeSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
-  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" })
-}))
+  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" }),
+}));
 
 test("AgentSdk.query surfaces failures from streaming prompt", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js")
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js")
+  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
 
   async function* failingPrompt() {
-    throw new Error("boom")
+    throw new Error("boom");
   }
 
   const layer = AgentSdk.layer.pipe(
@@ -72,34 +77,34 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
           storageBackend: Option.some("bun"),
           storageMode: Option.some("standard"),
           r2BucketBinding: Option.some("BUCKET"),
-          kvNamespaceBinding: Option.some("KV")
+          kvNamespaceBinding: Option.some("KV"),
         })
       )
     )
-  )
+  );
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sdk = yield* AgentSdk
-      const handle = yield* sdk.query(failingPrompt())
-      return yield* Effect.either(Stream.runCollect(handle.stream))
+    Effect.gen(function* () {
+      const sdk = yield* AgentSdk;
+      const handle = yield* sdk.query(failingPrompt());
+      return yield* Effect.either(Stream.runCollect(handle.stream));
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  const result = await runEffect(program)
-  expect(Either.isLeft(result)).toBe(true)
+  const result = await runEffect(program);
+  expect(Either.isLeft(result)).toBe(true);
   if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("TransportError")
-    expect(result.left.message).toBe("Input stream failed")
+    expect(result.left._tag).toBe("TransportError");
+    expect(result.left.message).toBe("Input stream failed");
   }
-})
+});
 
 test("AgentSdk.query closeInput does not fail output stream", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js")
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js")
+  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
 
   async function* emptyPrompt() {
-    return
+    return;
   }
 
   const layer = AgentSdk.layer.pipe(
@@ -114,21 +119,21 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
           storageBackend: Option.some("bun"),
           storageMode: Option.some("standard"),
           r2BucketBinding: Option.some("BUCKET"),
-          kvNamespaceBinding: Option.some("KV")
+          kvNamespaceBinding: Option.some("KV"),
         })
       )
     )
-  )
+  );
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sdk = yield* AgentSdk
-      const handle = yield* sdk.query(emptyPrompt())
-      yield* handle.closeInput
-      return yield* Effect.either(Stream.runCollect(handle.stream))
+    Effect.gen(function* () {
+      const sdk = yield* AgentSdk;
+      const handle = yield* sdk.query(emptyPrompt());
+      yield* handle.closeInput;
+      return yield* Effect.either(Stream.runCollect(handle.stream));
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  const result = await runEffect(program)
-  expect(Either.isRight(result)).toBe(true)
-})
+  const result = await runEffect(program);
+  expect(Either.isRight(result)).toBe(true);
+});

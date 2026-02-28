@@ -1,7 +1,7 @@
-import { expect, mock, test } from "bun:test"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Stream from "effect/Stream"
+import { expect, mock, test } from "bun:test";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Stream from "effect/Stream";
 import {
   AgentRuntime,
   AgentRuntimeConfig,
@@ -10,11 +10,10 @@ import {
   QuerySupervisor,
   QuerySupervisorConfig,
   Sandbox,
-  Storage
-} from "../src/index.js"
-import type { QueryHandle } from "../src/Query.js"
-import type { SDKMessage } from "../src/Schema/Message.js"
-import { runEffect } from "./effect-test.js"
+  Storage,
+} from "../src/index.js";
+import type { SDKMessage } from "../src/Schema/Message.js";
+import { runEffect } from "./effect-test.js";
 
 const sdkMessages: ReadonlyArray<SDKMessage> = [
   {
@@ -22,10 +21,10 @@ const sdkMessages: ReadonlyArray<SDKMessage> = [
     session_id: "sandbox-local-session",
     message: {
       role: "user",
-      content: [{ type: "text", text: "run tool" }]
+      content: [{ type: "text", text: "run tool" }],
     } as never,
     parent_tool_use_id: null,
-    tool_use_result: { ok: true, value: 42 }
+    tool_use_result: { ok: true, value: 42 },
   } as SDKMessage,
   {
     type: "result",
@@ -40,20 +39,20 @@ const sdkMessages: ReadonlyArray<SDKMessage> = [
     modelUsage: {},
     permission_denials: [],
     uuid: "result-local-uuid",
-    session_id: "sandbox-local-session"
-  } as SDKMessage
-]
+    session_id: "sandbox-local-session",
+  } as SDKMessage,
+];
 
-let queryCalls = 0
-let prompts: Array<unknown> = []
+let queryCalls = 0;
+let prompts: Array<unknown> = [];
 
 const makeSdkQuery = () => {
   async function* generator() {
     for (const message of sdkMessages) {
-      yield message
+      yield message;
     }
   }
-  const iterator = generator()
+  const iterator = generator();
   return Object.assign(iterator, {
     interrupt: async () => {},
     setPermissionMode: async () => {},
@@ -64,106 +63,109 @@ const makeSdkQuery = () => {
     supportedModels: async () => [],
     mcpServerStatus: async () => [],
     setMcpServers: async () => ({ added: [], removed: [], errors: {} }),
-    accountInfo: async () => ({})
-  })
-}
+    accountInfo: async () => ({}),
+  });
+};
 
 mock.module("@anthropic-ai/claude-agent-sdk", () => ({
   query: ({ prompt }: { prompt: unknown }) => {
-    queryCalls += 1
-    prompts.push(prompt)
-    return makeSdkQuery()
+    queryCalls += 1;
+    prompts.push(prompt);
+    return makeSdkQuery();
   },
   createSdkMcpServer: (_options: unknown) => ({}),
-  tool: (name: string, description: string, inputSchema: unknown, handler: (args: unknown, extra: unknown) => Promise<unknown>) => ({ name, description, inputSchema, handler }),
+  tool: (
+    name: string,
+    description: string,
+    inputSchema: unknown,
+    handler: (args: unknown, extra: unknown) => Promise<unknown>
+  ) => ({ name, description, inputSchema, handler }),
   unstable_v2_createSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
   unstable_v2_resumeSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
-  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" })
-}))
+  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" }),
+}));
 
 test("end-to-end with layerLocal sandbox and memory persistence", async () => {
-  queryCalls = 0
-  prompts = []
+  queryCalls = 0;
+  prompts = [];
 
   const sdkLayer = AgentSdk.layer.pipe(
     Layer.provide(
       AgentSdkConfig.layerWithOverrides({
-        apiKey: "test-api-key"
+        apiKey: "test-api-key",
       })
     )
-  )
+  );
 
   const supervisorLayer = QuerySupervisor.layer.pipe(
     Layer.provide(
       QuerySupervisorConfig.layerWith({
         concurrencyLimit: 1,
-        pendingQueueCapacity: 4
+        pendingQueueCapacity: 4,
       })
     ),
     Layer.provide(sdkLayer)
-  )
+  );
 
-  const sandboxLocalLayer = Sandbox.layerLocal.pipe(
-    Layer.provide(supervisorLayer)
-  )
+  const sandboxLocalLayer = Sandbox.layerLocal.pipe(Layer.provide(supervisorLayer));
 
   const runtimeCoreLayer = AgentRuntime.layer.pipe(
     Layer.provide(AgentRuntimeConfig.layerWith({})),
     Layer.provide(supervisorLayer)
-  )
+  );
 
-  const chatHistoryLayer = Storage.ChatHistoryStore.layerMemory
-  const artifactLayer = Storage.ArtifactStore.layerMemory
+  const chatHistoryLayer = Storage.ChatHistoryStore.layerMemory;
+  const artifactLayer = Storage.ArtifactStore.layerMemory;
 
   const layer = Layer.mergeAll(
     AgentRuntime.layerWithPersistence({
       layers: {
         runtime: runtimeCoreLayer,
         chatHistory: chatHistoryLayer,
-        artifacts: artifactLayer
-      }
+        artifacts: artifactLayer,
+      },
     }),
     sandboxLocalLayer,
     chatHistoryLayer,
     artifactLayer
-  )
+  );
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sandbox = yield* Sandbox.SandboxService
-      const runtime = yield* AgentRuntime
+    Effect.gen(function* () {
+      const sandbox = yield* Sandbox.SandboxService;
+      const runtime = yield* AgentRuntime;
 
-      expect(sandbox.provider).toBe("local")
-      expect(sandbox.isolated).toBe(false)
+      expect(sandbox.provider).toBe("local");
+      expect(sandbox.isolated).toBe(false);
 
-      const handle = yield* runtime.query("hello from integration")
-      yield* Stream.runDrain(handle.stream)
+      const handle = yield* runtime.query("hello from integration");
+      yield* Stream.runDrain(handle.stream);
 
-      const chat = yield* Storage.ChatHistoryStore
-      const artifacts = yield* Storage.ArtifactStore
-      const events = yield* chat.list("sandbox-local-session")
-      const records = yield* artifacts.list("sandbox-local-session")
+      const chat = yield* Storage.ChatHistoryStore;
+      const artifacts = yield* Storage.ArtifactStore;
+      const events = yield* chat.list("sandbox-local-session");
+      const records = yield* artifacts.list("sandbox-local-session");
 
-      return { events, records }
+      return { events, records };
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  const result = await runEffect(program)
+  const result = await runEffect(program);
 
-  expect(queryCalls).toBe(1)
-  expect(prompts).toEqual(["hello from integration"])
-  expect(result.events.length).toBe(1)
-  expect(result.records.length).toBe(1)
-})
+  expect(queryCalls).toBe(1);
+  expect(prompts).toEqual(["hello from integration"]);
+  expect(result.events.length).toBe(1);
+  expect(result.records.length).toBe(1);
+});

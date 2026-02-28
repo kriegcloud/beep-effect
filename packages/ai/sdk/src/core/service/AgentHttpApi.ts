@@ -1,7 +1,7 @@
-import * as Schema from "effect/Schema"
-import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi"
-import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js"
-import * as SdkSchema from "../Schema/index.js"
+import * as Schema from "effect/Schema";
+import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
+import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js";
+import * as SdkSchema from "../Schema/index.js";
 import {
   QueryInput,
   QueryResultOutput,
@@ -9,74 +9,74 @@ import {
   SessionCreateOutput,
   SessionInfo,
   SessionSendInput,
-  Tenant
-} from "../Schema/Service.js"
-import { AgentServiceError } from "./AgentRpcs.js"
-import { SessionServiceError } from "./SessionErrors.js"
+  Tenant,
+} from "../Schema/Service.js";
+import { AgentServiceError } from "./AgentRpcs.js";
+import { SessionServiceError } from "./SessionErrors.js";
 
 class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   .add(
     HttpApiEndpoint.post("query", "/query", {
       payload: HttpApiSchema.asJson({ contentType: "application/json" })(QueryInput),
       success: QueryResultOutput,
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("stats", "/stats", {
-      success: QuerySupervisorStatsSchema
+      success: QuerySupervisorStatsSchema,
     })
   )
   .add(
     HttpApiEndpoint.post("interruptAll", "/interrupt-all", {
       success: HttpApiSchema.NoContent,
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("models", "/models", {
       success: Schema.Array(SdkSchema.ModelInfo),
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("commands", "/commands", {
       success: Schema.Array(SdkSchema.SlashCommand),
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("account", "/account", {
       success: SdkSchema.AccountInfo,
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("stream", "/stream", {
       query: Schema.Struct({ prompt: Schema.String }),
       success: Schema.String,
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.post("streamPost", "/stream", {
       payload: QueryInput,
       success: Schema.String,
-      error: AgentServiceError
+      error: AgentServiceError,
     })
   )
   .add(
     HttpApiEndpoint.post("createSession", "/sessions", {
       payload: SessionCreateInput,
       success: SessionCreateOutput,
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("listSessions", "/sessions", {
       query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
       success: Schema.Array(SessionInfo),
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   )
   .add(
@@ -84,7 +84,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
       params: Schema.Struct({ id: Schema.String }),
       query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
       success: SessionInfo,
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   )
   .add(
@@ -92,7 +92,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
       params: Schema.Struct({ id: Schema.String }),
       payload: SessionSendInput,
       success: HttpApiSchema.NoContent,
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   )
   .add(
@@ -100,7 +100,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
       params: Schema.Struct({ id: Schema.String }),
       query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
       success: Schema.String,
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   )
   .add(
@@ -108,7 +108,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
       params: Schema.Struct({ id: Schema.String }),
       query: Schema.Struct({ tenant: Schema.optional(Tenant) }),
       success: HttpApiSchema.NoContent,
-      error: SessionServiceError
+      error: SessionServiceError,
     })
   ) {}
 

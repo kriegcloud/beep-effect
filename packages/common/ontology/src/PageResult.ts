@@ -27,7 +27,7 @@ export interface PageResult<T> {
  * @since 0.0.0
  * @category constructors
  */
-export const PageResult = <const T extends S.Top>(schema: S.Schema<T>) =>
+export const PageResult = <const T extends S.Top>(schema: T) =>
   S.Struct({
     data: S.Array(schema),
     nextPageToken: S.optionalKey(S.String),

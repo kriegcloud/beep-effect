@@ -1,15 +1,15 @@
-import { expect, test } from "bun:test"
-import { HttpApiBuilder } from "@effect/platform"
-import * as HttpServer from "@effect/platform/HttpServer"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Stream from "effect/Stream"
-import { AgentRuntime } from "../src/AgentRuntime.js"
-import type { QueryHandle } from "../src/Query.js"
-import { SessionPool } from "../src/SessionPool.js"
-import { AgentHttpApi } from "../src/service/AgentHttpApi.js"
-import { layer as AgentHttpHandlers } from "../src/service/AgentHttpHandlers.js"
-import type { SDKMessage } from "../src/Schema/Message.js"
+import { expect, test } from "bun:test";
+import { HttpApiBuilder } from "@effect/platform";
+import * as HttpServer from "@effect/platform/HttpServer";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Stream from "effect/Stream";
+import { AgentRuntime } from "../src/AgentRuntime.js";
+import type { QueryHandle } from "../src/Query.js";
+import type { SDKMessage } from "../src/Schema/Message.js";
+import { SessionPool } from "../src/SessionPool.js";
+import { AgentHttpApi } from "../src/service/AgentHttpApi.js";
+import { layer as AgentHttpHandlers } from "../src/service/AgentHttpHandlers.js";
 
 const makeSuccessMessage = (result: string): SDKMessage => ({
   type: "result",
@@ -24,8 +24,8 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   modelUsage: {},
   permission_denials: [],
   uuid: "00000000-0000-0000-0000-000000000000",
-  session_id: "session-1"
-})
+  session_id: "session-1",
+});
 
 test("agent HTTP API serves query and stats", async () => {
   const makeHandle = () =>
@@ -34,20 +34,20 @@ test("agent HTTP API serves query and stats", async () => {
         {
           name: "help",
           description: "show help",
-          argumentHint: ""
-        }
+          argumentHint: "",
+        },
       ]),
       supportedModels: Effect.succeed([
         {
           value: "claude-3-5",
           displayName: "Claude 3.5",
-          description: "Test model"
-        }
+          description: "Test model",
+        },
       ]),
       accountInfo: Effect.succeed({ email: "dev@example.com" }),
       closeInput: Effect.void,
-      interrupt: Effect.void
-    }) as unknown as QueryHandle
+      interrupt: Effect.void,
+    }) as unknown as QueryHandle;
 
   const runtime = AgentRuntime.make({
     query: () => Effect.succeed(makeHandle()),
@@ -58,59 +58,55 @@ test("agent HTTP API serves query and stats", async () => {
       pending: 0,
       concurrencyLimit: 4,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
-  const runtimeLayer = Layer.succeed(AgentRuntime, runtime)
-  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer))
-  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer))
-  const { handler, dispose } = HttpApiBuilder.toWebHandler(
-    Layer.mergeAll(apiLayer, HttpServer.layerContext)
-  )
+  const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
+  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer));
+  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer));
+  const { handler, dispose } = HttpApiBuilder.toWebHandler(Layer.mergeAll(apiLayer, HttpServer.layerContext));
 
   try {
     const queryResponse = await handler(
       new Request("http://localhost/query", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt: "Hello" })
+        body: JSON.stringify({ prompt: "Hello" }),
       })
-    )
-    expect(queryResponse.status).toBe(200)
-    const queryBody = await queryResponse.json() as { result: string }
-    expect(queryBody.result).toBe("ok")
+    );
+    expect(queryResponse.status).toBe(200);
+    const queryBody = (await queryResponse.json()) as { result: string };
+    expect(queryBody.result).toBe("ok");
 
-    const statsResponse = await handler(new Request("http://localhost/stats"))
-    expect(statsResponse.status).toBe(200)
-    const statsBody = await statsResponse.json() as { active: number }
-    expect(statsBody.active).toBe(1)
+    const statsResponse = await handler(new Request("http://localhost/stats"));
+    expect(statsResponse.status).toBe(200);
+    const statsBody = (await statsResponse.json()) as { active: number };
+    expect(statsBody.active).toBe(1);
 
-    const interruptResponse = await handler(
-      new Request("http://localhost/interrupt-all", { method: "POST" })
-    )
-    expect(interruptResponse.status).toBe(204)
+    const interruptResponse = await handler(new Request("http://localhost/interrupt-all", { method: "POST" }));
+    expect(interruptResponse.status).toBe(204);
 
-    const modelsResponse = await handler(new Request("http://localhost/models"))
-    expect(modelsResponse.status).toBe(200)
-    const modelsBody = await modelsResponse.json() as Array<{ value?: string }>
-    expect(modelsBody[0]?.value).toBe("claude-3-5")
+    const modelsResponse = await handler(new Request("http://localhost/models"));
+    expect(modelsResponse.status).toBe(200);
+    const modelsBody = (await modelsResponse.json()) as Array<{ value?: string }>;
+    expect(modelsBody[0]?.value).toBe("claude-3-5");
 
-    const commandsResponse = await handler(new Request("http://localhost/commands"))
-    expect(commandsResponse.status).toBe(200)
-    const commandsBody = await commandsResponse.json() as Array<{ name?: string }>
-    expect(commandsBody[0]?.name).toBe("help")
+    const commandsResponse = await handler(new Request("http://localhost/commands"));
+    expect(commandsResponse.status).toBe(200);
+    const commandsBody = (await commandsResponse.json()) as Array<{ name?: string }>;
+    expect(commandsBody[0]?.name).toBe("help");
 
-    const accountResponse = await handler(new Request("http://localhost/account"))
-    expect(accountResponse.status).toBe(200)
-    const accountBody = await accountResponse.json() as { email?: string }
-    expect(accountBody.email).toBe("dev@example.com")
+    const accountResponse = await handler(new Request("http://localhost/account"));
+    expect(accountResponse.status).toBe(200);
+    const accountBody = (await accountResponse.json()) as { email?: string };
+    expect(accountBody.email).toBe("dev@example.com");
   } finally {
-    await dispose()
+    await dispose();
   }
-})
+});
 
 test("agent HTTP API metadata uses queryRaw", async () => {
   const makeHandle = () =>
@@ -119,20 +115,20 @@ test("agent HTTP API metadata uses queryRaw", async () => {
         {
           name: "help",
           description: "show help",
-          argumentHint: ""
-        }
+          argumentHint: "",
+        },
       ]),
       supportedModels: Effect.succeed([
         {
           value: "claude-3-5",
           displayName: "Claude 3.5",
-          description: "Test model"
-        }
+          description: "Test model",
+        },
       ]),
       accountInfo: Effect.succeed({ email: "dev@example.com" }),
       closeInput: Effect.void,
-      interrupt: Effect.void
-    }) as unknown as QueryHandle
+      interrupt: Effect.void,
+    }) as unknown as QueryHandle;
 
   const runtime = AgentRuntime.make({
     query: () => Effect.dieMessage("query should not be used for metadata"),
@@ -143,41 +139,39 @@ test("agent HTTP API metadata uses queryRaw", async () => {
       pending: 0,
       concurrencyLimit: 1,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
-  const runtimeLayer = Layer.succeed(AgentRuntime, runtime)
-  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer))
-  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer))
-  const { handler, dispose } = HttpApiBuilder.toWebHandler(
-    Layer.mergeAll(apiLayer, HttpServer.layerContext)
-  )
+  const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
+  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer));
+  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer));
+  const { handler, dispose } = HttpApiBuilder.toWebHandler(Layer.mergeAll(apiLayer, HttpServer.layerContext));
 
   try {
-    const modelsResponse = await handler(new Request("http://localhost/models"))
-    expect(modelsResponse.status).toBe(200)
-    const modelsBody = await modelsResponse.json() as Array<{ value?: string }>
-    expect(modelsBody[0]?.value).toBe("claude-3-5")
+    const modelsResponse = await handler(new Request("http://localhost/models"));
+    expect(modelsResponse.status).toBe(200);
+    const modelsBody = (await modelsResponse.json()) as Array<{ value?: string }>;
+    expect(modelsBody[0]?.value).toBe("claude-3-5");
 
-    const commandsResponse = await handler(new Request("http://localhost/commands"))
-    expect(commandsResponse.status).toBe(200)
-    const commandsBody = await commandsResponse.json() as Array<{ name?: string }>
-    expect(commandsBody[0]?.name).toBe("help")
+    const commandsResponse = await handler(new Request("http://localhost/commands"));
+    expect(commandsResponse.status).toBe(200);
+    const commandsBody = (await commandsResponse.json()) as Array<{ name?: string }>;
+    expect(commandsBody[0]?.name).toBe("help");
 
-    const accountResponse = await handler(new Request("http://localhost/account"))
-    expect(accountResponse.status).toBe(200)
-    const accountBody = await accountResponse.json() as { email?: string }
-    expect(accountBody.email).toBe("dev@example.com")
+    const accountResponse = await handler(new Request("http://localhost/account"));
+    expect(accountResponse.status).toBe(200);
+    const accountBody = (await accountResponse.json()) as { email?: string };
+    expect(accountBody.email).toBe("dev@example.com");
   } finally {
-    await dispose()
+    await dispose();
   }
-})
+});
 
 test("agent HTTP session routes enforce caller tenant header", async () => {
-  const captured: Array<string | undefined> = []
+  const captured: Array<string | undefined> = [];
 
   const runtime = AgentRuntime.make({
     query: () => Effect.dieMessage("query should not be used in session route test"),
@@ -188,59 +182,54 @@ test("agent HTTP session routes enforce caller tenant header", async () => {
       pending: 0,
       concurrencyLimit: 1,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
   const sessionHandle = {
     sessionId: Effect.succeed("session-tenant"),
     send: () => Effect.void,
     stream: Stream.empty,
-    close: Effect.void
-  }
+    close: Effect.void,
+  };
 
   const pool = SessionPool.of({
     create: (_overrides?: unknown, tenant?: string) => {
-      captured.push(tenant)
-      return Effect.succeed(sessionHandle as never)
+      captured.push(tenant);
+      return Effect.succeed(sessionHandle as never);
     },
     get: (_sessionId: string, _overrides?: unknown, tenant?: string) => {
-      captured.push(tenant)
-      return Effect.succeed(sessionHandle as never)
+      captured.push(tenant);
+      return Effect.succeed(sessionHandle as never);
     },
     info: (_sessionId: string, tenant?: string) =>
       Effect.succeed({
         sessionId: "session-tenant",
         ...(tenant !== undefined ? { tenant } : {}),
         createdAt: 1,
-        lastUsedAt: 1
+        lastUsedAt: 1,
       }),
     withSession: (_sessionId: string, _use: unknown, _tenant?: string) =>
       Effect.dieMessage("withSession not used in test") as never,
     list: Effect.succeed([]),
     listByTenant: (tenant?: string) => {
-      captured.push(tenant)
-      return Effect.succeed([])
+      captured.push(tenant);
+      return Effect.succeed([]);
     },
     close: (_sessionId: string, tenant?: string) => {
-      captured.push(tenant)
-      return Effect.void
+      captured.push(tenant);
+      return Effect.void;
     },
-    closeAll: Effect.void
-  })
+    closeAll: Effect.void,
+  });
 
-  const runtimeLayer = Layer.succeed(AgentRuntime, runtime)
-  const poolLayer = Layer.succeed(SessionPool, pool)
-  const handlersLayer = AgentHttpHandlers.pipe(
-    Layer.provide(runtimeLayer),
-    Layer.provide(poolLayer)
-  )
-  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer))
-  const { handler, dispose } = HttpApiBuilder.toWebHandler(
-    Layer.mergeAll(apiLayer, HttpServer.layerContext)
-  )
+  const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
+  const poolLayer = Layer.succeed(SessionPool, pool);
+  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(poolLayer));
+  const apiLayer = HttpApiBuilder.api(AgentHttpApi).pipe(Layer.provide(handlersLayer));
+  const { handler, dispose } = HttpApiBuilder.toWebHandler(Layer.mergeAll(apiLayer, HttpServer.layerContext));
 
   try {
     const createResponse = await handler(
@@ -248,40 +237,40 @@ test("agent HTTP session routes enforce caller tenant header", async () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-agent-tenant": "team-a"
+          "x-agent-tenant": "team-a",
         },
-        body: JSON.stringify({ options: { model: "claude-test" } })
+        body: JSON.stringify({ options: { model: "claude-test" } }),
       })
-    )
-    expect(createResponse.status).toBe(200)
-    expect(captured[0]).toBe("team-a")
+    );
+    expect(createResponse.status).toBe(200);
+    expect(captured[0]).toBe("team-a");
 
     const listResponse = await handler(
       new Request("http://localhost/sessions", {
         headers: {
-          "x-agent-tenant": "team-a"
-        }
+          "x-agent-tenant": "team-a",
+        },
       })
-    )
-    expect(listResponse.status).toBe(200)
-    expect(captured[1]).toBe("team-a")
+    );
+    expect(listResponse.status).toBe(200);
+    expect(captured[1]).toBe("team-a");
 
     const mismatchResponse = await handler(
       new Request("http://localhost/sessions/session-tenant/send", {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-agent-tenant": "team-a"
+          "x-agent-tenant": "team-a",
         },
         body: JSON.stringify({
           message: "hello",
-          tenant: "team-b"
-        })
+          tenant: "team-b",
+        }),
       })
-    )
-    expect(mismatchResponse.status).toBeGreaterThanOrEqual(400)
-    expect(captured.length).toBe(2)
+    );
+    expect(mismatchResponse.status).toBeGreaterThanOrEqual(400);
+    expect(captured.length).toBe(2);
   } finally {
-    await dispose()
+    await dispose();
   }
-})
+});

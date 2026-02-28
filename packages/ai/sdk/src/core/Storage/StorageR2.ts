@@ -1,7 +1,7 @@
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Schedule from "effect/Schedule"
-import { KeyValueStore } from "effect/unstable/persistence"
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Schedule from "effect/Schedule";
+import { KeyValueStore } from "effect/unstable/persistence";
 
 /**
  * Helper to create PlatformError.SystemError for KVS operations.
@@ -13,22 +13,16 @@ const storageError = (method: string, description: string, cause?: unknown) =>
   new KeyValueStore.KeyValueStoreError({
     method,
     message: description,
-    ...(cause !== undefined ? { cause } : {})
-  })
+    ...(cause !== undefined ? { cause } : {}),
+  });
 
-const r2RetrySchedule = Schedule.exponential("100 millis").pipe(
-  Schedule.compose(Schedule.recurs(3))
-)
+const r2RetrySchedule = Schedule.exponential("100 millis").pipe(Schedule.compose(Schedule.recurs(3)));
 
-const tryR2 = <A>(
-  method: string,
-  description: string,
-  run: () => Promise<A>
-) =>
+const tryR2 = <A>(method: string, description: string, run: () => Promise<A>) =>
   Effect.tryPromise({
     try: run,
-    catch: (cause) => storageError(method, description, cause)
-  }).pipe(Effect.retry(r2RetrySchedule))
+    catch: (cause) => storageError(method, description, cause),
+  }).pipe(Effect.retry(r2RetrySchedule));
 
 /**
  * R2Bucket binding type.
@@ -46,28 +40,29 @@ const tryR2 = <A>(
  * - `put()` accepts `ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob`
  */
 export type R2Bucket = {
-  put(key: string, value: string | ArrayBuffer | ArrayBufferView | ReadableStream | null | Blob,
-    options?: Record<string, unknown>): Promise<unknown>
-  get(key: string, options?: Record<string, unknown>): Promise<{
-    text(): Promise<string>
-    json<T>(): Promise<T>
-    arrayBuffer(): Promise<ArrayBuffer>
-  } | null>
-  head(key: string): Promise<{ key: string; size: number; etag: string } | null>
-  delete(keys: string | string[]): Promise<void>
-  list(options?: {
-    prefix?: string
-    limit?: number
-    cursor?: string
-    delimiter?: string
-  }): Promise<R2ListResult>
-}
+  put(
+    key: string,
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream | null | Blob,
+    options?: Record<string, unknown>
+  ): Promise<unknown>;
+  get(
+    key: string,
+    options?: Record<string, unknown>
+  ): Promise<{
+    text(): Promise<string>;
+    json<T>(): Promise<T>;
+    arrayBuffer(): Promise<ArrayBuffer>;
+  } | null>;
+  head(key: string): Promise<{ key: string; size: number; etag: string } | null>;
+  delete(keys: string | string[]): Promise<void>;
+  list(options?: { prefix?: string; limit?: number; cursor?: string; delimiter?: string }): Promise<R2ListResult>;
+};
 
 // Discriminated union matching @cloudflare/workers-types R2Objects type.
 // `cursor` only exists when `truncated: true`.
 type R2ListResult =
   | { objects: Array<{ key: string }>; truncated: true; cursor: string; delimitedPrefixes: string[] }
-  | { objects: Array<{ key: string }>; truncated: false; delimitedPrefixes: string[] }
+  | { objects: Array<{ key: string }>; truncated: false; delimitedPrefixes: string[] };
 
 /**
  * KeyValueStore implementation backed by Cloudflare R2.
@@ -98,62 +93,51 @@ export const layerR2 = (bucket: R2Bucket): Layer.Layer<KeyValueStore.KeyValueSto
     KeyValueStore.makeStringOnly({
       get: (key) =>
         tryR2("get", "R2 get failed", async () => {
-          const obj = await bucket.get(key)
-          if (!obj) return undefined
-          return await obj.text()
+          const obj = await bucket.get(key);
+          if (!obj) return undefined;
+          return await obj.text();
         }),
 
-      set: (key, value) =>
-        tryR2("set", "R2 set failed", () => bucket.put(key, value)).pipe(
-          Effect.asVoid
-        ),
+      set: (key, value) => tryR2("set", "R2 set failed", () => bucket.put(key, value)).pipe(Effect.asVoid),
 
-      remove: (key) =>
-        tryR2("remove", "R2 remove failed", () => bucket.delete(key)),
+      remove: (key) => tryR2("remove", "R2 remove failed", () => bucket.delete(key)),
 
       // Uses head() instead of get() to avoid downloading the full object body.
       // R2 head() returns metadata only, which is more efficient for large artifacts.
       has: (key) =>
         tryR2("has", "R2 has failed", async () => {
-          const obj = await bucket.head(key)
-          return obj !== null
+          const obj = await bucket.head(key);
+          return obj !== null;
         }),
 
-      isEmpty:
-        tryR2("isEmpty", "R2 isEmpty failed", async () => {
-          const result = await bucket.list({ limit: 1 })
-          return result.objects.length === 0
-        }),
+      isEmpty: tryR2("isEmpty", "R2 isEmpty failed", async () => {
+        const result = await bucket.list({ limit: 1 });
+        return result.objects.length === 0;
+      }),
 
       // R2 list() returns a discriminated union: cursor only exists when truncated === true.
       // Use type narrowing via `result.truncated` check before accessing `result.cursor`.
-      size:
-        tryR2("size", "R2 size failed", async () => {
-          let count = 0
-          let cursor: string | undefined
-          do {
-            const opts = cursor !== undefined
-              ? { limit: 1000, cursor }
-              : { limit: 1000 }
-            const result = await bucket.list(opts)
-            count += result.objects.length
-            cursor = result.truncated ? result.cursor : undefined
-          } while (cursor)
-          return count
-        }),
+      size: tryR2("size", "R2 size failed", async () => {
+        let count = 0;
+        let cursor: string | undefined;
+        do {
+          const opts = cursor !== undefined ? { limit: 1000, cursor } : { limit: 1000 };
+          const result = await bucket.list(opts);
+          count += result.objects.length;
+          cursor = result.truncated ? result.cursor : undefined;
+        } while (cursor);
+        return count;
+      }),
 
-      clear:
-        tryR2("clear", "R2 clear failed", async () => {
-          let cursor: string | undefined
-          do {
-            const opts = cursor !== undefined
-              ? { limit: 1000, cursor }
-              : { limit: 1000 }
-            const result = await bucket.list(opts)
-            const keys = result.objects.map((o) => o.key)
-            if (keys.length > 0) await bucket.delete(keys)
-            cursor = result.truncated ? result.cursor : undefined
-          } while (cursor)
-        })
+      clear: tryR2("clear", "R2 clear failed", async () => {
+        let cursor: string | undefined;
+        do {
+          const opts = cursor !== undefined ? { limit: 1000, cursor } : { limit: 1000 };
+          const result = await bucket.list(opts);
+          const keys = result.objects.map((o) => o.key);
+          if (keys.length > 0) await bucket.delete(keys);
+          cursor = result.truncated ? result.cursor : undefined;
+        } while (cursor);
+      }),
     })
-  )
+  );

@@ -1,27 +1,22 @@
-import * as Clock from "effect/Clock"
-import type * as ServiceMap from "effect/ServiceMap"
-import type * as Duration from "effect/Duration"
-import * as Effect from "effect/Effect"
-import * as Ref from "effect/Ref"
-import type {
-  HookCallback,
-  HookEvent,
-  HookInput,
-  HookJSONOutput
-} from "../Schema/Hooks.js"
-import { HookError } from "../Errors.js"
-import { AuditEventStore } from "../Storage/AuditEventStore.js"
-import { callback, matcher } from "./Hook.js"
-import type { HookContext } from "./Hook.js"
-import type { HookMap } from "./utils.js"
+import * as Clock from "effect/Clock";
+import type * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Ref from "effect/Ref";
+import type * as ServiceMap from "effect/ServiceMap";
+import { HookError } from "../Errors.js";
+import type { HookCallback, HookEvent, HookInput, HookJSONOutput } from "../Schema/Hooks.js";
+import { AuditEventStore } from "../Storage/index.js";
+import type { HookContext } from "./Hook.js";
+import { callback, matcher } from "./Hook.js";
+import type { HookMap } from "./utils.js";
 
 export type AuditLoggingOptions = {
-  readonly strict?: undefined |  boolean
-  readonly logHookOutcomes?: undefined |  boolean
-  readonly logPermissionDecisions?: undefined |  boolean
-  readonly matcher?: undefined |  string
-  readonly timeout?: undefined |  Duration.Input
-}
+  readonly strict?: undefined | boolean;
+  readonly logHookOutcomes?: undefined | boolean;
+  readonly logPermissionDecisions?: undefined | boolean;
+  readonly matcher?: undefined | string;
+  readonly timeout?: undefined | Duration.Input;
+};
 
 const hookEvents: ReadonlyArray<HookEvent> = [
   "PreToolUse",
@@ -36,22 +31,22 @@ const hookEvents: ReadonlyArray<HookEvent> = [
   "SubagentStop",
   "PreCompact",
   "PermissionRequest",
-  "Setup"
-]
+  "Setup",
+];
 
-const promptDecision = "prompt" as const
+const promptDecision = "prompt" as const;
 
-type AuditEventStoreService = ServiceMap.Service.Shape<typeof AuditEventStore>
+type AuditEventStoreService = ServiceMap.Service.Shape<typeof AuditEventStore>;
 type ResolvedPermissionDecision = {
-  readonly decision: "allow" | "deny" | "prompt"
-  readonly reason?: undefined |  string
-}
+  readonly decision: "allow" | "deny" | "prompt";
+  readonly reason?: undefined | string;
+};
 
 const recordWrite = (strict: boolean, effect: Effect.Effect<void, unknown>) =>
-  strict ? effect : effect.pipe(Effect.catch(() => Effect.void))
+  strict ? effect : effect.pipe(Effect.catch(() => Effect.void));
 
 const resolveHookToolUseId = (input: HookInput, toolUseId: string | undefined) =>
-  toolUseId ?? ("tool_use_id" in input ? input.tool_use_id : undefined)
+  toolUseId ?? ("tool_use_id" in input ? input.tool_use_id : undefined);
 
 const recordHookOutcome = (
   store: AuditEventStoreService,
@@ -61,7 +56,7 @@ const recordHookOutcome = (
   outcome: "success" | "failure",
   sessionId: string
 ) => {
-  const resolvedToolUseId = resolveHookToolUseId(input, toolUseId)
+  const resolvedToolUseId = resolveHookToolUseId(input, toolUseId);
   return recordWrite(
     strict,
     store.write({
@@ -70,18 +65,13 @@ const recordHookOutcome = (
         sessionId,
         hook: input.hook_event_name,
         ...(resolvedToolUseId ? { toolUseId: resolvedToolUseId } : {}),
-        outcome
-      }
+        outcome,
+      },
     })
-  )
-}
+  );
+};
 
-const recordPermissionPrompt = (
-  store: AuditEventStoreService,
-  strict: boolean,
-  input: HookInput,
-  sessionId: string
-) =>
+const recordPermissionPrompt = (store: AuditEventStoreService, strict: boolean, input: HookInput, sessionId: string) =>
   input.hook_event_name === "PermissionRequest"
     ? recordWrite(
         strict,
@@ -90,98 +80,94 @@ const recordPermissionPrompt = (
           payload: {
             sessionId,
             toolName: input.tool_name,
-            decision: promptDecision
-          }
+            decision: promptDecision,
+          },
         })
       )
-    : Effect.void
+    : Effect.void;
 
 const resolvePermissionDecision = (output: HookJSONOutput): ResolvedPermissionDecision | undefined => {
   if ("hookSpecificOutput" in output && output.hookSpecificOutput?.hookEventName === "PermissionRequest") {
-    const decision = output.hookSpecificOutput.decision
-    const reason = "message" in decision && decision.message
-      ? decision.message
-      : "reason" in output && output.reason
-        ? output.reason
-        : undefined
+    const decision = output.hookSpecificOutput.decision;
+    const reason =
+      "message" in decision && decision.message
+        ? decision.message
+        : "reason" in output && output.reason
+          ? output.reason
+          : undefined;
     return {
       decision: decision.behavior,
-      ...(reason ? { reason } : {})
-    }
+      ...(reason ? { reason } : {}),
+    };
   }
 
   if ("hookSpecificOutput" in output && output.hookSpecificOutput) {
-    const hookSpecific = output.hookSpecificOutput
+    const hookSpecific = output.hookSpecificOutput;
     if ("permissionDecision" in hookSpecific && hookSpecific.permissionDecision) {
-      const decision =
-        hookSpecific.permissionDecision === "ask"
-          ? "prompt"
-          : hookSpecific.permissionDecision
-      const reason = "permissionDecisionReason" in hookSpecific
-        ? hookSpecific.permissionDecisionReason
-        : "reason" in output && output.reason
-          ? output.reason
-          : undefined
+      const decision = hookSpecific.permissionDecision === "ask" ? "prompt" : hookSpecific.permissionDecision;
+      const reason =
+        "permissionDecisionReason" in hookSpecific
+          ? hookSpecific.permissionDecisionReason
+          : "reason" in output && output.reason
+            ? output.reason
+            : undefined;
       return {
         decision,
-        ...(reason ? { reason } : {})
-      }
+        ...(reason ? { reason } : {}),
+      };
     }
   }
 
   if ("decision" in output && output.decision) {
-    const reason = "reason" in output && output.reason ? output.reason : undefined
+    const reason = "reason" in output && output.reason ? output.reason : undefined;
     return {
       decision: output.decision === "approve" ? "allow" : "deny",
-      ...(reason ? { reason } : {})
-    }
+      ...(reason ? { reason } : {}),
+    };
   }
 
-  return undefined
-}
+  return undefined;
+};
 
-const wrapPermissionCallback = (
-  hook: HookCallback,
-  store: AuditEventStoreService,
-  strict: boolean,
-  sessionId: string
-): HookCallback => async (input, toolUseId, options) => {
-  const output = await hook(input, toolUseId, options)
-  if (input.hook_event_name !== "PermissionRequest" && input.hook_event_name !== "PreToolUse") {
-    return output
-  }
-
-  const resolved = resolvePermissionDecision(output)
-  if (!resolved) return output
-
-  const resolvedSessionId = sessionId || input.session_id
-  const effect = store.write({
-    event: "permission_decision",
-    payload: {
-      sessionId: resolvedSessionId,
-      toolName: input.tool_name,
-      decision: resolved.decision,
-      ...(resolved.reason ? { reason: resolved.reason } : {})
+const wrapPermissionCallback =
+  (hook: HookCallback, store: AuditEventStoreService, strict: boolean, sessionId: string): HookCallback =>
+  async (input, toolUseId, options) => {
+    const output = await hook(input, toolUseId, options);
+    if (input.hook_event_name !== "PermissionRequest" && input.hook_event_name !== "PreToolUse") {
+      return output;
     }
-  })
 
-  await Effect.runPromise(recordWrite(strict, effect))
-  return output
-}
+    const resolved = resolvePermissionDecision(output);
+    if (!resolved) return output;
 
-export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(function*(
+    const resolvedSessionId = sessionId || input.session_id;
+    const effect = store.write({
+      event: "permission_decision",
+      payload: {
+        sessionId: resolvedSessionId,
+        toolName: input.tool_name,
+        decision: resolved.decision,
+        ...(resolved.reason ? { reason: resolved.reason } : {}),
+      },
+    });
+
+    await Effect.runPromise(recordWrite(strict, effect));
+    return output;
+  };
+
+export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(function* (
   hooks: HookMap,
   sessionId: string,
-  options?: undefined |  AuditLoggingOptions
+  options?: undefined | AuditLoggingOptions
 ) {
-  const logPermissionDecisions = options?.logPermissionDecisions ?? true
-  if (!logPermissionDecisions) return hooks
-  const store = yield* AuditEventStore
-  const strict = options?.strict ?? false
-  const matchers = hooks.PermissionRequest
-  const preToolMatchers = hooks.PreToolUse
+  const logPermissionDecisions = options?.logPermissionDecisions ?? true;
+  if (!logPermissionDecisions) return hooks;
+  const store = yield* AuditEventStore;
+  const strict = options?.strict ?? false;
+  const matchers = hooks.PermissionRequest;
+  const preToolMatchers = hooks.PreToolUse;
   if ((!matchers || matchers.length === 0) && (!preToolMatchers || preToolMatchers.length === 0)) {
-    return hooks
+    return hooks;
   }
 
   const wrapped: HookMap = {
@@ -191,10 +177,8 @@ export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(functi
           PermissionRequest: matchers.map((matcherEntry) => ({
             matcher: matcherEntry.matcher,
             timeout: matcherEntry.timeout,
-            hooks: matcherEntry.hooks.map((hook) =>
-              wrapPermissionCallback(hook, store, strict, sessionId)
-            )
-          }))
+            hooks: matcherEntry.hooks.map((hook) => wrapPermissionCallback(hook, store, strict, sessionId)),
+          })),
         }
       : {}),
     ...(preToolMatchers && preToolMatchers.length > 0
@@ -202,23 +186,16 @@ export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(functi
           PreToolUse: preToolMatchers.map((matcherEntry) => ({
             matcher: matcherEntry.matcher,
             timeout: matcherEntry.timeout,
-            hooks: matcherEntry.hooks.map((hook) =>
-              wrapPermissionCallback(hook, store, strict, sessionId)
-            )
-          }))
+            hooks: matcherEntry.hooks.map((hook) => wrapPermissionCallback(hook, store, strict, sessionId)),
+          })),
         }
-      : {})
-  }
+      : {}),
+  };
 
-  return wrapped
-})
+  return wrapped;
+});
 
-const recordToolStart = (
-  store: AuditEventStoreService,
-  strict: boolean,
-  input: HookInput,
-  sessionId: string
-) =>
+const recordToolStart = (store: AuditEventStoreService, strict: boolean, input: HookInput, sessionId: string) =>
   input.hook_event_name === "PreToolUse"
     ? recordWrite(
         strict,
@@ -228,11 +205,11 @@ const recordToolStart = (
             sessionId,
             toolName: input.tool_name,
             toolUseId: input.tool_use_id,
-            status: "start"
-          }
+            status: "start",
+          },
         })
       )
-    : Effect.void
+    : Effect.void;
 
 const recordToolFinish = (
   store: AuditEventStoreService,
@@ -240,7 +217,7 @@ const recordToolFinish = (
   input: HookInput,
   sessionId: string,
   status: "success" | "failure",
-  durationMs?: undefined |  number
+  durationMs?: undefined | number
 ) =>
   input.hook_event_name === "PostToolUse" || input.hook_event_name === "PostToolUseFailure"
     ? recordWrite(
@@ -252,127 +229,97 @@ const recordToolFinish = (
             toolName: input.tool_name,
             toolUseId: input.tool_use_id,
             status,
-            ...(durationMs !== undefined ? { durationMs } : {})
-          }
+            ...(durationMs !== undefined ? { durationMs } : {}),
+          },
         })
       )
-    : Effect.void
+    : Effect.void;
 
-const resolveDuration = (
-  startRef: Ref.Ref<ReadonlyMap<string, number>>,
-  toolUseId: string
-) =>
+const resolveDuration = (startRef: Ref.Ref<ReadonlyMap<string, number>>, toolUseId: string) =>
   Ref.modify(startRef, (state) => {
-    const start = state.get(toolUseId)
-    if (start === undefined) return [undefined, state] as const
-    const next = new Map(state)
-    next.delete(toolUseId)
-    return [start, next] as const
+    const start = state.get(toolUseId);
+    if (start === undefined) return [undefined, state] as const;
+    const next = new Map(state);
+    next.delete(toolUseId);
+    return [start, next] as const;
   }).pipe(
     Effect.flatMap((start) =>
       start === undefined
-        ? Effect.succeed<undefined>(undefined)
+        ? Effect.as(Effect.void, undefined)
         : Clock.currentTimeMillis.pipe(Effect.map((now) => now - start))
     )
-  )
+  );
 
-export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function*(
+export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function* (
   sessionId: string,
-  options?: undefined |  AuditLoggingOptions
+  options?: undefined | AuditLoggingOptions
 ) {
-  const store = yield* AuditEventStore
-  const strict = options?.strict ?? false
-  const logHookOutcomes = options?.logHookOutcomes ?? true
-  const logPermissionDecisions = options?.logPermissionDecisions ?? true
-  const toolUseStarts = yield* Ref.make<ReadonlyMap<string, number>>(new Map())
+  const store = yield* AuditEventStore;
+  const strict = options?.strict ?? false;
+  const logHookOutcomes = options?.logHookOutcomes ?? true;
+  const logPermissionDecisions = options?.logPermissionDecisions ?? true;
+  const toolUseStarts = yield* Ref.make<ReadonlyMap<string, number>>(new Map());
 
   const handler = (input: HookInput, context: HookContext) =>
-    Effect.gen(function*() {
-      const resolvedSessionId = sessionId || input.session_id
+    Effect.gen(function* () {
+      const resolvedSessionId = sessionId || input.session_id;
 
       if (input.hook_event_name === "PreToolUse") {
-        const now = yield* Clock.currentTimeMillis
+        const now = yield* Clock.currentTimeMillis;
         yield* Ref.update(toolUseStarts, (state) => {
-          const next = new Map(state)
-          next.set(input.tool_use_id, now)
-          return next
-        })
-        yield* recordToolStart(store, strict, input, resolvedSessionId)
+          const next = new Map(state);
+          next.set(input.tool_use_id, now);
+          return next;
+        });
+        yield* recordToolStart(store, strict, input, resolvedSessionId);
       }
 
       if (input.hook_event_name === "PostToolUse") {
-        const durationMs = yield* resolveDuration(toolUseStarts, input.tool_use_id)
-        yield* recordToolFinish(
-          store,
-          strict,
-          input,
-          resolvedSessionId,
-          "success",
-          durationMs
-        )
+        const durationMs = yield* resolveDuration(toolUseStarts, input.tool_use_id);
+        yield* recordToolFinish(store, strict, input, resolvedSessionId, "success", durationMs);
       }
 
       if (input.hook_event_name === "PostToolUseFailure") {
-        const durationMs = yield* resolveDuration(toolUseStarts, input.tool_use_id)
-        yield* recordToolFinish(
-          store,
-          strict,
-          input,
-          resolvedSessionId,
-          "failure",
-          durationMs
-        )
+        const durationMs = yield* resolveDuration(toolUseStarts, input.tool_use_id);
+        yield* recordToolFinish(store, strict, input, resolvedSessionId, "failure", durationMs);
       }
 
       if (logPermissionDecisions) {
-        yield* recordPermissionPrompt(store, strict, input, resolvedSessionId)
+        yield* recordPermissionPrompt(store, strict, input, resolvedSessionId);
       }
 
       if (logHookOutcomes) {
-        yield* recordHookOutcome(
-          store,
-          strict,
-          input,
-          context.toolUseID,
-          "success",
-          resolvedSessionId
-        )
+        yield* recordHookOutcome(store, strict, input, context.toolUseID, "success", resolvedSessionId);
       }
 
-      return {} satisfies HookJSONOutput
+      return {} satisfies HookJSONOutput;
     }).pipe(
       Effect.catch((cause) => {
         const recordFailure = logHookOutcomes
-          ? recordHookOutcome(
-              store,
-              false,
-              input,
-              context.toolUseID,
-              "failure",
-              sessionId || input.session_id
-            )
-          : Effect.void
-        return recordFailure.pipe(Effect.andThen(Effect.fail(cause)))
+          ? recordHookOutcome(store, false, input, context.toolUseID, "failure", sessionId || input.session_id)
+          : Effect.void;
+        return recordFailure.pipe(Effect.andThen(Effect.fail(cause)));
       }),
-      Effect.mapError((cause) =>
-        new HookError({
-          message: "Audit hook failed",
-          cause
-        })
+      Effect.mapError(
+        (cause) =>
+          new HookError({
+            message: "Audit hook failed",
+            cause,
+          })
       )
-    )
+    );
 
-  const auditCallback = yield* callback(handler)
+  const auditCallback = yield* callback(handler);
   const auditMatcher = matcher({
     matcher: options?.matcher,
     timeout: options?.timeout,
-    hooks: [auditCallback]
-  })
+    hooks: [auditCallback],
+  });
 
-  const hooks: Partial<Record<HookEvent, HookMap[HookEvent]>> = {}
+  const hooks: Partial<Record<HookEvent, HookMap[HookEvent]>> = {};
   for (const event of hookEvents) {
-    hooks[event] = [auditMatcher]
+    hooks[event] = [auditMatcher];
   }
 
-  return hooks as HookMap
-})
+  return hooks as HookMap;
+});

@@ -40,7 +40,7 @@ const composers = $I.compose(
   "codebase-search",
   "repo-utils",
   "claude",
-	"ai-sdk"
+  "ai-sdk"
 );
 
 // --- common ---
@@ -156,7 +156,6 @@ export const $RepoUtilsId = composers.$RepoUtilsId;
  * @category claude
  */
 export const $ClaudeId = composers.$ClaudeId;
-
 
 /**
  * @since 0.0.0

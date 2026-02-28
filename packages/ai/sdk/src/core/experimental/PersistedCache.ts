@@ -1,91 +1,69 @@
-import * as PersistedCache from "effect/unstable/persistence/PersistedCache"
+import type * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as Persistable from "effect/unstable/persistence/Persistable";
+import * as PersistedCache from "effect/unstable/persistence/PersistedCache";
+import { AgentSdkError, TransportError } from "../Errors.js";
+import type { QueryHandle } from "../Query.js";
+import { AccountInfo, ModelInfo, SlashCommand } from "../Schema/Common.js";
 
-import type * as Duration from "effect/Duration"
-import * as Effect from "effect/Effect"
+export * from "effect/unstable/persistence/PersistedCache";
+export * as Persistence from "effect/unstable/persistence/Persistence";
 
-import * as S from "effect/Schema"
-import type { QueryHandle } from "../Query.js"
-import * as Persistable from "effect/unstable/persistence/Persistable"
-import { AgentSdkError, TransportError } from "../Errors.js"
-import { AccountInfo, ModelInfo, SlashCommand } from "../Schema/Common.js"
-
-export * from "effect/unstable/persistence/PersistedCache"
-export * as Persistence from "effect/unstable/persistence/Persistence"
-
-const SupportedCommandsSchema = S.Array(SlashCommand)
-const SupportedModelsSchema = S.Array(ModelInfo)
+const SupportedCommandsSchema = S.Array(SlashCommand);
+const SupportedModelsSchema = S.Array(ModelInfo);
 
 /**
  * Persisted request for supported slash commands.
  */
-export class SupportedCommandsRequest extends Persistable.Class()(
-  "SupportedCommandsRequest",
-  {
-    success: SupportedCommandsSchema,
-    error: AgentSdkError,
-    primaryKey: () => "SupportedCommands"
-  }
-) {
-}
+export class SupportedCommandsRequest extends Persistable.Class()("SupportedCommandsRequest", {
+  success: SupportedCommandsSchema,
+  error: AgentSdkError,
+  primaryKey: () => "SupportedCommands",
+}) {}
 
 /**
  * Persisted request for supported models.
  */
-export class SupportedModelsRequest extends Persistable.Class()(
-  "SupportedModelsRequest",
-  {
-    success: SupportedModelsSchema,
-    error: AgentSdkError,
-    primaryKey: () => "SupportedModels"
-  }
-) {
-
-}
+export class SupportedModelsRequest extends Persistable.Class()("SupportedModelsRequest", {
+  success: SupportedModelsSchema,
+  error: AgentSdkError,
+  primaryKey: () => "SupportedModels",
+}) {}
 
 /**
  * Persisted request for account info.
  */
-export class AccountInfoRequest extends Persistable.Class()(
-  "AccountInfoRequest",
-  {
-    success: AccountInfo,
-    error: AgentSdkError,
-    primaryKey: () => "AccountInfo"
-  }
-)  {
+export class AccountInfoRequest extends Persistable.Class()("AccountInfoRequest", {
+  success: AccountInfo,
+  error: AgentSdkError,
+  primaryKey: () => "AccountInfo",
+}) {}
 
-}
-
-const supportedCommandsKey = new SupportedCommandsRequest()
-const supportedModelsKey = new SupportedModelsRequest()
-const accountInfoKey = new AccountInfoRequest()
+const supportedCommandsKey = new SupportedCommandsRequest();
+const supportedModelsKey = new SupportedModelsRequest();
+const accountInfoKey = new AccountInfoRequest();
 
 /**
  * Cache entries for query metadata calls.
  */
 export type QueryMetadataCache = {
-  readonly supportedCommands: PersistedCache.PersistedCache<SupportedCommandsRequest>
-  readonly supportedModels: PersistedCache.PersistedCache<SupportedModelsRequest>
-  readonly accountInfo: PersistedCache.PersistedCache<AccountInfoRequest>
-}
+  readonly supportedCommands: PersistedCache.PersistedCache<SupportedCommandsRequest>;
+  readonly supportedModels: PersistedCache.PersistedCache<SupportedModelsRequest>;
+  readonly accountInfo: PersistedCache.PersistedCache<AccountInfoRequest>;
+};
 
 /**
  * Options for metadata caching.
  */
 export type QueryMetadataCacheOptions = {
-  readonly storeIdPrefix?: string
-  readonly timeToLive?: Duration.Input
-  readonly inMemoryCapacity?: number
-  readonly inMemoryTTL?: Duration.Input
-}
+  readonly storeIdPrefix?: string;
+  readonly timeToLive?: Duration.Input;
+  readonly inMemoryCapacity?: number;
+  readonly inMemoryTTL?: Duration.Input;
+};
 
-const cacheErrorTags = new Set([
-  "ConfigError",
-  "DecodeError",
-  "TransportError",
-  "HookError",
-  "McpError"
-])
+const cacheErrorTags = new Set(["ConfigError", "DecodeError", "TransportError", "HookError", "McpError"]);
 
 const toCacheError = (message: string, cause: unknown): AgentSdkError => {
   if (
@@ -94,73 +72,67 @@ const toCacheError = (message: string, cause: unknown): AgentSdkError => {
     "_tag" in cause &&
     cacheErrorTags.has(String((cause as { _tag?: string })._tag))
   ) {
-    return cause as AgentSdkError
+    return cause as AgentSdkError;
   }
-  return TransportError.make(
-    message,
-    cause
-  )
-}
+  return TransportError.make(message, cause);
+};
 
 /**
  * Build metadata caches for a query handle.
  */
-export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadataCache")(function*(
+export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadataCache")(function* (
   handle: QueryHandle,
   options?: QueryMetadataCacheOptions
 ) {
-  const storeIdPrefix = options?.storeIdPrefix ?? "claude-agent-sdk"
-  const timeToLive = options?.timeToLive ?? "1 minute"
-  const inMemoryCapacity = options?.inMemoryCapacity ?? 64
-  const inMemoryTTL = options?.inMemoryTTL ?? "30 seconds"
+  const storeIdPrefix = options?.storeIdPrefix ?? "claude-agent-sdk";
+  const timeToLive = options?.timeToLive ?? "1 minute";
+  const inMemoryCapacity = options?.inMemoryCapacity ?? 64;
+  const inMemoryTTL = options?.inMemoryTTL ?? "30 seconds";
 
   const supportedCommands = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-commands`,
-    lookup: () => handle.supportedCommands,
+    lookup: (_key: SupportedCommandsRequest) => handle.supportedCommands,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
-  })
+    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+  });
   const supportedModels = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-models`,
-    lookup: () => handle.supportedModels,
+    lookup: (_key: SupportedModelsRequest) => handle.supportedModels,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
-  })
+    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+  });
   const accountInfo = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-account-info`,
-    lookup: () => handle.accountInfo,
+    lookup: (_key: AccountInfoRequest) => handle.accountInfo,
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? {inMemoryTTL: () => inMemoryTTL} : {})
-  })
+    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+  });
 
   return {
     supportedCommands,
     supportedModels,
-    accountInfo
-  }
-})
+    accountInfo,
+  };
+});
 
 /**
  * Override a QueryHandle to use cached metadata lookups.
  */
-export const withQueryMetadataCache = (
-  handle: QueryHandle,
-  cache: QueryMetadataCache
-): QueryHandle => ({
+export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadataCache): QueryHandle => ({
   ...handle,
-  supportedCommands: cache.supportedCommands.get(supportedCommandsKey).pipe(
-    Effect.mapError((cause) => toCacheError("Failed to read cached commands", cause))
-  ),
-  supportedModels: cache.supportedModels.get(supportedModelsKey).pipe(
-    Effect.mapError((cause) => toCacheError("Failed to read cached models", cause))
-  ),
-  accountInfo: cache.accountInfo.get(accountInfoKey).pipe(
-    Effect.mapError((cause) => toCacheError("Failed to read cached account info", cause))
-  )
-})
+  supportedCommands: cache.supportedCommands
+    .get(supportedCommandsKey)
+    .pipe(Effect.mapError((cause) => toCacheError("Failed to read cached commands", cause))),
+  supportedModels: cache.supportedModels
+    .get(supportedModelsKey)
+    .pipe(Effect.mapError((cause) => toCacheError("Failed to read cached models", cause))),
+  accountInfo: cache.accountInfo
+    .get(accountInfoKey)
+    .pipe(Effect.mapError((cause) => toCacheError("Failed to read cached account info", cause))),
+});
 
 /**
  * Build a cached query handle with default metadata caches.
@@ -177,10 +149,10 @@ export const withQueryMetadataCache = (
  * )
  * ```
  */
-export const makeCachedQueryHandle = Effect.fn("PersistedCache.makeCachedQueryHandle")(function*(
+export const makeCachedQueryHandle = Effect.fn("PersistedCache.makeCachedQueryHandle")(function* (
   handle: QueryHandle,
   options?: QueryMetadataCacheOptions
 ) {
-  const cache = yield* makeQueryMetadataCache(handle, options)
-  return withQueryMetadataCache(handle, cache)
-})
+  const cache = yield* makeQueryMetadataCache(handle, options);
+  return withQueryMetadataCache(handle, cache);
+});

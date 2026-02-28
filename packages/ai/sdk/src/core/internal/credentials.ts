@@ -1,4 +1,4 @@
-import { ConfigError } from "../Errors.js"
+import { ConfigError } from "../Errors.js";
 
 const missingCredentialsMessage = [
   "Missing API credentials.",
@@ -9,12 +9,12 @@ const missingCredentialsMessage = [
   "2. Authenticate with Claude Code to populate CLAUDE_CODE_SESSION_ACCESS_TOKEN:",
   "   claude login",
   "3. Provide credentials programmatically via options.env:",
-  "   { env: { ANTHROPIC_API_KEY: \"sk-ant-...\" } }",
+  '   { env: { ANTHROPIC_API_KEY: "sk-ant-..." } }',
   "",
-  "See: https://docs.anthropic.com/en/docs/quickstart"
-].join("\n")
+  "See: https://docs.anthropic.com/en/docs/quickstart",
+].join("\n");
 
 export const missingCredentialsError = () =>
   ConfigError.make({
-    message: missingCredentialsMessage
-  })
+    message: missingCredentialsMessage,
+  });

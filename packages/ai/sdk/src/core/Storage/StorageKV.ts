@@ -1,33 +1,31 @@
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import { KeyValueStore } from "effect/unstable/persistence"
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import { KeyValueStore } from "effect/unstable/persistence";
 
 // Same storageError helper as StorageR2 (could be shared in a common file)
 const storageError = (method: string, description: string, cause?: unknown) =>
   new KeyValueStore.KeyValueStoreError({
     method,
     message: description,
-    ...(cause !== undefined ? { cause } : {})
-  })
+    ...(cause !== undefined ? { cause } : {}),
+  });
 
-const kvMinWriteIntervalMs = 1_000
+const kvMinWriteIntervalMs = 1_000;
 
-type PendingMutation =
-  | { readonly kind: "set"; readonly value: string }
-  | { readonly kind: "delete" }
+type PendingMutation = { readonly kind: "set"; readonly value: string } | { readonly kind: "delete" };
 
 type MutationWaiter = {
-  readonly resolve: () => void
-  readonly reject: (error: unknown) => void
-}
+  readonly resolve: () => void;
+  readonly reject: (error: unknown) => void;
+};
 
 type KeyMutationState = {
-  inFlight: boolean
-  timer: ReturnType<typeof setTimeout> | null
-  pending: PendingMutation | undefined
-  waiters: Array<MutationWaiter>
-  lastWriteAt: number
-}
+  inFlight: boolean;
+  timer: ReturnType<typeof setTimeout> | null;
+  pending: PendingMutation | undefined;
+  waiters: Array<MutationWaiter>;
+  lastWriteAt: number;
+};
 
 /**
  * KVNamespace binding type.
@@ -46,25 +44,34 @@ type KeyMutationState = {
  * - `put()` accepts `string | ArrayBuffer | ArrayBufferView | ReadableStream`
  */
 export type KVNamespace = {
-  get(key: string, type?: "text"): Promise<string | null>
-  put(key: string, value: string | ArrayBuffer | ArrayBufferView | ReadableStream, options?: {
-    expiration?: number
-    expirationTtl?: number
-    metadata?: unknown | null
-  }): Promise<void>
-  delete(key: string): Promise<void>
-  list(options?: {
-    prefix?: string | null
-    limit?: number
-    cursor?: string | null
-  }): Promise<KVListResult>
-}
+  get(key: string, type?: "text"): Promise<string | null>;
+  put(
+    key: string,
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream,
+    options?: {
+      expiration?: number;
+      expirationTtl?: number;
+      metadata?: unknown | null;
+    }
+  ): Promise<void>;
+  delete(key: string): Promise<void>;
+  list(options?: { prefix?: string | null; limit?: number; cursor?: string | null }): Promise<KVListResult>;
+};
 
 // Discriminated union matching @cloudflare/workers-types KVNamespaceListResult.
 // `cursor` only exists when `list_complete: false`.
 type KVListResult =
-  | { keys: Array<{ name: string; expiration?: number; metadata?: unknown }>; list_complete: false; cursor: string; cacheStatus: string | null }
-  | { keys: Array<{ name: string; expiration?: number; metadata?: unknown }>; list_complete: true; cacheStatus: string | null }
+  | {
+      keys: Array<{ name: string; expiration?: number; metadata?: unknown }>;
+      list_complete: false;
+      cursor: string;
+      cacheStatus: string | null;
+    }
+  | {
+      keys: Array<{ name: string; expiration?: number; metadata?: unknown }>;
+      list_complete: true;
+      cacheStatus: string | null;
+    };
 
 /**
  * KeyValueStore implementation backed by Cloudflare KV.
@@ -88,174 +95,170 @@ type KVListResult =
  * NOT compatible with journaled mode (blocked at config validation).
  */
 export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyValueStore> =>
-  Layer.succeed(KeyValueStore.KeyValueStore, (() => {
-    const mutationStates = new Map<string, KeyMutationState>()
+  Layer.succeed(
+    KeyValueStore.KeyValueStore,
+    (() => {
+      const mutationStates = new Map<string, KeyMutationState>();
 
-    const getState = (key: string): KeyMutationState => {
-      const existing = mutationStates.get(key)
-      if (existing) {
-        return existing
-      }
-      const created: KeyMutationState = {
-        inFlight: false,
-        timer: null,
-        pending: undefined,
-        waiters: [],
-        lastWriteAt: 0
-      }
-      mutationStates.set(key, created)
-      return created
-    }
-
-    const maybeCleanupState = (key: string, state: KeyMutationState) => {
-      if (!state.inFlight && state.timer === null && state.pending === undefined && state.waiters.length === 0) {
-        mutationStates.delete(key)
-      }
-    }
-
-    const applyMutation = async (key: string, mutation: PendingMutation, state: KeyMutationState) => {
-      if (mutation.kind === "set") {
-        await namespace.put(key, mutation.value)
-      } else {
-        await namespace.delete(key)
-      }
-      state.lastWriteAt = Date.now()
-    }
-
-    const flushMutation = async (key: string, state: KeyMutationState) => {
-      if (state.inFlight || state.pending === undefined) {
-        return
-      }
-
-      const mutation = state.pending
-      const waiters = state.waiters
-      state.pending = undefined
-      state.waiters = []
-      state.inFlight = true
-
-      try {
-        await applyMutation(key, mutation, state)
-        for (const waiter of waiters) {
-          waiter.resolve()
+      const getState = (key: string): KeyMutationState => {
+        const existing = mutationStates.get(key);
+        if (existing) {
+          return existing;
         }
-      } catch (error) {
-        for (const waiter of waiters) {
-          waiter.reject(error)
+        const created: KeyMutationState = {
+          inFlight: false,
+          timer: null,
+          pending: undefined,
+          waiters: [],
+          lastWriteAt: 0,
+        };
+        mutationStates.set(key, created);
+        return created;
+      };
+
+      const maybeCleanupState = (key: string, state: KeyMutationState) => {
+        if (!state.inFlight && state.timer === null && state.pending === undefined && state.waiters.length === 0) {
+          mutationStates.delete(key);
         }
-      } finally {
-        state.inFlight = false
-        if (state.pending !== undefined) {
-          scheduleFlush(key, state)
+      };
+
+      const applyMutation = async (key: string, mutation: PendingMutation, state: KeyMutationState) => {
+        if (mutation.kind === "set") {
+          await namespace.put(key, mutation.value);
         } else {
-          maybeCleanupState(key, state)
+          await namespace.delete(key);
         }
-      }
-    }
+        state.lastWriteAt = Date.now();
+      };
 
-    const scheduleFlush = (key: string, state: KeyMutationState) => {
-      if (state.inFlight || state.timer !== null || state.pending === undefined) {
-        return
-      }
+      const flushMutation = async (key: string, state: KeyMutationState) => {
+        if (state.inFlight || state.pending === undefined) {
+          return;
+        }
 
-      const elapsed = Date.now() - state.lastWriteAt
-      const delayMs = Math.max(0, kvMinWriteIntervalMs - elapsed)
-      if (delayMs === 0) {
-        void flushMutation(key, state)
-        return
-      }
+        const mutation = state.pending;
+        const waiters = state.waiters;
+        state.pending = undefined;
+        state.waiters = [];
+        state.inFlight = true;
 
-      state.timer = setTimeout(() => {
-        state.timer = null
-        void flushMutation(key, state)
-      }, delayMs)
-    }
+        try {
+          await applyMutation(key, mutation, state);
+          for (const waiter of waiters) {
+            waiter.resolve();
+          }
+        } catch (error) {
+          for (const waiter of waiters) {
+            waiter.reject(error);
+          }
+        } finally {
+          state.inFlight = false;
+          if (state.pending !== undefined) {
+            scheduleFlush(key, state);
+          } else {
+            maybeCleanupState(key, state);
+          }
+        }
+      };
 
-    const enqueueMutation = (key: string, mutation: PendingMutation) =>
-      new Promise<void>((resolve, reject) => {
-        const state = getState(key)
-        state.pending = mutation
-        state.waiters.push({ resolve, reject })
-        scheduleFlush(key, state)
-      })
+      const scheduleFlush = (key: string, state: KeyMutationState) => {
+        if (state.inFlight || state.timer !== null || state.pending === undefined) {
+          return;
+        }
 
-    return KeyValueStore.makeStringOnly({
-      get: (key) =>
-        Effect.tryPromise({
+        const elapsed = Date.now() - state.lastWriteAt;
+        const delayMs = Math.max(0, kvMinWriteIntervalMs - elapsed);
+        if (delayMs === 0) {
+          void flushMutation(key, state);
+          return;
+        }
+
+        state.timer = setTimeout(() => {
+          state.timer = null;
+          void flushMutation(key, state);
+        }, delayMs);
+      };
+
+      const enqueueMutation = (key: string, mutation: PendingMutation) =>
+        new Promise<void>((resolve, reject) => {
+          const state = getState(key);
+          state.pending = mutation;
+          state.waiters.push({ resolve, reject });
+          scheduleFlush(key, state);
+        });
+
+      return KeyValueStore.makeStringOnly({
+        get: (key) =>
+          Effect.tryPromise({
+            try: async () => {
+              const value = await namespace.get(key, "text");
+              return value === null ? undefined : value;
+            },
+            catch: (cause) => storageError("get", "KV get failed", cause),
+          }),
+
+        set: (key, value) =>
+          Effect.tryPromise({
+            try: () => enqueueMutation(key, { kind: "set", value }),
+            catch: (cause) => storageError("set", "KV set failed", cause),
+          }),
+
+        remove: (key) =>
+          Effect.tryPromise({
+            try: () => enqueueMutation(key, { kind: "delete" }),
+            catch: (cause) => storageError("remove", "KV remove failed", cause),
+          }),
+
+        has: (key) =>
+          Effect.tryPromise({
+            try: async () => {
+              const value = await namespace.get(key, "text");
+              return value !== null;
+            },
+            catch: (cause) => storageError("has", "KV has failed", cause),
+          }),
+
+        isEmpty: Effect.tryPromise({
           try: async () => {
-            const value = await namespace.get(key, "text")
-            return value === null ? undefined : value
+            const result = await namespace.list({ limit: 1 });
+            return result.keys.length === 0;
           },
-          catch: (cause) => storageError("get", "KV get failed", cause)
+          catch: (cause) => storageError("isEmpty", "KV isEmpty failed", cause),
         }),
 
-      set: (key, value) =>
-        Effect.tryPromise({
-          try: () => enqueueMutation(key, { kind: "set", value }),
-          catch: (cause) => storageError("set", "KV set failed", cause)
-        }),
-
-      remove: (key) =>
-        Effect.tryPromise({
-          try: () => enqueueMutation(key, { kind: "delete" }),
-          catch: (cause) => storageError("remove", "KV remove failed", cause)
-        }),
-
-      has: (key) =>
-        Effect.tryPromise({
+        // KV list() returns a discriminated union: cursor only exists when list_complete === false.
+        // Use type narrowing via `!result.list_complete` check before accessing `result.cursor`.
+        size: Effect.tryPromise({
           try: async () => {
-            const value = await namespace.get(key, "text")
-            return value !== null
-          },
-          catch: (cause) => storageError("has", "KV has failed", cause)
-        }),
-
-      isEmpty:
-        Effect.tryPromise({
-          try: async () => {
-            const result = await namespace.list({ limit: 1 })
-            return result.keys.length === 0
-          },
-          catch: (cause) => storageError("isEmpty", "KV isEmpty failed", cause)
-        }),
-
-      // KV list() returns a discriminated union: cursor only exists when list_complete === false.
-      // Use type narrowing via `!result.list_complete` check before accessing `result.cursor`.
-      size:
-        Effect.tryPromise({
-          try: async () => {
-            let count = 0
-            let cursor: string | undefined
+            let count = 0;
+            let cursor: string | undefined;
             do {
-              const opts = cursor !== undefined
-                ? { limit: 1000, cursor }
-                : { limit: 1000 }
-              const result = await namespace.list(opts)
-              count += result.keys.length
-              cursor = !result.list_complete ? result.cursor : undefined
-            } while (cursor)
-            return count
+              const opts = cursor !== undefined ? { limit: 1000, cursor } : { limit: 1000 };
+              const result = await namespace.list(opts);
+              count += result.keys.length;
+              cursor = !result.list_complete ? result.cursor : undefined;
+            } while (cursor);
+            return count;
           },
-          catch: (cause) => storageError("size", "KV size failed", cause)
+          catch: (cause) => storageError("size", "KV size failed", cause),
         }),
 
-      // Deletes sequentially within each batch to avoid hitting KV rate limits.
-      // KV does not support batch delete, so each key is deleted individually.
-      clear:
-        Effect.tryPromise({
+        // Deletes sequentially within each batch to avoid hitting KV rate limits.
+        // KV does not support batch delete, so each key is deleted individually.
+        clear: Effect.tryPromise({
           try: async () => {
-            let cursor: string | undefined
+            let cursor: string | undefined;
             do {
-              const opts = cursor !== undefined
-                ? { limit: 1000, cursor }
-                : { limit: 1000 }
-              const result = await namespace.list(opts)
+              const opts = cursor !== undefined ? { limit: 1000, cursor } : { limit: 1000 };
+              const result = await namespace.list(opts);
               for (const k of result.keys) {
-                await enqueueMutation(k.name, { kind: "delete" })
+                await enqueueMutation(k.name, { kind: "delete" });
               }
-              cursor = !result.list_complete ? result.cursor : undefined
-            } while (cursor)
+              cursor = !result.list_complete ? result.cursor : undefined;
+            } while (cursor);
           },
-          catch: (cause) => storageError("clear", "KV clear failed", cause)
-        })
-    })
-  })())
+          catch: (cause) => storageError("clear", "KV clear failed", cause),
+        }),
+      });
+    })()
+  );

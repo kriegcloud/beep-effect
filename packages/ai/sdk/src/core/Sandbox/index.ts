@@ -1,1 +1,1 @@
-export { SandboxError } from "./SandboxError.js"
+export { SandboxError } from "./SandboxError.js";

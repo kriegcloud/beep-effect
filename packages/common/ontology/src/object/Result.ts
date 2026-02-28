@@ -55,7 +55,7 @@ export interface OkResult<V> {
  * @since 0.0.0
  * @category constructors
  */
-export const OkResult = <const V extends S.Top>(valueSchema: S.Schema<V>) =>
+export const OkResult = <const V extends S.Top>(valueSchema: V) =>
   S.Struct({
     value: valueSchema,
     error: S.optionalKey(S.Never),
@@ -81,7 +81,7 @@ export type Result<V> = OkResult<V> | ErrorResult;
  * @since 0.0.0
  * @category constructors
  */
-export const Result = <const V extends S.Top>(valueSchema: S.Schema<V>) =>
+export const Result = <const V extends S.Top>(valueSchema: V) =>
   S.Union([OkResult(valueSchema), ErrorResult]).pipe(
     S.annotate(
       $I.annote("Result", {

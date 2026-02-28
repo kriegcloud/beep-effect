@@ -1,110 +1,93 @@
-import type * as EventJournal from "effect/unstable/eventlog/EventJournal"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as ServiceMap from "effect/ServiceMap"
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as ServiceMap from "effect/ServiceMap";
+import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 export type ConflictResolution =
   | { readonly _tag: "accept"; readonly entry: EventJournal.Entry }
   | { readonly _tag: "reject"; readonly reason?: string }
-  | { readonly _tag: "merge"; readonly entry: EventJournal.Entry }
+  | { readonly _tag: "merge"; readonly entry: EventJournal.Entry };
 
 const accept = (entry: EventJournal.Entry): ConflictResolution => ({
   _tag: "accept",
-  entry
-})
+  entry,
+});
 
 const merge = (entry: EventJournal.Entry): ConflictResolution => ({
   _tag: "merge",
-  entry
-})
+  entry,
+});
 
 const reject = (reason?: string): ConflictResolution => ({
   _tag: "reject",
-  ...(reason ? { reason } : {})
-})
+  ...(reason ? { reason } : {}),
+});
 
 const pickLatest = (entries: ReadonlyArray<EventJournal.Entry>) => {
-  if (entries.length === 0) return undefined
-  let latest = entries[0]!
+  if (entries.length === 0) return undefined;
+  let latest = entries[0]!;
   for (let i = 1; i < entries.length; i++) {
-    const next = entries[i]!
+    const next = entries[i]!;
     if (next.createdAtMillis >= latest.createdAtMillis) {
-      latest = next
+      latest = next;
     }
   }
-  return latest
-}
+  return latest;
+};
 
 const pickEarliest = (entries: ReadonlyArray<EventJournal.Entry>) => {
-  if (entries.length === 0) return undefined
-  let earliest = entries[0]!
+  if (entries.length === 0) return undefined;
+  let earliest = entries[0]!;
   for (let i = 1; i < entries.length; i++) {
-    const next = entries[i]!
+    const next = entries[i]!;
     if (next.createdAtMillis <= earliest.createdAtMillis) {
-      earliest = next
+      earliest = next;
     }
   }
-  return earliest
-}
+  return earliest;
+};
 
 export type ConflictPolicyService = {
   readonly resolve: (options: {
-    readonly entry: EventJournal.Entry
-    readonly conflicts: ReadonlyArray<EventJournal.Entry>
-  }) => Effect.Effect<ConflictResolution>
-}
+    readonly entry: EventJournal.Entry;
+    readonly conflicts: ReadonlyArray<EventJournal.Entry>;
+  }) => Effect.Effect<ConflictResolution>;
+};
 
 const defaultConflictPolicy: ConflictPolicyService = {
-  resolve: ({ entry, conflicts }) =>
-    Effect.succeed(
-      accept(
-        pickLatest([entry, ...conflicts]) ?? entry
-      )
-    )
-}
+  resolve: ({ entry, conflicts }) => Effect.succeed(accept(pickLatest([entry, ...conflicts]) ?? entry)),
+};
 
 export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()(
   "@effect/claude-agent-sdk/ConflictPolicy",
   {
-    make: Effect.succeed(defaultConflictPolicy)
+    make: Effect.succeed(defaultConflictPolicy),
   }
 ) {
-  static readonly layerLastWriteWins = Layer.succeed(
-    ConflictPolicy,
-    ConflictPolicy.of(defaultConflictPolicy)
-  )
+  static readonly layerLastWriteWins = Layer.succeed(ConflictPolicy, ConflictPolicy.of(defaultConflictPolicy));
 
   static readonly layerFirstWriteWins = Layer.succeed(
     ConflictPolicy,
     ConflictPolicy.of({
-      resolve: ({ entry, conflicts }) =>
-        Effect.succeed(
-          accept(
-            pickEarliest([entry, ...conflicts]) ?? entry
-          )
-        )
+      resolve: ({ entry, conflicts }) => Effect.succeed(accept(pickEarliest([entry, ...conflicts]) ?? entry)),
     })
-  )
+  );
 
   static readonly layerReject = (reason?: string) =>
     Layer.succeed(
       ConflictPolicy,
       ConflictPolicy.of({
-        resolve: () => Effect.succeed(reject(reason))
+        resolve: () => Effect.succeed(reject(reason)),
       })
-    )
+    );
 
   static readonly layerMerge = (
-    mergeFn: (
-      entry: EventJournal.Entry,
-      conflicts: ReadonlyArray<EventJournal.Entry>
-    ) => EventJournal.Entry
+    mergeFn: (entry: EventJournal.Entry, conflicts: ReadonlyArray<EventJournal.Entry>) => EventJournal.Entry
   ) =>
     Layer.succeed(
       ConflictPolicy,
       ConflictPolicy.of({
-        resolve: ({ entry, conflicts }) =>
-          Effect.sync(() => merge(mergeFn(entry, conflicts)))
+        resolve: ({ entry, conflicts }) => Effect.sync(() => merge(mergeFn(entry, conflicts))),
       })
-    )
+    );
 }

@@ -12,7 +12,7 @@
     "check": "tsc -b tsconfig.json",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest",
+    "test": "bun test",
     "coverage": "vitest --coverage",
     "docgen": "bunx @effect/docgen"
   },

@@ -1,15 +1,13 @@
-import { test, expect } from "bun:test"
-import * as ConfigProvider from "effect/ConfigProvider"
-import * as Duration from "effect/Duration"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import { Storage } from "../src/index.js"
-import { runEffect } from "./effect-test.js"
+import { expect, test } from "bun:test";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import { Storage } from "../src/index.js";
+import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  Layer.setConfigProvider(
-    ConfigProvider.fromMap(new Map(Object.entries(entries)))
-  )
+  Layer.setConfigProvider(ConfigProvider.fromMap(new Map(Object.entries(entries))));
 
 test("StorageConfig reads overrides from config provider", async () => {
   const layer = Storage.StorageConfig.layer.pipe(
@@ -31,32 +29,32 @@ test("StorageConfig reads overrides from config provider", async () => {
         STORAGE_CLEANUP_ENABLED: "false",
         STORAGE_CLEANUP_INTERVAL: "10 minutes",
         STORAGE_CLEANUP_RUN_ON_START: "true",
-        STORAGE_SYNC_INTERVAL: "2 minutes"
+        STORAGE_SYNC_INTERVAL: "2 minutes",
       })
     )
-  )
+  );
 
-  const program = Effect.gen(function*() {
-    const config = yield* Storage.StorageConfig
-    return config.settings
-  }).pipe(Effect.provide(layer))
+  const program = Effect.gen(function* () {
+    const config = yield* Storage.StorageConfig;
+    return config.settings;
+  }).pipe(Effect.provide(layer));
 
-  const settings = await runEffect(program)
-  expect(settings.enabled.chatHistory).toBe(false)
-  expect(settings.enabled.artifacts).toBe(true)
-  expect(settings.enabled.auditLog).toBe(true)
-  expect(settings.retention.chat.maxEvents).toBe(42)
-  expect(Duration.toMillis(settings.retention.chat.maxAge)).toBe(2 * 24 * 60 * 60 * 1000)
-  expect(settings.retention.artifacts.maxArtifacts).toBe(3)
-  expect(settings.retention.artifacts.maxArtifactBytes).toBe(1024)
-  expect(Duration.toMillis(settings.retention.artifacts.maxAge)).toBe(24 * 60 * 60 * 1000)
-  expect(settings.retention.audit.maxEntries).toBe(7)
-  expect(Duration.toMillis(settings.retention.audit.maxAge)).toBe(3 * 24 * 60 * 60 * 1000)
-  expect(settings.pagination.chatPageSize).toBe(5)
-  expect(settings.pagination.artifactPageSize).toBe(6)
-  expect(settings.kv.indexPageSize).toBe(9)
-  expect(settings.cleanup.enabled).toBe(false)
-  expect(Duration.toMillis(settings.cleanup.interval)).toBe(10 * 60 * 1000)
-  expect(settings.cleanup.runOnStart).toBe(true)
-  expect(Duration.toMillis(settings.sync.interval)).toBe(2 * 60 * 1000)
-})
+  const settings = await runEffect(program);
+  expect(settings.enabled.chatHistory).toBe(false);
+  expect(settings.enabled.artifacts).toBe(true);
+  expect(settings.enabled.auditLog).toBe(true);
+  expect(settings.retention.chat.maxEvents).toBe(42);
+  expect(Duration.toMillis(settings.retention.chat.maxAge)).toBe(2 * 24 * 60 * 60 * 1000);
+  expect(settings.retention.artifacts.maxArtifacts).toBe(3);
+  expect(settings.retention.artifacts.maxArtifactBytes).toBe(1024);
+  expect(Duration.toMillis(settings.retention.artifacts.maxAge)).toBe(24 * 60 * 60 * 1000);
+  expect(settings.retention.audit.maxEntries).toBe(7);
+  expect(Duration.toMillis(settings.retention.audit.maxAge)).toBe(3 * 24 * 60 * 60 * 1000);
+  expect(settings.pagination.chatPageSize).toBe(5);
+  expect(settings.pagination.artifactPageSize).toBe(6);
+  expect(settings.kv.indexPageSize).toBe(9);
+  expect(settings.cleanup.enabled).toBe(false);
+  expect(Duration.toMillis(settings.cleanup.interval)).toBe(10 * 60 * 1000);
+  expect(settings.cleanup.runOnStart).toBe(true);
+  expect(Duration.toMillis(settings.sync.interval)).toBe(2 * 60 * 1000);
+});

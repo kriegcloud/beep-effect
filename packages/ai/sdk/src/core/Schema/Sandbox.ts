@@ -1,5 +1,5 @@
-import * as Schema from "effect/Schema"
-import { withIdentifier } from "./Annotations.js"
+import * as Schema from "effect/Schema";
+import { withIdentifier } from "./Annotations.js";
 
 export const SandboxNetworkConfig = withIdentifier(
   Schema.Struct({
@@ -9,38 +9,38 @@ export const SandboxNetworkConfig = withIdentifier(
     allowAllUnixSockets: Schema.optional(Schema.Boolean),
     allowLocalBinding: Schema.optional(Schema.Boolean),
     httpProxyPort: Schema.optional(Schema.Number),
-    socksProxyPort: Schema.optional(Schema.Number)
+    socksProxyPort: Schema.optional(Schema.Number),
   }),
   "SandboxNetworkConfig"
-)
+);
 
-export type SandboxNetworkConfig = typeof SandboxNetworkConfig.Type
-export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded
+export type SandboxNetworkConfig = typeof SandboxNetworkConfig.Type;
+export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded;
 
 export const SandboxIgnoreViolations = withIdentifier(
-  Schema.Record( Schema.String,  Schema.Array(Schema.String) ),
+  Schema.Record(Schema.String, Schema.Array(Schema.String)),
   "SandboxIgnoreViolations"
-)
+);
 
-export type SandboxIgnoreViolations = typeof SandboxIgnoreViolations.Type
-export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Encoded
+export type SandboxIgnoreViolations = typeof SandboxIgnoreViolations.Type;
+export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Encoded;
 
 export const SandboxFilesystemConfig = withIdentifier(
   Schema.Struct({
     allowWrite: Schema.optional(Schema.Array(Schema.String)),
     denyWrite: Schema.optional(Schema.Array(Schema.String)),
-    denyRead: Schema.optional(Schema.Array(Schema.String))
+    denyRead: Schema.optional(Schema.Array(Schema.String)),
   }),
   "SandboxFilesystemConfig"
-)
+);
 
-export type SandboxFilesystemConfig = typeof SandboxFilesystemConfig.Type
-export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Encoded
+export type SandboxFilesystemConfig = typeof SandboxFilesystemConfig.Type;
+export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Encoded;
 
 const SandboxRipgrepConfig = Schema.Struct({
   command: Schema.String,
-  args: Schema.optional(Schema.Array(Schema.String))
-})
+  args: Schema.optional(Schema.Array(Schema.String)),
+});
 
 export const SandboxSettings = withIdentifier(
   Schema.Struct({
@@ -52,10 +52,10 @@ export const SandboxSettings = withIdentifier(
     ignoreViolations: Schema.optional(SandboxIgnoreViolations),
     enableWeakerNestedSandbox: Schema.optional(Schema.Boolean),
     excludedCommands: Schema.optional(Schema.Array(Schema.String)),
-    ripgrep: Schema.optional(SandboxRipgrepConfig)
+    ripgrep: Schema.optional(SandboxRipgrepConfig),
   }),
   "SandboxSettings"
-)
+);
 
-export type SandboxSettings = typeof SandboxSettings.Type
-export type SandboxSettingsEncoded = typeof SandboxSettings.Encoded
+export type SandboxSettings = typeof SandboxSettings.Type;
+export type SandboxSettingsEncoded = typeof SandboxSettings.Encoded;

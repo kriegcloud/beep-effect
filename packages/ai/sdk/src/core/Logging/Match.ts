@@ -1,27 +1,24 @@
-import type * as LogLevel from "effect/LogLevel"
-import * as Match from "effect/Match"
-import type { QueryEvent } from "../QuerySupervisor.js"
-import type { HookInput } from "../Schema/Hooks.js"
-import type { SDKMessage } from "../Schema/Message.js"
-import type { AgentLogEvent } from "./Types.js"
+import type * as LogLevel from "effect/LogLevel";
+import * as Match from "effect/Match";
+import type { QueryEvent } from "../QuerySupervisor.js";
+import type { HookInput } from "../Schema/Hooks.js";
+import type { SDKMessage } from "../Schema/Message.js";
+import type { AgentLogEvent } from "./Types.js";
 
 const compact = (value: Record<string, unknown>) =>
-  Object.fromEntries(
-    Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null)
-  )
+  Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null));
 
-const compactData = (value: Record<string, unknown>) => compact(value)
+const compactData = (value: Record<string, unknown>) => compact(value);
 
-const previewText = (value: string, limit = 200) =>
-  value.length > limit ? `${value.slice(0, limit)}...` : value
+const previewText = (value: string, limit = 200) => (value.length > limit ? `${value.slice(0, limit)}...` : value);
 
 const baseSdkAnnotations = (message: SDKMessage) =>
   compact({
     session_id: message.session_id,
     message_type: message.type,
     message_subtype: "subtype" in message ? message.subtype : undefined,
-    message_uuid: "uuid" in message ? message.uuid : undefined
-  })
+    message_uuid: "uuid" in message ? message.uuid : undefined,
+  });
 
 const makeSdkEvent = (
   message: SDKMessage,
@@ -30,27 +27,25 @@ const makeSdkEvent = (
     event,
     messageText,
     data,
-    annotations
+    annotations,
   }: {
-    readonly level: LogLevel.Severity
-    readonly event: string
-    readonly messageText: string
-    readonly data?: Record<string, unknown>
-    readonly annotations?: Record<string, unknown>
+    readonly level: LogLevel.Severity;
+    readonly event: string;
+    readonly messageText: string;
+    readonly data?: Record<string, unknown>;
+    readonly annotations?: Record<string, unknown>;
   }
 ): AgentLogEvent => ({
-  ...(data !== undefined
-    ? { data: compactData(data) }
-    : {}),
+  ...(data !== undefined ? { data: compactData(data) } : {}),
   level,
   category: "messages",
   event,
   message: messageText,
   annotations: {
     ...baseSdkAnnotations(message),
-    ...compact(annotations ?? {})
-  }
-})
+    ...compact(annotations ?? {}),
+  },
+});
 
 export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   Match.when({ type: "assistant", error: Match.string }, (message) =>
@@ -59,13 +54,13 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.assistant.error",
       messageText: "assistant message error",
       annotations: {
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         error: message.error,
         message: message.message,
-        parent_tool_use_id: message.parent_tool_use_id
-      }
+        parent_tool_use_id: message.parent_tool_use_id,
+      },
     })
   ),
   Match.when({ type: "assistant" }, (message) =>
@@ -74,12 +69,12 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.assistant",
       messageText: "assistant message",
       annotations: {
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         message: message.message,
-        parent_tool_use_id: message.parent_tool_use_id
-      }
+        parent_tool_use_id: message.parent_tool_use_id,
+      },
     })
   ),
   Match.when({ type: "user", isReplay: true }, (message) =>
@@ -88,15 +83,15 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.user.replay",
       messageText: "user message replay",
       annotations: {
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         message: message.message,
         parent_tool_use_id: message.parent_tool_use_id,
         isSynthetic: message.isSynthetic,
         tool_use_result: message.tool_use_result,
-        isReplay: true
-      }
+        isReplay: true,
+      },
     })
   ),
   Match.when({ type: "user" }, (message) =>
@@ -105,14 +100,14 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.user",
       messageText: "user message",
       annotations: {
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         message: message.message,
         parent_tool_use_id: message.parent_tool_use_id,
         isSynthetic: message.isSynthetic,
-        tool_use_result: message.tool_use_result
-      }
+        tool_use_result: message.tool_use_result,
+      },
     })
   ),
   Match.when({ type: "result", subtype: "success" }, (message) =>
@@ -130,8 +125,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         permission_denials: message.permission_denials,
         structured_output: message.structured_output,
         result_preview: previewText(message.result),
-        result_length: message.result.length
-      }
+        result_length: message.result.length,
+      },
     })
   ),
   Match.whenOr(
@@ -153,8 +148,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
           usage: message.usage,
           modelUsage: message.modelUsage,
           permission_denials: message.permission_denials,
-          errors: message.errors
-        }
+          errors: message.errors,
+        },
       })
   ),
   Match.when({ type: "system", subtype: "init" }, (message) =>
@@ -175,8 +170,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         skills: message.skills,
         slash_commands: message.slash_commands,
         mcp_servers: message.mcp_servers,
-        plugins: message.plugins
-      }
+        plugins: message.plugins,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "compact_boundary" }, (message) =>
@@ -186,8 +181,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       messageText: "system compact boundary",
       data: {
         trigger: message.compact_metadata.trigger,
-        pre_tokens: message.compact_metadata.pre_tokens
-      }
+        pre_tokens: message.compact_metadata.pre_tokens,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "status" }, (message) =>
@@ -196,8 +191,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.system.status",
       messageText: "system status",
       data: {
-        status: message.status
-      }
+        status: message.status,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "hook_started" }, (message) =>
@@ -208,8 +203,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       annotations: {
         hook_id: message.hook_id,
         hook_name: message.hook_name,
-        hook_event: message.hook_event
-      }
+        hook_event: message.hook_event,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "hook_progress" }, (message) =>
@@ -220,7 +215,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       annotations: {
         hook_id: message.hook_id,
         hook_name: message.hook_name,
-        hook_event: message.hook_event
+        hook_event: message.hook_event,
       },
       data: {
         hook_id: message.hook_id,
@@ -231,8 +226,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         stderr_preview: previewText(message.stderr),
         output_length: message.output.length,
         stdout_length: message.stdout.length,
-        stderr_length: message.stderr.length
-      }
+        stderr_length: message.stderr.length,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "hook_response" }, (message) =>
@@ -243,7 +238,7 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       annotations: {
         hook_id: message.hook_id,
         hook_name: message.hook_name,
-        hook_event: message.hook_event
+        hook_event: message.hook_event,
       },
       data: {
         hook_id: message.hook_id,
@@ -256,8 +251,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         stderr_preview: previewText(message.stderr),
         output_length: message.output.length,
         stdout_length: message.stdout.length,
-        stderr_length: message.stderr.length
-      }
+        stderr_length: message.stderr.length,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "files_persisted" }, (message) =>
@@ -268,16 +263,12 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       data: {
         processed_at: message.processed_at,
         files: message.files,
-        failed: message.failed
-      }
+        failed: message.failed,
+      },
     })
   ),
   Match.when({ type: "system", subtype: "task_notification" }, (message) => {
-    const level = message.status === "failed"
-      ? "Error"
-      : message.status === "stopped"
-        ? "Warn"
-        : "Info"
+    const level = message.status === "failed" ? "Error" : message.status === "stopped" ? "Warn" : "Info";
     return makeSdkEvent(message, {
       level,
       event: "sdk.message.system.task_notification",
@@ -286,9 +277,9 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         task_id: message.task_id,
         status: message.status,
         output_file: message.output_file,
-        summary: message.summary
-      }
-    })
+        summary: message.summary,
+      },
+    });
   }),
   Match.when({ type: "system", subtype: "task_started" }, (message) =>
     makeSdkEvent(message, {
@@ -299,8 +290,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
         task_id: message.task_id,
         description: message.description,
         tool_use_id: message.tool_use_id,
-        task_type: message.task_type
-      }
+        task_type: message.task_type,
+      },
     })
   ),
   Match.when({ type: "stream_event" }, (message) =>
@@ -309,12 +300,12 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       event: "sdk.message.stream_event",
       messageText: "assistant stream event",
       annotations: {
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         parent_tool_use_id: message.parent_tool_use_id,
-        event: message.event
-      }
+        event: message.event,
+      },
     })
   ),
   Match.when({ type: "tool_progress" }, (message) =>
@@ -325,14 +316,14 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       annotations: {
         tool_use_id: message.tool_use_id,
         tool_name: message.tool_name,
-        parent_tool_use_id: message.parent_tool_use_id
+        parent_tool_use_id: message.parent_tool_use_id,
       },
       data: {
         tool_use_id: message.tool_use_id,
         tool_name: message.tool_name,
         parent_tool_use_id: message.parent_tool_use_id,
-        elapsed_time_seconds: message.elapsed_time_seconds
-      }
+        elapsed_time_seconds: message.elapsed_time_seconds,
+      },
     })
   ),
   Match.when({ type: "tool_use_summary" }, (message) =>
@@ -342,8 +333,8 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       messageText: "tool use summary",
       data: {
         summary: message.summary,
-        preceding_tool_use_ids: message.preceding_tool_use_ids
-      }
+        preceding_tool_use_ids: message.preceding_tool_use_ids,
+      },
     })
   ),
   Match.when({ type: "auth_status" }, (message) =>
@@ -354,12 +345,12 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
       data: {
         error: message.error,
         output: message.output,
-        isAuthenticating: message.isAuthenticating
-      }
+        isAuthenticating: message.isAuthenticating,
+      },
     })
   ),
   Match.exhaustive
-)
+);
 
 const makeQueryEvent = (
   event: QueryEvent,
@@ -368,27 +359,25 @@ const makeQueryEvent = (
     eventName,
     messageText,
     data,
-    annotations
+    annotations,
   }: {
-    readonly level: LogLevel.Severity
-    readonly eventName: string
-    readonly messageText: string
-    readonly data?: Record<string, unknown>
-    readonly annotations?: Record<string, unknown>
+    readonly level: LogLevel.Severity;
+    readonly eventName: string;
+    readonly messageText: string;
+    readonly data?: Record<string, unknown>;
+    readonly annotations?: Record<string, unknown>;
   }
 ): AgentLogEvent => ({
-  ...(data !== undefined
-    ? { data: compactData(data) }
-    : {}),
+  ...(data !== undefined ? { data: compactData(data) } : {}),
   level,
   category: "queryEvents",
   event: eventName,
   message: messageText,
   annotations: {
     query_id: event.queryId,
-    ...compact(annotations ?? {})
-  }
-})
+    ...compact(annotations ?? {}),
+  },
+});
 
 export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   Match.tag("QueryQueued", (event) =>
@@ -397,8 +386,8 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
       eventName: "agent.query.queued",
       messageText: "query queued",
       data: {
-        submittedAt: event.submittedAt
-      }
+        submittedAt: event.submittedAt,
+      },
     })
   ),
   Match.tag("QueryStarted", (event) =>
@@ -407,8 +396,8 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
       eventName: "agent.query.started",
       messageText: "query started",
       data: {
-        startedAt: event.startedAt
-      }
+        startedAt: event.startedAt,
+      },
     })
   ),
   Match.tag("QueryCompleted", (event) =>
@@ -417,12 +406,12 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
       eventName: "agent.query.completed",
       messageText: "query completed",
       annotations: {
-        status: event.status
+        status: event.status,
       },
       data: {
         completedAt: event.completedAt,
-        status: event.status
-      }
+        status: event.status,
+      },
     })
   ),
   Match.tag("QueryStartFailed", (event) =>
@@ -431,22 +420,22 @@ export const matchQueryEvent = Match.type<QueryEvent>().pipe(
       eventName: "agent.query.start_failed",
       messageText: "query start failed",
       annotations: {
-        error_tag: event.errorTag
+        error_tag: event.errorTag,
       },
       data: {
         failedAt: event.failedAt,
-        errorTag: event.errorTag
-      }
+        errorTag: event.errorTag,
+      },
     })
   ),
   Match.exhaustive
-)
+);
 
 const baseHookAnnotations = (input: HookInput) =>
   compact({
     session_id: input.session_id,
-    hook_event: input.hook_event_name
-  })
+    hook_event: input.hook_event_name,
+  });
 
 const makeHookEvent = (
   input: HookInput,
@@ -455,27 +444,25 @@ const makeHookEvent = (
     eventName,
     messageText,
     data,
-    annotations
+    annotations,
   }: {
-    readonly level: LogLevel.Severity
-    readonly eventName: string
-    readonly messageText: string
-    readonly data?: Record<string, unknown>
-    readonly annotations?: Record<string, unknown>
+    readonly level: LogLevel.Severity;
+    readonly eventName: string;
+    readonly messageText: string;
+    readonly data?: Record<string, unknown>;
+    readonly annotations?: Record<string, unknown>;
   }
 ): AgentLogEvent => ({
-  ...(data !== undefined
-    ? { data: compactData(data) }
-    : {}),
+  ...(data !== undefined ? { data: compactData(data) } : {}),
   level,
   category: "hooks",
   event: eventName,
   message: messageText,
   annotations: {
     ...baseHookAnnotations(input),
-    ...compact(annotations ?? {})
-  }
-})
+    ...compact(annotations ?? {}),
+  },
+});
 
 export const matchHookInput = Match.type<HookInput>().pipe(
   Match.when({ hook_event_name: "PreToolUse" }, (input) =>
@@ -485,7 +472,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       messageText: "hook pre tool use",
       annotations: {
         tool_name: input.tool_name,
-        tool_use_id: input.tool_use_id
+        tool_use_id: input.tool_use_id,
       },
       data: {
         tool_name: input.tool_name,
@@ -493,8 +480,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         tool_input: input.tool_input,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "PostToolUse" }, (input) =>
@@ -504,7 +491,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       messageText: "hook post tool use",
       annotations: {
         tool_name: input.tool_name,
-        tool_use_id: input.tool_use_id
+        tool_use_id: input.tool_use_id,
       },
       data: {
         tool_name: input.tool_name,
@@ -513,8 +500,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         tool_response: input.tool_response,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "PostToolUseFailure" }, (input) =>
@@ -524,7 +511,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       messageText: "hook post tool use failure",
       annotations: {
         tool_name: input.tool_name,
-        tool_use_id: input.tool_use_id
+        tool_use_id: input.tool_use_id,
       },
       data: {
         tool_name: input.tool_name,
@@ -534,8 +521,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         is_interrupt: input.is_interrupt,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "Notification" }, (input) =>
@@ -549,8 +536,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         notification_type: input.notification_type,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "UserPromptSubmit" }, (input) =>
@@ -562,8 +549,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         prompt: input.prompt,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "SessionStart" }, (input) =>
@@ -577,8 +564,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         model: input.model,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "SessionEnd" }, (input) =>
@@ -590,8 +577,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         reason: input.reason,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "Stop" }, (input) =>
@@ -603,8 +590,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         stop_hook_active: input.stop_hook_active,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "SubagentStart" }, (input) =>
@@ -613,15 +600,15 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       eventName: "agent.hook.subagent_start",
       messageText: "hook subagent start",
       annotations: {
-        agent_id: input.agent_id
+        agent_id: input.agent_id,
       },
       data: {
         agent_id: input.agent_id,
         agent_type: input.agent_type,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "SubagentStop" }, (input) =>
@@ -630,7 +617,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       eventName: "agent.hook.subagent_stop",
       messageText: "hook subagent stop",
       annotations: {
-        agent_id: input.agent_id
+        agent_id: input.agent_id,
       },
       data: {
         agent_id: input.agent_id,
@@ -638,8 +625,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         agent_transcript_path: input.agent_transcript_path,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "PreCompact" }, (input) =>
@@ -652,8 +639,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         custom_instructions: input.custom_instructions,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "PermissionRequest" }, (input) =>
@@ -662,7 +649,7 @@ export const matchHookInput = Match.type<HookInput>().pipe(
       eventName: "agent.hook.permission_request",
       messageText: "hook permission request",
       annotations: {
-        tool_name: input.tool_name
+        tool_name: input.tool_name,
       },
       data: {
         tool_name: input.tool_name,
@@ -670,8 +657,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         permission_suggestions: input.permission_suggestions,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "Setup" }, (input) =>
@@ -683,8 +670,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         trigger: input.trigger,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "TeammateIdle" }, (input) =>
@@ -697,8 +684,8 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         team_name: input.team_name,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.when({ hook_event_name: "TaskCompleted" }, (input) =>
@@ -714,9 +701,9 @@ export const matchHookInput = Match.type<HookInput>().pipe(
         team_name: input.team_name,
         cwd: input.cwd,
         transcript_path: input.transcript_path,
-        permission_mode: input.permission_mode
-      }
+        permission_mode: input.permission_mode,
+      },
     })
   ),
   Match.exhaustive
-)
+);

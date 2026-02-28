@@ -1,92 +1,93 @@
-import { test, expect } from "bun:test"
-import { Effect, Option } from "effect"
-import { layerKV, type KVNamespace } from "../src/Storage/StorageKV.js"
-import { KeyValueStore } from "@effect/platform"
+import { expect, test } from "bun:test";
+import { KeyValueStore } from "@effect/platform";
+import { Effect, Option } from "effect";
+import { type KVNamespace, layerKV } from "../src/Storage/StorageKV.js";
 
 const makeMockKVNamespace = (data: Record<string, string> = {}): KVNamespace => ({
   get: async (key, _type?) => data[key] ?? null,
-  put: async (key, value) => { data[key] = String(value) },
-  delete: async (key) => { delete data[key] },
+  put: async (key, value) => {
+    data[key] = String(value);
+  },
+  delete: async (key) => {
+    delete data[key];
+  },
   list: async (options) => {
-    const prefix = options?.prefix ?? ""
-    const allKeys = Object.keys(data).filter(k => k.startsWith(prefix)).sort()
-    const start = options?.cursor ? allKeys.indexOf(options.cursor) + 1 : 0
-    const limit = options?.limit ?? 1000
-    const slice = allKeys.slice(start, start + limit)
-    const keys = slice.map(k => ({ name: k }))
-    const complete = start + limit >= allKeys.length
+    const prefix = options?.prefix ?? "";
+    const allKeys = Object.keys(data)
+      .filter((k) => k.startsWith(prefix))
+      .sort();
+    const start = options?.cursor ? allKeys.indexOf(options.cursor) + 1 : 0;
+    const limit = options?.limit ?? 1000;
+    const slice = allKeys.slice(start, start + limit);
+    const keys = slice.map((k) => ({ name: k }));
+    const complete = start + limit >= allKeys.length;
     if (complete) {
-      return { keys, list_complete: true as const, cacheStatus: null }
+      return { keys, list_complete: true as const, cacheStatus: null };
     }
-    return { keys, list_complete: false as const, cursor: slice[slice.length - 1]!, cacheStatus: null }
-  }
-})
+    return { keys, list_complete: false as const, cursor: slice[slice.length - 1]!, cacheStatus: null };
+  },
+});
 
 test("KV get/set/remove round-trip", async () => {
-  const ns = makeMockKVNamespace()
-  const program = Effect.gen(function*() {
-    const kv = yield* KeyValueStore.KeyValueStore
-    yield* kv.set("key1", "value1")
-    const result = yield* kv.get("key1")
-    expect(result).toEqual(Option.some("value1"))
-    yield* kv.remove("key1")
-    const after = yield* kv.get("key1")
-    expect(after).toEqual(Option.none())
-  })
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))))
-})
+  const ns = makeMockKVNamespace();
+  const program = Effect.gen(function* () {
+    const kv = yield* KeyValueStore.KeyValueStore;
+    yield* kv.set("key1", "value1");
+    const result = yield* kv.get("key1");
+    expect(result).toEqual(Option.some("value1"));
+    yield* kv.remove("key1");
+    const after = yield* kv.get("key1");
+    expect(after).toEqual(Option.none());
+  });
+  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+});
 
 test("KV size paginates correctly", async () => {
-  const data: Record<string, string> = {}
-  for (let i = 0; i < 5; i++) data[`key${i}`] = `value${i}`
-  const ns = makeMockKVNamespace(data)
-  const origList = ns.list
-  ns.list = async (options) => origList({ ...options, limit: 2 })
-  const program = Effect.gen(function*() {
-    const kv = yield* KeyValueStore.KeyValueStore
-    const size = yield* kv.size
-    expect(size).toBe(5)
-  })
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))))
-})
+  const data: Record<string, string> = {};
+  for (let i = 0; i < 5; i++) data[`key${i}`] = `value${i}`;
+  const ns = makeMockKVNamespace(data);
+  const origList = ns.list;
+  ns.list = async (options) => origList({ ...options, limit: 2 });
+  const program = Effect.gen(function* () {
+    const kv = yield* KeyValueStore.KeyValueStore;
+    const size = yield* kv.size;
+    expect(size).toBe(5);
+  });
+  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+});
 
 test("KV clear deletes all keys sequentially", async () => {
-  const data: Record<string, string> = { a: "1", b: "2", c: "3" }
-  const ns = makeMockKVNamespace(data)
-  const program = Effect.gen(function*() {
-    const kv = yield* KeyValueStore.KeyValueStore
-    yield* kv.clear
-    const empty = yield* kv.isEmpty
-    expect(empty).toBe(true)
-  })
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))))
-})
+  const data: Record<string, string> = { a: "1", b: "2", c: "3" };
+  const ns = makeMockKVNamespace(data);
+  const program = Effect.gen(function* () {
+    const kv = yield* KeyValueStore.KeyValueStore;
+    yield* kv.clear;
+    const empty = yield* kv.isEmpty;
+    expect(empty).toBe(true);
+  });
+  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+});
 
 test("KV coalesces rapid writes to the same key", async () => {
-  const data: Record<string, string> = {}
-  const ns = makeMockKVNamespace(data)
-  let putCalls = 0
-  const originalPut = ns.put
+  const data: Record<string, string> = {};
+  const ns = makeMockKVNamespace(data);
+  let putCalls = 0;
+  const originalPut = ns.put;
   ns.put = async (key, value, options) => {
-    putCalls += 1
-    await new Promise((resolve) => setTimeout(resolve, 20))
-    return originalPut(key, value, options)
-  }
+    putCalls += 1;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    return originalPut(key, value, options);
+  };
 
-  const program = Effect.gen(function*() {
-    const kv = yield* KeyValueStore.KeyValueStore
-    yield* Effect.all(
-      [
-        kv.set("hot-key", "v1"),
-        kv.set("hot-key", "v2"),
-        kv.set("hot-key", "v3")
-      ],
-      { concurrency: "unbounded" }
-    )
-    return yield* kv.get("hot-key")
-  })
+  const program = Effect.gen(function* () {
+    const kv = yield* KeyValueStore.KeyValueStore;
+    yield* Effect.all([kv.set("hot-key", "v1"), kv.set("hot-key", "v2"), kv.set("hot-key", "v3")], {
+      concurrency: "unbounded",
+    });
+    return yield* kv.get("hot-key");
+  });
 
-  const result = await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))))
-  expect(result).toEqual(Option.some("v3"))
-  expect(putCalls).toBe(2)
-})
+  const result = await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+  expect(result).toEqual(Option.some("v3"));
+  expect(putCalls).toBe(2);
+});

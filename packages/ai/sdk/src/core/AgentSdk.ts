@@ -1,56 +1,45 @@
-import {
-  createSdkMcpServer as sdkCreateSdkMcpServer,
-  query as sdkQuery
-} from "@anthropic-ai/claude-agent-sdk"
-import * as Deferred from "effect/Deferred"
-import * as Effect from "effect/Effect"
-import * as Fiber from "effect/Fiber"
-import * as Layer from "effect/Layer"
-import type * as Scope from "effect/Scope"
-import * as ServiceMap from "effect/ServiceMap"
-import { AgentSdkConfig } from "./AgentSdkConfig.js"
-import type { AgentSdkError } from "./Errors.js"
-import { McpError, TransportError } from "./Errors.js"
-import { mergeOptions } from "./internal/options.js"
-import { makeQueryHandle } from "./internal/queryHandle.js"
-import { createInputQueue, pumpInput } from "./internal/streaming.js"
-import type { QueryHandle } from "./Query.js"
-import type { McpSdkServerConfigWithInstance } from "./Schema/Mcp.js"
-import type { SDKUserMessage } from "./Schema/Message.js"
-import type { Options } from "./Schema/Options.js"
+import { createSdkMcpServer as sdkCreateSdkMcpServer, query as sdkQuery } from "@anthropic-ai/claude-agent-sdk";
+import * as Deferred from "effect/Deferred";
+import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
+import * as Layer from "effect/Layer";
+import * as ServiceMap from "effect/ServiceMap";
+import { AgentSdkConfig } from "./AgentSdkConfig.js";
+import type { AgentSdkError } from "./Errors.js";
+import { McpError, TransportError } from "./Errors.js";
+import { mergeOptions } from "./internal/options.js";
+import { makeQueryHandle } from "./internal/queryHandle.js";
+import { createInputQueue, pumpInput } from "./internal/streaming.js";
+import type { McpSdkServerConfigWithInstance } from "./Schema/Mcp.js";
+import type { SDKUserMessage } from "./Schema/Message.js";
+import type { Options } from "./Schema/Options.js";
 
 export type CreateSdkMcpServerOptions = {
-  readonly name: string
-  readonly version?: string
-  readonly tools?: ReadonlyArray<unknown>
-}
+  readonly name: string;
+  readonly version?: string;
+  readonly tools?: ReadonlyArray<unknown>;
+};
 
-const makeAgentSdk = Effect.gen(function*() {
-  const config = yield* AgentSdkConfig
+const makeAgentSdk = Effect.gen(function* () {
+  const config = yield* AgentSdkConfig;
 
-  const query = Effect.fn("AgentSdk.query")(function*(
+  const query = Effect.fn("AgentSdk.query")(function* (
     prompt: string | AsyncIterable<SDKUserMessage>,
     options?: Options
   ) {
-    const mergedOptions = mergeOptions(config.options, options)
-    const isStreamingInput = typeof prompt !== "string"
-    const inputQueue = isStreamingInput ? yield* createInputQueue() : undefined
-    const inputFailure = inputQueue
-      ? yield* Deferred.make<never, AgentSdkError>()
-      : undefined
-    const sdkPrompt = inputQueue ? inputQueue.input : prompt
+    const mergedOptions = mergeOptions(config.options, options);
+    const isStreamingInput = typeof prompt !== "string";
+    const inputQueue = isStreamingInput ? yield* createInputQueue() : undefined;
+    const inputFailure = inputQueue ? yield* Deferred.make<never, AgentSdkError>() : undefined;
+    const sdkPrompt = inputQueue ? inputQueue.input : prompt;
     const sdkParams = {
       prompt: sdkPrompt,
-      options: mergedOptions
-    } as unknown as Parameters<typeof sdkQuery>[0]
+      options: mergedOptions,
+    } as unknown as Parameters<typeof sdkQuery>[0];
     const sdkQueryInstance = yield* Effect.try({
       try: () => sdkQuery(sdkParams),
-      catch: (cause) =>
-        TransportError.make(
-          "Failed to start SDK query",
-          cause
-        )
-    })
+      catch: (cause) => TransportError.make("Failed to start SDK query", cause),
+    });
     const pumpFiber = inputQueue
       ? yield* Effect.forkDetach(
           pumpInput(inputQueue.queue, prompt as AsyncIterable<SDKUserMessage>).pipe(
@@ -59,7 +48,7 @@ const makeAgentSdk = Effect.gen(function*() {
                 Effect.andThen(
                   Effect.tryPromise({
                     try: () => sdkQueryInstance.interrupt(),
-                    catch: () => undefined
+                    catch: () => undefined,
                   }).pipe(Effect.ignore)
                 ),
                 Effect.asVoid
@@ -67,70 +56,65 @@ const makeAgentSdk = Effect.gen(function*() {
             )
           )
         )
-      : undefined
+      : undefined;
     const closeInput = inputQueue
-      ? Effect.gen(function*() {
-          yield* inputQueue.closeInput
+      ? Effect.gen(function* () {
+          yield* inputQueue.closeInput;
           if (pumpFiber) {
-            yield* Fiber.interrupt(pumpFiber)
+            yield* Fiber.interrupt(pumpFiber);
           }
         })
-      : Effect.void
-    const failureSignal = inputFailure ? Deferred.await(inputFailure) : undefined
-    const handle = makeQueryHandle(sdkQueryInstance, inputQueue, closeInput, failureSignal)
+      : Effect.void;
+    const failureSignal = inputFailure ? Deferred.await(inputFailure) : undefined;
+    const handle = makeQueryHandle(sdkQueryInstance, inputQueue, closeInput, failureSignal);
     yield* Effect.addFinalizer(() =>
       Effect.all([handle.closeInput, handle.interrupt], {
         concurrency: "unbounded",
-        discard: true
+        discard: true,
       }).pipe(Effect.ignore)
-    )
-    return handle
-  })
+    );
+    return handle;
+  });
 
-  const createSdkMcpServer = Effect.fn("AgentSdk.createSdkMcpServer")(function*(
-    options: CreateSdkMcpServerOptions
-  ) {
-    const sdkOptions = options as unknown as Parameters<typeof sdkCreateSdkMcpServer>[0]
+  const createSdkMcpServer = Effect.fn("AgentSdk.createSdkMcpServer")(function* (options: CreateSdkMcpServerOptions) {
+    const sdkOptions = options as unknown as Parameters<typeof sdkCreateSdkMcpServer>[0];
     return yield* Effect.try({
       try: () => sdkCreateSdkMcpServer(sdkOptions),
       catch: (cause) =>
         McpError.make({
           message: "Failed to create SDK MCP server",
-          cause
-        })
-    })
-  })
+          cause,
+        }),
+    });
+  });
 
   const closeSdkMcpServer = (server: McpSdkServerConfigWithInstance) =>
     Effect.tryPromise({
       try: async () => {
-        const instance = server.instance as { close?: () => Promise<void> }
+        const instance = server.instance as { close?: () => Promise<void> };
         if (instance?.close) {
-          await instance.close()
+          await instance.close();
         }
       },
       catch: (cause) =>
         McpError.make({
           message: "Failed to close SDK MCP server",
-          cause
-        })
-    }).pipe(Effect.ignore)
+          cause,
+        }),
+    }).pipe(Effect.ignore);
 
-  const createSdkMcpServerScoped = Effect.fn("AgentSdk.createSdkMcpServerScoped")(function*(
+  const createSdkMcpServerScoped = Effect.fn("AgentSdk.createSdkMcpServerScoped")(function* (
     options: CreateSdkMcpServerOptions
   ) {
-    return yield* Effect.acquireRelease(
-      createSdkMcpServer(options),
-      closeSdkMcpServer
-    )
-  })
+    return yield* Effect.acquireRelease(createSdkMcpServer(options), closeSdkMcpServer);
+  });
 
   return {
     query,
     createSdkMcpServer,
-    createSdkMcpServerScoped
-  }
-})
+    createSdkMcpServerScoped,
+  };
+});
 
 /**
  * Effect service wrapper around `@anthropic-ai/claude-agent-sdk`.
@@ -147,21 +131,22 @@ const makeAgentSdk = Effect.gen(function*() {
  *   }).pipe(Effect.provide(AgentSdk.layerDefault))
  * )
  */
-export class AgentSdk extends ServiceMap.Service<AgentSdk, Effect.Success<typeof makeAgentSdk>>
-()( "@effect/claude-agent-sdk/AgentSdk") {
+export class AgentSdk extends ServiceMap.Service<AgentSdk, Effect.Success<typeof makeAgentSdk>>()(
+  "@effect/claude-agent-sdk/AgentSdk"
+) {
   /**
    * Build the AgentSdk service using the provided AgentSdkConfig service.
    */
-  static readonly layer = Layer.effect(AgentSdk, makeAgentSdk)
+  static readonly layer = Layer.effect(AgentSdk, makeAgentSdk);
 
   /**
    * Convenience layer that wires AgentSdkConfig from defaults.
    */
-  static readonly layerDefault = AgentSdk.layer.pipe(Layer.provide(AgentSdkConfig.layer))
+  static readonly layerDefault = AgentSdk.layer.pipe(Layer.provide(AgentSdkConfig.layer));
 
   /**
    * Convenience layer that reads AgentSdkConfig from environment variables.
    */
   static readonly layerDefaultFromEnv = (prefix = "AGENTSDK") =>
-    AgentSdk.layer.pipe(Layer.provide(AgentSdkConfig.layerFromEnv(prefix)))
+    AgentSdk.layer.pipe(Layer.provide(AgentSdkConfig.layerFromEnv(prefix)));
 }

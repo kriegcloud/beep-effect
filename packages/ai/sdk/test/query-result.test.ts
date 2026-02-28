@@ -1,8 +1,8 @@
-import { expect, test } from "bun:test"
-import * as Effect from "effect/Effect"
-import * as Stream from "effect/Stream"
-import { collectResultSuccess } from "../src/QueryResult.js"
-import type { SDKMessage } from "../src/Schema/Message.js"
+import { expect, test } from "bun:test";
+import * as Effect from "effect/Effect";
+import * as Stream from "effect/Stream";
+import { collectResultSuccess } from "../src/QueryResult.js";
+import type { SDKMessage } from "../src/Schema/Message.js";
 
 const makeSuccessMessage = (result: string): SDKMessage => ({
   type: "result",
@@ -17,8 +17,8 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   modelUsage: {},
   permission_denials: [],
   uuid: "00000000-0000-0000-0000-000000000000",
-  session_id: "session-1"
-})
+  session_id: "session-1",
+});
 
 const makeErrorMessage = (): SDKMessage => ({
   type: "result",
@@ -33,25 +33,20 @@ const makeErrorMessage = (): SDKMessage => ({
   permission_denials: [],
   errors: ["max turns reached"],
   uuid: "00000000-0000-0000-0000-000000000000",
-  session_id: "session-1"
-})
+  session_id: "session-1",
+});
 
 test("collectResultSuccess returns the final result", async () => {
-  const stream = Stream.fromIterable<SDKMessage>([
-    makeSuccessMessage("first"),
-    makeSuccessMessage("final")
-  ])
-  const result = await Effect.runPromise(collectResultSuccess(stream))
-  expect(result.result).toBe("final")
-})
+  const stream = Stream.fromIterable<SDKMessage>([makeSuccessMessage("first"), makeSuccessMessage("final")]);
+  const result = await Effect.runPromise(collectResultSuccess(stream));
+  expect(result.result).toBe("final");
+});
 
 test("collectResultSuccess fails on error result", async () => {
-  const stream = Stream.fromIterable<SDKMessage>([
-    makeErrorMessage()
-  ])
-  const result = await Effect.runPromise(Effect.either(collectResultSuccess(stream)))
-  expect(result._tag).toBe("Left")
+  const stream = Stream.fromIterable<SDKMessage>([makeErrorMessage()]);
+  const result = await Effect.runPromise(Effect.either(collectResultSuccess(stream)));
+  expect(result._tag).toBe("Left");
   if (result._tag === "Left") {
-    expect(result.left._tag).toBe("DecodeError")
+    expect(result.left._tag).toBe("DecodeError");
   }
-})
+});

@@ -5,5 +5,5 @@
 export {
   defaultSettingSources,
   layerConfigFromEnv,
-  projectSettingSources
-} from "./internal/config.js"
+  projectSettingSources,
+} from "./internal/config.js";

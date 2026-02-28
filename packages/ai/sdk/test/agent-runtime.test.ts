@@ -1,21 +1,21 @@
-import { expect, mock, test } from "bun:test"
-import * as Duration from "effect/Duration"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Option from "effect/Option"
-import * as TestClock from "effect/TestClock"
-import { runEffect } from "./effect-test.js"
-import type { AgentRuntimeSettings } from "../src/AgentRuntimeConfig.js"
-import type { QuerySupervisorSettings } from "../src/QuerySupervisorConfig.js"
+import { expect, mock, test } from "bun:test";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
+import * as TestClock from "effect/TestClock";
+import type { AgentRuntimeSettings } from "../src/AgentRuntimeConfig.js";
+import type { QuerySupervisorSettings } from "../src/QuerySupervisorConfig.js";
+import { runEffect } from "./effect-test.js";
 
-let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined
+let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
 
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {
   async function* generator() {
-    return
+    return;
   }
 
-  const iterator = generator()
+  const iterator = generator();
   return Object.assign(iterator, {
     interrupt: options?.interrupt ?? (async () => {}),
     setPermissionMode: async () => {},
@@ -26,47 +26,51 @@ const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) =>
     supportedModels: async () => [],
     mcpServerStatus: async () => [],
     setMcpServers: async () => ({ added: [], removed: [], errors: {} }),
-    accountInfo: async () => ({})
-  })
-}
+    accountInfo: async () => ({}),
+  });
+};
 
 mock.module("@anthropic-ai/claude-agent-sdk", () => ({
-  query: ({ prompt }: { prompt: unknown }) =>
-    sdkQueryHandler ? sdkQueryHandler(prompt) : makeSdkQuery(),
+  query: ({ prompt }: { prompt: unknown }) => (sdkQueryHandler ? sdkQueryHandler(prompt) : makeSdkQuery()),
   createSdkMcpServer: (_options: unknown) => ({}),
-  tool: (name: string, description: string, inputSchema: unknown, handler: (args: unknown, extra: unknown) => Promise<unknown>) => ({ name, description, inputSchema, handler }),
+  tool: (
+    name: string,
+    description: string,
+    inputSchema: unknown,
+    handler: (args: unknown, extra: unknown) => Promise<unknown>
+  ) => ({ name, description, inputSchema, handler }),
   unstable_v2_createSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
   unstable_v2_resumeSession: () => ({
     sessionId: "mock-session",
     send: async () => {},
-    stream: async function*() {},
+    stream: async function* () {},
     close: () => {},
-    [Symbol.asyncDispose]: async () => {}
+    [Symbol.asyncDispose]: async () => {},
   }),
-  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" })
-}))
+  unstable_v2_prompt: async () => ({ type: "result", subtype: "success" }),
+}));
 
 test("AgentRuntime interrupts queries on timeout", async () => {
-  let interruptCalls = 0
+  let interruptCalls = 0;
   sdkQueryHandler = () =>
     makeSdkQuery({
       interrupt: async () => {
-        interruptCalls += 1
-      }
-    })
+        interruptCalls += 1;
+      },
+    });
 
-  const { AgentRuntime } = await import("../src/AgentRuntime.js")
-  const { AgentRuntimeConfig } = await import("../src/AgentRuntimeConfig.js")
-  const { AgentSdk } = await import("../src/AgentSdk.js")
-  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js")
-  const { QuerySupervisor } = await import("../src/QuerySupervisor.js")
-  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js")
+  const { AgentRuntime } = await import("../src/AgentRuntime.js");
+  const { AgentRuntimeConfig } = await import("../src/AgentRuntimeConfig.js");
+  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdkConfig } = await import("../src/AgentSdkConfig.js");
+  const { QuerySupervisor } = await import("../src/QuerySupervisor.js");
+  const { QuerySupervisorConfig } = await import("../src/QuerySupervisorConfig.js");
 
   const supervisorSettings: QuerySupervisorSettings = {
     concurrencyLimit: 1,
@@ -77,24 +81,19 @@ test("AgentRuntime interrupts queries on timeout", async () => {
     eventBufferCapacity: 16,
     eventBufferStrategy: "sliding",
     metricsEnabled: false,
-    tracingEnabled: false
-  }
+    tracingEnabled: false,
+  };
 
   const runtimeSettings: AgentRuntimeSettings = {
     defaultOptions: {},
     queryTimeout: Duration.seconds(2),
     firstMessageTimeout: Duration.seconds(1),
     retryMaxRetries: 0,
-    retryBaseDelay: Duration.seconds(1)
-  }
+    retryBaseDelay: Duration.seconds(1),
+  };
 
   const supervisorLayer = QuerySupervisor.layer.pipe(
-    Layer.provide(
-      Layer.succeed(
-        QuerySupervisorConfig,
-        QuerySupervisorConfig.make({ settings: supervisorSettings })
-      )
-    ),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: supervisorSettings }))),
     Layer.provide(
       AgentSdk.layer.pipe(
         Layer.provide(
@@ -108,32 +107,30 @@ test("AgentRuntime interrupts queries on timeout", async () => {
               storageBackend: Option.some("bun"),
               storageMode: Option.some("standard"),
               r2BucketBinding: Option.some("BUCKET"),
-              kvNamespaceBinding: Option.some("KV")
+              kvNamespaceBinding: Option.some("KV"),
             })
           )
         )
       )
     )
-  )
+  );
 
   const runtimeLayer = AgentRuntime.layer.pipe(
-    Layer.provide(
-      Layer.succeed(AgentRuntimeConfig, AgentRuntimeConfig.make({ settings: runtimeSettings }))
-    ),
+    Layer.provide(Layer.succeed(AgentRuntimeConfig, AgentRuntimeConfig.make({ settings: runtimeSettings }))),
     Layer.provide(supervisorLayer)
-  )
+  );
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const runtime = yield* AgentRuntime
-      yield* runtime.query("timeout-test")
+    Effect.gen(function* () {
+      const runtime = yield* AgentRuntime;
+      yield* runtime.query("timeout-test");
 
-      yield* TestClock.adjust("3 seconds")
-      yield* Effect.yieldNow()
+      yield* TestClock.adjust("3 seconds");
+      yield* Effect.yieldNow();
 
-      expect(interruptCalls).toBeGreaterThan(0)
+      expect(interruptCalls).toBeGreaterThan(0);
     }).pipe(Effect.provide(runtimeLayer))
-  )
+  );
 
-  await runEffect(program)
-})
+  await runEffect(program);
+});

@@ -1,22 +1,18 @@
-import { expect, test } from "bun:test"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Schema from "effect/Schema"
-import * as Stream from "effect/Stream"
-import { AgentSdkError } from "../src/Errors.js"
-import type { QueryHandle } from "../src/Query.js"
-import {
-  QueryPendingTimeoutError,
-  QueryQueueFullError,
-  QuerySupervisor
-} from "../src/QuerySupervisor.js"
-import { layerLocal } from "../src/Sandbox/SandboxLocal.js"
-import { SandboxError } from "../src/Sandbox/SandboxError.js"
-import { SandboxService } from "../src/Sandbox/SandboxService.js"
-import { runEffect } from "./effect-test.js"
+import { expect, test } from "bun:test";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Schema from "effect/Schema";
+import * as Stream from "effect/Stream";
+import { AgentSdkError } from "../src/Errors.js";
+import type { QueryHandle } from "../src/Query.js";
+import { QueryPendingTimeoutError, QueryQueueFullError, QuerySupervisor } from "../src/QuerySupervisor.js";
+import { SandboxError } from "../src/Sandbox/SandboxError.js";
+import { layerLocal } from "../src/Sandbox/SandboxLocal.js";
+import { SandboxService } from "../src/Sandbox/SandboxService.js";
+import { runEffect } from "./effect-test.js";
 
 const makeHandle = (): QueryHandle => {
-  const stream = Stream.empty
+  const stream = Stream.empty;
   return {
     stream,
     send: () => Effect.void,
@@ -34,39 +30,39 @@ const makeHandle = (): QueryHandle => {
     supportedModels: Effect.succeed([]),
     mcpServerStatus: Effect.succeed([]),
     setMcpServers: () => Effect.succeed({ added: [], removed: [], errors: {} }),
-    accountInfo: Effect.succeed({} as never)
-  }
-}
+    accountInfo: Effect.succeed({} as never),
+  };
+};
 
 test("SandboxError is part of AgentSdkError union", () => {
   const error = SandboxError.make({
     message: "sandbox failure",
     operation: "exec",
-    provider: "local"
-  })
+    provider: "local",
+  });
 
-  const isAgentError = Schema.is(AgentSdkError)
-  expect(isAgentError(error)).toBe(true)
-  expect(error._tag).toBe("SandboxError")
-})
+  const isAgentError = Schema.is(AgentSdkError);
+  expect(isAgentError(error)).toBe(true);
+  expect(error._tag).toBe("SandboxError");
+});
 
 test("QuerySupervisor errors are part of AgentSdkError union", () => {
   const timeoutError = QueryPendingTimeoutError.make({
     message: "timed out",
     queryId: "query-1",
-    timeoutMs: 1000
-  })
+    timeoutMs: 1000,
+  });
   const queueError = QueryQueueFullError.make({
     message: "queue full",
     queryId: "query-2",
     capacity: 4,
-    strategy: "dropping"
-  })
+    strategy: "dropping",
+  });
 
-  const isAgentError = Schema.is(AgentSdkError)
-  expect(isAgentError(timeoutError)).toBe(true)
-  expect(isAgentError(queueError)).toBe(true)
-})
+  const isAgentError = Schema.is(AgentSdkError);
+  expect(isAgentError(timeoutError)).toBe(true);
+  expect(isAgentError(queueError)).toBe(true);
+});
 
 test("SandboxLocal.exec uses non-shell arg handling", async () => {
   const supervisor = QuerySupervisor.make({
@@ -77,27 +73,25 @@ test("SandboxLocal.exec uses non-shell arg handling", async () => {
       pending: 0,
       concurrencyLimit: 1,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
-  const layer = layerLocal.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisor, supervisor))
-  )
+  const layer = layerLocal.pipe(Layer.provide(Layer.succeed(QuerySupervisor, supervisor)));
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sandbox = yield* SandboxService
-      const result = yield* sandbox.exec("echo", ["$(uname)"])
-      expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain("$(uname)")
+    Effect.gen(function* () {
+      const sandbox = yield* SandboxService;
+      const result = yield* sandbox.exec("echo", ["$(uname)"]);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("$(uname)");
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  await runEffect(program)
-})
+  await runEffect(program);
+});
 
 test("SandboxLocal.writeFile/readFile roundtrip", async () => {
   const supervisor = QuerySupervisor.make({
@@ -108,41 +102,39 @@ test("SandboxLocal.writeFile/readFile roundtrip", async () => {
       pending: 0,
       concurrencyLimit: 1,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
-  const layer = layerLocal.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisor, supervisor))
-  )
+  const layer = layerLocal.pipe(Layer.provide(Layer.succeed(QuerySupervisor, supervisor)));
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sandbox = yield* SandboxService
-      const path = `/tmp/sandbox-local-${crypto.randomUUID()}.txt`
-      yield* sandbox.writeFile(path, "hello from sandbox local")
-      const read = yield* sandbox.readFile(path)
-      expect(read).toBe("hello from sandbox local")
-      yield* Effect.promise(() => Bun.file(path).delete()).pipe(Effect.ignore)
+    Effect.gen(function* () {
+      const sandbox = yield* SandboxService;
+      const path = `/tmp/sandbox-local-${crypto.randomUUID()}.txt`;
+      yield* sandbox.writeFile(path, "hello from sandbox local");
+      const read = yield* sandbox.readFile(path);
+      expect(read).toBe("hello from sandbox local");
+      yield* Effect.promise(() => Bun.file(path).delete()).pipe(Effect.ignore);
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  await runEffect(program)
-})
+  await runEffect(program);
+});
 
 test("SandboxLocal.runAgent delegates to QuerySupervisor.submit", async () => {
-  let capturedPrompt: string | undefined
-  let capturedOptions: unknown
+  let capturedPrompt: string | undefined;
+  let capturedOptions: unknown;
 
-  const handle = makeHandle()
+  const handle = makeHandle();
   const supervisor = QuerySupervisor.make({
     submit: (prompt, options) =>
       Effect.sync(() => {
-        capturedPrompt = prompt as string
-        capturedOptions = options
-        return handle
+        capturedPrompt = prompt as string;
+        capturedOptions = options;
+        return handle;
       }),
     submitStream: () => Stream.empty,
     stats: Effect.succeed({
@@ -150,25 +142,23 @@ test("SandboxLocal.runAgent delegates to QuerySupervisor.submit", async () => {
       pending: 0,
       concurrencyLimit: 1,
       pendingQueueCapacity: 0,
-      pendingQueueStrategy: "disabled"
+      pendingQueueStrategy: "disabled",
     }),
     interruptAll: Effect.void,
-    events: Stream.empty
-  })
+    events: Stream.empty,
+  });
 
-  const layer = layerLocal.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisor, supervisor))
-  )
+  const layer = layerLocal.pipe(Layer.provide(Layer.succeed(QuerySupervisor, supervisor)));
 
   const program = Effect.scoped(
-    Effect.gen(function*() {
-      const sandbox = yield* SandboxService
-      const returned = yield* sandbox.runAgent("hello", { model: "sonnet", maxTurns: 2 })
-      expect(returned).toBe(handle)
-      expect(capturedPrompt).toBe("hello")
-      expect(capturedOptions).toEqual({ model: "sonnet", maxTurns: 2 })
+    Effect.gen(function* () {
+      const sandbox = yield* SandboxService;
+      const returned = yield* sandbox.runAgent("hello", { model: "sonnet", maxTurns: 2 });
+      expect(returned).toBe(handle);
+      expect(capturedPrompt).toBe("hello");
+      expect(capturedOptions).toEqual({ model: "sonnet", maxTurns: 2 });
     }).pipe(Effect.provide(layer))
-  )
+  );
 
-  await runEffect(program)
-})
+  await runEffect(program);
+});

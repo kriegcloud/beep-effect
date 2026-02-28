@@ -41,7 +41,11 @@ describe("p2 foundation runtime contracts", () => {
     });
 
     expect(decoded.type).toBe("propertyType");
-    expect(decoded.propertyApiName).toBe("currencyCode");
+    if (decoded.type === "propertyType") {
+      expect(decoded.propertyApiName).toBe("currencyCode");
+      return;
+    }
+    throw new Error("Expected propertyType branch");
   });
 
   it("decodes known-type formatting rules", () => {

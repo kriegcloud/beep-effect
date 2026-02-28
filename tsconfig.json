@@ -21,6 +21,7 @@
     "./tooling/*/test/fixtures/**/*.ts",
     "./apps/*/test/**/*.ts",
     "./apps/*/test/**/*.json",
+    "./packages/ai/sdk/test/**/*.ts",
     "./apps/*/vitest.*.ts",
     "outputs"
   ],

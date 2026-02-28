@@ -127,7 +127,6 @@ export type {
   /** @since 0.0.0 */
   PrimaryKeyType,
 } from "./OsdkBase.js";
-// eslint-disable-next-line @typescript-eslint/no-deprecated
 export type {
   /** @since 0.0.0 */
   OsdkObject,

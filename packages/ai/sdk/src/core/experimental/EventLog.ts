@@ -1,24 +1,21 @@
 import { thunkEffectVoid } from "@beep/utils";
-import * as Layer from "effect/Layer"
-import * as S from "effect/Schema"
-import * as EventGroupModule from "effect/unstable/eventlog/EventGroup"
-import * as EventJournalModule from "effect/unstable/eventlog/EventJournal"
-import * as EventLogModule from "effect/unstable/eventlog/EventLog"
-import { HookEvent } from "../Schema/Hooks.js"
+import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
+import * as EventGroupModule from "effect/unstable/eventlog/EventGroup";
+import * as EventJournalModule from "effect/unstable/eventlog/EventJournal";
+import * as EventLogModule from "effect/unstable/eventlog/EventLog";
+import { HookEvent } from "../Schema/Hooks.js";
 
-export * as Event from "effect/unstable/eventlog/Event"
-export * as EventGroup from "effect/unstable/eventlog/EventGroup"
-export * as EventJournal from "effect/unstable/eventlog/EventJournal"
-export * from "effect/unstable/eventlog/EventLog"
-export * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote"
+export * as Event from "effect/unstable/eventlog/Event";
+export * as EventGroup from "effect/unstable/eventlog/EventGroup";
+export * as EventJournal from "effect/unstable/eventlog/EventJournal";
+export * from "effect/unstable/eventlog/EventLog";
+export * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote";
 
 /**
  * In-memory identity layer for event log auditing.
  */
-export const layerIdentityMemory = Layer.sync(
-  EventLogModule.Identity,
-  () => EventLogModule.makeIdentityUnsafe()
-)
+export const layerIdentityMemory = Layer.sync(EventLogModule.Identity, () => EventLogModule.makeIdentityUnsafe());
 
 /**
  * In-memory event log layer for local development and tests.
@@ -26,29 +23,29 @@ export const layerIdentityMemory = Layer.sync(
 export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(EventJournalModule.layerMemory),
   Layer.provide(layerIdentityMemory)
-)
+);
 
 const ToolUsePayload = S.Struct({
   sessionId: S.String,
   toolName: S.String,
   toolUseId: S.optional(S.String),
   status: S.Literals(["start", "success", "failure"]),
-  durationMs: S.optional(S.Number)
-})
+  durationMs: S.optional(S.Number),
+});
 
 const PermissionDecisionPayload = S.Struct({
   sessionId: S.String,
   toolName: S.String,
   decision: S.Literals(["allow", "deny", "prompt"]),
-  reason: S.optional(S.String)
-})
+  reason: S.optional(S.String),
+});
 
 const HookEventPayload = S.Struct({
   sessionId: S.optional(S.String),
   hook: HookEvent,
   toolUseId: S.optional(S.String),
-  outcome: S.Literals(["success", "failure"])
-})
+  outcome: S.Literals(["success", "failure"]),
+});
 
 const SyncConflictPayload = S.Struct({
   remoteId: S.String,
@@ -57,16 +54,16 @@ const SyncConflictPayload = S.Struct({
   entryId: S.String,
   conflictCount: S.Number,
   resolution: S.Literals(["accept", "merge", "reject"]),
-  resolvedEntryId: S.optional(S.String)
-})
+  resolvedEntryId: S.optional(S.String),
+});
 
 const SyncCompactionPayload = S.Struct({
   remoteId: S.String,
   before: S.Number,
   after: S.Number,
   events: S.optional(S.Array(S.String)),
-  timestamp: S.Number
-})
+  timestamp: S.Number,
+});
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.
@@ -75,37 +72,33 @@ export const AuditEventGroup = EventGroupModule.empty
   .add({
     tag: "tool_use",
     payload: ToolUsePayload,
-    primaryKey: (payload) =>
-      `${payload.sessionId}:${payload.toolName}:${payload.status}`
+    primaryKey: (payload) => `${payload.sessionId}:${payload.toolName}:${payload.status}`,
   })
   .add({
     tag: "permission_decision",
     payload: PermissionDecisionPayload,
-    primaryKey: (payload) =>
-      `${payload.sessionId}:${payload.toolName}:${payload.decision}`
+    primaryKey: (payload) => `${payload.sessionId}:${payload.toolName}:${payload.decision}`,
   })
   .add({
     tag: "hook_event",
     payload: HookEventPayload,
-    primaryKey: (payload) =>
-      `${payload.sessionId ?? "unknown"}:${payload.hook}:${payload.outcome}`
+    primaryKey: (payload) => `${payload.sessionId ?? "unknown"}:${payload.hook}:${payload.outcome}`,
   })
   .add({
     tag: "sync_conflict",
     payload: SyncConflictPayload,
-    primaryKey: (payload) =>
-      `${payload.remoteId}:${payload.event}:${payload.primaryKey}:${payload.entryId}`
+    primaryKey: (payload) => `${payload.remoteId}:${payload.event}:${payload.primaryKey}:${payload.entryId}`,
   })
   .add({
     tag: "sync_compaction",
     payload: SyncCompactionPayload,
-    primaryKey: (payload) => `${payload.remoteId}:${payload.timestamp}`
-  })
+    primaryKey: (payload) => `${payload.remoteId}:${payload.timestamp}`,
+  });
 
 /**
  * Schema derived from the audit event group.
  */
-export const AuditEventSchema = EventLogModule.schema(AuditEventGroup)
+export const AuditEventSchema = EventLogModule.schema(AuditEventGroup);
 
 /**
  * Default no-op handlers for audit events.
@@ -136,4 +129,4 @@ export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handler
     .handle("hook_event", thunkEffectVoid)
     .handle("sync_conflict", thunkEffectVoid)
     .handle("sync_compaction", thunkEffectVoid)
-)
+);
