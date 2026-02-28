@@ -1,6 +1,6 @@
-import { expect, test } from "bun:test";
+import * as EventLog from "@beep/ai-sdk/experimental/EventLog";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as EventLog from "../src/experimental/EventLog.js";
 
 test("EventLog audit schema writes entries", async () => {
   const program = Effect.scoped(

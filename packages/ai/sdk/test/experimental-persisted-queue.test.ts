@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import * as PersistedQueue from "@beep/ai-sdk/experimental/PersistedQueue";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as PersistedQueue from "../src/experimental/PersistedQueue.js";
-import { makeUserMessage } from "../src/internal/messages.js";
 
 test("PersistedQueue input adapter yields offered messages", async () => {
   const message = makeUserMessage("hello");

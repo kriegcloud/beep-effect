@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import { Hooks } from "@beep/ai-sdk";
+import { HookError } from "@beep/ai-sdk/Errors";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { HookError } from "../src/Errors.js";
-import { Hooks } from "../src/index.js";
 import { runEffect } from "./effect-test.js";
 
 test("Hook.matcher converts duration to seconds", () => {
@@ -37,7 +37,7 @@ test("Hook.callback runs effect handler", async () => {
 });
 
 test("Hook.callback maps failures to HookError", async () => {
-  const hookEffect = Hooks.callback(() => Effect.fail(HookError.make({ message: "boom" })));
+  const hookEffect = Hooks.callback(() => Effect.fail(new HookError({ message: "boom" })));
   const callback = await runEffect(hookEffect);
   try {
     await callback(

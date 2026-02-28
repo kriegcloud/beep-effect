@@ -1,18 +1,18 @@
-import { expect, test } from "bun:test";
+import { mergeHookMaps, withHook } from "@beep/ai-sdk/Hooks/utils";
+import type { QueryHandle, StreamBroadcastConfig } from "@beep/ai-sdk/Query";
+import { QuerySupervisor } from "@beep/ai-sdk/QuerySupervisor";
+import { QuerySupervisorConfig, type QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
+import { SandboxError } from "@beep/ai-sdk/Sandbox/SandboxError";
+import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
+import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
+import type { Options } from "@beep/ai-sdk/Schema/Options";
+import { expect, test } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
-import type { AgentSdk } from "../src/AgentSdk.js";
-import type { QueryHandle } from "../src/Query.js";
-import { QuerySupervisor } from "../src/QuerySupervisor.js";
-import { QuerySupervisorConfig, type QuerySupervisorSettings } from "../src/QuerySupervisorConfig.js";
-import { SandboxError } from "../src/Sandbox/SandboxError.js";
-import { SandboxService } from "../src/Sandbox/SandboxService.js";
-import type { SDKMessage, SDKUserMessage } from "../src/Schema/Message.js";
-import type { Options } from "../src/Schema/Options.js";
 import { runEffect } from "./effect-test.js";
 
 const baseSettings: QuerySupervisorSettings = {
@@ -28,7 +28,7 @@ const baseSettings: QuerySupervisorSettings = {
 };
 
 const makeHandle = (options?: { readonly interrupt?: Effect.Effect<void> }): QueryHandle => {
-  const stream = Stream.empty as Stream.Stream<SDKMessage>;
+  const stream: Stream.Stream<SDKMessage> = Stream.empty;
   return {
     stream,
     send: () => Effect.void,
@@ -36,7 +36,13 @@ const makeHandle = (options?: { readonly interrupt?: Effect.Effect<void> }): Que
     sendForked: () => Effect.void,
     closeInput: Effect.void,
     share: (config) => Stream.share(stream, config ?? { capacity: 16, strategy: "suspend" }),
-    broadcast: (n, maximumLag) => Stream.broadcast(stream, n, maximumLag ?? 16),
+    broadcast: (config?: StreamBroadcastConfig) => {
+      const resolved = config ?? 16;
+      if (typeof resolved === "number") {
+        return Stream.broadcast(stream, { capacity: resolved });
+      }
+      return Stream.broadcast(stream, resolved);
+    },
     interrupt: options?.interrupt ?? Effect.void,
     setPermissionMode: () => Effect.void,
     setModel: () => Effect.void,
@@ -46,25 +52,33 @@ const makeHandle = (options?: { readonly interrupt?: Effect.Effect<void> }): Que
     supportedModels: Effect.succeed([]),
     mcpServerStatus: Effect.succeed([]),
     setMcpServers: () => Effect.succeed({ added: [], removed: [], errors: {} }),
-    accountInfo: Effect.succeed({} as never),
+    accountInfo: Effect.succeed({}),
+    initializationResult: Effect.succeed({
+      commands: [],
+      output_style: "default",
+      available_output_styles: [],
+      models: [],
+      account: {},
+    }),
+    stopTask: () => Effect.void,
   };
 };
 
 test("QuerySupervisor routes isolated queries through SandboxService and strips non-serializable options", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   let sdkQueryCalled = false;
   let capturedPrompt: string | undefined;
   let capturedOptions: Options | undefined;
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => {
       sdkQueryCalled = true;
       return Effect.succeed(makeHandle());
     },
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   const sandbox = SandboxService.of({
     provider: "cloudflare",
@@ -82,7 +96,7 @@ test("QuerySupervisor routes isolated queries through SandboxService and strips 
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -90,15 +104,17 @@ test("QuerySupervisor routes isolated queries through SandboxService and strips 
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
+      const options: Options = {
         model: "sonnet",
         maxTurns: 3,
-        hooks: { PreToolUse: [] } as never,
-        canUseTool: (() => true) as never,
-        stderr: (() => undefined) as never,
-        spawnClaudeCodeProcess: (() => Promise.resolve({} as never)) as never,
+        hooks: withHook("PreToolUse", {
+          hooks: [async () => ({})],
+        }),
+        canUseTool: async () => ({ behavior: "allow" }),
+        stderr: () => undefined,
+        spawnClaudeCodeProcess: () => ({}),
         abortController: new AbortController(),
-      } as Options;
+      };
 
       yield* supervisor.submit("sandbox prompt", options);
 
@@ -118,17 +134,17 @@ test("QuerySupervisor routes isolated queries through SandboxService and strips 
 });
 
 test("QuerySupervisor applies stripped SessionEnd hooks to sandbox streams", async () => {
-  const { AgentSdk } = await import("../src/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   let capturedOptions: Options | undefined;
   let hookCallCount = 0;
   let hookSessionId: string | undefined;
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   const sandbox = SandboxService.of({
     provider: "cloudflare",
@@ -162,7 +178,7 @@ test("QuerySupervisor applies stripped SessionEnd hooks to sandbox streams", asy
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -170,21 +186,17 @@ test("QuerySupervisor applies stripped SessionEnd hooks to sandbox streams", asy
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
-        hooks: {
-          SessionEnd: [
-            {
-              hooks: [
-                async (input) => {
-                  hookCallCount += 1;
-                  hookSessionId = input.session_id;
-                  return {};
-                },
-              ],
+      const options: Options = {
+        hooks: withHook("SessionEnd", {
+          hooks: [
+            async (input) => {
+              hookCallCount += 1;
+              hookSessionId = input.session_id;
+              return {};
             },
           ],
-        },
-      } as Options;
+        }),
+      };
 
       const handle = yield* supervisor.submit("hooked", options);
       yield* Stream.runDrain(handle.stream);
@@ -201,11 +213,11 @@ test("QuerySupervisor applies stripped SessionEnd hooks to sandbox streams", asy
 test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   let calls = 0;
   let toolName: string | undefined;
@@ -259,7 +271,7 @@ test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", asy
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -267,24 +279,20 @@ test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", asy
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
-        hooks: {
-          PostToolUse: [
-            {
-              matcher: "bash",
-              hooks: [
-                async (input) => {
-                  calls += 1;
-                  toolName = "tool_name" in input ? input.tool_name : undefined;
-                  toolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
-                  responseValue = "tool_response" in input ? input.tool_response : undefined;
-                  return {};
-                },
-              ],
+      const options: Options = {
+        hooks: withHook("PostToolUse", {
+          matcher: "bash",
+          hooks: [
+            async (input) => {
+              calls += 1;
+              toolName = "tool_name" in input ? input.tool_name : undefined;
+              toolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
+              responseValue = "tool_response" in input ? input.tool_response : undefined;
+              return {};
             },
           ],
-        },
-      } as Options;
+        }),
+      };
 
       const handle = yield* supervisor.submit("hooked-tool", options);
       yield* Stream.runDrain(handle.stream);
@@ -302,11 +310,11 @@ test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", asy
 test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query errors", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   let failureCalls = 0;
   let failureToolName: string | undefined;
@@ -355,7 +363,7 @@ test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -363,35 +371,31 @@ test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
-        hooks: {
-          PostToolUseFailure: [
-            {
-              matcher: "bash*",
-              hooks: [
-                async (input) => {
-                  failureCalls += 1;
-                  failureToolName = "tool_name" in input ? input.tool_name : undefined;
-                  failureToolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
-                  failureError = "error" in input ? input.error : undefined;
-                  return {};
-                },
-              ],
-            },
-          ],
-          Stop: [
-            {
-              hooks: [
-                async (input) => {
-                  stopCalls += 1;
-                  stopSessionId = input.session_id;
-                  return {};
-                },
-              ],
-            },
-          ],
-        },
-      } as Options;
+      const options: Options = {
+        hooks: mergeHookMaps(
+          withHook("PostToolUseFailure", {
+            matcher: "bash*",
+            hooks: [
+              async (input) => {
+                failureCalls += 1;
+                failureToolName = "tool_name" in input ? input.tool_name : undefined;
+                failureToolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
+                failureError = "error" in input ? input.error : undefined;
+                return {};
+              },
+            ],
+          }),
+          withHook("Stop", {
+            hooks: [
+              async (input) => {
+                stopCalls += 1;
+                stopSessionId = input.session_id;
+                return {};
+              },
+            ],
+          })
+        ),
+      };
 
       const handle = yield* supervisor.submit("hooked-failure", options);
       yield* Stream.runDrain(handle.stream);
@@ -411,11 +415,11 @@ test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query
 test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before result", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   let failureCalls = 0;
   let stopCalls = 0;
@@ -455,7 +459,7 @@ test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -463,46 +467,40 @@ test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
-        hooks: {
-          PostToolUseFailure: [
-            {
-              matcher: "bash",
-              hooks: [
-                async (input) => {
-                  failureCalls += 1;
-                  failureToolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
-                  return {};
-                },
-              ],
-            },
-          ],
-          Stop: [
-            {
-              hooks: [
-                async () => {
-                  stopCalls += 1;
-                  return {};
-                },
-              ],
-            },
-          ],
-          SessionEnd: [
-            {
-              hooks: [
-                async () => {
-                  sessionEndCalls += 1;
-                  return {};
-                },
-              ],
-            },
-          ],
-        },
-      } as Options;
+      const options: Options = {
+        hooks: mergeHookMaps(
+          withHook("PostToolUseFailure", {
+            matcher: "bash",
+            hooks: [
+              async (input) => {
+                failureCalls += 1;
+                failureToolUseId = "tool_use_id" in input ? input.tool_use_id : undefined;
+                return {};
+              },
+            ],
+          }),
+          withHook("Stop", {
+            hooks: [
+              async () => {
+                stopCalls += 1;
+                return {};
+              },
+            ],
+          }),
+          withHook("SessionEnd", {
+            hooks: [
+              async () => {
+                sessionEndCalls += 1;
+                return {};
+              },
+            ],
+          })
+        ),
+      };
 
       const handle = yield* supervisor.submit("stream-failure", options);
-      const result = yield* Effect.either(Stream.runDrain(handle.stream));
-      expect(Either.isLeft(result)).toBe(true);
+      const result = yield* Effect.result(Stream.runDrain(handle.stream));
+      expect(Result.isFailure(result)).toBe(true);
       expect(failureCalls).toBe(1);
       expect(failureToolUseId).toBe("tool-stream-failure");
       expect(stopCalls).toBe(1);
@@ -516,11 +514,11 @@ test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before
 test("QuerySupervisor sandbox hook matcher supports wildcards and blocks non-matches", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   let wildcardMatches = 0;
   let blockedMatches = 0;
@@ -572,7 +570,7 @@ test("QuerySupervisor sandbox hook matcher supports wildcards and blocks non-mat
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -580,30 +578,28 @@ test("QuerySupervisor sandbox hook matcher supports wildcards and blocks non-mat
   const program = Effect.scoped(
     Effect.gen(function* () {
       const supervisor = yield* QuerySupervisor;
-      const options = {
-        hooks: {
-          PostToolUse: [
-            {
-              matcher: "git*",
-              hooks: [
-                async () => {
-                  blockedMatches += 1;
-                  return {};
-                },
-              ],
-            },
-            {
-              matcher: "bash*",
-              hooks: [
-                async () => {
-                  wildcardMatches += 1;
-                  return {};
-                },
-              ],
-            },
-          ],
-        },
-      } as Options;
+      const options: Options = {
+        hooks: mergeHookMaps(
+          withHook("PostToolUse", {
+            matcher: "git*",
+            hooks: [
+              async () => {
+                blockedMatches += 1;
+                return {};
+              },
+            ],
+          }),
+          withHook("PostToolUse", {
+            matcher: "bash*",
+            hooks: [
+              async () => {
+                wildcardMatches += 1;
+                return {};
+              },
+            ],
+          })
+        ),
+      };
 
       const handle = yield* supervisor.submit("hooked-matchers", options);
       yield* Stream.runDrain(handle.stream);
@@ -622,14 +618,14 @@ test("QuerySupervisor rejects non-string prompts when sandbox is isolated", asyn
   let sdkQueryCalled = false;
   let sandboxRunAgentCalled = false;
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => {
       sdkQueryCalled = true;
       return Effect.succeed(makeHandle());
     },
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   const sandbox = SandboxService.of({
     provider: "cloudflare",
@@ -645,7 +641,7 @@ test("QuerySupervisor rejects non-string prompts when sandbox is isolated", asyn
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -656,12 +652,12 @@ test("QuerySupervisor rejects non-string prompts when sandbox is isolated", asyn
       const streamingPrompt = (async function* (): AsyncIterable<SDKUserMessage> {
         yield { type: "user", message: { role: "user", content: "hello" } } as never;
       })();
-      const result = yield* Effect.either(supervisor.submit(streamingPrompt));
+      const result = yield* Effect.result(supervisor.submit(streamingPrompt));
 
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result) && result.left._tag === "SandboxError") {
-        expect(result.left._tag).toBe("SandboxError");
-        expect(result.left.operation).toBe("dispatchQuery");
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result) && result.failure._tag === "SandboxError") {
+        expect(result.failure._tag).toBe("SandboxError");
+        expect(result.failure.operation).toBe("dispatchQuery");
       }
 
       expect(sandboxRunAgentCalled).toBe(false);
@@ -675,11 +671,11 @@ test("QuerySupervisor rejects non-string prompts when sandbox is isolated", asyn
 test("QuerySupervisor applies concurrency and active stats to sandbox queries", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   const startedPrompts: Array<string> = [];
 
@@ -698,7 +694,7 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -710,7 +706,7 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
       const firstStarted = yield* Deferred.make<void>();
       const secondStarted = yield* Deferred.make<void>();
 
-      const firstFiber = yield* Effect.fork(
+      const firstFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("first");
@@ -725,7 +721,7 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
       const stats = yield* supervisor.stats;
       expect(stats.active).toBe(1);
 
-      const secondFiber = yield* Effect.fork(
+      const secondFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("second");
@@ -734,7 +730,7 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
         )
       );
 
-      yield* Effect.yieldNow();
+      yield* Effect.yieldNow;
       const startedTooEarly = yield* Deferred.isDone(secondStarted);
       expect(startedTooEarly).toBe(false);
 
@@ -754,11 +750,11 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
 test("QuerySupervisor.interruptAll interrupts active sandbox handles", async () => {
   const { AgentSdk } = await import("../src/AgentSdk.js");
 
-  const sdk = AgentSdk.make({
+  const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
-    createSdkMcpServer: () => Effect.succeed({} as never),
-    createSdkMcpServerScoped: () => Effect.succeed({} as never),
-  }) satisfies AgentSdk;
+    createSdkMcpServer: () => Effect.die("not-implemented"),
+    createSdkMcpServerScoped: () => Effect.die("not-implemented"),
+  });
 
   const interrupted = { value: false };
 
@@ -780,7 +776,7 @@ test("QuerySupervisor.interruptAll interrupts active sandbox handles", async () 
   });
 
   const layer = QuerySupervisor.layer.pipe(
-    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.make({ settings: baseSettings }))),
+    Layer.provide(Layer.succeed(QuerySupervisorConfig, QuerySupervisorConfig.of({ settings: baseSettings }))),
     Layer.provide(Layer.succeed(AgentSdk, sdk)),
     Layer.provide(Layer.succeed(SandboxService, sandbox))
   );
@@ -791,7 +787,7 @@ test("QuerySupervisor.interruptAll interrupts active sandbox handles", async () 
       const release = yield* Deferred.make<void>();
       const started = yield* Deferred.make<void>();
 
-      const queryFiber = yield* Effect.fork(
+      const queryFiber = yield* Effect.forkChild(
         Effect.scoped(
           Effect.gen(function* () {
             yield* supervisor.submit("interruptible");

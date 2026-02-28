@@ -1,14 +1,14 @@
-import { expect, test } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import * as Context from "effect/Context";
+import { Storage, Sync } from "@beep/ai-sdk";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Storage, Sync } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
-import { ArtifactRecord } from "../src/Schema/Storage.js";
+import * as ServiceMap from "effect/ServiceMap";
 import { runEffectLive } from "./effect-test.js";
 
 const allowServe = Bun.env.SYNC_TEST_ALLOW_SERVE === "1" || Bun.env.SYNC_TEST_ALLOW_SERVE === "true";
@@ -20,16 +20,14 @@ const waitFor = <A, E>(
   predicate: (value: A) => boolean,
   options?: {
     readonly retries?: number;
-    readonly interval?: Duration.DurationInput;
+    readonly interval?: Duration.Input;
   }
 ) =>
   Effect.gen(function* () {
     const retries = options?.retries ?? 40;
     const interval = options?.interval ?? Duration.millis(25);
-    let lastValue: A | undefined = undefined;
     for (let attempt = 0; attempt < retries; attempt += 1) {
       const value = yield* effect;
-      lastValue = value;
       if (predicate(value)) return value;
       yield* Effect.sleep(interval);
     }
@@ -62,10 +60,10 @@ maybeTest(
           const replicaAContext = yield* Layer.build(makeReplicaLayer(server.url, dirA));
           const replicaBContext = yield* Layer.build(makeReplicaLayer(server.url, dirB));
 
-          const chatA = Context.get(replicaAContext, Storage.ChatHistoryStore);
-          const chatB = Context.get(replicaBContext, Storage.ChatHistoryStore);
-          const artifactA = Context.get(replicaAContext, Storage.ArtifactStore);
-          const artifactB = Context.get(replicaBContext, Storage.ArtifactStore);
+          const chatA = ServiceMap.get(replicaAContext, Storage.ChatHistoryStore);
+          const chatB = ServiceMap.get(replicaBContext, Storage.ChatHistoryStore);
+          const artifactA = ServiceMap.get(replicaAContext, Storage.ArtifactStore);
+          const artifactB = ServiceMap.get(replicaBContext, Storage.ArtifactStore);
 
           yield* chatA.appendMessage("session-1", makeUserMessage("hello"));
           yield* Effect.sleep(Duration.millis(200));

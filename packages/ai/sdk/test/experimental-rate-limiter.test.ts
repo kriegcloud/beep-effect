@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
+import * as RateLimiter from "@beep/ai-sdk/experimental/RateLimiter";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
-import * as RateLimiter from "../src/experimental/RateLimiter.js";
+import * as Result from "effect/Result";
 
 test("RateLimiter.rateLimitHandler fails when limit exceeded", async () => {
   const handler = RateLimiter.rateLimitHandler((value: string) => Effect.succeed(value), {
@@ -13,14 +13,14 @@ test("RateLimiter.rateLimitHandler fails when limit exceeded", async () => {
 
   const program = Effect.gen(function* () {
     yield* handler("first");
-    return yield* Effect.either(handler("second"));
+    return yield* Effect.result(handler("second"));
   }).pipe(Effect.provide(RateLimiter.layerMemory));
 
   const result = await Effect.runPromise(program);
-  expect(Either.isLeft(result)).toBe(true);
-  if (Either.isLeft(result)) {
-    expect(result.left._tag).toBe("RateLimiterError");
-    expect(result.left.reason).toBe("Exceeded");
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("RateLimiterError");
+    expect(result.failure.reason).toBe("Exceeded");
   }
 });
 
@@ -42,12 +42,12 @@ test("RateLimiter.rateLimitHandlers scopes limits per handler name", async () =>
 
   const program = Effect.gen(function* () {
     yield* limited.alpha(undefined);
-    const second = yield* Effect.either(limited.alpha(undefined));
+    const second = yield* Effect.result(limited.alpha(undefined));
     const beta = yield* limited.beta(undefined);
     return { second, beta };
   }).pipe(Effect.provide(RateLimiter.layerMemory));
 
   const result = await Effect.runPromise(program);
   expect(result.beta).toBe("beta");
-  expect(Either.isLeft(result.second)).toBe(true);
+  expect(Result.isFailure(result.second)).toBe(true);
 });

@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
+import { AgentRuntime, run, streamText } from "@beep/ai-sdk";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
-import { AgentRuntime, run, streamText } from "../src/index.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
 
 const makeSuccessMessage = (result: string): SDKMessage => ({
   type: "result",
@@ -34,8 +34,8 @@ const makeDeltaMessage = (text: string): SDKMessage =>
   }) as SDKMessage;
 
 const makeRuntime = (stream: Stream.Stream<SDKMessage>) => {
-  const notUsed = Effect.dieMessage("not used") as Effect.Effect<any, any, any>;
-  return AgentRuntime.make({
+  const notUsed = Effect.die("not used") as Effect.Effect<any, any, any>;
+  return AgentRuntime.of({
     query: () => notUsed as any,
     queryRaw: () => notUsed as any,
     stream: () => stream,

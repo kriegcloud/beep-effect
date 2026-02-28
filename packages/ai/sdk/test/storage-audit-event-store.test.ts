@@ -1,8 +1,10 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as EventLog from "effect/unstable/eventlog/EventLog";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { Storage } from "../src/index.js";
+import { runEffect } from "./effect-test.js";
 
 test("AuditEventStore memory writes events", async () => {
   const program = Effect.gen(function* () {
@@ -19,7 +21,7 @@ test("AuditEventStore memory writes events", async () => {
     return entries.length;
   }).pipe(Effect.provide(Storage.AuditEventStore.layerMemory));
 
-  const count = await Effect.runPromise(program);
+  const count = await runEffect(program);
   expect(count).toBe(1);
 });
 
@@ -27,7 +29,10 @@ test("AuditEventStore key value store writes events", async () => {
   const layer = Storage.AuditEventStore.layerKeyValueStore({
     journalKey: "test-audit-journal",
     identityKey: "test-audit-identity",
-  }).pipe(Layer.provide(KeyValueStore.layerMemory));
+  }).pipe(
+    Layer.provide(KeyValueStore.layerMemory),
+    Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe()))
+  );
 
   const program = Effect.gen(function* () {
     const store = yield* Storage.AuditEventStore;
@@ -43,6 +48,6 @@ test("AuditEventStore key value store writes events", async () => {
     return entries.length;
   }).pipe(Effect.provide(layer));
 
-  const count = await Effect.runPromise(program);
+  const count = await runEffect(program);
   expect(count).toBe(1);
 });

@@ -1,14 +1,14 @@
-import { expect, test } from "bun:test";
+import type { SDKMessage, SDKResultMessage } from "@beep/ai-sdk/Schema/Message";
+import type { SessionHandle } from "@beep/ai-sdk/Session";
+import { SessionManager } from "@beep/ai-sdk/SessionManager";
+import { SessionService } from "@beep/ai-sdk/SessionService";
+import { ChatHistoryStore } from "@beep/ai-sdk/Storage/ChatHistoryStore";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
-import type { SDKMessage, SDKResultMessage } from "../src/Schema/Message.js";
-import type { SessionHandle } from "../src/Session.js";
-import { SessionManager } from "../src/SessionManager.js";
-import { SessionService } from "../src/SessionService.js";
-import { ChatHistoryStore } from "../src/Storage/ChatHistoryStore.js";
 import { runEffect } from "./effect-test.js";
 
 const createGate = () => {
@@ -162,7 +162,7 @@ test("SessionService.turn serializes concurrent turns", async () => {
       Effect.sync(() => {
         sendCalls.push(typeof message === "string" ? message : "object");
       }),
-    stream: Stream.unwrapScoped(
+    stream: Stream.unwrap(
       Effect.sync(() => {
         streamRuns += 1;
         if (streamRuns === 1) {
@@ -204,10 +204,10 @@ test("SessionService.turn serializes concurrent turns", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const session = yield* SessionService;
-      const firstFiber = yield* Effect.fork(Stream.runCollect(session.turn("first")));
+      const firstFiber = yield* Effect.forkChild(Stream.runCollect(session.turn("first")));
       yield* Effect.promise(() => firstTurnStarted.promise);
-      const secondFiber = yield* Effect.fork(Stream.runCollect(session.turn("second")));
-      yield* Effect.yieldNow();
+      const secondFiber = yield* Effect.forkChild(Stream.runCollect(session.turn("second")));
+      yield* Effect.yieldNow;
       const beforeRelease = [...sendCalls];
       releaseFirstTurn.open();
       const first = yield* Fiber.join(firstFiber);
@@ -271,9 +271,9 @@ test("SessionService.send fails while turn work is active", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const session = yield* SessionService;
-      const turnFiber = yield* Effect.fork(Stream.runDrain(session.turn("first")));
+      const turnFiber = yield* Effect.forkChild(Stream.runDrain(session.turn("first")));
       yield* Effect.promise(() => turnStarted.promise);
-      const rawResult = yield* Effect.either(session.send("raw"));
+      const rawResult = yield* Effect.result(session.send("raw"));
       releaseTurn.open();
       yield* Fiber.join(turnFiber);
       return rawResult;
@@ -281,9 +281,9 @@ test("SessionService.send fails while turn work is active", async () => {
   );
 
   const rawResult = await runEffect(program);
-  expect(Either.isLeft(rawResult)).toBe(true);
-  if (Either.isLeft(rawResult)) {
-    expect(rawResult.left._tag).toBe("TransportError");
+  expect(Result.isFailure(rawResult)).toBe(true);
+  if (Result.isFailure(rawResult)) {
+    expect(rawResult.failure._tag).toBe("TransportError");
   }
 });
 
@@ -325,18 +325,18 @@ test("SessionService.turn fails while raw stream is active", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const session = yield* SessionService;
-      const rawFiber = yield* Effect.fork(Stream.runDrain(session.stream));
+      const rawFiber = yield* Effect.forkChild(Stream.runDrain(session.stream));
       yield* Effect.promise(() => rawStarted.promise);
-      const turnResult = yield* Effect.either(Stream.runCollect(session.turn("hello")));
+      const turnResult = yield* Effect.result(Stream.runCollect(session.turn("hello")));
       yield* Fiber.interrupt(rawFiber);
       return turnResult;
     }).pipe(Effect.provide(layer))
   );
 
   const turnResult = await runEffect(program);
-  expect(Either.isLeft(turnResult)).toBe(true);
-  if (Either.isLeft(turnResult)) {
-    expect(turnResult.left._tag).toBe("TransportError");
+  expect(Result.isFailure(turnResult)).toBe(true);
+  if (Result.isFailure(turnResult)) {
+    expect(turnResult.failure._tag).toBe("TransportError");
   }
 });
 
@@ -421,7 +421,7 @@ test("SessionService.layerWithHistory records turn output after consumer cancell
   const program = Effect.scoped(
     Effect.gen(function* () {
       const session = yield* SessionService;
-      const firstMessageFiber = yield* Effect.fork(Stream.runCollect(session.turn("hello").pipe(Stream.take(1))));
+      const firstMessageFiber = yield* Effect.forkChild(Stream.runCollect(session.turn("hello").pipe(Stream.take(1))));
       yield* Effect.promise(() => turnStarted.promise);
       releaseTurn.open();
       yield* Effect.promise(() => resultReady.promise);

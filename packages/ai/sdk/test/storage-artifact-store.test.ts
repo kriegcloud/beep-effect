@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { Schema, Storage } from "../src/index.js";
 
 const makeRecord = (id: string, sessionId: string) =>

@@ -1,8 +1,8 @@
-import { expect, test } from "bun:test";
+import { collectResultSuccess } from "@beep/ai-sdk/QueryResult";
+import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import { collectResultSuccess } from "../src/QueryResult.js";
-import type { SDKMessage } from "../src/Schema/Message.js";
 
 const makeSuccessMessage = (result: string): SDKMessage => ({
   type: "result",
@@ -44,9 +44,9 @@ test("collectResultSuccess returns the final result", async () => {
 
 test("collectResultSuccess fails on error result", async () => {
   const stream = Stream.fromIterable<SDKMessage>([makeErrorMessage()]);
-  const result = await Effect.runPromise(Effect.either(collectResultSuccess(stream)));
-  expect(result._tag).toBe("Left");
-  if (result._tag === "Left") {
-    expect(result.left._tag).toBe("DecodeError");
+  const result = await Effect.runPromise(Effect.result(collectResultSuccess(stream)));
+  expect(result._tag).toBe("Failure");
+  if (result._tag === "Failure") {
+    expect(result.failure._tag).toBe("DecodeError");
   }
 });

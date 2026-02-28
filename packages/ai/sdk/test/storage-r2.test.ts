@@ -1,7 +1,7 @@
-import { expect, test } from "bun:test";
-import { KeyValueStore } from "@effect/platform";
+import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
+import { expect, test } from "@effect/vitest";
 import { Effect, Option } from "effect";
-import { layerR2, type R2Bucket } from "../src/Storage/StorageR2.js";
+import { KeyValueStore } from "effect/unstable/persistence";
 
 const makeMockR2Bucket = (data: Record<string, string> = {}): R2Bucket => ({
   put: async (key, value) => {

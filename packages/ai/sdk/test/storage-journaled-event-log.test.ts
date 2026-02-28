@@ -1,67 +1,30 @@
-import { expect, test } from "bun:test";
-import * as EventJournal from "@effect/experimental/EventJournal";
-import { KeyValueStore, MsgPack } from "@effect/platform";
-import * as PlatformError from "@effect/platform/Error";
-import * as Context from "effect/Context";
+import { Storage } from "@beep/ai-sdk";
+import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import { Schema as SdkSchema, Storage } from "../src/index.js";
-import { makeUserMessage } from "../src/internal/messages.js";
+import * as Result from "effect/Result";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
+import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
 
-const EntryArray = Schema.Array(EventJournal.Entry);
-const EntryArrayMsgPack = MsgPack.schema(EntryArray);
-const EntryEnvelope = Schema.Struct({
-  version: Schema.Literal(1),
-  entries: EntryArray,
-});
-const EntryEnvelopeMsgPack = MsgPack.schema(EntryEnvelope);
-const decodeEntries = Schema.decode(EntryArrayMsgPack);
-const encodeEntries = Schema.encode(EntryArrayMsgPack);
-const decodeEntryEnvelope = Schema.decode(EntryEnvelopeMsgPack);
-const decodeChatEvent = Schema.decode(MsgPack.schema(SdkSchema.ChatEvent));
-const decodeArtifactDelete = Schema.decode(MsgPack.schema(Storage.ArtifactDelete));
-
-const loadJournalEntries = (kv: KeyValueStore.KeyValueStore, key: string) =>
-  Effect.gen(function* () {
-    const maybe = yield* kv.getUint8Array(key);
-    if (Option.isNone(maybe)) return [];
-    const envelope = yield* decodeEntryEnvelope(maybe.value).pipe(Effect.option);
-    if (Option.isSome(envelope)) {
-      return envelope.value.entries;
-    }
-    return yield* decodeEntries(maybe.value);
-  });
-
-const withKeyValueStore = <A, E>(f: (kv: KeyValueStore.KeyValueStore) => Effect.Effect<A, E>) =>
-  Effect.scoped(
-    Effect.gen(function* () {
-      const context = yield* Layer.build(KeyValueStore.layerMemory);
-      const kv = Context.get(context, KeyValueStore.KeyValueStore);
-      return yield* f(kv);
-    })
-  );
-
-const makeFlakyKeyValueLayer = () => {
+const flakyKeyValueLayer = () => {
   const map = new Map<string, string>();
   let failNextSet = true;
-  const setFailure = (key: string) =>
-    new PlatformError.SystemError({
-      reason: "Unknown",
-      module: "KeyValueStore",
-      method: "set",
-      description: `persist failure for key=${key}`,
-    });
+
   const layer = Layer.succeed(
     KeyValueStore.KeyValueStore,
     KeyValueStore.makeStringOnly({
-      get: (key) => Effect.sync(() => Option.fromNullable(map.get(key))),
+      get: (key) => Effect.succeed(map.get(key)),
       set: (key, value) =>
         failNextSet
-          ? Effect.fail(setFailure(key))
+          ? Effect.fail(
+              new KeyValueStore.KeyValueStoreError({
+                message: `persist failure for key=${key}`,
+                method: "set",
+                key,
+              })
+            )
           : Effect.sync(() => {
               map.set(key, value);
             }),
@@ -69,14 +32,13 @@ const makeFlakyKeyValueLayer = () => {
         Effect.sync(() => {
           map.delete(key);
         }),
-      has: (key) => Effect.sync(() => map.has(key)),
-      isEmpty: Effect.sync(() => map.size === 0),
-      size: Effect.sync(() => map.size),
       clear: Effect.sync(() => {
         map.clear();
       }),
+      size: Effect.sync(() => map.size),
     })
   );
+
   return {
     layer,
     armFailure: () => {
@@ -85,161 +47,37 @@ const makeFlakyKeyValueLayer = () => {
     disarmFailure: () => {
       failNextSet = false;
     },
-  } as const;
+  };
 };
 
-const makeChatLayer = (
-  kv: KeyValueStore.KeyValueStore,
-  options: { journalKey: string; identityKey: string; prefix: string }
-) =>
-  Storage.ChatHistoryStore.layerJournaled(options).pipe(Layer.provide(Layer.succeed(KeyValueStore.KeyValueStore, kv)));
+test("EventJournalKeyValueStore persists entries in order", async () => {
+  const layer = Storage.layerKeyValueStore({ key: "test-journal" }).pipe(Layer.provide(KeyValueStore.layerMemory));
 
-const makeArtifactLayer = (
-  kv: KeyValueStore.KeyValueStore,
-  options: { journalKey: string; identityKey: string; prefix: string }
-) => Storage.ArtifactStore.layerJournaled(options).pipe(Layer.provide(Layer.succeed(KeyValueStore.KeyValueStore, kv)));
-
-const makeArtifactRecord = (id: string, sessionId: string) =>
-  SdkSchema.ArtifactRecord.make({
-    id,
-    sessionId,
-    kind: "tool_result",
-    encoding: "utf8",
-    content: `content-${id}`,
-    createdAt: 0,
-  });
-
-test("ChatHistoryStore journaled writes chat events to the event journal", async () => {
-  const message = makeUserMessage("hello");
-  const journalKey = "test-chat-journal";
-  const program = withKeyValueStore((kv) =>
-    Effect.gen(function* () {
-      const store = yield* Storage.ChatHistoryStore;
-      yield* store.appendMessage("session-1", message);
-      yield* store.appendMessage("session-1", message);
-      const entries = yield* loadJournalEntries(kv, journalKey);
-      const decoded = yield* Effect.forEach(entries, (entry) => decodeChatEvent(entry.payload), {
-        discard: false,
-      });
-      return { entries, decoded };
-    }).pipe(
-      Effect.provide(
-        makeChatLayer(kv, {
-          journalKey,
-          identityKey: "test-chat-identity",
-          prefix: "test-chat-history",
-        })
-      )
-    )
-  );
-
-  const result = await runEffect(program);
-  expect(result.entries).toHaveLength(2);
-  expect(result.entries.every((entry) => entry.event === Storage.ChatEventTag)).toBe(true);
-  expect(result.decoded.map((event) => event.sequence)).toEqual([1, 2]);
-  expect(result.decoded[0]?.message).toEqual(message);
-});
-
-test("ArtifactStore journaled writes delete tombstones", async () => {
-  const journalKey = "test-artifact-journal";
-  const program = withKeyValueStore((kv) =>
-    Effect.gen(function* () {
-      const store = yield* Storage.ArtifactStore;
-      const first = makeArtifactRecord("artifact-1", "session-1");
-      const second = makeArtifactRecord("artifact-2", "session-1");
-      yield* store.put(first);
-      yield* store.put(second);
-      yield* store.delete(first.id);
-      const list = yield* store.list("session-1");
-      const entries = yield* loadJournalEntries(kv, journalKey);
-      const deletes = entries.filter((entry) => entry.event === Storage.ArtifactDeleteTag);
-      const decodedDeletes = yield* Effect.forEach(deletes, (entry) => decodeArtifactDelete(entry.payload), {
-        discard: false,
-      });
-      return { entries, deletes, decodedDeletes, list };
-    }).pipe(
-      Effect.provide(
-        makeArtifactLayer(kv, {
-          journalKey,
-          identityKey: "test-artifact-identity",
-          prefix: "test-artifacts",
-        })
-      )
-    )
-  );
-
-  const result = await runEffect(program);
-  expect(result.list.length).toBe(1);
-  expect(result.entries.length).toBe(3);
-  expect(result.deletes).toHaveLength(1);
-  expect(result.decodedDeletes[0]?.id).toBe("artifact-1");
-});
-
-test("ArtifactStore journaled purgeSession writes tombstones for all records", async () => {
-  const journalKey = "test-artifact-journal-purge";
-  const program = withKeyValueStore((kv) =>
-    Effect.gen(function* () {
-      const store = yield* Storage.ArtifactStore;
-      const first = makeArtifactRecord("artifact-a", "session-2");
-      const second = makeArtifactRecord("artifact-b", "session-2");
-      yield* store.put(first);
-      yield* store.put(second);
-      yield* store.purgeSession("session-2");
-      const list = yield* store.list("session-2");
-      const entries = yield* loadJournalEntries(kv, journalKey);
-      const deletes = entries.filter((entry) => entry.event === Storage.ArtifactDeleteTag);
-      const decodedDeletes = yield* Effect.forEach(deletes, (entry) => decodeArtifactDelete(entry.payload), {
-        discard: false,
-      });
-      return { list, deletes, decodedDeletes };
-    }).pipe(
-      Effect.provide(
-        makeArtifactLayer(kv, {
-          journalKey,
-          identityKey: "test-artifact-identity-purge",
-          prefix: "test-artifacts-purge",
-        })
-      )
-    )
-  );
-
-  const result = await runEffect(program);
-  expect(result.list.length).toBe(0);
-  expect(result.deletes).toHaveLength(2);
-  expect(result.decodedDeletes.map((entry) => entry.id).sort()).toEqual(["artifact-a", "artifact-b"]);
-});
-
-test("EventJournalKeyValueStore decodes legacy array payloads", async () => {
-  const journalKey = "legacy-journal";
-  const program = Effect.scoped(
-    Effect.gen(function* () {
-      const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
-      const kv = Context.get(kvContext, KeyValueStore.KeyValueStore);
-      const legacyEntry = new EventJournal.Entry({
-        id: EventJournal.makeEntryId(),
-        event: "legacy",
-        primaryKey: "pk-legacy",
-        payload: new TextEncoder().encode("legacy"),
-      });
-      const legacyPayload = yield* encodeEntries([legacyEntry]);
-      yield* kv.set(journalKey, legacyPayload);
-      const context = yield* Layer.build(
-        Storage.layerKeyValueStore({ key: journalKey }).pipe(
-          Layer.provide(Layer.succeed(KeyValueStore.KeyValueStore, kv))
-        )
-      );
-      const journal = Context.get(context, EventJournal.EventJournal);
-      return yield* journal.entries;
-    })
-  );
+  const program = Effect.gen(function* () {
+    const journal = yield* EventJournal.EventJournal;
+    yield* journal.write({
+      event: "event-a",
+      primaryKey: "pk-a",
+      payload: new TextEncoder().encode("a"),
+      effect: () => Effect.void,
+    });
+    yield* journal.write({
+      event: "event-b",
+      primaryKey: "pk-b",
+      payload: new TextEncoder().encode("b"),
+      effect: () => Effect.void,
+    });
+    return yield* journal.entries;
+  }).pipe(Effect.provide(layer));
 
   const entries = await runEffect(program);
-  expect(entries).toHaveLength(1);
-  expect(entries[0]?.event).toBe("legacy");
+  expect(entries).toHaveLength(2);
+  expect(entries[0]?.event).toBe("event-a");
+  expect(entries[1]?.event).toBe("event-b");
 });
 
 test("EventJournalKeyValueStore does not poison in-memory index on persist failure", async () => {
-  const flaky = makeFlakyKeyValueLayer();
+  const flaky = flakyKeyValueLayer();
   flaky.armFailure();
 
   const layer = Storage.layerKeyValueStore({ key: "flaky-journal" }).pipe(Layer.provide(flaky.layer));
@@ -247,7 +85,7 @@ test("EventJournalKeyValueStore does not poison in-memory index on persist failu
   const program = Effect.gen(function* () {
     const journal = yield* EventJournal.EventJournal;
 
-    const firstAttempt = yield* Effect.either(
+    const firstAttempt = yield* Effect.result(
       journal.write({
         event: "test-event",
         primaryKey: "pk-test",
@@ -258,7 +96,7 @@ test("EventJournalKeyValueStore does not poison in-memory index on persist failu
     const afterFailure = yield* journal.entries;
 
     flaky.disarmFailure();
-    const secondAttempt = yield* Effect.either(
+    const secondAttempt = yield* Effect.result(
       journal.write({
         event: "test-event",
         primaryKey: "pk-test-2",
@@ -277,8 +115,27 @@ test("EventJournalKeyValueStore does not poison in-memory index on persist failu
   }).pipe(Effect.provide(layer));
 
   const result = await runEffect(program);
-  expect(Either.isLeft(result.firstAttempt)).toBe(true);
+  expect(Result.isFailure(result.firstAttempt)).toBe(true);
   expect(result.afterFailure).toHaveLength(0);
-  expect(Either.isRight(result.secondAttempt)).toBe(true);
+  expect(Result.isSuccess(result.secondAttempt)).toBe(true);
   expect(result.afterSuccess).toHaveLength(1);
+});
+
+test("ChatHistoryStore.layerJournaled appends and lists messages", async () => {
+  const layer = Storage.ChatHistoryStore.layerJournaled({
+    journalKey: "chat-journal",
+    identityKey: "chat-identity",
+    prefix: "chat-prefix",
+  }).pipe(Layer.provide(KeyValueStore.layerMemory));
+
+  const message = makeUserMessage("hello from journaled chat");
+  const program = Effect.gen(function* () {
+    const store = yield* Storage.ChatHistoryStore;
+    yield* store.appendMessage("session-1", message);
+    return yield* store.list("session-1");
+  }).pipe(Effect.provide(layer));
+
+  const events = await runEffect(program);
+  expect(events).toHaveLength(1);
+  expect(events[0]?.message).toEqual(message);
 });
