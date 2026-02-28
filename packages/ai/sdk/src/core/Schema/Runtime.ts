@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
 /**
  * @since 0.0.0
@@ -10,9 +10,9 @@ export type AbortControllerLike = {
 /**
  * @since 0.0.0
  */
-export const AbortController = Schema.declare(
+export const AbortController = S.declare(
   (_: unknown): _ is AbortControllerLike => typeof _ === "object" && _ !== null && "signal" in _
-).pipe(Schema.annotate({ identifier: "AbortController", jsonSchema: {} }));
+).pipe(S.annotate({ identifier: "AbortController", jsonSchema: {} }));
 
 /**
  * @since 0.0.0
@@ -26,8 +26,8 @@ export type AbortControllerEncoded = typeof AbortController.Encoded;
 /**
  * @since 0.0.0
  */
-export const StderrCallback = Schema.declare((_: unknown): _ is (data: string) => void => true).pipe(
-  Schema.annotate({ identifier: "StderrCallback", jsonSchema: {} })
+export const StderrCallback = S.declare((_: unknown): _ is (data: string) => void => true).pipe(
+  S.annotate({ identifier: "StderrCallback", jsonSchema: {} })
 );
 
 /**
@@ -42,8 +42,8 @@ export type StderrCallbackEncoded = typeof StderrCallback.Encoded;
 /**
  * @since 0.0.0
  */
-export const SpawnedProcess = Schema.declare((_: unknown): _ is unknown => true).pipe(
-  Schema.annotate({ identifier: "SpawnedProcess", jsonSchema: {} })
+export const SpawnedProcess = S.declare((_: unknown): _ is unknown => true).pipe(
+  S.annotate({ identifier: "SpawnedProcess", jsonSchema: {} })
 );
 
 /**
@@ -58,9 +58,9 @@ export type SpawnedProcessEncoded = typeof SpawnedProcess.Encoded;
 /**
  * @since 0.0.0
  */
-export const SpawnClaudeCodeProcess = Schema.declare(
-  (_: unknown): _ is (options: unknown) => SpawnedProcess => true
-).pipe(Schema.annotate({ identifier: "SpawnClaudeCodeProcess", jsonSchema: {} }));
+export const SpawnClaudeCodeProcess = S.declare((_: unknown): _ is (options: unknown) => SpawnedProcess => true).pipe(
+  S.annotate({ identifier: "SpawnClaudeCodeProcess", jsonSchema: {} })
+);
 
 /**
  * @since 0.0.0

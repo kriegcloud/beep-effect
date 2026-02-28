@@ -1,5 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";

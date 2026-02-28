@@ -1,5 +1,5 @@
+import { Effect } from "effect";
 import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Persistable from "effect/unstable/persistence/Persistable";
 import * as PersistedCache from "effect/unstable/persistence/PersistedCache";

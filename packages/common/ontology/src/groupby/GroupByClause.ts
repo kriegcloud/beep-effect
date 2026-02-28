@@ -9,10 +9,6 @@ import { TimeDurationMapping } from "../mapping/DurationMapping.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { GroupByMapper } from "./GroupByMapper.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("groupby/GroupByClause");
 /**
  * Group-by clause keyed by aggregatable properties.
  *

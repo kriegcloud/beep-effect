@@ -8,10 +8,7 @@
 import type { MediaReference } from "../object/Media.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { Experiment } from "./Experiment.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
 
-const $I = $OntologyId.create("experimental/createMediaReference");
 /**
  * Uploads media and returns a media-reference value.
  *

@@ -1,4 +1,4 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
 /**
  * Tool name was not found in the toolkit.
@@ -6,9 +6,9 @@ import * as Schema from "effect/Schema";
 /**
  * @since 0.0.0
  */
-export class ToolNotFoundError extends Schema.TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
-  name: Schema.String,
-  available: Schema.Array(Schema.String),
+export class ToolNotFoundError extends S.TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
+  name: S.String,
+  available: S.Array(S.String),
 }) {
   static readonly make = (params: Pick<ToolNotFoundError, "name" | "available">) => new ToolNotFoundError(params);
 }
@@ -19,11 +19,11 @@ export class ToolNotFoundError extends Schema.TaggedErrorClass<ToolNotFoundError
 /**
  * @since 0.0.0
  */
-export class ToolInputError extends Schema.TaggedErrorClass<ToolInputError>()("ToolInputError", {
-  name: Schema.String,
-  message: Schema.String,
-  input: Schema.optional(Schema.Unknown),
-  cause: Schema.optional(Schema.Defect),
+export class ToolInputError extends S.TaggedErrorClass<ToolInputError>()("ToolInputError", {
+  name: S.String,
+  message: S.String,
+  input: S.optional(S.Unknown),
+  cause: S.optional(S.Defect),
 }) {
   static readonly make = (params: Pick<ToolInputError, "name" | "message" | "input" | "cause">) =>
     new ToolInputError(params);
@@ -35,11 +35,11 @@ export class ToolInputError extends Schema.TaggedErrorClass<ToolInputError>()("T
 /**
  * @since 0.0.0
  */
-export class ToolOutputError extends Schema.TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
-  name: Schema.String,
-  message: Schema.String,
-  output: Schema.optional(Schema.Unknown),
-  cause: Schema.optional(Schema.Defect),
+export class ToolOutputError extends S.TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
+  name: S.String,
+  message: S.String,
+  output: S.optional(S.Unknown),
+  cause: S.optional(S.Defect),
 }) {
   static readonly make = (params: Pick<ToolOutputError, "name" | "message" | "output" | "cause">) =>
     new ToolOutputError(params);
@@ -51,7 +51,7 @@ export class ToolOutputError extends Schema.TaggedErrorClass<ToolOutputError>()(
 /**
  * @since 0.0.0
  */
-export const ToolError = Schema.Union([ToolNotFoundError, ToolInputError, ToolOutputError]);
+export const ToolError = S.Union([ToolNotFoundError, ToolInputError, ToolOutputError]);
 
 /**
  * @since 0.0.0

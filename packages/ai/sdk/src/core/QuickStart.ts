@@ -1,5 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
+import { Effect, Stream } from "effect";
 import { AgentRuntime } from "./AgentRuntime.js";
 import { type RuntimeEntryOptions, runtimeLayer } from "./EntryPoint.js";
 import * as QueryResult from "./QueryResult.js";

@@ -15,11 +15,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyKnownTypeFormatt
  * @since 0.0.0
  * @category schemas
  */
-export const KnownType = S.Literals([
-  "USER_OR_GROUP_ID",
-  "RESOURCE_RID",
-  "ARTIFACT_GID",
-]).pipe(
+export const KnownType = S.Literals(["USER_OR_GROUP_ID", "RESOURCE_RID", "ARTIFACT_GID"]).pipe(
   S.annotate(
     $I.annote("KnownType", {
       description: "Known semantic property kinds with specialized formatting behavior.",

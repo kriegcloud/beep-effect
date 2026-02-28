@@ -10,10 +10,6 @@ import type {
   ObjectInterfaceCompileDefinition,
   ObjectTypeDefinition,
 } from "./ObjectTypeDefinition.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("ontology/InterfaceDefinition");
 /**
  * Metadata carried by ontology interface definitions.
  *

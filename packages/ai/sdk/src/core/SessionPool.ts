@@ -1,16 +1,5 @@
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-
-import * as Ref from "effect/Ref";
-import * as Schedule from "effect/Schedule";
-import * as Schema from "effect/Schema";
-import * as Scope from "effect/Scope";
-import * as Semaphore from "effect/Semaphore";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import { Clock, Duration, Effect, Exit, Layer, Ref, Schedule, Scope, Semaphore, ServiceMap, Stream } from "effect";
+import * as S from "effect/Schema";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import type { SessionError, SessionHandle } from "./Session.js";
 import { SessionManager, type SessionManagerError } from "./SessionManager.js";
@@ -39,9 +28,9 @@ export type SessionPoolOptions = {
 /**
  * @since 0.0.0
  */
-export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
-  message: Schema.String,
-  maxSessions: Schema.Number,
+export class SessionPoolFullError extends S.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
+  message: S.String,
+  maxSessions: S.Number,
 }) {
   static readonly make = (params: Pick<SessionPoolFullError, "message" | "maxSessions">) =>
     new SessionPoolFullError(params);
@@ -50,11 +39,11 @@ export class SessionPoolFullError extends Schema.TaggedErrorClass<SessionPoolFul
 /**
  * @since 0.0.0
  */
-export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoolNotFoundError>()(
+export class SessionPoolNotFoundError extends S.TaggedErrorClass<SessionPoolNotFoundError>()(
   "SessionPoolNotFoundError",
   {
-    message: Schema.String,
-    sessionId: Schema.String,
+    message: S.String,
+    sessionId: S.String,
   }
 ) {
   static readonly make = (params: Pick<SessionPoolNotFoundError, "message" | "sessionId">) =>
@@ -64,11 +53,11 @@ export class SessionPoolNotFoundError extends Schema.TaggedErrorClass<SessionPoo
 /**
  * @since 0.0.0
  */
-export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<SessionPoolInvalidTenantError>()(
+export class SessionPoolInvalidTenantError extends S.TaggedErrorClass<SessionPoolInvalidTenantError>()(
   "SessionPoolInvalidTenantError",
   {
-    message: Schema.String,
-    tenant: Schema.String,
+    message: S.String,
+    tenant: S.String,
   }
 ) {
   static readonly make = (params: Pick<SessionPoolInvalidTenantError, "message" | "tenant">) =>
@@ -78,7 +67,7 @@ export class SessionPoolInvalidTenantError extends Schema.TaggedErrorClass<Sessi
 /**
  * @since 0.0.0
  */
-export const SessionPoolError = Schema.Union([
+export const SessionPoolError = S.Union([
   SessionPoolFullError,
   SessionPoolNotFoundError,
   SessionPoolInvalidTenantError,
@@ -137,8 +126,8 @@ const toInfo = (entry: SessionEntry): SessionInfo => ({
 
 const resolveOptions = (options: SessionPoolOptions, overrides?: Partial<SDKSessionOptions>): SDKSessionOptions => ({
   model: options.model,
-  ...(options.sessionOptions ?? {}),
-  ...(overrides ?? {}),
+  ...options.sessionOptions,
+  ...overrides,
 });
 
 const makeSessionPool = (options: SessionPoolOptions) =>

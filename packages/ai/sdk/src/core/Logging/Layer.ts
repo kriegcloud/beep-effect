@@ -1,7 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Logger from "effect/Logger";
-import * as References from "effect/References";
+import { Effect, Layer, Logger, References } from "effect";
 import { AgentLoggingConfig, type LogFormat } from "./Config.js";
 
 const resolveLogger = (format: LogFormat) => {

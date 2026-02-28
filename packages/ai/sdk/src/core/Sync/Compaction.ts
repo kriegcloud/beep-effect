@@ -1,6 +1,4 @@
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
+import { Clock, Duration, Effect } from "effect";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 /**

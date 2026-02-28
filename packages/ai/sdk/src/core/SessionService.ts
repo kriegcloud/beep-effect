@@ -1,7 +1,5 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as ServiceMap from "effect/ServiceMap";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import type * as Stream from "effect/Stream";
 import { makeSessionTurnDriver } from "./internal/sessionTurnDriver.js";
 import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js";
@@ -28,8 +26,8 @@ const defaultInputSource: ChatEventSource = "external";
 type SessionConfigService = ServiceMap.Service.Shape<typeof SessionConfig>;
 
 const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
-  Effect.map((configOption: Option.Option<SessionConfigService>) =>
-    Option.isNone(configOption) ? undefined : resolveTurnTimeouts(configOption.value.runtime)
+  Effect.map((configOption: O.Option<SessionConfigService>) =>
+    O.isNone(configOption) ? undefined : resolveTurnTimeouts(configOption.value.runtime)
   )
 );
 

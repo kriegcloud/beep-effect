@@ -1,5 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Effect, Layer } from "effect";
 import { QuerySupervisor } from "../QuerySupervisor.js";
 import { SandboxError } from "./SandboxError.js";
 import { type ExecResult, SandboxService } from "./SandboxService.js";

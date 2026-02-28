@@ -1,5 +1,5 @@
+import { Match } from "effect";
 import type * as LogLevel from "effect/LogLevel";
-import * as Match from "effect/Match";
 import type { QueryEvent } from "../QuerySupervisor.js";
 import type { HookInput } from "../Schema/Hooks.js";
 import type { SDKMessage } from "../Schema/Message.js";

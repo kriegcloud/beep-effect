@@ -4,13 +4,19 @@
  * @since 0.0.0
  * @module @beep/ontology/timeseries/timeseries
  */
-import { TimeDurationMapping } from "../mapping/DurationMapping.js";
+
 import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-import {LiteralKit} from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
+import { TimeDurationMapping } from "../mapping/DurationMapping.js";
 
 const $I = $OntologyId.create("timeseries/timeseries");
 
+/**
+ * Supported duration units for time-series relative queries.
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export const TimeseriesDurationUnits = LiteralKit([
   "YEARS",
   "MONTHS",

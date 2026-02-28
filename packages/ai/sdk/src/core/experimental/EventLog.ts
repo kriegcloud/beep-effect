@@ -1,5 +1,5 @@
 import { thunkEffectVoid } from "@beep/utils";
-import * as Layer from "effect/Layer";
+import { Layer } from "effect";
 import * as S from "effect/Schema";
 import * as EventGroupModule from "effect/unstable/eventlog/EventGroup";
 import * as EventJournalModule from "effect/unstable/eventlog/EventJournal";

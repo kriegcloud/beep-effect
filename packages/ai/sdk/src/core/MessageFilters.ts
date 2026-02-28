@@ -1,10 +1,4 @@
-/**
- * Type guards, stream filters, and Match utilities for SDKMessage.
- *
- * @since 0.5.0
- */
-import * as Match from "effect/Match";
-import * as Stream from "effect/Stream";
+import { Match, Stream } from "effect";
 import {
   extractResultText as extractResultText_,
   extractTextChunks as extractTextChunks_,

@@ -1,7 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Schedule from "effect/Schedule";
-import * as ServiceMap from "effect/ServiceMap";
+import { Effect, Layer, Schedule, ServiceMap } from "effect";
 import { ArtifactStore } from "./ArtifactStore.js";
 import { AuditEventStore } from "./AuditEventStore.js";
 import { ChatHistoryStore } from "./ChatHistoryStore.js";

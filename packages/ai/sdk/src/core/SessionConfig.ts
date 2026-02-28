@@ -1,11 +1,7 @@
-import * as Config from "effect/Config";
+import { Config, Effect, Layer, Redacted, ServiceMap } from "effect";
 import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Redacted from "effect/Redacted";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
@@ -52,10 +48,10 @@ export type SessionConfigSettings = {
   readonly runtime: SessionRuntimeSettings;
 };
 
-const normalizeRedacted = (value: Option.Option<Redacted.Redacted>) =>
-  Option.flatMap(value, (redacted) => {
+const normalizeRedacted = (value: O.Option<Redacted.Redacted>) =>
+  O.flatMap(value, (redacted) => {
     const normalized = Redacted.value(redacted).trim();
-    return normalized.length > 0 ? Option.some(redacted) : Option.none();
+    return normalized.length > 0 ? O.some(redacted) : O.none();
   });
 
 const parseList = (value: string) =>
@@ -64,10 +60,10 @@ const parseList = (value: string) =>
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0);
 
-const parseOptionalList = (value: Option.Option<string>) =>
-  Option.flatMap(value, (raw) => {
+const parseOptionalList = (value: O.Option<string>) =>
+  O.flatMap(value, (raw) => {
     const entries = parseList(raw);
-    return entries.length > 0 ? Option.some(entries) : Option.none();
+    return entries.length > 0 ? O.some(entries) : O.none();
   });
 
 const makeSessionConfig = Effect.gen(function* () {
@@ -77,7 +73,7 @@ const makeSessionConfig = Effect.gen(function* () {
     yield* Config.option(Config.redacted("CLAUDE_CODE_SESSION_ACCESS_TOKEN"))
   );
 
-  const executable = yield* Config.option(Config.schema(Schema.Literals(["bun", "node"]), "EXECUTABLE"));
+  const executable = yield* Config.option(Config.schema(S.Literals(["bun", "node"]), "EXECUTABLE"));
   const pathToClaudeCodeExecutable = yield* Config.option(Config.string("PATH_TO_CLAUDE_CODE_EXECUTABLE"));
   const executableArgsValue = yield* Config.option(Config.string("EXECUTABLE_ARGS"));
   const permissionMode = yield* Config.option(Config.schema(SessionPermissionMode, "PERMISSION_MODE"));
@@ -93,10 +89,10 @@ const makeSessionConfig = Effect.gen(function* () {
   const disallowedTools = parseOptionalList(disallowedToolsValue);
 
   const processEnv = yield* Effect.sync(() => process.env);
-  const resolvedApiKey = Option.isSome(apiKey) ? apiKey : apiKeyFallback;
+  const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
   const authEnvOverrides = {
-    ...(Option.isSome(resolvedApiKey) ? { ANTHROPIC_API_KEY: Redacted.value(resolvedApiKey.value) } : {}),
-    ...(Option.isSome(sessionAccessToken)
+    ...(O.isSome(resolvedApiKey) ? { ANTHROPIC_API_KEY: Redacted.value(resolvedApiKey.value) } : {}),
+    ...(O.isSome(sessionAccessToken)
       ? {
           CLAUDE_CODE_SESSION_ACCESS_TOKEN: Redacted.value(sessionAccessToken.value),
         }
@@ -104,26 +100,26 @@ const makeSessionConfig = Effect.gen(function* () {
   };
   const env = Object.keys(authEnvOverrides).length > 0 ? { ...processEnv, ...authEnvOverrides } : undefined;
 
-  if (!Option.isSome(resolvedApiKey) && !Option.isSome(sessionAccessToken)) {
+  if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();
   }
 
   const defaults: SessionDefaults = {
-    executable: Option.getOrUndefined(executable),
-    pathToClaudeCodeExecutable: Option.getOrUndefined(pathToClaudeCodeExecutable),
-    permissionMode: Option.getOrUndefined(permissionMode),
-    ...(Option.isSome(executableArgs) ? { executableArgs: executableArgs.value } : {}),
-    ...(Option.isSome(allowedTools) ? { allowedTools: allowedTools.value } : {}),
-    ...(Option.isSome(disallowedTools) ? { disallowedTools: disallowedTools.value } : {}),
+    executable: O.getOrUndefined(executable),
+    pathToClaudeCodeExecutable: O.getOrUndefined(pathToClaudeCodeExecutable),
+    permissionMode: O.getOrUndefined(permissionMode),
+    ...(O.isSome(executableArgs) ? { executableArgs: executableArgs.value } : {}),
+    ...(O.isSome(allowedTools) ? { allowedTools: allowedTools.value } : {}),
+    ...(O.isSome(disallowedTools) ? { disallowedTools: disallowedTools.value } : {}),
     ...(env !== undefined ? { env } : {}),
   };
 
   const runtime: SessionRuntimeSettings = {
-    closeDrainTimeout: Option.isSome(closeDrainTimeout)
+    closeDrainTimeout: O.isSome(closeDrainTimeout)
       ? closeDrainTimeout.value
       : defaultSessionLifecyclePolicy.closeDrainTimeout,
-    ...(Option.isSome(turnSendTimeout) ? { turnSendTimeout: turnSendTimeout.value } : {}),
-    ...(Option.isSome(turnResultTimeout) ? { turnResultTimeout: turnResultTimeout.value } : {}),
+    ...(O.isSome(turnSendTimeout) ? { turnSendTimeout: turnSendTimeout.value } : {}),
+    ...(O.isSome(turnResultTimeout) ? { turnResultTimeout: turnResultTimeout.value } : {}),
   };
 
   return { defaults, runtime } satisfies SessionConfigSettings;

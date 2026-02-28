@@ -7,10 +7,6 @@
 import type { InterfaceDefinition, InterfaceMetadata } from "./InterfaceDefinition.js";
 import type { ObjectOrInterfaceDefinition } from "./ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "./ObjectTypeDefinition.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("ontology/ObjectSpecifier");
 /**
  * Opaque object specifier value branded by compatible ontology API names.
  *

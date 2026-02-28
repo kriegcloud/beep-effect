@@ -1,6 +1,5 @@
+import { Effect, Layer } from "effect";
 import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
 
 /**

@@ -1,8 +1,6 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
-import * as ServiceMap from "effect/ServiceMap";
 import type * as Stream from "effect/Stream";
 import { ConfigError } from "./Errors.js";
 import { makeSessionTurnDriver } from "./internal/sessionTurnDriver.js";
@@ -26,7 +24,7 @@ import {
 /**
  * @since 0.0.0
  */
-export const SessionManagerError = Schema.Union([SessionError, ConfigError]);
+export const SessionManagerError = S.Union([SessionError, ConfigError]);
 
 /**
  * @since 0.0.0
@@ -40,7 +38,7 @@ export type SessionManagerErrorEncoded = typeof SessionManagerError.Encoded;
 const mergeRecord = <T>(
   base: Readonly<Record<string, T>> | undefined,
   override: Readonly<Record<string, T>> | undefined
-) => (base || override ? { ...(base ?? {}), ...(override ?? {}) } : undefined);
+) => (base || override ? { ...base, ...override } : undefined);
 
 const mergeDefaults = (defaults: SessionDefaults, options: SDKSessionOptions): SDKSessionOptions => {
   const env = mergeRecord(defaults.env, options.env);

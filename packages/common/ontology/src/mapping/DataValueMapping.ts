@@ -4,10 +4,11 @@
  * @since 0.0.0
  * @module @beep/ontology/mapping/DataValueMapping
  */
-import type { Attachment, AttachmentUpload } from "../object/Attachment.js";
-import type { MediaReference, MediaUpload } from "../object/Media.js";
+
 import { $OntologyId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import type { Attachment, AttachmentUpload } from "../object/Attachment.js";
+import type { MediaReference, MediaUpload } from "../object/Media.js";
 
 const $I = $OntologyId.create("mapping/DataValueMapping");
 /**
@@ -16,7 +17,18 @@ const $I = $OntologyId.create("mapping/DataValueMapping");
  * @since 0.0.0
  * @category models
  */
-export type AllowedBucketTypes = string | number | boolean;
+export const AllowedBucketTypes = S.Union([S.String, S.Number, S.Boolean]).annotate(
+  $I.annote("AllowedBucketTypes", {
+    description: "Allowed primitive bucket value types.",
+  })
+);
+/**
+ * Allowed primitive bucket value types. {@link AllowedBucketTypes}
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type AllowedBucketTypes = typeof AllowedBucketTypes.Type;
 
 /**
  * Allowed bucket key types used in aggregation payloads.

@@ -62,6 +62,7 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
   const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* failingPrompt() {
+    yield* [];
     throw new Error("boom");
   }
 
@@ -104,6 +105,7 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
   const { AgentSdkConfig } = await import("@beep/ai-sdk/AgentSdkConfig");
 
   async function* emptyPrompt() {
+    yield* [];
     return;
   }
 

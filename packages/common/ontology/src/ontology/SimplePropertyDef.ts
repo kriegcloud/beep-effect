@@ -7,10 +7,6 @@
 import type { GetClientPropertyValueFromWire } from "../mapping/PropertyValueMapping.js";
 import type { ObjectMetadata, PropertyDef } from "./ObjectTypeDefinition.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("ontology/SimplePropertyDef");
 /**
  * Compact property definition shorthand used by generated ontology surfaces.
  *

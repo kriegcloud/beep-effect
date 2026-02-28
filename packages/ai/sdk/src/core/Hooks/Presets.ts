@@ -1,5 +1,4 @@
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
+import { Clock, Effect } from "effect";
 import type { HookEvent, PermissionRequestHookInput } from "../Schema/Hooks.js";
 import { onPermissionRequest, onPostToolUse, onPostToolUseFailure, onPreToolUse, tap } from "./Hook.js";
 import { mergeHookMaps } from "./utils.js";

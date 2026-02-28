@@ -1,5 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Effect, Layer } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
 
 // Same storageError helper as StorageR2 (could be shared in a common file)

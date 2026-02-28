@@ -1,20 +1,22 @@
-import * as Clock from "effect/Clock";
-import * as Deferred from "effect/Deferred";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-import * as Metric from "effect/Metric";
-import * as Option from "effect/Option";
-import * as Predicate from "effect/Predicate";
-import * as PubSub from "effect/PubSub";
-import * as Queue from "effect/Queue";
-import * as Schema from "effect/Schema";
-import * as Scope from "effect/Scope";
-import * as Semaphore from "effect/Semaphore";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import {
+  Clock,
+  Deferred,
+  Duration,
+  Effect,
+  Exit,
+  Layer,
+  Metric,
+  PubSub,
+  Queue,
+  Scope,
+  Semaphore,
+  ServiceMap,
+  Stream,
+  SynchronizedRef,
+} from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { AgentSdk } from "./AgentSdk.js";
 import type { AgentSdkError } from "./Errors.js";
 import type { QueryHandle } from "./Query.js";
@@ -59,39 +61,34 @@ export const QueryPendingTimeoutError = QueryPendingTimeoutError_;
  */
 export const QueryQueueFullError = QueryQueueFullError_;
 
-const CompletionStatus = Schema.Literals(["success", "failure", "interrupted"]);
+const CompletionStatus = S.Literals(["success", "failure", "interrupted"]);
 
-const QueryQueuedEvent = Schema.TaggedStruct("QueryQueued", {
-  queryId: Schema.String,
-  submittedAt: Schema.Number,
+const QueryQueuedEvent = S.TaggedStruct("QueryQueued", {
+  queryId: S.String,
+  submittedAt: S.Number,
 });
 
-const QueryStartedEvent = Schema.TaggedStruct("QueryStarted", {
-  queryId: Schema.String,
-  startedAt: Schema.Number,
+const QueryStartedEvent = S.TaggedStruct("QueryStarted", {
+  queryId: S.String,
+  startedAt: S.Number,
 });
 
-const QueryCompletedEvent = Schema.TaggedStruct("QueryCompleted", {
-  queryId: Schema.String,
-  completedAt: Schema.Number,
+const QueryCompletedEvent = S.TaggedStruct("QueryCompleted", {
+  queryId: S.String,
+  completedAt: S.Number,
   status: CompletionStatus,
 });
 
-const QueryStartFailedEvent = Schema.TaggedStruct("QueryStartFailed", {
-  queryId: Schema.String,
-  failedAt: Schema.Number,
-  errorTag: Schema.optional(Schema.String),
+const QueryStartFailedEvent = S.TaggedStruct("QueryStartFailed", {
+  queryId: S.String,
+  failedAt: S.Number,
+  errorTag: S.optional(S.String),
 });
 
 /**
  * @since 0.0.0
  */
-export const QueryEvent = Schema.Union([
-  QueryQueuedEvent,
-  QueryStartedEvent,
-  QueryCompletedEvent,
-  QueryStartFailedEvent,
-]);
+export const QueryEvent = S.Union([QueryQueuedEvent, QueryStartedEvent, QueryCompletedEvent, QueryStartFailedEvent]);
 
 /**
  * @since 0.0.0
@@ -105,13 +102,13 @@ export type QueryEventEncoded = typeof QueryEvent.Encoded;
 /**
  * @since 0.0.0
  */
-export const QuerySupervisorStatsSchema = Schema.Struct({
-  active: Schema.Number,
-  pending: Schema.Number,
-  concurrencyLimit: Schema.Number,
-  pendingQueueCapacity: Schema.Number,
-  pendingQueueStrategy: Schema.Literals(["disabled", "suspend", "dropping", "sliding"]),
-}).pipe(Schema.annotate({ identifier: "QuerySupervisorStats" }));
+export const QuerySupervisorStatsSchema = S.Struct({
+  active: S.Number,
+  pending: S.Number,
+  concurrencyLimit: S.Number,
+  pendingQueueCapacity: S.Number,
+  pendingQueueStrategy: S.Literals(["disabled", "suspend", "dropping", "sliding"]),
+}).pipe(S.annotate({ identifier: "QuerySupervisorStats" }));
 
 /**
  * @since 0.0.0
@@ -203,7 +200,7 @@ const stripNonSerializableOptions = (options: Options): Options => {
 };
 
 const extractErrorTag = (error: unknown): string | undefined => {
-  if (Predicate.hasProperty(error, "_tag")) {
+  if (P.hasProperty(error, "_tag")) {
     const tag = error._tag;
     if (typeof tag === "string") {
       return tag;
@@ -430,7 +427,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
     options?: Options
   ): Effect.Effect<QueryHandle, AgentSdkError, Scope.Scope> =>
     Effect.flatMap(Effect.serviceOption(SandboxService), (sandboxOption) => {
-      if (Option.isSome(sandboxOption) && sandboxOption.value.isolated) {
+      if (O.isSome(sandboxOption) && sandboxOption.value.isolated) {
         if (typeof prompt !== "string") {
           return Effect.fail(
             SandboxError.make({

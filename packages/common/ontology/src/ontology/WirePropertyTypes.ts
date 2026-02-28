@@ -5,8 +5,8 @@
  * @module @beep/ontology/ontology/WirePropertyTypes
  */
 import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
-import {LiteralKit} from "@beep/schema";
 
 const $I = $OntologyId.create("ontology/WirePropertyTypes");
 
@@ -39,10 +39,10 @@ export const BaseWirePropertyTypes = LiteralKit([
   "geotimeSeriesReference",
   "vector",
 ]).annotate(
-    $I.annote("BaseWirePropertyTypes", {
-      description: "Union of scalar and complex ontology wire property type identifiers.",
-    })
-  )
+  $I.annote("BaseWirePropertyTypes", {
+    description: "Union of scalar and complex ontology wire property type identifiers.",
+  })
+);
 
 /**
  * Type for {@link BaseWirePropertyTypes}.

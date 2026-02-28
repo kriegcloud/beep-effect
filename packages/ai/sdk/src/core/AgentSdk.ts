@@ -1,9 +1,5 @@
 import { createSdkMcpServer as sdkCreateSdkMcpServer, query as sdkQuery } from "@anthropic-ai/claude-agent-sdk";
-import * as Deferred from "effect/Deferred";
-import * as Effect from "effect/Effect";
-import * as Fiber from "effect/Fiber";
-import * as Layer from "effect/Layer";
-import * as ServiceMap from "effect/ServiceMap";
+import { Deferred, Effect, Fiber, Layer, ServiceMap } from "effect";
 import { AgentSdkConfig } from "./AgentSdkConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { McpError, TransportError } from "./Errors.js";

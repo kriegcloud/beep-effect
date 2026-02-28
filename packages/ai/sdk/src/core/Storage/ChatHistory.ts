@@ -1,6 +1,5 @@
-import * as Effect from "effect/Effect";
+import { Effect, Stream } from "effect";
 import type * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
 import type { QueryHandle } from "../Query.js";
 import type { SDKMessage, SDKUserMessage } from "../Schema/Message.js";
 import type { ChatEventSource } from "../Schema/Storage.js";

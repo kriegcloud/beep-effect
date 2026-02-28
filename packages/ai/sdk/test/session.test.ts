@@ -252,6 +252,7 @@ test("Session.close waits for active stream to finish", async () => {
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }
@@ -293,6 +294,7 @@ test("Session.close respects closeDrainTimeout override", async () => {
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }
@@ -364,6 +366,7 @@ test("Session.close propagates close failures to concurrent callers", async () =
     send: async () => {},
     stream: () => {
       async function* generator() {
+        yield* [];
         streamStarted.open();
         await releaseStream.promise;
       }

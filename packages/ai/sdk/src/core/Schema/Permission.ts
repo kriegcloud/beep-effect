@@ -1,11 +1,11 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 import { withIdentifier } from "./Annotations.js";
 
 /**
  * @since 0.0.0
  */
 export const PermissionMode = withIdentifier(
-  Schema.Literals(["default", "acceptEdits", "bypassPermissions", "plan", "delegate", "dontAsk"]),
+  S.Literals(["default", "acceptEdits", "bypassPermissions", "plan", "delegate", "dontAsk"]),
   "PermissionMode"
 );
 
@@ -21,7 +21,7 @@ export type PermissionModeEncoded = typeof PermissionMode.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionBehavior = withIdentifier(Schema.Literals(["allow", "deny", "ask"]), "PermissionBehavior");
+export const PermissionBehavior = withIdentifier(S.Literals(["allow", "deny", "ask"]), "PermissionBehavior");
 
 /**
  * @since 0.0.0
@@ -36,7 +36,7 @@ export type PermissionBehaviorEncoded = typeof PermissionBehavior.Encoded;
  * @since 0.0.0
  */
 export const PermissionUpdateDestination = withIdentifier(
-  Schema.Literals(["userSettings", "projectSettings", "localSettings", "session", "cliArg"]),
+  S.Literals(["userSettings", "projectSettings", "localSettings", "session", "cliArg"]),
   "PermissionUpdateDestination"
 );
 
@@ -53,9 +53,9 @@ export type PermissionUpdateDestinationEncoded = typeof PermissionUpdateDestinat
  * @since 0.0.0
  */
 export const PermissionRuleValue = withIdentifier(
-  Schema.Struct({
-    toolName: Schema.String,
-    ruleContent: Schema.optional(Schema.String),
+  S.Struct({
+    toolName: S.String,
+    ruleContent: S.optional(S.String),
   }),
   "PermissionRuleValue"
 );
@@ -69,8 +69,8 @@ export type PermissionRuleValue = typeof PermissionRuleValue.Type;
  */
 export type PermissionRuleValueEncoded = typeof PermissionRuleValue.Encoded;
 
-const RulesPayload = Schema.Struct({
-  rules: Schema.Array(PermissionRuleValue),
+const RulesPayload = S.Struct({
+  rules: S.Array(PermissionRuleValue),
   behavior: PermissionBehavior,
   destination: PermissionUpdateDestination,
 });
@@ -79,32 +79,32 @@ const RulesPayload = Schema.Struct({
  * @since 0.0.0
  */
 export const PermissionUpdate = withIdentifier(
-  Schema.Union([
-    Schema.Struct({
-      type: Schema.Literal("addRules"),
+  S.Union([
+    S.Struct({
+      type: S.Literal("addRules"),
       ...RulesPayload.fields,
     }),
-    Schema.Struct({
-      type: Schema.Literal("replaceRules"),
+    S.Struct({
+      type: S.Literal("replaceRules"),
       ...RulesPayload.fields,
     }),
-    Schema.Struct({
-      type: Schema.Literal("removeRules"),
+    S.Struct({
+      type: S.Literal("removeRules"),
       ...RulesPayload.fields,
     }),
-    Schema.Struct({
-      type: Schema.Literal("setMode"),
+    S.Struct({
+      type: S.Literal("setMode"),
       mode: PermissionMode,
       destination: PermissionUpdateDestination,
     }),
-    Schema.Struct({
-      type: Schema.Literal("addDirectories"),
-      directories: Schema.Array(Schema.String),
+    S.Struct({
+      type: S.Literal("addDirectories"),
+      directories: S.Array(S.String),
       destination: PermissionUpdateDestination,
     }),
-    Schema.Struct({
-      type: Schema.Literal("removeDirectories"),
-      directories: Schema.Array(Schema.String),
+    S.Struct({
+      type: S.Literal("removeDirectories"),
+      directories: S.Array(S.String),
       destination: PermissionUpdateDestination,
     }),
   ]),
@@ -124,18 +124,18 @@ export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded;
  * @since 0.0.0
  */
 export const PermissionResult = withIdentifier(
-  Schema.Union([
-    Schema.Struct({
-      behavior: Schema.Literal("allow"),
-      updatedInput: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
-      updatedPermissions: Schema.optional(Schema.Array(PermissionUpdate)),
-      toolUseID: Schema.optional(Schema.String),
+  S.Union([
+    S.Struct({
+      behavior: S.Literal("allow"),
+      updatedInput: S.optional(S.Record(S.String, S.Unknown)),
+      updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+      toolUseID: S.optional(S.String),
     }),
-    Schema.Struct({
-      behavior: Schema.Literal("deny"),
-      message: Schema.String,
-      interrupt: Schema.optional(Schema.Boolean),
-      toolUseID: Schema.optional(Schema.String),
+    S.Struct({
+      behavior: S.Literal("deny"),
+      message: S.String,
+      interrupt: S.optional(S.Boolean),
+      toolUseID: S.optional(S.String),
     }),
   ]),
   "PermissionResult"
@@ -154,18 +154,18 @@ export type PermissionResultEncoded = typeof PermissionResult.Encoded;
  * @since 0.0.0
  */
 export const PermissionRequestHookSpecificOutput = withIdentifier(
-  Schema.Struct({
-    hookEventName: Schema.Literal("PermissionRequest"),
-    decision: Schema.Union([
-      Schema.Struct({
-        behavior: Schema.Literal("allow"),
-        updatedInput: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
-        updatedPermissions: Schema.optional(Schema.Array(PermissionUpdate)),
+  S.Struct({
+    hookEventName: S.Literal("PermissionRequest"),
+    decision: S.Union([
+      S.Struct({
+        behavior: S.Literal("allow"),
+        updatedInput: S.optional(S.Record(S.String, S.Unknown)),
+        updatedPermissions: S.optional(S.Array(PermissionUpdate)),
       }),
-      Schema.Struct({
-        behavior: Schema.Literal("deny"),
-        message: Schema.optional(Schema.String),
-        interrupt: Schema.optional(Schema.Boolean),
+      S.Struct({
+        behavior: S.Literal("deny"),
+        message: S.optional(S.String),
+        interrupt: S.optional(S.Boolean),
       }),
     ]),
   }),
@@ -184,7 +184,7 @@ export type PermissionRequestHookSpecificOutputEncoded = typeof PermissionReques
 /**
  * @since 0.0.0
  */
-export const CanUseTool = Schema.declare(
+export const CanUseTool = S.declare(
   (
     _: unknown
   ): _ is (

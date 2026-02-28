@@ -24,6 +24,7 @@ const makeSession = (sessionId = "session-1") => ({
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
   query: () => {
     async function* generator() {
+      yield* [];
       return;
     }
     const iterator = generator();

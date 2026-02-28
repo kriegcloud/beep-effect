@@ -1,11 +1,6 @@
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Order from "effect/Order";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { Clock, Effect, Layer, Order, ServiceMap, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { SessionMeta } from "../Schema/Storage.js";
 import { defaultIndexPageSize, defaultSessionIndexPrefix, defaultStorageDirectory } from "./defaults.js";
@@ -58,18 +53,18 @@ export type SessionIndexPage = {
 
 const storeName = "SessionIndexStore";
 
-const SessionIndexMeta = Schema.Struct({
-  pageCount: Schema.Number,
-  total: Schema.Number,
-  pageSize: Schema.Number,
-  updatedAt: Schema.Number,
+const SessionIndexMeta = S.Struct({
+  pageCount: S.Number,
+  total: S.Number,
+  pageSize: S.Number,
+  updatedAt: S.Number,
 });
 
 type SessionIndexMeta = typeof SessionIndexMeta.Type;
 
-const SessionIndexPageSchema = Schema.Struct({
-  ids: Schema.Array(Schema.String),
-  updatedAt: Schema.Number,
+const SessionIndexPageSchema = S.Struct({
+  ids: S.Array(S.String),
+  updatedAt: S.Number,
 });
 
 type SessionIndexPageData = {
@@ -87,7 +82,7 @@ const defaultDirection: SessionIndexDirection = "desc";
 
 const resolvePageSize = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  return Option.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
+  return O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
 });
 
 const normalizePageSize = (value: number) => Math.max(1, value);
@@ -143,7 +138,7 @@ const emptyState: SessionIndexState = {
  */
 export type SessionIndexStoreService = {
   readonly touch: (sessionId: string, options?: SessionIndexTouchOptions) => Effect.Effect<SessionMeta, StorageError>;
-  readonly get: (sessionId: string) => Effect.Effect<Option.Option<SessionMeta>, StorageError>;
+  readonly get: (sessionId: string) => Effect.Effect<O.Option<SessionMeta>, StorageError>;
   readonly list: (options?: SessionIndexListOptions) => Effect.Effect<ReadonlyArray<SessionMeta>, StorageError>;
   readonly listIds: () => Effect.Effect<ReadonlyArray<string>, StorageError>;
   readonly remove: (sessionId: string) => Effect.Effect<void, StorageError>;
@@ -162,7 +157,7 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
         updatedAt: options?.updatedAt ?? options?.createdAt ?? 0,
       })
     ),
-  get: () => Effect.succeed(Option.none()),
+  get: () => Effect.succeed(O.none()),
   list: () => Effect.succeed([]),
   listIds: () => Effect.succeed([]),
   remove: () => Effect.void,
@@ -201,7 +196,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
       });
 
       const get = Effect.fn("SessionIndexStore.get")((sessionId: string) =>
-        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => Option.fromNullishOr(state.meta.get(sessionId))))
+        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => O.fromNullishOr(state.meta.get(sessionId))))
       );
 
       const listIds = Effect.fn("SessionIndexStore.listIds")(() =>
@@ -211,7 +206,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
       const list = Effect.fn("SessionIndexStore.list")((options?: SessionIndexListOptions) =>
         Effect.gen(function* () {
           const config = yield* Effect.serviceOption(StorageConfig);
-          const fallbackLimit = Option.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
+          const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
           const limit = resolveListLimit(options, fallbackLimit);
           const offset = Math.max(0, options?.offset ?? 0);
           if (limit <= 0) return [];
@@ -227,7 +222,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
 
       const listPage = Effect.fn("SessionIndexStore.listPage")(function* (options?: SessionIndexListOptions) {
         const config = yield* Effect.serviceOption(StorageConfig);
-        const fallbackLimit = Option.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
+        const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
         const limit = resolveListLimit(options, fallbackLimit);
         if (limit <= 0) return { items: [] };
         const items = yield* list({ ...options, limit: limit + 1 });
@@ -281,7 +276,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const metaOption = yield* indexMetaStore
             .get(metaKey)
             .pipe(Effect.mapError((cause) => mapError("loadIndexMeta", cause)));
-          if (Option.isSome(metaOption)) {
+          if (O.isSome(metaOption)) {
             const meta = metaOption.value;
             return {
               ...meta,
@@ -304,7 +299,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           pageStore.get(pageKey(page)).pipe(
             Effect.mapError((cause) => mapError("loadPage", cause)),
             Effect.map((maybe) =>
-              Option.getOrElse(
+              O.getOrElse(
                 maybe,
                 () =>
                   ({
@@ -346,7 +341,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         const list = Effect.fn("SessionIndexStore.list")((options?: SessionIndexListOptions) =>
           Effect.gen(function* () {
             const config = yield* Effect.serviceOption(StorageConfig);
-            const fallbackLimit = Option.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
+            const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
             const limit = resolveListLimit(options, fallbackLimit);
             const offset = Math.max(0, options?.offset ?? 0);
             if (limit <= 0) return [];
@@ -356,7 +351,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
               (id) => sessionStore.get(sessionKey(id)).pipe(Effect.mapError((cause) => mapError("list", cause))),
               { discard: false }
             );
-            const resolved = metas.flatMap((meta) => (Option.isSome(meta) ? [meta.value] : []));
+            const resolved = metas.flatMap((meta) => (O.isSome(meta) ? [meta.value] : []));
             const ordered = applyOrdering(resolved, options);
             return ordered.slice(offset, offset + limit);
           })
@@ -364,7 +359,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
 
         const listPage = Effect.fn("SessionIndexStore.listPage")(function* (options?: SessionIndexListOptions) {
           const config = yield* Effect.serviceOption(StorageConfig);
-          const fallbackLimit = Option.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
+          const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
           const limit = resolveListLimit(options, fallbackLimit);
           if (limit <= 0) return { items: [] };
           const items = yield* list({ ...options, limit: limit + 1 });
@@ -390,7 +385,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const sessionOption = yield* sessionStore
             .get(sessionKey(sessionId))
             .pipe(Effect.mapError((cause) => mapError("touch", cause)));
-          const existing = Option.getOrUndefined(sessionOption);
+          const existing = O.getOrUndefined(sessionOption);
           const createdAt = existing?.createdAt ?? options?.createdAt ?? now;
           const nextSession = SessionMeta.make({
             sessionId,
@@ -460,7 +455,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
                       const lastPageOption = yield* pageStore
                         .get(pageKey(pageCount - 1))
                         .pipe(Effect.mapError((cause) => mapError("remove", cause)));
-                      if (Option.isNone(lastPageOption) || lastPageOption.value.ids.length === 0) {
+                      if (O.isNone(lastPageOption) || lastPageOption.value.ids.length === 0) {
                         yield* pageStore
                           .remove(pageKey(pageCount - 1))
                           .pipe(Effect.mapError((cause) => mapError("remove", cause)));

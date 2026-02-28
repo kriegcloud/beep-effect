@@ -1,18 +1,20 @@
 import { BunSocket } from "@effect/platform-bun";
-import * as Cause from "effect/Cause";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as FiberMap from "effect/FiberMap";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Ref from "effect/Ref";
-import * as Schedule from "effect/Schedule";
-import * as Scope from "effect/Scope";
-import * as Semaphore from "effect/Semaphore";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
-import * as SubscriptionRef from "effect/SubscriptionRef";
+import {
+  Cause,
+  Clock,
+  Duration,
+  Effect,
+  FiberMap,
+  Layer,
+  Ref,
+  Schedule,
+  Scope,
+  Semaphore,
+  ServiceMap,
+  Stream,
+  SubscriptionRef,
+} from "effect";
+import * as O from "effect/Option";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import * as EventLogEncryption from "effect/unstable/eventlog/EventLogEncryption";
 import * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote";
@@ -425,7 +427,7 @@ function makeService() {
       key: string,
       options?: SyncServiceWebSocketOptions
     ) {
-      const socket = yield* Option.match(socketOption, {
+      const socket = yield* O.match(socketOption, {
         onNone: () =>
           Effect.die(new Error("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet.")),
         onSome: (service) => Effect.succeed(service),
@@ -463,7 +465,7 @@ function makeService() {
       url: string,
       options?: SyncServiceWebSocketOptions
     ) {
-      const webSocketConstructor = yield* Option.match(webSocketConstructorOption, {
+      const webSocketConstructor = yield* O.match(webSocketConstructorOption, {
         onNone: () =>
           Effect.die(
             new Error(
@@ -475,9 +477,9 @@ function makeService() {
       const socket = yield* Socket.makeWebSocket(url, {
         protocols: options?.protocols,
       }).pipe(Effect.provideService(Socket.WebSocketConstructor, webSocketConstructor));
-      const effect = EventLogRemote.fromSocket({
-        ...(options?.disablePing !== undefined ? { disablePing: options.disablePing } : {}),
-      }).pipe(
+      const effect = EventLogRemote.fromSocket(
+        options?.disablePing !== undefined ? { disablePing: options.disablePing } : {}
+      ).pipe(
         Effect.provideService(EventLogModule.EventLog, trackedEventLog(url)),
         Effect.provideService(EventLogEncryption.EventLogEncryption, encryption),
         Effect.provideService(Socket.Socket, socket),
@@ -534,7 +536,7 @@ function makeService() {
 
     yield* Effect.gen(function* () {
       const syncConfigOption = yield* Effect.serviceOption(SyncConfig);
-      if (Option.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
+      if (O.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
         const interval = syncConfigOption.value.syncInterval;
         if (Duration.toMillis(interval) <= 0) {
           return;
@@ -543,7 +545,7 @@ function makeService() {
         return;
       }
       const config = yield* Effect.serviceOption(StorageConfig);
-      if (Option.isNone(config)) {
+      if (O.isNone(config)) {
         return;
       }
       const interval = config.value.settings.sync.interval;

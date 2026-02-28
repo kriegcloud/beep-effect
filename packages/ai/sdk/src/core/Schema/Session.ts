@@ -1,15 +1,15 @@
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 import { withIdentifier } from "./Annotations.js";
 import { HookCallbackMatcher, HookEvent } from "./Hooks.js";
 import { CanUseTool } from "./Permission.js";
 
-const HookMap = Schema.Record(HookEvent, Schema.Array(HookCallbackMatcher));
+const HookMap = S.Record(HookEvent, S.Array(HookCallbackMatcher));
 
 /**
  * @since 0.0.0
  */
 export const SessionPermissionMode = withIdentifier(
-  Schema.Literals(["default", "acceptEdits", "plan", "dontAsk"]),
+  S.Literals(["default", "acceptEdits", "plan", "dontAsk"]),
   "SessionPermissionMode"
 );
 
@@ -26,17 +26,17 @@ export type SessionPermissionModeEncoded = typeof SessionPermissionMode.Encoded;
  * @since 0.0.0
  */
 export const SDKSessionOptions = withIdentifier(
-  Schema.Struct({
-    model: Schema.String,
-    pathToClaudeCodeExecutable: Schema.optional(Schema.String),
-    executable: Schema.optional(Schema.Literals(["node", "bun"])),
-    executableArgs: Schema.optional(Schema.Array(Schema.String)),
-    env: Schema.optional(Schema.Record(Schema.String, Schema.Union([Schema.String, Schema.Undefined]))),
-    allowedTools: Schema.optional(Schema.Array(Schema.String)),
-    disallowedTools: Schema.optional(Schema.Array(Schema.String)),
-    canUseTool: Schema.optional(CanUseTool),
-    hooks: Schema.optional(HookMap),
-    permissionMode: Schema.optional(SessionPermissionMode),
+  S.Struct({
+    model: S.String,
+    pathToClaudeCodeExecutable: S.optional(S.String),
+    executable: S.optional(S.Literals(["node", "bun"])),
+    executableArgs: S.optional(S.Array(S.String)),
+    env: S.optional(S.Record(S.String, S.Union([S.String, S.Undefined]))),
+    allowedTools: S.optional(S.Array(S.String)),
+    disallowedTools: S.optional(S.Array(S.String)),
+    canUseTool: S.optional(CanUseTool),
+    hooks: S.optional(HookMap),
+    permissionMode: S.optional(SessionPermissionMode),
   }),
   "SDKSessionOptions"
 );
@@ -53,7 +53,7 @@ export type SDKSessionOptionsEncoded = typeof SDKSessionOptions.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKSession = Schema.declare((_: unknown): _ is unknown => true).annotate({
+export const SDKSession = S.declare((_: unknown): _ is unknown => true).annotate({
   identifier: "SDKSession",
   jsonSchema: {},
 });

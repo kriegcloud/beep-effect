@@ -1,11 +1,5 @@
-import * as Clock from "effect/Clock";
-import * as Deferred from "effect/Deferred";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Schedule from "effect/Schedule";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
+import { Clock, Deferred, Effect, Layer, Schedule, ServiceMap, Stream } from "effect";
+import * as O from "effect/Option";
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js";
 import type { AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
@@ -44,7 +38,7 @@ const decorateHandle = (handle: QueryHandle, settings: AgentRuntimeSettings) =>
       yield* Effect.forkScoped(
         Deferred.await(firstMessage).pipe(
           Effect.timeoutOption(settings.firstMessageTimeout),
-          Effect.flatMap((result) => (Option.isNone(result) ? handle.interrupt.pipe(Effect.ignore) : Effect.void)),
+          Effect.flatMap((result) => (O.isNone(result) ? handle.interrupt.pipe(Effect.ignore) : Effect.void)),
           Effect.asVoid
         )
       );
@@ -123,6 +117,7 @@ const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(fu
   store: ChatHistoryStoreService,
   options?: RecorderOptions
 ) {
+  yield* Effect.void;
   const sessionId = options?.sessionId;
   const outputSource = options?.source ?? "sdk";
   const inputSource = options?.inputSource ?? "external";

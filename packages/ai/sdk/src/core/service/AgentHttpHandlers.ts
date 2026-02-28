@@ -1,8 +1,6 @@
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
+import { Cause, Effect, Stream } from "effect";
+import * as O from "effect/Option";
 import type * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
@@ -75,7 +73,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
     const requirePool = <A, E, R>(
       use: (pool: SessionPoolService) => Effect.Effect<A, E, R>
     ): Effect.Effect<A, E | SessionPoolUnavailableError, R> =>
-      Option.isSome(poolOption)
+      O.isSome(poolOption)
         ? use(poolOption.value)
         : Effect.fail(
             SessionPoolUnavailableError.make({

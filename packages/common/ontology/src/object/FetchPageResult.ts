@@ -10,10 +10,6 @@ import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/Obje
 import type { SimplePropertyDef } from "../ontology/SimplePropertyDef.js";
 import type { PageResult } from "../PageResult.js";
 import type { NullabilityAdherence, ObjectSetArgs } from "./FetchPageArgs.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("object/FetchPageResult");
 /**
  * Resolve strict-nullability behavior from nullability adherence options.
  *

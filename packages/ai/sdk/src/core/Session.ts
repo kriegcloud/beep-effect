@@ -4,15 +4,9 @@ import {
   unstable_v2_prompt,
   unstable_v2_resumeSession,
 } from "@anthropic-ai/claude-agent-sdk";
-import * as Deferred from "effect/Deferred";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as Semaphore from "effect/Semaphore";
-import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { Deferred, Duration, Effect, Exit, Semaphore, Stream, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { TransportError } from "./Errors.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
 import type { SDKMessage, SDKResultMessage, SDKUserMessage } from "./Schema/Message.js";
@@ -24,8 +18,8 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
 /**
  * @since 0.0.0
  */
-export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
-  message: Schema.String,
+export class SessionClosedError extends S.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
+  message: S.String,
 }) {
   static readonly make = (message: string) => new SessionClosedError({ message });
 }
@@ -33,7 +27,7 @@ export class SessionClosedError extends Schema.TaggedErrorClass<SessionClosedErr
 /**
  * @since 0.0.0
  */
-export const SessionError = Schema.Union([SessionClosedError, TransportError]);
+export const SessionError = S.Union([SessionClosedError, TransportError]);
 
 /**
  * @since 0.0.0
@@ -280,7 +274,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
           yield* Deferred.succeed(action.idleSignal, undefined);
         }
         const idleResult = yield* Deferred.await(action.idleSignal).pipe(Effect.timeoutOption(closeDrainTimeout));
-        if (Option.isNone(idleResult)) {
+        if (O.isNone(idleResult)) {
           yield* Effect.logWarning("Session close timed out waiting for in-flight work. Forcing shutdown.");
         }
         yield* Effect.try({

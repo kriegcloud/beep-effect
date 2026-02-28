@@ -9,10 +9,7 @@ import type { Augments, FetchPageArgs, NullabilityAdherence } from "../object/Fe
 import type { FetchPageResult } from "../object/FetchPageResult.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { Experiment } from "./Experiment.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
 
-const $I = $OntologyId.create("experimental/fetchPageByRid");
 /**
  * Typed fetch-page-by-rid function.
  *

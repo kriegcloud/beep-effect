@@ -1,8 +1,6 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
-import * as ServiceMap from "effect/ServiceMap";
 import { ToolInputError, ToolNotFoundError, ToolOutputError } from "./Errors.js";
 import * as Tool from "./Tool.js";
 
@@ -114,13 +112,13 @@ const Proto = {
     this: Toolkit<Record<string, Tool.Any>>,
     build: Record<string, (params: any) => any> | Effect.Effect<Record<string, (params: any) => any>>
   ) {
-    const toolkit = this;
+    const tools = this.tools;
     return Effect.gen(function* () {
       const context = yield* Effect.services<never>();
       const handlers = Effect.isEffect(build) ? yield* build : build;
       const contextMap = new Map<string, unknown>();
       for (const [name, handler] of Object.entries(handlers)) {
-        const tool = toolkit.tools[name]!;
+        const tool = tools[name]!;
         contextMap.set(tool.id, { handler, context });
       }
       return ServiceMap.makeUnsafe(contextMap);
@@ -133,18 +131,17 @@ const Proto = {
     return Layer.unwrap(this.toContext(build).pipe(Effect.map((context) => Layer.succeedServices(context))));
   },
   commit(this: Toolkit<Record<string, Tool.Any>>) {
-    const toolkit = this;
+    const tools = this.tools;
     return Effect.gen(function* () {
-      const tools = toolkit.tools;
       const context = yield* Effect.services<never>();
       const schemasCache = new WeakMap<
         any,
         {
           readonly context: ServiceMap.ServiceMap<never>;
           readonly handler: (params: any) => Effect.Effect<any, any, any>;
-          readonly decodeParameters: (u: unknown) => Effect.Effect<Tool.Parameters<any>, Schema.SchemaError>;
-          readonly validateResult: (u: unknown) => Effect.Effect<unknown, Schema.SchemaError>;
-          readonly encodeResult: (u: unknown) => Effect.Effect<unknown, Schema.SchemaError>;
+          readonly decodeParameters: (u: unknown) => Effect.Effect<Tool.Parameters<any>, S.SchemaError>;
+          readonly validateResult: (u: unknown) => Effect.Effect<unknown, S.SchemaError>;
+          readonly encodeResult: (u: unknown) => Effect.Effect<unknown, S.SchemaError>;
         }
       >();
       const getSchemas = (tool: Tool.Any) => {
@@ -158,10 +155,10 @@ const Proto = {
             readonly handler: (params: any) => Effect.Effect<any, any, any>;
             readonly context: ServiceMap.ServiceMap<never>;
           };
-          const decodeParameters = Schema.decodeUnknownEffect(tool.parametersSchema) as any;
-          const resultSchema = Schema.Union([tool.successSchema, tool.failureSchema]);
-          const validateResult = Schema.decodeUnknownEffect(resultSchema) as any;
-          const encodeResult = Schema.encodeUnknownEffect(resultSchema) as any;
+          const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema) as any;
+          const resultSchema = S.Union([tool.successSchema, tool.failureSchema]);
+          const validateResult = S.decodeUnknownEffect(resultSchema) as any;
+          const encodeResult = S.encodeUnknownEffect(resultSchema) as any;
           schemas = {
             context: handler.context,
             handler: handler.handler,
@@ -202,7 +199,7 @@ const Proto = {
             Effect.tap(({ result }) => schemas.validateResult(result)),
             Effect.provideServices(schemas.context),
             Effect.mapError((cause) =>
-              Schema.isSchemaError(cause)
+              S.isSchemaError(cause)
                 ? ToolOutputError.make({
                     name,
                     message: `Failed to validate result for tool '${name}'`,

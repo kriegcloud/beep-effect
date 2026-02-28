@@ -1,7 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Ref from "effect/Ref";
-import * as Stream from "effect/Stream";
+import { Effect, Layer, Ref, Stream } from "effect";
 import { defaultCloudflareLifecyclePolicy } from "../internal/lifecyclePolicy.js";
 import { decodeNdjson } from "../internal/ndjson.js";
 import { SDKMessage as SDKMessageSchema } from "../Schema/Message.js";
@@ -162,7 +159,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
               CLAUDE_CODE_SESSION_ACCESS_TOKEN: options.sessionAccessToken,
             }
           : {}),
-        ...(options.envVars ?? {}),
+        ...options.envVars,
       };
 
       // Set auth + runtime env vars in the sandbox once during layer startup.

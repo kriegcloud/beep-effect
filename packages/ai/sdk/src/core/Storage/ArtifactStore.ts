@@ -1,11 +1,6 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as ServiceMap from "effect/ServiceMap";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { Clock, Duration, Effect, Layer, ServiceMap, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { ArtifactRecord } from "../Schema/Storage.js";
 import type { ConflictPolicy } from "../Sync/index.js";
@@ -54,7 +49,7 @@ type ArtifactState = {
 
 type ArtifactStoreService = {
   readonly put: (record: ArtifactRecord) => Effect.Effect<void, StorageError>;
-  readonly get: (id: string) => Effect.Effect<Option.Option<ArtifactRecord>, StorageError>;
+  readonly get: (id: string) => Effect.Effect<O.Option<ArtifactRecord>, StorageError>;
   readonly list: (
     sessionId: string,
     options?: ArtifactListOptions
@@ -71,12 +66,12 @@ const emptyState: ArtifactState = {
 
 const resolveEnabled = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  return Option.isNone(config) ? true : config.value.settings.enabled.artifacts;
+  return O.isNone(config) ? true : config.value.settings.enabled.artifacts;
 });
 
 const resolveRetention = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  if (Option.isNone(config)) return undefined;
+  if (O.isNone(config)) return undefined;
   const retention = config.value.settings.retention.artifacts;
   return {
     maxArtifacts: retention.maxArtifacts,
@@ -161,14 +156,14 @@ const applyRetention = (
 const touchSessionIndex = (sessionId: string, timestamp: number) =>
   Effect.gen(function* () {
     const storeOption = yield* Effect.serviceOption(SessionIndexStore);
-    if (Option.isNone(storeOption)) return;
+    if (O.isNone(storeOption)) return;
     yield* storeOption.value.touch(sessionId, { updatedAt: timestamp }).pipe(Effect.asVoid);
   }).pipe(Effect.catch(() => Effect.void));
 
 const removeSessionIndex = (sessionId: string) =>
   Effect.gen(function* () {
     const storeOption = yield* Effect.serviceOption(SessionIndexStore);
-    if (Option.isNone(storeOption)) return;
+    if (O.isNone(storeOption)) return;
     yield* storeOption.value.remove(sessionId).pipe(Effect.asVoid);
   }).pipe(Effect.catch(() => Effect.void));
 
@@ -196,7 +191,7 @@ const makeMemoryStore = Effect.gen(function* () {
   );
 
   const get = Effect.fn("ArtifactStore.get")((id: string) =>
-    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => Option.fromNullishOr(state.byId.get(id))))
+    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => O.fromNullishOr(state.byId.get(id))))
   );
 
   const list = Effect.fn("ArtifactStore.list")((sessionId: string, options?: ArtifactListOptions) =>

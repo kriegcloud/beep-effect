@@ -12,6 +12,7 @@ let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
 
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {
   async function* generator() {
+    yield* [];
     return;
   }
 

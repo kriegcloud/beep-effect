@@ -1,4 +1,4 @@
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
 import type { QueryEvent } from "../QuerySupervisor.js";
 import type { HookInput } from "../Schema/Hooks.js";
 import type { SDKMessage } from "../Schema/Message.js";

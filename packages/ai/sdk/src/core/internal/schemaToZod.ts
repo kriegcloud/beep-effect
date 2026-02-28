@@ -1,5 +1,5 @@
-import type * as Schema from "effect/Schema";
-import * as AST from "effect/SchemaAST";
+import { SchemaAST as AST } from "effect";
+import type * as S from "effect/Schema";
 import { z } from "zod";
 
 const unsupported = (message: string, path: ReadonlyArray<string>): never => {
@@ -120,12 +120,12 @@ const compile = (ast: AST.AST, path: ReadonlyArray<string>): z.ZodTypeAny => {
 /**
  * @since 0.0.0
  */
-export const schemaToZod = (schema: Schema.Top): z.ZodTypeAny => compile(schema.ast, []);
+export const schemaToZod = (schema: S.Top): z.ZodTypeAny => compile(schema.ast, []);
 
 /**
  * @since 0.0.0
  */
-export const schemaToZodObject = (schema: Schema.Top): z.ZodObject<any> => {
+export const schemaToZodObject = (schema: S.Top): z.ZodObject<any> => {
   const compiled = schemaToZod(schema);
   if (compiled instanceof z.ZodObject) {
     return compiled;

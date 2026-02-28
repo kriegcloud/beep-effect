@@ -5,6 +5,7 @@
  * @module @beep/ontology/ontology/ObjectTypeDefinition
  */
 import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "./ObjectOrInterface.js";
@@ -12,7 +13,6 @@ import type { PrimaryKeyTypes } from "./PrimaryKeyTypes.js";
 import type { VersionString } from "./VersionString.js";
 import type { PropertyValueFormattingRule } from "./valueFormatting/PropertyValueFormattingRule.js";
 import type { WirePropertyTypes } from "./WirePropertyTypes.js";
-import {LiteralKit} from "@beep/schema";
 
 const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
 

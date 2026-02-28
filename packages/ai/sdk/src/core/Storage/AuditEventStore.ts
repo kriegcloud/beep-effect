@@ -1,8 +1,5 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-
-import * as ServiceMap from "effect/ServiceMap";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -76,7 +73,7 @@ const mapError = (operation: string, cause: unknown) => toStorageError(storeName
 
 const resolveEnabled = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  return Option.isNone(config) ? true : config.value.settings.enabled.auditLog;
+  return O.isNone(config) ? true : config.value.settings.enabled.auditLog;
 });
 
 const resolveAuditKeys = (options?: {
@@ -95,7 +92,7 @@ const auditEventTags = ["tool_use", "permission_decision", "hook_event", "sync_c
 const layerAuditJournalCompaction = Layer.effectDiscard(
   Effect.gen(function* () {
     const config = yield* Effect.serviceOption(StorageConfig);
-    if (Option.isNone(config)) return;
+    if (O.isNone(config)) return;
     const retention = config.value.settings.retention.audit;
     const strategies: Array<CompactionStrategy> = [];
     strategies.push(Compaction.byAge(retention.maxAge));

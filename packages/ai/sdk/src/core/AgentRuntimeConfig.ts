@@ -1,9 +1,5 @@
-import { ServiceMap } from "effect";
-import * as Config from "effect/Config";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
+import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { mergeOptions } from "./internal/options.js";
 import type { Options } from "./Schema/Options.js";
@@ -51,13 +47,13 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 
   const settings: AgentRuntimeSettings = {
     defaultOptions: defaultSettings.defaultOptions,
-    queryTimeout: Option.getOrElse(queryTimeout, () => defaultSettings.queryTimeout),
-    firstMessageTimeout: Option.getOrElse(firstMessageTimeout, () => defaultSettings.firstMessageTimeout),
+    queryTimeout: O.getOrElse(queryTimeout, () => defaultSettings.queryTimeout),
+    firstMessageTimeout: O.getOrElse(firstMessageTimeout, () => defaultSettings.firstMessageTimeout),
     retryMaxRetries: Math.max(
       0,
-      Option.getOrElse(retryMaxRetries, () => defaultSettings.retryMaxRetries)
+      O.getOrElse(retryMaxRetries, () => defaultSettings.retryMaxRetries)
     ),
-    retryBaseDelay: Option.getOrElse(retryBaseDelay, () => defaultSettings.retryBaseDelay),
+    retryBaseDelay: O.getOrElse(retryBaseDelay, () => defaultSettings.retryBaseDelay),
   };
 
   return { settings };

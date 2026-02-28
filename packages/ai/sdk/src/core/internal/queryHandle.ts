@@ -1,7 +1,6 @@
 import type { McpServerConfig as SdkMcpServerConfig, Query as SdkQuery } from "@anthropic-ai/claude-agent-sdk";
-import * as Effect from "effect/Effect";
-import * as Schema from "effect/Schema";
-import * as Stream from "effect/Stream";
+import { Effect, Stream } from "effect";
+import * as S from "effect/Schema";
 import type { AgentSdkError } from "../Errors.js";
 import { TransportError } from "../Errors.js";
 import type { QueryHandle, StreamBroadcastConfig, StreamShareConfig } from "../Query.js";
@@ -34,7 +33,7 @@ export const makeQueryHandle = (
   closeInput: Effect.Effect<void, AgentSdkError> = Effect.void,
   failureSignal?: Effect.Effect<never, AgentSdkError>
 ): QueryHandle => {
-  const decodeSdkMessage = Schema.decodeUnknownEffect(SDKMessageSchema);
+  const decodeSdkMessage = S.decodeUnknownEffect(SDKMessageSchema);
   const baseStream = Stream.fromAsyncIterable(sdkQueryInstance, (cause) =>
     toTransportError("SDK query stream failed", cause)
   ).pipe(

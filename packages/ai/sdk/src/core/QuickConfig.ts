@@ -1,7 +1,5 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
-import * as Duration from "effect/Duration";
-import * as Layer from "effect/Layer";
-import * as ManagedRuntime from "effect/ManagedRuntime";
+import { Duration, Layer, ManagedRuntime } from "effect";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";
 import { AgentRuntimeConfig } from "./AgentRuntimeConfig.js";
 import { AgentSdk } from "./AgentSdk.js";

@@ -19,6 +19,12 @@ export const DistinctWithPropAggregateOption = LiteralKit(["approximateDistinct"
     description: "Distinct aggregate options for with-properties aggregations.",
   })
 );
+/**
+ * Distinct aggregate options for with-properties aggregations. {@link DistinctWithPropAggregateOption}
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export type DistinctWithPropAggregateOption = typeof DistinctWithPropAggregateOption.Type;
 
 /**
@@ -46,7 +52,22 @@ export type CollectWithPropAggregations = typeof CollectWithPropAggregations.Typ
  * @since 0.0.0
  * @category models
  */
-export type BaseWithPropAggregations = DistinctWithPropAggregateOption | CollectWithPropAggregations;
+export const BaseWithPropAggregations = LiteralKit([
+  ...DistinctWithPropAggregateOption.Options,
+  ...CollectWithPropAggregations.Options,
+]).annotate(
+  $I.annote("BaseWithPropAggregations", {
+    description: "Base aggregate options for with-properties aggregations.",
+  })
+);
+
+/**
+ * Base aggregate options that all supported with-properties types can use. {@link BaseWithPropAggregations}
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BaseWithPropAggregations = typeof BaseWithPropAggregations.Type;
 
 /**
  * Min/max aggregate options.
@@ -61,13 +82,11 @@ export const MinMaxWithPropAggregateOption = LiteralKit(["min", "max"]).annotate
 );
 
 /**
- *
- *
+ * Min/max aggregate options. {@link MinMaxWithPropAggregateOption}
  * @since 0.0.0
  * @category models
  */
 export type MinMaxWithPropAggregateOption = typeof MinMaxWithPropAggregateOption.Type;
-
 
 /**
  * Datetime/timestamp with-properties aggregate options.
@@ -75,7 +94,21 @@ export type MinMaxWithPropAggregateOption = typeof MinMaxWithPropAggregateOption
  * @since 0.0.0
  * @category models
  */
-export type DatetimeWithPropAggregateOption = MinMaxWithPropAggregateOption | BaseWithPropAggregations;
+export const DatetimeWithPropAggregateOption = LiteralKit([
+  ...MinMaxWithPropAggregateOption.Options,
+  ...BaseWithPropAggregations.Options,
+]).annotate(
+  $I.annote("DatetimeWithPropAggregateOption", {
+    description: "Datetime/timestamp aggregate options for with-properties aggregations.",
+  })
+);
+
+/**
+ * Datetime/timestamp with-properties aggregate options. {@link DatetimeWithPropAggregateOption}
+ * @since 0.0.0
+ * @category models
+ */
+export type DatetimeWithPropAggregateOption = typeof DatetimeWithPropAggregateOption.Type;
 
 /**
  * Numeric with-properties aggregate options.
@@ -83,12 +116,24 @@ export type DatetimeWithPropAggregateOption = MinMaxWithPropAggregateOption | Ba
  * @since 0.0.0
  * @category models
  */
-export type NumericWithPropAggregateOption =
-  | "sum"
-  | "avg"
-  | "approximatePercentile"
-  | MinMaxWithPropAggregateOption
-  | BaseWithPropAggregations;
+export const NumericWithPropAggregateOption = LiteralKit([
+  "sum",
+  "avg",
+  "approximatePercentile",
+  ...MinMaxWithPropAggregateOption.Options,
+  ...BaseWithPropAggregations.Options,
+]).annotate(
+  $I.annote("NumericWithPropAggregateOption", {
+    description: "Numeric aggregate options for with-properties aggregations.",
+  })
+);
+
+/**
+ * Numeric with-properties aggregate options. {@link NumericWithPropAggregateOption}
+ * @since 0.0.0
+ * @category models
+ */
+export type NumericWithPropAggregateOption = typeof NumericWithPropAggregateOption.Type;
 
 /**
  * Special wire types that support collect operations.
@@ -96,4 +141,19 @@ export type NumericWithPropAggregateOption =
  * @since 0.0.0
  * @category models
  */
-export type ValidCollectPropertyKeysForSpecialTypes = "attachment" | "geopoint" | "geoshape" | "boolean";
+export const ValidCollectPropertyKeysForSpecialTypes = LiteralKit([
+  "attachment",
+  "geopoint",
+  "geoshape",
+  "boolean",
+]).annotate(
+  $I.annote("ValidCollectPropertyKeysForSpecialTypes", {
+    description: "Special wire types that support collect operations.",
+  })
+);
+/**
+ * Special wire types that support collect operations. {@link ValidCollectPropertyKeysForSpecialTypes}
+ * @since 0.0.0
+ * @category models
+ */
+export type ValidCollectPropertyKeysForSpecialTypes = typeof ValidCollectPropertyKeysForSpecialTypes.Type;

@@ -10,10 +10,6 @@ import type {
   AggregationRangeKeyTypes,
   AggregationValueTypes,
 } from "../ontology/QueryDefinition.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("queries/Aggregations");
 /**
  * Range bucket helper used by query aggregations.
  *

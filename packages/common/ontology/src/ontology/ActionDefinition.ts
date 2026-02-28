@@ -7,10 +7,6 @@
 import type { OsdkMetadata } from "../OsdkMetadata.js";
 import type { InterfaceDefinition } from "./InterfaceDefinition.js";
 import type { ObjectTypeDefinition, ReleaseStatus } from "./ObjectTypeDefinition.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("ontology/ActionDefinition");
 /**
  * Metadata carried by ontology action definitions.
  *

@@ -8,6 +8,7 @@ import type { OsdkObjectPropertyType } from "../definitions.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { OrderedAggregationClause, UnorderedAggregationClause } from "./AggregationsClause.js";
+
 type ExtractPropName<T extends string> = T extends `${infer PropName}:${string}`
   ? PropName
   : T extends "$count"

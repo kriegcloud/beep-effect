@@ -5,6 +5,7 @@
  * @module @beep/ontology/aggregate/ArrayFilter
  */
 import type { Just } from "./Just.js";
+
 interface ArrayFilterOptions<T> {
   $contains: T;
   $isNull: boolean;

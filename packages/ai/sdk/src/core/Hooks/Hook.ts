@@ -1,5 +1,4 @@
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
+import { Duration, Effect } from "effect";
 import { HookError } from "../Errors.js";
 import type {
   HookCallback,

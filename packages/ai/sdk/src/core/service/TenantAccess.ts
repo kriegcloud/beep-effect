@@ -1,6 +1,6 @@
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
+import { Effect } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Headers from "effect/unstable/http/Headers";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 
@@ -10,12 +10,12 @@ const callerTenantHeader = "x-agent-tenant";
 /**
  * @since 0.0.0
  */
-export class SessionTenantAccessError extends Schema.TaggedErrorClass<SessionTenantAccessError>()(
+export class SessionTenantAccessError extends S.TaggedErrorClass<SessionTenantAccessError>()(
   "SessionTenantAccessError",
   {
-    message: Schema.String,
-    requestedTenant: Schema.optional(Schema.String),
-    callerTenant: Schema.optional(Schema.String),
+    message: S.String,
+    requestedTenant: S.optional(S.String),
+    callerTenant: S.optional(S.String),
   }
 ) {
   static readonly make = (params: Pick<SessionTenantAccessError, "message" | "requestedTenant" | "callerTenant">) =>
@@ -46,7 +46,7 @@ export const resolveRequestTenant = (requestedTenant?: string) =>
   Effect.gen(function* () {
     const requestOption = yield* Effect.serviceOption(HttpServerRequest.HttpServerRequest);
     const requested = normalizeTenant(requestedTenant);
-    const caller = Option.isSome(requestOption)
+    const caller = O.isSome(requestOption)
       ? normalizeTenant(Headers.get(requestOption.value.headers, callerTenantHeader))
       : undefined;
 

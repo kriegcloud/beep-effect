@@ -1,6 +1,6 @@
 import { createSdkMcpServer as sdkCreateSdkMcpServer, tool as sdkTool } from "@anthropic-ai/claude-agent-sdk";
-import * as Effect from "effect/Effect";
-import * as Schema from "effect/Schema";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import type { ZodRawShape, z } from "zod";
 import { McpError } from "../Errors.js";
@@ -124,7 +124,7 @@ export type McpToolInputSchema = ZodRawShape | z.ZodTypeAny;
 /**
  * @since 0.0.0
  */
-export type McpToolOptions<ParametersSchema extends Schema.Top & { readonly DecodingServices: never }, R, E> = {
+export type McpToolOptions<ParametersSchema extends S.Top & { readonly DecodingServices: never }, R, E> = {
   readonly name: string;
   readonly description: string;
   readonly parameters: ParametersSchema;
@@ -259,7 +259,7 @@ const defaultRenderError: ToolErrorRenderer = (_tool, error) => makeCallToolResu
 /**
  * @since 0.0.0
  */
-export const tool = <ParametersSchema extends Schema.Top & { readonly DecodingServices: never }, R, E>(
+export const tool = <ParametersSchema extends S.Top & { readonly DecodingServices: never }, R, E>(
   options: McpToolOptions<ParametersSchema, R, E>
 ): Effect.Effect<ReturnType<typeof sdkTool>, McpError, R> =>
   Effect.gen(function* () {
@@ -284,7 +284,7 @@ export const tool = <ParametersSchema extends Schema.Top & { readonly DecodingSe
           cause,
         }),
     });
-    const decodeParams = Schema.decodeUnknownEffect(options.parameters);
+    const decodeParams = S.decodeUnknownEffect(options.parameters);
     const handler = (args: unknown, extra: unknown) => {
       const signal = getSignalFromExtra(extra);
       const effect = decodeParams(args).pipe(

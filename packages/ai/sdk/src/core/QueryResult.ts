@@ -1,6 +1,5 @@
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Stream from "effect/Stream";
+import { Effect, Stream } from "effect";
+import * as O from "effect/Option";
 import { DecodeError } from "./Errors.js";
 import type { SDKMessage, SDKResultMessage, SDKResultSuccess } from "./Schema/Message.js";
 
@@ -20,7 +19,7 @@ export const collectResultMessage = <E>(stream: Stream.Stream<SDKMessage, E>) =>
 export const collectResultSuccess = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   collectResultMessage(stream).pipe(
     Effect.flatMap((result) => {
-      if (Option.isNone(result)) {
+      if (O.isNone(result)) {
         return Effect.fail(
           DecodeError.make({
             message: "SDK stream ended without a result message",

@@ -1,10 +1,7 @@
-import * as Config from "effect/Config";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Config, Effect, Layer, ServiceMap } from "effect";
 import type * as LogLevel from "effect/LogLevel";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { ConfigError } from "../Errors.js";
 import { layerConfigFromEnv } from "../internal/config.js";
 import type { AgentLogCategory } from "./Types.js";
@@ -12,7 +9,7 @@ import type { AgentLogCategory } from "./Types.js";
 /**
  * @since 0.0.0
  */
-export const LogFormat = Schema.Literals(["pretty", "structured", "json", "logfmt", "string"]);
+export const LogFormat = S.Literals(["pretty", "structured", "json", "logfmt", "string"]);
 
 /**
  * @since 0.0.0
@@ -47,7 +44,7 @@ const defaultSettings: AgentLoggingSettings = {
 
 const parseLogFormat = (value: string) => {
   const normalized = value.trim().toLowerCase();
-  return Schema.decodeUnknownEffect(LogFormat)(normalized).pipe(
+  return S.decodeUnknownEffect(LogFormat)(normalized).pipe(
     Effect.mapError((cause) =>
       ConfigError.make({
         message: `Invalid log format: ${value}`,
@@ -115,19 +112,17 @@ export class AgentLoggingConfig extends ServiceMap.Service<
       const logQueryEvents = yield* Config.option(Config.boolean("LOG_QUERY_EVENTS"));
       const logHooks = yield* Config.option(Config.boolean("LOG_HOOKS"));
 
-      const resolvedFormat = Option.isSome(format) ? yield* parseLogFormat(format.value) : defaultSettings.format;
-      const resolvedMinLevel = Option.isSome(minLevel)
-        ? yield* parseLogLevel(minLevel.value)
-        : defaultSettings.minLevel;
+      const resolvedFormat = O.isSome(format) ? yield* parseLogFormat(format.value) : defaultSettings.format;
+      const resolvedMinLevel = O.isSome(minLevel) ? yield* parseLogLevel(minLevel.value) : defaultSettings.minLevel;
 
       const settings: AgentLoggingSettings = {
         format: resolvedFormat,
         minLevel: resolvedMinLevel,
-        includeSpans: Option.getOrElse(includeSpans, () => defaultSettings.includeSpans),
+        includeSpans: O.getOrElse(includeSpans, () => defaultSettings.includeSpans),
         categories: {
-          messages: Option.getOrElse(logMessages, () => defaultSettings.categories.messages),
-          queryEvents: Option.getOrElse(logQueryEvents, () => defaultSettings.categories.queryEvents),
-          hooks: Option.getOrElse(logHooks, () => defaultSettings.categories.hooks),
+          messages: O.getOrElse(logMessages, () => defaultSettings.categories.messages),
+          queryEvents: O.getOrElse(logQueryEvents, () => defaultSettings.categories.queryEvents),
+          hooks: O.getOrElse(logHooks, () => defaultSettings.categories.hooks),
         },
       };
 

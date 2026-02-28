@@ -1,7 +1,5 @@
-import * as Clock from "effect/Clock";
+import { Clock, Effect, Ref } from "effect";
 import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Ref from "effect/Ref";
 import type * as ServiceMap from "effect/ServiceMap";
 import { HookError } from "../Errors.js";
 import type { HookCallback, HookEvent, HookInput, HookJSONOutput } from "../Schema/Hooks.js";

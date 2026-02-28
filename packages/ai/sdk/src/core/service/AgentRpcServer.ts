@@ -1,5 +1,5 @@
 import { BunHttpServer } from "@effect/platform-bun";
-import * as Layer from "effect/Layer";
+import { Layer } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { layer as AgentRpcHandlers } from "./AgentRpcHandlers.js";

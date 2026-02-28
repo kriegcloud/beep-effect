@@ -6,7 +6,7 @@
  */
 
 import { $OntologyId } from "@beep/identity/packages";
-import {LiteralKit} from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { SimplePropertyDef } from "../ontology/SimplePropertyDef.js";
@@ -15,32 +15,43 @@ import type { DerivedProperty } from "./DerivedProperty.js";
 
 const $I = $OntologyId.create("derivedProperties/Expressions");
 
-export const WithPropertiesNumerics = LiteralKit(
-  [
-    "integer",
-    "double",
-    "float",
-    "short",
-    "long"
-  ]
-).annotate(
+/**
+ * Numeric wire types supported by with-properties expressions.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const WithPropertiesNumerics = LiteralKit(["integer", "double", "float", "short", "long"]).annotate(
   $I.annote("WithPropertiesNumerics", {
-    description: "Numeric types supported for derived properties with properties aggregation"
+    description: "Numeric types supported for derived properties with properties aggregation",
   })
-)
+);
+/**
+ * Numeric wire types supported by with-properties expressions. {@link WithPropertiesNumerics}
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export type WithPropertiesNumerics = typeof WithPropertiesNumerics.Type;
 
-export const WithPropertiesDatetime = LiteralKit(
-  [
-    "datetime",
-    "timestamp"
-  ]
-).annotate(
+/**
+ * Datetime wire types supported by with-properties expressions.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const WithPropertiesDatetime = LiteralKit(["datetime", "timestamp"]).annotate(
   $I.annote("WithPropertiesDatetime", {
-    description: "Datetime types supported for derived properties with properties aggregation"
+    description: "Datetime types supported for derived properties with properties aggregation",
   })
-)
-export type WithPropertiesDatetime = typeof WithPropertiesNumerics.Type;
+);
+/**
+ * Datetime wire types supported by with-properties expressions. {@link WithPropertiesDatetime}
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type WithPropertiesDatetime = typeof WithPropertiesDatetime.Type;
 
 /**
  * Resolve the derived-property definition flavor for a property type.

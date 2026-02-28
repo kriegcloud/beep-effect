@@ -13,10 +13,9 @@ import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
 import { runEffect } from "./effect-test.js";
 
-let sdkQueryHandler: ((prompt: unknown) => unknown) | undefined;
-
 const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) => {
   async function* generator() {
+    yield* [];
     return;
   }
 
@@ -36,7 +35,7 @@ const makeSdkQuery = (options?: { readonly interrupt?: () => Promise<void> }) =>
 };
 
 vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
-  query: ({ prompt }: { prompt: unknown }) => (sdkQueryHandler ? sdkQueryHandler(prompt) : makeSdkQuery()),
+  query: () => makeSdkQuery(),
   createSdkMcpServer: (_options: unknown) => ({}),
   tool: (
     name: string,

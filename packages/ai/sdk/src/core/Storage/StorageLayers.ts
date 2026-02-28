@@ -1,8 +1,7 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import { Effect, Layer } from "effect";
 import type * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
 import type * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
 import type * as Path from "effect/Path";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { ConflictPolicy } from "../Sync/index.js";
@@ -150,33 +149,33 @@ const resolveLayers = (
   const journaled = mode === "journaled";
   const chatOptions = journaled
     ? {
-        ...(directory ?? {}),
+        ...directory,
         prefix: tenantScope.chatPrefix,
         journalKey: tenantScope.chatJournalKey,
         identityKey: tenantScope.chatIdentityKey,
       }
     : {
-        ...(directory ?? {}),
+        ...directory,
         prefix: tenantScope.chatPrefix,
       };
   const artifactOptions = journaled
     ? {
-        ...(directory ?? {}),
+        ...directory,
         prefix: tenantScope.artifactPrefix,
         journalKey: tenantScope.artifactJournalKey,
         identityKey: tenantScope.artifactIdentityKey,
       }
     : {
-        ...(directory ?? {}),
+        ...directory,
         prefix: tenantScope.artifactPrefix,
       };
   const auditOptions = {
-    ...(directory ?? {}),
+    ...directory,
     journalKey: tenantScope.auditJournalKey,
     identityKey: tenantScope.auditIdentityKey,
   };
   const sessionOptions = {
-    ...(directory ?? {}),
+    ...directory,
     prefix: tenantScope.sessionIndexPrefix,
   };
   return {

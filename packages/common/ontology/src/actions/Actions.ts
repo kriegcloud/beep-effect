@@ -12,10 +12,6 @@ import type { InterfaceDefinition } from "../ontology/InterfaceDefinition.js";
 import type { CompileTimeMetadata, ObjectTypeDefinition } from "../ontology/ObjectTypeDefinition.js";
 import type { ActionResults, ValidateActionResponseV2 } from "./ActionResults.js";
 import type { NULL_VALUE } from "./NullValue.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("actions/Actions");
 /**
  * Apply-action options for single action execution.
  *

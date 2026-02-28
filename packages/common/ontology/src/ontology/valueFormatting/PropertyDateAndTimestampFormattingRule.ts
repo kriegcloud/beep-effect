@@ -17,13 +17,13 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyDateAndTimestamp
  * @category schemas
  */
 export const DatetimeLocalizedFormatType = S.Literals([
- "DATE_FORMAT_RELATIVE_TO_NOW",
-"DATE_FORMAT_DATE",
-"DATE_FORMAT_YEAR_AND_MONTH",
-"DATE_FORMAT_DATE_TIME",
-"DATE_FORMAT_DATE_TIME_SHORT",
-"DATE_FORMAT_TIME",
-"DATE_FORMAT_ISO_INSTANT",
+  "DATE_FORMAT_RELATIVE_TO_NOW",
+  "DATE_FORMAT_DATE",
+  "DATE_FORMAT_YEAR_AND_MONTH",
+  "DATE_FORMAT_DATE_TIME",
+  "DATE_FORMAT_DATE_TIME_SHORT",
+  "DATE_FORMAT_TIME",
+  "DATE_FORMAT_ISO_INSTANT",
 ]).pipe(
   S.annotate(
     $I.annote("DatetimeLocalizedFormatType", {

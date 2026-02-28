@@ -4,13 +4,13 @@
  * @since 0.0.0
  * @module @beep/ontology/aggregate/AggregatableKeys
  */
+
+import { $OntologyId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import type { GetWirePropertyValueFromClient } from "../mapping/PropertyValueMapping.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { WirePropertyTypes } from "../ontology/WirePropertyTypes.js";
-import { $OntologyId } from "@beep/identity/packages";
-import {LiteralKit} from "@beep/schema";
-
 
 const $I = $OntologyId.create("aggregate/AggregatableKeys");
 /**
@@ -19,19 +19,11 @@ const $I = $OntologyId.create("aggregate/AggregatableKeys");
  * @since 0.0.0
  * @category models
  */
-export const BaseAggregateOptions = LiteralKit(
-  [
-    "approximateDistinct",
-    "exactDistinct"
-  ]
-).annotate(
-  $I.annote(
-    "BaseAggregateOptions",
-    {
-      description: "Core non-ordering aggregate metric options."
-    }
-  )
-)
+export const BaseAggregateOptions = LiteralKit(["approximateDistinct", "exactDistinct"]).annotate(
+  $I.annote("BaseAggregateOptions", {
+    description: "Core non-ordering aggregate metric options.",
+  })
+);
 
 /**
  * Defines the base options for aggregate operations.
@@ -42,7 +34,7 @@ export const BaseAggregateOptions = LiteralKit(
  * aggregation behaviors, depending on the requirements of the operation.
  *
  * Note: This type is derived from the static type `BaseAggregateOptions.Type`.
- * 
+ *
  * @since 0.0.0
  * @category models
  */
@@ -54,16 +46,11 @@ export type BaseAggregateOptions = typeof BaseAggregateOptions.Type;
  * @since 0.0.0
  * @category models
  */
-export const MinMaxAggregateOption = LiteralKit(
-  ["min", "max"]
-).annotate(
-  $I.annote(
-    "MinMaxAggregateOption",
-    {
-      description: "Common min/max aggregate metric options."
-    }
-  )
-)
+export const MinMaxAggregateOption = LiteralKit(["min", "max"]).annotate(
+  $I.annote("MinMaxAggregateOption", {
+    description: "Common min/max aggregate metric options.",
+  })
+);
 
 /**
  * Represents an aggregation option that determines whether to calculate
@@ -76,7 +63,7 @@ export const MinMaxAggregateOption = LiteralKit(
  * The available options for this type are:
  * - "min": Used to retrieve the minimum value.
  * - "max": Used to retrieve the maximum value.
- * 
+ *
  * @since 0.0.0
  * @category models
  */
@@ -96,21 +83,16 @@ export type DatetimeAggregateOption = MinMaxAggregateOption | BaseAggregateOptio
  * @since 0.0.0
  * @category models
  */
-export const NumericAggregateOption = LiteralKit(
-  [
-    "sum",
-    "avg",
-    "approximateDistinct",
-    "exactDistinct",
-    ...MinMaxAggregateOption.Options
-  ]
-).annotate(
-  $I.annote(
-    "NumericAggregateOption",
-    {
-      description: "Common numeric aggregate metric options."
-    }
-  )
+export const NumericAggregateOption = LiteralKit([
+  "sum",
+  "avg",
+  "approximateDistinct",
+  "exactDistinct",
+  ...MinMaxAggregateOption.Options,
+]).annotate(
+  $I.annote("NumericAggregateOption", {
+    description: "Common numeric aggregate metric options.",
+  })
 );
 
 /**

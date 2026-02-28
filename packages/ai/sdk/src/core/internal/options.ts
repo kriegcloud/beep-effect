@@ -4,7 +4,7 @@ import { mergeHookMaps } from "../Hooks/utils.js";
 import type { Options } from "../Schema/Options.js";
 
 const mergeRecord = <T>(base: Record<string, T> | undefined, override: Record<string, T> | undefined) =>
-  base || override ? { ...(base ?? {}), ...(override ?? {}) } : undefined;
+  base || override ? { ...base, ...override } : undefined;
 
 const mergeHooks = (base: HookMap | undefined, override: HookMap | undefined) => {
   if (!base && !override) return undefined;

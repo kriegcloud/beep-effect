@@ -1,6 +1,4 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Stream from "effect/Stream";
+import { Effect, Layer, Stream } from "effect";
 import * as PersistedQueue from "effect/unstable/persistence/PersistedQueue";
 import { AgentSdk } from "../AgentSdk.js";
 import type { AgentSdkError } from "../Errors.js";

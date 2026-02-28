@@ -1,9 +1,5 @@
-import { ServiceMap } from "effect";
-import * as Config from "effect/Config";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
+import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import { layerConfigFromEnv } from "../internal/config.js";
 /**
  * @since 0.0.0
@@ -91,16 +87,16 @@ const defaultSettings: StorageConfigData = {
   },
 };
 
-const normalizeBoolean = (value: Option.Option<boolean>, fallback: boolean) => Option.getOrElse(value, () => fallback);
+const normalizeBoolean = (value: O.Option<boolean>, fallback: boolean) => O.getOrElse(value, () => fallback);
 
-const normalizeNumber = (value: Option.Option<number>, fallback: number, min: number) =>
+const normalizeNumber = (value: O.Option<number>, fallback: number, min: number) =>
   Math.max(
     min,
-    Option.getOrElse(value, () => fallback)
+    O.getOrElse(value, () => fallback)
   );
 
-const normalizeDuration = (value: Option.Option<Duration.Duration>, fallback: Duration.Duration) =>
-  Option.getOrElse(value, () => fallback);
+const normalizeDuration = (value: O.Option<Duration.Duration>, fallback: Duration.Duration) =>
+  O.getOrElse(value, () => fallback);
 
 const makeStorageConfig = Effect.gen(function* () {
   const chatEnabled = yield* Config.option(Config.boolean("STORAGE_CHAT_ENABLED"));

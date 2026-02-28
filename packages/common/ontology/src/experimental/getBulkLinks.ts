@@ -9,10 +9,7 @@ import type { Osdk } from "../OsdkObjectFrom.js";
 import type { EXPERIMENTAL_BulkLinkResult } from "../objectSet/BulkLinkResult.js";
 import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.js";
 import type { Experiment } from "./Experiment.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
 
-const $I = $OntologyId.create("experimental/getBulkLinks");
 /**
  * Streams link results for a batch of ontology objects.
  *

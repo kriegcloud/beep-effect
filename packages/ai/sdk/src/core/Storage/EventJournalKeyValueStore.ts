@@ -1,8 +1,5 @@
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as PubSub from "effect/PubSub";
-import * as Semaphore from "effect/Semaphore";
+import { Effect, Layer, PubSub, Semaphore } from "effect";
+import * as O from "effect/Option";
 import type * as ServiceMap from "effect/ServiceMap";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -30,7 +27,7 @@ const resolveDefaultConflict = (
 const loadEntries = (store: KeyValueStore.SchemaStore<typeof EventJournal.Entry.arrayMsgpack>, key: string) =>
   store.get(key).pipe(
     Effect.mapError((cause) => toJournalError("entries", cause)),
-    Effect.map((maybe) => Option.getOrElse(maybe, () => [] as ReadonlyArray<EventJournal.Entry>))
+    Effect.map((maybe) => O.getOrElse(maybe, () => [] as ReadonlyArray<EventJournal.Entry>))
   );
 
 const persistEntries = (
@@ -202,7 +199,7 @@ export const make = (options?: { readonly key?: string }) =>
             const remoteIdString = remoteIdToString(options.remoteId);
 
             const resolveConflict = (entry: EventJournal.Entry, conflicts: ReadonlyArray<EventJournal.Entry>) =>
-              Option.isSome(policyOption)
+              O.isSome(policyOption)
                 ? policyOption.value.resolve({
                     entry,
                     conflicts,
@@ -214,7 +211,7 @@ export const make = (options?: { readonly key?: string }) =>
               conflicts: ReadonlyArray<EventJournal.Entry>,
               resolution: ConflictResolution
             ) =>
-              Option.isSome(auditOption)
+              O.isSome(auditOption)
                 ? auditOption.value.conflict({
                     remoteId: remoteIdString,
                     entry,
@@ -224,7 +221,7 @@ export const make = (options?: { readonly key?: string }) =>
                 : Effect.void;
 
             const emitCompaction = (before: number, after: number, events: ReadonlyArray<string>) =>
-              Option.isSome(auditOption)
+              O.isSome(auditOption)
                 ? auditOption.value.compaction({
                     remoteId: remoteIdString,
                     before,

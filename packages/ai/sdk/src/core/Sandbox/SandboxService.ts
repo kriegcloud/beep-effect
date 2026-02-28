@@ -1,6 +1,6 @@
+import { ServiceMap } from "effect";
 import type * as Effect from "effect/Effect";
 import type * as Scope from "effect/Scope";
-import * as ServiceMap from "effect/ServiceMap";
 import type { QueryHandle } from "../Query.js";
 import type { Options } from "../Schema/Options.js";
 import type { SandboxError } from "./SandboxError.js";

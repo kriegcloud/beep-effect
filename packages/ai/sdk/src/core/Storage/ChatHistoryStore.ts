@@ -1,13 +1,7 @@
 import { BunFileSystem, BunPath } from "@effect/platform-bun";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
-import * as Stream from "effect/Stream";
-import * as SynchronizedRef from "effect/SynchronizedRef";
+import { Clock, Duration, Effect, Layer, ServiceMap, Stream, SynchronizedRef } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
 import type { SDKMessage } from "../Schema/Message.js";
@@ -65,9 +59,9 @@ export type ChatHistorySyncOptions<R = never> = ChatHistoryJournaledOptions<R> &
 
 const defaultSource: ChatEventSource = "sdk";
 
-const ChatMeta = Schema.Struct({
-  lastSequence: Schema.Number,
-  updatedAt: Schema.Number,
+const ChatMeta = S.Struct({
+  lastSequence: S.Number,
+  updatedAt: S.Number,
 });
 
 type ChatMeta = typeof ChatMeta.Type;
@@ -153,7 +147,7 @@ type ChatRetention = {
 
 const resolveRetention = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  if (Option.isNone(config)) return undefined;
+  if (O.isNone(config)) return undefined;
   const retention = config.value.settings.retention.chat;
   return {
     maxEvents: retention.maxEvents,
@@ -163,7 +157,7 @@ const resolveRetention = Effect.gen(function* () {
 
 const resolveEnabled = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);
-  return Option.isNone(config) ? true : config.value.settings.enabled.chatHistory;
+  return O.isNone(config) ? true : config.value.settings.enabled.chatHistory;
 });
 
 const resolveJournalKeys = (options?: {
@@ -189,14 +183,14 @@ const logIndexWarning = (operation: string, sessionId: string, cause: unknown) =
 const touchSessionIndex = (sessionId: string, timestamp: number) =>
   Effect.gen(function* () {
     const storeOption = yield* Effect.serviceOption(SessionIndexStore);
-    if (Option.isNone(storeOption)) return;
+    if (O.isNone(storeOption)) return;
     yield* storeOption.value.touch(sessionId, { updatedAt: timestamp }).pipe(Effect.asVoid);
   }).pipe(Effect.catch((cause) => logIndexWarning("touch", sessionId, cause).pipe(Effect.asVoid)));
 
 const removeSessionIndex = (sessionId: string) =>
   Effect.gen(function* () {
     const storeOption = yield* Effect.serviceOption(SessionIndexStore);
-    if (Option.isNone(storeOption)) return;
+    if (O.isNone(storeOption)) return;
     yield* storeOption.value.remove(sessionId).pipe(Effect.asVoid);
   }).pipe(Effect.catch((cause) => logIndexWarning("remove", sessionId, cause).pipe(Effect.asVoid)));
 
@@ -239,7 +233,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
           metaStore.get(metaKey(sessionId)).pipe(
             Effect.mapError((cause) => mapError("loadMeta", cause)),
             Effect.map((maybe) =>
-              Option.getOrElse(
+              O.getOrElse(
                 maybe,
                 () =>
                   ({
@@ -290,7 +284,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
               );
 
               events.forEach((eventOption, index) => {
-                if (Option.isNone(eventOption)) return;
+                if (O.isNone(eventOption)) return;
                 if (eventOption.value.timestamp < cutoff) {
                   removals.add(sequences[index]!);
                 }
@@ -400,7 +394,7 @@ const makeJournaledStore = (options?: {
       metaStore.get(metaKey(sessionId)).pipe(
         Effect.mapError((cause) => toStorageError(storeName, "loadMeta", cause)),
         Effect.map((maybe) =>
-          Option.getOrElse(
+          O.getOrElse(
             maybe,
             () =>
               ({
@@ -423,7 +417,7 @@ const makeJournaledStore = (options?: {
           const eventOption = yield* eventStore
             .get(eventKey(sessionId, nextLastSequence))
             .pipe(Effect.mapError((cause) => toStorageError(storeName, "cleanup", cause)));
-          if (Option.isSome(eventOption)) {
+          if (O.isSome(eventOption)) {
             break;
           }
           nextLastSequence -= 1;
@@ -500,15 +494,15 @@ const makeJournaledStore = (options?: {
 
     const list = Effect.fn("ChatHistoryStore.list")(function* (sessionId: string, options?: ChatHistoryListOptions) {
       const config = yield* Effect.serviceOption(StorageConfig);
-      const defaultLimit = Option.getOrUndefined(Option.map(config, (value) => value.settings.pagination.chatPageSize));
+      const defaultLimit = O.getOrUndefined(O.map(config, (value) => value.settings.pagination.chatPageSize));
       const metaOption = yield* metaStore
         .get(metaKey(sessionId))
         .pipe(Effect.mapError((cause) => toStorageError(storeName, "list", cause)));
-      if (Option.isNone(metaOption)) return [];
+      if (O.isNone(metaOption)) return [];
 
       const meta = metaOption.value;
       const limitOverride = resolveListLimit(options, defaultLimit);
-      const rangeOptions = limitOverride === undefined ? options : { ...(options ?? {}), limit: limitOverride };
+      const rangeOptions = limitOverride === undefined ? options : { ...options, limit: limitOverride };
       const { start, end, limit, reverse } = normalizeRange(meta.lastSequence, rangeOptions);
       if (limit <= 0) return [];
       const sequences = range(start, end, reverse, limit);
@@ -522,7 +516,7 @@ const makeJournaledStore = (options?: {
         { discard: false }
       );
 
-      return events.flatMap((eventOption) => (Option.isSome(eventOption) ? [eventOption.value] : []));
+      return events.flatMap((eventOption) => (O.isSome(eventOption) ? [eventOption.value] : []));
     });
 
     const stream = (sessionId: string, options?: ChatHistoryListOptions) =>
@@ -533,7 +527,7 @@ const makeJournaledStore = (options?: {
         const metaOption = yield* metaStore
           .get(metaKey(sessionId))
           .pipe(Effect.mapError((cause) => toStorageError(storeName, "purge", cause)));
-        if (Option.isNone(metaOption)) return;
+        if (O.isNone(metaOption)) return;
 
         const lastSequence = metaOption.value.lastSequence;
         const sequences = range(1, lastSequence, false, lastSequence);
@@ -558,7 +552,7 @@ const makeJournaledStore = (options?: {
       const retention = yield* resolveRetention;
       if (!retention) return;
       const indexOption = yield* Effect.serviceOption(SessionIndexStore);
-      if (Option.isNone(indexOption)) return;
+      if (O.isNone(indexOption)) return;
       const sessionIds = yield* indexOption.value.listIds();
       if (sessionIds.length === 0) return;
       const now = yield* Clock.currentTimeMillis;
@@ -568,7 +562,7 @@ const makeJournaledStore = (options?: {
           metaStore.get(metaKey(sessionId)).pipe(
             Effect.mapError((cause) => toStorageError(storeName, "cleanup", cause)),
             Effect.flatMap((metaOption) =>
-              Option.isNone(metaOption)
+              O.isNone(metaOption)
                 ? Effect.void
                 : Effect.gen(function* () {
                     const meta = yield* repairTrailingMetaGap(sessionId, metaOption.value);
@@ -603,7 +597,7 @@ const makeJournaledStore = (options?: {
                       );
 
                       events.forEach((eventOption, index) => {
-                        if (Option.isNone(eventOption)) return;
+                        if (O.isNone(eventOption)) return;
                         if (eventOption.value.timestamp < cutoff) {
                           removals.add(sequences[index]!);
                         }
@@ -729,14 +723,12 @@ export class ChatHistoryStore extends ServiceMap.Service<
 
       const list = Effect.fn("ChatHistoryStore.list")(function* (sessionId: string, options?: ChatHistoryListOptions) {
         const config = yield* Effect.serviceOption(StorageConfig);
-        const defaultLimit = Option.getOrUndefined(
-          Option.map(config, (value) => value.settings.pagination.chatPageSize)
-        );
+        const defaultLimit = O.getOrUndefined(O.map(config, (value) => value.settings.pagination.chatPageSize));
         const state = yield* SynchronizedRef.get(stateRef);
         const session = state.get(sessionId);
         if (!session) return [];
         const limitOverride = resolveListLimit(options, defaultLimit);
-        const rangeOptions = limitOverride === undefined ? options : { ...(options ?? {}), limit: limitOverride };
+        const rangeOptions = limitOverride === undefined ? options : { ...options, limit: limitOverride };
         const { start, end, limit, reverse } = normalizeRange(session.lastSequence, rangeOptions);
         if (limit <= 0) return [];
         let events = session.events.filter((event) => event.sequence >= start && event.sequence <= end);
@@ -805,7 +797,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
           metaStore.get(metaKey(sessionId)).pipe(
             Effect.mapError((cause) => toStorageError(storeName, "loadMeta", cause)),
             Effect.map((maybe) =>
-              Option.getOrElse(
+              O.getOrElse(
                 maybe,
                 () =>
                   ({
@@ -828,7 +820,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
               const eventOption = yield* eventStore
                 .get(eventKey(sessionId, nextLastSequence))
                 .pipe(Effect.mapError((cause) => toStorageError(storeName, "cleanup", cause)));
-              if (Option.isSome(eventOption)) {
+              if (O.isSome(eventOption)) {
                 break;
               }
               nextLastSequence -= 1;
@@ -884,7 +876,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
               );
 
               events.forEach((eventOption, index) => {
-                if (Option.isNone(eventOption)) return;
+                if (O.isNone(eventOption)) return;
                 if (eventOption.value.timestamp < cutoff) {
                   removals.add(sequences[index]!);
                 }
@@ -1012,17 +1004,15 @@ export class ChatHistoryStore extends ServiceMap.Service<
           options?: ChatHistoryListOptions
         ) {
           const config = yield* Effect.serviceOption(StorageConfig);
-          const defaultLimit = Option.getOrUndefined(
-            Option.map(config, (value) => value.settings.pagination.chatPageSize)
-          );
+          const defaultLimit = O.getOrUndefined(O.map(config, (value) => value.settings.pagination.chatPageSize));
           const metaOption = yield* metaStore
             .get(metaKey(sessionId))
             .pipe(Effect.mapError((cause) => toStorageError(storeName, "list", cause)));
-          if (Option.isNone(metaOption)) return [];
+          if (O.isNone(metaOption)) return [];
 
           const meta = metaOption.value;
           const limitOverride = resolveListLimit(options, defaultLimit);
-          const rangeOptions = limitOverride === undefined ? options : { ...(options ?? {}), limit: limitOverride };
+          const rangeOptions = limitOverride === undefined ? options : { ...options, limit: limitOverride };
           const { start, end, limit, reverse } = normalizeRange(meta.lastSequence, rangeOptions);
           if (limit <= 0) return [];
           const sequences = range(start, end, reverse, limit);
@@ -1036,7 +1026,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
             { discard: false }
           );
 
-          return events.flatMap((eventOption) => (Option.isSome(eventOption) ? [eventOption.value] : []));
+          return events.flatMap((eventOption) => (O.isSome(eventOption) ? [eventOption.value] : []));
         });
 
         const stream = (sessionId: string, options?: ChatHistoryListOptions) =>
@@ -1047,7 +1037,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
             const metaOption = yield* metaStore
               .get(metaKey(sessionId))
               .pipe(Effect.mapError((cause) => toStorageError(storeName, "purge", cause)));
-            if (Option.isNone(metaOption)) return;
+            if (O.isNone(metaOption)) return;
 
             const lastSequence = metaOption.value.lastSequence;
             const sequences = range(1, lastSequence, false, lastSequence);
@@ -1072,7 +1062,7 @@ export class ChatHistoryStore extends ServiceMap.Service<
           const retention = yield* resolveRetention;
           if (!retention) return;
           const indexOption = yield* Effect.serviceOption(SessionIndexStore);
-          if (Option.isNone(indexOption)) return;
+          if (O.isNone(indexOption)) return;
           const sessionIds = yield* indexOption.value.listIds();
           if (sessionIds.length === 0) return;
           const now = yield* Clock.currentTimeMillis;

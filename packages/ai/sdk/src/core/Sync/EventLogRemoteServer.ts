@@ -1,10 +1,6 @@
 import { BunHttpServer } from "@effect/platform-bun";
-import * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
+import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
 import * as HttpServer from "effect/unstable/http/HttpServer";
 
@@ -22,11 +18,11 @@ export type EventLogRemoteServerOptions = {
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServerError extends Schema.TaggedErrorClass<EventLogRemoteServerError>()(
+export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemoteServerError>()(
   "EventLogRemoteServerError",
   {
-    message: Schema.String,
-    cause: Schema.optional(Schema.Defect),
+    message: S.String,
+    cause: S.optional(S.Defect),
   }
 ) {
   static readonly make = (params: Pick<EventLogRemoteServerError, "message" | "cause">) =>
@@ -179,6 +175,7 @@ export const layerBunWebSocket = (options: EventLogRemoteServerOptions = {}) =>
 export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {}) =>
   Layer.unwrap(
     Effect.gen(function* () {
+      yield* Effect.void;
       const makeTestServer = Effect.gen(function* () {
         const maxAttempts = options.port ? 1 : 20;
         let lastError: unknown = undefined;

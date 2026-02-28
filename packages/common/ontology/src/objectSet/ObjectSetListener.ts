@@ -9,10 +9,6 @@ import type { Osdk } from "../OsdkObjectFrom.js";
 import type { ObjectOrInterfaceDefinition, PropertyKeys } from "../ontology/ObjectOrInterface.js";
 import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
 import type { WirePropertyTypes } from "../ontology/WirePropertyTypes.js";
-import { $OntologyId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $OntologyId.create("objectSet/ObjectSetListener");
 /**
  * Object-set subscription helper namespace.
  *

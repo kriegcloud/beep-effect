@@ -1,16 +1,12 @@
-import * as Config from "effect/Config";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as ServiceMap from "effect/ServiceMap";
+import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { layerConfigFromEnv } from "./internal/config.js";
 
 /**
  * @since 0.0.0
  */
-export const PendingQueueStrategy = Schema.Literals(["suspend", "dropping", "sliding"]);
+export const PendingQueueStrategy = S.Literals(["suspend", "dropping", "sliding"]);
 
 /**
  * @since 0.0.0
@@ -47,7 +43,7 @@ const defaultSettings: QuerySupervisorSettings = {
 const resolveSettings = (overrides?: Partial<QuerySupervisorSettings>): QuerySupervisorSettings => {
   const merged = {
     ...defaultSettings,
-    ...(overrides ?? {}),
+    ...overrides,
   };
   return {
     ...merged,
@@ -71,22 +67,22 @@ const makeQuerySupervisorConfig = Effect.gen(function* () {
   const settings: QuerySupervisorSettings = {
     concurrencyLimit: Math.max(
       1,
-      Option.getOrElse(concurrencyLimit, () => defaultSettings.concurrencyLimit)
+      O.getOrElse(concurrencyLimit, () => defaultSettings.concurrencyLimit)
     ),
     pendingQueueCapacity: Math.max(
       0,
-      Option.getOrElse(pendingQueueCapacity, () => defaultSettings.pendingQueueCapacity)
+      O.getOrElse(pendingQueueCapacity, () => defaultSettings.pendingQueueCapacity)
     ),
-    pendingQueueStrategy: Option.getOrElse(pendingQueueStrategy, () => defaultSettings.pendingQueueStrategy),
-    maxPendingTime: Option.getOrElse(maxPendingTime, () => defaultSettings.maxPendingTime),
-    emitEvents: Option.getOrElse(emitEvents, () => defaultSettings.emitEvents),
+    pendingQueueStrategy: O.getOrElse(pendingQueueStrategy, () => defaultSettings.pendingQueueStrategy),
+    maxPendingTime: O.getOrElse(maxPendingTime, () => defaultSettings.maxPendingTime),
+    emitEvents: O.getOrElse(emitEvents, () => defaultSettings.emitEvents),
     eventBufferCapacity: Math.max(
       1,
-      Option.getOrElse(eventBufferCapacity, () => defaultSettings.eventBufferCapacity)
+      O.getOrElse(eventBufferCapacity, () => defaultSettings.eventBufferCapacity)
     ),
-    eventBufferStrategy: Option.getOrElse(eventBufferStrategy, () => defaultSettings.eventBufferStrategy),
-    metricsEnabled: Option.getOrElse(metricsEnabled, () => defaultSettings.metricsEnabled),
-    tracingEnabled: Option.getOrElse(tracingEnabled, () => defaultSettings.tracingEnabled),
+    eventBufferStrategy: O.getOrElse(eventBufferStrategy, () => defaultSettings.eventBufferStrategy),
+    metricsEnabled: O.getOrElse(metricsEnabled, () => defaultSettings.metricsEnabled),
+    tracingEnabled: O.getOrElse(tracingEnabled, () => defaultSettings.tracingEnabled),
   };
 
   return { settings };

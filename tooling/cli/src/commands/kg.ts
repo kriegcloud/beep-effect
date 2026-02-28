@@ -827,6 +827,9 @@ const parseChanged = (changedFlag: O.Option<string>): ReadonlyArray<string> =>
  *
  * This helper is exported for command integration and targeted tests.
  *
+ * @param mode - Requested indexing mode (`full` or `delta`).
+ * @param changedFlag - Optional comma-separated changed-file list used for delta mode selection.
+ * @returns Structured summary for the indexing run and emitted artifact counts.
  * @since 0.0.0
  * @category commands
  * @internal
