@@ -96,6 +96,7 @@
     "@beep/*": "Needed to force PNPM to install local packages"
   },
   "devDependencies": {
+
     "@1password/sdk": "catalog:",
     "@arethetypeswrong/cli": "catalog:",
     "@babel/cli": "catalog:",
@@ -151,7 +152,6 @@
   "catalog": {
     "zod": "^4.3.6",
     "@neondatabase/serverless": "^1.0.2",
-    "better-auth": "^1.4.20",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
     "i18next": "^25.8.13",
@@ -180,6 +180,13 @@
     "@effect/opentelemetry": "^4.0.0-beta.20",
     "@effect/platform-browser": "^4.0.0-beta.20",
     "@effect/platform-bun": "^4.0.0-beta.20",
+    "@better-auth/core": "^1.5.0-beta.20",
+    "better-auth": "^1.5.0-beta.20",
+    "@better-auth/passkey": "^1.5.0-beta.20",
+    "@better-auth/oauth-provider": "^1.5.0-beta.20",
+    "@better-auth/sso": "^1.5.0-beta.20",
+    "@better-auth/scim": "^1.5.0-beta.20",
+    "@better-auth/stripe": "^1.5.0-beta.20",
     "@effect/platform-node": "^4.0.0-beta.20",
     "@effect/platform-node-shared": "^4.0.0-beta.20",
     "@effect/sql-pg": "^4.0.0-beta.20",
