@@ -1,5 +1,5 @@
 /** @effect-diagnostics floatingEffect:skip-file */
-import { type Cause, Data, Effect, type Option, pipe, type Scope, type Types } from "effect"
+import { type Cause, Data, Effect, type Option, pipe, Result, type Scope, type Types } from "effect"
 import { describe, expect, it } from "tstyche"
 
 // Fixtures
@@ -11,8 +11,12 @@ class QuotaExceededError extends Data.TaggedError("QuotaExceededError")<{
   readonly limit: number
 }> {}
 
+class UnknownAiModelError extends Data.TaggedError("UnknownAiModelError")<{
+  readonly model: string
+}> {}
+
 class AiError extends Data.TaggedError("AiError")<{
-  readonly reason: RateLimitError | QuotaExceededError
+  readonly reason: RateLimitError | QuotaExceededError | UnknownAiModelError
 }> {}
 
 class OtherError extends Data.TaggedError("OtherError")<{
@@ -32,7 +36,7 @@ declare const onlyNoSuch: Effect.Effect<number, Cause.NoSuchElementError>
 describe("Types", () => {
   describe("ReasonOf", () => {
     it("extracts reason type", () => {
-      expect<Types.ReasonOf<AiError>>().type.toBe<RateLimitError | QuotaExceededError>()
+      expect<Types.ReasonOf<AiError>>().type.toBe<RateLimitError | QuotaExceededError | UnknownAiModelError>()
     })
 
     it("returns never for errors without reason", () => {
@@ -43,7 +47,7 @@ describe("Types", () => {
   describe("ReasonTags", () => {
     it("extracts reason tags", () => {
       expect<Types.ReasonTags<AiError> & unknown>().type.toBe<
-        "RateLimitError" | "QuotaExceededError"
+        "RateLimitError" | "QuotaExceededError" | "UnknownAiModelError"
       >()
     })
 
@@ -74,6 +78,33 @@ describe("Effect.catchReason", () => {
     )
   })
 
+  it("handler receives error type", () => {
+    pipe(
+      aiEffect,
+      Effect.catchReason("AiError", "RateLimitError", (_reason, error) => {
+        expect(error.reason).type.toBeAssignableTo<RateLimitError>()
+        expect(error.reason).type.toBeAssignableFrom<RateLimitError>()
+        return Effect.succeed("ok")
+      })
+    )
+  })
+
+  it("orElse receives error type", () => {
+    pipe(
+      aiEffect,
+      Effect.catchReason(
+        "AiError",
+        "RateLimitError",
+        () => Effect.succeed("ok"),
+        (_reason, error) => {
+          expect(error.reason).type.toBeAssignableTo<QuotaExceededError | UnknownAiModelError>()
+          expect(error.reason).type.toBeAssignableFrom<QuotaExceededError | UnknownAiModelError>()
+          return Effect.succeed("ok")
+        }
+      )
+    )
+  })
+
   it("error channel is E | E2", () => {
     const result = pipe(
       aiEffect,
@@ -94,6 +125,24 @@ describe("Effect.catchReasons", () => {
         },
         QuotaExceededError: (r) => {
           expect(r).type.toBe<QuotaExceededError>()
+          return Effect.succeed("")
+        }
+      })
+    )
+  })
+
+  it("handlers receive error type", () => {
+    pipe(
+      aiEffect,
+      Effect.catchReasons("AiError", {
+        RateLimitError: (_r, error) => {
+          expect(error.reason).type.toBeAssignableTo<RateLimitError>()
+          expect(error.reason).type.toBeAssignableFrom<RateLimitError>()
+          return Effect.succeed("")
+        },
+        QuotaExceededError: (_r, error) => {
+          expect(error.reason).type.toBeAssignableTo<QuotaExceededError>()
+          expect(error.reason).type.toBeAssignableFrom<QuotaExceededError>()
           return Effect.succeed("")
         }
       })
@@ -130,7 +179,21 @@ describe("Effect.catchReasons", () => {
           return Effect.succeed("")
         }
       }, (others) => {
-        expect(others).type.toBe<QuotaExceededError>()
+        expect(others).type.toBe<QuotaExceededError | UnknownAiModelError>()
+        return Effect.succeed("")
+      })
+    )
+    expect(result).type.toBe<Effect.Effect<string>>()
+  })
+
+  it("orElse receives error type", () => {
+    const result = pipe(
+      aiEffect,
+      Effect.catchReasons("AiError", {
+        RateLimitError: () => Effect.succeed("")
+      }, (_others, error) => {
+        expect(error.reason).type.toBeAssignableTo<QuotaExceededError | UnknownAiModelError>()
+        expect(error.reason).type.toBeAssignableFrom<QuotaExceededError | UnknownAiModelError>()
         return Effect.succeed("")
       })
     )
@@ -231,13 +294,13 @@ describe("Effect.tapErrorTag", () => {
 describe("Effect.unwrapReason", () => {
   it("replaces parent error with reasons", () => {
     const result = pipe(aiEffect, Effect.unwrapReason("AiError"))
-    expect(result).type.toBe<Effect.Effect<string, RateLimitError | QuotaExceededError>>()
+    expect(result).type.toBe<Effect.Effect<string, RateLimitError | QuotaExceededError | UnknownAiModelError>>()
   })
 
   it("preserves other errors in union", () => {
     const result = pipe(mixedEffect, Effect.unwrapReason("AiError"))
     expect(result).type.toBe<
-      Effect.Effect<string, RateLimitError | QuotaExceededError | OtherError>
+      Effect.Effect<string, RateLimitError | QuotaExceededError | UnknownAiModelError | OtherError>
     >()
   })
 })
@@ -347,7 +410,10 @@ describe("Effect.fn", () => {
 
 describe("Effect.partition", () => {
   it("data-first", () => {
-    const result = Effect.partition([1, 2, 3], (n) => n % 2 === 0 ? Effect.fail(`${n}`) : Effect.succeed(n))
+    const result = Effect.partition(
+      [1, 2, 3],
+      (n) => n % 2 === 0 ? Effect.fail(`${n}`) : Effect.succeed(n)
+    )
     expect(result).type.toBe<Effect.Effect<[excluded: Array<string>, satisfying: Array<number>], never, never>>()
   })
 
@@ -357,5 +423,41 @@ describe("Effect.partition", () => {
       Effect.partition((n) => n % 2 === 0 ? Effect.fail(n) : Effect.succeed(`${n}`))
     )
     expect(result).type.toBe<Effect.Effect<[excluded: Array<number>, satisfying: Array<string>], never, never>>()
+  })
+})
+
+describe("Effect.findFirst", () => {
+  it("data-first", () => {
+    const result = Effect.findFirst(
+      [1, 2, 3],
+      (n) => Effect.succeed(n > 1)
+    )
+    expect(result).type.toBe<Effect.Effect<Option.Option<number>, never, never>>()
+  })
+
+  it("data-last", () => {
+    const result = pipe(
+      [1, 2, 3],
+      Effect.findFirst((n) => Effect.succeed(n > 1))
+    )
+    expect(result).type.toBe<Effect.Effect<Option.Option<number>, never, never>>()
+  })
+})
+
+describe("Effect.findFirstFilter", () => {
+  it("data-first", () => {
+    const result = Effect.findFirstFilter(
+      [1, 2, 3],
+      (n, i) => Effect.succeed(i > 0 ? Result.succeed(`${n}`) : Result.failVoid)
+    )
+    expect(result).type.toBe<Effect.Effect<Option.Option<string>, never, never>>()
+  })
+
+  it("data-last", () => {
+    const result = pipe(
+      [1, 2, 3],
+      Effect.findFirstFilter((n, i) => Effect.succeed(i > 0 ? Result.succeed(n.toString()) : Result.failVoid))
+    )
+    expect(result).type.toBe<Effect.Effect<Option.Option<string>, never, never>>()
   })
 })

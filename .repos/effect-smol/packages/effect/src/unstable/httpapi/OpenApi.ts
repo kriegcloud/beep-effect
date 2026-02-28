@@ -111,7 +111,7 @@ export class Transform extends ServiceMap.Service<
   (openApiSpec: Record<string, any>) => Record<string, any>
 >()("effect/httpapi/OpenApi/Transform") {}
 
-const servicesPartial = <Tags extends Record<string, ServiceMap.Service<any, any> | ServiceMap.Service<never, any>>>(
+const servicesPartial = <Tags extends Record<string, ServiceMap.Key<any, any> | ServiceMap.Key<never, any>>>(
   tags: Tags
 ): (
   options: {
@@ -175,7 +175,7 @@ const apiCache = new WeakMap<HttpApi.Any, OpenAPISpec>()
  */
 function processAnnotation<Services, S, I>(
   ctx: ServiceMap.ServiceMap<Services>,
-  annotation: ServiceMap.Service<I, S>,
+  annotation: ServiceMap.Key<I, S>,
   f: (s: S) => void
 ) {
   const o = ServiceMap.getOption(ctx, annotation)
@@ -351,10 +351,9 @@ export function fromApi<Id extends string, Groups extends HttpApiGroup.Any>(
                   ast: toEncodingAST(ast, encoding),
                   path: ["paths", path, method, "responses", String(status), "content", contentType, "schema"]
                 })
-                op.responses[status].content = {
-                  [contentType]: {
-                    schema: {}
-                  }
+                op.responses[status].content ??= {}
+                op.responses[status].content[contentType] = {
+                  schema: {}
                 }
               })
             })
@@ -636,9 +635,26 @@ function toEncodingAST(ast: AST.AST, _tag: HttpApiSchema.Encoding["_tag"]): AST.
       return Schema.String.ast
     case "FormUrlEncoded":
     case "Json":
-    case "Multipart":
       return ast
+    case "Multipart":
+      return persistedFileToBinaryEncoding(ast)
   }
+}
+
+function persistedFileToBinaryEncoding(ast: AST.AST): AST.AST {
+  if (
+    AST.isDeclaration(ast) &&
+    ((ast.annotations as (Schema.Annotations.Declaration<unknown, readonly []> | undefined))?.typeConstructor?._tag ===
+      "effect/http/PersistedFile")
+  ) {
+    return Uint8ArrayEncoding.ast
+  }
+
+  if (typeof (ast as any)?.recur === "function") {
+    return (ast as any).recur(persistedFileToBinaryEncoding)
+  }
+
+  return ast
 }
 
 const makeSecurityScheme = (security: HttpApiSecurity): OpenAPISecurityScheme => {
