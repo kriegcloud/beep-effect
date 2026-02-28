@@ -81,6 +81,11 @@ type CloudflareSandboxModule = {
   readonly parseSSEStream: <T>(stream: ReadableStream) => AsyncIterable<T>;
 };
 
+/**
+ * @since 0.0.0
+ */
+export const cloudflareSandboxModuleOverrideKey = "__beepAiSdkCloudflareSandboxModule";
+
 const staleResumeIndicators = [
   "session not found",
   "no such session",
@@ -95,6 +100,11 @@ const isCloudflareSandboxModule = (value: unknown): value is CloudflareSandboxMo
   const getSandbox = P.isObject(value) ? Reflect.get(value, "getSandbox") : undefined;
   const parseSSEStream = P.isObject(value) ? Reflect.get(value, "parseSSEStream") : undefined;
   return P.isFunction(getSandbox) && P.isFunction(parseSSEStream);
+};
+
+const getCloudflareSandboxModuleOverride = (): O.Option<CloudflareSandboxModule> => {
+  const candidate = Reflect.get(globalThis, cloudflareSandboxModuleOverrideKey);
+  return isCloudflareSandboxModule(candidate) ? O.some(candidate) : O.none();
 };
 
 const collectStringFragments = (value: unknown): Array<string> => {
@@ -145,13 +155,15 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
     SandboxService,
     Effect.gen(function* () {
       // Dynamic import -- @cloudflare/sandbox is a peer dep.
-      // getSandbox returns synchronously (lazy container start on first operation).
-      // parseSSEStream converts execStream's ReadableStream into AsyncIterable<T>.
-      const sandboxModule = yield* Effect.tryPromise({
-        try: () =>
-          import("@cloudflare/sandbox"),
-        catch: (cause) => mapError("import", cause),
-      });
+      // Tests can inject an override module via globalThis to avoid requiring
+      // the real package.
+      const override = getCloudflareSandboxModuleOverride();
+      const sandboxModule = O.isSome(override)
+        ? override.value
+        : yield* Effect.tryPromise({
+            try: () => import("@cloudflare/sandbox"),
+            catch: (cause) => mapError("import", cause),
+          });
       if (!isCloudflareSandboxModule(sandboxModule)) {
         return yield* SandboxError.make({
           message: "Invalid @cloudflare/sandbox module shape",

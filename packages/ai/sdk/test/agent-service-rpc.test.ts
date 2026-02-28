@@ -9,7 +9,6 @@ import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
-import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -23,12 +22,12 @@ const makeSuccessMessage = (result: string): SDKMessage => ({
   is_error: false,
   num_turns: 1,
   result,
-  total_cost_usd: 0,
-  usage: {},
-  modelUsage: {},
-  permission_denials: [],
-  uuid: "00000000-0000-0000-0000-000000000000",
-  session_id: "session-1",
+    total_cost_usd: 0,
+    usage: {},
+    modelUsage: {},
+    permission_denials: [],
+    uuid: "00000000-0000-4000-8000-000000000000",
+    session_id: "session-1",
 });
 
 const makeMetadataHandle = (): QueryHandle => {
@@ -266,7 +265,7 @@ test("agent RPC metadata uses queryRaw", async () => {
   await runEffect(program);
 });
 
-test("agent RPC session routes enforce caller tenant header", async () => {
+test("agent RPC session routes enforce tenant scoping", async () => {
   const captured: Array<string | undefined> = [];
 
   const runtime = AgentRuntime.of({
@@ -335,25 +334,20 @@ test("agent RPC session routes enforce caller tenant header", async () => {
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const tenantClient = HttpClient.mapRequest(
-        makeWebHandlerClient(handler),
-        HttpClientRequest.setHeader("x-agent-tenant", "team-a")
-      );
-
       const clientLayer = RpcClient.layerProtocolHttp({
         url: "http://localhost/rpc",
       }).pipe(
-        Layer.provide(Layer.succeed(HttpClient.HttpClient, tenantClient)),
+        Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
         Layer.provide(RpcSerialization.layerNdjson)
       );
 
       const client = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(clientLayer));
 
-      const created = yield* client.CreateSession({ options: { model: "claude-test" } });
+      const created = yield* client.CreateSession({ options: { model: "claude-test" }, tenant: "team-a" });
       expect(created.sessionId).toBe("session-tenant");
       expect(captured[0]).toBe("team-a");
 
-      const listed = yield* client.ListSessionsByTenant({});
+      const listed = yield* client.ListSessionsByTenant({ tenant: "team-a" });
       expect(Array.isArray(listed)).toBe(true);
       expect(captured[1]).toBe("team-a");
 

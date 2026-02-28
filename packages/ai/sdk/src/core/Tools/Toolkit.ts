@@ -1,6 +1,7 @@
 import { Effect, Layer, MutableHashMap, type Scope, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ToolInputError, ToolNotFoundError, ToolOutputError } from "./Errors.js";
@@ -26,21 +27,17 @@ export interface Toolkit<Tools extends Record<string, Tool.Any>> {
    */
   toContext<Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(
     build: Handlers | Effect.Effect<Handlers, EX, RX>
-  ): Effect.Effect<ServiceMap.ServiceMap<Tool.HandlersFor<Tools>>, EX, RX>;
+  ): Effect.Effect<ServiceMap.ServiceMap<never>, EX, RX>;
   /**
    * Build a Layer with tool handlers for dependency injection.
    */
   toLayer<Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(
     build: Handlers | Effect.Effect<Handlers, EX, RX>
-  ): Layer.Layer<Tool.HandlersFor<Tools>, EX, Exclude<RX, Scope.Scope>>;
+  ): Layer.Layer<never, EX, Exclude<RX, Scope.Scope>>;
   /**
    * Finalize the toolkit into a runtime handler with validation.
    */
-  commit(): Effect.Effect<
-    WithHandler<Tools>,
-    ToolInputError | ToolOutputError | ToolNotFoundError,
-    Tool.HandlersFor<Tools>
-  >;
+  commit(): Effect.Effect<WithHandler<Tools>, never, never>;
 }
 
 /**
@@ -84,8 +81,8 @@ export type ToolsFromDefinitions<Defs extends Record<string, Tool.Definition>> =
  */
 export type HandlersFrom<Tools extends Record<string, Tool.Any>> = {
   readonly [Name in keyof Tools as Tool.RequiresHandler<Tools[Name]> extends true ? Name : never]: (
-    params: Tool.Parameters<Tools[Name]>
-  ) => Effect.Effect<Tool.Success<Tools[Name]>, Tool.Failure<Tools[Name]>, Tool.Requirements<Tools[Name]>>;
+    params: unknown
+  ) => Effect.Effect<unknown, unknown, unknown>;
 };
 
 /**
@@ -98,86 +95,107 @@ export type WithHandlerTools<T> = T extends WithHandler<infer Tools> ? Tools : n
  */
 export interface WithHandler<Tools extends Record<string, Tool.Any>> {
   readonly tools: Tools;
-  readonly handle: <Name extends keyof Tools>(
-    name: Name,
+  readonly handle: (
+    name: string,
     params: unknown
   ) => Effect.Effect<
-    Tool.HandlerResult<Tools[Name]>,
-    ToolInputError | ToolOutputError | ToolNotFoundError | Tool.Failure<Tools[Name]>,
-    Tool.Requirements<Tools[Name]>
+    {
+      readonly result: unknown;
+      readonly encodedResult: unknown;
+      readonly isFailure: boolean;
+    },
+    ToolInputError | ToolOutputError | ToolNotFoundError | unknown,
+    unknown
   >;
 }
 
 type HandlerBinding = {
   readonly context: ServiceMap.ServiceMap<never>;
-  readonly handler: (params: any) => Effect.Effect<any, any, any>;
+  readonly handler: (params: unknown) => Effect.Effect<unknown, unknown, unknown>;
 };
 
-const Proto = {
-  of: <Handlers>(handlers: Handlers) => handlers,
-  toContext(
-    this: Toolkit<Record<string, Tool.Any>>,
-    build: Record<string, (params: any) => any> | Effect.Effect<Record<string, (params: any) => any>>
-  ) {
-    const tools = this.tools;
-    return Effect.gen(function* () {
+const isHandlerBinding = (value: unknown): value is HandlerBinding =>
+  P.isObject(value) &&
+  P.hasProperty(value, "context") &&
+  P.hasProperty(value, "handler") &&
+  P.isFunction(value.handler);
+
+const makeHandlerBinding = (
+  context: ServiceMap.ServiceMap<never>,
+  handler: (params: unknown) => Effect.Effect<unknown, unknown, unknown>
+): HandlerBinding => ({
+  context,
+  handler: (params) => handler(params).pipe(Effect.provideServices(context)),
+});
+
+const makeProto = <Tools extends Record<string, Tool.Any>>(tools: Tools): Toolkit<Tools> => {
+  const toContext = <Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(
+    build: Handlers | Effect.Effect<Handlers, EX, RX>
+  ): Effect.Effect<ServiceMap.ServiceMap<never>, EX, RX> =>
+    Effect.gen(function* () {
       const context = yield* Effect.services<never>();
       const handlers = Effect.isEffect(build) ? yield* build : build;
-      return A.reduce(R.toEntries(handlers), ServiceMap.empty(), (serviceMap, [name, handler]) => {
-        const tool = tools[name]!;
+      let serviceMap = ServiceMap.empty();
+      for (const [name, handler] of R.toEntries(handlers)) {
+        const tool = tools[name];
+        if (tool === undefined) {
+          continue;
+        }
         const binding = ServiceMap.Service<never, HandlerBinding>(tool.id);
-        return ServiceMap.add(serviceMap, binding, {
-          handler,
-          context,
+        serviceMap = ServiceMap.add(serviceMap, binding, {
+          ...makeHandlerBinding(context, handler),
         });
-      });
+      }
+      return serviceMap;
     });
-  },
-  toLayer(
-    this: Toolkit<Record<string, Tool.Any>>,
-    build: Record<string, (params: any) => any> | Effect.Effect<Record<string, (params: any) => any>>
-  ) {
-    return Layer.unwrap(this.toContext(build).pipe(Effect.map((context) => Layer.succeedServices(context))));
-  },
-  commit(this: Toolkit<Record<string, Tool.Any>>) {
-    const tools = this.tools;
-    return Effect.gen(function* () {
+
+  const toLayer = <Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(
+    build: Handlers | Effect.Effect<Handlers, EX, RX>
+  ): Layer.Layer<never, EX, Exclude<RX, Scope.Scope>> =>
+    Layer.unwrap(toContext(build).pipe(Effect.map((context) => Layer.succeedServices(context))));
+
+  const commit = (): Effect.Effect<WithHandler<Tools>, never, never> =>
+    Effect.gen(function* () {
       const context = yield* Effect.services<never>();
       const schemasCache = MutableHashMap.empty<
         Tool.Any,
         {
           readonly context: ServiceMap.ServiceMap<never>;
-          readonly handler: (params: any) => Effect.Effect<any, any, any>;
-          readonly decodeParameters: (u: unknown) => Effect.Effect<Tool.Parameters<any>, S.SchemaError>;
+          readonly handler: (params: unknown) => Effect.Effect<unknown, unknown, unknown>;
+          readonly decodeParameters: (u: unknown) => Effect.Effect<unknown, S.SchemaError>;
           readonly validateResult: (u: unknown) => Effect.Effect<unknown, S.SchemaError>;
           readonly encodeResult: (u: unknown) => Effect.Effect<unknown, S.SchemaError>;
         }
       >();
-      const getSchemas = (tool: Tool.Any) => {
-        const cached = MutableHashMap.get(schemasCache, tool);
-        if (O.isSome(cached)) {
-          return cached.value;
-        }
-        const maybeHandler = context.mapUnsafe.get(tool.id);
-        if (maybeHandler === undefined) {
-          throw new Error(`Missing handler for tool '${tool.name}'`);
-        }
-        const handler = maybeHandler as HandlerBinding;
-        const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema) as any;
-        const resultSchema = S.Union([tool.successSchema, tool.failureSchema]);
-        const validateResult = S.decodeUnknownEffect(resultSchema) as any;
-        const encodeResult = S.encodeUnknownEffect(resultSchema) as any;
-        const schemas = {
-          context: handler.context,
-          handler: handler.handler,
-          decodeParameters,
-          validateResult,
-          encodeResult,
-        };
-        MutableHashMap.set(schemasCache, tool, schemas);
-        return schemas;
-      };
-      const handle = (name: string, params: unknown) =>
+      const getSchemas = (tool: Tool.Any) =>
+        Effect.gen(function* () {
+          const cached = MutableHashMap.get(schemasCache, tool);
+          if (O.isSome(cached)) {
+            return cached.value;
+          }
+          const maybeHandler = context.mapUnsafe.get(tool.id);
+          if (maybeHandler === undefined || !isHandlerBinding(maybeHandler)) {
+            return yield* ToolNotFoundError.make({
+              name: tool.name,
+              available: R.keys(tools),
+            });
+          }
+          const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema);
+          const resultSchema = S.Union([tool.successSchema, tool.failureSchema]);
+          const validateResult = S.decodeUnknownEffect(resultSchema);
+          const encodeResult = S.encodeUnknownEffect(resultSchema);
+          const schemas = {
+            context: maybeHandler.context,
+            handler: maybeHandler.handler,
+            decodeParameters,
+            validateResult,
+            encodeResult,
+          };
+          MutableHashMap.set(schemasCache, tool, schemas);
+          return schemas;
+        });
+
+      const handle: WithHandler<Tools>["handle"] = (name, params) =>
         Effect.gen(function* () {
           const tool = tools[name];
           if (tool === undefined) {
@@ -186,8 +204,7 @@ const Proto = {
               available: R.keys(tools),
             });
           }
-          const activeTool = tool!;
-          const schemas = getSchemas(activeTool);
+          const schemas = yield* getSchemas(tool);
           const decodedParams = yield* Effect.mapError(schemas.decodeParameters(params), (cause) =>
             ToolInputError.make({
               name,
@@ -199,9 +216,7 @@ const Proto = {
           const { isFailure, result } = yield* schemas.handler(decodedParams).pipe(
             Effect.map((result) => ({ result, isFailure: false })),
             Effect.catch((error) =>
-              activeTool.failureMode === "error"
-                ? Effect.fail(error)
-                : Effect.succeed({ result: error, isFailure: true })
+              tool.failureMode === "error" ? Effect.fail(error) : Effect.succeed({ result: error, isFailure: true })
             ),
             Effect.tap(({ result }) => schemas.validateResult(result)),
             Effect.provideServices(schemas.context),
@@ -227,24 +242,26 @@ const Proto = {
             isFailure,
             result,
             encodedResult,
-          } satisfies Tool.HandlerResult<any>;
+          };
         });
+
       return {
         tools,
         handle,
-      } satisfies WithHandler<Record<string, any>>;
+      };
     });
-  },
+
+  return {
+    tools,
+    of: <Handlers extends HandlersFrom<Tools>>(handlers: Handlers) => handlers,
+    toContext,
+    toLayer,
+    commit,
+  };
 };
 
-const makeProto = <Tools extends Record<string, Tool.Any>>(tools: Tools): Toolkit<Tools> =>
-  ({
-    ...Proto,
-    tools,
-  }) as any;
-
 const resolveInput = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Record<string, Tools[number]> => {
-  const output = {} as Record<string, Tools[number]>;
+  const output: Record<string, Tools[number]> = {};
   for (const tool of tools) {
     output[tool.name] = tool;
   }
@@ -265,8 +282,8 @@ export const empty: Toolkit<{}> = makeProto({});
 /**
  * @since 0.0.0
  */
-export const make = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Toolkit<ToolsByName<Tools>> =>
-  makeProto(resolveInput(...tools)) as any;
+export const make = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Toolkit<Record<string, Tools[number]>> =>
+  makeProto(resolveInput(...tools));
 
 /**
  * @since 0.0.0
@@ -296,18 +313,18 @@ export type MergedTools<Toolkits extends ReadonlyArray<Any>> = SimplifyRecord<Me
  */
 export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>(
   definitions: Defs
-): ToolkitWithHandlers<ToolsFromDefinitions<Defs>> => {
-  const tools = {} as ToolsFromDefinitions<Defs>;
-  const handlers: Record<string, (params: any) => Effect.Effect<any, any, any>> = {};
-  for (const name in definitions) {
-    const tool = Tool.define(name as string, definitions[name] as any);
-    tools[name] = tool as any;
-    handlers[name] = tool.handler as any;
+): ToolkitWithHandlers<Record<string, Tool.Any>> => {
+  const tools: Record<string, Tool.Any> = {};
+  const handlers: Record<string, (params: unknown) => Effect.Effect<unknown, unknown, never>> = {};
+  for (const [name, definition] of R.toEntries(definitions)) {
+    const tool = Tool.define(name, definition);
+    tools[name] = tool;
+    handlers[name] = tool.handler;
   }
   return {
     ...makeProto(tools),
-    handlers: handlers as HandlersFrom<ToolsFromDefinitions<Defs>>,
-  } as any;
+    handlers,
+  };
 };
 
 /**
@@ -318,12 +335,12 @@ export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>
  */
 export const merge = <const Toolkits extends ReadonlyArray<Any>>(
   ...toolkits: Toolkits
-): Toolkit<MergedTools<Toolkits>> => {
-  const tools = {} as Record<string, Tool.Any>;
+): Toolkit<Record<string, Tool.Any>> => {
+  const tools: Record<string, Tool.Any> = {};
   for (const toolkit of toolkits) {
     for (const tool of A.map(R.toEntries(toolkit.tools), ([, tool]) => tool)) {
       tools[tool.name] = tool;
     }
   }
-  return makeProto(tools) as any;
+  return makeProto(tools);
 };

@@ -124,8 +124,7 @@ export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
         const next: readonly [boolean, ReadonlyArray<string>] = [hasText, []];
         return next;
       }
-    ),
-    Stream.flatMap((chunks) => Stream.fromIterable(chunks))
+    )
   );
 
 /**

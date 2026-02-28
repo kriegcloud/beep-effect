@@ -47,36 +47,12 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
  */
 export const MimeType = pipe(
   {
-    Application: LiteralKit(extractMimeTypes(MimeTypesData.application)).annotate(
-      $I.annote("MimeType.Application", {
-        description: "a mime type that represents application data.",
-      })
-    ),
-    Video: LiteralKit(extractMimeTypes(MimeTypesData.video)).annotate(
-      $I.annote("MimeType.Video", {
-        description: "a mime type that represents video data.",
-      })
-    ),
-    Text: LiteralKit(extractMimeTypes(MimeTypesData.text)).annotate(
-      $I.annote("MimeType.Text", {
-        description: "a mime type that represents text data.",
-      })
-    ),
-    Image: LiteralKit(extractMimeTypes(MimeTypesData.image)).annotate(
-      $I.annote("MimeType.Image", {
-        description: "a mime type that represents image data.",
-      })
-    ),
-    Audio: LiteralKit(extractMimeTypes(MimeTypesData.audio)).annotate(
-      $I.annote("MimeType.Audio", {
-        description: "a mime type that represents audio data.",
-      })
-    ),
-    Misc: LiteralKit(extractMimeTypes(MimeTypesData.misc)).annotate(
-      $I.annote("MimeType.Misc", {
-        description: "a mime type that represents miscellaneous data.",
-      })
-    ),
+    Application: LiteralKit(extractMimeTypes(MimeTypesData.application)),
+    Video: LiteralKit(extractMimeTypes(MimeTypesData.video)),
+    Text: LiteralKit(extractMimeTypes(MimeTypesData.text)),
+    Image: LiteralKit(extractMimeTypes(MimeTypesData.image)),
+    Audio: LiteralKit(extractMimeTypes(MimeTypesData.audio)),
+    Misc: LiteralKit(extractMimeTypes(MimeTypesData.misc)),
   } as const,
   (kinds) => {
     const { Application, Video, Text, Image, Audio, Misc } = kinds;
@@ -87,16 +63,13 @@ export const MimeType = pipe(
       ...Image.Options,
       ...Audio.Options,
       ...Misc.Options,
-    ]);
-
-    return Object.assign(base, {
-      kinds,
-    });
+    ]).annotate(
+      $I.annote("MimeType", {
+        description: "a mime type.",
+      })
+    );
+    return Object.assign(base, { kinds });
   }
-).annotate(
-  $I.annote("MimeType", {
-    description: "a mime type.",
-  })
 );
 
 /**

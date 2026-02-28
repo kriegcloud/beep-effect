@@ -1,6 +1,7 @@
 import type { AgentRuntimeSettings } from "@beep/ai-sdk/AgentRuntimeConfig";
 import type { QuerySupervisorSettings } from "@beep/ai-sdk/QuerySupervisorConfig";
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
+import { vi } from "vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

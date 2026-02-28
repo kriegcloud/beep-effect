@@ -1,10 +1,11 @@
 import { Mcp, Tools } from "@beep/ai-sdk";
-import { CallToolResult, type CallToolResult as CallToolResultType } from "@beep/ai-sdk/Schema/External";
+import { CallToolResult } from "@beep/ai-sdk/Schema/External";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
 import { z } from "zod";
+import { runEffect } from "./effect-test.js";
 
 class ExplosionError extends Error {
   readonly _tag = "ExplosionError";
@@ -20,10 +21,15 @@ const requireFirst = <A>(items: ReadonlyArray<A>): A => {
 
 const decodeCallToolResult = Schema.decodeUnknownSync(CallToolResult);
 
-const invokeTool = async (
-  tool: unknown,
-  params: Record<string, unknown>
-): Promise<CallToolResultType> => {
+const readStringField = (value: unknown, field: string): string | undefined => {
+  if (!Predicate.isObject(value)) {
+    return undefined;
+  }
+  const fieldValue = Reflect.get(value, field);
+  return Predicate.isString(fieldValue) ? fieldValue : undefined;
+};
+
+const invokeTool = async (tool: unknown, params: Record<string, unknown>) => {
   if (!Predicate.isObject(tool)) {
     throw new Error("Expected MCP tool object");
   }
@@ -45,10 +51,13 @@ test("Mcp.toolsFromToolkit builds tools and renders success results", async () =
 
   const toolkit = Tools.Toolkit.make(Echo);
   const handlers = toolkit.of({
-    echo: (params) => Effect.succeed({ message: params.message }),
+    echo: (params) =>
+      Effect.succeed({
+        message: readStringField(params, "message") ?? "",
+      }),
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   expect(tools).toHaveLength(1);
 
   const tool = requireFirst(tools);
@@ -71,10 +80,13 @@ test("Mcp.toolsFromToolkit renders failure-mode results as errors", async () => 
 
   const toolkit = Tools.Toolkit.make(Fails);
   const handlers = toolkit.of({
-    fails: (params) => Effect.fail({ reason: params.reason }),
+    fails: (params) =>
+      Effect.fail({
+        reason: readStringField(params, "reason") ?? "unknown",
+      }),
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { reason: "nope" });
@@ -93,10 +105,13 @@ test("Mcp.toolsFromToolkit maps handler errors to CallToolResult", async () => {
 
   const toolkit = Tools.Toolkit.make(Echo);
   const handlers = toolkit.of({
-    strict: (params) => Effect.succeed({ message: params.message }),
+    strict: (params) =>
+      Effect.succeed({
+        message: readStringField(params, "message") ?? "",
+      }),
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { message: 123 });
@@ -123,7 +138,7 @@ test("Mcp.toolsFromToolkit serializes error instances in structuredContent", asy
     explode: () => Effect.fail(new ExplosionError("boom")),
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { message: "hi" });

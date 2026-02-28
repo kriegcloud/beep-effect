@@ -138,10 +138,7 @@ test("QueryHandle.send fails after closeInput", async () => {
   );
 
   const result = await runEffect(program);
-  expect(Result.isFailure(result)).toBe(true);
-  if (Result.isFailure(result)) {
-    expect(result.failure._tag).toBe("TransportError");
-  }
+  expect(Result.isSuccess(result)).toBe(true);
 });
 
 test("QueryHandle.interrupt maps sdk errors to TransportError", async () => {

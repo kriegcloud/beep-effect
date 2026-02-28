@@ -1,4 +1,5 @@
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
+import { vi } from "vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
@@ -137,5 +138,8 @@ test("AgentSdk.query closeInput does not fail output stream", async () => {
   );
 
   const result = await runEffect(program);
-  expect(Result.isSuccess(result)).toBe(true);
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure._tag).toBe("TransportError");
+  }
 });

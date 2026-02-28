@@ -1,6 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Config, Effect, Layer, Match, type LogLevel, ServiceMap } from "effect";
+import { Config, Effect, Layer, type LogLevel, Match, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ConfigError } from "../Errors.js";

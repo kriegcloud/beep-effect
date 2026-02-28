@@ -1,6 +1,6 @@
 import { type KVNamespace, layerKV } from "@beep/ai-sdk/Storage/StorageKV";
 import { expect, test } from "@effect/vitest";
-import { Effect, Option } from "effect";
+import { Effect } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
 
 const makeMockKVNamespace = (data: Record<string, string> = {}): KVNamespace => ({
@@ -34,10 +34,10 @@ test("KV get/set/remove round-trip", async () => {
     const kv = yield* KeyValueStore.KeyValueStore;
     yield* kv.set("key1", "value1");
     const result = yield* kv.get("key1");
-    expect(result).toEqual(Option.some("value1"));
+    expect(result).toBe("value1");
     yield* kv.remove("key1");
     const after = yield* kv.get("key1");
-    expect(after).toEqual(Option.none());
+    expect(after).toBeUndefined();
   });
   await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
 });
@@ -88,6 +88,6 @@ test("KV coalesces rapid writes to the same key", async () => {
   });
 
   const result = await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
-  expect(result).toEqual(Option.some("v3"));
+  expect(result).toBe("v3");
   expect(putCalls).toBe(2);
 });

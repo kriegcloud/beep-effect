@@ -174,9 +174,7 @@ export class AuditEventStore extends ServiceMap.Service<AuditEventStore, AuditEv
             Layer.provide(
               layerEventJournalKeyValueStore(options?.journalKey ? { key: options.journalKey } : undefined)
             ),
-            // Layer.provide(EventLog.layerEventLog.pipe(Layer.succeed({
-            //   key: options?.identityKey ?? defaultAuditIdentityKey
-            // }))),
+            Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
             Layer.provide(layerAuditHandlers),
             Layer.provide(conflictPolicyLayer)
           );

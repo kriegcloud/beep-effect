@@ -306,23 +306,25 @@ test("Session.close respects closeDrainTimeout override", async () => {
     [Symbol.asyncDispose]: async () => {},
   };
 
-  const program = Effect.gen(function* () {
-    const handle = yield* fromSdkSession(sdkSession, {
-      closeDrainTimeout: "20 millis",
-    });
-    const streamFiber = yield* Effect.forkChild(Stream.runDrain(handle.stream));
-    yield* Effect.promise(() => streamStarted.promise);
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* fromSdkSession(sdkSession, {
+        closeDrainTimeout: "20 millis",
+      });
+      const streamFiber = yield* Effect.forkChild(Stream.runDrain(handle.stream));
+      yield* Effect.promise(() => streamStarted.promise);
 
-    const closeFiber = yield* Effect.forkChild(handle.close);
-    yield* TestClock.adjust("60 millis");
-    yield* Effect.yieldNow;
+      const closeFiber = yield* Effect.forkChild(handle.close);
+      yield* TestClock.adjust("60 millis");
+      yield* Effect.yieldNow;
 
-    const closeStatus = yield* pollFiber(closeFiber);
-    releaseStream.open();
-    yield* Fiber.join(streamFiber);
-    yield* Fiber.join(closeFiber);
-    return closeStatus;
-  });
+      const closeStatus = yield* pollFiber(closeFiber);
+      releaseStream.open();
+      yield* Fiber.join(streamFiber);
+      yield* Fiber.join(closeFiber);
+      return closeStatus;
+    })
+  );
 
   const closeStatus = await runEffect(program);
   expect(Option.isSome(closeStatus)).toBe(true);
@@ -343,7 +345,7 @@ test("Session.fromSdkSession fails with TransportError on invalid closeDrainTime
   const result = await runEffect(
     Effect.result(
       fromSdkSession(sdkSession, {
-        closeDrainTimeout: "1e309 millis",
+        closeDrainTimeout: "not-a-duration",
       })
     )
   );

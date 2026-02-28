@@ -51,30 +51,30 @@ const tenant = Bun.env.CLOUDFLARE_SYNC_TENANT ?? `test-${Date.now()}`;
 const authToken = Bun.env.CLOUDFLARE_SYNC_TOKEN;
 const protocols = authToken ? `sync-auth.${authToken}` : undefined;
 
-const remoteUrl = baseUrl
-  ? Sync.buildRemoteUrl(baseUrl, {
-      tenant,
-    })
-  : undefined;
-
-const maybeTest = remoteUrl ? test : test.skip;
+const maybeTest = baseUrl ? test : test.skip;
 
 maybeTest(
   "Cloudflare remote sync propagates messages (requires CLOUDFLARE_SYNC_URL)",
   async () => {
     const program = Effect.scoped(
       Effect.gen(function* () {
+        if (baseUrl === undefined) {
+          return [];
+        }
+        const remoteUrl = yield* Sync.buildRemoteUrl(baseUrl, {
+          tenant,
+        });
         const kvContext = yield* Layer.build(KeyValueStore.layerMemory);
         const kv = ServiceMap.get(kvContext, KeyValueStore.KeyValueStore);
 
         const replicaAContext = yield* Layer.build(
-          makeReplicaLayer(remoteUrl!, kv, {
+          makeReplicaLayer(remoteUrl, kv, {
             prefix: "replica-a",
             ...(protocols !== undefined ? { protocols } : {}),
           })
         );
         const replicaBContext = yield* Layer.build(
-          makeReplicaLayer(remoteUrl!, kv, {
+          makeReplicaLayer(remoteUrl, kv, {
             prefix: "replica-b",
             ...(protocols !== undefined ? { protocols } : {}),
           })
@@ -107,8 +107,8 @@ maybeTest(
           { retries: 160, interval: Duration.millis(100) }
         );
 
-        yield* syncA.disconnectWebSocket(remoteUrl!);
-        yield* syncB.disconnectWebSocket(remoteUrl!);
+        yield* syncA.disconnectWebSocket(remoteUrl);
+        yield* syncB.disconnectWebSocket(remoteUrl);
         yield* Effect.sleep(Duration.millis(50));
 
         return listB;

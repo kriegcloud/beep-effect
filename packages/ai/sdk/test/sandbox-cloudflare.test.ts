@@ -1,7 +1,11 @@
-import type { CloudflareSandboxOptions } from "@beep/ai-sdk/Sandbox/SandboxCloudflare";
+import {
+  cloudflareSandboxModuleOverrideKey,
+  type CloudflareSandboxOptions,
+} from "@beep/ai-sdk/Sandbox/SandboxCloudflare";
 import { SandboxService } from "@beep/ai-sdk/Sandbox/SandboxService";
 import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
+import { describe } from "vitest";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import type * as Scope from "effect/Scope";
@@ -89,7 +93,7 @@ const makeState = (): MockSandboxState => ({
 
 let state = makeState();
 
-vi.mock("@cloudflare/sandbox", () => ({
+const cloudflareSandboxModule = {
   parseSSEStream: async function* <T>(stream: ReadableStream): AsyncIterable<T> {
     const queuedEvents = state.sseEventsQueue?.shift();
     if (queuedEvents) {
@@ -173,7 +177,9 @@ vi.mock("@cloudflare/sandbox", () => ({
       },
     };
   },
-}));
+} as const;
+
+Reflect.set(globalThis, cloudflareSandboxModuleOverrideKey, cloudflareSandboxModule);
 
 const defaultBinding = { name: "sandbox-binding" };
 
@@ -229,6 +235,7 @@ const assertSandboxError = (result: Result.Result<unknown, unknown>, operation: 
   }
 };
 
+describe.sequential("SandboxCloudflare", () => {
 test("SandboxCloudflare wires lifecycle and core methods", async () => {
   state = makeState();
   state.readFileContent = "file-content";
@@ -719,4 +726,5 @@ test("SandboxCloudflare.runAgent fails on non-zero complete exit code", async ()
   );
 
   assertSandboxError(result, "runAgent.exec");
+});
 });

@@ -1,4 +1,5 @@
-import { expect, test, vi } from "@effect/vitest";
+import { expect, test } from "@effect/vitest";
+import { vi } from "vitest";
 import * as Effect from "effect/Effect";
 import { runEffect } from "./effect-test.js";
 

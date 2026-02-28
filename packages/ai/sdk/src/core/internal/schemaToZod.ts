@@ -1,6 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { Effect, SchemaAST as AST } from "effect";
-import * as Result from "effect/Result";
+import { SchemaAST as AST, Effect, Result } from "effect";
 import * as S from "effect/Schema";
 import { z } from "zod";
 
@@ -29,10 +28,7 @@ export class SchemaToZodError extends S.TaggedErrorClass<SchemaToZodError>($I`Sc
 const unsupported = <A>(message: string, path: ReadonlyArray<string>): Result.Result<A, SchemaToZodError> =>
   Result.fail(SchemaToZodError.make(message, path));
 
-const compileUnion = (
-  ast: AST.Union,
-  path: ReadonlyArray<string>
-): Result.Result<z.ZodType, SchemaToZodError> => {
+const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
   const members = ast.types;
   if (members.length === 0) {
     return Result.succeed(z.never());
@@ -68,10 +64,7 @@ const compileUnion = (
   return Result.succeed(schema);
 };
 
-const compileObjects = (
-  ast: AST.Objects,
-  path: ReadonlyArray<string>
-): Result.Result<z.ZodType, SchemaToZodError> => {
+const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
   const shape: Record<string, z.ZodType> = {};
 
   for (const property of ast.propertySignatures) {
@@ -104,10 +97,7 @@ const compileObjects = (
   return unsupported("Multiple index signatures are unsupported", path);
 };
 
-const compileArrays = (
-  ast: AST.Arrays,
-  path: ReadonlyArray<string>
-): Result.Result<z.ZodType, SchemaToZodError> => {
+const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
   if (ast.elements.length === 0 && ast.rest.length === 1) {
     return Result.map(compile(ast.rest[0], path), (schema: z.ZodType) => z.array(schema));
   }
@@ -117,7 +107,47 @@ const compileArrays = (
   }
 
   if (ast.elements.length > 0 && ast.rest.length === 0) {
-    return Result.succeed(z.array(z.unknown()));
+    const compiledElements: Array<z.ZodType> = [];
+    for (let index = 0; index < ast.elements.length; index += 1) {
+      const element = ast.elements[index];
+      if (element === undefined) {
+        continue;
+      }
+      const compiled = compile(element, path.concat(`[${index}]`));
+      if (Result.isFailure(compiled)) {
+        return compiled;
+      }
+      compiledElements.push(compiled.success);
+    }
+    const [first, ...rest] = compiledElements;
+    if (!first) {
+      return Result.succeed(z.tuple([]));
+    }
+    return Result.succeed(z.tuple([first, ...rest]));
+  }
+
+  if (ast.elements.length > 0 && ast.rest.length === 1) {
+    const compiledElements: Array<z.ZodType> = [];
+    for (let index = 0; index < ast.elements.length; index += 1) {
+      const element = ast.elements[index];
+      if (element === undefined) {
+        continue;
+      }
+      const compiled = compile(element, path.concat(`[${index}]`));
+      if (Result.isFailure(compiled)) {
+        return compiled;
+      }
+      compiledElements.push(compiled.success);
+    }
+    const compiledRest = compile(ast.rest[0], path.concat("[rest]"));
+    if (Result.isFailure(compiledRest)) {
+      return compiledRest;
+    }
+    const [first, ...rest] = compiledElements;
+    if (!first) {
+      return Result.succeed(z.array(compiledRest.success));
+    }
+    return Result.succeed(z.tuple([first, ...rest]).rest(compiledRest.success));
   }
 
   if (ast.rest.length === 1) {
@@ -125,6 +155,43 @@ const compileArrays = (
   }
 
   return unsupported("Array shape is not supported", path);
+};
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const templatePartRegex = (part: AST.AST): string | undefined => {
+  if (AST.isLiteral(part) && typeof part.literal === "string") {
+    return escapeRegex(part.literal);
+  }
+  if (AST.isString(part)) {
+    return ".*";
+  }
+  if (AST.isNumber(part)) {
+    return "[+-]?(?:\\d+|\\d*\\.\\d+)(?:[eE][+-]?\\d+)?";
+  }
+  if (AST.isBoolean(part)) {
+    return "(?:true|false)";
+  }
+  if (AST.isBigInt(part)) {
+    return "[+-]?\\d+n";
+  }
+  return undefined;
+};
+
+const compileTemplateLiteral = (
+  ast: AST.TemplateLiteral,
+  path: ReadonlyArray<string>
+): Result.Result<z.ZodType, SchemaToZodError> => {
+  const fragments: Array<string> = [];
+  for (const part of ast.parts) {
+    const regex = templatePartRegex(part);
+    if (regex === undefined) {
+      return unsupported("Unsupported template literal part", path);
+    }
+    fragments.push(regex);
+  }
+  const pattern = new RegExp(`^${fragments.join("")}$`);
+  return Result.succeed(z.string().regex(pattern));
 };
 
 const compileEnum = (ast: AST.Enum): Result.Result<z.ZodType, SchemaToZodError> => {
@@ -170,7 +237,7 @@ const compile = (ast: AST.AST, path: ReadonlyArray<string>): Result.Result<z.Zod
       })
     );
   }
-  if (AST.isTemplateLiteral(ast)) return Result.succeed(z.string());
+  if (AST.isTemplateLiteral(ast)) return compileTemplateLiteral(ast, path);
   if (AST.isUndefined(ast)) return Result.succeed(z.undefined());
   if (AST.isVoid(ast)) return Result.succeed(z.void());
   if (AST.isNever(ast)) return Result.succeed(z.never());

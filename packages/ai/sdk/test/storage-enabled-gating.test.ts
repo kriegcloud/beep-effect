@@ -8,7 +8,7 @@ import * as Layer from "effect/Layer";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 const makeUserMessage = (sessionId: string, text: string): SDKUserMessage => ({
   type: "user",

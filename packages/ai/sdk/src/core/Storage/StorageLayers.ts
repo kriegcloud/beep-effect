@@ -1,4 +1,5 @@
-import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import type { Duration, FileSystem, Path } from "effect";
 import { Effect, Layer } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";

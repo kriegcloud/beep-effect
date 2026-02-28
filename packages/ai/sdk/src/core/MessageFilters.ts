@@ -191,25 +191,27 @@ type UserLikeMessage = SDKUserMessage | SDKUserMessageReplay;
 /**
  * @since 0.0.0
  */
-export const fold = <R>(handlers: {
-  readonly assistant: (msg: SDKAssistantMessage) => R;
-  readonly user: (msg: UserLikeMessage) => R;
-  readonly result: (msg: SDKResultMessage) => R;
-  readonly system: (msg: SystemLikeMessage) => R;
-  readonly stream_event: (msg: SDKPartialAssistantMessage) => R;
-  readonly tool: (msg: ToolMessage) => R;
-  readonly auth_status: (msg: SDKAuthStatusMessage) => R;
-}): ((msg: SDKMessage) => R) => (msg: SDKMessage) => {
-  if (isAssistant(msg)) return handlers.assistant(msg);
-  if (isUser(msg)) return handlers.user(msg);
-  if (isResult(msg)) return handlers.result(msg);
-  if (isStreamEvent(msg)) return handlers.stream_event(msg);
-  if (isToolProgress(msg) || isToolUseSummary(msg)) return handlers.tool(msg);
-  if (isAuthStatus(msg)) return handlers.auth_status(msg);
-  if (msg.type === "system") return handlers.system(msg);
-  const unexpected: never = msg;
-  return unexpected;
-};
+export const fold =
+  <R>(handlers: {
+    readonly assistant: (msg: SDKAssistantMessage) => R;
+    readonly user: (msg: UserLikeMessage) => R;
+    readonly result: (msg: SDKResultMessage) => R;
+    readonly system: (msg: SystemLikeMessage) => R;
+    readonly stream_event: (msg: SDKPartialAssistantMessage) => R;
+    readonly tool: (msg: ToolMessage) => R;
+    readonly auth_status: (msg: SDKAuthStatusMessage) => R;
+  }): ((msg: SDKMessage) => R) =>
+  (msg: SDKMessage) => {
+    if (isAssistant(msg)) return handlers.assistant(msg);
+    if (isUser(msg)) return handlers.user(msg);
+    if (isResult(msg)) return handlers.result(msg);
+    if (isStreamEvent(msg)) return handlers.stream_event(msg);
+    if (isToolProgress(msg) || isToolUseSummary(msg)) return handlers.tool(msg);
+    if (isAuthStatus(msg)) return handlers.auth_status(msg);
+    if (msg.type === "system") return handlers.system(msg);
+    const unexpected: never = msg;
+    return unexpected;
+  };
 
 // ---------------------------------------------------------------------------
 // Re-exported text utilities

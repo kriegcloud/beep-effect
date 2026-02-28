@@ -117,13 +117,10 @@ export const AgentSdkError = S.Union([
   McpError,
   SandboxError,
   QuerySupervisorError,
-]).pipe(
-  S.toTaggedUnion("_tag"),
-  S.annotate(
-    $I.annote("AgentsSdkError", {
-      description: "Union of all public errors for the Effect wrapper.",
-    })
-  )
+]).annotate(
+  $I.annote("AgentsSdkError", {
+    description: "Union of all public errors for the Effect wrapper.",
+  })
 );
 
 /**

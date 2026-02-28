@@ -1,4 +1,4 @@
-import { BunHttpServer } from "@effect/platform-bun";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Layer } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";

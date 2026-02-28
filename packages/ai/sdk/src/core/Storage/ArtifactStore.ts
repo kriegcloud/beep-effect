@@ -1,5 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { Clock, Duration, Effect, HashMap, HashSet, Layer, ServiceMap, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
 import { KeyValueStore } from "effect/unstable/persistence";

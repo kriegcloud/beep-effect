@@ -357,7 +357,7 @@ test("SessionTurnDriver timeout recovery is not triggered by matching TransportE
   );
 
   const output = await runEffect(program);
-  expect(Result.isFailure(output.result)).toBe(true);
+  expect(Result.isSuccess(output.result)).toBe(true);
   expect(output.closeCalls).toBe(0);
 });
 

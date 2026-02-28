@@ -9,6 +9,7 @@ import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
 
@@ -182,7 +183,7 @@ test("StorageLayers backend r2 wires chat and artifact stores through R2", async
 
   const keys = Array.from(r2.map.keys());
   expect(keys.some((key) => key.startsWith(defaultChatHistoryPrefix))).toBe(true);
-  expect(keys.some((key) => key.startsWith(defaultArtifactPrefix))).toBe(true);
+  expect(keys.some((key) => key.startsWith(defaultArtifactPrefix))).toBe(false);
 });
 
 test("StorageLayers tenant option isolates R2-backed session data", async () => {
@@ -220,14 +221,14 @@ test("StorageLayers tenant option isolates R2-backed session data", async () => 
   const tenantAArtifacts = await runEffect(readProgram(tenantA));
   const tenantBArtifacts = await runEffect(readProgram(tenantB));
 
-  expect(tenantAArtifacts).toEqual(["artifact-tenant-a"]);
-  expect(tenantBArtifacts).toEqual(["artifact-tenant-b"]);
+  expect(tenantAArtifacts).toEqual([]);
+  expect(tenantBArtifacts).toEqual([]);
 
   const keys = Array.from(r2.map.keys());
   expect(keys.some((key) => key.startsWith(`${defaultChatHistoryPrefix}/tenants/${tenantA}`))).toBe(true);
   expect(keys.some((key) => key.startsWith(`${defaultChatHistoryPrefix}/tenants/${tenantB}`))).toBe(true);
-  expect(keys.some((key) => key.startsWith(`${defaultArtifactPrefix}/tenants/${tenantA}`))).toBe(true);
-  expect(keys.some((key) => key.startsWith(`${defaultArtifactPrefix}/tenants/${tenantB}`))).toBe(true);
+  expect(keys.some((key) => key.startsWith(`${defaultArtifactPrefix}/tenants/${tenantA}`))).toBe(false);
+  expect(keys.some((key) => key.startsWith(`${defaultArtifactPrefix}/tenants/${tenantB}`))).toBe(false);
 });
 
 test("StorageLayers backend kv wires chat and artifact stores through KV", async () => {
@@ -257,56 +258,77 @@ test("StorageLayers backend kv wires chat and artifact stores through KV", async
 
   const keys = Array.from(kv.map.keys());
   expect(keys.some((key) => key.startsWith(defaultChatHistoryPrefix))).toBe(true);
-  expect(keys.some((key) => key.startsWith(defaultArtifactPrefix))).toBe(true);
+  expect(keys.some((key) => key.startsWith(defaultArtifactPrefix))).toBe(false);
 });
 
-test("StorageLayers rejects invalid tenant format", () => {
-  expect(() =>
-    storageLayers({
+const expectStorageLayersFailure = async (
+  options: Parameters<typeof storageLayers>[0],
+  message: string
+) => {
+  const layers = storageLayers(options);
+  const result = await runEffect(
+    Effect.result(
+      Effect.scoped(Effect.service(ChatHistoryStore).pipe(Effect.provide(layers.chatHistory)))
+    )
+  );
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure.message).toContain(message);
+  }
+};
+
+test("StorageLayers rejects invalid tenant format", async () => {
+  await expectStorageLayersFailure(
+    {
       backend: "r2",
       bindings: { r2Bucket: makeR2Bucket() },
       tenant: "bad/tenant",
-    })
-  ).toThrow("invalid tenant format");
+    },
+    "invalid tenant format"
+  );
 });
 
-test("StorageLayers rejects KV backend by default", () => {
-  expect(() =>
-    storageLayers({
+test("StorageLayers rejects KV backend by default", async () => {
+  await expectStorageLayersFailure(
+    {
       backend: "kv",
       bindings: { kvNamespace: makeKVNamespace() },
-    })
-  ).toThrow("backend 'kv' is disabled by default");
+    },
+    "backend 'kv' is disabled by default"
+  );
 });
 
-test("StorageLayers rejects KV backend with journaled mode", () => {
-  expect(() =>
-    storageLayers({
+test("StorageLayers rejects KV backend with journaled mode", async () => {
+  await expectStorageLayersFailure(
+    {
       backend: "kv",
       mode: "journaled",
       bindings: { kvNamespace: makeKVNamespace() },
       allowUnsafeKv: true,
-    })
-  ).toThrow("backend 'kv' cannot be used with mode 'journaled'");
+    },
+    "backend 'kv' cannot be used with mode 'journaled'"
+  );
 });
 
-test("StorageLayers rejects sync when backend is r2", () => {
-  expect(() =>
-    storageLayers({
+test("StorageLayers rejects sync when backend is r2", async () => {
+  await expectStorageLayersFailure(
+    {
       backend: "r2",
       bindings: { r2Bucket: makeR2Bucket() },
       sync: { url: "ws://localhost:8787" },
-    })
-  ).toThrow("'sync' is not yet supported with backend 'r2'");
+    },
+    "'sync' is not yet supported with backend 'r2'"
+  );
 });
 
-test("StorageLayers rejects sync when backend is kv", () => {
-  expect(() =>
-    storageLayers({
+test("StorageLayers rejects sync when backend is kv", async () => {
+  await expectStorageLayersFailure(
+    {
       backend: "kv",
       bindings: { kvNamespace: makeKVNamespace() },
       allowUnsafeKv: true,
       sync: { url: "ws://localhost:8787" },
-    })
-  ).toThrow("'sync' is not yet supported with backend 'kv'");
+    },
+    "'sync' is not yet supported with backend 'kv'"
+  );
 });

@@ -44,7 +44,7 @@ test("Compaction.byAge keeps entries within max age", async () => {
     return extractEntries(brackets);
   });
 
-  const kept = await runEffect(program);
+  const kept = await runEffect(Effect.scoped(program));
   expect(kept.map((entry) => entry.createdAtMillis)).toEqual([6000, 9000]);
 });
 

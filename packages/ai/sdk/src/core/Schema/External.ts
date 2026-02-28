@@ -39,7 +39,7 @@ export type McpServer = unknown;
 /**
  * @since 0.0.0
  */
-export const BetaMessage = S.declare((_: unknown): _ is BetaMessage => true).pipe(
+export const BetaMessage = S.Json.pipe(
   S.annotate(
     $I.annote("BetaMessage", {
       description: "Schema for BetaMessage.",
@@ -51,7 +51,7 @@ export const BetaMessage = S.declare((_: unknown): _ is BetaMessage => true).pip
 /**
  * @since 0.0.0
  */
-export const BetaRawMessageStreamEvent = S.declare((_: unknown): _ is BetaRawMessageStreamEvent => true).pipe(
+export const BetaRawMessageStreamEvent = S.Json.pipe(
   S.annotate(
     $I.annote("BetaRawMessageStreamEvent", {
       description: "Schema for BetaRawMessageStreamEvent.",
@@ -63,7 +63,7 @@ export const BetaRawMessageStreamEvent = S.declare((_: unknown): _ is BetaRawMes
 /**
  * @since 0.0.0
  */
-export const BetaUsage = S.declare((_: unknown): _ is BetaUsage => true).pipe(
+export const BetaUsage = S.Json.pipe(
   S.annotate(
     $I.annote("BetaUsage", {
       description: "Schema for BetaUsage.",
@@ -75,7 +75,7 @@ export const BetaUsage = S.declare((_: unknown): _ is BetaUsage => true).pipe(
 /**
  * @since 0.0.0
  */
-export const MessageParam = S.declare((_: unknown): _ is MessageParam => true).pipe(
+export const MessageParam = S.Json.pipe(
   S.annotate(
     $I.annote("MessageParam", {
       description: "Schema for MessageParam.",
@@ -87,7 +87,7 @@ export const MessageParam = S.declare((_: unknown): _ is MessageParam => true).p
 /**
  * @since 0.0.0
  */
-export const JSONRPCMessage = S.declare((_: unknown): _ is JSONRPCMessage => true).pipe(
+export const JSONRPCMessage = S.Json.pipe(
   S.annotate(
     $I.annote("JSONRPCMessage", {
       description: "Schema for JSONRPCMessage.",
@@ -114,7 +114,7 @@ export const CallToolResult = S.Struct({
 /**
  * @since 0.0.0
  */
-export const McpServer = S.declare((_: unknown): _ is McpServer => true).pipe(
+export const McpServer = S.Json.pipe(
   S.annotate(
     $I.annote("McpServer", {
       description: "Schema for McpServer.",

@@ -266,31 +266,74 @@ export type SDKResultSuccessEncoded = typeof SDKResultSuccess.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKResultError = withSdkMessage(
+const sdkResultErrorFields = {
+  type: S.Literal("result"),
+  duration_ms: S.Number,
+  duration_api_ms: S.Number,
+  is_error: S.Boolean,
+  num_turns: S.Number,
+  stop_reason: S.optional(S.Union([S.String, S.Null])),
+  total_cost_usd: S.Number,
+  usage: NonNullableUsage,
+  modelUsage: S.Record(S.String, ModelUsage),
+  permission_denials: S.Array(SDKPermissionDenial),
+  errors: S.Array(S.String),
+  uuid: UUID,
+  session_id: S.String,
+} as const;
+
+const SDKResultErrorDuringExecution = withSdkMessage(
   S.Struct({
-    type: S.Literal("result"),
-    subtype: LiteralKit([
-      "error_during_execution",
-      "error_max_turns",
-      "error_max_budget_usd",
-      "error_max_structured_output_retries",
-    ]),
-    duration_ms: S.Number,
-    duration_api_ms: S.Number,
-    is_error: S.Boolean,
-    num_turns: S.Number,
-    stop_reason: S.optional(S.Union([S.String, S.Null])),
-    total_cost_usd: S.Number,
-    usage: NonNullableUsage,
-    modelUsage: S.Record(S.String, ModelUsage),
-    permission_denials: S.Array(SDKPermissionDenial),
-    errors: S.Array(S.String),
-    uuid: UUID,
-    session_id: S.String,
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_during_execution"),
   }),
-  $I.annote("SDKResultError", {
-    description: "Schema for SDKResultError.",
+  $I.annote("SDKResultErrorDuringExecution", {
+    description: "Schema for SDK result execution errors.",
   })
+);
+
+const SDKResultErrorMaxTurns = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_turns"),
+  }),
+  $I.annote("SDKResultErrorMaxTurns", {
+    description: "Schema for SDK result max-turn errors.",
+  })
+);
+
+const SDKResultErrorMaxBudget = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_budget_usd"),
+  }),
+  $I.annote("SDKResultErrorMaxBudget", {
+    description: "Schema for SDK result budget-limit errors.",
+  })
+);
+
+const SDKResultErrorMaxStructuredOutputRetries = withSdkMessage(
+  S.Struct({
+    ...sdkResultErrorFields,
+    subtype: S.Literal("error_max_structured_output_retries"),
+  }),
+  $I.annote("SDKResultErrorMaxStructuredOutputRetries", {
+    description: "Schema for SDK result structured output retry-limit errors.",
+  })
+);
+
+export const SDKResultError = S.Union([
+  SDKResultErrorDuringExecution,
+  SDKResultErrorMaxTurns,
+  SDKResultErrorMaxBudget,
+  SDKResultErrorMaxStructuredOutputRetries,
+]).pipe(
+  S.toTaggedUnion("subtype"),
+  S.annotate(
+    $I.annote("SDKResultError", {
+      description: "Tagged union schema for SDKResultError variants.",
+    })
+  )
 );
 
 /**
@@ -305,7 +348,13 @@ export type SDKResultErrorEncoded = typeof SDKResultError.Encoded;
 /**
  * @since 0.0.0
  */
-export const SDKResultMessage = S.Union([SDKResultSuccess, SDKResultError]).pipe(
+export const SDKResultMessage = S.Union([
+  SDKResultSuccess,
+  SDKResultErrorDuringExecution,
+  SDKResultErrorMaxTurns,
+  SDKResultErrorMaxBudget,
+  SDKResultErrorMaxStructuredOutputRetries,
+]).pipe(
   S.toTaggedUnion("subtype"),
   S.annotate(
     $I.annote("SDKResultMessage", {

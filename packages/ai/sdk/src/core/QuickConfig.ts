@@ -1,4 +1,5 @@
-import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { Duration, Effect, Layer, Match } from "effect";
 import * as P from "effect/Predicate";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";

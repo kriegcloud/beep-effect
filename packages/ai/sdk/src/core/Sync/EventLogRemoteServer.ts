@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { BunHttpServer } from "@effect/platform-bun";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
@@ -106,8 +106,7 @@ export const toWebSocketUrlEffect = (
     readonly hostname?: string;
     readonly scheme?: "ws" | "wss";
   }
-) =>
-  toWebSocketUrl(address, options).pipe(Effect.mapError(toWebSocketUrlError));
+) => toWebSocketUrl(address, options).pipe(Effect.mapError(toWebSocketUrlError));
 
 /**
  * @since 0.0.0

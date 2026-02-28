@@ -49,44 +49,39 @@ export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(layerIdentityMemory)
 );
 
-class ToolUsePayloadBase extends S.Class<ToolUsePayloadBase>($I`ToolUsePayloadBase`)(
-  {
-    sessionId: S.String,
-    toolName: S.String,
-    toolUseId: S.optional(S.String),
-    durationMs: S.optional(S.Number),
-  },
-  $I.annote("ToolUsePayloadBase", {
-    description: "Base payload for tool use audit events.",
-  })
-) {}
+const toolUsePayloadFields = {
+  sessionId: S.String,
+  toolName: S.String,
+  toolUseId: S.optional(S.String),
+  durationMs: S.optional(S.Number),
+} as const;
 
-class ToolUsePayloadStart extends ToolUsePayloadBase.extend<ToolUsePayloadStart>($I`ToolUsePayloadStart`)(
-  {
-    status: S.tag("start"),
-  },
+const ToolUsePayloadStart = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("start"),
+}).annotate(
   $I.annote("ToolUsePayloadStart", {
     description: "Payload emitted when a tool use starts.",
   })
-) {}
+);
 
-class ToolUsePayloadSuccess extends ToolUsePayloadBase.extend<ToolUsePayloadSuccess>($I`ToolUsePayloadSuccess`)(
-  {
-    status: S.tag("success"),
-  },
+const ToolUsePayloadSuccess = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("success"),
+}).annotate(
   $I.annote("ToolUsePayloadSuccess", {
     description: "Payload emitted when a tool use succeeds.",
   })
-) {}
+);
 
-class ToolUsePayloadFailure extends ToolUsePayloadBase.extend<ToolUsePayloadFailure>($I`ToolUsePayloadFailure`)(
-  {
-    status: S.tag("failure"),
-  },
+const ToolUsePayloadFailure = S.Struct({
+  ...toolUsePayloadFields,
+  status: S.Literal("failure"),
+}).annotate(
   $I.annote("ToolUsePayloadFailure", {
     description: "Payload emitted when a tool use fails.",
   })
-) {}
+);
 
 const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
   S.toTaggedUnion("status"),
@@ -97,49 +92,38 @@ const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, Tool
   )
 );
 
-class PermissionDecisionPayloadBase extends S.Class<PermissionDecisionPayloadBase>($I`PermissionDecisionPayloadBase`)(
-  {
-    sessionId: S.String,
-    toolName: S.String,
-    reason: S.optional(S.String),
-  },
-  $I.annote("PermissionDecisionPayloadBase", {
-    description: "Base payload for permission decision events.",
-  })
-) {}
+const permissionDecisionPayloadFields = {
+  sessionId: S.String,
+  toolName: S.String,
+  reason: S.optional(S.String),
+} as const;
 
-class PermissionDecisionPayloadAllow extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadAllow>(
-  $I`PermissionDecisionPayloadAllow`
-)(
-  {
-    decision: S.tag("allow"),
-  },
+const PermissionDecisionPayloadAllow = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("allow"),
+}).annotate(
   $I.annote("PermissionDecisionPayloadAllow", {
     description: "Permission decision payload for allow outcomes.",
   })
-) {}
+);
 
-class PermissionDecisionPayloadDeny extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadDeny>(
-  $I`PermissionDecisionPayloadDeny`
-)(
-  {
-    decision: S.tag("deny"),
-  },
+const PermissionDecisionPayloadDeny = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("deny"),
+}).annotate(
   $I.annote("PermissionDecisionPayloadDeny", {
     description: "Permission decision payload for deny outcomes.",
   })
-) {}
+);
 
-class PermissionDecisionPayloadPrompt extends PermissionDecisionPayloadBase.extend<PermissionDecisionPayloadPrompt>(
-  $I`PermissionDecisionPayloadPrompt`
-)(
-  {
-    decision: S.tag("prompt"),
-  },
+const PermissionDecisionPayloadPrompt = S.Struct({
+  ...permissionDecisionPayloadFields,
+  decision: S.Literal("prompt"),
+}).annotate(
   $I.annote("PermissionDecisionPayloadPrompt", {
     description: "Permission decision payload for prompt outcomes.",
   })
-) {}
+);
 
 const PermissionDecisionPayload = S.Union([
   PermissionDecisionPayloadAllow,
@@ -154,34 +138,29 @@ const PermissionDecisionPayload = S.Union([
   )
 );
 
-class HookEventPayloadBase extends S.Class<HookEventPayloadBase>($I`HookEventPayloadBase`)(
-  {
-    sessionId: S.optional(S.String),
-    hook: HookEvent,
-    toolUseId: S.optional(S.String),
-  },
-  $I.annote("HookEventPayloadBase", {
-    description: "Base payload for hook event audit records.",
-  })
-) {}
+const hookEventPayloadFields = {
+  sessionId: S.optional(S.String),
+  hook: HookEvent,
+  toolUseId: S.optional(S.String),
+} as const;
 
-class HookEventPayloadSuccess extends HookEventPayloadBase.extend<HookEventPayloadSuccess>($I`HookEventPayloadSuccess`)(
-  {
-    outcome: S.tag("success"),
-  },
+const HookEventPayloadSuccess = S.Struct({
+  ...hookEventPayloadFields,
+  outcome: S.Literal("success"),
+}).annotate(
   $I.annote("HookEventPayloadSuccess", {
     description: "Hook event payload with successful outcome.",
   })
-) {}
+);
 
-class HookEventPayloadFailure extends HookEventPayloadBase.extend<HookEventPayloadFailure>($I`HookEventPayloadFailure`)(
-  {
-    outcome: S.tag("failure"),
-  },
+const HookEventPayloadFailure = S.Struct({
+  ...hookEventPayloadFields,
+  outcome: S.Literal("failure"),
+}).annotate(
   $I.annote("HookEventPayloadFailure", {
     description: "Hook event payload with failure outcome.",
   })
-) {}
+);
 
 const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
   S.toTaggedUnion("outcome"),
@@ -192,52 +171,41 @@ const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailu
   )
 );
 
-class SyncConflictPayloadBase extends S.Class<SyncConflictPayloadBase>($I`SyncConflictPayloadBase`)(
-  {
-    remoteId: S.String,
-    event: S.String,
-    primaryKey: S.String,
-    entryId: S.String,
-    conflictCount: S.Number,
-    resolvedEntryId: S.optional(S.String),
-  },
-  $I.annote("SyncConflictPayloadBase", {
-    description: "Base payload for sync conflict audit events.",
-  })
-) {}
+const syncConflictPayloadFields = {
+  remoteId: S.String,
+  event: S.String,
+  primaryKey: S.String,
+  entryId: S.String,
+  conflictCount: S.Number,
+  resolvedEntryId: S.optional(S.String),
+} as const;
 
-class SyncConflictPayloadAccept extends SyncConflictPayloadBase.extend<SyncConflictPayloadAccept>(
-  $I`SyncConflictPayloadAccept`
-)(
-  {
-    resolution: S.tag("accept"),
-  },
+const SyncConflictPayloadAccept = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("accept"),
+}).annotate(
   $I.annote("SyncConflictPayloadAccept", {
     description: "Conflict payload for accept resolution.",
   })
-) {}
+);
 
-class SyncConflictPayloadMerge extends SyncConflictPayloadBase.extend<SyncConflictPayloadMerge>(
-  $I`SyncConflictPayloadMerge`
-)(
-  {
-    resolution: S.tag("merge"),
-  },
+const SyncConflictPayloadMerge = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("merge"),
+}).annotate(
   $I.annote("SyncConflictPayloadMerge", {
     description: "Conflict payload for merge resolution.",
   })
-) {}
+);
 
-class SyncConflictPayloadReject extends SyncConflictPayloadBase.extend<SyncConflictPayloadReject>(
-  $I`SyncConflictPayloadReject`
-)(
-  {
-    resolution: S.tag("reject"),
-  },
+const SyncConflictPayloadReject = S.Struct({
+  ...syncConflictPayloadFields,
+  resolution: S.Literal("reject"),
+}).annotate(
   $I.annote("SyncConflictPayloadReject", {
     description: "Conflict payload for reject resolution.",
   })
-) {}
+);
 
 const SyncConflictPayload = S.Union([
   SyncConflictPayloadAccept,
@@ -252,18 +220,17 @@ const SyncConflictPayload = S.Union([
   )
 );
 
-class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
-  {
-    remoteId: S.String,
-    before: S.Number,
-    after: S.Number,
-    events: S.optional(S.Array(S.String)),
-    timestamp: S.Number,
-  },
+const SyncCompactionPayload = S.Struct({
+  remoteId: S.String,
+  before: S.Number,
+  after: S.Number,
+  events: S.optional(S.Array(S.String)),
+  timestamp: S.Number,
+}).annotate(
   $I.annote("SyncCompactionPayload", {
     description: "Payload for sync compaction audit events.",
   })
-) {}
+);
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.
@@ -338,4 +305,15 @@ export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handler
     .handle("hook_event", thunkEffectVoid)
     .handle("sync_conflict", thunkEffectVoid)
     .handle("sync_compaction", thunkEffectVoid)
+);
+
+/**
+ * In-memory event log layer with default audit handlers registered.
+ *
+ * @since 0.0.0
+ */
+export const layerMemoryWithAudit = EventLogModule.layerEventLog.pipe(
+  Layer.provide(EventJournalModule.layerMemory),
+  Layer.provide(layerIdentityMemory),
+  Layer.provide(layerAuditHandlers)
 );

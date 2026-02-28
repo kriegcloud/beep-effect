@@ -1,5 +1,6 @@
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as ServiceMap from "effect/ServiceMap";
 import { TestClock } from "effect/testing";
 
@@ -19,6 +20,7 @@ const failWithPrettyCause = (cause: Cause.Cause<unknown>) =>
 export const runEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   Effect.runPromiseWith(ServiceMap.makeUnsafe<R>(new Map()))(
     effect.pipe(
+      Effect.provide(Layer.mergeAll(TestClock.layer())),
       Effect.matchCauseEffect({
         onSuccess: Effect.succeed,
         onFailure: failWithPrettyCause,

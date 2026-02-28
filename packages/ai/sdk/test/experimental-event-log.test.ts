@@ -16,7 +16,7 @@ test("EventLog audit schema writes entries", async () => {
         },
       });
       return yield* log.entries;
-    }).pipe(Effect.provide([EventLog.layerMemory, EventLog.layerAuditHandlers]))
+    }).pipe(Effect.provide(EventLog.layerMemoryWithAudit))
   );
 
   const entries = await Effect.runPromise(program);

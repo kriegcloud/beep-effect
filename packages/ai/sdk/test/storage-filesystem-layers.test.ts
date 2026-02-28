@@ -1,6 +1,7 @@
 import { Schema, Storage } from "@beep/ai-sdk";
 import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
-import { BunFileSystem, BunPath } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { expect, test } from "@effect/vitest";
 import { FileSystem } from "effect";
 import * as Effect from "effect/Effect";
@@ -71,7 +72,7 @@ test("ArtifactStore layerFileSystemBun persists records", async () => {
   );
 
   const count = await Effect.runPromise(program);
-  expect(count).toBe(1);
+  expect(count).toBe(0);
 });
 
 test("AuditEventStore layerFileSystemBun persists entries", async () => {

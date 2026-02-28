@@ -19,7 +19,8 @@ export type NdjsonDecodeErrorDetails = {
  * @since 0.0.0
  */
 export const decodeNdjson = <S extends S.Top, E>(schema: S, onError: (details: NdjsonDecodeErrorDetails) => E) => {
-  const decode = S.decodeUnknownEffect(S.fromJsonString(schema));
+  const parse = S.decodeUnknownEffect(S.UnknownFromJsonString);
+  const decode = S.decodeUnknownEffect(schema);
 
   return <E0, R>(stream: Stream.Stream<string, E0, R>) =>
     stream.pipe(
@@ -29,7 +30,15 @@ export const decodeNdjson = <S extends S.Top, E>(schema: S, onError: (details: N
       Stream.mapEffect(
         Effect.fn(
           function* (line) {
-            const value = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(line);
+            const value = yield* parse(line).pipe(
+              Effect.mapError((cause) =>
+                onError({
+                  stage: "parse",
+                  line,
+                  cause,
+                })
+              )
+            );
             return yield* decode(value);
           },
           (effect, line) =>

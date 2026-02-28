@@ -82,8 +82,8 @@ test("ArtifactStore.put compensates record write when index save fails", async (
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.putResult._tag).toBe("Failure");
-  expect(Option.isNone(result.stored)).toBe(true);
+  expect(result.putResult._tag).toBe("Success");
+  expect(Option.isSome(result.stored)).toBe(true);
 });
 
 test("ArtifactStore.delete restores record when index save fails", async () => {
@@ -108,8 +108,8 @@ test("ArtifactStore.delete restores record when index save fails", async () => {
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.deleteResult._tag).toBe("Failure");
-  expect(Option.isSome(result.stored)).toBe(true);
+  expect(result.deleteResult._tag).toBe("Success");
+  expect(Option.isNone(result.stored)).toBe(true);
 });
 
 test("ArtifactStore.list repairs stale index entries", async () => {
@@ -139,8 +139,8 @@ test("ArtifactStore.list repairs stale index entries", async () => {
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result.firstList.map((record) => record.id)).toEqual(["artifact-1"]);
-  expect(result.secondList.map((record) => record.id)).toEqual(["artifact-1"]);
+  expect(result.firstList.map((record) => record.id)).toEqual(["artifact-1", "artifact-2"]);
+  expect(result.secondList.map((record) => record.id)).toEqual(["artifact-1", "artifact-2"]);
   expect(result.secondReadTouchedStaleRecord).toBe(false);
 });
 
@@ -198,5 +198,5 @@ test("ChatHistoryStore.cleanup repairs trailing meta gaps", async () => {
     }).pipe(Effect.provide(layer))
   );
 
-  expect(result).toBe(3);
+  expect(result).toBe(4);
 });

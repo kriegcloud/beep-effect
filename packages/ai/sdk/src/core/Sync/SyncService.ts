@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { BunSocket } from "@effect/platform-bun";
+import * as BunSocket from "@effect/platform-bun/BunSocket";
 import {
   Cause,
   Clock,
@@ -423,8 +423,7 @@ function makeService() {
       options?: SyncServiceWebSocketOptions
     ) {
       const socket = yield* O.match(socketOption, {
-        onNone: () =>
-          Effect.die("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet."),
+        onNone: () => Effect.die("SyncService.connectSocket requires Socket.Socket. Provide BunSocket.layerNet."),
         onSome: (service) => Effect.succeed(service),
       });
       const effect = EventLogRemote.fromSocket(options).pipe(

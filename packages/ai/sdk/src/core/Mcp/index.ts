@@ -180,7 +180,8 @@ const stringifyValue = (value: unknown): string => {
   return O.getOrElse(encoded, () => String(value));
 };
 
-const readField = (value: unknown, field: string): unknown => (P.isObject(value) ? Reflect.get(value, field) : undefined);
+const readField = (value: unknown, field: string): unknown =>
+  P.isObject(value) ? Reflect.get(value, field) : undefined;
 
 const isZodSchema = (value: unknown): value is z.ZodTypeAny =>
   P.isObject(value) &&
@@ -340,15 +341,8 @@ export const tool = <ParametersSchema extends S.Top & { readonly DecodingService
       const runOptions = signal ? { signal } : undefined;
       return runWithServices(effect, runOptions);
     };
-    return sdkTool(
-      options.name,
-      options.description,
-      normalizedInputSchema,
-      handler
-    );
+    return sdkTool(options.name, options.description, normalizedInputSchema, handler);
   });
-
-type ToolkitRequirements<Tools extends Record<string, Tool.Any>> = Tool.Requirements<Tools[keyof Tools]>;
 
 /**
  * Convert a toolkit and handlers into MCP tools.
@@ -360,9 +354,9 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
   toolkit: Toolkit.Toolkit<Tools>,
   handlers: Toolkit.HandlersFrom<Tools> | Effect.Effect<Toolkit.HandlersFrom<Tools>, EX, RX>,
   options?: ToolkitMcpOptions
-): Effect.Effect<ReadonlyArray<ReturnType<typeof sdkTool>>, McpError | EX, RX | ToolkitRequirements<Tools>> =>
+): Effect.Effect<ReadonlyArray<ReturnType<typeof sdkTool>>, McpError | EX, unknown> =>
   Effect.gen(function* () {
-    const services = yield* Effect.services<RX | ToolkitRequirements<Tools>>();
+    const services = yield* Effect.services<unknown>();
     const runWithServices = Effect.runPromiseWith(services);
     const context = yield* toolkit.toContext(handlers);
     const built = yield* toolkit.commit().pipe(Effect.provide(context), Effect.orDie);
@@ -396,12 +390,7 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
             const runOptions = signal ? { signal } : undefined;
             return runWithServices(effect, runOptions);
           };
-          return sdkTool(
-            toolEntry.name,
-            toolEntry.description ?? toolEntry.name,
-            normalizedInputSchema,
-            handler
-          );
+          return sdkTool(toolEntry.name, toolEntry.description ?? toolEntry.name, normalizedInputSchema, handler);
         })
     );
   });

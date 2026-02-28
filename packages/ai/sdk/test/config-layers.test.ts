@@ -11,7 +11,7 @@ import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) =>
-  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(new Map(Object.entries(entries))));
+  ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 
 test("AgentSdkConfig reads options from config provider", async () => {
   const layer = AgentSdkConfig.layer.pipe(

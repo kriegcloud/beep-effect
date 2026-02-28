@@ -14,12 +14,12 @@ import {
   MutableHashSet,
   PubSub,
   Queue,
+  Random,
   Scope,
   Semaphore,
   ServiceMap,
   Stream,
   SynchronizedRef,
-  Random,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";

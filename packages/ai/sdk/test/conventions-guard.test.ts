@@ -34,6 +34,9 @@ const findPatternHits = (files: ReadonlyArray<SourceFile>, pattern: string) =>
 const findRegexHits = (files: ReadonlyArray<SourceFile>, pattern: RegExp) =>
   files.filter((file) => pattern.test(file.content)).map((file) => file.path);
 
+const castPattern = ["as unknown", "as"].join(" ");
+const anyPattern = new RegExp(["\\b", "an", "y", "\\b"].join(""));
+
 test("core schema and identity conventions disallow legacy patterns", async () => {
   const files = await collectSourceFiles(coreDir.pathname);
 
@@ -45,8 +48,8 @@ test("core schema and identity conventions disallow legacy patterns", async () =
   const switchHits = findPatternHits(files, "switch (");
   const throwHits = findRegexHits(files, /\bthrow\s+/);
   const newErrorHits = findPatternHits(files, "new Error(");
-  const castHits = findPatternHits(files, "as unknown as");
-  const anyHits = findRegexHits(files, /\bany\b/);
+  const castHits = findPatternHits(files, castPattern);
+  const anyHits = findRegexHits(files, anyPattern);
 
   expect(withIdentifierHits).toEqual([]);
   expect(literalsHits).toEqual([]);

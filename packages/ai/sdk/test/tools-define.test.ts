@@ -1,9 +1,10 @@
 import { Mcp, Tools } from "@beep/ai-sdk";
-import { CallToolResult, type CallToolResult as CallToolResultType } from "@beep/ai-sdk/Schema/External";
+import { CallToolResult } from "@beep/ai-sdk/Schema/External";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
+import { runEffect } from "./effect-test.js";
 
 const requireFirst = <A>(items: ReadonlyArray<A>): A => {
   const first = items[0];
@@ -15,10 +16,15 @@ const requireFirst = <A>(items: ReadonlyArray<A>): A => {
 
 const decodeCallToolResult = Schema.decodeUnknownSync(CallToolResult);
 
-const invokeTool = async (
-  tool: unknown,
-  params: Record<string, unknown>
-): Promise<CallToolResultType> => {
+const readStringField = (value: unknown, field: string): string | undefined => {
+  if (!Predicate.isObject(value)) {
+    return undefined;
+  }
+  const fieldValue = Reflect.get(value, field);
+  return Predicate.isString(fieldValue) ? fieldValue : undefined;
+};
+
+const invokeTool = async (tool: unknown, params: Record<string, unknown>) => {
   if (!Predicate.isObject(tool)) {
     throw new Error("Expected MCP tool object");
   }
@@ -38,7 +44,10 @@ test("Tool.define attaches handler and accepts schema parameters", async () => {
     description: "Echo input",
     parameters: Params,
     success: Schema.Struct({ message: Schema.String }),
-    handler: (params) => Effect.succeed({ message: params.message }),
+    handler: (params) =>
+      Effect.succeed({
+        message: readStringField(params, "message") ?? "",
+      }),
   });
 
   expect(Echo.parametersSchema).toBe(Params);
@@ -48,7 +57,7 @@ test("Tool.define attaches handler and accepts schema parameters", async () => {
     echo: Echo.handler,
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { message: "hi" });
@@ -66,7 +75,10 @@ test("Tool.fn defines a tool with handler as last argument", async () => {
       },
       success: Schema.Struct({ message: Schema.String }),
     },
-    (params) => Effect.succeed({ message: params.message })
+    (params) =>
+      Effect.succeed({
+        message: readStringField(params, "message") ?? "",
+      })
   );
 
   const toolkit = Tools.Toolkit.make(Echo);
@@ -74,7 +86,7 @@ test("Tool.fn defines a tool with handler as last argument", async () => {
     "echo-fn": Echo.handler,
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { message: "hi" });
@@ -90,11 +102,14 @@ test("Toolkit.fromHandlers builds toolkit and handler map", async () => {
         message: Schema.String,
       },
       success: Schema.Struct({ message: Schema.String }),
-      handler: (params: { message: string }) => Effect.succeed({ message: params.message }),
+      handler: (params) =>
+        Effect.succeed({
+          message: readStringField(params, "message") ?? "",
+        }),
     },
   });
 
-  const tools = await Effect.runPromise(Mcp.toolsFromToolkit(toolkit, toolkit.handlers));
+  const tools = await runEffect(Mcp.toolsFromToolkit(toolkit, toolkit.handlers));
   const tool = requireFirst(tools);
 
   const result = await invokeTool(tool, { message: "hi" });
