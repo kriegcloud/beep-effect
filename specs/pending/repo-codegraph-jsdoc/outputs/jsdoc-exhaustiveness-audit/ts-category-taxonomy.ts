@@ -177,16 +177,22 @@ export const CATEGORY_TAXONOMY = [
     ],
     astSignals: [
       {
-        signal: "Type-only domain declarations with stable noun naming",
-        confidence: 0.85,
+        signal: "Type-only domain declarations without effectful method signatures",
+        confidence: 0.6,
         detection:
-          "Node.isInterfaceDeclaration(node) || Node.isTypeAliasDeclaration(node) || Node.isEnumDeclaration(node)",
+          "(Node.isInterfaceDeclaration(node) || Node.isTypeAliasDeclaration(node) || Node.isEnumDeclaration(node)) && !(Node.isInterfaceDeclaration(node) && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable</.test(m.getReturnType().getText())))",
       },
       {
         signal: "File imports avoid framework and IO adapters",
         confidence: 0.7,
         detection:
           "node.getSourceFile().getImportDeclarations().every((decl) => !/react|next|express|hono|drizzle-orm|prisma|@effect\\/schema|zod/.test(decl.getModuleSpecifierValue()))",
+      },
+      {
+        signal: "Branded or opaque type pattern indicating domain identity",
+        confidence: 0.8,
+        detection:
+          "Node.isTypeAliasDeclaration(node) && /\\{ readonly \\w+: unique symbol \\}|Brand|Opaque/.test(node.getText())",
       },
     ],
     effectAnalog: "Identity",
@@ -202,7 +208,7 @@ export const CATEGORY_TAXONOMY = [
     definition:
       "Pure domain rules and transformations that operate on domain models without infrastructure side effects.",
     classificationGuidance:
-      "Use DomainLogic for deterministic computations such as policies, pricing rules, normalization logic, and invariant checks that do not perform IO. If code orchestrates multiple dependencies, classify as UseCase. If code validates external payloads, classify as Validation. If code is framework-neutral but generic across many domains, classify as Utility.",
+      "Use DomainLogic for deterministic computations such as policies, pricing rules, normalization logic, and invariant checks that do not perform IO. If code orchestrates multiple dependencies, classify as UseCase. If code validates external payloads, classify as Validation. If code is framework-neutral but generic across many domains, classify as Utility. Tiebreaker: when a pure function takes domain-typed parameters (branded types, types from **/domain/** paths, or types appearing in DomainModel categories) AND returns a domain-typed result, prefer DomainLogic over Utility.",
     examples: [
       "export const computeInvoiceTotal = (invoice: Invoice): Money => ...",
       "export const canTransition = (from: OrderStatus, to: OrderStatus): boolean => ...",
@@ -230,6 +236,13 @@ export const CATEGORY_TAXONOMY = [
         confidence: 0.72,
         detection:
           "/(calculate|compute|derive|normalize|isValid|can)/.test(node.getSymbol()?.getName() ?? '') && node.getParameters().some((param) => /Id|Status|Amount|Domain/.test(param.getType().getText()))",
+      },
+      {
+        signal:
+          "Parameters or return type reference domain-typed symbols (branded, enum, or domain-path types)",
+        confidence: 0.7,
+        detection:
+          "Node.isFunctionDeclaration(node) && (node.getParameters().some(p => /Id|Status|Amount|Price|Currency|Score/.test(p.getType().getText()) || p.getType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath()))) || (/Id|Status|Amount|Price|Currency|Score/.test(node.getReturnType().getText()) || node.getReturnType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath()))))",
       },
     ],
     effectAnalog: "Either",
@@ -269,10 +282,16 @@ export const CATEGORY_TAXONOMY = [
           "Node.isInterfaceDeclaration(node) && /(Port|Repository|Gateway)$/.test(node.getName() ?? '')",
       },
       {
-        signal: "Contract-only declarations with method signatures and no bodies",
+        signal: "Interface with async or effectful method signatures",
+        confidence: 0.8,
+        detection:
+          "Node.isInterfaceDeclaration(node) && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable<|Task</.test(m.getReturnType().getText()))",
+      },
+      {
+        signal: "Type alias describing a service record with effectful methods",
         confidence: 0.75,
         detection:
-          "(Node.isTypeAliasDeclaration(node) || Node.isInterfaceDeclaration(node)) && !node.getDescendantsOfKind(SyntaxKind.Block).length && node.getText().includes(':')",
+          "Node.isTypeAliasDeclaration(node) && /\\{[^}]*:\\s*(\\([^)]*\\)\\s*=>\\s*(Effect|Promise|Observable))/.test(node.getText())",
       },
     ],
     effectAnalog: "Reader",
@@ -281,7 +300,7 @@ export const CATEGORY_TAXONOMY = [
     adjacentCategories: ["UseCase", "DataAccess", "Integration"],
     typicalImportPatterns: ["**/*Port.ts", "**/*Repository.ts", "**/*Gateway.ts"],
     dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
-    documentationPriority: 3,
+    documentationPriority: 4,
   },
   {
     _tag: "Validation",
@@ -331,14 +350,14 @@ export const CATEGORY_TAXONOMY = [
       "**/schemas/**/*.ts",
     ],
     dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
-    documentationPriority: 4,
+    documentationPriority: 5,
   },
   {
     _tag: "Utility",
     definition:
       "Reusable generic helpers that are not specific to one domain workflow or infrastructure boundary.",
     classificationGuidance:
-      "Classify as Utility when code provides cross-context helper behavior such as formatting, collection transforms, class name merging, and simple adapters. If helper logic encodes business policy, use DomainLogic. If helper configures runtime environment or framework behavior, use Configuration or CrossCutting.",
+      "Classify as Utility when code provides cross-context helper behavior such as formatting, collection transforms, class name merging, and simple adapters. If helper logic encodes business policy, use DomainLogic. If helper configures runtime environment or framework behavior, use Configuration or CrossCutting. Tiebreaker: when parameters and return types are generic primitives or standard library types with no domain-specific branding, prefer Utility over DomainLogic.",
     examples: [
       "export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)) }",
       "export const chunk = <T>(items: ReadonlyArray<T>, size: number) => ...",
@@ -373,7 +392,7 @@ export const CATEGORY_TAXONOMY = [
     adjacentCategories: ["DomainLogic", "DomainModel", "CrossCutting"],
     typicalImportPatterns: ["**/utils.ts", "**/helpers.ts", "**/lib/**/*.ts"],
     dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
-    documentationPriority: 5,
+    documentationPriority: 6,
   },
   {
     _tag: "UseCase",
@@ -410,13 +429,13 @@ export const CATEGORY_TAXONOMY = [
           "node.getDescendantsOfKind(SyntaxKind.CallExpression).length >= 2 && (node.getSourceFile().getImportDeclarations().some((decl) => /(Port|Repository|Gateway)/.test(decl.getModuleSpecifierValue())) || node.getText().includes('Effect.fn') || node.getText().includes('Effect.runPromise'))",
       },
     ],
-    effectAnalog: "ReaderEither",
+    effectAnalog: "ReaderTaskEither",
     architecturalLayers: ["use-case"],
     purity: "mixed",
     adjacentCategories: ["PortContract", "DomainLogic", "Presentation", "Integration", "DataAccess"],
     typicalImportPatterns: ["**/*UseCase.ts", "**/*Handler.ts", "**/application/**/*.ts"],
     dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
-    documentationPriority: 6,
+    documentationPriority: 7,
   },
   {
     _tag: "Presentation",
@@ -454,13 +473,13 @@ export const CATEGORY_TAXONOMY = [
           "Node.isFunctionDeclaration(node) && /(request|response|NextRequest|NextResponse|Request|Response)/.test(node.getText())",
       },
     ],
-    effectAnalog: "Continuation",
+    effectAnalog: "IO",
     architecturalLayers: ["interface-adapter", "framework-driver"],
     purity: "effectful",
     adjacentCategories: ["UseCase", "Validation", "Integration", "Configuration"],
     typicalImportPatterns: ["next/*", "react*", "**/app/**/page.tsx", "**/api/**/route.ts"],
     dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
-    documentationPriority: 7,
+    documentationPriority: 8,
   },
   {
     _tag: "DataAccess",
@@ -503,7 +522,7 @@ export const CATEGORY_TAXONOMY = [
     adjacentCategories: ["PortContract", "UseCase", "Integration", "Configuration"],
     typicalImportPatterns: ["drizzle-orm*", "prisma*", "**/db/**/*.ts", "**/repository/**/*.ts"],
     dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
-    documentationPriority: 8,
+    documentationPriority: 9,
   },
   {
     _tag: "Integration",
@@ -546,7 +565,7 @@ export const CATEGORY_TAXONOMY = [
     adjacentCategories: ["UseCase", "Presentation", "DataAccess", "Configuration"],
     typicalImportPatterns: ["openai*", "stripe*", "@aws-sdk/*", "**/client.ts", "**/gateway/**/*.ts"],
     dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
-    documentationPriority: 9,
+    documentationPriority: 10,
   },
   {
     _tag: "Configuration",
@@ -565,8 +584,8 @@ export const CATEGORY_TAXONOMY = [
     typicalSyntaxKinds: [
       "VariableDeclaration",
       "FunctionDeclaration",
-      "SourceFile",
-      "ModuleDeclaration",
+      "PropertyAssignment",
+      "CallExpression",
       "PropertyAccessExpression",
     ],
     astSignals: [
@@ -589,7 +608,7 @@ export const CATEGORY_TAXONOMY = [
     adjacentCategories: ["Integration", "DataAccess", "Presentation", "CrossCutting"],
     typicalImportPatterns: ["**/config/**/*.ts", "**/*Config.ts", "**/*Settings.ts", "**/env/**/*.ts"],
     dependencyProfile: { typicalFanIn: "high", typicalFanOut: "medium" },
-    documentationPriority: 10,
+    documentationPriority: 3,
   },
   {
     _tag: "CrossCutting",
@@ -606,12 +625,11 @@ export const CATEGORY_TAXONOMY = [
       "export const graphSearchRoute = async (...) => ... belongs to Presentation",
     ],
     typicalSyntaxKinds: [
-      "SourceFile",
-      "ImportDeclaration",
       "FunctionDeclaration",
+      "ArrowFunction",
       "MethodDeclaration",
       "CallExpression",
-      "Identifier",
+      "VariableDeclaration",
     ],
     astSignals: [
       {
@@ -651,14 +669,8 @@ export const CATEGORY_TAXONOMY = [
     ],
     typicalSyntaxKinds: [
       "SourceFile",
+      "VariableDeclaration",
       "ExpressionStatement",
-      "IfStatement",
-      "ForStatement",
-      "ReturnStatement",
-      "ThrowStatement",
-      "Identifier",
-      "BinaryExpression",
-      "Block",
     ],
     astSignals: [
       {
@@ -919,6 +931,42 @@ export function getCandidateCategories(
 }
 
 /**
+ * Resolve category for non-declaration AST nodes using context fallback policy.
+ *
+ * Resolution order:
+ * 1. Classify by nearest exportable ancestor symbol
+ * 2. Fall back to source-file dominant category
+ * 3. Return Uncategorized if below guardrail threshold
+ *
+ * This is a stub - the actual implementation will need ts-morph node
+ * traversal that depends on the extraction pipeline architecture.
+ * The stub documents the contract and makes the fallback policy executable.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function resolveContextFallback(
+  scoredCandidates: ReadonlyArray<{ category: TSCategory; combinedConfidence: number }>,
+  ancestorCategory?: CategoryTag,
+  sourceFileDominantCategory?: CategoryTag
+): CategoryTag {
+  if (ancestorCategory && ancestorCategory !== "Uncategorized") {
+    return ancestorCategory;
+  }
+
+  if (sourceFileDominantCategory && sourceFileDominantCategory !== "Uncategorized") {
+    return sourceFileDominantCategory;
+  }
+
+  const bestCandidate = scoredCandidates[0];
+  if (bestCandidate && bestCandidate.combinedConfidence >= UNCATEGORIZED_GUARDRAIL_THRESHOLD) {
+    return bestCandidate.category._tag as CategoryTag;
+  }
+
+  return "Uncategorized";
+}
+
+/**
  * Design decisions and tradeoffs
  *
  * 1) Why these categories and not others:
@@ -952,4 +1000,15 @@ export function getCandidateCategories(
  * migration validation over historical graph nodes. Precedence policy remains
  * separate from helper sorting so query-layer behavior is deterministic and
  * stable even when classifier conflict policy evolves.
+ *
+ * 6) Transport/wire types:
+ * Shared type-only packages that define DTOs, API contracts, and wire formats
+ * (e.g., `ListUsersResponse`, `CreateOrderRequest`) are classified as
+ * DomainModel by default since they are pure type declarations. This is a
+ * known imprecision. If a codebase has a significant volume of transport types
+ * distinct from domain entities, consider adding a `TransportContract` category
+ * as a future additive extension. The current DomainModel classification is
+ * preferred over Uncategorized because transport types share the same
+ * structural properties (pure, high fan-in, low fan-out) and benefit from
+ * the same graph query patterns.
  */
