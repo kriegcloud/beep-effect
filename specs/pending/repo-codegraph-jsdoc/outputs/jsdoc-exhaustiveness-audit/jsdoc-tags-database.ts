@@ -26,12 +26,12 @@
  */
 export type Specification =
   | "jsdoc3"            // JSDoc 3.x standard (jsdoc.app)
-  | "tsdoc-core"        // TSDoc Core — must be supported by all TSDoc tools
-  | "tsdoc-extended"    // TSDoc Extended — optional but standardized
-  | "tsdoc-discretionary" // TSDoc Discretionary — syntax standardized, semantics vary
+  | "tsdocCore"        // TSDoc Core — must be supported by all TSDoc tools
+  | "tsdocExtended"    // TSDoc Extended — optional but standardized
+  | "tsdocDiscretionary" // TSDoc Discretionary — syntax standardized, semantics vary
   | "typescript"        // Recognized by TypeScript compiler in .js files
   | "closure"           // Google Closure Compiler
-  | "api-extractor"     // Microsoft API Extractor / AEDoc
+  | "apiExtractor"     // Microsoft API Extractor / AEDoc
   | "typedoc"           // TypeDoc-specific extensions
   | "custom";           // User-defined / non-standard
 
@@ -56,11 +56,11 @@ export type ApplicableTo =
   | "function"
   | "method"
   | "class"
-  | "class-static-block"
+  | "classStaticBlock"
   | "interface"
-  | "type-alias"
+  | "typeAlias"
   | "enum"
-  | "enum-member"
+  | "enumMember"
   | "variable"
   | "constant"
   | "property"
@@ -68,10 +68,10 @@ export type ApplicableTo =
   | "constructor"
   | "parameter"      // nested within @callback/@typedef
   | "signature"
-  | "index-signature"
-  | "type-parameter"
-  | "tuple-member"
-  | "export-specifier"
+  | "indexSignature"
+  | "typeParameter"
+  | "tupleMember"
+  | "exportSpecifier"
   | "identifier"
   | "statement"
   | "expression"
@@ -80,7 +80,7 @@ export type ApplicableTo =
   | "file"           // file-level comment
   | "event"
   | "mixin"
-  | "any";           // can attach to anything
+  | "any"          // can attach to anything
 
 /**
  * Whether this tag's content can be deterministically derived from the TypeScript AST.
@@ -187,7 +187,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: ["arg", "argument"],
     overview: "Document the parameter to a function. Names, types, optionality, and defaults are all in the AST.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript", "closure", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript", "closure", "typedoc"],
     applicableTo: ["function", "method", "constructor"],
     astDerivable: "partial",
     astDerivableNote: "Parameter structure is AST-derivable (name, type, optionality, default), but complete documentation quality still requires human-authored parameter intent/description.",
@@ -202,7 +202,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: ["return"],
     overview: "Document the return value of a function. Return type is in the AST; description is human-authored.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript", "closure", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript", "closure", "typedoc"],
     applicableTo: ["function", "method"],
     astDerivable: "partial",
     astDerivableNote: "Return type is AST-derivable, but meaningful return semantics and narrative documentation are not deterministic from syntax alone.",
@@ -217,7 +217,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: ["exception"],
     overview: "Describe what errors could be thrown. With Effect-TS, error types are encoded in the E channel of Effect<A, E, R>.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-discretionary", "closure", "typedoc"],
+    specifications: ["jsdoc3", "tsdocDiscretionary", "closure", "typedoc"],
     applicableTo: ["function", "method"],
     astDerivable: "partial",
     astDerivableNote: "Standard TS: generally not derivable because thrown values are untyped. Effect-TS can often derive candidate errors from Effect<A, E, R>, but this is conditional on resolvable E and still misses defects/opaque channels.",
@@ -233,7 +233,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Declare generic type parameters. Fully in the AST as TypeParameterDeclaration nodes including constraints and defaults.",
     tagKind: "block",
     specifications: ["jsdoc3", "typescript", "closure", "typedoc"],
-    applicableTo: ["function", "method", "class", "interface", "type-alias"],
+    applicableTo: ["function", "method", "class", "interface", "typeAlias"],
     astDerivable: "partial",
     astDerivableNote: "Type parameter structure is derivable (name/constraint/default), but type-parameter intent text is documentation-only.",
     parameters: { syntax: "@template {Constraint} Name=Default", acceptsType: true, acceptsName: true, acceptsDescription: true },
@@ -247,8 +247,8 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc equivalent of @template. Documents a generic type parameter.",
     tagKind: "block",
-    specifications: ["tsdoc-core", "typedoc"],
-    applicableTo: ["function", "method", "class", "interface", "type-alias"],
+    specifications: ["tsdocCore", "typedoc"],
+    applicableTo: ["function", "method", "class", "interface", "typeAlias"],
     astDerivable: "partial",
     astDerivableNote: "Type parameter structure is derivable, but meaningful descriptive text is not.",
     parameters: { syntax: "@typeParam Name - description", acceptsType: false, acceptsName: true, acceptsDescription: true },
@@ -278,7 +278,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Document a custom type. In .ts-morph files, replaced by type aliases and interfaces.",
     tagKind: "block",
     specifications: ["jsdoc3", "typescript", "closure"],
-    applicableTo: ["type-alias"],
+    applicableTo: ["typeAlias"],
     astDerivable: "partial",
     astDerivableNote: "Alias/interface structure is derivable, but authored typedef intent and naming conventions are not fully deterministic.",
     parameters: { syntax: "@typedef {Type} Name", acceptsType: true, acceptsName: true, acceptsDescription: true },
@@ -293,7 +293,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Document a callback function type. In .ts-morph files, replaced by function type aliases.",
     tagKind: "block",
     specifications: ["jsdoc3", "typescript"],
-    applicableTo: ["type-alias"],
+    applicableTo: ["typeAlias"],
     astDerivable: "partial",
     astDerivableNote: "Function signature is derivable, but callback documentation intent and naming are not fully deterministic.",
     parameters: { syntax: "@callback Name", acceptsType: false, acceptsName: true, acceptsDescription: true },
@@ -428,7 +428,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "This symbol is meant to be public.",
     tagKind: "modifier",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript", "closure", "api-extractor", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript", "closure", "apiExtractor", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "partial",
     astDerivableNote: "Visibility defaults and emitted docs can be inferred structurally, but public API intent is partly policy-driven.",
@@ -488,7 +488,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "This symbol is meant to be read-only.",
     tagKind: "modifier",
-    specifications: ["jsdoc3", "tsdoc-extended", "typescript", "typedoc"],
+    specifications: ["jsdoc3", "tsdocExtended", "typescript", "typedoc"],
     applicableTo: ["property", "accessor", "variable"],
     astDerivable: "partial",
     astDerivableNote: "Readonly/const shape is structural, but intent and edge-case semantics across transpiled JS are only partially derivable.",
@@ -533,7 +533,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "Indicate that a symbol overrides its parent. TypeScript 4.3+ has native override keyword.",
     tagKind: "modifier",
-    specifications: ["jsdoc3", "tsdoc-extended", "typescript", "closure", "typedoc"],
+    specifications: ["jsdoc3", "tsdocExtended", "typescript", "closure", "typedoc"],
     applicableTo: ["method", "property", "accessor"],
     astDerivable: "full",
     astDerivableNote: "ModifierFlags.Override (TS 4.3+). Also detectable by checking if parent class has same-named member.",
@@ -575,7 +575,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
 
   {
     _tag: "default",
-    synonyms: [],
+    synonyms: ["defaultvalue"],
     overview: "Document the default value of a symbol.",
     tagKind: "block",
     specifications: ["jsdoc3"],
@@ -593,7 +593,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc equivalent of @default. Documents the default value of a property or parameter.",
     tagKind: "block",
-    specifications: ["tsdoc-core", "typedoc"],
+    specifications: ["tsdocCore", "typedoc"],
     applicableTo: ["property", "parameter"],
     astDerivable: "partial",
     astDerivableNote: "Initializer expressions are derivable, but documentation representation of defaults is not fully deterministic.",
@@ -717,7 +717,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc block for extended discussion. Separates the brief summary from detailed documentation.",
     tagKind: "block",
-    specifications: ["tsdoc-core", "typedoc"],
+    specifications: ["tsdocCore", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Semantic content requiring human authoring or LLM generation.",
@@ -732,7 +732,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "Provide an example of how to use a documented item.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-core", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Code examples require human authoring or LLM generation. Validation possible via doctest tools (tsdoc-testify).",
@@ -747,7 +747,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "Document that this is no longer the preferred way. Semantic meaning beyond just the flag.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript", "closure", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript", "closure", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Deprecation intent and migration guidance are documentation semantics; no deterministic AST signal provides equivalent meaning.",
@@ -762,7 +762,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "Refer to some other documentation for more information.",
     tagKind: "block",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript", "typedoc"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Cross-reference choices are human-curated documentation structure.",
@@ -841,7 +841,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "API Extractor: indicates an API item is in early development (alpha release stage).",
     tagKind: "modifier",
-    specifications: ["tsdoc-core", "api-extractor", "typedoc"],
+    specifications: ["tsdocCore", "apiExtractor", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Release stage is a project management decision, not in the AST.",
@@ -856,7 +856,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "API Extractor: indicates an API item is in preview/experimental stage.",
     tagKind: "modifier",
-    specifications: ["tsdoc-core", "api-extractor", "typedoc"],
+    specifications: ["tsdocCore", "apiExtractor", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Release stage is a project management decision, not in the AST.",
@@ -871,7 +871,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: indicates that an API item is not yet stable.",
     tagKind: "modifier",
-    specifications: ["tsdoc-extended", "typedoc"],
+    specifications: ["tsdocExtended", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Stability status is a human decision.",
@@ -886,7 +886,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "Indicates that an API item is meant only for internal usage. Should be prefixed with underscore.",
     tagKind: "modifier",
-    specifications: ["tsdoc-core", "api-extractor", "typedoc"],
+    specifications: ["tsdocCore", "apiExtractor", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Internal visibility is a release/documentation policy decision, not a deterministic AST property.",
@@ -901,7 +901,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: indicates that a class should not be extended, or an interface should not be implemented by external consumers.",
     tagKind: "modifier",
-    specifications: ["tsdoc-extended", "typedoc"],
+    specifications: ["tsdocExtended", "typedoc"],
     applicableTo: ["class", "interface"],
     astDerivable: "none",
     astDerivableNote: "Semantic intent not expressible in TypeScript's type system. A human decision.",
@@ -916,7 +916,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: explicitly indicates that subclasses may override this member.",
     tagKind: "modifier",
-    specifications: ["tsdoc-extended", "typedoc"],
+    specifications: ["tsdocExtended", "typedoc"],
     applicableTo: ["method", "property", "accessor"],
     astDerivable: "none",
     astDerivableNote: "Virtual-tag usage communicates design intent rather than deterministic syntax.",
@@ -931,7 +931,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: documentation content that should be omitted from public-facing documentation.",
     tagKind: "block",
-    specifications: ["tsdoc-core", "typedoc"],
+    specifications: ["tsdocCore", "typedoc"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Internal documentation notes are human-authored.",
@@ -946,7 +946,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: indicates that a doc comment describes an entire package (placed in the entry point file).",
     tagKind: "modifier",
-    specifications: ["tsdoc-core", "typedoc"],
+    specifications: ["tsdocCore", "typedoc"],
     applicableTo: ["file"],
     astDerivable: "partial",
     astDerivableNote: "Can detect if a file is the package entry point from package.json 'main'/'exports' fields.",
@@ -961,7 +961,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: defines a label that can be referenced by {@link} tags using the selector syntax.",
     tagKind: "modifier",
-    specifications: ["tsdoc-extended"],
+    specifications: ["tsdocExtended"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Labels are human-defined cross-reference anchors.",
@@ -976,7 +976,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: documents an ECMAScript decorator expression.",
     tagKind: "block",
-    specifications: ["tsdoc-extended"],
+    specifications: ["tsdocExtended"],
     applicableTo: ["class", "method", "property", "accessor", "parameter"],
     astDerivable: "full",
     astDerivableNote: "Decorators are explicit AST nodes. The decorator expression and arguments are fully extractable.",
@@ -991,7 +991,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: [],
     overview: "TSDoc: indicates that a property returns an event object that event handlers can be attached to.",
     tagKind: "modifier",
-    specifications: ["tsdoc-extended", "typedoc"],
+    specifications: ["tsdocExtended", "typedoc"],
     applicableTo: ["property"],
     astDerivable: "none",
     astDerivableNote: "Event semantics are a design intent, not derivable from types alone.",
@@ -1010,7 +1010,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: ["linkcode", "linkplain"],
     overview: "Link to another item in the documentation or an external URL. {@linkcode} renders as code, {@linkplain} as plain text.",
     tagKind: "inline",
-    specifications: ["jsdoc3", "tsdoc-core", "typescript"],
+    specifications: ["jsdoc3", "tsdocCore", "typescript"],
     applicableTo: ["any"],
     astDerivable: "none",
     astDerivableNote: "Link placement and target choice are documentation-structure decisions.",
@@ -1025,7 +1025,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     synonyms: ["inheritdoc"],
     overview: "Indicate that a symbol should inherit its parent's documentation. TSDoc uses inline form {@inheritDoc}.",
     tagKind: "inline",
-    specifications: ["jsdoc3", "tsdoc-core", "closure"],
+    specifications: ["jsdoc3", "tsdocCore", "closure"],
     applicableTo: ["method", "property", "accessor"],
     astDerivable: "partial",
     astDerivableNote: "Can detect when a method overrides a parent method (heritage clause analysis). Could auto-suggest {@inheritDoc} for overrides with no custom docs.",
@@ -1537,7 +1537,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Closure: marks an object/class as dictionary-like (bracket access semantics).",
     tagKind: "modifier",
     specifications: ["closure"],
-    applicableTo: ["class", "type-alias", "variable"],
+    applicableTo: ["class", "typeAlias", "variable"],
     astDerivable: "none",
     astDerivableNote: "This is a compiler contract and cannot be inferred reliably from general AST shape.",
     parameters: { syntax: "@dict", acceptsType: false, acceptsName: false, acceptsDescription: false },
@@ -1567,7 +1567,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Closure: marks an object/class as fixed-structure (dot-access-only semantics).",
     tagKind: "modifier",
     specifications: ["closure"],
-    applicableTo: ["class", "type-alias", "variable"],
+    applicableTo: ["class", "typeAlias", "variable"],
     astDerivable: "none",
     astDerivableNote: "This is a compiler contract and not deterministic from syntax alone.",
     parameters: { syntax: "@struct", acceptsType: false, acceptsName: false, acceptsDescription: false },
@@ -1702,7 +1702,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "Closure: structural interface-like contract annotation.",
     tagKind: "modifier",
     specifications: ["closure"],
-    applicableTo: ["interface", "type-alias", "class"],
+    applicableTo: ["interface", "typeAlias", "class"],
     astDerivable: "partial",
     astDerivableNote: "Structural shape can be analyzed, but record-tag intent is explicit annotation metadata.",
     parameters: { syntax: "@record", acceptsType: false, acceptsName: false, acceptsDescription: false },
@@ -1766,7 +1766,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "TypeDoc: emits a symbol as a standalone documentation page.",
     tagKind: "modifier",
     specifications: ["typedoc"],
-    applicableTo: ["module", "namespace", "class", "interface", "type-alias"],
+    applicableTo: ["module", "namespace", "class", "interface", "typeAlias"],
     astDerivable: "none",
     astDerivableNote: "Documentation page emission is a render-time policy choice.",
     parameters: { syntax: "@document", acceptsType: false, acceptsName: false, acceptsDescription: false },
@@ -1856,7 +1856,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "TypeDoc: mark a declaration as the primary export in module documentation.",
     tagKind: "modifier",
     specifications: ["typedoc"],
-    applicableTo: ["class", "function", "interface", "type-alias", "variable"],
+    applicableTo: ["class", "function", "interface", "typeAlias", "variable"],
     astDerivable: "none",
     astDerivableNote: "Primary export status is a documentation presentation decision.",
     parameters: { syntax: "@primaryExport", acceptsType: false, acceptsName: false, acceptsDescription: false },
@@ -1886,7 +1886,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     overview: "TypeDoc: prefers declared type for rendering over inferred expansion.",
     tagKind: "modifier",
     specifications: ["typedoc"],
-    applicableTo: ["property", "variable", "parameter", "type-alias", "any"],
+    applicableTo: ["property", "variable", "parameter", "typeAlias", "any"],
     astDerivable: "none",
     astDerivableNote: "Declared-type rendering preference is documentation presentation metadata.",
     parameters: { syntax: "@useDeclaredType", acceptsType: false, acceptsName: false, acceptsDescription: false },

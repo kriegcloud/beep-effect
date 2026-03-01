@@ -1,18 +1,43 @@
-import type { Specification as SpecificationTypeModel } from "./JSDoc.model.js";
-import { Specification as SpecificationSchema } from "./JSDoc.model.js";
+import { $RepoUtilsId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+
+const $I = $RepoUtilsId.create("JSDoc/models/Specification.model");
 
 /**
- * Runtime schema export for canonical documentation standards.
+ * Enumerates canonical standards that define a documentation tag.
  *
  * @since 0.0.0
  * @category models
  */
-export const Specification = SpecificationSchema;
+export const Specification = LiteralKit([
+  // JSDoc 3.x standard (jsdoc.app)
+  "jsdoc3",
+  // TSDoc Core — must be supported by all TSDoc tools
+  "tsdocCore",
+  // TSDoc Extended — optional but standardized
+  "tsdocExtended",
+  // TSDoc Discretionary — syntax standardized, semantics vary
+  "tsdocDiscretionary",
+  // Recognized by TypeScript compiler in .js files
+  "typescript",
+  // Google Closure Compiler
+  "closure",
+  // Microsoft API Extractor / AEDoc
+  "apiExtractor",
+  // TypeDoc-specific extensions
+  "typedoc",
+  // User-defined / non-standard
+  "custom",
+]).annotate(
+  $I.annote("Specification", {
+    description: "Which specification(s) define this tag",
+  })
+);
 
 /**
- * Type alias export for the canonical specification union.
+ * Union of canonical documentation standards represented by {@link Specification}.
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
-export type SpecificationType = SpecificationTypeModel;
+export type Specification = typeof Specification.Type;

@@ -2,8 +2,8 @@
 
 ## 🎯 OVERVIEW
 
-Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical, 
-and 
+Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical,
+and
 compilable examples for all APIs.
 
 ## 🚨 CRITICAL REQUIREMENTS
@@ -23,10 +23,10 @@ compilable examples for all APIs.
 ````typescript
 /**
  * Brief description of what the function does in one line.
- * 
+ *
  * More detailed explanation if needed, including:
  * - Important behavior notes
- * - Performance characteristics  
+ * - Performance characteristics
  * - Common use cases
  *
  * @example
@@ -45,7 +45,7 @@ compilable examples for all APIs.
  * ```
  *
  * @example
- * ```ts-morph  
+ * ```ts-morph
  * import { ModuleName } from "effect"
  *
  * // Different use case or advanced usage
@@ -406,7 +406,7 @@ export const make = ...
 export const map = ...
 
 /**
- * @category predicates  
+ * @category predicates
  */
 export const isEmpty = ...
 

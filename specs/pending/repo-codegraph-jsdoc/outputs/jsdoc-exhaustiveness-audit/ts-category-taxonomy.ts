@@ -148,6 +148,52 @@ export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
 export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
 
 /**
+ * File-path patterns that identify test infrastructure.
+ * The classifier should exclude these files from category scoring
+ * or route them to a dedicated test-handling path before applying
+ * the main taxonomy.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const TESTING_FILE_PATTERNS = [
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/__tests__/**",
+  "**/__mocks__/**",
+  "**/test/**",
+  "**/tests/**",
+  "**/*.stories.ts",
+  "**/*.stories.tsx",
+  "**/fixtures/**",
+  "**/__fixtures__/**",
+] as const satisfies ReadonlyArray<string>;
+
+/**
+ * Import patterns that strongly signal test infrastructure.
+ * Used as a secondary signal when file paths are ambiguous
+ * (e.g., test utilities not in a conventional test directory).
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const TESTING_IMPORT_PATTERNS = [
+  "vitest*",
+  "jest*",
+  "@jest/*",
+  "@testing-library/*",
+  "msw*",
+  "playwright*",
+  "@playwright/*",
+  "cypress*",
+  "supertest*",
+  "nock*",
+  "sinon*",
+] as const satisfies ReadonlyArray<string>;
+
+/**
  * Closed category taxonomy used by `@category` tags.
  *
  * @since 2026-03-01
@@ -177,12 +223,6 @@ export const CATEGORY_TAXONOMY = [
     ],
     astSignals: [
       {
-        signal: "Type-only domain declarations without effectful method signatures",
-        confidence: 0.6,
-        detection:
-          "(Node.isInterfaceDeclaration(node) || Node.isTypeAliasDeclaration(node) || Node.isEnumDeclaration(node)) && !(Node.isInterfaceDeclaration(node) && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable</.test(m.getReturnType().getText())))",
-      },
-      {
         signal: "File imports avoid framework and IO adapters",
         confidence: 0.7,
         detection:
@@ -198,7 +238,12 @@ export const CATEGORY_TAXONOMY = [
     effectAnalog: "Identity",
     architecturalLayers: ["domain-entity", "core"],
     purity: "pure",
-    adjacentCategories: ["DomainLogic", "Validation", "Utility"],
+    adjacentCategories: [
+      "DomainLogic",
+      "Validation",
+      "Utility",
+      "TransportContract", // Forward-declaration: see design decision #6
+    ],
     typicalImportPatterns: ["**/domain/**/*.ts", "**/model/**/*.ts", "**/entities/**/*.ts"],
     dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
     documentationPriority: 1,
@@ -239,10 +284,17 @@ export const CATEGORY_TAXONOMY = [
       },
       {
         signal:
-          "Parameters or return type reference domain-typed symbols (branded, enum, or domain-path types)",
-        confidence: 0.7,
+          "Parameters reference domain-typed symbols (branded, enum, or domain-path types)",
+        confidence: 0.65,
         detection:
-          "Node.isFunctionDeclaration(node) && (node.getParameters().some(p => /Id|Status|Amount|Price|Currency|Score/.test(p.getType().getText()) || p.getType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath()))) || (/Id|Status|Amount|Price|Currency|Score/.test(node.getReturnType().getText()) || node.getReturnType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath()))))",
+          "Node.isFunctionDeclaration(node) && node.getParameters().some(p => /Id|Status|Amount|Price|Currency|Score/.test(p.getType().getText()) || p.getType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath())))",
+      },
+      {
+        signal:
+          "Return type references domain-typed symbols (branded, enum, or domain-path types)",
+        confidence: 0.65,
+        detection:
+          "Node.isFunctionDeclaration(node) && (/Id|Status|Amount|Price|Currency|Score/.test(node.getReturnType().getText()) || node.getReturnType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath())))",
       },
     ],
     effectAnalog: "Either",
@@ -277,9 +329,15 @@ export const CATEGORY_TAXONOMY = [
     astSignals: [
       {
         signal: "Interface names ending in Port, Repository, or Gateway",
-        confidence: 0.9,
+        confidence: 0.75,
         detection:
           "Node.isInterfaceDeclaration(node) && /(Port|Repository|Gateway)$/.test(node.getName() ?? '')",
+      },
+      {
+        signal: "Interface with port-style naming AND effectful method signatures",
+        confidence: 0.9,
+        detection:
+          "Node.isInterfaceDeclaration(node) && /(Port|Repository|Gateway|Store|Client)$/.test(node.getName() ?? '') && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable<|Task</.test(m.getReturnType().getText()))",
       },
       {
         signal: "Interface with async or effectful method signatures",
@@ -462,9 +520,15 @@ export const CATEGORY_TAXONOMY = [
     astSignals: [
       {
         signal: "Framework imports from web and UI stacks",
-        confidence: 0.85,
+        confidence: 0.75,
         detection:
           "node.getSourceFile().getImportDeclarations().some((decl) => /react|next|remix|astro|hono|express|fastify/.test(decl.getModuleSpecifierValue()))",
+      },
+      {
+        signal: "Framework imports AND component or route handler exports",
+        confidence: 0.88,
+        detection:
+          "node.getSourceFile().getImportDeclarations().some((decl) => /react|next|remix|astro|hono|express|fastify/.test(decl.getModuleSpecifierValue())) && (() => { const sf = node.getSourceFile(); const hasJsx = sf.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0 || sf.getDescendantsOfKind(SyntaxKind.JsxSelfClosingElement).length > 0; const exportNames = Array.from(sf.getExportedDeclarations().keys()); const hasRouteExport = exportNames.some(name => /^(GET|POST|PUT|DELETE|PATCH|default|Page|Layout)$/.test(name)); return hasJsx || hasRouteExport; })()",
       },
       {
         signal: "Request or response handling signatures",
@@ -712,6 +776,18 @@ export type CategoryTag = (typeof CATEGORY_TAXONOMY)[number]["_tag"];
 
 /**
  * Deterministic precedence for external classifier conflict resolution.
+ *
+ * Ordering rationale - most-specific signals win:
+ *   1. Library-specific imports (Validation, DataAccess, Integration) -
+ *      schema/ORM/SDK imports are near-unambiguous signals.
+ *   2. Structural patterns (Presentation, UseCase) -
+ *      framework imports + structural shape are strong but broader.
+ *   3. Naming and convention patterns (PortContract, Configuration, CrossCutting) -
+ *      rely on naming heuristics which are project-dependent.
+ *   4. Residual categories (DomainModel, DomainLogic, Utility) -
+ *      identified by absence of other signals rather than presence.
+ *   5. Uncategorized - last resort.
+ *
  * This policy is intentionally separate from `getCandidateCategories`,
  * which preserves canonical sorting by confidence and `_tag`.
  *
@@ -764,22 +840,22 @@ export const APPLICABLE_TO_CATEGORY_ROUTING: Readonly<
   function: ["UseCase", "DomainLogic", "Validation", "Presentation", "Utility"],
   method: ["UseCase", "DomainLogic", "DataAccess", "Integration", "CrossCutting"],
   class: ["DomainModel", "UseCase", "DataAccess", "Integration", "Presentation", "CrossCutting"],
-  "class-static-block": ["Configuration", "CrossCutting"],
+  classStaticBlock: ["Configuration", "CrossCutting"],
   interface: ["DomainModel", "PortContract"],
-  "type-alias": ["DomainModel", "PortContract", "Validation", "Utility"],
+  typeAlias: ["DomainModel", "PortContract", "Validation", "Utility"],
   enum: ["DomainModel"],
-  "enum-member": ["DomainModel"],
+  enumMember: ["DomainModel"],
   variable: ["Utility", "Validation", "Configuration", "DataAccess", "CrossCutting"],
   constant: ["Utility", "DomainModel", "Configuration", "CrossCutting"],
   property: ["DomainModel", "DataAccess", "Validation", "Configuration"],
-  accessor: ["DomainModel", "DataAccess", "CrossCutting"],
-  constructor: ["UseCase", "DataAccess", "Integration"],
+  accessor: ["DomainModel", "DataAccess", "CrossCutting", "Presentation"],
+  constructor: ["UseCase", "DataAccess", "Integration", "DomainModel"],
   parameter: ["UseCase", "Validation", "Presentation", "DomainLogic"],
   signature: ["PortContract", "DomainLogic", "UseCase", "Validation"],
-  "index-signature": ["DomainModel", "PortContract"],
-  "type-parameter": ["DomainModel", "Utility", "Validation"],
-  "tuple-member": ["DomainModel"],
-  "export-specifier": ["Presentation", "UseCase", "Utility", "Configuration"],
+  indexSignature: ["DomainModel", "PortContract"],
+  typeParameter: ["DomainModel", "Utility", "Validation"],
+  tupleMember: ["DomainModel"],
+  exportSpecifier: ["Presentation", "UseCase", "Utility", "Configuration"],
   identifier: ["Uncategorized", "Utility", "DomainModel", "CrossCutting"],
   statement: ["Presentation", "UseCase", "CrossCutting", "Uncategorized"],
   expression: ["DomainLogic", "Validation", "Presentation", "Integration", "Uncategorized"],
@@ -798,6 +874,18 @@ const CATEGORY_BY_TAG = new Map<string, TSCategory>(
 const clampConfidence = (confidence: number): number =>
   Number.isFinite(confidence) ? Math.max(0, Math.min(1, confidence)) : 0;
 
+/**
+ * Combine multiple signal confidences using the noisy-OR formula:
+ *   1 - Π(1 - c_i)
+ *
+ * Assumes signal independence. Correlated signals (e.g., two signals
+ * both triggered by the same import declaration) will produce inflated
+ * combined confidence. Callers should prefer structurally independent
+ * detection criteria when designing AST signals.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
 const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
   confidences.reduce((combined, confidence) => {
     const clamped = clampConfidence(confidence);
@@ -1011,4 +1099,10 @@ export function resolveContextFallback(
  * preferred over Uncategorized because transport types share the same
  * structural properties (pure, high fan-in, low fan-out) and benefit from
  * the same graph query patterns.
+ *
+ * 7) Testing pre-classification gate:
+ * Testing is handled as a pre-classification filter (via path and import
+ * patterns) rather than as a taxonomy member. Tests generally inherit the
+ * semantic category of the production code they exercise, and test framework
+ * imports would otherwise systematically dominate category signals.
  */
