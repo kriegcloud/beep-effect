@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: yield-in-for-loop
 description: Use Effect.forEach or STM.forEach instead of yield* in for loops
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: for\s*\([^)]*\)\s*\{[^}]*yield\s*\*
 tag: use-foreach
 level: warning

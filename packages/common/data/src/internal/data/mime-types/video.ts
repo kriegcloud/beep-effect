@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { video } from "@beep/data/mime-types/video"
  *
  * video["video/mp4"]
@@ -61,7 +61,7 @@ export const video = {
   },
   "video/mp2t": {
     source: "iana",
-    extensions: ["ts"],
+    extensions: ["ts-morph"],
   },
   "video/mp4": {
     source: "iana",

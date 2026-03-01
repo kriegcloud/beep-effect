@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: stream-large-files
 description: Consider streaming large files instead of reading into memory
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: fs\.(readFile|readFileString)\s*\(
 tag: consider-streaming
 level: info

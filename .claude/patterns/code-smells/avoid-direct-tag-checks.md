@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-direct-tag-checks
 description: Avoid direct _tag property checks; use exported refinements/predicates
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: \._tag\s*===\s*["']
 tag: use-type-predicates
 level: warning

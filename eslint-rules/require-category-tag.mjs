@@ -1,7 +1,7 @@
 /**
  * Custom ESLint rule requiring `@category` on exported symbols.
  *
- * This complements eslint-plugin-jsdoc presence checks by ensuring
+ * This complements eslint-plugin-JSDoc presence checks by ensuring
  * classification metadata is present for indexable exports.
  *
  * @since 0.0.0

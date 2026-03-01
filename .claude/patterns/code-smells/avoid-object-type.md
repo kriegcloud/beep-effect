@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-object-type
 description: Avoid using Object or {} as types
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (?::\s*|=\s*)(Object|{})\s*(?=[,;\)\]\|&=<>\s\[])
 tag: do-not-use-object-type
 level: warning

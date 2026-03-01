@@ -23,7 +23,7 @@ import * as internal from "./internal/data/currency-codes.js";
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
  * const entry: CurrencyCodeData = {
@@ -43,7 +43,7 @@ export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { CurrencyCode } from "@beep/data/CurrencyCodes"
  *
  * const usd: CurrencyCode = "USD"
@@ -68,7 +68,7 @@ export type CurrencyCode = CurrencyCodeData["code"];
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { CurrencyCodeDataValues } from "@beep/data/CurrencyCodes"
  *
  * CurrencyCodeDataValues[0].code // "AED"

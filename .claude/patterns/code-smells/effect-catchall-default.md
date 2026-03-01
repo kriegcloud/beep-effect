@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: effect-catchall-default
 description: Avoid Effect.catchAll returning defaults - often hides bugs
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: Effect\.catchAll\(.*?=>\s*(Effect\.)?(succeed|sync)\(
 tag: avoid-catchall-default
 level: warning

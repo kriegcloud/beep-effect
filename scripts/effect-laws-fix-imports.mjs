@@ -26,7 +26,7 @@ const ALIAS_RULES = {
   "effect/Schema": "S",
 };
 
-const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling/**/*.{ts,tsx}", "infra/**/*.ts"];
+const INCLUDED_GLOBS = ["apps/**/*.{ts-morph,tsx}", "packages/**/*.{ts-morph,tsx}", "tooling/**/*.{ts-morph,tsx}", "infra/**/*.ts"];
 const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"];
 const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"];
 

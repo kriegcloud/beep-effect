@@ -112,7 +112,7 @@ const crawlMarkdownFiles = (
 // ============================================================================
 
 const extractCodeBlocks = (file: string, content: string): ReadonlyArray<CodeBlock> => {
-  // Match code fences: ```typescript, ```ts, ```tsx with optional nocheck modifier
+  // Match code fences: ```typescript, ```ts-morph, ```tsx with optional nocheck modifier
   const regex = /^```(typescript|ts|tsx)(?:\s+(nocheck))?\n([\s\S]*?)^```/gm;
   const blocks: Array<CodeBlock> = [];
   let match: RegExpExecArray | null;

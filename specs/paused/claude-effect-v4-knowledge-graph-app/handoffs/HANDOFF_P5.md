@@ -44,7 +44,7 @@ Verify the Vercel deployment (already provisioned via SST IaC), confirm all envi
 
 **Next.js route segment config:**
 ```ts
-// app/api/chat/route.ts
+// app/api/chat/route.ts-morph
 export const runtime = "nodejs"
 export const maxDuration = 60 // seconds, for streaming tool-calling workloads (Fluid compute: 300s max on Hobby)
 ```

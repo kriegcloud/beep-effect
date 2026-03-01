@@ -190,7 +190,7 @@ export const EncodingErrorReason = LiteralKit([
   "Encode", // Failed to encode to format
 ]).annotate(
   $I.annote("EncodingErrorReason", {
-    description: "Encoding errors (from Body.ts, Schema)",
+    description: "Encoding errors (from Body.ts-morph, Schema)",
   })
 );
 

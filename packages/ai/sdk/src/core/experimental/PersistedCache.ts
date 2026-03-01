@@ -166,7 +166,7 @@ export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadata
  * Build a cached query handle with default metadata caches.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * const program = Effect.scoped(
  *   Effect.gen(function*() {
  *     const sdk = yield* AgentSdk

@@ -191,9 +191,9 @@ describe("Pattern Detector", () => {
     });
 
     it("matches brace expansions", () => {
-      expect(testGlob("file.ts", "*.{ts,tsx}")).toBe(true);
-      expect(testGlob("file.tsx", "*.{ts,tsx}")).toBe(true);
-      expect(testGlob("file.js", "*.{ts,tsx}")).toBe(false);
+      expect(testGlob("file.ts", "*.{ts-morph,tsx}")).toBe(true);
+      expect(testGlob("file.tsx", "*.{ts-morph,tsx}")).toBe(true);
+      expect(testGlob("file.js", "*.{ts-morph,tsx}")).toBe(false);
     });
 
     it("matches exact paths", () => {

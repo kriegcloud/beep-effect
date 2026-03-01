@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-temp-file-scoped
 description: Use makeTempFileScoped/makeTempDirectoryScoped instead of os.tmpdir() or non-scoped variants
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (import\s+.*\s+from\s+['"]os['"]|require\(['"]os['"]\)|os\.tmpdir\(\)|\.(makeTempFile|makeTempDirectory)\s*\()
 tag: use-scoped-temp
 level: warning

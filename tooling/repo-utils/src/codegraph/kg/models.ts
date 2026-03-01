@@ -67,7 +67,7 @@ export type IndexMode = typeof IndexMode.Type;
  * @category codegraph-kg
  * @since 0.0.0
  */
-export const Provenance = LiteralKit(["ast", "type", "jsdoc"]).annotate(
+export const Provenance = LiteralKit(["ast", "type", "JSDoc"]).annotate(
   $I.annote("Provenance", {
     description: "Source provenance for graph relationships.",
   })

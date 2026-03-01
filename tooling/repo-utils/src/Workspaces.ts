@@ -31,7 +31,7 @@ const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.tu
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns A HashMap mapping package names to their absolute directory paths.
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  * import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces"
  *
@@ -113,7 +113,7 @@ export const resolveWorkspaceDirs: (
  * @param name - The package name to look up.
  * @returns An Option containing the absolute directory path, or None.
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  * import * as O from "effect/Option"
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"

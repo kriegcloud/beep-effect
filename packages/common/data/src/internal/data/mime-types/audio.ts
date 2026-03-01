@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { audio } from "@beep/data/mime-types/audio"
  *
  * audio["audio/mpeg"]

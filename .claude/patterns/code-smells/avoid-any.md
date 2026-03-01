@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-any
 description: Avoid using 'as any' or 'as unknown as' type assertions
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: as\s+(any|unknown\s+as)
 tag: do-not-use-any
 level: warning

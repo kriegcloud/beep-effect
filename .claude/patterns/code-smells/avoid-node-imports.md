@@ -3,7 +3,7 @@ name: avoid-node-imports
 description: Use @effect/platform abstractions instead of node: imports
 event: PostToolUse
 tool: (Edit|Write)
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (from\s+['"]node:|require\s*\(\s*['"]node:)
 action: context
 level: warning

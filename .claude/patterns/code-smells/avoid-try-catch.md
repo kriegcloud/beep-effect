@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-try-catch
 description: Avoid try-catch blocks in Effect code - use Effect.try or typed errors
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: try\s*\{
 tag: avoid-try-catch
 level: warning

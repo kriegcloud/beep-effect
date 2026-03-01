@@ -5,13 +5,13 @@ import { spawnSync } from 'node:child_process';
 import { NodeFileSystem, NodePath } from '@effect/platform-node';
 import { Effect, Layer } from 'effect';
 
-import { Bm25WriterLive, EmbeddingServiceLive, LanceDbWriterLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/indexer/index.ts';
+import { Bm25WriterLive, EmbeddingServiceLive, LanceDbWriterLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/indexer/index.ts-morph';
 import { PipelineLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/indexer/Pipeline.js';
 import { handleBrowseSymbols } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/BrowseSymbolsTool.js';
 import { handleFindRelated } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/FindRelatedTool.js';
 import { handleReindex } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/ReindexTool.js';
 import { handleSearchCodebase } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/mcp/SearchCodebaseTool.js';
-import { HybridSearchLive, RelationResolverLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/search/index.ts';
+import { HybridSearchLive, RelationResolverLive } from '/home/elpresidank/YeeBois/projects/beep-effect2/tooling/codebase-search/dist/search/index.ts-morph';
 import * as Str from "effect/String";
 
 
@@ -29,7 +29,7 @@ const qualityQueries = [
   { query: 'vector search hybrid', expected: ['HybridSearch.search', 'LanceDbWriter.vectorSearch', 'reciprocalRankFusion'] },
   { query: 'resolve symbol relationships', expected: ['RelationResolver.resolve', 'handleFindRelated', 'RelationResolver'] },
   { query: 'lancedb writer', expected: ['LanceDbWriterLive', 'LanceDbWriter.upsert', 'LanceDbWriter'] },
-  { query: 'parse jsdoc tags', expected: ['JsDocExtractor', 'extractJSDoc', 'JSDoc'] },
+  { query: 'parse JSDoc tags', expected: ['JsDocExtractor', 'extractJSDoc', 'JSDoc'] },
 ];
 
 const lowercase = (value) => Str.toLowerCase(value);

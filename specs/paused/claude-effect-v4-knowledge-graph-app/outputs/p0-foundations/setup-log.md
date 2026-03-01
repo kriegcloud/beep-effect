@@ -63,7 +63,7 @@ Infrastructure (Neon, Vercel) provisioned by SST IaC in `infra/`.
 **Schema regeneration** (when auth config changes):
 ```bash
 cd apps/web
-bun run db:generate:auth   # Regenerates schema.ts via better-auth CLI
+bun run db:generate:auth   # Regenerates schema.ts-morph via better-auth CLI
 bun run db:generate        # Creates new Drizzle migration SQL file
 ```
 

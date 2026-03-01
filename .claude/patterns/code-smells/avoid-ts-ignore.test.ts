@@ -1,15 +1,15 @@
 import { testPattern } from "@beep/claude/test/pattern-test-harness";
 
 testPattern({
-  name: "avoid-ts-ignore",
+  name: "avoid-ts-morph-ignore",
   tag: "do-not-silence-types",
   shouldMatch: [
-    "// @ts-ignore",
-    "// @ts-expect-error",
-    "@ts-ignore",
-    "@ts-expect-error",
-    "// @ts-ignore - legacy code",
-    "/* @ts-expect-error */",
+    "// @ts-morph-ignore",
+    "// @ts-morph-expect-error",
+    "@ts-morph-ignore",
+    "@ts-morph-expect-error",
+    "// @ts-morph-ignore - legacy code",
+    "/* @ts-morph-expect-error */",
   ],
   shouldNotMatch: ["const x = 5", "Effect.try({ try: () => foo() })", "tsconfig.json", "typescript"],
 });

@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: effect-run-in-body
 description: Effect.runSync/runPromise should only be at entry points
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: Effect\.run(Sync|Promise)
 tag: effect-run-in-body
 level: warning

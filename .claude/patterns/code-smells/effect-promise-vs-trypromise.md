@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: effect-promise-vs-trypromise
 description: Use Effect.tryPromise instead of Effect.promise for error handling
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: yield\*\s+Effect\.promise
 tag: use-effect-trypromise
 level: warning

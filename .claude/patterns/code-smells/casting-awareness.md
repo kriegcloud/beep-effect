@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: casting-awareness
 description: Type assertions may indicate incorrect types
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: as\s+(?!const\b)\w+
 tag: type-awareness
 level: info

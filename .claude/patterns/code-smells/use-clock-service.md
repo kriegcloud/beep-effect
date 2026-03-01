@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-clock-service
 description: Use Effect DateTime instead of JS Date
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (new Date\(|Date\.\w+\()
 tag: use-effect-clock
 level: warning

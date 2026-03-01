@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { application } from "@beep/data/mime-types/application"
  *
  * application["application/json"]

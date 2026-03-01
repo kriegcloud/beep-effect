@@ -83,7 +83,7 @@ export const video = _video;
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { mimes } from "@beep/data"
  *
  * mimes["text/css"]
@@ -107,7 +107,7 @@ export const mimes = {
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { MimeType } from "@beep/data"
  *
  * const contentType: MimeType = "application/json"
@@ -124,7 +124,7 @@ export type MimeType = keyof typeof mimes;
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { FileExtension } from "@beep/data"
  *
  * const ext: FileExtension = "json"
@@ -140,7 +140,7 @@ export type FileExtension = (typeof mimes)[MimeType]["extensions"][number];
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { mimeTypes } from "@beep/data"
  *
  * const json = mimeTypes["application/json"]
@@ -170,7 +170,7 @@ const types = {} as Record<FileExtension, MimeType>;
  * @since 0.0.0
  * @category getters
  * @example
- * ```ts
+ * ```ts-morph
  * import { getTypes } from "@beep/data"
  *
  * const types = getTypes()
@@ -193,7 +193,7 @@ export function getTypes(): Record<FileExtension, MimeType> {
  * @since 0.0.0
  * @category getters
  * @example
- * ```ts
+ * ```ts-morph
  * import { getExtensions } from "@beep/data"
  *
  * const extensions = getExtensions()
@@ -216,7 +216,7 @@ export function getExtensions(): Record<MimeType, FileExtension[]> {
  * @since 0.0.0
  * @category lookups
  * @example
- * ```ts
+ * ```ts-morph
  * import { lookup } from "@beep/data"
  *
  * lookup("json")            // "application/json"

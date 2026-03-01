@@ -34,7 +34,7 @@ The critical architectural decision in graph construction is the parsing layer. 
 **Phase 2 uses ts-morph (or raw TypeScript Compiler API) for semantic extraction.** ts-morph wraps the TypeScript Compiler API with a developer-friendly interface that provides full type resolution via `TypeChecker`, cross-file symbol resolution, call signature extraction, and heritage clause traversal. Aide.dev reports **~99% accuracy for TypeScript** using ts-morph in production for their code graph. Key extraction patterns include:
 
 ```typescript
-// Extract call edges with ts-morph
+// Extract call edges with ts-morph-morph
 block.getDescendantsOfKind(SyntaxKind.CallExpression).forEach((callExpr) => {
   const symbol = callExpr.getExpression().getSymbol();
   const declarations = symbol?.getAliasedSymbol()?.getDeclarations();

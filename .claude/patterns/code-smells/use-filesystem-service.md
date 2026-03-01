@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-filesystem-service
 description: Use FileSystem service instead of direct Node.js fs imports
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (import\s+.*\s+from\s+['"]node:fs['"]|import\s+.*\s+from\s+['"]fs['"]|require\(['"]node:fs['"]\)|require\(['"]fs['"]\))
 tag: use-effect-filesystem
 level: high

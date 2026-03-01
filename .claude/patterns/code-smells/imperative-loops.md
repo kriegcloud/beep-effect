@@ -3,7 +3,7 @@ name: imperative-loops
 description: Use functional transformations instead of imperative loops
 event: PostToolUse
 tool: (Edit|Write)
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: for\s*\(
 action: context
 level: warning

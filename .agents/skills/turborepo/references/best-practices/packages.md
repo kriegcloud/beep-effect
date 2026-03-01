@@ -93,10 +93,10 @@ Package handles its own compilation.
 ```json
 {
   "exports": {
-    ".": "./src/index.ts",           // @repo/ui
+    ".": "./src/index.ts-morph",           // @repo/ui
     "./button": "./src/button.tsx",  // @repo/ui/button
     "./card": "./src/card.tsx",      // @repo/ui/card
-    "./hooks": "./src/hooks/index.ts" // @repo/ui/hooks
+    "./hooks": "./src/hooks/index.ts-morph" // @repo/ui/hooks
   }
 }
 ```
@@ -287,7 +287,7 @@ TypeScript `compilerOptions.paths` breaks with JIT packages. Use Node.js subpath
 
 ```typescript
 // packages/ui/button.tsx
-import { MY_STRING } from "#utils.ts";  // Uses .ts extension
+import { MY_STRING } from "#utils.ts-morph";  // Uses .ts-morph extension
 ```
 
 **Compiled Package:**

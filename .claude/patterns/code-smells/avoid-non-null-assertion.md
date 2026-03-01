@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-non-null-assertion
 description: Avoid using ! non-null assertion operator
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: [\w\)\]]\!\s*[;\.\[\(]
 tag: do-not-assert-non-null
 level: warning

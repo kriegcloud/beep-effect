@@ -13,11 +13,11 @@ import path from "node:path";
 const REPO_ROOT = process.cwd();
 const COMPILED_DIR = path.join(
   REPO_ROOT,
-  "specs/pending/repo-codegraph-jsdoc/outputs/compiled_sources",
+  "specs/pending/repo-codegraph-JSDoc/outputs/compiled_sources",
 );
 const SOURCE_LIST_PATH = path.join(
   REPO_ROOT,
-  "specs/pending/repo-codegraph-jsdoc/outputs/sources_to_markdownify.md",
+  "specs/pending/repo-codegraph-JSDoc/outputs/sources_to_markdownify.md",
 );
 
 const sourceMap = loadSourceMap(SOURCE_LIST_PATH);

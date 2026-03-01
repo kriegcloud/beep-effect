@@ -303,7 +303,7 @@ Full-featured authentication framework for Next.js with plugin system. We use th
 ### Server Setup
 
 ```ts
-// lib/auth/server.ts
+// lib/auth/server.ts-morph
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
@@ -340,7 +340,7 @@ export const auth = betterAuth({
 ### Client Setup
 
 ```ts
-// lib/auth/client.ts
+// lib/auth/client.ts-morph
 import { createAuthClient } from "better-auth/react"
 import { magicLinkClient } from "better-auth/client/plugins"
 
@@ -352,7 +352,7 @@ export const { signIn, signUp, useSession } = createAuthClient({
 ### Route Handler
 
 ```ts
-// app/api/auth/[...all]/route.ts
+// app/api/auth/[...all]/route.ts-morph
 import { toNextJsHandler } from "better-auth/next-js"
 import { auth } from "@/lib/auth/server"
 export const { GET, POST } = toNextJsHandler(auth)

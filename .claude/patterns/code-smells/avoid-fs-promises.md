@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-fs-promises
 description: Wrap fs/promises with Effect instead of using directly
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (import\s+.*\s+from\s+['"]node:fs/promises['"]|import\s+.*\s+from\s+['"]fs/promises['"])
 tag: wrap-fs-promises
 level: warning

@@ -41,7 +41,7 @@ Set up the foundational infrastructure for the app: better-auth with magic link 
 
 **better-auth setup with magic link:**
 ```ts
-// lib/auth/server.ts
+// lib/auth/server.ts-morph
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
@@ -80,7 +80,7 @@ export const auth = betterAuth({
 
 **Client setup:**
 ```ts
-// lib/auth/client.ts
+// lib/auth/client.ts-morph
 import { createAuthClient } from "better-auth/react"
 import { magicLinkClient } from "better-auth/client/plugins"
 
@@ -102,7 +102,7 @@ export const { signIn, signUp, useSession } = createAuthClient({
 
 **Neon setup:**
 ```ts
-// lib/db/index.ts
+// lib/db/index.ts-morph
 import { neon } from "@neondatabase/serverless"
 import { drizzle } from "drizzle-orm/neon-http"
 const sql = neon(process.env.DATABASE_URL!)

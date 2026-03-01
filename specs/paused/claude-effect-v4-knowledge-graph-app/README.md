@@ -291,7 +291,7 @@ P1 focuses on **data migration and verification**, not infrastructure setup:
 ### better-auth Configuration
 
 ```ts
-// lib/auth/server.ts
+// lib/auth/server.ts-morph
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"

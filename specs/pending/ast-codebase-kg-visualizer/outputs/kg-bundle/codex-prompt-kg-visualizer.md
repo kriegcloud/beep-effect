@@ -29,7 +29,7 @@ type EdgeKind =
   | "test_covers" | "uses_type";
 
 interface GraphNode {
-  id: string;        // e.g. "class::src/services/user-service.ts::UserService"
+  id: string;        // e.g. "class::src/services/user-service.ts-morph::UserService"
   label: string;     // e.g. "UserService"
   kind: NodeKind;
   filePath: string;  // relative path
@@ -124,7 +124,7 @@ page.tsx (server)
 Use a dark theme matching this palette:
 
 ```typescript
-// graph-config.ts
+// graph-config.ts-morph
 export const theme = {
   bg: '#08090d',
   surface: '#101318',
@@ -350,7 +350,7 @@ For large graphs (10K+ nodes):
 Returns the latest cached graph JSON. Reads from `tooling/ast-kg/.cache/snapshots/` to reconstruct the full graph, or from a pre-built `codebase-graph.json` in the cache directory.
 
 ```typescript
-// apps/web/src/app/api/kg/graph/route.ts
+// apps/web/src/app/api/kg/graph/route.ts-morph
 import { NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { join } from 'path';

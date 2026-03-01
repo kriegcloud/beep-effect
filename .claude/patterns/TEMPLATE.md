@@ -3,7 +3,7 @@ name: pattern-identifier
 description: Brief one-line description
 event: PostToolUse
 tool: (Edit|Write)
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: regex-pattern-to-match
 action: context
 level: warning

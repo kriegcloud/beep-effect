@@ -79,7 +79,7 @@ class GraphitiService extends ServiceMap.Service<GraphitiService>("@beep/web/Gra
 
 The `GraphitiService` makes HTTP calls to the Graphiti API via the Caddy auth proxy on Railway:
 ```ts
-// lib/graphiti/client.ts
+// lib/graphiti/client.ts-morph
 // Calls GRAPHITI_API_URL (https://auth-proxy-production-91fe.up.railway.app) with X-API-Key header
 // Maps Graphiti MCP tool responses to typed results
 // MCP endpoint: /mcp (no trailing slash — /mcp/ returns 307 redirect)

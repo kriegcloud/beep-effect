@@ -87,7 +87,7 @@ Files considered when calculating task hash. Defaults to all tracked files in pa
 {
   "tasks": {
     "test": {
-      "inputs": ["src/**", "tests/**", "vitest.config.ts"]
+      "inputs": ["src/**", "tests/**", "vitest.config.ts-morph"]
     }
   }
 }

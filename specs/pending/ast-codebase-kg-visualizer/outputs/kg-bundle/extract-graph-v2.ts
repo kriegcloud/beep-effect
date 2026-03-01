@@ -1,13 +1,13 @@
 /**
  * Codebase Graph Extractor — Exhaustive Edition
  *
- * Uses ts-morph to parse a TypeScript project and emit a comprehensive JSON
+ * Uses ts-morph-morph to parse a TypeScript project and emit a comprehensive JSON
  * graph capturing every meaningful symbol and relationship.
  *
  * Usage:
- *   npx tsx extract-graph.ts --tsconfig ./path/to/tsconfig.json
- *   npx tsx extract-graph.ts --tsconfig ./path/to/tsconfig.json --out graph.json
- *   npx tsx extract-graph.ts --tsconfig ./path/to/tsconfig.json --packages ./pnpm-workspace.yaml
+ *   npx tsx extract-graph.ts-morph --tsconfig ./path/to/tsconfig.json
+ *   npx tsx extract-graph.ts-morph --tsconfig ./path/to/tsconfig.json --out graph.json
+ *   npx tsx extract-graph.ts-morph --tsconfig ./path/to/tsconfig.json --packages ./pnpm-workspace.yaml
  */
 
 import {
@@ -332,7 +332,7 @@ class CodebaseGraphExtractor {
   extract(): CodebaseGraph {
     const sourceFiles = this.project.getSourceFiles().filter((sf) => {
       const fp = sf.getFilePath();
-      return !fp.includes("node_modules") && !fp.endsWith(".d.ts");
+      return !fp.includes("node_modules") && !fp.endsWith(".d.ts-morph");
     });
 
     console.log(`Parsing ${sourceFiles.length} source files...`);
@@ -467,7 +467,7 @@ class CodebaseGraphExtractor {
     }
 
     // Namespaces
-    // (ts-morph treats namespace and module declarations similarly)
+    // (ts-morph-morph treats namespace and module declarations similarly)
 
     // Top-level functions
     for (const fn of sf.getFunctions()) {

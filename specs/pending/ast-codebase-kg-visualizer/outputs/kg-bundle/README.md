@@ -15,7 +15,7 @@
 
 ```bash
 # 1. Extract a graph from your project
-npx tsx extract-graph-v2.ts --tsconfig ./path/to/tsconfig.json --out codebase-graph.json
+npx tsx extract-graph-v2.ts-morph --tsconfig ./path/to/tsconfig.json --out codebase-graph.json
 
 # 2. View it in the standalone visualizer
 open visualize-v2.html  # then drop codebase-graph.json onto it

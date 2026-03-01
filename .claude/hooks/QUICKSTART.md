@@ -137,7 +137,7 @@ tool: (Edit|Write|Bash)
 
 ### Match TypeScript/TypeScript React
 ```yaml
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 ```
 
 ### Match Bash Commands

@@ -192,7 +192,7 @@ const makeDirectionalKit = <
  * - Top-level helpers (`Enum`, `is`, `$match`, etc.) are aliases of `From`.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { MappedLiteralKit } from "@beep/schema";
  * import * as S from "effect/Schema";
  *

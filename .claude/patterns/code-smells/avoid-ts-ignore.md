@@ -2,10 +2,10 @@
 action: context
 tool: (Edit|Write)
 event: PostToolUse
-name: avoid-ts-ignore
-description: Avoid using @ts-ignore or @ts-expect-error to silence type errors
-glob: "**/*.{ts,tsx}"
-pattern: @ts-(ignore|expect-error)
+name: avoid-ts-morph-ignore
+description: Avoid using @ts-morph-ignore or @ts-morph-expect-error to silence type errors
+glob: "**/*.{ts-morph,tsx}"
+pattern: @ts-morph-(ignore|expect-error)
 tag: do-not-silence-types
 level: warning
 ---

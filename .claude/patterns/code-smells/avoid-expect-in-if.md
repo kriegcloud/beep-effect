@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-expect-in-if
 description: Avoid nesting expect() calls inside if blocks in tests
-glob: "**/*.{test,spec}.{ts,tsx}"
+glob: "**/*.{test,spec}.{ts-morph,tsx}"
 pattern: if\s*\([^)]*\)\s*\{[^}]*expect\(
 tag: use-assert-to-narrow
 level: warning

@@ -147,9 +147,9 @@ Use workspace protocol for internal packages:
 ```json
 {
   "exports": {
-    ".": "./src/index.ts",
+    ".": "./src/index.ts-morph",
     "./button": "./src/button.tsx",
-    "./utils": "./src/utils.ts"
+    "./utils": "./src/utils.ts-morph"
   }
 }
 ```
@@ -159,7 +159,7 @@ Use workspace protocol for internal packages:
 Don't create `index.ts` files that re-export everything:
 
 ```typescript nocheck
-// BAD: packages/ui/src/index.ts
+// BAD: packages/ui/src/index.ts-morph
 export * from './button';
 export * from './card';
 export * from './modal';

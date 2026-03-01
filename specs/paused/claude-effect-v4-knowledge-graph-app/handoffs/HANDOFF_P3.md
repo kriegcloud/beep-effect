@@ -94,7 +94,7 @@ const chatHandler = Effect.fn(function* (request: ChatRequest) {
 
 **Route setup:**
 ```ts
-// app/api/chat/route.ts
+// app/api/chat/route.ts-morph
 const appLayer = Layer.mergeAll(
   HttpRouter.layer,
   HttpRouter.add("POST", "/api/chat", chatEffect),

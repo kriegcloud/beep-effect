@@ -17,7 +17,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { misc } from "@beep/data/mime-types/misc"
  *
  * misc["font/woff2"]

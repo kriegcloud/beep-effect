@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: context-tag-extends
 description: Avoid class *Tag extends Context.Tag and mismatched GenericTag naming
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (class\s+\w+Tag\s+extends\s+Context\.Tag|Context\.GenericTag<\w+Service>)
 tag: do-not-extend-context-tag
 level: warning

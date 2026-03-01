@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: avoid-direct-json
 description: Consider using Schema.parseJson instead of direct JSON methods
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: JSON\.(parse|stringify)\(
 tag: prefer-schema-json
 level: info

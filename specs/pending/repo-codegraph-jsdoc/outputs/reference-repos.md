@@ -165,10 +165,10 @@ These are useful for specific edge cases or as documentation references. Don't c
 # In your beep-effect project root:
 
 # Tier 1 — Critical (clone immediately)
-git subtree add --prefix=refs/ts-morph https://github.com/dsherret/ts-morph.git main --squash
-git subtree add --prefix=refs/falkordb-ts https://github.com/FalkorDB/falkordb-ts.git main --squash
-git subtree add --prefix=refs/falkordblite-ts https://github.com/FalkorDB/falkordblite-ts.git main --squash
-git subtree add --prefix=refs/eslint-plugin-jsdoc https://github.com/gajus/eslint-plugin-jsdoc.git main --squash
+git subtree add --prefix=refs/ts-morph-morph https://github.com/dsherret/ts-morph.git main --squash
+git subtree add --prefix=refs/falkordb-ts-morph https://github.com/FalkorDB/falkordb-ts.git main --squash
+git subtree add --prefix=refs/falkordblite-ts-morph https://github.com/FalkorDB/falkordblite-ts.git main --squash
+git subtree add --prefix=refs/eslint-plugin-JSDoc https://github.com/gajus/eslint-plugin-jsdoc.git main --squash
 
 # Tier 2 — Architecture patterns (clone next)
 git subtree add --prefix=refs/code-graph-context https://github.com/drewdrewH/code-graph-context.git main --squash

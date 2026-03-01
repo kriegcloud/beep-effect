@@ -22,7 +22,7 @@ import * as internal from "./internal/data/calendar/index.js";
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { MonthName } from "@beep/data/Calendar"
  *
  * const month: MonthName = "january"
@@ -36,7 +36,7 @@ export type MonthName = (typeof internal.MonthNameValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { FormalMonthName } from "@beep/data/Calendar"
  *
  * const month: FormalMonthName = "January"
@@ -50,7 +50,7 @@ export type FormalMonthName = (typeof internal.FormalMonthNameValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { MonthNumber } from "@beep/data/Calendar"
  *
  * const jan: MonthNumber = 1
@@ -65,7 +65,7 @@ export type MonthNumber = (typeof internal.MonthNumberValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { MonthISO } from "@beep/data/Calendar"
  *
  * const jan: MonthISO = "01"
@@ -79,7 +79,7 @@ export type MonthISO = (typeof internal.MonthISOValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { WeekName } from "@beep/data/Calendar"
  *
  * const day: WeekName = "monday"
@@ -93,7 +93,7 @@ export type WeekName = (typeof internal.Weekday.WeekNameValues)[number];
  * @since 0.0.0
  * @category types
  * @example
- * ```ts
+ * ```ts-morph
  * import type { FormalWeekName } from "@beep/data/Calendar"
  *
  * const day: FormalWeekName = "Monday"
@@ -111,7 +111,7 @@ export type FormalWeekName = (typeof internal.Weekday.FormalWeekNameValues)[numb
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { MonthNameValues } from "@beep/data/Calendar"
  *
  * MonthNameValues[0] // "january"
@@ -126,7 +126,7 @@ export const MonthNameValues: typeof internal.MonthNameValues = internal.MonthNa
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { FormalMonthNameValues } from "@beep/data/Calendar"
  *
  * FormalMonthNameValues[0] // "January"
@@ -140,7 +140,7 @@ export const FormalMonthNameValues: typeof internal.FormalMonthNameValues = inte
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { MonthNumberValues } from "@beep/data/Calendar"
  *
  * MonthNumberValues[0] // 1
@@ -155,7 +155,7 @@ export const MonthNumberValues: typeof internal.MonthNumberValues = internal.Mon
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { MonthISOValues } from "@beep/data/Calendar"
  *
  * MonthISOValues[0] // "01"
@@ -170,7 +170,7 @@ export const MonthISOValues: typeof internal.MonthISOValues = internal.MonthISOV
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { WeekNameValues } from "@beep/data/Calendar"
  *
  * WeekNameValues[0] // "sunday"
@@ -185,7 +185,7 @@ export const WeekNameValues: typeof internal.Weekday.WeekNameValues = internal.W
  * @since 0.0.0
  * @category constants
  * @example
- * ```ts
+ * ```ts-morph
  * import { FormalWeekNameValues } from "@beep/data/Calendar"
  *
  * FormalWeekNameValues[0] // "Sunday"

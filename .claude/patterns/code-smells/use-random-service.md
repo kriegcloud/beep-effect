@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-random-service
 description: Use Random service instead of Math.random()
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: Math\.random\(\)
 tag: use-effect-random
 level: warning

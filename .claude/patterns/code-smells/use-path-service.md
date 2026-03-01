@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-path-service
 description: Use Path service instead of direct Node.js path imports
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: (import\s+.*\s+from\s+['"]node:path['"]|import\s+.*\s+from\s+['"]path['"])
 tag: use-effect-path
 level: warning

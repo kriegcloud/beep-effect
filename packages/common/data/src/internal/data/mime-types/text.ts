@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { text } from "@beep/data/mime-types/text"
  *
  * text["text/html"]

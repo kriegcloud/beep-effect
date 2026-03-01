@@ -103,7 +103,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
 **Graph search API route (passthrough):**
 ```ts
-// app/api/graph/search/route.ts
+// app/api/graph/search/route.ts-morph
 // Thin wrapper calling GraphitiService.searchNodes and mapping to react-force-graph-2d format
 // Uses same GraphitiService + mappers from P2
 ```

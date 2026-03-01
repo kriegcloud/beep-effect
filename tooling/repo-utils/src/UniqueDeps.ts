@@ -43,7 +43,7 @@ export interface UniqueNpmDeps {
  * @returns An object with sorted, deduplicated `dependencies` and
  *   `devDependencies` arrays.
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps"
  *

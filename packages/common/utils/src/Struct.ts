@@ -1,5 +1,5 @@
 import type { TUnsafe } from "@beep/types";
-import { Function as F, String as Str } from "effect";
+import { Function as Fn, String as Str } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 
@@ -144,7 +144,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
       return { found: false };
     }
 
-    const record = F.coerceUnsafe<unknown, Record<string, unknown>>(current);
+    const record = Fn.coerceUnsafe<unknown, Record<string, unknown>>(current);
     if (!hasOwn.call(record, part)) {
       return { found: false };
     }
@@ -176,7 +176,7 @@ export const dotGet: {
   ): <S extends object>(self: StructForPathTuple<S, P>) => StructValueForPathTuple<S, P>;
   <S extends object, const P extends StructPath<S>>(self: S, path: P): StructPathValue<S, P>;
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): StructPathTupleValue<S, P>;
-} = F.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
+} = Fn.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? lookup.value : undefined;
 }) as {
@@ -206,7 +206,7 @@ export const dotGetOption: {
   ): <S extends object>(self: StructForPathTuple<S, P>) => O.Option<StructValueForPathTuple<S, P>>;
   <S extends object, const P extends StructPath<S>>(self: S, path: P): O.Option<StructPathValue<S, P>>;
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
-} = F.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
+} = Fn.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? O.some(lookup.value) : O.none();
 }) as {
@@ -226,7 +226,7 @@ export const dotGetOption: {
  * in a type-safe manner. Symbol keys are excluded from the result.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as assert from "node:assert"
  * import * as Struct from "@beep/utils/Struct"
  *
@@ -312,7 +312,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;
   <S extends ReverseableStruct>(self: S): ReverseStruct<S>;
-} = F.dual(
+} = Fn.dual(
   (args) => args.length === 1,
   <S extends ReverseableStruct>(self: S): ReverseStruct<S> => {
     const out: Record<PropertyKey, PropertyKey> = {};
@@ -324,6 +324,6 @@ export const reverse: {
       out[self[key]] = key;
     }
 
-    return F.coerceUnsafe<Record<PropertyKey, PropertyKey>, ReverseStruct<S>>(out);
+    return Fn.coerceUnsafe<Record<PropertyKey, PropertyKey>, ReverseStruct<S>>(out);
   }
 );

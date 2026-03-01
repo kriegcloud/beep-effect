@@ -28,7 +28,7 @@ Comprehensive JSDoc documentation patterns used throughout the Effect library, e
  * - Common use cases
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { ModuleName, Effect } from "effect"
  *
  * // Clear description of what this example demonstrates
@@ -43,7 +43,7 @@ Comprehensive JSDoc documentation patterns used throughout the Effect library, e
  * ```
  *
  * @example
- * ```ts  
+ * ```ts-morph  
  * import { ModuleName } from "effect"
  *
  * // Different use case or advanced usage
@@ -76,7 +76,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * - **Performance optimized**: Efficient implementations for common operations
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect";
  * import * as A from "effect/Array";
  *
@@ -104,7 +104,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 ````typescript
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array"
  *
@@ -122,7 +122,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 ````typescript
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * // ✅ CORRECT - Import Schema from main "effect" package
  * import { Effect } from "effect"
  * import * as S from "effect/Schema";
@@ -147,7 +147,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 ````typescript
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  * import { NodeHttpServer } from "@effect/platform-node";
  * import * as S from "effect/Schema";
@@ -171,7 +171,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Creates a new Array from the provided elements.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as A from "effect"
  *
  * // Creating arrays with different types
@@ -183,7 +183,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as A from "effect/Array";
  * import { HashSet } from "effect";
  *
@@ -204,7 +204,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Transforms each element of the array using the provided function.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as A from "effect/Array"
  *
  * // Data-first usage
@@ -214,7 +214,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as A from "effect/Array"
  * import { pipe } from "effect"
  *
@@ -240,7 +240,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Performs an effectful operation on each element of the array.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array"
  * const logEachItem = (items: ReadonlyArray<string>) =>
@@ -267,7 +267,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Validates array elements and fails fast on first error.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect, Data } from "effect";
  * import * as A from "effect/Array";
  * import * as S from "effect/Schema";
@@ -428,7 +428,7 @@ export const TypeId = ...
  * Type-level utility for extracting the success type from an Effect.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  *
  * // Demonstrate type extraction using conditional types
@@ -456,7 +456,7 @@ export const TypeId = ...
  * Advanced function for performance-critical scenarios.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import * as A from "effect/Array"
  * import {Order} from "effect"
  * // Note: This is an advanced function for specific performance use cases
@@ -486,7 +486,7 @@ export const TypeId = ...
  * Integrates with multiple Effect modules for complex workflows.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect, Schedule, Layer, Console } from "effect"
  * import { HttpClient } from "@effect/platform"
  * import * as S from "effect/Schema";
@@ -536,7 +536,7 @@ export const TypeId = ...
 // ⚠️ Mixed import examples (wrong + canonical)
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * import { Schema } from "@effect/schema"      // Wrong package (deprecated)
  * import * as S from "effect/Schema"           // Canonical namespace alias
  * import { Schema } from "effect/schema"       // Wrong - use "effect" instead
@@ -546,7 +546,7 @@ export const TypeId = ...
 // ❌ WRONG - Using any types
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * const data: any = someValue // Never use any in examples
  * ```
  */
@@ -554,7 +554,7 @@ export const TypeId = ...
 // ❌ WRONG - Type assertions
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * const value = something as unknown as SomeType // Avoid assertions
  * ```
  */
@@ -562,7 +562,7 @@ export const TypeId = ...
 // ❌ WRONG - Declare patterns
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * declare const Service: any // Don't use declare in examples
  * ```
  */
@@ -574,7 +574,7 @@ export const TypeId = ...
 // ✅ CORRECT - Proper imports and types
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -596,7 +596,7 @@ export const TypeId = ...
 // ✅ CORRECT - Real service usage
 /**
  * @example
- * ```ts
+ * ```ts-morph
  * import { Effect, Layer } from "effect"
  * import { Console } from "effect/logging"
  *

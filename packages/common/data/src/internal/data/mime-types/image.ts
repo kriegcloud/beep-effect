@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category data
  * @example
- * ```ts
+ * ```ts-morph
  * import { image } from "@beep/data/mime-types/image"
  *
  * image["image/png"]

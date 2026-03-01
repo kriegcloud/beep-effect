@@ -374,7 +374,7 @@ const AppLayer = UserServiceLive.pipe(Layer.provide(DatabaseServiceLive));
 
 ```bash
 # After editing any TypeScript file
-biome check . --write packages/effect/src/ModifiedFile.ts
+biome check . --write packages/effect/src/ModifiedFile.ts-morph
 
 # This ensures:
 # - Consistent code formatting
@@ -388,7 +388,7 @@ Run comprehensive validation after implementation:
 
 ```bash
 # 1. Lint all modified files
-biome check . --write packages/effect/src/*.ts
+biome check . --write packages/effect/src/*.ts-morph
 
 # 2. Validate JSDoc examples compile
 bun run docgen
@@ -397,7 +397,7 @@ bun run docgen
 bun run check
 
 # 4. Run tests
-bun run test packages/effect/test/ModifiedTest.ts
+bun run test packages/effect/test/ModifiedTest.ts-morph
 
 # 5. Build project
 bun run build
@@ -461,7 +461,7 @@ const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(fun
 Structure module exports for clarity and discoverability:
 
 ````typescript
-// ModuleName.ts
+// ModuleName.ts-morph
 /**
  * @since 1.0.0
  */
@@ -477,7 +477,7 @@ const internal = {
  * Creates a new instance with the given configuration.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { ModuleName } from "effect"
  *
  * const instance = ModuleName.create({ value: 42 })
@@ -493,7 +493,7 @@ export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never,
  * Transforms an instance using the provided function.
  *
  * @example
- * ```ts
+ * ```ts-morph
  * import { ModuleName, Effect } from "effect"
  *
  * const program = Effect.gen(function*() {

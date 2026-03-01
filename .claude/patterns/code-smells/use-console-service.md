@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: use-console-service
 description: Use Effect Console or Effect.log instead of console
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: console\.(log|error|warn|info|debug|trace)\(
 tag: use-effect-console
 level: warning

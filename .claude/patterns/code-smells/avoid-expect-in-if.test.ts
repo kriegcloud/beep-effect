@@ -3,7 +3,7 @@ import { testPattern } from "@beep/claude/test/pattern-test-harness";
 testPattern({
   name: "avoid-expect-in-if",
   tag: "use-assert-to-narrow",
-  glob: "**/*.{test,spec}.{ts,tsx}",
+  glob: "**/*.{test,spec}.{ts-morph,tsx}",
   shouldMatch: [
     "if (value) { expect(value.name).toBe('test') }",
     "if (result.data) { expect(result.data.id).toBe(123) }",

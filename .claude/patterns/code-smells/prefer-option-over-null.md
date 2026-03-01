@@ -4,7 +4,7 @@ tool: (Edit|Write)
 event: PostToolUse
 name: prefer-option-over-null
 description: Consider using Option instead of union with null
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: \|\s*null(?!\s*\|)|null\s*\|
 tag: effect-patterns
 level: info

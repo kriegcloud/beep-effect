@@ -322,7 +322,7 @@ Use this for each sprint day update.
 ### Command Evidence
 
 ```bash
-bunx vitest run --config apps/web/vitest.config.ts apps/web/test/effect/chat-handler.test.ts apps/web/test/effect/chat-route.test.ts apps/web/test/effect/toolkit.test.ts
+bunx vitest run --config apps/web/vitest.config.ts-morph apps/web/test/effect/chat-handler.test.ts-morph apps/web/test/effect/chat-route.test.ts-morph apps/web/test/effect/toolkit.test.ts-morph
 ```
 
 Result summary:

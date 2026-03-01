@@ -61,7 +61,7 @@ This phase has three jobs:
 
 ```bash
 cd apps/web
-npx @better-auth/cli@latest generate --output ./src/lib/db/schema.ts --yes
+npx @better-auth/cli@latest generate --output ./src/lib/db/schema.ts-morph --yes
 ```
 
 This reads the auth config at `src/lib/auth/server.ts` (the CLI auto-discovers it in `./`, `./lib`, `./utils`, and `src/` variants) and outputs the Drizzle schema with:

@@ -24,7 +24,7 @@ name: pattern-name
 description: Brief description
 event: PreToolUse | PostToolUse
 tool: Bash | Edit | Write | (regex)
-glob: "**/*.{ts,tsx}"          # optional, for file tools only
+glob: "**/*.{ts-morph,tsx}"          # optional, for file tools only
 pattern: regex-pattern
 action: context | ask | deny
 level: critical | high | medium  # for ask/deny
@@ -78,7 +78,7 @@ name: imperative-loops
 description: Use functional transformations
 event: PostToolUse
 tool: (Edit|Write)
-glob: "**/*.{ts,tsx}"
+glob: "**/*.{ts-morph,tsx}"
 pattern: for\s*\(
 action: context
 level: warning

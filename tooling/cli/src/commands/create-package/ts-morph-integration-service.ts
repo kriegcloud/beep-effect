@@ -58,7 +58,7 @@ export interface TsMorphIntegrationResult {
 }
 
 /**
- * Adapter boundary for concrete ts-morph implementations.
+ * Adapter boundary for concrete ts-morph-morph implementations.
  *
  * @since 0.0.0
  * @category models
@@ -85,14 +85,14 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
     Effect.succeed({
       mutation,
       status: "skipped",
-      detail: "No ts-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",
+      detail: "No ts-morph-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",
     }),
 };
 
 /**
- * Construct a ts-morph integration service with an optional adapter.
+ * Construct a ts-morph-morph integration service with an optional adapter.
  *
- * @param adapter Adapter used to apply ts-morph mutations.
+ * @param adapter Adapter used to apply ts-morph-morph mutations.
  * @returns Integration service for previewing and applying mutations.
  * @since 0.0.0
  * @category constructors
