@@ -118,7 +118,7 @@ export const topologicalSort: (
     return yield* new CyclicDependencyError({
       message: `Cyclic dependencies detected: ${pipe(
         cycles,
-        A.map((c) => A.join(c, " -> ")),
+        A.map(A.join(" -> ")),
         A.join("; ")
       )}`,
       cycles,
@@ -350,4 +350,3 @@ export const computeTransitiveClosure = (
       })
     );
   });
-// bench
