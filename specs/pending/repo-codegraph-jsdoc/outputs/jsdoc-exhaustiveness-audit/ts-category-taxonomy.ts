@@ -405,7 +405,7 @@ export const CATEGORY_TAXONOMY = [
       },
       {
         signal: "Workflow code invoking multiple dependent services or ports",
-        confidence: 0.72,
+        confidence: 0.78,
         detection:
           "node.getDescendantsOfKind(SyntaxKind.CallExpression).length >= 2 && (node.getSourceFile().getImportDeclarations().some((decl) => /(Port|Repository|Gateway)/.test(decl.getModuleSpecifierValue())) || node.getText().includes('Effect.fn') || node.getText().includes('Effect.runPromise'))",
       },
