@@ -309,7 +309,7 @@ export const CATEGORY_TAXONOMY = [
         signal: "Imports schema-validation libraries",
         confidence: 0.9,
         detection:
-          "node.getSourceFile().getImportDeclarations().some((decl) => /@effect\\/schema|zod|valibot|arktype/.test(decl.getModuleSpecifierValue()))",
+          "node.getSourceFile().getImportDeclarations().some((decl) => /@effect\\/schema|effect\\/Schema|zod|valibot|arktype/.test(decl.getModuleSpecifierValue()))",
       },
       {
         signal: "Decoder or parser call patterns on unknown input",
@@ -322,7 +322,14 @@ export const CATEGORY_TAXONOMY = [
     architecturalLayers: ["interface-adapter", "cross-cutting"],
     purity: "mixed",
     adjacentCategories: ["DomainModel", "UseCase", "Presentation"],
-    typicalImportPatterns: ["@effect/schema*", "zod*", "valibot*", "arktype*", "**/schemas/**/*.ts"],
+    typicalImportPatterns: [
+      "@effect/schema*",
+      "effect/Schema*",
+      "zod*",
+      "valibot*",
+      "arktype*",
+      "**/schemas/**/*.ts",
+    ],
     dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
     documentationPriority: 4,
   },
@@ -354,10 +361,10 @@ export const CATEGORY_TAXONOMY = [
           "/(utils|helpers)/.test(node.getSourceFile().getFilePath()) && node.getSourceFile().getImportDeclarations().every((decl) => !/react|next|express|hono|drizzle-orm|prisma|@effect\\/platform/.test(decl.getModuleSpecifierValue()))",
       },
       {
-        signal: "Pure helper exports with generic signatures",
-        confidence: 0.7,
+        signal: "Helper callable declarations in utility modules stay synchronous",
+        confidence: 0.72,
         detection:
-          "Node.isFunctionDeclaration(node) && !!node.getTypeParameters().length && !node.getDescendantsOfKind(SyntaxKind.AwaitExpression).length",
+          "/(utils|helpers)/.test(node.getSourceFile().getFilePath()) && (Node.isFunctionDeclaration(node) || Node.isMethodDeclaration(node) || Node.isArrowFunction(node)) && !node.getDescendantsOfKind(SyntaxKind.AwaitExpression).length",
       },
     ],
     effectAnalog: "Identity",
@@ -400,7 +407,7 @@ export const CATEGORY_TAXONOMY = [
         signal: "Workflow code invoking multiple dependent services or ports",
         confidence: 0.72,
         detection:
-          "node.getDescendantsOfKind(SyntaxKind.CallExpression).length >= 2 && node.getSourceFile().getImportDeclarations().some((decl) => /(Port|Repository|Gateway)/.test(decl.getModuleSpecifierValue()))",
+          "node.getDescendantsOfKind(SyntaxKind.CallExpression).length >= 2 && (node.getSourceFile().getImportDeclarations().some((decl) => /(Port|Repository|Gateway)/.test(decl.getModuleSpecifierValue())) || node.getText().includes('Effect.fn') || node.getText().includes('Effect.runPromise'))",
       },
     ],
     effectAnalog: "ReaderEither",
@@ -524,7 +531,7 @@ export const CATEGORY_TAXONOMY = [
         signal: "External SDK or HTTP client imports",
         confidence: 0.8,
         detection:
-          "node.getSourceFile().getImportDeclarations().some((decl) => /openai|anthropic|resend|stripe|@aws-sdk|axios|undici/.test(decl.getModuleSpecifierValue()))",
+          "node.getSourceFile().getImportDeclarations().some((decl) => /openai|anthropic|resend|stripe|@aws-sdk|axios|fetch|undici/.test(decl.getModuleSpecifierValue()))",
       },
       {
         signal: "Explicit outbound fetch or request construction",
