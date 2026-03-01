@@ -86,14 +86,23 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
 ) {}
 
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export declare namespace JSDocTagDefinition {
   /**
+   * JSDoc model export.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export type Encoded = typeof JSDocTagDefinition.Encoded;
   /**
+   * JSDoc model export.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export interface Instance<Tag extends TString.NonEmpty, Def extends Encoded> extends Encoded {
@@ -108,12 +117,21 @@ export declare namespace JSDocTagDefinition {
 }
 
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: Def) => asserts input is Def =
   S.asserts(S.toEncoded(JSDocTagDefinition));
 
 /**
+ * Builds a JSDoc tag definition schema for a concrete tag payload.
+ *
+ * @param _tag - Canonical tag discriminator.
+ * @param def - Tag metadata payload without the discriminator.
+ * @returns Specialized schema for the provided tag metadata payload.
+ * @category DomainModel
  * @since 0.0.0
  */
 export const make = <const Tag extends TString.NonEmpty, const Def extends typeof JSDocTagDefinition.Encoded>(

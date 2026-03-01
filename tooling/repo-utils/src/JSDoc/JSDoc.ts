@@ -7,6 +7,9 @@ import { JSDocTagDefinition } from "./models/index.js";
 const $I = $RepoUtilsId.create("JSDoc/JSDocTagDb");
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocParam extends S.Opaque<JSDocParam>()(
@@ -38,6 +41,9 @@ export class JSDocParam extends S.Opaque<JSDocParam>()(
 }
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocReturns extends S.Opaque<JSDocReturns>()(
@@ -67,6 +73,9 @@ export class JSDocReturns extends S.Opaque<JSDocReturns>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocThrows extends S.Opaque<JSDocThrows>()(
@@ -93,6 +102,9 @@ export class JSDocThrows extends S.Opaque<JSDocThrows>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocTemplate extends S.Opaque<JSDocTemplate>()(
@@ -119,6 +131,9 @@ export class JSDocTemplate extends S.Opaque<JSDocTemplate>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocTypeParam extends S.Opaque<JSDocTypeParam>()(
@@ -143,6 +158,9 @@ export class JSDocTypeParam extends S.Opaque<JSDocTypeParam>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocType extends S.Opaque<JSDocType>()(
@@ -163,6 +181,9 @@ export class JSDocType extends S.Opaque<JSDocType>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocTypeDef extends S.Opaque<JSDocTypeDef>()(
@@ -183,6 +204,9 @@ export class JSDocTypeDef extends S.Opaque<JSDocTypeDef>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocCallback extends S.Opaque<JSDocCallback>()(
@@ -203,6 +227,9 @@ export class JSDocCallback extends S.Opaque<JSDocCallback>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAugments extends S.Opaque<JSDocAugments>()(
@@ -223,6 +250,9 @@ export class JSDocAugments extends S.Opaque<JSDocAugments>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocImplements extends S.Opaque<JSDocImplements>()(
@@ -247,6 +277,9 @@ export class JSDocImplements extends S.Opaque<JSDocImplements>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocClass extends S.Opaque<JSDocClass>()(
@@ -268,6 +301,9 @@ export class JSDocClass extends S.Opaque<JSDocClass>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocEnum extends S.Opaque<JSDocEnum>()(
@@ -287,6 +323,9 @@ export class JSDocEnum extends S.Opaque<JSDocEnum>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAsync extends S.Opaque<JSDocAsync>()(
@@ -306,6 +345,9 @@ export class JSDocAsync extends S.Opaque<JSDocAsync>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocGenerator extends S.Opaque<JSDocGenerator>()(
@@ -325,6 +367,9 @@ export class JSDocGenerator extends S.Opaque<JSDocGenerator>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocYields extends S.Opaque<JSDocYields>()(
@@ -350,6 +395,9 @@ export class JSDocYields extends S.Opaque<JSDocYields>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const StructuralJSDoc = S.Union([
@@ -381,20 +429,34 @@ export const StructuralJSDoc = S.Union([
 );
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace StructuralJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof StructuralJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof StructuralJSDoc.Encoded;
 }
 
 /**
+ * Matches over structural JSDoc tag variants.
+ *
+ * @param value - Structural JSDoc tag metadata.
+ * @returns Matched handler result.
+ * @category JSDoc
  * @since 0.0.0
  */
 export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) => {
@@ -420,6 +482,9 @@ export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) => {
 // Access modifiers — all fully in AST modifier flags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAccess extends S.Opaque<JSDocAccess>()(
@@ -445,6 +510,9 @@ export class JSDocAccess extends S.Opaque<JSDocAccess>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPublic extends S.Opaque<JSDocPublic>()(
@@ -465,6 +533,9 @@ export class JSDocPublic extends S.Opaque<JSDocPublic>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPrivate extends S.Opaque<JSDocPrivate>()(
@@ -484,6 +555,9 @@ export class JSDocPrivate extends S.Opaque<JSDocPrivate>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocProtected extends S.Opaque<JSDocProtected>()(
@@ -503,6 +577,9 @@ export class JSDocProtected extends S.Opaque<JSDocProtected>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPackage extends S.Opaque<JSDocPackage>()(
@@ -522,6 +599,9 @@ export class JSDocPackage extends S.Opaque<JSDocPackage>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocReadonly extends S.Opaque<JSDocReadonly>()(
@@ -542,6 +622,9 @@ export class JSDocReadonly extends S.Opaque<JSDocReadonly>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAbstract extends S.Opaque<JSDocAbstract>()(
@@ -561,6 +644,9 @@ export class JSDocAbstract extends S.Opaque<JSDocAbstract>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocFinal extends S.Opaque<JSDocFinal>()(
@@ -580,6 +666,9 @@ export class JSDocFinal extends S.Opaque<JSDocFinal>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocOverride extends S.Opaque<JSDocOverride>()(
@@ -600,6 +689,9 @@ export class JSDocOverride extends S.Opaque<JSDocOverride>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocStatic extends S.Opaque<JSDocStatic>()(
@@ -619,6 +711,9 @@ export class JSDocStatic extends S.Opaque<JSDocStatic>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocConstant extends S.Opaque<JSDocConstant>()(
@@ -639,6 +734,9 @@ export class JSDocConstant extends S.Opaque<JSDocConstant>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDefault extends S.Opaque<JSDocDefault>()(
@@ -658,6 +756,9 @@ export class JSDocDefault extends S.Opaque<JSDocDefault>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue>()(
@@ -678,6 +779,9 @@ export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExports extends S.Opaque<JSDocExports>()(
@@ -698,6 +802,9 @@ export class JSDocExports extends S.Opaque<JSDocExports>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExport extends S.Opaque<JSDocExport>()(
@@ -717,6 +824,9 @@ export class JSDocExport extends S.Opaque<JSDocExport>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSatisfies extends S.Opaque<JSDocSatisfies>()(
@@ -736,6 +846,9 @@ export class JSDocSatisfies extends S.Opaque<JSDocSatisfies>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocImport extends S.Opaque<JSDocImport>()(
@@ -760,6 +873,9 @@ export class JSDocImport extends S.Opaque<JSDocImport>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocThis extends S.Opaque<JSDocThis>()(
@@ -780,6 +896,9 @@ export class JSDocThis extends S.Opaque<JSDocThis>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const AccessModifierJSDoc = S.Union([
@@ -804,14 +923,23 @@ export const AccessModifierJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("AccessModifierJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace AccessModifierJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof AccessModifierJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof AccessModifierJSDoc.Encoded;
@@ -819,6 +947,9 @@ export declare namespace AccessModifierJSDoc {
 // Documentation content tags — human-authored narrative metadata
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDescription extends S.Opaque<JSDocDescription>()(
@@ -844,6 +975,9 @@ export class JSDocDescription extends S.Opaque<JSDocDescription>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSummary extends S.Opaque<JSDocSummary>()(
@@ -868,6 +1002,9 @@ export class JSDocSummary extends S.Opaque<JSDocSummary>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocRemarks extends S.Opaque<JSDocRemarks>()(
@@ -892,6 +1029,9 @@ export class JSDocRemarks extends S.Opaque<JSDocRemarks>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExample extends S.Opaque<JSDocExample>()(
@@ -917,6 +1057,9 @@ export class JSDocExample extends S.Opaque<JSDocExample>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDeprecated extends S.Opaque<JSDocDeprecated>()(
@@ -942,6 +1085,9 @@ export class JSDocDeprecated extends S.Opaque<JSDocDeprecated>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSee extends S.Opaque<JSDocSee>()(
@@ -966,6 +1112,9 @@ export class JSDocSee extends S.Opaque<JSDocSee>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSince extends S.Opaque<JSDocSince>()(
@@ -991,6 +1140,9 @@ export class JSDocSince extends S.Opaque<JSDocSince>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocVersion extends S.Opaque<JSDocVersion>()(
@@ -1015,6 +1167,9 @@ export class JSDocVersion extends S.Opaque<JSDocVersion>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAuthor extends S.Opaque<JSDocAuthor>()(
@@ -1039,6 +1194,9 @@ export class JSDocAuthor extends S.Opaque<JSDocAuthor>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocTodo extends S.Opaque<JSDocTodo>()(
@@ -1063,6 +1221,9 @@ export class JSDocTodo extends S.Opaque<JSDocTodo>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const DocumentationContentJSDoc = S.Union([
@@ -1079,14 +1240,23 @@ export const DocumentationContentJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("DocumentationContentJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace DocumentationContentJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof DocumentationContentJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof DocumentationContentJSDoc.Encoded;
@@ -1095,6 +1265,9 @@ export declare namespace DocumentationContentJSDoc {
 // TSDoc-specific tags — release management and documentation structure
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAlpha extends S.Opaque<JSDocAlpha>()(
@@ -1119,6 +1292,9 @@ export class JSDocAlpha extends S.Opaque<JSDocAlpha>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocBeta extends S.Opaque<JSDocBeta>()(
@@ -1143,6 +1319,9 @@ export class JSDocBeta extends S.Opaque<JSDocBeta>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExperimental extends S.Opaque<JSDocExperimental>()(
@@ -1167,6 +1346,9 @@ export class JSDocExperimental extends S.Opaque<JSDocExperimental>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInternal extends S.Opaque<JSDocInternal>()(
@@ -1192,6 +1374,9 @@ export class JSDocInternal extends S.Opaque<JSDocInternal>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSealed extends S.Opaque<JSDocSealed>()(
@@ -1217,6 +1402,9 @@ export class JSDocSealed extends S.Opaque<JSDocSealed>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocVirtual extends S.Opaque<JSDocVirtual>()(
@@ -1241,6 +1429,9 @@ export class JSDocVirtual extends S.Opaque<JSDocVirtual>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks>()(
@@ -1265,6 +1456,9 @@ export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentation>()(
@@ -1289,6 +1483,9 @@ export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentatio
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocLabel extends S.Opaque<JSDocLabel>()(
@@ -1313,6 +1510,9 @@ export class JSDocLabel extends S.Opaque<JSDocLabel>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDecorator extends S.Opaque<JSDocDecorator>()(
@@ -1338,6 +1538,9 @@ export class JSDocDecorator extends S.Opaque<JSDocDecorator>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocEventProperty extends S.Opaque<JSDocEventProperty>()(
@@ -1362,6 +1565,9 @@ export class JSDocEventProperty extends S.Opaque<JSDocEventProperty>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const TSDocSpecificJSDoc = S.Union([
@@ -1379,14 +1585,23 @@ export const TSDocSpecificJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("TSDocSpecificJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace TSDocSpecificJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof TSDocSpecificJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof TSDocSpecificJSDoc.Encoded;
@@ -1395,6 +1610,9 @@ export declare namespace TSDocSpecificJSDoc {
 // Inline tags — embedded cross references
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocLink extends S.Opaque<JSDocLink>()(
@@ -1420,6 +1638,9 @@ export class JSDocLink extends S.Opaque<JSDocLink>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc>()(
@@ -1445,6 +1666,9 @@ export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const InlineJSDoc = S.Union([JSDocLink, JSDocInheritDoc]).pipe(
@@ -1453,14 +1677,23 @@ export const InlineJSDoc = S.Union([JSDocLink, JSDocInheritDoc]).pipe(
 );
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace InlineJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof InlineJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof InlineJSDoc.Encoded;
@@ -1469,6 +1702,9 @@ export declare namespace InlineJSDoc {
 // Organizational tags — module/namespace/membership structure
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocModule extends S.Opaque<JSDocModule>()(
@@ -1494,6 +1730,9 @@ export class JSDocModule extends S.Opaque<JSDocModule>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNamespace extends S.Opaque<JSDocNamespace>()(
@@ -1519,6 +1758,9 @@ export class JSDocNamespace extends S.Opaque<JSDocNamespace>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocMemberOf extends S.Opaque<JSDocMemberOf>()(
@@ -1544,6 +1786,9 @@ export class JSDocMemberOf extends S.Opaque<JSDocMemberOf>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocMember extends S.Opaque<JSDocMember>()(
@@ -1568,6 +1813,9 @@ export class JSDocMember extends S.Opaque<JSDocMember>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocProperty extends S.Opaque<JSDocProperty>()(
@@ -1593,6 +1841,9 @@ export class JSDocProperty extends S.Opaque<JSDocProperty>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInterface extends S.Opaque<JSDocInterface>()(
@@ -1617,6 +1868,9 @@ export class JSDocInterface extends S.Opaque<JSDocInterface>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocFunction extends S.Opaque<JSDocFunction>()(
@@ -1642,6 +1896,9 @@ export class JSDocFunction extends S.Opaque<JSDocFunction>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const OrganizationalJSDoc = S.Union([
@@ -1655,14 +1912,23 @@ export const OrganizationalJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("OrganizationalJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace OrganizationalJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof OrganizationalJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof OrganizationalJSDoc.Encoded;
@@ -1671,6 +1937,9 @@ export declare namespace OrganizationalJSDoc {
 // Event and dependency tags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocFires extends S.Opaque<JSDocFires>()(
@@ -1695,6 +1964,9 @@ export class JSDocFires extends S.Opaque<JSDocFires>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocListens extends S.Opaque<JSDocListens>()(
@@ -1719,6 +1991,9 @@ export class JSDocListens extends S.Opaque<JSDocListens>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocEvent extends S.Opaque<JSDocEvent>()(
@@ -1744,6 +2019,9 @@ export class JSDocEvent extends S.Opaque<JSDocEvent>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocRequires extends S.Opaque<JSDocRequires>()(
@@ -1769,6 +2047,9 @@ export class JSDocRequires extends S.Opaque<JSDocRequires>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const EventDependencyJSDoc = S.Union([JSDocFires, JSDocListens, JSDocEvent, JSDocRequires]).pipe(
@@ -1777,14 +2058,23 @@ export const EventDependencyJSDoc = S.Union([JSDocFires, JSDocListens, JSDocEven
 );
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace EventDependencyJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof EventDependencyJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof EventDependencyJSDoc.Encoded;
@@ -1793,6 +2083,9 @@ export declare namespace EventDependencyJSDoc {
 // Remaining JSDoc tags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocAlias extends S.Opaque<JSDocAlias>()(
@@ -1817,6 +2110,9 @@ export class JSDocAlias extends S.Opaque<JSDocAlias>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocBorrows extends S.Opaque<JSDocBorrows>()(
@@ -1841,6 +2137,9 @@ export class JSDocBorrows extends S.Opaque<JSDocBorrows>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocClassDesc extends S.Opaque<JSDocClassDesc>()(
@@ -1865,6 +2164,9 @@ export class JSDocClassDesc extends S.Opaque<JSDocClassDesc>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocConstructs extends S.Opaque<JSDocConstructs>()(
@@ -1889,6 +2191,9 @@ export class JSDocConstructs extends S.Opaque<JSDocConstructs>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocCopyright extends S.Opaque<JSDocCopyright>()(
@@ -1913,6 +2218,9 @@ export class JSDocCopyright extends S.Opaque<JSDocCopyright>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocLicense extends S.Opaque<JSDocLicense>()(
@@ -1937,6 +2245,9 @@ export class JSDocLicense extends S.Opaque<JSDocLicense>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExternal extends S.Opaque<JSDocExternal>()(
@@ -1961,6 +2272,9 @@ export class JSDocExternal extends S.Opaque<JSDocExternal>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocFile extends S.Opaque<JSDocFile>()(
@@ -1985,6 +2299,9 @@ export class JSDocFile extends S.Opaque<JSDocFile>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocGlobal extends S.Opaque<JSDocGlobal>()(
@@ -2009,6 +2326,9 @@ export class JSDocGlobal extends S.Opaque<JSDocGlobal>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor>()(
@@ -2033,6 +2353,9 @@ export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocIgnore extends S.Opaque<JSDocIgnore>()(
@@ -2057,6 +2380,9 @@ export class JSDocIgnore extends S.Opaque<JSDocIgnore>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInner extends S.Opaque<JSDocInner>()(
@@ -2082,6 +2408,9 @@ export class JSDocInner extends S.Opaque<JSDocInner>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInstance extends S.Opaque<JSDocInstance>()(
@@ -2106,6 +2435,9 @@ export class JSDocInstance extends S.Opaque<JSDocInstance>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocKind extends S.Opaque<JSDocKind>()(
@@ -2144,6 +2476,9 @@ export class JSDocKind extends S.Opaque<JSDocKind>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocLends extends S.Opaque<JSDocLends>()(
@@ -2168,6 +2503,9 @@ export class JSDocLends extends S.Opaque<JSDocLends>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocMixin extends S.Opaque<JSDocMixin>()(
@@ -2193,6 +2531,9 @@ export class JSDocMixin extends S.Opaque<JSDocMixin>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocMixes extends S.Opaque<JSDocMixes>()(
@@ -2217,6 +2558,9 @@ export class JSDocMixes extends S.Opaque<JSDocMixes>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocName extends S.Opaque<JSDocName>()(
@@ -2241,6 +2585,9 @@ export class JSDocName extends S.Opaque<JSDocName>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocVariation extends S.Opaque<JSDocVariation>()(
@@ -2265,6 +2612,9 @@ export class JSDocVariation extends S.Opaque<JSDocVariation>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocTutorial extends S.Opaque<JSDocTutorial>()(
@@ -2289,6 +2639,9 @@ export class JSDocTutorial extends S.Opaque<JSDocTutorial>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const RemainingJSDoc = S.Union([
@@ -2315,14 +2668,23 @@ export const RemainingJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("RemainingJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace RemainingJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof RemainingJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof RemainingJSDoc.Encoded;
@@ -2331,6 +2693,9 @@ export declare namespace RemainingJSDoc {
 // Google Closure-specific tags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDefine extends S.Opaque<JSDocDefine>()(
@@ -2355,6 +2720,9 @@ export class JSDocDefine extends S.Opaque<JSDocDefine>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDict extends S.Opaque<JSDocDict>()(
@@ -2379,6 +2747,9 @@ export class JSDocDict extends S.Opaque<JSDocDict>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast>()(
@@ -2403,6 +2774,9 @@ export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocStruct extends S.Opaque<JSDocStruct>()(
@@ -2427,6 +2801,9 @@ export class JSDocStruct extends S.Opaque<JSDocStruct>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted>()(
@@ -2451,6 +2828,9 @@ export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSuppress extends S.Opaque<JSDocSuppress>()(
@@ -2475,6 +2855,9 @@ export class JSDocSuppress extends S.Opaque<JSDocSuppress>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExterns extends S.Opaque<JSDocExterns>()(
@@ -2499,6 +2882,9 @@ export class JSDocExterns extends S.Opaque<JSDocExterns>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNoAlias extends S.Opaque<JSDocNoAlias>()(
@@ -2523,6 +2909,9 @@ export class JSDocNoAlias extends S.Opaque<JSDocNoAlias>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNoCompile extends S.Opaque<JSDocNoCompile>()(
@@ -2547,6 +2936,9 @@ export class JSDocNoCompile extends S.Opaque<JSDocNoCompile>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects>()(
@@ -2571,6 +2963,9 @@ export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPolymer extends S.Opaque<JSDocPolymer>()(
@@ -2595,6 +2990,9 @@ export class JSDocPolymer extends S.Opaque<JSDocPolymer>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior>()(
@@ -2619,6 +3017,9 @@ export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocRecord extends S.Opaque<JSDocRecord>()(
@@ -2643,6 +3044,9 @@ export class JSDocRecord extends S.Opaque<JSDocRecord>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse>()(
@@ -2667,6 +3071,9 @@ export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocNoInline extends S.Opaque<JSDocNoInline>()(
@@ -2691,6 +3098,9 @@ export class JSDocNoInline extends S.Opaque<JSDocNoInline>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const ClosureSpecificJSDoc = S.Union([
@@ -2712,14 +3122,23 @@ export const ClosureSpecificJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("ClosureSpecificJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace ClosureSpecificJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof ClosureSpecificJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof ClosureSpecificJSDoc.Encoded;
@@ -2728,6 +3147,9 @@ export declare namespace ClosureSpecificJSDoc {
 // TypeDoc-specific tags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocCategory extends S.Opaque<JSDocCategory>()(
@@ -2752,6 +3174,9 @@ export class JSDocCategory extends S.Opaque<JSDocCategory>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocDocument extends S.Opaque<JSDocDocument>()(
@@ -2776,6 +3201,9 @@ export class JSDocDocument extends S.Opaque<JSDocDocument>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocGroup extends S.Opaque<JSDocGroup>()(
@@ -2800,6 +3228,9 @@ export class JSDocGroup extends S.Opaque<JSDocGroup>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocHidden extends S.Opaque<JSDocHidden>()(
@@ -2824,6 +3255,9 @@ export class JSDocHidden extends S.Opaque<JSDocHidden>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocExpand extends S.Opaque<JSDocExpand>()(
@@ -2848,6 +3282,9 @@ export class JSDocExpand extends S.Opaque<JSDocExpand>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocInline extends S.Opaque<JSDocInline>()(
@@ -2872,6 +3309,9 @@ export class JSDocInline extends S.Opaque<JSDocInline>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith>()(
@@ -2896,6 +3336,9 @@ export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport>()(
@@ -2920,6 +3363,9 @@ export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy>()(
@@ -2944,6 +3390,9 @@ export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocUseDeclaredType extends S.Opaque<JSDocUseDeclaredType>()(
@@ -2968,6 +3417,9 @@ export class JSDocUseDeclaredType extends S.Opaque<JSDocUseDeclaredType>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const TypeDocSpecificJSDoc = S.Union([
@@ -2984,14 +3436,23 @@ export const TypeDocSpecificJSDoc = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("TypeDocSpecificJSDoc")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace TypeDocSpecificJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof TypeDocSpecificJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof TypeDocSpecificJSDoc.Encoded;
@@ -3000,6 +3461,9 @@ export declare namespace TypeDocSpecificJSDoc {
 // TypeScript-specific tags
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export class JSDocOverload extends S.Opaque<JSDocOverload>()(
@@ -3025,6 +3489,9 @@ export class JSDocOverload extends S.Opaque<JSDocOverload>()(
 ) {}
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const TypeScriptSpecificJSDoc = S.Union([JSDocOverload]).pipe(
@@ -3033,20 +3500,32 @@ export const TypeScriptSpecificJSDoc = S.Union([JSDocOverload]).pipe(
 );
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace TypeScriptSpecificJSDoc {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof TypeScriptSpecificJSDoc.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof TypeScriptSpecificJSDoc.Encoded;
 }
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export const JSDocTag = S.Union([
@@ -3064,14 +3543,23 @@ export const JSDocTag = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"), S.annotate($I.annote("JSDocTag")));
 
 /**
+ * JSDoc tag metadata export.
+ *
+ * @category JSDoc
  * @since 0.0.0
  */
 export declare namespace JSDocTag {
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Type = typeof JSDocTag.Type;
   /**
+   * JSDoc tag metadata export.
+   *
+   * @category JSDoc
    * @since 0.0.0
    */
   export type Encoded = typeof JSDocTag.Encoded;

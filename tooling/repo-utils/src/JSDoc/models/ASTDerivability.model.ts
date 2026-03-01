@@ -24,6 +24,9 @@ export const ASTDerivability = LiteralKit(["full", "partial", "none"]).annotate(
 );
 
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ASTDerivability = typeof ASTDerivability.Type;

@@ -14,6 +14,9 @@ const $I = $RepoUtilsId.create("JSDoc/models/HasJSDocApplicableToMapEntry.model"
  */
 const fields = { member: S.String } as const;
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const HasJSDocApplicableToMapEntry = ApplicableTo.toTaggedUnion("applicableTo")({
@@ -129,14 +132,23 @@ export const HasJsDocToApplicableToMap = MappedLiteralKit([
 );
 
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export declare namespace HasJsDocToApplicableToMap {
   /**
+   * JSDoc model export.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export type Type = typeof HasJsDocToApplicableToMap.Type;
   /**
+   * JSDoc model export.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export type Encoded = typeof HasJsDocToApplicableToMap.Encoded;

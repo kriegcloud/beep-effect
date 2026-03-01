@@ -45,6 +45,9 @@ export const ApplicableTo = LiteralKit([
 );
 
 /**
+ * JSDoc model export.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ApplicableTo = typeof ApplicableTo.Type;
