@@ -243,7 +243,7 @@ const toNodeKind = (value: string): NodeKind => {
 };
 
 const toProvenance = (value: string): Provenance => {
-  if (value === "ast" || value === "type" || value === "JSDoc") {
+  if (value === "ast" || value === "type" || value === "jsdoc") {
     return value;
   }
   return "ast";
