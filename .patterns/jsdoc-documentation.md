@@ -2,7 +2,9 @@
 
 ## 🎯 OVERVIEW
 
-Comprehensive JSDoc documentation patterns used throughout the Effect library, ensuring consistent, practical, and compilable examples for all APIs.
+Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical, 
+and 
+compilable examples for all APIs.
 
 ## 🚨 CRITICAL REQUIREMENTS
 

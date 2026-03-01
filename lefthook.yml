@@ -3,8 +3,8 @@ pre-commit:
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css}"
-      exclude: ".beep/**"
-      run: bunx biome check --write {staged_files}
+      exclude: ".beep/**|specs/**|outputs/**"
+      run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched {staged_files}
       stage_fixed: true
     jsdoc:
       glob: "tooling/*/src/**/*.ts"
