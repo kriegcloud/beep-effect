@@ -1,0 +1,5 @@
+repository: dsherret/ts-morph
+port: 4001
+title: ts-morph
+description: TypeScript Compiler API wrapper for static analysis and programmatic code changes.
+markdown: GFM

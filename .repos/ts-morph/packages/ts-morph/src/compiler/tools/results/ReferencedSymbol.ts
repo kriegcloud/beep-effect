@@ -1,0 +1,49 @@
+import { Memoize, ts } from "@ts-morph/common";
+import { ProjectContext } from "../../../ProjectContext";
+import { ReferencedSymbolEntry } from "./ReferenceEntry";
+
+/**
+ * Referenced symbol.
+ */
+export class ReferencedSymbol {
+  /** @internal */
+  protected readonly _context: ProjectContext;
+  /** @internal */
+  readonly #compilerObject: ts.ReferencedSymbol;
+  /** @internal */
+  readonly #references: ReferencedSymbolEntry[];
+
+  /**
+   * @private
+   */
+  constructor(context: ProjectContext, compilerObject: ts.ReferencedSymbol) {
+    this._context = context;
+    this.#compilerObject = compilerObject;
+
+    // it's important to store the references so that the nodes referenced inside will point
+    // to the right node in case the user does manipulation between getting this object and getting the references
+    this.#references = this.compilerObject.references.map(r => context.compilerFactory.getReferencedSymbolEntry(r));
+  }
+
+  /**
+   * Gets the compiler referenced symbol.
+   */
+  get compilerObject() {
+    return this.#compilerObject;
+  }
+
+  /**
+   * Gets the definition.
+   */
+  @Memoize
+  getDefinition() {
+    return this._context.compilerFactory.getReferencedSymbolDefinitionInfo(this.compilerObject.definition);
+  }
+
+  /**
+   * Gets the references.
+   */
+  getReferences() {
+    return this.#references;
+  }
+}

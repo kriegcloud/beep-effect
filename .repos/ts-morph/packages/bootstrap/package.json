@@ -1,0 +1,46 @@
+{
+  "name": "@ts-morph/bootstrap",
+  "version": "0.28.1",
+  "description": "API for getting quickly set up with the TypeScript Compiler API.",
+  "keywords": [
+    "typescript",
+    "compiler",
+    "bootstrap"
+  ],
+  "main": "dist/ts-morph-bootstrap.js",
+  "types": "lib/ts-morph-bootstrap.d.ts",
+  "author": "David Sherret",
+  "license": "MIT",
+  "repository": "git+https://github.com/dsherret/ts-morph.git",
+  "scripts": {
+    "build": "deno task build:declarations && deno task build:node",
+    "build:node": "rimraf dist && deno task rollup",
+    "build:deno": "deno task build:declarations && rimraf dist-deno && deno task rollup --environment BUILD:deno && deno run -A scripts/buildDeno.ts",
+    "build:declarations": "deno run -A scripts/buildDeclarations.ts",
+    "test": "deno run -A npm:mocha",
+    "test:ci": "deno task test",
+    "test:debug": "deno task test --inspect-brk",
+    "test:ts-versions": "deno run -A scripts/test/testTypeScriptVersions.ts",
+    "rollup": "rollup -c"
+  },
+  "dependencies": {
+    "@ts-morph/common": "~0.28.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/chai": "^5.2.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.14.1",
+    "chai": "^5.2.0",
+    "cross-env": "^7.0.3",
+    "mocha": "^11.1.0",
+    "rimraf": "^6.0.1",
+    "rollup": "=4.40.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "~5.9.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

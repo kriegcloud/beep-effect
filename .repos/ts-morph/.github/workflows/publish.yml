@@ -1,0 +1,53 @@
+name: Publish
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: canary
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          registry-url: "https://registry.npmjs.org"
+      - run: deno install
+      - name: Build JSR
+        run: deno task build:deno
+      - name: Publish JSR
+        run: cd deno && deno publish
+      - name: Build npm
+        run: deno task build
+      - name: Publish npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          publish_if_needed() {
+            local pkg_dir=$1
+            cd "$pkg_dir"
+            local name version
+            name=$(node -p "require('./package.json').name")
+            version=$(node -p "require('./package.json').version")
+            if npm view "$name@$version" >/dev/null 2>&1; then
+              echo "✅ $name@$version already published — skipping."
+            else
+              echo "🚀 Publishing $name@$version..."
+              npm publish --provenance --access public
+            fi
+            cd - >/dev/null
+          }
+
+          publish_if_needed packages/common
+          publish_if_needed packages/bootstrap
+          publish_if_needed packages/ts-morph
