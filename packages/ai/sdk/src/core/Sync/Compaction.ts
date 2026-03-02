@@ -49,7 +49,9 @@ export const Compaction = {
     (maxAge: Duration.Input): CompactionStrategy =>
     (entries) =>
       Effect.gen(function* () {
-        const maxAgeMs = Duration.toMillis(maxAge);
+        const maxAgeDuration = Duration.fromInput(maxAge);
+        if (maxAgeDuration === undefined) return toBracket([], entries);
+        const maxAgeMs = Duration.toMillis(maxAgeDuration);
         if (maxAgeMs <= 0) return toBracket([], entries);
         const now = yield* Clock.currentTimeMillis;
         const cutoff = now - maxAgeMs;

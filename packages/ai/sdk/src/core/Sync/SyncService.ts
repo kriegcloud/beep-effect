@@ -529,7 +529,11 @@ function makeService() {
     yield* Effect.gen(function* () {
       const syncConfigOption = yield* Effect.serviceOption(SyncConfig);
       if (O.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
-        const interval = syncConfigOption.value.syncInterval;
+        const intervalInput = syncConfigOption.value.syncInterval;
+        const interval = Duration.fromInput(intervalInput);
+        if (interval === undefined) {
+          return;
+        }
         if (Duration.toMillis(interval) <= 0) {
           return;
         }

@@ -116,11 +116,7 @@ export const topologicalSort: (
   if (!G.isAcyclic(graph)) {
     const cycles = yield* detectCycles(adjacencyList);
     return yield* new CyclicDependencyError({
-      message: `Cyclic dependencies detected: ${pipe(
-        cycles,
-        A.map(A.join(" -> ")),
-        A.join("; ")
-      )}`,
+      message: `Cyclic dependencies detected: ${pipe(cycles, A.map(A.join(" -> ")), A.join("; "))}`,
       cycles,
     });
   }

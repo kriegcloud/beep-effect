@@ -8,6 +8,10 @@ import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
+const toMillis = (input: Duration.Input) => {
+  const duration = Duration.fromInput(input);
+  return duration === undefined ? undefined : Duration.toMillis(duration);
+};
 
 test("SessionConfig reads defaults from config provider", async () => {
   const layer = SessionConfig.layer.pipe(
@@ -37,7 +41,7 @@ test("SessionConfig reads defaults from config provider", async () => {
   expect(config.defaults.allowedTools).toEqual(["Read", "Edit"]);
   expect(config.defaults.disallowedTools).toEqual(["Bash"]);
   expect(config.defaults.env?.ANTHROPIC_API_KEY).toBe("test-key");
-  expect(Duration.toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
+  expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
@@ -58,7 +62,7 @@ test("SessionConfig defaults executable to bun", async () => {
 
   const config = await runEffect(program);
   expect(config.defaults.executable).toBeUndefined();
-  expect(Duration.toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
+  expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
@@ -79,7 +83,7 @@ test("SessionConfig uses API_KEY fallback for env injection", async () => {
 
   const config = await runEffect(program);
   expect(config.defaults.env?.ANTHROPIC_API_KEY).toBe("fallback-key");
-  expect(Duration.toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
+  expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
@@ -100,7 +104,7 @@ test("SessionConfig reads CLOSE_DRAIN_TIMEOUT override", async () => {
   }).pipe(Effect.provide(layer));
 
   const config = await runEffect(program);
-  expect(Duration.toMillis(config.runtime.closeDrainTimeout)).toBe(45_000);
+  expect(toMillis(config.runtime.closeDrainTimeout)).toBe(45_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
@@ -125,10 +129,10 @@ test("SessionConfig reads turn timeout overrides", async () => {
   expect(config.runtime.turnSendTimeout).toBeDefined();
   expect(config.runtime.turnResultTimeout).toBeDefined();
   if (config.runtime.turnSendTimeout !== undefined) {
-    expect(Duration.toMillis(config.runtime.turnSendTimeout)).toBe(12_000);
+    expect(toMillis(config.runtime.turnSendTimeout)).toBe(12_000);
   }
   if (config.runtime.turnResultTimeout !== undefined) {
-    expect(Duration.toMillis(config.runtime.turnResultTimeout)).toBe(90_000);
+    expect(toMillis(config.runtime.turnResultTimeout)).toBe(90_000);
   }
 });
 

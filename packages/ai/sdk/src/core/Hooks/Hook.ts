@@ -99,11 +99,15 @@ export const matcher = (options: {
   readonly matcher?: string | undefined;
   readonly timeout?: Duration.Input | undefined;
   readonly hooks: ReadonlyArray<HookCallback>;
-}): HookCallbackMatcher => ({
-  matcher: options.matcher,
-  hooks: A.fromIterable(options.hooks),
-  timeout: options.timeout ? Duration.toMillis(options.timeout) / 1000 : undefined,
-});
+}): HookCallbackMatcher => {
+  const timeout = options.timeout === undefined ? undefined : Duration.fromInput(options.timeout);
+
+  return {
+    matcher: options.matcher,
+    hooks: A.fromIterable(options.hooks),
+    timeout: timeout === undefined ? undefined : Duration.toMillis(timeout) / 1000,
+  };
+};
 
 const toHookMap = (events: ReadonlyArray<HookEvent>, hookMatcher: HookCallbackMatcher): HookMap => {
   const map: Partial<Record<HookEvent, HookCallbackMatcher[]>> = {};

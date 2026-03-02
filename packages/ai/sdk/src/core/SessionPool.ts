@@ -151,7 +151,8 @@ const makeSessionPool = (options: SessionPoolOptions) =>
   Effect.gen(function* () {
     const manager = yield* SessionManager;
     const maxSessions = options.maxSessions ?? 100;
-    const idleTimeoutMs = options.idleTimeout ? Duration.toMillis(options.idleTimeout) : undefined;
+    const idleTimeout = options.idleTimeout === undefined ? undefined : Duration.fromInput(options.idleTimeout);
+    const idleTimeoutMs = idleTimeout === undefined ? undefined : Duration.toMillis(idleTimeout);
     const sessionsRef = yield* Ref.make(MutableHashMap.empty<string, SessionEntry>());
     const lock = yield* Semaphore.make(1);
 
