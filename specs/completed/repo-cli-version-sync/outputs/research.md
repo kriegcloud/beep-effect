@@ -129,7 +129,7 @@ const updated = doc.toString()
 - `doc.toString()` — serialize back preserving all formatting
 - `doc.toJSON()` — extract plain JS object (for inspection)
 
-**Already an Effect v4 peer dependency** — `yaml@^2.8.2` in `.repos/effect-smol/packages/effect/package.json`.
+**Already an Effect v4 peer dependency** — `yaml@^2.8.2` in `.repos/effect-v4/packages/effect/package.json`.
 
 ### JSON: `jsonc-parser` (v3.3.1, already in catalog)
 

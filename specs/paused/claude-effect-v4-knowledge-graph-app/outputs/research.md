@@ -6,7 +6,7 @@ Source-backed research findings for the Effect v4 Knowledge Graph Explorer spec.
 
 ## 1. Effect v4 AI Package
 
-**Source:** `.repos/effect-smol/packages/ai/`
+**Source:** `.repos/effect-v4/packages/ai/`
 
 ### Tool System
 
@@ -105,7 +105,7 @@ Auto-manages conversation history.
 
 ## 2. Effect v4 HTTP
 
-**Source:** `.repos/effect-smol/packages/effect/src/unstable/http/`
+**Source:** `.repos/effect-v4/packages/effect/src/unstable/http/`
 
 ### toWebHandler (Critical for Next.js)
 
@@ -145,7 +145,7 @@ HttpEffect.scopeTransferToStream(response)  // keep resources alive for stream d
 
 ## 3. Effect Atom + React
 
-**Source:** `.repos/effect-smol/packages/effect/src/unstable/reactivity/` + `.repos/effect-smol/packages/ai/atom-react/`
+**Source:** `.repos/effect-v4/packages/effect/src/unstable/reactivity/` + `.repos/effect-v4/packages/ai/atom-react/`
 
 ### Core Atoms
 

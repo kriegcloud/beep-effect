@@ -1,7 +1,7 @@
 # Naming Conventions - effect-smol
 
 **Analysis Date:** 2026-02-19
-**Repository:** `.repos/effect-smol`
+**Repository:** `.repos/effect-v4`
 
 ## Executive Summary
 

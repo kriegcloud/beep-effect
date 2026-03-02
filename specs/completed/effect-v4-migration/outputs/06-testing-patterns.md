@@ -1,7 +1,7 @@
 # Testing Patterns Analysis - effect-smol
 
 **Analysis Date:** 2026-02-18
-**Repository:** `.repos/effect-smol`
+**Repository:** `.repos/effect-v4`
 
 ## Overview
 

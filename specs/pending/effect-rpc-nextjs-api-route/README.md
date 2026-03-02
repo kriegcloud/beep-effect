@@ -42,14 +42,14 @@ PENDING
 
 All decisions in this spec must be verified against local source, in this order:
 
-1. [HttpEffect.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/http/HttpEffect.ts)
-2. [Rpc.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/Rpc.ts)
-3. [RpcGroup.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcGroup.ts)
-4. [RpcServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcServer.ts)
-5. [RpcClient.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcClient.ts)
-6. [RpcSerialization.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcSerialization.ts)
-7. [McpServer.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/test/unstable/ai/McpServer.test.ts)
-8. [HttpEffect.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/test/unstable/http/HttpEffect.test.ts)
+1. [HttpEffect.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/http/HttpEffect.ts)
+2. [Rpc.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/Rpc.ts)
+3. [RpcGroup.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcGroup.ts)
+4. [RpcServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcServer.ts)
+5. [RpcClient.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcClient.ts)
+6. [RpcSerialization.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcSerialization.ts)
+7. [McpServer.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/test/unstable/ai/McpServer.test.ts)
+8. [HttpEffect.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/test/unstable/http/HttpEffect.test.ts)
 9. [Current chat route pattern](/home/elpresidank/YeeBois/projects/beep-effect3/apps/web/src/app/api/chat/route.ts)
 
 The downstream agent must not rely on memory or generic examples when local source files disagree.

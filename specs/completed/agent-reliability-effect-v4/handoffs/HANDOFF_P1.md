@@ -38,7 +38,7 @@ Exit gate:
 
 Constants:
 
-1. Truth source for Effect API decisions is local-only (`.repos/effect-smol` + Graphiti effect-v4).
+1. Truth source for Effect API decisions is local-only (`.repos/effect-v4` + Graphiti effect-v4).
 2. Benchmark protocol is fixed: 18 tasks, 2 agents, 4 conditions, 2 trials.
 3. Promotion decisions are benchmark-gated.
 
@@ -46,4 +46,4 @@ Constants:
 
 1. Spec guide: `.repos/beep-effect/specs/_guide/README.md`
 2. Handoff standards: `.repos/beep-effect/specs/_guide/HANDOFF_STANDARDS.md`
-3. Effect migration references: `.repos/effect-smol/MIGRATION.md`
+3. Effect migration references: `.repos/effect-v4/MIGRATION.md`

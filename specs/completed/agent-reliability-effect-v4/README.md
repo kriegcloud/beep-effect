@@ -22,8 +22,8 @@
 
 All Effect API and migration decisions in this spec are constrained to local truth sources:
 
-1. `.repos/effect-smol/LLMS.md`
-2. `.repos/effect-smol/MIGRATION.md`
+1. `.repos/effect-v4/LLMS.md`
+2. `.repos/effect-v4/MIGRATION.md`
 3. `specs/completed/effect-v4-knowledge-graph/outputs/p6-verification/report.md`
 4. `specs/completed/shared-memories/README.md`
 
@@ -101,7 +101,7 @@ Root scripts required:
 
 - Existing Graphiti stack and MCP availability.
 - Existing effect-v4 KG corpus (`group_id: effect-v4`) and repo memory (`group_id: beep-dev`).
-- Local `.repos/effect-smol` archive as Effect API/migration truth.
+- Local `.repos/effect-v4` archive as Effect API/migration truth.
 
 ## Related Specs
 

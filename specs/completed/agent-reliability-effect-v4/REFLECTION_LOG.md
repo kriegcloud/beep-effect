@@ -10,7 +10,7 @@ What worked:
 
 1. Grounding the plan in existing repo assets avoided speculative architecture churn.
 2. Locking an explicit benchmark protocol removed ambiguity for promotion decisions.
-3. Treating `.repos/effect-smol` + Graphiti as strict truth sources simplified migration disputes.
+3. Treating `.repos/effect-v4` + Graphiti as strict truth sources simplified migration disputes.
 
 What we learned:
 

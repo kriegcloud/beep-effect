@@ -172,7 +172,7 @@ RESEND_API_KEY=<from 1Password: beep-email/EMAIL_RESEND_API_KEY>
 
 ### From Prior Phases
 - Research complete (see `outputs/research.md`)
-- Effect v4 AI/HTTP/atom APIs documented from `.repos/effect-smol` source
+- Effect v4 AI/HTTP/atom APIs documented from `.repos/effect-v4` source
 - Auth decision: better-auth magic link + Neon PostgreSQL (review settled on this after evaluating iron-session, custom HMAC, and Turso alternatives)
 
 ## Semantic Memory
@@ -196,7 +196,7 @@ RESEND_API_KEY=<from 1Password: beep-email/EMAIL_RESEND_API_KEY>
 ### References
 - Spec README: `specs/pending/claude-effect-v4-knowledge-graph-app/README.md`
 - Research: `specs/pending/claude-effect-v4-knowledge-graph-app/outputs/research.md`
-- Effect v4 source: `.repos/effect-smol`
+- Effect v4 source: `.repos/effect-v4`
 - better-auth magic link docs: https://www.better-auth.com/docs/plugins/magic-link
 - better-auth Next.js docs: https://www.better-auth.com/docs/integrations/next
 - Neon docs: https://neon.com/docs/guides/nextjs

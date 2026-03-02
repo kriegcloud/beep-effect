@@ -3,7 +3,7 @@
 > **IMPORTANT: Effect v4 Migration**
 > This document was originally written targeting Effect v3. The project has since migrated to **Effect v4** (effect-smol).
 > The authoritative design document is `DESIGN.md` which reflects all v4 changes.
-> Source code references in this document pointing to `.repos/effect/` should be understood as `.repos/effect-smol/` equivalents.
+> Source code references in this document pointing to `.repos/effect/` should be understood as `.repos/effect-v4/` equivalents.
 > Key v4 changes: Schema → Codec rename, `Schema.annotate()` replaces `Schema.annotations()`,
 > variadic → array for Union/Tuple/Literals, `decodeTo` replaces `compose`,
 > `Model.Class` from `effect/unstable/schema/Model` provides 6 built-in variants.

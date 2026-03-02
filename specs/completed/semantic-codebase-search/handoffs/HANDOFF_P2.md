@@ -79,7 +79,7 @@ None. All research is complete.
 - Effect testing: `.repos/beep-effect/specs/_guide/patterns/effect-testing-standards.md`
 - P1 outputs: `specs/pending/semantic-codebase-search/outputs/`
 - Docgen source: `.repos/docgen/`
-- Effect v4 reference: `.repos/effect-smol/`
+- Effect v4 reference: `.repos/effect-v4/`
 
 ---
 

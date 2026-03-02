@@ -11,7 +11,7 @@
 - **`docker-compose.yml`** manages Postgres (pgvector), Redis, and Grafana (OTEL-LGTM) for local dev
 - **System tools assumed**: bun, node, turbo, biome, docker are expected to be installed globally with no enforcement
 
-The `.repos/effect-smol/flake.nix` provides a reference pattern already used by the Effect upstream:
+The `.repos/effect-v4/flake.nix` provides a reference pattern already used by the Effect upstream:
 
 ```nix
 {

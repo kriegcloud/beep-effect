@@ -788,7 +788,7 @@ In practice, users should prefer one or the other, not both on the same field. H
 | `drizzle-orm/src/pg-core/columns/common.ts` | `.references()` method on column builder (line ~358), `.unique()` method |
 | `drizzle-orm/src/relations.ts` | `defineRelations()`, `One`, `Many`, `Relation`, `RelationsBuilder`, `buildRelations()` |
 
-### External (Effect v4 source in `.repos/effect-smol/`)
+### External (Effect v4 source in `.repos/effect-v4/`)
 
 | File | Purpose |
 |------|---------|

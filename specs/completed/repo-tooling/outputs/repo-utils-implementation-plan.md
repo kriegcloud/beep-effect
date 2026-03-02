@@ -932,6 +932,6 @@ Include:
 
 - **Legacy Inventory:** `specs/outputs/repo-utils-legacy-inventory.md`
 - **Effect v4 Docs:** https://effect.website
-- **effect-smol Patterns:** `.repos/effect-smol/packages/effect`
+- **effect-smol Patterns:** `.repos/effect-v4/packages/effect`
 - **@effect/platform Guide:** https://effect.website/docs/platform
 - **@beep/repo-cli Example:** `tooling/cli/`

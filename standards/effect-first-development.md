@@ -11,10 +11,10 @@ The goal is to make failure, absence, decoding, and dependency wiring explicit a
 
 ## Primary References
 
-- [Effect LLMS guide](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/LLMS.md)
-- [Effect ai-docs index](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/ai-docs/src/index.md)
-- [Effect migration notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/MIGRATION.md)
-- [Effect Schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md)
+- [Effect LLMS guide](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/LLMS.md)
+- [Effect ai-docs index](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/ai-docs/src/index.md)
+- [Effect migration notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/MIGRATION.md)
+- [Effect Schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md)
 
 ## Operating Model
 
@@ -236,7 +236,7 @@ export type Tenant = typeof Tenant.Type
 
 - Prefer `S.TaggedUnion` when using `_tag`-based variants.
 - Use `S.toTaggedUnion("fieldName")` for unions with non-`_tag` discriminants or external union sources.
-- Reference: [effect-smol schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:1934).
+- Reference: [effect-smol schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1934).
 
 Example:
 
@@ -276,7 +276,7 @@ export type ExternalJobEvent = typeof ExternalJobEvent.Type
 
 - Prefer `Effect.fn("Name")(...)` for reusable/public effectful functions.
 - Use `Effect.fnUntraced(...)` for internal hot paths where tracing overhead is unnecessary.
-- Reference: [Effect.fn docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:12821).
+- Reference: [Effect.fn docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:12821).
 
 Example:
 
@@ -349,7 +349,7 @@ const program = Effect.sleep(pollInterval).pipe(Effect.timeout(timeout))
   - `S.OptionFromNullishOr`
   - `S.OptionFromOptionalKey`
   - `S.OptionFromOptional`
-- Reference: [Schema Option helpers](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:636).
+- Reference: [Schema Option helpers](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:636).
 
 Example:
 
@@ -373,7 +373,7 @@ export class AccountInput extends S.Class<AccountInput>($I`AccountInput`)({
   - Data-first: `fn(self, arg)`
   - Data-last: `pipe(self, fn(arg))`
 - Build these helpers with `dual` from `effect/Function`.
-- Reference: [dual API](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Function.ts:106).
+- Reference: [dual API](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Function.ts:106).
 
 Example:
 
@@ -395,7 +395,7 @@ const b = pipe("value", addPrefix("p:"))
 - Use `S.UnknownFromJsonString` for unknown JSON payloads.
 - Use `S.fromJsonString(MySchema)` for typed JSON string boundaries.
 - Avoid direct `JSON.parse` / `JSON.stringify` in Effect-first code.
-- Reference: [UnknownFromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:4011) and [fromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/SCHEMA.md:4028).
+- Reference: [UnknownFromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:4011) and [fromJsonString](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:4028).
 
 Example:
 
@@ -434,7 +434,7 @@ If agent instruction surfaces changed, also run:
 - Application entrypoints and tests may execute effects with `Effect.run*`.
 - Library and domain exports should return `Effect` values.
 - Keep runtime execution in one place so wiring, logging, and lifecycle behavior stay auditable.
-- Reference: [runPromise](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8423), [runSync](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8606), and [runFork](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8264).
+- Reference: [runPromise](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:8423), [runSync](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:8606), and [runFork](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:8264).
 
 Example:
 
@@ -472,7 +472,7 @@ const fetchText = (url: string) =>
 - Use `Effect.acquireUseRelease` for acquisition/use/release flows.
 - Prefer `Effect.scoped` for helper composition that allocates resources.
 - Do not manually open resources without an explicit finalization strategy.
-- Reference: [acquireUseRelease](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6254) and [scoped](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6079).
+- Reference: [acquireUseRelease](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:6254) and [scoped](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:6079).
 
 Example:
 
@@ -494,7 +494,7 @@ const withConnection = <A, E, R>(
 - Encode retries with `Effect.retry` and `Schedule`.
 - Avoid manual retry loops and ad-hoc mutable counters.
 - Keep retry policy close to the failing effect.
-- Reference: [retry](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:3978).
+- Reference: [retry](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:3978).
 
 Example:
 
@@ -511,7 +511,7 @@ const resilientFetch = fetchRemote.pipe(
 - Use `Effect.timeoutOption` when timeout should become `Option.None`.
 - Use `Effect.timeoutOrElse` when timeout should produce a typed fallback effect.
 - Avoid manually racing ad-hoc timers for business logic timeouts.
-- Reference: [timeoutOption](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:4467).
+- Reference: [timeoutOption](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:4467).
 
 Example:
 
@@ -531,7 +531,7 @@ const lookupCachedOnTimeout = slowLookup.pipe(
 - Prefer `Effect.forkChild` so lifecycle is supervised by parent scope.
 - Use `Effect.forkDetach` only for explicit daemon semantics.
 - Make fork intent explicit in code review and comments for detached work.
-- Reference: [forkChild](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:7978) and [forkDetach](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:8121).
+- Reference: [forkChild](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:7978) and [forkDetach](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:8121).
 
 Example:
 
@@ -551,7 +551,7 @@ const runWithHeartbeat = Effect.fn("Worker.run")(function* () {
 - For non-trivial fan-out, set concurrency in `Effect.forEach`, `Effect.all`, or `Effect.validate`.
 - Avoid implicit unbounded parallelism on large collections.
 - Concurrency should be part of API intent for throughput-sensitive paths.
-- Reference: [forEach concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:990), [all concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:751), [withConcurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:6001).
+- Reference: [forEach concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:990), [all concurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:751), [withConcurrency](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:6001).
 
 Example:
 
@@ -567,7 +567,7 @@ const hydrateUsers = (ids: ReadonlyArray<string>) =>
 - Use `Config` and `ConfigProvider` for configuration loading and parsing.
 - Keep direct `process.env` access out of domain code.
 - Layer/provide config sources explicitly for tests and non-default environments.
-- Reference: [Config](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Config.ts) and [ConfigProvider](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/ConfigProvider.ts:358).
+- Reference: [Config](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Config.ts) and [ConfigProvider](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/ConfigProvider.ts:358).
 
 Example:
 
@@ -584,7 +584,7 @@ const loadPort = Effect.fn("Config.loadPort")(function* () {
 - Use `Config.redacted` for secret config values.
 - Use `Redacted.make` for sensitive values coming from non-config sources.
 - Never log secret values after unwrapping.
-- Reference: [Config.redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Config.ts:1161) and [Redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Redacted.ts).
+- Reference: [Config.redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Config.ts:1161) and [Redacted](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Redacted.ts).
 
 Example:
 
@@ -622,7 +622,7 @@ const findUserOptional = (id: string) =>
 - Use `Effect.fail` for expected business/domain failures.
 - Reserve `Effect.die` / `Effect.orDie` for invariant violations and impossible states.
 - Do not model normal user-facing errors as defects.
-- Reference: [die](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:1745) and [orDie](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:3557).
+- Reference: [die](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:1745) and [orDie](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:3557).
 
 Example:
 
@@ -647,7 +647,7 @@ const validateInput = Effect.fn("Input.validate")(function* (value: string) {
 - Understand that layer provisioning is shared by default.
 - When isolation is required, use `Effect.provide(..., { local: true })` or `Layer.fresh`.
 - Document why isolation is necessary for behavior-sensitive paths.
-- Reference: [Effect.provide local option](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Effect.ts:5592) and [Layer.fresh](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/Layer.ts:1621).
+- Reference: [Effect.provide local option](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Effect.ts:5592) and [Layer.fresh](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Layer.ts:1621).
 
 Example:
 

@@ -4,8 +4,8 @@
 
 Effect v4 API and migration decisions are constrained to:
 
-1. `.repos/effect-smol/LLMS.md`
-2. `.repos/effect-smol/MIGRATION.md`
+1. `.repos/effect-v4/LLMS.md`
+2. `.repos/effect-v4/MIGRATION.md`
 3. `specs/completed/effect-v4-knowledge-graph/outputs/p6-verification/report.md`
 4. Graphiti `group_id: effect-v4`
 

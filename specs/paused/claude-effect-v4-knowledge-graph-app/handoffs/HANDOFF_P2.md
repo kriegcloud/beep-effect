@@ -123,7 +123,7 @@ import { OpenAiLanguageModel } from "@effect/ai-openai"
 ## Procedural Memory
 
 ### References
-- Effect v4 AI source: `.repos/effect-smol/packages/ai/`
-- Effect v4 HTTP source: `.repos/effect-smol/packages/effect/src/unstable/http/`
-- MCP server tests: `.repos/effect-smol/packages/ai/ai/test/McpServer.test.ts`
+- Effect v4 AI source: `.repos/effect-v4/packages/ai/`
+- Effect v4 HTTP source: `.repos/effect-v4/packages/effect/src/unstable/http/`
+- MCP server tests: `.repos/effect-v4/packages/ai/ai/test/McpServer.test.ts`
 - Research notes: `outputs/research.md` sections 1-2

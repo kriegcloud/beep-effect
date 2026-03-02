@@ -25,7 +25,7 @@ Reliability-first implementation plan for agent execution in this monorepo, grou
 
 ## Canonical Constraints
 
-1. Effect API truth is local-only (`.repos/effect-smol` + Graphiti `effect-v4`).
+1. Effect API truth is local-only (`.repos/effect-v4` + Graphiti `effect-v4`).
 2. Repo memory truth uses Graphiti `beep-dev`.
 3. All benchmark/policy promotion decisions require A/B evidence.
 4. Harness file/path operations use `effect/FileSystem` and `effect/Path`.

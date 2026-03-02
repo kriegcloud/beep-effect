@@ -34,7 +34,7 @@ Cumulative learnings across all phases of the Effect v4 Knowledge Graph Explorer
 
 **What worked:**
 - Deep parallel research across 4 domains (Effect v4 AI/HTTP/atom, Zep Cloud, better-auth, Gaia component)
-- Using `.repos/effect-smol` as source of truth for Effect v4 APIs instead of web (which returns v3 docs)
+- Using `.repos/effect-v4` as source of truth for Effect v4 APIs instead of web (which returns v3 docs)
 - Graphiti knowledge graph already contained facts about prior architecture decisions
 - Prior Codex spec attempt provided useful baseline to improve upon
 

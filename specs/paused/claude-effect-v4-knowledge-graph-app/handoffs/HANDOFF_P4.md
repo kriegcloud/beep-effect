@@ -181,7 +181,7 @@ AsyncResult.failure(e)  // failed
 ## Procedural Memory
 
 ### References
-- Atom source: `.repos/effect-smol/packages/effect/src/unstable/reactivity/`
-- Atom React source: `.repos/effect-smol/packages/ai/atom-react/`
+- Atom source: `.repos/effect-v4/packages/effect/src/unstable/reactivity/`
+- Atom React source: `.repos/effect-v4/packages/ai/atom-react/`
 - react-force-graph-2d docs: https://github.com/vasturiano/react-force-graph
 - Research notes: `outputs/research.md` sections 3, 6, 8

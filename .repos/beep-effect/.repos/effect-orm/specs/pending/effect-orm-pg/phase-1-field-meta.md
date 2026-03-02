@@ -47,13 +47,13 @@ Before implementing, read and understand these files:
 | `packages/orm/test/column-factory.test.ts` | 61 tests covering factory constructors, generic mode inference, driver type mappings |
 | `packages/orm/test/drizzle-proof.test.ts` | 31 tests proving Column -> Drizzle type flow, mode generics, enum tuple preservation |
 
-### Effect v4 Source (.repos/effect-smol/)
+### Effect v4 Source (.repos/effect-v4/)
 
 | File | What to understand |
 |---|---|
-| `.repos/effect-smol/packages/effect/src/unstable/schema/Model.ts` | `Model.Class`, `Generated`, `GeneratedByApp`, `Sensitive`, `FieldOption`, `Field`, `fieldEvolve` -- how variant schemas work |
-| `.repos/effect-smol/packages/effect/src/unstable/schema/VariantSchema.ts` | `VariantSchema.Field`, `VariantSchema.Struct`, `isField`, `isStruct` -- the `Field` has a `schemas` property holding variant configs |
-| `.repos/effect-smol/packages/effect/src/Schema.ts` | `Schema.Top` (the base schema type in v4), `Schema.Struct`, `Schema.Struct.Fields` |
+| `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` | `Model.Class`, `Generated`, `GeneratedByApp`, `Sensitive`, `FieldOption`, `Field`, `fieldEvolve` -- how variant schemas work |
+| `.repos/effect-v4/packages/effect/src/unstable/schema/VariantSchema.ts` | `VariantSchema.Field`, `VariantSchema.Struct`, `isField`, `isStruct` -- the `Field` has a `schemas` property holding variant configs |
+| `.repos/effect-v4/packages/effect/src/Schema.ts` | `Schema.Top` (the base schema type in v4), `Schema.Struct`, `Schema.Struct.Fields` |
 
 ### Drizzle ORM Source (.repos/drizzle-orm/)
 
@@ -1498,9 +1498,9 @@ Must exit 0. All existing tests (columns.test.ts, column-factory.test.ts, drizzl
 
 | Absolute Path | Purpose |
 |---|---|
-| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-smol/packages/effect/src/unstable/schema/Model.ts` | Model.Class, Generated, Sensitive, FieldOption, Field |
-| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-smol/packages/effect/src/unstable/schema/VariantSchema.ts` | VariantSchema.Field, isField, isStruct, Field.Config |
-| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-smol/packages/effect/src/Schema.ts` | Schema.Top, Schema.Struct.Fields |
+| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` | Model.Class, Generated, Sensitive, FieldOption, Field |
+| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-v4/packages/effect/src/unstable/schema/VariantSchema.ts` | VariantSchema.Field, isField, isStruct, Field.Config |
+| `/home/elpresidank/YeeBois/projects/effect-orm/.repos/effect-v4/packages/effect/src/Schema.ts` | Schema.Top, Schema.Struct.Fields |
 
 ### Drizzle ORM Source (reference, do not modify)
 

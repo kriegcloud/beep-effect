@@ -7,7 +7,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 
-const indexPath = ".repos/effect-smol/packages/effect/src/index.ts";
+const indexPath = ".repos/effect-v4/packages/effect/src/index.ts";
 const content = readFileSync(indexPath, "utf-8");
 
 interface ModuleEpisode {

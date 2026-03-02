@@ -1,7 +1,7 @@
 # Effect v4 API Corrections for @beep/repo-utils
 
 **Date:** 2026-02-19
-**Status:** ✅ Verified against `.repos/effect-smol/packages/effect/`
+**Status:** ✅ Verified against `.repos/effect-v4/packages/effect/`
 
 ---
 
@@ -309,7 +309,7 @@ import { describe, expect, it } from "@effect/vitest"
 
 ## Testing Recommendations
 
-When implementing, verify each API against `.repos/effect-smol/packages/effect/` source:
+When implementing, verify each API against `.repos/effect-v4/packages/effect/` source:
 
 1. Check barrel exports in `index.ts` first
 2. Read JSDoc examples in the source files
@@ -320,4 +320,4 @@ When implementing, verify each API against `.repos/effect-smol/packages/effect/`
 
 **Last Updated:** 2026-02-19
 **Verified By:** effect-v4-verifier agent
-**Source:** `.repos/effect-smol/packages/effect/`
+**Source:** `.repos/effect-v4/packages/effect/`

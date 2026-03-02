@@ -6,7 +6,7 @@
 
 `@beep/effect-orm` is a TypeScript library that bridges Effect's domain model layer with Drizzle's query layer. A model defined once produces both a valid Effect Model (with 6 variant schemas) and a dialect-specific Drizzle table, with zero manual duplication.
 
-**Target runtime:** Effect v4 (codename "effect-smol"). Source code lives in `.repos/effect-smol/`. The library extends `Model.Class` from `effect/unstable/schema/Model`, which provides the 6 variant schemas, field helpers (Generated, Sensitive, FieldOption, DateTime*), and is compatible with `effect/unstable/sql/SqlModel`'s repository and data loader patterns.
+**Target runtime:** Effect v4 (codename "effect-smol"). Source code lives in `.repos/effect-v4/`. The library extends `Model.Class` from `effect/unstable/schema/Model`, which provides the 6 variant schemas, field helpers (Generated, Sensitive, FieldOption, DateTime*), and is compatible with `effect/unstable/sql/SqlModel`'s repository and data loader patterns.
 
 **What it does:**
 
@@ -1066,7 +1066,7 @@ Key differences from effect-orm: single dialect only, options-bag Field API (not
 **Drizzle ORM Source** (beta branch): `.repos/drizzle-orm/`
 Key areas: column builder types per dialect, `BuildColumns` type utility, `$type<T>()` mechanism, table factory functions.
 
-**Effect v4 Source**: `.repos/effect-smol/`
+**Effect v4 Source**: `.repos/effect-v4/`
 Key files:
 - `packages/effect/src/unstable/schema/Model.ts` -- Model.Class with 6 variants, field helpers (Generated, Sensitive, FieldOption, DateTime*, JsonFromString, UuidV4Insert)
 - `packages/effect/src/unstable/schema/VariantSchema.ts` -- VariantSchema.make() with Class, Field, FieldOnly, FieldExcept, Struct, Union, extract, fieldEvolve

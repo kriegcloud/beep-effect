@@ -144,7 +144,7 @@ Generated markdown includes: YAML frontmatter, module overview, category TOC, ca
 
 ---
 
-## 7. Effect v4 Reference Patterns (from .repos/effect-smol)
+## 7. Effect v4 Reference Patterns (from .repos/effect-v4)
 
 Effect source code uses:
 - Comprehensive module overview with "Mental model" section

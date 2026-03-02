@@ -8,7 +8,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 
-const unstableDir = ".repos/effect-smol/packages/effect/src/unstable";
+const unstableDir = ".repos/effect-v4/packages/effect/src/unstable";
 const outDir = "specs/pending/effect-v4-knowledge-graph/outputs/p3-ast-extraction";
 
 interface GraphitiEpisode {

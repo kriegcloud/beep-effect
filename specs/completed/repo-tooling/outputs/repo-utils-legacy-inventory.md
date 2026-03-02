@@ -477,4 +477,4 @@ HashMap {
 - **Legacy Package:** `.repos/beep-effect/tooling/utils`
 - **Effect v4 Docs:** https://effect.website
 - **@effect/platform Docs:** https://effect.website/docs/platform
-- **effect-smol Patterns:** `.repos/effect-smol/packages/effect`
+- **effect-smol Patterns:** `.repos/effect-v4/packages/effect`

@@ -36,9 +36,9 @@ Read these files in order to build sufficient context:
 1. **Phase 1 output files** (listed above) -- understand the Field descriptor shape, FieldMeta structure, and how pg.Column steps attach metadata
 2. **`packages/orm/src/dialects/postgres/columns.ts`** -- existing column type system with tagged unions and match functions (152+ tests)
 3. **`packages/orm/src/Literals.ts`** -- DialectLiteral, RelationActionLiteral, IndexMetaLiteral
-4. **`.repos/effect-smol/packages/effect/src/unstable/schema/Model.ts`** -- the upstream Model.Class implementation (field helpers, variant definitions)
-5. **`.repos/effect-smol/packages/effect/src/unstable/schema/VariantSchema.ts`** -- the VariantSchema.make() constructor, Class factory, Field/Struct types, extract mechanism
-6. **`.repos/effect-smol/packages/effect/src/unstable/sql/SqlModel.ts`** -- makeRepository/makeDataLoaders that consume Model.Any
+4. **`.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts`** -- the upstream Model.Class implementation (field helpers, variant definitions)
+5. **`.repos/effect-v4/packages/effect/src/unstable/schema/VariantSchema.ts`** -- the VariantSchema.make() constructor, Class factory, Field/Struct types, extract mechanism
+6. **`.repos/effect-v4/packages/effect/src/unstable/sql/SqlModel.ts`** -- makeRepository/makeDataLoaders that consume Model.Any
 7. **`specs/pending/effect-orm/DESIGN.md`** -- authoritative design spec, sections 2.1-2.4, 3.1-3.2
 
 ---
@@ -79,7 +79,7 @@ Confirm the exact commands by checking `packages/orm/package.json` scripts befor
 
 ### What to Read
 
-Read the entire file at `.repos/effect-smol/packages/effect/src/unstable/schema/Model.ts`. This is 611 lines. Understand every export.
+Read the entire file at `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts`. This is 611 lines. Understand every export.
 
 ### Key Structures
 
@@ -144,7 +144,7 @@ These are the Model field helpers that our pg.Column pipe steps must compose wit
 
 ### VariantSchema.Class Internals
 
-Read `.repos/effect-smol/packages/effect/src/unstable/schema/VariantSchema.ts` lines 376-401. The Class factory:
+Read `.repos/effect-v4/packages/effect/src/unstable/schema/VariantSchema.ts` lines 376-401. The Class factory:
 
 1. Creates a `variantStruct` from the fields via `Struct(fields)`
 2. Extracts the default variant schema via `extract(variantStruct, defaultVariant, { isDefault: true })`
@@ -164,7 +164,7 @@ A `Model.Generated(Schema.String)` produces `Field({ select: Schema.String, upda
 
 ### Compatibility with SqlModel
 
-Read `.repos/effect-smol/packages/effect/src/unstable/sql/SqlModel.ts` lines 24-66. The `makeRepository` function accepts:
+Read `.repos/effect-v4/packages/effect/src/unstable/sql/SqlModel.ts` lines 24-66. The `makeRepository` function accepts:
 
 ```typescript
 S extends Model.Any
@@ -845,11 +845,11 @@ All existing tests (152+) must continue to pass. All new tests must pass.
 
 | File | Purpose | Key Lines/Exports |
 |------|---------|-------------------|
-| `.repos/effect-smol/packages/effect/src/unstable/schema/Model.ts` | Model.Class, all field helpers | `Class`, `Generated`, `Sensitive`, `FieldOption`, `DateTimeInsert*`, `DateTimeUpdate*`, `JsonFromString`, `UuidV4Insert` |
-| `.repos/effect-smol/packages/effect/src/unstable/schema/VariantSchema.ts` | VariantSchema.make(), Class factory, Field, Struct, extract | Lines 287-456: `make()` function including `Class` constructor at line 376 |
-| `.repos/effect-smol/packages/effect/src/unstable/sql/SqlModel.ts` | makeRepository, makeDataLoaders | Lines 24-66: `makeRepository` showing `Model.Any` constraint |
-| `.repos/effect-smol/packages/effect/src/Schema.ts` | Schema.Class, Schema.Struct, Schema.Top, annotations types | Core Schema API |
-| `.repos/effect-smol/packages/effect/src/SchemaAST.ts` | AST types for future nullability analysis (Phase 3) | AST node types |
+| `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` | Model.Class, all field helpers | `Class`, `Generated`, `Sensitive`, `FieldOption`, `DateTimeInsert*`, `DateTimeUpdate*`, `JsonFromString`, `UuidV4Insert` |
+| `.repos/effect-v4/packages/effect/src/unstable/schema/VariantSchema.ts` | VariantSchema.make(), Class factory, Field, Struct, extract | Lines 287-456: `make()` function including `Class` constructor at line 376 |
+| `.repos/effect-v4/packages/effect/src/unstable/sql/SqlModel.ts` | makeRepository, makeDataLoaders | Lines 24-66: `makeRepository` showing `Model.Any` constraint |
+| `.repos/effect-v4/packages/effect/src/Schema.ts` | Schema.Class, Schema.Struct, Schema.Top, annotations types | Core Schema API |
+| `.repos/effect-v4/packages/effect/src/SchemaAST.ts` | AST types for future nullability analysis (Phase 3) | AST node types |
 
 ### ORM Project Source
 

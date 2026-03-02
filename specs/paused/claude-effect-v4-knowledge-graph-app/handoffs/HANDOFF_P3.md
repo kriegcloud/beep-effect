@@ -175,7 +175,7 @@ bun run audit:high:ci
 ## Procedural Memory
 
 ### References
-- OpenAI provider: `.repos/effect-smol/packages/ai/openai/`
-- OpenAI tests: `.repos/effect-smol/packages/ai/openai/test/OpenAiLanguageModel.test.ts`
-- Chat module: `.repos/effect-smol/packages/ai/ai/src/Chat.ts`
+- OpenAI provider: `.repos/effect-v4/packages/ai/openai/`
+- OpenAI tests: `.repos/effect-v4/packages/ai/openai/test/OpenAiLanguageModel.test.ts`
+- Chat module: `.repos/effect-v4/packages/ai/ai/src/Chat.ts`
 - Research notes: `outputs/research.md` sections 1, 4

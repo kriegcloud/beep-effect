@@ -61,7 +61,7 @@ Look for files that Phase 2-4 created (e.g., `Model.ts`, `FieldMeta.ts`, `toDriz
 
 ### Effect v4 Reference Files
 
-These are in `.repos/effect-smol/`:
+These are in `.repos/effect-v4/`:
 
 - `packages/effect/src/unstable/schema/Model.ts` -- `Model.Class` with 6 variants
 - `packages/effect/src/unstable/schema/VariantSchema.ts` -- `VariantSchema.make()`, `Class`, `Field`
@@ -792,7 +792,7 @@ A `pg.Column.xxx()` pipe step enriches the field's metadata but MUST NOT modify 
 | `specs/pending/effect-orm/DESIGN.md` | Section 3.1 (ModelFactory), 3.7 (Custom Columns), 3.8 (Factory Composition) |
 | `specs/pending/effect-orm/instructions.md` | Section 2.2 (ModelFactory Pattern), 5 (Custom Column Design) |
 
-### Effect v4 Source (in `.repos/effect-smol/`)
+### Effect v4 Source (in `.repos/effect-v4/`)
 
 | File | What to Reference |
 |------|-------------------|

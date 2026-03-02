@@ -40,7 +40,7 @@ Your mission is to complete the spec phases in order:
 - `tooling/repo-utils/src/Root.ts` (`findRepoRoot`)
 - `lefthook.yml` (existing hook configuration)
 - `.bun-version`, `package.json`, `.nvmrc`, `.github/workflows/release.yml`, `docker-compose.yml` (files to sync)
-- `.repos/effect-smol/packages/effect/package.json` (confirms `yaml` is Effect peer dep)
+- `.repos/effect-v4/packages/effect/package.json` (confirms `yaml` is Effect peer dep)
 
 ## Pattern References
 - Existing CLI commands follow `Effect.fn` + `Command`/`Flag` from `effect/unstable/cli`

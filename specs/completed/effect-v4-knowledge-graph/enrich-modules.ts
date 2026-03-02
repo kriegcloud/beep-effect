@@ -8,7 +8,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 
-const SRC_DIR = ".repos/effect-smol/packages/effect/src";
+const SRC_DIR = ".repos/effect-v4/packages/effect/src";
 const EPISODES_PATH = "specs/pending/effect-v4-knowledge-graph/outputs/p2-doc-extraction/module-episodes.json";
 const FUNCTIONS_PATH = "specs/pending/effect-v4-knowledge-graph/outputs/p3-ast-extraction/function-episodes.json";
 

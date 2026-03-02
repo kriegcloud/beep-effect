@@ -450,13 +450,13 @@ const loadSettings = Effect.fn("Settings.load")(function* () {
 
 ## Source of Truth References
 
-- [Effect LLMS guide](../../../.repos/effect-smol/LLMS.md)
-- [Effect ai-docs index](../../../.repos/effect-smol/ai-docs/src/index.md)
-- [Effect migration notes](../../../.repos/effect-smol/MIGRATION.md)
-- [Effect Schema docs](../../../.repos/effect-smol/packages/effect/SCHEMA.md)
-- [Effect core API source](../../../.repos/effect-smol/packages/effect/src/Effect.ts)
-- [Effect Config source](../../../.repos/effect-smol/packages/effect/src/Config.ts)
-- [Effect Fiber source](../../../.repos/effect-smol/packages/effect/src/Fiber.ts)
+- [Effect LLMS guide](../../../.repos/effect-v4/LLMS.md)
+- [Effect ai-docs index](../../../.repos/effect-v4/ai-docs/src/index.md)
+- [Effect migration notes](../../../.repos/effect-v4/MIGRATION.md)
+- [Effect Schema docs](../../../.repos/effect-v4/packages/effect/SCHEMA.md)
+- [Effect core API source](../../../.repos/effect-v4/packages/effect/src/Effect.ts)
+- [Effect Config source](../../../.repos/effect-v4/packages/effect/src/Config.ts)
+- [Effect Fiber source](../../../.repos/effect-v4/packages/effect/src/Fiber.ts)
 
 ### 21) Precise recovery by tag
 

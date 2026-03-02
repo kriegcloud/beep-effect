@@ -9,7 +9,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 
-const srcDir = ".repos/effect-smol/packages/effect/src";
+const srcDir = ".repos/effect-v4/packages/effect/src";
 const outDir = "specs/pending/effect-v4-knowledge-graph/outputs/p3-ast-extraction";
 
 interface ExportInfo {

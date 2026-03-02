@@ -4,7 +4,7 @@
 
 Create canonical spec files under `specs/pending/agent-reliability-effect-v4`, lock benchmark protocol (18 tasks, 2 trials, 2 agents, 4 conditions), and produce outputs:
 `p0-source-of-truth-contract.md`, `p0-current-state-audit.md`, `p0-benchmark-protocol.md`.
-Use `.repos/effect-smol` + Graphiti groups as truth. Include context-budget sections in `HANDOFF_P1.md`.
+Use `.repos/effect-v4` + Graphiti groups as truth. Include context-budget sections in `HANDOFF_P1.md`.
 
 ## Prompt: P1 Orchestrator (Harness Hardening)
 

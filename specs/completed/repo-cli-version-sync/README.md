@@ -107,7 +107,7 @@ All edits MUST be **comment-preserving**. No file format round-trip may strip co
 ### Library Rationale
 
 - **`jsonc-parser`**: Already used in `config-updater.ts` for JSONC-safe root config updates. Proven pattern. No new dependency.
-- **`yaml` (eemeli/yaml)**: The de facto standard YAML library for JS. Comment preservation is a headline feature via Document API. Zero dependencies, pure JS, Bun-compatible. Already a peer dependency of Effect v4 (`yaml@^2.8.2` in `.repos/effect-smol/packages/effect/package.json`). 80M+ weekly downloads.
+- **`yaml` (eemeli/yaml)**: The de facto standard YAML library for JS. Comment preservation is a headline feature via Document API. Zero dependencies, pure JS, Bun-compatible. Already a peer dependency of Effect v4 (`yaml@^2.8.2` in `.repos/effect-v4/packages/effect/package.json`). 80M+ weekly downloads.
 
 ### Rejected Alternatives
 

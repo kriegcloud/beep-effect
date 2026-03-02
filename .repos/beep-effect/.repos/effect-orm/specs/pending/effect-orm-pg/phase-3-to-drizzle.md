@@ -47,8 +47,8 @@ Read these files to understand the full context. Read them IN ORDER.
 8. `.repos/drizzle-orm/drizzle-orm/src/pg-core/columns/varchar.ts` -- Length + enum config example
 
 **Effect v4 Schema AST (reference):**
-9. `.repos/effect-smol/packages/effect/src/SchemaAST.ts` -- AST node types. Key types: `Union` (has `.types` array), `Null`, `Undefined`, `Void`, `Suspend` (has `.thunk()`), `Objects` (has `.propertySignatures`), `Base` (has `.encoding`, `.context`)
-10. `.repos/effect-smol/packages/effect/src/Schema.ts` -- `NullOr`, `UndefinedOr`, `NullishOr`, `optional`, `optionalKey` constructors. These produce Union AST nodes containing Null/Undefined members.
+9. `.repos/effect-v4/packages/effect/src/SchemaAST.ts` -- AST node types. Key types: `Union` (has `.types` array), `Null`, `Undefined`, `Void`, `Suspend` (has `.thunk()`), `Objects` (has `.propertySignatures`), `Base` (has `.encoding`, `.context`)
+10. `.repos/effect-v4/packages/effect/src/Schema.ts` -- `NullOr`, `UndefinedOr`, `NullishOr`, `optional`, `optionalKey` constructors. These produce Union AST nodes containing Null/Undefined members.
 
 **Prior art (reference):**
 11. `.repos/beep-effect/packages/common/schema/src/integrations/sql/dsl/nullability.ts` -- v3 `isNullable()` implementation. NOTE: v4 AST tags differ (e.g., no `Refinement`, no `Transformation` -- see Step 2).
@@ -85,7 +85,7 @@ Read these files to understand the full context. Read them IN ORDER.
 
 ### v4 AST Node Types
 
-The AST type is defined in `.repos/effect-smol/packages/effect/src/SchemaAST.ts`:
+The AST type is defined in `.repos/effect-v4/packages/effect/src/SchemaAST.ts`:
 
 ```typescript
 type AST =
@@ -938,8 +938,8 @@ The existing `drizzle-proof.test.ts` and any Phase 1/2 tests must continue to pa
 | `.repos/drizzle-orm/drizzle-orm/src/pg-core/columns/timestamp.ts` | Config forwarding reference |
 | `.repos/drizzle-orm/drizzle-orm/src/pg-core/columns/enum.ts` | `pgEnum()` factory reference |
 | `.repos/drizzle-orm/drizzle-orm/src/pg-core/columns/varchar.ts` | Length + enum config reference |
-| `.repos/effect-smol/packages/effect/src/SchemaAST.ts` | v4 AST node types |
-| `.repos/effect-smol/packages/effect/src/Schema.ts` | `NullOr`, `optional`, `UndefinedOr` |
+| `.repos/effect-v4/packages/effect/src/SchemaAST.ts` | v4 AST node types |
+| `.repos/effect-v4/packages/effect/src/Schema.ts` | `NullOr`, `optional`, `UndefinedOr` |
 | `.repos/beep-effect/.../nullability.ts` | v3 nullability reference (adapt for v4) |
 | `.repos/beep-effect/.../adapters/drizzle.ts` | v3 toDrizzle reference |
 | `specs/pending/effect-orm/DESIGN.md` | Authoritative design document |

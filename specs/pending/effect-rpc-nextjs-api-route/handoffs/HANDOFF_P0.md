@@ -7,14 +7,14 @@ Produce source-backed research that removes all API ambiguity before design.
 ## Inputs
 
 - [README.md](../README.md)
-- [HttpEffect.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/http/HttpEffect.ts)
-- [Rpc.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/Rpc.ts)
-- [RpcGroup.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcGroup.ts)
-- [RpcServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcServer.ts)
-- [RpcClient.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcClient.ts)
-- [RpcSerialization.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/src/unstable/rpc/RpcSerialization.ts)
-- [McpServer.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/test/unstable/ai/McpServer.test.ts)
-- [HttpEffect.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-smol/packages/effect/test/unstable/http/HttpEffect.test.ts)
+- [HttpEffect.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/http/HttpEffect.ts)
+- [Rpc.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/Rpc.ts)
+- [RpcGroup.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcGroup.ts)
+- [RpcServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcServer.ts)
+- [RpcClient.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcClient.ts)
+- [RpcSerialization.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/rpc/RpcSerialization.ts)
+- [McpServer.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/test/unstable/ai/McpServer.test.ts)
+- [HttpEffect.test.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/test/unstable/http/HttpEffect.test.ts)
 - [apps/web chat route](/home/elpresidank/YeeBois/projects/beep-effect3/apps/web/src/app/api/chat/route.ts)
 
 ## Required Work

@@ -71,7 +71,7 @@ Railway Project (~$8-10/mo) — provisioned via SST IaC (infra/railway.ts)
 - **Total:** 2,155 episodes already processed into the graph
 - Existing Next.js app scaffold at `apps/web`
 - Effect v4 packages in repo catalog (`effect`, `@effect/ai-openai`, `@effect/atom-react`)
-- `.repos/effect-smol` as v4 API source of truth
+- `.repos/effect-v4` as v4 API source of truth
 
 ## Non-Goals
 
@@ -388,7 +388,7 @@ OPENAI_MODEL=                    # Default: gpt-4o-mini
 
 ## Key Technology Reference
 
-### Effect v4 AI Package (source: `.repos/effect-smol`)
+### Effect v4 AI Package (source: `.repos/effect-v4`)
 
 **Imports:** `import { Tool, Toolkit, LanguageModel, McpServer } from "effect/unstable/ai"`
 
@@ -413,7 +413,7 @@ LanguageModel.generateText({ prompt, toolkit, toolChoice: "auto" })
   .pipe(Effect.provide(OpenAiLanguageModel.model("gpt-4o-mini")), Effect.provide(toolsLayer))
 ```
 
-### Effect v4 HTTP (source: `.repos/effect-smol`)
+### Effect v4 HTTP (source: `.repos/effect-v4`)
 
 **Imports:** `import { HttpRouter } from "effect/unstable/http"`
 
@@ -424,7 +424,7 @@ export const GET = handler
 export const POST = handler
 ```
 
-### Effect Atom + React (source: `.repos/effect-smol`)
+### Effect Atom + React (source: `.repos/effect-v4`)
 
 **Imports:**
 ```
@@ -528,7 +528,7 @@ Total:              56.5  -> Medium complexity
 | OpenAI API key | External | Available (1Password `beep-ai/AI_OPENAI_API_KEY`) |
 | Vercel project (Hobby plan + Fluid compute) | External | Deployed via SST IaC (`infra/web.ts`) |
 | Effect v4 packages (`effect`, `@effect/ai-openai`, `@effect/atom-react`) | Local | In repo catalog |
-| `.repos/effect-smol` | Local | Cloned |
+| `.repos/effect-v4` | Local | Cloned |
 | FalkorDB RDB dump (`~/graphiti-mcp/data/dump.rdb`) | Local | Available (70MB) |
 | Graphiti Docker image (`zepai/knowledge-graph-mcp`) | External | In use locally |
 | react-force-graph-2d | External | npm install |

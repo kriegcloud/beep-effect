@@ -12,7 +12,7 @@ You will implement a **from-scratch** monorepo utilities package following Effec
 
 **Critical Requirements:**
 - ✅ DO NOT reference legacy code at `.repos/beep-effect/tooling/utils`
-- ✅ DO follow effect-smol patterns from `.repos/effect-smol/packages/effect`
+- ✅ DO follow effect-smol patterns from `.repos/effect-v4/packages/effect`
 - ✅ DO use Effect v4 APIs exclusively
 - ✅ DO write comprehensive tests with @effect/vitest
 - ✅ DO document everything with @since tags and JSDoc
@@ -30,7 +30,7 @@ You will implement a **from-scratch** monorepo utilities package following Effec
 
 **Reference Examples:**
 - `tooling/cli/` - Example package following our standards
-- `.repos/effect-smol/packages/effect/` - Effect v4 patterns to follow
+- `.repos/effect-v4/packages/effect/` - Effect v4 patterns to follow
 
 ### 2. Repository Standards
 
@@ -844,7 +844,7 @@ const content = yield* fs.readFileString(path) // ✅ Platform-agnostic!
 ## Questions to Ask if Stuck
 
 1. **"How does effect-smol implement similar functionality?"**
-   - Look at `.repos/effect-smol/packages/effect/` for patterns
+   - Look at `.repos/effect-v4/packages/effect/` for patterns
 
 2. **"What does the test error actually mean?"**
    - Read the error message carefully
