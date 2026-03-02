@@ -46,14 +46,14 @@ export interface ASTSignal {
  * @category DomainModel
  */
 export type ArchitecturalLayer =
-  | "domain-entity"
-  | "use-case"
-  | "interface-adapter"
-  | "framework-driver"
-  | "port"
-  | "adapter"
-  | "core"
-  | "cross-cutting";
+  | "DomainEntity"
+  | "UseCase"
+  | "InterfaceAdapter"
+  | "FrameworkDriver"
+  | "Port"
+  | "Adapter"
+  | "Core"
+  | "CrossCutting";
 
 /**
  * Dependency direction profile. Used to validate classifications:
@@ -236,7 +236,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Identity",
-    architecturalLayers: ["domain-entity", "core"],
+    architecturalLayers: ["DomainEntity", "Core"],
     purity: "pure",
     adjacentCategories: [
       "DomainLogic",
@@ -298,7 +298,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Either",
-    architecturalLayers: ["core"],
+    architecturalLayers: ["Core"],
     purity: "pure",
     adjacentCategories: ["DomainModel", "UseCase", "Validation", "Utility"],
     typicalImportPatterns: ["**/domain/**/*.ts", "**/policies/**/*.ts", "**/rules/**/*.ts"],
@@ -308,7 +308,7 @@ export const CATEGORY_TAXONOMY = [
   {
     _tag: "PortContract",
     definition:
-      "Abstract capability contracts that define how core and use-case logic talks to external dependencies.",
+      "Abstract capability contracts that define how core and UseCase logic talks to external dependencies.",
     classificationGuidance:
       "Assign PortContract to interfaces and type contracts describing repositories, gateways, or service boundaries with no concrete implementation details. If the symbol includes concrete persistence or API client logic, use DataAccess or Integration instead. If it orchestrates work using ports, use UseCase.",
     examples: [
@@ -353,7 +353,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Reader",
-    architecturalLayers: ["port", "interface-adapter"],
+    architecturalLayers: ["Port", "InterfaceAdapter"],
     purity: "pure",
     adjacentCategories: ["UseCase", "DataAccess", "Integration"],
     typicalImportPatterns: ["**/*Port.ts", "**/*Repository.ts", "**/*Gateway.ts"],
@@ -396,7 +396,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Either",
-    architecturalLayers: ["interface-adapter", "cross-cutting"],
+    architecturalLayers: ["InterfaceAdapter", "CrossCutting"],
     purity: "mixed",
     adjacentCategories: ["DomainModel", "UseCase", "Presentation"],
     typicalImportPatterns: [
@@ -445,7 +445,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Identity",
-    architecturalLayers: ["core", "cross-cutting"],
+    architecturalLayers: ["Core", "CrossCutting"],
     purity: "pure",
     adjacentCategories: ["DomainLogic", "DomainModel", "CrossCutting"],
     typicalImportPatterns: ["**/utils.ts", "**/helpers.ts", "**/lib/**/*.ts"],
@@ -488,7 +488,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "ReaderTaskEither",
-    architecturalLayers: ["use-case"],
+    architecturalLayers: ["UseCase"],
     purity: "mixed",
     adjacentCategories: ["PortContract", "DomainLogic", "Presentation", "Integration", "DataAccess"],
     typicalImportPatterns: ["**/*UseCase.ts", "**/*Handler.ts", "**/application/**/*.ts"],
@@ -500,7 +500,7 @@ export const CATEGORY_TAXONOMY = [
     definition:
       "Transport and UI surface code that handles requests, responses, rendering, and interaction flow.",
     classificationGuidance:
-      "Classify as Presentation for React components, route handlers, controllers, page modules, and HTTP adapters that convert external requests to internal use-case calls and map outputs back to transport formats. If the symbol is mostly schema parsing use Validation. If it is external service client wiring use Integration.",
+      "Classify as Presentation for React components, route handlers, controllers, page modules, and HTTP adapters that convert external requests to internal UseCase calls and map outputs back to transport formats. If the symbol is mostly schema parsing use Validation. If it is external service client wiring use Integration.",
     examples: [
       "export async function GET(request: NextRequest) { ... }",
       "export default function SignInPage() { return <Suspense fallback={null}>...</Suspense> }",
@@ -538,7 +538,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "IO",
-    architecturalLayers: ["interface-adapter", "framework-driver"],
+    architecturalLayers: ["InterfaceAdapter", "FrameworkDriver"],
     purity: "effectful",
     adjacentCategories: ["UseCase", "Validation", "Integration", "Configuration"],
     typicalImportPatterns: ["next/*", "react*", "**/app/**/page.tsx", "**/api/**/route.ts"],
@@ -581,7 +581,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "State",
-    architecturalLayers: ["adapter", "framework-driver"],
+    architecturalLayers: ["Adapter", "FrameworkDriver"],
     purity: "effectful",
     adjacentCategories: ["PortContract", "UseCase", "Integration", "Configuration"],
     typicalImportPatterns: ["drizzle-orm*", "prisma*", "**/db/**/*.ts", "**/repository/**/*.ts"],
@@ -624,7 +624,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "IO",
-    architecturalLayers: ["adapter", "framework-driver"],
+    architecturalLayers: ["Adapter", "FrameworkDriver"],
     purity: "effectful",
     adjacentCategories: ["UseCase", "Presentation", "DataAccess", "Configuration"],
     typicalImportPatterns: ["openai*", "stripe*", "@aws-sdk/*", "**/client.ts", "**/gateway/**/*.ts"],
@@ -667,7 +667,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Reader",
-    architecturalLayers: ["framework-driver", "cross-cutting"],
+    architecturalLayers: ["FrameworkDriver", "CrossCutting"],
     purity: "mixed",
     adjacentCategories: ["Integration", "DataAccess", "Presentation", "CrossCutting"],
     typicalImportPatterns: ["**/config/**/*.ts", "**/*Config.ts", "**/*Settings.ts", "**/env/**/*.ts"],
@@ -710,7 +710,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: "Writer",
-    architecturalLayers: ["cross-cutting"],
+    architecturalLayers: ["CrossCutting"],
     purity: "mixed",
     adjacentCategories: ["Configuration", "Utility", "Presentation", "UseCase"],
     typicalImportPatterns: ["**/middleware/**/*.ts", "**/logger/**/*.ts", "**/auth/**/*.ts", "**/metrics/**/*.ts"],
@@ -745,7 +745,7 @@ export const CATEGORY_TAXONOMY = [
       },
     ],
     effectAnalog: null,
-    architecturalLayers: ["cross-cutting"],
+    architecturalLayers: ["CrossCutting"],
     purity: "mixed",
     adjacentCategories: [
       "DomainModel",
