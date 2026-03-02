@@ -6108,10 +6108,10 @@ You can also extend the available annotations by adding your own in a module dec
 **Example** (Adding a custom annotation for versioning)
 
 ```ts
-import { Schema, SchemaAnnotations } from "effect"
+import { Schema } from "effect"
 
 // Extend the Annotations interface with a custom `version` annotation
-declare module "effect/SchemaAnnotations" {
+declare module "effect/Schema" {
   interface Annotations {
     readonly version?: readonly [major: number, minor: number, patch: number] | undefined
   }
@@ -6121,7 +6121,7 @@ declare module "effect/SchemaAnnotations" {
 const schema = Schema.String.annotate({ version: [1, 2, 0] })
 
 // const version: readonly [major: number, minor: number, patch: number] | undefined
-const version = SchemaAnnotations.resolveInto(schema)?.["version"]
+const version = Schema.resolveInto(schema)?.["version"]
 
 if (version) {
   // Access individual parts of the version

@@ -15,16 +15,6 @@ import { TagParameters } from "./TagParameters.model.js";
 const $I = $RepoUtilsId.create("JSDoc/models/JSDocTagDefinition.model");
 
 /**
- * Annotations for a single JSDoc/TSDoc tag.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export class JSDocTagDefinitionAnnotations extends S.Class<JSDocTagDefinitionAnnotations>(
-  $I`JSDocTagDefinitionAnnotations`
-)({}) {}
-
-/**
  * Complete metadata for a single JSDoc/TSDoc tag.
  * Designed as a discriminated union member via `_tag`.
  *
