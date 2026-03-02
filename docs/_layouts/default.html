@@ -1,0 +1,159 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ site.title | default: site.github.repository_name }} - {{ page.title }}</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ 'assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <!--
+    <link rel="stylesheet" href="{{ 'assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <link rel="stylesheet" href="{{ 'assets/css/custom-style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="{{ '/assets/js/main.js' | relative_url }}"></script>-->
+</head>
+<body>
+    <div class="main">
+        <header class="container">
+            <div class="row">
+                <h1 onclick="document.location.href = '{{ "/" | prepend: site.baseurl }}'" class="headerLink">{{ site.title | default: site.github.repository_name }}</h1>
+                <!--<p class="subText">{{ site.description | default: site.github.project_tagline }}</p>-->
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <nav class="sidebar-nav" id="navbarSupportedContent">
+                        <ul class="navbar-nav navbar-default">
+                            <li class="nav-item{% if page.path == 'index.md' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/" | prepend: site.baseurl }}">Overview</a>
+                            </li>
+                            <li class="nav-item{% if page.dir == '/setup/' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/setup" | prepend: site.baseurl }}">Setup</a>
+                                {% if page.dir == '/setup/' %}
+                                <ul>
+                                    <li class="{% if page.path == 'setup/index.md' %}active{% endif %}"><a href="{{ "/setup/index" | prepend: site.baseurl }}">Instantiating</a></li>
+                                    <li class="{% if page.path == 'setup/adding-source-files.md' %}active{% endif %}"><a href="{{ "/setup/adding-source-files" | prepend: site.baseurl }}">Adding Source Files</a></li>
+                                    <li class="{% if page.path == 'setup/diagnostics.md' %}active{% endif %}"><a href="{{ "/setup/diagnostics" | prepend: site.baseurl }}">Diagnostics</a></li>
+                                    <li class="{% if page.path == 'setup/file-system.md' %}active{% endif %}"><a href="{{ "/setup/file-system" | prepend: site.baseurl }}">File System</a></li>
+                                    <li class="{% if page.path == 'setup/ast-viewers.md' %}active{% endif %}"><a href="{{ "/setup/ast-viewers" | prepend: site.baseurl }}">AST Viewers</a></li>
+                                </ul>
+                                {% endif %}
+                            </li>
+                            <li class="nav-item{% if page.dir == '/navigation/' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/navigation" | prepend: site.baseurl }}">Navigation</a>
+                                {% if page.dir == '/navigation/' %}
+                                <ul>
+                                    <li class="{% if page.path == 'navigation/getting-source-files.md' %}active{% endif %}"><a href="{{ "/navigation/getting-source-files" | prepend: site.baseurl }}">Getting Source Files</a></li>
+                                    <li class="{% if page.path == 'navigation/directories.md' %}active{% endif %}"><a href="{{ "/navigation/directories" | prepend: site.baseurl }}">Directories</a></li>
+                                    <li class="{% if page.path == 'navigation/example.md' %}active{% endif %}"><a href="{{ "/navigation/example" | prepend: site.baseurl }}">Example</a></li>
+                                    <li class="{% if page.path == 'navigation/compiler-nodes.md' %}active{% endif %}"><a href="{{ "/navigation/compiler-nodes" | prepend: site.baseurl }}">Compiler Nodes</a></li>
+                                    <li class="{% if page.path == 'navigation/finding-references.md' %}active{% endif %}"><a href="{{ "/navigation/finding-references" | prepend: site.baseurl }}">Finding References</a></li>
+                                    <li class="{% if page.path == 'navigation/language-service.md' %}active{% endif %}"><a href="{{ "/navigation/language-service" | prepend: site.baseurl }}">Language Service</a></li>
+                                    <li class="{% if page.path == 'navigation/program.md' %}active{% endif %}"><a href="{{ "/navigation/program" | prepend: site.baseurl }}">Program</a></li>
+                                    <li class="{% if page.path == 'navigation/type-checker.md' %}active{% endif %}"><a href="{{ "/navigation/type-checker" | prepend: site.baseurl }}">Type Checker</a></li>
+                                    <li class="{% if page.path == 'navigation/ambient-modules.md' %}active{% endif %}"><a href="{{ "/navigation/ambient-modules" | prepend: site.baseurl }}">Ambient Modules</a></li>
+                                </ul>
+                                {% endif %}
+                            </li>
+                            <li class="nav-item{% if page.dir == '/manipulation/' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/manipulation" | prepend: site.baseurl }}">Manipulation</a>
+                                {% if page.dir == '/manipulation/' %}
+                                <ul>
+                                    <li class="{% if page.path == 'manipulation/settings.md' %}active{% endif %}"><a href="{{ "/manipulation/settings" | prepend: site.baseurl }}">Settings</a></li>
+                                    <li class="{% if page.path == 'manipulation/renaming.md' %}active{% endif %}"><a href="{{ "/manipulation/renaming" | prepend: site.baseurl }}">Renaming</a></li>
+                                    <li class="{% if page.path == 'manipulation/removing.md' %}active{% endif %}"><a href="{{ "/manipulation/removing" | prepend: site.baseurl }}">Removing</a></li>
+                                    <li class="{% if page.path == 'manipulation/structures.md' %}active{% endif %}"><a href="{{ "/manipulation/structures" | prepend: site.baseurl }}">Structures</a></li>
+                                    <li class="{% if page.path == 'manipulation/formatting.md' %}active{% endif %}"><a href="{{ "/manipulation/formatting" | prepend: site.baseurl }}">Formatting</a></li>
+                                    <li class="{% if page.path == 'manipulation/order.md' %}active{% endif %}"><a href="{{ "/manipulation/order" | prepend: site.baseurl }}">Order</a></li>
+                                    <li class="{% if page.path == 'manipulation/code-writer.md' %}active{% endif %}"><a href="{{ "/manipulation/code-writer" | prepend: site.baseurl }}">Code Writer</a></li>
+                                    <li class="{% if page.path == 'manipulation/performance.md' %}active{% endif %}"><a href="{{ "/manipulation/performance" | prepend: site.baseurl }}">Performance</a></li>
+                                    <li class="{% if page.path == 'manipulation/transforms.md' %}active{% endif %}"><a href="{{ "/manipulation/transforms" | prepend: site.baseurl }}">Transforms</a></li>
+                                </ul>
+                                {% endif %}
+                            </li>
+                            <li class="nav-item{% if page.path == 'emitting.md' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/emitting" | prepend: site.baseurl }}">Emitting</a>
+                            </li>
+                            <li class="{% if page.path == 'details/index.md' %}active{% endif %}">
+                                <a class="nav-link" href="{{ "/details/index" | prepend: site.baseurl }}">Details</a>
+                                {% if page.dir == '/details/' %}
+                                <ul>
+                                    <li class="{% if page.path == 'details/source-files.md' %}active{% endif %}"><a href="{{ "/details/source-files" | prepend: site.baseurl }}">Source Files</a></li>
+                                    <li class="{% if page.path == 'details/classes.md' %}active{% endif %}"><a href="{{ "/details/classes" | prepend: site.baseurl }}">Classes</a></li>
+                                    <li class="{% if page.path == 'details/decorators.md' %}active{% endif %}"><a href="{{ "/details/decorators" | prepend: site.baseurl }}">Decorators</a></li>
+                                    <li class="{% if page.path == 'details/enums.md' %}active{% endif %}"><a href="{{ "/details/enums" | prepend: site.baseurl }}">Enums</a></li>
+                                    <li class="{% if page.path == 'details/functions.md' %}active{% endif %}"><a href="{{ "/details/functions" | prepend: site.baseurl }}">Functions</a></li>
+                                    <li class="{% if page.path == 'details/imports.md' %}active{% endif %}"><a href="{{ "/details/imports" | prepend: site.baseurl }}">Imports</a></li>
+                                    <li class="{% if page.path == 'details/interfaces.md' %}active{% endif %}"><a href="{{ "/details/interfaces" | prepend: site.baseurl }}">Interfaces</a></li>
+                                    <li class="{% if page.path == 'details/modules.md' %}active{% endif %}"><a href="{{ "/details/modules" | prepend: site.baseurl }}">Modules</a></li>
+                                    <li class="{% if page.path == 'details/parameters.md' %}active{% endif %}"><a href="{{ "/details/parameters" | prepend: site.baseurl }}">Parameters</a></li>
+                                    <li class="{% if page.path == 'details/type-parameters.md' %}active{% endif %}"><a href="{{ "/details/type-parameters" | prepend: site.baseurl }}">Type Parameters</a></li>
+                                    <li class="{% if page.path == 'details/type-aliases.md' %}active{% endif %}"><a href="{{ "/details/type-aliases" | prepend: site.baseurl }}">Type Aliases</a></li>
+                                    <li class="{% if page.path == 'details/variables.md' %}active{% endif %}"><a href="{{ "/details/variables" | prepend: site.baseurl }}">Variables</a></li>
+                                    <li>--</li>
+                                    <li class="{% if page.path == 'details/types.md' %}active{% endif %}"><a href="{{ "/details/types" | prepend: site.baseurl }}">Types</a></li>
+                                    <li class="{% if page.path == 'details/signatures.md' %}active{% endif %}"><a href="{{ "/details/signatures" | prepend: site.baseurl }}">Signatures</a></li>
+                                    <li>--</li>
+                                    <li class="{% if page.path == 'details/expressions.md' %}active{% endif %}"><a href="{{ "/details/expressions" | prepend: site.baseurl }}">Expressions</a></li>
+                                    <li class="{% if page.path == 'details/object-literal-expressions.md' %}active{% endif %}"><a href="{{ "/details/object-literal-expressions" | prepend: site.baseurl }}">Object Literal Expressions</a></li>
+                                    <li class="{% if page.path == 'details/identifiers.md' %}active{% endif %}"><a href="{{ "/details/identifiers" | prepend: site.baseurl }}">Identifiers</a></li>
+                                    <li class="{% if page.path == 'details/ambient.md' %}active{% endif %}"><a href="{{ "/details/ambient" | prepend: site.baseurl }}">Ambient</a></li>
+                                    <li class="{% if page.path == 'details/async.md' %}active{% endif %}"><a href="{{ "/details/async" | prepend: site.baseurl }}">Async</a></li>
+                                    <li class="{% if page.path == 'details/exports.md' %}active{% endif %}"><a href="{{ "/details/exports" | prepend: site.baseurl }}">Exports</a></li>
+                                    <li class="{% if page.path == 'details/generators.md' %}active{% endif %}"><a href="{{ "/details/generators" | prepend: site.baseurl }}">Generators</a></li>
+                                    <li class="{% if page.path == 'details/initializers.md' %}active{% endif %}"><a href="{{ "/details/initializers" | prepend: site.baseurl }}">Initializers</a></li>
+                                    <li class="{% if page.path == 'details/documentation.md' %}active{% endif %}"><a href="{{ "/details/documentation" | prepend: site.baseurl }}">JS Docs</a></li>
+                                    <li class="{% if page.path == 'details/literals.md' %}active{% endif %}"><a href="{{ "/details/literals" | prepend: site.baseurl }}">Literals</a></li>
+                                    <li class="{% if page.path == 'details/modifiers.md' %}active{% endif %}"><a href="{{ "/details/modifiers" | prepend: site.baseurl }}">Modifiers</a></li>
+                                    <li class="{% if page.path == 'details/comments.md' %}active{% endif %}"><a href="{{ "/details/comments" | prepend: site.baseurl }}">Comments</a></li>
+                                </ul>
+                                {% endif %}
+                            </li>
+                            <li class="nav-item{% if page.path == 'utilities.md' %} active{% endif %}">
+                                <a class="nav-link" href="{{ "/utilities" | prepend: site.baseurl }}">Utilities</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ site.github.repository_url }}">View on GitHub</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <section class="container-fluid col-md-9">
+                    {{ content }}
+                </section>
+            </div>
+        </div>
+
+        <footer>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script>
+        $('h1, h2, h3, h4, h5, h6').filter('[id]').each(function () {
+            const a = $('<a/>').attr('href', '#' + this.id).text(this.textContent);
+            $(this).empty().append(a);
+        })
+    </script>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    {% if site.google_analytics %}
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', '{{ site.google_analytics }}', 'auto');
+        ga('send', 'pageview');
+    </script>
+    {% endif %}
+</body>
+</html>

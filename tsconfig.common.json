@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "CommonJS",
+    "strict": true,
+    "sourceMap": false,
+    "removeComments": false,
+    "experimentalDecorators": false,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "newLine": "lf",
+    "importHelpers": false
+  },
+  "compileOnSave": false
+}

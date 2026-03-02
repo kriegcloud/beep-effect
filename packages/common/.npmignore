@@ -1,0 +1,11 @@
+/.vscode
+/scripts
+/src
+/dist-deno
+.mocharc.yml
+.npmignore
+CHANGELOG.md
+rollup.config.mjs
+tsconfig.json
+tsconfig.*.json
+yarn-error.log

@@ -1,0 +1,30 @@
+{
+  "name": "@ts-morph/main",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Main github repo for ts-morph packages.",
+  "scripts": {
+    "setup": "deno install && deno task build",
+    "build": "cd packages && deno task --cwd common build && deno task --cwd bootstrap build && deno task --cwd ts-morph build",
+    "build:deno": "cd packages && deno task --cwd common build:deno && deno task --cwd bootstrap build:deno && deno task --cwd ts-morph build:deno",
+    "format": "dprint fmt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsherret/ts-morph.git"
+  },
+  "author": "David Sherret",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dsherret/ts-morph/issues"
+  },
+  "homepage": "https://github.com/dsherret/ts-morph#readme",
+  "workspaces": [
+    "packages/common",
+    "packages/bootstrap",
+    "packages/ts-morph"
+  ],
+  "devDependencies": {
+    "dprint": "^0.50.1"
+  }
+}
