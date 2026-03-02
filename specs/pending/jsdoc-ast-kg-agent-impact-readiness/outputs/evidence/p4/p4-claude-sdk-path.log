@@ -1,6 +1,0 @@
-tooling/agent-eval/package.json:21:    "@beep/ai-sdk": "workspace:^",
-tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts:2: * Claude execution adapter routed through @beep/ai-sdk runtime.
-tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts:8:import { run } from "@beep/ai-sdk";
-tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts:9:import type { Options } from "@beep/ai-sdk/Schema/Options";
-tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts:92:      message: "Claude @beep/ai-sdk execution requires ANTHROPIC_API_KEY/API_KEY or CLAUDE_CODE_SESSION_ACCESS_TOKEN.",
-tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts:168:    commandDescription: `@beep/ai-sdk run model=${request.model}`,

@@ -2,7 +2,7 @@
 
 ## Status
 
-PENDING
+COMPLETED on 2026-03-02.
 
 ## Owner
 
@@ -14,7 +14,7 @@ PENDING
 
 ## Updated
 
-2026-02-28
+2026-03-02
 
 ## Quick Navigation
 
@@ -113,13 +113,13 @@ When these artifacts disagree with assumptions, this spec must follow the artifa
 
 ## Success Criteria
 
-- [ ] PRE phase completes with explicit modularization map for `kg.ts` and SDK integration plan for Claude backend.
-- [ ] Gate thresholds are frozen before implementation claims in P0+.
-- [ ] Labeled task/evaluation dataset is defined and versioned.
-- [ ] Retrieval reliability budget is measured and enforced (`facts` timeout budget, fallback behavior).
-- [ ] Semantic coverage and quality are measured on scoped modules.
-- [ ] Live ablation benchmark includes all four retrieval modes.
-- [ ] Promotion decision includes explicit pass/fail against every gate.
+- [x] PRE phase completes with explicit modularization map for `kg.ts` and SDK integration plan for Claude backend.
+- [x] Gate thresholds are frozen before implementation claims in P0+.
+- [x] Labeled task/evaluation dataset is defined and versioned.
+- [x] Retrieval reliability budget is measured and enforced (`facts` timeout budget, fallback behavior).
+- [x] Semantic coverage and quality are measured on scoped modules.
+- [x] Live ablation benchmark includes all four retrieval modes.
+- [x] Promotion decision includes explicit pass/fail against every gate.
 
 ## Risks and Mitigations
 

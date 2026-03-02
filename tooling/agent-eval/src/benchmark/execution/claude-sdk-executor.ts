@@ -10,23 +10,12 @@ import type { Options } from "@beep/ai-sdk/Schema/Options";
 import { AgentEvalInvariantError } from "../../errors.js";
 import type { ExecutionRequest, ExecutionResult, SdkAvailability } from "./types.js";
 
-interface ClaudeQuery extends AsyncGenerator<unknown, void> {
-  close(): void;
-}
-
-interface ClaudeSdkModule {
-  query(params: { readonly prompt: string; readonly options?: Record<string, unknown> }): ClaudeQuery;
-}
-
 const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
 const isString = (value: unknown): value is string => typeof value === "string";
 
 const isNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
-
-const isClaudeSdkModule = (value: unknown): value is ClaudeSdkModule =>
-  isObjectRecord(value) && typeof value.query === "function";
 
 const causeMessage = (cause: unknown): string => {
   if (isObjectRecord(cause) && isString(cause.message)) {
@@ -50,21 +39,13 @@ const missingCredentialsMessage = "Missing API credentials";
 
 const containsMissingCredentialsMessage = (value: string): boolean => value.includes(missingCredentialsMessage);
 
-const shouldFallbackToLegacy = (result: ExecutionResult): boolean =>
+const claudeCredentialsRequiredMessage =
+  "Claude @beep/ai-sdk execution requires ANTHROPIC_API_KEY/API_KEY or CLAUDE_CODE_SESSION_ACCESS_TOKEN.";
+
+const hasMissingCredentialSignals = (result: ExecutionResult): boolean =>
   containsMissingCredentialsMessage(result.stderr) ||
   containsMissingCredentialsMessage(result.stdout) ||
   containsMissingCredentialsMessage(result.assistantText);
-
-const loadLegacyClaudeSdkModule = async (): Promise<ClaudeSdkModule> => {
-  const loaded = await import("@anthropic-ai/claude-agent-sdk");
-  if (isClaudeSdkModule(loaded)) {
-    return loaded;
-  }
-
-  throw new AgentEvalInvariantError({
-    message: "Loaded @anthropic-ai/claude-agent-sdk but missing query function.",
-  });
-};
 
 const stringifyEvent = (event: unknown): string => {
   try {
@@ -165,179 +146,55 @@ const runBeepClaudeSdkExecution = async (request: ExecutionRequest): Promise<Exe
   };
 };
 
-const runLegacyClaudeSdkExecution = async (
-  request: ExecutionRequest,
-  fallbackReason: string
-): Promise<ExecutionResult> => {
-  const module = await loadLegacyClaudeSdkModule();
-  const abortController = new AbortController();
-  const timeoutMs = resolveTimeoutMs(request);
-
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    abortController.abort();
-  }, timeoutMs);
-
-  const stdoutLines: Array<string> = [];
-  const stderrLines: Array<string> = [];
-
-  let inputTokens = 0;
-  let outputTokens = 0;
-  let costUsd: number | null = null;
-  let assistantText = "";
-  let completionObserved = false;
-  let successResultObserved = false;
-
-  const options: Record<string, unknown> = {
-    cwd: request.cwd,
-    model: request.model,
-    includePartialMessages: true,
-    permissionMode: "bypassPermissions",
-    allowDangerouslySkipPermissions: true,
-    settingSources: ["project", "local", "user"],
-    abortController,
-    stderr: (data: string) => {
-      stderrLines.push(data);
-    },
-  };
-  if (request.claudeEffort !== undefined) {
-    options.effort = request.claudeEffort;
-  }
-
-  const query = module.query({
-    prompt: request.promptPacket,
-    options,
-  });
-
-  try {
-    for await (const event of query) {
-      stdoutLines.push(stringifyEvent(event));
-      if (!isObjectRecord(event)) {
-        continue;
-      }
-
-      if (event.type !== "result") {
-        continue;
-      }
-
-      completionObserved = true;
-      const subtype = event.subtype;
-      const isError = event.is_error;
-      if (subtype === "success" && isError !== true) {
-        successResultObserved = true;
-      }
-
-      const maybeResult = event.result;
-      if (isString(maybeResult)) {
-        assistantText = maybeResult;
-      }
-
-      const maybeCost = event.total_cost_usd;
-      if (isNumber(maybeCost)) {
-        costUsd = maybeCost;
-      }
-
-      const usage = event.usage;
-      if (isObjectRecord(usage)) {
-        const maybeInput = usage.input_tokens;
-        const maybeOutput = usage.output_tokens;
-        if (isNumber(maybeInput) && Number.isInteger(maybeInput)) {
-          inputTokens = maybeInput;
-        }
-        if (isNumber(maybeOutput) && Number.isInteger(maybeOutput)) {
-          outputTokens = maybeOutput;
-        }
-      }
-    }
-  } catch (cause) {
-    stderrLines.push(causeMessage(cause));
-  } finally {
-    clearTimeout(timer);
-    query.close();
-  }
-
-  const stdout = `${stdoutLines.join("\n")}${stdoutLines.length === 0 ? "" : "\n"}`;
-  const stderr = `${stderrLines.join("\n")}${stderrLines.length === 0 ? "" : "\n"}`;
-  const success = completionObserved && successResultObserved && !timedOut;
-
-  return {
-    backend: "sdk",
-    commandDescription: `claude-agent-sdk query model=${request.model}`,
-    success,
-    timedOut,
-    stdout,
-    stderr,
-    assistantText: assistantText.length === 0 ? stdout : assistantText,
-    inputTokens,
-    outputTokens,
-    costUsd,
-    completionObserved,
-    exitCode: null,
-    signal: null,
-    fallbackReason,
-  };
-};
-
 /**
- * Probe runtime availability of the Claude Agent SDK module.
+ * Probe runtime availability of the @beep/ai-sdk Claude execution path.
  *
  * @returns Availability status and unavailability reason when probing fails.
  * @domain agent-eval
  * @provides SdkAvailability
- * @depends ClaudeAgentSdk
+ * @depends BeepAiSdk
  * @errors none
  * @since 0.0.0
  * @category functions
  */
 export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => {
-  try {
-    if (hasAuthCredentials()) {
-      return {
-        available: true,
-        reason: null,
-      };
-    }
-
-    await loadLegacyClaudeSdkModule();
+  if (hasAuthCredentials()) {
     return {
       available: true,
       reason: null,
     };
-  } catch (cause) {
-    return {
-      available: false,
-      reason: causeMessage(cause),
-    };
   }
+
+  return {
+    available: false,
+    reason: claudeCredentialsRequiredMessage,
+  };
 };
 
 /**
- * Execute one run through the Claude Agent SDK.
+ * Execute one run through the @beep/ai-sdk Claude path.
  *
  * @param request - Normalized execution request.
  * @returns Normalized execution result compatible with runner contracts.
  * @domain agent-eval
  * @provides ExecutionResult
- * @depends ClaudeAgentSdk, AbortController
+ * @depends BeepAiSdk, AbortController
  * @errors none
  * @since 0.0.0
  * @category functions
  */
 export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<ExecutionResult> => {
   if (!hasAuthCredentials()) {
-    return runLegacyClaudeSdkExecution(
-      request,
-      "Fell back to @anthropic-ai/claude-agent-sdk because @beep/ai-sdk credentials are unavailable."
-    );
+    throw new AgentEvalInvariantError({
+      message: claudeCredentialsRequiredMessage,
+    });
   }
 
   const primaryResult = await runBeepClaudeSdkExecution(request);
-  if (shouldFallbackToLegacy(primaryResult)) {
-    return runLegacyClaudeSdkExecution(
-      request,
-      "Fell back to @anthropic-ai/claude-agent-sdk because @beep/ai-sdk reported missing API credentials."
-    );
+  if (hasMissingCredentialSignals(primaryResult)) {
+    throw new AgentEvalInvariantError({
+      message: claudeCredentialsRequiredMessage,
+    });
   }
 
   return primaryResult;

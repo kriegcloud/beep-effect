@@ -48,4 +48,11 @@ describe("architecture guardrails", () => {
     expect(source.includes("for (const agent of options.agents)")).toBe(false);
     expect(source.includes("for (let trial = 1; trial <= options.trials; trial += 1)")).toBe(false);
   });
+
+  it("claude benchmark executor does not import direct vendor sdk path", () => {
+    const executorPath = path.join(packageRoot, "src/benchmark/execution/claude-sdk-executor.ts");
+    const source = readFileSync(executorPath, "utf8");
+
+    expect(source.includes("@anthropic-ai/claude-agent-sdk")).toBe(false);
+  });
 });

@@ -1,8 +1,8 @@
 {
   "spec": "jsdoc-ast-kg-agent-impact-readiness",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-28",
-  "updated": "2026-02-28",
+  "updated": "2026-03-02",
   "phases": {
     "pre": {
       "name": "kg-cli-refactor-and-ai-sdk-integration",
@@ -11,7 +11,7 @@
     },
     "p0": {
       "name": "baseline-and-gate-freeze",
-      "status": "pending",
+      "status": "complete",
       "output": "p0-baseline-and-gates.md"
     },
     "p1": {

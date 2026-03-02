@@ -1,0 +1,8 @@
+$ rg -n '@anthropic-ai/claude-agent-sdk|@beep/ai-sdk' tooling/agent-eval/src/benchmark/execution/claude-sdk-executor.ts
+2: * Claude execution adapter routed through @beep/ai-sdk runtime.
+8:import { run } from "@beep/ai-sdk";
+9:import type { Options } from "@beep/ai-sdk/Schema/Options";
+43:  "Claude @beep/ai-sdk execution requires ANTHROPIC_API_KEY/API_KEY or CLAUDE_CODE_SESSION_ACCESS_TOKEN.";
+133:    commandDescription: `@beep/ai-sdk run model=${request.model}`,
+150: * Probe runtime availability of the @beep/ai-sdk Claude execution path.
+175: * Execute one run through the @beep/ai-sdk Claude path.
