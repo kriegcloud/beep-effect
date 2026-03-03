@@ -1,0 +1,30 @@
+[
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
+    "docId": "D04",
+    "section": "Tag definition model",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D05",
+    "section": "Phase contracts",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D07",
+    "section": "NLP modules",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
+    "docId": "D10",
+    "section": "Audit mapping",
+    "coverageType": "primary"
+  }
+]

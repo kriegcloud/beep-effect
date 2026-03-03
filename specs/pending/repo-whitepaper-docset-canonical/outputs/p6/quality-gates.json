@@ -1,0 +1,58 @@
+[
+  {
+    "phase": "P0",
+    "gateId": "P0-STRUCTURE",
+    "result": "pass",
+    "evidence": "Canonical file package created with required top-level artifacts.",
+    "blocker": false
+  },
+  {
+    "phase": "P1",
+    "gateId": "P1-COVERAGE",
+    "result": "blocked",
+    "evidence": "Baseline source index and fact ledger seeded; full harvest pending.",
+    "blocker": true
+  },
+  {
+    "phase": "P2",
+    "gateId": "P2-TERMINOLOGY",
+    "result": "blocked",
+    "evidence": "Term model created; conflict closure pending.",
+    "blocker": true
+  },
+  {
+    "phase": "P3",
+    "gateId": "P3-MANIFEST",
+    "result": "pass",
+    "evidence": "Manifest and blueprints created with D01-D12 descriptors.",
+    "blocker": false
+  },
+  {
+    "phase": "P4",
+    "gateId": "P4-CORE-DRAFTS",
+    "result": "blocked",
+    "evidence": "Document templates created; content drafting pending.",
+    "blocker": true
+  },
+  {
+    "phase": "P5",
+    "gateId": "P5-OPS-DRAFTS",
+    "result": "blocked",
+    "evidence": "Document templates created; content drafting pending.",
+    "blocker": true
+  },
+  {
+    "phase": "P6",
+    "gateId": "P6-QUALITY-CERTIFICATION",
+    "result": "blocked",
+    "evidence": "Reports initialized; complete corpus checks pending.",
+    "blocker": true
+  },
+  {
+    "phase": "P7",
+    "gateId": "P7-PUBLICATION-HANDOFF",
+    "result": "blocked",
+    "evidence": "Starter kit scaffold initialized; final certification pending.",
+    "blocker": true
+  }
+]

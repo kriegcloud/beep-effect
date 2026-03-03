@@ -1,0 +1,98 @@
+[
+  {
+    "factId": "F-001",
+    "sourcePath": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
+    "claim": "The canonical JSDoc model defines 113 tag definitions via JSDocTagDefinition.make.",
+    "confidence": 0.99,
+    "status": "implemented",
+    "evidenceRef": "E-S01-001"
+  },
+  {
+    "factId": "F-002",
+    "sourcePath": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "claim": "TagValue is represented as a broad tagged union spanning 113 tag occurrence shapes.",
+    "confidence": 0.99,
+    "status": "implemented",
+    "evidenceRef": "E-S01-002"
+  },
+  {
+    "factId": "F-003",
+    "sourcePath": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+    "claim": "ApplicableTo acts as the constraint layer for where tags are valid.",
+    "confidence": 0.95,
+    "status": "implemented",
+    "evidenceRef": "E-S01-003"
+  },
+  {
+    "factId": "F-004",
+    "sourcePath": "specs/pending/repo-codegraph-canonical/README.md",
+    "claim": "Canonical pending specs in this repo encode phase architecture with explicit entry and exit gates.",
+    "confidence": 0.96,
+    "status": "specified",
+    "evidenceRef": "E-S02-001"
+  },
+  {
+    "factId": "F-005",
+    "sourcePath": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "claim": "Master orchestration documents follow a P0-Pn state-machine model with required outputs per phase.",
+    "confidence": 0.96,
+    "status": "specified",
+    "evidenceRef": "E-S02-002"
+  },
+  {
+    "factId": "F-006",
+    "sourcePath": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "claim": "The exploratory corpus provides a state-labeled architecture narrative and contract inventory.",
+    "confidence": 0.93,
+    "status": "specified",
+    "evidenceRef": "E-S03-001"
+  },
+  {
+    "factId": "F-007",
+    "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "claim": "The fibration architecture describes a three-role schema strategy and structured output narrowing.",
+    "confidence": 0.94,
+    "status": "specified",
+    "evidenceRef": "E-S03-002"
+  },
+  {
+    "factId": "F-008",
+    "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "claim": "There is a known import path inconsistency affecting direct script execution reliability.",
+    "confidence": 0.91,
+    "status": "implemented",
+    "evidenceRef": "E-S03-003"
+  },
+  {
+    "factId": "F-009",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/INDEX.md",
+    "claim": "Knowledge docs span architecture, extraction, ontology research, controls, and audits.",
+    "confidence": 0.95,
+    "status": "implemented",
+    "evidenceRef": "E-S04-001"
+  },
+  {
+    "factId": "F-010",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/owl_reasoning_validation_production.md",
+    "claim": "Reasoning and validation constraints are central to production-quality knowledge synthesis.",
+    "confidence": 0.89,
+    "status": "specified",
+    "evidenceRef": "E-S04-002"
+  },
+  {
+    "factId": "F-011",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "claim": "Control-plane guidance provides operational constraints for LLM-driven components.",
+    "confidence": 0.88,
+    "status": "specified",
+    "evidenceRef": "E-S04-003"
+  },
+  {
+    "factId": "F-012",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
+    "claim": "Audit artifacts can be used as quality evidence and acceptance support.",
+    "confidence": 0.9,
+    "status": "implemented",
+    "evidenceRef": "E-S04-004"
+  }
+]
