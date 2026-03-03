@@ -1,16 +1,15 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
-import type { TString } from "@beep/types";
 import { thunkFalse } from "@beep/utils";
 import { SchemaGetter } from "effect";
-// import * as A from "effect/Array";
-// import * as O from "effect/Option";
 import * as S from "effect/Schema";
 /* cspell:ignore Derivability derivability */
 import { ApplicableTo } from "./ApplicableTo.model.js";
 import { ASTDerivability } from "./ASTDerivability.model.js";
+import "./JSDocTagAnnotation.model.js";
 import { Specification } from "./Specification.model.js";
 import { TagKind } from "./TagKind.model.js";
 import { TagParameters } from "./TagParameters.model.js";
+import { type TagName, TagValue } from "./TagValue.model.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/JSDocTagDefinition.model");
 
@@ -107,7 +106,7 @@ export declare namespace JSDocTagDefinition {
    * @category DomainModel
    * @since 0.0.0
    */
-  export interface Instance<Tag extends TString.NonEmpty, Def extends Encoded> extends Encoded {
+  export interface Instance<Tag extends TagName, Def extends Encoded> extends Encoded {
     _tag: Tag;
     synonyms: Def["synonyms"];
     tagKind: Def["tagKind"];
@@ -136,48 +135,13 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
  * @category DomainModel
  * @since 0.0.0
  */
-export const make = <const Tag extends TString.NonEmpty, const Def extends typeof JSDocTagDefinition.Encoded>(
+export const make = <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
   _tag: Tag,
   meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
 ) => {
   const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
-
-  // const i = JSDocTagDefinition.mapFields((fields) => {
-  //
-  //   const makeSynonyms = <T extends Def["synonyms"]>(synonyms: T) => pipe(
-  //     synonyms,
-  //     A.match({
-  //       onEmpty: () => S.Never,
-  //       onNonEmpty: (synonyms) => S.Array(S.Literals(synonyms)) as S.$Array<S.Literals<readonly [T[number], ...T[number][]]>>,
-  //     })
-  //   )
-  //
-  //   const makeAnnotations = <TDef extends JSDocTagDefinition>(def: TDef) => {
-  //     const base = Struct.pick(def, ["overview", "specifications", "relatedTags", "example", "astDerivableNote"])
-  //   }
-  //
-  //   const annotations = {
-  //     overview: jsdocDef.overview,
-  //     specifications: jsdocDef.specifications,
-  //     deprecatedNote: O.match(jsdocDef.deprecatedNote, {
-  //
-  //     })
-  //   }
-
-  //   return {
-  //   _tag: S.tag(_tag),
-  //   synonyms: makeSynonyms(def.synonyms),
-  // }
-  // })
-
-  return JSDocTagDefinition.mapFields((fields) => ({
-    ...fields,
+  return JSDocTagDefinition.mapFields((_) => ({
     _tag: S.tag(_tag),
-    synonyms: S.Array(S.Literals(def.synonyms)),
-    tagKind: TagKind.pick([def.tagKind]),
-    specifications: S.Array(S.Literals(def.specifications)),
-    applicableTo: S.Array(S.Literals(def.applicableTo)),
-    astDerivable: ASTDerivability.pick([def.astDerivable]),
-    relatedTags: S.Array(S.Literals(def.relatedTags)),
-  }));
+    value: TagValue.cases[_tag],
+  })).annotate({ jsDocTagMetadata: def });
 };

@@ -7,10 +7,16 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { MappedLiteralKit, LiteralKit } from "@beep/schema";
+import { LiteralKit, MappedLiteralKit } from "@beep/schema";
 
 const $I = $RepoUtilsId.create("JSDoc/models/TSSyntaxKind.model");
 
+/**
+ * Mapped literal kit mirroring the TypeScript compiler's SyntaxKind enum.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const TSSyntaxKind = MappedLiteralKit([
   ["Unknown", 0],
   ["EndOfFileToken", 1],
@@ -417,17 +423,45 @@ export const TSSyntaxKind = MappedLiteralKit([
   })
 );
 
+/**
+ * Companion namespace for {@link TSSyntaxKind}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export declare namespace TSSyntaxKind {
+  /**
+   * Decoded representation of a TSSyntaxKind value.
+   *
+   * @since 0.0.0
+   * @category DomainModel
+   */
   export type Type = typeof TSSyntaxKind.Type;
+  /**
+   * Encoded representation of a TSSyntaxKind value.
+   *
+   * @since 0.0.0
+   * @category DomainModel
+   */
   export type Encoded = typeof TSSyntaxKind.Encoded;
 }
 
-export const TSSyntaxKindLiteral = LiteralKit(
-  TSSyntaxKind.From.Options
-).annotate(
+/**
+ * Literal union of all TypeScript SyntaxKind string names.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const TSSyntaxKindLiteral = LiteralKit(TSSyntaxKind.From.Options).annotate(
   $I.annote("TSSyntaxKindLiteral", {
     description: "Literal representation of TypeScript SyntaxKind enum values.",
   })
-)
+);
 
+/**
+ * Inferred type for {@link TSSyntaxKindLiteral}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type TSSyntaxKindLiteral = typeof TSSyntaxKindLiteral.Type;

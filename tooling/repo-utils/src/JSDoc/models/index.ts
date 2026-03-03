@@ -25,6 +25,10 @@ export * from "./HasJSDocApplicableToMapEntry.model.js";
 /**
  * @since 0.0.0
  */
+export * from "./JSDocTagAnnotation.model.js";
+/**
+ * @since 0.0.0
+ */
 export * as JSDocTagDefinition from "./JSDocTagDefinition.model.js";
 /**
  * @since 0.0.0
@@ -38,3 +42,7 @@ export * from "./TagKind.model.js";
  * @since 0.0.0
  */
 export * from "./TagParameters.model.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./TagValue.model.js";

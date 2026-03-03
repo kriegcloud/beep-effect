@@ -183,6 +183,16 @@ export default [
     },
   },
 
+  // Tag-value schema models — descriptions live in $I.annote(), not JSDoc prose
+  {
+    files: ["tooling/*/src/**/tag-values/**/*.ts"],
+    plugins: { jsdoc },
+    rules: {
+      "jsdoc/require-description": "off",
+      "jsdoc/match-description": "off",
+    },
+  },
+
   // File Overview Rules - barrel files
   {
     files: ["tooling/*/src/index.ts"],

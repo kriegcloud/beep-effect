@@ -15,6 +15,12 @@ import { DependencyProfile } from "./DependencyProfile.model.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/TSCategory.model");
 
+/**
+ * Purity classification for a TSCategory taxonomy member.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotate(
   $I.annote("CategoryPurity", {
     description: "Purity classification",
@@ -23,6 +29,12 @@ export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotat
   })
 );
 
+/**
+ * Inferred type for {@link CategoryPurity}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type CategoryPurity = typeof CategoryPurity.Type;
 
 /**
@@ -123,4 +135,3 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
       "A single member of the closed taxonomy used to classify TypeScript code elements in the knowledge graph.",
   })
 ) {}
-
