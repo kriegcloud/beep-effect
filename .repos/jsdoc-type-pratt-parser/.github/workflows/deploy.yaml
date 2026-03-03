@@ -1,0 +1,37 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - name: Dependencies
+        run: npm ci
+      - name: Build
+        run: |
+          npm run build
+          npm run apidoc
+      - name: Assemble
+        run: |
+          mkdir -p pages/lib/jsdoc-type-pratt-parser/
+          cp -r dist/* pages/lib/jsdoc-type-pratt-parser/
+          cp -r docs pages/
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: pages
+          clean-exclude: |
+            index.html
+            .gitignore
+            package-lock.json
+            package.json
+            vendor
