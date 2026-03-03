@@ -1,16 +1,20 @@
-import * as path from "node:path";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer } from "effect";
+import { Effect, HashMap, Layer, Path } from "effect";
 import * as O from "effect/Option";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
+const pathApi = Effect.runSync(
+  Effect.gen(function* () {
+    return yield* Path.Path;
+  }).pipe(Effect.provide(NodePath.layer))
+);
 
-const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
+const MOCK_ROOT = pathApi.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("TsConfig", (it) => {
   describe("collectTsConfigPaths", () => {
@@ -63,7 +67,7 @@ layer(TestLayer)("TsConfig", (it) => {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         for (const [_name, paths] of configs) {
           for (const p of paths) {
-            expect(path.isAbsolute(p)).toBe(true);
+            expect(pathApi.isAbsolute(p)).toBe(true);
           }
         }
       })

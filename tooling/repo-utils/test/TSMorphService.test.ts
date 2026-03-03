@@ -1,6 +1,3 @@
-import { cp, mkdtemp, readFile, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import {
   TSMorphService,
   TSMorphServiceLive,
@@ -20,20 +17,56 @@ import {
 } from "@beep/repo-utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, HashSet, Layer } from "effect";
+import { Effect, FileSystem, HashSet, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 
-const fixtureTemplateRoot = join(__dirname, "fixtures", "tsmorph-service");
+const pathApi = Effect.runSync(
+  Effect.gen(function* () {
+    return yield* Path.Path;
+  }).pipe(Effect.provide(NodePath.layer))
+);
+const fsApi = Effect.runSync(
+  Effect.gen(function* () {
+    return yield* FileSystem.FileSystem;
+  }).pipe(Effect.provide(NodeFileSystem.layer))
+);
+const fixtureTemplateRoot = pathApi.join(__dirname, "fixtures", "tsmorph-service");
 const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(NodeFileSystem.layer), Layer.provideMerge(NodePath.layer));
 
+const copyFixtureTree: (sourceDir: string, targetDir: string) => Effect.Effect<void, unknown> = Effect.fn(
+  function* (sourceDir, targetDir) {
+    yield* fsApi.makeDirectory(targetDir, { recursive: true });
+    const entries = yield* fsApi.readDirectory(sourceDir);
+
+    for (const entry of entries) {
+      const sourcePath = pathApi.join(sourceDir, entry);
+      const targetPath = pathApi.join(targetDir, entry);
+      const info = yield* fsApi.stat(sourcePath);
+
+      if (info.type === "Directory") {
+        yield* copyFixtureTree(sourcePath, targetPath);
+        continue;
+      }
+
+      const content = yield* fsApi.readFileString(sourcePath);
+      yield* fsApi.writeFileString(targetPath, content);
+    }
+  }
+);
+
 const createFixture = async (): Promise<{ root: string; tsconfig: string }> => {
-  const root = await mkdtemp(join(tmpdir(), "tsmorph-service-"));
-  await cp(fixtureTemplateRoot, root, { recursive: true });
-  return {
-    root,
-    tsconfig: join(root, "tsconfig.json"),
-  };
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const tempDir = yield* fsApi.makeTempDirectory();
+      const root = pathApi.join(tempDir, "tsmorph-service");
+      yield* copyFixtureTree(fixtureTemplateRoot, root);
+      return {
+        root,
+        tsconfig: pathApi.join(root, "tsconfig.json"),
+      };
+    })
+  );
 };
 
 const runWithService = <A>(effect: Effect.Effect<A, unknown, TSMorphService>): Promise<A> =>
@@ -377,7 +410,9 @@ describe("TSMorphService", () => {
     expect(receipt.appliedOperations).toBe(1);
     expect(receipt.touchedFiles).toContain("packages/lib-b/src/helper.ts");
 
-    const helperSource = await readFile(join(fixture.root, "packages/lib-b/src/helper.ts"), "utf8");
+    const helperSource = await Effect.runPromise(
+      fsApi.readFileString(pathApi.join(fixture.root, "packages/lib-b/src/helper.ts"))
+    );
     expect(helperSource.includes("@signatureHash")).toBe(true);
   });
 
@@ -425,13 +460,13 @@ describe("TSMorphService", () => {
 
     expect(baseline.entries[0]?.driftDetected).toBe(false);
 
-    const helperPath = join(fixture.root, "packages/lib-b/src/helper.ts");
-    const source = await readFile(helperPath, "utf8");
+    const helperPath = pathApi.join(fixture.root, "packages/lib-b/src/helper.ts");
+    const source = await Effect.runPromise(fsApi.readFileString(helperPath));
     const updated = source.replace(
       "helper = (value: string): number",
       'helper = (value: string, mode = "len"): number'
     );
-    await writeFile(helperPath, updated, "utf8");
+    await Effect.runPromise(fsApi.writeFileString(helperPath, updated));
 
     const drifted = await runWithService(
       Effect.gen(function* () {

@@ -19,6 +19,7 @@ import {
 } from "@beep/repo-utils/JSDoc/models/TSCategory.model";
 import { CategoryValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues";
 import { describe, expect, it } from "@effect/vitest";
+import { HashSet } from "effect";
 import * as S from "effect/Schema";
 
 describe("TSCategoryFibration", () => {
@@ -94,7 +95,7 @@ describe("TSCategoryFibration", () => {
       const actualTags = CATEGORY_TAXONOMY.map((category) => category._tag);
 
       expect(actualTags).toEqual(expectedTags);
-      expect(new Set(actualTags).size).toBe(12);
+      expect(HashSet.size(HashSet.fromIterable(actualTags))).toBe(12);
     });
   });
 

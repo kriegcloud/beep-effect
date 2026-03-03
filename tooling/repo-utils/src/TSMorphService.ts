@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import type { CodebaseGraph } from "./codegraph/models.js";
 import type { TsMorphServiceError } from "./codegraph/tsmorph/errors.js";
 import { extractCodebaseGraphFromContext } from "./codegraph/tsmorph/extract.js";
+import { createTsMorphProjectContext, resolveTsMorphProjectScope } from "./codegraph/tsmorph/index.js";
 import {
   applyJSDocWritesInContext,
   checkJSDocDriftInContext,
@@ -43,7 +44,6 @@ import {
   TsMorphTraverseDependenciesRequest,
   type TsMorphValidateJSDocRequest,
 } from "./codegraph/tsmorph/models.js";
-import { createTsMorphProjectContext, resolveTsMorphProjectScope } from "./codegraph/tsmorph/project-scope.js";
 import {
   buildDeclarationSignature,
   resolveDeclarationTarget,

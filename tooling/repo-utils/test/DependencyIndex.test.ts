@@ -1,17 +1,21 @@
-import * as path from "node:path";
 import { buildRepoDependencyIndex } from "@beep/repo-utils/DependencyIndex";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer } from "effect";
+import { Effect, HashMap, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
+const pathApi = Effect.runSync(
+  Effect.gen(function* () {
+    return yield* Path.Path;
+  }).pipe(Effect.provide(NodePath.layer))
+);
 
-const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
+const MOCK_ROOT = pathApi.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("DependencyIndex", (it) => {
   describe("buildRepoDependencyIndex", () => {

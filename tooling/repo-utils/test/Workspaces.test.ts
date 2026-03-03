@@ -1,16 +1,20 @@
-import * as path from "node:path";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { getWorkspaceDir, resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, Layer } from "effect";
+import { Effect, HashMap, Layer, Path } from "effect";
 import * as O from "effect/Option";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
+const pathApi = Effect.runSync(
+  Effect.gen(function* () {
+    return yield* Path.Path;
+  }).pipe(Effect.provide(NodePath.layer))
+);
 
-const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
+const MOCK_ROOT = pathApi.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("Workspaces", (it) => {
   describe("resolveWorkspaceDirs", () => {
@@ -33,7 +37,7 @@ layer(TestLayer)("Workspaces", (it) => {
         expect(O.isSome(dirA)).toBe(true);
         if (O.isSome(dirA)) {
           expect(dirA.value).toContain("packages/pkg-a");
-          expect(path.isAbsolute(dirA.value)).toBe(true);
+          expect(pathApi.isAbsolute(dirA.value)).toBe(true);
         }
       })
     );
@@ -42,7 +46,7 @@ layer(TestLayer)("Workspaces", (it) => {
       "should return empty HashMap when no workspaces defined",
       Effect.fn(function* () {
         // pkg-a has no workspaces field
-        const workspaces = yield* resolveWorkspaceDirs(path.resolve(MOCK_ROOT, "packages/pkg-a"));
+        const workspaces = yield* resolveWorkspaceDirs(pathApi.resolve(MOCK_ROOT, "packages/pkg-a"));
         expect(HashMap.size(workspaces)).toBe(0);
       })
     );
