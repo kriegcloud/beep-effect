@@ -21,7 +21,7 @@ import * as internal from "./internal/data/timezones.js";
  * or `"Europe/London"`.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { TimezoneName } from "@beep/data/Timezones"
@@ -42,7 +42,7 @@ export type TimezoneName = (typeof internal.TimezoneNameValues)[number];
  * Australia, Etc, Europe, Indian, and Pacific regions plus `"UTC"`.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { TimezoneNameValues } from "@beep/data/Timezones"

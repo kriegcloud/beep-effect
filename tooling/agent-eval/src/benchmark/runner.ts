@@ -32,7 +32,7 @@ import { buildRetrievalPacket } from "./packet.js";
  * Stable correction entry used for preflight packets.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface CorrectionEntry {
   readonly id: string;
@@ -44,7 +44,7 @@ export interface CorrectionEntry {
  * Static model pricing entry used for cost calculations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PricingEntry {
   readonly model: string;
@@ -56,7 +56,7 @@ export interface PricingEntry {
  * Versioned static pricing table loaded from benchmark assets.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PricingTable {
   readonly version: string;
@@ -68,7 +68,7 @@ export interface PricingTable {
  * Model selection per agent.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface AgentModels {
   readonly codex: string;
@@ -79,7 +79,7 @@ export interface AgentModels {
  * Claude effort levels supported by CLI.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ClaudeEffortLevel = "low" | "medium" | "high";
 
@@ -87,7 +87,7 @@ export type ClaudeEffortLevel = "low" | "medium" | "high";
  * Unified reasoning effort levels supported by benchmark CLI.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
 
@@ -95,7 +95,7 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
  * Runner options for one suite execution.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface RunBenchmarkOptions {
   readonly tasks: ReadonlyArray<AgentTaskSpec>;
@@ -203,7 +203,7 @@ interface LiveExecutionResult {
  * Progress event emitted while running the benchmark suite.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchmarkProgressEvent =
   | {
@@ -253,7 +253,7 @@ export type BenchmarkProgressEvent =
  * Diagnostic event emitted for run-level forensics and suite metrics.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchmarkDiagnosticEvent =
   | {
@@ -747,7 +747,7 @@ const shouldRunAcceptanceCommands = (simulate: boolean, commandPass: boolean | u
  * @param statusOutput - Raw porcelain output.
  * @returns Parsed touched path list and raw-entry mapping used for diagnostics.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseStatusPorcelain = (
   statusOutput: string
@@ -824,7 +824,7 @@ const readTouchedSourceFiles = async (
  * @param allowlist - Allowlisted path roots for the task.
  * @returns `true` when the path is allowed.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const isPathAllowed = (filePath: string, allowlist: ReadonlyArray<string>): boolean =>
   allowlist.some((allowed) => filePath === allowed || filePath.startsWith(`${allowed}/`));
@@ -836,7 +836,7 @@ export const isPathAllowed = (filePath: string, allowlist: ReadonlyArray<string>
  * @param allowlist - Allowlisted path roots for the task.
  * @returns `true` when all touched paths are allowed.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const allowlistPass = (touchedPaths: ReadonlyArray<string>, allowlist: ReadonlyArray<string>): boolean =>
   touchedPaths.every((filePath) => isPathAllowed(filePath, allowlist));
@@ -848,7 +848,7 @@ export const allowlistPass = (touchedPaths: ReadonlyArray<string>, allowlist: Re
  * @param allowlist - Allowlisted path roots for the task.
  * @returns Paths that violate the allowlist.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const disallowedTouchedPaths = (
   touchedPaths: ReadonlyArray<string>,
@@ -1372,7 +1372,7 @@ const executeRunTuple = async (
  * @param content - Raw JSON text containing correction entries.
  * @returns Parsed correction entries used for preflight packet shaping.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const decodeCorrectionIndexJson = (content: string): ReadonlyArray<CorrectionEntry> =>
   decodeCorrectionEntries(content);
@@ -1383,7 +1383,7 @@ export const decodeCorrectionIndexJson = (content: string): ReadonlyArray<Correc
  * @param content - Raw JSON text containing model pricing metadata.
  * @returns Parsed pricing table for token cost estimation.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const decodePricingTableJson = (content: string): PricingTable => decodePricingTable(content);
 
@@ -1416,7 +1416,7 @@ const summarizeOutcomeCounts = (records: ReadonlyArray<AgentRunRecord>) => {
  * @param options - Runner inputs including tasks, agents, conditions, and wiring.
  * @returns Completed benchmark suite with aggregated run records.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<AgentBenchSuite> => {
   const runAtEpochMs = epochNowMs();

@@ -838,7 +838,7 @@ const parseChanged = (changedFlag: O.Option<string>): ReadonlyArray<string> =>
  * @depends FileSystem, Git, SnapshotStore
  * @errors DomainError
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  * @internal
  */
 export const runKgIndexNode = async (mode: IndexMode, changedFlag: O.Option<string>): Promise<IndexSummary> => {
@@ -1987,7 +1987,7 @@ const kgParityCommand = Command.make(
  * @depends EffectCli, Console
  * @errors DomainError
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const kgCommand = Command.make(
   "kg",

@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
  * Source-backed Effect v4 correction/evidence fact.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type EffectV4EvidenceFact = {
   readonly id: string;
@@ -20,7 +20,7 @@ export type EffectV4EvidenceFact = {
  * Runtime schema for evidence fact records.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const EffectV4EvidenceFactSchema = S.Struct({
   id: S.NonEmptyString,

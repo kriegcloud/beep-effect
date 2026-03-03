@@ -27,7 +27,7 @@ interface Polygon {
  * Geo filter option surface.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GeoFilterOptions {
   $within:
@@ -69,7 +69,7 @@ export interface GeoFilterOptions {
  * Geo filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace GeoFilter {
   /** @since 0.0.0 */
@@ -84,6 +84,6 @@ export declare namespace GeoFilter {
  * Canonical geo filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GeoFilter = GeoFilter.$within | GeoFilter.$intersects | GeoFilter.$isNull;

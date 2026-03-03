@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/OntologyMetadata");
  * Runtime schema for OntologyMetadata.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export class OntologyMetadata extends S.Class<OntologyMetadata>($I`OntologyMetadata`)(
   {

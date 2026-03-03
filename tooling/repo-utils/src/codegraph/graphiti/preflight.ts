@@ -13,7 +13,7 @@ import { GraphitiPreflightError } from "./errors.js";
  *
  * @param host - Hostname or IP portion of a URL.
  * @returns `true` when host is a local loopback alias.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const isLoopbackHost = (host: string): boolean => {
@@ -32,7 +32,7 @@ export const isLoopbackHost = (host: string): boolean => {
  *
  * @param url - Candidate MCP URL.
  * @returns `true` when URL resolves to the local Graphiti proxy MCP endpoint.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const isProxyGraphitiMcpUrl = (url: string): boolean => {
@@ -66,7 +66,7 @@ const parseHealthPayload = (body: string): O.Option<Record<string, unknown>> =>
  *
  * @param graphitiUrl - MCP URL used for Graphiti operations.
  * @returns Effect that succeeds when preflight passes or is disabled.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const ensureGraphitiProxyPreflight = Effect.fn("Graphiti.ensureGraphitiProxyPreflight")(function* (

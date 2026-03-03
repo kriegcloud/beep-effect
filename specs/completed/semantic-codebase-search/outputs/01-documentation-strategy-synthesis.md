@@ -111,7 +111,7 @@ These are required for the indexing pipeline to work at all.
  * reports cyclic dependencies.
  *
  * @since 0.0.0
- * @category algorithms
+ * @category DomainLogic
  */
 export const topologicalSort = Effect.fn(function* (...) { ... })
 ```
@@ -157,7 +157,7 @@ These significantly improve search quality but can be adopted incrementally.
  * ```
  *
  * @since 0.0.0
- * @category algorithms
+ * @category DomainLogic
  */
 ```
 
@@ -173,7 +173,7 @@ These significantly improve search quality but can be adopted incrementally.
  * @see {@link CyclicDependencyError} - Thrown when cycles detected
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 ```
 
@@ -208,7 +208,7 @@ export const PackageJson = S.Struct({
  * error handling, converting SystemError to DomainError.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  */
 ```
 
@@ -297,7 +297,7 @@ pre-push:
 ### Phase 4: @example Enforcement (Later)
 
 Once existing code has descriptions, incrementally require @example on:
-1. Functions with `@category algorithms` (complex logic needs examples)
+1. Functions with `@category DomainLogic` (complex logic needs examples)
 2. Schema constructors (show what valid data looks like)
 3. Service methods (show common usage patterns)
 
@@ -365,7 +365,7 @@ function buildEmbeddingText(sym: IndexedSymbol): string {
     if (comments) parts.push(comments)
   }
 
-  // Field descriptions for schemas
+  // Field descriptions for validation schemas
   if (sym.fieldDescriptions) {
     const fields = Object.entries(sym.fieldDescriptions)
       .map(([k, v]) => `${k}: ${v}`).join(". ")
@@ -428,7 +428,7 @@ for (const mod of modules) {
 | Gap | Current State | Target State | Effort |
 |-----|--------------|--------------|--------|
 | @module on all files | 4/8 files | 100% of source files | Low (add header comments) |
-| @example tags | Only Graph.ts | All algorithms + schemas + commands | Medium |
+| @example tags | Only Graph.ts | All DomainLogic + Validation + UseCase | Medium |
 | @see cross-references | Zero | Key relationships documented | Medium |
 | .annotateKey() on schema fields | Sparse | All fields with descriptions | Medium |
 | @remarks on services/layers | None | Design rationale documented | Low-Medium |

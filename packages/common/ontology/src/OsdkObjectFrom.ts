@@ -21,7 +21,7 @@ type ValidOsdkPropParams<Q extends ObjectOrInterfaceDefinition> = SpecialOsdkPro
  * Resolve apiName metadata as a string literal.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ApiNameAsString<T extends ObjectOrInterfaceDefinition> = CompileTimeMetadata<T>["apiName"];
 
@@ -29,7 +29,7 @@ export type ApiNameAsString<T extends ObjectOrInterfaceDefinition> = CompileTime
  * Resolve selected property keys, handling special `$all` option.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type JustProps<T extends ObjectOrInterfaceDefinition, P extends ValidOsdkPropParams<T>> = P extends "$all"
   ? PropertyKeys<T>
@@ -39,7 +39,7 @@ export type JustProps<T extends ObjectOrInterfaceDefinition, P extends ValidOsdk
  * Map interface property names to object property names.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropMapToObject<FROM extends ObjectOrInterfaceDefinition, TO extends ObjectTypeDefinition> = NonNullable<
   CompileTimeMetadata<TO>["interfaceMap"]
@@ -49,7 +49,7 @@ export type PropMapToObject<FROM extends ObjectOrInterfaceDefinition, TO extends
  * Convert selected properties from source definition to object target definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MapPropNamesToObjectType<
   FROM extends ObjectOrInterfaceDefinition,
@@ -81,7 +81,7 @@ type MaybeStripNamespaces<
  * Map object property names to interface property names.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropMapToInterface<FROM extends ObjectTypeDefinition, TO extends InterfaceDefinition> = NonNullable<
   CompileTimeMetadata<FROM>["inverseInterfaceMap"]
@@ -91,7 +91,7 @@ export type PropMapToInterface<FROM extends ObjectTypeDefinition, TO extends Int
  * Convert selected properties from object definition to interface definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MapPropNamesToInterface<
   FROM extends ObjectTypeDefinition,
@@ -103,7 +103,7 @@ export type MapPropNamesToInterface<
  * Convert selected property keys across object/interface casts.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ConvertProps<
   FROM extends ObjectOrInterfaceDefinition,
@@ -124,7 +124,7 @@ export type ConvertProps<
  * Valid conversion targets for `$as` object/interface casting.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ValidToFrom<FROM extends ObjectOrInterfaceDefinition> = FROM extends InterfaceDefinition
   ? ObjectOrInterfaceDefinition
@@ -134,7 +134,7 @@ export type ValidToFrom<FROM extends ObjectOrInterfaceDefinition> = FROM extends
  * Detect whether a type resolves to `never`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IsNever<T> = [T] extends [never] ? true : false;
 
@@ -147,7 +147,7 @@ type ExtractPropsKeysFromOldPropsStyle<
  * Detect whether a type resolves to `any`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IsAny<T> = unknown extends T ? ([keyof T] extends [never] ? false : true) : false;
 
@@ -155,7 +155,7 @@ export type IsAny<T> = unknown extends T ? ([keyof T] extends [never] ? false : 
  * Resolve selected property keys with `never` / `any` fallback semantics.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GetPropsKeys<Q extends ObjectOrInterfaceDefinition, P extends PropertyKeys<Q>, N extends boolean = false> =
   IsNever<P> extends true ? (N extends true ? never : PropertyKeys<Q>) : IsAny<P> extends true ? PropertyKeys<Q> : P;
@@ -164,7 +164,7 @@ export type GetPropsKeys<Q extends ObjectOrInterfaceDefinition, P extends Proper
  * Backward-compatible `Osdk` alias helper.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Osdk<
   Q extends ObjectOrInterfaceDefinition,
@@ -183,7 +183,7 @@ export type Osdk<
  * Conditionally add `$score` when ordered by relevance.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MaybeScore<
   T,
@@ -209,14 +209,14 @@ type AnyOptionInstance<Q extends ObjectOrInterfaceDefinition, P extends Property
  * OSDK instance namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace Osdk {
   /**
    * Canonical OSDK instance shape derived from compile-time metadata.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Instance<
     Q extends ObjectOrInterfaceDefinition,
@@ -282,7 +282,7 @@ export namespace Osdk {
  * Extract strict-mode option token from nullability adherence.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExtractStrictOption<S extends NullabilityAdherence> =
   IsNever<S> extends true ? never : "throw" extends S ? never : "drop" extends S ? never : "$notStrict";
@@ -291,7 +291,7 @@ export type ExtractStrictOption<S extends NullabilityAdherence> =
  * Extract `$rid` option token from include-rid boolean.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExtractRidOption<R extends boolean> =
   IsNever<R> extends true ? never : DefaultToFalse<R> extends false ? never : "$rid";
@@ -300,7 +300,7 @@ export type ExtractRidOption<R extends boolean> =
  * Extract property-security option token from boolean flag.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExtractPropertySecurityOption<S extends boolean> =
   IsNever<S> extends true ? never : DefaultToFalse<S> extends false ? never : "$propertySecurities";
@@ -309,7 +309,7 @@ export type ExtractPropertySecurityOption<S extends boolean> =
  * Extract all-base-properties option token from boolean flag.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExtractAllPropertiesOption<T extends boolean> =
   IsNever<T> extends true ? never : DefaultToFalse<T> extends false ? never : "$allBaseProperties";
@@ -318,7 +318,7 @@ export type ExtractAllPropertiesOption<T extends boolean> =
  * Convert fetch/select option flags into instance option tokens.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExtractOptions<
   RID extends boolean,

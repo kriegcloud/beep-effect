@@ -56,7 +56,7 @@ compilable examples for all APIs.
  * ```
  *
  * @since 2.0.0
- * @category constructors
+ * @category Utility
  */
 export const functionName = <A>(param: A): ModuleName<A> => { /* implementation */ }
 ````
@@ -166,7 +166,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 
 ## 🏗️ EXAMPLE CONTENT PATTERNS
 
-### Constructor Examples
+### Utility Examples (Constructor Style)
 
 ````typescript
 /**
@@ -195,11 +195,11 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @since 2.0.0
- * @category constructors
+ * @category Utility
  */
 ````
 
-### Combinator Examples
+### Utility Examples (Combinator Style)
 
 ````typescript
 /**
@@ -231,7 +231,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @since 2.0.0
- * @category combinators
+ * @category Utility
  */
 ````
 
@@ -258,7 +258,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @since 2.0.0
- * @category combinators
+ * @category Utility
  */
 ````
 
@@ -312,7 +312,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @since 2.0.0
- * @category combinators
+ * @category Validation
  */
 ````
 
@@ -320,105 +320,57 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 
 ### Category Naming Convention
 
-**IMPORTANT**: Always use lowercase for category names. The codebase has some legacy inconsistencies (e.g., `Constructors` vs `constructors`), but new documentation should consistently use lowercase.
+**IMPORTANT**: Use the exact TS taxonomy value in PascalCase. Do not use lowercase legacy names.
 
-### Standard Categories Used
+### TS Category Taxonomy (Canonical Values)
 
 ```typescript
-// Creation functions
-@category constructors
-
-// Transformation functions
-@category combinators
-
-// Transformation operations (alternative to combinators)
-@category transforming
-
-// Helper utilities
-@category utilities
-
-// Boolean-returning functions
-@category predicates
-
-// Property access functions
-@category getters
-
-// Type definitions, interfaces and schemas
-@category models
-
-// Type identifiers and branded types
-@category symbols
-
-// Type guard functions
-@category guards
-
-// Type refinement functions
-@category refinements
-
-// Data transformation
-@category mapping
-
-// Data selection and filtering
-@category filtering
-
-// Data aggregation
-@category folding
-
-// Sequential operations
-@category sequencing
-
-// Error management
-@category error handling
-
-// Resource lifecycle
-@category resource management
-
-// Concurrent operations
-@category concurrency
-
-// Test utilities
-@category testing
-
-// Interoperability functions
-@category interop
-
-// Element-level operations (Chunk, Array, etc.)
-@category elements
-
-// Mathematical operations
-@category math
-
-// Mutable operations (when mutability is intentional)
-@category mutations
+@category DomainModel
+@category DomainLogic
+@category PortContract
+@category Validation
+@category Utility
+@category UseCase
+@category Presentation
+@category DataAccess
+@category Integration
+@category Configuration
+@category CrossCutting
+@category Uncategorized
 ```
 
 ### Category Usage Examples
 
 ```typescript
 /**
- * @category constructors
+ * Generic helper constructor.
+ * @category Utility
  */
 export const make = ...
 
 /**
- * @category combinators
+ * Generic transformation helper.
+ * @category Utility
  */
 export const map = ...
 
 /**
- * @category predicates
+ * Boundary parsing and validation.
+ * @category Validation
  */
-export const isEmpty = ...
+export const parseInput = ...
 
 /**
- * @category models
+ * Stable contract or model definition.
+ * @category DomainModel
  */
 export interface Array<A> ...
 
 /**
- * @category symbols
+ * External SDK / API adapter.
+ * @category Integration
  */
-export const TypeId = ...
+export const PaymentGatewayClient = ...
 ```
 
 ## 🧪 ADVANCED EXAMPLE PATTERNS
@@ -447,7 +399,7 @@ export const TypeId = ...
  * ```
  *
  * @since 2.0.0
- * @category type level
+ * @category Utility
  */
 ````
 
@@ -477,7 +429,7 @@ export const TypeId = ...
  * ```
  *
  * @since 2.0.0
- * @category utilities
+ * @category Utility
  */
 ````
 
@@ -526,7 +478,7 @@ export const TypeId = ...
  * ```
  *
  * @since 2.0.0
- * @category combinators
+ * @category Integration
  */
 ````
 

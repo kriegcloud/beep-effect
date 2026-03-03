@@ -7,7 +7,7 @@ const $I = $RepoUtilsId.create("codegraph/tsmorph/errors");
 /**
  * Scope resolution failure while deriving tsconfig inputs.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphProjectScopeError extends S.TaggedErrorClass<TsMorphProjectScopeError>(
@@ -26,7 +26,7 @@ export class TsMorphProjectScopeError extends S.TaggedErrorClass<TsMorphProjectS
 /**
  * Project initialization failure while constructing ts-morph runtime state.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphProjectInitError extends S.TaggedErrorClass<TsMorphProjectInitError>($I`TsMorphProjectInitError`)(
@@ -43,7 +43,7 @@ export class TsMorphProjectInitError extends S.TaggedErrorClass<TsMorphProjectIn
 /**
  * Symbol selector did not resolve to a declaration target.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphSymbolNotFoundError extends S.TaggedErrorClass<TsMorphSymbolNotFoundError>(
@@ -63,7 +63,7 @@ export class TsMorphSymbolNotFoundError extends S.TaggedErrorClass<TsMorphSymbol
 /**
  * Declaration target is not supported by an operation.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphUnsupportedSymbolError extends S.TaggedErrorClass<TsMorphUnsupportedSymbolError>(
@@ -84,7 +84,7 @@ export class TsMorphUnsupportedSymbolError extends S.TaggedErrorClass<TsMorphUns
 /**
  * Validation failure in a user-supplied JSDoc payload.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphValidationError extends S.TaggedErrorClass<TsMorphValidationError>($I`TsMorphValidationError`)(
@@ -101,7 +101,7 @@ export class TsMorphValidationError extends S.TaggedErrorClass<TsMorphValidation
 /**
  * Planning conflict could not be reconciled safely.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphWriteConflictError extends S.TaggedErrorClass<TsMorphWriteConflictError>(
@@ -122,7 +122,7 @@ export class TsMorphWriteConflictError extends S.TaggedErrorClass<TsMorphWriteCo
 /**
  * Failure while applying a JSDoc write plan.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphWriteApplyError extends S.TaggedErrorClass<TsMorphWriteApplyError>($I`TsMorphWriteApplyError`)(
@@ -139,7 +139,7 @@ export class TsMorphWriteApplyError extends S.TaggedErrorClass<TsMorphWriteApply
 /**
  * Failure while extracting graph data from source files.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphExtractionError extends S.TaggedErrorClass<TsMorphExtractionError>($I`TsMorphExtractionError`)(
@@ -156,7 +156,7 @@ export class TsMorphExtractionError extends S.TaggedErrorClass<TsMorphExtraction
 /**
  * Failure while executing symbol search or dependency traversal.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphQueryError extends S.TaggedErrorClass<TsMorphQueryError>($I`TsMorphQueryError`)(
@@ -173,7 +173,7 @@ export class TsMorphQueryError extends S.TaggedErrorClass<TsMorphQueryError>($I`
 /**
  * Composite error channel for `TSMorphService` APIs.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphServiceError =

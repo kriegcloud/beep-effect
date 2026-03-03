@@ -8,7 +8,7 @@ export * as Struct from "./Struct.ts";
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export * from "./thunk.ts";
 // bench

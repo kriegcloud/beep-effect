@@ -11,7 +11,7 @@ import type { CompileTimeMetadata } from "./ObjectTypeDefinition.js";
  * Opaque object specifier value branded by compatible ontology API names.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ObjectSpecifier<Q extends ObjectOrInterfaceDefinition> = string & {
   readonly __apiName:

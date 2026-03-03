@@ -25,7 +25,7 @@
  * //=> Error: Argument of type 'string' is not assignable to parameter of type 'never'.
  * ```
  *
- * @category String
+ * @category Utility
  * @since 0.0.0
  * @module @beep/types/String.types
  */
@@ -45,7 +45,7 @@ export type NonEmpty<T extends string = string> = T extends "" ? never : T;
  * //=> "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
  * ```
  *
- * @category String
+ * @category Utility
  * @since 0.0.0
  */
 export type Chars<S extends string> = S extends `${infer C}${infer Rest}` ? C | Chars<Rest> : never;

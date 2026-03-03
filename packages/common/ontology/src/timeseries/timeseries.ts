@@ -15,7 +15,7 @@ const $I = $OntologyId.create("timeseries/timeseries");
  * Supported duration units for time-series relative queries.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const TimeseriesDurationUnits = LiteralKit([
   "YEARS",
@@ -36,14 +36,14 @@ export const TimeseriesDurationUnits = LiteralKit([
  * Supported duration units for time-series relative queries.
  * {@link TimeseriesDurationUnits}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TimeseriesDurationUnits = typeof TimeseriesDurationUnits.Type;
 /**
  * Mapping of shorthand duration unit keys to canonical timeseries units.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export interface TimeseriesDurationMapping {
   readonly sec: "SECONDS";
@@ -74,7 +74,7 @@ export interface TimeseriesDurationMapping {
  * Runtime mapping for timeseries duration units.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const TimeseriesDurationMapping: TimeseriesDurationMapping = {
   ms: "MILLISECONDS",
@@ -86,7 +86,7 @@ export const TimeseriesDurationMapping: TimeseriesDurationMapping = {
  * Time-series query selector using either relative or absolute ranges.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TimeSeriesQuery =
   | {
@@ -122,7 +122,7 @@ export type TimeSeriesQuery =
  * Minimal geo-point model used by geotime-series values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GeoPoint {
   readonly type: "Point";
@@ -133,7 +133,7 @@ export interface GeoPoint {
  * A single time-series point.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TimeSeriesPoint<T extends string | number | GeoPoint> {
   readonly time: string;
@@ -144,7 +144,7 @@ export interface TimeSeriesPoint<T extends string | number | GeoPoint> {
  * Accessor contract for number/string time-series properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TimeSeriesProperty<T extends number | string> {
   readonly getFirstPoint: () => Promise<TimeSeriesPoint<T>>;
@@ -157,7 +157,7 @@ export interface TimeSeriesProperty<T extends number | string> {
  * Accessor contract for geo time-series reference properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GeotimeSeriesProperty<T extends GeoPoint> {
   readonly getLatestValue: () => Promise<TimeSeriesPoint<T> | undefined>;

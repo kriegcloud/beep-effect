@@ -38,7 +38,7 @@ type CanDescend<T> = [DescendTarget<T>] extends [never]
  * - Uses a bounded depth to avoid runaway type instantiation.
  *
  * @since 0.0.0
- * @category type-level
+ * @category DomainModel
  */
 export type StructPath<S extends object, MaxDepth extends Depth = 6> =
   IsAny<S> extends true
@@ -59,7 +59,7 @@ export type StructPath<S extends object, MaxDepth extends Depth = 6> =
  * Prefer this form when keys may contain `.` characters.
  *
  * @since 0.0.0
- * @category type-level
+ * @category DomainModel
  */
 export type StructPathTuple<S extends object, MaxDepth extends Depth = 6> =
   IsAny<S> extends true
@@ -78,7 +78,7 @@ export type StructPathTuple<S extends object, MaxDepth extends Depth = 6> =
  * Resolves the value type at a dot-delimited {@link StructPath}.
  *
  * @since 0.0.0
- * @category type-level
+ * @category DomainModel
  */
 export type StructPathValue<S, P extends string> = P extends `${infer Head}.${infer Tail}`
   ? Head extends keyof S
@@ -92,7 +92,7 @@ export type StructPathValue<S, P extends string> = P extends `${infer Head}.${in
  * Resolves the value type at a tuple {@link StructPathTuple}.
  *
  * @since 0.0.0
- * @category type-level
+ * @category DomainModel
  */
 export type StructPathTupleValue<S, P extends ReadonlyArray<string>> = P extends readonly [
   infer Head extends string,
@@ -167,7 +167,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
  * - Tuple paths: `dotGet(["attributes", "name"] as const)(self)`
  *
  * @since 0.0.0
- * @category getters
+ * @category Utility
  */
 export const dotGet: {
   <const P extends string>(path: P): <S extends object>(self: StructForPath<S, P>) => StructValueForPath<S, P>;
@@ -195,7 +195,7 @@ export const dotGet: {
  * `O.some(value)`, including `value === undefined`.
  *
  * @since 0.0.0
- * @category getters
+ * @category Utility
  */
 export const dotGetOption: {
   <const P extends string>(
@@ -254,7 +254,7 @@ export * from "effect/Struct";
  * Struct shape accepted by {@link reverse}.
  *
  * @since 0.1.0
- * @category models
+ * @category DomainModel
  */
 export interface ReverseableStruct {
   readonly [key: string]: PropertyKey;
@@ -274,7 +274,7 @@ export interface ReverseableStruct {
  * let example!: Direction;
  * void example;
  *
- * @category models
+ * @category DomainModel
  * @since 0.1.0
  */
 export type ReverseStruct<T extends ReverseableStruct> = {
@@ -307,7 +307,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
  *
  * @since 0.1.0
- * @category constructors
+ * @category DomainModel
  */
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;

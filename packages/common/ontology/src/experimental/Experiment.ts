@@ -8,7 +8,7 @@
  * Stable metadata shape describing an experimental capability token.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Experiment<
   V extends string,
@@ -25,6 +25,6 @@ export type Experiment<
  * Extracts branded helper functions from an experiment token.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExperimentFns<B extends Experiment<string, string>> = NonNullable<B["branded"]>;

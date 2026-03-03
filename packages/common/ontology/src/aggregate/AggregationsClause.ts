@@ -10,7 +10,7 @@ import type { ValidAggregationKeys } from "./AggregatableKeys.js";
  * Aggregate selector map that allows only unordered metrics.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type UnorderedAggregationClause<Q extends ObjectOrInterfaceDefinition> = {
   [AggregationKey in ValidAggregationKeys<Q>]?: "unordered";
@@ -20,7 +20,7 @@ export type UnorderedAggregationClause<Q extends ObjectOrInterfaceDefinition> = 
  * Aggregate selector map that allows ordering for each metric.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OrderedAggregationClause<Q extends ObjectOrInterfaceDefinition> = {
   [AggregationKey in ValidAggregationKeys<Q>]?: "unordered" | "asc" | "desc";
@@ -30,7 +30,7 @@ export type OrderedAggregationClause<Q extends ObjectOrInterfaceDefinition> = {
  * Aggregate selector clause accepted by aggregate query options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationClause<Q extends ObjectOrInterfaceDefinition> =
   | UnorderedAggregationClause<Q>

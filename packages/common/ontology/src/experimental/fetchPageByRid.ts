@@ -14,7 +14,7 @@ import type { Experiment } from "./Experiment.js";
  * Typed fetch-page-by-rid function.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 type FetchPageByRidFn = <
   Q extends ObjectOrInterfaceDefinition,
@@ -33,7 +33,7 @@ type FetchPageByRidFn = <
  * Untyped fetch-page-by-rid function for mixed-type RID sets.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 type FetchPageByRidNoTypeFn = <
   const R extends boolean,
@@ -49,7 +49,7 @@ type FetchPageByRidNoTypeFn = <
  * Experiment payload for fetch-page-by-rid support.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type FetchPageByRidPayload = {
   fetchPageByRid: FetchPageByRidFn;
@@ -60,7 +60,7 @@ export type FetchPageByRidPayload = {
  * Experiment token for fetch-page-by-rid support.
  *
  * @since 0.0.0
- * @category experimental
+ * @category Uncategorized
  */
 export const __EXPERIMENTAL__NOT_SUPPORTED_YET__fetchPageByRid: Experiment<
   "2.2.0",

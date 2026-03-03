@@ -16,7 +16,7 @@ import type {
  * Group-by value contract per ontology property wire type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GroupByMapper {
   string: StringGroupByValue;

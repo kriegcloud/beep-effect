@@ -100,7 +100,7 @@ const fromAdjacencyList = (
  * })
  * ```
  * @since 0.0.0
- * @category algorithms
+ * @category DomainLogic
  */
 export const topologicalSort: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
@@ -157,7 +157,7 @@ export const topologicalSort: (
  * })
  * ```
  * @since 0.0.0
- * @category algorithms
+ * @category DomainLogic
  */
 export const detectCycles: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
@@ -311,7 +311,7 @@ const buildCyclePath = (
  * })
  * ```
  * @since 0.0.0
- * @category algorithms
+ * @category DomainLogic
  */
 export const computeTransitiveClosure: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,

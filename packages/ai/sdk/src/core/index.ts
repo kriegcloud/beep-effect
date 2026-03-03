@@ -123,6 +123,6 @@ export * as Tools from "./Tools/index.js";
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const VERSION = "0.0.0" as const;

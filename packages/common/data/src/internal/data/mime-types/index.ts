@@ -25,7 +25,7 @@ import { video as _video } from "./video.js";
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const application = _application;
 
@@ -34,7 +34,7 @@ export const application = _application;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const audio = _audio;
 
@@ -43,7 +43,7 @@ export const audio = _audio;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const image = _image;
 
@@ -52,7 +52,7 @@ export const image = _image;
  * message, model, and x-conference types.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const misc = _misc;
 
@@ -61,7 +61,7 @@ export const misc = _misc;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const text = _text;
 
@@ -70,7 +70,7 @@ export const text = _text;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  */
 export const video = _video;
 
@@ -81,7 +81,7 @@ export const video = _video;
  * This is the raw merged data object that backs the `mimeTypes` typed record.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { mimes } from "@beep/data"
@@ -105,7 +105,7 @@ export const mimes = {
  * Each member is a full MIME type string such as `"application/json"` or `"image/png"`.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { MimeType } from "@beep/data"
@@ -122,7 +122,7 @@ export type MimeType = keyof typeof mimes;
  * Each member is a bare extension like `"json"`, `"html"`, or `"png"`.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { FileExtension } from "@beep/data"
@@ -138,7 +138,7 @@ export type FileExtension = (typeof mimes)[MimeType]["extensions"][number];
  * originated (`"iana"`, `"apache"`, or `"nginx"`).
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { mimeTypes } from "@beep/data"
@@ -168,7 +168,7 @@ const types = {} as Record<FileExtension, MimeType>;
  * calls return the same cached object.
  *
  * @since 0.0.0
- * @category getters
+ * @category Utility
  * @example
  * ```ts-morph
  * import { getTypes } from "@beep/data"
@@ -191,7 +191,7 @@ export function getTypes(): Record<FileExtension, MimeType> {
  * calls return the same cached object.
  *
  * @since 0.0.0
- * @category getters
+ * @category Utility
  * @example
  * ```ts-morph
  * import { getExtensions } from "@beep/data"
@@ -214,7 +214,7 @@ export function getExtensions(): Record<MimeType, FileExtension[]> {
  * Returns the matching MIME type string, or `false` if no match is found.
  *
  * @since 0.0.0
- * @category lookups
+ * @category Utility
  * @example
  * ```ts-morph
  * import { lookup } from "@beep/data"

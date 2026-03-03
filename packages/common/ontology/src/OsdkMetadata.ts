@@ -13,7 +13,7 @@ const $I = $OntologyId.create("OsdkMetadata");
  * Optional metadata included with OSDK-backed ontology requests.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export class OsdkMetadata extends S.Class<OsdkMetadata>($I`OsdkMetadata`)(
   {

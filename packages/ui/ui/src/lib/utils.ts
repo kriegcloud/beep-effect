@@ -14,7 +14,7 @@ import { twMerge } from "tailwind-merge";
  * for intelligent Tailwind class deduplication.
  *
  * @since 0.0.0
- * @category utilities
+ * @category Utility
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

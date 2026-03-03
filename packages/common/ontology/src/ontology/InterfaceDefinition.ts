@@ -14,7 +14,7 @@ import type {
  * Metadata carried by ontology interface definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface InterfaceMetadata extends ObjectInterfaceBaseMetadata {
   readonly type: "interface";
@@ -26,7 +26,7 @@ export interface InterfaceMetadata extends ObjectInterfaceBaseMetadata {
  * Compile-time description of an ontology interface definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface InterfaceDefinition {
   readonly type: "interface";
@@ -39,14 +39,14 @@ export interface InterfaceDefinition {
  * Types for {@link InterfaceMetadata}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace InterfaceMetadata {
   /**
    * Compile-time link metadata for interface link targets.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Link<Q extends ObjectTypeDefinition | InterfaceDefinition, M extends boolean> {
     readonly __OsdkLinkTargetType?: Q;

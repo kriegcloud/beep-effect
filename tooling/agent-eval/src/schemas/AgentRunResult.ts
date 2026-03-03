@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
  * Per-run benchmark result metrics.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentRunResult = {
   readonly runId: string;
@@ -25,7 +25,7 @@ export type AgentRunResult = {
  * Runtime schema for benchmark result metrics.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentRunResultSchema = S.Struct({
   runId: S.NonEmptyString,

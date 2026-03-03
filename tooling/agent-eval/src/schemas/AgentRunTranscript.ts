@@ -5,7 +5,7 @@ import { AgentNameSchema } from "./AgentRunConfig.js";
  * Agent execution transcript captured per run.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentRunTranscript = {
   readonly runId: string;
@@ -30,7 +30,7 @@ export type AgentRunTranscript = {
  * Runtime schema for execution transcript.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentRunTranscriptSchema = S.Struct({
   runId: S.NonEmptyString,

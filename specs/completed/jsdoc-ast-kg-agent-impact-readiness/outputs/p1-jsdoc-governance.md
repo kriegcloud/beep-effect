@@ -41,7 +41,7 @@ All six tags must be single-line values (current parser constraint) and follow t
 
 | Tag | Required on P1 scope | Allowed values / format |
 |---|---|---|
-| `@category` | every exported symbol | One token from allowlist: `commands`, `kg-indexing`, `kg-publish`, `kg-verify`, `kg-parity`, `kg-replay`, `benchmark-execution`, `adapters` |
+| `@category` | every exported symbol | One canonical taxonomy token: `DomainModel`, `DomainLogic`, `PortContract`, `Validation`, `Utility`, `UseCase`, `Presentation`, `DataAccess`, `Integration`, `Configuration`, `CrossCutting`, `Uncategorized` |
 | `@module` | once per file with exports, repeated on major exported symbols | `@beep/<pkg>/<path>` (kebab/snake path segments; no whitespace) |
 | `@domain` | every exported symbol | `kg-cli` or `agent-eval` |
 | `@provides` | every exported symbol in scope | Comma-separated capability tokens, or `none` |
@@ -53,7 +53,7 @@ All six tags must be single-line values (current parser constraint) and follow t
 ```ts
 /**
  * Builds and verifies a scoped KG publish payload.
- * @category kg-publish
+ * @category UseCase
  * @module @beep/cli/commands/kg/publish
  * @domain kg-cli
  * @provides KgPublishPlan

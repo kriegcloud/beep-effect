@@ -22,7 +22,7 @@ import { rootCommand } from "./commands/root.js";
  * command and are combined here so they can be shared by all derived layers.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  * @internal
  */
 const BaseLayers = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeTerminal.layer);
@@ -35,7 +35,7 @@ const BaseLayers = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeTerm
  * the repo-utils `FsUtils` service used by commands like `codegen`.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  * @internal
  */
 const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FetchHttpClient.layer, FsUtilsLive).pipe(
@@ -49,7 +49,7 @@ const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FetchHttpCli
  * This is the value handed to `Effect.runPromise` to execute the CLI.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  * @internal
  */
 const program = Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(DerivedLayers));

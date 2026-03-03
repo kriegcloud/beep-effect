@@ -9,7 +9,7 @@
  * Select exactly one key from a filter option map and force all others to `never`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Just<Z extends keyof V, V> = {
   [K in Z]: V[K];
@@ -21,7 +21,7 @@ export type Just<Z extends keyof V, V> = {
  * Mark a set of keys as forbidden on a type surface.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NeverThese<V extends string | symbol | number> = {
   [K in V]?: never;

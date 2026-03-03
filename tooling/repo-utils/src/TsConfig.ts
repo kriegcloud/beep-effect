@@ -16,7 +16,7 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
  * The root package identifier used in the returned HashMap.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ROOT_KEY = "@beep/root";
 
@@ -42,7 +42,7 @@ const ROOT_KEY = "@beep/root";
  * })
  * ```
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const collectTsConfigPaths: (
   rootDir: string

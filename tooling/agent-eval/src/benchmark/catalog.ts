@@ -17,7 +17,7 @@ const decodeTask = S.decodeUnknownSync(S.fromJsonString(AgentTaskSpecSchema));
  * Load task catalog from JSON files and enforce strict task count.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const loadTaskCatalog: (
   directory: string,

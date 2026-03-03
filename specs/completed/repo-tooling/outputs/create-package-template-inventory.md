@@ -139,7 +139,7 @@ Conditional: if `isTool`, add `"@effect/platform-node": "catalog:"` to dependenc
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const VERSION = "0.0.0" as const
 ```

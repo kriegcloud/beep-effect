@@ -12,7 +12,7 @@ import type { ObjectOrInterfaceDefinition, PropertyKeys } from "./ontology/Objec
  * Legacy alias for {@link Osdk.Instance}.
  *
  * @since 0.0.0
- * @category aliases
+ * @category DomainModel
  */
 export type OntologyObjectFrom<
   Q extends ObjectOrInterfaceDefinition,

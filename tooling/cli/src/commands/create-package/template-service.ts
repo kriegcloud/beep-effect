@@ -15,7 +15,7 @@ import Handlebars from "handlebars";
  * Mapping between template source file and output file path.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TemplateSpec {
   readonly templateName: string;
@@ -26,7 +26,7 @@ export interface TemplateSpec {
  * Rendered template output.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface RenderedTemplate {
   readonly outputPath: string;
@@ -37,7 +37,7 @@ export interface RenderedTemplate {
  * Generic request payload for template rendering.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TemplateRenderRequest<Context extends object> {
   readonly templateDir: string;
@@ -49,7 +49,7 @@ export interface TemplateRenderRequest<Context extends object> {
  * Service contract for template rendering.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TemplateService {
   readonly renderTemplates: <Context extends object>(
@@ -104,7 +104,7 @@ const createHandlebarsEnvironment = () => {
  *
  * @returns Template renderer backed by Handlebars.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const createTemplateService = (): TemplateService => {
   const hbs = createHandlebarsEnvironment();

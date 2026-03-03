@@ -12,6 +12,6 @@ import { Layer } from "effect";
  * Platform layer used at CLI boundary only.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  */
 export const AgentEvalPlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);

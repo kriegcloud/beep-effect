@@ -11,7 +11,7 @@ import type { ObjectTypeDefinition } from "./ObjectTypeDefinition.js";
  * Metadata carried by ontology query definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface QueryMetadata {
   readonly type: "query";
@@ -28,7 +28,7 @@ export interface QueryMetadata {
  * Compile-time metadata holder for generated query signatures.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface QueryCompileTimeMetadata<T> {
   readonly signature: T;
@@ -38,7 +38,7 @@ export interface QueryCompileTimeMetadata<T> {
  * Compile-time description of an ontology query definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface QueryDefinition<T = unknown> {
   readonly type: "query";
@@ -53,7 +53,7 @@ export interface QueryDefinition<T = unknown> {
  * Query parameter metadata entry.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type QueryParameterDefinition<T_Target extends ObjectTypeDefinition = ObjectTypeDefinition> = {
   readonly description?: string;
@@ -63,7 +63,7 @@ export type QueryParameterDefinition<T_Target extends ObjectTypeDefinition = Obj
  * Query output/input data-type definition family.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type QueryDataTypeDefinition<T_Target extends ObjectOrInterfaceDefinition = ObjectOrInterfaceDefinition> =
   | PrimitiveDataType
@@ -83,7 +83,7 @@ export type QueryDataTypeDefinition<T_Target extends ObjectOrInterfaceDefinition
  * Shared query data-type discriminator base.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BaseQueryDataTypeDefinition<T extends string> = {
   readonly nullable?: boolean;
@@ -94,7 +94,7 @@ export type BaseQueryDataTypeDefinition<T extends string> = {
  * Wire-level primitive query data types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WireQueryDataTypes =
   | "double"
@@ -111,7 +111,7 @@ export type WireQueryDataTypes =
  * Primitive query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PrimitiveDataType<Q extends WireQueryDataTypes = WireQueryDataTypes> = BaseQueryDataTypeDefinition<Q>;
 
@@ -119,7 +119,7 @@ export type PrimitiveDataType<Q extends WireQueryDataTypes = WireQueryDataTypes>
  * Object query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectQueryDataType<T_Target extends ObjectOrInterfaceDefinition = never>
   extends BaseQueryDataTypeDefinition<"object"> {
@@ -131,7 +131,7 @@ export interface ObjectQueryDataType<T_Target extends ObjectOrInterfaceDefinitio
  * Interface query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface InterfaceQueryDataType<T_Target extends ObjectOrInterfaceDefinition = never>
   extends BaseQueryDataTypeDefinition<"interface"> {
@@ -143,7 +143,7 @@ export interface InterfaceQueryDataType<T_Target extends ObjectOrInterfaceDefini
  * Object-set query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectSetQueryDataType<T_Target extends ObjectOrInterfaceDefinition = never>
   extends BaseQueryDataTypeDefinition<"objectSet"> {
@@ -155,7 +155,7 @@ export interface ObjectSetQueryDataType<T_Target extends ObjectOrInterfaceDefini
  * Interface-object-set query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface InterfaceObjectSetQueryDataType<T_Target extends ObjectOrInterfaceDefinition = never>
   extends BaseQueryDataTypeDefinition<"interfaceObjectSet"> {
@@ -167,7 +167,7 @@ export interface InterfaceObjectSetQueryDataType<T_Target extends ObjectOrInterf
  * Set query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SetQueryDataType extends BaseQueryDataTypeDefinition<"set"> {
   readonly set: QueryDataTypeDefinition;
@@ -177,7 +177,7 @@ export interface SetQueryDataType extends BaseQueryDataTypeDefinition<"set"> {
  * Array query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ArrayQueryDataType extends BaseQueryDataTypeDefinition<"array"> {
   readonly array: QueryDataTypeDefinition;
@@ -187,7 +187,7 @@ export interface ArrayQueryDataType extends BaseQueryDataTypeDefinition<"array">
  * Union query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface UnionQueryDataType extends BaseQueryDataTypeDefinition<"union"> {
   readonly union: ReadonlyArray<QueryDataTypeDefinition>;
@@ -197,7 +197,7 @@ export interface UnionQueryDataType extends BaseQueryDataTypeDefinition<"union">
  * Struct query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface StructQueryDataType extends BaseQueryDataTypeDefinition<"struct"> {
   readonly struct: Record<string, QueryDataTypeDefinition>;
@@ -207,7 +207,7 @@ export interface StructQueryDataType extends BaseQueryDataTypeDefinition<"struct
  * Two-dimensional aggregation query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TwoDimensionalAggregationDataType extends BaseQueryDataTypeDefinition<"twoDimensionalAggregation"> {
   readonly twoDimensionalAggregation: TwoDimensionalQueryAggregationDefinition;
@@ -217,7 +217,7 @@ export interface TwoDimensionalAggregationDataType extends BaseQueryDataTypeDefi
  * Three-dimensional aggregation query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ThreeDimensionalAggregationDataType
   extends BaseQueryDataTypeDefinition<"threeDimensionalAggregation"> {
@@ -228,7 +228,7 @@ export interface ThreeDimensionalAggregationDataType
  * Map query data type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface MapDataType extends BaseQueryDataTypeDefinition<"map"> {
   readonly keyType: QueryDataTypeDefinition;
@@ -239,7 +239,7 @@ export interface MapDataType extends BaseQueryDataTypeDefinition<"map"> {
  * Aggregation key data type (simple or range).
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationKeyDataType<V = unknown> = SimpleAggregationKeyDataType<V> | RangeAggregationKeyDataType<V>;
 
@@ -247,7 +247,7 @@ export type AggregationKeyDataType<V = unknown> = SimpleAggregationKeyDataType<V
  * Non-range aggregation key type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SimpleAggregationKeyDataType<V = unknown> {
   readonly keyType: Exclude<AggregationKeyTypes, "range">;
@@ -258,7 +258,7 @@ export interface SimpleAggregationKeyDataType<V = unknown> {
  * Range aggregation key type definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface RangeAggregationKeyDataType<V = unknown> {
   readonly keyType: "range";
@@ -270,7 +270,7 @@ export interface RangeAggregationKeyDataType<V = unknown> {
  * Two-dimensional aggregation definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TwoDimensionalQueryAggregationDefinition = AggregationKeyDataType<AggregationValueTypes>;
 
@@ -278,7 +278,7 @@ export type TwoDimensionalQueryAggregationDefinition = AggregationKeyDataType<Ag
  * Three-dimensional aggregation definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ThreeDimensionalQueryAggregationDefinition =
   AggregationKeyDataType<TwoDimensionalQueryAggregationDefinition>;
@@ -287,7 +287,7 @@ export type ThreeDimensionalQueryAggregationDefinition =
  * Supported aggregation key types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationKeyTypes = "boolean" | "string" | "date" | "double" | "integer" | "timestamp" | "range";
 
@@ -295,7 +295,7 @@ export type AggregationKeyTypes = "boolean" | "string" | "date" | "double" | "in
  * Supported range-aggregation key subtypes.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationRangeKeyTypes = "date" | "double" | "integer" | "timestamp";
 
@@ -303,6 +303,6 @@ export type AggregationRangeKeyTypes = "date" | "double" | "integer" | "timestam
  * Supported aggregation value primitive types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationValueTypes = "date" | "double" | "timestamp";

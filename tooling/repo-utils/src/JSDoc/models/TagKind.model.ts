@@ -7,7 +7,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagKind.model");
  * Classifies a tag by its syntactic placement in documentation text.
  *
  * @description The syntactic form of the tag
- * @category models
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TagKind = LiteralKit([
@@ -27,7 +27,7 @@ export const TagKind = LiteralKit([
  * Union of supported documentation tag placement kinds.
  *
  * @description The syntactic form of the tag
- * @category models
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TagKind = typeof TagKind.Type;

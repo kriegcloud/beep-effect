@@ -16,7 +16,7 @@ import type { NULL_VALUE } from "./NullValue.js";
  * Apply-action options for single action execution.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ApplyActionOptions =
   | { $returnEdits?: true; $validateOnly?: false }
@@ -26,7 +26,7 @@ export type ApplyActionOptions =
  * Apply-action options for batch action execution.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ApplyBatchActionOptions = { $returnEdits?: boolean };
 
@@ -34,14 +34,14 @@ export type ApplyBatchActionOptions = { $returnEdits?: boolean };
  * Action parameter conversion helper namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace ActionParam {
   /**
    * Resolve primitive action parameter type from wire primitive key.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type PrimitiveType<T extends keyof DataValueClientToWire> = DataValueClientToWire[T];
 
@@ -49,7 +49,7 @@ export namespace ActionParam {
    * Resolve object action parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectType<T extends ObjectTypeDefinition> = ObjectIdentifiers<T> | OsdkObjectPrimaryKeyType<T>;
 
@@ -57,7 +57,7 @@ export namespace ActionParam {
    * Resolve object-set action parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectSetType<T extends ObjectTypeDefinition> = ObjectSet<T>;
 
@@ -65,7 +65,7 @@ export namespace ActionParam {
    * Resolve interface action parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type InterfaceType<T extends InterfaceDefinition> = {
     $objectType: CompileTimeMetadata<T> extends { implementedBy: infer U }
@@ -82,7 +82,7 @@ export namespace ActionParam {
    * Resolve struct parameter type from wire primitive map.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type StructType<T extends Record<string, keyof DataValueClientToWire>> = {
     [K in keyof T]: DataValueClientToWire[T[K]];
@@ -92,7 +92,7 @@ export namespace ActionParam {
    * Sentinel type used to pass explicit null for nullable action parameters.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type NullValueType = typeof NULL_VALUE;
 }
@@ -101,7 +101,7 @@ export namespace ActionParam {
  * Action edit response alias.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ActionEditResponse = ActionResults;
 
@@ -109,6 +109,6 @@ export type ActionEditResponse = ActionResults;
  * Action validation response alias.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ActionValidationResponse = ValidateActionResponseV2;

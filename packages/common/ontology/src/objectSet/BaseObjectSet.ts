@@ -9,7 +9,7 @@ import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.
  * Minimal object-set metadata carrier.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface BaseObjectSet<Q extends ObjectOrInterfaceDefinition> {
   readonly $objectSetInternals: { readonly def: Q };

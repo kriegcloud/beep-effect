@@ -1924,7 +1924,7 @@ class GraphBuilder {
  * @param context - Runtime project context.
  * @param includeTests - Whether test coverage relationships should be emitted.
  * @returns Extracted `CodebaseGraph` payload.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const extractCodebaseGraphFromContext: (

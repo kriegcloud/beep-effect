@@ -71,7 +71,7 @@ interface Task {
 /**
  * Compare tasks by ID only.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -87,7 +87,7 @@ export const EquivalenceById = Equivalence.mapInput(
 /**
  * Compare by status tag.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const EquivalenceByTag = Equivalence.mapInput(
@@ -98,7 +98,7 @@ export const EquivalenceByTag = Equivalence.mapInput(
 /**
  * Compare by creation date.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const EquivalenceByCreatedAt = Equivalence.mapInput(
@@ -136,7 +136,7 @@ declare const EquivalenceByCreatedAt: Equivalence.Equivalence<Task>
  *
  * Both must match for equivalence.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -151,7 +151,7 @@ export const EquivalenceByTagAndId = Equivalence.combine(
 /**
  * Compare by multiple criteria for exact equality.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const EquivalenceComplete = Equivalence.combine(
@@ -266,7 +266,7 @@ interface Task {
 /**
  * Order by ID using Order.mapInput.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -280,7 +280,7 @@ export const OrderById: Order.Order<Task> =
 /**
  * Order by creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByCreatedAt: Order.Order<Task> =
@@ -289,7 +289,7 @@ export const OrderByCreatedAt: Order.Order<Task> =
 /**
  * Order by status tag.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByTag: Order.Order<Task> =
@@ -298,7 +298,7 @@ export const OrderByTag: Order.Order<Task> =
 /**
  * Order by priority (domain-specific logic).
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByPriority: Order.Order<Task> =
@@ -336,7 +336,7 @@ declare const OrderById: Order.Order<Task>
 /**
  * Sort by priority first, then by creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -353,7 +353,7 @@ export const OrderByPriorityThenDate: Order.Order<Task> = Order.combine(
 /**
  * Sort by tag, then ID, then creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderComplex: Order.Order<Task> = Order.combine(

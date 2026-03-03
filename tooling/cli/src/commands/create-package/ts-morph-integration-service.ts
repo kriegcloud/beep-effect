@@ -13,7 +13,7 @@ import type * as O from "effect/Option";
  * Supported AST mutation categories required by create-slice.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TsMorphMutationKind =
   | "add-identity-composer"
@@ -25,7 +25,7 @@ export type TsMorphMutationKind =
  * Input descriptor for one AST mutation.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsMorphMutation {
   readonly kind: TsMorphMutationKind;
@@ -39,7 +39,7 @@ export interface TsMorphMutation {
  * Outcome for one mutation.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsMorphMutationOutcome {
   readonly mutation: TsMorphMutation;
@@ -51,7 +51,7 @@ export interface TsMorphMutationOutcome {
  * Batch mutation result.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsMorphIntegrationResult {
   readonly outcomes: ReadonlyArray<TsMorphMutationOutcome>;
@@ -61,7 +61,7 @@ export interface TsMorphIntegrationResult {
  * Adapter boundary for concrete ts-morph-morph implementations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsMorphMutationAdapter {
   readonly applyMutation: (mutation: TsMorphMutation) => Effect.Effect<TsMorphMutationOutcome, DomainError>;
@@ -71,7 +71,7 @@ export interface TsMorphMutationAdapter {
  * Service contract expected by create-slice orchestration.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsMorphIntegrationService {
   readonly previewMutations: (mutations: ReadonlyArray<TsMorphMutation>) => ReadonlyArray<string>;
@@ -95,7 +95,7 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
  * @param adapter Adapter used to apply ts-morph-morph mutations.
  * @returns Integration service for previewing and applying mutations.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const createTsMorphIntegrationService = (
   adapter: TsMorphMutationAdapter = UnsupportedTsMorphAdapter

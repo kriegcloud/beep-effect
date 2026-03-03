@@ -14,7 +14,7 @@ const $I = $OntologyId.create("object/Result");
  * Error result payload.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ErrorResult {
   readonly error: Error;
@@ -25,7 +25,7 @@ export interface ErrorResult {
  * Runtime schema for {@link ErrorResult}.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const ErrorResult = S.Struct({
   error: S.instanceOf(Error),
@@ -42,7 +42,7 @@ export const ErrorResult = S.Struct({
  * Success result payload.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface OkResult<V> {
   readonly value: V;
@@ -53,7 +53,7 @@ export interface OkResult<V> {
  * Runtime schema constructor for {@link OkResult}.
  *
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const OkResult = <const V extends S.Top>(valueSchema: V) =>
   S.Struct({
@@ -71,7 +71,7 @@ export const OkResult = <const V extends S.Top>(valueSchema: V) =>
  * Union of success and error result payloads.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Result<V> = OkResult<V> | ErrorResult;
 
@@ -79,7 +79,7 @@ export type Result<V> = OkResult<V> | ErrorResult;
  * Runtime schema constructor for {@link Result}.
  *
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const Result = <const V extends S.Top>(valueSchema: V) =>
   S.Union([OkResult(valueSchema), ErrorResult]).pipe(
@@ -94,7 +94,7 @@ export const Result = <const V extends S.Top>(valueSchema: V) =>
  * Check whether a result contains a successful value.
  *
  * @since 0.0.0
- * @category predicates
+ * @category Validation
  */
 export function isOk<V>(a: Result<V>): a is OkResult<V> {
   return P.hasProperty(a, "value");
@@ -104,7 +104,7 @@ export function isOk<V>(a: Result<V>): a is OkResult<V> {
  * Check whether a result contains an error value.
  *
  * @since 0.0.0
- * @category predicates
+ * @category Validation
  */
 export function isError<V>(a: Result<V>): a is ErrorResult {
   return P.hasProperty(a, "error");

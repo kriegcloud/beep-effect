@@ -21,7 +21,7 @@ import type {
  * The `$link` container shape used on OSDK instances.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectLinksObject<O extends ObjectOrInterfaceDefinition> =
   ObjectTypeLinkKeysFrom2<O> extends never
@@ -34,7 +34,7 @@ export type OsdkObjectLinksObject<O extends ObjectOrInterfaceDefinition> =
  * Resolve accessor type for a specific link entry.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectLinksEntry<Q extends ObjectOrInterfaceDefinition, L extends ObjectTypeLinkKeysFrom2<Q>> =
   CompileTimeMetadata<Q>["links"][L] extends ObjectMetadata.Link<infer T, infer M>
@@ -49,7 +49,7 @@ export type OsdkObjectLinksEntry<Q extends ObjectOrInterfaceDefinition, L extend
  * Convert `undefined`/missing booleans to false at the type level.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DefaultToFalse<B extends boolean | undefined> = false extends B
   ? false
@@ -61,7 +61,7 @@ export type DefaultToFalse<B extends boolean | undefined> = false extends B
  * Accessor contract for a single-valued link.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SingleLinkAccessor<T extends ObjectTypeDefinition> {
   /** Load the linked object without a result wrapper. */

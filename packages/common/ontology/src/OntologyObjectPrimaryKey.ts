@@ -11,7 +11,7 @@ import type { OsdkObjectPrimaryKeyType } from "./OsdkObjectPrimaryKeyType.js";
  * Legacy alias for {@link OsdkObjectPrimaryKeyType}.
  *
  * @since 0.0.0
- * @category aliases
+ * @category DomainModel
  */
 export type OntologyObjectPrimaryKey<Q> = OsdkObjectPrimaryKeyType<Q>;
 

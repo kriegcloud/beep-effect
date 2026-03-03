@@ -10,7 +10,7 @@ import { SnapshotRecord } from "./models.js";
 /**
  * Path normalizer transformation.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const NormalizedPath = S.String.pipe(
@@ -25,7 +25,7 @@ export const NormalizedPath = S.String.pipe(
 /**
  * Comma-separated changed-path list.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const ChangedPathsCsv = S.String.pipe(
@@ -41,7 +41,7 @@ export const ChangedPathsCsv = S.String.pipe(
 /**
  * Decoder for changed-path CSV flags.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeChangedPathsCsv = S.decodeUnknownEffect(ChangedPathsCsv);
@@ -49,7 +49,7 @@ export const decodeChangedPathsCsv = S.decodeUnknownEffect(ChangedPathsCsv);
 /**
  * Snapshot record persisted as one JSON line.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const SnapshotRecordJsonLine = S.fromJsonString(SnapshotRecord);
@@ -57,7 +57,7 @@ export const SnapshotRecordJsonLine = S.fromJsonString(SnapshotRecord);
 /**
  * Decoder for one JSONL snapshot line.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeSnapshotRecordJsonLine = S.decodeUnknownEffect(SnapshotRecordJsonLine);
@@ -65,7 +65,7 @@ export const decodeSnapshotRecordJsonLine = S.decodeUnknownEffect(SnapshotRecord
 /**
  * Encoder for one JSONL snapshot line.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const encodeSnapshotRecordJsonLine = S.encodeUnknownEffect(SnapshotRecordJsonLine);
@@ -73,7 +73,7 @@ export const encodeSnapshotRecordJsonLine = S.encodeUnknownEffect(SnapshotRecord
 /**
  * Generic JSON envelope line.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const JsonEnvelopeLine = S.fromJsonString(S.Record(S.String, S.Unknown));
@@ -81,7 +81,7 @@ export const JsonEnvelopeLine = S.fromJsonString(S.Record(S.String, S.Unknown));
 /**
  * Decoder for one JSONL envelope line.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeJsonEnvelopeLine = S.decodeUnknownEffect(JsonEnvelopeLine);
@@ -92,7 +92,7 @@ export const decodeJsonEnvelopeLine = S.decodeUnknownEffect(JsonEnvelopeLine);
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed positive integer or fallback.
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parsePositiveInt = (value: O.Option<string>, fallback: number): number =>
@@ -110,7 +110,7 @@ export const parsePositiveInt = (value: O.Option<string>, fallback: number): num
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed positive number or fallback.
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parsePositiveNumber = (value: O.Option<string>, fallback: number): number =>
@@ -128,7 +128,7 @@ export const parsePositiveNumber = (value: O.Option<string>, fallback: number): 
  * @param value - Optional string input to parse.
  * @param fallback - Default value returned when parse fails.
  * @returns Parsed boolean or fallback.
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parseBoolean = (value: O.Option<string>, fallback: boolean): boolean =>
@@ -149,7 +149,7 @@ export const parseBoolean = (value: O.Option<string>, fallback: boolean): boolea
 /**
  * Decode unknown input as a non-negative integer.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeNonNegativeInt: (value: unknown) => Effect.Effect<number, DomainError> = Effect.fn(

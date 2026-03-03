@@ -7,7 +7,7 @@ const $I = $RepoUtilsId.create("codegraph/graphiti/errors");
 /**
  * Graphiti MCP protocol error.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolError>($I`GraphitiProtocolError`)(
@@ -24,7 +24,7 @@ export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolEr
 /**
  * Graphiti preflight failure.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class GraphitiPreflightError extends S.TaggedErrorClass<GraphitiPreflightError>($I`GraphitiPreflightError`)(
@@ -41,7 +41,7 @@ export class GraphitiPreflightError extends S.TaggedErrorClass<GraphitiPreflight
 /**
  * Graphiti tool invocation error.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class GraphitiToolCallError extends S.TaggedErrorClass<GraphitiToolCallError>($I`GraphitiToolCallError`)(

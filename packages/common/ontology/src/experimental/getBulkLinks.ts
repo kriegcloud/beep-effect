@@ -14,7 +14,7 @@ import type { Experiment } from "./Experiment.js";
  * Streams link results for a batch of ontology objects.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 type GetBulkLinksFn = <T extends ObjectOrInterfaceDefinition>(
   objs: Osdk.Instance<T>[],
@@ -25,7 +25,7 @@ type GetBulkLinksFn = <T extends ObjectOrInterfaceDefinition>(
  * Experiment token for bulk-link retrieval support.
  *
  * @since 0.0.0
- * @category experimental
+ * @category Uncategorized
  */
 export const __EXPERIMENTAL__NOT_SUPPORTED_YET__getBulkLinks: Experiment<
   "2.0.8",

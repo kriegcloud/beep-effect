@@ -14,7 +14,7 @@ import { VersionSyncError } from "../types.js";
  * Formatting options matching the project standard.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
@@ -28,7 +28,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * Returns `true` when the file was modified, `false` when already correct.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updatePackageManagerField: (
   filePath: string,

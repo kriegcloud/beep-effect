@@ -15,7 +15,7 @@ import type {
  * Resolve action return payload from a validate/edit option shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ActionReturnTypeForOptions<Op extends ApplyActionOptions | ApplyBatchActionOptions> = Op extends {
   $validateOnly: true;

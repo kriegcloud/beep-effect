@@ -39,7 +39,7 @@ interface Polygon {
  * Supported where-clause filter operators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PossibleWhereClauseFilters =
   | "$gt"
@@ -65,7 +65,7 @@ type DistanceUnit = "CENTIMETERS" | "METERS" | "KILOMETERS" | "INCHES" | "FEET" 
  * Distance-unit alias map accepted by geo-distance filters.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const DistanceUnitMapping: {
   centimeter: "CENTIMETERS";
@@ -115,7 +115,7 @@ export const DistanceUnitMapping: {
  * `$within` geo filter shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GeoFilter_Within = {
   $within:
@@ -145,7 +145,7 @@ export type GeoFilter_Within = {
  * `$intersects` geo filter shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GeoFilter_Intersects = {
   $intersects:
@@ -196,7 +196,7 @@ type WhereClauseNumberPropertyTypes = "double" | "integer" | "long" | "float" | 
  * Conjunctive where-clause node.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AndWhereClause<
   T extends ObjectOrInterfaceDefinition,
@@ -209,7 +209,7 @@ export type AndWhereClause<
  * Disjunctive where-clause node.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OrWhereClause<
   T extends ObjectOrInterfaceDefinition,
@@ -222,7 +222,7 @@ export type OrWhereClause<
  * Negated where-clause node.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NotWhereClause<
   T extends ObjectOrInterfaceDefinition,
@@ -235,7 +235,7 @@ export type NotWhereClause<
  * Property-level where-clause mapping for a definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropertyWhereClause<T extends ObjectOrInterfaceDefinition> = {
   [P in keyof CompileTimeMetadata<T>["properties"]]?: FilterFor<CompileTimeMetadata<T>["properties"][P]>;
@@ -250,7 +250,7 @@ type MergedPropertyWhereClause<
  * Canonical where-clause union for aggregate APIs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WhereClause<T extends ObjectOrInterfaceDefinition, RDPs extends Record<string, SimplePropertyDef> = {}> =
   | OrWhereClause<T, RDPs>

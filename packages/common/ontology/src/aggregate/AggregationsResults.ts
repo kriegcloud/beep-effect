@@ -13,7 +13,7 @@ import type { AggregationResultsWithoutGroups } from "./AggregationResultsWithou
  * Resolve aggregate result shape or emit descriptive compile-time error text.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationsResults<Q extends ObjectOrInterfaceDefinition, AO extends AggregateOpts<Q>> =
   Exclude<keyof AO["$select"], ValidAggregationKeys<Q>> extends never

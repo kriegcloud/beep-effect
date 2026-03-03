@@ -14,7 +14,7 @@ const $I = $AgentEvalId.create("errors");
  * Raised when decoding JSON or structured payloads fails.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class AgentEvalDecodeError extends S.TaggedErrorClass<AgentEvalDecodeError>($I`AgentEvalDecodeError`)(
   "AgentEvalDecodeError",
@@ -33,7 +33,7 @@ export class AgentEvalDecodeError extends S.TaggedErrorClass<AgentEvalDecodeErro
  * Raised when benchmark configuration is invalid.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class AgentEvalConfigError extends S.TaggedErrorClass<AgentEvalConfigError>($I`AgentEvalConfigError`)(
   "AgentEvalConfigError",
@@ -51,7 +51,7 @@ export class AgentEvalConfigError extends S.TaggedErrorClass<AgentEvalConfigErro
  * Raised when runtime invariants are violated.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class AgentEvalInvariantError extends S.TaggedErrorClass<AgentEvalInvariantError>($I`AgentEvalInvariantError`)(
   "AgentEvalInvariantError",
@@ -69,7 +69,7 @@ export class AgentEvalInvariantError extends S.TaggedErrorClass<AgentEvalInvaria
  * Raised when Graphiti MCP protocol expectations are not met.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class AgentEvalProtocolError extends S.TaggedErrorClass<AgentEvalProtocolError>($I`AgentEvalProtocolError`)(
   "AgentEvalProtocolError",

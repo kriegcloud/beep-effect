@@ -14,7 +14,7 @@ type EqFilterOption<T> = {
  * Base equality-only discriminator namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace EqFilter {
   /**
@@ -28,7 +28,7 @@ export declare namespace EqFilter {
  * Canonical base filter option surface.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface BaseFilterOptions<T> extends EqFilterOption<T> {
   $ne: T;
@@ -43,7 +43,7 @@ export interface BaseFilterOptions<T> extends EqFilterOption<T> {
  * Base filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace BaseFilter {
   /** @since 0.0.0 */
@@ -60,7 +60,7 @@ export declare namespace BaseFilter {
  * Canonical base filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BaseFilter<T> = BaseFilter.$eq<T> | BaseFilter.$ne<T> | BaseFilter.$in<T> | BaseFilter.$isNull<T>;
 

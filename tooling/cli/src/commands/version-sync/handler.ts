@@ -24,7 +24,7 @@ import { replaceNodeVersionWithFile, updateYamlValue } from "./updaters/yaml-fil
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const renderCategoryReport: (report: VersionCategoryReport) => Effect.Effect<void> = Effect.fn(function* (report) {
   const categoryLabel =
@@ -70,7 +70,7 @@ const renderCategoryReport: (report: VersionCategoryReport) => Effect.Effect<voi
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const renderReport: (report: VersionSyncReport, mode: VersionSyncMode) => Effect.Effect<void> = Effect.fn(
   function* (report, mode) {
@@ -98,7 +98,7 @@ const renderReport: (report: VersionSyncReport, mode: VersionSyncMode) => Effect
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const applyBunUpdates: (
   repoRoot: string,
@@ -128,7 +128,7 @@ const applyBunUpdates: (
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const applyNodeUpdates: (
   repoRoot: string,
@@ -162,7 +162,7 @@ const applyNodeUpdates: (
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const applyDockerUpdates: (
   repoRoot: string,
@@ -201,7 +201,7 @@ const applyDockerUpdates: (
 
 /**
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const applyBiomeUpdates: (
   repoRoot: string,
@@ -229,7 +229,7 @@ const applyBiomeUpdates: (
  * Execute the version-sync command.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const handleVersionSync: (
   options: VersionSyncOptions

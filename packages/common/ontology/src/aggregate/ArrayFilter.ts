@@ -15,7 +15,7 @@ interface ArrayFilterOptions<T> {
  * Array filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace ArrayFilter {
   /** @since 0.0.0 */
@@ -28,6 +28,6 @@ export declare namespace ArrayFilter {
  * Canonical array filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ArrayFilter<T> = ArrayFilter.$contains<T> | ArrayFilter.$isNull<T>;

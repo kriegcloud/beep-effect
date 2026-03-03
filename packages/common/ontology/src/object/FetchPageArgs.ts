@@ -15,7 +15,7 @@ const $I = $OntologyId.create("object/FetchPageArgs");
  * Nullability handling strategy for query/object-fetch decoding.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const NullabilityAdherence = LiteralKit([false, "throw", "drop"]).annotate(
   $I.annote("NullabilityAdherence", {
@@ -26,7 +26,7 @@ export const NullabilityAdherence = LiteralKit([false, "throw", "drop"]).annotat
  * Type NullabilityAdherence {@link NullabilityAdherence}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NullabilityAdherence = typeof NullabilityAdherence.Type;
 
@@ -34,14 +34,14 @@ export type NullabilityAdherence = typeof NullabilityAdherence.Type;
  * Types for {@link NullabilityAdherence}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace NullabilityAdherence {
   /**
    * Default nullability strategy.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Default = "throw";
 }
@@ -50,14 +50,14 @@ export declare namespace NullabilityAdherence {
  * Object-set argument building helpers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace ObjectSetArgs {
   /**
    * Shared select options.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Select<OBJECT_KEYS extends string = never, RDP_KEYS extends string = never> {
     readonly $select?: readonly (OBJECT_KEYS | RDP_KEYS)[];
@@ -68,7 +68,7 @@ export declare namespace ObjectSetArgs {
    * Ordering options for object-set operations.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type OrderByOptions<L extends string> =
     | {
@@ -80,7 +80,7 @@ export declare namespace ObjectSetArgs {
    * Shared order-by wrapper type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface OrderBy<ORDER_BY_OPTIONS extends OrderByOptions<L>, L extends string = never> {
     readonly $orderBy?: ORDER_BY_OPTIONS;
@@ -90,7 +90,7 @@ export declare namespace ObjectSetArgs {
    * Async-iteration options for object-set operations.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface AsyncIter<
     Q extends ObjectOrInterfaceDefinition,
@@ -108,7 +108,7 @@ export declare namespace ObjectSetArgs {
    * Page-fetch options for object-set operations.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface FetchPage<
     Q extends ObjectOrInterfaceDefinition,
@@ -126,7 +126,7 @@ export declare namespace ObjectSetArgs {
  * Shared select-argument contract.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SelectArg<
   Q extends ObjectOrInterfaceDefinition,
@@ -146,7 +146,7 @@ export interface SelectArg<
  * Shared order-by argument contract.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface OrderByArg<
   Q extends ObjectOrInterfaceDefinition,
@@ -173,7 +173,7 @@ type SelectArgKeyUnion<
  * Extract selected keys from a select-argument shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type SelectArgToKeys<
   Q extends ObjectOrInterfaceDefinition,
@@ -188,7 +188,7 @@ export type SelectArgToKeys<
  * Pagination request arguments for object fetch operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FetchPageArgs<
   Q extends ObjectOrInterfaceDefinition,
@@ -209,7 +209,7 @@ export interface FetchPageArgs<
  * Async-iteration arguments for object fetch operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface AsyncIterArgs<
   Q extends ObjectOrInterfaceDefinition,
@@ -232,7 +232,7 @@ export interface AsyncIterArgs<
  * Augment descriptor keyed by object/interface API name.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Augment<X extends ObjectOrInterfaceDefinition, T extends string> = {
   readonly [K in CompileTimeMetadata<X>["apiName"]]: Array<T>;
@@ -242,6 +242,6 @@ export type Augment<X extends ObjectOrInterfaceDefinition, T extends string> = {
  * Generic augment map type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Augments = Record<string, Array<string>>;

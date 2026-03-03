@@ -32,7 +32,7 @@ import * as jsonc from "jsonc-parser";
  * Formatting options used for jsonc edits.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
@@ -43,7 +43,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * Synthetic root key in repo-utils dependency maps.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ROOT_DEP_INDEX_KEY = "@beep/root" as const;
 const $I = $RepoCliId.create("commands/tsconfig-sync");
@@ -56,7 +56,7 @@ const $I = $RepoCliId.create("commands/tsconfig-sync");
  * - `@beep/<name>/*`
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
 
@@ -64,7 +64,7 @@ const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
  * Drift error raised in check mode when changes are required.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
@@ -82,7 +82,7 @@ export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDrift
  * Cycle error raised when workspace dependency cycles are detected.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
@@ -100,7 +100,7 @@ export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycle
  * Filter error raised when `--filter` does not match any workspace package.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
   "TsconfigSyncFilterError",
@@ -118,7 +118,7 @@ export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilt
  * Command execution mode.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TsconfigSyncMode = "sync" | "check" | "dry-run";
 
@@ -126,7 +126,7 @@ export type TsconfigSyncMode = "sync" | "check" | "dry-run";
  * Runtime options for executing tsconfig sync at a repo root.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsconfigSyncRunOptions {
   readonly mode: TsconfigSyncMode;
@@ -138,7 +138,7 @@ export interface TsconfigSyncRunOptions {
  * Sync change section categories.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TsconfigSyncSection = "root-references" | "root-aliases" | "package-references";
 
@@ -146,7 +146,7 @@ export type TsconfigSyncSection = "root-references" | "root-aliases" | "package-
  * A single planned file change.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsconfigSyncChange {
   readonly filePath: string;
@@ -162,7 +162,7 @@ interface PlannedFileChange extends TsconfigSyncChange {
  * Result emitted after a sync run.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TsconfigSyncResult {
   readonly mode: TsconfigSyncMode;
@@ -739,7 +739,7 @@ const renderChanges = Effect.fn(function* (
  * @param options - Mode and logging options.
  * @returns Summary of planned/applied changes.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const syncTsconfigAtRoot: (
   rootDir: string,
@@ -821,7 +821,7 @@ const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
  * CLI command for synchronizing root and workspace tsconfig state.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const tsconfigSyncCommand = Command.make(
   "tsconfig-sync",

@@ -15,7 +15,7 @@ import type { PrimaryKeyTypes } from "./ontology/PrimaryKeyTypes.js";
  * Canonical object identity fields for ontology-backed objects.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ObjectIdentifiers<Q extends ObjectOrInterfaceDefinition> = {
   readonly $apiName: Q["apiName"];
@@ -26,7 +26,7 @@ export type ObjectIdentifiers<Q extends ObjectOrInterfaceDefinition> = {
  * Common OSDK object base payload.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkBase<Q extends ObjectOrInterfaceDefinition> = ObjectIdentifiers<Q> & {
   readonly $objectSpecifier: ObjectSpecifier<Q>;
@@ -38,7 +38,7 @@ export type OsdkBase<Q extends ObjectOrInterfaceDefinition> = ObjectIdentifiers<
  * Resolve primary-key runtime value type for a given object or interface definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PrimaryKeyType<Q extends ObjectOrInterfaceDefinition> = (Q extends ObjectTypeDefinition
   ? OsdkObjectPrimaryKeyType<Q>

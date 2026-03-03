@@ -12,7 +12,7 @@
  * A record mapping package names to version specifiers.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export type DependencyRecord = Readonly<Record<string, string>>;
 
@@ -24,7 +24,7 @@ export type DependencyRecord = Readonly<Record<string, string>>;
  * optional).
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface WorkspaceDeps {
   /** The package name this dependency set belongs to. */
@@ -53,7 +53,7 @@ export interface WorkspaceDeps {
  * @param packageName Package name to initialize.
  * @returns Empty dependency structure for the package.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps => ({
   packageName,

@@ -14,7 +14,7 @@ import type { OrderedAggregationClause, UnorderedAggregationClause } from "./Agg
  * Aggregate response shape when `$groupBy` is provided.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationResultsWithGroups<
   Q extends ObjectOrInterfaceDefinition,

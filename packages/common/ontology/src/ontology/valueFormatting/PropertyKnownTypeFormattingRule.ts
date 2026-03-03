@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyKnownTypeFormatt
  * Known platform-specific semantic property types.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const KnownType = S.Literals(["USER_OR_GROUP_ID", "RESOURCE_RID", "ARTIFACT_GID"]).pipe(
   S.annotate(
@@ -27,7 +27,7 @@ export const KnownType = S.Literals(["USER_OR_GROUP_ID", "RESOURCE_RID", "ARTIFA
  * Type for {@link KnownType}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type KnownType = typeof KnownType.Type;
 
@@ -35,7 +35,7 @@ export type KnownType = typeof KnownType.Type;
  * Formatting rule for properties tagged as a known semantic type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyKnownTypeFormattingRule extends S.Class<PropertyKnownTypeFormattingRule>(
   $I`PropertyKnownTypeFormattingRule`

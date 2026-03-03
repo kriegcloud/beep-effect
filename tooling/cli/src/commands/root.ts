@@ -22,7 +22,7 @@ import { versionSyncCommand } from "./version-sync/index.js";
  * This is the command tree root consumed by `Command.run` in the bin entry point.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  * @internal
  */
 export const rootCommand = Command.make("beep-cli").pipe(

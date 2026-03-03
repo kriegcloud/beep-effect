@@ -12,7 +12,7 @@ import type { ObjectOrInterfaceDefinition } from "./ontology/ObjectOrInterface.j
  * Legacy alias for {@link OsdkBase}.
  *
  * @since 0.0.0
- * @category aliases
+ * @category DomainModel
  */
 export type OntologyBase<Q extends ObjectOrInterfaceDefinition> = OsdkBase<Q>;
 

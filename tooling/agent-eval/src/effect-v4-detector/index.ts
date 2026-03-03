@@ -12,7 +12,7 @@ import * as O from "effect/Option";
  * Static wrong-API detection rule.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface WrongApiRule {
   readonly id: string;
@@ -27,7 +27,7 @@ export interface WrongApiRule {
  * One concrete wrong-API incident detected in content.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface WrongApiIncident {
   readonly ruleId: string;
@@ -43,7 +43,7 @@ export interface WrongApiIncident {
  * Aggregated wrong-API detection report.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface WrongApiDetectionReport {
   readonly incidents: ReadonlyArray<WrongApiIncident>;
@@ -55,7 +55,7 @@ export interface WrongApiDetectionReport {
  * Canonical wrong-API rule set for Effect v4 migration enforcement.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const WrongApiRules: ReadonlyArray<WrongApiRule> = [
   {
@@ -144,7 +144,7 @@ export const WrongApiRules: ReadonlyArray<WrongApiRule> = [
  * Mandatory Effect-first compliance rules for touched source code.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const EffectComplianceRules: ReadonlyArray<WrongApiRule> = [
   {
@@ -357,7 +357,7 @@ const detectWithRules = (content: string, rules: ReadonlyArray<WrongApiRule>): W
  * @param content - Source text blob to scan for wrong-API patterns.
  * @returns Detection report containing incidents and severity counts.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const detectWrongApis = (content: string): WrongApiDetectionReport => {
   return detectWithRules(content, WrongApiRules);
@@ -369,7 +369,7 @@ export const detectWrongApis = (content: string): WrongApiDetectionReport => {
  * @param content - Source text blob to scan for effect-compliance violations.
  * @returns Detection report containing incidents and severity counts.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const detectEffectComplianceViolations = (content: string): WrongApiDetectionReport =>
   detectWithRules(content, EffectComplianceRules);

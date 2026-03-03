@@ -21,7 +21,7 @@
  *
  * export const youShouldFeelShame = (beepBopUnsafeValue: Unsafe.Any) => console.log(beepBopUnsafeValue);
  *
- * @category Unsafe
+ * @category CrossCutting
  * @since 0.0.0
  * biome-ignore lint/suspicious/noExplicitAny: Let this be the only `any` in the repository.
  */

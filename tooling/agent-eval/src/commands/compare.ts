@@ -15,7 +15,7 @@ import { readSuiteFile } from "./bench.js";
  * Compare command arguments.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface CompareArgs {
   readonly baseline: string;
@@ -28,7 +28,7 @@ export interface CompareArgs {
  * Render and persist benchmark comparison markdown.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const handleCompare: (args: CompareArgs) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> =
   Effect.fn(function* (args) {

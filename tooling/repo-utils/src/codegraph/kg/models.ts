@@ -8,7 +8,7 @@ const $I = $RepoUtilsId.create("codegraph/kg/models");
 /**
  * Current KG schema version.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const KgSchemaVersion = "kg-schema-v1" as const;
@@ -16,7 +16,7 @@ export const KgSchemaVersion = "kg-schema-v1" as const;
 /**
  * Canonical envelope tag written into AST KG publish payloads.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const AstKgEnvelopeVersion = "AstKgEpisodeV1" as const;
@@ -24,7 +24,7 @@ export const AstKgEnvelopeVersion = "AstKgEpisodeV1" as const;
 /**
  * Default AST KG memory group.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const AstKgGroupId = "beep-ast-kg" as const;
@@ -32,7 +32,7 @@ export const AstKgGroupId = "beep-ast-kg" as const;
 /**
  * KG schema-version literal.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const KgSchemaVersionTag = S.Literal(KgSchemaVersion).annotate(
@@ -44,7 +44,7 @@ export const KgSchemaVersionTag = S.Literal(KgSchemaVersion).annotate(
 /**
  * Selector for full-rebuild versus changed-files KG indexing.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const IndexMode = LiteralKit(["full", "delta"]).annotate(
@@ -56,7 +56,7 @@ export const IndexMode = LiteralKit(["full", "delta"]).annotate(
 /**
  * Index mode runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type IndexMode = typeof IndexMode.Type;
@@ -64,7 +64,7 @@ export type IndexMode = typeof IndexMode.Type;
 /**
  * Edge provenance.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const Provenance = LiteralKit(["ast", "type", "JSDoc"]).annotate(
@@ -76,7 +76,7 @@ export const Provenance = LiteralKit(["ast", "type", "JSDoc"]).annotate(
 /**
  * Edge provenance runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type Provenance = typeof Provenance.Type;
@@ -84,7 +84,7 @@ export type Provenance = typeof Provenance.Type;
 /**
  * Enumerates the declaration kinds emitted as KG nodes.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const KgNodeKind = LiteralKit([
@@ -105,7 +105,7 @@ export const KgNodeKind = LiteralKit([
 /**
  * KG node kind runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type KgNodeKind = typeof KgNodeKind.Type;
@@ -113,7 +113,7 @@ export type KgNodeKind = typeof KgNodeKind.Type;
 /**
  * Chooses whether publish writes go to Falkor, Graphiti, or both sinks.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const PublishTarget = LiteralKit(["falkor", "graphiti", "both"]).annotate(
@@ -125,7 +125,7 @@ export const PublishTarget = LiteralKit(["falkor", "graphiti", "both"]).annotate
 /**
  * Publish target runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type PublishTarget = typeof PublishTarget.Type;
@@ -133,7 +133,7 @@ export type PublishTarget = typeof PublishTarget.Type;
 /**
  * Identifies an individual sink when emitting per-sink write receipts.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const SinkTarget = LiteralKit(["falkor", "graphiti"]).annotate(
@@ -145,7 +145,7 @@ export const SinkTarget = LiteralKit(["falkor", "graphiti"]).annotate(
 /**
  * Sink target runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type SinkTarget = typeof SinkTarget.Type;
@@ -153,7 +153,7 @@ export type SinkTarget = typeof SinkTarget.Type;
 /**
  * Configures strictness profile used during Falkor parity validation.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const ParityProfile = LiteralKit(["code-graph-functional", "code-graph-strict"]).annotate(
@@ -165,7 +165,7 @@ export const ParityProfile = LiteralKit(["code-graph-functional", "code-graph-st
 /**
  * Parity profile runtime type.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type ParityProfile = typeof ParityProfile.Type;
@@ -173,7 +173,7 @@ export type ParityProfile = typeof ParityProfile.Type;
 /**
  * KG node payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class KgNode extends S.Class<KgNode>($I`KgNode`)(
@@ -193,7 +193,7 @@ export class KgNode extends S.Class<KgNode>($I`KgNode`)(
 /**
  * KG edge payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class KgEdge extends S.Class<KgEdge>($I`KgEdge`)(
@@ -214,7 +214,7 @@ export class KgEdge extends S.Class<KgEdge>($I`KgEdge`)(
 /**
  * Aggregated node and edge counts computed for one extracted artifact.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class ArtifactStats extends S.Class<ArtifactStats>($I`ArtifactStats`)(
@@ -231,7 +231,7 @@ export class ArtifactStats extends S.Class<ArtifactStats>($I`ArtifactStats`)(
 /**
  * File artifact payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class FileArtifact extends S.Class<FileArtifact>($I`FileArtifact`)(
@@ -253,7 +253,7 @@ export class FileArtifact extends S.Class<FileArtifact>($I`FileArtifact`)(
 /**
  * Snapshot record payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(
@@ -275,7 +275,7 @@ export class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(
 /**
  * Snapshot manifest entry payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class SnapshotManifestEntry extends S.Class<SnapshotManifestEntry>($I`SnapshotManifestEntry`)(
@@ -298,7 +298,7 @@ export class SnapshotManifestEntry extends S.Class<SnapshotManifestEntry>($I`Sna
 /**
  * Snapshot manifest payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class SnapshotManifest extends S.Class<SnapshotManifest>($I`SnapshotManifest`)(
@@ -316,7 +316,7 @@ export class SnapshotManifest extends S.Class<SnapshotManifest>($I`SnapshotManif
 /**
  * Graphiti dedupe ledger payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class GraphitiLedger extends S.Class<GraphitiLedger>($I`GraphitiLedger`)(
@@ -332,7 +332,7 @@ export class GraphitiLedger extends S.Class<GraphitiLedger>($I`GraphitiLedger`)(
 /**
  * Index summary payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class IndexSummary extends S.Class<IndexSummary>($I`IndexSummary`)(
@@ -356,7 +356,7 @@ export class IndexSummary extends S.Class<IndexSummary>($I`IndexSummary`)(
 /**
  * Node envelope payload for publish sinks.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class AstKgNodeV2 extends S.Class<AstKgNodeV2>($I`AstKgNodeV2`)(
@@ -376,7 +376,7 @@ export class AstKgNodeV2 extends S.Class<AstKgNodeV2>($I`AstKgNodeV2`)(
 /**
  * Edge envelope payload for publish sinks.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class AstKgEdgeV2 extends S.Class<AstKgEdgeV2>($I`AstKgEdgeV2`)(
@@ -396,7 +396,7 @@ export class AstKgEdgeV2 extends S.Class<AstKgEdgeV2>($I`AstKgEdgeV2`)(
 /**
  * Sink write receipt payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class AstKgWriteReceiptV1 extends S.Class<AstKgWriteReceiptV1>($I`AstKgWriteReceiptV1`)(
@@ -418,7 +418,7 @@ export class AstKgWriteReceiptV1 extends S.Class<AstKgWriteReceiptV1>($I`AstKgWr
 /**
  * Publish summary payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class PublishSummary extends S.Class<PublishSummary>($I`PublishSummary`)(
@@ -438,7 +438,7 @@ export class PublishSummary extends S.Class<PublishSummary>($I`PublishSummary`)(
 /**
  * Sink publish ledger payload.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class SinkPublishLedger extends S.Class<SinkPublishLedger>($I`SinkPublishLedger`)(
@@ -454,7 +454,7 @@ export class SinkPublishLedger extends S.Class<SinkPublishLedger>($I`SinkPublish
 /**
  * Envelope metadata extracted from a published envelope.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class EnvelopeMetadata extends S.Class<EnvelopeMetadata>($I`EnvelopeMetadata`)(
@@ -477,7 +477,7 @@ export class EnvelopeMetadata extends S.Class<EnvelopeMetadata>($I`EnvelopeMetad
 /**
  * Decoder for arbitrary unknown values to `SnapshotRecord`.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeSnapshotRecord = S.decodeUnknownEffect(SnapshotRecord);
@@ -485,7 +485,7 @@ export const decodeSnapshotRecord = S.decodeUnknownEffect(SnapshotRecord);
 /**
  * Decoder for arbitrary unknown values to `SnapshotManifest`.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeSnapshotManifest = S.decodeUnknownEffect(SnapshotManifest);
@@ -493,7 +493,7 @@ export const decodeSnapshotManifest = S.decodeUnknownEffect(SnapshotManifest);
 /**
  * Decoder for arbitrary unknown values to `GraphitiLedger`.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeGraphitiLedger = S.decodeUnknownEffect(GraphitiLedger);
@@ -501,7 +501,7 @@ export const decodeGraphitiLedger = S.decodeUnknownEffect(GraphitiLedger);
 /**
  * Decoder for arbitrary unknown values to `SinkPublishLedger`.
  *
- * @category codegraph-kg
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeSinkPublishLedger = S.decodeUnknownEffect(SinkPublishLedger);

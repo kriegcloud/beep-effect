@@ -155,7 +155,7 @@ const runBeepClaudeSdkExecution = async (request: ExecutionRequest): Promise<Exe
  * @depends BeepAiSdk
  * @errors none
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => {
   if (hasAuthCredentials()) {
@@ -181,7 +181,7 @@ export const probeClaudeSdkAvailability = async (): Promise<SdkAvailability> => 
  * @depends BeepAiSdk, AbortController
  * @errors none
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const runClaudeSdkExecution = async (request: ExecutionRequest): Promise<ExecutionResult> => {
   if (!hasAuthCredentials()) {

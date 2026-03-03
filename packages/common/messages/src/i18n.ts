@@ -33,7 +33,7 @@ void i18next.init({
  * Translation function configured for repository messages.
  *
  * @since 0.0.0
- * @category helpers
+ * @category Utility
  */
 export const t = i18next.t;
 
@@ -41,7 +41,7 @@ export const t = i18next.t;
  * Configuration for schema issue formatting hooks.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GetLogIssuesOptions {
   readonly leafHook?: undefined | SchemaIssue.LeafHook;
@@ -116,7 +116,7 @@ export interface GetLogIssuesOptions {
  * // Failure(Cause([Fail([{"path":["name"],"message":"Please enter at least 1 character(s)"}])]))
  *
  *
- * @category utilities
+ * @category Utility
  * @since 0.0.0
  * @param options
  */
@@ -144,7 +144,7 @@ const matchInvalidIssue = Match.type<SchemaIssue.InvalidType["ast"]>().pipe(
  * Default formatter hook for leaf-level schema issues.
  *
  * @since 0.0.0
- * @category hooks
+ * @category Utility
  */
 export const leafHook = Match.type<SchemaIssue.Leaf>().pipe(
   Match.tagsExhaustive({
@@ -166,7 +166,7 @@ const matchMetaFilter = Match.type<S.Annotations.Filter["meta"]>().pipe(
  * Default issue logger using the repository i18n formatter hooks.
  *
  * @since 0.0.0
- * @category helpers
+ * @category Utility
  */
 export const logIssues = getLogIssues({
   // Format leaf-level issues (missing key, wrong type, etc.)

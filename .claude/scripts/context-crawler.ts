@@ -5,7 +5,7 @@
  *
  * Crawls the codebase to find all ai-context.md files and outputs a structured index.
  *
- * @category Scripts
+ * @category UseCase
  * @since 1.0.0
  */
 

@@ -120,7 +120,7 @@ const matrixComparable = (
  * @param title - Report title rendered as the markdown heading.
  * @returns Markdown table with success-rate and wrong-API deltas.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const renderComparisonMarkdown = (
   baseline: AgentBenchSuite,

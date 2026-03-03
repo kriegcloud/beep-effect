@@ -18,7 +18,7 @@ import { VersionSyncError } from "../types.js";
  * Returns `true` when the file was modified, `false` when already correct.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateYamlValue: (
   filePath: string,
@@ -68,7 +68,7 @@ export const updateYamlValue: (
  * Returns `true` when the file was modified, `false` when no changes needed.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const replaceNodeVersionWithFile: (
   filePath: string,

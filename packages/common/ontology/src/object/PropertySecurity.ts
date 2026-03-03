@@ -13,7 +13,7 @@ const $I = $OntologyId.create("object/PropertySecurity");
  * A unique identifier for a security marking.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const MarkingId = S.String.annotate(
   $I.annote("MarkingId", {
@@ -26,7 +26,7 @@ export const MarkingId = S.String.annotate(
  * Type for {@link MarkingId}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MarkingId = typeof MarkingId.Type;
 
@@ -34,7 +34,7 @@ export type MarkingId = typeof MarkingId.Type;
  * Array of marking identifiers.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const ArrayOfMarkingId = S.Array(MarkingId).annotate(
   $I.annote("ArrayOfMarkingId", {
@@ -47,7 +47,7 @@ export const ArrayOfMarkingId = S.Array(MarkingId).annotate(
  * Type for {@link ArrayOfMarkingId}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ArrayOfMarkingId = typeof ArrayOfMarkingId.Type;
 
@@ -55,7 +55,7 @@ export type ArrayOfMarkingId = typeof ArrayOfMarkingId.Type;
  * Two-dimensional array of marking identifiers.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const TwoDimensionalArrayOfMarkingId = S.Array(ArrayOfMarkingId).annotate(
   $I.annote("TwoDimensionalArrayOfMarkingId", {
@@ -68,7 +68,7 @@ export const TwoDimensionalArrayOfMarkingId = S.Array(ArrayOfMarkingId).annotate
  * Type for {@link TwoDimensionalArrayOfMarkingId}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TwoDimensionalArrayOfMarkingId = typeof TwoDimensionalArrayOfMarkingId.Type;
 
@@ -76,7 +76,7 @@ export type TwoDimensionalArrayOfMarkingId = typeof TwoDimensionalArrayOfMarking
  * All marking requirements applicable to a property value.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyMarkings extends S.Class<PropertyMarkings>($I`PropertyMarkings`)(
   {
@@ -124,7 +124,7 @@ export class PropertyMarkings extends S.Class<PropertyMarkings>($I`PropertyMarki
  * Successful property security evaluation result.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyMarkingsPropertySecurity extends PropertyMarkings.extend<PropertyMarkingsPropertySecurity>(
   $I`PropertyMarkingsPropertySecurity`
@@ -141,7 +141,7 @@ export class PropertyMarkingsPropertySecurity extends PropertyMarkings.extend<Pr
  * Property security evaluation result when policy type is unsupported.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class UnsupportedPolicyPropertySecurity extends S.Class<UnsupportedPolicyPropertySecurity>(
   $I`UnsupportedPolicyPropertySecurity`
@@ -158,7 +158,7 @@ export class UnsupportedPolicyPropertySecurity extends S.Class<UnsupportedPolicy
  * Property security evaluation result when computation fails.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class ErrorComputingSecurityPropertySecurity extends S.Class<ErrorComputingSecurityPropertySecurity>(
   $I`ErrorComputingSecurityPropertySecurity`
@@ -175,7 +175,7 @@ export class ErrorComputingSecurityPropertySecurity extends S.Class<ErrorComputi
  * Discriminated union of property security outcomes.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PropertySecurity = S.Union([
   PropertyMarkingsPropertySecurity,
@@ -195,6 +195,6 @@ export const PropertySecurity = S.Union([
  * Type for {@link PropertySecurity}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropertySecurity = typeof PropertySecurity.Type;

@@ -14,7 +14,7 @@ import { VersionSyncError } from "../types.js";
  * Returns `true` when the file was modified, `false` when already correct.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updatePlainTextFile: (
   filePath: string,

@@ -9,7 +9,7 @@
  * Include only members from `T` whose value type extends `M`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IncludeValuesExtending<T extends Record<PropertyKey, unknown>, M> = {
   [K in keyof T as T[K] extends M ? K : never]: T[K];

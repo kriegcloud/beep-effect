@@ -307,7 +307,7 @@ package/
  * <One-line function description>
  *
  * @since X.0.0
- * @category <category>
+ * @category DomainModel
  */
 export const functionName = ...
 ```
@@ -315,7 +315,7 @@ export const functionName = ...
 ### Required Tags
 
 - `@since` - **MANDATORY** on all exports
-- `@category` - Common on functions (constructors, mapping, filtering, etc.)
+- `@category` - Use one canonical taxonomy value (DomainModel, DomainLogic, PortContract, Validation, Utility, UseCase, Presentation, DataAccess, Integration, Configuration, CrossCutting, Uncategorized)
 - `@internal` - Mark internal implementation functions
 
 ---

@@ -14,7 +14,7 @@ import * as O from "effect/Option";
  * A file write operation.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PlannedFile {
   readonly relativePath: string;
@@ -25,7 +25,7 @@ export interface PlannedFile {
  * A symlink operation.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PlannedSymlink {
   readonly relativePath: string;
@@ -36,7 +36,7 @@ export interface PlannedSymlink {
  * Input payload used to create a generation plan.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FileGenerationPlanInput {
   readonly outputDir: string;
@@ -49,7 +49,7 @@ export interface FileGenerationPlanInput {
  * Planned action kinds.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GenerationAction = Data.TaggedEnum<{
   mkdir: {
@@ -71,7 +71,7 @@ const GenerationAction = Data.taggedEnum<GenerationAction>();
  * Deterministic generation plan.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FileGenerationPlan {
   readonly outputDir: string;
@@ -82,7 +82,7 @@ export interface FileGenerationPlan {
  * Execution report for a plan run.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FileGenerationExecutionResult {
   readonly createdDirectories: number;
@@ -96,7 +96,7 @@ export interface FileGenerationExecutionResult {
  * Service contract for deterministic generation plan orchestration.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FileGenerationPlanService {
   readonly createPlan: (input: FileGenerationPlanInput) => FileGenerationPlan;
@@ -171,7 +171,7 @@ const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
  *
  * @returns Deterministic plan preview and execution helpers.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const createFileGenerationPlanService = (): FileGenerationPlanService => {
   const createPlan: FileGenerationPlanService["createPlan"] = (input) => {

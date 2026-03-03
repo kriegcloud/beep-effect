@@ -13,7 +13,7 @@ import type { GroupByMapper } from "./GroupByMapper.js";
  * Group-by clause keyed by aggregatable properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GroupByClause<Q extends ObjectOrInterfaceDefinition> = {
   [P in AggregatableKeys<Q>]?: GroupByEntry<Q, P>;
@@ -44,7 +44,7 @@ type ExactGroupByWithOptions = {
  * Inclusive range tuple used by `$ranges`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GroupByRange<T> = [T, T];
 
@@ -52,7 +52,7 @@ export type GroupByRange<T> = [T, T];
  * Group-by options for string properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type StringGroupByValue = BaseGroupByValue;
 
@@ -60,7 +60,7 @@ export type StringGroupByValue = BaseGroupByValue;
  * Group-by options for numeric-like properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumericGroupByValue = BaseGroupByValue | { $fixedWidth: number } | { $ranges: GroupByRange<number>[] };
 
@@ -68,7 +68,7 @@ export type NumericGroupByValue = BaseGroupByValue | { $fixedWidth: number } | {
  * Group-by options for timestamp properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TimestampGroupByValue =
   | BaseGroupByValue
@@ -79,7 +79,7 @@ export type TimestampGroupByValue =
  * Group-by options for datetime properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DateGroupByValue =
   | BaseGroupByValue
@@ -90,7 +90,7 @@ export type DateGroupByValue =
  * Group-by options for booleans.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BooleanGroupByValue = BaseGroupByValue;
 
@@ -98,7 +98,7 @@ export type BooleanGroupByValue = BaseGroupByValue;
  * Duration units accepted by timestamp duration group-by entries.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TimestampTimeUnits = DateTimeUnits | "SECONDS" | "MINUTES" | "HOURS";
 
@@ -106,7 +106,7 @@ export type TimestampTimeUnits = DateTimeUnits | "SECONDS" | "MINUTES" | "HOURS"
  * Duration units accepted by datetime duration group-by entries.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DateTimeUnits = "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | "QUARTERS";
 
@@ -114,7 +114,7 @@ export type DateTimeUnits = "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | "QUARTERS";
  * Supported shorthand duration unit keywords for group-by bucketing.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const DurationMapping: {
   quarter: "QUARTERS";
@@ -176,6 +176,6 @@ type GroupByEntry<
  * Union of all supported group-by value contracts.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AllGroupByValues = GroupByMapper[keyof GroupByMapper];

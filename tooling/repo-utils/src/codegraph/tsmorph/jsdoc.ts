@@ -294,7 +294,7 @@ const compareTags = (left: TsMorphDeterministicTag, right: TsMorphDeterministicT
  * @param context - Runtime project context.
  * @param input - Decomposition request.
  * @returns Deterministic Effect channel decomposition.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decomposeEffectChannelsFromContext: (
@@ -426,7 +426,7 @@ const returnTypeSummary = (target: TsMorphDeclarationTarget): string | undefined
  * @param context - Runtime project context.
  * @param input - Deterministic derivation request.
  * @returns Deterministic tags.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const deriveDeterministicJSDocFromContext: (
@@ -588,7 +588,7 @@ const makeValidationIssue = (code: string, message: string, tag?: string): TsMor
  * @param context - Runtime project context.
  * @param input - Validation request.
  * @returns Validation report.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const validateJSDocInContext: (
@@ -756,7 +756,7 @@ const resolveTagConflicts = (
  * @param context - Runtime project context.
  * @param input - Plan request.
  * @returns Deterministic write operations + conflicts.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const planJSDocWritesInContext: (
@@ -880,7 +880,7 @@ const readExistingSignatureHash = (target: TsMorphDeclarationTarget): O.Option<s
  * @param context - Runtime project context.
  * @param plan - Deterministic write plan.
  * @returns Write receipt.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const applyJSDocWritesInContext: (
@@ -1000,7 +1000,7 @@ export const applyJSDocWritesInContext: (
  * @param context - Runtime project context.
  * @param input - Drift request.
  * @returns Drift report.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const checkJSDocDriftInContext: (

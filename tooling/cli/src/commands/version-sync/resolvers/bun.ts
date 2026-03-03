@@ -26,7 +26,7 @@ import {
 
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 const BunRelease = S.Struct({
   tag_name: S.String,
@@ -38,7 +38,7 @@ const BunRelease = S.Struct({
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/latest";
 
@@ -46,7 +46,7 @@ const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/lates
  * Strip the `bun-v` prefix from a GitHub release tag name.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param tagName - The GitHub release tag (e.g. `bun-v1.3.9`).
  * @returns The bare version string.
  */
@@ -56,7 +56,7 @@ const extractBunVersion = Str.replace(/^bun-v/, "");
  * Strip the `bun@` prefix from a `packageManager` field value.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param value - The packageManager field value (e.g. `bun@1.3.9`).
  * @returns The bare version string.
  */
@@ -70,7 +70,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjec
  * Resolved Bun version state.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface BunVersionState {
   readonly bunVersionFile: string;
@@ -82,7 +82,7 @@ export interface BunVersionState {
  * Resolve current Bun versions from local files and optionally fetch latest from GitHub.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveBunVersions: (
   repoRoot: string,
@@ -135,7 +135,7 @@ export const resolveBunVersions: (
  * Fetch the latest stable Bun release version from GitHub.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError, HttpClient.HttpClient> = Effect.fn(
   function* () {
@@ -158,7 +158,7 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
  * Build the Bun category report from resolved state.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param state - The resolved Bun version state.
  * @returns The version category report for Bun.
  */

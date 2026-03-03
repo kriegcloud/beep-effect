@@ -15,7 +15,7 @@ import { Command, Flag } from "effect/unstable/cli";
  * Matches legacy purge intent from `@beep/repo-scripts`.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const WORKSPACE_ARTIFACTS = [
   ".tsbuildinfo",
@@ -34,7 +34,7 @@ const WORKSPACE_ARTIFACTS = [
  * Root-level artifacts always purged.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
 
@@ -42,7 +42,7 @@ const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
  * Optional root lock artifact purged with `--lock` / `-l`.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
 
@@ -50,7 +50,7 @@ const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
  * Summary statistics returned after a purge run.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PurgeSummary {
   readonly targetedCount: number;
@@ -65,7 +65,7 @@ export interface PurgeSummary {
  * @param removeLock - Whether to include root `bun.lock`.
  * @returns Deduplicated absolute paths to purge and workspace count.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @internal
  */
 const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: boolean) {
@@ -102,7 +102,7 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
  * @param removeLock - Whether to include root `bun.lock`.
  * @returns Purge summary with targeted and existing-removed counts.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boolean) {
   const fs = yield* FileSystem.FileSystem;
@@ -148,7 +148,7 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
  * CLI command to purge workspace/root build artifacts.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const purgeCommand = Command.make(
   "purge",

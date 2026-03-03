@@ -100,7 +100,7 @@ const summarizeByKey = (
  * @param title - Report title rendered at the top of the markdown output.
  * @returns Markdown report grouped by condition and by agent/model.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const renderBenchmarkMarkdown = (suite: AgentBenchSuite, title: string): string => {
   const status = suite.status ?? "completed";

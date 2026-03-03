@@ -947,7 +947,7 @@ A documentation format that enables both human reading and machine extraction:
  * ```
  *
  * @since 0.1.0
- * @category Resolution
+ * @category DomainLogic
  */
 ```
 

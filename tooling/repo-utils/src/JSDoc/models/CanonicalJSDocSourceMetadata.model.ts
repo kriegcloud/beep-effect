@@ -8,7 +8,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/CanonicalJSDocSourceMetadata.model"
  * Metadata for a canonical documentation source used in tag catalogs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMetadata>(
   $I`CanonicalJSDocSourceMetadata`
@@ -27,14 +27,14 @@ export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMe
  * Runtime codec companion types for {@link CanonicalJSDocSourceMetadata}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace CanonicalJSDocSourceMetadata {
   /**
    * Encoded wire shape for {@link CanonicalJSDocSourceMetadata}.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Encoded = typeof CanonicalJSDocSourceMetadata.Encoded;
 }
@@ -45,7 +45,7 @@ export declare namespace CanonicalJSDocSourceMetadata {
  * @param input - Serialized source metadata payload.
  * @returns A decoded schema instance with strongly typed fields.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const make = (input: CanonicalJSDocSourceMetadata.Encoded) =>
   new CanonicalJSDocSourceMetadata({

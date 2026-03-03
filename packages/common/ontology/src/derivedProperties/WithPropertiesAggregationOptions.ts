@@ -12,7 +12,7 @@ const $I = $OntologyId.create("derivedProperties/WithPropertiesAggregationOption
  * Distinct aggregate options for with-properties aggregations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const DistinctWithPropAggregateOption = LiteralKit(["approximateDistinct", "exactDistinct"]).annotate(
   $I.annote("DistinctWithPropAggregateOption", {
@@ -23,7 +23,7 @@ export const DistinctWithPropAggregateOption = LiteralKit(["approximateDistinct"
  * Distinct aggregate options for with-properties aggregations. {@link DistinctWithPropAggregateOption}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DistinctWithPropAggregateOption = typeof DistinctWithPropAggregateOption.Type;
 
@@ -31,7 +31,7 @@ export type DistinctWithPropAggregateOption = typeof DistinctWithPropAggregateOp
  * Collection aggregate options for with-properties aggregations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const CollectWithPropAggregations = LiteralKit(["collectSet", "collectList"]).annotate(
   $I.annote("CollectWithPropAggregations", {
@@ -42,7 +42,7 @@ export const CollectWithPropAggregations = LiteralKit(["collectSet", "collectLis
 /**
  * Collection aggregate options for with-properties aggregations. {@link CollectWithPropAggregations}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type CollectWithPropAggregations = typeof CollectWithPropAggregations.Type;
 
@@ -50,7 +50,7 @@ export type CollectWithPropAggregations = typeof CollectWithPropAggregations.Typ
  * Base aggregate options that all supported with-properties types can use.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const BaseWithPropAggregations = LiteralKit([
   ...DistinctWithPropAggregateOption.Options,
@@ -65,7 +65,7 @@ export const BaseWithPropAggregations = LiteralKit([
  * Base aggregate options that all supported with-properties types can use. {@link BaseWithPropAggregations}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BaseWithPropAggregations = typeof BaseWithPropAggregations.Type;
 
@@ -73,7 +73,7 @@ export type BaseWithPropAggregations = typeof BaseWithPropAggregations.Type;
  * Min/max aggregate options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const MinMaxWithPropAggregateOption = LiteralKit(["min", "max"]).annotate(
   $I.annote("MinMaxWithPropAggregateOption", {
@@ -84,7 +84,7 @@ export const MinMaxWithPropAggregateOption = LiteralKit(["min", "max"]).annotate
 /**
  * Min/max aggregate options. {@link MinMaxWithPropAggregateOption}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MinMaxWithPropAggregateOption = typeof MinMaxWithPropAggregateOption.Type;
 
@@ -92,7 +92,7 @@ export type MinMaxWithPropAggregateOption = typeof MinMaxWithPropAggregateOption
  * Datetime/timestamp with-properties aggregate options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const DatetimeWithPropAggregateOption = LiteralKit([
   ...MinMaxWithPropAggregateOption.Options,
@@ -106,7 +106,7 @@ export const DatetimeWithPropAggregateOption = LiteralKit([
 /**
  * Datetime/timestamp with-properties aggregate options. {@link DatetimeWithPropAggregateOption}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeWithPropAggregateOption = typeof DatetimeWithPropAggregateOption.Type;
 
@@ -114,7 +114,7 @@ export type DatetimeWithPropAggregateOption = typeof DatetimeWithPropAggregateOp
  * Numeric with-properties aggregate options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const NumericWithPropAggregateOption = LiteralKit([
   "sum",
@@ -131,7 +131,7 @@ export const NumericWithPropAggregateOption = LiteralKit([
 /**
  * Numeric with-properties aggregate options. {@link NumericWithPropAggregateOption}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumericWithPropAggregateOption = typeof NumericWithPropAggregateOption.Type;
 
@@ -139,7 +139,7 @@ export type NumericWithPropAggregateOption = typeof NumericWithPropAggregateOpti
  * Special wire types that support collect operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const ValidCollectPropertyKeysForSpecialTypes = LiteralKit([
   "attachment",
@@ -154,6 +154,6 @@ export const ValidCollectPropertyKeysForSpecialTypes = LiteralKit([
 /**
  * Special wire types that support collect operations. {@link ValidCollectPropertyKeysForSpecialTypes}
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ValidCollectPropertyKeysForSpecialTypes = typeof ValidCollectPropertyKeysForSpecialTypes.Type;

@@ -35,7 +35,7 @@ import { createTemplateService, type TemplateSpec } from "./template-service.js"
  * @param path - Path service used to compose normalized candidate paths.
  * @returns Candidate directories in preferred lookup order.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => [
   path.join(baseDir, "templates"),
@@ -53,7 +53,7 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  * @param baseDir - Optional command module directory override (defaults to current module directory).
  * @returns Resolved template directory path.
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: string = import.meta.dirname) {
   const fs = yield* FileSystem.FileSystem;
@@ -79,7 +79,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: str
  * Valid package types.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
 
@@ -89,7 +89,7 @@ const isValidPackageType: P.Predicate<string> = (value) => A.some(VALID_TYPES, (
  * Mapping from template source to output path.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   { templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" },
@@ -107,7 +107,7 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
  * Ordered list of all generated files for dry-run and summary output.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ALL_FILES: ReadonlyArray<string> = [
   "package.json",
@@ -129,7 +129,7 @@ const ALL_FILES: ReadonlyArray<string> = [
  * Root-relative directories created for each package.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const PACKAGE_DIRECTORIES: ReadonlyArray<string> = ["src", "test", "dtslint", "docs"];
 
@@ -142,7 +142,7 @@ const fileGenerationPlanService = createFileGenerationPlanService();
  * Variables passed into every template during package scaffolding.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 interface TemplateContext {
   readonly name: string;
@@ -223,7 +223,7 @@ const singleTargetFallback = (
  * `package.json`, and automatic root tsconfig updates (project references + path aliases).
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const createPackageCommand = Command.make(
   "create-package",
@@ -434,7 +434,7 @@ export const createPackageCommand = Command.make(
  * @param packagePath - Package path relative to repo root (e.g. `"tooling/my-utils"`).
  * @returns A JSON string (with trailing newline) ready to be written to disk.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const generatePackageJson: (
   name: string,

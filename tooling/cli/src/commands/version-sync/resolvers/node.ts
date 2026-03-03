@@ -23,7 +23,7 @@ import { VersionSyncError } from "../types.js";
  * A workflow file location with a `node-version` field.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface NodeVersionLocation {
   readonly file: string;
@@ -37,7 +37,7 @@ export interface NodeVersionLocation {
  * Resolved Node version state.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface NodeVersionState {
   readonly nvmrc: string;
@@ -52,7 +52,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjec
  * Resolve Node.js version state from `.nvmrc` and workflow files.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveNodeVersions: (
   repoRoot: string
@@ -108,7 +108,7 @@ export const resolveNodeVersions: (
  * Find `node-version:` field locations in a workflow YAML document.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param content - The raw YAML content of the workflow file.
  * @param relativeFile - The relative path to the workflow file.
  * @returns An array of locations where `node-version` is declared.
@@ -172,7 +172,7 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
  * Build the Node category report from resolved state.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param state - The resolved Node version state.
  * @returns The version category report for Node.js.
  */

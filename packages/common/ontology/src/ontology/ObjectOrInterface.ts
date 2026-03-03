@@ -13,7 +13,7 @@ import type { WirePropertyTypes } from "./WirePropertyTypes.js";
  * Canonical union of ontology object or interface definition contracts.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ObjectOrInterfaceDefinition = ObjectTypeDefinition | InterfaceDefinition;
 
@@ -21,14 +21,14 @@ export type ObjectOrInterfaceDefinition = ObjectTypeDefinition | InterfaceDefini
  * Derived-property compile-time augmentation helpers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace DerivedObjectOrInterfaceDefinition {
   /**
    * Attach derived-property compile-time metadata to a base definition.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type WithDerivedProperties<
     K extends ObjectOrInterfaceDefinition,
@@ -49,7 +49,7 @@ export declare namespace DerivedObjectOrInterfaceDefinition {
  * Property key extraction helper for ontology definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropertyKeys<O extends ObjectOrInterfaceDefinition> = keyof CompileTimeMetadata<O>["properties"] & string;
 
@@ -57,14 +57,14 @@ export type PropertyKeys<O extends ObjectOrInterfaceDefinition> = keyof CompileT
  * Property-key filtering helpers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace PropertyKeys {
   /**
    * Filter property keys whose metadata `type` extends a target wire type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Filtered<
     Q extends ObjectOrInterfaceDefinition,

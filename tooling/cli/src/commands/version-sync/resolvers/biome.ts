@@ -20,13 +20,13 @@ import { VersionSyncError } from "../types.js";
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const BIOME_SCHEMA_PREFIX = "https://biomejs.dev/schemas/";
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const BIOME_SCHEMA_SUFFIX = "/schema.json";
 
@@ -38,7 +38,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjec
  * Extract the version from a Biome schema URL.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param schemaUrl - The `$schema` URL from `biome.jsonc`.
  * @returns The extracted version, or `None` if the URL format is unrecognized.
  */
@@ -53,7 +53,7 @@ const extractSchemaVersion = (schemaUrl: string): O.Option<string> => {
  * Extract exact version from a catalog version specifier (strip `^`, `~`, etc.).
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param version - The version specifier (e.g. `^2.4.4`).
  * @returns The bare version string without range prefix.
  */
@@ -63,7 +63,7 @@ const stripVersionPrefix = Str.replace(/^[~^>=<]+/, "");
  * Build a schema URL from a version string.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param version - The Biome version (e.g. `2.4.4`).
  * @returns The full `$schema` URL for `biome.jsonc`.
  */
@@ -75,7 +75,7 @@ const buildSchemaUrl = (version: string): string => `${BIOME_SCHEMA_PREFIX}${ver
  * Resolved Biome schema state.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface BiomeSchemaState {
   readonly schemaUrl: string;
@@ -87,7 +87,7 @@ export interface BiomeSchemaState {
  * Resolve current Biome schema version from `biome.jsonc` and installed version from `package.json` catalog.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveBiomeSchema: (
   repoRoot: string
@@ -151,7 +151,7 @@ export const resolveBiomeSchema: (
  * Build the Biome schema category report from resolved state.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param state - The resolved Biome schema state.
  * @returns The version category report for the Biome schema.
  */
@@ -194,7 +194,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
  * Update the `$schema` field in `biome.jsonc` to match the installed version.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateBiomeSchema: (
   filePath: string,

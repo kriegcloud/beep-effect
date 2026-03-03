@@ -282,7 +282,7 @@ const renderClaudeCommandDescription = (model: string, claudeEffort: ExecutionRe
  * @depends CodexCli, ClaudeCli, ProcessRunner
  * @errors none
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const runCliExecution = async (request: ExecutionRequest): Promise<ExecutionResult> => {
   if (request.agent === "codex") {

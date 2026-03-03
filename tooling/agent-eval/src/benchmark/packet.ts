@@ -9,7 +9,7 @@
  * Result of packet shaping for corrective guidance facts.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface RetrievalPacket {
   readonly facts: ReadonlyArray<string>;
@@ -24,7 +24,7 @@ export interface RetrievalPacket {
  * @param maxChars - Maximum cumulative character budget for returned facts.
  * @returns Packet payload with selected facts and total character count.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const buildRetrievalPacket = (
   inputFacts: ReadonlyArray<string>,

@@ -14,7 +14,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyDateAndTimestamp
  * Built-in localized date/time format identifiers.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DatetimeLocalizedFormatType = S.Literals([
   "DATE_FORMAT_RELATIVE_TO_NOW",
@@ -36,7 +36,7 @@ export const DatetimeLocalizedFormatType = S.Literals([
  * Type for {@link DatetimeLocalizedFormatType}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeLocalizedFormatType = typeof DatetimeLocalizedFormatType.Type;
 
@@ -44,7 +44,7 @@ export type DatetimeLocalizedFormatType = typeof DatetimeLocalizedFormatType.Typ
  * Fixed timezone display configuration.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`DatetimeTimezoneStatic`)(
   {
@@ -60,7 +60,7 @@ export class DatetimeTimezoneStatic extends S.Class<DatetimeTimezoneStatic>($I`D
  * Use the user's local timezone.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`DatetimeTimezoneUser`)(
   {
@@ -75,7 +75,7 @@ export class DatetimeTimezoneUser extends S.Class<DatetimeTimezoneUser>($I`Datet
  * Timezone selection strategy for timestamp formatting.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DatetimeTimezone = S.Union([DatetimeTimezoneStatic, DatetimeTimezoneUser]).pipe(
   S.toTaggedUnion("type"),
@@ -91,7 +91,7 @@ export const DatetimeTimezone = S.Union([DatetimeTimezoneStatic, DatetimeTimezon
  * Type for {@link DatetimeTimezone}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeTimezone = typeof DatetimeTimezone.Type;
 
@@ -99,7 +99,7 @@ export type DatetimeTimezone = typeof DatetimeTimezone.Type;
  * Predefined localized date/time formats.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I`DatetimeLocalizedFormat`)(
   {
@@ -115,7 +115,7 @@ export class DatetimeLocalizedFormat extends S.Class<DatetimeLocalizedFormat>($I
  * A custom date format pattern.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`DatetimeStringFormat`)(
   {
@@ -131,7 +131,7 @@ export class DatetimeStringFormat extends S.Class<DatetimeStringFormat>($I`Datet
  * Supported date/time format strategies.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DatetimeFormat = S.Union([DatetimeLocalizedFormat, DatetimeStringFormat]).pipe(
   S.toTaggedUnion("type"),
@@ -147,7 +147,7 @@ export const DatetimeFormat = S.Union([DatetimeLocalizedFormat, DatetimeStringFo
  * Type for {@link DatetimeFormat}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeFormat = typeof DatetimeFormat.Type;
 
@@ -155,7 +155,7 @@ export type DatetimeFormat = typeof DatetimeFormat.Type;
  * Formatting rule for properties with wire type `date`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyDateFormattingRule extends S.Class<PropertyDateFormattingRule>($I`PropertyDateFormattingRule`)(
   {
@@ -171,7 +171,7 @@ export class PropertyDateFormattingRule extends S.Class<PropertyDateFormattingRu
  * Formatting rule for properties with wire type `timestamp`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyTimestampFormattingRule extends S.Class<PropertyTimestampFormattingRule>(
   $I`PropertyTimestampFormattingRule`

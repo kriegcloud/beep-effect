@@ -7,7 +7,7 @@ const $I = $RepoUtilsId.create("codegraph/graphiti/mcp-models");
 /**
  * JSON-RPC protocol version.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const JsonRpcVersion = S.Literal("2.0").annotate(
@@ -19,7 +19,7 @@ export const JsonRpcVersion = S.Literal("2.0").annotate(
 /**
  * MCP initialize client info.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpClientInfo extends S.Class<McpClientInfo>($I`McpClientInfo`)(
@@ -35,7 +35,7 @@ export class McpClientInfo extends S.Class<McpClientInfo>($I`McpClientInfo`)(
 /**
  * MCP tool call params payload.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpToolCallParams extends S.Class<McpToolCallParams>($I`McpToolCallParams`)(
@@ -51,7 +51,7 @@ export class McpToolCallParams extends S.Class<McpToolCallParams>($I`McpToolCall
 /**
  * JSON-RPC MCP tool call request.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpToolCallRequest extends S.Class<McpToolCallRequest>($I`McpToolCallRequest`)(
@@ -69,7 +69,7 @@ export class McpToolCallRequest extends S.Class<McpToolCallRequest>($I`McpToolCa
 /**
  * JSON-RPC initialize request params.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpInitializeParams extends S.Class<McpInitializeParams>($I`McpInitializeParams`)(
@@ -86,7 +86,7 @@ export class McpInitializeParams extends S.Class<McpInitializeParams>($I`McpInit
 /**
  * JSON-RPC initialize request.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpInitializeRequest extends S.Class<McpInitializeRequest>($I`McpInitializeRequest`)(
@@ -104,7 +104,7 @@ export class McpInitializeRequest extends S.Class<McpInitializeRequest>($I`McpIn
 /**
  * JSON-RPC initialized notification.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpInitializedNotification extends S.Class<McpInitializedNotification>($I`McpInitializedNotification`)(
@@ -120,7 +120,7 @@ export class McpInitializedNotification extends S.Class<McpInitializedNotificati
 /**
  * Top-level JSON-RPC payload extracted from an MCP response.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class McpJsonRpcPayload extends S.Class<McpJsonRpcPayload>($I`McpJsonRpcPayload`)(
@@ -138,7 +138,7 @@ export class McpJsonRpcPayload extends S.Class<McpJsonRpcPayload>($I`McpJsonRpcP
 /**
  * Decoder for unknown payloads into `McpJsonRpcPayload`.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeMcpJsonRpcPayload = S.decodeUnknownEffect(McpJsonRpcPayload);

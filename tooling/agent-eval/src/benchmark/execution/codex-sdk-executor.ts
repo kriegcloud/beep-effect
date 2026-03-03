@@ -69,7 +69,7 @@ const stringifyEvent = (event: unknown): string => {
  * @depends CodexSdk
  * @errors none
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const probeCodexSdkAvailability = async (): Promise<SdkAvailability> => {
   try {
@@ -105,7 +105,7 @@ const mapCodexReasoningEffort = (
  * @depends CodexSdk, AbortController
  * @errors none
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const runCodexSdkExecution = async (request: ExecutionRequest): Promise<ExecutionResult> => {
   const module = await loadCodexSdkModule();

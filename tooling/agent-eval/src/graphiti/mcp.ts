@@ -24,7 +24,7 @@ import { AgentEvalProtocolError } from "../errors.js";
  * Graphiti client options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GraphitiMcpOptions {
   readonly url: string;
@@ -351,7 +351,7 @@ const executeTool = async (options: GraphitiMcpOptions, toolName: GraphitiToolNa
  * @param maxFacts - Maximum number of facts requested from Graphiti.
  * @returns Deduplicated fact strings extracted from the MCP response text.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const searchMemoryFacts = async (
   options: GraphitiMcpOptions,
@@ -386,7 +386,7 @@ export const searchMemoryFacts = async (
  * @param episodeBody - Full episode content to persist in Graphiti memory.
  * @returns Resolves when the add-memory tool call completes.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const addMemoryEpisode = async (
   options: GraphitiMcpOptions,

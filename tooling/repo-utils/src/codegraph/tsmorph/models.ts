@@ -11,7 +11,7 @@ const $I = $RepoUtilsId.create("codegraph/tsmorph/models");
 /**
  * Identifier format mode for extracted codegraph entities.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphIdMode = LiteralKit(["graph-v2", "scip-hash"]).annotate(
@@ -23,7 +23,7 @@ export const TsMorphIdMode = LiteralKit(["graph-v2", "scip-hash"]).annotate(
 /**
  * Identifier format mode runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphIdMode = typeof TsMorphIdMode.Type;
@@ -31,7 +31,7 @@ export type TsMorphIdMode = typeof TsMorphIdMode.Type;
 /**
  * Node kinds emitted by the generalized ts-morph extractor.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphNodeKind = LiteralKit([
@@ -63,7 +63,7 @@ export const TsMorphNodeKind = LiteralKit([
 /**
  * Node kind runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphNodeKind = typeof TsMorphNodeKind.Type;
@@ -71,7 +71,7 @@ export type TsMorphNodeKind = typeof TsMorphNodeKind.Type;
 /**
  * Edge kinds emitted by the generalized ts-morph extractor.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphEdgeKind = LiteralKit([
@@ -110,7 +110,7 @@ export const TsMorphEdgeKind = LiteralKit([
 /**
  * Edge kind runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphEdgeKind = typeof TsMorphEdgeKind.Type;
@@ -118,7 +118,7 @@ export type TsMorphEdgeKind = typeof TsMorphEdgeKind.Type;
 /**
  * Request payload for resolving a scoped ts-morph project context.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
@@ -135,7 +135,7 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
 /**
  * Resolved project scope for one ts-morph service operation.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorphProjectScope`)(
@@ -154,7 +154,7 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
 /**
  * Runtime project context shared by higher-level methods.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export interface TsMorphProjectContext {
@@ -166,7 +166,7 @@ export interface TsMorphProjectContext {
 /**
  * Generic deterministic tag labels derived without LLM inference.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphDeterministicTagName = LiteralKit([
@@ -193,7 +193,7 @@ export const TsMorphDeterministicTagName = LiteralKit([
 /**
  * Deterministic tag runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphDeterministicTagName = typeof TsMorphDeterministicTagName.Type;
@@ -201,7 +201,7 @@ export type TsMorphDeterministicTagName = typeof TsMorphDeterministicTagName.Typ
 /**
  * One deterministic JSDoc tag derived from AST and type information.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphDeterministicTag extends S.Class<TsMorphDeterministicTag>($I`TsMorphDeterministicTag`)(
@@ -218,7 +218,7 @@ export class TsMorphDeterministicTag extends S.Class<TsMorphDeterministicTag>($I
 /**
  * Symbol selector used by tag, query, and write operations.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphSymbolSelector extends S.Class<TsMorphSymbolSelector>($I`TsMorphSymbolSelector`)(
@@ -235,7 +235,7 @@ export class TsMorphSymbolSelector extends S.Class<TsMorphSymbolSelector>($I`TsM
 /**
  * Request for extracting a codebase graph snapshot.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphGraphExtractionRequest extends S.Class<TsMorphGraphExtractionRequest>(
@@ -253,7 +253,7 @@ export class TsMorphGraphExtractionRequest extends S.Class<TsMorphGraphExtractio
 /**
  * Request for deterministic tag derivation.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphDeterministicJSDocRequest extends S.Class<TsMorphDeterministicJSDocRequest>(
@@ -271,7 +271,7 @@ export class TsMorphDeterministicJSDocRequest extends S.Class<TsMorphDeterminist
 /**
  * Request for decomposing `Effect<A, E, R>` channels.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphEffectDecompositionRequest extends S.Class<TsMorphEffectDecompositionRequest>(
@@ -289,7 +289,7 @@ export class TsMorphEffectDecompositionRequest extends S.Class<TsMorphEffectDeco
 /**
  * Result of decomposing Effect channels.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphEffectChannels extends S.Class<TsMorphEffectChannels>($I`TsMorphEffectChannels`)(
@@ -306,7 +306,7 @@ export class TsMorphEffectChannels extends S.Class<TsMorphEffectChannels>($I`TsM
 /**
  * Search request for symbol retrieval.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphSearchSymbolsRequest extends S.Class<TsMorphSearchSymbolsRequest>($I`TsMorphSearchSymbolsRequest`)(
@@ -324,7 +324,7 @@ export class TsMorphSearchSymbolsRequest extends S.Class<TsMorphSearchSymbolsReq
 /**
  * One search match for a symbol query.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphSymbolMatch extends S.Class<TsMorphSymbolMatch>($I`TsMorphSymbolMatch`)(
@@ -343,7 +343,7 @@ export class TsMorphSymbolMatch extends S.Class<TsMorphSymbolMatch>($I`TsMorphSy
 /**
  * Dependency traversal direction.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphDependencyDirection = LiteralKit(["upstream", "downstream"]).annotate(
@@ -355,7 +355,7 @@ export const TsMorphDependencyDirection = LiteralKit(["upstream", "downstream"])
 /**
  * Dependency direction runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphDependencyDirection = typeof TsMorphDependencyDirection.Type;
@@ -363,7 +363,7 @@ export type TsMorphDependencyDirection = typeof TsMorphDependencyDirection.Type;
 /**
  * Request for dependency traversal.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphTraverseDependenciesRequest extends S.Class<TsMorphTraverseDependenciesRequest>(
@@ -383,7 +383,7 @@ export class TsMorphTraverseDependenciesRequest extends S.Class<TsMorphTraverseD
 /**
  * Request for function explanation context.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphExplainFunctionRequest extends S.Class<TsMorphExplainFunctionRequest>(
@@ -401,7 +401,7 @@ export class TsMorphExplainFunctionRequest extends S.Class<TsMorphExplainFunctio
 /**
  * Function explanation payload.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphFunctionExplanation extends S.Class<TsMorphFunctionExplanation>($I`TsMorphFunctionExplanation`)(
@@ -419,7 +419,7 @@ export class TsMorphFunctionExplanation extends S.Class<TsMorphFunctionExplanati
 /**
  * User supplied JSDoc tag entry used by validation and write planning.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocTagInput extends S.Class<TsMorphJSDocTagInput>($I`TsMorphJSDocTagInput`)(
@@ -436,7 +436,7 @@ export class TsMorphJSDocTagInput extends S.Class<TsMorphJSDocTagInput>($I`TsMor
 /**
  * Validation request for JSDoc insertion.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphValidateJSDocRequest extends S.Class<TsMorphValidateJSDocRequest>($I`TsMorphValidateJSDocRequest`)(
@@ -453,7 +453,7 @@ export class TsMorphValidateJSDocRequest extends S.Class<TsMorphValidateJSDocReq
 /**
  * Validation issue entry returned by JSDoc validation.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocValidationIssue extends S.Class<TsMorphJSDocValidationIssue>($I`TsMorphJSDocValidationIssue`)(
@@ -470,7 +470,7 @@ export class TsMorphJSDocValidationIssue extends S.Class<TsMorphJSDocValidationI
 /**
  * Validation report for one symbol JSDoc payload.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocValidationReport extends S.Class<TsMorphJSDocValidationReport>(
@@ -490,7 +490,7 @@ export class TsMorphJSDocValidationReport extends S.Class<TsMorphJSDocValidation
 /**
  * One planned write operation for a symbol.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocWriteOperation extends S.Class<TsMorphJSDocWriteOperation>($I`TsMorphJSDocWriteOperation`)(
@@ -507,7 +507,7 @@ export class TsMorphJSDocWriteOperation extends S.Class<TsMorphJSDocWriteOperati
 /**
  * Conflict surfaced during write planning.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocWriteConflict extends S.Class<TsMorphJSDocWriteConflict>($I`TsMorphJSDocWriteConflict`)(
@@ -526,7 +526,7 @@ export class TsMorphJSDocWriteConflict extends S.Class<TsMorphJSDocWriteConflict
 /**
  * Request for deterministic JSDoc write planning.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphPlanJSDocWritesRequest extends S.Class<TsMorphPlanJSDocWritesRequest>(
@@ -544,7 +544,7 @@ export class TsMorphPlanJSDocWritesRequest extends S.Class<TsMorphPlanJSDocWrite
 /**
  * Deterministic JSDoc write plan.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocWritePlan extends S.Class<TsMorphJSDocWritePlan>($I`TsMorphJSDocWritePlan`)(
@@ -561,7 +561,7 @@ export class TsMorphJSDocWritePlan extends S.Class<TsMorphJSDocWritePlan>($I`TsM
 /**
  * Receipt returned after applying a write plan.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocWriteReceipt extends S.Class<TsMorphJSDocWriteReceipt>($I`TsMorphJSDocWriteReceipt`)(
@@ -578,7 +578,7 @@ export class TsMorphJSDocWriteReceipt extends S.Class<TsMorphJSDocWriteReceipt>(
 /**
  * Scope selector used for drift checks.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphDriftScope = LiteralKit(["file", "package", "all"]).annotate(
@@ -590,7 +590,7 @@ export const TsMorphDriftScope = LiteralKit(["file", "package", "all"]).annotate
 /**
  * Drift scope runtime type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphDriftScope = typeof TsMorphDriftScope.Type;
@@ -598,7 +598,7 @@ export type TsMorphDriftScope = typeof TsMorphDriftScope.Type;
 /**
  * Input payload for signature-hash drift detection across selected symbols.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphCheckDriftRequest extends S.Class<TsMorphCheckDriftRequest>($I`TsMorphCheckDriftRequest`)(
@@ -615,7 +615,7 @@ export class TsMorphCheckDriftRequest extends S.Class<TsMorphCheckDriftRequest>(
 /**
  * Drift entry for one symbol.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocDriftEntry extends S.Class<TsMorphJSDocDriftEntry>($I`TsMorphJSDocDriftEntry`)(
@@ -633,7 +633,7 @@ export class TsMorphJSDocDriftEntry extends S.Class<TsMorphJSDocDriftEntry>($I`T
 /**
  * Drift report payload.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export class TsMorphJSDocDriftReport extends S.Class<TsMorphJSDocDriftReport>($I`TsMorphJSDocDriftReport`)(
@@ -650,7 +650,7 @@ export class TsMorphJSDocDriftReport extends S.Class<TsMorphJSDocDriftReport>($I
 /**
  * Runtime declaration target kinds supported by mutable JSDoc operations.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const TsMorphDeclarationTargetKind = LiteralKit([
@@ -671,7 +671,7 @@ export const TsMorphDeclarationTargetKind = LiteralKit([
 /**
  * Runtime declaration target kind type.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export type TsMorphDeclarationTargetKind = typeof TsMorphDeclarationTargetKind.Type;
@@ -679,7 +679,7 @@ export type TsMorphDeclarationTargetKind = typeof TsMorphDeclarationTargetKind.T
 /**
  * Runtime declaration target resolved for one symbol selector.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export interface TsMorphDeclarationTarget {
@@ -693,7 +693,7 @@ export interface TsMorphDeclarationTarget {
 /**
  * Default identifier mode used by request normalization.
  *
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const DefaultTsMorphIdMode: TsMorphIdMode = "graph-v2";
@@ -703,7 +703,7 @@ export const DefaultTsMorphIdMode: TsMorphIdMode = "graph-v2";
  *
  * @param idMode - Optional requested id mode.
  * @returns Effective mode, defaulting to graph-v2.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const resolveIdMode = (idMode: O.Option<TsMorphIdMode>): TsMorphIdMode =>

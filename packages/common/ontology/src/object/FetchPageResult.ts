@@ -14,7 +14,7 @@ import type { NullabilityAdherence, ObjectSetArgs } from "./FetchPageArgs.js";
  * Resolve strict-nullability behavior from nullability adherence options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type RespectNullability<S extends NullabilityAdherence> = S extends false ? false : true;
 
@@ -22,7 +22,7 @@ export type RespectNullability<S extends NullabilityAdherence> = S extends false
  * Conditionally union an extra member when a condition is false.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type UnionIfFalse<S extends string, JUST_S_IF_TRUE extends boolean, E> =
   IsNever<S> extends true ? never : JUST_S_IF_TRUE extends true ? S : S | E;
@@ -31,7 +31,7 @@ export type UnionIfFalse<S extends string, JUST_S_IF_TRUE extends boolean, E> =
  * Conditionally union an extra member when a condition is true.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type UnionIfTrue<S extends string, UNION_IF_TRUE extends boolean, E extends string> =
   IsNever<S> extends true ? never : UNION_IF_TRUE extends true ? S | E : S;
@@ -40,7 +40,7 @@ export type UnionIfTrue<S extends string, UNION_IF_TRUE extends boolean, E exten
  * Type-level conversion from fetch-page args to paged OSDK instances.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type FetchPageResult<
   Q extends ObjectOrInterfaceDefinition,
@@ -57,7 +57,7 @@ export type FetchPageResult<
  * Type-level conversion from single-object fetch args to an OSDK instance.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type SingleOsdkResult<
   Q extends ObjectOrInterfaceDefinition,
@@ -81,6 +81,6 @@ export type SingleOsdkResult<
  * Detect whether a type is `any`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IsAny<T> = unknown extends T ? ([keyof T] extends [never] ? false : true) : false;

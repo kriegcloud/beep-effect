@@ -22,7 +22,7 @@ const compactGetter = SchemaGetter.stringifyJson();
  * on serialization failure.
  *
  * @since 0.0.0
- * @category json
+ * @category Utility
  */
 export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
   const result = yield* prettyGetter
@@ -37,7 +37,7 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * on serialization failure.
  *
  * @since 0.0.0
- * @category json
+ * @category Utility
  */
 export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(
   function* (value) {
@@ -53,7 +53,7 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * For typed parsing, prefer `Schema.decodeUnknown(Schema.fromJsonString(MySchema))`.
  *
  * @since 0.0.0
- * @category json
+ * @category Utility
  */
 export const jsonParse: (input: string) => Effect.Effect<unknown, DomainError> = Effect.fn(function* (input) {
   return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(input).pipe(

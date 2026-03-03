@@ -484,7 +484,7 @@ const internal = {
  * ```
  *
  * @since 1.0.0
- * @category constructors
+ * @category Utility
  */
 export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never, never> = (config) =>
   Effect.succeed({ config })
@@ -504,7 +504,7 @@ export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never,
  * ```
  *
  * @since 1.0.0
- * @category combinators
+ * @category Utility
  */
 export const map: <A, B>(instance: Instance<A>, f: (a: A) => B) => Effect.Effect<Instance<B>, never, never> = (
   instance,

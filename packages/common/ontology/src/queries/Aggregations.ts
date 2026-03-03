@@ -14,7 +14,7 @@ import type {
  * Range bucket helper used by query aggregations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type Range<T extends AllowedBucketTypes> =
   | {
@@ -30,7 +30,7 @@ export type Range<T extends AllowedBucketTypes> =
  * Primitive value types allowed in aggregation buckets.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AllowedBucketTypes = string | number | boolean;
 
@@ -38,7 +38,7 @@ export type AllowedBucketTypes = string | number | boolean;
  * Supported bucket key payload types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AllowedBucketKeyTypes = AllowedBucketTypes | Range<AllowedBucketTypes>;
 
@@ -46,7 +46,7 @@ export type AllowedBucketKeyTypes = AllowedBucketTypes | Range<AllowedBucketType
  * Two-dimensional aggregation payload shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TwoDimensionalAggregation<T extends AllowedBucketKeyTypes, U extends AllowedBucketTypes> = Array<{
   key: T;
@@ -57,7 +57,7 @@ export type TwoDimensionalAggregation<T extends AllowedBucketKeyTypes, U extends
  * Three-dimensional aggregation payload shape.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ThreeDimensionalAggregation<
   T extends AllowedBucketKeyTypes,
@@ -69,7 +69,7 @@ export type ThreeDimensionalAggregation<
  * Resolve an aggregation key from wire response format to client format.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggKeyWireToClient<
   T extends AggregationKeyTypes,
@@ -86,7 +86,7 @@ export type AggKeyWireToClient<
  * Resolve an aggregation key from client format to wire request format.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggKeyClientToWire<
   T extends AggregationKeyTypes,
@@ -103,7 +103,7 @@ export type AggKeyClientToWire<
  * Resolve aggregation value type from wire response format.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggValueWireToClient<T extends AggregationValueTypes> = T extends keyof DataValueWireToClient
   ? DataValueWireToClient[T]
@@ -113,7 +113,7 @@ export type AggValueWireToClient<T extends AggregationValueTypes> = T extends ke
  * Resolve aggregation value type from client request format.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggValueClientToWire<T extends AggregationValueTypes> = T extends keyof DataValueClientToWire
   ? DataValueClientToWire[T]

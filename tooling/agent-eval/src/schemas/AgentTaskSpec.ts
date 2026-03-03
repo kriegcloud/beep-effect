@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
  * Task category for benchmark coverage balancing.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const TaskCategorySchema = S.Literals(["apps_web", "tooling_cli", "package_lib"]);
 
@@ -12,7 +12,7 @@ export const TaskCategorySchema = S.Literals(["apps_web", "tooling_cli", "packag
  * Task category for benchmark coverage balancing.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TaskCategory = typeof TaskCategorySchema.Type;
 
@@ -20,7 +20,7 @@ export type TaskCategory = typeof TaskCategorySchema.Type;
  * Benchmark task definition for one real-world agent trial target.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentTaskSpec = {
   readonly id: string;
@@ -45,7 +45,7 @@ export type AgentTaskSpec = {
  * Runtime schema for benchmark task definition.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentTaskSpecSchema = S.Struct({
   id: S.NonEmptyString,

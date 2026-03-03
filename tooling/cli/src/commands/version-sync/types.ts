@@ -17,7 +17,7 @@ const $I = $RepoCliId.create("commands/version-sync/types");
  * Operational error during version sync (file read/write, parse failures).
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
   "VersionSyncError",
@@ -32,7 +32,7 @@ export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>($I`Ve
  * Network unavailable during upstream version resolution.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailableError>($I`NetworkUnavailableError`)(
   "NetworkUnavailableError",
@@ -47,7 +47,7 @@ export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailab
  * Drift detected in check mode (non-zero exit).
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftError>($I`VersionSyncDriftError`)(
   "VersionSyncDriftError",
@@ -64,7 +64,7 @@ export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftEr
  * A single version pin location with its current and expected values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface VersionDriftItem {
   readonly file: string;
@@ -78,7 +78,7 @@ export interface VersionDriftItem {
  * Version category for grouping drift items.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type VersionCategory = "bun" | "node" | "docker" | "biome";
 
@@ -86,7 +86,7 @@ export type VersionCategory = "bun" | "node" | "docker" | "biome";
  * Status of a version category.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type VersionCategoryStatus = "ok" | "drift" | "unpinned" | "error";
 
@@ -94,7 +94,7 @@ export type VersionCategoryStatus = "ok" | "drift" | "unpinned" | "error";
  * Report for a single version category (bun, node, or docker).
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface VersionCategoryReport {
   readonly category: VersionCategory;
@@ -108,7 +108,7 @@ export interface VersionCategoryReport {
  * Full version sync report across all categories.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface VersionSyncReport {
   readonly categories: ReadonlyArray<VersionCategoryReport>;
@@ -119,7 +119,7 @@ export interface VersionSyncReport {
  * Command execution mode.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type VersionSyncMode = "check" | "write" | "dry-run";
 
@@ -127,7 +127,7 @@ export type VersionSyncMode = "check" | "write" | "dry-run";
  * Resolved command options after flag parsing.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface VersionSyncOptions {
   readonly mode: VersionSyncMode;

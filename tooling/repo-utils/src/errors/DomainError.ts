@@ -5,7 +5,7 @@
  * errors where a more specific error type is not warranted.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -16,7 +16,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * A generic domain-level error with an optional underlying cause.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",

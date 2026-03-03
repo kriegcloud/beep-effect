@@ -16,7 +16,7 @@ import { NoSuchFileError } from "./errors/index.js";
  * Markers that indicate a repository root directory.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
 
@@ -40,7 +40,7 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * })
  * ```
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const findRepoRoot: (
   startFrom?: undefined | string

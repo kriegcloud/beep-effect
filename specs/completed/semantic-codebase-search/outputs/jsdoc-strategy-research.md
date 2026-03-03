@@ -382,7 +382,7 @@ A file-level doc comment should answer these questions for both humans and searc
  * @see {@link resolveWorkspaceCatalog} - catalog resolution
  *
  * @since 0.1.0
- * @category Package Management
+ * @category Configuration
  * @domain package-management
  * @depends FileSystem, Path
  *
@@ -554,7 +554,7 @@ function readFile(path: string): string
  * @see {@link PackageJsonSchema} for the validation schema
  * @see {@link resolveWorkspaceCatalog} for catalog resolution
  *
- * @category Package Management
+ * @category Configuration
  * @since 0.1.0
  */
 ```
@@ -658,22 +658,18 @@ Categories create a classification hierarchy that enables faceted search.
 #### Recommended Category Taxonomy for Effect Monorepo
 
 ```
-@category Constructors        - Functions that create new values
-@category Getters             - Functions that extract data
-@category Guards              - Type guard / predicate functions
-@category Pattern Matching    - Match/case/when functions
-@category Transformations     - Functions that transform data
-@category Combinators         - Functions that combine values
-@category Filtering           - Functions that filter collections
-@category Folding             - Reduce/fold operations
-@category Errors              - Error types and handlers
-@category Services            - Effect Service definitions
-@category Layers              - Effect Layer definitions
-@category Schemas             - Effect Schema definitions
-@category Models              - Data model types
-@category Utilities           - General-purpose helpers
-@category Configuration       - Configuration handling
-@category IO                  - File system / network operations
+@category DomainModel       - Core business concepts and stable type-level contracts
+@category DomainLogic       - Pure domain rules and transformations
+@category PortContract      - Abstract capability contracts and boundaries
+@category Validation        - Boundary parsing and input validation
+@category Utility           - Reusable generic helpers
+@category UseCase           - Application-level orchestration
+@category Presentation      - Transport and UI surface code
+@category DataAccess       - Persistence adapters and data mapping
+@category Integration      - External system and third-party adapters
+@category Configuration    - Runtime setup and dependency wiring
+@category CrossCutting     - Shared operational concerns across layers
+@category Uncategorized    - Fallback for ambiguous cases
 ```
 
 ---
@@ -750,7 +746,7 @@ export const readPackageJson = Effect.fn(function* (path: string) {
  * @see {@link PackageJsonSchema} for the validation schema
  * @depends FileSystem
  * @provides PackageJson
- * @category IO
+ * @category DataAccess
  * @domain package-management
  */
 ```
@@ -794,7 +790,7 @@ valuable to encode:
  * @schema PackageJsonSchema
  * @see {@link PackageJson} for the decoded type
  * @see {@link PackageJsonEncoded} for the encoded type
- * @category Schemas
+ * @category Validation
  */
 ```
 
@@ -1076,7 +1072,7 @@ Effect-TS follows a distinctive documentation pattern:
  * console.log(result) // O.some(1)
  * ```
  *
- * @category getters
+ * @category DomainLogic
  * @since 2.0.0
  */
 ```
@@ -1474,7 +1470,7 @@ as poor documentation can actually degrade search quality.
  * [Description: 10+ words, starts with verb, specific and domain-rich]
  *
  * @since X.Y.Z
- * @category [CategoryName]
+ * @category DomainModel
  */
 ```
 
@@ -1498,12 +1494,12 @@ as poor documentation can actually degrade search quality.
  *
  * @see {@link RelatedSymbol} - [relationship description]
  *
- * @category [CategoryName]
+ * @category DomainModel
  * @since X.Y.Z
  */
 ```
 
-#### Effect Services
+#### Effect Services (PortContract)
 
 ```typescript
 /**
@@ -1517,12 +1513,12 @@ as poor documentation can actually degrade search quality.
  * @see {@link ServiceNameLive} - production implementation
  * @see {@link ServiceNameTest} - test implementation
  *
- * @category Services
+ * @category PortContract
  * @since X.Y.Z
  */
 ```
 
-#### Effect Layers
+#### Effect Layers (Configuration)
 
 ```typescript
 /**
@@ -1534,12 +1530,12 @@ as poor documentation can actually degrade search quality.
  *
  * @see {@link ServiceName} - the service this layer provides
  *
- * @category Layers
+ * @category Configuration
  * @since X.Y.Z
  */
 ```
 
-#### Effect Schemas
+#### Effect Schemas (Validation)
 
 ```typescript
 /**
@@ -1550,12 +1546,12 @@ as poor documentation can actually degrade search quality.
  * @schema SchemaName
  * @see {@link DecodedType} - the decoded type
  *
- * @category Schemas
+ * @category Validation
  * @since X.Y.Z
  */
 ```
 
-#### Tagged Errors
+#### Tagged Errors (CrossCutting)
 
 ```typescript
 /**
@@ -1565,7 +1561,7 @@ as poor documentation can actually degrade search quality.
  *
  * @see {@link RelatedOperation} - the operation that throws this
  *
- * @category Errors
+ * @category CrossCutting
  * @since X.Y.Z
  */
 ```

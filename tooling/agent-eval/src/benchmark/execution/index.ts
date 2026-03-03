@@ -34,7 +34,7 @@ interface ExecutionResolverDependencies {
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface CreateExecutionResolverOptions {
   readonly mode: ExecutionBackendMode;
@@ -97,7 +97,7 @@ const causeMessage = (cause: unknown): string => {
  * @depends CliExecutor, CodexSdkExecutor, ClaudeSdkExecutor
  * @errors AgentEvalInvariantError
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const createExecutionResolver = async (
   options: CreateExecutionResolverOptions,

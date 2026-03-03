@@ -12,7 +12,7 @@ import type { OrderedAggregationClause, UnorderedAggregationClause } from "./Agg
  * Input options accepted by aggregate calls.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregateOpts<Q extends ObjectOrInterfaceDefinition> = {
   $select: UnorderedAggregationClause<Q> | OrderedAggregationClause<Q>;

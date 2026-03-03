@@ -17,7 +17,7 @@ type MaybeNullable<T extends ObjectMetadata.Property, U> = T["nullable"] extends
  * Resolve client-read property type from object property metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectPropertyType<
   T extends ObjectMetadata.Property,
@@ -30,7 +30,7 @@ export type OsdkObjectPropertyType<
  * Resolve non-optional client-read property type from object property metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectPropertyTypeNotUndefined<T extends ObjectMetadata.Property> = MaybeArray<
   T,
@@ -41,7 +41,7 @@ export type OsdkObjectPropertyTypeNotUndefined<T extends ObjectMetadata.Property
  * Resolve create-input property type from object property metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectCreatePropertyType<
   T extends ObjectMetadata.Property,

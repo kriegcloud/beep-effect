@@ -27,7 +27,7 @@ import {
 
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 const DockerTagResult = S.Struct({
   name: S.String,
@@ -35,7 +35,7 @@ const DockerTagResult = S.Struct({
 
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 const DockerTagsResponse = S.Struct({
   results: S.Array(DockerTagResult),
@@ -47,7 +47,7 @@ const DockerTagsResponse = S.Struct({
  * A Docker image reference parsed from docker-compose.yml.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface DockerImageRef {
   readonly service: string;
@@ -62,7 +62,7 @@ export interface DockerImageRef {
  * Resolved Docker image state.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface DockerImageState {
   readonly images: ReadonlyArray<DockerImageRef & { readonly latest: O.Option<string> }>;
@@ -214,7 +214,7 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
  * Resolve Docker image state from docker-compose.yml.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveDockerImages: (
   repoRoot: string,
@@ -286,7 +286,7 @@ export const resolveDockerImages: (
  * Fetch the latest appropriate tag for a Docker image from Docker Hub.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const fetchLatestDockerTag: (
   ref: DockerImageRef
@@ -339,7 +339,7 @@ const fetchLatestDockerTag: (
  * Build the Docker category report from resolved state.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  * @param state - The resolved Docker image state.
  * @returns The version category report for Docker images.
  */

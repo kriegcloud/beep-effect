@@ -19,7 +19,7 @@ const $I = $OntologyId.create("derivedProperties/Expressions");
  * Numeric wire types supported by with-properties expressions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const WithPropertiesNumerics = LiteralKit(["integer", "double", "float", "short", "long"]).annotate(
   $I.annote("WithPropertiesNumerics", {
@@ -30,7 +30,7 @@ export const WithPropertiesNumerics = LiteralKit(["integer", "double", "float", 
  * Numeric wire types supported by with-properties expressions. {@link WithPropertiesNumerics}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WithPropertiesNumerics = typeof WithPropertiesNumerics.Type;
 
@@ -38,7 +38,7 @@ export type WithPropertiesNumerics = typeof WithPropertiesNumerics.Type;
  * Datetime wire types supported by with-properties expressions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const WithPropertiesDatetime = LiteralKit(["datetime", "timestamp"]).annotate(
   $I.annote("WithPropertiesDatetime", {
@@ -49,7 +49,7 @@ export const WithPropertiesDatetime = LiteralKit(["datetime", "timestamp"]).anno
  * Datetime wire types supported by with-properties expressions. {@link WithPropertiesDatetime}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WithPropertiesDatetime = typeof WithPropertiesDatetime.Type;
 
@@ -57,7 +57,7 @@ export type WithPropertiesDatetime = typeof WithPropertiesDatetime.Type;
  * Resolve the derived-property definition flavor for a property type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DefinitionForType<Q extends ObjectOrInterfaceDefinition, T extends SimplePropertyDef> =
   SimplePropertyDef.ExtractMultiplicity<T> extends "array"
@@ -109,7 +109,7 @@ type ExtractWirePropertyTypeFromNumericArg<
  * Numeric expression operations available on numeric derived properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumericExpressions<Q extends ObjectOrInterfaceDefinition, LEFT_PROPERTY_TYPE extends SimplePropertyDef> = {
   readonly add: <A extends NumericExpressionArg<Q>>(
@@ -182,7 +182,7 @@ type ExtractPropertyTypeFromDatetimeArg<Q extends ObjectOrInterfaceDefinition, A
  * Datetime expression operations available on datetime derived properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeExpressions<Q extends ObjectOrInterfaceDefinition, LEFT_PROPERTY_TYPE extends SimplePropertyDef> = {
   readonly min: <A extends DatetimeExpressionArg<Q>>(

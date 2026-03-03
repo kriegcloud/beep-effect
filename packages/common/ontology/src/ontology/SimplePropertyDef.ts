@@ -11,7 +11,7 @@ import type { WirePropertyTypes } from "./WirePropertyTypes.js";
  * Compact property definition shorthand used by generated ontology surfaces.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type SimplePropertyDef = WirePropertyTypes | undefined | Array<WirePropertyTypes>;
 
@@ -19,14 +19,14 @@ export type SimplePropertyDef = WirePropertyTypes | undefined | Array<WireProper
  * Type-level helpers for converting compact property definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace SimplePropertyDef {
   /**
    * Build a compact property definition from explicit base/nullable/multiplicity traits.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Make<
     T extends WirePropertyTypes,
@@ -44,7 +44,7 @@ export declare namespace SimplePropertyDef {
    * Convert full property metadata to the compact shorthand.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type FromPropertyMetadata<P extends ObjectMetadata.Property> = Make<
     P["type"],
@@ -56,7 +56,7 @@ export declare namespace SimplePropertyDef {
    * Extract multiplicity marker from compact shorthand.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ExtractMultiplicity<T extends WirePropertyTypes | undefined | Array<WirePropertyTypes>> =
     NonNullable<T> extends Array<unknown> ? "array" : "single";
@@ -65,7 +65,7 @@ export declare namespace SimplePropertyDef {
    * Extract wire property type from compact shorthand.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ExtractWirePropertyType<T extends SimplePropertyDef> =
     T extends Array<infer Z> ? NonNullable<Z> : NonNullable<T>;
@@ -74,7 +74,7 @@ export declare namespace SimplePropertyDef {
    * Extract nullable marker from compact shorthand.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ExtractNullable<T extends SimplePropertyDef> = [undefined] extends [T]
     ? "nullable"
@@ -86,7 +86,7 @@ export declare namespace SimplePropertyDef {
    * Convert compact shorthand into the canonical property definition type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ToPropertyDef<S extends SimplePropertyDef> = PropertyDef<
     ExtractWirePropertyType<S>,
@@ -98,7 +98,7 @@ export declare namespace SimplePropertyDef {
    * Extract client runtime scalar/object value type from wire shorthand.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ExtractRuntimeBaseType<S extends SimplePropertyDef> = GetClientPropertyValueFromWire<
     ExtractWirePropertyType<S>
@@ -108,7 +108,7 @@ export declare namespace SimplePropertyDef {
    * Convert compact shorthand into runtime property shape.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ToRuntimeProperty<S extends SimplePropertyDef> =
     ExtractMultiplicity<S> extends "array"

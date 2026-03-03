@@ -11,7 +11,7 @@ import { Effect, FileSystem, Path } from "effect";
  * Resolve a file path from process cwd.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveFromCwd = Effect.fn(function* (filePath: string) {
   const path = yield* Path.Path;
@@ -22,7 +22,7 @@ export const resolveFromCwd = Effect.fn(function* (filePath: string) {
  * Read UTF-8 file contents.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const readFileUtf8 = Effect.fn(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -34,7 +34,7 @@ export const readFileUtf8 = Effect.fn(function* (filePath: string) {
  * Write UTF-8 file contents and create parent directories when needed.
  *
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const writeFileUtf8 = Effect.fn(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;

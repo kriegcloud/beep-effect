@@ -17,7 +17,7 @@ import { jsonStringifyPretty } from "../JsonUtils.js";
  * `name`, optional `email`, and optional `url`.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const Author = S.Union([
   S.String,
@@ -38,7 +38,7 @@ export const Author = S.Union([
  * `type`, `url`, and optional `directory`.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const Repository = S.Union([
   S.String,
@@ -64,7 +64,7 @@ export const Repository = S.Union([
  * optional `url` and optional `email`.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const Bugs = S.Union([
   S.String,
@@ -82,7 +82,7 @@ export const Bugs = S.Union([
  * A `Record<string, string>` schema used for dependency maps, scripts, engines, etc.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 const StringRecord = S.Record(S.String, S.String).annotate({
   identifier: "@beep/repo-utils/schemas/PackageJson/StringRecord",
@@ -95,7 +95,7 @@ const StringRecord = S.Record(S.String, S.String).annotate({
  * a record mapping command names to file paths.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const Bin = S.Union([S.String, StringRecord]).annotate({
   identifier: "@beep/repo-utils/schemas/PackageJson/Bin",
@@ -111,7 +111,7 @@ export const Bin = S.Union([S.String, StringRecord]).annotate({
  * - Excess properties are stripped by default during decoding
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PackageJson = S.Struct({
   name: S.String,
@@ -153,7 +153,7 @@ export const PackageJson = S.Struct({
  * The decoded TypeScript type for a package.json file.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export type PackageJson = (typeof PackageJson)["Type"];
 
@@ -162,7 +162,7 @@ export type PackageJson = (typeof PackageJson)["Type"];
  * Throws a `SchemaError` if validation fails.
  *
  * @since 0.0.0
- * @category decoding
+ * @category Validation
  */
 export const decodePackageJson = S.decodeUnknownSync(PackageJson);
 
@@ -171,7 +171,7 @@ export const decodePackageJson = S.decodeUnknownSync(PackageJson);
  * returning an `Exit` instead of throwing.
  *
  * @since 0.0.0
- * @category decoding
+ * @category Validation
  */
 export const decodePackageJsonExit = S.decodeUnknownExit(PackageJson);
 
@@ -180,7 +180,7 @@ export const decodePackageJsonExit = S.decodeUnknownExit(PackageJson);
  * Returns `Effect<PackageJson, SchemaError>`.
  *
  * @since 0.0.0
- * @category decoding
+ * @category Validation
  */
 export const decodePackageJsonEffect = S.decodeUnknownEffect(PackageJson);
 
@@ -189,7 +189,7 @@ export const decodePackageJsonEffect = S.decodeUnknownEffect(PackageJson);
  * Returns `Effect<unknown, SchemaError>`.
  *
  * @since 0.0.0
- * @category encoding
+ * @category Validation
  */
 export const encodePackageJsonEffect = S.encodeUnknownEffect(PackageJson);
 
@@ -199,7 +199,7 @@ export const encodePackageJsonEffect = S.encodeUnknownEffect(PackageJson);
  * Returns `Effect<string, SchemaError>`.
  *
  * @since 0.0.0
- * @category encoding
+ * @category Validation
  */
 export const encodePackageJsonToJsonEffect = S.encodeUnknownEffect(S.fromJsonString(PackageJson));
 
@@ -209,7 +209,7 @@ export const encodePackageJsonToJsonEffect = S.encodeUnknownEffect(S.fromJsonStr
  * Returns `Effect<string, SchemaError>`.
  *
  * @since 0.0.0
- * @category encoding
+ * @category Validation
  */
 export const encodePackageJsonPrettyEffect: (input: unknown) => Effect.Effect<string, S.SchemaError | DomainError> =
   Effect.fn(function* (input) {

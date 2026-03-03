@@ -722,7 +722,7 @@ it.effect("should resolve actual workspaces", () =>
  * Use {@link globFiles} to match only files.
  *
  * @since 0.0.0
- * @category FileSystem
+ * @category DataAccess
  * @example
  * ```ts
  * import { FsUtils } from "@beep/repo-utils"

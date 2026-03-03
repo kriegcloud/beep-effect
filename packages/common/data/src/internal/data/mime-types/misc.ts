@@ -15,7 +15,7 @@
  * registry and an array of associated file extensions.
  *
  * @since 0.0.0
- * @category data
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import { misc } from "@beep/data/mime-types/misc"

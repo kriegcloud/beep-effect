@@ -795,7 +795,7 @@ Each function needs:
  * Longer explanation if needed.
  *
  * @since 0.0.0
- * @category FileSystem
+ * @category DataAccess
  * @example
  * ```ts
  * import { FsUtils } from "@beep/repo-utils"

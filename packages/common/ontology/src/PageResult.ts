@@ -13,7 +13,7 @@ const $I = $OntologyId.create("PageResult");
  * Paged result shape used by object fetch APIs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PageResult<T> {
   readonly data: Array<T>;
@@ -25,7 +25,7 @@ export interface PageResult<T> {
  * Construct a schema for {@link PageResult}.
  *
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export const PageResult = <const T extends S.Top>(schema: T) =>
   S.Struct({

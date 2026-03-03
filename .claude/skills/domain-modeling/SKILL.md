@@ -151,7 +151,7 @@ declare const Completed: S.Schema<any, any, never>
  *
  * Note: _tag is automatically applied by TaggedStruct.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -175,7 +175,7 @@ export const makePending = S.decodeSync(Pending)
 /**
  * Create an active task.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  */
 export const makeActive = S.decodeSync(Active)
@@ -183,7 +183,7 @@ export const makeActive = S.decodeSync(Active)
 /**
  * Create a completed task.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  */
 export const makeCompleted = S.decodeSync(Completed)
@@ -215,7 +215,7 @@ declare const Task: S.Schema<Task, any, never>
 /**
  * Type guard for Task union.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -229,7 +229,7 @@ export const isTask = S.is(Task)
 /**
  * Refine to Pending variant.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -244,7 +244,7 @@ export const isPending = (self: Task): self is Pending => self._tag === "pending
 /**
  * Refine to Active variant.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  */
 export const isActive = (self: Task): self is Active => self._tag === "active"
@@ -252,7 +252,7 @@ export const isActive = (self: Task): self is Active => self._tag === "active"
 /**
  * Refine to Completed variant.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  */
 export const isCompleted = (self: Task): self is Completed => self._tag === "completed"
@@ -272,7 +272,7 @@ declare type Task =
 /**
  * Pattern match on Task using Match.typeTags.
  *
- * @category Pattern Matching
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -328,7 +328,7 @@ declare const Task: S.Schema<Task, any, never>
  *
  * Compare by specific fields when structural equality isn't appropriate.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -369,7 +369,7 @@ declare function makeEmpty<T>(): List<T>
 /**
  * Zero value for monetary amounts.
  *
- * @category Identity
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const zero: Cents = make(0n)
@@ -377,7 +377,7 @@ export const zero: Cents = make(0n)
 /**
  * Empty list.
  *
- * @category Identity
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const empty: List<never> = makeEmpty()
@@ -397,7 +397,7 @@ declare function make(value: bigint): Cents
 /**
  * Add two monetary values.
  *
- * @category Combinators
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Cents from "@/schemas/Cents"
@@ -413,7 +413,7 @@ export const add: {
 /**
  * Get minimum of two values.
  *
- * @category Combinators
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const min = (a: Cents, b: Cents): Cents => a < b ? a : b
@@ -421,7 +421,7 @@ export const min = (a: Cents, b: Cents): Cents => a < b ? a : b
 /**
  * Get maximum of two values.
  *
- * @category Combinators
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const max = (a: Cents, b: Cents): Cents => a > b ? a : b
@@ -446,7 +446,7 @@ declare type Task =
  *
  * Uses Order.mapInput to compose from Order.number.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -466,7 +466,7 @@ export const OrderByTag: Order.Order<Task> = Order.mapInput(
 /**
  * Order by ID.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderById: Order.Order<Task> =
@@ -475,7 +475,7 @@ export const OrderById: Order.Order<Task> =
 /**
  * Order by creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByCreatedAt: Order.Order<Task> =
@@ -486,7 +486,7 @@ export const OrderByCreatedAt: Order.Order<Task> =
  *
  * Sorts by tag first, then by creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -525,7 +525,7 @@ declare type Task =
 /**
  * Get the ID from any Task variant.
  *
- * @category Destructors
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -537,7 +537,7 @@ export const getId = (self: Task): string => self.id
 /**
  * Get creation date.
  *
- * @category Destructors
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const getCreatedAt = (self: Task): DateTime.DateTime.Utc =>
@@ -558,7 +558,7 @@ declare type Task =
 /**
  * Update a field immutably.
  *
- * @category Setters
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -690,7 +690,7 @@ declare type Task =
 /**
  * Schedulable instance for Task.
  *
- * @category Typeclasses
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const Schedulable = Schedulable$.make<Task>(
@@ -787,7 +787,7 @@ declare type Task =
 /**
  * Immutable update.
  *
- * @category Setters
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const updateStatus = (self: Task, newTag: Task["_tag"]): Task =>
@@ -814,7 +814,7 @@ declare const Pending: S.Schema<any, any, never>
  *
  * Note: _tag is automatically applied by TaggedStruct.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  * @example
  * import * as Task from "@/schemas/Task"
@@ -931,7 +931,7 @@ export type User = S.Schema.Type<typeof User>
 /**
  * Create an admin user.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  * @example
  * import * as User from "@/schemas/User"
@@ -949,7 +949,7 @@ export const makeAdmin = S.decodeSync(Admin)
 /**
  * Create a customer user.
  *
- * @category Constructors
+ * @category DomainModel
  * @since 0.1.0
  */
 export const makeCustomer = S.decodeSync(Customer)
@@ -961,7 +961,7 @@ export const makeCustomer = S.decodeSync(Customer)
 /**
  * Type guard for User.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  */
 export const isUser = S.is(User)
@@ -969,7 +969,7 @@ export const isUser = S.is(User)
 /**
  * Refine to Admin.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  */
 export const isAdmin = (self: User): self is Admin => self._tag === "Admin"
@@ -977,7 +977,7 @@ export const isAdmin = (self: User): self is Admin => self._tag === "Admin"
 /**
  * Refine to Customer.
  *
- * @category Guards
+ * @category Validation
  * @since 0.1.0
  */
 export const isCustomer = (self: User): self is Customer => self._tag === "Customer"
@@ -989,7 +989,7 @@ export const isCustomer = (self: User): self is Customer => self._tag === "Custo
 /**
  * Pattern match on User.
  *
- * @category Pattern Matching
+ * @category DomainLogic
  * @since 0.1.0
  * @example
  * import * as User from "@/schemas/User"
@@ -1010,7 +1010,7 @@ export const match = Match.typeTags<User>()
 /**
  * Compare users by ID only.
  *
- * @category Equivalence
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const EquivalenceById = Equivalence.mapInput(
@@ -1025,7 +1025,7 @@ export const EquivalenceById = Equivalence.mapInput(
 /**
  * Order by name.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByName: Order.Order<User> =
@@ -1034,7 +1034,7 @@ export const OrderByName: Order.Order<User> =
 /**
  * Order by creation date.
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByCreatedAt: Order.Order<User> =
@@ -1043,7 +1043,7 @@ export const OrderByCreatedAt: Order.Order<User> =
 /**
  * Order by tag (Admin < Customer).
  *
- * @category Orders
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const OrderByTag: Order.Order<User> = Order.mapInput(
@@ -1058,7 +1058,7 @@ export const OrderByTag: Order.Order<User> = Order.mapInput(
 /**
  * Get user ID.
  *
- * @category Destructors
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const getId = (self: User): string => self.id
@@ -1066,7 +1066,7 @@ export const getId = (self: User): string => self.id
 /**
  * Get user name.
  *
- * @category Destructors
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const getName = (self: User): string => self.name
@@ -1074,7 +1074,7 @@ export const getName = (self: User): string => self.name
 /**
  * Get creation date.
  *
- * @category Destructors
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const getCreatedAt = (self: User): DateTime.DateTime.Utc => self.createdAt
@@ -1086,7 +1086,7 @@ export const getCreatedAt = (self: User): DateTime.DateTime.Utc => self.createdA
 /**
  * Update user name immutably.
  *
- * @category Setters
+ * @category DomainLogic
  * @since 0.1.0
  */
 export const setName: {

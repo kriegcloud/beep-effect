@@ -11,6 +11,6 @@ import { createPackageCommand as createPackageCommandFromHandler } from "./handl
  * Package creation command.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const createPackageCommand = createPackageCommandFromHandler;

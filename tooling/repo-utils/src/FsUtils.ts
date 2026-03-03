@@ -20,7 +20,7 @@ const $I = $RepoUtilsId.create("FsUtils");
  * Options for glob matching operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GlobOptions {
   /** The working directory for the glob pattern. Defaults to `process.cwd()`. */
@@ -37,7 +37,7 @@ export interface GlobOptions {
  * Shape of the FsUtils service.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface FsUtilsShape {
   /**
@@ -118,7 +118,7 @@ export interface FsUtilsShape {
  * Service tag for `FsUtils`.
  *
  * @since 0.0.0
- * @category services
+ * @category PortContract
  */
 export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
 
@@ -127,7 +127,7 @@ export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUt
  * services.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  */
 export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   FsUtils,

@@ -18,7 +18,7 @@ import * as Identity from "./Id.ts";
  * Root identity composer for the `@beep` namespace.
  *
  * @since 0.0.0
- * @category root
+ * @category Configuration
  */
 export const $I = Identity.make("beep").$BeepId;
 
@@ -34,6 +34,7 @@ const composers = $I.compose(
   "web",
   "beep-sync",
   "repo-cli",
+  "docgen",
   "agent-eval",
   "codebase-search",
   "repo-utils",
@@ -59,43 +60,43 @@ const composers = $I.compose(
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $DataId = composers.$DataId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $IdentityId = composers.$IdentityId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $MessagesId = composers.$MessagesId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $OntologyId = composers.$OntologyId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $SchemaId = composers.$SchemaId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $TypesId = composers.$TypesId;
 
 /**
  * @since 0.0.0
- * @category common
+ * @category Configuration
  */
 export const $UtilsId = composers.$UtilsId;
 
@@ -103,7 +104,7 @@ export const $UtilsId = composers.$UtilsId;
 
 /**
  * @since 0.0.0
- * @category ui
+ * @category Configuration
  */
 export const $UiId = composers.$UiId;
 
@@ -111,7 +112,7 @@ export const $UiId = composers.$UiId;
 
 /**
  * @since 0.0.0
- * @category apps
+ * @category Configuration
  */
 export const $WebId = composers.$WebId;
 
@@ -119,31 +120,31 @@ export const $WebId = composers.$WebId;
 
 /**
  * @since 0.0.0
- * @category tooling
+ * @category Configuration
  */
 export const $BeepSyncId = composers.$BeepSyncId;
 
 /**
  * @since 0.0.0
- * @category tooling
+ * @category Configuration
  */
 export const $RepoCliId = composers.$RepoCliId;
 
 /**
  * @since 0.0.0
- * @category tooling
+ * @category Configuration
  */
 export const $AgentEvalId = composers.$AgentEvalId;
 
 /**
  * @since 0.0.0
- * @category tooling
+ * @category Configuration
  */
 export const $CodebaseSearchId = composers.$CodebaseSearchId;
 
 /**
  * @since 0.0.0
- * @category tooling
+ * @category Configuration
  */
 export const $RepoUtilsId = composers.$RepoUtilsId;
 
@@ -151,13 +152,13 @@ export const $RepoUtilsId = composers.$RepoUtilsId;
 
 /**
  * @since 0.0.0
- * @category claude
+ * @category Configuration
  */
 export const $ClaudeId = composers.$ClaudeId;
 
 /**
  * @since 0.0.0
- * @category claude
+ * @category Configuration
  */
 export const $AiSdkId = composers.$AiSdkId;
 
@@ -165,37 +166,37 @@ export const $AiSdkId = composers.$AiSdkId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedDomainId = composers.$SharedDomainId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedTablesId = composers.$SharedTablesId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedClientId = composers.$SharedClientId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedServerId = composers.$SharedServerId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedUiId = composers.$SharedUiId;
 
 /**
  * @since 0.0.0
- * @category shared
+ * @category Configuration
  */
 export const $SharedEnvId = composers.$SharedEnvId;
 
@@ -203,30 +204,39 @@ export const $SharedEnvId = composers.$SharedEnvId;
 
 /**
  * @since 0.0.0
- * @category iam
+ * @category Configuration
  */
 export const $IamDomainId = composers.$IamDomainId;
 
 /**
  * @since 0.0.0
- * @category iam
+ * @category Configuration
  */
 export const $IamTablesId = composers.$IamTablesId;
 
 /**
  * @since 0.0.0
- * @category iam
+ * @category Configuration
  */
 export const $IamClientId = composers.$IamClientId;
 
 /**
  * @since 0.0.0
- * @category iam
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/iam-server">}
  */
-export const $IamServerId = composers.$IamServerId;
+export const $IamServerId: Identity.IdentityComposer<"@beep/iam-server"> = composers.$IamServerId;
 
 /**
  * @since 0.0.0
- * @category iam
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/iam-ui">}
  */
-export const $IamUiId = composers.$IamUiId;
+export const $IamUiId: Identity.IdentityComposer<"@beep/iam-ui"> = composers.$IamUiId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/docgen">}
+ */
+export const $DocgenId: Identity.IdentityComposer<"@beep/docgen"> = composers.$DocgenId;

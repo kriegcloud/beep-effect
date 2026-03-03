@@ -20,7 +20,7 @@ const $I = $OntologyId.create("ontology/ObjectTypeDefinition");
  * Runtime schema for object/interface metadata discriminator.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const ObjectInterfaceBaseMetadataType = LiteralKit(["object", "interface"]).pipe(
   S.annotate(
@@ -34,7 +34,7 @@ export const ObjectInterfaceBaseMetadataType = LiteralKit(["object", "interface"
  * Extract compile-time definition metadata from a definition carrier.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type CompileTimeMetadata<T extends { __DefinitionMetadata?: object }> = NonNullable<T["__DefinitionMetadata"]>;
 
@@ -42,7 +42,7 @@ export type CompileTimeMetadata<T extends { __DefinitionMetadata?: object }> = N
  * Property-definition extraction helper from compile-time metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ObjectTypePropertyDefinitionFrom2<
   Q extends ObjectOrInterfaceDefinition,
@@ -53,7 +53,7 @@ export type ObjectTypePropertyDefinitionFrom2<
  * Shared metadata fields for object and interface definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectInterfaceBaseMetadata {
   readonly type: "object" | "interface";
@@ -72,7 +72,7 @@ export interface ObjectInterfaceBaseMetadata {
  * Additional compile-time-only definition metadata used by generated code.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectInterfaceCompileDefinition {
   readonly type: "object" | "interface";
@@ -86,7 +86,7 @@ export interface ObjectInterfaceCompileDefinition {
  * Version expectation marker for client-generated definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface VersionBound<V extends VersionString<number, number, number>> {
   readonly __expectedClientVersion?: V;
@@ -96,7 +96,7 @@ export interface VersionBound<V extends VersionString<number, number, number>> {
  * Metadata carried by ontology object definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectMetadata extends ObjectInterfaceBaseMetadata {
   readonly type: "object";
@@ -116,14 +116,14 @@ export interface ObjectMetadata extends ObjectInterfaceBaseMetadata {
  * Types for {@link ObjectMetadata}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace ObjectMetadata {
   /**
    * Property metadata for ontology object properties.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Property {
     readonly readonly?: boolean;
@@ -140,7 +140,7 @@ export declare namespace ObjectMetadata {
    * Link metadata for object definition links.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Link<Q extends ObjectTypeDefinition, M extends boolean> {
     readonly __OsdkLinkTargetType?: Q;
@@ -153,7 +153,7 @@ export declare namespace ObjectMetadata {
  * Compile-time description of an ontology object definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectTypeDefinition {
   readonly type: "object";
@@ -166,7 +166,7 @@ export interface ObjectTypeDefinition {
  * Link-key extraction helper from compile-time metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ObjectTypeLinkKeysFrom2<Q extends ObjectOrInterfaceDefinition> = keyof CompileTimeMetadata<Q>["links"] &
   string;
@@ -175,7 +175,7 @@ export type ObjectTypeLinkKeysFrom2<Q extends ObjectOrInterfaceDefinition> = key
  * Canonical property metadata constructor type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PropertyDef<
   T extends WirePropertyTypes,
@@ -191,7 +191,7 @@ export interface PropertyDef<
  * Supported object release statuses.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ReleaseStatus = "ACTIVE" | "EXPERIMENTAL" | "DEPRECATED" | "ENDORSED";
 

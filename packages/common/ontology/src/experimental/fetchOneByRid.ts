@@ -14,7 +14,7 @@ import type { Experiment } from "./Experiment.js";
  * Fetches a single object by RID for a concrete ontology type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 type FetchOneByRidFn = <
   Q extends ObjectOrInterfaceDefinition,
@@ -31,7 +31,7 @@ type FetchOneByRidFn = <
  * Experiment token for fetch-one-by-rid support.
  *
  * @since 0.0.0
- * @category experimental
+ * @category Uncategorized
  */
 export const __EXPERIMENTAL__NOT_SUPPORTED_YET__fetchOneByRid: Experiment<
   "2.1.0",

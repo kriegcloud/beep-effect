@@ -17,6 +17,13 @@
     "docgen": "bunx @effect/docgen"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
+    "jsdoc-type-pratt-parser": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
+    "comment-parser": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

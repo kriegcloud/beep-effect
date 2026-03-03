@@ -98,7 +98,7 @@ type SubSelectRDPs<RDPs extends Record<string, SimplePropertyDef>, X extends Sel
  * Minimal object-set contract shared across object-set operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface MinimalObjectSet<
   Q extends ObjectOrInterfaceDefinition,
@@ -263,7 +263,7 @@ interface WithProperties<
  * Canonical object-set contract.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ObjectSet<
   Q extends ObjectOrInterfaceDefinition = ObjectOrInterfaceDefinition,

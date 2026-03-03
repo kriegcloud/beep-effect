@@ -10,7 +10,7 @@ import type { Just } from "./Just.js";
  * Datetime filter option surface.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface DatetimeFilterOptions extends BaseFilterOptions<string> {
   $gt: string;
@@ -23,7 +23,7 @@ export interface DatetimeFilterOptions extends BaseFilterOptions<string> {
  * Datetime filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace DatetimeFilter {
   /** @since 0.0.0 */
@@ -48,7 +48,7 @@ export declare namespace DatetimeFilter {
  * Canonical datetime filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeFilter =
   | string

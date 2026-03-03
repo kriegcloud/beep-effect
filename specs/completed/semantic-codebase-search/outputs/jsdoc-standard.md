@@ -39,7 +39,7 @@
 
 ## Per-Symbol-Kind Standards
 
-### 1. Schema (`@category schemas`)
+### 1. Schema (`@category Validation`)
 
 **Required annotations (in code, not JSDoc):**
 - `.annotate({ identifier, title, description })` on the schema value
@@ -48,7 +48,7 @@
 **Required JSDoc tags:**
 - Description: What the schema validates, what constraints it enforces
 - `@since`: Semver version
-- `@category`: Always `schemas`
+- `@category`: Always `Validation`
 
 **Should have:**
 - `@example`: Decoding/encoding usage
@@ -74,7 +74,7 @@
  *
  * @see {@link PackageJson} Parent schema consuming this type
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  * @domain package-management
  */
 export const PackageName = S.String.pipe(
@@ -94,17 +94,17 @@ export const PackageName = S.String.pipe(
  * A package name.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PackageName = S.String.pipe(S.brand("PackageName"))
 ```
 
-### 2. Service (`@category services`)
+### 2. Service (`@category PortContract`)
 
 **Required JSDoc tags:**
 - Description: What capability this service provides, when to use it
 - `@since`: Semver version
-- `@category`: Always `services`
+- `@category`: Always `PortContract`
 - `@remarks`: Design rationale, threading/concurrency notes, lifecycle
 
 **Should have:**
@@ -136,7 +136,7 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
  * @depends FileSystem, Path
  * @see {@link WorkspaceResolverLive} Layer providing this service
  * @since 0.0.0
- * @category services
+ * @category PortContract
  * @domain dependency-graph
  */
 ```
@@ -147,16 +147,16 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
  * The workspace resolver service.
  *
  * @since 0.0.0
- * @category services
+ * @category PortContract
  */
 ```
 
-### 3. Layer (`@category layers`)
+### 3. Layer (`@category Configuration`)
 
 **Required JSDoc tags:**
 - Description: What this layer provides and what it requires
 - `@since`: Semver version
-- `@category`: Always `layers`
+- `@category`: Always `Configuration`
 - `@provides`: Service(s) this layer constructs
 - `@depends`: Service(s) this layer requires
 
@@ -178,7 +178,7 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
  * @depends FileSystem, Path
  * @see {@link WorkspaceResolver} Service interface
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  * @domain dependency-graph
  */
 ```
@@ -189,11 +189,11 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
  * Live layer for WorkspaceResolver.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  */
 ```
 
-### 4. Error (`@category errors`)
+### 4. Error (`@category CrossCutting`)
 
 **Required annotations (in code):**
 - `S.TaggedErrorClass` with identifier, tag name, field schemas, title, description
@@ -201,7 +201,7 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
 **Required JSDoc tags:**
 - Description: When this error occurs, what went wrong
 - `@since`: Semver version
-- `@category`: Always `errors`
+- `@category`: Always `CrossCutting`
 
 **Should have:**
 - `@see`: The operation(s) that can produce this error
@@ -216,7 +216,7 @@ export const PackageName = S.String.pipe(S.brand("PackageName"))
  *
  * @see {@link WorkspaceResolver.resolve} Operation that produces this error
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  * @domain dependency-graph
  */
 export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyError>(
@@ -234,11 +234,11 @@ export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyEr
  * A cyclic dependency error.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 ```
 
-### 5. Function / Effect.fn (`@category constructors | utils | algorithms`)
+### 5. Function / Effect.fn (`@category DomainLogic | Utility | UseCase`)
 
 **Required JSDoc tags:**
 - Description: What this function does (verb-first), under what conditions
@@ -273,7 +273,7 @@ export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyEr
  * ```
  *
  * @since 0.0.0
- * @category constructors
+ * @category DomainLogic
  * @domain package-management
  */
 ```
@@ -286,11 +286,11 @@ export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyEr
  * @param path - the path
  * @returns the package json
  * @since 0.0.0
- * @category constructors
+ * @category DomainLogic
  */
 ```
 
-### 6. Type (`@category types | models`)
+### 6. Type (`@category DomainModel`)
 
 **Required JSDoc tags:**
 - Description: What this type represents, when to use it vs alternatives
@@ -312,7 +312,7 @@ export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyEr
  * @see {@link PackageJsonEncoded} Raw encoded form
  * @see {@link PackageJsonSchema} Schema for decoding
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @domain package-management
  */
 export type PackageJson = typeof PackageJsonSchema.Type
@@ -324,16 +324,16 @@ export type PackageJson = typeof PackageJsonSchema.Type
  * Package json type.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 ```
 
-### 7. Constant (`@category constants`)
+### 7. Constant (`@category Configuration`)
 
 **Required JSDoc tags:**
 - Description: What this constant represents, where its value comes from
 - `@since`: Semver version
-- `@category`: Always `constants`
+- `@category`: Always `Configuration`
 
 ```typescript
 // GOOD: Explains provenance
@@ -344,18 +344,18 @@ export type PackageJson = typeof PackageJsonSchema.Type
  * `apps/` (application) in the monorepo layout.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @domain package-management
  */
 export const PACKAGE_TYPES = ["library", "application"] as const
 ```
 
-### 8. Command (`@category commands`)
+### 8. Command (`@category UseCase`)
 
 **Required JSDoc tags:**
 - Description: What this CLI command does, user-facing behavior
 - `@since`: Semver version
-- `@category`: Always `commands`
+- `@category`: Always `UseCase`
 
 **Should have:**
 - `@remarks`: Flags, arguments, exit codes
@@ -385,7 +385,7 @@ export const PACKAGE_TYPES = ["library", "application"] as const
  * @errors DomainError — package directory already exists
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  * @domain package-management
  */
 ```

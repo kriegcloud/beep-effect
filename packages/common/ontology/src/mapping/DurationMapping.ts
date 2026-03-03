@@ -12,7 +12,7 @@ const $I = $OntologyId.create("mapping/DurationMapping");
  * Canonical duration units used by ontology relative-time query arguments.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const TimeDurationUnit = LiteralKit([
   "YEARS",
@@ -31,7 +31,7 @@ export const TimeDurationUnit = LiteralKit([
 /**
  * Runtime type of canonical duration units. {@link TimeDurationUnit}
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export type TimeDurationUnit = typeof TimeDurationUnit.Type;
 
@@ -39,7 +39,7 @@ export type TimeDurationUnit = typeof TimeDurationUnit.Type;
  * Mapping of shorthand query duration unit keys to canonical duration units.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export interface TimeDurationMapping {
   readonly sec: "SECONDS";
@@ -68,7 +68,7 @@ export interface TimeDurationMapping {
  * Runtime mapping from shorthand duration keys to canonical duration units.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const TimeDurationMapping: TimeDurationMapping = {
   sec: "SECONDS",

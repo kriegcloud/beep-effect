@@ -15,7 +15,7 @@ import type { AgentName } from "../../schemas/index.js";
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExecutionBackendMode = "auto" | "cli" | "sdk";
 
@@ -27,7 +27,7 @@ export type ExecutionBackendMode = "auto" | "cli" | "sdk";
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExecutionBackend = "cli" | "sdk";
 
@@ -39,7 +39,7 @@ export type ExecutionBackend = "cli" | "sdk";
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchmarkReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
 
@@ -51,7 +51,7 @@ export type BenchmarkReasoningEffort = "none" | "minimal" | "low" | "medium" | "
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchmarkClaudeEffort = "low" | "medium" | "high";
 
@@ -63,7 +63,7 @@ export type BenchmarkClaudeEffort = "low" | "medium" | "high";
  * @depends AgentName
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ExecutionRequest {
   readonly agent: AgentName;
@@ -84,7 +84,7 @@ export interface ExecutionRequest {
  * @depends ExecutionBackend
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ExecutionResult {
   readonly backend: ExecutionBackend;
@@ -111,7 +111,7 @@ export interface ExecutionResult {
  * @depends none
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SdkAvailability {
   readonly available: boolean;
@@ -126,7 +126,7 @@ export interface SdkAvailability {
  * @depends SdkAvailability, ExecutionRequest, ExecutionResult
  * @errors none
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ExecutionResolver {
   readonly codexSdkAvailability: SdkAvailability;

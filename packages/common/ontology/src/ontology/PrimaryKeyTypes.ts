@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/PrimaryKeyTypes");
  * Allowed scalar wire types for ontology object primary keys.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PrimaryKeyTypes = LiteralKit([
   "string",
@@ -34,7 +34,7 @@ export const PrimaryKeyTypes = LiteralKit([
  * Type for {@link PrimaryKeyTypes}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PrimaryKeyTypes = typeof PrimaryKeyTypes.Type;
 
@@ -42,7 +42,7 @@ export type PrimaryKeyTypes = typeof PrimaryKeyTypes.Type;
  * Compatibility alias for {@link PrimaryKeyTypes}.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PrimaryKeyType = PrimaryKeyTypes;
 
@@ -50,6 +50,6 @@ export const PrimaryKeyType = PrimaryKeyTypes;
  * Compatibility alias type for {@link PrimaryKeyTypes}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PrimaryKeyType = PrimaryKeyTypes;

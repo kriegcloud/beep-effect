@@ -13,14 +13,14 @@ import type { WirePropertyTypes } from "../ontology/WirePropertyTypes.js";
  * Object-set subscription helper namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace ObjectSetSubscription {
   /**
    * Listener callbacks for an object-set subscription.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Listener<
     O extends ObjectOrInterfaceDefinition,
@@ -44,7 +44,7 @@ export namespace ObjectSetSubscription {
    * Options for subscribing to an object set.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Options<
     O extends ObjectOrInterfaceDefinition,

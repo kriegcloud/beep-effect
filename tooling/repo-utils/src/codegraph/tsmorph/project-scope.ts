@@ -229,7 +229,7 @@ const expandSelection: (
  *
  * @param request - Scope request payload.
  * @returns Resolved project scope.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const resolveTsMorphProjectScope: (
@@ -294,7 +294,7 @@ export const resolveTsMorphProjectScope: (
  *
  * @param scope - Scope derived from project references and change hints.
  * @returns Runtime context with project and type checker.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const createTsMorphProjectContext: (
@@ -331,7 +331,7 @@ export const createTsMorphProjectContext: (
  *
  * @param symbolId - Symbol id to parse.
  * @returns Parsed components when the format is recognized.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parseSymbolId = (symbolId: string): O.Option<readonly [string, string, string]> => {

@@ -12,7 +12,7 @@ import type { AgentName, BenchCondition } from "../schemas/index.js";
  * Supported Claude effort levels.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ClaudeEffort = "low" | "medium" | "high";
 
@@ -24,7 +24,7 @@ const AllClaudeEffortLevels: ReadonlyArray<ClaudeEffort> = ["low", "medium", "hi
  * Mirrors Codex-supported effort levels.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
 
@@ -34,7 +34,7 @@ const AllReasoningEffortLevels: ReadonlyArray<ReasoningEffort> = ["none", "minim
  * Canonical ordered list of supported benchmark conditions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const AllBenchConditions: ReadonlyArray<BenchCondition> = ["current", "minimal", "adaptive", "adaptive_kg"];
 
@@ -42,7 +42,7 @@ export const AllBenchConditions: ReadonlyArray<BenchCondition> = ["current", "mi
  * Canonical ordered list of supported benchmark agents.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const AllBenchAgents: ReadonlyArray<AgentName> = ["codex", "claude"];
 
@@ -50,7 +50,7 @@ export const AllBenchAgents: ReadonlyArray<AgentName> = ["codex", "claude"];
  * Supported execution backend selection modes.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ExecutionBackend = "auto" | "cli" | "sdk";
 
@@ -62,7 +62,7 @@ const AllExecutionBackends: ReadonlyArray<ExecutionBackend> = ["auto", "cli", "s
  * @param raw - Raw flag value.
  * @returns Normalized unique values.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseCsvFlag = (raw: string): ReadonlyArray<string> => {
   const tokens = raw
@@ -109,7 +109,7 @@ const parseConstrainedValues = <T extends string>(
  * @param raw - Raw `--conditions` value.
  * @returns Selected ordered conditions.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseBenchConditionsFlag = (raw: string): ReadonlyArray<BenchCondition> =>
   parseConstrainedValues(raw, AllBenchConditions, "--conditions", AllBenchConditions);
@@ -122,7 +122,7 @@ export const parseBenchConditionsFlag = (raw: string): ReadonlyArray<BenchCondit
  * @param raw - Raw `--agents` value.
  * @returns Selected ordered agents.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseBenchAgentsFlag = (raw: string): ReadonlyArray<AgentName> =>
   parseConstrainedValues(raw, AllBenchAgents, "--agents", AllBenchAgents);
@@ -135,7 +135,7 @@ export const parseBenchAgentsFlag = (raw: string): ReadonlyArray<AgentName> =>
  * @param raw - Raw `--task-ids` value.
  * @returns Normalized task IDs.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseTaskIdsFlag = (raw: string): ReadonlyArray<string> => parseCsvFlag(raw);
 
@@ -145,7 +145,7 @@ export const parseTaskIdsFlag = (raw: string): ReadonlyArray<string> => parseCsv
  * @param raw - Raw `--max-wall-minutes` value. Undefined means no wall cap.
  * @returns Parsed positive minutes or undefined when omitted.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseMaxWallMinutesFlag = (raw: string | undefined): number | undefined => {
   if (raw === undefined) {
@@ -170,7 +170,7 @@ export const parseMaxWallMinutesFlag = (raw: string | undefined): number | undef
  * @param fallback - Default model when omitted.
  * @returns Parsed model value.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseModelFlag = (raw: string | undefined, flagName: string, fallback: string): string => {
   if (raw === undefined) {
@@ -193,7 +193,7 @@ export const parseModelFlag = (raw: string | undefined, flagName: string, fallba
  * @param raw - Raw `--claude-effort` value.
  * @returns Parsed effort level or undefined when omitted.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseClaudeEffortFlag = (raw: string | undefined): ClaudeEffort | undefined => {
   if (raw === undefined) {
@@ -216,7 +216,7 @@ export const parseClaudeEffortFlag = (raw: string | undefined): ClaudeEffort | u
  * @param raw - Raw `--reasoning` value.
  * @returns Parsed reasoning level or undefined when omitted.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseReasoningFlag = (raw: string | undefined): ReasoningEffort | undefined => {
   if (raw === undefined) {
@@ -239,7 +239,7 @@ export const parseReasoningFlag = (raw: string | undefined): ReasoningEffort | u
  * @param raw - Raw `--execution-backend` value.
  * @returns Parsed backend mode, defaulting to `auto` when omitted.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseExecutionBackendFlag = (raw: string | undefined): ExecutionBackend => {
   if (raw === undefined) {
@@ -291,7 +291,7 @@ const expandHomePrefix = (pathValue: string, home: string | undefined, source: s
  * @param home - HOME environment variable value.
  * @returns Parsed root path, or undefined when omitted.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const parseWorktreeRootFlag = (raw: string | undefined, home: string | undefined): string | undefined => {
   if (raw === undefined) {
@@ -314,7 +314,7 @@ export const parseWorktreeRootFlag = (raw: string | undefined, home: string | un
  * @param repoRoot - Repository root path (typically current working directory).
  * @returns Repository basename.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const deriveRepoBasename = (repoRoot: string | undefined): string => {
   const normalizedRoot = trimNonEmpty(repoRoot);
@@ -343,7 +343,7 @@ export const deriveRepoBasename = (repoRoot: string | undefined): string => {
  * @param repoBasename - Repository basename used for portable cache partitioning.
  * @returns Default worktree root path.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveDefaultWorktreeRoot = (
   xdgCacheHome: string | undefined,

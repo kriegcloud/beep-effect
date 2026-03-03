@@ -20,7 +20,7 @@ import * as internal from "./internal/data/calendar/index.js";
  * Union of lowercase English month name strings.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { MonthName } from "@beep/data/Calendar"
@@ -34,7 +34,7 @@ export type MonthName = (typeof internal.MonthNameValues)[number];
  * Union of capitalized English month name strings.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { FormalMonthName } from "@beep/data/Calendar"
@@ -48,7 +48,7 @@ export type FormalMonthName = (typeof internal.FormalMonthNameValues)[number];
  * Union of month number literals from 1 through 12.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { MonthNumber } from "@beep/data/Calendar"
@@ -63,7 +63,7 @@ export type MonthNumber = (typeof internal.MonthNumberValues)[number];
  * Union of two-digit ISO month code strings from `"01"` through `"12"`.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { MonthISO } from "@beep/data/Calendar"
@@ -77,7 +77,7 @@ export type MonthISO = (typeof internal.MonthISOValues)[number];
  * Union of lowercase English weekday name strings.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { WeekName } from "@beep/data/Calendar"
@@ -91,7 +91,7 @@ export type WeekName = (typeof internal.Weekday.WeekNameValues)[number];
  * Union of capitalized English weekday name strings.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  * @example
  * ```ts-morph
  * import type { FormalWeekName } from "@beep/data/Calendar"
@@ -109,7 +109,7 @@ export type FormalWeekName = (typeof internal.Weekday.FormalWeekNameValues)[numb
  * Ordered tuple of all twelve lowercase English month names.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { MonthNameValues } from "@beep/data/Calendar"
@@ -124,7 +124,7 @@ export const MonthNameValues: typeof internal.MonthNameValues = internal.MonthNa
  * Ordered tuple of all twelve capitalized English month names.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { FormalMonthNameValues } from "@beep/data/Calendar"
@@ -138,7 +138,7 @@ export const FormalMonthNameValues: typeof internal.FormalMonthNameValues = inte
  * Ordered tuple of month numbers from 1 through 12.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { MonthNumberValues } from "@beep/data/Calendar"
@@ -153,7 +153,7 @@ export const MonthNumberValues: typeof internal.MonthNumberValues = internal.Mon
  * Ordered tuple of two-digit ISO month code strings from `"01"` through `"12"`.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { MonthISOValues } from "@beep/data/Calendar"
@@ -168,7 +168,7 @@ export const MonthISOValues: typeof internal.MonthISOValues = internal.MonthISOV
  * Ordered tuple of all seven lowercase English weekday names, starting with Sunday.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { WeekNameValues } from "@beep/data/Calendar"
@@ -183,7 +183,7 @@ export const WeekNameValues: typeof internal.Weekday.WeekNameValues = internal.W
  * Ordered tuple of all seven capitalized English weekday names, starting with Sunday.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  * @example
  * ```ts-morph
  * import { FormalWeekNameValues } from "@beep/data/Calendar"

@@ -29,14 +29,14 @@ import type {
  * Query parameter conversion helper namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace QueryParam {
   /**
    * Resolve primitive query parameter type from wire primitive key.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type PrimitiveType<T extends keyof DataValueClientToWire> = DataValueClientToWire[T];
 
@@ -44,7 +44,7 @@ export namespace QueryParam {
    * Resolve object query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectType<T extends ObjectOrInterfaceDefinition> = ObjectIdentifiers<T> | OsdkObjectPrimaryKeyType<T>;
 
@@ -52,7 +52,7 @@ export namespace QueryParam {
    * Resolve interface query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type InterfaceType<T extends InterfaceDefinition> =
     | {
@@ -76,7 +76,7 @@ export namespace QueryParam {
    * Resolve object-set query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectSetType<T extends ObjectOrInterfaceDefinition> = ObjectSet<T>;
 
@@ -84,7 +84,7 @@ export namespace QueryParam {
    * Resolve range key query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type RangeKey<T extends AggregationRangeKeyTypes> = AggKeyClientToWire<"range", T>;
 
@@ -92,7 +92,7 @@ export namespace QueryParam {
    * Resolve two-dimensional aggregation query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type TwoDimensionalAggregationType<
     T extends AggregationKeyTypes | RangeKey<AggregationRangeKeyTypes>,
@@ -103,7 +103,7 @@ export namespace QueryParam {
    * Resolve three-dimensional aggregation query parameter type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ThreeDimensionalAggregationType<
     OUT extends AggregationKeyTypes | RangeKey<AggregationRangeKeyTypes>,
@@ -120,14 +120,14 @@ export namespace QueryParam {
  * Query result conversion helper namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace QueryResult {
   /**
    * Resolve primitive query result type from wire primitive key.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type PrimitiveType<T extends keyof DataValueClientToWire> = DataValueWireToClient[T];
 
@@ -135,7 +135,7 @@ export namespace QueryResult {
    * Resolve object query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectType<T extends ObjectOrInterfaceDefinition> = OsdkBase<T>;
 
@@ -143,7 +143,7 @@ export namespace QueryResult {
    * Resolve interface query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type InterfaceType<T extends ObjectOrInterfaceDefinition> = OsdkBase<T>;
 
@@ -151,7 +151,7 @@ export namespace QueryResult {
    * Resolve object-set query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ObjectSetType<T extends ObjectOrInterfaceDefinition> = ObjectSet<T>;
 
@@ -159,7 +159,7 @@ export namespace QueryResult {
    * Resolve range key query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type RangeKey<T extends AggregationRangeKeyTypes> = AggKeyWireToClient<"range", T>;
 
@@ -167,7 +167,7 @@ export namespace QueryResult {
    * Resolve two-dimensional aggregation query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type TwoDimensionalAggregationType<
     T extends AggregationKeyTypes | RangeKey<AggregationRangeKeyTypes>,
@@ -178,7 +178,7 @@ export namespace QueryResult {
    * Resolve three-dimensional aggregation query result type.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ThreeDimensionalAggregationType<
     OUT extends AggregationKeyTypes | RangeKey<AggregationRangeKeyTypes>,

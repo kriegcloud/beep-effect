@@ -309,7 +309,7 @@ const collectTargetsInSourceFile = (
  *
  * @param context - Runtime project context.
  * @returns Deterministically-sorted declaration targets.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const collectProjectDeclarationTargets: (
@@ -332,7 +332,7 @@ export const collectProjectDeclarationTargets: (
  * @param context - Runtime project context.
  * @param selector - Symbol selector payload.
  * @returns Resolved declaration target.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const resolveDeclarationTarget: (
@@ -420,7 +420,7 @@ const searchMatchKind = (target: TsMorphDeclarationTarget): NodeKind => {
  * @param context - Runtime project context.
  * @param request - Query payload with text, optional kind filter, and limit.
  * @returns Deterministic symbol matches.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const searchSymbolsInContext: (
@@ -511,7 +511,7 @@ const edgeTraversalKinds: ReadonlyArray<EdgeKind> = [
  * @param graph - Source graph.
  * @param request - Dependency traversal request.
  * @returns Dependency subgraph.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const traverseDependenciesInGraph: (
@@ -600,7 +600,7 @@ export const traverseDependenciesInGraph: (
  *
  * @param target - Resolved declaration target.
  * @returns Signature text.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const buildDeclarationSignature = (target: TsMorphDeclarationTarget): string => {
@@ -653,7 +653,7 @@ export const buildDeclarationSignature = (target: TsMorphDeclarationTarget): str
  *
  * @param target - Target symbol.
  * @returns Whether it belongs to non-test code.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const isProductionTarget = (target: TsMorphDeclarationTarget): boolean => !isTestFile(target.filePath);
@@ -663,7 +663,7 @@ export const isProductionTarget = (target: TsMorphDeclarationTarget): boolean =>
  *
  * @param value - Unknown payload.
  * @returns Decoded graph.
- * @category codegraph-tsmorph
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const decodeCodebaseGraph = S.decodeUnknownEffect(CodebaseGraph);

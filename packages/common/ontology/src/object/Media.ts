@@ -13,7 +13,7 @@ const $I = $OntologyId.create("object/Media");
  * Runtime media accessor methods for a media reference property.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface Media {
   /** Fetch metadata for a media reference property. */
@@ -28,7 +28,7 @@ export interface Media {
  * Unique identifier payload for a media item.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class MediaReference extends S.Class<MediaReference>($I`MediaReference`)(
   {
@@ -53,7 +53,7 @@ export class MediaReference extends S.Class<MediaReference>($I`MediaReference`)(
  * Payload used when uploading media content.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class MediaUpload extends S.Class<MediaUpload>($I`MediaUpload`)(
   {
@@ -69,7 +69,7 @@ export class MediaUpload extends S.Class<MediaUpload>($I`MediaUpload`)(
  * Metadata returned for a media item.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class MediaMetadata extends S.Class<MediaMetadata>($I`MediaMetadata`)(
   {

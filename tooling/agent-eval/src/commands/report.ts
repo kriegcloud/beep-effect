@@ -15,7 +15,7 @@ import { readSuiteFile } from "./bench.js";
  * Report command arguments.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ReportArgs {
   readonly input: string;
@@ -27,7 +27,7 @@ export interface ReportArgs {
  * Render and persist benchmark markdown report.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const handleReport: (args: ReportArgs) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> =
   Effect.fn(function* (args) {

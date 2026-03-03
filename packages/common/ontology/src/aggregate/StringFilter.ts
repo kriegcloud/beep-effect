@@ -22,7 +22,7 @@ interface StringFilterOptions extends BaseFilterOptions<string> {
  * String filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace StringFilter {
   /** @since 0.0.0 */
@@ -47,7 +47,7 @@ export declare namespace StringFilter {
  * Canonical string filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type StringFilter =
   | string

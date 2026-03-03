@@ -22,7 +22,7 @@ import { readSuiteFile } from "./bench.js";
  * Ingest command arguments.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface IngestArgs {
   readonly input: string;
@@ -68,7 +68,7 @@ const toEpisode = (suite: AgentBenchSuite, index: number): KnowledgeFeedbackEpis
  * Convert failed runs into typed feedback episodes and optionally publish to Graphiti.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const handleIngest: (
   args: IngestArgs

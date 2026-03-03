@@ -6,7 +6,7 @@
  * file path does not exist on disk.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -17,7 +17,7 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  * Raised when a required file or directory cannot be located.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>($I`NoSuchFileError`)(
   "NoSuchFileError",

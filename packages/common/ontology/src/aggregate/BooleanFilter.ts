@@ -13,7 +13,7 @@ interface BooleanFilterOptions extends BaseFilterOptions<boolean> {}
  * Boolean filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace BooleanFilter {
   /** @since 0.0.0 */
@@ -33,6 +33,6 @@ export declare namespace BooleanFilter {
  * Canonical boolean filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BooleanFilter = boolean | BooleanFilter.$eq | BooleanFilter.$ne | BooleanFilter.$in | BooleanFilter.$isNull;

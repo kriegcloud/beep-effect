@@ -51,7 +51,7 @@ Using a pre-release build targeting Effect v4 compatibility.
  * Brief description.
  *
  * @since 0.0.0
- * @category category_name
+ * @category DomainModel
  */
 export const functionName = ...
 ```

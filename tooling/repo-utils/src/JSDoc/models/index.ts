@@ -2,7 +2,7 @@
  * Canonical source metadata model exports.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 /* cspell:ignore Derivability */
 

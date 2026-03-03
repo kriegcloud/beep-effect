@@ -13,7 +13,7 @@ const $I = $OntologyId.create("object/Attachment");
  * Runtime attachment accessor methods for attachment properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface Attachment {
   readonly rid: string;
@@ -31,7 +31,7 @@ export interface Attachment {
  * Payload used to upload attachment content.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class AttachmentUpload extends S.Class<AttachmentUpload>($I`AttachmentUpload`)(
   {
@@ -47,7 +47,7 @@ export class AttachmentUpload extends S.Class<AttachmentUpload>($I`AttachmentUpl
  * Metadata returned for an attachment.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class AttachmentMetadata extends S.Class<AttachmentMetadata>($I`AttachmentMetadata`)(
   {

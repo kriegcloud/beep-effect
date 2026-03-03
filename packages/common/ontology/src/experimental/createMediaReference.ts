@@ -13,7 +13,7 @@ import type { Experiment } from "./Experiment.js";
  * Uploads media and returns a media-reference value.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 type CreateMediaReferenceFn = <
   Q extends ObjectOrInterfaceDefinition,
@@ -29,7 +29,7 @@ type CreateMediaReferenceFn = <
  * Experiment token for media-reference upload support.
  *
  * @since 0.0.0
- * @category experimental
+ * @category Uncategorized
  */
 export const __EXPERIMENTAL__NOT_SUPPORTED_YET__createMediaReference: Experiment<
   "2.1.0",

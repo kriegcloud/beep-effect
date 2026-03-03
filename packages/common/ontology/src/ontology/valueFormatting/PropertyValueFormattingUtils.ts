@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyValueFormattingU
  * Runtime schema for StringConstant.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export class StringConstant extends S.Class<StringConstant>($I`StringConstant`)(
   {
@@ -29,7 +29,7 @@ export class StringConstant extends S.Class<StringConstant>($I`StringConstant`)(
  * Runtime schema for PropertyTypeReference.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export class PropertyTypeReference extends S.Class<PropertyTypeReference>($I`PropertyTypeReference`)(
   {
@@ -45,7 +45,7 @@ export class PropertyTypeReference extends S.Class<PropertyTypeReference>($I`Pro
  * Runtime schema for PropertyTypeReferenceOrStringConstant.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PropertyTypeReferenceOrStringConstant = S.Union([PropertyTypeReference, StringConstant]).pipe(
   S.toTaggedUnion("type"),

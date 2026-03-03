@@ -9,7 +9,7 @@
  * Logging methods available to ontology runtime helpers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface Logger {
   readonly trace: Logger.LogFn;
@@ -34,14 +34,14 @@ export interface Logger {
  * Utility types for {@link Logger}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace Logger {
   /**
    * Structured logger call signature.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface LogFn {
     (obj: unknown, msg?: string, ...args: Array<unknown>): void;

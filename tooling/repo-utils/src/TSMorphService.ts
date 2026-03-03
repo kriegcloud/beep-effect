@@ -57,7 +57,7 @@ const $I = $RepoUtilsId.create("TSMorphService");
  * Public shape for ts-morph service operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface TSMorphServiceShape {
   /**
@@ -174,7 +174,7 @@ export interface TSMorphServiceShape {
  * Service tag for `TSMorphService`.
  *
  * @since 0.0.0
- * @category services
+ * @category PortContract
  */
 export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
@@ -182,7 +182,7 @@ export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphSe
  * Live layer for `TSMorphService`.
  *
  * @since 0.0.0
- * @category layers
+ * @category Configuration
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   TSMorphService,

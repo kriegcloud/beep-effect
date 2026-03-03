@@ -25,7 +25,7 @@ import * as jsonc from "jsonc-parser";
  * (or, in the case of {@link checkConfigNeedsUpdate}, would need updating).
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface ConfigUpdateResult {
   readonly tsconfigPackages: boolean;
@@ -37,7 +37,7 @@ export interface ConfigUpdateResult {
  * Config update target for a package that should be registered in root tsconfig files.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface ConfigUpdateTarget {
   readonly packageName: string;
@@ -48,7 +48,7 @@ export interface ConfigUpdateTarget {
  * Per-target config update summary.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface ConfigUpdateTargetResult {
   readonly target: ConfigUpdateTarget;
@@ -62,7 +62,7 @@ export interface ConfigUpdateTargetResult {
  * at least one target changed (or needs a change, in check mode) for the file.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface ConfigUpdateBatchResult {
   readonly targets: ReadonlyArray<ConfigUpdateTargetResult>;
@@ -171,7 +171,7 @@ const modifyFileString: (
  * @returns `true` when the file was modified, `false` when the entry already existed.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateTsconfigPackages: (
   repoRoot: string,
@@ -212,7 +212,7 @@ export const updateTsconfigPackages: (
  * @returns `true` when the file was modified, `false` when the aliases already existed.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateTsconfigPaths: (
   repoRoot: string,
@@ -267,7 +267,7 @@ export const updateTsconfigPaths: (
  * @returns `true` when the file was modified, `false` when the entry already existed or was covered.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateTstycheConfig: (
   repoRoot: string,
@@ -351,7 +351,7 @@ const checkConfigNeedsUpdateForTarget: (
  * @returns Per-target results and aggregate booleans indicating whether each file changed for at least one target.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateRootConfigsForTargets: (
   repoRoot: string,
@@ -383,7 +383,7 @@ export const updateRootConfigsForTargets: (
  * @returns Per-target results and aggregate booleans indicating whether each file needs updates for at least one target.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const checkConfigNeedsUpdateForTargets: (
   repoRoot: string,
@@ -418,7 +418,7 @@ export const checkConfigNeedsUpdateForTargets: (
  * @returns A {@link ConfigUpdateResult} indicating which config files were modified.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const updateRootConfigs: (
   repoRoot: string,
@@ -442,7 +442,7 @@ export const updateRootConfigs: (
  * @returns A {@link ConfigUpdateResult} where `true` means the file still needs updating.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const checkConfigNeedsUpdate: (
   repoRoot: string,

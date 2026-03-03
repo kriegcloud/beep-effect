@@ -9,7 +9,7 @@
  *
  * Uses HTML-like syntax for all context enhancements.
  *
- * @category Hooks
+ * @category Utility
  * @since 1.0.0
  */
 

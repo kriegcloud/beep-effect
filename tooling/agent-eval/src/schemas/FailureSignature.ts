@@ -5,7 +5,7 @@ import { AgentNameSchema, type BenchCondition, BenchConditionSchema } from "./Ag
  * Failure signature used for retrieval and run-level triage.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type FailureSignature = {
   readonly id: string;
@@ -23,7 +23,7 @@ export type FailureSignature = {
  * Runtime schema for failure signature records.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const FailureSignatureSchema = S.Struct({
   id: S.NonEmptyString,

@@ -11,7 +11,7 @@ import type { ObjectOrInterfaceDefinition } from "../ontology/ObjectOrInterface.
  * Bulk-link response row.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface EXPERIMENTAL_BulkLinkResult {
   object: OsdkBase<ObjectOrInterfaceDefinition>;

@@ -6,7 +6,7 @@
  * array of package names forming the loop.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -18,7 +18,7 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  * dependencies in the workspace dependency graph.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyError>($I`CyclicDependencyError`)(
   "CyclicDependencyError",

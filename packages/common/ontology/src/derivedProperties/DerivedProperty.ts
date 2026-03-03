@@ -19,14 +19,14 @@ declare const DerivedPropertyDefinitionBrand: unique symbol;
  * Derived-property type namespace.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export namespace DerivedProperty {
   /**
    * Marker type for all derived-property definitions.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Definition<T extends SimplePropertyDef, Q extends ObjectOrInterfaceDefinition> {
     readonly [DerivedPropertyDefinitionBrand]: {
@@ -39,7 +39,7 @@ export namespace DerivedProperty {
    * Numeric derived-property definition shape.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface NumericPropertyDefinition<T extends SimplePropertyDef, Q extends ObjectOrInterfaceDefinition>
     extends Definition<T, Q>,
@@ -49,7 +49,7 @@ export namespace DerivedProperty {
    * Datetime derived-property definition shape.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface DatetimePropertyDefinition<T extends SimplePropertyDef, Q extends ObjectOrInterfaceDefinition>
     extends Definition<T, Q>,
@@ -59,7 +59,7 @@ export namespace DerivedProperty {
    * Factory signature for a derived property.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Creator<Q extends ObjectOrInterfaceDefinition, T extends SimplePropertyDef> = (
     baseObjectSet: Builder<Q, false>
@@ -69,7 +69,7 @@ export namespace DerivedProperty {
    * Mapping from derived-property key to creator.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type Clause<Q extends ObjectOrInterfaceDefinition> = {
     [key: string]: Creator<Q, SimplePropertyDef>;
@@ -83,7 +83,7 @@ export namespace DerivedProperty {
    * Builder surface exposed to `withProperties` creators.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Builder<Q extends ObjectOrInterfaceDefinition, CONSTRAINED extends boolean>
     extends BaseBuilder<Q, CONSTRAINED>,
@@ -94,7 +94,7 @@ export namespace DerivedProperty {
    * Builder surface exposed for aggregate-only derived-property paths.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface AggregateBuilder<Q extends ObjectOrInterfaceDefinition, CONSTRAINED extends boolean>
     extends BaseBuilder<Q, CONSTRAINED>,
@@ -104,7 +104,7 @@ export namespace DerivedProperty {
    * Builder surface exposed for select-property paths.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface SelectPropertyBuilder<Q extends ObjectOrInterfaceDefinition, CONSTRAINED extends boolean>
     extends AggregateBuilder<Q, CONSTRAINED>,
@@ -114,7 +114,7 @@ export namespace DerivedProperty {
    * Supported datetime extraction parts.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export type ValidParts = "DAYS" | "MONTHS" | "QUARTERS" | "YEARS";
 }

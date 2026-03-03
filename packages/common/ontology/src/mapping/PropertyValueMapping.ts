@@ -13,7 +13,7 @@ import type { GeoPoint, GeoShape } from "./DataValueMapping.js";
  * Map from wire property types to client-facing property runtime values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PropertyValueWireToClient {
   readonly attachment: Attachment;
@@ -43,7 +43,7 @@ export interface PropertyValueWireToClient {
  * Resolve client-facing runtime value type from a wire property key or keyed map.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GetClientPropertyValueFromWire<
   T extends keyof PropertyValueWireToClient | Record<string, keyof PropertyValueWireToClient>,
@@ -57,7 +57,7 @@ export type GetClientPropertyValueFromWire<
  * Map from wire property types to accepted client input values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PropertyValueClientToWire {
   readonly attachment: string | AttachmentUpload | (Blob & { readonly name: string });
@@ -87,7 +87,7 @@ export interface PropertyValueClientToWire {
  * Resolve accepted wire input type from a wire property key or keyed map.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GetWirePropertyValueFromClient<
   T extends keyof PropertyValueClientToWire | Record<string, keyof PropertyValueClientToWire>,
@@ -101,7 +101,7 @@ export type GetWirePropertyValueFromClient<
  * Map from wire property types to accepted create-operation values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PropertyValueWireToCreate {
   readonly attachment: Attachment | string;
@@ -131,7 +131,7 @@ export interface PropertyValueWireToCreate {
  * Resolve accepted create value type from a wire property key or keyed map.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GetCreatePropertyValueFromWire<
   T extends keyof PropertyValueWireToCreate | Record<string, keyof PropertyValueWireToCreate>,

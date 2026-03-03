@@ -18,7 +18,7 @@ interface NumberFilterOptions extends BaseFilterOptions<number> {
  * Number filter discriminators.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace NumberFilter {
   /** @since 0.0.0 */
@@ -43,7 +43,7 @@ export declare namespace NumberFilter {
  * Canonical number filter union.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberFilter =
   | number

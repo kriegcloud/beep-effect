@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/VersionString");
  * Error thrown when any version component is invalid.
  *
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class InvalidVersionPartError extends S.TaggedErrorClass<InvalidVersionPartError>($I`InvalidVersionPartError`)(
   "InvalidVersionPartError",
@@ -42,7 +42,7 @@ interface VersionStringParts<Major extends number, Minor extends number, Patch e
  * Parsed major/minor/patch components validated as non-negative integers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class ValidVersionParts extends S.Class<ValidVersionParts>($I`ValidVersionParts`)(
   {
@@ -61,7 +61,7 @@ const isValidVersionParts = S.is(ValidVersionParts);
  * Build a version string schema for fixed major/minor/patch values.
  *
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
  */
 export function VersionString<const Major extends number, const Minor extends number, const Patch extends number>(
   parts: VersionStringParts<Major, Minor, Patch>
@@ -83,7 +83,7 @@ export function VersionString<const Major extends number, const Minor extends nu
  * Type-level representation for a semantic version string.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type VersionString<
   Major extends number,

@@ -6,12 +6,12 @@
 
 /**
  * @since 0.0.0
- * @category namespace
+ * @category Uncategorized
  */
 export type * as TString from "./TString.types.js";
 
 /**
  * @since 0.0.0
- * @category namespace
+ * @category Uncategorized
  */
 export type * as TUnsafe from "./TUnsafe.types.js";

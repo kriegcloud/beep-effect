@@ -13,7 +13,7 @@ const $I = $OntologyId.create("OntologyMetadata");
  * Optional metadata included with ontology requests.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class OntologyMetadata extends S.Class<OntologyMetadata>($I`OntologyMetadata`)(
   {

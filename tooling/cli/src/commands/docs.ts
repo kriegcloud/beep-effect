@@ -153,7 +153,7 @@ const docsFindCommand = Command.make(
  * Command-first docs discovery entrypoint used by agent config surfaces.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const docsCommand = Command.make(
   "docs",

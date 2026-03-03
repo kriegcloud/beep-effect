@@ -15,7 +15,7 @@ import type { BenchCondition, TaskCategory } from "../schemas/index.js";
  * Policy overlay configuration loaded from `.agents/policies`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PolicyOverlay {
   readonly id: string;
@@ -33,7 +33,7 @@ export interface PolicyOverlay {
  * Selected packet constraints after applying overlays.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface PolicyPacket {
   readonly selectedPolicyIds: ReadonlyArray<string>;
@@ -46,7 +46,7 @@ export interface PolicyPacket {
  * Skill candidate metadata used by deterministic selection.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface SkillCandidate {
   readonly name: string;
@@ -72,7 +72,7 @@ const decodeOverlay = S.decodeUnknownSync(S.fromJsonString(PolicyOverlaySchema))
  * Deterministic skill candidates for focused Effect v4 guidance.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const SkillCandidates: ReadonlyArray<SkillCandidate> = [
   {
@@ -103,7 +103,7 @@ export const SkillCandidates: ReadonlyArray<SkillCandidate> = [
  * @param policyDirectory - Relative or absolute directory containing overlay JSON files.
  * @returns Effect that loads, decodes, and priority-sorts policy overlays.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const loadPolicyOverlays = (policyDirectory: string) =>
   Effect.gen(function* () {
@@ -141,7 +141,7 @@ export const loadPolicyOverlays = (policyDirectory: string) =>
  * @param category - Task category used to filter applicable overlays.
  * @returns Effective packet limits and selected policy identifiers.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const selectPolicyPacket = (
   overlays: ReadonlyArray<PolicyOverlay>,
@@ -189,7 +189,7 @@ const keywordScore = (prompt: string, keywords: ReadonlyArray<string>): number =
  * @param maxSkills - Maximum number of skills to return.
  * @returns Ordered skill names selected from deterministic score ranking.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const selectFocusedSkills = (
   prompt: string,
@@ -219,7 +219,7 @@ export const selectFocusedSkills = (
  * @param maxSkills - Configured upper bound for selected skills.
  * @returns True when selection size is within the configured cap.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const hasValidSkillCap = (skills: ReadonlyArray<string>, maxSkills: number): boolean =>
   skills.length <= maxSkills;

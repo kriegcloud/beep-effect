@@ -14,7 +14,7 @@ const $I = $OntologyId.create("ontology/WirePropertyTypes");
  * Base wire property type identifiers supported by the ontology API.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const BaseWirePropertyTypes = LiteralKit([
   "string",
@@ -48,7 +48,7 @@ export const BaseWirePropertyTypes = LiteralKit([
  * Type for {@link BaseWirePropertyTypes}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BaseWirePropertyTypes = typeof BaseWirePropertyTypes.Type;
 
@@ -56,7 +56,7 @@ export type BaseWirePropertyTypes = typeof BaseWirePropertyTypes.Type;
  * Ontology wire property type: either a base type or a map from key to base type.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const WirePropertyTypes = S.Union([BaseWirePropertyTypes, S.Record(S.String, BaseWirePropertyTypes)]).pipe(
   S.annotate(
@@ -70,7 +70,7 @@ export const WirePropertyTypes = S.Union([BaseWirePropertyTypes, S.Record(S.Stri
  * Type for {@link WirePropertyTypes}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WirePropertyTypes = typeof WirePropertyTypes.Type;
 
@@ -78,7 +78,7 @@ export type WirePropertyTypes = typeof WirePropertyTypes.Type;
  * Compatibility alias for {@link BaseWirePropertyTypes}.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const WirePropertyType = BaseWirePropertyTypes;
 
@@ -86,6 +86,6 @@ export const WirePropertyType = BaseWirePropertyTypes;
  * Compatibility alias type for {@link BaseWirePropertyTypes}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type WirePropertyType = BaseWirePropertyTypes;

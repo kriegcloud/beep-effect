@@ -11,7 +11,7 @@ import type { ObjectTypeDefinition, ReleaseStatus } from "./ObjectTypeDefinition
  * Metadata carried by ontology action definitions.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ActionMetadata {
   readonly type: "action";
@@ -36,14 +36,14 @@ export interface ActionMetadata {
  * Types for {@link ActionMetadata}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export declare namespace ActionMetadata {
   /**
    * Action parameter metadata entry.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export interface Parameter<T_Target extends ObjectTypeDefinition = never> {
     readonly type:
@@ -61,14 +61,14 @@ export declare namespace ActionMetadata {
    * Action parameter data type contracts.
    *
    * @since 0.0.0
-   * @category models
+   * @category DomainModel
    */
   export namespace DataType {
     /**
      * Primitive/base action parameter types.
      *
      * @since 0.0.0
-     * @category models
+     * @category DomainModel
      */
     export type BaseActionParameterTypes =
       | "boolean"
@@ -89,7 +89,7 @@ export declare namespace ActionMetadata {
      * Object action parameter type.
      *
      * @since 0.0.0
-     * @category models
+     * @category DomainModel
      */
     export interface Object<T_Target extends ObjectTypeDefinition = never> {
       readonly __OsdkTargetType?: T_Target;
@@ -101,7 +101,7 @@ export declare namespace ActionMetadata {
      * Interface action parameter type.
      *
      * @since 0.0.0
-     * @category models
+     * @category DomainModel
      */
     export interface Interface<T_Target extends InterfaceDefinition = never> {
       readonly __OsdkTargetType?: T_Target;
@@ -113,7 +113,7 @@ export declare namespace ActionMetadata {
      * Object-set action parameter type.
      *
      * @since 0.0.0
-     * @category models
+     * @category DomainModel
      */
     export interface ObjectSet<T_Target extends ObjectTypeDefinition = never> {
       readonly __OsdkTargetType?: T_Target;
@@ -125,7 +125,7 @@ export declare namespace ActionMetadata {
      * Structured action parameter type.
      *
      * @since 0.0.0
-     * @category models
+     * @category DomainModel
      */
     export interface Struct<T extends Record<string, DataType.BaseActionParameterTypes>> {
       readonly type: "struct";
@@ -138,7 +138,7 @@ export declare namespace ActionMetadata {
  * Compile-time metadata holder for generated action signatures.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ActionCompileTimeMetadata<T> {
   readonly signatures: T;
@@ -148,7 +148,7 @@ export interface ActionCompileTimeMetadata<T> {
  * Compile-time description of an ontology action definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ActionDefinition<T_signatures = never> {
   readonly type: "action";

@@ -14,7 +14,7 @@ import { Command } from "effect/unstable/cli";
  * in topological order (leaf dependencies first, dependents last).
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const topoSortCommand = Command.make(
   "topo-sort",

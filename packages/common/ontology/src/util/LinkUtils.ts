@@ -12,7 +12,7 @@ import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
  * Link API names available on an object or interface definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type LinkNames<Q extends ObjectOrInterfaceDefinition> = Q extends InterfaceDefinition
   ? keyof CompileTimeMetadata<Q>["links"]
@@ -22,7 +22,7 @@ export type LinkNames<Q extends ObjectOrInterfaceDefinition> = Q extends Interfa
  * Resolve the linked target definition for a given link name.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type LinkedType<Q extends ObjectOrInterfaceDefinition, L extends LinkNames<Q>> = NonNullable<
   CompileTimeMetadata<Q>["links"][L]["__OsdkLinkTargetType"]

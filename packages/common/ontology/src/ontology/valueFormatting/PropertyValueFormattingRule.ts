@@ -20,7 +20,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyValueFormattingR
  * Formatting configuration union for ontology property values.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PropertyValueFormattingRule = S.Union([
   PropertyNumberFormattingRule,
@@ -41,6 +41,6 @@ export const PropertyValueFormattingRule = S.Union([
  * Type for {@link PropertyValueFormattingRule}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropertyValueFormattingRule = typeof PropertyValueFormattingRule.Type;

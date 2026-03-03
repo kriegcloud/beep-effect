@@ -13,7 +13,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyBooleanFormattin
  * Boolean property formatting with explicit true/false display values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyBooleanFormattingRule extends S.Class<PropertyBooleanFormattingRule>(
   $I`PropertyBooleanFormattingRule`

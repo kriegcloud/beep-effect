@@ -15,7 +15,7 @@ const $I = $OntologyId.create("mapping/DataValueMapping");
  * Allowed primitive bucket value types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const AllowedBucketTypes = S.Union([S.String, S.Number, S.Boolean]).annotate(
   $I.annote("AllowedBucketTypes", {
@@ -26,7 +26,7 @@ export const AllowedBucketTypes = S.Union([S.String, S.Number, S.Boolean]).annot
  * Allowed primitive bucket value types. {@link AllowedBucketTypes}
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AllowedBucketTypes = typeof AllowedBucketTypes.Type;
 
@@ -34,7 +34,7 @@ export type AllowedBucketTypes = typeof AllowedBucketTypes.Type;
  * Allowed bucket key types used in aggregation payloads.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AllowedBucketKeyTypes =
   | AllowedBucketTypes
@@ -47,7 +47,7 @@ export type AllowedBucketKeyTypes =
  * Minimal geo-point shape used by ontology data-value mappings.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface GeoPoint {
   readonly type: "Point";
@@ -58,7 +58,7 @@ export interface GeoPoint {
  * Generic geo-shape payload accepted by ontology wire contracts.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type GeoShape = Readonly<Record<string, unknown>>;
 
@@ -66,7 +66,7 @@ export type GeoShape = Readonly<Record<string, unknown>>;
  * Map from wire data value types to the client-facing runtime type.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface DataValueWireToClient {
   readonly attachment: Attachment;
@@ -107,7 +107,7 @@ export interface DataValueWireToClient {
  * Map from wire data value types to accepted client input types.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface DataValueClientToWire {
   readonly attachment: string | AttachmentUpload | (Blob & { readonly name: string });

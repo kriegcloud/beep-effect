@@ -14,7 +14,7 @@ import { type FailureSignature, FailureSignatureSchema } from "./FailureSignatur
  * Benchmark suite completion status.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const BenchSuiteStatusSchema = S.Literals(["completed", "aborted_wall_cap"]);
 
@@ -22,7 +22,7 @@ export const BenchSuiteStatusSchema = S.Literals(["completed", "aborted_wall_cap
  * Benchmark suite completion status.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchSuiteStatus = typeof BenchSuiteStatusSchema.Type;
 
@@ -30,7 +30,7 @@ export type BenchSuiteStatus = typeof BenchSuiteStatusSchema.Type;
  * Expanded run record with config, task, and preflight metadata.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentRunRecord = {
   readonly config: AgentRunConfig;
@@ -70,7 +70,7 @@ export type AgentRunRecord = {
  * Benchmark suite artifact persisted per execution.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentBenchSuite = {
   readonly formatVersion: 1;
@@ -91,7 +91,7 @@ export type AgentBenchSuite = {
  * Runtime schema for expanded run record.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentRunRecordSchema = S.Struct({
   config: AgentRunConfigSchema,
@@ -133,7 +133,7 @@ export const AgentRunRecordSchema = S.Struct({
  * Runtime schema for benchmark suite artifact.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentBenchSuiteSchema = S.Struct({
   formatVersion: S.Literal(1),

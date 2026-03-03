@@ -5,7 +5,7 @@ import { type BenchCondition, BenchConditionSchema } from "./AgentRunConfig.js";
  * Structured feedback episode emitted from failed benchmark runs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type KnowledgeFeedbackEpisode = {
   readonly runId: string;
@@ -21,7 +21,7 @@ export type KnowledgeFeedbackEpisode = {
  * Runtime schema for feedback episodes.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const KnowledgeFeedbackEpisodeSchema = S.Struct({
   runId: S.NonEmptyString,

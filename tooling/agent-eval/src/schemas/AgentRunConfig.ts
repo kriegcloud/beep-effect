@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
  * Agent identifier used in benchmark runs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const AgentNameSchema = S.Literals(["codex", "claude"]);
 
@@ -15,7 +15,7 @@ export const AgentNameSchema = S.Literals(["codex", "claude"]);
  * Agent identifier used in benchmark runs.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentName = typeof AgentNameSchema.Type;
 
@@ -23,7 +23,7 @@ export type AgentName = typeof AgentNameSchema.Type;
  * Benchmark condition identifier.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const BenchConditionSchema = S.Literals(["current", "minimal", "adaptive", "adaptive_kg"]);
 
@@ -31,7 +31,7 @@ export const BenchConditionSchema = S.Literals(["current", "minimal", "adaptive"
  * Benchmark condition identifier.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BenchCondition = typeof BenchConditionSchema.Type;
 
@@ -39,7 +39,7 @@ export type BenchCondition = typeof BenchConditionSchema.Type;
  * Run-level configuration for one agent/condition/trial tuple.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AgentRunConfig = {
   readonly agent: AgentName;
@@ -52,7 +52,7 @@ export type AgentRunConfig = {
  * Runtime schema for run-level configuration.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const AgentRunConfigSchema = S.Struct({
   agent: AgentNameSchema,

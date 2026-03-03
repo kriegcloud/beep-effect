@@ -15,7 +15,7 @@ import type { UnorderedAggregationClause } from "./AggregationsClause.js";
  * - disallows ordering when grouping with `$exact.$includeNullValue: true`
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregateOptsThatErrorsAndDisallowsOrderingWithMultipleGroupBy<
   Q extends ObjectOrInterfaceDefinition,

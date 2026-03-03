@@ -23,7 +23,7 @@ import { Command, Flag } from "effect/unstable/cli";
  * File extensions recognised as TypeScript source modules during barrel generation.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const TS_EXTENSIONS = [".ts", ".tsx"] as const;
 
@@ -33,7 +33,7 @@ const TS_EXTENSIONS = [".ts", ".tsx"] as const;
  * @param name - The filename or relative path to inspect.
  * @returns `true` when the name ends with `.ts` or `.tsx`.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const isTsFile = (name: string): boolean => A.some(TS_EXTENSIONS, (ext) => Str.endsWith(ext)(name));
 
@@ -46,7 +46,7 @@ const isTsFile = (name: string): boolean => A.some(TS_EXTENSIONS, (ext) => Str.e
  * @param name - The filename or relative path to inspect.
  * @returns `true` when the name matches a test file naming convention.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const isTestFile = (name: string): boolean =>
   Str.endsWith(".test.ts")(name) ||
@@ -63,7 +63,7 @@ const isTestFile = (name: string): boolean =>
  * @param name - The TypeScript filename (may include a sub-path prefix).
  * @returns A relative import specifier with a `.js` extension.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const toImportPath = (name: string): string => {
   for (const ext of TS_EXTENSIONS) {
@@ -79,7 +79,7 @@ const toImportPath = (name: string): string => {
  * before emitting barrel re-exports.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const alphabetical: Order.Order<string> = Order.String;
 
@@ -97,7 +97,7 @@ const alphabetical: Order.Order<string> = Order.String;
  * @returns An unsorted array of relative file paths suitable for barrel re-export.
  * @depends FileSystem, Path
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const discoverModules = Effect.fn(function* (srcDir: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -152,7 +152,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
  * @returns The full content of the generated `index.ts` barrel file.
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
   const header = pipe(
@@ -177,7 +177,7 @@ const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>)
  * an `index.ts` barrel file with `export *` re-exports for every discovered module.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const codegenCommand = Command.make(
   "codegen",

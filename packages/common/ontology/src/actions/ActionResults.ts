@@ -9,7 +9,7 @@
  * Action edit result payload.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 
 export type ActionResults = (ObjectEdits | LargeScaleObjectEdits) & {
@@ -54,7 +54,7 @@ interface ObjectReference {
  * Validation response payload for v2 action validation.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ValidateActionResponseV2 {
   result: "VALID" | "INVALID";

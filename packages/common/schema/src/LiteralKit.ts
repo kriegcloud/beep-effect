@@ -27,7 +27,7 @@ type Literals = A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>;
  * - string → as-is (e.g., "pending" → "pending")
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export type LiteralToKey<L extends SchemaAST.LiteralValue> = L extends boolean
   ? L extends true
@@ -137,7 +137,7 @@ type ToTaggedUnionFn<L extends ReadonlyArray<PropertyKeyLiteral>> = <const Tag e
  * Convert a literal value to its string key at runtime.
  *
  * @since 0.0.0
- * @category utils
+ * @category Utility
  */
 export const matchLiteral = <L extends SchemaAST.LiteralValue>(literal: L): LiteralToKey<L> =>
   Match.value(literal).pipe(
@@ -180,7 +180,7 @@ const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
 /**
  * Error thrown when `omitOptions` removes every literal and cannot return a non-empty result.
  *
- * @category errors
+ * @category CrossCutting
  * @since 0.0.0
  */
 export class LiteralNotInSetError extends S.TaggedErrorClass<LiteralNotInSetError>($I`LiteralNotInSetError`)(
@@ -253,7 +253,7 @@ function buildMatch<L extends Literals>(_: L) {
  * Supports mixed literal types (`string | number | boolean | bigint`)
  * with keys mapped via {@link LiteralToKey}.
  *
- * @category models
+ * @category DomainModel
  * @since 0.0.0
  */
 export type LiteralKit<L extends Literals> = S.Literals<L> & {
@@ -305,7 +305,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * });
  * ```
  *
- * @category constructors
+ * @category DomainModel
  * @since 0.0.0
  */
 export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L> {

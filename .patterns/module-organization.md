@@ -180,7 +180,7 @@ const TypeId = "~effect/ModuleName"
 
 /**
  * @since 2.0.0
- * @category models
+ * @category DomainModel
  */
 export interface ModuleName<out A = unknown, out E = unknown> extends Pipeable, Inspectable.Inspectable {
   readonly [TypeId]: typeof TypeId
@@ -190,7 +190,7 @@ export interface ModuleName<out A = unknown, out E = unknown> extends Pipeable, 
 // Type guard using Predicate.hasProperty
 /**
  * @since 2.0.0
- * @category refinements
+ * @category Validation
  */
 export const isModuleName = (u: unknown): u is ModuleName<unknown, unknown> => Predicate.hasProperty(u, TypeId)
 
@@ -317,7 +317,7 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
  * ```
  *
  * @since 2.0.0
- * @category combinators
+ * @category Utility
  */
 export const map = dual<
   <A, B>(f: (a: A, index: number) => B) => (self: ReadonlyArray<A>) => Array<B>,
@@ -355,13 +355,13 @@ The Effect library uses **string literal TypeIds** (NOT `Symbol.for`):
 const TypeId = "~effect/ModuleName"
 
 /**
- * @category symbols
+ * @category DomainModel
  * @since 2.0.0
  */
 export type TypeId = typeof TypeId
 
 /**
- * @category models
+ * @category DomainModel
  * @since 2.0.0
  */
 export interface ModuleName<A> {
@@ -419,7 +419,7 @@ export const symbol = "~effect/interfaces/Equal"
  * })
  * ```
  *
- * @category refinements
+ * @category Validation
  * @since 2.0.0
  */
 export const isModuleName = (u: unknown): u is ModuleName<unknown, unknown> => Predicate.hasProperty(u, TypeId)
@@ -462,7 +462,7 @@ import type { Pipeable } from "./Pipeable.ts-morph"
 const TypeId = "~effect/ModuleName"
 
 /**
- * @category models
+ * @category DomainModel
  * @since 2.0.0
  */
 export interface ModuleName<A> extends Pipeable, Inspectable.Inspectable {

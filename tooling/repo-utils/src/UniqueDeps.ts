@@ -18,7 +18,7 @@ import type { FsUtils } from "./FsUtils.js";
  * Result of collecting unique NPM dependencies across the monorepo.
  *
  * @since 0.0.0
- * @category types
+ * @category DomainModel
  */
 export interface UniqueNpmDeps {
   /** Sorted array of unique runtime dependency names. */
@@ -54,7 +54,7 @@ export interface UniqueNpmDeps {
  * })
  * ```
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const collectUniqueNpmDependencies: (
   rootDir: string

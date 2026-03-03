@@ -15,7 +15,7 @@ const $I = $OntologyId.create("ontology/valueFormatting/PropertyNumberFormatting
  * Numeric notation strategies.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const NumberFormatNotation = LiteralKit(["STANDARD", "SCIENTIFIC", "ENGINEERING", "COMPACT"]).annotate(
   $I.annote("NumberFormatNotation", {
@@ -28,7 +28,7 @@ export const NumberFormatNotation = LiteralKit(["STANDARD", "SCIENTIFIC", "ENGIN
  * Type for {@link NumberFormatNotation}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberFormatNotation = typeof NumberFormatNotation.Type;
 
@@ -36,7 +36,7 @@ export type NumberFormatNotation = typeof NumberFormatNotation.Type;
  * Currency style options derived from notation strategies.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const NumberFormatCurrencyStyle = NumberFormatNotation.pick(["STANDARD", "COMPACT"]).annotate(
   $I.annote("NumberFormatCurrencyStyle", {
@@ -48,7 +48,7 @@ export const NumberFormatCurrencyStyle = NumberFormatNotation.pick(["STANDARD", 
  * Type for {@link NumberFormatCurrencyStyle}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberFormatCurrencyStyle = typeof NumberFormatCurrencyStyle.Type;
 
@@ -56,7 +56,7 @@ export type NumberFormatCurrencyStyle = typeof NumberFormatCurrencyStyle.Type;
  * Supported numeric rounding modes.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const NumberRoundingMode = LiteralKit(["CEIL", "FLOOR", "ROUND_CLOSEST"]).annotate(
   $I.annote("NumberRoundingMode", {
@@ -68,7 +68,7 @@ export const NumberRoundingMode = LiteralKit(["CEIL", "FLOOR", "ROUND_CLOSEST"])
  * Type for {@link NumberRoundingMode}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberRoundingMode = typeof NumberRoundingMode.Type;
 
@@ -76,7 +76,7 @@ export type NumberRoundingMode = typeof NumberRoundingMode.Type;
  * Precision strategies for duration formatting.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DurationPrecision = LiteralKit(["DAYS", "HOURS", "MINUTES", "SECONDS", "AUTO"]).annotate(
   $I.annote("DurationPrecision", {
@@ -88,7 +88,7 @@ export const DurationPrecision = LiteralKit(["DAYS", "HOURS", "MINUTES", "SECOND
  * Type for {@link DurationPrecision}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DurationPrecision = typeof DurationPrecision.Type;
 
@@ -96,7 +96,7 @@ export type DurationPrecision = typeof DurationPrecision.Type;
  * Base input unit for duration values.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DurationBaseValue = LiteralKit(["SECONDS", "MILLISECONDS"]).annotate(
   $I.annote("DurationBaseValue", {
@@ -108,7 +108,7 @@ export const DurationBaseValue = LiteralKit(["SECONDS", "MILLISECONDS"]).annotat
  * Type for {@link DurationBaseValue}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DurationBaseValue = typeof DurationBaseValue.Type;
 
@@ -116,7 +116,7 @@ export type DurationBaseValue = typeof DurationBaseValue.Type;
  * Numeric scaling presets.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const NumberScaleType = LiteralKit(["THOUSANDS", "MILLIONS", "BILLIONS"]).annotate(
   $I.annote("NumberScaleType", {
@@ -128,7 +128,7 @@ export const NumberScaleType = LiteralKit(["THOUSANDS", "MILLIONS", "BILLIONS"])
  * Type for {@link NumberScaleType}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberScaleType = typeof NumberScaleType.Type;
 
@@ -136,7 +136,7 @@ export type NumberScaleType = typeof NumberScaleType.Type;
  * Ratio display variants.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const NumberRatioType = LiteralKit(["PERCENTAGE", "PER_MILLE", "BASIS_POINTS"]).annotate(
   $I.annote("NumberRatioType", {
@@ -148,7 +148,7 @@ export const NumberRatioType = LiteralKit(["PERCENTAGE", "PER_MILLE", "BASIS_POI
  * Type for {@link NumberRatioType}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type NumberRatioType = typeof NumberRatioType.Type;
 
@@ -162,7 +162,7 @@ const OptionFromOptionalNonNegativeInt = S.OptionFromOptionalKey(NonNegativeInt)
  * Base numeric formatting options shared across numeric style variants.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatOptions extends S.Class<NumberFormatOptions>($I`NumberFormatOptions`)(
   {
@@ -186,7 +186,7 @@ export class NumberFormatOptions extends S.Class<NumberFormatOptions>($I`NumberF
  * Standard number formatting with configurable options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatStandard extends S.Class<NumberFormatStandard>($I`NumberFormatStandard`)(
   {
@@ -202,7 +202,7 @@ export class NumberFormatStandard extends S.Class<NumberFormatStandard>($I`Numbe
  * Map integer values to custom strings.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatFixedValues extends S.Class<NumberFormatFixedValues>($I`NumberFormatFixedValues`)(
   {
@@ -218,7 +218,7 @@ export class NumberFormatFixedValues extends S.Class<NumberFormatFixedValues>($I
  * Format numbers as currency values.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatCurrency extends S.Class<NumberFormatCurrency>($I`NumberFormatCurrency`)(
   {
@@ -236,7 +236,7 @@ export class NumberFormatCurrency extends S.Class<NumberFormatCurrency>($I`Numbe
  * Format numbers with standard units supported by Intl.NumberFormat.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatStandardUnit extends S.Class<NumberFormatStandardUnit>($I`NumberFormatStandardUnit`)(
   {
@@ -253,7 +253,7 @@ export class NumberFormatStandardUnit extends S.Class<NumberFormatStandardUnit>(
  * Format numbers with custom units.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatCustomUnit extends S.Class<NumberFormatCustomUnit>($I`NumberFormatCustomUnit`)(
   {
@@ -270,7 +270,7 @@ export class NumberFormatCustomUnit extends S.Class<NumberFormatCustomUnit>($I`N
  * Prefix and postfix values attached around formatted numbers.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class Affix extends S.Class<Affix>($I`Affix`)(
   {
@@ -286,7 +286,7 @@ export class Affix extends S.Class<Affix>($I`Affix`)(
  * Attach text before and/or after the formatted number.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatAffix extends S.Class<NumberFormatAffix>($I`NumberFormatAffix`)(
   {
@@ -303,7 +303,7 @@ export class NumberFormatAffix extends S.Class<NumberFormatAffix>($I`NumberForma
  * Human-readable duration formatting style.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class HumanReadableFormat extends S.Class<HumanReadableFormat>($I`HumanReadableFormat`)(
   {
@@ -319,7 +319,7 @@ export class HumanReadableFormat extends S.Class<HumanReadableFormat>($I`HumanRe
  * Timecode duration formatting style.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class TimeCodeFormat extends S.Class<TimeCodeFormat>($I`TimeCodeFormat`)(
   {
@@ -334,7 +334,7 @@ export class TimeCodeFormat extends S.Class<TimeCodeFormat>($I`TimeCodeFormat`)(
  * Supported duration output styles.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const DurationFormatStyle = S.Union([TimeCodeFormat, HumanReadableFormat]).pipe(
   S.toTaggedUnion("type"),
@@ -349,7 +349,7 @@ export const DurationFormatStyle = S.Union([TimeCodeFormat, HumanReadableFormat]
  * Type for {@link DurationFormatStyle}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DurationFormatStyle = typeof DurationFormatStyle.Type;
 
@@ -357,7 +357,7 @@ export type DurationFormatStyle = typeof DurationFormatStyle.Type;
  * Format numeric values representing time durations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatDuration extends S.Class<NumberFormatDuration>($I`NumberFormatDuration`)(
   {
@@ -375,7 +375,7 @@ export class NumberFormatDuration extends S.Class<NumberFormatDuration>($I`Numbe
  * Scale numeric values by the specified factor.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatScale extends S.Class<NumberFormatScale>($I`NumberFormatScale`)(
   {
@@ -392,7 +392,7 @@ export class NumberFormatScale extends S.Class<NumberFormatScale>($I`NumberForma
  * Display values as ratios with different scaling factors.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class NumberFormatRatio extends S.Class<NumberFormatRatio>($I`NumberFormatRatio`)(
   {
@@ -409,7 +409,7 @@ export class NumberFormatRatio extends S.Class<NumberFormatRatio>($I`NumberForma
  * Union of all numeric formatting rule variants.
  *
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export const PropertyNumberFormattingRuleType = S.Union([
   NumberFormatStandard,
@@ -434,7 +434,7 @@ export const PropertyNumberFormattingRuleType = S.Union([
  * Type for {@link PropertyNumberFormattingRuleType}.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type PropertyNumberFormattingRuleType = typeof PropertyNumberFormattingRuleType.Type;
 
@@ -442,7 +442,7 @@ export type PropertyNumberFormattingRuleType = typeof PropertyNumberFormattingRu
  * Top-level formatting rule for ontology properties with wire type `number`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export class PropertyNumberFormattingRule extends S.Class<PropertyNumberFormattingRule>(
   $I`PropertyNumberFormattingRule`

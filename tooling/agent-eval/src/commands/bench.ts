@@ -29,7 +29,7 @@ import { type AgentBenchSuite, AgentBenchSuiteSchema, type AgentName, type Bench
  * Bench command arguments.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface BenchArgs {
   readonly output: string;
@@ -94,7 +94,7 @@ const formatDiagnosticLine = (event: BenchmarkDiagnosticEvent): string => {
  * Execute benchmark run and persist JSON + markdown artifacts.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const handleBench: (
   args: BenchArgs
@@ -308,7 +308,7 @@ export const handleBench: (
  * Read one benchmark suite from JSON file.
  *
  * @since 0.0.0
- * @category commands
+ * @category UseCase
  */
 export const readSuiteFile: (
   filePath: string

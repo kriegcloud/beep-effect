@@ -21,6 +21,6 @@ type ExtractMetadataPrimaryKey<Q> = Q extends {
  * Primary-key runtime value type for an OSDK object/interface definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type OsdkObjectPrimaryKeyType<Q> = ExtractMetadataPrimaryKey<Q> & DataValueWireToClient[PrimaryKeyTypes];

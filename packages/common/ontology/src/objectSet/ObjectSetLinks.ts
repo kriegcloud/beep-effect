@@ -12,7 +12,7 @@ import type { CompileTimeMetadata } from "../ontology/ObjectTypeDefinition.js";
  * Link type API names present on a definition.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type LinkTypeApiNamesFor<Q extends ObjectOrInterfaceDefinition> = Extract<
   keyof CompileTimeMetadata<Q>["links"],
@@ -28,7 +28,7 @@ type LinkedObjectType<
  * Minimal directed link instance carrying source/target identities.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MinimalDirectedObjectLinkInstance<
   Q extends ObjectOrInterfaceDefinition,
@@ -43,7 +43,7 @@ export type MinimalDirectedObjectLinkInstance<
  * Paginated link-fetch result payload.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type FetchLinksPageResult<Q extends ObjectOrInterfaceDefinition, LINK_TYPE extends LinkTypeApiNamesFor<Q>> = {
   data: Array<MinimalDirectedObjectLinkInstance<Q, LINK_TYPE>>;

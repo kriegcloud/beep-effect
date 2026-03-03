@@ -17,7 +17,7 @@ import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
  * Directories to exclude when scanning workspace globs.
  *
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
 
@@ -41,7 +41,7 @@ const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.tu
  * })
  * ```
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const resolveWorkspaceDirs: (
   rootDir: string
@@ -126,7 +126,7 @@ export const resolveWorkspaceDirs: (
  * })
  * ```
  * @since 0.0.0
- * @category functions
+ * @category Utility
  */
 export const getWorkspaceDir: (
   rootDir: string,

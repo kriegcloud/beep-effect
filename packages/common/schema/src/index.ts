@@ -6,18 +6,18 @@
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const VERSION = "0.0.0" as const;
 
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export * from "./LiteralKit.js";
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export * from "./MappedLiteralKit.js";
 
@@ -25,16 +25,16 @@ export * from "./MappedLiteralKit.js";
 
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export * from "./ArrayOf.js";
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export * from "./MimeType.js";
 /**
  * @since 0.0.0
- * @category schemas
+ * @category Validation
  */
 export * from "./Number.js";

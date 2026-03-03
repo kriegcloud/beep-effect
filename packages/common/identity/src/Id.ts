@@ -17,7 +17,7 @@ const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
 
 /**
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInterpolationError>(
   "@beep/identity/errors/IdentityInterpolationError"
@@ -36,7 +36,7 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
 
 /**
  * @since 0.0.0
- * @category errors
+ * @category CrossCutting
  */
 export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmentCountError>(
   "@beep/identity/errors/IdentitySegmentCountError"
@@ -48,20 +48,24 @@ export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmen
     description: "Identity template tags must use a single literal segment.",
   }
 ) {
-  override get message() {
+  /**
+   *
+   * @returns {string}
+   */
+  override get message(): string {
     return "Identity template tags must use a single literal segment.";
   }
 }
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category Configuration
  */
 export const VERSION = "0.0.0" as const;
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type SegmentValue<S extends TString.NonEmpty> = S extends `/${string}`
   ? never
@@ -128,26 +132,26 @@ type HasInvalidModuleChar<S extends string> = S extends `${string}${InvalidModul
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ModuleSegmentValue<S extends TString.NonEmpty> =
   InvalidModulePrefix<S> extends true ? never : HasInvalidModuleChar<S> extends true ? never : SegmentValue<S>;
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ModuleAccessor<S extends TString.NonEmpty> = `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TaggedAccessor<S extends TString.NonEmpty> = `$${ModuleAccessor<S>}`;
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IdentityString<Value extends string> = Value & {
   readonly __brand: unique symbol;
@@ -155,7 +159,7 @@ export type IdentityString<Value extends string> = Value & {
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IdentitySymbol<Value extends string> = symbol & {
   readonly description: Value;
@@ -163,13 +167,13 @@ export type IdentitySymbol<Value extends string> = symbol & {
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type SchemaAnnotationExtras<SchemaType> = S.Annotations.Documentation<SchemaType>;
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface IdentityAnnotation<Value extends string, Identifier extends string>
   extends S.Annotations.Documentation<unknown> {
@@ -180,7 +184,7 @@ export interface IdentityAnnotation<Value extends string, Identifier extends str
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type IdentityAnnotationResult<Value extends string, Identifier extends string, SchemaType> = IdentityAnnotation<
   Value,
@@ -190,7 +194,7 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyArray<TString.NonEmpty>> = {
   readonly [K in Segments[number] as TaggedAccessor<K>]: IdentityComposer<`${Value}/${ModuleSegmentValue<K>}`>;
@@ -198,31 +202,66 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
 
 /**
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export interface IdentityComposer<Value extends string> {
   readonly value: IdentityString<Value>;
   readonly identifier: IdentityString<Value>;
   readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 
+  /**
+   *
+   * @param {TemplateStringsArray} strings
+   * @param values
+   * @returns {IdentityString<`${Value}/${string}`>}
+   */
   (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
 
+  /**
+   *
+   * @param {ModuleSegmentValue<NonEmpty>} segments
+   * @returns {TaggedModuleRecord<Value, Segments>}
+   */
   compose<
     const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
   >(...segments: Segments): TaggedModuleRecord<Value, Segments>;
 
+  /**
+   * @template Next
+   * @param {SegmentValue<Next>} segment
+   * @returns {IdentityComposer<`${Value}/${SegmentValue<Next>}`>}
+   */
   create<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
 
+  /**
+   * @template Next
+   * @param {SegmentValue<Next>} segment
+   * @returns {IdentityString<`${Value}/${SegmentValue<Next>}`>}
+   */
   make<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityString<`${Value}/${SegmentValue<Next>}`>;
 
+  /**
+   *
+   * @returns {IdentityString<Value>}
+   */
   string(): IdentityString<Value>;
 
+  /**
+   *
+   * @returns {IdentitySymbol<Value>}
+   */
   symbol(): IdentitySymbol<Value>;
 
+  /**
+   * @template Next,SchemaType
+   * @param {SegmentValue<Next>} identifier
+   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
+   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
+   */
   annote<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
@@ -298,11 +337,25 @@ const decodeSegment = S.decodeUnknownSync(SegmentSchema);
 const decodeModuleSegment = S.decodeUnknownSync(ModuleSegmentSchema);
 const decodeBaseSegment = S.decodeUnknownSync(BaseSegmentSchema);
 
+/**
+ *
+ * @param {Value} value
+ * @returns {IdentityString<Value>}
+ */
 const toIdentityString = <Value extends string>(value: Value): IdentityString<Value> => value as IdentityString<Value>;
 
+/**
+ *
+ * @param value
+ */
 const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Value> =>
   Symbol.for(value) as IdentitySymbol<Value>;
 
+/**
+ *
+ * @param {Identifier} identifier
+ * @returns {string}
+ */
 const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifier): string =>
   F.pipe(
     identifier,
@@ -321,22 +374,46 @@ const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifi
 type ModulePascal<Segment extends TString.NonEmpty> =
   ModuleAccessor<Segment> extends `${infer Pascal}Id` ? Pascal : never;
 
+/**
+ * @template Segment
+ * @param {Segment} segment - A segment to convert to PascalCase
+ * @returns {ModulePascal<Segment>}
+ */
 const toPascalIdentifier = <const Segment extends TString.NonEmpty>(segment: Segment): ModulePascal<Segment> =>
   F.pipe(segment, toTitle, Str.replace(/\s+/g, "")) as ModulePascal<Segment>;
 
+/**
+ * @template Segment
+ * @param {Segment} segment - A segment to convert to a tagged accessor key
+ * @returns {TaggedAccessor<Segment>}
+ */
 const toTaggedKey = <const Segment extends TString.NonEmpty>(segment: Segment): TaggedAccessor<Segment> =>
   `$${toPascalIdentifier(segment)}Id` as TaggedAccessor<Segment>;
-
+/**
+ * @template Segment
+ * @param {Segment} segment - A segment to validate and return as-is
+ * @returns {Segment}
+ */
 const validateSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
   decodeSegment(segment);
   return segment;
 };
 
+/**
+ * @template Segment
+ * @param {Segment} segment - A segment to validate and return as-is
+ * @returns {Segment}
+ */
 const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
   decodeModuleSegment(segment);
   return segment;
 };
 
+/**
+ * @template Base
+ * @param {Base} base - A base string to normalize
+ * @returns {NormalizedBase<Base>}
+ */
 const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): NormalizedBase<Base> => {
   const value = decodeString(base);
 
@@ -360,20 +437,42 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
   return decodeBaseSegment(withoutAtPrefix) as NormalizedBase<Base>;
 };
 
+/**
+ * @template Base
+ * @param {NormalizedBase<Base>} base - A normalized base string to create an identity from
+ * @returns {BaseIdentity<Base>}
+ */
 const createBaseIdentity = <const Base extends TString.NonEmpty>(base: NormalizedBase<Base>): BaseIdentity<Base> =>
   base === "beep" ? (BEEP_NAMESPACE as BaseIdentity<Base>) : (`${BEEP_NAMESPACE}/${base}` as BaseIdentity<Base>);
 
 type Registry = MutableHashSet.MutableHashSet<string>;
 
+/**
+ *
+ * @param {Registry} registry
+ * @param {string} identity
+ * @returns void
+ */
 const registerIdentity = (registry: Registry, identity: string): void => {
   MutableHashSet.add(registry, identity);
 };
 
+/**
+ *
+ * @param {Value} value
+ * @param {Registry} registry
+ * @returns {IdentityComposer<Value>}
+ */
 const createComposer = <const Value extends string>(value: Value, registry: Registry): IdentityComposer<Value> => {
   registerIdentity(registry, value);
 
   const identityValue = toIdentityString(value);
 
+  /**
+   * @template Next
+   * @param {SegmentValue<Next>} segment
+   * @returns {IdentityComposer<`${Value}/${SegmentValue<Next>}`>}
+   */
   const composeNext = <const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`> => {
@@ -382,6 +481,12 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
     return createComposer(composed, registry);
   };
 
+  /**
+   * @template Next,SchemaType
+   * @param {SegmentValue<Next>} identifier
+   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
+   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
+   */
   const annote = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
@@ -407,7 +512,7 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
     };
   };
 
-  const composer = Object.defineProperties(
+  return Object.defineProperties(
     (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
       if (values.length > 0) {
         throw new IdentityInterpolationError();
@@ -421,8 +526,18 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       return toIdentityString(composed);
     },
     {
-      value: { value: identityValue, enumerable: true, writable: true, configurable: true },
-      identifier: { value: identityValue, enumerable: true, writable: true, configurable: true },
+      value: {
+        value: identityValue,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      identifier: {
+        value: identityValue,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
       compose: {
         value: <
           const Segments extends readonly [
@@ -447,7 +562,12 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
         writable: true,
         configurable: true,
       },
-      create: { value: composeNext, enumerable: true, writable: true, configurable: true },
+      create: {
+        value: composeNext,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
       make: {
         value: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
           const next = validateSegment(segment);
@@ -459,30 +579,60 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
         writable: true,
         configurable: true,
       },
-      string: { value: () => identityValue, enumerable: true, writable: true, configurable: true },
-      symbol: { value: () => toIdentitySymbol(value), enumerable: true, writable: true, configurable: true },
-      annote: { value: annote, enumerable: true, writable: true, configurable: true },
-      identityRegistry: { value: registry, enumerable: true, writable: true, configurable: true },
+      string: {
+        value: () => identityValue,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      symbol: {
+        value: () => toIdentitySymbol(value),
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      annote: {
+        value: annote,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      identityRegistry: {
+        value: registry,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
     }
   ) as IdentityComposer<Value>;
+};
 
-  return composer;
+type MakeReturn<Base extends TString.NonEmpty> = {
+  readonly [K in `$${PascalCaseValue<ModuleSegmentValue<NormalizedBase<Base>>>}Id`]: IdentityComposer<
+    BaseIdentity<Base>
+  >;
 };
 
 /**
  * @since 0.0.0
- * @category constructors
+ * @category DomainModel
+ * @template Base
+ * @param {Base} base - The base identity string
+ * @returns {{readonly [K in `$${PascalCaseValue<ModuleSegmentValue<NormalizedBase<Base>>>}Id`]: IdentityComposer<BaseIdentity<Base>>}}
  */
-export const make = <const Base extends TString.NonEmpty>(base: Base) => {
+export const make = <const Base extends TString.NonEmpty>(base: Base): MakeReturn<Base> => {
   const registry = MutableHashSet.empty<string>();
   const normalized = normalizeBase(base);
   const baseIdentity = createBaseIdentity(normalized);
   const composer = createComposer(baseIdentity, registry);
   const key = toTaggedKey(normalized);
 
-  return {
+  return F.coerceUnsafe<
+    {
+      [x: string]: IdentityComposer<BaseIdentity<Base>>;
+    },
+    MakeReturn<Base>
+  >({
     [key]: composer,
-  } as {
-    readonly [K in typeof key]: IdentityComposer<BaseIdentity<Base>>;
-  };
+  });
 };

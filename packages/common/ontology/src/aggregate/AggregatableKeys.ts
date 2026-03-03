@@ -17,7 +17,7 @@ const $I = $OntologyId.create("aggregate/AggregatableKeys");
  * Core non-ordering aggregate metric options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const BaseAggregateOptions = LiteralKit(["approximateDistinct", "exactDistinct"]).annotate(
   $I.annote("BaseAggregateOptions", {
@@ -36,7 +36,7 @@ export const BaseAggregateOptions = LiteralKit(["approximateDistinct", "exactDis
  * Note: This type is derived from the static type `BaseAggregateOptions.Type`.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type BaseAggregateOptions = typeof BaseAggregateOptions.Type;
 
@@ -44,7 +44,7 @@ export type BaseAggregateOptions = typeof BaseAggregateOptions.Type;
  * Common min/max aggregate metric options.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const MinMaxAggregateOption = LiteralKit(["min", "max"]).annotate(
   $I.annote("MinMaxAggregateOption", {
@@ -65,7 +65,7 @@ export const MinMaxAggregateOption = LiteralKit(["min", "max"]).annotate(
  * - "max": Used to retrieve the maximum value.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type MinMaxAggregateOption = "min" | "max";
 
@@ -73,7 +73,7 @@ export type MinMaxAggregateOption = "min" | "max";
  * Aggregate options supported by datetime and timestamp properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type DatetimeAggregateOption = MinMaxAggregateOption | BaseAggregateOptions;
 
@@ -81,7 +81,7 @@ export type DatetimeAggregateOption = MinMaxAggregateOption | BaseAggregateOptio
  * Aggregate options supported by numeric-like properties.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export const NumericAggregateOption = LiteralKit([
   "sum",
@@ -110,7 +110,7 @@ export const NumericAggregateOption = LiteralKit([
  * for numeric data processing tasks.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  * {@link NumericAggregateOption}
  */
 export type NumericAggregateOption = typeof NumericAggregateOption.Type;
@@ -153,7 +153,7 @@ type WITH_PROPERTIES_AGGREGATION_FOR_SPECIAL_WIRE_TYPE<WIRE_TYPE extends WirePro
  * Valid `$select` keys for aggregate operations.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type ValidAggregationKeys<
   Q extends ObjectOrInterfaceDefinition,
@@ -168,6 +168,6 @@ export type ValidAggregationKeys<
  * Property keys that can participate in aggregation/grouping.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregatableKeys<Q extends ObjectOrInterfaceDefinition> = keyof { [P in PropertyKeys<Q>]: unknown };

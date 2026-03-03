@@ -60,7 +60,7 @@ type DirectionalKit<
 /**
  * Error thrown when `MappedLiteralKit` receives duplicate literals on either side.
  *
- * @category errors
+ * @category CrossCutting
  * @since 0.0.0
  */
 export class MappedLiteralDuplicateError extends S.TaggedErrorClass<MappedLiteralDuplicateError>(
@@ -209,7 +209,7 @@ const makeDirectionalKit = <
  * SqlState.Enum.WARNING; // "01000"
  * ```
  *
- * @category constructors
+ * @category DomainModel
  * @since 0.0.0
  */
 type ForwardDirectionalKit<M extends MappedPairs> = DirectionalKit<FromLiterals<M>, ToLiterals<M>, ForwardEnumMap<M>>;
@@ -218,7 +218,7 @@ type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>
 /**
  * Runtime type for {@link MappedLiteralKit} constructor output.
  *
- * @category models
+ * @category DomainModel
  * @since 0.0.0
  */
 export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> & {
@@ -231,7 +231,7 @@ export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> &
  *
  * Requires one-to-one mappings; duplicates on either side throw {@link MappedLiteralDuplicateError}.
  *
- * @category constructors
+ * @category DomainModel
  * @since 0.0.0
  */
 export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): MappedLiteralKit<M> {

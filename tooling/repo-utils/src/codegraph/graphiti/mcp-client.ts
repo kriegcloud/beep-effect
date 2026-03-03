@@ -21,7 +21,7 @@ const parseRecord = (value: string): O.Option<Record<string, unknown>> => pipe(v
  *
  * @param body - Raw HTTP response body returned by an MCP endpoint.
  * @returns The last valid JSON-RPC record found in the response body, if present.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parseMcpPayload = (body: string): O.Option<Record<string, unknown>> => {
@@ -57,7 +57,7 @@ const stringValue = (record: Readonly<Record<string, unknown>>, key: string): O.
 /**
  * Summary of one MCP tools/call response.
  *
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export interface McpToolResult {
@@ -72,7 +72,7 @@ export interface McpToolResult {
  * @param status - HTTP status code from the MCP tools/call request.
  * @param responseText - Raw response body text from the MCP tools/call request.
  * @returns A normalized tool-call result summary with error classification and parsed payload.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const parseMcpToolResult = (status: number, responseText: string): McpToolResult => {
@@ -164,7 +164,7 @@ export const parseMcpToolResult = (status: number, responseText: string): McpToo
  * @param sessionId - Optional MCP session id header.
  * @param timeoutMs - Optional request timeout in milliseconds.
  * @returns Effect that performs MCP POST and yields the raw `fetch` response.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const mcpPost = Effect.fn("Graphiti.mcpPost")(function* (
@@ -233,7 +233,7 @@ export const mcpPost = Effect.fn("Graphiti.mcpPost")(function* (
  * @param clientVersion - Client version sent in the initialize handshake.
  * @param timeoutMs - Optional request timeout in milliseconds.
  * @returns Effect yielding established MCP session id header value.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const initializeMcpSession = Effect.fn("Graphiti.initializeMcpSession")(function* (
@@ -311,7 +311,7 @@ export const initializeMcpSession = Effect.fn("Graphiti.initializeMcpSession")(f
  * @param requestId - JSON-RPC request identifier.
  * @param timeoutMs - Optional request timeout in milliseconds.
  * @returns Effect yielding response status, raw body, and parsed result summary.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const callMcpTool = Effect.fn("Graphiti.callMcpTool")(function* (
@@ -362,7 +362,7 @@ export const callMcpTool = Effect.fn("Graphiti.callMcpTool")(function* (
  * @param requestId - JSON-RPC request identifier.
  * @param timeoutMs - Optional request timeout in milliseconds.
  * @returns Effect yielding parsed MCP payload when the tool call succeeds.
- * @category codegraph-graphiti
+ * @category Uncategorized
  * @since 0.0.0
  */
 export const callMcpToolOrFail = Effect.fn("Graphiti.callMcpToolOrFail")(function* (

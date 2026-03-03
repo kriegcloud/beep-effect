@@ -23,7 +23,7 @@ type ExtractMetricNameForPropName<T, PropName extends string> = T extends `${Pro
  * Aggregate response shape when `$groupBy` is absent.
  *
  * @since 0.0.0
- * @category models
+ * @category DomainModel
  */
 export type AggregationResultsWithoutGroups<
   Q extends ObjectOrInterfaceDefinition,
