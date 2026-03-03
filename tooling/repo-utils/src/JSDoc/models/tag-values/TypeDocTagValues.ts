@@ -6,6 +6,7 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import { TSCategoryTag } from "../TSCategory.model.js";
 import { empty, nameField } from "./_fields.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeDocTagValues");
@@ -16,7 +17,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeDocTagValues");
  */
 export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue`)(
   "category",
-  { ...nameField },
+  { name: TSCategoryTag },
   $I.annote("CategoryValue", {
     description: "Occurrence shape for @category — assigns a documentation category.",
   })

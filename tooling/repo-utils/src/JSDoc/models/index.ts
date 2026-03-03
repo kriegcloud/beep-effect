@@ -46,3 +46,7 @@ export * from "./TagParameters.model.js";
  * @since 0.0.0
  */
 export * from "./TagValue.model.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./TSCategory.model.js";

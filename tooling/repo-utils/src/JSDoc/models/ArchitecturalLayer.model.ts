@@ -35,4 +35,10 @@ export const ArchitecturalLayer = LiteralKit([
   })
 );
 
+/**
+ * Inferred type for {@link ArchitecturalLayer}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type ArchitecturalLayer = typeof ArchitecturalLayer.Type;

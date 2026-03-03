@@ -1,19 +1,59 @@
 /**
  * @module @beep/repo-utils/models/TSCategory.model
  *
- * @description
+ * @description TypeScript category taxonomy schemas, fibration metadata, and classifier utilities.
  *
  * @since 0.0.0
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { Order, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { ArchitecturalLayer } from "./ArchitecturalLayer.model.js";
+import type { ApplicableTo } from "./ApplicableTo.model.js";
+import { ArchitecturalLayer, type ArchitecturalLayer as ArchitecturalLayerValue } from "./ArchitecturalLayer.model.js";
 import { ASTSignal } from "./ASTSignal.model.js";
 import { DependencyProfile } from "./DependencyProfile.model.js";
 
 const $I = $RepoUtilsId.create("JSDoc/models/TSCategory.model");
+
+const TS_CATEGORY_TAG_VALUES = [
+  "DomainModel",
+  "DomainLogic",
+  "PortContract",
+  "Validation",
+  "Utility",
+  "UseCase",
+  "Presentation",
+  "DataAccess",
+  "Integration",
+  "Configuration",
+  "CrossCutting",
+  "Uncategorized",
+] as const;
+
+/**
+ * Internal base literal schema for all supported TypeDoc `@category` values.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+const TSCategoryTagBase = LiteralKit(TS_CATEGORY_TAG_VALUES).annotate(
+  $I.annote("TSCategoryTag", {
+    description: "Strict literal union for all supported TypeDoc @category values.",
+  })
+);
+
+/**
+ * Inferred type for {@link TSCategoryTagBase}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+type TSCategoryTagBase = typeof TSCategoryTagBase.Type;
 
 /**
  * Purity classification for a TSCategory taxonomy member.
@@ -25,7 +65,7 @@ export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotat
   $I.annote("CategoryPurity", {
     description: "Purity classification",
     documentation:
-      "- pure: no observable side effects\n- effectful: performs IO, mutation, or external effects\n- mixed: both pure and effectful patterns",
+      "- pure: no observable side effects\\n- effectful: performs IO, mutation, or external effects\\n- mixed: both pure and effectful patterns",
   })
 );
 
@@ -50,8 +90,8 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      * Discriminant. PascalCase with no spaces.
      * This is the value used in `@category PascalCaseName`.
      */
-    _tag: S.NonEmptyString.annotateKey({
-      description: "Discriminant. PascalCase with no spaces.\nThis is the value used in `@category PascalCaseName`.",
+    _tag: TSCategoryTagBase.annotateKey({
+      description: "Discriminant. PascalCase with no spaces.\\nThis is the value used in `@category PascalCaseName`.",
     }),
     /** One-sentence definition precise enough to resolve ambiguity. */
     definition: S.NonEmptyString.annotateKey({
@@ -63,7 +103,7 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      */
     classificationGuidance: S.NonEmptyString.annotateKey({
       description:
-        "Extended guidance written for LLM-based fallback classification.\nShould cover membership, non-membership, and edge-case boundaries.",
+        "Extended guidance written for LLM-based fallback classification.\\nShould cover membership, non-membership, and edge-case boundaries.",
     }),
     /** Concrete production-like TypeScript patterns for this category. */
     examples: S.NonEmptyArray(S.String).annotateKey({
@@ -78,14 +118,14 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      * This is indicative, not exclusive.
      */
     typicalSyntaxKinds: S.Array(S.String).annotateKey({
-      description: "Common SyntaxKind names for this category.\nThis is indicative, not exclusive.",
+      description: "Common SyntaxKind names for this category.\\nThis is indicative, not exclusive.",
     }),
     /**
      * Deterministic AST signals. Every category includes at least one signal
      * with confidence >= 0.7.
      */
     astSignals: S.Array(ASTSignal).annotateKey({
-      description: "Deterministic AST signals. Every category includes at least one signal\nwith confidence >= 0.7.",
+      description: "Deterministic AST signals. Every category includes at least one signal\\nwith confidence >= 0.7.",
     }),
     /**
      * Effect or monad analog for the computational nature of this category.
@@ -93,7 +133,7 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      */
     effectAnalog: S.OptionFromNullOr(S.String).annotateKey({
       description:
-        "Effect or monad analog for the computational nature of this category.\nNull when no clean mapping exists.",
+        "Effect or monad analog for the computational nature of this category.\\nNull when no clean mapping exists.",
     }),
     /** Architectural layers this category maps to. */
     architecturalLayers: S.Array(ArchitecturalLayer).annotateKey({
@@ -107,7 +147,7 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      */
     purity: CategoryPurity.annotateKey({
       description:
-        "Purity classification.\n- pure: no observable side effects\n- effectful: performs IO, mutation, or external effects\n- mixed: both pure and effectful patterns",
+        "Purity classification.\\n- pure: no observable side effects\\n- effectful: performs IO, mutation, or external effects\\n- mixed: both pure and effectful patterns",
     }),
     /**
      * Semantically adjacent categories for query expansion and ambiguity handling.
@@ -115,7 +155,7 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      */
     adjacentCategories: S.Array(S.String).annotateKey({
       description:
-        "Semantically adjacent categories for query expansion and ambiguity handling.\nReference by `_tag` value.",
+        "Semantically adjacent categories for query expansion and ambiguity handling.\\nReference by `_tag` value.",
     }),
     /** Import path glob patterns that are strong classification hints. */
     typicalImportPatterns: S.Array(S.String).annotateKey({
@@ -135,3 +175,1116 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
       "A single member of the closed taxonomy used to classify TypeScript code elements in the knowledge graph.",
   })
 ) {}
+
+/**
+ * Runtime encoded shape for TS category metadata.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type TSCategory = typeof TSCategoryDefinition.Encoded;
+
+/**
+ * The payload type stored in the `tsCategoryMetadata` annotation key.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type TSCategoryAnnotationPayload = TSCategoryDefinition;
+
+declare module "effect/Schema" {
+  namespace Annotations {
+    interface Annotations {
+      readonly tsCategoryMetadata?: TSCategoryAnnotationPayload | undefined;
+    }
+  }
+}
+
+/**
+ * Retrieve TS category metadata annotation from a schema, if present.
+ *
+ * @param schema - Any Effect schema.
+ * @returns The TSCategoryDefinition metadata or `undefined`.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const getTSCategoryMetadata = (schema: S.Top): TSCategoryAnnotationPayload | undefined =>
+  S.resolveInto(schema)?.tsCategoryMetadata;
+
+/**
+ * Build a TS category fibration schema for a concrete category tag.
+ *
+ * Validates full taxonomy metadata with {@link TSCategoryDefinition} and
+ * projects to a lean literal schema suitable for category value usage.
+ *
+ * @param _tag - Canonical TS category discriminator.
+ * @param meta - Category metadata payload without the discriminator.
+ * @returns Literal category schema annotated with validated metadata.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const make = <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">) => {
+  const definition = S.decodeSync(TSCategoryDefinition)({ _tag, ...meta });
+  return S.Literal(_tag).annotate({ tsCategoryMetadata: definition });
+};
+
+/**
+ * Confidence threshold where deterministic classification can skip LLM inference.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
+
+/**
+ * Guardrail threshold used to route low-confidence matches to `Uncategorized`.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
+
+/**
+ * File-path patterns that identify test infrastructure.
+ * The classifier should exclude these files from category scoring
+ * or route them to a dedicated test-handling path before applying
+ * the main taxonomy.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const TESTING_FILE_PATTERNS = [
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/__tests__/**",
+  "**/__mocks__/**",
+  "**/test/**",
+  "**/tests/**",
+  "**/*.stories.ts",
+  "**/*.stories.tsx",
+  "**/fixtures/**",
+  "**/__fixtures__/**",
+] as const satisfies ReadonlyArray<string>;
+
+/**
+ * Import patterns that strongly signal test infrastructure.
+ * Used as a secondary signal when file paths are ambiguous
+ * (e.g., test utilities not in a conventional test directory).
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const TESTING_IMPORT_PATTERNS = [
+  "vitest*",
+  "jest*",
+  "@jest/*",
+  "@testing-library/*",
+  "msw*",
+  "playwright*",
+  "@playwright/*",
+  "cypress*",
+  "supertest*",
+  "nock*",
+  "sinon*",
+] as const satisfies ReadonlyArray<string>;
+
+/**
+ * Per-category literal schema members built through the TS category fibration `make` helper.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+const DomainModel = make("DomainModel", {
+  definition: "Core business concepts and stable type-level contracts that represent domain state and invariants.",
+  classificationGuidance:
+    "Classify as DomainModel when the element defines domain nouns and canonical shapes (types, interfaces, enums, immutable classes) without orchestration concerns. Put parsers/validators in Validation, workflow coordinators in UseCase, and storage schema bindings in DataAccess. If a symbol is primarily a typed data contract used across layers, prefer DomainModel.",
+  examples: [
+    "export interface Invoice { readonly id: InvoiceId; readonly lines: ReadonlyArray<LineItem>; readonly currency: Currency }",
+    "export type UserId = string & { readonly UserId: unique symbol }",
+  ],
+  counterExamples: [
+    "export const InvoiceSchema = S.Struct({ ... }) belongs to Validation",
+    "export const invoice = pgTable('invoice', { ... }) belongs to DataAccess",
+  ],
+  typicalSyntaxKinds: [
+    "InterfaceDeclaration",
+    "TypeAliasDeclaration",
+    "EnumDeclaration",
+    "ClassDeclaration",
+    "PropertySignature",
+  ],
+  astSignals: [
+    {
+      signal: "File imports avoid framework and IO adapters",
+      confidence: 0.7,
+      detection:
+        "node.getSourceFile().getImportDeclarations().every((decl) => !/react|next|express|hono|drizzle-orm|prisma|@effect\\/schema|zod/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Branded or opaque type pattern indicating domain identity",
+      confidence: 0.8,
+      detection:
+        "Node.isTypeAliasDeclaration(node) && /\\{ readonly \\w+: unique symbol \\}|Brand|Opaque/.test(node.getText())",
+    },
+  ],
+  effectAnalog: "Identity",
+  architecturalLayers: ["DomainEntity", "Core"],
+  purity: "pure",
+  adjacentCategories: [
+    "DomainLogic",
+    "Validation",
+    "Utility",
+    "TransportContract", // Forward-declaration: see design decision #6
+  ],
+  typicalImportPatterns: ["**/domain/**/*.ts", "**/model/**/*.ts", "**/entities/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
+  documentationPriority: 1,
+}).annotate(
+  $I.annote("DomainModel", {
+    description: "Literal schema for DomainModel category.",
+  })
+);
+type DomainModel = typeof DomainModel.Type;
+
+const DomainLogic = make("DomainLogic", {
+  definition:
+    "Pure domain rules and transformations that operate on domain models without infrastructure side effects.",
+  classificationGuidance:
+    "Use DomainLogic for deterministic computations such as policies, pricing rules, normalization logic, and invariant checks that do not perform IO. If code orchestrates multiple dependencies, classify as UseCase. If code validates external payloads, classify as Validation. If code is framework-neutral but generic across many domains, classify as Utility. Tiebreaker: when a pure function takes domain-typed parameters (branded types, types from **/domain/** paths, or types appearing in DomainModel categories) AND returns a domain-typed result, prefer DomainLogic over Utility.",
+  examples: [
+    "export const computeInvoiceTotal = (invoice: Invoice): Money => ...",
+    "export const canTransition = (from: OrderStatus, to: OrderStatus): boolean => ...",
+  ],
+  counterExamples: [
+    "export const createOrderUseCase = Effect.fn(...) belongs to UseCase",
+    "export const trimAndCompact = (input: string) => ... belongs to Utility",
+  ],
+  typicalSyntaxKinds: [
+    "FunctionDeclaration",
+    "ArrowFunction",
+    "MethodDeclaration",
+    "BinaryExpression",
+    "ReturnStatement",
+  ],
+  astSignals: [
+    {
+      signal: "Pure callable with no await and no Promise or Effect return",
+      confidence: 0.8,
+      detection:
+        "Node.isFunctionDeclaration(node) && !node.getDescendantsOfKind(SyntaxKind.AwaitExpression).length && !/^(Promise|Effect)</.test(node.getReturnType().getText())",
+    },
+    {
+      signal: "Business-rule naming and domain-type parameters",
+      confidence: 0.72,
+      detection:
+        "/(calculate|compute|derive|normalize|isValid|can)/.test(node.getSymbol()?.getName() ?? '') && node.getParameters().some((param) => /Id|Status|Amount|Domain/.test(param.getType().getText()))",
+    },
+    {
+      signal: "Parameters reference domain-typed symbols (branded, enum, or domain-path types)",
+      confidence: 0.65,
+      detection:
+        "Node.isFunctionDeclaration(node) && node.getParameters().some(p => /Id|Status|Amount|Price|Currency|Score/.test(p.getType().getText()) || p.getType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath())))",
+    },
+    {
+      signal: "Return type references domain-typed symbols (branded, enum, or domain-path types)",
+      confidence: 0.65,
+      detection:
+        "Node.isFunctionDeclaration(node) && (/Id|Status|Amount|Price|Currency|Score/.test(node.getReturnType().getText()) || node.getReturnType().getSymbol()?.getDeclarations()?.some(d => /domain|model|entities/.test(d.getSourceFile().getFilePath())))",
+    },
+  ],
+  effectAnalog: "Either",
+  architecturalLayers: ["Core"],
+  purity: "pure",
+  adjacentCategories: ["DomainModel", "UseCase", "Validation", "Utility"],
+  typicalImportPatterns: ["**/domain/**/*.ts", "**/policies/**/*.ts", "**/rules/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
+  documentationPriority: 2,
+}).annotate(
+  $I.annote("DomainLogic", {
+    description: "Literal schema for DomainLogic category.",
+  })
+);
+type DomainLogic = typeof DomainLogic.Type;
+
+const PortContract = make("PortContract", {
+  definition: "Abstract capability contracts that define how core and UseCase logic talks to external dependencies.",
+  classificationGuidance:
+    "Assign PortContract to interfaces and type contracts describing repositories, gateways, or service boundaries with no concrete implementation details. If the symbol includes concrete persistence or API client logic, use DataAccess or Integration instead. If it orchestrates work using ports, use UseCase.",
+  examples: [
+    "export interface UserRepositoryPort { findById(id: UserId): Effect.Effect<Option<User>, RepoError> }",
+    "export type MailGateway = { readonly send: (input: MailMessage) => Promise<void> }",
+  ],
+  counterExamples: [
+    "export class PrismaUserRepository implements UserRepositoryPort belongs to DataAccess",
+    "export const sendWelcomeEmailUseCase = ... belongs to UseCase",
+  ],
+  typicalSyntaxKinds: [
+    "InterfaceDeclaration",
+    "TypeAliasDeclaration",
+    "MethodSignature",
+    "CallSignature",
+    "ConstructSignature",
+  ],
+  astSignals: [
+    {
+      signal: "Interface names ending in Port, Repository, or Gateway",
+      confidence: 0.75,
+      detection: "Node.isInterfaceDeclaration(node) && /(Port|Repository|Gateway)$/.test(node.getName() ?? '')",
+    },
+    {
+      signal: "Interface with port-style naming AND effectful method signatures",
+      confidence: 0.9,
+      detection:
+        "Node.isInterfaceDeclaration(node) && /(Port|Repository|Gateway|Store|Client)$/.test(node.getName() ?? '') && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable<|Task</.test(m.getReturnType().getText()))",
+    },
+    {
+      signal: "Interface with async or effectful method signatures",
+      confidence: 0.8,
+      detection:
+        "Node.isInterfaceDeclaration(node) && node.getMembers().some(m => Node.isMethodSignature(m) && /Effect<|Promise<|Observable<|Task</.test(m.getReturnType().getText()))",
+    },
+    {
+      signal: "Type alias describing a service record with effectful methods",
+      confidence: 0.75,
+      detection:
+        "Node.isTypeAliasDeclaration(node) && /\\{[^}]*:\\s*(\\([^)]*\\)\\s*=>\\s*(Effect|Promise|Observable))/.test(node.getText())",
+    },
+  ],
+  effectAnalog: "Reader",
+  architecturalLayers: ["Port", "InterfaceAdapter"],
+  purity: "pure",
+  adjacentCategories: ["UseCase", "DataAccess", "Integration"],
+  typicalImportPatterns: ["**/*Port.ts", "**/*Repository.ts", "**/*Gateway.ts"],
+  dependencyProfile: { typicalFanIn: "high", typicalFanOut: "low" },
+  documentationPriority: 4,
+}).annotate(
+  $I.annote("PortContract", {
+    description: "Literal schema for PortContract category.",
+  })
+);
+type PortContract = typeof PortContract.Type;
+
+const Validation = make("Validation", {
+  definition:
+    "Boundary parsing, schema validation, and normalization that converts unknown input into trusted typed values.",
+  classificationGuidance:
+    "Choose Validation for schema definitions, decoders, parser functions, and boundary guards that verify shape, type, and constraints. Do not use Validation for domain entities alone (DomainModel), workflow orchestration (UseCase), or UI request/response handling (Presentation). Validation can be pure or effectful depending on parser runtime.",
+  examples: [
+    "export const AgentTaskSpecSchema = S.Struct({ ... })",
+    "export const parseCreateUser = (input: unknown) => CreateUserSchema.safeParse(input)",
+  ],
+  counterExamples: [
+    "export type AgentTaskSpec = { ... } belongs to DomainModel",
+    "export async function post(request: Request) { ... } belongs to Presentation",
+  ],
+  typicalSyntaxKinds: [
+    "VariableDeclaration",
+    "FunctionDeclaration",
+    "TypeAliasDeclaration",
+    "CallExpression",
+    "PropertyAssignment",
+  ],
+  astSignals: [
+    {
+      signal: "Imports schema-validation libraries",
+      confidence: 0.9,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /@effect\\/schema|effect\\/Schema|zod|valibot|arktype/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Decoder or parser call patterns on unknown input",
+      confidence: 0.75,
+      detection:
+        "node.getDescendantsOfKind(SyntaxKind.CallExpression).some((callExpr) => /(decode|parse|safeParse|validate)/.test(callExpr.getExpression().getText()))",
+    },
+  ],
+  effectAnalog: "Either",
+  architecturalLayers: ["InterfaceAdapter", "CrossCutting"],
+  purity: "mixed",
+  adjacentCategories: ["DomainModel", "UseCase", "Presentation"],
+  typicalImportPatterns: ["@effect/schema*", "effect/Schema*", "zod*", "valibot*", "arktype*", "**/schemas/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
+  documentationPriority: 5,
+}).annotate(
+  $I.annote("Validation", {
+    description: "Literal schema for Validation category.",
+  })
+);
+type Validation = typeof Validation.Type;
+
+const Utility = make("Utility", {
+  definition: "Reusable generic helpers that are not specific to one domain workflow or infrastructure boundary.",
+  classificationGuidance:
+    "Classify as Utility when code provides cross-context helper behavior such as formatting, collection transforms, class name merging, and simple adapters. If helper logic encodes business policy, use DomainLogic. If helper configures runtime environment or framework behavior, use Configuration or CrossCutting. Tiebreaker: when parameters and return types are generic primitives or standard library types with no domain-specific branding, prefer Utility over DomainLogic.",
+  examples: [
+    "export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)) }",
+    "export const chunk = <T>(items: ReadonlyArray<T>, size: number) => ...",
+  ],
+  counterExamples: [
+    "export const calculateRiskScore = (...) => ... belongs to DomainLogic",
+    "export const GraphitiConfig = S.Struct({ ...process.env }) belongs to Configuration",
+  ],
+  typicalSyntaxKinds: ["FunctionDeclaration", "ArrowFunction", "VariableDeclaration", "TypeAliasDeclaration"],
+  astSignals: [
+    {
+      signal: "Utility file naming with no framework or data access imports",
+      confidence: 0.75,
+      detection:
+        "/(utils|helpers)/.test(node.getSourceFile().getFilePath()) && node.getSourceFile().getImportDeclarations().every((decl) => !/react|next|express|hono|drizzle-orm|prisma|@effect\\/platform/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Helper callable declarations in utility modules stay synchronous",
+      confidence: 0.72,
+      detection:
+        "/(utils|helpers)/.test(node.getSourceFile().getFilePath()) && (Node.isFunctionDeclaration(node) || Node.isMethodDeclaration(node) || Node.isArrowFunction(node)) && !node.getDescendantsOfKind(SyntaxKind.AwaitExpression).length",
+    },
+  ],
+  effectAnalog: "Identity",
+  architecturalLayers: ["Core", "CrossCutting"],
+  purity: "pure",
+  adjacentCategories: ["DomainLogic", "DomainModel", "CrossCutting"],
+  typicalImportPatterns: ["**/utils.ts", "**/helpers.ts", "**/lib/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "low" },
+  documentationPriority: 6,
+}).annotate(
+  $I.annote("Utility", {
+    description: "Literal schema for Utility category.",
+  })
+);
+type Utility = typeof Utility.Type;
+
+const UseCase = make("UseCase", {
+  definition:
+    "Application-level orchestration that coordinates domain logic, validation, and port interactions to fulfill business intents.",
+  classificationGuidance:
+    "Use UseCase for command or query handlers and workflow services that coordinate multiple operations and dependencies. If a symbol is mostly transport mapping (HTTP/UI), classify as Presentation. If it is a pure policy function, classify as DomainLogic. If it is a concrete adapter implementation, classify as DataAccess or Integration.",
+  examples: [
+    "export const createOrderUseCase = Effect.fn('CreateOrderUseCase')(function* (...) { ... })",
+    "export async function inviteUserHandler(input: InviteUserInput): Promise<InviteUserResult> { ... }",
+  ],
+  counterExamples: [
+    "export async function GET(request: NextRequest) { ... } belongs to Presentation",
+    "export class HttpPaymentGateway { ... } belongs to Integration",
+  ],
+  typicalSyntaxKinds: ["FunctionDeclaration", "ArrowFunction", "CallExpression", "AwaitExpression", "ReturnStatement"],
+  astSignals: [
+    {
+      signal: "Exported callable with UseCase, Handler, or Service suffix and async or Effect return",
+      confidence: 0.8,
+      detection:
+        "node.getModifiers().some((modifier) => modifier.getText() === 'export') && /(UseCase|Handler|Service)$/.test(node.getSymbol()?.getName() ?? '') && /Effect<|Promise</.test(node.getReturnType().getText())",
+    },
+    {
+      signal: "Workflow code invoking multiple dependent services or ports",
+      confidence: 0.78,
+      detection:
+        "node.getDescendantsOfKind(SyntaxKind.CallExpression).length >= 2 && (node.getSourceFile().getImportDeclarations().some((decl) => /(Port|Repository|Gateway)/.test(decl.getModuleSpecifierValue())) || node.getText().includes('Effect.fn') || node.getText().includes('Effect.runPromise'))",
+    },
+  ],
+  effectAnalog: "ReaderTaskEither",
+  architecturalLayers: ["UseCase"],
+  purity: "mixed",
+  adjacentCategories: ["PortContract", "DomainLogic", "Presentation", "Integration", "DataAccess"],
+  typicalImportPatterns: ["**/*UseCase.ts", "**/*Handler.ts", "**/application/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
+  documentationPriority: 7,
+}).annotate(
+  $I.annote("UseCase", {
+    description: "Literal schema for UseCase category.",
+  })
+);
+type UseCase = typeof UseCase.Type;
+
+const Presentation = make("Presentation", {
+  definition: "Transport and UI surface code that handles requests, responses, rendering, and interaction flow.",
+  classificationGuidance:
+    "Classify as Presentation for React components, route handlers, controllers, page modules, and HTTP adapters that convert external requests to internal UseCase calls and map outputs back to transport formats. If the symbol is mostly schema parsing use Validation. If it is external service client wiring use Integration.",
+  examples: [
+    "export async function GET(request: NextRequest) { ... }",
+    "export default function SignInPage() { return <Suspense fallback={null}>...</Suspense> }",
+  ],
+  counterExamples: [
+    "export const GraphSearchRouteResponseSchema = S.Struct({ ... }) belongs to Validation",
+    "export const searchGraph = Effect.fn(...)(...) belongs to UseCase",
+  ],
+  typicalSyntaxKinds: [
+    "FunctionDeclaration",
+    "ArrowFunction",
+    "ClassDeclaration",
+    "JsxElement",
+    "VariableDeclaration",
+    "ExportAssignment",
+  ],
+  astSignals: [
+    {
+      signal: "Framework imports from web and UI stacks",
+      confidence: 0.75,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /react|next|remix|astro|hono|express|fastify/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Framework imports AND component or route handler exports",
+      confidence: 0.88,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /react|next|remix|astro|hono|express|fastify/.test(decl.getModuleSpecifierValue())) && (() => { const sf = node.getSourceFile(); const hasJsx = sf.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0 || sf.getDescendantsOfKind(SyntaxKind.JsxSelfClosingElement).length > 0; const exportNames = Array.from(sf.getExportedDeclarations().keys()); const hasRouteExport = exportNames.some(name => /^(GET|POST|PUT|DELETE|PATCH|default|Page|Layout)$/.test(name)); return hasJsx || hasRouteExport; })()",
+    },
+    {
+      signal: "Request or response handling signatures",
+      confidence: 0.72,
+      detection:
+        "Node.isFunctionDeclaration(node) && /(request|response|NextRequest|NextResponse|Request|Response)/.test(node.getText())",
+    },
+  ],
+  effectAnalog: "IO",
+  architecturalLayers: ["InterfaceAdapter", "FrameworkDriver"],
+  purity: "effectful",
+  adjacentCategories: ["UseCase", "Validation", "Integration", "Configuration"],
+  typicalImportPatterns: ["next/*", "react*", "**/app/**/page.tsx", "**/api/**/route.ts"],
+  dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "high" },
+  documentationPriority: 8,
+}).annotate(
+  $I.annote("Presentation", {
+    description: "Literal schema for Presentation category.",
+  })
+);
+type Presentation = typeof Presentation.Type;
+
+const DataAccess = make("DataAccess", {
+  definition: "Persistence adapters and data-mapping logic that interact with databases and storage engines.",
+  classificationGuidance:
+    "Use DataAccess for table schemas, repository implementations, query builders, and persistence mappers. If code talks to third-party APIs rather than persistence stores, use Integration. If it only defines data contracts, use DomainModel. DataAccess is usually effectful and adapter-layer oriented.",
+  examples: [
+    "export const user = pgTable('user', { ... })",
+    "export class UserRepositoryDrizzle implements UserRepositoryPort { ... }",
+  ],
+  counterExamples: [
+    "export interface UserRepositoryPort { ... } belongs to PortContract",
+    "export const OpenAIClient = new OpenAI(...) belongs to Integration",
+  ],
+  typicalSyntaxKinds: [
+    "VariableDeclaration",
+    "FunctionDeclaration",
+    "ClassDeclaration",
+    "MethodDeclaration",
+    "PropertyAssignment",
+  ],
+  astSignals: [
+    {
+      signal: "Database or ORM imports",
+      confidence: 0.9,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /drizzle-orm|prisma|typeorm|kysely|@effect\\/sql|pg|mongodb/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Query, transaction, or table-definition API usage",
+      confidence: 0.75,
+      detection:
+        "node.getDescendantsOfKind(SyntaxKind.CallExpression).some((callExpr) => /(pgTable|select|insert|update|delete|transaction|query)/.test(callExpr.getExpression().getText()))",
+    },
+  ],
+  effectAnalog: "State",
+  architecturalLayers: ["Adapter", "FrameworkDriver"],
+  purity: "effectful",
+  adjacentCategories: ["PortContract", "UseCase", "Integration", "Configuration"],
+  typicalImportPatterns: ["drizzle-orm*", "prisma*", "**/db/**/*.ts", "**/repository/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
+  documentationPriority: 9,
+}).annotate(
+  $I.annote("DataAccess", {
+    description: "Literal schema for DataAccess category.",
+  })
+);
+type DataAccess = typeof DataAccess.Type;
+
+const Integration = make("Integration", {
+  definition:
+    "Adapters for external systems and third-party services such as APIs, queues, payment providers, and AI backends.",
+  classificationGuidance:
+    "Assign Integration when code encapsulates outbound communication with systems outside the local runtime and persistence boundary. Use DataAccess for databases and storage. Use Presentation for inbound HTTP or UI boundary handlers. Use UseCase for orchestration that consumes integrations.",
+  examples: [
+    "export const openAiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })",
+    "export class StripeBillingGateway { async charge(...) { ... } }",
+  ],
+  counterExamples: [
+    "export const account = pgTable('account', { ... }) belongs to DataAccess",
+    "export async function POST(request: Request) { ... } belongs to Presentation",
+  ],
+  typicalSyntaxKinds: ["ClassDeclaration", "MethodDeclaration", "NewExpression", "AwaitExpression", "CallExpression"],
+  astSignals: [
+    {
+      signal: "External SDK or HTTP client imports",
+      confidence: 0.8,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /openai|anthropic|resend|stripe|@aws-sdk|axios|fetch|undici/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Explicit outbound fetch or request construction",
+      confidence: 0.72,
+      detection:
+        "node.getDescendantsOfKind(SyntaxKind.CallExpression).some((callExpr) => /fetch|request|post|get|put/.test(callExpr.getExpression().getText()))",
+    },
+  ],
+  effectAnalog: "IO",
+  architecturalLayers: ["Adapter", "FrameworkDriver"],
+  purity: "effectful",
+  adjacentCategories: ["UseCase", "Presentation", "DataAccess", "Configuration"],
+  typicalImportPatterns: ["openai*", "stripe*", "@aws-sdk/*", "**/client.ts", "**/gateway/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "low", typicalFanOut: "medium" },
+  documentationPriority: 10,
+}).annotate(
+  $I.annote("Integration", {
+    description: "Literal schema for Integration category.",
+  })
+);
+type Integration = typeof Integration.Type;
+
+const Configuration = make("Configuration", {
+  definition: "Environment, wiring, and runtime setup that determines how services are instantiated and composed.",
+  classificationGuidance:
+    "Use Configuration for environment decoding, settings modules, dependency-layer assembly, and runtime bootstrap wiring. Avoid using Configuration for domain contracts (DomainModel), business workflows (UseCase), or generic logging wrappers (CrossCutting) unless the symbol's primary role is setup and composition.",
+  examples: [
+    "export const AppConfig = S.Struct({ DATABASE_URL: S.NonEmptyString })",
+    "export const LiveLayer = Layer.mergeAll(DatabaseLive, LoggerLive, GraphitiLive)",
+  ],
+  counterExamples: [
+    "export const logger = Logger.withSpan(...) belongs to CrossCutting",
+    "export const createOrderUseCase = ... belongs to UseCase",
+  ],
+  typicalSyntaxKinds: [
+    "VariableDeclaration",
+    "FunctionDeclaration",
+    "PropertyAssignment",
+    "CallExpression",
+    "PropertyAccessExpression",
+  ],
+  astSignals: [
+    {
+      signal: "Environment variable reads or config naming",
+      confidence: 0.85,
+      detection:
+        "node.getText().includes('process.env') || node.getText().includes('Bun.env') || /(Config|Configuration|Settings|Env)/.test(node.getSymbol()?.getName() ?? '')",
+    },
+    {
+      signal: "Dependency wiring and layer composition patterns",
+      confidence: 0.72,
+      detection:
+        "node.getSourceFile().getDescendantsOfKind(SyntaxKind.Identifier).some((identifier) => /(Layer|provide|make)/.test(identifier.getText()))",
+    },
+  ],
+  effectAnalog: "Reader",
+  architecturalLayers: ["FrameworkDriver", "CrossCutting"],
+  purity: "mixed",
+  adjacentCategories: ["Integration", "DataAccess", "Presentation", "CrossCutting"],
+  typicalImportPatterns: ["**/config/**/*.ts", "**/*Config.ts", "**/*Settings.ts", "**/env/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "high", typicalFanOut: "medium" },
+  documentationPriority: 3,
+}).annotate(
+  $I.annote("Configuration", {
+    description: "Literal schema for Configuration category.",
+  })
+);
+type Configuration = typeof Configuration.Type;
+
+const CrossCutting = make("CrossCutting", {
+  definition:
+    "Shared operational concerns that span multiple layers, such as auth, logging, tracing, metrics, and caching.",
+  classificationGuidance:
+    "Use CrossCutting for behavior that is orthogonal to one business use case and is intentionally reused across layers. If logic is specific to one workflow, use UseCase. If code primarily configures runtime settings, use Configuration. If code only formats data with no operational concern, use Utility.",
+  examples: [
+    "export const withRequestLogging = <A>(effect: Effect.Effect<A, E, R>) => ...",
+    "export const authMiddleware = (request: Request) => ...",
+  ],
+  counterExamples: [
+    "export const cn = (...inputs) => ... belongs to Utility",
+    "export const graphSearchRoute = async (...) => ... belongs to Presentation",
+  ],
+  typicalSyntaxKinds: [
+    "FunctionDeclaration",
+    "ArrowFunction",
+    "MethodDeclaration",
+    "CallExpression",
+    "VariableDeclaration",
+  ],
+  astSignals: [
+    {
+      signal: "Imports for auth, logging, metrics, tracing, or cache modules",
+      confidence: 0.75,
+      detection:
+        "node.getSourceFile().getImportDeclarations().some((decl) => /auth|logger|pino|winston|otel|opentelemetry|metrics|cache|redis/.test(decl.getModuleSpecifierValue()))",
+    },
+    {
+      signal: "Operational concern naming in exported symbol",
+      confidence: 0.7,
+      detection: "/(Auth|Logger|Log|Trace|Metric|Cache|Audit|Telemetry)/.test(node.getSymbol()?.getName() ?? '')",
+    },
+  ],
+  effectAnalog: "Writer",
+  architecturalLayers: ["CrossCutting"],
+  purity: "mixed",
+  adjacentCategories: ["Configuration", "Utility", "Presentation", "UseCase"],
+  typicalImportPatterns: ["**/middleware/**/*.ts", "**/logger/**/*.ts", "**/auth/**/*.ts", "**/metrics/**/*.ts"],
+  dependencyProfile: { typicalFanIn: "medium", typicalFanOut: "medium" },
+  documentationPriority: 11,
+}).annotate(
+  $I.annote("CrossCutting", {
+    description: "Literal schema for CrossCutting category.",
+  })
+);
+type CrossCutting = typeof CrossCutting.Type;
+
+const Uncategorized = make("Uncategorized", {
+  definition:
+    "Fallback category for elements that remain ambiguous after deterministic signals and boundary-context rules.",
+  classificationGuidance:
+    "Use Uncategorized only as a last resort. First classify by nearest exportable ancestor for statement/expression/signature nodes. If no ancestor applies, use source-file dominant category. Only assign Uncategorized when combined confidence for known categories remains below 0.45 or signals are contradictory without a clear winner.",
+  examples: [
+    "Generated shim modules with mixed declarations and no stable semantic role",
+    "Ad hoc migration scratch files that blend setup, data transformation, and one-off scripts",
+  ],
+  counterExamples: [
+    "Any symbol with a stable dominant concern (validation, data access, presentation, use case, etc.) should use that concrete category",
+    "A file path ending in /utils.ts with pure helpers belongs to Utility, not Uncategorized",
+  ],
+  typicalSyntaxKinds: ["SourceFile", "VariableDeclaration", "ExpressionStatement"],
+  astSignals: [
+    {
+      signal: "No known category exceeds fallback confidence threshold",
+      confidence: 1,
+      detection: "Node.isSourceFile(node) && scoredCandidates.every((entry) => entry.combinedConfidence < 0.45)",
+    },
+  ],
+  effectAnalog: null,
+  architecturalLayers: ["CrossCutting"],
+  purity: "mixed",
+  adjacentCategories: [
+    "DomainModel",
+    "DomainLogic",
+    "PortContract",
+    "Validation",
+    "Utility",
+    "UseCase",
+    "Presentation",
+    "DataAccess",
+    "Integration",
+    "Configuration",
+    "CrossCutting",
+  ],
+  typicalImportPatterns: [],
+  dependencyProfile: { typicalFanIn: "low", typicalFanOut: "low" },
+  documentationPriority: 99,
+}).annotate(
+  $I.annote("Uncategorized", {
+    description: "Literal schema for Uncategorized category.",
+  })
+);
+type Uncategorized = typeof Uncategorized.Type;
+
+/**
+ * Strict literal union for all supported TypeDoc `@category` values.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const TSCategoryTag = S.Union([
+  DomainModel,
+  DomainLogic,
+  PortContract,
+  Validation,
+  Utility,
+  UseCase,
+  Presentation,
+  DataAccess,
+  Integration,
+  Configuration,
+  CrossCutting,
+  Uncategorized,
+]).annotate(
+  $I.annote("TSCategoryTag", {
+    description: "Strict literal union for all supported TypeDoc @category values.",
+  })
+);
+
+/**
+ * Inferred type for {@link TSCategoryTag}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type TSCategoryTag = typeof TSCategoryTag.Type;
+
+const CATEGORY_TAG_SCHEMAS = [
+  DomainModel,
+  DomainLogic,
+  PortContract,
+  Validation,
+  Utility,
+  UseCase,
+  Presentation,
+  DataAccess,
+  Integration,
+  Configuration,
+  CrossCutting,
+  Uncategorized,
+] as const;
+
+/**
+ * Closed category taxonomy used by `@category` tags.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
+  CATEGORY_TAG_SCHEMAS,
+  A.reduce(A.empty<TSCategory>(), (categories, schema) => {
+    const metadata = getTSCategoryMetadata(schema);
+
+    if (metadata === undefined) {
+      return categories;
+    }
+
+    return A.append(categories, S.encodeSync(TSCategoryDefinition)(metadata));
+  })
+);
+
+/**
+ * All valid category tag values.
+ *
+ * @since 2026-03-01
+ * @category DomainModel
+ */
+export type CategoryTag = TSCategoryTag;
+
+const UNCATEGORIZED_CATEGORY_TAG: CategoryTag = "Uncategorized";
+
+/**
+ * Deterministic precedence for external classifier conflict resolution.
+ *
+ * Ordering rationale - most-specific signals win:
+ *   1. Library-specific imports (Validation, DataAccess, Integration) -
+ *      schema/ORM/SDK imports are near-unambiguous signals.
+ *   2. Structural patterns (Presentation, UseCase) -
+ *      framework imports + structural shape are strong but broader.
+ *   3. Naming and convention patterns (PortContract, Configuration, CrossCutting) -
+ *      rely on naming heuristics which are project-dependent.
+ *   4. Residual categories (DomainModel, DomainLogic, Utility) -
+ *      identified by absence of other signals rather than presence.
+ *   5. Uncategorized - last resort.
+ *
+ * This policy is intentionally separate from `getCandidateCategories`,
+ * which preserves canonical sorting by confidence and `_tag`.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
+  "Validation",
+  "DataAccess",
+  "Integration",
+  "Presentation",
+  "UseCase",
+  "PortContract",
+  "Configuration",
+  "CrossCutting",
+  "DomainModel",
+  "DomainLogic",
+  "Utility",
+  "Uncategorized",
+];
+
+/**
+ * Explicit fallback policy for non-declaration nodes where direct classification
+ * is ambiguous without structural context.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const CONTEXT_FALLBACK_POLICY = {
+  appliesTo: ["statement", "expression", "signature"],
+  resolutionSteps: [
+    "Classify by nearest exportable ancestor symbol first.",
+    "If no ancestor applies, classify by source-file dominant category.",
+    "If ambiguity remains or score is below guardrail, classify as Uncategorized.",
+  ],
+  fallbackCategory: "Uncategorized",
+  threshold: UNCATEGORIZED_GUARDRAIL_THRESHOLD,
+} as const;
+
+/**
+ * Complete routing table from `ApplicableTo` node intent to candidate categories.
+ * This makes taxonomy completeness auditable against HasJSDoc surfaces.
+ *
+ * @since 2026-03-01
+ * @category Configuration
+ */
+export const APPLICABLE_TO_CATEGORY_ROUTING: Readonly<Record<ApplicableTo, ReadonlyArray<CategoryTag>>> = {
+  function: ["UseCase", "DomainLogic", "Validation", "Presentation", "Utility"],
+  method: ["UseCase", "DomainLogic", "DataAccess", "Integration", "CrossCutting"],
+  class: ["DomainModel", "UseCase", "DataAccess", "Integration", "Presentation", "CrossCutting"],
+  classStaticBlock: ["Configuration", "CrossCutting"],
+  interface: ["DomainModel", "PortContract"],
+  typeAlias: ["DomainModel", "PortContract", "Validation", "Utility"],
+  enum: ["DomainModel"],
+  enumMember: ["DomainModel"],
+  variable: ["Utility", "Validation", "Configuration", "DataAccess", "CrossCutting"],
+  constant: ["Utility", "DomainModel", "Configuration", "CrossCutting"],
+  property: ["DomainModel", "DataAccess", "Validation", "Configuration"],
+  accessor: ["DomainModel", "DataAccess", "CrossCutting", "Presentation"],
+  constructor: ["UseCase", "DataAccess", "Integration", "DomainModel"],
+  parameter: ["UseCase", "Validation", "Presentation", "DomainLogic"],
+  signature: ["PortContract", "DomainLogic", "UseCase", "Validation"],
+  indexSignature: ["DomainModel", "PortContract"],
+  typeParameter: ["DomainModel", "Utility", "Validation"],
+  tupleMember: ["DomainModel"],
+  exportSpecifier: ["Presentation", "UseCase", "Utility", "Configuration"],
+  identifier: ["Uncategorized", "Utility", "DomainModel", "CrossCutting"],
+  statement: ["Presentation", "UseCase", "CrossCutting", "Uncategorized"],
+  expression: ["DomainLogic", "Validation", "Presentation", "Integration", "Uncategorized"],
+  module: ["Configuration", "Presentation", "UseCase", "Integration"],
+  namespace: ["Configuration", "DomainModel"],
+  file: ["Configuration", "Presentation", "DataAccess", "Uncategorized"],
+  event: ["CrossCutting", "Presentation"],
+  mixin: ["CrossCutting", "Presentation", "Integration"],
+  any: ["Uncategorized"],
+};
+
+const CATEGORY_TAXONOMY_RUNTIME: ReadonlyArray<TSCategory> = CATEGORY_TAXONOMY;
+
+const clampConfidence = (confidence: number): number =>
+  globalThis.Number.isFinite(confidence) ? globalThis.Math.max(0, globalThis.Math.min(1, confidence)) : 0;
+
+/**
+ * Combine multiple signal confidences using the noisy-OR formula:
+ *   1 - Π(1 - c_i)
+ *
+ * Assumes signal independence. Correlated signals (e.g., two signals
+ * both triggered by the same import declaration) will produce inflated
+ * combined confidence. Callers should prefer structurally independent
+ * detection criteria when designing AST signals.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
+  pipe(
+    confidences,
+    A.reduce(0, (combined, confidence) => {
+      const clamped = clampConfidence(confidence);
+      return 1 - (1 - combined) * (1 - clamped);
+    })
+  );
+
+/**
+ * Get deterministic conflict precedence rank for a category tag.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategoryPrecedence(tag: CategoryTag): number {
+  const index = pipe(
+    CATEGORY_PRECEDENCE,
+    A.findFirstIndex((candidate) => candidate === tag)
+  );
+
+  return index === undefined ? CATEGORY_PRECEDENCE.length : index;
+}
+
+/**
+ * Lookup a category by `_tag`.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategory(tag: string): TSCategory | undefined {
+  return pipe(
+    CATEGORY_TAXONOMY_RUNTIME,
+    A.findFirst((category) => category._tag === tag),
+    O.getOrUndefined
+  );
+}
+
+/**
+ * Get categories by purity classification.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArray<TSCategory> {
+  return pipe(
+    CATEGORY_TAXONOMY_RUNTIME,
+    A.filter((category) => category.purity === purity)
+  );
+}
+
+/**
+ * Get categories by architectural layer.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): ReadonlyArray<TSCategory> {
+  return pipe(
+    CATEGORY_TAXONOMY_RUNTIME,
+    A.filter((category) =>
+      pipe(
+        category.architecturalLayers,
+        A.some((archLayer) => archLayer === layer)
+      )
+    )
+  );
+}
+
+/**
+ * Get categories by Effect or monad analog.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCategory> {
+  return pipe(
+    CATEGORY_TAXONOMY_RUNTIME,
+    A.filter((category) => category.effectAnalog === analog)
+  );
+}
+
+/**
+ * Get ordered candidate categories for an `ApplicableTo` node intent.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): ReadonlyArray<TSCategory> {
+  return pipe(
+    APPLICABLE_TO_CATEGORY_ROUTING[applicableTo],
+    A.reduce(A.empty<TSCategory>(), (categories, tag) => {
+      const category = getCategory(tag);
+      return category === undefined ? categories : A.append(categories, category);
+    })
+  );
+}
+
+/**
+ * Scored category candidate shape produced by candidate resolution.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type ScoredCategoryCandidate = {
+  readonly category: TSCategory;
+  readonly combinedConfidence: number;
+};
+
+const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, right) => {
+  if (left.combinedConfidence > right.combinedConfidence) {
+    return -1;
+  }
+
+  if (left.combinedConfidence < right.combinedConfidence) {
+    return 1;
+  }
+
+  return Order.String(left.category._tag, right.category._tag);
+});
+
+/**
+ * Get categories whose AST signals could match a code element.
+ * Unknown categories are ignored.
+ *
+ * Sorting policy:
+ * 1) `combinedConfidence` descending
+ * 2) `_tag` ascending
+ *
+ * `CATEGORY_PRECEDENCE` is intentionally NOT used here.
+ * It is an external conflict policy for classifier flows.
+ *
+ * Combined confidence formula:
+ *   1 - Π(1 - c_i)
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function getCandidateCategories(
+  signals: ReadonlyArray<{ category: string; confidence: number }>
+): ReadonlyArray<ScoredCategoryCandidate> {
+  const grouped = pipe(
+    signals,
+    A.groupBy((signal) => signal.category)
+  );
+
+  return pipe(
+    grouped,
+    R.collect((categoryName, categorySignals) => {
+      const category = getCategory(categoryName);
+      return {
+        category,
+        combinedConfidence: combineSignalConfidences(
+          pipe(
+            categorySignals,
+            A.map((signal) => signal.confidence)
+          )
+        ),
+      };
+    }),
+    A.reduce(A.empty<ScoredCategoryCandidate>(), (candidates, entry) => {
+      if (entry.category === undefined) {
+        return candidates;
+      }
+
+      return A.append(candidates, {
+        category: entry.category,
+        combinedConfidence: entry.combinedConfidence,
+      });
+    }),
+    A.sort(scoredCategoryCandidateOrder)
+  );
+}
+
+/**
+ * Resolve category for non-declaration AST nodes using context fallback policy.
+ *
+ * Resolution order:
+ * 1. Classify by nearest exportable ancestor symbol
+ * 2. Fall back to source-file dominant category
+ * 3. Return Uncategorized if below guardrail threshold
+ *
+ * This is a stub - the actual implementation will need ts-morph node
+ * traversal that depends on the extraction pipeline architecture.
+ * The stub documents the contract and makes the fallback policy executable.
+ *
+ * @since 2026-03-01
+ * @category Utility
+ */
+export function resolveContextFallback(
+  scoredCandidates: ReadonlyArray<ScoredCategoryCandidate>,
+  ancestorCategory?: CategoryTag,
+  sourceFileDominantCategory?: CategoryTag
+): CategoryTag {
+  const resolvedAncestor = pipe(
+    ancestorCategory,
+    O.fromUndefinedOr,
+    O.filter((category) => category !== UNCATEGORIZED_CATEGORY_TAG)
+  );
+
+  if (O.isSome(resolvedAncestor)) {
+    return resolvedAncestor.value;
+  }
+
+  const resolvedSourceFileDominant = pipe(
+    sourceFileDominantCategory,
+    O.fromUndefinedOr,
+    O.filter((category) => category !== UNCATEGORIZED_CATEGORY_TAG)
+  );
+
+  if (O.isSome(resolvedSourceFileDominant)) {
+    return resolvedSourceFileDominant.value;
+  }
+
+  return pipe(
+    scoredCandidates,
+    A.head,
+    O.filter((candidate) => candidate.combinedConfidence >= UNCATEGORIZED_GUARDRAIL_THRESHOLD),
+    O.map((candidate) => candidate.category._tag),
+    O.getOrElse(() => UNCATEGORIZED_CATEGORY_TAG)
+  );
+}

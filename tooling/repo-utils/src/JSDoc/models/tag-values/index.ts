@@ -8,17 +8,50 @@
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
+/**
+ * @since 0.0.0
+ */
 export * from "./AccessModifierTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./ClosureTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./DocumentationTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./EventDependencyTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./InlineTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./OrganizationalTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./RemainingTagValues.js";
 // ── Re-export all member classes ─────────────────────────────────────
+/**
+ * @since 0.0.0
+ */
 export * from "./StructuralTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./TSDocTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./TypeDocTagValues.js";
+/**
+ * @since 0.0.0
+ */
 export * from "./TypeScriptTagValues.js";
 
 import {

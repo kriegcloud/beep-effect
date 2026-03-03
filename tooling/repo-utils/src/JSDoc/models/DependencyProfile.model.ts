@@ -12,12 +12,24 @@ import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("JSDoc/models/DependencyProfile.model");
 
+/**
+ * Fan-in / fan-out intensity classification.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const FanValue = LiteralKit(["low", "medium", "high"]).annotate(
   $I.annote("FanValue", {
     description: "",
   })
 );
 
+/**
+ * Inferred type for {@link FanValue}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type FanValue = typeof FanValue.Type;
 
 /**
