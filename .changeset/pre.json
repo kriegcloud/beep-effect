@@ -38,6 +38,7 @@
     "@effect/ai-docgen": "0.0.0"
   },
   "changesets": [
+    "add-chunk-schema",
     "add-config-nested",
     "add-make-option",
     "add-missing-tx-modules",
@@ -102,6 +103,7 @@
     "fix-searchparam-initial-decode",
     "fix-serializable-wire-transfer",
     "fix-strip-approval-artifacts-multi-round",
+    "fix-tagged-union-class-sentinels",
     "fix-tuple-with-rest-post-rest-index-drift",
     "fix-tuple-with-rest-post-rest-validation",
     "forty-otters-cry",
@@ -117,7 +119,9 @@
     "great-trains-mate",
     "heavy-loops-cut",
     "hip-socks-travel",
+    "honest-pens-thank",
     "httpapi-endpoint-relax-constraints",
+    "huge-moons-rhyme",
     "humble-pigs-dig",
     "itchy-results-bet",
     "itchy-shrimps-deny",
@@ -132,6 +136,7 @@
     "metal-parts-yell",
     "neat-lions-rest",
     "neat-snails-wash",
+    "neat-taxis-notice",
     "odd-fans-glow",
     "odd-laws-draw",
     "old-brooms-cry",
@@ -153,6 +158,7 @@
     "sharp-emus-applaud",
     "sharp-peas-march",
     "shy-geckos-sniff",
+    "silent-geckos-matter",
     "silent-needles-design",
     "silly-loops-tickle",
     "sixty-mails-shout",
@@ -163,6 +169,7 @@
     "solid-doors-ring",
     "solid-items-tease",
     "spotty-comics-fry",
+    "stale-dots-tell",
     "strict-buckets-hug",
     "strip-resolved-approvals",
     "struct-record",
@@ -173,6 +180,7 @@
     "tall-queens-cheer",
     "tangy-colts-lose",
     "thin-ducks-wonder",
+    "thirty-ducks-go",
     "three-ravens-jam",
     "true-actors-battle",
     "twenty-buttons-cheer",
@@ -184,6 +192,7 @@
     "wise-ants-wave",
     "wise-flags-shift",
     "yellow-clocks-dance",
+    "yellow-dingos-jump",
     "young-doors-change"
   ]
 }
