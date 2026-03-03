@@ -163,7 +163,7 @@
     "@babel/preset-react": "^7.28.5",
     "@base-ui/react": "^1.2.0",
     "@biomejs/biome": "^2.4.5",
-    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
     "@commitlint/cli": "^20.4.2",
     "pg-protocol": "^1.12.0",
