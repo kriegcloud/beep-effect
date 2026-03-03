@@ -11,7 +11,13 @@ import * as fs from "fs"
 import * as path from "path"
 import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
-import { getExamplesSubdir, getSnapshotsSubdir, safeReaddirSync } from "./utils/harness.js"
+import {
+  getExamplesDir,
+  getExamplesSubdir,
+  getHarnessDir,
+  getSnapshotsSubdir,
+  safeReaddirSync
+} from "./utils/harness.js"
 import { createServicesWithMockedVFS } from "./utils/mocks.js"
 
 const getExamplesPipingDir = () => getExamplesSubdir("piping")
@@ -68,53 +74,63 @@ function testPipingFlowsOnExample(
   includeEffectFn: boolean
 ) {
   // create the language service with mocked services over a VFS
-  const { program, sourceFile } = createServicesWithMockedVFS(fileName, sourceText)
-  const typeChecker = program.getTypeChecker()
-
-  // create snapshot path
-  const snapshotFilePath = path.join(
-    getSnapshotsSubdir("piping"),
-    fileName + ".output"
+  const { languageService, program, sourceFile } = createServicesWithMockedVFS(
+    getHarnessDir(),
+    getExamplesDir(),
+    fileName,
+    sourceText
   )
 
-  // attempt to run pipingFlows and get the output
-  return pipe(
-    Nano.service(TypeParser.TypeParser),
-    Nano.flatMap((typeParser) =>
-      Nano.map(
-        typeParser.pipingFlows(includeEffectFn)(sourceFile),
-        (flows) => ({ flows, reconstructPipingFlow: typeParser.reconstructPipingFlow })
-      )
-    ),
-    TypeParser.nanoLayer,
-    TypeCheckerUtils.nanoLayer,
-    TypeScriptUtils.nanoLayer,
-    Nano.provideService(TypeCheckerApi.TypeCheckerApi, typeChecker),
-    Nano.provideService(TypeScriptApi.TypeScriptProgram, program),
-    Nano.provideService(TypeScriptApi.TypeScriptApi, ts),
-    Nano.provideService(
-      LanguageServicePluginOptions.LanguageServicePluginOptions,
-      LanguageServicePluginOptions.parse({
-        ...LanguageServicePluginOptions.defaults,
-        namespaceImportPackages: ["effect"]
-      })
-    ),
-    Nano.map(({ flows, reconstructPipingFlow }) => {
-      // Sort flows by position
-      flows.sort((a, b) => a.node.getStart() - b.node.getStart())
-      // Format flows
-      return flows.length === 0
-        ? "// no piping flows found"
-        : flows.map((flow) => formatPipingFlow(sourceFile, flow, typeChecker, reconstructPipingFlow)).join("\n\n")
-    }),
-    Nano.unsafeRun,
-    async (result) => {
-      expect(Result.isSuccess(result), "should run with no error " + result).toEqual(true)
-      await expect(Result.getOrElse(result, () => "// error")).toMatchFileSnapshot(
-        snapshotFilePath
-      )
-    }
-  )
+  try {
+    const typeChecker = program.getTypeChecker()
+
+    // create snapshot path
+    const snapshotFilePath = path.join(
+      getSnapshotsSubdir("piping"),
+      fileName + ".output"
+    )
+
+    // attempt to run pipingFlows and get the output
+    return pipe(
+      Nano.service(TypeParser.TypeParser),
+      Nano.flatMap((typeParser) =>
+        Nano.map(
+          typeParser.pipingFlows(includeEffectFn)(sourceFile),
+          (flows) => ({ flows, reconstructPipingFlow: typeParser.reconstructPipingFlow })
+        )
+      ),
+      TypeParser.nanoLayer,
+      TypeCheckerUtils.nanoLayer,
+      TypeScriptUtils.nanoLayer,
+      Nano.provideService(TypeCheckerApi.TypeCheckerApi, typeChecker),
+      Nano.provideService(TypeScriptApi.TypeScriptProgram, program),
+      Nano.provideService(TypeScriptApi.TypeScriptApi, ts),
+      Nano.provideService(
+        LanguageServicePluginOptions.LanguageServicePluginOptions,
+        LanguageServicePluginOptions.parse({
+          ...LanguageServicePluginOptions.defaults,
+          namespaceImportPackages: ["effect"]
+        })
+      ),
+      Nano.map(({ flows, reconstructPipingFlow }) => {
+        // Sort flows by position
+        flows.sort((a, b) => a.node.getStart() - b.node.getStart())
+        // Format flows
+        return flows.length === 0
+          ? "// no piping flows found"
+          : flows.map((flow) => formatPipingFlow(sourceFile, flow, typeChecker, reconstructPipingFlow)).join("\n\n")
+      }),
+      Nano.unsafeRun,
+      async (result) => {
+        expect(Result.isSuccess(result), "should run with no error " + result).toEqual(true)
+        await expect(Result.getOrElse(result, () => "// error")).toMatchFileSnapshot(
+          snapshotFilePath
+        )
+      }
+    )
+  } finally {
+    languageService.dispose()
+  }
 }
 
 function testAllPipingFlows() {
