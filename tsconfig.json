@@ -74,12 +74,6 @@
       "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
       "@beep/shared-client/*": [
         "./packages/shared/client/src/*.ts"
-      ],
-      "@beep/docgen": [
-        "./tooling/docgen/src/index.ts"
-      ],
-      "@beep/docgen/*": [
-        "./tooling/docgen/src/*.ts"
       ]
     },
     "plugins": [

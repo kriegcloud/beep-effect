@@ -68,9 +68,6 @@
     },
     {
       "path": "tooling/repo-utils"
-    },
-    {
-      "path": "tooling/docgen"
     }
   ]
 }
