@@ -2,7 +2,7 @@
 
 ## Status
 
-PENDING (P0 launch packet ready for implementation)
+COMPLETED (P8 closeout and leadership draft pilot complete; PASS with caveats)
 
 ## Owner
 
@@ -22,9 +22,11 @@ PENDING (P0 launch packet ready for implementation)
 - [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md)
 - [RUBRICS.md](./RUBRICS.md)
 - [REFLECTION_LOG.md](./REFLECTION_LOG.md)
-- [outputs/initial_plan.md](./outputs/initial_plan.md)
+- [outputs/p7/whitepaper-starter-kit.md](./outputs/p7/whitepaper-starter-kit.md)
+- [outputs/p8/closeout-gate-report.md](./outputs/p8/closeout-gate-report.md)
+- [outputs/p8/leadership-draft-pilot-outline.md](./outputs/p8/leadership-draft-pilot-outline.md)
 - [outputs/manifest.json](./outputs/manifest.json)
-- [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md)
+- [handoffs/HANDOFF_P8.md](./handoffs/HANDOFF_P8.md)
 
 ---
 

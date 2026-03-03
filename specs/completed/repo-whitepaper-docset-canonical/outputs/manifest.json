@@ -22,13 +22,13 @@
       "outline": [
         "Purpose and reader contract",
         "Source area inventory",
-        "Document map and reading paths",
+        "D01-D12 navigation map and reading paths by persona",
         "Usage modes"
       ],
       "completionChecks": [
         "All source areas are indexed",
         "At least three persona reading paths exist",
-        "All D01 links resolve to existing docs"
+        "All D01 cross-references resolve to existing D-docs"
       ]
     },
     {
@@ -48,12 +48,12 @@
         "Problem framing",
         "Approach summary",
         "Architecture narrative",
-        "Key claims and evidence pointers"
+        "Key Claims and Pointers"
       ],
       "completionChecks": [
-        "Each major claim references at least one deeper doc",
-        "Narrative includes differentiators",
-        "No unresolved contradiction with D11"
+        "Each major claim points to at least one deeper D-doc",
+        "Narrative includes explicit differentiators",
+        "No unresolved contradiction with D11 risk/decision register"
       ]
     },
     {

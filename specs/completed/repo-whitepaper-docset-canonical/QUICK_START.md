@@ -6,8 +6,9 @@ A canonical orchestration package for producing a 12-document, whitepaper-ready 
 
 ## Current Status
 
-- Phase: `P0` complete (spec package initialized)
-- Next phase: `P1` (source inventory + fact harvest)
+- Phase: `P8` complete (closeout + leadership draft pilot)
+- Final decision: `PASS (with caveats)`
+- Promotion status: package moved to `specs/completed/repo-whitepaper-docset-canonical`
 
 ## Start Here
 
@@ -26,18 +27,19 @@ A canonical orchestration package for producing a 12-document, whitepaper-ready 
 - `P5`: `outputs/docset/D09.md` ... `outputs/docset/D12.md`
 - `P6`: `outputs/p6/consistency-report.md`, `outputs/p6/completeness-report.md`, `outputs/p6/quality-scorecard.md`
 - `P7`: `outputs/p7/whitepaper-starter-kit.md`, `handoffs/HANDOFF_P7.md`
+- `P8`: `outputs/p8/closeout-gate-report.md`, `outputs/p8/leadership-draft-pilot-outline.md`, `outputs/p8/pilot-self-check.md`, `handoffs/HANDOFF_P8.md`
 
 ## Required Verification Commands (Spec Package)
 
 ```bash
 # verify package skeleton exists
-find specs/pending/repo-whitepaper-docset-canonical -maxdepth 3 -type f | sort
+find specs/completed/repo-whitepaper-docset-canonical -maxdepth 3 -type f | sort
 
 # verify manifest JSON is valid
-node -e "JSON.parse(require('node:fs').readFileSync('specs/pending/repo-whitepaper-docset-canonical/outputs/manifest.json','utf8')); console.log('manifest ok')"
+node -e "JSON.parse(require('node:fs').readFileSync('specs/completed/repo-whitepaper-docset-canonical/outputs/manifest.json','utf8')); console.log('manifest ok')"
 
 # verify phase gate JSON templates are valid
-node -e "JSON.parse(require('node:fs').readFileSync('specs/pending/repo-whitepaper-docset-canonical/outputs/p6/quality-gates.json','utf8')); console.log('quality gates ok')"
+node -e "JSON.parse(require('node:fs').readFileSync('specs/completed/repo-whitepaper-docset-canonical/outputs/p6/quality-gates.json','utf8')); console.log('quality gates ok')"
 ```
 
 ## Operating Rules

@@ -1,0 +1,162 @@
+{
+  "project": "repo-whitepaper-final",
+  "status": "complete_pending_promotion",
+  "lastUpdated": "2026-03-03",
+  "sourceOfTruth": {
+    "corpusSpec": "specs/completed/repo-whitepaper-docset-canonical",
+    "docset": [
+      "D01",
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D07",
+      "D08",
+      "D09",
+      "D10",
+      "D11",
+      "D12"
+    ]
+  },
+  "contracts": {
+    "WhitepaperSectionDescriptor": {
+      "requiredFields": [
+        "sectionId",
+        "title",
+        "targetWordRange",
+        "requiredClaimIds",
+        "requiredEvidenceIds"
+      ]
+    },
+    "ClaimEvidenceLink": {
+      "requiredFields": [
+        "claimId",
+        "evidenceIds",
+        "sourceDocIds",
+        "statusLabel",
+        "targetSectionId"
+      ],
+      "statusLabelEnum": [
+        "implemented",
+        "specified",
+        "conceptual"
+      ]
+    },
+    "ReviewDecision": {
+      "requiredFields": [
+        "reviewType",
+        "result",
+        "mustFix",
+        "notes",
+        "reviewer"
+      ],
+      "reviewTypeEnum": [
+        "technical",
+        "editorial_compliance"
+      ],
+      "resultEnum": [
+        "pending",
+        "pass",
+        "fail"
+      ]
+    },
+    "PublicationGateResult": {
+      "requiredFields": [
+        "gateId",
+        "result",
+        "evidencePath",
+        "blocker",
+        "checkedAt",
+        "checker"
+      ],
+      "resultEnum": [
+        "pass",
+        "fail",
+        "blocked"
+      ]
+    }
+  },
+  "sectionModel": {
+    "version": "p7-aligned-v1",
+    "sections": [
+      "S01",
+      "S02",
+      "S03",
+      "S04",
+      "S05",
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S10"
+    ],
+    "mainBodyWordRange": {
+      "min": 7000,
+      "max": 10000
+    }
+  },
+  "phases": {
+    "p0": {
+      "status": "complete",
+      "outputs": {
+        "initialPlan": "specs/pending/repo-whitepaper-final/outputs/p0/initial-plan.md",
+        "reviewFindings": "specs/pending/repo-whitepaper-final/outputs/p0/spec-review-findings.md",
+        "issueRegister": "specs/pending/repo-whitepaper-final/outputs/p0/spec-review-issue-register.json",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P0.md"
+      }
+    },
+    "p1": {
+      "status": "complete",
+      "outputs": {
+        "whitepaperBrief": "specs/pending/repo-whitepaper-final/outputs/p1/whitepaper-brief.md",
+        "sectionContracts": "specs/pending/repo-whitepaper-final/outputs/p1/section-contracts.md",
+        "styleGuide": "specs/pending/repo-whitepaper-final/outputs/p1/style-guide.md",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P1.md"
+      }
+    },
+    "p2": {
+      "status": "complete",
+      "outputs": {
+        "claimEvidenceMatrix": "specs/pending/repo-whitepaper-final/outputs/p2/claim-evidence-matrix.json",
+        "citationLedger": "specs/pending/repo-whitepaper-final/outputs/p2/citation-ledger.md",
+        "assumptionRegister": "specs/pending/repo-whitepaper-final/outputs/p2/assumption-register.md",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P2.md"
+      }
+    },
+    "p3": {
+      "status": "complete",
+      "outputs": {
+        "whitepaperV1": "specs/pending/repo-whitepaper-final/outputs/p3/whitepaper-v1.md",
+        "draftQcReport": "specs/pending/repo-whitepaper-final/outputs/p3/draft-qc-report.md",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P3.md"
+      }
+    },
+    "p4": {
+      "status": "complete",
+      "outputs": {
+        "technicalReview": "specs/pending/repo-whitepaper-final/outputs/p4/technical-review.md",
+        "editorialReview": "specs/pending/repo-whitepaper-final/outputs/p4/editorial-review.md",
+        "revisionResolutionLog": "specs/pending/repo-whitepaper-final/outputs/p4/revision-resolution-log.md",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P4.md"
+      }
+    },
+    "p5": {
+      "status": "complete",
+      "outputs": {
+        "whitepaperFinal": "specs/pending/repo-whitepaper-final/outputs/p5/whitepaper-final.md",
+        "evidenceAnnex": "specs/pending/repo-whitepaper-final/outputs/p5/evidence-annex.md",
+        "publicationExportPlan": "specs/pending/repo-whitepaper-final/outputs/p5/publication-export-plan.md",
+        "publicationGates": "specs/pending/repo-whitepaper-final/outputs/p5/publication-gates.json",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P5.md"
+      }
+    },
+    "p6": {
+      "status": "complete",
+      "outputs": {
+        "finalSignoffSummary": "specs/pending/repo-whitepaper-final/outputs/p6/final-signoff-summary.md",
+        "handoff": "specs/pending/repo-whitepaper-final/handoffs/HANDOFF_P6.md"
+      }
+    }
+  }
+}
