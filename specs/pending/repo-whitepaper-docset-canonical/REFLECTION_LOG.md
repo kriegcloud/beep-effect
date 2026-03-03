@@ -68,3 +68,24 @@ Record phase outcomes, design deviations, unresolved issues, and lessons learned
   - Validate and reconcile known `repo-codegraph-jsdoc` script-path inconsistency during P1/P2 evidence normalization.
 - Decision updates:
   - None.
+
+### P1
+
+- Date: 2026-03-03
+- Completed outputs:
+  - `outputs/p1/source-index.md`
+  - `outputs/p1/fact-ledger.json`
+  - `outputs/p1/coverage-baseline.md`
+  - `handoffs/HANDOFF_P1.md`
+- What worked:
+  - Deterministic `find ... -type f | sort` inventory removed ambiguous source counts.
+  - Fact ledger seeding now uses explicit evidence ranges per source area.
+  - Binary assets in S04 were indexed and represented with metadata facts.
+- What did not work:
+  - Prior baseline counts for S03 and S04 were stale and not full-inventory complete.
+- Deviations from plan:
+  - Included P1 bookkeeping update in handoff and reflection artifacts in the same completion pass.
+- Open issues carried forward:
+  - `specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs` import paths appear inconsistent with current `outputs/jsdoc-exhaustiveness-audit/` file location and should be reconciled in P2 conflict handling.
+- Decision updates:
+  - P1 depth held at rubric-minimum seeded harvest (20 facts total) with complete source indexing.

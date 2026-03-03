@@ -8,8 +8,11 @@
     {
       "docId": "D01",
       "title": "Corpus Atlas and Reading Guide",
-      "purpose": "Onboard readers and explain corpus structure.",
-      "audience": ["new contributors", "editors"],
+      "purpose": "Onboard readers and define corpus navigation pathways.",
+      "audience": [
+        "new contributors",
+        "editors"
+      ],
       "sourceCoverage": [
         "tooling/repo-utils/src/JSDoc/*",
         "specs/pending/repo-codegraph-canonical/*",
@@ -24,15 +27,18 @@
       ],
       "completionChecks": [
         "All source areas are indexed",
-        "Reading paths exist for at least three personas",
+        "At least three persona reading paths exist",
         "All D01 links resolve to existing docs"
       ]
     },
     {
       "docId": "D02",
       "title": "Executive Technical Synthesis",
-      "purpose": "Provide white-paper-ready top-level narrative.",
-      "audience": ["leadership", "white-paper authors"],
+      "purpose": "Provide white-paper-ready top-level narrative and thesis.",
+      "audience": [
+        "leadership",
+        "white-paper authors"
+      ],
       "sourceCoverage": [
         "specs/pending/repo-codegraph-canonical/*",
         "specs/pending/repo-codegraph-jsdoc/*",
@@ -47,14 +53,17 @@
       "completionChecks": [
         "Each major claim references at least one deeper doc",
         "Narrative includes differentiators",
-        "No unresolved contradictions with D11"
+        "No unresolved contradiction with D11"
       ]
     },
     {
       "docId": "D03",
       "title": "Conceptual Model and Terminology",
-      "purpose": "Normalize language and core concepts.",
-      "audience": ["authors", "reviewers"],
+      "purpose": "Normalize Tier-1 terminology and core concepts.",
+      "audience": [
+        "authors",
+        "reviewers"
+      ],
       "sourceCoverage": [
         "tooling/repo-utils/src/JSDoc/*",
         ".repos/beep-effect/packages/knowledge/_docs/ontology_research/*",
@@ -75,8 +84,11 @@
     {
       "docId": "D04",
       "title": "JSDoc Semantic System and Tag Taxonomy",
-      "purpose": "Explain canonical JSDoc model and semantics.",
-      "audience": ["tooling engineers", "doc authors"],
+      "purpose": "Explain canonical JSDoc model, taxonomy semantics, and constraints.",
+      "audience": [
+        "tooling engineers",
+        "doc authors"
+      ],
       "sourceCoverage": [
         "tooling/repo-utils/src/JSDoc/*",
         "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md"
@@ -90,14 +102,17 @@
       "completionChecks": [
         "All tag classes are represented",
         "Applicability and derivability rules are documented",
-        "Examples include deterministic and non-deterministic boundaries"
+        "Examples include deterministic and bounded-uncertain cases"
       ]
     },
     {
       "docId": "D05",
       "title": "Codegraph Architecture and Dataflow",
-      "purpose": "Describe end-to-end architecture and phase logic.",
-      "audience": ["architects", "implementation leads"],
+      "purpose": "Describe end-to-end architecture, boundaries, and phase dataflow.",
+      "audience": [
+        "architects",
+        "implementation leads"
+      ],
       "sourceCoverage": [
         "specs/pending/repo-codegraph-canonical/*",
         ".repos/beep-effect/packages/knowledge/_docs/architecture/*",
@@ -118,8 +133,11 @@
     {
       "docId": "D06",
       "title": "Deterministic Extraction and Enrichment Methods",
-      "purpose": "Detail deterministic and constrained generation methods.",
-      "audience": ["engineers", "methodologists"],
+      "purpose": "Detail deterministic extraction, narrowing, and validation methods.",
+      "audience": [
+        "engineers",
+        "methodologists"
+      ],
       "sourceCoverage": [
         "tooling/repo-utils/src/JSDoc/*",
         "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
@@ -140,8 +158,11 @@
     {
       "docId": "D07",
       "title": "NLP, Reasoning, and Knowledge Representation Strategy",
-      "purpose": "Capture advanced inference strategy and limits.",
-      "audience": ["ML/NLP engineers", "researchers"],
+      "purpose": "Capture inference strategy, representation policy, and guardrails.",
+      "audience": [
+        "ML/NLP engineers",
+        "researchers"
+      ],
       "sourceCoverage": [
         "specs/pending/repo-codegraph-jsdoc/*",
         ".repos/beep-effect/packages/knowledge/_docs/ontology_research/*"
@@ -161,8 +182,11 @@
     {
       "docId": "D08",
       "title": "Interfaces, Schemas, and Contract Catalog",
-      "purpose": "Catalog all externally relevant contracts.",
-      "audience": ["integrators", "maintainers"],
+      "purpose": "Catalog externally relevant interfaces and schema contracts.",
+      "audience": [
+        "integrators",
+        "maintainers"
+      ],
       "sourceCoverage": [
         "specs/pending/repo-codegraph-canonical/*",
         "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
@@ -183,8 +207,12 @@
     {
       "docId": "D09",
       "title": "Operations, Reliability, and Control Planes",
-      "purpose": "Consolidate runtime reliability model.",
-      "audience": ["SRE", "platform", "operators"],
+      "purpose": "Consolidate operational reliability model and control-plane runbooks.",
+      "audience": [
+        "SRE",
+        "platform",
+        "operators"
+      ],
       "sourceCoverage": [
         ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL*",
         ".repos/beep-effect/packages/knowledge/_docs/PROGRESS_STREAMING*",
@@ -207,8 +235,12 @@
     {
       "docId": "D10",
       "title": "Validation, Metrics, and Audit Evidence",
-      "purpose": "Define measurable quality and evaluation.",
-      "audience": ["QA", "reviewers", "white-paper validators"],
+      "purpose": "Define measurable quality, formulas, and audit evidence pathways.",
+      "audience": [
+        "QA",
+        "reviewers",
+        "white-paper validators"
+      ],
       "sourceCoverage": [
         ".repos/beep-effect/packages/knowledge/_docs/audits/*",
         "specs/pending/repo-codegraph-canonical/*",
@@ -223,14 +255,17 @@
       "completionChecks": [
         "All metrics have explicit formulas",
         "Audit artifacts are mapped to metrics",
-        "Evidence route defined for each quality claim"
+        "Evidence route is defined for each quality claim"
       ]
     },
     {
       "docId": "D11",
       "title": "Risks, Open Decisions, and Roadmap",
-      "purpose": "Make uncertainty explicit and actionable.",
-      "audience": ["product leadership", "technical leadership"],
+      "purpose": "Make uncertainty explicit with owned risk and decision governance.",
+      "audience": [
+        "product leadership",
+        "technical leadership"
+      ],
       "sourceCoverage": [
         ".repos/beep-effect/packages/knowledge/_docs/plans/*",
         ".repos/beep-effect/packages/knowledge/_docs/audits/*",
@@ -252,8 +287,12 @@
     {
       "docId": "D12",
       "title": "Traceability Annex and Evidence Index",
-      "purpose": "Guarantee source-to-claim traceability.",
-      "audience": ["reviewers", "compliance", "editors"],
+      "purpose": "Guarantee source-to-claim traceability and evidence integrity.",
+      "audience": [
+        "reviewers",
+        "compliance",
+        "editors"
+      ],
       "sourceCoverage": [
         "tooling/repo-utils/src/JSDoc/*",
         "specs/pending/repo-codegraph-canonical/*",

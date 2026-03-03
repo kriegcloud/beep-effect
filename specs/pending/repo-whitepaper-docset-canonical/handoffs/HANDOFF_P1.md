@@ -2,8 +2,14 @@
 
 ## Phase State
 
-- P1 status: in progress
+- P1 status: complete
 - Next phase: P2
+
+## Delivered in P1
+
+1. Full file-level inventory across all four locked source areas.
+2. Seeded `CorpusFact` ledger with deterministic fact IDs and evidence IDs.
+3. Coverage baseline synchronized to inventory and ledger counts.
 
 ## Inputs to P2
 
@@ -21,3 +27,4 @@
 
 - Tier-1 term collisions resolved or explicitly logged.
 - No unresolved blocker-level concept conflicts.
+- Known `repo-codegraph-jsdoc` path-mismatch risk is either resolved or carried in conflict register with owner and disposition.

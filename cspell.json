@@ -192,7 +192,18 @@
     "savepoint",
     "PSTATEMENT",
     "plpgsql",
-    "PLPGSQL"
+    "PLPGSQL",
+    "noalias",
+    "nocompile",
+    "nosideeffects",
+    "nocollapse",
+    "noinline",
+    "inlines",
+    "fibration",
+    "fibrational",
+    "codegraph",
+    "arktype",
+    "kysely"
   ],
   "ignorePaths": [
     "bun.lock",

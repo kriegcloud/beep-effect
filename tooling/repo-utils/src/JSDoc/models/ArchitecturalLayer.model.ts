@@ -1,8 +1,6 @@
 /**
  * @module @beep/repo-utils/models/ArchitecturalLayer.model
- *
- * @description
- *
+ * @description Architectural layer taxonomy model definitions.
  * @since 0.0.0
  */
 

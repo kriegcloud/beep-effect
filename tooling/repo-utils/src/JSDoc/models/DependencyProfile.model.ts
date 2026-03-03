@@ -1,8 +1,6 @@
 /**
  * @module @beep/repo-utils/models/DependencyProfile.model
- *
- * @description
- *
+ * @description Dependency profile and fan value model definitions.
  * @since 0.0.0
  */
 

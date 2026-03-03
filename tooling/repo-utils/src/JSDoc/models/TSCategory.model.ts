@@ -1,8 +1,6 @@
 /**
  * @module @beep/repo-utils/models/TSCategory.model
- *
  * @description TypeScript category taxonomy schemas, fibration metadata, and classifier utilities.
- *
  * @since 0.0.0
  */
 
@@ -1063,6 +1061,8 @@ const clampConfidence = (confidence: number): number =>
  * combined confidence. Callers should prefer structurally independent
  * detection criteria when designing AST signals.
  *
+ * @param confidences - Individual signal confidence scores to combine.
+ * @returns Combined confidence score clamped to the inclusive range [0, 1].
  * @since 2026-03-01
  * @category Utility
  */
@@ -1078,6 +1078,8 @@ const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
 /**
  * Get deterministic conflict precedence rank for a category tag.
  *
+ * @param tag - Category tag to rank by conflict precedence.
+ * @returns Zero-based precedence index, or the list length when absent.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1093,6 +1095,8 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
 /**
  * Lookup a category by `_tag`.
  *
+ * @param tag - Category tag identifier to resolve.
+ * @returns Matching category definition, when present.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1107,6 +1111,8 @@ export function getCategory(tag: string): TSCategory | undefined {
 /**
  * Get categories by purity classification.
  *
+ * @param purity - Purity value used to filter the taxonomy.
+ * @returns Categories whose `purity` matches the requested value.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1120,6 +1126,8 @@ export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArr
 /**
  * Get categories by architectural layer.
  *
+ * @param layer - Architectural layer used to filter taxonomy members.
+ * @returns Categories mapped to the provided architectural layer.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1138,6 +1146,8 @@ export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): Readon
 /**
  * Get categories by Effect or monad analog.
  *
+ * @param analog - Effect/monad analog label to match.
+ * @returns Categories whose `effectAnalog` equals the provided label.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1151,6 +1161,8 @@ export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCat
 /**
  * Get ordered candidate categories for an `ApplicableTo` node intent.
  *
+ * @param applicableTo - Node intent routed to taxonomy candidates.
+ * @returns Categories in routing-table order, excluding unknown tags.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1201,6 +1213,8 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  * Combined confidence formula:
  *   1 - Π(1 - c_i)
  *
+ * @param signals - Category signal tuples with confidence values.
+ * @returns Candidate categories sorted by confidence and tag.
  * @since 2026-03-01
  * @category Utility
  */
@@ -1252,6 +1266,10 @@ export function getCandidateCategories(
  * traversal that depends on the extraction pipeline architecture.
  * The stub documents the contract and makes the fallback policy executable.
  *
+ * @param scoredCandidates - Ranked category candidates derived from AST signals.
+ * @param ancestorCategory - Nearest ancestor category, if available.
+ * @param sourceFileDominantCategory - Dominant category inferred from the source file.
+ * @returns Resolved category tag using fallback precedence and guardrail policy.
  * @since 2026-03-01
  * @category Utility
  */

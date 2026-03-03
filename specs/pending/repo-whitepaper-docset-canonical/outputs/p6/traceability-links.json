@@ -1,30 +1,534 @@
 [
   {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D01",
+    "section": "Normative Claims and Evidence (D01-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D01",
+    "section": "Normative Claims and Evidence (D01-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D01",
+    "section": "Normative Claims and Evidence (D01-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/INDEX.md",
+    "docId": "D01",
+    "section": "Normative Claims and Evidence (D01-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D01",
+    "section": "Normative Claims and Evidence (D01-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
+    "docId": "D02",
+    "section": "Normative Claims and Evidence (D02-C07)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D03",
+    "section": "Normative Claims and Evidence (D03-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D03",
+    "section": "Normative Claims and Evidence (D03-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
+    "docId": "D03",
+    "section": "Normative Claims and Evidence (D03-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D03",
+    "section": "Normative Claims and Evidence (D03-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/ontology101.pdf",
+    "docId": "D03",
+    "section": "Normative Claims and Evidence (D03-C05)",
+    "coverageType": "primary"
+  },
+  {
     "sourceArea": "tooling/repo-utils/src/JSDoc/*",
     "sourceArtifact": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
     "docId": "D04",
-    "section": "Tag definition model",
+    "section": "Normative Claims and Evidence (D04-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/CanonicalJSDocSourceMetadata.model.ts",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/source-tag-snapshots.json",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C07)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D04",
+    "section": "Normative Claims and Evidence (D04-C08)",
     "coverageType": "primary"
   },
   {
     "sourceArea": "specs/pending/repo-codegraph-canonical/*",
     "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
     "docId": "D05",
-    "section": "Phase contracts",
+    "section": "Normative Claims and Evidence (D05-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D05",
+    "section": "Normative Claims and Evidence (D05-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D05",
+    "section": "Normative Claims and Evidence (D05-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D05",
+    "section": "Normative Claims and Evidence (D05-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/INDEX.md",
+    "docId": "D05",
+    "section": "Normative Claims and Evidence (D05-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D05",
+    "section": "Normative Claims and Evidence (D05-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/CanonicalJSDocSourceMetadata.model.ts",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C07)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D06",
+    "section": "Normative Claims and Evidence (D06-C08)",
     "coverageType": "primary"
   },
   {
     "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
     "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
     "docId": "D07",
-    "section": "NLP modules",
+    "section": "Normative Claims and Evidence (D07-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D07",
+    "section": "Normative Claims and Evidence (D07-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D07",
+    "section": "Normative Claims and Evidence (D07-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/owl_reasoning_validation_production.md",
+    "docId": "D07",
+    "section": "Normative Claims and Evidence (D07-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
+    "docId": "D07",
+    "section": "Normative Claims and Evidence (D07-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/CanonicalJSDocSourceMetadata.model.ts",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/source-tag-snapshots.json",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C07)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D08",
+    "section": "Normative Claims and Evidence (D08-C08)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/INDEX.md",
+    "docId": "D09",
+    "section": "Normative Claims and Evidence (D09-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/RUBRICS.md",
+    "docId": "D10",
+    "section": "Normative Claims and Evidence (D10-C01)",
     "coverageType": "primary"
   },
   {
     "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
     "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
     "docId": "D10",
-    "section": "Audit mapping",
+    "section": "Normative Claims and Evidence (D10-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D10",
+    "section": "Normative Claims and Evidence (D10-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D10",
+    "section": "Normative Claims and Evidence (D10-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D10",
+    "section": "Normative Claims and Evidence (D10-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D10",
+    "section": "Normative Claims and Evidence (D10-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D11",
+    "section": "Normative Claims and Evidence (D11-C06)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C01)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-canonical/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-canonical/README.md",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C02)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "tooling/repo-utils/src/JSDoc/*",
+    "sourceArtifact": "tooling/repo-utils/src/JSDoc/models/CanonicalJSDocSourceMetadata.model.ts",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C03)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/source-tag-snapshots.json",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C04)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": ".repos/beep-effect/packages/knowledge/_docs",
+    "sourceArtifact": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/ontology101.pdf",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C05)",
+    "coverageType": "primary"
+  },
+  {
+    "sourceArea": "specs/pending/repo-codegraph-jsdoc/*",
+    "sourceArtifact": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "docId": "D12",
+    "section": "Normative Claims and Evidence (D12-C06)",
     "coverageType": "primary"
   }
 ]

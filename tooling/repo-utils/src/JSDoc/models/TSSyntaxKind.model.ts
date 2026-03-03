@@ -1,8 +1,6 @@
 /**
  * @module @beep/repo-utils/models/TSSyntaxKind.model
- *
- * @description
- *
+ * @description TypeScript syntax kind model definitions.
  * @since 0.0.0
  */
 

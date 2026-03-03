@@ -1,8 +1,6 @@
 /**
  * @module @beep/repo-utils/models/ASTSignal.model
- *
- * @description
- *
+ * @description AST signal taxonomy model definitions.
  * @since 0.0.0
  */
 

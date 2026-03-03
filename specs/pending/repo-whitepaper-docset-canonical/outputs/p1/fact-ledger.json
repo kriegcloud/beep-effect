@@ -2,7 +2,7 @@
   {
     "factId": "F-001",
     "sourcePath": "tooling/repo-utils/src/JSDoc/JSDoc.ts",
-    "claim": "The canonical JSDoc model defines 113 tag definitions via JSDocTagDefinition.make.",
+    "claim": "JSDoc.ts contains 113 JSDocTagDefinition.make(...) factory invocations defining canonical tag metadata entries.",
     "confidence": 0.99,
     "status": "implemented",
     "evidenceRef": "E-S01-001"
@@ -10,89 +10,153 @@
   {
     "factId": "F-002",
     "sourcePath": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
-    "claim": "TagValue is represented as a broad tagged union spanning 113 tag occurrence shapes.",
+    "claim": "TagValue is composed as a union of category sub-unions and finalized with S.toTaggedUnion(\"_tag\") for discriminated decoding.",
     "confidence": 0.99,
     "status": "implemented",
     "evidenceRef": "E-S01-002"
   },
   {
     "factId": "F-003",
-    "sourcePath": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
-    "claim": "ApplicableTo acts as the constraint layer for where tags are valid.",
-    "confidence": 0.95,
+    "sourcePath": "tooling/repo-utils/src/JSDoc/models/tag-values/index.ts",
+    "claim": "TagName is a LiteralKit built from the const tagNames tuple containing 113 canonical JSDoc tag names.",
+    "confidence": 0.99,
     "status": "implemented",
     "evidenceRef": "E-S01-003"
   },
   {
     "factId": "F-004",
+    "sourcePath": "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+    "claim": "ApplicableTo enumerates AST attachment surfaces including function, method, class, interface, module, file, event, and a catch-all any value.",
+    "confidence": 0.97,
+    "status": "implemented",
+    "evidenceRef": "E-S01-004"
+  },
+  {
+    "factId": "F-005",
+    "sourcePath": "tooling/repo-utils/src/JSDoc/models/CanonicalJSDocSourceMetadata.model.ts",
+    "claim": "CanonicalJSDocSourceMetadata defines name/url/retrievedAt with URLFromString and DateTimeUtcFromString codecs, and make() materializes URL + DateTime values.",
+    "confidence": 0.96,
+    "status": "implemented",
+    "evidenceRef": "E-S01-005"
+  },
+  {
+    "factId": "F-006",
     "sourcePath": "specs/pending/repo-codegraph-canonical/README.md",
-    "claim": "Canonical pending specs in this repo encode phase architecture with explicit entry and exit gates.",
+    "claim": "Locked defaults specify a three-tier certainty model: deterministic 1.0, type-system 0.85-0.95, and llm-inferred 0.6-0.85.",
     "confidence": 0.96,
     "status": "specified",
     "evidenceRef": "E-S02-001"
   },
   {
-    "factId": "F-005",
+    "factId": "F-007",
     "sourcePath": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
-    "claim": "Master orchestration documents follow a P0-Pn state-machine model with required outputs per phase.",
-    "confidence": 0.96,
+    "claim": "Master orchestration defines the phase state machine as P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> P6 -> P7.",
+    "confidence": 0.98,
     "status": "specified",
     "evidenceRef": "E-S02-002"
   },
   {
-    "factId": "F-006",
+    "factId": "F-008",
+    "sourcePath": "specs/pending/repo-codegraph-canonical/MASTER_ORCHESTRATION.md",
+    "claim": "Phase completion requires three conditions: declared outputs exist, exit gates pass, and next-phase handoff prompts are created.",
+    "confidence": 0.98,
+    "status": "specified",
+    "evidenceRef": "E-S02-003"
+  },
+  {
+    "factId": "F-009",
+    "sourcePath": "specs/pending/repo-codegraph-canonical/RUBRICS.md",
+    "claim": "P5 rubric enforces MCP tool/resource coverage plus quantitative gates including NL-to-Cypher >= 80 percent, sub-graph p95 <= 200ms, and recall@10 >= 75 percent.",
+    "confidence": 0.95,
+    "status": "specified",
+    "evidenceRef": "E-S02-004"
+  },
+  {
+    "factId": "F-010",
     "sourcePath": "specs/pending/repo-codegraph-jsdoc/OVERVIEW.md",
-    "claim": "The exploratory corpus provides a state-labeled architecture narrative and contract inventory.",
-    "confidence": 0.93,
+    "claim": "OVERVIEW identifies itself as an LLM bootstrap spec and separates statements into Implemented, Specified, and Conceptual (Greenfield) states.",
+    "confidence": 0.95,
     "status": "specified",
     "evidenceRef": "E-S03-001"
   },
   {
-    "factId": "F-007",
+    "factId": "F-011",
     "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/JSDOC_FIBRATION_ARCHITECTURE.md",
-    "claim": "The fibration architecture describes a three-role schema strategy and structured output narrowing.",
+    "claim": "The fibration architecture document states Grothendieck factoring is already implemented via JSDocTagDefinition.make + mapFields + annotate, with pipeline and MCP work remaining.",
     "confidence": 0.94,
     "status": "specified",
     "evidenceRef": "E-S03-002"
   },
   {
-    "factId": "F-008",
+    "factId": "F-012",
     "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
-    "claim": "There is a known import path inconsistency affecting direct script execution reliability.",
-    "confidence": 0.91,
+    "claim": "validate-jsdoc-exhaustiveness.mjs encodes canonical expectedCounts as jsdoc3:67, tsdoc:25, typescript:25, closure:39, and typedoc:51.",
+    "confidence": 0.98,
     "status": "implemented",
     "evidenceRef": "E-S03-003"
   },
   {
-    "factId": "F-009",
+    "factId": "F-013",
+    "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/source-tag-snapshots.json",
+    "claim": "source-tag-snapshots.json uses schemaVersion 1 and records normalized tag snapshots for jsdoc3, tsdoc, typescript, closure, and typedoc source groups.",
+    "confidence": 0.98,
+    "status": "implemented",
+    "evidenceRef": "E-S03-004"
+  },
+  {
+    "factId": "F-014",
+    "sourcePath": "specs/pending/repo-codegraph-jsdoc/outputs/validate-jsdoc-exhaustiveness.mjs",
+    "claim": "The script imports canonical-tag-lists.ts and related modules from local ./ paths, while those files are currently under outputs/jsdoc-exhaustiveness-audit/, creating a path mismatch risk.",
+    "confidence": 0.92,
+    "status": "implemented",
+    "evidenceRef": "E-S03-005"
+  },
+  {
+    "factId": "F-015",
     "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/INDEX.md",
-    "claim": "Knowledge docs span architecture, extraction, ontology research, controls, and audits.",
+    "claim": "The knowledge docs index labels the corpus as living documentation and points to architecture/system-architecture.md, which includes a six-phase unified extraction pipeline.",
     "confidence": 0.95,
     "status": "implemented",
     "evidenceRef": "E-S04-001"
   },
   {
-    "factId": "F-010",
-    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/owl_reasoning_validation_production.md",
-    "claim": "Reasoning and validation constraints are central to production-quality knowledge synthesis.",
-    "confidence": 0.89,
+    "factId": "F-016",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
+    "claim": "The LLM control strategy defines six extraction stages with per-stage timeouts, a total 4096-token budget allocation, and max concurrency of five requests.",
+    "confidence": 0.94,
     "status": "specified",
     "evidenceRef": "E-S04-002"
   },
   {
-    "factId": "F-011",
-    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/LLM_CONTROL_STRATEGY_SUMMARY.md",
-    "claim": "Control-plane guidance provides operational constraints for LLM-driven components.",
-    "confidence": 0.88,
-    "status": "specified",
+    "factId": "F-017",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/owl_reasoning_validation_production.md",
+    "claim": "The OWL/SHACL research recommends SHACL for constraint validation plus lightweight OWL/RDFS reasoning for enrichment, and documents targeted reasoning speedups in the 10x-100x range.",
+    "confidence": 0.9,
+    "status": "conceptual",
     "evidenceRef": "E-S04-003"
   },
   {
-    "factId": "F-012",
+    "factId": "F-018",
     "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/audits/AUDIT_SUMMARY.md",
-    "claim": "Audit artifacts can be used as quality evidence and acceptance support.",
-    "confidence": 0.9,
+    "claim": "Audit summary reports three medium-severity issues as MVP-blocking and estimates 5-8 days of effort for required fixes.",
+    "confidence": 0.96,
     "status": "implemented",
     "evidenceRef": "E-S04-004"
+  },
+  {
+    "factId": "F-019",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/ontology101.pdf",
+    "claim": "Binary source artifact ontology101.pdf is present and identifies as a 6-page PDF document (version 1.3, about 502K).",
+    "confidence": 0.99,
+    "status": "implemented",
+    "evidenceRef": "E-S04-005"
+  },
+  {
+    "factId": "F-020",
+    "sourcePath": ".repos/beep-effect/packages/knowledge/_docs/ontology_research/Generated Image December 18, 2025 - 9_07PM.jpeg",
+    "claim": "Binary ontology_research images are present: a 2048x2048 JPEG (~2.9M) and a 366x488 JPG (~24K), both included in S04 inventory coverage.",
+    "confidence": 0.99,
+    "status": "implemented",
+    "evidenceRef": "E-S04-006"
   }
 ]

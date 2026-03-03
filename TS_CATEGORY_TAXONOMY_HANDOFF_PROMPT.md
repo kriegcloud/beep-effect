@@ -3,9 +3,11 @@
 You are finishing TS category taxonomy implementation in beep-effect3.
 
 ## Goal
+
 Implement the TS category taxonomy fibration in repo-utils so it mirrors the existing JSDoc tag fibration pattern and drives TypeDoc `@category` values via a strict literal union schema.
 
 ## Read First
+
 1) `tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts`  
 2) `tooling/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts`  
 3) `tooling/repo-utils/src/JSDoc/JSDoc.ts` (how `make()` is consumed)  
@@ -14,17 +16,20 @@ Implement the TS category taxonomy fibration in repo-utils so it mirrors the exi
 6) `tooling/repo-utils/src/JSDoc/models/tag-values/TypeDocTagValues.ts`
 
 ## Locked Decisions (Do Not Re-decide)
+
 1. Full spec runtime scope from `ts-category-taxonomy.ts`.
 2. Keep `CategoryValue` field name as `name`.
 3. Implement real fibration `make()` in `TSCategory.model.ts` (validate full metadata, then project to lean schema + metadata annotation).
 
 ## Files To Edit
+
 1) `tooling/repo-utils/src/JSDoc/models/TSCategory.model.ts`  
 2) `tooling/repo-utils/src/JSDoc/models/tag-values/TypeDocTagValues.ts`  
 3) `tooling/repo-utils/src/JSDoc/models/index.ts`  
 4) `tooling/repo-utils/test/JSDocTagFibration.test.ts` and/or new `tooling/repo-utils/test/TSCategoryFibration.test.ts`
 
 ## Implementation Requirements
+
 1. In `TSCategory.model.ts`, keep `TSCategoryDefinition` as the metadata validation schema.
 2. Add taxonomy/category literal schema representing exactly:
    - `DomainModel`
@@ -74,6 +79,7 @@ Implement the TS category taxonomy fibration in repo-utils so it mirrors the exi
    - avoid native mutable container helpers in domain logic.
 
 ## Tests To Add/Update
+
 1. Category schema accepts valid tags and rejects invalid ones.
 2. TSCategory `make()` attaches metadata annotation and returns lean schema.
 3. `CATEGORY_TAXONOMY` entries decode as `TSCategoryDefinition` and include all 12 tags.
@@ -82,12 +88,14 @@ Implement the TS category taxonomy fibration in repo-utils so it mirrors the exi
 6. Existing JSDoc tag fibration tests remain passing.
 
 ## Verification Commands
+
 1. `bunx turbo run check --filter=@beep/repo-utils`
 2. `bunx turbo run lint --filter=@beep/repo-utils`
 3. `bunx turbo run test --filter=@beep/repo-utils`
 4. `bunx turbo run docgen --filter=@beep/repo-utils`
 
 ## Output Expectations
+
 1. Show concise diff summary by file.
 2. Report any intentional deviations from spec and why.
 3. Include test command results and failures fixed.
