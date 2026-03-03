@@ -1,15 +1,17 @@
 # `@beep/repo-utils`
+<!-- cspell:ignore tsmorph -->
 
 Effect-based monorepo utilities for repository analysis and workspace management.
 
 ## Quick Start
 
 ```typescript
-import { Effect } from "effect"
+import { Effect, Option } from "effect"
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import {
   FsUtils, FsUtilsLive, findRepoRoot, resolveWorkspaceDirs,
-  buildRepoDependencyIndex, topologicalSort
+  buildRepoDependencyIndex, topologicalSort,
+  TSMorphService, TSMorphServiceLive, TsMorphProjectScopeRequest
 } from "@beep/repo-utils"
 
 const program = Effect.gen(function* () {
@@ -17,8 +19,17 @@ const program = Effect.gen(function* () {
   const workspaces = yield* resolveWorkspaceDirs(root)
   const depIndex = yield* buildRepoDependencyIndex(root)
   const buildOrder = yield* topologicalSort(/* adjacency list */)
-  return { root, workspaces, depIndex, buildOrder }
+  const tsmorph = yield* TSMorphService
+  const scope = yield* tsmorph.resolveProjectScope(
+    new TsMorphProjectScopeRequest({
+      rootTsConfigPath: `${root}/tsconfig.json`,
+      changedFiles: Option.none(),
+      idMode: Option.none()
+    })
+  )
+  return { root, workspaces, depIndex, buildOrder, scope }
 }).pipe(
+  Effect.provide(TSMorphServiceLive),
   Effect.provide(FsUtilsLive),
   Effect.provide([NodeFileSystem.layer, NodePath.layer])
 )
@@ -37,6 +48,7 @@ const program = Effect.gen(function* () {
 | **Graph** | `topologicalSort`, `detectCycles`, `computeTransitiveClosure` | Dependency graph analysis |
 | **TsConfig** | `collectTsConfigPaths` | Find all tsconfig files per workspace |
 | **PackageJson** | `PackageJson`, `decodePackageJson` | Type-safe package.json schema |
+| **TSMorphService** | `TSMorphService`, `TSMorphServiceLive` | Scoped ts-morph graph extraction, deterministic JSDoc derivation, symbol query/search, and JSDoc validate/plan/apply/drift flows |
 
 ## Installation
 

@@ -159,66 +159,67 @@ export const topologicalSort: (
  * @since 0.0.0
  * @category algorithms
  */
-export const detectCycles = (
+export const detectCycles: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
-): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>> =>
-  Effect.sync(() => {
-    if (HashMap.size(adjacencyList) === 0) {
-      return A.empty<ReadonlyArray<string>>();
-    }
+) => Effect.Effect<ReadonlyArray<ReadonlyArray<string>>> = Effect.fnUntraced(function* (adjacencyList) {
+  yield* Effect.void;
 
-    const { graph, indexToName } = fromAdjacencyList(adjacencyList);
+  if (HashMap.size(adjacencyList) === 0) {
+    return A.empty<ReadonlyArray<string>>();
+  }
 
-    // Quick check – if acyclic, short-circuit
-    if (G.isAcyclic(graph)) {
-      return A.empty<ReadonlyArray<string>>();
-    }
+  const { graph, indexToName } = fromAdjacencyList(adjacencyList);
 
-    const sccs = G.stronglyConnectedComponents(graph);
+  // Quick check – if acyclic, short-circuit
+  if (G.isAcyclic(graph)) {
+    return A.empty<ReadonlyArray<string>>();
+  }
 
-    // Filter to SCCs with more than one node, or a single node with a
-    // self-edge.
-    let cyclePaths: ReadonlyArray<ReadonlyArray<string>> = A.empty();
+  const sccs = G.stronglyConnectedComponents(graph);
 
-    for (const scc of sccs) {
-      const firstOpt = A.get(scc, 0);
-      if (O.isNone(firstOpt)) continue;
-      const first = firstOpt.value;
+  // Filter to SCCs with more than one node, or a single node with a
+  // self-edge.
+  let cyclePaths: ReadonlyArray<ReadonlyArray<string>> = A.empty();
 
-      if (A.length(scc) > 1) {
-        // Reconstruct a cycle path through this SCC.
-        const memberSet = MutableHashSet.fromIterable(scc);
-        const names = pipe(
-          scc,
-          A.map((idx) => MutableHashMap.get(indexToName, idx)),
-          A.getSomes
-        );
+  for (const scc of sccs) {
+    const firstOpt = A.get(scc, 0);
+    if (O.isNone(firstOpt)) continue;
+    const first = firstOpt.value;
 
-        // Build a path by DFS within the SCC starting from the first member
-        const path = buildCyclePath(graph, first, memberSet, indexToName);
-        if (A.length(path) > 0) {
-          cyclePaths = A.append(cyclePaths, path);
-        } else {
-          // Fallback: just list the members with the first repeated
-          const firstNameOpt = A.get(names, 0);
-          if (O.isSome(firstNameOpt)) {
-            cyclePaths = A.append(cyclePaths, A.append(names, firstNameOpt.value));
-          }
-        }
+    if (A.length(scc) > 1) {
+      // Reconstruct a cycle path through this SCC.
+      const memberSet = MutableHashSet.fromIterable(scc);
+      const names = pipe(
+        scc,
+        A.map((idx) => MutableHashMap.get(indexToName, idx)),
+        A.getSomes
+      );
+
+      // Build a path by DFS within the SCC starting from the first member
+      const path = buildCyclePath(graph, first, memberSet, indexToName);
+      if (A.length(path) > 0) {
+        cyclePaths = A.append(cyclePaths, path);
       } else {
-        // Check for self-loop
-        const nameOpt = MutableHashMap.get(indexToName, first);
-        if (O.isNone(nameOpt)) continue;
-
-        const selfEdge = G.findEdge(graph, (_data, source, target) => source === first && target === first);
-        if (selfEdge !== undefined) {
-          cyclePaths = A.append(cyclePaths, [nameOpt.value, nameOpt.value]);
+        // Fallback: just list the members with the first repeated
+        const firstNameOpt = A.get(names, 0);
+        if (O.isSome(firstNameOpt)) {
+          cyclePaths = A.append(cyclePaths, A.append(names, firstNameOpt.value));
         }
       }
-    }
+    } else {
+      // Check for self-loop
+      const nameOpt = MutableHashMap.get(indexToName, first);
+      if (O.isNone(nameOpt)) continue;
 
-    return cyclePaths;
-  });
+      const selfEdge = G.findEdge(graph, (_data, source, target) => source === first && target === first);
+      if (selfEdge !== undefined) {
+        cyclePaths = A.append(cyclePaths, [nameOpt.value, nameOpt.value]);
+      }
+    }
+  }
+
+  return cyclePaths;
+});
 
 /**
  * Build an explicit cycle path through an SCC by DFS, returning a path of
@@ -312,37 +313,38 @@ const buildCyclePath = (
  * @since 0.0.0
  * @category algorithms
  */
-export const computeTransitiveClosure = (
+export const computeTransitiveClosure: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
   pkg: string
-): Effect.Effect<HashSet.HashSet<string>> =>
-  Effect.sync(() => {
-    if (HashMap.size(adjacencyList) === 0) {
-      return HashSet.empty<string>();
-    }
+) => Effect.Effect<HashSet.HashSet<string>> = Effect.fnUntraced(function* (adjacencyList, pkg) {
+  yield* Effect.void;
 
-    const { graph, nameToIndex, indexToName } = fromAdjacencyList(adjacencyList);
+  if (HashMap.size(adjacencyList) === 0) {
+    return HashSet.empty<string>();
+  }
 
-    return pipe(
-      MutableHashMap.get(nameToIndex, pkg),
-      O.match({
-        onNone: HashSet.empty<string>,
-        onSome: (startIdx) => {
-          // BFS from the starting package, collecting all reachable nodes
-          const walker = G.bfs(graph, { start: [startIdx] });
-          let result = HashSet.empty<string>();
+  const { graph, nameToIndex, indexToName } = fromAdjacencyList(adjacencyList);
 
-          for (const [idx, _value] of walker) {
-            // Skip the starting node itself
-            if (idx === startIdx) continue;
-            const nameOpt = MutableHashMap.get(indexToName, idx);
-            if (O.isSome(nameOpt)) {
-              result = HashSet.add(result, nameOpt.value);
-            }
+  return pipe(
+    MutableHashMap.get(nameToIndex, pkg),
+    O.match({
+      onNone: HashSet.empty<string>,
+      onSome: (startIdx) => {
+        // BFS from the starting package, collecting all reachable nodes
+        const walker = G.bfs(graph, { start: [startIdx] });
+        let result = HashSet.empty<string>();
+
+        for (const [idx, _value] of walker) {
+          // Skip the starting node itself
+          if (idx === startIdx) continue;
+          const nameOpt = MutableHashMap.get(indexToName, idx);
+          if (O.isSome(nameOpt)) {
+            result = HashSet.add(result, nameOpt.value);
           }
+        }
 
-          return result;
-        },
-      })
-    );
-  });
+        return result;
+      },
+    })
+  );
+});

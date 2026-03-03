@@ -4,7 +4,7 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-// cspell:ignore codegraph
+// cspell:ignore codegraph tsmorph
 
 /**
  * @since 0.0.0
@@ -277,6 +277,10 @@ export {
 /**
  * @since 0.0.0
  */
+export * from "./codegraph/tsmorph/index.js";
+/**
+ * @since 0.0.0
+ */
 export {
   /**
    * @since 0.0.0
@@ -423,6 +427,23 @@ export {
    */
   type WorkspaceDeps,
 } from "./schemas/WorkspaceDeps.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  TSMorphService,
+  /**
+   * @since 0.0.0
+   */
+  TSMorphServiceLive,
+  /**
+   * @since 0.0.0
+   */
+  type TSMorphServiceShape,
+} from "./TSMorphService.js";
 /**
  * @since 0.0.0
  */

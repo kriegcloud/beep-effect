@@ -135,11 +135,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    const runGlob = (
+    const runGlob: (
       pattern: string | ReadonlyArray<string>,
       options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
-    ): Effect.Effect<ReadonlyArray<string>, DomainError> =>
-      Effect.tryPromise({
+    ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
+      return yield* Effect.tryPromise({
         try: () => {
           const globOpts: Record<string, unknown> = {
             dot: options?.dot ?? false,
@@ -160,6 +160,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
             cause: error,
           }),
       });
+    });
+
+    const globFiles: FsUtilsShape["globFiles"] = Effect.fnUntraced(function* (pattern, options) {
+      return yield* runGlob(pattern, { ...options, nodir: true });
+    });
 
     const readJson: FsUtilsShape["readJson"] = Effect.fn(function* (filePath) {
       const content = yield* fs.readFileString(filePath).pipe(
@@ -239,28 +244,38 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       }
     });
 
-    const statOrFail = (filePath: string) =>
-      fs.stat(filePath).pipe(
-        Effect.mapError(
-          () =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Failed to stat "${filePath}"`,
-            })
-        )
-      );
+    const statOrFail: (filePath: string) => Effect.Effect<FileSystem.File.Info, NoSuchFileError> = Effect.fnUntraced(
+      function* (filePath) {
+        return yield* fs.stat(filePath).pipe(
+          Effect.mapError(
+            () =>
+              new NoSuchFileError({
+                path: filePath,
+                message: `Failed to stat "${filePath}"`,
+              })
+          )
+        );
+      }
+    );
 
-    const isDirectory: FsUtilsShape["isDirectory"] = (filePath) =>
-      statOrFail(filePath).pipe(Effect.map((info) => info.type === "Directory"));
+    const isDirectory: FsUtilsShape["isDirectory"] = Effect.fnUntraced(function* (filePath) {
+      const info = yield* statOrFail(filePath);
+      return info.type === "Directory";
+    });
 
-    const isFile: FsUtilsShape["isFile"] = (filePath) =>
-      statOrFail(filePath).pipe(Effect.map((info) => info.type === "File"));
+    const isFile: FsUtilsShape["isFile"] = Effect.fnUntraced(function* (filePath) {
+      const info = yield* statOrFail(filePath);
+      return info.type === "File";
+    });
 
-    const getParentDirectory: FsUtilsShape["getParentDirectory"] = (filePath) => Effect.succeed(path.dirname(filePath));
+    const getParentDirectory: FsUtilsShape["getParentDirectory"] = Effect.fnUntraced(function* (filePath) {
+      yield* Effect.void;
+      return path.dirname(filePath);
+    });
 
     return FsUtils.of({
-      glob: (pattern, options) => runGlob(pattern, options),
-      globFiles: (pattern, options) => runGlob(pattern, { ...options, nodir: true }),
+      glob: runGlob,
+      globFiles,
       readJson,
       writeJson,
       modifyFile,

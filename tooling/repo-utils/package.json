@@ -52,7 +52,8 @@
     "@effect/platform-node": "catalog:",
     "glob": "catalog:",
     "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^"
+    "@beep/utils": "workspace:^",
+    "ts-morph": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
