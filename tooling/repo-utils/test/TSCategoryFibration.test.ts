@@ -46,6 +46,7 @@ describe("TSCategoryFibration", () => {
     });
 
     it("rejects invalid category tags", () => {
+      // @ts-expect-error - testing runtime rejection of invalid input
       expect(() => S.decodeSync(TSCategoryTag)("NotARealCategory")).toThrow();
     });
   });
@@ -105,6 +106,7 @@ describe("TSCategoryFibration", () => {
     });
 
     it("rejects invalid category names", () => {
+      // @ts-expect-error - testing runtime rejection of invalid input
       expect(() => S.decodeSync(CategoryValue)({ _tag: "category", name: "NopeCategory" })).toThrow();
     });
   });
