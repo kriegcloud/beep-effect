@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from "@effect/vitest"
-import { Effect, FileSystem, Layer, Option, Path, ServiceMap } from "effect"
+import { Effect, FileSystem, Layer, Option, Path, ServiceMap, Stdio } from "effect"
 import { TestConsole } from "effect/testing"
 import { Argument, CliOutput, Command, Flag, GlobalFlag } from "effect/unstable/cli"
 import { toImpl } from "effect/unstable/cli/internal/command"
@@ -29,7 +29,8 @@ const TestLayer = Layer.mergeAll(
   Layer.succeed(
     ChildProcessSpawner.ChildProcessSpawner,
     ChildProcessSpawner.make(() => Effect.die("Not implemented"))
-  )
+  ),
+  Stdio.layerTest({})
 )
 
 const TestLayerWithoutFormatter = Layer.mergeAll(
@@ -41,7 +42,8 @@ const TestLayerWithoutFormatter = Layer.mergeAll(
   Layer.succeed(
     ChildProcessSpawner.ChildProcessSpawner,
     ChildProcessSpawner.make(() => Effect.die("Not implemented"))
-  )
+  ),
+  Stdio.layerTest({})
 )
 
 describe("Command", () => {
@@ -399,7 +401,9 @@ describe("Command", () => {
           version: "1.0.0"
         })
 
-        yield* runCommand(["db", "--region", "eu-west-1"])
+        yield* runCommand(["db", "--region", "eu-west-1"]).pipe(
+          Effect.ignore
+        )
 
         const stderr = yield* TestConsole.errorLines
         assert.isTrue(
@@ -454,7 +458,7 @@ describe("Command", () => {
         yield* runCommand([
           "--env",
           "invalid"
-        ])
+        ]).pipe(Effect.ignore)
 
         const stderr = yield* TestConsole.errorLines
         assert.isTrue(
@@ -471,7 +475,7 @@ describe("Command", () => {
           version: "1.0.0"
         })
 
-        yield* runCommand(["invalid-command"])
+        yield* runCommand(["invalid-command"]).pipe(Effect.ignore)
 
         // Check that help text was shown to stdout
         const stdout = yield* TestConsole.logLines
@@ -911,7 +915,7 @@ describe("Command", () => {
 
         const runCmd = Command.runWith(cmd, { version: "1.0.0" })
 
-        yield* runCmd(["--pkg"])
+        yield* runCmd(["--pkg"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         assert.isFalse(invoked)
         const stderr = yield* TestConsole.errorLines
@@ -967,7 +971,7 @@ describe("Command", () => {
         const cli = root.pipe(Command.withSubcommands([known]))
         const runCli = Command.runWith(cli, { version: "1.0.0" })
 
-        yield* runCli(["--unknown", "bogus"])
+        yield* runCli(["--unknown", "bogus"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         const stderr = yield* TestConsole.errorLines
         const text = stderr.join("\n")
@@ -1039,7 +1043,7 @@ describe("Command", () => {
 
     it.effect("should suggest similar subcommands for unknown subcommands", () =>
       Effect.gen(function*() {
-        yield* Cli.run(["cpy"])
+        yield* Cli.run(["cpy"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         const errorOutput = yield* TestConsole.errorLines
         const errorText = errorOutput.join("\n")
@@ -1055,7 +1059,7 @@ describe("Command", () => {
 
     it.effect("should suggest similar subcommands for nested unknown subcommands", () =>
       Effect.gen(function*() {
-        yield* Cli.run(["admin", "usrs", "list"])
+        yield* Cli.run(["admin", "usrs", "list"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         // Capture the error output
         const errorOutput = yield* TestConsole.errorLines
@@ -1072,7 +1076,7 @@ describe("Command", () => {
 
     it.effect("should suggest similar options for unrecognized options", () =>
       Effect.gen(function*() {
-        yield* Cli.run(["--debugs", "copy", "src.txt", "dest.txt"])
+        yield* Cli.run(["--debugs", "copy", "src.txt", "dest.txt"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         const errorOutput = yield* TestConsole.errorLines
         const errorText = errorOutput.join("\n")
@@ -1088,7 +1092,7 @@ describe("Command", () => {
 
     it.effect("should suggest similar short options for unrecognized short options", () =>
       Effect.gen(function*() {
-        yield* Cli.run(["-u", "copy", "src.txt", "dest.txt"])
+        yield* Cli.run(["-u", "copy", "src.txt", "dest.txt"]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         const errorOutput = yield* TestConsole.errorLines
         const errorText = errorOutput.join("\n")
@@ -1130,7 +1134,7 @@ describe("Command", () => {
 
     it.effect("should print help when invoked with no arguments", () =>
       Effect.gen(function*() {
-        yield* Cli.run([])
+        yield* Cli.run([]).pipe(Effect.catchTag("ShowHelp", () => Effect.void))
 
         // Check that help text was shown to stdout
         const stdout = yield* TestConsole.logLines

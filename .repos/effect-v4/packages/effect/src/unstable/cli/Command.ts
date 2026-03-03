@@ -14,6 +14,7 @@ import * as Predicate from "../../Predicate.ts"
 import * as References from "../../References.ts"
 import * as Result from "../../Result.ts"
 import * as ServiceMap from "../../ServiceMap.ts"
+import * as Stdio from "../../Stdio.ts"
 import * as Terminal from "../../Terminal.ts"
 import type { NoInfer, Simplify } from "../../Types.ts"
 import type { ChildProcessSpawner } from "../process/ChildProcessSpawner.ts"
@@ -272,7 +273,7 @@ export declare namespace Command {
  * @since 4.0.0
  * @category utility types
  */
-export type Environment = FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner
+export type Environment = FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner | Stdio.Stdio
 
 /**
  * A utility type to extract the error type from a `Command`.
@@ -638,7 +639,7 @@ export const withSubcommands: {
     if (internal._subcommand) {
       const child = byName.get(internal._subcommand.name)
       if (!child) {
-        return yield* new CliError.ShowHelp({ commandPath: path })
+        return yield* new CliError.ShowHelp({ commandPath: path, errors: [] })
       }
       return yield* child
         .handle(internal._subcommand.result, [...path, child.name])
@@ -1076,15 +1077,14 @@ const getOutOfScopeGlobalFlagErrors = (
 
 const showHelp = <Name extends string, Input, E, R>(
   command: Command<Name, Input, E, R>,
-  commandPath: ReadonlyArray<string>,
-  errors?: ReadonlyArray<CliError.CliError>
-): Effect.Effect<void, never, Environment> =>
+  error: CliError.ShowHelp
+): Effect.Effect<void, CliError.CliError, Environment> =>
   Effect.gen(function*() {
     const formatter = yield* CliOutput.Formatter
-    const helpDoc = yield* getHelpForCommandPath(command, commandPath, GlobalFlag.BuiltIns)
+    const helpDoc = yield* getHelpForCommandPath(command, error.commandPath, GlobalFlag.BuiltIns)
     yield* Console.log(formatter.formatHelpDoc(helpDoc))
-    if (errors && errors.length > 0) {
-      yield* Console.error(formatter.formatErrors(errors))
+    if (error.errors.length > 0) {
+      yield* Console.error(formatter.formatErrors(error.errors as any))
     }
   })
 
@@ -1103,7 +1103,7 @@ const showHelp = <Name extends string, Input, E, R>(
  *     yield* Console.log(`Hello, ${config.name}!`)
  *   }))
  *
- * // Automatically gets args from process.argv
+ * // Automatically gets args from the Stdio service
  * const program = Command.run(greetCommand, {
  *   version: "1.0.0"
  * })
@@ -1129,12 +1129,13 @@ export const run: {
   config: {
     readonly version: string
   }
-) => {
-  // TODO: process.argv is a Node.js global. For browser/edge runtime support,
-  // consider accepting an optional args parameter or using a platform service.
-  const input = process.argv.slice(2)
-  return runWith(command, config)(input)
-})
+) =>
+  Stdio.Stdio.use(({ args }) =>
+    Effect.flatMap(
+      args,
+      (args) => runWith(command, config)(args)
+    )
+  ))
 
 /**
  * Runs a command with explicitly provided arguments instead of using process.argv.
@@ -1207,7 +1208,7 @@ export const runWith = <const Name extends string, Input, E, R>(
       const outOfScopeErrors = getOutOfScopeGlobalFlagErrors(allFlags, activeFlags, flagMap, commandPath)
       if (outOfScopeErrors.length > 0) {
         const parseErrors = parsedArgs.errors ?? []
-        return yield* showHelp(command, commandPath, [...outOfScopeErrors, ...parseErrors])
+        return yield* new CliError.ShowHelp({ commandPath, errors: [...outOfScopeErrors, ...parseErrors] })
       }
 
       // 5. Process action flags — first present action wins, then exit
@@ -1226,11 +1227,11 @@ export const runWith = <const Name extends string, Input, E, R>(
 
       // 6. Handle parsing errors
       if (parsedArgs.errors && parsedArgs.errors.length > 0) {
-        return yield* showHelp(command, commandPath, parsedArgs.errors)
+        return yield* new CliError.ShowHelp({ commandPath, errors: parsedArgs.errors })
       }
       const parseResult = yield* Effect.result(commandImpl.parse(parsedArgs))
       if (parseResult._tag === "Failure") {
-        return yield* showHelp(command, commandPath, [parseResult.failure])
+        return yield* new CliError.ShowHelp({ commandPath, errors: [parseResult.failure] })
       }
 
       // 7. Provide setting values
@@ -1254,11 +1255,11 @@ export const runWith = <const Name extends string, Input, E, R>(
       yield* Effect.provideServices(program, services)
     },
     Effect.catchFilter(
-      ((error: any) =>
+      (error) =>
         CliError.isCliError(error) && error._tag === "ShowHelp"
           ? Result.succeed(error)
-          : Result.fail(error)) as any,
-      (error: any) => showHelp(command, error.commandPath)
+          : Result.fail(error),
+      (error) => Effect.andThen(showHelp(command, error), Effect.fail(error))
     ),
     Effect.catchFilter(
       (e) =>
