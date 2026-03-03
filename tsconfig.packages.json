@@ -37,13 +37,13 @@
       "path": "packages/common/utils"
     },
     {
+      "path": "packages/shared/env"
+    },
+    {
       "path": "packages/shared/client"
     },
     {
       "path": "packages/shared/domain"
-    },
-    {
-      "path": "packages/shared/env"
     },
     {
       "path": "packages/shared/server"
@@ -68,6 +68,22 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+
+    {
+      "path": "packages/iam/client"
+    },
+    {
+      "path": "packages/iam/domain"
+    },
+    {
+      "path": "packages/iam/server"
+    },
+    {
+      "path": "packages/iam/tables"
+    },
+    {
+      "path": "packages/iam/ui"
     }
   ]
 }

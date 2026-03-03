@@ -72,9 +72,17 @@
       "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
       "@beep/shared-server/*": ["./packages/shared/server/src/*.ts"],
       "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": [
-        "./packages/shared/client/src/*.ts"
-      ]
+      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"],
+      "@beep/iam-domain": ["./packages/iam/domain/src/index.ts"],
+      "@beep/iam-domain/*": ["./packages/iam/domain/src/*.ts"],
+      "@beep/iam-server": ["./packages/iam/server/src/index.ts"],
+      "@beep/iam-server/*": ["./packages/iam/server/src/*.ts"],
+      "@beep/iam-client": ["./packages/iam/client/src/index.ts"],
+      "@beep/iam-client/*": ["./packages/iam/client/src/*.ts"],
+      "@beep/iam-ui": ["./packages/iam/ui/src/index.ts"],
+      "@beep/iam-ui/*": ["./packages/iam/ui/src/*.ts"],
+      "@beep/iam-tables": ["./packages/iam/tables/src/index.ts"],
+      "@beep/iam-tables/*": ["./packages/iam/tables/src/*.ts"]
     },
     "plugins": [
       {
