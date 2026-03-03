@@ -72,7 +72,15 @@
       "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
       "@beep/shared-server/*": ["./packages/shared/server/src/*.ts"],
       "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"]
+      "@beep/shared-client/*": [
+        "./packages/shared/client/src/*.ts"
+      ],
+      "@beep/docgen": [
+        "./tooling/docgen/src/index.ts"
+      ],
+      "@beep/docgen/*": [
+        "./tooling/docgen/src/*.ts"
+      ]
     },
     "plugins": [
       {

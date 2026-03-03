@@ -1,0 +1,1 @@
+Read the P3 handoff at `handoffs/HANDOFF_P3.md` and the P2 implementation plan. Create the package scaffold, implement all Schema definitions and FalkorDB storage, load seed data, write tests, and document deviations. Write the implementation record to `outputs/p3-implementation-notes.md`.
