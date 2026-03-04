@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, FileSystem, SchemaTransformation } from "effect";
+import { Effect, FileSystem, Inspectable, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -53,7 +53,11 @@ export const updateYamlValue: (
     .readFileString(filePath)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 
@@ -75,7 +79,11 @@ export const updateYamlValue: (
     .writeFileString(filePath, updated)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 
@@ -102,7 +110,11 @@ export const replaceNodeVersionWithFile: (
     .readFileString(filePath)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 
@@ -142,7 +154,11 @@ export const replaceNodeVersionWithFile: (
     .writeFileString(filePath, updated)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 

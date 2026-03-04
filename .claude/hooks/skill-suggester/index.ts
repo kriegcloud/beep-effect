@@ -695,7 +695,7 @@ Prefer these over manual exploration and memory management.
         ChildProcess.make("bun", ["-e", "console.log(require('./package.json').version)"], { cwd: input.cwd })
       );
     }),
-    Effect.map((v) => Str.trim(v)),
+    Effect.map(Str.trim),
     Effect.catch(() => Effect.succeed("unknown"))
   );
   parts.push(`<version>${version}</version>`);

@@ -5,19 +5,63 @@
  * @module
  */
 
-import path from "node:path";
-import { parse } from "jsonc-parser";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, pipe } from "effect";
+import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { FileSystem } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
+import { parse } from "jsonc-parser";
 import { EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.js";
 
 const $I = $RepoCliId.create("commands/Laws");
 const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
+
+const NonEmptyString = S.String.check(
+  S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")
+).annotate(
+  $I.annote("NonEmptyString", {
+    description: "Non-empty string value used for effect-laws allowlist fields.",
+  })
+);
+
+const DateYmdString = S.String.check(
+  S.makeFilter((value) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) || "Expected YYYY-MM-DD date string format.")
+).annotate(
+  $I.annote("DateYmdString", {
+    description: "Calendar date string in YYYY-MM-DD format for allowlist expiration.",
+  })
+);
+
+class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`EffectLawsAllowlistEntry`)(
+  {
+    rule: NonEmptyString,
+    file: NonEmptyString,
+    kind: NonEmptyString,
+    reason: NonEmptyString,
+    owner: NonEmptyString,
+    issue: NonEmptyString,
+    expiresOn: S.optionalKey(S.UndefinedOr(DateYmdString)),
+  },
+  $I.annote("EffectLawsAllowlistEntry", {
+    description: "Single allowlist entry describing a temporary exception for an Effect law.",
+  })
+) {}
+
+class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>($I`EffectLawsAllowlistDocument`)(
+  {
+    version: S.Literal(1),
+    entries: S.Array(EffectLawsAllowlistEntry).pipe(
+      S.withConstructorDefault(() => O.some(A.empty<EffectLawsAllowlistEntry>())),
+      S.withDecodingDefault(() => A.empty<EffectLawsAllowlistEntry>())
+    ),
+  },
+  $I.annote("EffectLawsAllowlistDocument", {
+    description: "Schema-backed allowlist document for custom Effect law exceptions.",
+  })
+) {}
+
+const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocument);
 
 /**
  * CLI options for effect import law command.
@@ -46,79 +90,7 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
 ) {}
 
 const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>
-  pipe(
-    excludeValue.split(","),
-    A.map((value) => value.trim()),
-    A.filter((value) => value.length > 0)
-  );
-
-const validateAllowlist = (raw: unknown): ReadonlyArray<string> => {
-  const diagnostics = [] as Array<string>;
-
-  if (raw === null || typeof raw !== "object") {
-    diagnostics.push("Allowlist root must be an object.");
-    return diagnostics;
-  }
-
-  const maybeVersion = (raw as { version?: unknown }).version;
-  if (!Number.isInteger(maybeVersion) || maybeVersion !== 1) {
-    diagnostics.push("Allowlist version must be integer 1.");
-  }
-
-  const maybeEntries = (raw as { entries?: unknown }).entries;
-  if (!A.isArray(maybeEntries)) {
-    diagnostics.push("Allowlist entries must be an array.");
-    return diagnostics;
-  }
-
-  for (let index = 0; index < maybeEntries.length; index += 1) {
-    const entry = maybeEntries[index];
-    const prefix = `entries[${String(index)}]`;
-
-    if (entry === null || typeof entry !== "object") {
-      diagnostics.push(`${prefix} must be an object.`);
-      continue;
-    }
-
-    const value = entry as {
-      rule?: unknown;
-      file?: unknown;
-      kind?: unknown;
-      reason?: unknown;
-      owner?: unknown;
-      issue?: unknown;
-      expiresOn?: unknown;
-    };
-
-    if (typeof value.rule !== "string" || value.rule.length === 0) {
-      diagnostics.push(`${prefix}.rule must be a non-empty string.`);
-    }
-    if (typeof value.file !== "string" || value.file.length === 0) {
-      diagnostics.push(`${prefix}.file must be a non-empty string.`);
-    }
-    if (typeof value.kind !== "string" || value.kind.length === 0) {
-      diagnostics.push(`${prefix}.kind must be a non-empty string.`);
-    }
-    if (typeof value.reason !== "string" || value.reason.length === 0) {
-      diagnostics.push(`${prefix}.reason must be a non-empty string.`);
-    }
-    if (typeof value.owner !== "string" || value.owner.length === 0) {
-      diagnostics.push(`${prefix}.owner must be a non-empty string.`);
-    }
-    if (typeof value.issue !== "string" || value.issue.length === 0) {
-      diagnostics.push(`${prefix}.issue must be a non-empty string.`);
-    }
-
-    if (value.expiresOn !== undefined) {
-      const isDateString = typeof value.expiresOn === "string" && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value.expiresOn);
-      if (!isDateString) {
-        diagnostics.push(`${prefix}.expiresOn must be YYYY-MM-DD when provided.`);
-      }
-    }
-  }
-
-  return diagnostics;
-};
+  pipe(Str.split(",")(excludeValue), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
 /**
  * CLI command for effect import style migration/check.
@@ -148,9 +120,9 @@ const lawsEffectImportsCommand = Command.make(
 
     const mode = options.write ? "write" : "dry-run";
     yield* Console.log(`[effect-laws-fix-imports] mode=${mode}`);
-    yield* Console.log(`[effect-laws-fix-imports] touched_files=${String(summary.touchedFiles)}`);
-    yield* Console.log(`[effect-laws-fix-imports] alias_renamed=${String(summary.aliasRenamed)}`);
-    yield* Console.log(`[effect-laws-fix-imports] stable_converted=${String(summary.stableConverted)}`);
+    yield* Console.log(`[effect-laws-fix-imports] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-laws-fix-imports] alias_renamed=${summary.aliasRenamed}`);
+    yield* Console.log(`[effect-laws-fix-imports] stable_converted=${summary.stableConverted}`);
 
     if (!options.write) {
       yield* Console.log("[effect-laws-fix-imports] Run with --write to persist changes.");
@@ -177,6 +149,7 @@ const lawsAllowlistCheckCommand = Command.make(
   {},
   Effect.fn(function* () {
     const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
     const absolutePath = path.resolve(process.cwd(), ALLOWLIST_PATH);
 
     const exists = yield* fs.exists(absolutePath);
@@ -187,7 +160,7 @@ const lawsAllowlistCheckCommand = Command.make(
     }
 
     const text = yield* fs.readFileString(absolutePath);
-    const parseErrors = [] as Array<{ error: number; offset: number; length: number }>;
+    const parseErrors = A.empty<{ error: number; offset: number; length: number }>()
     const parsed = parse(text, parseErrors, {
       allowTrailingComma: true,
       disallowComments: false,
@@ -196,17 +169,33 @@ const lawsAllowlistCheckCommand = Command.make(
     if (A.length(parseErrors) > 0) {
       yield* Console.error("[laws-allowlist] JSONC parse errors detected:");
       for (const parseError of parseErrors) {
-        yield* Console.error(`- parse error at offset ${String(parseError.offset)}`);
+        yield* Console.error(`- parse error at offset ${parseError.offset}`);
       }
       process.exitCode = 1;
       return;
     }
 
-    const diagnostics = validateAllowlist(parsed);
-    if (A.length(diagnostics) > 0) {
-      yield* Console.error(`[laws-allowlist] found ${String(A.length(diagnostics))} issue(s):`);
-      for (const diagnostic of diagnostics) {
-        yield* Console.error(`- ${diagnostic}`);
+    const decoded = yield* decodeEffectLawsAllowlist(parsed).pipe(
+      Effect.map(() => Result.succeed<void>(undefined)),
+      Effect.catch((error) =>
+        Effect.succeed(Result.fail(SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues))
+      )
+    );
+
+    if (Result.isFailure(decoded)) {
+      yield* Console.error(`[laws-allowlist] found ${A.length(decoded.failure)} issue(s):`);
+      for (const diagnostic of decoded.failure) {
+        if (diagnostic.path) {
+          const pathLabel =
+            A.length(diagnostic.path) === 0
+              ? "<root>"
+              : pipe(
+                  diagnostic.path,
+                  A.map(String),
+                  A.join(".")
+                );
+          yield* Console.error(`- ${pathLabel}: ${diagnostic.message}`);
+        }
       }
       process.exitCode = 1;
       return;

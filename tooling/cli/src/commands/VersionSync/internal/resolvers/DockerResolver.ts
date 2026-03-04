@@ -9,7 +9,19 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Boolean as Bool, Effect, FileSystem, identity, Match, Number as N, Order, Path, SchemaTransformation, String as Str } from "effect";
+import {
+  Boolean as Bool,
+  Effect,
+  FileSystem,
+  identity,
+  Inspectable,
+  Match,
+  Number as N,
+  Order,
+  Path,
+  SchemaTransformation,
+  String as Str,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -17,11 +29,11 @@ import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
-    NetworkUnavailableError,
-    VersionCategoryReport,
-    VersionCategoryStatus,
-    VersionDriftItem,
-    VersionSyncError,
+  NetworkUnavailableError,
+  VersionCategoryReport,
+  VersionCategoryStatusThunk,
+  VersionDriftItem,
+  VersionSyncError,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/DockerResolver");
@@ -327,7 +339,7 @@ export const resolveDockerImages: (
       Effect.mapError(
         (e) =>
           new VersionSyncError({
-            message: `Failed to read docker-compose.yml: ${String(e)}`,
+            message: `Failed to read docker-compose.yml: ${Inspectable.toStringUnknown(e, 0)}`,
             file: "docker-compose.yml",
           })
       )
@@ -387,7 +399,9 @@ const fetchLatestDockerTag: (
     .pipe(
       Effect.mapError(
         (e) =>
-          new NetworkUnavailableError({ message: `Docker Hub API request failed for ${ref.repository}: ${String(e)}` })
+          new NetworkUnavailableError({
+            message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
+          })
       )
     );
 
@@ -395,7 +409,7 @@ const fetchLatestDockerTag: (
     Effect.mapError(
       (e) =>
         new NetworkUnavailableError({
-          message: `Failed to parse Docker Hub response for ${ref.repository}: ${String(e)}`,
+          message: `Failed to parse Docker Hub response for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
         })
     )
   );
@@ -479,11 +493,11 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
 
   return VersionCategoryReport.cases.docker.makeUnsafe({
     status: A.match(items, {
-      onEmpty: VersionCategoryStatus.thunk.ok,
+      onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: () =>
         Bool.match(hasUnpinned, {
-          onTrue: VersionCategoryStatus.thunk.unpinned,
-          onFalse: VersionCategoryStatus.thunk.drift,
+          onTrue: VersionCategoryStatusThunk.unpinned,
+          onFalse: VersionCategoryStatusThunk.drift,
         }),
     }),
     items,

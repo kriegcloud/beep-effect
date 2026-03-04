@@ -9,14 +9,20 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, FileSystem, identity, Path, SchemaTransformation, String as Str } from "effect";
+import { Effect, FileSystem, identity, Inspectable, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
-import { VersionCategoryReport, VersionCategoryStatus, VersionDriftItem, VersionSyncError } from "../Models.js";
+import {
+  VersionCategoryReport,
+  VersionCategoryStatusEnum,
+  VersionCategoryStatusThunk,
+  VersionDriftItem,
+  VersionSyncError,
+} from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BiomeResolver");
 
@@ -176,7 +182,11 @@ export const resolveBiomeSchema: (
       .readFileString(biomePath)
       .pipe(
         Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to read biome.jsonc: ${String(e)}`, file: "biome.jsonc" })
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
+              file: "biome.jsonc",
+            })
         )
       );
 
@@ -200,7 +210,11 @@ export const resolveBiomeSchema: (
       .readFileString(pkgJsonPath)
       .pipe(
         Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to read package.json: ${String(e)}`, file: "package.json" })
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+              file: "package.json",
+            })
         )
       );
 
@@ -239,7 +253,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
 
   if (Str.isEmpty(state.installedVersion)) {
     return VersionCategoryReport.cases.biome.makeUnsafe({
-      status: VersionCategoryStatus.Enum.ok,
+      status: VersionCategoryStatusEnum.ok,
       items,
       latest: O.none(),
       error: O.some("@biomejs/biome not found in catalog or devDependencies"),
@@ -264,8 +278,8 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
 
   return VersionCategoryReport.cases.biome.makeUnsafe({
     status: A.match(items, {
-      onEmpty: VersionCategoryStatus.thunk.ok,
-      onNonEmpty: VersionCategoryStatus.thunk.drift,
+      onEmpty: VersionCategoryStatusThunk.ok,
+      onNonEmpty: VersionCategoryStatusThunk.drift,
     }),
     items,
     latest: O.some(expectedVersion),
@@ -290,7 +304,11 @@ export const updateBiomeSchema: (
       .readFileString(filePath)
       .pipe(
         Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+              file: filePath,
+            })
         )
       );
 
@@ -314,7 +332,11 @@ export const updateBiomeSchema: (
       .writeFileString(filePath, updated)
       .pipe(
         Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+              file: filePath,
+            })
         )
       );
 

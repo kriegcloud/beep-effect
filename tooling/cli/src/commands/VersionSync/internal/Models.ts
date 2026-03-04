@@ -100,16 +100,13 @@ export const VersionCategory = VersionCategoryKit.annotate(
     description: "Version category for grouping drift items",
   })
 );
-export namespace VersionCategory {
-  export const $match = VersionCategoryKit.$match;
-  export const Enum = VersionCategoryKit.Enum;
-  export const Options = VersionCategoryKit.Options;
-  export const is = VersionCategoryKit.is;
-  export const omitOptions = VersionCategoryKit.omitOptions;
-  export const pickOptions = VersionCategoryKit.pickOptions;
-  export const thunk = VersionCategoryKit.thunk;
-  export const toTaggedUnion = VersionCategoryKit.toTaggedUnion;
-}
+/**
+ * Literal option tuple for version categories.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const VersionCategoryOptions = VersionCategoryKit.Options;
 /**
  * Version category for grouping drift items.
  *
@@ -135,16 +132,20 @@ export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
     description: "Status of a version category",
   })
 );
-export namespace VersionCategoryStatus {
-  export const $match = VersionCategoryStatusKit.$match;
-  export const Enum = VersionCategoryStatusKit.Enum;
-  export const Options = VersionCategoryStatusKit.Options;
-  export const is = VersionCategoryStatusKit.is;
-  export const omitOptions = VersionCategoryStatusKit.omitOptions;
-  export const pickOptions = VersionCategoryStatusKit.pickOptions;
-  export const thunk = VersionCategoryStatusKit.thunk;
-  export const toTaggedUnion = VersionCategoryStatusKit.toTaggedUnion;
-}
+/**
+ * Enum mapping for version category status literals.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const VersionCategoryStatusEnum = VersionCategoryStatusKit.Enum;
+/**
+ * Thunk helpers for version category status literals.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const VersionCategoryStatusThunk = VersionCategoryStatusKit.thunk;
 /**
  * Status of a version category.
  *
@@ -280,16 +281,13 @@ export const VersionSyncMode = VersionSyncModeKit.annotate(
     description: "Command execution mode for version sync operations",
   })
 );
-export namespace VersionSyncMode {
-  export const $match = VersionSyncModeKit.$match;
-  export const Enum = VersionSyncModeKit.Enum;
-  export const Options = VersionSyncModeKit.Options;
-  export const is = VersionSyncModeKit.is;
-  export const omitOptions = VersionSyncModeKit.omitOptions;
-  export const pickOptions = VersionSyncModeKit.pickOptions;
-  export const thunk = VersionSyncModeKit.thunk;
-  export const toTaggedUnion = VersionSyncModeKit.toTaggedUnion;
-}
+/**
+ * Pattern-matching helper for version-sync mode literals.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const VersionSyncModeMatch = VersionSyncModeKit.$match;
 
 /**
  * Command execution mode.

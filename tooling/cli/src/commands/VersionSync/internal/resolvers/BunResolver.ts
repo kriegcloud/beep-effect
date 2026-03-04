@@ -9,18 +9,18 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Boolean as Bool, Effect, FileSystem, identity, Path, String as Str } from "effect";
+import { Boolean as Bool, Effect, FileSystem, identity, Inspectable, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
-    NetworkUnavailableError,
-    VersionCategoryReport,
-    VersionCategoryStatus,
-    VersionDriftItem,
-    VersionSyncError,
+  NetworkUnavailableError,
+  VersionCategoryReport,
+  VersionCategoryStatusThunk,
+  VersionDriftItem,
+  VersionSyncError,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolver");
@@ -126,7 +126,11 @@ export const resolveBunVersions: (
     const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
       Effect.map(Str.trim),
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read .bun-version: ${String(e)}`, file: ".bun-version" })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: ".bun-version",
+          })
       )
     );
 
@@ -136,7 +140,11 @@ export const resolveBunVersions: (
       .readFileString(pkgJsonPath)
       .pipe(
         Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to read package.json: ${String(e)}`, file: "package.json" })
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+              file: "package.json",
+            })
         )
       );
 
@@ -172,11 +180,16 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
     const response = yield* client
       .get(BUN_RELEASE_URL, { headers: { "User-Agent": "beep-cli/0.0.0", Accept: "application/vnd.github+json" } })
       .pipe(
-        Effect.mapError((e) => new NetworkUnavailableError({ message: `GitHub API request failed: ${String(e)}` }))
+        Effect.mapError(
+          (e) => new NetworkUnavailableError({ message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}` })
+        )
       );
     const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
       Effect.mapError(
-        (e) => new NetworkUnavailableError({ message: `Failed to parse GitHub API response: ${String(e)}` })
+        (e) =>
+          new NetworkUnavailableError({
+            message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
+          })
       )
     );
     return extractBunVersion(body.tag_name);
@@ -237,8 +250,8 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
 
   return VersionCategoryReport.cases.bun.makeUnsafe({
     status: Bool.match(hasDrift || hasInternalMismatch, {
-      onTrue: VersionCategoryStatus.thunk.drift,
-      onFalse: VersionCategoryStatus.thunk.ok,
+      onTrue: VersionCategoryStatusThunk.drift,
+      onFalse: VersionCategoryStatusThunk.ok,
     }),
     items,
     latest: state.latest,

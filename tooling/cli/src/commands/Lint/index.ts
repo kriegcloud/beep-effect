@@ -8,9 +8,8 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import fs from "node:fs";
-import path from "node:path";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, String as Str } from "effect";
+import { Console, Effect, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
@@ -19,7 +18,7 @@ import madge from "madge";
 const $I = $RepoCliId.create("commands/Lint");
 
 const TOOLING_ROOT = "tooling/cli/src";
-const ALLOWED_NON_PASCAL_FILENAMES = new Set(["index", "bin"]);
+const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
 const REQUIRED_TAGGED_UNIONS = [
   "GenerationAction",
   "TsMorphMutation",
@@ -61,7 +60,8 @@ class LintCircularAnalysisError extends S.TaggedErrorClass<LintCircularAnalysisE
   })
 ) {}
 
-const lineNumberAt = (content: string, offset: number): number => content.slice(0, offset).split("\n").length;
+const lineNumberAt = (content: string, offset: number): number =>
+  pipe(content, Str.slice(0, offset), Str.split("\n"), A.length);
 
 const runRgFiles = (root: string): Effect.Effect<ReadonlyArray<string>, never> =>
   Effect.sync(() => {
@@ -86,10 +86,12 @@ const runRgFiles = (root: string): Effect.Effect<ReadonlyArray<string>, never> =
       return A.empty<string>();
     }
 
-    return result.stdout
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.endsWith(".ts"));
+    return pipe(
+      result.stdout,
+      Str.split("\n"),
+      A.map(Str.trim),
+      A.filter(Str.endsWith(".ts"))
+    );
   });
 
 const runLintToolingTaggedErrors = Effect.fn(function* () {
@@ -133,6 +135,7 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
 });
 
 const runLintToolingSchemaFirst = Effect.fn(function* () {
+  const path = yield* Path.Path;
   const files = yield* runRgFiles(TOOLING_ROOT);
   const violations = [] as Array<LintViolation>;
 
@@ -152,7 +155,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     };
 
     const basename = path.basename(file, ".ts");
-    if (!ALLOWED_NON_PASCAL_FILENAMES.has(basename) && !/^[A-Z][A-Za-z0-9]*$/.test(basename)) {
+    if (!HashSet.has(ALLOWED_NON_PASCAL_FILENAMES, basename) && !/^[A-Z][A-Za-z0-9]*$/.test(basename)) {
       pushViolation(
         "pascal-case-file",
         "Tooling CLI TypeScript files must use PascalCase names (except index.ts and bin.ts)."
@@ -167,10 +170,21 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
       pushViolation("data-tagged-enum", "Use Schema tagged unions via LiteralKit + mapMembers + Tuple.evolve.");
     }
 
+    if (/from\s+["']node:path["']/.test(content) || /require\(["']node:path["']\)/.test(content)) {
+      pushViolation("node-path-import", "Use effect/Path service (`yield* Path.Path`) instead of node:path.");
+    }
+
+    if (/\bawait\s+fetch\s*\(|\breturn\s+fetch\s*\(|=\s*fetch\s*\(|\bglobalThis\.fetch\s*\(/.test(content)) {
+      pushViolation(
+        "native-fetch",
+        "Use effect/unstable/http HttpClient and provide @effect/platform-bun/BunHttpClient.layer instead of native fetch."
+      );
+    }
+
     const serviceLinePattern = /ServiceMap\.Service</g;
     for (const match of content.matchAll(serviceLinePattern)) {
       const start = match.index ?? 0;
-      const nearby = content.slice(start, start + 320);
+      const nearby = Str.slice(start, start + 320)(content);
       if (!/\(\)\(\s*\$I`/.test(nearby)) {
         pushViolation("service-id", "ServiceMap.Service tag must use $I`ServiceName` identity.", start);
       }
@@ -179,7 +193,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     const classPattern = /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g;
     for (const match of content.matchAll(classPattern)) {
       const start = match.index ?? 0;
-      const nearby = content.slice(start, start + 560);
+      const nearby = Str.slice(start, start + 2400)(content);
       if (!/\$I\.annote\(/.test(nearby)) {
         pushViolation("schema-annotation", "S.Class schema is missing $I.annote(...) metadata.", start);
       }
@@ -200,7 +214,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
       }
 
       found = true;
-      const snippet = content.slice(match.index, match.index + 1400);
+      const snippet = Str.slice(match.index, match.index + 1400)(content);
       if (!/\.mapMembers\(/.test(snippet) || !/Tuple\.evolve\(/.test(snippet) || !/\.pipe\(S\.toTaggedUnion\(/.test(snippet)) {
         violations.push(
           new LintViolation({
@@ -227,9 +241,9 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
   }
 
   if (A.length(violations) > 0) {
-    yield* Console.error(`[check-tooling-schema-first] found ${String(A.length(violations))} violation(s).`);
+    yield* Console.error(`[check-tooling-schema-first] found ${A.length(violations)} violation(s).`);
     for (const violation of violations) {
-      yield* Console.error(`${violation.file}:${String(violation.line)} [${violation.kind}] ${violation.detail}`);
+      yield* Console.error(`${violation.file}:${violation.line} [${violation.kind}] ${violation.detail}`);
     }
     process.exitCode = 1;
     return;
@@ -257,7 +271,7 @@ const runLintCircular = Effect.fn(function* () {
         }),
       catch: (cause) =>
         new LintCircularAnalysisError({
-          message: `Failed to analyze circular deps in ${dir}: ${String(cause)}`,
+          message: `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
 
@@ -269,7 +283,7 @@ const runLintCircular = Effect.fn(function* () {
           hasCircular = true;
           yield* Console.error(`Circular dependencies in ${dir}:`);
           for (const cycle of cycles) {
-            yield* Console.error(`  ${cycle.join(" -> ")}`);
+            yield* Console.error(`  ${A.join(cycle, " -> ")}`);
           }
         }),
     });

@@ -18,7 +18,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
-import { VersionCategoryReport, VersionCategoryStatus, VersionDriftItem, VersionSyncError } from "../Models.js";
+import { VersionCategoryReport, VersionCategoryStatusThunk, VersionDriftItem, VersionSyncError } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolver");
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -263,8 +263,8 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
 
   return VersionCategoryReport.cases.node.makeUnsafe({
     status: A.match(items, {
-      onEmpty: VersionCategoryStatus.thunk.ok,
-      onNonEmpty: VersionCategoryStatus.thunk.drift,
+      onEmpty: VersionCategoryStatusThunk.ok,
+      onNonEmpty: VersionCategoryStatusThunk.drift,
     }),
     items,
     latest: O.none(),

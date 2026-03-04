@@ -19,6 +19,8 @@ NEVER call methods on native objects. Effect re-exports every collection/primiti
 | `[].map()`, `[].filter()`, `[].reduce()` | `effect/Array` | `import * as A from "effect/Array"` |
 | `Object.keys()`, `Object.entries()` | `effect/Record` | `import * as R from "effect/Record"` |
 | `"".split()`, `"".trim()` | `effect/String` | `import * as Str from "effect/String"` |
+| `path.join()`, `path.resolve()`, `path.relative()` | `effect/Path` service | `const path = yield* Path.Path` |
+| `fetch()` | `effect/unstable/http` `HttpClient` | Provide runtime layer (Bun: `BunHttpClient.layer`) |
 | `Date.now()` | `effect/DateTime` or `effect/Clock` | Use `Clock` service for testability |
 | `Math.random()` | `effect/Random` | Use `Random` service for testability |
 | `typeof x === "string"` | `effect/Predicate` | `import * as P from "effect/Predicate"` |

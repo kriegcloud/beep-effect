@@ -5,9 +5,9 @@
  * @module
  */
 
-import path from "node:path";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, MutableHashSet, String as Str } from "effect";
+import { Effect, Inspectable, MutableHashSet, Path, pipe, String as Str } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
@@ -86,9 +86,9 @@ const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling
 const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"] as const;
 const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
 
-const toPosix = (value: string): string => value.replaceAll("\\", "/");
+const toPosix = (value: string): string => Str.replace(/\\/g, "/")(value);
 const isStableSubmodule = (moduleName: string): boolean =>
-  moduleName.startsWith("effect/") && !moduleName.startsWith("effect/unstable/");
+  Str.startsWith("effect/")(moduleName) && !Str.startsWith("effect/unstable/")(moduleName);
 
 /**
  * Run effect import style migration/check logic.
@@ -97,6 +97,8 @@ const isStableSubmodule = (moduleName: string): boolean =>
  * @category UseCase
  */
 export const runEffectImportRules = Effect.fn(function* (options: EffectImportRulesOptions) {
+  const path = yield* Path.Path;
+
   const excludePaths = MutableHashSet.empty<string>();
   for (const excludePath of options.excludePaths) {
     MutableHashSet.add(excludePaths, toPosix(excludePath));
@@ -105,8 +107,8 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
   const isExcludedFile = (filePath: string): boolean => {
     const normalized = toPosix(filePath);
     if (MutableHashSet.has(excludePaths, normalized)) return true;
-    if (EXCLUDED_SUFFIXES.some((suffix) => normalized.endsWith(suffix))) return true;
-    return EXCLUDED_SEGMENTS.some((segment) => normalized.includes(segment));
+    if (EXCLUDED_SUFFIXES.some((suffix) => Str.endsWith(suffix)(normalized))) return true;
+    return EXCLUDED_SEGMENTS.some((segment) => Str.includes(segment)(normalized));
   };
 
   const project = new Project({
@@ -118,24 +120,21 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     project.addSourceFilesAtPaths(pattern);
   }
 
-  const sourceFiles = project.getSourceFiles().filter((sourceFile) => !isExcludedFile(sourceFile.getFilePath()));
+  const sourceFiles = A.filter(project.getSourceFiles(), (sourceFile) => !isExcludedFile(sourceFile.getFilePath()));
 
   let aliasRenamed = 0;
   let stableConverted = 0;
   let touchedFiles = 0;
   const changedFiles = [] as Array<string>;
 
-  const ensureRootImport = (sourceFile: (typeof sourceFiles)[number]) => {
-    const existing = sourceFile
-      .getImportDeclarations()
-      .find((importDeclaration) => importDeclaration.getModuleSpecifierValue() === "effect" && !importDeclaration.isTypeOnly());
-
-    if (existing) {
-      return existing;
-    }
-
-    return sourceFile.addImportDeclaration({ moduleSpecifier: "effect" });
-  };
+  const ensureRootImport = (sourceFile: (typeof sourceFiles)[number]) =>
+    pipe(
+      sourceFile.getImportDeclarations(),
+      A.findFirst(
+        (importDeclaration) => importDeclaration.getModuleSpecifierValue() === "effect" && !importDeclaration.isTypeOnly()
+      ),
+      O.getOrElse(() => sourceFile.addImportDeclaration({ moduleSpecifier: "effect" }))
+    );
 
   for (const sourceFile of sourceFiles) {
     const importDeclarations = [...sourceFile.getImportDeclarations()];
@@ -169,7 +168,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       }
 
       const stableName = Str.slice("effect/".length)(moduleName);
-      if (stableName.length === 0 || stableName.includes("/")) {
+      if (Str.isEmpty(stableName) || Str.includes("/")(stableName)) {
         continue;
       }
 
@@ -188,7 +187,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       const rootImport = ensureRootImport(sourceFile);
       const targetAlias = localAlias === stableName ? undefined : localAlias;
 
-      const hasNamedImport = rootImport.getNamedImports().some((namedImport) => {
+      const hasNamedImport = A.some(rootImport.getNamedImports(), (namedImport) => {
         const currentAlias = namedImport.getAliasNode()?.getText();
         return namedImport.getName() === stableName && currentAlias === targetAlias;
       });
@@ -218,7 +217,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       try: () => project.save(),
       catch: (cause) =>
         new EffectImportRulesPersistenceError({
-          message: `Failed to persist effect import updates: ${String(cause)}`,
+          message: `Failed to persist effect import updates: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
   }

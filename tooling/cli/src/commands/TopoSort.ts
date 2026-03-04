@@ -7,6 +7,7 @@
 
 import { buildRepoDependencyIndex, findRepoRoot, topologicalSort } from "@beep/repo-utils";
 import { Console, Effect, HashMap, HashSet, Struct } from "effect";
+import * as A from "effect/Array";
 import { Command } from "effect/unstable/cli";
 
 /**
@@ -47,7 +48,7 @@ export const topoSortCommand = Command.make(
       Effect.fn(function* (err) {
         yield* Console.error(`Error: Cyclic dependencies detected`);
         for (const cycle of err.cycles) {
-          yield* Console.error(`  ${cycle.join(" -> ")}`);
+          yield* Console.error(`  ${A.join(cycle, " -> ")}`);
         }
         return yield* err;
       })

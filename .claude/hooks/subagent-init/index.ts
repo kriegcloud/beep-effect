@@ -39,7 +39,7 @@ const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
   A.map(tasks, (t) => {
-    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+    const aliases = t.aliases.length > 0 ? ` (${A.join(t.aliases, ", ")})` : "";
     return `${t.name}${aliases}: ${t.description}`;
   }).join("\n");
 
@@ -76,16 +76,15 @@ function listMemories(): string {
       return "No memories found (vault not initialized).";
     }
 
-    const files = fs
-      .readdirSync(vaultPath)
-      .filter((f) => f.endsWith(".md"))
-      .slice(0, 10);
+    const files = pipe(
+      fs.readdirSync(vaultPath),
+      A.filter(Str.endsWith(".md"))).slice(0, 10);
 
     if (files.length === 0) {
       return "Memory vault exists but is empty.";
     }
 
-    return files.map((f) => `  - ${Str.replace(".md", "")(f)}`).join("\n");
+    return pipe(A.map(files, (f) => `  - ${Str.replace(".md", "")(f)}`), A.join("\n"));
   } catch {
     return "Error listing memories.";
   }
@@ -111,27 +110,27 @@ const program = Effect.gen(function* () {
       ),
       pipe(
         sh`bun -e ${"console.log(require('./package.json').version)"}`,
-        Effect.map((v) => Str.trim(v)),
+        Effect.map(Str.trim),
         Effect.catch(() => Effect.succeed("unknown"))
       ),
       pipe(
         sh`git show HEAD --stat --format=%h %s%n%n%b`,
-        Effect.map((s) => Str.trim(s)),
+        Effect.map(Str.trim),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
         sh`git log --oneline -4 --skip=1`,
-        Effect.map((s) => Str.trim(s)),
+        Effect.map(Str.trim),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
         sh`bun -e ${"const p = require('./package.json'); const R = require('effect/Record'); console.log(R.toEntries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
-        Effect.map((s) => Str.trim(s)),
+        Effect.map(Str.trim),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(
         sh`mise tasks --json`,
-        Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
+        Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
         Effect.map(formatMiseTasks),
         Effect.catch(() => Effect.succeed(""))
       ),

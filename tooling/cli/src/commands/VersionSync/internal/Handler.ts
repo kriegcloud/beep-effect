@@ -37,7 +37,7 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
         onTrue: () =>
           Effect.gen(function* () {
             const totalChanges = yield* updater.apply(repoRoot, resolution);
-            yield* Console.log(`\nApplied ${String(totalChanges)} file update(s).`);
+            yield* Console.log(`\nApplied ${totalChanges} file update(s).`);
           }),
         onFalse: () => Effect.void,
       }),
@@ -52,7 +52,7 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
           );
           return Effect.fail(
             new VersionSyncDriftError({
-              message: `Version drift detected: ${String(driftCount)} item(s) need updating`,
+              message: `Version drift detected: ${driftCount} item(s) need updating`,
               driftCount,
             })
           );

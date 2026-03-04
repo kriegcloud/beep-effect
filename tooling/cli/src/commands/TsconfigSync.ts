@@ -216,16 +216,7 @@ export const TsconfigSyncMode = TsconfigSyncModeKit.annotate(
     description: "Command execution mode for tsconfig-sync.",
   })
 );
-export namespace TsconfigSyncMode {
-  export const $match = TsconfigSyncModeKit.$match;
-  export const Enum = TsconfigSyncModeKit.Enum;
-  export const Options = TsconfigSyncModeKit.Options;
-  export const is = TsconfigSyncModeKit.is;
-  export const omitOptions = TsconfigSyncModeKit.omitOptions;
-  export const pickOptions = TsconfigSyncModeKit.pickOptions;
-  export const thunk = TsconfigSyncModeKit.thunk;
-  export const toTaggedUnion = TsconfigSyncModeKit.toTaggedUnion;
-}
+const TsconfigSyncModeMatch = TsconfigSyncModeKit.$match;
 
 type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
 const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
@@ -1102,7 +1093,7 @@ const renderChanges = Effect.fn(function* (
   const path = yield* Path.Path;
 
   if (isArrayEmpty(changes)) {
-    yield* TsconfigSyncMode.$match(mode, {
+    yield* TsconfigSyncModeMatch(mode, {
       check: () => Console.log("tsconfig-sync: no drift detected"),
       "dry-run": () => Console.log("tsconfig-sync: dry-run found no changes"),
       sync: () => Console.log("tsconfig-sync: all files already in sync"),
@@ -1110,7 +1101,7 @@ const renderChanges = Effect.fn(function* (
     return;
   }
 
-  const prefix = TsconfigSyncMode.$match(mode, {
+  const prefix = TsconfigSyncModeMatch(mode, {
     check: () => "tsconfig-sync: drift detected",
     "dry-run": () => "tsconfig-sync: dry-run planned changes",
     sync: () => "tsconfig-sync: applied changes",
@@ -1191,7 +1182,7 @@ export const syncTsconfigAtRoot: (
       });
     }
 
-    const result: TsconfigSyncResult = TsconfigSyncMode.$match(options.mode, {
+    const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
       sync: () =>
         TsconfigSyncResult.cases.sync.makeUnsafe({
           mode: "sync",

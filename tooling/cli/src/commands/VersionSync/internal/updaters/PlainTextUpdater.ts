@@ -5,7 +5,7 @@
  * @module
  */
 
-import { Effect, FileSystem, String as Str } from "effect";
+import { Effect, FileSystem, Inspectable, String as Str } from "effect";
 import { VersionSyncError } from "../Models.js";
 
 /**
@@ -26,7 +26,11 @@ export const updatePlainTextFile: (
     .readFileString(filePath)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 
@@ -39,7 +43,11 @@ export const updatePlainTextFile: (
     .writeFileString(filePath, `${version}\n`)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 

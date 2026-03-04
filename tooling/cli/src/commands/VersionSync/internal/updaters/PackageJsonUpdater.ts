@@ -5,7 +5,7 @@
  * @module
  */
 
-import { Effect, FileSystem } from "effect";
+import { Effect, FileSystem, Inspectable } from "effect";
 import * as A from "effect/Array";
 import * as jsonc from "jsonc-parser";
 import { VersionSyncError } from "../Models.js";
@@ -40,7 +40,11 @@ export const updatePackageManagerField: (
     .readFileString(filePath)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 
@@ -64,7 +68,11 @@ export const updatePackageManagerField: (
     .writeFileString(filePath, updated)
     .pipe(
       Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
       )
     );
 

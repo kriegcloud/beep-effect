@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
@@ -117,7 +118,7 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
 
   const { targets, workspaceCount } = yield* buildPurgeTargets(rootDir, removeLock);
 
-  yield* Console.log(`Purging ${String(targets.length)} path(s) across ${String(workspaceCount)} workspace(s)...`);
+  yield* Console.log(`Purging ${targets.length} path(s) across ${workspaceCount} workspace(s)...`);
 
   const existedBefore = yield* Effect.forEach(
     targets,
@@ -139,10 +140,10 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
     { discard: true, concurrency: "unbounded" }
   );
 
-  const removedCount = existedBefore.reduce((count, existed) => (existed ? count + 1 : count), 0);
+  const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? count + 1 : count));
 
   yield* Console.log(
-    `Purge complete: targeted ${String(targets.length)} path(s), removed ${String(removedCount)} existing path(s).`
+    `Purge complete: targeted ${targets.length} path(s), removed ${removedCount} existing path(s).`
   );
 
   return {

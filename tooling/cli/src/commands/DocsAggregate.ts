@@ -6,9 +6,8 @@
  */
 
 import * as Fs from "node:fs";
-import * as Path from "node:path";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, HashSet, Inspectable, MutableHashSet, Order, String as Str } from "effect";
+import { Console, Effect, HashSet, Inspectable, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -49,7 +48,7 @@ class DocsAggregateFailure extends S.TaggedErrorClass<DocsAggregateFailure>($I`D
   })
 ) {}
 
-const walkRoot = (root: string): Array<DocsPackage> => {
+const walkRoot = (root: string, path: Path.Path): Array<DocsPackage> => {
   const packages = [] as Array<DocsPackage>;
 
   if (!Fs.existsSync(root)) {
@@ -57,9 +56,9 @@ const walkRoot = (root: string): Array<DocsPackage> => {
   }
 
   const walk = (relativePath: string): void => {
-    const packageDir = relativePath.length > 0 ? Path.join(root, relativePath) : root;
+    const packageDir = relativePath.length > 0 ? path.join(root, relativePath) : root;
 
-    if (Fs.existsSync(Path.join(packageDir, "docs/modules"))) {
+    if (Fs.existsSync(path.join(packageDir, "docs/modules"))) {
       packages.push(
         new DocsPackage({
           packageDir,
@@ -77,7 +76,7 @@ const walkRoot = (root: string): Array<DocsPackage> => {
     );
 
     for (const child of children) {
-      walk(relativePath.length > 0 ? Path.join(relativePath, child) : child);
+      walk(relativePath.length > 0 ? path.join(relativePath, child) : child);
     }
   };
 
@@ -85,9 +84,9 @@ const walkRoot = (root: string): Array<DocsPackage> => {
   return packages;
 };
 
-const findPackages = (): Array<DocsPackage> => {
+const findPackages = (path: Path.Path): Array<DocsPackage> => {
   const packages = A.sort(
-    pipe(PACKAGE_ROOTS, A.flatMap(walkRoot)),
+    pipe(PACKAGE_ROOTS, A.flatMap((root) => walkRoot(root, path))),
     byDocsOutputPathAscending
   );
 
@@ -115,26 +114,26 @@ const findPackages = (): Array<DocsPackage> => {
 
 const decodePackageJsonDocument = S.decodeUnknownSync(S.fromJsonString(PackageJsonDocument));
 
-const pkgName = (pkg: DocsPackage): string => {
-  const packageJson = Fs.readFileSync(Path.join(pkg.packageDir, "package.json"), "utf8");
+const pkgName = (pkg: DocsPackage, path: Path.Path): string => {
+  const packageJson = Fs.readFileSync(path.join(pkg.packageDir, "package.json"), "utf8");
   const decoded = decodePackageJsonDocument(packageJson);
   return O.getOrElse(O.fromUndefinedOr(decoded.name), () => pkg.outputPath);
 };
 
-const copyFiles = (pkg: DocsPackage): void => {
-  const name = pkgName(pkg);
-  const docs = Path.join(pkg.packageDir, "docs/modules");
-  const dest = Path.join("docs", pkg.outputPath);
+const copyFiles = (pkg: DocsPackage, path: Path.Path): void => {
+  const name = pkgName(pkg, path);
+  const docs = path.join(pkg.packageDir, "docs/modules");
+  const dest = path.join("docs", pkg.outputPath);
   const files = Fs.readdirSync(docs, { withFileTypes: true });
 
   const handleFiles = (root: string, entries: ReadonlyArray<Fs.Dirent>): void => {
     for (const file of entries) {
-      const sourcePath = Path.join(docs, root, file.name);
-      const destPath = Path.join(dest, root, file.name);
+      const sourcePath = path.join(docs, root, file.name);
+      const destPath = path.join(dest, root, file.name);
 
       if (file.isDirectory()) {
         Fs.mkdirSync(destPath, { recursive: true });
-        handleFiles(Path.join(root, file.name), Fs.readdirSync(sourcePath, { withFileTypes: true }));
+        handleFiles(path.join(root, file.name), Fs.readdirSync(sourcePath, { withFileTypes: true }));
         continue;
       }
 
@@ -148,7 +147,7 @@ const copyFiles = (pkg: DocsPackage): void => {
   handleFiles("", files);
 };
 
-const generateIndex = (outputPath: string, name: string, order: number): void => {
+const generateIndex = (outputPath: string, name: string, order: number, path: Path.Path): void => {
   const permalink = Str.replace(/\\/g, "/")(outputPath);
   const content = `---
 title: "${name}"
@@ -158,12 +157,14 @@ nav_order: ${order}
 ---
 `;
 
-  Fs.writeFileSync(Path.join("docs", outputPath, "index.md"), content);
+  Fs.writeFileSync(path.join("docs", outputPath, "index.md"), content);
 };
 
 const aggregateDocs = Effect.fn(function* () {
+  const path = yield* Path.Path;
+
   const packages = yield* Effect.try({
-    try: findPackages,
+    try: () => findPackages(path),
     catch: (cause) =>
       new DocsAggregateFailure({
         message: `Failed to discover docs packages: ${Inspectable.toStringUnknown(cause, 0)}`,
@@ -177,7 +178,7 @@ const aggregateDocs = Effect.fn(function* () {
     }
 
     const name = yield* Effect.try({
-      try: () => pkgName(pkg),
+      try: () => pkgName(pkg, path),
       catch: (cause) =>
         new DocsAggregateFailure({
           message: `Failed reading package name for ${pkg.packageDir}: ${Inspectable.toStringUnknown(cause, 0)}`,
@@ -186,10 +187,10 @@ const aggregateDocs = Effect.fn(function* () {
 
     yield* Effect.try({
       try: () => {
-        Fs.rmSync(Path.join("docs", pkg.outputPath), { recursive: true, force: true });
-        Fs.mkdirSync(Path.join("docs", pkg.outputPath), { recursive: true });
-        copyFiles(pkg);
-        generateIndex(pkg.outputPath, name, index + 2);
+        Fs.rmSync(path.join("docs", pkg.outputPath), { recursive: true, force: true });
+        Fs.mkdirSync(path.join("docs", pkg.outputPath), { recursive: true });
+        copyFiles(pkg, path);
+        generateIndex(pkg.outputPath, name, index + 2, path);
       },
       catch: (cause) =>
         new DocsAggregateFailure({

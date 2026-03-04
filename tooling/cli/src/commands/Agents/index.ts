@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -154,14 +154,14 @@ const agentsCheckCommand = Command.make(
       try: () => decodeManagedFilesManifest(decodeJsonString(manifestText)),
       catch: (cause) =>
         new AgentsManifestDecodeError({
-          message: `[agents-check] failed to decode manifest: ${String(cause)}`,
+          message: `[agents-check] failed to decode manifest: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
 
     const agentPaths = pipe(
       manifest.files,
       A.map((entry) => entry.path),
-      A.filter((relativePath) => relativePath.endsWith("AGENTS.md"))
+      A.filter(Str.endsWith("AGENTS.md"))
     );
 
     const missingCandidates = yield* Effect.forEach(
@@ -179,7 +179,7 @@ const agentsCheckCommand = Command.make(
       A.map((entry) => entry.value)
     );
 
-    yield* Console.log(`[agents-check] expected=${String(A.length(agentPaths))} missing=${String(A.length(missing))}`);
+    yield* Console.log(`[agents-check] expected=${A.length(agentPaths)} missing=${A.length(missing)}`);
     for (const relativePath of missing) {
       yield* Console.log(`  - ${relativePath}`);
     }
@@ -223,7 +223,7 @@ const agentsPathlessCheckCommand = Command.make(
       }
 
       const content = yield* fs.readFileString(absolutePath);
-      const lines = content.split("\n");
+      const lines = Str.split("\n")(content);
 
       for (let index = 0; index < lines.length; index += 1) {
         const line = lines[index] ?? "";
@@ -239,18 +239,18 @@ const agentsPathlessCheckCommand = Command.make(
             line: index + 1,
             column: slashColumn.value,
             message: "path separator is not allowed in pathless config surfaces",
-            excerpt: line.trim(),
+            excerpt: Str.trim(line),
           })
         );
       }
     }
 
     if (A.length(violations) > 0) {
-      yield* Console.error(`[pathless-config] failed with ${String(A.length(violations))} violation(s)`);
+      yield* Console.error(`[pathless-config] failed with ${A.length(violations)} violation(s)`);
       for (const violation of violations) {
         const location =
           violation.line > 0
-            ? `${violation.file}:${String(violation.line)}:${String(violation.column)}`
+            ? `${violation.file}:${violation.line}:${violation.column}`
             : `${violation.file}:missing`;
 
         yield* Console.error(`- ${location} ${violation.message}`);
@@ -264,7 +264,7 @@ const agentsPathlessCheckCommand = Command.make(
       return;
     }
 
-    yield* Console.log(`[pathless-config] ok (${String(TARGET_PATHLESS_FILES.length)} files)`);
+    yield* Console.log(`[pathless-config] ok (${TARGET_PATHLESS_FILES.length} files)`);
   })
 ).pipe(Command.withDescription("Validate pathless agent instruction surfaces"));
 

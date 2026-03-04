@@ -54,6 +54,8 @@ Before writing code, run this checklist:
 35. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
 36. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
 37. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
+38. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
+39. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
 
 ## Non-Negotiable Laws
 
@@ -106,6 +108,8 @@ Before writing code, run this checklist:
 42. Avoid ad-hoc `String(...)` coercion in domain logic; model unknown-to-string normalization with schema transformations and compare via schema equivalence.
 43. When branching on boolean values, use `Bool.match` from `effect/Boolean` instead of `Match.when(true/false)` or ad-hoc `if/else` chains.
 44. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
+45. Do not import `node:path` in production/tooling source. Use `Path.Path` service (`yield* Path.Path`) for `join`, `resolve`, `relative`, `basename`, etc.
+46. Do not use native `fetch` in production/tooling source. Use `HttpClient` from `effect/unstable/http` and provide platform client layers (Bun: `BunHttpClient.layer`).
 
 ## Always / Never Examples
 

@@ -5,31 +5,233 @@
  * @module
  */
 
-import { Console, Effect } from "effect";
+import { $RepoCliId } from "@beep/identity/packages";
+import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
+import { Boolean as Bool, Console, Effect, HashSet, Inspectable, pipe, flow, identity, SchemaTransformation, String as Str } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { Headers, HttpClient, HttpClientRequest, HttpClientResponse, HttpMethod, UrlParams } from "effect/unstable/http";
 import { Command } from "effect/unstable/cli";
 
-const parsePositiveInt = (value: string | undefined, fallback: number): number => {
-  if (value === undefined) {
-    return fallback;
-  }
+const $I = $RepoCliId.create("commands/Graphiti/index");
 
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+const TruthyBooleanString = HashSet.fromIterable(["true", "1", "yes", "on"]);
+const FalseyBooleanString = HashSet.fromIterable(["false", "0", "no", "off"]);
+
+const makeDefaultedStringField = (name: string, fallback: string, description: string) =>
+{
+  const thunkFallback = () => fallback;
+
+  const thunkFallbackToString = flow(thunkFallback, String);
+  const thunkSomeFallback = flow(thunkFallback, O.some)
+  return S.UndefinedOr(S.String).pipe(
+    S.decodeTo(
+      S.String,
+      SchemaTransformation.transform({
+        decode: (value) => O.getOrElse(O.fromUndefinedOr(value), thunkFallback),
+        encode: identity,
+      })
+    ),
+    S.withConstructorDefault(thunkSomeFallback),
+    S.withDecodingDefault(thunkFallbackToString),
+    S.annotate($I.annote(name, { description }))
+  )
 };
 
-const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
-  if (value === undefined) {
-    return fallback;
-  }
+const makeDefaultedPositiveIntField = (name: string, fallback: number, description: string) =>
+{
+  const thunkFallback = () => fallback;
+  const thunkFallbackToString = flow(thunkFallback, String);
 
-  const normalized = String(value).trim().toLowerCase();
-  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
-    return true;
-  }
-  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
-    return false;
-  }
-  return fallback;
+  const thunkSomeFallback = flow(thunkFallback, O.some)
+  return S.UndefinedOr(S.String).pipe(
+    S.decodeTo(
+      S.Number,
+      SchemaTransformation.transform({
+        decode: (value) => {
+          const normalized = O.getOrElse(O.fromUndefinedOr(value), thunkFallback);
+          const parsed = globalThis.Number(normalized);
+          return globalThis.Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+        },
+        encode: (value) => `${value}`,
+      })
+    ),
+    S.withConstructorDefault(thunkSomeFallback),
+    S.withDecodingDefault(thunkFallbackToString),
+    S.annotate($I.annote(name, { description }))
+  )
+};
+
+const makeDefaultedBooleanField = (name: string, fallback: boolean, description: string) =>
+  S.UndefinedOr(S.String).pipe(
+    S.decodeTo(
+      S.Boolean,
+      SchemaTransformation.transform({
+        decode: (value) => {
+          const normalized = pipe(
+            O.getOrElse(O.fromUndefinedOr(value), () => Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })),
+            Str.trim,
+            Str.toLowerCase
+          );
+
+          return Bool.match(HashSet.has(TruthyBooleanString, normalized), {
+            onTrue: () => true,
+            onFalse: () =>
+              Bool.match(HashSet.has(FalseyBooleanString, normalized), {
+                onTrue: () => false,
+                onFalse: () => fallback,
+              }),
+          });
+        },
+        encode: (value) => Bool.match(value, { onTrue: () => "true", onFalse: () => "false" }),
+      })
+    ),
+    S.withConstructorDefault(() => O.some(fallback)),
+    S.withDecodingDefault(() => Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })),
+    S.annotate($I.annote(name, { description }))
+  );
+
+const makeDefaultedUrlField = (name: string, fallback: string, description: string) =>
+  S.UndefinedOr(S.String).pipe(
+    S.decodeTo(
+      S.String,
+      SchemaTransformation.transform({
+        decode: (value) => {
+          const candidate = O.getOrElse(O.fromUndefinedOr(value), () => fallback);
+          return URL.canParse(candidate) ? new URL(candidate).href : fallback;
+        },
+        encode: (value) => value,
+      })
+    ),
+    S.withConstructorDefault(() => O.some(fallback)),
+    S.withDecodingDefault(() => fallback),
+    S.annotate($I.annote(name, { description }))
+  );
+
+class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`GraphitiProxyConfig`)(
+  {
+    listenHost: makeDefaultedStringField(
+      "GraphitiProxyListenHost",
+      "127.0.0.1",
+      "Proxy listen host for Graphiti queue proxy."
+    ),
+    listenPort: makeDefaultedPositiveIntField(
+      "GraphitiProxyListenPort",
+      8123,
+      "Proxy listen port for Graphiti queue proxy."
+    ),
+    concurrency: makeDefaultedPositiveIntField(
+      "GraphitiProxyConcurrency",
+      1,
+      "Maximum concurrent upstream requests processed by the proxy."
+    ),
+    maxQueue: makeDefaultedPositiveIntField(
+      "GraphitiProxyMaxQueue",
+      500,
+      "Maximum queue depth before requests are rejected."
+    ),
+    requestTimeoutMs: makeDefaultedPositiveIntField(
+      "GraphitiProxyRequestTimeoutMs",
+      60_000,
+      "Request timeout in milliseconds for upstream forwarding."
+    ),
+    verbose: makeDefaultedBooleanField("GraphitiProxyVerbose", false, "Enable verbose debug logging output."),
+    dependencyHealthEnabled: makeDefaultedBooleanField(
+      "GraphitiProxyDependencyHealthEnabled",
+      true,
+      "Enable dependency health checks against Graphiti backing containers."
+    ),
+    dependencyHealthTtlMs: makeDefaultedPositiveIntField(
+      "GraphitiProxyDependencyHealthTtlMs",
+      5_000,
+      "Cached dependency health TTL in milliseconds."
+    ),
+    falkorContainer: makeDefaultedStringField(
+      "GraphitiProxyFalkorContainer",
+      "graphiti-mcp-falkordb-1",
+      "Falkor container name used for dependency health checks."
+    ),
+    graphitiContainer: makeDefaultedStringField(
+      "GraphitiProxyGraphitiContainer",
+      "graphiti-mcp-graphiti-mcp-1",
+      "Graphiti container name used for dependency health checks."
+    ),
+    upstream: makeDefaultedUrlField(
+      "GraphitiProxyUpstream",
+      "http://127.0.0.1:8000/mcp",
+      "Upstream Graphiti MCP endpoint URL for proxied requests."
+    ),
+  },
+  $I.annote("GraphitiProxyConfig", {
+    description: "Runtime configuration for Graphiti queue proxy command.",
+  })
+) {}
+
+const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
+const encodeUnknownToJsonString = S.encodeUnknownSync(S.UnknownFromJsonString);
+const UrlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
+  S.decodeTo(
+    UrlParams.UrlParamsSchema,
+    SchemaTransformation.transform({
+      decode: UrlParams.fromInput,
+      encode: (params) => {
+        const next = new URLSearchParams();
+        for (const [key, value] of params.params) {
+          next.append(key, value);
+        }
+        return next;
+      },
+    })
+  ),
+  S.annotate(
+    $I.annote("UrlSearchParamsSchema", {
+      description: "Schema transformation from URLSearchParams into Effect UrlParams.",
+    })
+  )
+);
+const decodeUrlSearchParams = S.decodeUnknownSync(UrlSearchParamsSchema);
+
+type QueueItem = {
+  readonly request: Request;
+  readonly resolve: (response: QueueResponse) => void;
+};
+
+type QueueResponse = {
+  readonly response: HttpClientResponse.HttpClientResponse;
+  readonly headers: Headers.Headers;
+};
+
+type DependencyHealthState = "unknown" | "ok" | "degraded";
+type ContainerHealthState = "unknown" | "healthy" | "unhealthy" | "starting";
+
+const toHttpMethod = (method: string): HttpMethod.HttpMethod => {
+  const normalized = pipe(method, Str.toUpperCase);
+  return HttpMethod.isHttpMethod(normalized) ? normalized : "GET";
+};
+
+const asWebResponse = ({ response, headers }: QueueResponse): Promise<Response> =>
+  Effect.gen(function* () {
+    const body = yield* Effect.orElseSucceed(response.arrayBuffer, () => new ArrayBuffer(0));
+    return new Response(body, {
+      status: response.status,
+      headers,
+    });
+  }).pipe(Effect.runPromise);
+
+const jsonResponse = (payload: unknown, init: ResponseInit): QueueResponse => {
+  const headers = pipe(Headers.fromInput(init.headers), Headers.set("content-type", "application/json"));
+  const request = HttpClientRequest.get("http://graphiti-proxy.local/internal");
+  const response = HttpClientResponse.fromWeb(
+    request,
+    new Response(encodeUnknownToJsonString(payload), {
+      ...init,
+      headers,
+    })
+  );
+  return {
+    response,
+    headers: response.headers,
+  };
 };
 
 /**
@@ -43,21 +245,24 @@ const graphitiProxyCommand = Command.make(
   {},
   Effect.fn(function* () {
     yield* Effect.sync(() => {
-      const listenHost = process.env.GRAPHITI_PROXY_HOST ?? "127.0.0.1";
-      const listenPort = parsePositiveInt(process.env.GRAPHITI_PROXY_PORT, 8123);
-      const concurrency = parsePositiveInt(process.env.GRAPHITI_PROXY_CONCURRENCY, 1);
-      const maxQueue = parsePositiveInt(process.env.GRAPHITI_PROXY_MAX_QUEUE, 500);
-      const requestTimeoutMs = parsePositiveInt(process.env.GRAPHITI_PROXY_REQUEST_TIMEOUT_MS, 60_000);
-      const verbose = parseBoolean(process.env.GRAPHITI_PROXY_VERBOSE, false);
-      const dependencyHealthEnabled = parseBoolean(process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_ENABLED, true);
-      const dependencyHealthTtlMs = parsePositiveInt(process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_TTL_MS, 5_000);
-      const falkorContainer = process.env.GRAPHITI_PROXY_FALKOR_CONTAINER ?? "graphiti-mcp-falkordb-1";
-      const graphitiContainer = process.env.GRAPHITI_PROXY_GRAPHITI_CONTAINER ?? "graphiti-mcp-graphiti-mcp-1";
-      const upstreamBase = new URL(process.env.GRAPHITI_PROXY_UPSTREAM ?? "http://127.0.0.1:8000/mcp");
+      const config = decodeGraphitiProxyConfig({
+        listenHost: process.env.GRAPHITI_PROXY_HOST,
+        listenPort: process.env.GRAPHITI_PROXY_PORT,
+        concurrency: process.env.GRAPHITI_PROXY_CONCURRENCY,
+        maxQueue: process.env.GRAPHITI_PROXY_MAX_QUEUE,
+        requestTimeoutMs: process.env.GRAPHITI_PROXY_REQUEST_TIMEOUT_MS,
+        verbose: process.env.GRAPHITI_PROXY_VERBOSE,
+        dependencyHealthEnabled: process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_ENABLED,
+        dependencyHealthTtlMs: process.env.GRAPHITI_PROXY_DEPENDENCY_HEALTH_TTL_MS,
+        falkorContainer: process.env.GRAPHITI_PROXY_FALKOR_CONTAINER,
+        graphitiContainer: process.env.GRAPHITI_PROXY_GRAPHITI_CONTAINER,
+        upstream: process.env.GRAPHITI_PROXY_UPSTREAM,
+      });
+      const upstreamBase = new URL(config.upstream);
 
       const state = {
         active: 0,
-        queue: [] as Array<{ request: Request; resolve: (response: Response) => void }>,
+        queue: [] as Array<QueueItem>,
         peakQueueDepth: 0,
         processed: 0,
         failed: 0,
@@ -66,10 +271,10 @@ const graphitiProxyCommand = Command.make(
 
       const dependencyState = {
         checkedAtMs: 0,
-        status: "unknown" as "unknown" | "ok" | "degraded",
+        status: "unknown" as DependencyHealthState,
         details: {
-          falkor: "unknown",
-          graphiti: "unknown",
+          falkor: "unknown" as ContainerHealthState,
+          graphiti: "unknown" as ContainerHealthState,
         },
       };
 
@@ -78,7 +283,7 @@ const graphitiProxyCommand = Command.make(
           console.log(`[graphiti-proxy] ${message}`);
         },
         debug: (message: string) => {
-          if (verbose) {
+          if (config.verbose) {
             console.log(`[graphiti-proxy:debug] ${message}`);
           }
         },
@@ -94,13 +299,13 @@ const graphitiProxyCommand = Command.make(
         processed: state.processed,
         failed: state.failed,
         rejected: state.rejected,
-        concurrency,
-        maxQueue,
-        upstream: upstreamBase.toString(),
+        concurrency: config.concurrency,
+        maxQueue: config.maxQueue,
+        upstream: upstreamBase.href,
       });
 
-      const readContainerHealth = (containerName: string): "unknown" | "healthy" | "unhealthy" | "starting" => {
-        if (!dependencyHealthEnabled) {
+      const readContainerHealth = (containerName: string): ContainerHealthState => {
+        if (!config.dependencyHealthEnabled) {
           return "unknown";
         }
 
@@ -114,26 +319,26 @@ const graphitiProxyCommand = Command.make(
           return "unknown";
         }
 
-        const value = result.stdout.toString("utf8").trim().toLowerCase();
+        const value = pipe(new TextDecoder("utf-8").decode(result.stdout), Str.trim, Str.toLowerCase);
         if (value === "healthy" || value === "unhealthy" || value === "starting") {
-          return value;
+          return value as ContainerHealthState;
         }
         return "unknown";
       };
 
       const currentDependencySnapshot = () => {
-        const nowMs = Date.now();
-        if (nowMs - dependencyState.checkedAtMs < dependencyHealthTtlMs) {
+        const nowMs = performance.now();
+        if (nowMs - dependencyState.checkedAtMs < config.dependencyHealthTtlMs) {
           return {
             status: dependencyState.status,
             details: dependencyState.details,
           };
         }
 
-        const falkor = readContainerHealth(falkorContainer);
-        const graphiti = readContainerHealth(graphitiContainer);
+        const falkor = readContainerHealth(config.falkorContainer);
+        const graphiti = readContainerHealth(config.graphitiContainer);
         const status: "ok" | "degraded" =
-          dependencyHealthEnabled && (falkor !== "healthy" || graphiti !== "healthy") ? "degraded" : "ok";
+          config.dependencyHealthEnabled && (falkor !== "healthy" || graphiti !== "healthy") ? "degraded" : "ok";
 
         dependencyState.checkedAtMs = nowMs;
         dependencyState.status = status;
@@ -153,66 +358,62 @@ const graphitiProxyCommand = Command.make(
         const status = dependency.status === "ok" ? "ok" : "degraded";
         const statusCode = status === "ok" ? 200 : 503;
 
-        return new Response(
-          JSON.stringify(
-            {
-              status,
-              ...queueStats(),
-              dependencies: dependency.details,
-            },
-            null,
-            2
-          ),
+        return jsonResponse(
+          {
+            status,
+            ...queueStats(),
+            dependencies: dependency.details,
+          },
           {
             status: statusCode,
-            headers: {
-              "content-type": "application/json",
-            },
           }
         );
       };
 
-      const forwardToUpstream = async (request: Request): Promise<Response> => {
+      const executeUpstreamRequest = (request: HttpClientRequest.HttpClientRequest) =>
+        HttpClient.execute(request).pipe(Effect.timeout(config.requestTimeoutMs), Effect.provide(BunHttpClient.layer));
+
+      const forwardToUpstream = async (request: Request): Promise<QueueResponse> => {
         const inboundUrl = new URL(request.url);
-        const destination = new URL(`${inboundUrl.pathname}${inboundUrl.search}`, upstreamBase);
-        const headers = new Headers(request.headers);
-        headers.delete("host");
-        headers.delete("connection");
-        headers.delete("content-length");
+        const destination = new URL(inboundUrl.pathname, upstreamBase);
+        const urlParams = decodeUrlSearchParams(inboundUrl.searchParams);
+        const headers = pipe(
+          Headers.fromInput(request.headers),
+          Headers.remove("host"),
+          Headers.remove("connection"),
+          Headers.remove("content-length")
+        );
 
-        const method = request.method.toUpperCase();
-        const hasBody = method !== "GET" && method !== "HEAD";
+        const method = toHttpMethod(request.method);
+        const hasBody = HttpMethod.hasBody(method);
 
-        logger.debug(`forwarding ${method} ${inboundUrl.pathname} -> ${destination.toString()}`);
+        logger.debug(`forwarding ${method} ${inboundUrl.pathname} -> ${destination.href}`);
 
-        const upstreamResponse = hasBody
-          ? await fetch(destination, {
-              method,
-              headers,
-              body: await request.arrayBuffer(),
-              redirect: "manual",
-              signal: AbortSignal.timeout(requestTimeoutMs),
-            })
-          : await fetch(destination, {
-              method,
-              headers,
-              redirect: "manual",
-              signal: AbortSignal.timeout(requestTimeoutMs),
-            });
+        const requestBody = hasBody ? new Uint8Array(await request.arrayBuffer()) : undefined;
 
-        const responseHeaders = new Headers(upstreamResponse.headers);
-        responseHeaders.set("x-graphiti-proxy-queued", String(state.queue.length));
-        responseHeaders.set("x-graphiti-proxy-active", String(state.active));
-
-        return new Response(upstreamResponse.body, {
-          status: upstreamResponse.status,
-          statusText: upstreamResponse.statusText,
-          headers: responseHeaders,
+        let upstreamRequest = HttpClientRequest.make(method)(destination.href, {
+          headers,
+          urlParams,
         });
+        if (requestBody !== undefined) {
+          upstreamRequest = HttpClientRequest.bodyUint8Array(upstreamRequest, requestBody, Headers.get(headers, "content-type"));
+        }
+
+        const upstreamResponse = await Effect.runPromise(executeUpstreamRequest(upstreamRequest));
+        const responseHeaders = pipe(
+          upstreamResponse.headers,
+          Headers.set("x-graphiti-proxy-queued", `${state.queue.length}`),
+          Headers.set("x-graphiti-proxy-active", `${state.active}`)
+        );
+
+        return {
+          response: upstreamResponse,
+          headers: responseHeaders,
+        };
       };
 
       const runNext = (): void => {
-        while (state.active < concurrency && state.queue.length > 0) {
+        while (state.active < config.concurrency && state.queue.length > 0) {
           const next = state.queue.shift();
           if (next === undefined) {
             return;
@@ -227,21 +428,16 @@ const graphitiProxyCommand = Command.make(
             })
             .catch((cause) => {
               state.failed += 1;
-              const message = cause instanceof Error ? cause.message : String(cause);
+              const message = Inspectable.toStringUnknown(cause, 0);
               logger.error(`upstream request failed: ${message}`);
               next.resolve(
-                new Response(
-                  JSON.stringify(
-                    {
-                      error: "upstream_failure",
-                      message,
-                    },
-                    null,
-                    2
-                  ),
+                jsonResponse(
+                  {
+                    error: "upstream_failure",
+                    message,
+                  },
                   {
                     status: 502,
-                    headers: { "content-type": "application/json" },
                   }
                 )
               );
@@ -253,23 +449,19 @@ const graphitiProxyCommand = Command.make(
         }
       };
 
-      const enqueueRequest = (request: Request): Promise<Response> =>
+      const enqueueRequest = (request: Request): Promise<QueueResponse> =>
         new Promise((resolve) => {
-          if (state.queue.length >= maxQueue) {
+          if (state.queue.length >= config.maxQueue) {
             state.rejected += 1;
             resolve(
-              new Response(
-                JSON.stringify(
-                  {
-                    error: "queue_full",
-                    message: `Graphiti proxy queue full (max ${String(maxQueue)})`,
-                  },
-                  null,
-                  2
-                ),
+              jsonResponse(
+                {
+                  error: "queue_full",
+                  message: `Graphiti proxy queue full (max ${config.maxQueue})`,
+                },
                 {
                   status: 503,
-                  headers: { "content-type": "application/json", "retry-after": "1" },
+                  headers: { "retry-after": "1" },
                 }
               )
             );
@@ -284,23 +476,23 @@ const graphitiProxyCommand = Command.make(
         });
 
       const server = Bun.serve({
-        hostname: listenHost,
-        port: listenPort,
+        hostname: config.listenHost,
+        port: config.listenPort,
         reusePort: true,
-        fetch(request) {
+        async fetch(request) {
           const { pathname } = new URL(request.url);
           if (pathname === "/healthz" || pathname === "/metrics") {
-            return healthResponse();
+            return asWebResponse(healthResponse());
           }
 
-          return enqueueRequest(request);
+          return asWebResponse(await enqueueRequest(request));
         },
       });
 
-      logger.info(`listening on http://${listenHost}:${String(server.port)}`);
-      logger.info(`forwarding to ${upstreamBase.toString()}`);
+      logger.info(`listening on http://${config.listenHost}:${server.port}`);
+      logger.info(`forwarding to ${upstreamBase.href}`);
       logger.info(
-        `queue settings concurrency=${String(concurrency)} maxQueue=${String(maxQueue)} timeoutMs=${String(requestTimeoutMs)}`
+        `queue settings concurrency=${config.concurrency} maxQueue=${config.maxQueue} timeoutMs=${config.requestTimeoutMs}`
       );
       logger.info("health endpoint: /healthz");
     });
