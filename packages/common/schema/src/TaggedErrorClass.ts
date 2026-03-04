@@ -86,10 +86,10 @@ export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: strin
       annotations
     );
     const taggedErrorClassWithNew = errorClass as TaggedErrorClassWithNew<typeof errorClass>;
-    taggedErrorClassWithNew.new = function(this: new (value: unknown) => unknown, value: unknown) {
+    taggedErrorClassWithNew.new = function (this: new (value: unknown) => unknown, value: unknown) {
       return new this(value);
     };
-    taggedErrorClassWithNew.newThunk = function(this: new (value: unknown) => unknown, value: unknown) {
+    taggedErrorClassWithNew.newThunk = function (this: new (value: unknown) => unknown, value: unknown) {
       return () => new this(value);
     };
     return taggedErrorClassWithNew;

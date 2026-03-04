@@ -1,10 +1,19 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Config, ConfigProvider, Effect, Layer, Redacted, ServiceMap } from "effect";
+import { Text } from "@beep/utils";
+import { Config, ConfigProvider, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ConfigError } from "./Errors.js";
+import {
+  buildAuthEnv,
+  normalizeRedactedOption,
+  parseOptionalCommaSeparatedList,
+  preferFirstOption,
+  readProcessCwd,
+  readProcessEnv,
+} from "./internal/ConfigTransforms.js";
 import { defaultSettingSources, layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
 import { PermissionMode } from "./Schema/index.js";
@@ -19,12 +28,7 @@ const StorageBackendSchema = LiteralKit(["bun", "filesystem", "r2", "kv"]);
 const StorageModeSchema = LiteralKit(["standard", "journaled"]);
 
 const parseSettingSources = (value: string) =>
-  S.decodeUnknownEffect(SettingSourcesSchema)(
-    value
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter((entry) => entry.length > 0)
-  ).pipe(
+  S.decodeUnknownEffect(SettingSourcesSchema)(Text.splitCommaSeparatedTrimmed(value)).pipe(
     Effect.mapError((cause) =>
       ConfigError.make({
         message: "Invalid settingSources",
@@ -32,18 +36,6 @@ const parseSettingSources = (value: string) =>
       })
     )
   );
-
-const parseList = (value: string) =>
-  value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
-
-const parseOptionalList = (value: O.Option<string>) =>
-  O.flatMap(value, (raw) => {
-    const entries = parseList(raw);
-    return entries.length > 0 ? O.some(entries) : O.none();
-  });
 
 const SandboxIgnoreViolationsSchema = S.fromJsonString(SandboxIgnoreViolations);
 
@@ -57,13 +49,10 @@ const parseSandboxIgnoreViolations = (value: string) =>
     )
   );
 
-const normalizeRedacted = (value: O.Option<Redacted.Redacted>) =>
-  O.flatMap(value, (redacted) => (Redacted.value(redacted).trim().length > 0 ? O.some(redacted) : O.none()));
-
 const makeAgentSdkConfig = Effect.gen(function* () {
-  const apiKey = normalizeRedacted(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));
-  const apiKeyFallback = normalizeRedacted(yield* Config.option(Config.redacted("API_KEY")));
-  const sessionAccessToken = normalizeRedacted(
+  const apiKey = normalizeRedactedOption(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));
+  const apiKeyFallback = normalizeRedactedOption(yield* Config.option(Config.redacted("API_KEY")));
+  const sessionAccessToken = normalizeRedactedOption(
     yield* Config.option(Config.redacted("CLAUDE_CODE_SESSION_ACCESS_TOKEN"))
   );
   const model = yield* Config.option(Config.string("MODEL"));
@@ -98,23 +87,10 @@ const makeAgentSdkConfig = Effect.gen(function* () {
   const settingSources = O.isSome(settingSourcesValue)
     ? yield* parseSettingSources(settingSourcesValue.value)
     : defaultSettingSources;
-  const processEnv = yield* Effect.sync(() => process.env);
-  const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
-  const authEnvEntries: Array<readonly [string, string]> = [];
-  if (O.isSome(resolvedApiKey)) {
-    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(resolvedApiKey.value)]);
-  }
-  if (O.isSome(sessionAccessToken)) {
-    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
-  }
-  const env =
-    authEnvEntries.length > 0
-      ? {
-          ...processEnv,
-          ...R.fromEntries(authEnvEntries),
-        }
-      : undefined;
-  const cwdDefault = yield* Effect.sync(() => process.cwd());
+  const processEnv = yield* readProcessEnv;
+  const resolvedApiKey = preferFirstOption(apiKey, apiKeyFallback);
+  const env = buildAuthEnv(processEnv, resolvedApiKey, sessionAccessToken);
+  const cwdDefault = yield* readProcessCwd;
 
   if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();
@@ -126,10 +102,10 @@ const makeAgentSdkConfig = Effect.gen(function* () {
     yield* Effect.logError("PERMISSION_MODE=bypassPermissions requires ALLOW_DANGEROUSLY_SKIP_PERMISSIONS=true.");
   }
 
-  const sandboxExcludedCommands = parseOptionalList(sandboxExcludedCommandsValue);
-  const sandboxNetworkAllowedDomains = parseOptionalList(sandboxNetworkAllowedDomainsValue);
-  const sandboxNetworkAllowUnixSockets = parseOptionalList(sandboxNetworkAllowUnixSocketsValue);
-  const sandboxRipgrepArgs = parseOptionalList(sandboxRipgrepArgsValue);
+  const sandboxExcludedCommands = parseOptionalCommaSeparatedList(sandboxExcludedCommandsValue);
+  const sandboxNetworkAllowedDomains = parseOptionalCommaSeparatedList(sandboxNetworkAllowedDomainsValue);
+  const sandboxNetworkAllowUnixSockets = parseOptionalCommaSeparatedList(sandboxNetworkAllowUnixSocketsValue);
+  const sandboxRipgrepArgs = parseOptionalCommaSeparatedList(sandboxRipgrepArgsValue);
   const sandboxIgnoreViolations = O.isSome(sandboxIgnoreViolationsValue)
     ? O.some(yield* parseSandboxIgnoreViolations(sandboxIgnoreViolationsValue.value))
     : O.none();

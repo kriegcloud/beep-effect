@@ -8,11 +8,14 @@
     "scratchpad",
     "packages/ai/*",
     "packages/common/*",
-    "packages/shared/*",
-    "packages/ui/*",
+    "packages/shared/client",
+    "packages/shared/domain",
+    "packages/shared/env",
+    "packages/shared/server",
+    "packages/shared/tables",
+    "packages/shared/ui",
     "tooling/cli",
-    "tooling/repo-utils",
-    "apps/*"
+    "tooling/repo-utils"
   ],
   "repository": {
     "repository": {

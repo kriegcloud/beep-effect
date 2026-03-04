@@ -1,5 +1,5 @@
-import * as A from "effect/Array";
 import { flow } from "effect";
+import * as A from "effect/Array";
 import { thunkFalse, thunkTrue } from "./thunk.js";
 /**
  * @category pattern matching

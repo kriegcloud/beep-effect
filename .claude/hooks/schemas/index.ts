@@ -1,224 +1,251 @@
 /**
- * Shared Schema Definitions
- *
- * This file contains all shared schemas for the hook system.
- * All encoding/decoding should use S.encode/decode directly instead of sync versions.
+ * Shared schema definitions for Claude hooks.
  */
 
+import { $ClaudeId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-// =============================================================================
-// Common Base Fields
-// =============================================================================
+const $I = $ClaudeId.create("hooks/schemas/index");
 
 /**
- * Base fields present in all hook inputs
+ * Base fields present in all hook inputs.
  */
-export const HookInputBase = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.String,
-});
-
-// =============================================================================
-// Tool Input Schemas (for tool_input field)
-// =============================================================================
+export class HookInputBase extends S.Class<HookInputBase>($I`HookInputBase`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.String,
+  },
+  $I.annote("HookInputBase", {
+    description: "Shared hook input base fields.",
+  })
+) {}
 
 /**
- * Edit tool input
+ * Edit tool input.
  */
-export const EditToolInput = S.Struct({
-  file_path: S.String,
-  old_string: S.String,
-  new_string: S.String,
-  replace_all: S.optional(S.Boolean),
-});
+export class EditToolInput extends S.Class<EditToolInput>($I`EditToolInput`)(
+  {
+    file_path: S.String,
+    old_string: S.String,
+    new_string: S.String,
+    replace_all: S.optionalKey(S.UndefinedOr(S.Boolean)),
+  },
+  $I.annote("EditToolInput", {
+    description: "Edit tool payload for hook tool_input.",
+  })
+) {}
 
 /**
- * Write tool input
+ * Write tool input.
  */
-export const WriteToolInput = S.Struct({
-  file_path: S.String,
-  content: S.String,
-});
+export class WriteToolInput extends S.Class<WriteToolInput>($I`WriteToolInput`)(
+  {
+    file_path: S.String,
+    content: S.String,
+  },
+  $I.annote("WriteToolInput", {
+    description: "Write tool payload for hook tool_input.",
+  })
+) {}
 
 /**
- * Task tool input (for spawning subagents)
+ * Task tool input (for spawning subagents).
  */
-export const TaskToolInput = S.Struct({
-  description: S.String,
-  prompt: S.String,
-  subagent_type: S.String,
-  model: S.optional(S.String),
-  run_in_background: S.optional(S.Boolean),
-  resume: S.optional(S.String),
-});
+export class TaskToolInput extends S.Class<TaskToolInput>($I`TaskToolInput`)(
+  {
+    description: S.String,
+    prompt: S.String,
+    subagent_type: S.String,
+    model: S.optionalKey(S.UndefinedOr(S.String)),
+    run_in_background: S.optionalKey(S.UndefinedOr(S.Boolean)),
+    resume: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("TaskToolInput", {
+    description: "Task tool payload for subagent orchestration.",
+  })
+) {}
 
 /**
- * Generic tool input with common optional fields
+ * Generic tool input with common optional fields.
  */
-export const GenericToolInput = S.Struct({
-  file_path: S.optional(S.String),
-  notebook_path: S.optional(S.String),
-  content: S.optional(S.String),
-  old_string: S.optional(S.String),
-  new_string: S.optional(S.String),
-});
-
-// =============================================================================
-// Tool Response Schemas (for tool_response field in PostToolUse)
-// =============================================================================
+export class GenericToolInput extends S.Class<GenericToolInput>($I`GenericToolInput`)(
+  {
+    file_path: S.optionalKey(S.UndefinedOr(S.String)),
+    notebook_path: S.optionalKey(S.UndefinedOr(S.String)),
+    content: S.optionalKey(S.UndefinedOr(S.String)),
+    old_string: S.optionalKey(S.UndefinedOr(S.String)),
+    new_string: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("GenericToolInput", {
+    description: "Lenient tool_input payload shared across hook events.",
+  })
+) {}
 
 /**
- * Structured patch entry in Edit/Write responses
+ * Structured patch entry in Edit/Write responses.
  */
-export const StructuredPatchEntry = S.Struct({
-  oldStart: S.Number,
-  oldLines: S.Number,
-  newStart: S.Number,
-  newLines: S.Number,
-  lines: S.Array(S.String),
-});
+export class StructuredPatchEntry extends S.Class<StructuredPatchEntry>($I`StructuredPatchEntry`)(
+  {
+    oldStart: S.Number,
+    oldLines: S.Number,
+    newStart: S.Number,
+    newLines: S.Number,
+    lines: S.Array(S.String),
+  },
+  $I.annote("StructuredPatchEntry", {
+    description: "Structured patch row for tool responses.",
+  })
+) {}
 
 /**
- * Edit tool response
+ * Edit tool response.
  */
-export const EditToolResponse = S.Struct({
-  filePath: S.String,
-  oldString: S.String,
-  newString: S.String,
-  originalFile: S.String,
-  structuredPatch: S.Array(StructuredPatchEntry),
-  userModified: S.Boolean,
-  replaceAll: S.Boolean,
-});
+export class EditToolResponse extends S.Class<EditToolResponse>($I`EditToolResponse`)(
+  {
+    filePath: S.String,
+    oldString: S.String,
+    newString: S.String,
+    originalFile: S.String,
+    structuredPatch: S.Array(StructuredPatchEntry),
+    userModified: S.Boolean,
+    replaceAll: S.Boolean,
+  },
+  $I.annote("EditToolResponse", {
+    description: "Edit tool response payload.",
+  })
+) {}
 
 /**
- * Write tool response
+ * Write tool response.
  */
-export const WriteToolResponse = S.Struct({
-  type: S.String, // "create" | "overwrite"
-  filePath: S.String,
-  content: S.String,
-  structuredPatch: S.Array(StructuredPatchEntry),
-  originalFile: S.NullOr(S.String),
-});
-
-// =============================================================================
-// PreToolUse Hook Input
-// =============================================================================
+export class WriteToolResponse extends S.Class<WriteToolResponse>($I`WriteToolResponse`)(
+  {
+    type: S.String,
+    filePath: S.String,
+    content: S.String,
+    structuredPatch: S.Array(StructuredPatchEntry),
+    originalFile: S.NullOr(S.String),
+  },
+  $I.annote("WriteToolResponse", {
+    description: "Write tool response payload.",
+  })
+) {}
 
 /**
- * PreToolUse hook input - received before tool execution
+ * PreToolUse hook input.
  */
-export const PreToolUseInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.Literal("PreToolUse"),
-  tool_name: S.String,
-  tool_input: GenericToolInput,
-  tool_use_id: S.String,
-});
-
-export type PreToolUseInput = S.Schema.Type<typeof PreToolUseInput>;
-
-// =============================================================================
-// PostToolUse Hook Input
-// =============================================================================
+export class PreToolUseInput extends S.Class<PreToolUseInput>($I`PreToolUseInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.Literal("PreToolUse"),
+    tool_name: S.String,
+    tool_input: GenericToolInput,
+    tool_use_id: S.String,
+  },
+  $I.annote("PreToolUseInput", {
+    description: "Hook payload received before tool execution.",
+  })
+) {}
 
 /**
- * PostToolUse hook input - received after tool execution
- * Includes tool_response with the result
+ * PostToolUse hook input.
  */
-export const PostToolUseInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.Literal("PostToolUse"),
-  tool_name: S.String,
-  tool_input: GenericToolInput,
-  tool_response: S.Unknown, // Varies by tool
-  tool_use_id: S.String,
-});
-
-export type PostToolUseInput = S.Schema.Type<typeof PostToolUseInput>;
-
-// =============================================================================
-// Legacy/Combined ToolUseInput (for backward compatibility)
-// =============================================================================
+export class PostToolUseInput extends S.Class<PostToolUseInput>($I`PostToolUseInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.Literal("PostToolUse"),
+    tool_name: S.String,
+    tool_input: GenericToolInput,
+    tool_response: S.Unknown,
+    tool_use_id: S.String,
+  },
+  $I.annote("PostToolUseInput", {
+    description: "Hook payload received after tool execution.",
+  })
+) {}
 
 /**
- * Combined ToolUseInput schema - works for both PreToolUse and PostToolUse
- * @deprecated Use PreToolUseInput or PostToolUseInput for better type safety
+ * Combined ToolUseInput schema for backward compatibility.
  */
-export const ToolUseInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.String,
-  tool_name: S.String,
-  tool_input: GenericToolInput,
-  tool_response: S.optional(S.Unknown),
-  tool_use_id: S.String,
-});
-
-export type ToolUseInput = S.Schema.Type<typeof ToolUseInput>;
-
-// =============================================================================
-// UserPromptSubmit Hook Input
-// =============================================================================
+export class ToolUseInput extends S.Class<ToolUseInput>($I`ToolUseInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.String,
+    tool_name: S.String,
+    tool_input: GenericToolInput,
+    tool_response: S.optionalKey(S.UndefinedOr(S.Unknown)),
+    tool_use_id: S.String,
+  },
+  $I.annote("ToolUseInput", {
+    description: "Legacy combined tool hook payload.",
+  })
+) {}
 
 /**
- * UserPromptSubmit hook input - received when user submits a prompt
+ * UserPromptSubmit hook input.
  */
-export const UserPromptInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.Literal("UserPromptSubmit"),
-  prompt: S.String,
-});
-
-export type UserPromptInput = S.Schema.Type<typeof UserPromptInput>;
-
-// =============================================================================
-// SessionStart Hook Input
-// =============================================================================
+export class UserPromptInput extends S.Class<UserPromptInput>($I`UserPromptInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.Literal("UserPromptSubmit"),
+    prompt: S.String,
+  },
+  $I.annote("UserPromptInput", {
+    description: "User prompt hook payload.",
+  })
+) {}
 
 /**
- * SessionStart hook input - received when a new session starts
+ * SessionStart hook input.
  */
-export const SessionStartInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.String,
-  hook_event_name: S.Literal("SessionStart"),
-});
+export class SessionStartInput extends S.Class<SessionStartInput>($I`SessionStartInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.String,
+    hook_event_name: S.Literal("SessionStart"),
+  },
+  $I.annote("SessionStartInput", {
+    description: "Session start hook payload.",
+  })
+) {}
 
-export type SessionStartInput = S.Schema.Type<typeof SessionStartInput>;
-
-// =============================================================================
-// Hook Output Schemas
-// =============================================================================
-
-/**
- * Standard hook output format
- */
-export const HookOutput = S.Struct({
-  hookSpecificOutput: S.Struct({
+class HookSpecificOutput extends S.Class<HookSpecificOutput>($I`HookSpecificOutput`)(
+  {
     hookEventName: S.String,
-    permissionDecision: S.optional(S.String),
-    permissionDecisionReason: S.optional(S.String),
-    additionalContext: S.optional(S.String),
-  }),
-});
+    permissionDecision: S.optionalKey(S.UndefinedOr(S.String)),
+    permissionDecisionReason: S.optionalKey(S.UndefinedOr(S.String)),
+    additionalContext: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("HookSpecificOutput", {
+    description: "Hook-specific output payload for hook responses.",
+  })
+) {}
 
-export type HookOutput = S.Schema.Type<typeof HookOutput>;
+/**
+ * Standard hook output format.
+ */
+export class HookOutput extends S.Class<HookOutput>($I`HookOutput`)(
+  {
+    hookSpecificOutput: HookSpecificOutput,
+  },
+  $I.annote("HookOutput", {
+    description: "Standardized hook output wrapper.",
+  })
+) {}

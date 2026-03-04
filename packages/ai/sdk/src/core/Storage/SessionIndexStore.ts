@@ -1,5 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Clock, Effect, HashMap, Layer, Order, ServiceMap, SynchronizedRef } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -107,12 +108,12 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
   const orderBy = options?.orderBy ?? defaultOrderBy;
   const direction = options?.direction ?? defaultDirection;
   const ordering = makeMetaOrder(orderBy, direction);
-  let sorted = metas.slice().sort(ordering);
+  let sorted = A.sort(metas, ordering);
 
   if (options?.cursor) {
     const after = Order.isGreaterThan(resolveTupleOrder(direction));
     const cursorKey = toCursorKey(options.cursor);
-    sorted = sorted.filter((meta) => after(toOrderKey(meta, orderBy), cursorKey));
+    sorted = A.filter(sorted, (meta) => after(toOrderKey(meta, orderBy), cursorKey));
   }
 
   return sorted;

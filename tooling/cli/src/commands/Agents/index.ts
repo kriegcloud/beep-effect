@@ -130,7 +130,9 @@ const findSlashColumn = (line: string): O.Option<number> => {
 const agentsCheckCommand = Command.make(
   "check",
   {
-    strict: Flag.boolean("strict").pipe(Flag.withDescription("Exit with failure when managed AGENTS files are missing")),
+    strict: Flag.boolean("strict").pipe(
+      Flag.withDescription("Exit with failure when managed AGENTS files are missing")
+    ),
   },
   Effect.fn(function* ({ strict }) {
     const path = yield* Path.Path;
@@ -249,9 +251,7 @@ const agentsPathlessCheckCommand = Command.make(
       yield* Console.error(`[pathless-config] failed with ${A.length(violations)} violation(s)`);
       for (const violation of violations) {
         const location =
-          violation.line > 0
-            ? `${violation.file}:${violation.line}:${violation.column}`
-            : `${violation.file}:missing`;
+          violation.line > 0 ? `${violation.file}:${violation.line}:${violation.column}` : `${violation.file}:missing`;
 
         yield* Console.error(`- ${location} ${violation.message}`);
 

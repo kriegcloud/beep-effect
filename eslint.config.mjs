@@ -70,6 +70,34 @@ export default [
       "beep-laws/no-native-runtime": "warn",
     },
   },
+  // Hotspot runtime enforcement (error-level for active remediation files)
+  {
+    files: [
+      "packages/ai/sdk/src/core/AgentSdkConfig.ts",
+      "packages/ai/sdk/src/core/SessionConfig.ts",
+      "packages/ai/sdk/src/core/Diagnose.ts",
+      "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
+      "tooling/cli/src/commands/DocsAggregate.ts",
+      "tooling/cli/src/commands/Lint/index.ts",
+      "tooling/cli/src/commands/Laws/index.ts",
+      "tooling/cli/src/commands/Laws/EffectImports.ts",
+      "tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
+      "tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts",
+      "tooling/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
+    ],
+    plugins: {
+      "beep-laws": beepLaws,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      "beep-laws/no-native-runtime": "error",
+    },
+  },
   // JSDoc Documentation Rules - main enforcement
   {
     files: ["tooling/*/src/**/*.ts"],

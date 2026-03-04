@@ -160,7 +160,7 @@ const lawsAllowlistCheckCommand = Command.make(
     }
 
     const text = yield* fs.readFileString(absolutePath);
-    const parseErrors = A.empty<{ error: number; offset: number; length: number }>()
+    const parseErrors = A.empty<{ error: number; offset: number; length: number }>();
     const parsed = parse(text, parseErrors, {
       allowTrailingComma: true,
       disallowComments: false,
@@ -187,13 +187,7 @@ const lawsAllowlistCheckCommand = Command.make(
       for (const diagnostic of decoded.failure) {
         if (diagnostic.path) {
           const pathLabel =
-            A.length(diagnostic.path) === 0
-              ? "<root>"
-              : pipe(
-                  diagnostic.path,
-                  A.map(String),
-                  A.join(".")
-                );
+            A.length(diagnostic.path) === 0 ? "<root>" : pipe(diagnostic.path, A.map(String), A.join("."));
           yield* Console.error(`- ${pathLabel}: ${diagnostic.message}`);
         }
       }

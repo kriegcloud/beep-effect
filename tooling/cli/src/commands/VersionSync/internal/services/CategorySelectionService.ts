@@ -6,10 +6,9 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Boolean as Bool, Layer, ServiceMap } from "effect";
+import { Boolean as Bool, Layer, Match, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import {
-  VersionCategory,
   VersionCategoryOptions,
   type VersionCategory as VersionCategoryValue,
   type VersionSyncOptions,
@@ -40,12 +39,13 @@ export class CategorySelectionService extends ServiceMap.Service<
 >()($I`CategorySelectionService`) {}
 
 const shouldCheck: CategorySelectionServiceShape["shouldCheck"] = (options, category) => {
-  const hasExplicitCategoryFilter = VersionCategory.$match(category, {
-    bun: () => options.bunOnly,
-    node: () => options.nodeOnly,
-    docker: () => options.dockerOnly,
-    biome: () => options.biomeOnly,
-  });
+  const hasExplicitCategoryFilter = Match.value(category).pipe(
+    Match.when("bun", () => options.bunOnly),
+    Match.when("node", () => options.nodeOnly),
+    Match.when("docker", () => options.dockerOnly),
+    Match.when("biome", () => options.biomeOnly),
+    Match.exhaustive
+  );
 
   const hasAnyExplicitCategoryFilter = options.bunOnly || options.nodeOnly || options.dockerOnly || options.biomeOnly;
 

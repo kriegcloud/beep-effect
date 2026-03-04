@@ -5,9 +5,8 @@
  * @module
  */
 
-import * as Fs from "node:fs";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, HashSet, Inspectable, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, HashSet, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -17,7 +16,11 @@ const $I = $RepoCliId.create("commands/DocsAggregate");
 const PACKAGE_ROOTS = ["packages", "tooling", "apps"] as const;
 const IGNORED_DIRS = HashSet.fromIterable([".git", ".turbo", "node_modules", "dist", "build"]);
 const byStringAscending: Order.Order<string> = Order.String;
-const byDocsOutputPathAscending: Order.Order<DocsPackage> = Order.mapInput(Order.String, (pkg: DocsPackage) => pkg.outputPath);
+const byDocsOutputPathAscending: Order.Order<DocsPackage> = Order.mapInput(
+  Order.String,
+  (pkg: DocsPackage) => pkg.outputPath
+);
+type DocsEnv = FileSystem.FileSystem | Path.Path;
 
 class DocsPackage extends S.Class<DocsPackage>($I`DocsPackage`)(
   {
@@ -48,47 +51,63 @@ class DocsAggregateFailure extends S.TaggedErrorClass<DocsAggregateFailure>($I`D
   })
 ) {}
 
-const walkRoot = (root: string, path: Path.Path): Array<DocsPackage> => {
-  const packages = [] as Array<DocsPackage>;
+const decodePackageJsonDocument = S.decodeUnknownEffect(S.fromJsonString(PackageJsonDocument));
 
-  if (!Fs.existsSync(root)) {
-    return packages;
-  }
+const walkRoot = (root: string): Effect.Effect<ReadonlyArray<DocsPackage>, DocsAggregateFailure, DocsEnv> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-  const walk = (relativePath: string): void => {
-    const packageDir = relativePath.length > 0 ? path.join(root, relativePath) : root;
-
-    if (Fs.existsSync(path.join(packageDir, "docs/modules"))) {
-      packages.push(
-        new DocsPackage({
-          packageDir,
-          outputPath: relativePath,
-        })
-      );
-      return;
+    const exists = yield* fs.exists(root).pipe(Effect.orElseSucceed(() => false));
+    if (!exists) {
+      return A.empty<DocsPackage>();
     }
 
-    const children = pipe(
-      Fs.readdirSync(packageDir, { withFileTypes: true }),
-      A.filter((entry) => entry.isDirectory() && !HashSet.has(IGNORED_DIRS, entry.name)),
-      A.map((entry) => entry.name),
-      (names) => A.sort(names, byStringAscending)
-    );
+    const walk = (relativePath: string): Effect.Effect<ReadonlyArray<DocsPackage>, DocsAggregateFailure, DocsEnv> =>
+      Effect.gen(function* () {
+        const packageDir = Str.isNonEmpty(relativePath) ? path.join(root, relativePath) : root;
+        const docsModulesPath = path.join(packageDir, "docs", "modules");
+        const hasDocsModules = yield* fs.exists(docsModulesPath).pipe(Effect.orElseSucceed(() => false));
+        if (hasDocsModules) {
+          return A.make(
+            new DocsPackage({
+              packageDir,
+              outputPath: relativePath,
+            })
+          );
+        }
 
-    for (const child of children) {
-      walk(relativePath.length > 0 ? path.join(relativePath, child) : child);
-    }
-  };
+        const entries = yield* fs.readDirectory(packageDir).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+        const directories = yield* Effect.forEach(entries, (entry) =>
+          Effect.gen(function* () {
+            if (HashSet.has(IGNORED_DIRS, entry)) {
+              return O.none<string>();
+            }
 
-  walk("");
-  return packages;
-};
+            const fullPath = path.join(packageDir, entry);
+            const stat = yield* fs.stat(fullPath).pipe(Effect.option);
+            if (O.isNone(stat) || stat.value.type !== "Directory") {
+              return O.none<string>();
+            }
+            return O.some(entry);
+          })
+        );
 
-const findPackages = (path: Path.Path): Array<DocsPackage> => {
-  const packages = A.sort(
-    pipe(PACKAGE_ROOTS, A.flatMap((root) => walkRoot(root, path))),
-    byDocsOutputPathAscending
-  );
+        const sorted = pipe(directories, A.getSomes, A.sort(byStringAscending));
+        const nested = yield* Effect.forEach(sorted, (child) =>
+          walk(Str.isNonEmpty(relativePath) ? path.join(relativePath, child) : child)
+        );
+        return A.flatten(nested);
+      });
+
+    return yield* walk("");
+  });
+
+const findPackages = Effect.gen(function* () {
+  const discovered = yield* Effect.forEach(PACKAGE_ROOTS, (root) => walkRoot(root), {
+    concurrency: "unbounded",
+  });
+  const packages = A.sort(A.flatten(discovered), byDocsOutputPathAscending);
 
   const duplicateOutputPaths = MutableHashSet.empty<string>();
   const seenOutputPaths = MutableHashSet.empty<string>();
@@ -98,78 +117,149 @@ const findPackages = (path: Path.Path): Array<DocsPackage> => {
       MutableHashSet.add(duplicateOutputPaths, pkg.outputPath);
       continue;
     }
-
     MutableHashSet.add(seenOutputPaths, pkg.outputPath);
   }
 
   if (MutableHashSet.size(duplicateOutputPaths) > 0) {
     const duplicateList = pipe(A.fromIterable(duplicateOutputPaths), A.sort(byStringAscending), A.join(", "));
-    throw new DocsAggregateFailure({
+    return yield* new DocsAggregateFailure({
       message: `Duplicate docs output paths detected: ${duplicateList}`,
     });
   }
 
   return packages;
-};
+});
 
-const decodePackageJsonDocument = S.decodeUnknownSync(S.fromJsonString(PackageJsonDocument));
+const pkgName = (pkg: DocsPackage): Effect.Effect<string, DocsAggregateFailure, DocsEnv> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const packageJsonPath = path.join(pkg.packageDir, "package.json");
+    const packageJson = yield* fs.readFileString(packageJsonPath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DocsAggregateFailure({
+            message: `Failed to read ${packageJsonPath}: ${Str.trim(`${cause}`)}`,
+          })
+      )
+    );
+    const decoded = yield* decodePackageJsonDocument(packageJson).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DocsAggregateFailure({
+            message: `Failed to decode package.json at ${packageJsonPath}: ${Str.trim(`${cause}`)}`,
+          })
+      )
+    );
+    return O.getOrElse(O.fromUndefinedOr(decoded.name), () => pkg.outputPath);
+  });
 
-const pkgName = (pkg: DocsPackage, path: Path.Path): string => {
-  const packageJson = Fs.readFileSync(path.join(pkg.packageDir, "package.json"), "utf8");
-  const decoded = decodePackageJsonDocument(packageJson);
-  return O.getOrElse(O.fromUndefinedOr(decoded.name), () => pkg.outputPath);
-};
+const copyFiles = (pkg: DocsPackage, name: string): Effect.Effect<void, DocsAggregateFailure, DocsEnv> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const docs = path.join(pkg.packageDir, "docs", "modules");
+    const dest = path.join("docs", pkg.outputPath);
 
-const copyFiles = (pkg: DocsPackage, path: Path.Path): void => {
-  const name = pkgName(pkg, path);
-  const docs = path.join(pkg.packageDir, "docs/modules");
-  const dest = path.join("docs", pkg.outputPath);
-  const files = Fs.readdirSync(docs, { withFileTypes: true });
+    yield* fs.remove(dest, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => undefined));
+    yield* fs.makeDirectory(dest, { recursive: true }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DocsAggregateFailure({
+            message: `Failed to create docs destination ${dest}: ${Str.trim(`${cause}`)}`,
+          })
+      )
+    );
 
-  const handleFiles = (root: string, entries: ReadonlyArray<Fs.Dirent>): void => {
-    for (const file of entries) {
-      const sourcePath = path.join(docs, root, file.name);
-      const destPath = path.join(dest, root, file.name);
+    const copyTree = (relativePath: string): Effect.Effect<void, DocsAggregateFailure, DocsEnv> =>
+      Effect.gen(function* () {
+        const sourceDir = Str.isNonEmpty(relativePath) ? path.join(docs, relativePath) : docs;
+        const entries = yield* fs.readDirectory(sourceDir).pipe(
+          Effect.mapError(
+            (cause) =>
+              new DocsAggregateFailure({
+                message: `Failed to read docs directory ${sourceDir}: ${Str.trim(`${cause}`)}`,
+              })
+          )
+        );
 
-      if (file.isDirectory()) {
-        Fs.mkdirSync(destPath, { recursive: true });
-        handleFiles(path.join(root, file.name), Fs.readdirSync(sourcePath, { withFileTypes: true }));
-        continue;
-      }
+        for (const entry of entries) {
+          const sourcePath = path.join(sourceDir, entry);
+          const targetRelative = Str.isNonEmpty(relativePath) ? path.join(relativePath, entry) : entry;
+          const destPath = path.join(dest, targetRelative);
+          const stat = yield* fs.stat(sourcePath).pipe(
+            Effect.mapError(
+              (cause) =>
+                new DocsAggregateFailure({
+                  message: `Failed to stat docs path ${sourcePath}: ${Str.trim(`${cause}`)}`,
+                })
+            )
+          );
 
-      const content = Str.replace(/^parent: Modules$/m, `parent: "${name}"`)(Fs.readFileSync(sourcePath, "utf8"));
-      Fs.writeFileSync(destPath, content);
-    }
-  };
+          if (stat.type === "Directory") {
+            yield* fs.makeDirectory(destPath, { recursive: true }).pipe(
+              Effect.mapError(
+                (cause) =>
+                  new DocsAggregateFailure({
+                    message: `Failed to create directory ${destPath}: ${Str.trim(`${cause}`)}`,
+                  })
+              )
+            );
+            yield* copyTree(targetRelative);
+            continue;
+          }
 
-  Fs.rmSync(dest, { recursive: true, force: true });
-  Fs.mkdirSync(dest, { recursive: true });
-  handleFiles("", files);
-};
+          const content = yield* fs.readFileString(sourcePath).pipe(
+            Effect.mapError(
+              (cause) =>
+                new DocsAggregateFailure({
+                  message: `Failed to read docs file ${sourcePath}: ${Str.trim(`${cause}`)}`,
+                })
+            )
+          );
+          const rewritten = Str.replace(/^parent: Modules$/m, `parent: "${name}"`)(content);
+          yield* fs.writeFileString(destPath, rewritten).pipe(
+            Effect.mapError(
+              (cause) =>
+                new DocsAggregateFailure({
+                  message: `Failed to write docs file ${destPath}: ${Str.trim(`${cause}`)}`,
+                })
+            )
+          );
+        }
+      });
 
-const generateIndex = (outputPath: string, name: string, order: number, path: Path.Path): void => {
-  const permalink = Str.replace(/\\/g, "/")(outputPath);
-  const content = `---
+    yield* copyTree("");
+  });
+
+const generateIndex = (
+  outputPath: string,
+  name: string,
+  order: number
+): Effect.Effect<void, DocsAggregateFailure, DocsEnv> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const permalink = Str.replace(/\\/g, "/")(outputPath);
+    const content = `---
 title: "${name}"
 has_children: true
 permalink: /docs/${permalink}
 nav_order: ${order}
 ---
 `;
-
-  Fs.writeFileSync(path.join("docs", outputPath, "index.md"), content);
-};
+    yield* fs.writeFileString(path.join("docs", outputPath, "index.md"), content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DocsAggregateFailure({
+            message: `Failed to write docs index for ${outputPath}: ${Str.trim(`${cause}`)}`,
+          })
+      )
+    );
+  });
 
 const aggregateDocs = Effect.fn(function* () {
-  const path = yield* Path.Path;
-
-  const packages = yield* Effect.try({
-    try: () => findPackages(path),
-    catch: (cause) =>
-      new DocsAggregateFailure({
-        message: `Failed to discover docs packages: ${Inspectable.toStringUnknown(cause, 0)}`,
-      }),
-  });
+  const packages = yield* findPackages;
 
   for (let index = 0; index < A.length(packages); index += 1) {
     const pkg = packages[index];
@@ -177,27 +267,9 @@ const aggregateDocs = Effect.fn(function* () {
       continue;
     }
 
-    const name = yield* Effect.try({
-      try: () => pkgName(pkg, path),
-      catch: (cause) =>
-        new DocsAggregateFailure({
-          message: `Failed reading package name for ${pkg.packageDir}: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
-    });
-
-    yield* Effect.try({
-      try: () => {
-        Fs.rmSync(path.join("docs", pkg.outputPath), { recursive: true, force: true });
-        Fs.mkdirSync(path.join("docs", pkg.outputPath), { recursive: true });
-        copyFiles(pkg, path);
-        generateIndex(pkg.outputPath, name, index + 2, path);
-      },
-      catch: (cause) =>
-        new DocsAggregateFailure({
-          message: `Failed to aggregate docs for ${name}: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
-    });
-
+    const name = yield* pkgName(pkg);
+    yield* copyFiles(pkg, name);
+    yield* generateIndex(pkg.outputPath, name, index + 2);
     yield* Console.log(`✅ Processed docs for ${name}`);
   }
 

@@ -133,6 +133,13 @@ export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
   })
 );
 /**
+ * Pattern-matching helper for version category status literals.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const VersionCategoryStatusMatch = VersionCategoryStatusKit.$match;
+/**
  * Enum mapping for version category status literals.
  *
  * @since 0.0.0

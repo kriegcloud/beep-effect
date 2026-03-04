@@ -36,17 +36,15 @@ export const updatePackageManagerField: (
 ) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn(function* (filePath, version) {
   const fs = yield* FileSystem.FileSystem;
 
-  const original = yield* fs
-    .readFileString(filePath)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  const original = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   const newValue = `bun@${version}`;
 
@@ -64,17 +62,15 @@ export const updatePackageManagerField: (
     return false;
   }
 
-  yield* fs
-    .writeFileString(filePath, updated)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  yield* fs.writeFileString(filePath, updated).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   return true;
 });
