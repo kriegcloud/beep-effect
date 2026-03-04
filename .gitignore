@@ -29,6 +29,7 @@ secrets.json
 service-account*.json
 **/secrets/
 **/.secrets/
+.serena/
 # Client
 stats.html
 .env.tmp

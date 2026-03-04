@@ -1,6 +1,0 @@
-{"type":"suite.started","atEpochMs":1772296651172,"plannedRunCount":2,"strictTaskCount":1,"maxWallMinutes":20}
-{"type":"run.started","atEpochMs":1772296651173,"runId":"package_lib_p4_token_01:current:codex:1","runIndex":1,"totalRuns":2,"taskId":"package_lib_p4_token_01","condition":"current","agent":"codex","trial":1}
-{"type":"run.completed","atEpochMs":1772296768227,"runId":"package_lib_p4_token_01:current:codex:1","runIndex":1,"totalRuns":2,"success":true,"failureType":null,"wallMs":117050.15324}
-{"type":"run.started","atEpochMs":1772296768227,"runId":"package_lib_p4_token_01:adaptive_kg:codex:1","runIndex":2,"totalRuns":2,"taskId":"package_lib_p4_token_01","condition":"adaptive_kg","agent":"codex","trial":1}
-{"type":"run.completed","atEpochMs":1772296958197,"runId":"package_lib_p4_token_01:adaptive_kg:codex:1","runIndex":2,"totalRuns":2,"success":true,"failureType":null,"wallMs":184183.51867499997}
-{"type":"suite.completed","atEpochMs":1772296958198,"status":"completed","completedRunCount":2,"plannedRunCount":2}

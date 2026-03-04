@@ -10,7 +10,6 @@
     "packages/common/*",
     "packages/shared/*",
     "packages/ui/*",
-    "tooling/agent-eval",
     "tooling/cli",
     "tooling/repo-utils",
     "apps/*"
@@ -25,10 +24,6 @@
   "scripts": {
     "op": "op run --env-file=.env --",
     "beep": "bun run tooling/cli/src/bin.ts --",
-    "agent:bench": "bun run tooling/agent-eval/src/bin.ts bench",
-    "agent:bench:report": "bun run tooling/agent-eval/src/bin.ts report",
-    "agent:bench:compare": "bun run tooling/agent-eval/src/bin.ts compare",
-    "agent:bench:ingest": "bun run tooling/agent-eval/src/bin.ts ingest",
     "claude:hook:agent-init": "bun run .claude/hooks/agent-init/run.sh",
     "claude:hook:subagent-init": "bun run .claude/hooks/subagent-init/run.sh",
     "claude:hook:pattern-detector": "bun run .claude/hooks/pattern-detector/run.sh",
@@ -79,9 +74,6 @@
     "audit:high:strict": "bun audit --audit-level=high",
     "audit:high": "bun audit --audit-level=high --ignore=GHSA-35jh-r3h4-6jhm --ignore=GHSA-3ppc-4f35-3m26 --ignore=GHSA-8r9q-7v3j-jr4g --ignore=GHSA-w48q-cv73-mx4w --ignore=GHSA-3vhc-576x-3qv4 --ignore=GHSA-f67f-6cw9-8mq4 --ignore=GHSA-m732-5p4w-x69g",
     "audit:high:ci": "bun run audit:high",
-    "audit:jsdoc-exhaustiveness": "bun specs/pending/repo-codegraph-jsdoc/outputs/jsdoc-exhaustiveness-audit/validate-jsdoc-exhaustiveness.mjs",
-    "audit:jsdoc-exhaustiveness:live": "bun specs/pending/repo-codegraph-jsdoc/outputs/jsdoc-exhaustiveness-audit/validate-jsdoc-exhaustiveness.mjs --verify-live",
-    "audit:jsdoc-exhaustiveness:refresh-snapshot": "bun specs/pending/repo-codegraph-jsdoc/outputs/jsdoc-exhaustiveness-audit/extract-source-tags.mjs --output specs/pending/repo-codegraph-jsdoc/outputs/jsdoc-exhaustiveness-audit/source-tag-snapshots.json",
     "release": "bun run build && bun run test && bun run lint && changeset publish",
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
     "services:up": "bun run dotenvx -- docker compose up -d",

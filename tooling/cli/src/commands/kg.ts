@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as nodePath from "node:path";
 import {
-  AstKgEnvelopeVersion,
+  AstKgEnvelopeVersion,tooling/agent-eval
   AstKgGroupId,
   callMcpTool,
   DomainError,

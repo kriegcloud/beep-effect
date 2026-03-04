@@ -1,5 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/Effect-TS/docgen/main/docgen.schema.json",
-  "entrypoints": ["src/index.ts"],
-  "exclude": ["**/*.test.ts"]
-}

@@ -1,13 +1,2 @@
 [extend]
 useDefault = true
-
-[allowlist]
-description = "Allow synthetic benchmark token artifacts and run logs for P4 token probes"
-paths = [
-  '''^benchmarks/agent-reliability/p4-token-artifacts/.*$''',
-  '''^benchmarks/agent-reliability/p4-token-tasks/.*$''',
-  '''^outputs/agent-reliability/runs/p4-token-probe-live.*$''',
-  '''^outputs/agent-reliability/runs/p4-ablation-live.*$''',
-  '''^outputs/agent-reliability/weekly/p4-token-probe-live.*$''',
-  '''^outputs/agent-reliability/weekly/p4-ablation-live.*$'''
-]

@@ -1,6 +1,0 @@
-{"type":"suite.started","atEpochMs":1772043711224,"plannedRunCount":2,"strictTaskCount":1,"maxWallMinutes":20}
-{"type":"run.started","atEpochMs":1772043711225,"runId":"tooling_cli_01:minimal:codex:1","runIndex":1,"totalRuns":2,"taskId":"tooling_cli_01","condition":"minimal","agent":"codex","trial":1}
-{"type":"run.completed","atEpochMs":1772044013202,"runId":"tooling_cli_01:minimal:codex:1","runIndex":1,"totalRuns":2,"success":false,"failureType":"runtime","wallMs":301974.934306}
-{"type":"run.started","atEpochMs":1772044013203,"runId":"tooling_cli_01:minimal:claude:1","runIndex":2,"totalRuns":2,"taskId":"tooling_cli_01","condition":"minimal","agent":"claude","trial":1}
-{"type":"run.completed","atEpochMs":1772044315313,"runId":"tooling_cli_01:minimal:claude:1","runIndex":2,"totalRuns":2,"success":false,"failureType":"runtime","wallMs":302109.66500800004}
-{"type":"suite.completed","atEpochMs":1772044315313,"status":"completed","completedRunCount":2,"plannedRunCount":2}
