@@ -126,7 +126,7 @@
       "inputs": [
         "tooling/*/src/**/*.ts",
         "packages/*/src/**/*.ts",
-        "scripts/circular.mjs"
+        "tooling/cli/src/commands/Lint/index.ts"
       ]
     },
     "//#lint:repo": {

@@ -12,6 +12,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
+import { docsAggregateCommand } from "./DocsAggregate.js";
 
 const $I = $RepoCliId.create("docs");
 
@@ -145,6 +146,7 @@ const printDocsIndex = Effect.fn(function* () {
   yield* Console.log("- bun run beep docs skills");
   yield* Console.log("- bun run beep docs policies");
   yield* Console.log("- bun run beep docs find <topic>");
+  yield* Console.log("- bun run beep docs aggregate");
 });
 
 const findSectionByName = (name: DocsSectionName): O.Option<DocsSection> =>
@@ -234,5 +236,5 @@ const docsFindCommand = Command.make(
  */
 export const docsCommand = Command.make("docs", {}, printDocsIndex).pipe(
   Command.withDescription("Discover laws, skills, and policies without path references"),
-  Command.withSubcommands([docsLawsCommand, docsSkillsCommand, docsPoliciesCommand, docsFindCommand])
+  Command.withSubcommands([docsLawsCommand, docsSkillsCommand, docsPoliciesCommand, docsFindCommand, docsAggregateCommand])
 );

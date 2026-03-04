@@ -7,9 +7,14 @@
  */
 
 import { Command } from "effect/unstable/cli";
+import { agentsCommand } from "./Agents/index.js";
+import { claudeCommand } from "./Claude/index.js";
 import { codegenCommand } from "./Codegen.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docsCommand } from "./Docs.js";
+import { graphitiCommand } from "./Graphiti/index.js";
+import { lawsCommand } from "./Laws/index.js";
+import { lintCommand } from "./Lint/index.js";
 import { purgeCommand } from "./Purge.js";
 import { topoSortCommand } from "./TopoSort.js";
 import { tsconfigSyncCommand } from "./TsconfigSync.js";
@@ -29,6 +34,11 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withSubcommands([
     topoSortCommand,
     docsCommand,
+    agentsCommand,
+    lintCommand,
+    lawsCommand,
+    graphitiCommand,
+    claudeCommand,
     createPackageCommand,
     codegenCommand,
     purgeCommand,

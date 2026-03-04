@@ -2,9 +2,9 @@
 
 import tsParser from "@typescript-eslint/parser";
 import jsdoc from "eslint-plugin-jsdoc";
-import effectImportStyleRule from "./eslint-rules/effect-import-style.mjs";
-import noNativeRuntimeRule from "./eslint-rules/no-native-runtime.mjs";
-import requireCategoryTagRule from "./eslint-rules/require-category-tag.mjs";
+import effectImportStyleRule from "./eslint-rules/effect-import-style.js";
+import noNativeRuntimeRule from "./eslint-rules/no-native-runtime.js";
+import requireCategoryTagRule from "./eslint-rules/require-category-tag.js";
 
 const beepJsdoc = {
   rules: {

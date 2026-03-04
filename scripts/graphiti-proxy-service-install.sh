@@ -34,7 +34,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=${ROOT_DIR}
-ExecStart=${BUN_BIN} run ${ROOT_DIR}/scripts/graphiti-mcp-queue-proxy.mjs
+ExecStart=${BUN_BIN} run beep graphiti proxy
 Restart=always
 RestartSec=2
 Environment=PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin

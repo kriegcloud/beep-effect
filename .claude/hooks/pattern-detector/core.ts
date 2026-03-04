@@ -1,8 +1,9 @@
-import { Config, Effect, FileSystem, Path, pipe } from "effect";
+import { Config, Effect, FileSystem, Path, pipe, flow } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
 import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
@@ -17,14 +18,17 @@ export type HookInput = S.Schema.Type<typeof HookInput>;
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
 
-export const getMatchableContent = (input: Record<string, unknown>): string =>
-  pipe(
+export const getMatchableContent = (input: Record<string, unknown>): string => {
+  const getField = (field: keyof typeof input) => input[field];
+  const stringifyInput = () => S.encodeSync(S.fromJsonString(S.Record(S.String, S.Unknown)))(input);
+  return pipe(
     contentFields,
-    A.findFirst((field) => P.isString(input[field])),
-    O.flatMap((field) => O.fromNullishOr(input[field])),
+    A.findFirst(flow(getField, P.isString)),
+    O.flatMap(flow(getField, O.fromNullishOr)),
     O.filter(P.isString),
-    O.getOrElse(() => JSON.stringify(input))
+    O.getOrElse(stringifyInput)
   );
+};
 
 export const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
   pipe(O.fromNullishOr(input.file_path), O.filter(P.isString));
@@ -39,7 +43,7 @@ const parseYaml = (content: string): Record<string, unknown> => {
       return m?.[1] && m[2] ? O.some([m[1], m[2]] as const) : O.none();
     }),
     A.getSomes,
-    (pairs) => Object.fromEntries(pairs)
+    R.fromEntries
   );
 };
 
@@ -114,8 +118,8 @@ export const loadPatterns = Effect.gen(function* () {
               Effect.map(O.flatten),
               Effect.map(
                 O.match({
-                  onNone: () => A.empty<PatternDefinition>(),
-                  onSome: (pattern) => [pattern],
+                  onNone: A.empty<PatternDefinition>,
+                  onSome: A.make,
                 })
               )
             );

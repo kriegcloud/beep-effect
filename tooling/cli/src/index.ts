@@ -25,6 +25,32 @@ export {
   codegenCommand,
 } from "./commands/Codegen.js";
 /**
+ * Agent policy command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Agent policy command group.
+   *
+   * @since 0.0.0
+   */
+  agentsCommand,
+} from "./commands/Agents/index.js";
+/**
+ * Claude helper command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Claude helper command group.
+   *
+   * @since 0.0.0
+   */
+  claudeCommand,
+} from "./commands/Claude/index.js";
+/**
  * Package scaffolding command for creating new workspace packages.
  *
  * @since 0.0.0
@@ -50,6 +76,45 @@ export {
    */
   docsCommand,
 } from "./commands/Docs.js";
+/**
+ * Graphiti operational command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Graphiti operational command group.
+   *
+   * @since 0.0.0
+   */
+  graphitiCommand,
+} from "./commands/Graphiti/index.js";
+/**
+ * Effect laws command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Effect laws command group.
+   *
+   * @since 0.0.0
+   */
+  lawsCommand,
+} from "./commands/Laws/index.js";
+/**
+ * Lint policy command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Lint policy command group.
+   *
+   * @since 0.0.0
+   */
+  lintCommand,
+} from "./commands/Lint/index.js";
 
 /**
  * Purge command for removing root/workspace build artifacts.

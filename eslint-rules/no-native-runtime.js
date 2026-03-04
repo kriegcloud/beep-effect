@@ -1,4 +1,4 @@
-import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.mjs";
+import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.js";
 import { HashSet } from "effect";
 import * as Str from "effect/String";
 

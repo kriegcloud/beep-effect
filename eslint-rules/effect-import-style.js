@@ -1,4 +1,4 @@
-import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.mjs";
+import { getAllowlistDiagnostics, isViolationAllowlisted } from "./effect-laws-allowlist.js";
 
 const ALIAS_MAP = {
   "effect/Array": "A",
