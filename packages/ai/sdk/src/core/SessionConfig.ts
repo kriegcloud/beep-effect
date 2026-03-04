@@ -1,8 +1,14 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Config, type Duration, Effect, Layer, Redacted, ServiceMap } from "effect";
+import { Config, type Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
+import {
+  buildAuthEnv,
+  normalizeRedactedOption,
+  parseOptionalCommaSeparatedList,
+  preferFirstOption,
+  readProcessEnv,
+} from "./internal/ConfigTransforms.js";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
@@ -56,28 +62,10 @@ export type SessionConfigSettings = {
  */
 export interface SessionConfigShape extends SessionConfigSettings {}
 
-const normalizeRedacted = (value: O.Option<Redacted.Redacted>) =>
-  O.flatMap(value, (redacted) => {
-    const normalized = Redacted.value(redacted).trim();
-    return normalized.length > 0 ? O.some(redacted) : O.none();
-  });
-
-const parseList = (value: string) =>
-  value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
-
-const parseOptionalList = (value: O.Option<string>) =>
-  O.flatMap(value, (raw) => {
-    const entries = parseList(raw);
-    return entries.length > 0 ? O.some(entries) : O.none();
-  });
-
 const makeSessionConfig = Effect.gen(function* () {
-  const apiKey = normalizeRedacted(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));
-  const apiKeyFallback = normalizeRedacted(yield* Config.option(Config.redacted("API_KEY")));
-  const sessionAccessToken = normalizeRedacted(
+  const apiKey = normalizeRedactedOption(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));
+  const apiKeyFallback = normalizeRedactedOption(yield* Config.option(Config.redacted("API_KEY")));
+  const sessionAccessToken = normalizeRedactedOption(
     yield* Config.option(Config.redacted("CLAUDE_CODE_SESSION_ACCESS_TOKEN"))
   );
 
@@ -92,26 +80,13 @@ const makeSessionConfig = Effect.gen(function* () {
   const turnSendTimeout = yield* Config.option(Config.duration("TURN_SEND_TIMEOUT"));
   const turnResultTimeout = yield* Config.option(Config.duration("TURN_RESULT_TIMEOUT"));
 
-  const executableArgs = parseOptionalList(executableArgsValue);
-  const allowedTools = parseOptionalList(allowedToolsValue);
-  const disallowedTools = parseOptionalList(disallowedToolsValue);
+  const executableArgs = parseOptionalCommaSeparatedList(executableArgsValue);
+  const allowedTools = parseOptionalCommaSeparatedList(allowedToolsValue);
+  const disallowedTools = parseOptionalCommaSeparatedList(disallowedToolsValue);
 
-  const processEnv = yield* Effect.sync(() => process.env);
-  const resolvedApiKey = O.isSome(apiKey) ? apiKey : apiKeyFallback;
-  const authEnvEntries: Array<readonly [string, string]> = [];
-  if (O.isSome(resolvedApiKey)) {
-    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(resolvedApiKey.value)]);
-  }
-  if (O.isSome(sessionAccessToken)) {
-    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
-  }
-  const env =
-    authEnvEntries.length > 0
-      ? {
-          ...processEnv,
-          ...R.fromEntries(authEnvEntries),
-        }
-      : undefined;
+  const processEnv = yield* readProcessEnv;
+  const resolvedApiKey = preferFirstOption(apiKey, apiKeyFallback);
+  const env = buildAuthEnv(processEnv, resolvedApiKey, sessionAccessToken);
 
   if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();

@@ -120,7 +120,10 @@ export const thunkEffectSucceed = <A>(a: A): LazyArg<Effect.Effect<unknown, neve
  */
 export const thunkEmptyRecord = <K extends string | symbol = never, V = never>() => R.empty<K, V>();
 
-export const thunkSome = <A>(value: A): () => O.Option<A> => () => O.some(value);
+export const thunkSome =
+  <A>(value: A): (() => O.Option<A>) =>
+  () =>
+    O.some(value);
 
 export const thunkSomeEmptyStr = thunkSome("");
 

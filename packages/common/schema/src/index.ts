@@ -32,6 +32,11 @@ export * from "./ArrayOf.js";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./CommonTextSchemas.js";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./MimeType.js";
 /**
  * @since 0.0.0

@@ -82,7 +82,12 @@ const ALIAS_RULES = {
   "effect/Schema": "S",
 } as const;
 
-const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
+const INCLUDED_GLOBS = [
+  "apps/**/*.{ts,tsx}",
+  "packages/**/*.{ts,tsx}",
+  "tooling/**/*.{ts,tsx}",
+  "infra/**/*.ts",
+] as const;
 const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"] as const;
 const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
 
@@ -131,7 +136,8 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     pipe(
       sourceFile.getImportDeclarations(),
       A.findFirst(
-        (importDeclaration) => importDeclaration.getModuleSpecifierValue() === "effect" && !importDeclaration.isTypeOnly()
+        (importDeclaration) =>
+          importDeclaration.getModuleSpecifierValue() === "effect" && !importDeclaration.isTypeOnly()
       ),
       O.getOrElse(() => sourceFile.addImportDeclaration({ moduleSpecifier: "effect" }))
     );
@@ -151,7 +157,8 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
 
       if (expectedAlias !== undefined) {
         const namespaceImport = importDeclaration.getNamespaceImport();
-        const hasOnlyNamespaceImport = namespaceImport !== undefined && importDeclaration.getNamedImports().length === 0;
+        const hasOnlyNamespaceImport =
+          namespaceImport !== undefined && importDeclaration.getNamedImports().length === 0;
 
         if (!hasOnlyNamespaceImport || namespaceImport === undefined) {
           continue;

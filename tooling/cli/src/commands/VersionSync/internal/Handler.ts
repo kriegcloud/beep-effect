@@ -9,7 +9,12 @@ import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { Boolean as Bool, Console, Effect, type FileSystem, Layer, type Path } from "effect";
 import * as A from "effect/Array";
 import type { HttpClient } from "effect/unstable/http";
-import { VersionSyncDriftError, type VersionSyncError, VersionSyncMode, type VersionSyncOptions } from "./Models.js";
+import {
+  VersionSyncDriftError,
+  type VersionSyncError,
+  VersionSyncModeMatch,
+  type VersionSyncOptions,
+} from "./Models.js";
 import { CategorySelectionServiceLive } from "./services/CategorySelectionService.js";
 import { ReportRendererService, ReportRendererServiceLive } from "./services/ReportRendererService.js";
 import { ResolverService, ResolverServiceLive } from "./services/ResolverService.js";
@@ -31,7 +36,7 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
   const resolution = yield* resolver.resolve(repoRoot, options);
   yield* renderer.renderReport(resolution.report, options.mode);
 
-  yield* VersionSyncMode.$match(options.mode, {
+  yield* VersionSyncModeMatch(options.mode, {
     write: () =>
       Bool.match(resolution.report.hasDrift, {
         onTrue: () =>

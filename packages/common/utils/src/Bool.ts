@@ -21,21 +21,24 @@ import { Function as Fn } from "effect";
  * @since 2.0.0
  */
 export const thunkMatch: () => {
-  <A, B = A>(options: {
-    readonly onFalse: Fn.LazyArg<A>;
-    readonly onTrue: Fn.LazyArg<B>;
-  }): (value: boolean) => A | B;
-  <A, B>(value: boolean, options: {
-    readonly onFalse: Fn.LazyArg<A>;
-    readonly onTrue: Fn.LazyArg<B>;
-  }): A | B;
+  <A, B = A>(options: { readonly onFalse: Fn.LazyArg<A>; readonly onTrue: Fn.LazyArg<B> }): (value: boolean) => A | B;
+  <A, B>(
+    value: boolean,
+    options: {
+      readonly onFalse: Fn.LazyArg<A>;
+      readonly onTrue: Fn.LazyArg<B>;
+    }
+  ): A | B;
 } = () =>
   Fn.dual(
     2,
-    <A, B>(value: boolean, options: {
-      readonly onFalse: Fn.LazyArg<A>;
-      readonly onTrue: Fn.LazyArg<B>;
-    }): A | B => (value ? options.onTrue() : options.onFalse())
+    <A, B>(
+      value: boolean,
+      options: {
+        readonly onFalse: Fn.LazyArg<A>;
+        readonly onTrue: Fn.LazyArg<B>;
+      }
+    ): A | B => (value ? options.onTrue() : options.onFalse())
   );
 
 export * from "effect/Boolean";

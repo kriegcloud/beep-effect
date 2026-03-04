@@ -22,23 +22,37 @@ const $I = $ClaudeId.create("hooks/agent-init/index");
 // Schemas & Types
 // ============================================================================
 
-const AgentConfigSchema = S.Struct({
-  projectDir: S.NonEmptyString,
-});
+class AgentConfigSchema extends S.Class<AgentConfigSchema>($I`AgentConfigSchema`)(
+  {
+    projectDir: S.NonEmptyString,
+  },
+  $I.annote("AgentConfigSchema", {
+    description: "Main agent hook runtime configuration.",
+  })
+) {}
 
-const MiseTask = S.Struct({
-  name: S.String,
-  aliases: S.Array(S.String),
-  description: S.String,
-});
+class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
+  {
+    name: S.String,
+    aliases: S.Array(S.String),
+    description: S.String,
+  },
+  $I.annote("MiseTask", {
+    description: "Mise task metadata row.",
+  })
+) {}
 
 const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  A.map(tasks, (t) => {
-    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
-    return `${t.name}${aliases}: ${t.description}`;
-  }).join("\n");
+  pipe(
+    tasks,
+    A.map((t) => {
+      const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+      return `${t.name}${aliases}: ${t.description}`;
+    }),
+    A.join("\n")
+  );
 
 const listMemories = pipe(
   Effect.gen(function* () {
@@ -65,8 +79,9 @@ const listMemories = pipe(
 
     return pipe(
       mdFiles,
-      A.map((f: string) => `  - ${Str.replace(".md", "")(f)}`)
-    ).join("\n");
+      A.map((f: string) => `  - ${Str.replace(".md", "")(f)}`),
+      A.join("\n")
+    );
   }),
   Effect.catch(() => Effect.succeed("Error listing memories."))
 );

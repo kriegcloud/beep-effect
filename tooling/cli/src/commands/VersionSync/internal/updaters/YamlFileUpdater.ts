@@ -49,17 +49,15 @@ export const updateYamlValue: (
 ) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn(function* (filePath, yamlPath, value) {
   const fs = yield* FileSystem.FileSystem;
 
-  const original = yield* fs
-    .readFileString(filePath)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  const original = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   const doc = parseDocument(original);
   const currentValue = doc.getIn(yamlPath);
@@ -75,17 +73,15 @@ export const updateYamlValue: (
     return false;
   }
 
-  yield* fs
-    .writeFileString(filePath, updated)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  yield* fs.writeFileString(filePath, updated).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   return true;
 });
@@ -106,17 +102,15 @@ export const replaceNodeVersionWithFile: (
 ) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn(function* (filePath, locations) {
   const fs = yield* FileSystem.FileSystem;
 
-  const original = yield* fs
-    .readFileString(filePath)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  const original = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   const doc = parseDocument(original);
   let changed = false;
@@ -150,17 +144,15 @@ export const replaceNodeVersionWithFile: (
     return false;
   }
 
-  yield* fs
-    .writeFileString(filePath, updated)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+  yield* fs.writeFileString(filePath, updated).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: filePath,
+        })
+    )
+  );
 
   return true;
 });

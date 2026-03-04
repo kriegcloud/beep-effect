@@ -11,13 +11,13 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
-    VersionCategoryReport,
-    type VersionCategoryReport as VersionCategoryReportValue,
-    VersionCategoryStatus,
-    type VersionCategoryStatus as VersionCategoryStatusValue,
-    VersionSyncMode,
-    type VersionSyncMode as VersionSyncModeValue,
-    type VersionSyncReport,
+  VersionCategoryReport,
+  type VersionCategoryReport as VersionCategoryReportValue,
+  VersionCategoryStatusMatch,
+  type VersionCategoryStatus as VersionCategoryStatusValue,
+  VersionSyncModeMatch,
+  type VersionSyncMode as VersionSyncModeValue,
+  type VersionSyncReport,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ReportRendererService");
@@ -31,7 +31,7 @@ const stringEquivalence = S.toEquivalence(S.String);
  */
 export type ReportRendererServiceShape = {
   readonly renderCategoryReport: (report: VersionCategoryReportValue) => Effect.Effect<void>;
-  readonly renderReport: (report: VersionSyncReport, mode: VersionSyncMode) => Effect.Effect<void>;
+  readonly renderReport: (report: VersionSyncReport, mode: VersionSyncModeValue) => Effect.Effect<void>;
 };
 
 /**
@@ -53,7 +53,7 @@ const renderCategoryLabel = (report: VersionCategoryReportValue): string =>
   });
 
 const renderStatusLabel = (status: VersionCategoryStatusValue): string =>
-  VersionCategoryStatus.$match(status, {
+  VersionCategoryStatusMatch(status, {
     ok: () => "OK",
     drift: () => "DRIFT",
     unpinned: () => "UNPINNED",
@@ -93,7 +93,7 @@ const renderCategoryReport: ReportRendererServiceShape["renderCategoryReport"] =
 });
 
 const renderModeLabel = (mode: VersionSyncModeValue): string =>
-  VersionSyncMode.$match(mode, {
+  VersionSyncModeMatch(mode, {
     check: () => "Check",
     "dry-run": () => "Dry Run",
     write: () => "Write",
@@ -110,7 +110,7 @@ const renderReport: ReportRendererServiceShape["renderReport"] = Effect.fn(funct
   yield* Bool.match(report.hasDrift, {
     onFalse: () => Console.log("\nAll versions are in sync."),
     onTrue: () =>
-      VersionSyncMode.$match(mode, {
+      VersionSyncModeMatch(mode, {
         check: () => Console.log("\nRun `beep version-sync --write` to apply fixes."),
         "dry-run": () => Console.log("\nRun `beep version-sync --write` to apply these changes."),
         write: () => Effect.void,

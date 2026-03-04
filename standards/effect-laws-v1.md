@@ -16,8 +16,14 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 5. No runtime `typeof ... === ...`; use `effect/Predicate` guards.
 6. No native `Object/Map/Set/Date` in domain logic.
 7. No native `Error` in `tooling/*/src`; use `S.TaggedErrorClass` typed errors.
-8. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
-9. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+8. No `node:path` in runtime source; use `Path.Path` service APIs.
+9. No native `fetch` in runtime source; use `effect/unstable/http` and provide platform client layers.
+10. No native `Array.prototype.sort`; use `A.sort` with explicit `Order`.
+11. Use `Bool.match` for boolean branching in domain/runtime orchestration code.
+12. Prefer schema defaults and transformations (`S.withDecodingDefault*`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
+13. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
+14. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
+15. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
 
 ## Allowlist Contract
 

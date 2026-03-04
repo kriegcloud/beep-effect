@@ -9,7 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, FileSystem, identity, Inspectable, Path, SchemaTransformation, String as Str } from "effect";
+import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -178,17 +178,15 @@ export const resolveBiomeSchema: (
 
     // Read biome.jsonc
     const biomePath = path.join(repoRoot, "biome.jsonc");
-    const biomeContent = yield* fs
-      .readFileString(biomePath)
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
-              file: "biome.jsonc",
-            })
-        )
-      );
+    const biomeContent = yield* fs.readFileString(biomePath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: "biome.jsonc",
+          })
+      )
+    );
 
     const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
       Effect.provide(JsoncCodecServiceLive),
@@ -206,17 +204,15 @@ export const resolveBiomeSchema: (
 
     // Read installed version from root package.json catalog
     const pkgJsonPath = path.join(repoRoot, "package.json");
-    const pkgJsonContent = yield* fs
-      .readFileString(pkgJsonPath)
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-              file: "package.json",
-            })
-        )
-      );
+    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: "package.json",
+          })
+      )
+    );
 
     const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.provide(JsoncCodecServiceLive),
@@ -300,17 +296,15 @@ export const updateBiomeSchema: (
   function* (filePath, version) {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs
-      .readFileString(filePath)
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-              file: filePath,
-            })
-        )
-      );
+    const original = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
+      )
+    );
 
     const newSchemaUrl = buildSchemaUrl(version);
 
@@ -328,17 +322,15 @@ export const updateBiomeSchema: (
       return false;
     }
 
-    yield* fs
-      .writeFileString(filePath, updated)
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-              file: filePath,
-            })
-        )
-      );
+    yield* fs.writeFileString(filePath, updated).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
+      )
+    );
 
     return true;
   }

@@ -1,49 +1,102 @@
-import { Effect } from "effect";
+import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
+import { Config, Effect, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import {
+  Headers,
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+  HttpMethod,
+  UrlParams,
+} from "effect/unstable/http";
+
+const $I = $AiSdkId.create("core/Diagnose");
 
 /**
  * @since 0.0.0
  */
-export type DiagnosticStatus = "ok" | "missing" | "invalid" | "unknown";
-/**
- * @since 0.0.0
- */
-export type DiagnosticSeverity = "error" | "warning";
+export const DiagnosticStatus = LiteralKit(["ok", "missing", "invalid", "unknown"]).annotate(
+  $I.annote("DiagnosticStatus", {
+    description: "Diagnostic status value for a single environment check.",
+  })
+);
 
 /**
  * @since 0.0.0
  */
-export type DiagnosticCheck = {
-  readonly status: DiagnosticStatus;
-  readonly message?: string;
-  readonly fix?: string;
-  readonly version?: string;
-  readonly path?: string;
-};
+export type DiagnosticStatus = typeof DiagnosticStatus.Type;
 
 /**
  * @since 0.0.0
  */
-export type DiagnosticIssue = {
-  readonly severity: DiagnosticSeverity;
-  readonly message: string;
-  readonly fix?: string;
-};
+export const DiagnosticSeverity = LiteralKit(["error", "warning"]).annotate(
+  $I.annote("DiagnosticSeverity", {
+    description: "Diagnostic issue severity.",
+  })
+);
 
 /**
  * @since 0.0.0
  */
-export type DiagnosticResult = {
-  readonly valid: boolean;
-  readonly checks: Record<string, DiagnosticCheck>;
-  readonly issues: ReadonlyArray<DiagnosticIssue>;
-};
+export type DiagnosticSeverity = typeof DiagnosticSeverity.Type;
 
-const PackageVersion = S.Struct({
-  version: S.optional(S.String),
-});
+/**
+ * @since 0.0.0
+ */
+export class DiagnosticCheck extends S.Class<DiagnosticCheck>($I`DiagnosticCheck`)(
+  {
+    status: DiagnosticStatus,
+    message: S.optionalKey(S.UndefinedOr(S.String)),
+    fix: S.optionalKey(S.UndefinedOr(S.String)),
+    version: S.optionalKey(S.UndefinedOr(S.String)),
+    path: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("DiagnosticCheck", {
+    description: "Outcome for a single SDK diagnostic check.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export class DiagnosticIssue extends S.Class<DiagnosticIssue>($I`DiagnosticIssue`)(
+  {
+    severity: DiagnosticSeverity,
+    message: S.String,
+    fix: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("DiagnosticIssue", {
+    description: "Actionable issue emitted by diagnose.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export class DiagnosticResult extends S.Class<DiagnosticResult>($I`DiagnosticResult`)(
+  {
+    valid: S.Boolean,
+    checks: S.Record(S.String, DiagnosticCheck),
+    issues: S.Array(DiagnosticIssue),
+  },
+  $I.annote("DiagnosticResult", {
+    description: "Aggregate diagnostic report for current runtime environment.",
+  })
+) {}
+
+class PackageVersion extends S.Class<PackageVersion>($I`PackageVersion`)(
+  {
+    version: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("PackageVersion", {
+    description: "Minimal package.json payload containing optional version.",
+  })
+) {}
 
 const PackageVersionFromJson = S.fromJsonString(PackageVersion);
 
@@ -71,142 +124,214 @@ const getBun = (): BunLike | undefined => {
   return P.isObject(bun) ? bun : undefined;
 };
 
-const checkApiKey = (): readonly [DiagnosticCheck, ReadonlyArray<DiagnosticIssue>] => {
-  const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.API_KEY ?? "";
-  if (apiKey.trim().length === 0) {
-    return [
-      {
-        status: "missing",
-        fix: "Set ANTHROPIC_API_KEY environment variable",
-      },
-      [
-        {
-          severity: "error",
-          message: "Missing API key",
-          fix: "Set ANTHROPIC_API_KEY environment variable",
-        },
-      ],
-    ];
-  }
-  if (!apiKey.startsWith("sk-ant-")) {
-    return [
-      {
-        status: "invalid",
-        fix: "API key should start with sk-ant-",
-      },
-      [
-        {
-          severity: "warning",
-          message: "API key format looks invalid",
-          fix: "API key should start with sk-ant-",
-        },
-      ],
-    ];
-  }
-  return [{ status: "ok" }, []];
-};
+const readApiKey = Effect.gen(function* () {
+  const apiKey = yield* Config.option(Config.string("ANTHROPIC_API_KEY"));
+  const fallback = yield* Config.option(Config.string("API_KEY"));
+  return O.isSome(apiKey) ? apiKey.value : O.getOrElse(fallback, () => "");
+});
 
-const tryResolvePackageVersion = (specifier: string) =>
-  Effect.tryPromise({
-    try: async () => {
-      const url = resolveImport(`${specifier}/package.json`);
-      if (!url) return undefined;
-      const bun = getBun();
-      if (bun?.file) {
-        const text = await bun.file(url).text();
-        const decoded = S.decodeUnknownOption(PackageVersionFromJson)(text);
-        return O.isSome(decoded) ? decoded.value.version : undefined;
-      }
-      const response = await fetch(url);
-      if (!response.ok) return undefined;
-      const json = await response.json();
-      const decoded = S.decodeUnknownOption(PackageVersion)(json);
-      return O.isSome(decoded) ? decoded.value.version : undefined;
-    },
-    catch: () => undefined,
-  }).pipe(Effect.catch(() => Effect.void));
+const checkApiKey = () =>
+  Effect.gen(function* () {
+    const apiKey = yield* readApiKey;
+    if (apiKey.trim().length === 0) {
+      return [
+        new DiagnosticCheck({
+          status: "missing",
+          fix: "Set ANTHROPIC_API_KEY environment variable",
+        }),
+        [
+          new DiagnosticIssue({
+            severity: "error",
+            message: "Missing API key",
+            fix: "Set ANTHROPIC_API_KEY environment variable",
+          }),
+        ],
+      ] as const;
+    }
+    if (!apiKey.startsWith("sk-ant-")) {
+      return [
+        new DiagnosticCheck({
+          status: "invalid",
+          fix: "API key should start with sk-ant-",
+        }),
+        [
+          new DiagnosticIssue({
+            severity: "warning",
+            message: "API key format looks invalid",
+            fix: "API key should start with sk-ant-",
+          }),
+        ],
+      ] as const;
+    }
+    return [new DiagnosticCheck({ status: "ok" }), A.empty<DiagnosticIssue>()] as const;
+  }).pipe(
+    Effect.catch(() =>
+      Effect.succeed([
+        new DiagnosticCheck({
+          status: "unknown",
+          message: "Unable to read API key configuration",
+        }),
+        A.make(
+          new DiagnosticIssue({
+            severity: "warning",
+            message: "Unable to read API key configuration",
+          })
+        ),
+      ] as const)
+    )
+  );
+
+const decodePackageVersionFromText = (text: string): O.Option<string> =>
+  pipe(
+    S.decodeUnknownOption(PackageVersionFromJson)(text),
+    O.flatMap((payload) => O.fromUndefinedOr(payload.version))
+  );
+
+const tryResolvePackageVersion = (specifier: string): Effect.Effect<O.Option<string>, never, HttpClient.HttpClient> =>
+  Effect.gen(function* () {
+    const url = resolveImport(`${specifier}/package.json`);
+    if (!url) return O.none<string>();
+
+    const bun = getBun();
+    const bunFile = bun?.file;
+    if (bunFile) {
+      const textResult = yield* Effect.tryPromise({
+        try: () => bunFile(url).text(),
+        catch: () => "",
+      }).pipe(Effect.orElseSucceed(() => ""));
+      return decodePackageVersionFromText(textResult);
+    }
+
+    if (!URL.canParse(url)) {
+      return O.none<string>();
+    }
+
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+      return O.none<string>();
+    }
+
+    const method = "GET";
+    const request = HttpClientRequest.make(method)(parsedUrl.href, {
+      headers: Headers.fromInput({ Accept: "application/json" }),
+      urlParams: UrlParams.fromInput([]),
+    });
+    const _hasBody = HttpMethod.hasBody(method);
+
+    const responseOption = yield* HttpClient.execute(request).pipe(Effect.option);
+    if (O.isNone(responseOption)) {
+      return O.none<string>();
+    }
+
+    const payloadOption = yield* HttpClientResponse.schemaBodyJson(PackageVersion)(responseOption.value).pipe(
+      Effect.map((payload) => O.fromUndefinedOr(payload.version)),
+      Effect.orElseSucceed(() => O.none<string>())
+    );
+
+    if (_hasBody) {
+      return payloadOption;
+    }
+    return payloadOption;
+  });
 
 const checkClaudeCodeCli = () =>
   Effect.tryPromise({
     try: async () => {
       const bun = getBun();
       if (!bun?.spawnSync) {
-        const check: DiagnosticCheck = {
+        return new DiagnosticCheck({
           status: "unknown",
           message: "Unable to detect Claude Code CLI in this runtime",
-        };
-        return check;
+        });
       }
       const result = bun.spawnSync({ cmd: ["which", "claude"] });
       if (result.exitCode === 0) {
         const path = new TextDecoder().decode(result.stdout ?? new Uint8Array()).trim();
-        const check: DiagnosticCheck = {
+        return new DiagnosticCheck({
           status: "ok",
           path,
-        };
-        return check;
+        });
       }
-      const check: DiagnosticCheck = {
+      return new DiagnosticCheck({
         status: "missing",
         fix: "Install Claude Code CLI (https://docs.anthropic.com/en/docs/claude-code)",
-      };
-      return check;
+      });
     },
-    catch: () => {
-      const check: DiagnosticCheck = {
+    catch: () =>
+      new DiagnosticCheck({
         status: "unknown",
         message: "Unable to detect Claude Code CLI",
-      };
-      return check;
-    },
+      }),
   }).pipe(
-    Effect.catch(() => {
-      const check: DiagnosticCheck = {
-        status: "unknown",
-        message: "Unable to detect Claude Code CLI",
-      };
-      return Effect.succeed(check);
-    })
+    Effect.catch(() =>
+      Effect.succeed(
+        new DiagnosticCheck({
+          status: "unknown",
+          message: "Unable to detect Claude Code CLI",
+        })
+      )
+    )
   );
 
 /**
  * Validate the current environment and return actionable diagnostics.
- */
-/**
+ *
  * @since 0.0.0
  */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
   Effect.gen(function* () {
-    const issues: Array<DiagnosticIssue> = [];
+    const issues = [] as Array<DiagnosticIssue>;
     const checks: Record<string, DiagnosticCheck> = {};
 
-    const [apiKeyCheck, apiIssues] = checkApiKey();
+    const [apiKeyCheck, apiIssues] = yield* checkApiKey();
     checks.apiKey = apiKeyCheck;
-    issues.push(...apiIssues);
+    for (const issue of apiIssues) {
+      issues.push(issue);
+    }
 
     const cliCheck = yield* checkClaudeCodeCli();
     checks.claudeCode = cliCheck;
     if (cliCheck.status === "missing") {
-      issues.push({
-        severity: "warning",
-        message: "Claude Code CLI not found",
-        ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : {}),
-      });
+      issues.push(
+        new DiagnosticIssue({
+          severity: "warning",
+          message: "Claude Code CLI not found",
+          ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : {}),
+        })
+      );
     }
 
     const sdkVersion = yield* tryResolvePackageVersion("effect-claude-agent-sdk");
-    checks.sdkVersion = sdkVersion
-      ? { status: "ok", version: sdkVersion }
-      : { status: "unknown", message: "Unable to resolve SDK version" };
+    checks.sdkVersion = O.match(sdkVersion, {
+      onSome: (version) =>
+        new DiagnosticCheck({
+          status: "ok",
+          version,
+        }),
+      onNone: () =>
+        new DiagnosticCheck({
+          status: "unknown",
+          message: "Unable to resolve SDK version",
+        }),
+    });
 
     const effectVersion = yield* tryResolvePackageVersion("effect");
-    checks.effectVersion = effectVersion
-      ? { status: "ok", version: effectVersion }
-      : { status: "unknown", message: "Unable to resolve Effect version" };
+    checks.effectVersion = O.match(effectVersion, {
+      onSome: (version) =>
+        new DiagnosticCheck({
+          status: "ok",
+          version,
+        }),
+      onNone: () =>
+        new DiagnosticCheck({
+          status: "unknown",
+          message: "Unable to resolve Effect version",
+        }),
+    });
 
-    return {
-      valid: issues.filter((issue) => issue.severity === "error").length === 0,
+    return new DiagnosticResult({
+      valid: O.isNone(A.findFirst(issues, (issue) => issue.severity === "error")),
       checks,
       issues,
-    };
-  });
+    });
+  }).pipe(Effect.provide(BunHttpClient.layer));

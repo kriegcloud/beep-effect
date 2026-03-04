@@ -14,67 +14,96 @@
  */
 
 import { createHash } from "node:crypto";
-import * as fs from "node:fs";
+import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
+import { Clock, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
+import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import * as N from "effect/Number";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
-const LenientUserPromptInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String.pipe(S.withDecodingDefault(() => "")),
-  cwd: S.String,
-  permission_mode: S.String.pipe(S.withDecodingDefault(() => "default")),
-  hook_event_name: S.Literal("UserPromptSubmit"),
-  prompt: S.String.pipe(S.withDecodingDefault(() => "")),
-  user_prompt: S.String.pipe(S.withDecodingDefault(() => "")),
-});
+const $I = $ClaudeId.create("hooks/skill-suggester/index");
+
+class LenientUserPromptInput extends S.Class<LenientUserPromptInput>($I`LenientUserPromptInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String.pipe(S.withDecodingDefault(() => "")),
+    cwd: S.String,
+    permission_mode: S.String.pipe(S.withDecodingDefault(() => "default")),
+    hook_event_name: S.Literal("UserPromptSubmit"),
+    prompt: S.String.pipe(S.withDecodingDefault(() => "")),
+    user_prompt: S.String.pipe(S.withDecodingDefault(() => "")),
+  },
+  $I.annote("LenientUserPromptInput", {
+    description: "UserPromptSubmit hook input with lenient defaults for missing text fields.",
+  })
+) {}
 
 export interface SkillMetadata {
   readonly name: string;
   readonly keywords: ReadonlyArray<string>;
 }
 
-interface HookState {
-  readonly lastCallMs: number | null;
-}
+class HookState extends S.Class<HookState>($I`HookState`)(
+  {
+    lastCallMs: S.NullOr(S.Number).pipe(S.withDecodingDefault(() => null)),
+  },
+  $I.annote("HookState", {
+    description: "Persisted state for hook call timing.",
+  })
+) {}
 
-const readHookState = (cwd: string): HookState => {
-  try {
-    const statePath = `${cwd}/.claude/.hook-state.json`;
-    const content = fs.readFileSync(statePath, "utf-8");
-    const parsed = JSON.parse(content);
-    return { lastCallMs: typeof parsed.lastCallMs === "number" ? parsed.lastCallMs : null };
-  } catch {
-    return { lastCallMs: null };
-  }
-};
+const HookStateFromJson = S.fromJsonString(HookState);
 
-const writeHookState = (cwd: string, state: HookState): void => {
-  try {
-    const statePath = `${cwd}/.claude/.hook-state.json`;
-    fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
-  } catch {}
-};
+const readHookState = (cwd: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const statePath = path.join(cwd, ".claude", ".hook-state.json");
+    const exists = yield* fs.exists(statePath);
+    if (!exists) {
+      return new HookState({ lastCallMs: null });
+    }
+    const content = yield* fs.readFileString(statePath);
+    return yield* S.decodeUnknownEffect(HookStateFromJson)(content).pipe(
+      Effect.orElseSucceed(() => new HookState({ lastCallMs: null }))
+    );
+  }).pipe(Effect.catch(() => Effect.succeed(new HookState({ lastCallMs: null }))));
 
-const MiseTask = S.Struct({
-  name: S.String,
-  aliases: S.Array(S.String),
-  description: S.String,
-});
+const writeHookState = (cwd: string, state: HookState) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const statePath = path.join(cwd, ".claude", ".hook-state.json");
+    const encoded = yield* S.encodeEffect(HookStateFromJson)(state);
+    yield* fs.writeFileString(statePath, encoded);
+  }).pipe(Effect.orElseSucceed(() => undefined));
+
+class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
+  {
+    name: S.String,
+    aliases: S.Array(S.String),
+    description: S.String,
+  },
+  $I.annote("MiseTask", {
+    description: "Mise task metadata row.",
+  })
+) {}
 
 const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  A.map(tasks, (t) => {
-    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
-    return `${t.name}${aliases}: ${t.description}`;
-  }).join("\n");
+  pipe(
+    tasks,
+    A.map((t) => {
+      const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+      return `${t.name}${aliases}: ${t.description}`;
+    }),
+    A.join("\n")
+  );
 
 const SCRIPT_TRIGGER_KEYWORDS = HashSet.fromIterable([
   "run",
@@ -199,12 +228,24 @@ export const extractKeywords = (text: string): ReadonlyArray<string> => {
   return A.filter(words, (word) => Str.length(word) >= 3 && !HashSet.has(STOPWORDS, word));
 };
 
-const OutputSchema = S.Struct({
-  hookSpecificOutput: S.Struct({
+class OutputHookSpecificOutput extends S.Class<OutputHookSpecificOutput>($I`OutputHookSpecificOutput`)(
+  {
     hookEventName: S.Literal("UserPromptSubmit"),
     additionalContext: S.String,
-  }),
-});
+  },
+  $I.annote("OutputHookSpecificOutput", {
+    description: "Hook-specific output body for skill suggester responses.",
+  })
+) {}
+
+class OutputSchema extends S.Class<OutputSchema>($I`OutputSchema`)(
+  {
+    hookSpecificOutput: OutputHookSpecificOutput,
+  },
+  $I.annote("OutputSchema", {
+    description: "Skill suggester output payload wrapper.",
+  })
+) {}
 
 const readSkillFile = (skillPath: string) =>
   Effect.gen(function* () {
@@ -337,31 +378,38 @@ interface KgContextRelationship {
   readonly provenance: string;
 }
 
-const readLatestSnapshotFile = (cwd: string): O.Option<string> => {
-  try {
-    const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
-    const entries = fs.readdirSync(snapshotRoot).filter((entry) => entry.endsWith(".jsonl"));
-    if (entries.length === 0) {
-      return O.none();
+class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(
+  {
+    file: S.optionalKey(S.UndefinedOr(S.String)),
+    nodeCount: S.optionalKey(S.UndefinedOr(S.Number)),
+    edgeCount: S.optionalKey(S.UndefinedOr(S.Number)),
+  },
+  $I.annote("SnapshotRecord", {
+    description: "Ast-kg snapshot line payload used for hook context ranking.",
+  })
+) {}
+
+const SnapshotRecordFromJson = S.fromJsonString(SnapshotRecord);
+
+const readLatestSnapshotFile = (cwd: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const snapshotRoot = path.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
+    const exists = yield* fs.exists(snapshotRoot);
+    if (!exists) {
+      return O.none<string>();
     }
 
-    const latest = entries
-      .map((entry) => {
-        const fullPath = `${snapshotRoot}/${entry}`;
-        const stat = fs.statSync(fullPath);
-        return {
-          fullPath,
-          mtime: stat.mtimeMs,
-        };
-      })
-      .sort((left, right) => right.mtime - left.mtime)
-      .at(0);
+    const entries = pipe(yield* fs.readDirectory(snapshotRoot), A.filter(Str.endsWith(".jsonl")));
+    if (A.isReadonlyArrayEmpty(entries)) {
+      return O.none<string>();
+    }
 
-    return latest === undefined ? O.none() : O.some(latest.fullPath);
-  } catch {
-    return O.none();
-  }
-};
+    const ordered = A.sort(entries, Order.flip(Order.String));
+    const latest = pipe(ordered, A.head);
+    return O.map(latest, (entry) => path.join(snapshotRoot, entry));
+  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
 
 const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string): number => {
   const lowered = Str.toLowerCase(file);
@@ -374,102 +422,122 @@ const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string
   return score;
 };
 
-export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> => {
-  try {
-    const snapshotFile = readLatestSnapshotFile(cwd);
+const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const snapshotFile = yield* readLatestSnapshotFile(cwd);
     if (O.isNone(snapshotFile)) {
-      return O.none();
+      return O.none<string>();
     }
 
-    const content = fs.readFileSync(snapshotFile.value, "utf8");
-    const lines = Str.split(content, "\n")
-      .map(Str.trim)
-      .filter(Str.isNonEmpty);
+    const content = yield* fs.readFileString(snapshotFile.value);
+    const lines = pipe(Str.split("\n")(content), A.map(Str.trim), A.filter(Str.isNonEmpty));
     if (A.isReadonlyArrayEmpty(lines)) {
-      return O.none();
+      return O.none<string>();
     }
 
     const promptKeywords = extractKeywords(prompt);
-    const scored = lines
-      .map((line) => {
-        try {
-          const parsed = JSON.parse(line) as {
-            readonly file?: string;
-            readonly nodeCount?: number;
-            readonly edgeCount?: number;
-          };
-          const file = parsed.file ?? "";
-          return {
-            file,
-            nodeCount: parsed.nodeCount ?? 0,
-            edgeCount: parsed.edgeCount ?? 0,
-            score: scoreSnapshotRecord(promptKeywords, file),
-          };
-        } catch {
-          return {
+    const scored = pipe(
+      lines,
+      A.map((line) =>
+        pipe(
+          S.decodeUnknownOption(SnapshotRecordFromJson)(line),
+          O.map((parsed) => {
+            const file = O.getOrElse(O.fromUndefinedOr(parsed.file), () => "");
+            return {
+              file,
+              nodeCount: O.getOrElse(O.fromUndefinedOr(parsed.nodeCount), () => 0),
+              edgeCount: O.getOrElse(O.fromUndefinedOr(parsed.edgeCount), () => 0),
+              score: scoreSnapshotRecord(promptKeywords, file),
+            };
+          }),
+          O.getOrElse(() => ({
             file: "",
             nodeCount: 0,
             edgeCount: 0,
             score: 0,
-          };
-        }
-      })
-      .filter((entry) => entry.file.length > 0 && entry.score > 0)
-      .sort((left, right) => right.score - left.score)
-      .slice(0, 8);
+          }))
+        )
+      ),
+      A.filter((entry) => entry.file.length > 0 && entry.score > 0),
+      A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { readonly score: number }) => entry.score)),
+      A.take(8)
+    );
 
-    if (scored.length === 0) {
-      return O.none();
+    if (A.isReadonlyArrayEmpty(scored)) {
+      return O.none<string>();
     }
 
-    const symbols: ReadonlyArray<KgContextSymbol> = scored.map((entry) => ({
-      id: `beep-effect3::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
-      kind: "module",
-      score: Math.min(0.99, 0.5 + entry.score * 0.1),
-      provenance: "ast",
-    }));
+    const symbols = A.map(
+      scored,
+      (entry): KgContextSymbol => ({
+        id: `beep-effect3::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
+        kind: "module",
+        score: Math.min(0.99, 0.5 + entry.score * 0.1),
+        provenance: "ast",
+      })
+    );
 
-    const relationships: ReadonlyArray<KgContextRelationship> = scored.slice(0, 7).map((entry, index) => ({
-      type: "CONTAINS",
-      from: symbols[index]?.id ?? "",
-      to: `${entry.file}#nodes:${String(entry.nodeCount)}#edges:${String(entry.edgeCount)}`,
-      score: Math.min(0.95, 0.45 + entry.score * 0.1),
-      provenance: "ast",
-    }));
+    const relationships = pipe(
+      scored,
+      A.take(7),
+      A.map(
+        (entry, index): KgContextRelationship => ({
+          type: "CONTAINS",
+          from: symbols[index]?.id ?? "",
+          to: `${entry.file}#nodes:${String(entry.nodeCount)}#edges:${String(entry.edgeCount)}`,
+          score: Math.min(0.95, 0.45 + entry.score * 0.1),
+          provenance: "ast",
+        })
+      )
+    );
 
-    const symbolXml = symbols
-      .map(
+    const symbolXml = pipe(
+      symbols,
+      A.map(
         (symbol) =>
           `<symbol id="${symbol.id}" kind="${symbol.kind}" score="${symbol.score.toFixed(2)}" provenance="${symbol.provenance}" />`
-      )
-      .join("\n");
-    const relationshipXml = relationships
-      .filter((relationship) => relationship.from.length > 0)
-      .slice(0, 14)
-      .map(
+      ),
+      A.join("\n")
+    );
+
+    const relationshipXml = pipe(
+      relationships,
+      A.filter((relationship) => relationship.from.length > 0),
+      A.take(14),
+      A.map(
         (relationship) =>
           `<relationship type="${relationship.type}" from="${relationship.from}" to="${relationship.to}" score="${relationship.score.toFixed(2)}" provenance="${relationship.provenance}" />`
-      )
-      .join("\n");
+      ),
+      A.join("\n")
+    );
 
-    const block = [
-      `<kg-context version="1">`,
-      `<symbols>`,
-      symbolXml,
-      `</symbols>`,
-      `<relationships>`,
-      relationshipXml,
-      `</relationships>`,
-      `<confidence overall="0.70" />`,
-      `<provenance local-cache="true" graphiti="false" commit="snapshot" />`,
-      `</kg-context>`,
-    ].join("\n");
+    const block = pipe(
+      [
+        `<kg-context version="1">`,
+        `<symbols>`,
+        symbolXml,
+        `</symbols>`,
+        `<relationships>`,
+        relationshipXml,
+        `</relationships>`,
+        `<confidence overall="0.70" />`,
+        `<provenance local-cache="true" graphiti="false" commit="snapshot" />`,
+        `</kg-context>`,
+      ],
+      A.join("\n")
+    );
 
-    return block.length > 6000 ? O.none() : O.some(block);
-  } catch {
-    return O.none();
-  }
-};
+    return block.length > 6000 ? O.none<string>() : O.some(block);
+  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+
+export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> =>
+  Effect.runSync(
+    buildKgContextBlockEffect(cwd, prompt).pipe(
+      Effect.provide(BunServices.layer),
+      Effect.orElseSucceed(() => O.none<string>())
+    )
+  );
 
 const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");
 
@@ -481,9 +549,9 @@ const program = Effect.gen(function* () {
   const prompt = raw.prompt || raw.user_prompt || "";
   const input = { ...raw, prompt };
 
-  const previousState = readHookState(input.cwd);
-  const currentCallMs = Date.now();
-  writeHookState(input.cwd, { lastCallMs: currentCallMs });
+  const previousState = yield* readHookState(input.cwd);
+  const currentCallMs = yield* Clock.currentTimeMillis;
+  yield* writeHookState(input.cwd, new HookState({ lastCallMs: currentCallMs }));
 
   const skills = yield* loadSkills(input.cwd);
   const matchingSkills = findMatchingSkills(input.prompt, skills);
@@ -525,7 +593,7 @@ ${miseTasksResult.value}
 
   const kgHookEnabled = process.env.BEEP_KG_HOOK_ENABLED !== "false";
   if (kgHookEnabled) {
-    const kgContext = buildKgContextBlock(input.cwd, input.prompt);
+    const kgContext = yield* buildKgContextBlockEffect(input.cwd, input.prompt);
     if (O.isSome(kgContext)) {
       parts.push(kgContext.value);
     }

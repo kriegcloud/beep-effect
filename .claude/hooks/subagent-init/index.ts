@@ -12,12 +12,9 @@
  * @since 1.0.0
  */
 
-import * as fs from "node:fs";
-import * as os from "node:os";
-import * as path from "node:path";
 import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, Layer, pipe, ServiceMap } from "effect";
+import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -25,15 +22,25 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
 
-const AgentConfigSchema = S.Struct({
-  projectDir: S.NonEmptyString,
-});
+class AgentConfigSchema extends S.Class<AgentConfigSchema>($I`AgentConfigSchema`)(
+  {
+    projectDir: S.NonEmptyString,
+  },
+  $I.annote("AgentConfigSchema", {
+    description: "Subagent hook runtime configuration.",
+  })
+) {}
 
-const MiseTask = S.Struct({
-  name: S.String,
-  aliases: S.Array(S.String),
-  description: S.String,
-});
+class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
+  {
+    name: S.String,
+    aliases: S.Array(S.String),
+    description: S.String,
+  },
+  $I.annote("MiseTask", {
+    description: "Mise task metadata row.",
+  })
+) {}
 
 const MiseTasks = S.Array(MiseTask);
 
@@ -68,27 +75,32 @@ export const AgentConfigLive = Layer.effect(
 
 export const AppLive = AgentConfigLive.pipe(Layer.provideMerge(BunServices.layer));
 
-function listMemories(): string {
-  const vaultPath = path.join(os.homedir(), ".claude", "memory");
+const listMemories = pipe(
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const pathService = yield* Path.Path;
+    const homeDir = Bun.env.HOME ?? "/home";
+    const vaultPath = pathService.join(homeDir, ".claude", "memory");
 
-  try {
-    if (!fs.existsSync(vaultPath)) {
+    const exists = yield* fs.exists(vaultPath);
+    if (!exists) {
       return "No memories found (vault not initialized).";
     }
 
-    const files = pipe(
-      fs.readdirSync(vaultPath),
-      A.filter(Str.endsWith(".md"))).slice(0, 10);
+    const files = pipe(yield* fs.readDirectory(vaultPath), A.filter(Str.endsWith(".md")), A.take(10));
 
     if (files.length === 0) {
       return "Memory vault exists but is empty.";
     }
 
-    return pipe(A.map(files, (f) => `  - ${Str.replace(".md", "")(f)}`), A.join("\n"));
-  } catch {
-    return "Error listing memories.";
-  }
-}
+    return pipe(
+      files,
+      A.map((f) => `  - ${Str.replace(".md", "")(f)}`),
+      A.join("\n")
+    );
+  }),
+  Effect.catch(() => Effect.succeed("Error listing memories."))
+);
 
 const run =
   (cwd: string) =>
@@ -102,41 +114,43 @@ const program = Effect.gen(function* () {
   const config = yield* AgentConfig;
   const sh = run(config.projectDir);
 
-  const [moduleSummary, projectVersion, latestCommit, previousCommits, packageScripts, miseTasks] = yield* Effect.all(
-    [
-      pipe(
-        sh`bun .claude/scripts/context-crawler.ts --summary`,
-        Effect.catch(() => Effect.succeed('<modules count="0">(unavailable)</modules>'))
-      ),
-      pipe(
-        sh`bun -e ${"console.log(require('./package.json').version)"}`,
-        Effect.map(Str.trim),
-        Effect.catch(() => Effect.succeed("unknown"))
-      ),
-      pipe(
-        sh`git show HEAD --stat --format=%h %s%n%n%b`,
-        Effect.map(Str.trim),
-        Effect.catch(() => Effect.succeed(""))
-      ),
-      pipe(
-        sh`git log --oneline -4 --skip=1`,
-        Effect.map(Str.trim),
-        Effect.catch(() => Effect.succeed(""))
-      ),
-      pipe(
-        sh`bun -e ${"const p = require('./package.json'); const R = require('effect/Record'); console.log(R.toEntries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
-        Effect.map(Str.trim),
-        Effect.catch(() => Effect.succeed(""))
-      ),
-      pipe(
-        sh`mise tasks --json`,
-        Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
-        Effect.map(formatMiseTasks),
-        Effect.catch(() => Effect.succeed(""))
-      ),
-    ],
-    { concurrency: "unbounded" }
-  );
+  const [moduleSummary, projectVersion, latestCommit, previousCommits, packageScripts, miseTasks, memories] =
+    yield* Effect.all(
+      [
+        pipe(
+          sh`bun .claude/scripts/context-crawler.ts --summary`,
+          Effect.catch(() => Effect.succeed('<modules count="0">(unavailable)</modules>'))
+        ),
+        pipe(
+          sh`bun -e ${"console.log(require('./package.json').version)"}`,
+          Effect.map(Str.trim),
+          Effect.catch(() => Effect.succeed("unknown"))
+        ),
+        pipe(
+          sh`git show HEAD --stat --format=%h %s%n%n%b`,
+          Effect.map(Str.trim),
+          Effect.catch(() => Effect.succeed(""))
+        ),
+        pipe(
+          sh`git log --oneline -4 --skip=1`,
+          Effect.map(Str.trim),
+          Effect.catch(() => Effect.succeed(""))
+        ),
+        pipe(
+          sh`bun -e ${"const p = require('./package.json'); const R = require('effect/Record'); console.log(R.toEntries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"}`,
+          Effect.map(Str.trim),
+          Effect.catch(() => Effect.succeed(""))
+        ),
+        pipe(
+          sh`mise tasks --json`,
+          Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
+          Effect.map(formatMiseTasks),
+          Effect.catch(() => Effect.succeed(""))
+        ),
+        listMemories,
+      ],
+      { concurrency: "unbounded" }
+    );
 
   // Subagent context with strong implementer identity
   const output = `<subagent-context>
@@ -332,7 +346,7 @@ Consider using /memory-management to query past decisions, store new learnings, 
 
 <available-memories>
 Recent memories in vault:
-${listMemories()}
+${memories}
 
 Use /memory-management to query, create, or search memories.
 </available-memories>

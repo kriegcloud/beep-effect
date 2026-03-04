@@ -237,5 +237,11 @@ const docsFindCommand = Command.make(
  */
 export const docsCommand = Command.make("docs", {}, printDocsIndex).pipe(
   Command.withDescription("Discover laws, skills, and policies without path references"),
-  Command.withSubcommands([docsLawsCommand, docsSkillsCommand, docsPoliciesCommand, docsFindCommand, docsAggregateCommand])
+  Command.withSubcommands([
+    docsLawsCommand,
+    docsSkillsCommand,
+    docsPoliciesCommand,
+    docsFindCommand,
+    docsAggregateCommand,
+  ])
 );

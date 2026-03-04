@@ -179,6 +179,11 @@ const summarizeAttempts = (attempts: ReadonlyArray<number>) =>
   })
 ```
 
+### EF-7b: Prefer `Bool.match` for booleans
+
+- For boolean-driven branching, prefer `Bool.match` from `effect/Boolean` over ad-hoc `if/else`.
+- This keeps control flow expression-oriented and consistent with Effect matching style.
+
 ### EF-8: Services use `ServiceMap.Service` + `Layer`
 
 - Service identity comes from `@beep/identity` composer keys.
@@ -203,6 +208,12 @@ export class MyService extends ServiceMap.Service<MyService, {
 
 - Prefer Effect runtime services such as `Clock` and `Random`.
 - Avoid direct `Date.now()` and `Math.random()` in domain logic.
+
+### EF-9b: Runtime HTTP uses Effect HTTP modules
+
+- Do not use native `fetch` in runtime source.
+- Compose requests/responses with `HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, and `HttpBody`.
+- Provide runtime client layers explicitly (`@effect/platform-bun/BunHttpClient.layer` for Bun runtimes).
 
 ### EF-10: Tests stay effect-native
 

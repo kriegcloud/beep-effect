@@ -142,9 +142,7 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
 
   const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? count + 1 : count));
 
-  yield* Console.log(
-    `Purge complete: targeted ${targets.length} path(s), removed ${removedCount} existing path(s).`
-  );
+  yield* Console.log(`Purge complete: targeted ${targets.length} path(s), removed ${removedCount} existing path(s).`);
 
   return {
     targetedCount: targets.length,

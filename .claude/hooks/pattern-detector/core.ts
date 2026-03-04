@@ -1,20 +1,26 @@
-import { Config, Effect, FileSystem, Path, pipe, flow } from "effect";
+import { $ClaudeId } from "@beep/identity/packages";
+import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as S from "effect/Schema";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
 import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
 
-export const HookInput = S.Struct({
-  hook_event_name: S.Literals(["PreToolUse", "PostToolUse"]),
-  tool_name: S.String,
-  tool_input: S.Record(S.String, S.Unknown),
-});
+const $I = $ClaudeId.create("hooks/pattern-detector/core");
 
-export type HookInput = S.Schema.Type<typeof HookInput>;
+export class HookInput extends S.Class<HookInput>($I`HookInput`)(
+  {
+    hook_event_name: S.Literals(["PreToolUse", "PostToolUse"]),
+    tool_name: S.String,
+    tool_input: S.Record(S.String, S.Unknown),
+  },
+  $I.annote("HookInput", {
+    description: "Pattern detector input payload for pre/post tool hook events.",
+  })
+) {}
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
 

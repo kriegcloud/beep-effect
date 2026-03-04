@@ -13,8 +13,8 @@ import {
   Boolean as Bool,
   Effect,
   FileSystem,
-  identity,
   Inspectable,
+  identity,
   Match,
   Number as N,
   Order,
@@ -394,16 +394,14 @@ const fetchLatestDockerTag: (
   const client = yield* HttpClient.HttpClient;
   const url = dockerHubTagsUrl(ref.repository);
 
-  const response = yield* client
-    .get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } })
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new NetworkUnavailableError({
-            message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
-          })
-      )
-    );
+  const response = yield* client.get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } }).pipe(
+    Effect.mapError(
+      (e) =>
+        new NetworkUnavailableError({
+          message: `Docker Hub API request failed for ${ref.repository}: ${Inspectable.toStringUnknown(e, 0)}`,
+        })
+    )
+  );
 
   const body = yield* HttpClientResponse.schemaBodyJson(DockerTagsResponse)(response).pipe(
     Effect.mapError(

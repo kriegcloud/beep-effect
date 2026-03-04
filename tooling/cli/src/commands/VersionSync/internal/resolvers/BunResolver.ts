@@ -9,7 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Boolean as Bool, Effect, FileSystem, identity, Inspectable, Path, String as Str } from "effect";
+import { Boolean as Bool, Effect, FileSystem, Inspectable, identity, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -136,17 +136,15 @@ export const resolveBunVersions: (
 
     // Read package.json packageManager field
     const pkgJsonPath = path.join(repoRoot, "package.json");
-    const pkgJsonContent = yield* fs
-      .readFileString(pkgJsonPath)
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-              file: "package.json",
-            })
-        )
-      );
+    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: "package.json",
+          })
+      )
+    );
 
     const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.provide(JsoncCodecServiceLive),
@@ -181,7 +179,8 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
       .get(BUN_RELEASE_URL, { headers: { "User-Agent": "beep-cli/0.0.0", Accept: "application/vnd.github+json" } })
       .pipe(
         Effect.mapError(
-          (e) => new NetworkUnavailableError({ message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}` })
+          (e) =>
+            new NetworkUnavailableError({ message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}` })
         )
       );
     const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(

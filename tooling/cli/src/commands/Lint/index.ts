@@ -5,19 +5,29 @@
  * @module
  */
 
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import fs from "node:fs";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import madge from "madge";
 
 const $I = $RepoCliId.create("commands/Lint");
 
 const TOOLING_ROOT = "tooling/cli/src";
+const RUNTIME_SCHEMA_FIRST_ROOTS = [TOOLING_ROOT, "packages/ai/sdk/src/core", ".claude/hooks"] as const;
+const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
+  "packages/ai/sdk/src/core/AgentSdkConfig.ts",
+  "packages/ai/sdk/src/core/SessionConfig.ts",
+  "packages/ai/sdk/src/core/Diagnose.ts",
+  "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
+  ".claude/hooks/schemas/index.ts",
+  ".claude/hooks/skill-suggester/index.ts",
+  ".claude/hooks/subagent-init/index.ts",
+  ".claude/hooks/agent-init/index.ts",
+  ".claude/hooks/pattern-detector/core.ts",
+]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
 const REQUIRED_TAGGED_UNIONS = [
   "GenerationAction",
@@ -63,85 +73,76 @@ class LintCircularAnalysisError extends S.TaggedErrorClass<LintCircularAnalysisE
 const lineNumberAt = (content: string, offset: number): number =>
   pipe(content, Str.slice(0, offset), Str.split("\n"), A.length);
 
-const runRgFiles = (root: string): Effect.Effect<ReadonlyArray<string>, never> =>
-  Effect.sync(() => {
-    const result = spawnSync("rg", ["--files", root], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-
-    if (result.error) {
-      console.error("[lint] failed to execute ripgrep.");
-      console.error(result.error.message);
-      process.exitCode = 2;
-      return A.empty<string>();
-    }
-
-    if (result.status !== 0) {
-      console.error("[lint] failed to enumerate files.");
-      if (Str.isNonEmpty(Str.trim(result.stderr))) {
-        console.error(Str.trim(result.stderr));
-      }
-      process.exitCode = result.status ?? 2;
-      return A.empty<string>();
-    }
-
-    return pipe(
-      result.stdout,
-      Str.split("\n"),
-      A.map(Str.trim),
-      A.filter(Str.endsWith(".ts"))
+const runRgFiles = (
+  root: string
+): Effect.Effect<ReadonlyArray<string>, never, ChildProcessSpawner.ChildProcessSpawner> =>
+  Effect.gen(function* () {
+    const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+    const output = yield* spawner.string(ChildProcess.make("rg", ["--files", root], { cwd: process.cwd() })).pipe(
+      Effect.catch(() =>
+        Effect.gen(function* () {
+          process.exitCode = 2;
+          yield* Console.error("[lint] failed to enumerate files with ripgrep.");
+          return "";
+        })
+      )
     );
-  });
+    return pipe(output, Str.split("\n"), A.map(Str.trim), A.filter(Str.endsWith(".ts")));
+  }).pipe(Effect.orElseSucceed(() => A.empty<string>()));
 
 const runLintToolingTaggedErrors = Effect.fn(function* () {
-  const result = spawnSync(
-    "rg",
-    ["--line-number", "--glob", "tooling/*/src/**/*.ts", "\\bnew Error\\(|\\bthrow new Error\\(", "."],
-    {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    }
-  );
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const output = yield* spawner
+    .string(
+      ChildProcess.make(
+        "rg",
+        ["--line-number", "--glob", "tooling/*/src/**/*.ts", "\\bnew Error\\(|\\bthrow new Error\\(", "."],
+        {
+          cwd: process.cwd(),
+        }
+      )
+    )
+    .pipe(
+      Effect.catch(() =>
+        Effect.gen(function* () {
+          process.exitCode = 2;
+          yield* Console.error("[check-tooling-tagged-errors] failed to execute ripgrep.");
+          return "";
+        })
+      )
+    );
 
-  if (result.error) {
-    yield* Console.error("[check-tooling-tagged-errors] failed to execute ripgrep.");
-    yield* Console.error(result.error.message);
-    process.exitCode = 2;
-    return;
-  }
-
-  if (result.status === 1) {
-    yield* Console.log("[check-tooling-tagged-errors] OK: no native Error usage found in tooling/*/src.");
-    return;
-  }
-
-  if (result.status === 0) {
+  if (Str.isNonEmpty(Str.trim(output))) {
     yield* Console.error(
       "[check-tooling-tagged-errors] native Error usage detected in tooling/*/src. Use S.TaggedErrorClass errors."
     );
-    if (Str.trim(result.stdout).length > 0) {
-      yield* Console.error(Str.trim(result.stdout));
-    }
+    yield* Console.error(Str.trim(output));
     process.exitCode = 1;
     return;
   }
 
-  yield* Console.error("[check-tooling-tagged-errors] ripgrep exited unexpectedly.");
-  if (Str.trim(result.stderr).length > 0) {
-    yield* Console.error(Str.trim(result.stderr));
-  }
-  process.exitCode = result.status ?? 2;
+  yield* Console.log("[check-tooling-tagged-errors] OK: no native Error usage found in tooling/*/src.");
 });
 
 const runLintToolingSchemaFirst = Effect.fn(function* () {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const files = yield* runRgFiles(TOOLING_ROOT);
+  const filesByRoot = yield* Effect.forEach(RUNTIME_SCHEMA_FIRST_ROOTS, (root) => runRgFiles(root), {
+    concurrency: "unbounded",
+  });
+  const files = pipe(filesByRoot, A.flatten, A.dedupe);
+  const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
   const violations = [] as Array<LintViolation>;
 
   for (const file of files) {
+    const isToolingFile = Str.startsWith(`${TOOLING_ROOT}/`)(file);
+    const isRuntimeFocusFile = HashSet.has(FOCUS_RUNTIME_FILES, file);
+    if (!isToolingFile && !isRuntimeFocusFile) {
+      continue;
+    }
+
     const absolute = path.join(process.cwd(), file);
-    const content = readFileSync(absolute, "utf8");
+    const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(() => ""));
 
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
       violations.push(
@@ -155,18 +156,22 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     };
 
     const basename = path.basename(file, ".ts");
-    if (!HashSet.has(ALLOWED_NON_PASCAL_FILENAMES, basename) && !/^[A-Z][A-Za-z0-9]*$/.test(basename)) {
+    if (
+      isToolingFile &&
+      !HashSet.has(ALLOWED_NON_PASCAL_FILENAMES, basename) &&
+      !/^[A-Z][A-Za-z0-9]*$/.test(basename)
+    ) {
       pushViolation(
         "pascal-case-file",
         "Tooling CLI TypeScript files must use PascalCase names (except index.ts and bin.ts)."
       );
     }
 
-    if (/\bexport\s+interface\b/.test(content)) {
+    if (isToolingFile && /\bexport\s+interface\b/.test(content)) {
       pushViolation("export-interface", "Use schema classes or type aliases instead of exported interfaces.");
     }
 
-    if (/\bData\.taggedEnum\b|\bData\.TaggedEnum\b/.test(content)) {
+    if (isToolingFile && /\bData\.taggedEnum\b|\bData\.TaggedEnum\b/.test(content)) {
       pushViolation("data-tagged-enum", "Use Schema tagged unions via LiteralKit + mapMembers + Tuple.evolve.");
     }
 
@@ -181,21 +186,23 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
       );
     }
 
-    const serviceLinePattern = /ServiceMap\.Service</g;
-    for (const match of content.matchAll(serviceLinePattern)) {
-      const start = match.index ?? 0;
-      const nearby = Str.slice(start, start + 320)(content);
-      if (!/\(\)\(\s*\$I`/.test(nearby)) {
-        pushViolation("service-id", "ServiceMap.Service tag must use $I`ServiceName` identity.", start);
+    if (isToolingFile) {
+      const serviceLinePattern = /ServiceMap\.Service</g;
+      for (const match of content.matchAll(serviceLinePattern)) {
+        const start = match.index ?? 0;
+        const nearby = Str.slice(start, start + 320)(content);
+        if (!/\(\)\(\s*\$I`/.test(nearby)) {
+          pushViolation("service-id", "ServiceMap.Service tag must use $I`ServiceName` identity.", start);
+        }
       }
-    }
 
-    const classPattern = /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g;
-    for (const match of content.matchAll(classPattern)) {
-      const start = match.index ?? 0;
-      const nearby = Str.slice(start, start + 2400)(content);
-      if (!/\$I\.annote\(/.test(nearby)) {
-        pushViolation("schema-annotation", "S.Class schema is missing $I.annote(...) metadata.", start);
+      const classPattern = /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g;
+      for (const match of content.matchAll(classPattern)) {
+        const start = match.index ?? 0;
+        const nearby = Str.slice(start, start + 2400)(content);
+        if (!/\$I\.annote\(/.test(nearby)) {
+          pushViolation("schema-annotation", "S.Class schema is missing $I.annote(...) metadata.", start);
+        }
       }
     }
   }
@@ -204,9 +211,9 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     const declarationPattern = new RegExp(`(?:export\\s+)?const\\s+${schemaName}\\s*=`);
     let found = false;
 
-    for (const file of files) {
+    for (const file of toolingFiles) {
       const absolute = path.join(process.cwd(), file);
-      const content = readFileSync(absolute, "utf8");
+      const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(() => ""));
       const match = declarationPattern.exec(content);
 
       if (match === null) {
@@ -215,7 +222,11 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 
       found = true;
       const snippet = Str.slice(match.index, match.index + 1400)(content);
-      if (!/\.mapMembers\(/.test(snippet) || !/Tuple\.evolve\(/.test(snippet) || !/\.pipe\(S\.toTaggedUnion\(/.test(snippet)) {
+      if (
+        !/\.mapMembers\(/.test(snippet) ||
+        !/Tuple\.evolve\(/.test(snippet) ||
+        !/\.pipe\(S\.toTaggedUnion\(/.test(snippet)
+      ) {
         violations.push(
           new LintViolation({
             file,
@@ -253,11 +264,12 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 });
 
 const runLintCircular = Effect.fn(function* () {
+  const fs = yield* FileSystem.FileSystem;
   const dirs = ["tooling/cli/src", "tooling/repo-utils/src", "tooling/codebase-search/src"];
   let hasCircular = false;
 
   for (const dir of dirs) {
-    if (!fs.existsSync(dir)) {
+    if (!(yield* fs.exists(dir))) {
       yield* Console.warn(`Skipping missing directory: ${dir}`);
       continue;
     }
