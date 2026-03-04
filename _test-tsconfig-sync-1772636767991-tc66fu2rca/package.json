@@ -1,1 +1,0 @@
-{"name":"@test/root","private":true,"workspaces":["tooling/*","packages/*"]}

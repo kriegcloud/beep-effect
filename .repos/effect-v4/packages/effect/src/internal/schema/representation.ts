@@ -341,11 +341,11 @@ export function toJsonSchemaMultiDocument(
   function on(schema: SchemaRepresentation.Representation): JsonSchema.JsonSchema {
     switch (schema._tag) {
       case "Any":
-        return {}
       case "Unknown":
+      case "ObjectKeyword":
+        return {}
       case "Void":
       case "Undefined":
-      case "ObjectKeyword":
         return { type: "null" }
       case "BigInt":
         return {
@@ -494,10 +494,14 @@ export function toJsonSchemaMultiDocument(
         }
 
         out.additionalProperties = additionalProperties
-        const patternProperties: Record<string, JsonSchema.JsonSchema> = {}
+        const patternProperties: Record<string, JsonSchema.JsonSchema | false> = {}
         // Handle index signatures
         for (const is of schema.indexSignatures) {
-          const type = recur(is.type)
+          let type: JsonSchema.JsonSchema | false = recur(is.type)
+          // Collapse unannotated Never ({ not: {} }) to false, but keep annotated schemas as objects.
+          if (Object.keys(type).length === 1 && "not" in type) {
+            type = false
+          }
           const patterns = getParameterPatterns(is.parameter)
           if (patterns.length > 0) {
             for (const pattern of patterns) {

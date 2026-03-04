@@ -2,29 +2,10 @@
  * @since 4.0.0
  */
 import * as ErrorReporter from "../../ErrorReporter.ts"
+import { identity } from "../../Function.ts"
 import * as Schema from "../../Schema.ts"
+import * as Transformation from "../../SchemaTransformation.ts"
 import * as HttpApiSchema from "./HttpApiSchema.ts"
-
-/**
- * @category errors
- * @since 4.0.0
- */
-export class HttpApiSchemaError extends Schema.ErrorClass<HttpApiSchemaError>("effect/HttpApiSchemaError")({
-  _tag: Schema.tag("HttpApiSchemaError"),
-  message: Schema.String
-}, {
-  httpApiStatus: 400,
-  description: "The request or response did not match the expected schema"
-}) {
-  /**
-   * @since 4.0.0
-   */
-  static fromSchemaError(error: Schema.SchemaError): HttpApiSchemaError {
-    return new HttpApiSchemaError({ message: error.message })
-  }
-
-  override readonly [ErrorReporter.ignore] = true
-}
 
 /**
  * @category Built-in errors
@@ -37,6 +18,7 @@ export class BadRequest extends Schema.ErrorClass<BadRequest>("effect/HttpApiErr
   httpApiStatus: 400
 }) {
   override readonly [ErrorReporter.ignore] = true
+  static readonly singleton = new BadRequest()
 }
 
 /**
@@ -46,6 +28,26 @@ export class BadRequest extends Schema.ErrorClass<BadRequest>("effect/HttpApiErr
 export const BadRequestNoContent = BadRequest.pipe(HttpApiSchema.asNoContent({
   decode: () => new BadRequest({})
 }))
+
+/**
+ * @category Built-in errors
+ * @since 4.0.0
+ */
+export const BadRequestFromSchemaError = BadRequest.pipe(
+  Schema.decodeTo(
+    Schema.Union([Schema.declare(Schema.isSchemaError), BadRequest]),
+    Transformation.transform({
+      encode: (_) => BadRequest.singleton,
+      decode: identity
+    })
+  ),
+  HttpApiSchema.asNoContent({
+    decode: () => new BadRequest({})
+  })
+).annotate({
+  httpApiStatus: 400,
+  description: "BadRequest"
+})
 
 /**
  * @category Built-in errors

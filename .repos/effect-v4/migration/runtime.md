@@ -16,6 +16,69 @@ In v4, this type no longer exists and you can use `ServiceMap<R>` instead.
 Run functions live directly on `Effect`, and the `Runtime` module is reduced to
 process lifecycle utilities.
 
+## `Runtime.runFork(runtime)` -> `Effect.runForkWith(services)`
+
+In v3, running an effect with dependencies usually meant pulling the current
+runtime from `Effect.runtime<R>()` and calling `Runtime.runFork(runtime)` inside
+the main effect.
+
+**v3**
+
+```ts
+import { Context, Effect, Runtime } from "effect"
+
+class Logger extends Context.Tag("Logger")<Logger, {
+  readonly log: (message: string) => void
+}>() {}
+
+const program = Effect.gen(function*() {
+  const logger = yield* Logger
+  logger.log("Hello from Logger")
+})
+
+const main = Effect.gen(function*() {
+  const runtime = yield* Effect.runtime<Logger>()
+  return Runtime.runFork(runtime)(program)
+}).pipe(
+  Effect.provideService(Logger, {
+    log: (message) => console.log(message)
+  })
+)
+
+const fiber = Effect.runFork(main)
+```
+
+In v4, use the same pattern with `Effect.services<R>()`, then run with
+`Effect.runForkWith(services)`:
+
+**v4**
+
+```ts
+import { Effect, ServiceMap } from "effect"
+
+class Logger extends ServiceMap.Service<Logger, {
+  readonly log: (message: string) => void
+}>()("Logger") {}
+
+const program = Effect.gen(function*() {
+  const logger = yield* Logger
+  logger.log("Hello from Logger")
+})
+
+const main = Effect.gen(function*() {
+  const services = yield* Effect.services<Logger>()
+  return Effect.runForkWith(services)(program)
+}).pipe(
+  Effect.provideServices(ServiceMap.make(Logger, {
+    log: (message) => console.log(message)
+  }))
+)
+
+const fiber = Effect.runFork(main)
+```
+
+If your effect has no service requirements, use `Effect.runFork(effect)`.
+
 ## `Runtime` Module Contents
 
 The `Runtime` module now only contains:
