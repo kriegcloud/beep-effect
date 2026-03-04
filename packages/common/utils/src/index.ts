@@ -8,6 +8,12 @@
  * @since 0.0.0
  * @category Configuration
  */
+export * as Array from "./Array.ts";
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
 export * as Bool from "./Bool.ts";
 
 

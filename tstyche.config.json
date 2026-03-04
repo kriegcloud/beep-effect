@@ -3,6 +3,7 @@
   "testFileMatch": [
     "packages/*/dtslint/**/*.tst.*",
     "packages/common/schema/dtslint/**/*.tst.*",
+    "packages/common/utils/dtslint/**/*.tst.*",
     "packages/common/data/dtslint/**/*.tst.*",
     "tooling/*/dtslint/**/*.tst.*",
     "apps/*/dtslint/**/*.tst.*",
