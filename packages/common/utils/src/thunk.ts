@@ -6,6 +6,7 @@
 
 import { Effect } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 
 type LazyArg<A> = () => A;
@@ -118,3 +119,8 @@ export const thunkEffectSucceed = <A>(a: A): LazyArg<Effect.Effect<unknown, neve
  * @since 0.0.0
  */
 export const thunkEmptyRecord = <K extends string | symbol = never, V = never>() => R.empty<K, V>();
+
+export const thunkSome = <A>(value: A): () => O.Option<A> => () => O.some(value);
+
+export const thunkSomeEmptyStr = thunkSome("");
+
