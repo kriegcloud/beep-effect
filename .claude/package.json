@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
     "effect": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",

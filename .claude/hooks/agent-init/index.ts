@@ -13,6 +13,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
@@ -219,8 +220,8 @@ export const program = Effect.gen(function* () {
         sh`git branch -vv --list --sort=-committerdate`,
         Effect.map((s) => {
           const lines = Str.split("\n")(Str.trim(s));
-          const current = lines.find((l) => l.startsWith("*")) || "";
-          const recent = lines.filter((l) => !l.startsWith("*")).slice(0, 4);
+          const current = lines.find(Str.startsWith("*")) || "";
+          const recent = lines.filter(P.not(Str.startsWith("*"))).slice(0, 4);
           return {
             current: Str.trim(Str.replace(/^\*\s*/, "")(current)),
             recent,
@@ -279,7 +280,7 @@ export const program = Effect.gen(function* () {
             out,
             Str.trim,
             Str.split("\n"),
-            A.filter((value) => value.length > 0),
+            A.filter(Str.isNonEmpty),
             HashSet.fromIterable,
             A.fromIterable,
             A.join(", ")
