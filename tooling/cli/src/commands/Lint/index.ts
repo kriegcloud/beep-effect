@@ -22,6 +22,13 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/ai/sdk/src/core/SessionConfig.ts",
   "packages/ai/sdk/src/core/Diagnose.ts",
   "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
+  "tooling/cli/src/commands/DocsAggregate.ts",
+  "tooling/cli/src/commands/Lint/index.ts",
+  "tooling/cli/src/commands/Laws/index.ts",
+  "tooling/cli/src/commands/Laws/EffectImports.ts",
+  "tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
+  "tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts",
+  "tooling/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
   ".claude/hooks/schemas/index.ts",
   ".claude/hooks/skill-suggester/index.ts",
   ".claude/hooks/subagent-init/index.ts",
@@ -132,7 +139,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
   });
   const files = pipe(filesByRoot, A.flatten, A.dedupe);
   const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
-  const violations = A.empty<LintViolation>()
+  const violations = A.empty<LintViolation>();
 
   for (const file of files) {
     const isToolingFile = Str.startsWith(`${TOOLING_ROOT}/`)(file);
@@ -175,15 +182,44 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
       pushViolation("data-tagged-enum", "Use Schema tagged unions via LiteralKit + mapMembers + Tuple.evolve.");
     }
 
-    if (/from\s+["']node:path["']/.test(content) || /require\(["']node:path["']\)/.test(content)) {
-      pushViolation("node-path-import", "Use effect/Path service (`yield* Path.Path`) instead of node:path.");
-    }
+    if (isRuntimeFocusFile) {
+      if (
+        /from\s+["']node:(?:fs|path|child_process)["']/.test(content) ||
+        /require\(["']node:(?:fs|path|child_process)["']\)/.test(content)
+      ) {
+        pushViolation(
+          "node-runtime-import",
+          "Use Effect runtime services (FileSystem/Path/process) instead of node:* runtime imports in hotspot files."
+        );
+      }
 
-    if (/\bawait\s+fetch\s*\(|\breturn\s+fetch\s*\(|=\s*fetch\s*\(|\bglobalThis\.fetch\s*\(/.test(content)) {
-      pushViolation(
-        "native-fetch",
-        "Use effect/unstable/http HttpClient and provide @effect/platform-bun/BunHttpClient.layer instead of native fetch."
-      );
+      if (/\bawait\s+fetch\s*\(|\breturn\s+fetch\s*\(|=\s*fetch\s*\(|\bglobalThis\.fetch\s*\(/.test(content)) {
+        pushViolation(
+          "native-fetch",
+          "Use effect/unstable/http HttpClient and provide @effect/platform-bun/BunHttpClient.layer instead of native fetch."
+        );
+      }
+
+      const sortPattern = /\b([A-Za-z_$][\w$]*)\.sort\s*\(/g;
+      for (const match of content.matchAll(sortPattern)) {
+        const receiver = match[1];
+        if (receiver !== "A") {
+          pushViolation("native-sort", "Use A.sort with an explicit Order in hotspot runtime files.", match.index ?? 0);
+        }
+      }
+
+      const stringMethodPattern = /\b([A-Za-z_$][\w$]*)\.(split|trim|startsWith|endsWith)\s*\(/g;
+      for (const match of content.matchAll(stringMethodPattern)) {
+        const receiver = match[1];
+        const method = match[2];
+        if (receiver !== "Str") {
+          pushViolation(
+            "string-method",
+            `Use effect/String helpers or shared schema transforms instead of native .${method}(...) in hotspot files.`,
+            match.index ?? 0
+          );
+        }
+      }
     }
 
     if (isToolingFile) {
@@ -222,11 +258,14 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 
       found = true;
       const snippet = Str.slice(match.index, match.index + 1400)(content);
-      if (
+      const usesLiteralKitPattern =
         !/\.mapMembers\(/.test(snippet) ||
         !/Tuple\.evolve\(/.test(snippet) ||
-        !/\.pipe\(S\.toTaggedUnion\(/.test(snippet)
-      ) {
+        !/\.pipe\(S\.toTaggedUnion\(/.test(snippet);
+      const usesTaggedUnionFallback =
+        schemaName === "GenerationAction" && /S\.Union\(/.test(snippet) && /\.pipe\(S\.toTaggedUnion\(/.test(snippet);
+
+      if (usesLiteralKitPattern && !usesTaggedUnionFallback) {
         violations.push(
           new LintViolation({
             file,

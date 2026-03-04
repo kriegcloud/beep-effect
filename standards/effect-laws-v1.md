@@ -50,6 +50,7 @@ Wave 1 enforcement scope:
 - `packages/**`
 - `tooling/**`
 - `infra/**`
+- `.claude/hooks/**`
 
 Excludes by default:
 

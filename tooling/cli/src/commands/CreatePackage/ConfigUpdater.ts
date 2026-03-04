@@ -11,6 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
+import { thunkFalse, thunkNegative1, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -34,18 +35,9 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  */
 export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpdateResult`)(
   {
-    tsconfigPackages: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    tsconfigPaths: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    tstycheConfig: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
+    tsconfigPackages: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    tsconfigPaths: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    tstycheConfig: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
   },
   $I.annote("ConfigUpdateResult", {
     description: "Summary of root configuration files modified during a config update pass.",
@@ -84,14 +76,11 @@ export class ConfigUpdateTargetResult extends S.Class<ConfigUpdateTargetResult>(
   })
 ) {}
 
-const DefaultedBoolean = S.Boolean.pipe(
-  S.withConstructorDefault(() => O.some(false)),
-  S.withDecodingDefault(() => false)
-);
+const DefaultedBoolean = S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse));
 
 const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pipe(
-  S.withConstructorDefault(() => O.some(A.empty<ConfigUpdateTargetResult>())),
-  S.withDecodingDefault(() => A.empty<ConfigUpdateTargetResult>())
+  S.withConstructorDefault(thunkSomeEmptyArray<ConfigUpdateTargetResult>),
+  S.withDecodingDefault(A.empty<ConfigUpdateTargetResult>)
 );
 
 /**
@@ -194,7 +183,7 @@ const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: strin
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = decodeTstychePattern(packagePath);
   if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
-  const lastSlash = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf("/")(packagePath)), () => -1);
+  const lastSlash = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf("/")(packagePath)), thunkNegative1);
   if (lastSlash < 0) return false;
   const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;

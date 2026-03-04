@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { thunkEmptyStr } from "@beep/utils";
-import { Effect, FileSystem, flow, SchemaTransformation, ServiceMap, String as Str } from "effect";
+import { Effect, FileSystem, flow, identity, SchemaTransformation, ServiceMap, String as Str } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import Handlebars from "handlebars";
@@ -96,7 +96,7 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
           onNone: thunkEmptyStr,
           onSome: (inner) => `${inner}`,
         }),
-      encode: (value) => value,
+      encode: identity,
     })
   ),
   S.annotate(

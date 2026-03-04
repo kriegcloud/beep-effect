@@ -13,7 +13,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { thunkFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str } from "effect";
+import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -349,7 +349,7 @@ export const createPackageCommand = Command.make(
         )
       );
       const configNeeds = O.getOrElse(
-        O.map(A.get(configNeedsBatch.targets, 0), ({ result }) => result),
+        O.map(A.get(configNeedsBatch.targets, 0), Struct.get("result")),
         () => new ConfigUpdateResult({ tsconfigPackages: true, tsconfigPaths: true, tstycheConfig: true })
       );
 

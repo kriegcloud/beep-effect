@@ -15,14 +15,26 @@
 
 import { createHash } from "node:crypto";
 import { $ClaudeId } from "@beep/identity/packages";
+import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Clock, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
+import {
+  Clock,
+  Config,
+  Console,
+  Effect,
+  FileSystem,
+  HashSet,
+  Order,
+  Path,
+  pipe,
+  String as Str,
+  Terminal,
+} from "effect";
 import * as A from "effect/Array";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/skill-suggester/index");
@@ -30,12 +42,12 @@ const $I = $ClaudeId.create("hooks/skill-suggester/index");
 class LenientUserPromptInput extends S.Class<LenientUserPromptInput>($I`LenientUserPromptInput`)(
   {
     session_id: S.String,
-    transcript_path: S.String.pipe(S.withDecodingDefault(() => "")),
+    transcript_path: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
     cwd: S.String,
     permission_mode: S.String.pipe(S.withDecodingDefault(() => "default")),
     hook_event_name: S.Literal("UserPromptSubmit"),
-    prompt: S.String.pipe(S.withDecodingDefault(() => "")),
-    user_prompt: S.String.pipe(S.withDecodingDefault(() => "")),
+    prompt: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
+    user_prompt: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
   },
   $I.annote("LenientUserPromptInput", {
     description: "UserPromptSubmit hook input with lenient defaults for missing text fields.",
@@ -49,7 +61,7 @@ export interface SkillMetadata {
 
 class HookState extends S.Class<HookState>($I`HookState`)(
   {
-    lastCallMs: S.NullOr(S.Number).pipe(S.withDecodingDefault(() => null)),
+    lastCallMs: S.NullOr(S.Number).pipe(S.withDecodingDefault(thunkNull)),
   },
   $I.annote("HookState", {
     description: "Persisted state for hook call timing.",
@@ -80,7 +92,7 @@ const writeHookState = (cwd: string, state: HookState) =>
     const statePath = path.join(cwd, ".claude", ".hook-state.json");
     const encoded = yield* S.encodeEffect(HookStateFromJson)(state);
     yield* fs.writeFileString(statePath, encoded);
-  }).pipe(Effect.orElseSucceed(() => undefined));
+  }).pipe(Effect.orElseSucceed(thunkUndefined));
 
 class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
   {
@@ -99,7 +111,10 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
   pipe(
     tasks,
     A.map((t) => {
-      const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+      const aliases = A.match(t.aliases, {
+        onEmpty: () => "",
+        onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
+      });
       return `${t.name}${aliases}: ${t.description}`;
     }),
     A.join("\n")
@@ -133,7 +148,7 @@ const SCRIPT_TRIGGER_KEYWORDS = HashSet.fromIterable([
 const shouldShowMiseTasks = (prompt: string): boolean => {
   const lowered = Str.toLowerCase(prompt);
   for (const keyword of SCRIPT_TRIGGER_KEYWORDS) {
-    if (lowered.includes(keyword)) return true;
+    if (Str.includes(keyword)(lowered)) return true;
   }
   return false;
 };
@@ -301,14 +316,14 @@ export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
     A.filter((seg) => Str.length(seg) >= 3),
     A.filter((seg) => matchesWordBoundary(prompt, seg)),
     A.length,
-    N.multiply(NAME_MATCH_BOOST)
+    (matches) => matches * NAME_MATCH_BOOST
   );
 
   const keywordScore = pipe(
     skill.keywords,
     A.filter((keyword) => matchesWordBoundary(prompt, keyword)),
     A.length,
-    N.multiply(KEYWORD_MATCH_SCORE)
+    (matches) => matches * KEYWORD_MATCH_SCORE
   );
 
   return nameScore + keywordScore;
@@ -415,7 +430,7 @@ const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string
   const lowered = Str.toLowerCase(file);
   let score = 0;
   for (const keyword of promptKeywords) {
-    if (keyword.length > 0 && lowered.includes(keyword)) {
+    if (Str.isNonEmpty(keyword) && Str.includes(keyword)(lowered)) {
       score += 1;
     }
   }
@@ -443,11 +458,11 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
         pipe(
           S.decodeUnknownOption(SnapshotRecordFromJson)(line),
           O.map((parsed) => {
-            const file = O.getOrElse(O.fromUndefinedOr(parsed.file), () => "");
+            const file = O.getOrElse(O.fromUndefinedOr(parsed.file), thunkEmptyStr);
             return {
               file,
-              nodeCount: O.getOrElse(O.fromUndefinedOr(parsed.nodeCount), () => 0),
-              edgeCount: O.getOrElse(O.fromUndefinedOr(parsed.edgeCount), () => 0),
+              nodeCount: O.getOrElse(O.fromUndefinedOr(parsed.nodeCount), thunk0),
+              edgeCount: O.getOrElse(O.fromUndefinedOr(parsed.edgeCount), thunk0),
               score: scoreSnapshotRecord(promptKeywords, file),
             };
           }),
@@ -459,8 +474,13 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
           }))
         )
       ),
-      A.filter((entry) => entry.file.length > 0 && entry.score > 0),
-      A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { readonly score: number }) => entry.score)),
+      A.filter(
+        P.Struct({
+          file: Str.isNonEmpty,
+          score: (score) => score > 0,
+        })
+      ),
+      A.sort(Order.mapInput(Order.flip(Order.Number), ({ score }: { readonly score: number }) => score)),
       A.take(8)
     );
 
@@ -533,10 +553,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
 
 export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> =>
   Effect.runSync(
-    buildKgContextBlockEffect(cwd, prompt).pipe(
-      Effect.provide(BunServices.layer),
-      Effect.orElseSucceed(() => O.none<string>())
-    )
+    buildKgContextBlockEffect(cwd, prompt).pipe(Effect.provide(BunServices.layer), Effect.orElseSucceed(O.none<string>))
   );
 
 const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");
@@ -575,7 +592,7 @@ elapsed_ms: ${elapsedMs}
 
   // Always show matched skills if any
   if (A.isReadonlyArrayNonEmpty(matchingSkills)) {
-    parts.push(`<skills>${matchingSkills.join(", ")}</skills>`);
+    parts.push(`<skills>${A.join(matchingSkills, ", ")}</skills>`);
   }
 
   // Always show matching modules if found
@@ -591,7 +608,7 @@ ${miseTasksResult.value}
 </available-scripts>`);
   }
 
-  const kgHookEnabled = process.env.BEEP_KG_HOOK_ENABLED !== "false";
+  const kgHookEnabled = yield* Config.boolean("BEEP_KG_HOOK_ENABLED").pipe(Config.withDefault(true));
   if (kgHookEnabled) {
     const kgContext = yield* buildKgContextBlockEffect(input.cwd, input.prompt);
     if (O.isSome(kgContext)) {
@@ -769,8 +786,8 @@ Prefer these over manual exploration and memory management.
   parts.push(`<version>${version}</version>`);
 
   // Only output if we have content
-  if (parts.length > 0) {
-    const context = `<system-hints>\n${parts.join("\n")}\n</system-hints>`;
+  if (A.isReadonlyArrayNonEmpty(parts)) {
+    const context = `<system-hints>\n${A.join(parts, "\n")}\n</system-hints>`;
     const formatted = yield* formatOutput(context);
     yield* Console.log(formatted);
   }

@@ -45,7 +45,7 @@ const HOTSPOT_RUNTIME_PATTERNS = [
   /^\.claude\/hooks\/pattern-detector\/core\.ts$/,
 ];
 const NODE_RUNTIME_IMPORTS = HashSet.fromIterable(["node:fs", "node:path", "node:child_process"]);
-const STRING_METHODS = HashSet.fromIterable(["split"]);
+const STRING_METHODS = HashSet.fromIterable(["split", "trim", "startsWith", "endsWith"]);
 
 /**
  * @type {import("eslint").Rule.RuleModule}

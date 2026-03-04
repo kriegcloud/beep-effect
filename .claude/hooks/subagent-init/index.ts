@@ -14,10 +14,9 @@
 
 import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
+import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
@@ -45,10 +44,17 @@ class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
 const MiseTasks = S.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  A.map(tasks, (t) => {
-    const aliases = t.aliases.length > 0 ? ` (${A.join(t.aliases, ", ")})` : "";
-    return `${t.name}${aliases}: ${t.description}`;
-  }).join("\n");
+  pipe(
+    tasks,
+    A.map((t) => {
+      const aliases = A.match(t.aliases, {
+        onEmpty: () => "",
+        onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
+      });
+      return `${t.name}${aliases}: ${t.description}`;
+    }),
+    A.join("\n")
+  );
 
 export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
@@ -79,7 +85,7 @@ const listMemories = pipe(
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const pathService = yield* Path.Path;
-    const homeDir = Bun.env.HOME ?? "/home";
+    const homeDir = yield* Config.string("HOME").pipe(Config.withDefault("/home"));
     const vaultPath = pathService.join(homeDir, ".claude", "memory");
 
     const exists = yield* fs.exists(vaultPath);

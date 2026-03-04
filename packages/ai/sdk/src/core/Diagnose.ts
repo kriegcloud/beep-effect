@@ -1,9 +1,8 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
-import { Config, Effect, pipe } from "effect";
+import { Config, Effect, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -135,7 +134,7 @@ const readApiKey = Effect.gen(function* () {
 const checkApiKey = () =>
   Effect.gen(function* () {
     const apiKey = yield* readApiKey;
-    if (apiKey.trim().length === 0) {
+    if (Str.isEmpty(Str.trim(apiKey))) {
       return [
         new DiagnosticCheck({
           status: "missing",
@@ -150,7 +149,7 @@ const checkApiKey = () =>
         ],
       ] as const;
     }
-    if (!apiKey.startsWith("sk-ant-")) {
+    if (!Str.startsWith("sk-ant-")(apiKey)) {
       return [
         new DiagnosticCheck({
           status: "invalid",
@@ -248,7 +247,7 @@ const checkClaudeCodeCli = () =>
       }
       const result = bun.spawnSync({ cmd: ["which", "claude"] });
       if (result.exitCode === 0) {
-        const path = new TextDecoder().decode(result.stdout ?? new Uint8Array()).trim();
+        const path = pipe(new TextDecoder().decode(result.stdout ?? new Uint8Array()), Str.trim);
         return new DiagnosticCheck({
           status: "ok",
           path,
@@ -282,8 +281,8 @@ const checkClaudeCodeCli = () =>
  */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
   Effect.gen(function* () {
-    const issues = A.empty<DiagnosticIssue>()
-    const checks = R.empty<string, DiagnosticCheck>()
+    const issues = A.empty<DiagnosticIssue>();
+    const checks = R.empty<string, DiagnosticCheck>();
 
     const [apiKeyCheck, apiIssues] = yield* checkApiKey();
     checks.apiKey = apiKeyCheck;
@@ -332,7 +331,7 @@ export const diagnose = (): Effect.Effect<DiagnosticResult> =>
     });
 
     return new DiagnosticResult({
-      valid: O.isNone(A.findFirst(issues, P.Struct({ severity: Eq.equals("error")}))),
+      valid: O.isNone(A.findFirst(issues, (issue) => issue.severity === "error")),
       checks,
       issues,
     });

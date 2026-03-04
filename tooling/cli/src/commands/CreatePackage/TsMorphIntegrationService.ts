@@ -102,14 +102,12 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
  * @since 0.0.0
  * @category DomainModel
  */
-export const TsMorphMutation = TsMorphMutationKind.mapMembers(
-  Tuple.evolve([
-    () => TsMorphMutationAddIdentityComposer,
-    () => TsMorphMutationAddEntityIdExport,
-    () => TsMorphMutationWirePersistence,
-    () => TsMorphMutationWireDataAccess,
-  ])
-)
+export const TsMorphMutation = S.Union([
+  TsMorphMutationAddIdentityComposer,
+  TsMorphMutationAddEntityIdExport,
+  TsMorphMutationWirePersistence,
+  TsMorphMutationWireDataAccess,
+])
   .annotate(
     $I.annote("TsMorphMutationBase", {
       description: "Input descriptor for one AST mutation.",

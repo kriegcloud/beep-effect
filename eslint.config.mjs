@@ -37,7 +37,7 @@ export default [
   },
   // Effect Laws v1 Rules - phased rollout (warn now, escalate to error after cleanup)
   {
-    files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling/**/*.{ts,tsx}", "infra/**/*.ts"],
+    files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling/**/*.{ts,tsx}", "infra/**/*.ts", ".claude/hooks/**/*.ts"],
     ignores: [
       "**/*.d.ts",
       "**/*.test.ts",
@@ -84,6 +84,11 @@ export default [
       "tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
       "tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts",
       "tooling/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
+      ".claude/hooks/schemas/index.ts",
+      ".claude/hooks/skill-suggester/index.ts",
+      ".claude/hooks/subagent-init/index.ts",
+      ".claude/hooks/agent-init/index.ts",
+      ".claude/hooks/pattern-detector/core.ts",
     ],
     plugins: {
       "beep-laws": beepLaws,

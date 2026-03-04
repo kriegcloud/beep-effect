@@ -8,16 +8,18 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
+import { thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
 import {
   Effect,
   FileSystem,
+  flow,
   identity,
   Order,
   Path,
   SchemaTransformation,
   ServiceMap,
   String as Str,
-  Tuple,
+  Struct,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -69,8 +71,8 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
     directories: S.Array(S.String),
     files: S.Array(PlannedFile),
     symlinks: S.Array(PlannedSymlink).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<PlannedSymlink>())),
-      S.withDecodingDefaultKey(() => A.empty<PlannedSymlink>())
+      S.withConstructorDefault(thunkSomeEmptyArray<PlannedSymlink>),
+      S.withDecodingDefaultKey(A.empty<PlannedSymlink>)
     ),
   },
   $I.annote("FileGenerationPlanInput", {
@@ -136,9 +138,7 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
  * @since 0.0.0
  * @category DomainModel
  */
-export const GenerationAction = GenerationActionKind.mapMembers(
-  Tuple.evolve([() => GenerationActionMkdir, () => GenerationActionWriteFile, () => GenerationActionSymlink])
-)
+export const GenerationAction = S.Union([GenerationActionMkdir, GenerationActionWriteFile, GenerationActionSymlink])
   .annotate(
     $I.annote("GenerationAction", {
       description: "Planned generation action.",
@@ -228,8 +228,8 @@ const NativePathToPosixPath = S.String.pipe(
   S.decodeTo(
     PosixPath,
     SchemaTransformation.transform({
-      decode: (pathString) => Str.replaceAll("\\", "/")(pathString),
-      encode: (pathString) => pathString,
+      decode: Str.replaceAll("\\", "/"),
+      encode: identity,
     })
   ),
   S.annotate(
@@ -312,13 +312,15 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
   const createPlan: FileGenerationPlanServiceShape["createPlan"] = (input) => {
     const symlinks = input.symlinks;
 
+    const parentDirsOf = flow((i: PlannedFile | PlannedSymlink) => Struct.get(i, "relativePath"), parentDirectoriesOf);
+
     const directoryCandidates = A.filter(
       unique(
         A.flatMap(
           A.make(
             A.map(input.directories, toPosixPath),
-            A.flatMap(input.files, (file) => parentDirectoriesOf(file.relativePath)),
-            A.flatMap(symlinks, (symlink) => parentDirectoriesOf(symlink.relativePath))
+            A.flatMap(input.files, parentDirsOf),
+            A.flatMap(symlinks, parentDirsOf)
           ),
           identity
         )
@@ -408,7 +410,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
           ),
         symlink: (linkAction) =>
           ensureDirectoryFor(absolutePath).pipe(
-            Effect.andThen(() => fs.exists(absolutePath).pipe(Effect.orElseSucceed(() => false))),
+            Effect.andThen(() => fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse))),
             Effect.andThen((pathExists) =>
               pathExists
                 ? fs.readLink(absolutePath).pipe(

@@ -10,11 +10,11 @@
 
 import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap } from "effect";
+import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as S from "effect/Schema";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
+import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/agent-init/index");
@@ -49,7 +49,10 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
   pipe(
     tasks,
     A.map((t) => {
-      const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+      const aliases = A.match(t.aliases, {
+        onEmpty: () => "",
+        onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
+      });
       return `${t.name}${aliases}: ${t.description}`;
     }),
     A.join("\n")
@@ -59,7 +62,7 @@ const listMemories = pipe(
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const pathService = yield* Path.Path;
-    const homeDir = yield* Effect.sync(() => Bun.env.HOME || "/home");
+    const homeDir = yield* Config.string("HOME").pipe(Config.withDefault("/home"));
     const vaultPath = pathService.join(homeDir, ".claude", "memory");
 
     const exists = yield* fs.exists(vaultPath);
@@ -68,11 +71,7 @@ const listMemories = pipe(
     }
 
     const entries = yield* fs.readDirectory(vaultPath);
-    const mdFiles = pipe(
-      entries,
-      A.filter((f: string) => f.endsWith(".md")),
-      A.take(10)
-    );
+    const mdFiles = pipe(entries, A.filter(Str.endsWith(".md")), A.take(10));
 
     if (mdFiles.length === 0) {
       return "Memory vault exists but is empty.";
@@ -220,22 +219,22 @@ export const program = Effect.gen(function* () {
         sh`git branch -vv --list --sort=-committerdate`,
         Effect.map((s) => {
           const lines = Str.split("\n")(Str.trim(s));
-          const current = lines.find(Str.startsWith("*")) || "";
-          const recent = lines.filter(P.not(Str.startsWith("*"))).slice(0, 4);
+          const current = pipe(
+            lines,
+            A.findFirst(Str.startsWith("*")),
+            O.getOrElse(() => "")
+          );
+          const recent = pipe(lines, A.filter(P.not(Str.startsWith("*"))), A.take(4));
           return {
             current: Str.trim(Str.replace(/^\*\s*/, "")(current)),
             recent,
           };
         }),
-        Effect.catch(
-          (): Effect.Effect<{
-            current: string;
-            recent: string[];
-          }> =>
-            Effect.succeed({
-              current: "",
-              recent: [],
-            })
+        Effect.catch(() =>
+          Effect.succeed({
+            current: "",
+            recent: [],
+          })
         )
       ),
       pipe(
@@ -637,20 +636,20 @@ ${previousCommits || "(none)"}
 
 <branch-context>
 <current>${branchContext.current || "(detached)"}</current>
-${branchContext.recent.length > 0 ? `<recent>\n${branchContext.recent.join("\n")}\n</recent>` : ""}
+${A.isReadonlyArrayNonEmpty(branchContext.recent) ? `<recent>\n${A.join(branchContext.recent, "\n")}\n</recent>` : ""}
 </branch-context>
 
 <collaborators>
 <team>
-${
-  Str.split("\n")(collaborators)
-    .filter(Boolean)
-    .map((line) => {
-      const [login, role] = Str.split(":")(line);
-      return `  <person github="${login}" role="${role || "unknown"}"/>`;
-    })
-    .join("\n") || "  (unavailable)"
-}
+${pipe(
+  Str.split("\n")(collaborators),
+  A.filter(Str.isNonEmpty),
+  A.map((line) => {
+    const [login, role] = Str.split(":")(line);
+    return `  <person github="${login}" role="${role || "unknown"}"/>`;
+  }),
+  (teamMembers) => (A.isReadonlyArrayNonEmpty(teamMembers) ? A.join(teamMembers, "\n") : "  (unavailable)")
+)}
 </team>
 <recently-active window="7d">${recentAuthors || "(none)"}</recently-active>
 </collaborators>

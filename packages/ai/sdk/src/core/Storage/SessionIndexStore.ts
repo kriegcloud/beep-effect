@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { Clock, Effect, HashMap, Layer, Order, ServiceMap, SynchronizedRef } from "effect";
+import { Clock, Effect, HashMap, Layer, Order, pipe, ServiceMap, SynchronizedRef } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -202,7 +202,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
       );
 
       const listIds = Effect.fn("SessionIndexStore.listIds")(() =>
-        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => state.ids.slice()))
+        SynchronizedRef.get(stateRef).pipe(Effect.map((state) => A.fromIterable(state.ids)))
       );
 
       const list = Effect.fn("SessionIndexStore.list")((options?: SessionIndexListOptions) =>
@@ -211,14 +211,15 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
           const limit = resolveListLimit(options, fallbackLimit);
           const offset = Math.max(0, options?.offset ?? 0);
-          if (limit <= 0) return [];
+          if (limit <= 0) return A.empty<SessionMeta>();
           const state = yield* SynchronizedRef.get(stateRef);
-          const metas = state.ids.flatMap((id) => {
-            const meta = HashMap.get(state.meta, id);
-            return O.isSome(meta) ? [meta.value] : [];
-          });
+          const metas = pipe(
+            state.ids,
+            A.map((id) => HashMap.get(state.meta, id)),
+            A.getSomes
+          );
           const ordered = applyOrdering(metas, options);
-          return ordered.slice(offset, offset + limit);
+          return pipe(ordered, A.drop(offset), A.take(limit));
         })
       );
 
@@ -226,14 +227,20 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         const config = yield* Effect.serviceOption(StorageConfig);
         const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
         const limit = resolveListLimit(options, fallbackLimit);
-        if (limit <= 0) return { items: [] };
+        if (limit <= 0) return { items: A.empty<SessionMeta>() };
         const items = yield* list({ ...options, limit: limit + 1 });
-        if (items.length <= limit) return { items };
-        const pageItems = items.slice(0, limit);
+        if (A.length(items) <= limit) return { items };
+        const pageItems = A.take(items, limit);
         const orderBy = options?.orderBy ?? defaultOrderBy;
+        const nextCursor = pipe(
+          pageItems,
+          A.last,
+          O.map((last) => makeCursor(last, orderBy)),
+          O.getOrUndefined
+        );
         return {
           items: pageItems,
-          nextCursor: makeCursor(pageItems[pageItems.length - 1]!, orderBy),
+          ...(nextCursor !== undefined ? { nextCursor } : {}),
         };
       });
 
@@ -241,7 +248,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         SynchronizedRef.update(stateRef, (state) => {
           if (!HashMap.has(state.meta, sessionId)) return state;
           const nextMeta = HashMap.remove(state.meta, sessionId);
-          const ids = state.ids.filter((id) => id !== sessionId);
+          const ids = A.filter(state.ids, (id) => id !== sessionId);
           return { ids, meta: nextMeta };
         })
       );
@@ -318,9 +325,9 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           Effect.gen(function* () {
             for (let page = 0; page < pageCount; page += 1) {
               const pageData = yield* loadPage(page);
-              const index = pageData.ids.indexOf(sessionId);
-              if (index >= 0) {
-                return { page, index, pageData };
+              const index = O.fromUndefinedOr(A.findFirstIndex(pageData.ids, (id) => id === sessionId));
+              if (O.isSome(index)) {
+                return { page, index: index.value, pageData };
               }
             }
             return undefined;
@@ -330,10 +337,10 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           Effect.gen(function* () {
             const meta = yield* loadIndexMeta;
             if (meta.pageCount <= 0) return [];
-            const ids: Array<string> = [];
+            let ids = A.empty<string>();
             for (let page = 0; page < meta.pageCount; page += 1) {
               const pageData = yield* loadPage(page);
-              ids.push(...pageData.ids);
+              ids = A.appendAll(ids, pageData.ids);
             }
             return ids;
           })
@@ -345,16 +352,16 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
             const limit = resolveListLimit(options, fallbackLimit);
             const offset = Math.max(0, options?.offset ?? 0);
-            if (limit <= 0) return [];
+            if (limit <= 0) return A.empty<SessionMeta>();
             const ids = yield* listIds();
             const metas = yield* Effect.forEach(
               ids,
               (id) => sessionStore.get(sessionKey(id)).pipe(Effect.mapError((cause) => mapError("list", cause))),
               { discard: false }
             );
-            const resolved = metas.flatMap((meta) => (O.isSome(meta) ? [meta.value] : []));
+            const resolved = A.getSomes(metas);
             const ordered = applyOrdering(resolved, options);
-            return ordered.slice(offset, offset + limit);
+            return pipe(ordered, A.drop(offset), A.take(limit));
           })
         );
 
@@ -362,14 +369,20 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const config = yield* Effect.serviceOption(StorageConfig);
           const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
           const limit = resolveListLimit(options, fallbackLimit);
-          if (limit <= 0) return { items: [] };
+          if (limit <= 0) return { items: A.empty<SessionMeta>() };
           const items = yield* list({ ...options, limit: limit + 1 });
-          if (items.length <= limit) return { items };
-          const pageItems = items.slice(0, limit);
+          if (A.length(items) <= limit) return { items };
+          const pageItems = A.take(items, limit);
           const orderBy = options?.orderBy ?? defaultOrderBy;
+          const nextCursor = pipe(
+            pageItems,
+            A.last,
+            O.map((last) => makeCursor(last, orderBy)),
+            O.getOrUndefined
+          );
           return {
             items: pageItems,
-            nextCursor: makeCursor(pageItems[pageItems.length - 1]!, orderBy),
+            ...(nextCursor !== undefined ? { nextCursor } : {}),
           };
         });
 
@@ -445,8 +458,8 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             if (pageCount > 0) {
               const found = yield* findSessionPage(sessionId, pageCount);
               if (found) {
-                const remaining = found.pageData.ids.filter((id) => id !== sessionId);
-                if (remaining.length === 0) {
+                const remaining = A.filter(found.pageData.ids, (id) => id !== sessionId);
+                if (A.isReadonlyArrayEmpty(remaining)) {
                   yield* pageStore
                     .remove(pageKey(found.page))
                     .pipe(Effect.mapError((cause) => mapError("remove", cause)));
@@ -456,7 +469,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
                       const lastPageOption = yield* pageStore
                         .get(pageKey(pageCount - 1))
                         .pipe(Effect.mapError((cause) => mapError("remove", cause)));
-                      if (O.isNone(lastPageOption) || lastPageOption.value.ids.length === 0) {
+                      if (O.isNone(lastPageOption) || A.isReadonlyArrayEmpty(lastPageOption.value.ids)) {
                         yield* pageStore
                           .remove(pageKey(pageCount - 1))
                           .pipe(Effect.mapError((cause) => mapError("remove", cause)));

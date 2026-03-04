@@ -1,11 +1,10 @@
 import { $ClaudeId } from "@beep/identity/packages";
-import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
+import { Config, Effect, FileSystem, flow, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import picomatch from "picomatch";
 import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
 
@@ -23,6 +22,7 @@ export class HookInput extends S.Class<HookInput>($I`HookInput`)(
 ) {}
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
+const readCurrentWorkingDirectory = Effect.sync(() => process.cwd());
 
 export const getMatchableContent = (input: Record<string, unknown>): string => {
   const getField = (field: keyof typeof input) => input[field];
@@ -100,8 +100,8 @@ export const loadPatterns = Effect.gen(function* () {
 
   // For tests running from .claude, detect and use parent as project root
   const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault("."));
-  const cwd = process.cwd();
-  const projectDir = cwd.endsWith(".claude") ? path.join(cwd, "..") : configDir;
+  const cwd = yield* readCurrentWorkingDirectory;
+  const projectDir = Str.endsWith(".claude")(cwd) ? path.join(cwd, "..") : configDir;
   const root = path.join(projectDir, ".claude", "patterns");
 
   if (!(yield* fs.exists(root))) return A.empty<PatternDefinition>();
@@ -118,7 +118,7 @@ export const loadPatterns = Effect.gen(function* () {
 
           if (stat.value.type === "Directory") return yield* Effect.suspend(() => walk(full));
 
-          if (entry.endsWith(".md")) {
+          if (Str.endsWith(".md")(entry)) {
             return yield* readPattern(full).pipe(
               Effect.option,
               Effect.map(O.flatten),

@@ -128,3 +128,8 @@ export const thunkSome =
 export const thunkSomeEmptyStr = thunkSome("");
 
 export const thunkNegative1 = thunk(-1);
+
+export const thunkSomeFalse = thunkSome(false);
+export const thunkSomeTrue = thunkSome(true);
+
+export const thunkSomeEmptyArray = <A = never>() => O.some(A.empty<A>());

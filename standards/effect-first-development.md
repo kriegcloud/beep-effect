@@ -1108,3 +1108,8 @@ Use this before submitting code:
 34. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.
 35. Schema-modeled comparisons use `S.toEquivalence(...)` where practical.
 36. Deterministic format conversions use `S.decodeTo(..., SchemaTransformation.transform(...))`.
+37. Runtime source avoids `node:fs` / `node:path` / `node:child_process`; use Effect `FileSystem` / `Path` / process services.
+38. Runtime source avoids native `fetch`; HTTP boundaries use `effect/unstable/http` + platform layers (`BunHttpClient.layer`, etc.).
+39. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
+40. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
+41. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
