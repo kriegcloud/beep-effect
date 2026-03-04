@@ -10,8 +10,7 @@ import type { Command } from "../Command.ts"
 import type * as GlobalFlag from "../GlobalFlag.ts"
 import type { FlagDoc, HelpDoc } from "../HelpDoc.ts"
 import * as Param from "../Param.ts"
-import * as Primitive from "../Primitive.ts"
-import { toImpl } from "./command.ts"
+import { toFlagDoc, toImpl } from "./command.ts"
 
 const dedupeGlobalFlags = (
   flags: ReadonlyArray<GlobalFlag.GlobalFlag<any>>
@@ -32,8 +31,8 @@ const dedupeGlobalFlags = (
  * Returns the resolved command lineage for the provided path.
  * Includes the root command as the first element.
  */
-export const getCommandsForCommandPath = <Name extends string, Input, E, R>(
-  command: Command<Name, Input, E, R>,
+export const getCommandsForCommandPath = <Name extends string, Input, E, R, ContextInput>(
+  command: Command<Name, Input, ContextInput, E, R>,
   commandPath: ReadonlyArray<string>
 ): ReadonlyArray<Command.Any> => {
   const commands: Array<Command.Any> = [command]
@@ -65,8 +64,8 @@ export const getCommandsForCommandPath = <Name extends string, Input, E, R>(
  * Returns active global flags for a command path.
  * Built-ins are prepended and declarations are collected root -> leaf.
  */
-export const getGlobalFlagsForCommandPath = <Name extends string, Input, E, R>(
-  command: Command<Name, Input, E, R>,
+export const getGlobalFlagsForCommandPath = <Name extends string, Input, E, R, ContextInput>(
+  command: Command<Name, Input, ContextInput, E, R>,
   commandPath: ReadonlyArray<string>,
   builtIns: ReadonlyArray<GlobalFlag.GlobalFlag<any>>
 ): ReadonlyArray<GlobalFlag.GlobalFlag<any>> => {
@@ -97,12 +96,40 @@ const collectDeclaredGlobalFlags = (command: Command.Any): ReadonlyArray<GlobalF
   return dedupeGlobalFlags(collected)
 }
 
+const getSharedFlagsForCommandPath = (
+  commands: ReadonlyArray<Command.Any>,
+  currentFlags: ReadonlyArray<FlagDoc>
+): ReadonlyArray<FlagDoc> => {
+  if (commands.length <= 1) {
+    return []
+  }
+
+  const seen = new Set(currentFlags.map((flag) => flag.name))
+  const sharedFlags: Array<FlagDoc> = []
+
+  for (const ancestor of commands.slice(0, -1)) {
+    const ancestorImpl = toImpl(ancestor)
+    for (const flag of ancestorImpl.contextConfig.flags) {
+      const singles = Param.extractSingleParams(flag)
+      for (const single of singles) {
+        if (seen.has(single.name)) {
+          continue
+        }
+        seen.add(single.name)
+        sharedFlags.push(toFlagDoc(single))
+      }
+    }
+  }
+
+  return sharedFlags
+}
+
 /**
  * Returns all global flags declared in a command tree.
  * Built-ins are prepended and command declarations are deduplicated by identity.
  */
-export const getGlobalFlagsForCommandTree = <Name extends string, Input, E, R>(
-  command: Command<Name, Input, E, R>,
+export const getGlobalFlagsForCommandTree = <Name extends string, Input, E, R, ContextInput>(
+  command: Command<Name, Input, ContextInput, E, R>,
   builtIns: ReadonlyArray<GlobalFlag.GlobalFlag<any>>
 ): ReadonlyArray<GlobalFlag.GlobalFlag<any>> =>
   dedupeGlobalFlags([
@@ -115,8 +142,8 @@ export const getGlobalFlagsForCommandTree = <Name extends string, Input, E, R>(
  * Navigates through the command hierarchy to find the right command.
  * Reads active global flags for the path and includes them in the help doc.
  */
-export const getHelpForCommandPath = <Name extends string, Input, E, R>(
-  command: Command<Name, Input, E, R>,
+export const getHelpForCommandPath = <Name extends string, Input, E, R, ContextInput>(
+  command: Command<Name, Input, ContextInput, E, R>,
   commandPath: ReadonlyArray<string>,
   builtIns: ReadonlyArray<GlobalFlag.GlobalFlag<any>>
 ): Effect.Effect<HelpDoc, never, never> =>
@@ -126,21 +153,19 @@ export const getHelpForCommandPath = <Name extends string, Input, E, R>(
 
     const baseDoc = toImpl(currentCommand).buildHelpDoc(commandPath)
 
+    const sharedFlags = getSharedFlagsForCommandPath(commands, baseDoc.flags)
+
     const flags = getGlobalFlagsForCommandPath(command, commandPath, builtIns)
     const globalFlagDocs: Array<FlagDoc> = []
     for (const flag of flags) {
       const singles = Param.extractSingleParams(flag.flag)
       for (const single of singles) {
-        const formattedAliases = single.aliases.map((alias) => alias.length === 1 ? `-${alias}` : `--${alias}`)
         globalFlagDocs.push({
-          name: single.name,
-          aliases: formattedAliases,
-          type: single.typeName ?? Primitive.getTypeName(single.primitiveType),
-          description: single.description,
+          ...toFlagDoc(single),
           required: false
         })
       }
     }
 
-    return { ...baseDoc, globalFlags: globalFlagDocs }
+    return { ...baseDoc, flags: [...sharedFlags, ...baseDoc.flags], globalFlags: globalFlagDocs }
   })

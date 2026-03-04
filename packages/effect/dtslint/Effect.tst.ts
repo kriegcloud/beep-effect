@@ -1,5 +1,16 @@
 /** @effect-diagnostics floatingEffect:skip-file */
-import { type Cause, Data, Effect, Fiber, type Option, pipe, Result, type Scope, type Types } from "effect"
+import {
+  type Cause,
+  Data,
+  Effect,
+  Fiber,
+  type Option,
+  pipe,
+  Result,
+  type Scope,
+  type ServiceMap,
+  type Types
+} from "effect"
 import { describe, expect, it } from "tstyche"
 
 // Fixtures
@@ -206,6 +217,41 @@ describe("Effect.catchReasons", () => {
   })
 })
 
+describe("Effect.catchTags", () => {
+  it("supports fallback in data-last usage", () => {
+    const result = pipe(
+      mixedEffect,
+      Effect.catchTags(
+        {
+          AiError: (error) => {
+            expect(error).type.toBe<AiError>()
+            return Effect.succeed("ok")
+          }
+        },
+        (error) => {
+          expect(error).type.toBe<OtherError>()
+          return Effect.fail(new SimpleError({ code: 1 }))
+        }
+      )
+    )
+    expect(result).type.toBe<Effect.Effect<string, SimpleError>>()
+  })
+
+  it("supports fallback in data-first usage", () => {
+    const result = Effect.catchTags(
+      mixedEffect,
+      {
+        AiError: () => Effect.succeed(1)
+      },
+      (error) => {
+        expect(error).type.toBe<OtherError>()
+        return Effect.succeed(2)
+      }
+    )
+    expect(result).type.toBe<Effect.Effect<string | number>>()
+  })
+})
+
 describe("Effect.catchNoSuchElement", () => {
   it("removes NoSuchElementError from the error channel", () => {
     const result = pipe(noSuchOrOther, Effect.catchNoSuchElement)
@@ -215,6 +261,13 @@ describe("Effect.catchNoSuchElement", () => {
   it("yields never when NoSuchElementError is the only error", () => {
     const result = pipe(onlyNoSuch, Effect.catchNoSuchElement)
     expect(result).type.toBe<Effect.Effect<Option.Option<number>>>()
+  })
+})
+
+describe("Effect.services", () => {
+  it("defaults R to never", () => {
+    const result = Effect.services()
+    expect(result).type.toBe<Effect.Effect<ServiceMap.ServiceMap<never>, never, never>>()
   })
 })
 

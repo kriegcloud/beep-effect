@@ -36,7 +36,6 @@ import * as Multipart from "../http/Multipart.ts"
 import * as UrlParams from "../http/UrlParams.ts"
 import type * as HttpApi from "./HttpApi.ts"
 import * as HttpApiEndpoint from "./HttpApiEndpoint.ts"
-import { HttpApiSchemaError } from "./HttpApiError.ts"
 import type * as HttpApiGroup from "./HttpApiGroup.ts"
 import * as HttpApiMiddleware from "./HttpApiMiddleware.ts"
 import * as HttpApiSchema from "./HttpApiSchema.ts"
@@ -598,12 +597,7 @@ function handlerToHttpEffect(
     })
   ).pipe(
     Effect.withErrorReporting,
-    Effect.catch((error) => {
-      if (Schema.isSchemaError(error)) {
-        error = HttpApiSchemaError.fromSchemaError(error)
-      }
-      return Effect.orDie(encodeError(error))
-    }),
+    Effect.catch((error) => Effect.orDie(encodeError(error))),
     Effect.provideServices(services)
   )
 }
@@ -749,6 +743,9 @@ function getResponseEncode<E>(
   switch (encoding._tag) {
     case "Json": {
       return ((e) => {
+        if (e === undefined) {
+          return Effect.succeed(Response.empty({ status }))
+        }
         try {
           const s = JSON.stringify(e)
           return Effect.succeed(Response.text(s, { status, contentType: encoding.contentType }))
