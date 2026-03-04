@@ -132,7 +132,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
   });
   const files = pipe(filesByRoot, A.flatten, A.dedupe);
   const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
-  const violations = [] as Array<LintViolation>;
+  const violations = A.empty<LintViolation>()
 
   for (const file of files) {
     const isToolingFile = Str.startsWith(`${TOOLING_ROOT}/`)(file);

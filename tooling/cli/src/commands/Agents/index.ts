@@ -205,7 +205,7 @@ const agentsPathlessCheckCommand = Command.make(
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
 
-    const violations = [] as Array<PathlessViolation>;
+    const violations = A.empty<PathlessViolation>();
 
     for (const relativePath of TARGET_PATHLESS_FILES) {
       const absolutePath = path.resolve(relativePath);

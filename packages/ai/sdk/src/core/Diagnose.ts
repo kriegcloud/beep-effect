@@ -3,8 +3,10 @@ import { LiteralKit } from "@beep/schema";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import { Config, Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {
   Headers,
@@ -280,8 +282,8 @@ const checkClaudeCodeCli = () =>
  */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
   Effect.gen(function* () {
-    const issues = [] as Array<DiagnosticIssue>;
-    const checks: Record<string, DiagnosticCheck> = {};
+    const issues = A.empty<DiagnosticIssue>()
+    const checks = R.empty<string, DiagnosticCheck>()
 
     const [apiKeyCheck, apiIssues] = yield* checkApiKey();
     checks.apiKey = apiKeyCheck;
@@ -296,7 +298,7 @@ export const diagnose = (): Effect.Effect<DiagnosticResult> =>
         new DiagnosticIssue({
           severity: "warning",
           message: "Claude Code CLI not found",
-          ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : {}),
+          ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : R.empty),
         })
       );
     }
@@ -330,7 +332,7 @@ export const diagnose = (): Effect.Effect<DiagnosticResult> =>
     });
 
     return new DiagnosticResult({
-      valid: O.isNone(A.findFirst(issues, (issue) => issue.severity === "error")),
+      valid: O.isNone(A.findFirst(issues, P.Struct({ severity: Eq.equals("error")}))),
       checks,
       issues,
     });

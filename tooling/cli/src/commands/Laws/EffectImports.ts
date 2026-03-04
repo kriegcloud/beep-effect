@@ -130,7 +130,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
   let aliasRenamed = 0;
   let stableConverted = 0;
   let touchedFiles = 0;
-  const changedFiles = [] as Array<string>;
+  const changedFiles = A.empty<string>()
 
   const ensureRootImport = (sourceFile: (typeof sourceFiles)[number]) =>
     pipe(
