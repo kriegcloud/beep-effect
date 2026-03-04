@@ -124,3 +124,4 @@ export const thunkSome = <A>(value: A): () => O.Option<A> => () => O.some(value)
 
 export const thunkSomeEmptyStr = thunkSome("");
 
+export const thunkNegative1 = thunk(-1);
