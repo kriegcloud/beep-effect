@@ -6,11 +6,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, Layer, pipe, SchemaTransformation, ServiceMap } from "effect";
+import { Effect, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import * as jsonc from "jsonc-parser";
 
 const $I = $RepoCliId.create("commands/Shared/SchemaCodecs/JsoncCodecs");
@@ -116,6 +115,8 @@ export const JsoncTextToUnknown = S.String.pipe(
 /**
  * Decode JSONC text into a target schema using effectful parsing and schema decoding.
  *
+ * @param schema - Target schema to decode parsed JSONC document into.
+ * @returns Decoder function from JSONC text to the target schema type.
  * @since 0.0.0
  * @category Utility
  */

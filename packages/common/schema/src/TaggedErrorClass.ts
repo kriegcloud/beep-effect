@@ -85,14 +85,13 @@ export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: strin
         : S.TaggedStruct(tagValue, schema),
       annotations
     );
-
-    return Object.assign(errorClass, {
-      new(this: new (value: unknown) => unknown, value: unknown) {
-        return new this(value);
-      },
-      newThunk(this: new (value: unknown) => unknown, value: unknown) {
-        return () => new this(value);
-      },
-    });
+    const taggedErrorClassWithNew = errorClass as TaggedErrorClassWithNew<typeof errorClass>;
+    taggedErrorClassWithNew.new = function(this: new (value: unknown) => unknown, value: unknown) {
+      return new this(value);
+    };
+    taggedErrorClassWithNew.newThunk = function(this: new (value: unknown) => unknown, value: unknown) {
+      return () => new this(value);
+    };
+    return taggedErrorClassWithNew;
   }) as UnsafeTaggedErrorClassFactory;
 };

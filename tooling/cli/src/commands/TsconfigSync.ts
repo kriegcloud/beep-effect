@@ -7,35 +7,35 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import {
-  buildRepoDependencyIndex,
-  type CyclicDependencyError,
-  collectTsConfigPaths,
-  DomainError,
-  detectCycles,
-  type FsUtils,
-  findRepoRoot,
-  type NoSuchFileError,
-  resolveWorkspaceDirs,
-  topologicalSort,
-  type WorkspaceDeps,
+    buildRepoDependencyIndex,
+    collectTsConfigPaths,
+    type CyclicDependencyError,
+    detectCycles,
+    DomainError,
+    findRepoRoot,
+    type FsUtils,
+    type NoSuchFileError,
+    resolveWorkspaceDirs,
+    topologicalSort,
+    type WorkspaceDeps,
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import {
-  Console,
-  Effect,
-  FileSystem,
-  HashMap,
-  HashSet,
-  Order,
-  Path,
-  pipe,
-  SchemaTransformation,
-  String as Str,
-  Tuple,
+    Boolean as Bool,
+    Console,
+    Effect,
+    FileSystem,
+    HashMap,
+    HashSet,
+    Order,
+    Path,
+    pipe,
+    SchemaTransformation,
+    String as Str,
+    Tuple
 } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -211,23 +211,21 @@ const TsconfigSyncModeKit = LiteralKit(["sync", "check", "dry-run"]);
  * @since 0.0.0
  * @category DomainModel
  */
-export const TsconfigSyncMode = Object.assign(
-  TsconfigSyncModeKit.annotate(
-    $I.annote("TsconfigSyncMode", {
-      description: "Command execution mode for tsconfig-sync.",
-    })
-  ),
-  {
-    $match: TsconfigSyncModeKit.$match,
-    Enum: TsconfigSyncModeKit.Enum,
-    Options: TsconfigSyncModeKit.Options,
-    is: TsconfigSyncModeKit.is,
-    omitOptions: TsconfigSyncModeKit.omitOptions,
-    pickOptions: TsconfigSyncModeKit.pickOptions,
-    thunk: TsconfigSyncModeKit.thunk,
-    toTaggedUnion: TsconfigSyncModeKit.toTaggedUnion,
-  }
+export const TsconfigSyncMode = TsconfigSyncModeKit.annotate(
+  $I.annote("TsconfigSyncMode", {
+    description: "Command execution mode for tsconfig-sync.",
+  })
 );
+export namespace TsconfigSyncMode {
+  export const $match = TsconfigSyncModeKit.$match;
+  export const Enum = TsconfigSyncModeKit.Enum;
+  export const Options = TsconfigSyncModeKit.Options;
+  export const is = TsconfigSyncModeKit.is;
+  export const omitOptions = TsconfigSyncModeKit.omitOptions;
+  export const pickOptions = TsconfigSyncModeKit.pickOptions;
+  export const thunk = TsconfigSyncModeKit.thunk;
+  export const toTaggedUnion = TsconfigSyncModeKit.toTaggedUnion;
+}
 
 type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
 const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
@@ -268,6 +266,7 @@ class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>
 /**
  * Runtime options for executing tsconfig sync at a repo root.
  *
+ * @returns Tagged union schema keyed by `mode`.
  * @since 0.0.0
  * @category DomainModel
  */
@@ -348,6 +347,7 @@ class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`Packag
 /**
  * A single planned file change.
  *
+ * @returns Tagged union schema keyed by `section`.
  * @since 0.0.0
  * @category DomainModel
  */
@@ -412,6 +412,7 @@ class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlanne
 /**
  * A planned file change with transformed file content.
  *
+ * @returns Tagged union schema keyed by `section`.
  * @since 0.0.0
  * @category DomainModel
  */
@@ -473,6 +474,7 @@ class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`Tsco
 /**
  * Result emitted after a sync run.
  *
+ * @returns Tagged union schema keyed by `mode`.
  * @since 0.0.0
  * @category DomainModel
  */

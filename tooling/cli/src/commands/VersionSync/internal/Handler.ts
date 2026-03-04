@@ -6,9 +6,8 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Boolean as Bool, Console, Effect, type FileSystem, Layer, type Path } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import type { HttpClient } from "effect/unstable/http";
 import { VersionSyncDriftError, type VersionSyncError, VersionSyncMode, type VersionSyncOptions } from "./Models.js";
 import { CategorySelectionServiceLive } from "./services/CategorySelectionService.js";
@@ -66,6 +65,8 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
 /**
  * Execute the version-sync command.
  *
+ * @param options - Parsed version-sync options.
+ * @returns Effect that resolves or fails with typed version-sync errors.
  * @since 0.0.0
  * @category UseCase
  */

@@ -1,5 +1,4 @@
-import { Console, Effect } from "effect";
-import * as Bool from "effect/Boolean";
+import { Boolean as Bool, Console, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import { handleVersionSync } from "./internal/Handler.js";
 import type { VersionSyncMode } from "./internal/Models.js";

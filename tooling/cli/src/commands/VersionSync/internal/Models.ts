@@ -95,23 +95,21 @@ const VersionCategoryKit = LiteralKit(["bun", "node", "docker", "biome"]);
  * @since 0.0.0
  * @category DomainModel
  */
-export const VersionCategory = Object.assign(
-  VersionCategoryKit.annotate(
-    $I.annote("VersionCategory", {
-      description: "Version category for grouping drift items",
-    })
-  ),
-  {
-    $match: VersionCategoryKit.$match,
-    Enum: VersionCategoryKit.Enum,
-    Options: VersionCategoryKit.Options,
-    is: VersionCategoryKit.is,
-    omitOptions: VersionCategoryKit.omitOptions,
-    pickOptions: VersionCategoryKit.pickOptions,
-    thunk: VersionCategoryKit.thunk,
-    toTaggedUnion: VersionCategoryKit.toTaggedUnion,
-  }
+export const VersionCategory = VersionCategoryKit.annotate(
+  $I.annote("VersionCategory", {
+    description: "Version category for grouping drift items",
+  })
 );
+export namespace VersionCategory {
+  export const $match = VersionCategoryKit.$match;
+  export const Enum = VersionCategoryKit.Enum;
+  export const Options = VersionCategoryKit.Options;
+  export const is = VersionCategoryKit.is;
+  export const omitOptions = VersionCategoryKit.omitOptions;
+  export const pickOptions = VersionCategoryKit.pickOptions;
+  export const thunk = VersionCategoryKit.thunk;
+  export const toTaggedUnion = VersionCategoryKit.toTaggedUnion;
+}
 /**
  * Version category for grouping drift items.
  *
@@ -132,23 +130,21 @@ const VersionCategoryStatusKit = LiteralKit(["ok", "drift", "unpinned", "error"]
  * @since 0.0.0
  * @category DomainModel
  */
-export const VersionCategoryStatus = Object.assign(
-  VersionCategoryStatusKit.annotate(
-    $I.annote("VersionCategoryStatus", {
-      description: "Status of a version category",
-    })
-  ),
-  {
-    $match: VersionCategoryStatusKit.$match,
-    Enum: VersionCategoryStatusKit.Enum,
-    Options: VersionCategoryStatusKit.Options,
-    is: VersionCategoryStatusKit.is,
-    omitOptions: VersionCategoryStatusKit.omitOptions,
-    pickOptions: VersionCategoryStatusKit.pickOptions,
-    thunk: VersionCategoryStatusKit.thunk,
-    toTaggedUnion: VersionCategoryStatusKit.toTaggedUnion,
-  }
+export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
+  $I.annote("VersionCategoryStatus", {
+    description: "Status of a version category",
+  })
 );
+export namespace VersionCategoryStatus {
+  export const $match = VersionCategoryStatusKit.$match;
+  export const Enum = VersionCategoryStatusKit.Enum;
+  export const Options = VersionCategoryStatusKit.Options;
+  export const is = VersionCategoryStatusKit.is;
+  export const omitOptions = VersionCategoryStatusKit.omitOptions;
+  export const pickOptions = VersionCategoryStatusKit.pickOptions;
+  export const thunk = VersionCategoryStatusKit.thunk;
+  export const toTaggedUnion = VersionCategoryStatusKit.toTaggedUnion;
+}
 /**
  * Status of a version category.
  *
@@ -224,6 +220,7 @@ class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`
 /**
  * Report for a single version category (bun, node, docker, or biome).
  *
+ * @returns Tagged union schema keyed by `category`.
  * @since 0.0.0
  * @category DomainModel
  */
@@ -278,23 +275,21 @@ const VersionSyncModeKit = LiteralKit(["check", "write", "dry-run"]);
  * @since 0.0.0
  * @category DomainModel
  */
-export const VersionSyncMode = Object.assign(
-  VersionSyncModeKit.annotate(
-    $I.annote("VersionSyncMode", {
-      description: "Command execution mode for version sync operations",
-    })
-  ),
-  {
-    $match: VersionSyncModeKit.$match,
-    Enum: VersionSyncModeKit.Enum,
-    Options: VersionSyncModeKit.Options,
-    is: VersionSyncModeKit.is,
-    omitOptions: VersionSyncModeKit.omitOptions,
-    pickOptions: VersionSyncModeKit.pickOptions,
-    thunk: VersionSyncModeKit.thunk,
-    toTaggedUnion: VersionSyncModeKit.toTaggedUnion,
-  }
+export const VersionSyncMode = VersionSyncModeKit.annotate(
+  $I.annote("VersionSyncMode", {
+    description: "Command execution mode for version sync operations",
+  })
 );
+export namespace VersionSyncMode {
+  export const $match = VersionSyncModeKit.$match;
+  export const Enum = VersionSyncModeKit.Enum;
+  export const Options = VersionSyncModeKit.Options;
+  export const is = VersionSyncModeKit.is;
+  export const omitOptions = VersionSyncModeKit.omitOptions;
+  export const pickOptions = VersionSyncModeKit.pickOptions;
+  export const thunk = VersionSyncModeKit.thunk;
+  export const toTaggedUnion = VersionSyncModeKit.toTaggedUnion;
+}
 
 /**
  * Command execution mode.
@@ -354,6 +349,7 @@ class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`Vers
 /**
  * Resolved command options after flag parsing.
  *
+ * @returns Tagged union schema keyed by `mode`.
  * @since 0.0.0
  * @category DomainModel
  */

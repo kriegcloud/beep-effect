@@ -98,6 +98,7 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
 /**
  * Input descriptor for one AST mutation.
  *
+ * @returns Tagged union schema keyed by `kind`.
  * @since 0.0.0
  * @category DomainModel
  */
@@ -149,6 +150,7 @@ class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkippe
 /**
  * Outcome for one mutation.
  *
+ * @returns Tagged union schema keyed by `status`.
  * @since 0.0.0
  * @category DomainModel
  */

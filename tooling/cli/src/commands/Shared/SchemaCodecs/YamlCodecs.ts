@@ -6,11 +6,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, Layer, pipe, SchemaTransformation, ServiceMap } from "effect";
+import { Effect, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import { parseDocument } from "yaml";
 
 const $I = $RepoCliId.create("commands/Shared/SchemaCodecs/YamlCodecs");
@@ -98,6 +97,8 @@ export const YamlTextToUnknown = S.String.pipe(
 /**
  * Decode YAML text into a target schema using effectful parsing and schema decoding.
  *
+ * @param schema - Target schema to decode parsed YAML document into.
+ * @returns Decoder function from YAML text to the target schema type.
  * @since 0.0.0
  * @category Utility
  */

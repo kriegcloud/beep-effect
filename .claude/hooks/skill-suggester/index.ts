@@ -20,6 +20,7 @@ import { Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } fro
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as N from "effect/Number";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
@@ -115,7 +116,7 @@ const fetchMiseTasks = (cwd: string) =>
         const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
         return yield* spawner.string(ChildProcess.make({ cwd })`mise tasks --json`);
       }),
-      Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
+      Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
       Effect.map(formatMiseTasks),
       Effect.catch(() => Effect.succeed(""))
     );
@@ -259,14 +260,14 @@ export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
     A.filter((seg) => Str.length(seg) >= 3),
     A.filter((seg) => matchesWordBoundary(prompt, seg)),
     A.length,
-    (n) => n * NAME_MATCH_BOOST
+    N.multiply(NAME_MATCH_BOOST)
   );
 
   const keywordScore = pipe(
     skill.keywords,
     A.filter((keyword) => matchesWordBoundary(prompt, keyword)),
     A.length,
-    (n) => n * KEYWORD_MATCH_SCORE
+    N.multiply(KEYWORD_MATCH_SCORE)
   );
 
   return nameScore + keywordScore;
@@ -382,9 +383,9 @@ export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<strin
 
     const content = fs.readFileSync(snapshotFile.value, "utf8");
     const lines = Str.split(content, "\n")
-      .map((line) => Str.trim(line))
-      .filter((line) => line.length > 0);
-    if (lines.length === 0) {
+      .map(Str.trim)
+      .filter(Str.isNonEmpty);
+    if (A.isReadonlyArrayEmpty(lines)) {
       return O.none();
     }
 

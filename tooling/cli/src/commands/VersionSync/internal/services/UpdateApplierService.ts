@@ -6,9 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, type FileSystem, Layer, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
+import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

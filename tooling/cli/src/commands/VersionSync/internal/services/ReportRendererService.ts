@@ -6,19 +6,18 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, Layer, ServiceMap } from "effect";
+import { Boolean as Bool, Console, Effect, Layer, ServiceMap } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
-  VersionCategoryReport,
-  type VersionCategoryReport as VersionCategoryReportValue,
-  VersionCategoryStatus,
-  type VersionCategoryStatus as VersionCategoryStatusValue,
-  VersionSyncMode,
-  type VersionSyncMode as VersionSyncModeValue,
-  type VersionSyncReport,
+    VersionCategoryReport,
+    type VersionCategoryReport as VersionCategoryReportValue,
+    VersionCategoryStatus,
+    type VersionCategoryStatus as VersionCategoryStatusValue,
+    VersionSyncMode,
+    type VersionSyncMode as VersionSyncModeValue,
+    type VersionSyncReport,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/ReportRendererService");

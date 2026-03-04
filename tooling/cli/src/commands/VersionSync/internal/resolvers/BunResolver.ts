@@ -9,19 +9,18 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, FileSystem, identity, Path, String as Str } from "effect";
+import { Boolean as Bool, Effect, FileSystem, identity, Path, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
-  NetworkUnavailableError,
-  VersionCategoryReport,
-  VersionCategoryStatus,
-  VersionDriftItem,
-  VersionSyncError,
+    NetworkUnavailableError,
+    VersionCategoryReport,
+    VersionCategoryStatus,
+    VersionDriftItem,
+    VersionSyncError,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolver");

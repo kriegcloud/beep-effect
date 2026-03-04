@@ -9,22 +9,19 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, FileSystem, identity, Order, Path, SchemaTransformation, String as Str } from "effect";
+import { Boolean as Bool, Effect, FileSystem, identity, Match, Number as N, Order, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
-import * as Match from "effect/Match";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
-  NetworkUnavailableError,
-  VersionCategoryReport,
-  VersionCategoryStatus,
-  VersionDriftItem,
-  VersionSyncError,
+    NetworkUnavailableError,
+    VersionCategoryReport,
+    VersionCategoryStatus,
+    VersionDriftItem,
+    VersionSyncError,
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/DockerResolver");

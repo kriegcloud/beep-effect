@@ -66,6 +66,7 @@ class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPol
 /**
  * Documentation section model.
  *
+ * @returns Tagged union schema keyed by `name`.
  * @since 0.0.0
  * @category DomainModel
  */

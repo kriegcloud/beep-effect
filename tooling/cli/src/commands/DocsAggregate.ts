@@ -8,19 +8,36 @@
 import * as Fs from "node:fs";
 import * as Path from "node:path";
 import { $RepoCliId } from "@beep/identity/packages";
-import { Console, Effect, HashSet, MutableHashSet, Order, String as Str } from "effect";
+import { Console, Effect, HashSet, Inspectable, MutableHashSet, Order, String as Str } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/DocsAggregate");
 const PACKAGE_ROOTS = ["packages", "tooling", "apps"] as const;
 const IGNORED_DIRS = HashSet.fromIterable([".git", ".turbo", "node_modules", "dist", "build"]);
+const byStringAscending: Order.Order<string> = Order.String;
+const byDocsOutputPathAscending: Order.Order<DocsPackage> = Order.mapInput(Order.String, (pkg: DocsPackage) => pkg.outputPath);
 
-type DocsPackage = {
-  readonly packageDir: string;
-  readonly outputPath: string;
-};
+class DocsPackage extends S.Class<DocsPackage>($I`DocsPackage`)(
+  {
+    packageDir: S.String,
+    outputPath: S.String,
+  },
+  $I.annote("DocsPackage", {
+    description: "Package docs source and output destination descriptor.",
+  })
+) {}
+
+class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDocument`)(
+  {
+    name: S.optionalKey(S.UndefinedOr(S.String)),
+  },
+  $I.annote("PackageJsonDocument", {
+    description: "Minimal package.json document for docs aggregation.",
+  })
+) {}
 
 class DocsAggregateFailure extends S.TaggedErrorClass<DocsAggregateFailure>($I`DocsAggregateFailure`)(
   "DocsAggregateFailure",
@@ -43,17 +60,21 @@ const walkRoot = (root: string): Array<DocsPackage> => {
     const packageDir = relativePath.length > 0 ? Path.join(root, relativePath) : root;
 
     if (Fs.existsSync(Path.join(packageDir, "docs/modules"))) {
-      packages.push({
-        packageDir,
-        outputPath: relativePath,
-      });
+      packages.push(
+        new DocsPackage({
+          packageDir,
+          outputPath: relativePath,
+        })
+      );
       return;
     }
 
-    const children = Fs.readdirSync(packageDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && !HashSet.has(IGNORED_DIRS, entry.name))
-      .map((entry) => entry.name)
-      .sort();
+    const children = pipe(
+      Fs.readdirSync(packageDir, { withFileTypes: true }),
+      A.filter((entry) => entry.isDirectory() && !HashSet.has(IGNORED_DIRS, entry.name)),
+      A.map((entry) => entry.name),
+      (names) => A.sort(names, byStringAscending)
+    );
 
     for (const child of children) {
       walk(relativePath.length > 0 ? Path.join(relativePath, child) : child);
@@ -66,8 +87,8 @@ const walkRoot = (root: string): Array<DocsPackage> => {
 
 const findPackages = (): Array<DocsPackage> => {
   const packages = A.sort(
-    PACKAGE_ROOTS.flatMap(walkRoot),
-    Order.mapInput(Order.String, (pkg: DocsPackage) => pkg.outputPath)
+    pipe(PACKAGE_ROOTS, A.flatMap(walkRoot)),
+    byDocsOutputPathAscending
   );
 
   const duplicateOutputPaths = MutableHashSet.empty<string>();
@@ -83,18 +104,21 @@ const findPackages = (): Array<DocsPackage> => {
   }
 
   if (MutableHashSet.size(duplicateOutputPaths) > 0) {
+    const duplicateList = pipe(A.fromIterable(duplicateOutputPaths), A.sort(byStringAscending), A.join(", "));
     throw new DocsAggregateFailure({
-      message: `Duplicate docs output paths detected: ${Array.from(duplicateOutputPaths).join(", ")}`,
+      message: `Duplicate docs output paths detected: ${duplicateList}`,
     });
   }
 
   return packages;
 };
 
+const decodePackageJsonDocument = S.decodeUnknownSync(S.fromJsonString(PackageJsonDocument));
+
 const pkgName = (pkg: DocsPackage): string => {
-  const packageJson = Fs.readFileSync(Path.join(pkg.packageDir, "package.json"));
-  const decoded = JSON.parse(packageJson.toString("utf8")) as { name?: string };
-  return decoded.name ?? pkg.outputPath;
+  const packageJson = Fs.readFileSync(Path.join(pkg.packageDir, "package.json"), "utf8");
+  const decoded = decodePackageJsonDocument(packageJson);
+  return O.getOrElse(O.fromUndefinedOr(decoded.name), () => pkg.outputPath);
 };
 
 const copyFiles = (pkg: DocsPackage): void => {
@@ -130,7 +154,7 @@ const generateIndex = (outputPath: string, name: string, order: number): void =>
 title: "${name}"
 has_children: true
 permalink: /docs/${permalink}
-nav_order: ${String(order)}
+nav_order: ${order}
 ---
 `;
 
@@ -142,7 +166,7 @@ const aggregateDocs = Effect.fn(function* () {
     try: findPackages,
     catch: (cause) =>
       new DocsAggregateFailure({
-        message: `Failed to discover docs packages: ${String(cause)}`,
+        message: `Failed to discover docs packages: ${Inspectable.toStringUnknown(cause, 0)}`,
       }),
   });
 
@@ -156,7 +180,7 @@ const aggregateDocs = Effect.fn(function* () {
       try: () => pkgName(pkg),
       catch: (cause) =>
         new DocsAggregateFailure({
-          message: `Failed reading package name for ${pkg.packageDir}: ${String(cause)}`,
+          message: `Failed reading package name for ${pkg.packageDir}: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
 
@@ -169,7 +193,7 @@ const aggregateDocs = Effect.fn(function* () {
       },
       catch: (cause) =>
         new DocsAggregateFailure({
-          message: `Failed to aggregate docs for ${name}: ${String(cause)}`,
+          message: `Failed to aggregate docs for ${name}: ${Inspectable.toStringUnknown(cause, 0)}`,
         }),
     });
 
@@ -177,7 +201,7 @@ const aggregateDocs = Effect.fn(function* () {
   }
 
   yield* Console.log("");
-  yield* Console.log(`✅ Aggregated docs from ${String(A.length(packages))} packages`);
+  yield* Console.log(`✅ Aggregated docs from ${A.length(packages)} packages`);
 });
 
 /**

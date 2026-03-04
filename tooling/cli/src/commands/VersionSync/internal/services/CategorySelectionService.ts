@@ -6,9 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Layer, ServiceMap } from "effect";
+import { Boolean as Bool, Layer, ServiceMap } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import { VersionCategory, type VersionCategory as VersionCategoryValue, type VersionSyncOptions } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/CategorySelectionService");

@@ -132,6 +132,7 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
 /**
  * Planned generation action schema.
  *
+ * @returns Tagged union schema keyed by `kind`.
  * @since 0.0.0
  * @category DomainModel
  */
