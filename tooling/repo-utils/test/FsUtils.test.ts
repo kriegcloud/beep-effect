@@ -1,6 +1,5 @@
 import { FsUtils, FsUtilsLive } from "@beep/repo-utils/FsUtils";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as Fs from "effect/FileSystem";
@@ -8,7 +7,7 @@ import * as Str from "effect/String";
 
 // Build a TestLayer that provides FsUtils AND also passes through FileSystem/Path
 // so tests can use them directly (e.g. for makeTempDirectory)
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(NodeServices.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 
 layer(TestLayer)("FsUtils", (it) => {

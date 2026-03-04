@@ -9,7 +9,7 @@
  */
 
 import { FsUtilsLive } from "@beep/repo-utils";
-import { NodeChildProcessSpawner, NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -25,7 +25,7 @@ import { rootCommand } from "./commands/root.js";
  * @category Configuration
  * @internal
  */
-const BaseLayers = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeTerminal.layer);
+const BaseLayers = Layer.mergeAll(NodeServices.layer);
 
 /**
  * Fully assembled runtime layer that merges higher-level services
