@@ -10,12 +10,15 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
-import { Console, DateTime, Effect, FileSystem, Path, String as Str } from "effect";
+import { thunkFalse } from "@beep/utils";
+import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
   type ConfigUpdateBatchResult,
@@ -25,6 +28,8 @@ import {
 } from "./config-updater.js";
 import { createFileGenerationPlanService } from "./file-generation-plan-service.js";
 import { createTemplateService, type TemplateSpec } from "./template-service.js";
+
+const $I = $RepoCliId.create("create-package/handler");
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -37,10 +42,11 @@ import { createTemplateService, type TemplateSpec } from "./template-service.js"
  * @since 0.0.0
  * @category DomainModel
  */
-const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => [
-  path.join(baseDir, "templates"),
-  path.join(baseDir, "..", "..", "..", "src", "commands", "create-package", "templates"),
-];
+
+const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => {
+  const join = (...on: A.NonEmptyArray<string>) => path.join(baseDir, ...on);
+  return A.make(join("templates"), join("..", "..", "..", "src", "commands", "create-package", "templates"));
+};
 
 /**
  * Resolve create-package template directory for both src and dist runtimes.
@@ -61,7 +67,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: str
   const candidates = templateDirCandidates(baseDir, path);
 
   for (const candidate of candidates) {
-    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(() => false));
+    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(thunkFalse));
     if (exists) {
       return candidate;
     }
@@ -109,7 +115,7 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
  * @since 0.0.0
  * @category Configuration
  */
-const ALL_FILES: ReadonlyArray<string> = [
+const ALL_FILES = [
   "package.json",
   "tsconfig.json",
   "src/index.ts",
@@ -123,7 +129,7 @@ const ALL_FILES: ReadonlyArray<string> = [
   "docgen.json",
   "vitest.config.ts",
   "docs/index.md",
-];
+] as const;
 
 /**
  * Root-relative directories created for each package.
@@ -131,7 +137,7 @@ const ALL_FILES: ReadonlyArray<string> = [
  * @since 0.0.0
  * @category Configuration
  */
-const PACKAGE_DIRECTORIES: ReadonlyArray<string> = ["src", "test", "dtslint", "docs"];
+const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
 
 const templateService = createTemplateService();
 const fileGenerationPlanService = createFileGenerationPlanService();
@@ -144,19 +150,24 @@ const fileGenerationPlanService = createFileGenerationPlanService();
  * @since 0.0.0
  * @category DomainModel
  */
-interface TemplateContext {
-  readonly name: string;
-  readonly scopedName: string;
-  readonly type: string;
-  readonly description: string;
-  readonly year: string;
-  readonly parentDir: string;
-  readonly packagePath: string;
-  readonly rootRelative: string;
-  readonly isTool: boolean;
-  readonly isApp: boolean;
-  readonly isLibrary: boolean;
-}
+export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext`)(
+  {
+    name: S.String,
+    scopedName: S.String,
+    type: S.String,
+    description: S.String,
+    year: S.String,
+    parentDir: S.String,
+    packagePath: S.String,
+    rootRelative: S.String,
+    isTool: S.Boolean,
+    isApp: S.Boolean,
+    isLibrary: S.Boolean,
+  },
+  $I.annote("TemplateContext", {
+    description: "Variables passed into every template during package scaffolding.",
+  })
+) {}
 
 /**
  * Validate an optional parent directory override like `packages/common`.
@@ -170,18 +181,12 @@ const isValidParentDir = (value: string): boolean => {
   const hasBoundaryMarker: P.Predicate<string> = P.some(
     A.make(Str.startsWith("/"), Str.endsWith("/"), Str.includes("//"))
   );
-  const isReservedSegment: P.Predicate<string> = P.some(
-    A.make(
-      (segment: string) => segment === ".",
-      (segment: string) => segment === "..",
-      Str.isEmpty
-    )
-  );
+  const isReservedSegment: P.Predicate<string> = P.some(A.make(Eq.equals("."), Eq.equals(".."), Str.isEmpty));
   const hasReservedSegment: P.Predicate<string> = (parentDir) => A.some(Str.split("/")(parentDir), isReservedSegment);
 
   if (!/^[a-z0-9][a-z0-9/_-]*$/.test(value)) return false;
   if (hasBoundaryMarker(value)) return false;
-  return P.not(hasReservedSegment)(value);
+  return !hasReservedSegment(value);
 };
 
 /**
@@ -196,8 +201,8 @@ const isValidParentDir = (value: string): boolean => {
  */
 const toRootRelative = (packagePath: string): string =>
   A.join(
-    A.makeBy(A.length(Str.split("/")(packagePath)), () => "../"),
-    ""
+    A.makeBy(A.length(Str.split(packagePath, "/")), () => "../"),
+    Str.empty
   );
 
 const singleTargetFallback = (
@@ -294,7 +299,7 @@ export const createPackageCommand = Command.make(
 
     // ── Check if directory already exists (skip for dry-run) ───────────
     if (!dryRun) {
-      const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+      const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(thunkFalse));
       if (alreadyExists) {
         return yield* new DomainError({
           message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
@@ -377,7 +382,7 @@ export const createPackageCommand = Command.make(
           A.map(templateFiles, (file) => ({ relativePath: file.outputPath, content: file.content })),
           A.make({ relativePath: "test/.gitkeep", content: "" }, { relativePath: "dtslint/.gitkeep", content: "" })
         ),
-        (entries) => entries
+        identity
       ),
       symlinks: [{ relativePath: "CLAUDE.md", target: "AGENTS.md" }],
     });

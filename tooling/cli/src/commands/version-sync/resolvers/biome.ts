@@ -30,8 +30,6 @@ const BIOME_SCHEMA_PREFIX = "https://biomejs.dev/schemas/";
  */
 const BIOME_SCHEMA_SUFFIX = "/schema.json";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
-
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
@@ -108,7 +106,7 @@ export const resolveBiomeSchema: (
 
     const biomeParseErrors = A.empty<jsonc.ParseError>();
     const biomeJson = jsonc.parse(biomeContent, biomeParseErrors);
-    if (A.length(biomeParseErrors) > 0 || !isRecord(biomeJson)) {
+    if (A.length(biomeParseErrors) > 0 || !P.isObject(biomeJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse biome.jsonc", file: "biome.jsonc" });
     }
 
@@ -127,13 +125,13 @@ export const resolveBiomeSchema: (
 
     const pkgParseErrors = A.empty<jsonc.ParseError>();
     const pkgJson = jsonc.parse(pkgJsonContent, pkgParseErrors);
-    if (A.length(pkgParseErrors) > 0 || !isRecord(pkgJson)) {
+    if (A.length(pkgParseErrors) > 0 || !P.isObject(pkgJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
     }
 
     // Look in catalog first, then devDependencies
-    const catalog = isRecord(pkgJson.catalog) ? pkgJson.catalog : {};
-    const devDeps = isRecord(pkgJson.devDependencies) ? pkgJson.devDependencies : {};
+    const catalog = P.isObject(pkgJson.catalog) ? pkgJson.catalog : {};
+    const devDeps = P.isObject(pkgJson.devDependencies) ? pkgJson.devDependencies : {};
 
     const rawVersion: string = Str.isString(catalog["@biomejs/biome"])
       ? catalog["@biomejs/biome"]
@@ -199,40 +197,42 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
 export const updateBiomeSchema: (
   filePath: string,
   version: string
-) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn(function* (filePath, version) {
-  const fs = yield* FileSystem.FileSystem;
+) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn("updateBiomeSchema")(
+  function* (filePath, version) {
+    const fs = yield* FileSystem.FileSystem;
 
-  const original = yield* fs
-    .readFileString(filePath)
-    .pipe(
-      Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
-      )
-    );
+    const original = yield* fs
+      .readFileString(filePath)
+      .pipe(
+        Effect.mapError(
+          (e) => new VersionSyncError({ message: `Failed to read ${filePath}: ${String(e)}`, file: filePath })
+        )
+      );
 
-  const newSchemaUrl = buildSchemaUrl(version);
+    const newSchemaUrl = buildSchemaUrl(version);
 
-  const edits = jsonc.modify(original, ["$schema"], newSchemaUrl, {
-    formattingOptions: { tabSize: 2, insertSpaces: true },
-  });
+    const edits = jsonc.modify(original, ["$schema"], newSchemaUrl, {
+      formattingOptions: { tabSize: 2, insertSpaces: true },
+    });
 
-  if (A.length(edits) === 0) {
-    return false;
+    if (A.isReadonlyArrayEmpty(edits)) {
+      return false;
+    }
+
+    const updated = jsonc.applyEdits(original, edits);
+
+    if (updated === original) {
+      return false;
+    }
+
+    yield* fs
+      .writeFileString(filePath, updated)
+      .pipe(
+        Effect.mapError(
+          (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
+        )
+      );
+
+    return true;
   }
-
-  const updated = jsonc.applyEdits(original, edits);
-
-  if (updated === original) {
-    return false;
-  }
-
-  yield* fs
-    .writeFileString(filePath, updated)
-    .pipe(
-      Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to write ${filePath}: ${String(e)}`, file: filePath })
-      )
-    );
-
-  return true;
-});
+);

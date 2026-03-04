@@ -1,0 +1,1 @@
+{"name":"@beep/pkg-c","version":"0.0.0","private":true,"dependencies":{"@beep/pkg-a":"workspace:*"}}

@@ -10,9 +10,6 @@
       "path": ".claude"
     },
     {
-      "path": "apps/web"
-    },
-    {
       "path": "packages/ai/sdk"
     },
     {
@@ -23,9 +20,6 @@
     },
     {
       "path": "packages/common/messages"
-    },
-    {
-      "path": "packages/common/ontology"
     },
     {
       "path": "packages/common/schema"
@@ -55,35 +49,16 @@
       "path": "packages/shared/ui"
     },
     {
-      "path": "packages/ui/ui"
+      "path": "packages/common/ui"
     },
     {
       "path": "scratchpad"
-    },
-    {
-      "path": "tooling/agent-eval"
     },
     {
       "path": "tooling/cli"
     },
     {
       "path": "tooling/repo-utils"
-    },
-
-    {
-      "path": "packages/iam/client"
-    },
-    {
-      "path": "packages/iam/domain"
-    },
-    {
-      "path": "packages/iam/server"
-    },
-    {
-      "path": "packages/iam/tables"
-    },
-    {
-      "path": "packages/iam/ui"
     }
   ]
 }

@@ -4,10 +4,15 @@
  * @since 0.0.0
  * @module
  */
+
+import { $RepoCliId } from "@beep/identity/packages";
 import type { DomainError } from "@beep/repo-utils";
-import { Effect } from "effect";
+import { LiteralKit } from "@beep/schema";
+import { Effect, Tuple } from "effect";
 import * as A from "effect/Array";
-import type * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("create-package/ts-morph-integration-service");
 
 /**
  * Supported AST mutation categories required by create-slice.
@@ -15,25 +20,58 @@ import type * as O from "effect/Option";
  * @since 0.0.0
  * @category DomainModel
  */
-export type TsMorphMutationKind =
-  | "add-identity-composer"
-  | "add-entity-id-export"
-  | "wire-persistence"
-  | "wire-data-access";
+export const TsMorphMutationKind = LiteralKit([
+  "add-identity-composer",
+  "add-entity-id-export",
+  "wire-persistence",
+  "wire-data-access",
+]).annotate(
+  $I.annote("TsMorphMutationKind", {
+    description: "Supported AST mutation categories required by create-slice.",
+  })
+);
+export type TsMorphMutationKind = typeof TsMorphMutationKind.Type;
 
+const makeMutationKind = <Kind extends TsMorphMutationKind>(
+  kind: S.Literal<Kind>
+): S.Struct<{
+  readonly kind: S.tag<Kind>;
+  readonly filePath: S.String;
+  readonly symbolName: S.String;
+  readonly importPath: S.Option<S.String>;
+  readonly statementText: S.Option<S.String>;
+}> =>
+  S.Struct({
+    kind: S.tag(kind.literal),
+    filePath: S.String,
+    symbolName: S.String,
+    importPath: S.Option(S.String),
+    statementText: S.Option(S.String),
+  });
 /**
  * Input descriptor for one AST mutation.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsMorphMutation {
-  readonly kind: TsMorphMutationKind;
-  readonly filePath: string;
-  readonly symbolName: string;
-  readonly importPath: O.Option<string>;
-  readonly statementText: O.Option<string>;
-}
+export const TsMorphMutation = TsMorphMutationKind.mapMembers(
+  Tuple.evolve([makeMutationKind, makeMutationKind, makeMutationKind, makeMutationKind])
+)
+  .pipe(S.toTaggedUnion("kind"))
+  .annotate(
+    $I.annote("TsMorphMutationBase", {
+      description: "Input descriptor for one AST mutation.",
+    })
+  );
+
+export type TsMorphMutation = typeof TsMorphMutation.Type;
+
+const makeOutcome = <T extends "applied" | "skipped">(self: S.Literal<T>) =>
+  S.Struct({
+    status: S.tag(self.literal),
+    mutation: TsMorphMutation,
+    detail: S.String,
+  });
 
 /**
  * Outcome for one mutation.
@@ -41,11 +79,16 @@ export interface TsMorphMutation {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsMorphMutationOutcome {
-  readonly mutation: TsMorphMutation;
-  readonly status: "applied" | "skipped";
-  readonly detail: string;
-}
+const TsMorphMutationOutcome = LiteralKit(["applied", "skipped"])
+  .mapMembers(Tuple.evolve([makeOutcome, makeOutcome]))
+  .pipe(S.toTaggedUnion("status"))
+  .annotate(
+    $I.annote("TsMorphMutationOutcome", {
+      description: "Outcome for one mutation.",
+    })
+  );
+
+export type TsMorphMutationOutcome = typeof TsMorphMutationOutcome.Type;
 
 /**
  * Batch mutation result.
@@ -53,9 +96,14 @@ export interface TsMorphMutationOutcome {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsMorphIntegrationResult {
-  readonly outcomes: ReadonlyArray<TsMorphMutationOutcome>;
-}
+export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>($I`TsMorphIntegrationResult`)(
+  {
+    outcomes: S.Array(TsMorphMutationOutcome),
+  },
+  $I.annote("TsMorphIntegrationResult", {
+    description: "Batch mutation result.",
+  })
+) {}
 
 /**
  * Adapter boundary for concrete ts-morph-morph implementations.
@@ -82,11 +130,13 @@ export interface TsMorphIntegrationService {
 
 const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
   applyMutation: (mutation) =>
-    Effect.succeed({
-      mutation,
-      status: "skipped",
-      detail: "No ts-morph-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",
-    }),
+    Effect.succeed(
+      TsMorphMutationOutcome.cases.skipped.makeUnsafe({
+        mutation,
+        detail:
+          "No ts-morph-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",
+      })
+    ),
 };
 
 /**

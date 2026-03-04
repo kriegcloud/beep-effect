@@ -78,12 +78,10 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   insertSpaces: true,
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
-
 const parseJsoncObject = (content: string, filePath: string): Record<string, unknown> => {
-  const errors: Array<jsonc.ParseError> = [];
+  const errors = A.empty<jsonc.ParseError>();
   const parsed = jsonc.parse(content, errors);
-  if (errors.length > 0 || !isRecord(parsed)) {
+  if (errors.length > 0 || !P.isObject(parsed)) {
     const code = errors.at(0)?.error ?? "unknown";
     throw new DomainError({
       message: `Invalid JSONC in ${filePath} (parse error: ${String(code)})`,
@@ -96,11 +94,11 @@ const readReferences = (parsed: Record<string, unknown>): Array<unknown> =>
   A.isArray(parsed.references) ? [...parsed.references] : [];
 
 const hasReferencePath = (entry: unknown, target: string): boolean =>
-  isRecord(entry) && P.isString(entry.path) && entry.path === target;
+  P.isObject(entry) && P.isString(entry.path) && entry.path === target;
 
 const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
-  if (!isRecord(parsed.compilerOptions)) return {};
-  if (!isRecord(parsed.compilerOptions.paths)) return {};
+  if (!P.isObject(parsed.compilerOptions)) return {};
+  if (!P.isObject(parsed.compilerOptions.paths)) return {};
   return parsed.compilerOptions.paths;
 };
 

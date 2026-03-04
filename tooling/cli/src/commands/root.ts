@@ -10,7 +10,6 @@ import { Command } from "effect/unstable/cli";
 import { codegenCommand } from "./codegen.js";
 import { createPackageCommand } from "./create-package/index.js";
 import { docsCommand } from "./docs.js";
-import { kgCommand } from "./kg.js";
 import { purgeCommand } from "./purge.js";
 import { topoSortCommand } from "./topo-sort.js";
 import { tsconfigSyncCommand } from "./tsconfig-sync.js";
@@ -30,7 +29,6 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withSubcommands([
     topoSortCommand,
     docsCommand,
-    kgCommand,
     createPackageCommand,
     codegenCommand,
     purgeCommand,

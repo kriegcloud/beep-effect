@@ -8,6 +8,7 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -22,17 +23,24 @@ import {
   VersionSyncError,
 } from "../types.js";
 
+const $I = $RepoCliId.create("version-sync/resolvers/bun");
 // ── GitHub API schema ───────────────────────────────────────────────────────
 
 /**
  * @since 0.0.0
  * @category Validation
  */
-const BunRelease = S.Struct({
-  tag_name: S.String,
-  prerelease: S.Boolean,
-  draft: S.Boolean,
-});
+
+class BunRelease extends S.Class<BunRelease>($I`BunRelease`)(
+  {
+    tag_name: S.String,
+    prerelease: S.Boolean,
+    draft: S.Boolean,
+  },
+  $I.annote("BunRelease", {
+    description: "GitHub release schema for Bun releases",
+  })
+) {}
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -62,8 +70,6 @@ const extractBunVersion = Str.replace(/^bun-v/, "");
  */
 const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
-
 // ── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -72,11 +78,16 @@ const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjec
  * @since 0.0.0
  * @category DomainModel
  */
-export interface BunVersionState {
-  readonly bunVersionFile: string;
-  readonly packageManagerField: string;
-  readonly latest: O.Option<string>;
-}
+export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState`)(
+  {
+    bunVersionFile: S.String,
+    packageManagerField: S.String,
+    latest: S.Option(S.String),
+  },
+  $I.annote("BunVersionState", {
+    description: "Resolved Bun version state from local files and optionally GitHub",
+  })
+) {}
 
 /**
  * Resolve current Bun versions from local files and optionally fetch latest from GitHub.
@@ -111,21 +122,18 @@ export const resolveBunVersions: (
         )
       );
 
-    const parseErrors: Array<jsonc.ParseError> = [];
+    const parseErrors = A.empty<jsonc.ParseError>();
     const pkgJson = jsonc.parse(pkgJsonContent, parseErrors);
-    if (A.length(parseErrors) > 0 || !isRecord(pkgJson)) {
+    if (A.length(parseErrors) > 0 || !P.isObject(pkgJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
     }
     const rawPm = P.isString(pkgJson.packageManager) ? pkgJson.packageManager : "";
     const packageManagerField = extractPackageManagerVersion(rawPm);
 
     // Optionally fetch latest
-    let latest: O.Option<string> = O.none();
+    let latest = O.none<string>();
     if (!skipNetwork) {
-      latest = yield* fetchLatestBunVersion().pipe(
-        Effect.map(O.some),
-        Effect.orElseSucceed(() => O.none<string>())
-      );
+      latest = yield* fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>));
     }
 
     return { bunVersionFile, packageManagerField, latest };
@@ -163,7 +171,7 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
  * @returns The version category report for Bun.
  */
 export const buildBunReport: (state: BunVersionState) => VersionCategoryReport = (state) => {
-  const items: Array<VersionDriftItem> = [];
+  const items = A.empty<VersionDriftItem>();
 
   // Determine the target version: latest if available, otherwise the higher of the two local values
   const target = O.isSome(state.latest)

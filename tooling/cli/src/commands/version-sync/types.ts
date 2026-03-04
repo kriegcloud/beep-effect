@@ -6,7 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import type * as O from "effect/Option";
+import { LiteralKit } from "@beep/schema";
+import { Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/version-sync/types");
@@ -66,13 +67,18 @@ export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftEr
  * @since 0.0.0
  * @category DomainModel
  */
-export interface VersionDriftItem {
-  readonly file: string;
-  readonly field: string;
-  readonly current: string;
-  readonly expected: string;
-  readonly line: O.Option<number>;
-}
+export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftItem`)(
+  {
+    file: S.String,
+    field: S.String,
+    current: S.String,
+    expected: S.String,
+    line: S.Option(S.Number),
+  },
+  $I.annote("VersionDriftItem", {
+    description: "A single version pin location with its current and expected values",
+  })
+) {}
 
 /**
  * Version category for grouping drift items.
@@ -80,15 +86,24 @@ export interface VersionDriftItem {
  * @since 0.0.0
  * @category DomainModel
  */
-export type VersionCategory = "bun" | "node" | "docker" | "biome";
-
+export const VersionCategory = LiteralKit(["bun", "node", "docker", "biome"]).annotate(
+  $I.annote("VersionCategory", {
+    description: "Version category for grouping drift items",
+  })
+);
+export type VersionCategory = typeof VersionCategory.Type;
 /**
  * Status of a version category.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export type VersionCategoryStatus = "ok" | "drift" | "unpinned" | "error";
+export const VersionCategoryStatus = LiteralKit(["ok", "drift", "unpinned", "error"]).annotate(
+  $I.annote("VersionCategoryStatus", {
+    description: "Status of a version category",
+  })
+);
+export type VersionCategoryStatus = typeof VersionCategoryStatus.Type;
 
 /**
  * Report for a single version category (bun, node, or docker).
@@ -96,13 +111,36 @@ export type VersionCategoryStatus = "ok" | "drift" | "unpinned" | "error";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface VersionCategoryReport {
-  readonly category: VersionCategory;
-  readonly status: VersionCategoryStatus;
-  readonly items: ReadonlyArray<VersionDriftItem>;
-  readonly latest: O.Option<string>;
-  readonly error: O.Option<string>;
-}
+
+export const makeVersionCategoryReport = <Category extends VersionCategory>(categoryTag: S.Literal<Category>) => {
+  const make = <Status extends VersionCategoryStatus>(statusTag: S.Literal<Status>) => {
+    return S.Struct({
+      category: S.tag(categoryTag.literal),
+      status: S.tag(statusTag.literal),
+      items: S.Array(VersionDriftItem),
+      error: S.Option(S.String),
+      latest: S.Option(S.String),
+    });
+  };
+
+  return VersionCategoryStatus.mapMembers(Tuple.evolve([make, make, make, make])).pipe(S.toTaggedUnion("status"));
+};
+
+export const VersionCategoryReport = VersionCategory.mapMembers(
+  Tuple.evolve([
+    makeVersionCategoryReport,
+    makeVersionCategoryReport,
+    makeVersionCategoryReport,
+    makeVersionCategoryReport,
+  ])
+)
+  .pipe(S.toTaggedUnion("category"))
+  .annotate(
+    $I.annote("VersionCategoryReport", {
+      description: "Report for a single version category, including its status, items, and error",
+    })
+  );
+export type VersionCategoryReport = typeof VersionCategoryReport.Type;
 
 /**
  * Full version sync report across all categories.
@@ -110,10 +148,15 @@ export interface VersionCategoryReport {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface VersionSyncReport {
-  readonly categories: ReadonlyArray<VersionCategoryReport>;
-  readonly hasDrift: boolean;
-}
+export class VersionSyncReport extends S.Class<VersionSyncReport>($I`VersionSyncReport`)(
+  {
+    categories: S.Array(VersionCategoryReport),
+    hasDrift: S.Boolean,
+  },
+  $I.annote("VersionSyncReport", {
+    description: "Full version sync report across all categories, including their statuses and errors",
+  })
+) {}
 
 /**
  * Command execution mode.
@@ -121,7 +164,13 @@ export interface VersionSyncReport {
  * @since 0.0.0
  * @category DomainModel
  */
-export type VersionSyncMode = "check" | "write" | "dry-run";
+export const VersionSyncMode = LiteralKit(["check", "write", "dry-run"]).annotate(
+  $I.annote("VersionSyncMode", {
+    description: "Command execution mode for version sync operations",
+  })
+);
+
+export type VersionSyncMode = typeof VersionSyncMode.Type;
 
 /**
  * Resolved command options after flag parsing.
@@ -129,11 +178,18 @@ export type VersionSyncMode = "check" | "write" | "dry-run";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface VersionSyncOptions {
-  readonly mode: VersionSyncMode;
-  readonly skipNetwork: boolean;
-  readonly bunOnly: boolean;
-  readonly nodeOnly: boolean;
-  readonly dockerOnly: boolean;
-  readonly biomeOnly: boolean;
-}
+const makeVersionSyncOption = <T extends VersionSyncMode>(modeTag: S.Literal<T>) =>
+  S.Struct({
+    mode: S.tag(modeTag.literal),
+    skipNetwork: S.Boolean,
+    bunOnly: S.Boolean,
+    nodeOnly: S.Boolean,
+    dockerOnly: S.Boolean,
+    biomeOnly: S.Boolean,
+  });
+
+export const VersionSyncOptions = VersionSyncMode.mapMembers(
+  Tuple.evolve([makeVersionSyncOption, makeVersionSyncOption, makeVersionSyncOption])
+);
+
+export type VersionSyncOptions = typeof VersionSyncOptions.Type;

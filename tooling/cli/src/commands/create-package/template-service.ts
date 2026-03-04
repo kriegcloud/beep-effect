@@ -5,11 +5,16 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { Effect, FileSystem, String as Str } from "effect";
-import * as A from "effect/Array";
+import { thunkEmptyStr } from "@beep/utils";
+import { Effect, FileSystem, flow } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import Handlebars from "handlebars";
+
+const $I = $RepoCliId.create("create-package/template-service");
 
 /**
  * Mapping between template source file and output file path.
@@ -17,10 +22,15 @@ import Handlebars from "handlebars";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TemplateSpec {
-  readonly templateName: string;
-  readonly outputPath: string;
-}
+export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
+  {
+    templateName: S.String,
+    outputPath: S.String,
+  },
+  $I.annote("TemplateSpec", {
+    description: "Mapping between template source file and output file path.",
+  })
+) {}
 
 /**
  * Rendered template output.
@@ -28,10 +38,15 @@ export interface TemplateSpec {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface RenderedTemplate {
-  readonly outputPath: string;
-  readonly content: string;
-}
+export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTemplate`)(
+  {
+    outputPath: S.String,
+    content: S.String,
+  },
+  $I.annote("RenderedTemplate", {
+    description: "Rendered template output.",
+  })
+) {}
 
 /**
  * Generic request payload for template rendering.
@@ -57,44 +72,19 @@ export interface TemplateService {
   ) => Effect.Effect<ReadonlyArray<RenderedTemplate>, DomainError, FileSystem.FileSystem>;
 }
 
-const toWords = (value: string): ReadonlyArray<string> => {
-  const normalized = Str.toLowerCase(
-    Str.trim(Str.replace(/[^a-zA-Z0-9]+/g, " ")(Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2")(value)))
-  );
-
-  return A.filter(Str.split(/\s+/g)(normalized), Str.isNonEmpty);
-};
-
-const toCamelCase = (value: string): string => {
-  const words = toWords(value);
-  const firstWord = A.head(words);
-
-  if (O.isNone(firstWord)) {
-    return Str.empty;
-  }
-
-  return `${firstWord.value}${A.join(A.map(A.drop(words, 1), Str.capitalize), Str.empty)}`;
-};
-
-const toPascalCase = (value: string): string => A.join(A.map(toWords(value), Str.capitalize), Str.empty);
-
-const toKebabCase = (value: string): string => A.join(toWords(value), "-");
-
-const toSnakeCase = (value: string): string => A.join(toWords(value), "_");
-
 const toHelperValue = (value: unknown): string =>
   O.match(O.fromNullishOr(value), {
-    onNone: () => Str.empty,
+    onNone: thunkEmptyStr,
     onSome: (inner) => `${inner}`,
   });
 
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
 
-  hbs.registerHelper("camelCase", (value: unknown) => toCamelCase(toHelperValue(value)));
-  hbs.registerHelper("pascalCase", (value: unknown) => toPascalCase(toHelperValue(value)));
-  hbs.registerHelper("kebabCase", (value: unknown) => toKebabCase(toHelperValue(value)));
-  hbs.registerHelper("snakeCase", (value: unknown) => toSnakeCase(toHelperValue(value)));
+  hbs.registerHelper("camelCase", flow(toHelperValue, Str.camelCase));
+  hbs.registerHelper("pascalCase", flow(toHelperValue, Str.pascalCase));
+  hbs.registerHelper("kebabCase", flow(toHelperValue, Str.kebabCase));
+  hbs.registerHelper("snakeCase", flow(toHelperValue, Str.snakeCase));
 
   return hbs;
 };

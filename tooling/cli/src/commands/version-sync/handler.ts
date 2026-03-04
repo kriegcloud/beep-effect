@@ -6,9 +6,11 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { Console, Effect, type FileSystem, MutableHashMap, Path, String as Str } from "effect";
+import { Console, Effect, type FileSystem, MutableHashMap, Path } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { HttpClient } from "effect/unstable/http";
 import { buildBiomeReport, resolveBiomeSchema, updateBiomeSchema } from "./resolvers/biome.js";
 import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
@@ -187,7 +189,7 @@ const applyDockerUpdates: (
 
       // Extract the service name from field "image (serviceName)"
       const serviceMatch = Str.match(/\(([^)]+)\)/)(item.field);
-      if (serviceMatch === null) continue;
+      if (P.isNull(serviceMatch)) continue;
       const serviceName = serviceMatch[1];
 
       const yamlPath = ["services", serviceName, "image"];
@@ -270,7 +272,7 @@ export const handleVersionSync: (
         })
       )
     );
-    if (bunState.bunVersionFile !== "") {
+    if (!Str.isEmpty(bunState.bunVersionFile)) {
       categories = A.append(categories, buildBunReport(bunState));
     }
   }

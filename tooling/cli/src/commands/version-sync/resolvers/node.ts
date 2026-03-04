@@ -8,15 +8,19 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
+import { NonNegativeInt } from "@beep/schema";
+import { thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { parseDocument } from "yaml";
-import type { VersionCategoryReport, VersionDriftItem } from "../types.js";
-import { VersionSyncError } from "../types.js";
+import { VersionCategoryReport, VersionDriftItem, VersionSyncError } from "../types.js";
 
+const $I = $RepoCliId.create("version-sync/resolvers/node");
 // ── Types ───────────────────────────────────────────────────────────────────
 
 /**
@@ -25,13 +29,13 @@ import { VersionSyncError } from "../types.js";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface NodeVersionLocation {
-  readonly file: string;
-  readonly jobName: string;
-  readonly stepIndex: number;
-  readonly currentValue: string;
-  readonly yamlPath: ReadonlyArray<string | number>;
-}
+export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVersionLocation`)({
+  file: S.String,
+  jobName: S.String,
+  stepIndex: NonNegativeInt,
+  currentValue: S.String,
+  yamlPath: S.Array(S.Union([S.String, S.Number])),
+}) {}
 
 /**
  * Resolved Node version state.
@@ -39,14 +43,12 @@ export interface NodeVersionLocation {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface NodeVersionState {
-  readonly nvmrc: string;
-  readonly workflowLocations: ReadonlyArray<NodeVersionLocation>;
-}
+export class NodeVersionState extends S.Class<NodeVersionState>($I`NodeVersionState`)({
+  nvmrc: S.String,
+  workflowLocations: S.Array(NodeVersionLocation),
+}) {}
 
 // ── Public API ──────────────────────────────────────────────────────────────
-
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 /**
  * Resolve Node.js version state from `.nvmrc` and workflow files.
@@ -57,52 +59,52 @@ const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjec
 export const resolveNodeVersions: (
   repoRoot: string
 ) => Effect.Effect<NodeVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+  "resolveNodeVersions"
+)(function* (repoRoot) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    // Read .nvmrc
-    const nvmrcPath = path.join(repoRoot, ".nvmrc");
-    const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
-      Effect.map(Str.trim),
-      Effect.mapError((e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${String(e)}`, file: ".nvmrc" }))
+  // Read .nvmrc
+  const nvmrcPath = path.join(repoRoot, ".nvmrc");
+  const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
+    Effect.map(Str.trim),
+    Effect.mapError((e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${String(e)}`, file: ".nvmrc" }))
+  );
+
+  // Scan workflow files
+  const workflowDir = path.join(repoRoot, ".github", "workflows");
+  const workflowDirExists = yield* fs.exists(workflowDir).pipe(Effect.orElseSucceed(thunkFalse));
+
+  if (!workflowDirExists) {
+    return { nvmrc, workflowLocations: A.empty<NodeVersionLocation>() };
+  }
+
+  const entries = yield* fs.readDirectory(workflowDir).pipe(Effect.orElseSucceed(A.empty<string>));
+
+  const ymlFiles = A.filter(entries, P.or(Str.endsWith(".yml"), Str.endsWith(".yaml")));
+
+  let locations = A.empty<NodeVersionLocation>();
+
+  for (const ymlFile of ymlFiles) {
+    const filePath = path.join(workflowDir, ymlFile);
+    const content = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read workflow file: ${String(e)}`,
+            file: `.github/workflows/${ymlFile}`,
+          })
+      )
     );
 
-    // Scan workflow files
-    const workflowDir = path.join(repoRoot, ".github", "workflows");
-    const workflowDirExists = yield* fs.exists(workflowDir).pipe(Effect.orElseSucceed(() => false));
-
-    if (!workflowDirExists) {
-      return { nvmrc, workflowLocations: A.empty<NodeVersionLocation>() };
+    const found = findNodeVersionLocations(content, `.github/workflows/${ymlFile}`);
+    for (const loc of found) {
+      locations = A.append(locations, loc);
     }
-
-    const entries = yield* fs.readDirectory(workflowDir).pipe(Effect.orElseSucceed(A.empty<string>));
-
-    const ymlFiles = A.filter(entries, (entry) => Str.endsWith(".yml")(entry) || Str.endsWith(".yaml")(entry));
-
-    let locations = A.empty<NodeVersionLocation>();
-
-    for (const ymlFile of ymlFiles) {
-      const filePath = path.join(workflowDir, ymlFile);
-      const content = yield* fs.readFileString(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            new VersionSyncError({
-              message: `Failed to read workflow file: ${String(e)}`,
-              file: `.github/workflows/${ymlFile}`,
-            })
-        )
-      );
-
-      const found = findNodeVersionLocations(content, `.github/workflows/${ymlFile}`);
-      for (const loc of found) {
-        locations = A.append(locations, loc);
-      }
-    }
-
-    return { nvmrc, workflowLocations: locations };
   }
-);
+
+  return { nvmrc, workflowLocations: locations };
+});
 
 /**
  * Find `node-version:` field locations in a workflow YAML document.
@@ -119,18 +121,18 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
   const doc = parseDocument(content);
   const root = doc.toJSON();
 
-  if (!isRecord(root) || !("jobs" in root)) {
+  if (!P.isObject(root) || !P.hasProperty(root, "jobs")) {
     return locations;
   }
 
   const jobs = root.jobs;
-  if (!isRecord(jobs)) {
+  if (!P.isObject(jobs)) {
     return locations;
   }
 
   for (const jobName of R.keys(jobs)) {
     const job = jobs[jobName];
-    if (!isRecord(job) || !("steps" in job)) {
+    if (!P.isObject(job) || !P.hasProperty(job, "steps")) {
       continue;
     }
 
@@ -141,21 +143,21 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
 
     for (let stepIdx = 0; stepIdx < A.length(steps); stepIdx++) {
       const step = steps[stepIdx];
-      if (!isRecord(step)) {
+      if (!P.isObject(step)) {
         continue;
       }
 
       // Check for node-version in `with:` block
-      if ("with" in step && isRecord(step.with)) {
+      if (P.hasProperty(step, "with") && P.isObject(step.with)) {
         const withBlock = step.with;
-        if ("node-version" in withBlock) {
+        if (P.hasProperty(withBlock, "node-version")) {
           const nodeVersion = String(withBlock["node-version"]);
           // Skip if already using node-version-file
-          if (!("node-version-file" in withBlock)) {
+          if (!P.hasProperty(withBlock, "node-version-file")) {
             locations = A.append(locations, {
               file: relativeFile,
               jobName,
-              stepIndex: stepIdx,
+              stepIndex: NonNegativeInt.makeUnsafe(stepIdx),
               currentValue: nodeVersion,
               yamlPath: ["jobs", jobName, "steps", stepIdx, "with", "node-version"],
             });
@@ -181,21 +183,23 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
 
   for (const loc of state.workflowLocations) {
     if (loc.currentValue !== state.nvmrc) {
-      items = A.append(items, {
-        file: loc.file,
-        field: `node-version (${loc.jobName}, step ${String(loc.stepIndex)})`,
-        current: loc.currentValue,
-        expected: state.nvmrc,
-        line: O.none(),
-      });
+      items = A.append(
+        items,
+        new VersionDriftItem({
+          file: loc.file,
+          field: `node-version (${loc.jobName}, step ${String(loc.stepIndex)})`,
+          current: loc.currentValue,
+          expected: state.nvmrc,
+          line: O.none(),
+        })
+      );
     }
   }
 
-  return {
-    category: "node" as const,
+  return VersionCategoryReport.cases.node.makeUnsafe({
     status: A.length(items) > 0 ? "drift" : "ok",
     items,
     latest: O.none(),
     error: O.none(),
-  };
+  });
 };

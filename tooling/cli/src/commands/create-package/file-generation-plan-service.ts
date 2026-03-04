@@ -6,10 +6,10 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { Data, Effect, FileSystem, identity, Order, Path, String as Str } from "effect";
+import { Data, Effect, FileSystem, identity, Order, Path } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-
+import * as Str from "effect/String";
 /**
  * A file write operation.
  *

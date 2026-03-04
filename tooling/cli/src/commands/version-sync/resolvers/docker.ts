@@ -8,6 +8,7 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { Effect, FileSystem, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -23,23 +24,35 @@ import {
   VersionSyncError,
 } from "../types.js";
 
+const $I = $RepoCliId.create("version-sync/resolvers/docker");
+
 // ── Docker Hub API ──────────────────────────────────────────────────────────
 
 /**
  * @since 0.0.0
  * @category Validation
  */
-const DockerTagResult = S.Struct({
-  name: S.String,
-});
+class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
+  {
+    name: S.String,
+  },
+  $I.annote("DockerTagResult", {
+    description: "Docker image tag result schema",
+  })
+) {}
 
 /**
  * @since 0.0.0
  * @category Validation
  */
-const DockerTagsResponse = S.Struct({
-  results: S.Array(DockerTagResult),
-});
+class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsResponse`)(
+  {
+    results: S.Array(DockerTagResult),
+  },
+  $I.annote("DockerTagsResponse", {
+    description: "Docker image tags response schema",
+  })
+) {}
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -49,24 +62,42 @@ const DockerTagsResponse = S.Struct({
  * @since 0.0.0
  * @category DomainModel
  */
-export interface DockerImageRef {
-  readonly service: string;
-  readonly fullImage: string;
-  readonly registry: string;
-  readonly repository: string;
-  readonly tag: string;
-  readonly yamlPath: ReadonlyArray<string | number>;
-}
+class DockerImageRef extends S.Class<DockerImageRef>($I`DockerImageRef`)(
+  {
+    service: S.String,
+    fullImage: S.String,
+    registry: S.String,
+    repository: S.String,
+    tag: S.String,
+    yamlPath: S.Array(S.Union([S.String, S.Number])),
+  },
+  $I.annote("DockerImageRef", {
+    description: "Docker image reference parsed from docker-compose.yml",
+  })
+) {}
 
+class DockerImageElement extends DockerImageRef.extend<DockerImageElement>($I`DockerImageElement`)(
+  {
+    latest: S.Option(S.String),
+  },
+  $I.annote("DockerImageElement", {
+    description: "Docker image reference with latest tag information",
+  })
+) {}
 /**
  * Resolved Docker image state.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export interface DockerImageState {
-  readonly images: ReadonlyArray<DockerImageRef & { readonly latest: O.Option<string> }>;
-}
+export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageState`)(
+  {
+    images: S.Array(DockerImageElement),
+  },
+  $I.annote("DockerImageState", {
+    description: "Resolved Docker image state",
+  })
+) {}
 
 // ── Semver-like sorting ─────────────────────────────────────────────────────
 
@@ -85,8 +116,6 @@ const semverCompare = (a: readonly [number, number, number], b: readonly [number
 };
 
 const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
-
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -112,7 +141,7 @@ const parseImageRef = (service: string, image: string, yamlPath: ReadonlyArray<s
 };
 
 const dockerHubTagsUrl = (repository: string): string => {
-  const hasNamespace = repository.includes("/");
+  const hasNamespace = Str.includes("/")(repository);
   const repo = hasNamespace ? repository : `library/${repository}`;
   return `https://hub.docker.com/v2/repositories/${repo}/tags/?page_size=100&ordering=last_updated`;
 };
@@ -244,12 +273,12 @@ export const resolveDockerImages: (
     const doc = parseDocument(content);
     const root = doc.toJSON();
 
-    if (!isRecord(root) || !("services" in root)) {
+    if (!P.isObject(root) || !("services" in root)) {
       return { images: A.empty() };
     }
 
     const services = root.services;
-    if (!isRecord(services)) {
+    if (!P.isObject(services)) {
       return { images: A.empty() };
     }
 
@@ -257,7 +286,7 @@ export const resolveDockerImages: (
 
     for (const serviceName of R.keys(services)) {
       const service = services[serviceName];
-      if (!isRecord(service) || !("image" in service)) {
+      if (!P.isObject(service) || !("image" in service)) {
         continue;
       }
 

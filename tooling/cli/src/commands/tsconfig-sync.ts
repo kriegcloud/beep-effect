@@ -19,12 +19,15 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, HashMap, HashSet, Path, String as Str } from "effect";
+import { LiteralKit } from "@beep/schema";
+import { thunkFalse, thunkUndefined } from "@beep/utils";
+import { Console, Effect, FileSystem, HashMap, HashSet, Path, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 
@@ -120,7 +123,20 @@ export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilt
  * @since 0.0.0
  * @category DomainModel
  */
-export type TsconfigSyncMode = "sync" | "check" | "dry-run";
+export const TsconfigSyncMode = LiteralKit(["sync", "check", "dry-run"]).annotate(
+  $I.annote("TsconfigSyncMode", {
+    description: "Command execution mode for tsconfig-sync.",
+  })
+);
+
+type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
+
+const makeSyncRunOption = <T extends TsconfigSyncMode>(mode: S.Literal<T>) =>
+  S.Struct({
+    mode: S.tag(mode.literal),
+    filter: S.optionalKey(S.UndefinedOr(S.String)),
+    verbose: S.Boolean,
+  });
 
 /**
  * Runtime options for executing tsconfig sync at a repo root.
@@ -128,11 +144,16 @@ export type TsconfigSyncMode = "sync" | "check" | "dry-run";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsconfigSyncRunOptions {
-  readonly mode: TsconfigSyncMode;
-  readonly filter?: string | undefined;
-  readonly verbose: boolean;
-}
+export const TsconfigSyncRunOptions = TsconfigSyncMode.mapMembers(
+  Tuple.evolve([makeSyncRunOption, makeSyncRunOption, makeSyncRunOption])
+)
+  .pipe(S.toTaggedUnion("mode"))
+  .annotate(
+    $I.annote("TsconfigSyncRunOptions", {
+      description: "Runtime options for executing tsconfig sync at a repo root.",
+    })
+  );
+export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
 
 /**
  * Sync change section categories.
@@ -140,7 +161,19 @@ export interface TsconfigSyncRunOptions {
  * @since 0.0.0
  * @category DomainModel
  */
-export type TsconfigSyncSection = "root-references" | "root-aliases" | "package-references";
+export const TsconfigSyncSection = LiteralKit(["root-references", "root-aliases", "package-references"]).annotate(
+  $I.annote("TsconfigSyncSection", {
+    description: "Sync change section categories for tsconfig-sync.",
+  })
+);
+
+export type TsconfigSyncSection = typeof TsconfigSyncSection.Type;
+const baseChange = {
+  filePath: S.String,
+  summary: S.String,
+} as const;
+const makeTsconfigSyncChange = <T extends TsconfigSyncSection>(section: S.Literal<T>) =>
+  S.Struct({ ...baseChange, section: S.tag(section.literal) });
 
 /**
  * A single planned file change.
@@ -148,15 +181,47 @@ export type TsconfigSyncSection = "root-references" | "root-aliases" | "package-
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsconfigSyncChange {
-  readonly filePath: string;
-  readonly section: TsconfigSyncSection;
-  readonly summary: string;
-}
+export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
+  Tuple.evolve([makeTsconfigSyncChange, makeTsconfigSyncChange, makeTsconfigSyncChange])
+)
+  .pipe(S.toTaggedUnion("section"))
+  .annotate(
+    $I.annote("TsconfigSyncChange", {
+      description: "A single planned file change for tsconfig-sync.",
+    })
+  );
 
-interface PlannedFileChange extends TsconfigSyncChange {
-  readonly content: string;
-}
+export type TsconfigSyncChange = typeof TsconfigSyncChange.Type;
+
+// export interface TsconfigSyncChange {
+//   readonly filePath: string;
+//   readonly section: TsconfigSyncSection;
+//   readonly summary: string;
+// }
+// interface PlannedFileChange extends TsconfigSyncChange {
+//   readonly content: string;
+// }
+const makePlannedFileChange = <T extends TsconfigSyncSection>(section: S.Literal<T>) =>
+  S.Struct({ ...baseChange, section: S.tag(section.literal), content: S.String });
+
+export const PlannedFileChange = TsconfigSyncSection.mapMembers(
+  Tuple.evolve([makePlannedFileChange, makePlannedFileChange, makePlannedFileChange])
+)
+  .pipe(S.toTaggedUnion("section"))
+  .annotate(
+    $I.annote("TsconfigSyncChange", {
+      description: "A single planned file change for tsconfig-sync.",
+    })
+  );
+
+export type PlannedFileChange = typeof PlannedFileChange.Type;
+
+const makeTsconfigSyncResult = <T extends TsconfigSyncMode>(mode: S.Literal<T>) =>
+  S.Struct({
+    mode: S.tag(mode.literal),
+    changedFiles: S.Number,
+    changes: S.Array(TsconfigSyncChange),
+  });
 
 /**
  * Result emitted after a sync run.
@@ -164,11 +229,17 @@ interface PlannedFileChange extends TsconfigSyncChange {
  * @since 0.0.0
  * @category DomainModel
  */
-export interface TsconfigSyncResult {
-  readonly mode: TsconfigSyncMode;
-  readonly changedFiles: number;
-  readonly changes: ReadonlyArray<TsconfigSyncChange>;
-}
+export const TsconfigSyncResult = TsconfigSyncMode.mapMembers(
+  Tuple.evolve([makeTsconfigSyncResult, makeTsconfigSyncResult, makeTsconfigSyncResult])
+)
+  .pipe(S.toTaggedUnion("mode"))
+  .annotate(
+    $I.annote("TsconfigSyncResult", {
+      description: "Result emitted after a sync run.",
+    })
+  );
+
+export type TsconfigSyncResult = typeof TsconfigSyncResult.Type;
 
 type TsconfigSyncError =
   | DomainError
@@ -178,24 +249,37 @@ type TsconfigSyncError =
   | TsconfigSyncDriftError
   | TsconfigSyncFilterError;
 
-interface WorkspaceDescriptor {
-  readonly packageName: string;
-  readonly absoluteDir: string;
-  readonly relativeDir: string;
-  readonly ownerTsconfigPath: string | undefined;
-  readonly hasProjectTsconfig: boolean;
-  readonly hasSourceIndex: boolean;
-}
+export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`WorkspaceDescriptor`)(
+  {
+    packageName: S.String,
+    absoluteDir: S.String,
+    relativeDir: S.String,
+    ownerTsconfigPath: S.UndefinedOr(S.String),
+    hasProjectTsconfig: S.Boolean,
+    hasSourceIndex: S.Boolean,
+  },
+  $I.annote("WorkspaceDescriptor", {
+    description: "A workspace package descriptor with metadata for tsconfig synchronization.",
+  })
+) {}
 
-interface TsconfigWithReferences {
-  readonly references?: ReadonlyArray<{ readonly path?: unknown }>;
-}
+export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`TsconfigWithReferences`)(
+  {
+    references: S.optionalKey(S.Array(S.Struct({ path: S.optionalKey(S.Unknown) }))),
+  },
+  $I.annote("TsconfigWithReferences", {
+    description: "A class representing a tsconfig.json file with references property.",
+  })
+) {}
 
-interface TsconfigWithPaths {
-  readonly compilerOptions?: {
-    readonly paths?: Readonly<Record<string, unknown>>;
-  };
-}
+export class TsconfigWithPaths extends S.Class<TsconfigWithPaths>($I`TsconfigWithPaths`)(
+  {
+    compilerOptions: S.optionalKey(S.Struct({ paths: S.optionalKey(S.Record(S.String, S.Unknown)) })),
+  },
+  $I.annote("TsconfigWithPaths", {
+    description: "A class representing a tsconfig.json file with compilerOptions.paths property.",
+  })
+) {}
 
 const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
 
@@ -227,7 +311,7 @@ const dependencyNamesFromWorkspaceDeps = (workspaceDeps: WorkspaceDeps): Readonl
   ]);
 
 const parseJsonc = Effect.fn(function* <T>(content: string, filePath: string) {
-  const parseErrors: Array<jsonc.ParseError> = [];
+  const parseErrors = A.empty<jsonc.ParseError>();
   const parsed = jsonc.parse(content, parseErrors) as T;
 
   if (parseErrors.length > 0) {
@@ -276,12 +360,12 @@ const normalizeRelativeRef = (sourceDir: string, targetPath: string, path: Path.
 
 const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined => {
   const normalized = A.map(paths, toPosixPath);
-  const buildPath = A.findFirst(normalized, (entry) => entry.endsWith("/tsconfig.build.json"));
+  const buildPath = A.findFirst(normalized, Str.endsWith("/tsconfig.build.json"));
   if (O.isSome(buildPath)) {
     return buildPath.value;
   }
 
-  const packageTsconfigPath = A.findFirst(normalized, (entry) => entry.endsWith("/tsconfig.json"));
+  const packageTsconfigPath = A.findFirst(normalized, Str.endsWith("/tsconfig.json"));
   if (O.isSome(packageTsconfigPath)) {
     return packageTsconfigPath.value;
   }
@@ -292,7 +376,7 @@ const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined =
 const workspaceContainsPath = (workspace: WorkspaceDescriptor, targetPath: string): boolean => {
   const workspaceDir = toPosixPath(workspace.absoluteDir);
   const normalizedTarget = toPosixPath(targetPath);
-  return normalizedTarget === workspaceDir || normalizedTarget.startsWith(`${workspaceDir}/`);
+  return normalizedTarget === workspaceDir || Str.startsWith(`${workspaceDir}/`)(normalizedTarget);
 };
 
 const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
@@ -302,25 +386,27 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
   const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
   const tsconfigPathsByPackage = yield* collectTsConfigPaths(rootDir);
 
-  const descriptors: Array<WorkspaceDescriptor> = [];
+  const descriptors = A.empty<WorkspaceDescriptor>();
 
   for (const [packageName, absoluteDir] of workspaceDirs) {
-    const tsconfigPaths = O.getOrElse(HashMap.get(tsconfigPathsByPackage, packageName), () => A.empty<string>());
+    const tsconfigPaths = O.getOrElse(HashMap.get(tsconfigPathsByPackage, packageName), A.empty<string>);
 
     const ownerTsconfigPath = chooseOwnerTsconfig(tsconfigPaths);
-    const hasProjectTsconfig = A.some(tsconfigPaths, (entry) => toPosixPath(entry).endsWith("/tsconfig.json"));
+    const hasProjectTsconfig = A.some(tsconfigPaths, (entry) => Str.endsWith("/tsconfig.json")(toPosixPath(entry)));
     const hasSourceIndex = yield* fs
       .exists(path.join(absoluteDir, "src", "index.ts"))
-      .pipe(Effect.orElseSucceed(() => false));
+      .pipe(Effect.orElseSucceed(thunkFalse));
 
-    descriptors.push({
-      packageName,
-      absoluteDir,
-      relativeDir: toPosixPath(path.relative(rootDir, absoluteDir)),
-      ownerTsconfigPath,
-      hasProjectTsconfig,
-      hasSourceIndex,
-    });
+    descriptors.push(
+      new WorkspaceDescriptor({
+        packageName,
+        absoluteDir,
+        relativeDir: toPosixPath(path.relative(rootDir, absoluteDir)),
+        ownerTsconfigPath,
+        hasProjectTsconfig,
+        hasSourceIndex,
+      })
+    );
   }
 
   const sorted = [...descriptors];
@@ -397,12 +483,13 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
 
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
-  return O.some({
-    filePath,
-    section: "root-references" as const,
-    summary: summaryCounts(current, expected, "references"),
-    content: nextContent,
-  });
+  return O.some(
+    PlannedFileChange.cases["root-references"].makeUnsafe({
+      filePath,
+      summary: summaryCounts(current, expected, "references"),
+      content: nextContent,
+    })
+  );
 });
 
 const canonicalAliasEntriesForWorkspace = (
@@ -477,12 +564,13 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
   const additions = keysToSet.filter((key) => !currentCanonicalKeys.includes(key)).length;
   const updates = keysToSet.length - additions;
 
-  return O.some({
-    filePath,
-    section: "root-aliases" as const,
-    summary: `aliases: add ${String(additions)}, update ${String(updates)}, remove ${String(keysToRemove.length)}`,
-    content: nextContent,
-  });
+  return O.some(
+    PlannedFileChange.cases["root-aliases"].makeUnsafe({
+      filePath,
+      summary: `aliases: add ${String(additions)}, update ${String(updates)}, remove ${String(keysToRemove.length)}`,
+      content: nextContent,
+    })
+  );
 });
 
 const buildSubsetAdjacency = (
@@ -522,7 +610,7 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
   const sourceDir = path.dirname(sourceOwnerTsconfigPath);
   const resolvedTarget = path.resolve(sourceDir, refPath);
 
-  const exists = yield* fs.exists(resolvedTarget).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(resolvedTarget).pipe(Effect.orElseSucceed(thunkFalse));
   if (!exists) {
     return O.none<string>();
   }
@@ -540,10 +628,10 @@ const canonicalizeExistingRefTarget = Effect.fn(function* (
     }
   }
 
-  const stat = yield* fs.stat(resolvedTarget).pipe(Effect.orElseSucceed(() => undefined));
+  const stat = yield* fs.stat(resolvedTarget).pipe(Effect.orElseSucceed(thunkUndefined));
   if (stat !== undefined && stat.type === "Directory") {
     const nestedTsconfigPath = path.join(resolvedTarget, "tsconfig.json");
-    const nestedTsconfigExists = yield* fs.exists(nestedTsconfigPath).pipe(Effect.orElseSucceed(() => false));
+    const nestedTsconfigExists = yield* fs.exists(nestedTsconfigPath).pipe(Effect.orElseSucceed(thunkFalse));
     if (nestedTsconfigExists) {
       return O.some(nestedTsconfigPath);
     }
@@ -586,7 +674,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     });
   }
 
-  const plannedChanges: Array<PlannedFileChange> = [];
+  const plannedChanges = A.empty<PlannedFileChange>();
 
   for (const workspace of targetWorkspaces) {
     if (workspace.ownerTsconfigPath === undefined) {
@@ -644,8 +732,8 @@ const planPackageReferenceSync = Effect.fn(function* (
     const extraTargets = existingResolvedTargets.filter((target) => !HashSet.has(computedResolvedTargetSet, target));
     const finalTargets = [...computedResolvedTargets, ...extraTargets];
 
-    const finalRefPaths = finalTargets.map((targetPath) => normalizeRelativeRef(sourceDir, targetPath, path));
-    const currentResolvedRefPaths = existingResolvedTargets.map((targetPath) =>
+    const finalRefPaths = A.map(finalTargets, (targetPath) => normalizeRelativeRef(sourceDir, targetPath, path));
+    const currentResolvedRefPaths = A.map(existingResolvedTargets, (targetPath) =>
       normalizeRelativeRef(sourceDir, targetPath, path)
     );
 
@@ -660,12 +748,13 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const summary = summaryCounts(currentResolvedRefPaths, finalRefPaths, "references");
-    plannedChanges.push({
-      filePath: sourceOwnerTsconfigPath,
-      section: "package-references",
-      summary,
-      content: nextContent,
-    });
+    plannedChanges.push(
+      PlannedFileChange.cases["package-references"].makeUnsafe({
+        filePath: sourceOwnerTsconfigPath,
+        summary,
+        content: nextContent,
+      })
+    );
 
     if (verbose) {
       const sourcePath = toPosixPath(path.relative(rootDir, sourceOwnerTsconfigPath));
@@ -759,7 +848,7 @@ export const syncTsconfigAtRoot: (
       });
     }
 
-    const plannedChanges: Array<PlannedFileChange> = [];
+    const plannedChanges = A.empty<PlannedFileChange>();
 
     const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
     if (O.isSome(rootReferenceChange)) {

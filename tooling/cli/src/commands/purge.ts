@@ -5,10 +5,13 @@
  * @module
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
+import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 
+const $I = $RepoCliId.create("purge");
 /**
  * Workspace-local artifact names to purge.
  *
@@ -52,11 +55,16 @@ const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
  * @since 0.0.0
  * @category DomainModel
  */
-export interface PurgeSummary {
-  readonly targetedCount: number;
-  readonly removedCount: number;
-  readonly workspaceCount: number;
-}
+export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
+  {
+    targetedCount: S.Number,
+    removedCount: S.Number,
+    workspaceCount: S.Number,
+  },
+  $I.annote("PurgeSummary", {
+    description: "Summary statistics returned after a purge run.",
+  })
+) {}
 
 /**
  * Build absolute purge targets from root + workspace artifact rules.

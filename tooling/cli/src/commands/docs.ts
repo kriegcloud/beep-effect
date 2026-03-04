@@ -5,16 +5,43 @@
  * @module
  */
 
-import { Console, Effect } from "effect";
+import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Console, Effect, pipe, Tuple } from "effect";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Argument, Command } from "effect/unstable/cli";
 
-interface DocsSection {
-  readonly name: "laws" | "skills" | "policies";
-  readonly title: string;
-  readonly summary: string;
-  readonly lines: ReadonlyArray<string>;
-  readonly keywords: ReadonlyArray<string>;
-}
+const $I = $RepoCliId.create("docs");
+
+const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
+  $I.annote("DocsSectionName", {
+    description: "Name of a docs section.",
+  })
+);
+
+type DocsSectionName = typeof DocsSectionName.Type;
+
+const makeDocsSectionMember = <T extends DocsSectionName>(name: S.Literal<T>) =>
+  S.Struct({
+    name: S.tag(name.literal),
+    title: S.String,
+    summary: S.String,
+    lines: S.Array(S.String),
+    keywords: S.Array(S.String),
+  });
+
+export const DocsSection = DocsSectionName.mapMembers(
+  Tuple.evolve([makeDocsSectionMember, makeDocsSectionMember, makeDocsSectionMember])
+)
+  .pipe(S.toTaggedUnion("name"))
+  .annotate(
+    $I.annote("DocsSection", {
+      description: "A section of documentation.",
+    })
+  );
+export type DocsSection = typeof DocsSection.Type;
 
 const DocsSections: ReadonlyArray<DocsSection> = [
   {
@@ -117,17 +144,17 @@ const docsFindCommand = Command.make(
     topic: Argument.string("topic").pipe(Argument.withDescription("Keyword to match against docs content")),
   },
   Effect.fn(function* ({ topic }) {
-    const normalizedTopic = topic.trim().toLowerCase();
-    const matches = DocsSections.filter((section) => {
-      if (section.name.includes(normalizedTopic)) {
+    const normalizedTopic = pipe(topic, Str.trim, Str.toLowerCase);
+    const matches = A.filter(DocsSections, (section) => {
+      if (Str.includes(normalizedTopic)(section.name)) {
         return true;
       }
 
-      if (section.title.toLowerCase().includes(normalizedTopic)) {
+      if (pipe(section.title, Str.toLowerCase, Str.includes(normalizedTopic))) {
         return true;
       }
 
-      return section.keywords.some((keyword) => keyword.includes(normalizedTopic));
+      return A.some(section.keywords, Str.includes(normalizedTopic));
     });
 
     if (matches.length === 0) {

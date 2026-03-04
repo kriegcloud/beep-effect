@@ -50,7 +50,7 @@ export const updatePackageManagerField: (
     formattingOptions: FORMATTING_OPTIONS,
   });
 
-  if (A.length(edits) === 0) {
+  if (A.isReadonlyArrayEmpty(edits)) {
     return false;
   }
 

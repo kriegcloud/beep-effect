@@ -10,6 +10,7 @@
  */
 
 import { FsUtils } from "@beep/repo-utils";
+import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
@@ -48,11 +49,11 @@ const isTsFile = (name: string): boolean => A.some(TS_EXTENSIONS, (ext) => Str.e
  * @since 0.0.0
  * @category Utility
  */
-const isTestFile = (name: string): boolean =>
-  Str.endsWith(".test.ts")(name) ||
-  Str.endsWith(".test.tsx")(name) ||
-  Str.endsWith(".spec.ts")(name) ||
-  Str.endsWith(".spec.tsx")(name);
+const isTestFile = (name: string): boolean => {
+  const endsWith = (searchString: string) => Str.endsWith(searchString)(name);
+
+  return endsWith(".test.ts") || endsWith(".test.tsx") || endsWith(".spec.ts") || endsWith(".spec.tsx");
+};
 
 /**
  * Convert a TypeScript filename to its corresponding `.js` import specifier.
@@ -200,7 +201,7 @@ export const codegenCommand = Command.make(
     const srcDir = pathSvc.join(packageDir, "src");
 
     // Verify src/ exists
-    const srcExists = yield* fs.exists(srcDir).pipe(Effect.orElseSucceed(() => false));
+    const srcExists = yield* fs.exists(srcDir).pipe(Effect.orElseSucceed(thunkFalse));
     if (!srcExists) {
       yield* Console.error(`Error: No src/ directory found at ${srcDir}`);
       return;
@@ -209,7 +210,7 @@ export const codegenCommand = Command.make(
     // Read package.json to extract the package name for the header
     const packageJsonPath = pathSvc.join(packageDir, "package.json");
     const packageName = yield* Effect.gen(function* () {
-      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(() => undefined as unknown));
+      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(thunkUndefined));
       if (
         P.isNotUndefined(json) &&
         P.isObject(json) &&
