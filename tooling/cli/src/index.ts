@@ -23,7 +23,7 @@ export {
    * @since 0.0.0
    */
   codegenCommand,
-} from "./commands/codegen.js";
+} from "./commands/Codegen.js";
 /**
  * Package scaffolding command for creating new workspace packages.
  *
@@ -36,7 +36,7 @@ export {
    * @since 0.0.0
    */
   createPackageCommand,
-} from "./commands/create-package/index.js";
+} from "./commands/CreatePackage/index.js";
 /**
  * Command-first docs discovery command tree.
  *
@@ -49,7 +49,7 @@ export {
    * @since 0.0.0
    */
   docsCommand,
-} from "./commands/docs.js";
+} from "./commands/Docs.js";
 
 /**
  * Purge command for removing root/workspace build artifacts.
@@ -63,7 +63,7 @@ export {
    * @since 0.0.0
    */
   purgeCommand,
-} from "./commands/purge.js";
+} from "./commands/Purge.js";
 /**
  * Root CLI command that composes subcommands.
  *
@@ -76,7 +76,7 @@ export {
    * @since 0.0.0
    */
   rootCommand,
-} from "./commands/root.js";
+} from "./commands/Root.js";
 /**
  * Dependency topological sort command.
  *
@@ -89,7 +89,7 @@ export {
    * @since 0.0.0
    */
   topoSortCommand,
-} from "./commands/topo-sort.js";
+} from "./commands/TopoSort.js";
 /**
  * Tsconfig sync command for workspace tsconfig references and root aliases.
  *
@@ -102,7 +102,7 @@ export {
    * @since 0.0.0
    */
   tsconfigSyncCommand,
-} from "./commands/tsconfig-sync.js";
+} from "./commands/TsconfigSync.js";
 /**
  * Version sync command for detecting and fixing version drift.
  *
@@ -115,4 +115,4 @@ export {
    * @since 0.0.0
    */
   versionSyncCommand,
-} from "./commands/version-sync/index.js";
+} from "./commands/VersionSync/index.js";

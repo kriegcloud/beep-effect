@@ -21,12 +21,12 @@ Before writing code, run this checklist:
 2. Can it be missing? Model absence with `Option`.
 3. Is input external? Decode with `Schema` at the boundary.
 4. Am I touching arrays/objects/strings? Use Effect modules, not native methods.
-5. Am I branching on shape/type? Use `Predicate` and `Match`.
+5. Am I branching on shape/type/array emptiness? Use `Predicate`, `Match`, and `A.match`.
 6. Am I defining services? Use `ServiceMap.Service` + `Layer` + Identity composer.
 7. Am I defining object schemas? Prefer `S.Class` (avoid `S.Struct` by default).
 8. For non-class schemas, did I export the runtime type alias with the same identifier name?
 9. Did I annotate schemas with canonical `$I.annote(...)` metadata?
-10. Is this a discriminated union schema? Prefer `S.TaggedUnion` or `S.toTaggedUnion`.
+10. Is this a discriminated union or literal-union schema? Prefer `LiteralKit` + `.mapMembers` + `Tuple.evolve` + `S.toTaggedUnion` (or `S.TaggedUnion` for `_tag` cases).
 11. Is this a reusable domain function returning an `Effect`? Use `Effect.fn` or `Effect.fnUntraced`.
 12. Is this effect observable? Add logs, span annotations, and metrics where relevant.
 13. Am I expressing durations/time windows? Use `effect/Duration`.
@@ -46,6 +46,14 @@ Before writing code, run this checklist:
 27. Am I encoding expected failure vs invariant defect correctly (`fail` vs `die`)?
 28. Am I providing layers where isolation matters? Use `Effect.provide(..., { local: true })` or `Layer.fresh(...)`.
 29. Am I about to write a plain `type` / `interface` that can be expressed as `Schema`? If yes, make Schema the source of truth.
+30. Am I adding fallback objects in handlers/services? Move defaults into schemas with `S.withConstructorDefault` and `S.withDecodingDefault*`.
+31. Am I writing a guard helper for strings/paths/tags? Prefer branded schemas + `S.is(...)` over ad-hoc `regex.test` helpers.
+32. Am I comparing schema-modeled domain values? Prefer `S.toEquivalence(...)` over direct `===` / `!==`.
+33. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
+34. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
+35. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
+36. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
+37. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
 
 ## Non-Negotiable Laws
 
@@ -66,10 +74,10 @@ Before writing code, run this checklist:
 10. Do not finish with failing `check`, `lint`, `test`, or `docgen`.
 11. Do not suffix schema constants with `Schema`; use the domain name.
 12. For non-class schemas, export runtime type aliases with the same name: `export type X = typeof X.Type`.
-13. Do not use native `switch`; use `effect/Match`.
+13. Do not use native `switch`; use `effect/Match`. For empty/non-empty array branching, prefer `A.match` over manual length checks.
 14. All new schemas must be meaningfully annotated with `$I.annote("Name", { description })`.
 15. Service identifiers must use package composer `.create(...)` and `$I\`MyService\``.
-16. Discriminated union schemas should prefer `S.TaggedUnion`; use `S.toTaggedUnion` for non-`_tag` unions.
+16. If a schema has properties that are a union of literal strings, it should be a tagged union composed via `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalized with `S.toTaggedUnion`. Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
 17. Reusable domain functions returning `Effect` should use `Effect.fn` (or `Effect.fnUntraced` for hot/internal paths). Combinator helpers and schema-derived constructors may return `Effect` directly.
 18. Effect workflows should be observable with logging, spans, and metrics (`effect/Metric` + `Effect.track*`).
 19. Durations and time windows should use `effect/Duration`, not ad-hoc number literals.
@@ -90,6 +98,14 @@ Before writing code, run this checklist:
 34. Use `Effect.fail` for expected business errors and reserve `Effect.die` / `Effect.orDie` for invariants and impossible states.
 35. When layer memoization sharing is unsafe, force isolation with `Effect.provide(..., { local: true })` or `Layer.fresh`.
 36. Schema-first development: if a data model can be represented as `Schema`, define the `Schema` first and derive runtime types from it; avoid plain `type` / `interface` for domain data shapes.
+37. Prefer schema-level defaults (`S.withConstructorDefault`, `S.withDecodingDefault`, `S.withDecodingDefaultKey`) instead of ad-hoc runtime fallback object literals.
+38. Guard predicates for domain strings/paths/tags should come from branded schemas via `S.is(...)`, not ad-hoc `regex.test(...)` helpers.
+39. For schema-modeled domain comparisons, prefer `S.toEquivalence(schema)` over manual `===` / `!==` checks.
+40. For deterministic format conversions, prefer schema transformations (`S.decodeTo` + `SchemaTransformation.transform`) over ad-hoc string conversion helpers.
+41. Never use native `Array.prototype.sort`; use `A.sort(values, order)` with explicit `Order` instances.
+42. Avoid ad-hoc `String(...)` coercion in domain logic; model unknown-to-string normalization with schema transformations and compare via schema equivalence.
+43. When branching on boolean values, use `Bool.match` from `effect/Boolean` instead of `Match.when(true/false)` or ad-hoc `if/else` chains.
+44. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
 
 ## Always / Never Examples
 
@@ -171,9 +187,34 @@ import * as P from "effect/Predicate"
 const isStringValue = P.isString(value)
 ```
 
+### 4b) Branded guards + equivalence + transformations
+
+```ts
+import { SchemaTransformation, String as Str } from "effect"
+import * as S from "effect/Schema"
+
+const CanonicalAliasKey = S.String.check(S.isPattern(/^@beep\/[^/*]+(?:\/\*)?$/)).pipe(
+  S.brand("CanonicalAliasKey")
+)
+const isCanonicalAliasKey = S.is(CanonicalAliasKey)
+
+const aliasKeyEq = S.toEquivalence(CanonicalAliasKey)
+
+const NativePathToPosixPath = S.String.pipe(
+  S.decodeTo(
+    S.String.check(S.isPattern(/^[^\\]*$/)).pipe(S.brand("PosixPath")),
+    SchemaTransformation.transform({
+      decode: (pathString) => Str.replaceAll("\\", "/")(pathString),
+      encode: (pathString) => pathString
+    })
+  )
+)
+```
+
 ### 5) Match over switch
 
 ```ts
+import * as A from "effect/Array"
 import * as Match from "effect/Match"
 
 type Status = "queued" | "running" | "failed"
@@ -193,26 +234,58 @@ const toLabel = (status: Status) =>
     Match.when("failed", () => "failed"),
     Match.exhaustive
   )
+
+const summarize = (items: ReadonlyArray<string>) =>
+  A.match(items, {
+    onEmpty: () => "none",
+    onNonEmpty: (values) => `count:${A.length(values)}`
+  })
 ```
 
 ### 6) Tagged unions and exhaustive branching
 
 ```ts
-import { Data } from "effect";
+import { LiteralKit } from "@beep/schema"
+import { $PackageNameId } from "@beep/identity/packages"
+import { Tuple } from "effect"
+import * as S from "effect/Schema"
 
-export type JobState = Data.TaggedEnum<{
-  readonly Queued: {};
-  readonly Running: { readonly workerId: string };
-  readonly Failed: { readonly reason: string };
-}>;
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export const JobState = Data.taggedEnum<JobState>();
+const JobStateTag = LiteralKit(["queued", "running", "failed"] as const)
 
-export const render = JobState.$match({
-  Queued: () => "queued",
-  Running: ({ workerId }) => `running:${workerId}`,
-  Failed: ({ reason }) => `failed:${reason}`,
-});
+export class JobQueued extends S.Class<JobQueued>($I`JobQueued`)(
+  { state: S.tag("queued") },
+  $I.annote("JobQueued", { description: "Queued job state." })
+) {}
+
+export class JobRunning extends S.Class<JobRunning>($I`JobRunning`)(
+  { state: S.tag("running"), workerId: S.String },
+  $I.annote("JobRunning", { description: "Running job state." })
+) {}
+
+export class JobFailed extends S.Class<JobFailed>($I`JobFailed`)(
+  { state: S.tag("failed"), reason: S.String },
+  $I.annote("JobFailed", { description: "Failed job state." })
+) {}
+
+export const JobState = JobStateTag
+  .mapMembers(Tuple.evolve([
+    () => JobQueued,
+    () => JobRunning,
+    () => JobFailed
+  ]))
+  .pipe(S.toTaggedUnion("state"))
+  .annotate($I.annote("JobState", { description: "Job lifecycle state union." }))
+
+export type JobState = typeof JobState.Type
+
+export const render = (state: JobState) =>
+  JobState.match(state, {
+    queued: () => "queued",
+    running: ({ workerId }) => `running:${workerId}`,
+    failed: ({ reason }) => `failed:${reason}`
+  })
 ```
 
 ### 7) Service identity via package composer
@@ -231,7 +304,9 @@ export class MyService extends ServiceMap.Service<MyService, {
 ### 8) Discriminated union schemas
 
 ```ts
+import { LiteralKit } from "@beep/schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { Tuple } from "effect"
 import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
@@ -240,7 +315,9 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 export const TaskEvent = S.TaggedUnion({
   Created: { id: S.String },
   Completed: { id: S.String, at: S.String }
-})
+}).annotate($I.annote("TaskEvent", {
+  description: "Canonical internal event union discriminated by `_tag`."
+}))
 
 // Use toTaggedUnion for external unions or non-standard discriminants.
 export class ExternalTaskCreated extends S.Class<ExternalTaskCreated>($I`ExternalTaskCreated`)({
@@ -254,10 +331,17 @@ export class ExternalTaskCompleted extends S.Class<ExternalTaskCompleted>($I`Ext
   at: S.String
 }) {}
 
-export const ExternalTaskEvent = S.Union([
-  ExternalTaskCreated,
-  ExternalTaskCompleted
-]).pipe(S.toTaggedUnion("kind"))
+const ExternalTaskKind = LiteralKit(["created", "completed"] as const)
+
+export const ExternalTaskEvent = ExternalTaskKind
+  .mapMembers(Tuple.evolve([
+    () => ExternalTaskCreated,
+    () => ExternalTaskCompleted
+  ]))
+  .pipe(S.toTaggedUnion("kind"))
+  .annotate($I.annote("ExternalTaskEvent", {
+    description: "External task events discriminated by `kind`."
+  }))
 ```
 
 ### 9) Effect-returning functions

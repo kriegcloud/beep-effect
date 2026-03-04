@@ -149,30 +149,34 @@ const findActiveEmail = (users: ReadonlyArray<{ readonly active: boolean; readon
 - Prefer `P.isString`, `P.isNumber`, `P.isObject`, and predicate composition.
 - Avoid raw `typeof`/ad-hoc runtime checks when a Predicate helper exists.
 
-### EF-7: Branch with `Match`; model states with `Data.TaggedEnum`
+### EF-7: Branch with `Match` / `A.match`; model states with schema tagged unions
 
-- For multi-branch domain states, use tagged unions and exhaustive matching.
 - Replace brittle if/else ladders with `Match`.
+- For empty/non-empty array branching, prefer `A.match` over manual length checks.
 - Do not use native `switch` statements for domain branching.
+- Model domain states as schema tagged unions (see EF-13), then branch exhaustively.
 
 Example:
 
 ```ts
-import { Data } from "effect"
+import * as A from "effect/Array"
+import * as Match from "effect/Match"
 
-type SyncState = Data.TaggedEnum<{
-  readonly Idle: {}
-  readonly Running: { readonly attempt: number }
-  readonly Failed: { readonly reason: string }
-}>
+type SyncPhase = "idle" | "running" | "failed"
 
-const SyncState = Data.taggedEnum<SyncState>()
+const phaseLabel = (phase: SyncPhase) =>
+  Match.value(phase).pipe(
+    Match.when("idle", () => "idle"),
+    Match.when("running", () => "running"),
+    Match.when("failed", () => "failed"),
+    Match.exhaustive
+  )
 
-const stateLabel = SyncState.$match({
-  Idle: () => "idle",
-  Running: ({ attempt }) => `running:${attempt}`,
-  Failed: ({ reason }) => `failed:${reason}`
-})
+const summarizeAttempts = (attempts: ReadonlyArray<number>) =>
+  A.match(attempts, {
+    onEmpty: () => "no-attempts",
+    onNonEmpty: (values) => `attempts:${A.length(values)}`
+  })
 ```
 
 ### EF-8: Services use `ServiceMap.Service` + `Layer`
@@ -234,42 +238,64 @@ export type Tenant = typeof Tenant.Type
 
 ### EF-13: Discriminated union schemas
 
-- Prefer `S.TaggedUnion` when using `_tag`-based variants.
-- Use `S.toTaggedUnion("fieldName")` for unions with non-`_tag` discriminants or external union sources.
-- Reference: [effect-smol schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1934).
+- If schema properties are a union of literal strings (for example `kind`, `state`, `category`), compose variants with `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalize with `S.toTaggedUnion("<field>")`.
+- Prefer `S.Class` for tagged union member schemas.
+- Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
+- Reference: [Effect schema docs](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md:1934).
 
 Example:
 
 ```ts
+import { LiteralKit } from "@beep/schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { Tuple } from "effect"
 import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export const JobEvent = S.TaggedUnion({
-  Created: { id: S.String },
-  Completed: { id: S.String, at: S.String }
-})
+const ExternalJobKind = LiteralKit(["created", "completed"] as const)
 
-export type JobEvent = typeof JobEvent.Type
+export class ExternalJobCreated extends S.Class<ExternalJobCreated>($I`ExternalJobCreated`)(
+  {
+    kind: S.tag("created"),
+    id: S.String
+  },
+  $I.annote("ExternalJobCreated", {
+    description: "Created event from external job source."
+  })
+) {}
 
-export class ExternalJobEventCreated extends S.Class<ExternalJobEventCreated>($I`ExternalJobEventCreated`)({
-  kind: S.tag("created"),
-  id: S.String
-}) {}
+export class ExternalJobCompleted extends S.Class<ExternalJobCompleted>($I`ExternalJobCompleted`)(
+  {
+    kind: S.tag("completed"),
+    id: S.String,
+    at: S.String
+  },
+  $I.annote("ExternalJobCompleted", {
+    description: "Completed event from external job source."
+  })
+) {}
 
-export class ExternalJobEventCompleted extends S.Class<ExternalJobEventCompleted>($I`ExternalJobEventCompleted`)({
-  kind: S.tag("completed"),
-  id: S.String,
-  at: S.String
-}) {}
-
-export const ExternalJobEvent = S.Union([
-  ExternalJobEventCreated,
-  ExternalJobEventCompleted
-]).pipe(S.toTaggedUnion("kind"))
+export const ExternalJobEvent = ExternalJobKind
+  .mapMembers(
+    Tuple.evolve([
+      () => ExternalJobCreated,
+      () => ExternalJobCompleted
+    ])
+  )
+  .pipe(S.toTaggedUnion("kind"))
+  .annotate($I.annote("ExternalJobEvent", {
+    description: "External job event union discriminated by `kind`."
+  }))
 
 export type ExternalJobEvent = typeof ExternalJobEvent.Type
+
+export const InternalJobEvent = S.TaggedUnion({
+  Created: { id: S.String },
+  Completed: { id: S.String, at: S.String }
+}).annotate($I.annote("InternalJobEvent", {
+  description: "Canonical internal union discriminated by `_tag`."
+}))
 ```
 
 ### EF-14: Effect-returning functions use `Effect.fn` or `Effect.fnUntraced`
@@ -686,6 +712,138 @@ export class CreateOrderInput extends S.Class<CreateOrderInput>($I`CreateOrderIn
 ) {}
 ```
 
+### EF-34: Schema defaults over fallback object logic
+
+- Put defaults in schema definitions, not in handler/service fallback object literals.
+- Use `S.withConstructorDefault` for constructor-time defaults.
+- Use `S.withDecodingDefault` / `S.withDecodingDefaultKey` for decode-time defaults.
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as O from "effect/Option"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSyncOptions`)(
+  {
+    shouldCheck: S.Boolean.pipe(
+      S.withDecodingDefault(() => true),
+      S.withConstructorDefault(() => O.some(true))
+    ),
+    categories: S.Array(S.String).pipe(
+      S.withDecodingDefault(() => []),
+      S.withConstructorDefault(() => O.some([]))
+    )
+  },
+  $I.annote("VersionSyncOptions", {
+    description: "Version sync options with schema-level defaults."
+  })
+) {}
+```
+
+### EF-35: Guard predicates should come from branded schemas
+
+- If a guard validates domain strings/paths/tags, define a branded schema and use `S.is(...)`.
+- Prefer schema-backed guards over ad-hoc `regex.test(...)` helpers.
+- Keep guard intent in schema annotations.
+
+Example:
+
+```ts
+import { $PackageNameId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+export const CanonicalAliasKey = S.String.check(S.isPattern(/^@beep\/[^/*]+(?:\/\*)?$/)).pipe(
+  S.brand("CanonicalAliasKey"),
+  S.annotate($I.annote("CanonicalAliasKey", {
+    description: "Canonical @beep alias key for tsconfig paths."
+  }))
+)
+
+export const isCanonicalAliasKey = S.is(CanonicalAliasKey)
+```
+
+### EF-36: Prefer schema equivalence for domain comparisons
+
+- For schema-modeled domain values, use `S.toEquivalence(schema)` instead of manual `===` / `!==`.
+- This keeps comparison semantics aligned with schema intent and future schema changes.
+
+Example:
+
+```ts
+import * as S from "effect/Schema"
+
+const stringArrayEq = S.toEquivalence(S.Array(S.String))
+
+const arraysEqual = (left: ReadonlyArray<string>, right: ReadonlyArray<string>) =>
+  stringArrayEq(left, right)
+```
+
+### EF-37: Use schema transformations for deterministic conversions
+
+- If conversion is deterministic and type-shaping (path normalization, filename conversion, tagged-string normalization), model it with `S.decodeTo(..., SchemaTransformation.transform(...))`.
+- Prefer schema transformation helpers over ad-hoc conversion functions.
+
+Example:
+
+```ts
+import { SchemaTransformation, String as Str } from "effect"
+import * as S from "effect/Schema"
+
+const NativePathToPosixPath = S.String.pipe(
+  S.decodeTo(
+    S.String.check(S.isPattern(/^[^\\]*$/)).pipe(S.brand("PosixPath")),
+    SchemaTransformation.transform({
+      decode: (pathString) => Str.replaceAll("\\", "/")(pathString),
+      encode: (pathString) => pathString
+    })
+  )
+)
+```
+
+### EF-38: Never use native array sort in Effect-first code
+
+- Use `A.sort(values, order)` from `effect/Array`.
+- Define ordering with `effect/Order` (`Order.String`, `Order.Number`, `Order.mapInput`, etc.).
+- Do not call native `.sort()` directly on arrays.
+
+Example:
+
+```ts
+import { Order } from "effect"
+import * as A from "effect/Array"
+
+const byName = Order.mapInput(Order.String, (item: { readonly name: string }) => item.name)
+const sorted = A.sort(items, byName)
+```
+
+### EF-39: Avoid ad-hoc `String(...)` coercion for domain comparisons
+
+- When unknown/scalar data must normalize to domain strings, model the conversion with schema transformations.
+- Compare resulting values with `S.toEquivalence(S.String)` (or domain schema equivalence), not raw string equality.
+
+Example:
+
+```ts
+import { SchemaTransformation } from "effect"
+import * as S from "effect/Schema"
+
+const UnknownToString = S.Unknown.pipe(
+  S.decodeTo(
+    S.String,
+    SchemaTransformation.transform({
+      decode: (value) => `${value}`,
+      encode: (value) => value
+    })
+  )
+)
+```
+
 ## Copy-Paste Templates
 
 ### Template: Tagged error with Identity composer
@@ -764,6 +922,7 @@ export class UserProfile extends S.Class<UserProfile>($I`UserProfile`)(
 ### Template: Match over switch
 
 ```ts
+import * as A from "effect/Array"
 import * as Match from "effect/Match"
 
 type Phase = "draft" | "running" | "done"
@@ -775,6 +934,12 @@ const phaseLabel = (phase: Phase) =>
     Match.when("done", () => "done"),
     Match.exhaustive
   )
+
+const summarize = (items: ReadonlyArray<string>) =>
+  A.match(items, {
+    onEmpty: () => "none",
+    onNonEmpty: (values) => `count:${A.length(values)}`
+  })
 ```
 
 ### Template: Effect-returning function constructor
@@ -902,7 +1067,7 @@ Use this before submitting code:
 4. Unknown input decoded with `Schema`.
 5. `A/O/P/R/S` aliases present and used.
 6. No native `Object/Map/Set/Date/String` helpers in domain logic.
-7. Branching logic is exhaustive where appropriate (`Match.exhaustive` or `Data.TaggedEnum.$match`).
+7. Branching logic is exhaustive where appropriate (`Match.exhaustive`, schema `.match`, and `A.match` for array emptiness).
 8. No new schema constants end with `Schema`.
 9. For non-class schemas, new schema constants expose `export type X = typeof X.Type`.
 10. New schemas are annotated using `$I.annote(...)`.
@@ -927,3 +1092,8 @@ Use this before submitting code:
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
+32. Literal-string discriminant unions use `LiteralKit` + `.mapMembers` + `Tuple.evolve` + `S.toTaggedUnion`.
+33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefault*`, not ad-hoc fallback objects in handlers/services.
+34. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.
+35. Schema-modeled comparisons use `S.toEquivalence(...)` where practical.
+36. Deterministic format conversions use `S.decodeTo(..., SchemaTransformation.transform(...))`.

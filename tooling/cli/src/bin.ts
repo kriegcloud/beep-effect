@@ -13,7 +13,7 @@ import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
-import { rootCommand } from "./commands/root.js";
+import { rootCommand } from "./commands/Root.js";
 
 /**
  * Foundation layer providing Node.js implementations of FileSystem, Path, and Terminal.

@@ -29,7 +29,7 @@
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
     "dist/**/*.d.ts.map",
-    "dist/commands/create-package/templates/**/*.hbs"
+    "dist/commands/CreatePackage/templates/**/*.hbs"
   ],
   "publishConfig": {
     "access": "public",

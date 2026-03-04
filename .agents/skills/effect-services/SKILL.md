@@ -63,12 +63,24 @@ class Notifications extends ServiceMap.Service<Notifications, {
 
 Prefer `yield*` over `.use()` — it makes dependencies visible at the call site.
 
+Exception: in callback-only APIs (for example `SchemaTransformation.transform*` decode/encode callbacks) where `yield*` is not available, use `ServiceMap.Service.use(...)` directly.
+
 ```ts
 // WHY: yield* in Effect.fn makes the Notifications dependency appear in the R channel.
 const sendWelcome = Effect.fn("sendWelcome")(function*(userId: string) {
   const notifications = yield* Notifications
   yield* notifications.notify(`Welcome ${userId}`)
 })
+
+const JsoncTextToUnknown = S.String.pipe(
+  S.decodeTo(
+    S.Unknown,
+    SchemaTransformation.transformOrFail({
+      decode: (content) => JsoncCodecService.use((service) => service.parseUnknown(content)),
+      encode: (value) => Effect.fail(`unsupported encode: ${value}`)
+    })
+  )
+)
 ```
 
 ## Step 5: Compose Layers

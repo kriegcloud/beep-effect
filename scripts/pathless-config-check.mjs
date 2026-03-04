@@ -7,7 +7,7 @@ const TARGET_FILES = [
   "AGENTS.md",
   "CLAUDE.md",
   ".claude/rules/agent-instructions.md",
-  "tooling/cli/src/commands/create-package/templates/AGENTS.md.hbs",
+  "tooling/cli/src/commands/CreatePackage/templates/AGENTS.md.hbs",
 ];
 
 const repoRoot = process.cwd();
