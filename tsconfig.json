@@ -38,6 +38,7 @@
       "@beep/identity/*": ["./packages/common/identity/src/*.ts"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["./packages/common/schema/src/*.ts"],
+      "@beep/schema/test/*": ["./packages/common/schema/test/*"],
       "@beep/messages": ["./packages/common/messages/src/index.ts"],
       "@beep/messages/*": ["./packages/common/messages/src/*.ts"],
       "@beep/data": ["./packages/common/data/src/index.ts"],

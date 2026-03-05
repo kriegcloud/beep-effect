@@ -1,4 +1,4 @@
-import { Struct } from "@beep/utils";
+import { type A, Struct } from "@beep/utils";
 import { pipe } from "effect/Function";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
@@ -24,18 +24,35 @@ describe("dotGet", () => {
     expect(Struct.dotGetOption(source, ["attributes", "name"] as const)).type.toBe<O.Option<"beep">>();
   });
 
-  it("rejects invalid or open-record paths", () => {
+  it("rejects invalid string paths", () => {
     const source = { attributes: { name: "beep" } } as const;
-    const notAStruct = {} as Record<string, unknown>;
 
     // @ts-expect-error not assignable to parameter of type
     Struct.dotGet(source, "attributes.missing");
+  });
 
-    // @ts-expect-error not assignable to parameter of type
-    Struct.dotGet(notAStruct, "attributes.name");
+  it("accepts Record paths and returns unknown", () => {
+    const record = {} as Record<string, unknown>;
+    expect(Struct.dotGet(record, "anything")).type.toBe<unknown>();
+  });
 
-    // @ts-expect-error not assignable to parameter of type
-    Struct.dotGet(source, ["attributes", "missing"] as const);
+  it("accepts tuple paths without validation and returns unknown for invalid", () => {
+    const source = { attributes: { name: "beep" } } as const;
+    expect(Struct.dotGet(source, ["attributes", "missing"] as const)).type.toBe<unknown>();
+  });
+
+  it("resolves tuple element types via numeric string paths", () => {
+    const source = { tags: ["a", "b", "c"] as const, items: [{ name: "x" }] as const } as const;
+
+    expect(Struct.dotGet(source, "tags.0")).type.toBe<"a">();
+    expect(Struct.dotGet(source, "items.0")).type.toBe<{ readonly name: "x" }>();
+    expect(Struct.dotGet(source, "items.0.name")).type.toBe<"x">();
+  });
+
+  it("resolves array element types via number template paths", () => {
+    const source = { values: [1, 2, 3] as number[] };
+
+    expect(Struct.dotGet(source, `values.${0}`)).type.toBe<number | undefined>();
   });
 
   it("includes undefined in value types when a path crosses optional properties", () => {
@@ -94,5 +111,62 @@ describe("reverse", () => {
 
     // @ts-expect-error not assignable to parameter of type
     Struct.reverse(invalid);
+  });
+});
+
+describe("pathsOf", () => {
+  it("returns NonEmptyReadonlyArray of literal path union", () => {
+    const source = { a: { b: 1 }, c: "hello" } as const;
+    expect(Struct.pathsOf(source)).type.toBe<A.NonEmptyReadonlyArray<"a" | "a.b" | "c">>();
+  });
+
+  it("includes array index paths", () => {
+    const source = { items: [{ name: "x" }] } as const;
+    type P = typeof source extends infer S extends object ? Extract<import("type-fest").Paths<S>, string> : never;
+    expect(Struct.pathsOf(source)).type.toBe<A.NonEmptyReadonlyArray<P>>();
+  });
+});
+
+describe("entries", () => {
+  it("preserves per-key correlated types", () => {
+    const source = { a: "foo", b: 1 } as const;
+    const result = Struct.entries(source);
+    expect(result).type.toBe<Array<["a", "foo"] | ["b", 1]>>();
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true } as const;
+    const result = Struct.entries(source);
+    expect(result).type.toBe<Array<["a", "foo"]>>();
+  });
+});
+
+describe("keys", () => {
+  it("returns string keys", () => {
+    const source = { a: "foo", b: 1 } as const;
+    expect(Struct.keys(source)).type.toBe<Array<"a" | "b">>();
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true } as const;
+    expect(Struct.keys(source)).type.toBe<Array<"a">>();
+  });
+});
+
+describe("fromEntries", () => {
+  it("preserves per-key value types", () => {
+    const result = Struct.fromEntries([
+      ["a", 1],
+      ["b", "hello"],
+    ] as const);
+    expect(result).type.toBe<{ a: 1; b: "hello" }>();
+  });
+
+  it("roundtrips with entries for const objects", () => {
+    const source = { x: 10, y: 20 } as const;
+    const result = Struct.fromEntries(Struct.entries(source));
+    expect(result).type.toBe<{ x: 10; y: 20 }>();
   });
 });

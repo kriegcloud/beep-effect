@@ -50,6 +50,28 @@ describe("@beep/utils Struct.dotGet", () => {
     expect(maybeNameB).toBeUndefined();
   });
 
+  it("accesses tuple elements via numeric string paths", () => {
+    const source = { tags: ["a", "b", "c"], items: [{ name: "x" }] } as const;
+
+    expect(Struct.dotGet(source, "tags.0")).toBe("a");
+    expect(Struct.dotGet(source, "tags.2")).toBe("c");
+    expect(Struct.dotGet(source, "items.0")).toEqual({ name: "x" });
+    expect(Struct.dotGet(source, "items.0.name")).toBe("x");
+  });
+
+  it("accesses regular array elements via numeric string paths", () => {
+    const source = { values: [10, 20, 30] };
+
+    expect(Struct.dotGet(source, "values.0")).toBe(10);
+    expect(Struct.dotGet(source, "values.2")).toBe(30);
+  });
+
+  it("returns undefined for out-of-bounds array access", () => {
+    const source = { tags: ["a"] } as const;
+    // @ts-expect-error
+    expect(Struct.dotGet(source, "tags.5")).toBeUndefined();
+  });
+
   it("returns Option values with path existence semantics", () => {
     const source = { attributes: { name: "beep" }, maybeUndefined: undefined as string | undefined } as const;
     const missing = { attributes: {} } as unknown as { attributes: { name: string } };
@@ -111,5 +133,80 @@ describe("@beep/utils Struct.reverse", () => {
 
     expect(reversed.X).toBe("SECOND");
     expectTypeOf(reversed.X).toEqualTypeOf<"FIRST" | "SECOND">();
+  });
+});
+
+describe("@beep/utils Struct.pathsOf", () => {
+  it("collects all dot-delimited paths from a struct", () => {
+    const source = { a: { b: 1 }, c: "hello" } as const;
+    const result = Struct.pathsOf(source);
+    expect(result).toEqual(["a", "a.b", "c"]);
+  });
+
+  it("returns flat keys for a flat struct", () => {
+    const source = { x: 1, y: 2 } as const;
+    expect(Struct.pathsOf(source)).toEqual(["x", "y"]);
+  });
+
+  it("handles deeply nested structs", () => {
+    const source = { a: { b: { c: 1 } } } as const;
+    expect(Struct.pathsOf(source)).toEqual(["a", "a.b", "a.b.c"]);
+  });
+});
+
+describe("@beep/utils Struct.entries", () => {
+  it("returns key-value pairs for string keys", () => {
+    const source = { a: "foo", b: 1 };
+    const result = Struct.entries(source);
+    expect(result).toEqual([
+      ["a", "foo"],
+      ["b", 1],
+    ]);
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true };
+    const result = Struct.entries(source);
+    expect(result).toEqual([["a", "foo"]]);
+  });
+});
+
+describe("@beep/utils Struct.keys", () => {
+  it("returns string keys of an object", () => {
+    const source = { a: "foo", b: 1, c: true };
+    const result = Struct.keys(source);
+    expect(result).toEqual(["a", "b", "c"]);
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true };
+    const result = Struct.keys(source);
+    expect(result).toEqual(["a"]);
+  });
+});
+
+describe("@beep/utils Struct.fromEntries", () => {
+  it("creates an object from entries", () => {
+    const result = Struct.fromEntries([
+      ["a", 1],
+      ["b", "hello"],
+    ] as const);
+    expect(result).toEqual({ a: 1, b: "hello" });
+  });
+
+  it("roundtrips with entries", () => {
+    const source = { x: 10, y: 20 };
+    const result = Struct.fromEntries(Struct.entries(source));
+    expect(result).toEqual(source);
+  });
+
+  it("last value wins for duplicate keys", () => {
+    const result = Struct.fromEntries([
+      ["a", 1],
+      ["a", 2],
+    ] as const);
+    expect(result).toEqual({ a: 2 });
   });
 });

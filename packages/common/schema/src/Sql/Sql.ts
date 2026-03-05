@@ -1,8 +1,9 @@
 import { $SchemaId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
-import * as Str from "@beep/utils/Str";
+import { Str } from "@beep/utils";
 import * as S from "effect/Schema";
+import { VariantSchema } from "effect/unstable/schema";
 
 const $I = $SchemaId.create("Sql/Sql");
 
@@ -536,3 +537,34 @@ export declare namespace StringColumnTypeDataConstraint {
    */
   export type Encoded = typeof StringColumnTypeDataConstraint.Encoded;
 }
+
+/**
+ * @since 0.0.0
+ */
+export interface MakeOptions<Variants extends ReadonlyArray<string>, Default extends Variants[number]> {
+  readonly defaultVariant: Default;
+  readonly variants: Variants;
+}
+
+/**
+ * @since 0.0.0
+ */
+export interface MakeReturn<Variants extends ReadonlyArray<string>, Default extends Variants[number]> {
+  readonly Class: ReturnType<typeof VariantSchema.make<Variants, Default>>["Class"];
+  readonly extract: ReturnType<typeof VariantSchema.make<Variants, Default>>["extract"];
+  readonly Field: ReturnType<typeof VariantSchema.make<Variants, Default>>["Field"];
+  readonly FieldExcept: ReturnType<typeof VariantSchema.make<Variants, Default>>["FieldExcept"];
+  readonly FieldOnly: ReturnType<typeof VariantSchema.make<Variants, Default>>["FieldOnly"];
+  readonly fieldEvolve: ReturnType<typeof VariantSchema.make<Variants, Default>>["fieldEvolve"];
+  readonly Struct: ReturnType<typeof VariantSchema.make<Variants, Default>>["Struct"];
+  readonly Union: ReturnType<typeof VariantSchema.make<Variants, Default>>["Union"];
+}
+
+/**
+ * @since 0.0.0
+ */
+export const make = <const Variants extends ReadonlyArray<string>, const Default extends Variants[number]>(
+  options: MakeOptions<Variants, Default>
+): MakeReturn<Variants, Default> => {
+  return VariantSchema.make(options);
+};

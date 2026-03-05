@@ -194,6 +194,8 @@
     "Unsandboxed",
     "Reverseable",
     "SQLSTATE",
+    "NAMEDATALEN",
+    "BIGSERIAL",
     "sqlstate",
     "sqlclient",
     "sqlconnection",

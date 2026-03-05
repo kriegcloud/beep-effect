@@ -1,16 +1,5 @@
 {
-  "preset": "tsgo",
-  "files": [
-    "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "apps/**/*.d.ts",
-    "packages/**/*.ts",
-    "packages/**/*.tsx",
-    "packages/**/*.d.ts",
-    "tooling/**/*.ts",
-    "tooling/**/*.tsx",
-    "tooling/**/*.d.ts"
-  ],
+  "preset": "typescript",
   "ignorePatterns": [
     "**/node_modules/**",
     "**/.git/**",
@@ -25,5 +14,11 @@
     "autoIndex": true,
     "indexConcurrency": 8,
     "enableWatchers": true
+  },
+  "serverCharacteristics": {
+    "documentOpenDelay": 1000,
+    "readinessCheckTimeout": 1000,
+    "initialDiagnosticsTimeout": 10000,
+    "operationTimeout": 60000
   }
 }

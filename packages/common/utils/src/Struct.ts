@@ -1,115 +1,10 @@
 import type { TUnsafe } from "@beep/types";
 import { Function as Fn, String as Str } from "effect";
+import type * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import type { Get, Paths, Simplify } from "type-fest";
 
-type Depth = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-type PreviousDepth = {
-  0: 0;
-  1: 0;
-  2: 1;
-  3: 2;
-  4: 3;
-  5: 4;
-  6: 5;
-  7: 6;
-  8: 7;
-  9: 8;
-  10: 9;
-};
-type IsAny<T> = 0 extends 1 & T ? true : false;
-type HasIndexSignature<T extends object> = string extends keyof T ? true : number extends keyof T ? true : false;
-type StringKeys<T extends object> = Extract<keyof T, string>;
-type DescendTarget<T> = Extract<NonNullable<T>, object>;
-type Prepend<Head extends string, Tail extends ReadonlyArray<string>> = readonly [Head, ...Tail];
-type CanDescend<T> = [DescendTarget<T>] extends [never]
-  ? false
-  : DescendTarget<T> extends (...args: ReadonlyArray<unknown>) => unknown
-    ? false
-    : DescendTarget<T> extends readonly unknown[]
-      ? false
-      : true;
-
-/**
- * Dot-delimited key paths for a struct with fixed keys.
- *
- * - Rejects open index-signature records like `Record<string, any>`.
- * - Stops recursion at arrays, functions, and primitive leaves.
- * - Uses a bounded depth to avoid runaway type instantiation.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type StructPath<S extends object, MaxDepth extends Depth = 6> =
-  IsAny<S> extends true
-    ? never
-    : HasIndexSignature<S> extends true
-      ? never
-      : {
-          [K in StringKeys<S>]: CanDescend<S[K]> extends true
-            ? MaxDepth extends 0
-              ? K
-              : K | `${K}.${StructPath<DescendTarget<S[K]>, PreviousDepth[MaxDepth]>}`
-            : K;
-        }[StringKeys<S>];
-
-/**
- * Tuple key paths for a struct with fixed keys.
- *
- * Prefer this form when keys may contain `.` characters.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type StructPathTuple<S extends object, MaxDepth extends Depth = 6> =
-  IsAny<S> extends true
-    ? never
-    : HasIndexSignature<S> extends true
-      ? never
-      : {
-          [K in StringKeys<S>]: CanDescend<S[K]> extends true
-            ? MaxDepth extends 0
-              ? readonly [K]
-              : readonly [K] | Prepend<K, StructPathTuple<DescendTarget<S[K]>, PreviousDepth[MaxDepth]>>
-            : readonly [K];
-        }[StringKeys<S>];
-
-/**
- * Resolves the value type at a dot-delimited {@link StructPath}.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type StructPathValue<S, P extends string> = P extends `${infer Head}.${infer Tail}`
-  ? Head extends keyof S
-    ? StructPathValue<NonNullable<S[Head]>, Tail> | (undefined extends S[Head] ? undefined : never)
-    : never
-  : P extends keyof S
-    ? S[P]
-    : never;
-
-/**
- * Resolves the value type at a tuple {@link StructPathTuple}.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type StructPathTupleValue<S, P extends ReadonlyArray<string>> = P extends readonly [
-  infer Head extends string,
-  ...infer Tail extends ReadonlyArray<string>,
-]
-  ? Head extends keyof S
-    ? Tail extends []
-      ? S[Head]
-      : StructPathTupleValue<NonNullable<S[Head]>, Tail> | (undefined extends S[Head] ? undefined : never)
-    : never
-  : never;
-
-type StructForPath<S extends object, P extends string> = P extends StructPath<S> ? S : never;
-type StructValueForPath<S extends object, P extends string> = P extends StructPath<S> ? StructPathValue<S, P> : never;
-type StructForPathTuple<S extends object, P extends ReadonlyArray<string>> = P extends StructPathTuple<S> ? S : never;
-type StructValueForPathTuple<S extends object, P extends ReadonlyArray<string>> =
-  P extends StructPathTuple<S> ? StructPathTupleValue<S, P> : never;
 type PathInput = string | ReadonlyArray<string>;
 type PathLookup =
   | {
@@ -140,7 +35,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
     if (P.isNullish(current)) {
       return { found: false };
     }
-    if (P.not(P.isObject)(current) && P.not(P.isFunction)(current)) {
+    if (!P.isObject(current) && !Array.isArray(current) && !P.isFunction(current)) {
       return { found: false };
     }
 
@@ -161,6 +56,8 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
 /**
  * Retrieves a value from a struct by a path.
  *
+ * Uses type-fest `Paths` for path validation and `Get` for value resolution.
+ *
  * Supports a dual API:
  * - Data-last: `dotGet("attributes.name")(self)`
  * - Data-first: `dotGet(self, "attributes.name")`
@@ -170,22 +67,18 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
  * @category Utility
  */
 export const dotGet: {
-  <const P extends string>(path: P): <S extends object>(self: StructForPath<S, P>) => StructValueForPath<S, P>;
-  <const P extends ReadonlyArray<string>>(
-    path: P
-  ): <S extends object>(self: StructForPathTuple<S, P>) => StructValueForPathTuple<S, P>;
-  <S extends object, const P extends StructPath<S>>(self: S, path: P): StructPathValue<S, P>;
-  <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): StructPathTupleValue<S, P>;
+  <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
+  <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
+  <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;
+  <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): Get<S, P>;
 } = Fn.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? lookup.value : undefined;
 }) as {
-  <const P extends string>(path: P): <S extends object>(self: StructForPath<S, P>) => StructValueForPath<S, P>;
-  <const P extends ReadonlyArray<string>>(
-    path: P
-  ): <S extends object>(self: StructForPathTuple<S, P>) => StructValueForPathTuple<S, P>;
-  <S extends object, const P extends StructPath<S>>(self: S, path: P): StructPathValue<S, P>;
-  <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): StructPathTupleValue<S, P>;
+  <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
+  <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
+  <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;
+  <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): Get<S, P>;
 };
 
 /**
@@ -198,32 +91,71 @@ export const dotGet: {
  * @category Utility
  */
 export const dotGetOption: {
-  <const P extends string>(
-    path: P
-  ): <S extends object>(self: StructForPath<S, P>) => O.Option<StructValueForPath<S, P>>;
-  <const P extends ReadonlyArray<string>>(
-    path: P
-  ): <S extends object>(self: StructForPathTuple<S, P>) => O.Option<StructValueForPathTuple<S, P>>;
-  <S extends object, const P extends StructPath<S>>(self: S, path: P): O.Option<StructPathValue<S, P>>;
-  <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
+  <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => O.Option<Get<S, P>>;
+  <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => O.Option<Get<S, P>>;
+  <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<Get<S, P>>;
+  <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<Get<S, P>>;
 } = Fn.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
   const lookup = lookupAtPath(self, path);
   return lookup.found ? O.some(lookup.value) : O.none();
 }) as {
-  <const P extends string>(
-    path: P
-  ): <S extends object>(self: StructForPath<S, P>) => O.Option<StructValueForPath<S, P>>;
-  <const P extends ReadonlyArray<string>>(
-    path: P
-  ): <S extends object>(self: StructForPathTuple<S, P>) => O.Option<StructValueForPathTuple<S, P>>;
-  <S extends object, const P extends StructPath<S>>(self: S, path: P): O.Option<StructPathValue<S, P>>;
-  <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
+  <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => O.Option<Get<S, P>>;
+  <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => O.Option<Get<S, P>>;
+  <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<Get<S, P>>;
+  <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<Get<S, P>>;
 };
 // bench
 
 /**
+ * Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of literal strings.
+ *
+ * Recursively walks the object at runtime, collecting every dot-delimited path
+ * that `Paths<S>` would generate at the type level.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const pathsOf = <const S extends object>(obj: S): A.NonEmptyReadonlyArray<Extract<Paths<S>, string>> => {
+  const result: Array<string> = [];
+  const walk = (current: unknown, prefix: string): void => {
+    if (P.isNullish(current) || !P.isObject(current)) return;
+    for (const key of Object.keys(current as object)) {
+      const path = prefix ? `${prefix}.${key}` : key;
+      result.push(path);
+      walk((current as Record<string, unknown>)[key], path);
+    }
+  };
+  walk(obj, "");
+  return result as TUnsafe.Any;
+};
+
+/**
+ * A single `[key, value]` pair for a string key of `T`, preserving per-key correlation.
+ *
+ * @since 0.2.0
+ * @category DomainModel
+ */
+export type StringKeyEntry<T> = { [K in keyof T & string]: [K, T[K]] }[keyof T & string];
+
+/**
+ * An array of `[key, value]` pairs for all string keys of `T`, preserving per-key correlation.
+ *
+ * Unlike type-fest's `Entries<T>`, this narrows each entry so that the value type
+ * is correlated with its key — `["a", string] | ["b", number]` rather than
+ * `["a" | "b", string | number]`.
+ *
+ * @since 0.2.0
+ * @category DomainModel
+ */
+export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
+
+/**
  * Retrieves the entries (key-value pairs) of an object, where keys are strings,
  * in a type-safe manner. Symbol keys are excluded from the result.
+ *
+ * Each entry preserves per-key correlation: for `{ a: string; b: number }`,
+ * the return type is `Array<["a", string] | ["b", number]>` rather than
+ * `Array<["a" | "b", string | number]>`.
  *
  * @example
  * ```ts-morph
@@ -233,15 +165,35 @@ export const dotGetOption: {
  * const c = Symbol("c")
  * const value = { a: "foo", b: 1, [c]: true }
  *
- * const entries: Array<["a" | "b", string | number]> = Struct.entries(value)
+ * const entries: Array<["a", string] | ["b", number]> = Struct.entries(value)
  *
  * assert.deepStrictEqual(entries, [["a", "foo"], ["b", 1]])
  * ```
  *
  * @since 3.17.0
  */
-export const entries = <const R>(obj: R): Array<[keyof R & string, R[keyof R & string]]> =>
-  Object.entries(obj as TUnsafe.Any) as TUnsafe.Any;
+export const entries = <const R>(obj: R): StringKeyEntries<R> => Object.entries(obj as TUnsafe.Any) as TUnsafe.Any;
+
+/**
+ * Returns the string keys of an object in a type-safe manner.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const keys = <const R extends object>(obj: R): Array<keyof R & string> => Object.keys(obj) as TUnsafe.Any;
+
+/**
+ * Type-safe `Object.fromEntries` that preserves per-key value types.
+ *
+ * Accepts an iterable of `[key, value]` pairs and produces an object
+ * whose type is the simplified union of all entries.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
+  entries: Iterable<E>
+): Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }> => Object.fromEntries(entries) as TUnsafe.Any;
 
 /**
  * Re-exports all `Struct` helpers from Effect.

@@ -8,14 +8,18 @@
  * @since 0.0.0
  * @category Configuration
  */
-export * as Array from "./Array.ts";
+export * as A from "./Array.ts";
 
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export * as Bool from "./Bool.ts";
-
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export * as Str from "./Str.ts";
 /**
  * @since 0.0.0
  * @category Configuration
@@ -31,3 +35,8 @@ export * as Text from "./Text.ts";
  * @category Configuration
  */
 export * from "./thunk.ts";
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export * as Thunk from "./thunk.ts";

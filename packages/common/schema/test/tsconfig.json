@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.json",
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false
+  }
+}

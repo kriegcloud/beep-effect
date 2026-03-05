@@ -21,11 +21,12 @@ description: "Use for lsmcp symbol and index workflows plus troubleshooting star
 
 ## Common Failures
 - Handshake closes with `initialize response`.
-- Timeout on heavier calls (`get_project_overview`, wide scans).
+- Timeout on wider scans when root is the full monorepo.
 - Runtime crash on `node:sqlite` when launched with `--bun`.
 
 ## Fix Patterns
 - Launch args should be:
-  `bunx -y @mizchi/lsmcp -p tsgo`
+  `bunx -y @mizchi/lsmcp -p typescript`
 - Do not include `--bun` in MCP config args.
+- Use scoped roots for reliability (for example `tooling/configs` or a package path) instead of the repo root.
 - Start with low-cost calls, then narrow scope (`file`, `paths`, `limit`).
