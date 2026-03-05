@@ -1,0 +1,284 @@
+{
+  "repo": "typescript-compute-module",
+  "repoUrl": "https://github.com/palantir/typescript-compute-module",
+  "summary": "Node.js SDK (@palantir/compute-module v0.2.12) implementing the Palantir Compute Module specification. Compute modules are containerized server-side computation units that run within Foundry in two execution modes: 'Functions' mode (request/response and streaming query handling via a polling-based job runner) and 'Pipelines' mode (batch processing with resource alias access and build tokens). The SDK provides a builder-pattern API for registering typed query handlers, managing source credentials, discovering Foundry services (Stream Proxy, API Gateway, MIO), and resolving resource aliases to Foundry RIDs. Uses TypeBox for runtime schema definitions that are auto-registered with the Foundry runtime. MIT licensed.",
+  "ontologyConcepts": [
+    {
+      "concept": "Compute Module",
+      "evidence": "The ComputeModule class is the core abstraction representing a containerized computation unit deployed into Foundry. It operates in two execution modes: 'functions' (request/response query processing) and 'pipelines' (batch processing with build tokens). The module lifecycle involves: (1) instantiation with options, (2) registering query handlers via .register() or .registerStreaming(), (3) initialization which connects to the runtime via HTTP endpoints (GET_JOB_URI, POST_RESULT_URI, POST_SCHEMA_URI), (4) entering a polling loop that fetches jobs, dispatches to registered handlers, and posts results. Schemas are auto-registered with the runtime when the module becomes responsive.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/ComputeModule.ts",
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/QueryRunner.ts"
+      ]
+    },
+    {
+      "concept": "Functions Mode",
+      "evidence": "In Functions mode, the compute module operates as a long-running service that polls for query jobs from the runtime. Each job has a jobId, queryType, and query payload. Handlers are registered per queryType via .register() (request/response) or .registerStreaming() (streaming response via PassThrough stream). A .default() fallback handler catches unmatched query types. The FunctionsEnvironment provides optional thirdPartyApplication credentials (clientId/clientSecret) for OAuth-based authentication with external services.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/QueryRunner.ts",
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/environment/types.ts"
+      ]
+    },
+    {
+      "concept": "Pipelines Mode",
+      "evidence": "In Pipelines mode, the compute module runs as a batch process with access to a buildToken (read from BUILD2_TOKEN env var path). Resource aliases map static names to Foundry resource identifiers (RIDs with optional branch). The PipelinesEnvironment type carries the buildToken string. Resources are resolved via ComputeModule.getResource(alias) which reads from a RESOURCE_ALIAS_MAP file.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/environment/types.ts",
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/resources/ResourceAliases.ts"
+      ]
+    },
+    {
+      "concept": "Resource Aliases",
+      "evidence": "ResourceAliases class resolves human-readable alias names to Foundry Resource objects containing { rid: string, branch?: string }. The alias map is loaded from a JSON file at the path specified by the RESOURCE_ALIAS_MAP environment variable. This allows compute modules to reference Foundry datasets, streams, or other resources by stable names rather than environment-specific RIDs.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/resources/ResourceAliases.ts"
+      ]
+    },
+    {
+      "concept": "Source Credentials",
+      "evidence": "SourceCredentials provides secure access to secrets mounted into the compute module container. Credentials are organized by source API name and credential key, loaded from a JSON file at the SOURCE_CREDENTIALS environment variable path. The ComputeModuleOptions.sources field allows compile-time type-safe credential access and runtime validation that expected sources/credentials are mounted. Credential values are obfuscated in logs.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/sources/SourceCredentials.ts",
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/ComputeModule.ts"
+      ]
+    },
+    {
+      "concept": "Foundry Service Discovery",
+      "evidence": "The FoundryService enum defines three discoverable platform services: STREAM_PROXY (push-based ingestion via stream-proxy/api), API_GATEWAY (general Foundry API at /api), and MIO (media sets via foundry_mio at /mio/api). Services are discovered by reading a YAML file at FOUNDRY_SERVICE_DISCOVERY_V2 env var path. Each service maps to one or more URL endpoints. Results are cached after first load.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/services/getFoundryServices.ts"
+      ]
+    },
+    {
+      "concept": "Function Schema Registration",
+      "evidence": "Compute module function schemas are defined using TypeBox (TObject, TBoolean, TInteger, TNumber, TString, TArray) and converted to a Foundry-specific schema format via convertJsonSchemaToCustomSchema(). The Foundry schema uses DataType discriminated unions: boolean, integer, float, string, list (with elementsType), anonymousCustomType (with named fields), and optionalType (wrapping another type). Schemas are auto-posted to the runtime's POST_SCHEMA_URI endpoint when the module becomes responsive.",
+      "files": [
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/api/schemaTypes.ts",
+        "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/api/convertJsonSchematoFoundrySchema.ts"
+      ]
+    }
+  ],
+  "apiSurface": [
+    {
+      "name": "ComputeModule",
+      "type": "class",
+      "description": "Main entry point for creating a compute module. Constructor accepts ComputeModuleOptions<M, S> with optional definitions (TypeBox schemas), logger, instanceId, isAutoRegistered flag, and sources config. Connects to the Foundry runtime via environment variables (GET_JOB_URI, POST_RESULT_URI, POST_SCHEMA_URI, MODULE_AUTH_TOKEN)."
+    },
+    {
+      "name": "ComputeModule.register",
+      "type": "method",
+      "description": "Register a request/response handler for a named query type. Handler receives typed input (Static<M[T]['input']>) and returns Promise of typed output (Static<M[T]['output']>). Returns this for chaining."
+    },
+    {
+      "name": "ComputeModule.registerStreaming",
+      "type": "method",
+      "description": "Register a streaming handler for a named query type. Handler receives typed input and a writable stream ({ write, end }) for incrementally sending response chunks. Each write must produce valid JSON. Output schema must be Type.Array(...)."
+    },
+    {
+      "name": "ComputeModule.default",
+      "type": "method",
+      "description": "Register a fallback handler for unmatched query types. Receives raw data and query name string, returns Promise<any>."
+    },
+    {
+      "name": "ComputeModule.on",
+      "type": "method",
+      "description": "Register event listeners. Currently supports 'responsive' event, fired when the module successfully connects to the runtime and can receive queries."
+    },
+    {
+      "name": "ComputeModule.getCredential",
+      "type": "method",
+      "description": "Retrieve a source credential by source API name and credential key. Type-safe when sources are declared in options. Returns string | null. Throws if SOURCE_CREDENTIALS env var not set."
+    },
+    {
+      "name": "ComputeModule.getResource",
+      "type": "static method",
+      "description": "Resolve a resource alias to a Resource object containing { rid: string, branch?: string }. Uses RESOURCE_ALIAS_MAP env var. Returns null if alias not found."
+    },
+    {
+      "name": "ComputeModule.getEnvironment",
+      "type": "static method",
+      "description": "Returns discriminated union Environment: PipelinesEnvironment (type: 'pipelines', buildToken) or FunctionsEnvironment (type: 'functions', optional thirdPartyApplication with clientId/clientSecret)."
+    },
+    {
+      "name": "ComputeModule.getServiceApi",
+      "type": "static method",
+      "description": "Look up a Foundry service URL by FoundryService enum value. Reads from FOUNDRY_SERVICE_DISCOVERY_V2 YAML file. Returns string | undefined."
+    },
+    {
+      "name": "FoundryService",
+      "type": "enum",
+      "description": "Enum of discoverable Foundry platform services: STREAM_PROXY ('stream_proxy' for push-based ingestion), API_GATEWAY ('api_gateway' for general Foundry API), MIO ('foundry_mio' for media set operations)."
+    },
+    {
+      "name": "ComputeModuleOptions",
+      "type": "interface",
+      "description": "Configuration interface with generics M (QueryResponseMapping for typed definitions) and S (source names). Fields: definitions (TypeBox input/output schemas per query), logger (console-compatible), instanceId, isAutoRegistered (default true), sources (typed credential declarations)."
+    },
+    {
+      "name": "ComputeModuleApi",
+      "type": "class",
+      "description": "Internal HTTP client wrapping Axios for runtime communication. Methods: getJobRequest() polls GET_JOB_URI, postResult(jobId, response) sends results to POST_RESULT_URI/{jobId}, postStreamingResult(jobId, stream) streams via PassThrough, postSchema(schemas) registers function schemas at POST_SCHEMA_URI. Uses MODULE_AUTH_TOKEN header and optional CA trust store."
+    },
+    {
+      "name": "QueryRunner",
+      "type": "class",
+      "description": "Internal infinite polling loop that fetches jobs from the runtime API, dispatches to registered listeners (response or streaming), posts results, and handles errors. Manages responsive state and fires 'responsive' event on first successful connection."
+    },
+    {
+      "name": "Schema",
+      "type": "interface",
+      "description": "Foundry-native function schema format with functionName, inputs (array of FunctionInputType with name, required, dataType, constraints), and output (FunctionOutputType wrapping a DataType). DataTypes: boolean, integer, float, string, list, anonymousCustomType, optionalType."
+    }
+  ],
+  "architecturePatterns": [
+    {
+      "pattern": "Polling-Based Job Runner",
+      "description": "The QueryRunner implements an infinite while(true) loop that long-polls the runtime's GET_JOB_URI endpoint for new jobs. When a job arrives (HTTP 200), it dispatches to the matching registered handler. On connection refused (ECONNREFUSED), it silently retries. This polling pattern allows the compute module to run as a simple containerized process without needing WebSocket or gRPC infrastructure."
+    },
+    {
+      "pattern": "Builder Pattern with Fluent Chaining",
+      "description": "ComputeModule uses method chaining (.register().register().default().on()) for configuring query handlers. Each registration method returns 'this' for ergonomic module setup."
+    },
+    {
+      "pattern": "TypeBox Schema Definitions with Foundry Conversion",
+      "description": "Schemas are defined using @sinclair/typebox for compile-time TypeScript type inference (via Static<T>), then converted at runtime to Foundry's custom schema format (DataType discriminated unions) via convertJsonSchemaToCustomSchema(). This dual-schema approach provides TypeScript type safety while meeting the platform's schema registration requirements."
+    },
+    {
+      "pattern": "Environment-Variable-Driven Configuration",
+      "description": "All runtime configuration is injected via environment variables pointing to file paths: GET_JOB_URI, POST_RESULT_URI, POST_SCHEMA_URI for API endpoints; MODULE_AUTH_TOKEN for auth; DEFAULT_CA_PATH for TLS trust store; SOURCE_CREDENTIALS for secrets; BUILD2_TOKEN for pipeline auth; CLIENT_ID/CLIENT_SECRET for OAuth; RESOURCE_ALIAS_MAP for resource resolution; FOUNDRY_SERVICE_DISCOVERY_V2 for service URLs. This supports containerized deployment where Foundry mounts configs as files."
+    },
+    {
+      "pattern": "Dual Execution Mode (Functions vs Pipelines)",
+      "description": "The ComputeModule supports two distinct execution paradigms: Functions mode (long-running service handling queries) and Pipelines mode (batch processing with resource access). The mode is determined by environment (presence of BUILD2_TOKEN indicates pipelines). The Environment type is a discriminated union on 'type' field."
+    },
+    {
+      "pattern": "Lazy File Loading with Caching",
+      "description": "SourceCredentials, ResourceAliases, and FoundryService discovery all use lazy-load-and-cache patterns. Files are read from disk only on first access (using ??= nullish assignment) and cached for subsequent calls. This avoids reading files that may not exist in all execution modes."
+    },
+    {
+      "pattern": "Type-Safe Source Credential Access",
+      "description": "When sources are declared in ComputeModuleOptions, TypeScript's type system enforces that only known source API names and credential keys can be passed to getCredential(). This is achieved via conditional types that extract keys from the sources config generic parameter."
+    },
+    {
+      "pattern": "Streaming Response via PassThrough Streams",
+      "description": "Streaming query responses use Node.js PassThrough streams. The handler writes JSON-serialized chunks to the writable side, while the readable side is piped to Axios as the HTTP request body with 'application/octet-stream' content type. Each element of an array output is streamed individually."
+    },
+    {
+      "pattern": "Containerized Deployment",
+      "description": "The example Dockerfile shows the deployment model: multi-stage build on linux/amd64, esbuild bundling, non-root user (UID 5000) execution. The container receives all configuration via mounted files and environment variables from the Foundry platform."
+    },
+    {
+      "pattern": "Sensitive Data Sanitization",
+      "description": "The ComputeModuleApi sanitizes Axios errors before logging, redacting sensitive headers (Module-Auth-Token, Authorization) and HTTPS agent CA data. SourceCredentials obfuscates credential values when logging loaded credentials. This prevents secret leakage in container logs."
+    }
+  ],
+  "typeDefinitions": [
+    {
+      "name": "ComputeModuleOptions<M, S>",
+      "kind": "interface",
+      "description": "Configuration for ComputeModule construction. M extends QueryResponseMapping (maps query names to {input: TObject, output: SupportedTypeboxTypes}). S extends string for source API names. Fields: definitions, logger, instanceId, isAutoRegistered, sources.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/ComputeModule.ts"
+    },
+    {
+      "name": "QueryResponseMapping",
+      "kind": "interface",
+      "description": "Index signature mapping query type strings to { input: TObject, output: SupportedTypeboxTypes }. Forms the type-level contract between schema definitions and handler implementations.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/QueryRunner.ts"
+    },
+    {
+      "name": "QueryListener<M>",
+      "kind": "discriminated union",
+      "description": "Union of { type: 'response', listener: ResponseQueryListener<M> } and { type: 'streaming', listener: StreamingQueryListener<M> }. Discriminated on 'type' field.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/QueryRunner.ts"
+    },
+    {
+      "name": "Environment",
+      "kind": "discriminated union",
+      "description": "PipelinesEnvironment | FunctionsEnvironment. PipelinesEnvironment has type: 'pipelines' and buildToken. FunctionsEnvironment has type: 'functions' and optional thirdPartyApplication { clientId, clientSecret }.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/environment/types.ts"
+    },
+    {
+      "name": "Resource",
+      "kind": "interface",
+      "description": "Foundry resource identifier: { rid: string, branch?: string }. Resolved from resource alias mappings.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/resources/ResourceAliases.ts"
+    },
+    {
+      "name": "Schema",
+      "kind": "interface + namespace",
+      "description": "Foundry-native function schema. Top-level has functionName, inputs (FunctionInputType[]), output (FunctionOutputType). FunctionInputType has name, required, description, dataType, constraints. DataType is a discriminated union: boolean, integer, float, string, list (elementsType), anonymousCustomType (fields map), optionalType (wrappedType).",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/api/schemaTypes.ts"
+    },
+    {
+      "name": "ConnectionInformation",
+      "kind": "interface",
+      "description": "HTTP connection config for the runtime API: getJobUri, postResultUri, postSchemaUri, trustStore (optional CA cert content), moduleAuthToken.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/api/ComputeModuleApi.ts"
+    },
+    {
+      "name": "FoundryService",
+      "kind": "enum",
+      "description": "Enum with values STREAM_PROXY='stream_proxy', API_GATEWAY='api_gateway', MIO='foundry_mio'. Used for Foundry service discovery.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/services/getFoundryServices.ts"
+    },
+    {
+      "name": "SourceCredentialsFile",
+      "kind": "interface",
+      "description": "JSON structure for mounted credentials: { [source: string]: { [credential: string]: string } }. Nested map from source API name to credential key to credential value.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/sources/SourceCredentials.ts"
+    },
+    {
+      "name": "ResourceAliasesFile",
+      "kind": "interface",
+      "description": "JSON structure mapping alias names to Resource objects: { [alias: string]: Resource }.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/resources/ResourceAliases.ts"
+    },
+    {
+      "name": "Logger",
+      "kind": "interface",
+      "description": "Logging interface with log, error, info, warn methods (all (message: string) => void). Compatible with console, winston, and similar loggers.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/logger.ts"
+    },
+    {
+      "name": "SupportedTypeboxTypes",
+      "kind": "type alias",
+      "description": "Union of TypeBox types supported for function outputs: TObject | TBoolean | TInteger | TNumber | TString | TArray.",
+      "file": "https://github.com/palantir/typescript-compute-module/blob/main/typescript-compute-module/src/api/convertJsonSchematoFoundrySchema.ts"
+    }
+  ],
+  "dependencies": {
+    "runtime": {
+      "@sinclair/typebox": "^0.32.35 — Runtime TypeBox schema definitions for compile-time type inference (Static<T>) and runtime schema registration",
+      "axios": "^1.6.7 — HTTP client for polling job requests and posting results/schemas to the Foundry runtime API",
+      "js-yaml": "^3.14.1 — YAML parser for reading Foundry service discovery configuration files"
+    },
+    "dev": {
+      "@types/jest": "^29.5.12",
+      "@types/js-yaml": "^4.0.9",
+      "@types/node": "^20.11.17",
+      "jest": "^29.7.0 — Test runner with ts-jest for TypeScript test execution",
+      "ts-jest": "^29.1.3",
+      "typescript": "^5.3.3"
+    },
+    "example": {
+      "esbuild": "^0.23.0 — Bundler for building the example compute module container"
+    }
+  },
+  "tags": [
+    "compute-module",
+    "functions-mode",
+    "pipelines-mode",
+    "server-side-computation",
+    "containerized-deployment",
+    "query-handler",
+    "streaming-response",
+    "typebox-schemas",
+    "foundry-runtime-api",
+    "source-credentials",
+    "resource-aliases",
+    "service-discovery",
+    "polling-job-runner",
+    "schema-registration",
+    "foundry-data-type-system"
+  ]
+}

@@ -1,0 +1,385 @@
+{
+  "repo": "osdk-ts",
+  "repoUrl": "https://github.com/palantir/osdk-ts",
+  "summary": "The TypeScript Ontology SDK (OSDK) is a comprehensive monorepo providing the canonical TypeScript type system and client libraries for interacting with Palantir's Foundry Ontology. It contains ~70+ packages including the core type definitions (@osdk/api), the runtime client (@osdk/client), a code generator (@osdk/generator) that produces type-safe SDK code from ontology metadata, OAuth authentication (@osdk/oauth), React bindings (@osdk/react), and Functions runtime (@osdk/functions). The architecture follows a code-generation-first approach: users define their ontology in Foundry, then the generator produces strongly-typed TypeScript interfaces for every object type, action, query, and interface in their ontology, enabling fully type-safe CRUD operations, filtering, aggregations, and link traversal.",
+  "ontologyConcepts": [
+    {
+      "concept": "Object Types",
+      "evidence": "Core type hierarchy: ObjectTypeDefinition (interface with type:'object', apiName, __DefinitionMetadata), ObjectMetadata (extends ObjectInterfaceBaseMetadata with primaryKeyApiName, titleProperty, links, primaryKeyType, interfaceMap, inverseInterfaceMap, icon, visibility, status), ObjectMetadata.Property (type, multiplicity, nullable, readonly, displayName, description, valueFormatting), PropertyDef<T,N,M> for typed property definitions, and the Osdk.Instance<Q,OPTIONS,P,R> type that represents a runtime object instance with $link, $as, $clone, $apiName, $primaryKey, $objectSpecifier, $objectType, $title fields. The generator produces per-object-type files with namespaced types (ObjectName.Props, ObjectName.Links, ObjectName.ObjectSet, ObjectName.OsdkInstance, ObjectName.PropertyKeys).",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/ObjectTypeDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/OsdkObjectFrom.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/OsdkBase.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/Definitions.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/generator/src/v2.0/wireObjectTypeV2ToSdkObjectConstV2.ts"
+      ]
+    },
+    {
+      "concept": "Properties",
+      "evidence": "Rich property type system with wire types (BaseWirePropertyTypes: string, datetime, double, boolean, integer, timestamp, short, long, float, decimal, byte, marking, mediaReference, numericTimeseries, stringTimeseries, sensorTimeseries, attachment, geopoint, geoshape, geotimeSeriesReference, vector) plus struct types (Record<string, BaseWirePropertyTypes>). Three mapping interfaces handle wire-to-client, client-to-wire, and wire-to-create conversions (PropertyValueWireToClient, PropertyValueClientToWire, PropertyValueWireToCreate). PrimaryKeyTypes is a subset (string, datetime, double, integer, timestamp, short, long, byte). SimplePropertyDef encodes nullability and multiplicity into the type itself. Properties support value type enums via ValueTypeConstraint, value formatting rules (number, date, timestamp, boolean, known-type formatting), and property-level security markings.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/WirePropertyTypes.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/mapping/PropertyValueMapping.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/SimplePropertyDef.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/PrimaryKeyTypes.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/mapping/DataValueMapping.ts"
+      ]
+    },
+    {
+      "concept": "Link Types",
+      "evidence": "Links are modeled as ObjectMetadata.Link<Q, M> where Q is the target ObjectTypeDefinition and M is a boolean multiplicity flag. Single links (multiplicity=false) produce a SingleLinkAccessor<T> with fetchOne/fetchOneWithErrors methods. Multi links (multiplicity=true) produce an ObjectSet<T>. InterfaceMetadata.Link adds targetType ('object'|'interface') discrimination. The $link property on Osdk.Instance provides typed access to all links. ObjectSet provides pivotTo(linkName) for link traversal and experimental_asyncIterLinks for batch link loading. The generator creates a Links namespace type per object type with readonly properties mapping link names to either ObjectSet or SingleLinkAccessor.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/definitions/LinkDefinitions.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/ObjectTypeDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/InterfaceDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/objectSet/ObjectSet.ts"
+      ]
+    },
+    {
+      "concept": "Action Types",
+      "evidence": "ActionDefinition<T_signatures> interface with ActionMetadata containing apiName, description, displayName, parameters, modifiedEntities (which object types are created/modified), status, and rid. ActionMetadata.Parameter has a type union of BaseActionParameterTypes (boolean, string, integer, long, double, datetime, timestamp, attachment, marking, mediaReference, objectType, geoshape, geohash) plus DataType.Object, DataType.ObjectSet, DataType.Interface, and DataType.Struct. The Client callable with an ActionDefinition returns ActionSignatureFromDef with applyAction and batchApplyAction methods. Actions support $returnEdits and $validateOnly options. The generator produces per-action files with Params interface, ParamsDefinition type, and Signatures interface.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/ActionDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/actions/Actions.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/generator/src/v2.0/generatePerActionDataFiles.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/client/src/createClient.ts"
+      ]
+    },
+    {
+      "concept": "Ontology Functions (Queries)",
+      "evidence": "QueryDefinition<T> interface with QueryMetadata containing apiName, description, displayName, version, parameters (Record<string, QueryParameterDefinition>), output (QueryDataTypeDefinition), and rid. QueryDataTypeDefinition is a rich union of PrimitiveDataType, ObjectQueryDataType, InterfaceQueryDataType, ObjectSetQueryDataType, SetQueryDataType, UnionQueryDataType, StructQueryDataType, TwoDimensionalAggregationDataType, ThreeDimensionalAggregationDataType, MapDataType, and ArrayQueryDataType. The Client callable with a QueryDefinition returns QuerySignatureFromDef with an executeFunction method. The functions package (@osdk/functions) provides server-side primitives: Edits, EditBatch, Notification types, Markings, and UserGroup for Functions authoring.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/QueryDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/queries/Queries.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/functions/src/index.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/generator/src/v2.0/generatePerQueryDataFiles.ts"
+      ]
+    },
+    {
+      "concept": "Access Controls",
+      "evidence": "PropertySecurity is a discriminated union with three variants: 'propertyMarkings' (successfully computed markings), 'unsupportedPolicy' (restricted view), and 'errorComputingSecurity'. PropertyMarkings contains conjunctive markings (all must be met), disjunctive markings (conjunction of disjunctive sets), containerConjunctive and containerDisjunctive for dataset-level markings. MarkingId is a string alias. The $propertySecurities field on Osdk.Instance provides per-property security metadata when requested via the '$propertySecurities' option. The marking wire property type ('marking') is a first-class property type. The functions package exports ClassificationMarking and MandatoryMarking types, plus GroupId, Principal, UserId for RBAC.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/object/PropertySecurity.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/functions/src/Markings.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/functions/src/UserGroup.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/OsdkObjectFrom.ts"
+      ]
+    },
+    {
+      "concept": "Data Integration",
+      "evidence": "Limited direct evidence in the OSDK itself -- data integration is handled server-side in Foundry. The OSDK interacts with data through the ontology abstraction layer. The WireOntologyDefinition in the generator extends gateway.OntologyFullMetadata from @osdk/foundry.ontologies, indicating the wire protocol for ontology metadata includes the full data pipeline configuration. The client supports branch-aware queries (options.branch parameter in createClient), time-series properties (numericTimeseries, stringTimeseries, sensorTimeseries, geotimeSeriesReference), and transaction-based writes (createClientWithTransaction). ObjectSet subscriptions provide real-time data change notifications via WebSocket.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/generator/src/WireOntologyDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/client/src/createClient.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/timeseries/timeseries.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/objectSet/ObjectSetListener.ts"
+      ]
+    },
+    {
+      "concept": "AI/LLM Integration",
+      "evidence": "The repo includes a create-app.template.tutorial-todo-aip-app package which is a template application demonstrating AIP (Artificial Intelligence Platform) integration patterns. The vector wire property type supports embedding-based search, and ObjectSet.nearestNeighbors() method enables semantic/vector similarity search with parameters for query (string or number[]), numNeighbors, and property (filtered to vector-type properties). The nearestNeighbors returns an object set that can be ordered by 'relevance' with $score annotations on results. No direct model-backed function or LLM orchestration types were found in the core SDK -- AIP integration appears to happen at the Foundry platform level rather than in the client SDK.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/objectSet/ObjectSet.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/WirePropertyTypes.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/create-app.template.tutorial-todo-aip-app/README.md"
+      ]
+    },
+    {
+      "concept": "Interfaces",
+      "evidence": "InterfaceDefinition (type:'interface', apiName, __DefinitionMetadata) with InterfaceMetadata extending ObjectInterfaceBaseMetadata, adding implementedBy (array of object type apiNames) and links. ObjectTypeDefinition has interfaceMap (maps interface property names to object property names) and inverseInterfaceMap for bidirectional property name translation. The implements field on ObjectInterfaceBaseMetadata lists super-interfaces. The $as method on Osdk.Instance enables runtime polymorphic conversion between object types and interfaces with automatic property name remapping via ConvertProps. ObjectSet.narrowToType() casts interface object sets to concrete types. InterfaceMetadata.Link supports targeting both object types and other interfaces. The generator produces per-interface data files with the same namespace pattern.",
+      "files": [
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/InterfaceDefinition.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/ontology/ObjectOrInterface.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/OsdkObjectFrom.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/generator/src/v2.0/UNSTABLE_wireInterfaceTypeV2ToSdkObjectConst.ts",
+        "https://github.com/palantir/osdk-ts/blob/main/packages/api/src/objectSet/ObjectSet.ts"
+      ]
+    }
+  ],
+  "apiSurface": [
+    {
+      "name": "createClient",
+      "type": "function",
+      "description": "Creates an OSDK Client instance bound to a Foundry stack URL, ontology RID, and token provider. The Client is a callable function that accepts ObjectTypeDefinition, InterfaceDefinition, ActionDefinition, or QueryDefinition and returns the corresponding typed ObjectSet, action invoker, or query invoker."
+    },
+    {
+      "name": "Client",
+      "type": "interface",
+      "description": "The main OSDK client interface. A callable function overloaded for ObjectTypeDefinition (returns ObjectSet), InterfaceDefinition (returns MinimalObjectSet), ActionDefinition (returns ActionSignatureFromDef), QueryDefinition (returns QuerySignatureFromDef), and Experiments. Also provides fetchMetadata() for runtime metadata loading."
+    },
+    {
+      "name": "ObjectTypeDefinition",
+      "type": "interface",
+      "description": "Compile-time representation of an Ontology object type with type:'object', apiName, osdkMetadata, and __DefinitionMetadata containing ObjectMetadata and ObjectInterfaceCompileDefinition (objectSet, props, strictProps, linksType)."
+    },
+    {
+      "name": "InterfaceDefinition",
+      "type": "interface",
+      "description": "Compile-time representation of an Ontology interface type with type:'interface', apiName, osdkMetadata, and __DefinitionMetadata containing InterfaceMetadata and ObjectInterfaceCompileDefinition."
+    },
+    {
+      "name": "ActionDefinition",
+      "type": "interface",
+      "description": "Compile-time representation of an Ontology action with type:'action', apiName, osdkMetadata, and __DefinitionMetadata containing ActionMetadata (parameters, modifiedEntities, status) and ActionCompileTimeMetadata (signatures)."
+    },
+    {
+      "name": "QueryDefinition",
+      "type": "interface",
+      "description": "Compile-time representation of an Ontology query/function with type:'query', apiName, version, osdkMetadata, and __DefinitionMetadata containing QueryMetadata (parameters, output, version) and QueryCompileTimeMetadata (signature)."
+    },
+    {
+      "name": "Osdk.Instance",
+      "type": "type",
+      "description": "The runtime representation of an Ontology object instance. Provides typed property access, $link for link traversal, $as for polymorphic conversion, $clone for merging, $apiName, $primaryKey, $objectType, $title, and optional $rid and $propertySecurities."
+    },
+    {
+      "name": "ObjectSet",
+      "type": "interface",
+      "description": "Represents a set of ontology objects with methods: fetchPage, fetchOne, asyncIter, where (filtering), aggregate, union/intersect/subtract (set arithmetic), pivotTo (link traversal), nearestNeighbors (vector search), subscribe (real-time updates), withProperties (derived properties), and narrowToType."
+    },
+    {
+      "name": "ObjectMetadata",
+      "type": "interface",
+      "description": "Runtime metadata for object types including type, apiName, displayName, description, properties, rid, implements, primaryKeyApiName, titleProperty, links, primaryKeyType, icon, visibility, status, interfaceMap, inverseInterfaceMap."
+    },
+    {
+      "name": "ObjectMetadata.Property",
+      "type": "interface",
+      "description": "Per-property metadata: type (WirePropertyTypes), multiplicity (boolean), nullable (boolean), readonly (boolean), displayName, description, valueTypeApiName, valueFormatting."
+    },
+    {
+      "name": "ActionMetadata",
+      "type": "interface",
+      "description": "Runtime metadata for actions including type, apiName, description, displayName, parameters (with type discriminated union for primitives/objects/objectSets/interfaces/structs), modifiedEntities, status, rid."
+    },
+    {
+      "name": "WhereClause",
+      "type": "type",
+      "description": "Type-safe filter clause for object sets supporting $and, $or, $not logical operators and per-property filters ($gt, $gte, $lt, $lte, $eq, $ne, $isNull, $contains, $in, $within, $intersects, $startsWith, $containsAllTerms, etc.) with filter types specialized per wire property type."
+    },
+    {
+      "name": "PropertyDef",
+      "type": "interface",
+      "description": "Generic typed property definition PropertyDef<T extends WirePropertyTypes, N extends 'nullable'|'non-nullable', M extends 'array'|'single'> combining type, multiplicity, and nullable into a single generic type."
+    },
+    {
+      "name": "SingleLinkAccessor",
+      "type": "interface",
+      "description": "Typed accessor for single-cardinality links providing fetchOne and fetchOneWithErrors methods that return Osdk.Instance of the target type."
+    },
+    {
+      "name": "PropertySecurity",
+      "type": "type",
+      "description": "Discriminated union for property-level security: propertyMarkings (with conjunctive/disjunctive/container markings), unsupportedPolicy, or errorComputingSecurity."
+    },
+    {
+      "name": "DerivedProperty",
+      "type": "namespace",
+      "description": "Namespace for derived/computed properties on object sets. Provides Definition, NumericPropertyDefinition, DatetimePropertyDefinition types, Builder/AggregateBuilder for constructing derived properties via selectProperty, aggregate, pivotTo, where, and constant operations."
+    },
+    {
+      "name": "createPublicOauthClient",
+      "type": "function",
+      "description": "Creates an OAuth token provider for public (browser-based) clients using client ID, Foundry URL, and redirect URL."
+    },
+    {
+      "name": "createConfidentialOauthClient",
+      "type": "function",
+      "description": "Creates an OAuth token provider for confidential (server-side) clients using client ID, client secret, and Foundry URL."
+    },
+    {
+      "name": "createPlatformClient",
+      "type": "function",
+      "description": "Creates a PlatformClient that provides access to Foundry platform APIs without ontology-specific code generation."
+    },
+    {
+      "name": "generateClientSdkPackage",
+      "type": "function",
+      "description": "Core generator function that takes an OntologyFullMetadata wire definition and produces a complete type-safe TypeScript SDK package with per-object, per-action, per-query, and per-interface data files."
+    },
+    {
+      "name": "CompileTimeMetadata",
+      "type": "type",
+      "description": "Utility type that extracts the __DefinitionMetadata from any definition type, providing access to compile-time properties, links, objectSet types, and interface/inverse interface maps."
+    },
+    {
+      "name": "PropertyKeys",
+      "type": "type",
+      "description": "Extracts the string union of property API names from an ObjectOrInterfaceDefinition. PropertyKeys.Filtered<Q,T> narrows to properties of a specific wire type."
+    },
+    {
+      "name": "ConvertProps",
+      "type": "type",
+      "description": "Advanced type-level utility for converting property names between object types and interfaces using interfaceMap/inverseInterfaceMap, enabling the $as polymorphic conversion to carry property selections across type boundaries."
+    },
+    {
+      "name": "ObjectSpecifier",
+      "type": "type",
+      "description": "A branded string type encoding object identity (apiName + primaryKey) that works across object types and interfaces, enabling type-safe object references."
+    },
+    {
+      "name": "WirePropertyTypes",
+      "type": "type",
+      "description": "Union of all wire property type identifiers (22 base types: string, datetime, double, boolean, integer, timestamp, short, long, float, decimal, byte, marking, mediaReference, numericTimeseries, stringTimeseries, sensorTimeseries, attachment, geopoint, geoshape, geotimeSeriesReference, vector) plus struct types (Record<string, BaseWirePropertyTypes>)."
+    },
+    {
+      "name": "PropertyValueWireToClient",
+      "type": "interface",
+      "description": "Maps each wire property type string to its TypeScript runtime type (e.g., 'integer' -> number, 'long' -> string, 'geopoint' -> GeoJSON.Point, 'attachment' -> Attachment, 'vector' -> number[])."
+    }
+  ],
+  "architecturePatterns": [
+    "Code-generation-first: The generator (@osdk/generator) reads OntologyFullMetadata from Foundry's wire protocol and produces strongly-typed TypeScript files per object type, action, query, and interface, with namespace-scoped Props, Links, ObjectSet, OsdkInstance, and PropertyKeys types.",
+    "Phantom type metadata via __DefinitionMetadata: All definition interfaces (ObjectTypeDefinition, InterfaceDefinition, ActionDefinition, QueryDefinition) carry compile-time metadata in an optional __DefinitionMetadata field, enabling rich type inference without runtime overhead.",
+    "Callable client pattern: The Client is a function overloaded by definition type -- passing an ObjectTypeDefinition returns ObjectSet, an ActionDefinition returns action invoker, a QueryDefinition returns query invoker -- creating a unified entry point for all ontology interactions.",
+    "Wire type mapping system: Three parallel mapping interfaces (PropertyValueWireToClient, PropertyValueClientToWire, PropertyValueWireToCreate) translate between Foundry wire types and TypeScript types, with separate read/write/create paths to handle asymmetric type conversions.",
+    "ObjectSet as query builder: ObjectSet is the primary query interface with a fluent API -- where() for filtering, aggregate() for aggregations, union/intersect/subtract for set arithmetic, pivotTo for link traversal, withProperties for derived properties, and fetchPage/asyncIter for materialization.",
+    "Polymorphic type conversion via $as: The Osdk.Instance.$as method enables safe conversion between object types and interface types with automatic property name remapping through interfaceMap/inverseInterfaceMap, preserving type safety across the conversion.",
+    "Monorepo with workspace protocol: Uses pnpm workspaces with ~70+ packages, turbo for build orchestration, changesets for versioning, and a catalog system for managing @osdk/foundry.* dependency versions.",
+    "Dual compile-time metadata: CompileTimeMetadata provides access to the full metadata at the type level (props, strictProps, links, objectSet, properties, interfaceMap), while runtime metadata is loaded lazily via client.fetchMetadata().",
+    "Observable subscriptions via WebSocket: ObjectSet.subscribe() provides real-time change notifications using WebSocket connections (isomorphic-ws) with RxJS for reactive stream processing.",
+    "Version bound checking: VersionBound<V> and SatisfiesSemver types enforce that generated SDK code is compatible with the client version at compile time, producing clear error messages when versions are mismatched."
+  ],
+  "typeDefinitions": [
+    {
+      "name": "ObjectTypeDefinition",
+      "definition": "interface { type: 'object'; apiName: string; osdkMetadata?: OsdkMetadata; __DefinitionMetadata?: ObjectMetadata & ObjectInterfaceCompileDefinition }",
+      "purpose": "Compile-time representation of an Ontology object type, carrying all metadata needed for type-safe property access, link traversal, and ObjectSet construction."
+    },
+    {
+      "name": "InterfaceDefinition",
+      "definition": "interface { type: 'interface'; apiName: string; osdkMetadata?: OsdkMetadata; __DefinitionMetadata?: InterfaceMetadata & ObjectInterfaceCompileDefinition }",
+      "purpose": "Compile-time representation of an Ontology interface (polymorphic type) that can be implemented by multiple object types, enabling shared property contracts."
+    },
+    {
+      "name": "ActionDefinition<T_signatures>",
+      "definition": "interface { type: 'action'; apiName: string; osdkMetadata?: OsdkMetadata; __DefinitionMetadata?: ActionCompileTimeMetadata<T_signatures> & ActionMetadata }",
+      "purpose": "Compile-time representation of an Ontology action (mutation/side-effect) with typed parameter definitions and signatures."
+    },
+    {
+      "name": "QueryDefinition<T>",
+      "definition": "interface { type: 'query'; apiName: string; version?: string; osdkMetadata?: OsdkMetadata; __DefinitionMetadata?: QueryCompileTimeMetadata<T> & QueryMetadata }",
+      "purpose": "Compile-time representation of an Ontology query/function with typed input/output parameter definitions."
+    },
+    {
+      "name": "ObjectMetadata",
+      "definition": "interface extends ObjectInterfaceBaseMetadata { type: 'object'; primaryKeyApiName; titleProperty; links: Record<string, Link<any,any>>; primaryKeyType: PrimaryKeyTypes; icon; visibility; status; interfaceMap; inverseInterfaceMap; pluralDisplayName }",
+      "purpose": "Complete runtime metadata for an object type including all structural information: properties, links, primary key, display configuration, and interface mappings."
+    },
+    {
+      "name": "ObjectMetadata.Property",
+      "definition": "interface { readonly?: boolean; displayName?: string; description?: string; type: WirePropertyTypes; multiplicity?: boolean; nullable?: boolean; valueTypeApiName?: string; valueFormatting?: PropertyValueFormattingRule }",
+      "purpose": "Metadata for a single property on an object type, describing its wire type, nullability, array multiplicity, and display configuration."
+    },
+    {
+      "name": "ObjectMetadata.Link<Q, M>",
+      "definition": "interface { __OsdkLinkTargetType?: Q; targetType: Q['apiName']; multiplicity: M }",
+      "purpose": "Metadata for a typed link from one object type to another, with multiplicity determining single vs. multi cardinality."
+    },
+    {
+      "name": "PropertyDef<T, N, M>",
+      "definition": "interface extends ObjectMetadata.Property { type: T; multiplicity: M extends 'array' ? true : false; nullable: N extends 'nullable' ? true : false }",
+      "purpose": "Generic property definition parameterized by wire type (T), nullability (N), and multiplicity (M) for precise compile-time type narrowing."
+    },
+    {
+      "name": "Osdk.Instance<Q, OPTIONS, P, R>",
+      "definition": "OsdkBase<Q> & Pick<CompileTimeMetadata<Q>['props'], P> & { $link; $as; $clone; $__EXPERIMENTAL__NOT_SUPPORTED_YET__metadata; $__EXPERIMENTAL__NOT_SUPPORTED_YET__getFormattedValue } & conditional $rid & $propertySecurities",
+      "purpose": "The runtime type of an Ontology object instance with typed property access, link traversal, polymorphic conversion, and optional RID/security metadata."
+    },
+    {
+      "name": "BaseWirePropertyTypes",
+      "definition": "'string' | 'datetime' | 'double' | 'boolean' | 'integer' | 'timestamp' | 'short' | 'long' | 'float' | 'decimal' | 'byte' | 'marking' | 'mediaReference' | 'numericTimeseries' | 'stringTimeseries' | 'sensorTimeseries' | 'attachment' | 'geopoint' | 'geoshape' | 'geotimeSeriesReference' | 'vector'",
+      "purpose": "The 22 primitive wire property types supported by the Ontology, each mapping to a specific TypeScript type via PropertyValueWireToClient."
+    },
+    {
+      "name": "WirePropertyTypes",
+      "definition": "BaseWirePropertyTypes | Record<string, BaseWirePropertyTypes>",
+      "purpose": "Full property type union including both primitive types and struct types (records of named fields with primitive types)."
+    },
+    {
+      "name": "PropertyValueWireToClient",
+      "definition": "interface { string: string; datetime: string; double: number; boolean: boolean; integer: number; timestamp: string; long: string; decimal: string; geopoint: GeoJSON.Point; geoshape: GeoJSON.GeoJSON; attachment: Attachment; mediaReference: Media; vector: number[]; ... }",
+      "purpose": "Canonical mapping from wire property type names to their TypeScript runtime types for reading object data."
+    },
+    {
+      "name": "ActionMetadata.Parameter<T_Target>",
+      "definition": "interface { type: BaseActionParameterTypes | DataType.Object<any> | DataType.ObjectSet<any> | DataType.Interface<any> | DataType.Struct<any>; description?: string; multiplicity?: boolean; nullable?: boolean }",
+      "purpose": "Parameter definition for actions, supporting primitive types, object references, object sets, interface references, and struct types."
+    },
+    {
+      "name": "QueryDataTypeDefinition",
+      "definition": "PrimitiveDataType | ObjectQueryDataType | InterfaceQueryDataType | ObjectSetQueryDataType | SetQueryDataType | UnionQueryDataType | StructQueryDataType | TwoDimensionalAggregationDataType | ThreeDimensionalAggregationDataType | MapDataType | ArrayQueryDataType",
+      "purpose": "Discriminated union of all data types usable in query parameters and return types, supporting primitives, objects, sets, structs, maps, arrays, unions, and aggregations."
+    },
+    {
+      "name": "WhereClause<T, RDPs>",
+      "definition": "OrWhereClause | AndWhereClause | NotWhereClause | PropertyWhereClause (with per-type filters: StringFilter, NumberFilter, DatetimeFilter, BooleanFilter, GeoFilter, ArrayFilter)",
+      "purpose": "Type-safe filter expression for ObjectSet.where(), with filters specialized per wire property type and support for logical composition."
+    },
+    {
+      "name": "PropertySecurity",
+      "definition": "{ type: 'propertyMarkings' } & PropertyMarkings | { type: 'unsupportedPolicy' } | { type: 'errorComputingSecurity' }",
+      "purpose": "Security metadata for a property value, providing conjunctive and disjunctive marking requirements including container-level markings."
+    },
+    {
+      "name": "ObjectOrInterfaceDefinition",
+      "definition": "ObjectTypeDefinition | InterfaceDefinition",
+      "purpose": "Union type enabling shared handling of both object types and interfaces in APIs like ObjectSet, WhereClause, and property access."
+    },
+    {
+      "name": "SimplePropertyDef",
+      "definition": "WirePropertyTypes | undefined | Array<WirePropertyTypes>",
+      "purpose": "Compact encoding of property type+nullability+multiplicity: plain type = non-nullable single, type|undefined = nullable, Array<type> = non-nullable array, Array<type>|undefined = nullable array."
+    },
+    {
+      "name": "OntologyMetadata",
+      "definition": "interface { ontologyRid: string; ontologyApiName: string; userAgent: string }",
+      "purpose": "Top-level metadata identifying an ontology by its resource identifier and API name."
+    },
+    {
+      "name": "ObjectSpecifier<Q>",
+      "definition": "string & { __apiName: Q['apiName'] | (interface implementedBy types) }",
+      "purpose": "Branded string type for encoding type-safe object references that work across both concrete types and their interfaces."
+    }
+  ],
+  "dependencies": [
+    "@osdk/foundry.ontologies - Wire protocol types for Foundry ontology APIs (OntologyFullMetadata, ObjectTypeFullMetadata, ActionTypeV2, etc.)",
+    "@osdk/foundry.core - Core Foundry platform API types",
+    "@osdk/foundry.datasets - Dataset API types",
+    "@osdk/foundry.mediasets - Media set API types",
+    "@osdk/shared.client / @osdk/shared.client2 - Shared client context abstractions",
+    "@osdk/shared.net.fetch - Fetch-based HTTP networking layer",
+    "@osdk/shared.net.errors - PalantirApiError and error types",
+    "@osdk/generator-converters - Wire-to-SDK metadata converters",
+    "conjure-lite - Palantir Conjure client for type-safe API calls",
+    "rxjs - Reactive extensions for ObjectSet subscriptions",
+    "isomorphic-ws / ws - WebSocket support for subscriptions",
+    "@types/geojson - GeoJSON type definitions for spatial properties",
+    "fast-deep-equal - Deep equality checks for object comparison",
+    "fetch-retry - Retry logic for HTTP requests",
+    "@wry/trie - Trie data structure for efficient caching",
+    "consola - Logging library used in generator"
+  ],
+  "tags": [
+    "osdk",
+    "typescript",
+    "ontology",
+    "palantir",
+    "foundry",
+    "code-generation",
+    "type-safe",
+    "monorepo",
+    "object-types",
+    "actions",
+    "queries",
+    "interfaces",
+    "links",
+    "properties",
+    "wire-types",
+    "oauth",
+    "react",
+    "client-sdk",
+    "vector-search",
+    "real-time-subscriptions"
+  ]
+}

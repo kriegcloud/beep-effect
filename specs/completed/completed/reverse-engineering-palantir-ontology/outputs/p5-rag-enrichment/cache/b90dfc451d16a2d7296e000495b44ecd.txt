@@ -1,0 +1,204 @@
+Ontologies • Usage • Ontology query compute • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Ontologies Usage Ontology query compute 
+
+ Compute usage with Ontology queries
+
+The Foundry Ontology is a data backend that maps file-based data to organization-centric objects and serves high-speed queries for data exploration, data analysis, operational data editing, scenario analysis, and more. The Ontology stores data in multi-modal storage backends that each have their own purposes and can be flexibly queried in a single request. Querying the Foundry Ontology requires knowledge of some foundational concepts discussed below.
+
+If you have an enterprise contract with Palantir, contact your Palantir representative before proceeding with compute usage calculations.
+
+ Core concepts: Object types and object sets
+
+The first important concept is the difference between an object type and its corresponding object set . An object type is the semantic representation of the entity itself (such as the name and properties of the object).
+
+An object type has a corresponding object set , which contains the objects themselves. The size of the object set corresponds to the number of rows of the incoming dataset and the number of objects created and deleted by Ontology actions.
+
+ Core concept: Query types
+
+The second important concept is the idea of query types , which include filters, aggregations, Search Arounds, and writeback operations. Each query type requires compute to execute.
+
+Filters will consider a full object set and apply a filtering criteria to produce a smaller output set.
+
+Aggregations will take an input object set and run an aggregating function (such as sum or avg ) on one of the properties for all objects in the set.
+
+Search Arounds will take an incoming object set and run a secondary filter on another object set based on a certain property of the incoming set.
+
+Writeback operations will replace the values of properties of objects in a designated object set.
+
+ View the API documentation to learn more about query types. 
+
+When using the Foundry Ontology, query types are executed against object sets by the following Foundry Applications :
+
+Object Explorer
+
+Workshop
+
+Quiver
+
+Slate
+
+Vertex
+
+Foundry Rules
+
+Foundry Machinery
+
+Object APIs (OPIs)
+
+Querying the ontology from any of these sources will use compute-seconds to run the query, as follows:
+
+A fixed, minimum number of compute-seconds for query overhead.
+
+An additional scaling number of compute-seconds, which are measured by the amount of compute used to service the query.
+
+ Measuring Foundry compute with Ontology object queries
+
+ Measuring compute with Object Storage V1
+
+Object Storage V1 (Phonograph) stores data in a distributed set of indices in a durable, horizontally scalable cluster. In these indices, data sits in large data structures that are traversed by the Ontology query engine. When a query is executed, the engine can avoid processing large swaths of data during its search by traversing the index. This process is known as "pruning".
+
+Using this engine, you can search through billions of records by evaluating up to 1000x fewer records. Each physical evaluation of a record is called a "hit". Object Storage V1 is designed to minimize the number of hits in each query.
+
+ Measuring compute with Object Storage V2
+
+Object Storage V2 (OSv2) stores objects in an enhanced indexing format that is optimized by Palantir for high-speed indexing, Search Arounds, and writeback, as well as smooth hand-offs to multiple compute backends to accomplish complex tasks. This includes a combination of fully parallelized Spark compute as a part of a query.
+
+Given that Object Storage V2 also uses an efficient indexing structure, the same principle of hits from Object Storage V1 applies on basic queries. However, compute-seconds can also be used by on-demand Spark containers that are spun up as a part of the query.
+
+Queries made to objects in the Object Storage V2 backend use compute in the following pattern:
+
+A fixed compute-second overhead of 16 compute-seconds per query for objects in the Object Storage V1 backend.
+
+A fixed compute-second overhead of 4 compute-seconds per query for objects in the Object Storage V2 backend. The optimized structure of Object Storage V2 requires less overhead than Object Storage V1 and therefore has a reduced fixed compute-second overhead.
+
+Additional compute-seconds are required when the process does computational work through the pruning process of the query. The additional compute-seconds scale with the number of objects in the index as well as the type of query.
+
+In Object Storage V2 (OSv2), the index pruning similarly requires additional compute seconds. However, OSv2 supports also on-demand Spark cluster searches when running search-arounds on over 100,000 objects, or running writeback operations on over 10,000 objects in a single request. These Spark clusters utilize usage in the same way as all other Spark-based applications on the platform. See the parallelized compute documentation for a description.
+
+Actions with write-back into the Ontology have a minimum overhead. Each action has a compute-second overhead of 18 . Actions also scale with the number of objects that are edited in the write-back request, incurring an additional 1 compute-second per object edited beyond the first.
+
+Functions run via Functions on Objects have a minimum overhead. Specifically, each function execution has a fixed overhead of 4 compute-seconds.
+
+ The following table summarizes the minimum compute-second usage per query type. 
+
+ Query Type minimum compute-seconds 
+
+ Ontology V1 Query 16 
+
+ Ontology V2 Query 4 
+
+ Action on Objects 18 
+
+ Function on Objects 4 
+
+ Understanding drivers of Foundry compute usage with Ontology queries
+
+As a very simple rule, the fixed compute-usage per query grows linearly with the number of queries. Performing fewer queries will use less compute in aggregate.
+
+More complex queries to the object set service, such as generic multi-object searches, will kick off multiple sub-queries to each object type. Limit your search to individual object types to reduce the number of queries you are using.
+
+Queries on smaller object sets will use less compute than those on larger object sets, as the number of hits in a query are proportional to the size of the object set being queried.
+
+Up-front filtering before performing other operations will take advantage of the highly indexed backend structure. This will reduce the number of hits in a query, reducing the overall compute usage. This is especially important with aggregations and Search Arounds, where filtered object sets use require less compute to process than full object sets.
+
+ Investigating Foundry compute usage from Ontology queries
+
+In Foundry, compute-seconds are attributed to resources in the platform rather than to the users that are interacting with those resources.
+
+When it comes to Ontology queries, there are multiple ways in which compute is attributed. As a general rule, the compute is attached to the resource where the query originated. However, when there is no saved resource that is used to generate the compute (such as via API), the compute will be attached to the object type(s) that are being queried. If multiple objects are queried in a single request, then the compute is attributed via an even split between the objects.
+
+The following resource types have Ontology query compute attributed to them, rather than the underlying objects:
+
+Workshop Applications
+
+Carbon Pages
+
+Quiver Analyses and Dashboards
+
+Vertex Applications
+
+Slate Applications
+
+Foundry Machinery Applications
+
+Foundry Rules Resources
+
+Foundry Automate
+
+AIP Logic
+
+The following interaction patterns have their Ontology query compute attached directly to the object types that they query, given there is no set resource to which the compute can be attached.
+
+Object Explorer
+
+Object APIs (including the OSDK)
+
+ ← 
+ PREVIOUS Ontology indexing compute 
+
+ NEXT Object and link types / Types reference 
+ →

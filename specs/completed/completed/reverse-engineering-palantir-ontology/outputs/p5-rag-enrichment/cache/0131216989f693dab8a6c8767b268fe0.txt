@@ -1,0 +1,41 @@
+Palantir Developers: Learn to build in Palantir Foundry
+Palantir
+Follow
+2 min read
+·
+Feb 10, 2022
+
+143
+
+2
+
+Press enter or click to view image in full size
+Introducing New Resources for Developers to Elevate their Impact in Foundry
+
+Everyone in an organization should be able to use the right data to make the best decisions. That’s why Palantir is committed to making Foundry as intuitive and accessible as possible — not only for data scientists and engineers, but also for sales, product development, recruiting, and more.
+
+We believe the best way to accelerate towards this vision is to empower the thousands of developers that build on Foundry every day. To make this happen, we’re starting to engage more with developers on Stack Overflow and are launching a new video channel created for the developer community.
+
+Answering Your Developer Questions
+
+For years, we’ve provided our customers’ developers with product documentation within Foundry, and collaborated together live on the front lines. But as COVID changed the way we work, developers and Palantirians needed to find new ways to collaborate. Recently, we’ve seen these developers searching the internet with questions about Foundry, whether learning how to debug data pipelines, or seeking ideas on implementation design. Over time, we’ve seen Stack Overflow steadily become a place where they could find answers.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We’re excited to make developer engagement on Stack Overflow a core part of our work. Developer thoughts, questions, and collaborations are welcome here.
+
+Palantir Developers Video Channel
+
+We are also excited to launch the Palantir Developers channel, marking a new phase of developer support across our customer base. If images are worth a thousand words, then videos are a library. The channel will serve as a hub to help developers unlock even more value within Foundry.
+
+Check out our new channel and subscribe here:
+
+Palantir Developers Channel
+
+From tutorials about writing unit tests to walkthroughs of a Foundry Reference Project, the Palantir Developers channel will feature multiple video series highlighting different developer topics on Foundry.
+
+Our customers’ developers use Foundry in innovative ways we never could have imagined when we first released it six years ago. They play a critical role in shaping our products. We’ve embedded deeply with developers to build new features and even new tools. Together, we’ve created new charts and filters, simplified app building with Workshop, and designed Quiver to help developers overlay millions of sensor data points in seconds. We are optimistic that this channel will provide developers a collaborative space to learn, share, and be inspired to build new solutions.

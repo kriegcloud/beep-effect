@@ -1,0 +1,1507 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-overview/architecture",
+    "title": "Platform overview - Architecture - Palantir",
+    "summary": "Official documentation covering Palantir's core architecture consisting of three platforms: AIP, Foundry, and Apollo, functioning as an enterprise operating system. The Ontology is the central software architecture representing enterprise decisions, not just data. Includes Kubernetes-based build system, zero-copy data lake access, and comprehensive security with role-, classification-, and purpose-based access controls.",
+    "category": "architecture",
+    "relevantParts": [
+      "Defines the three-platform architecture (AIP, Foundry, Apollo)",
+      "Explains Ontology as the central architectural abstraction",
+      "Covers microservices architecture of the Ontology backend"
+    ],
+    "tags": [
+      "architecture",
+      "ontology",
+      "foundry",
+      "aip",
+      "apollo",
+      "kubernetes",
+      "microservices"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Roles"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-overview/overview",
+    "title": "Platform overview - Overview - Palantir",
+    "summary": "High-level overview of the Palantir platform, explaining how AIP, Foundry, and Apollo work together. Covers the platform's design philosophy as an enterprise operating system with integrated development environments like VS Code and JupyterLab providing connectivity with Ontology-driven applications.",
+    "category": "architecture",
+    "relevantParts": [
+      "Platform-level overview of all three products",
+      "IDE integration with Ontology-driven applications"
+    ],
+    "tags": ["platform", "overview", "foundry", "aip", "apollo"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/overview",
+    "title": "Overview - Architecture center - Palantir",
+    "summary": "Palantir's Architecture Center provides reference architectures, technical guidance, and best practices for deploying and integrating Foundry and AIP. Covers the architectural goal of connecting all business logic and modeling in the enterprise regardless of where assets were trained, tested, or hosted.",
+    "category": "architecture",
+    "relevantParts": [
+      "Reference architecture documentation hub",
+      "Integration patterns for enterprise business logic"
+    ],
+    "tags": [
+      "architecture-center",
+      "reference-architecture",
+      "integration",
+      "best-practices"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/aip-architecture",
+    "title": "AIP architecture overview - Palantir",
+    "summary": "Detailed architectural overview of Palantir's Artificial Intelligence Platform (AIP), covering how it provides integrated development environments with seamless connectivity to Ontology-driven applications and integrated testing/evaluation frameworks.",
+    "category": "architecture",
+    "relevantParts": [
+      "AIP-specific architecture patterns",
+      "Integration of AI with Ontology-driven applications"
+    ],
+    "tags": ["aip", "ai", "architecture", "ontology", "llm"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Action Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/osdk-ts",
+    "title": "GitHub - palantir/osdk-ts: Typescript related OSDK libraries",
+    "summary": "The official open-source TypeScript OSDK monorepo containing multiple packages for interacting with Palantir's Ontology. Includes the @osdk/client package for creating clients, @osdk/oauth for authentication, and foundry-platform-typescript for standalone Foundry API access. Actively maintained with regular releases through February 2026.",
+    "category": "architecture",
+    "relevantParts": [
+      "Primary TypeScript SDK source code and packages",
+      "Contains @osdk/client, @osdk/oauth, and platform SDK packages",
+      "Monorepo structure with turbo.json build configuration"
+    ],
+    "tags": ["osdk", "typescript", "sdk", "github", "open-source", "monorepo"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/overview",
+    "title": "Ontology SDK - Overview - Palantir",
+    "summary": "Official overview of the Ontology Software Development Kit (OSDK), which provides accelerated development with ergonomic Ontology API access. OSDK 2.0 scales linearly with Ontology shape/metadata rather than actual Ontology contents, supports lazy loading, and generates strongly typed interfaces. Available for TypeScript (NPM), Python (Pip/Conda), Java (Maven), and OpenAPI for other languages.",
+    "category": "architecture",
+    "relevantParts": [
+      "OSDK architecture and design philosophy",
+      "Multi-language code generation from Ontology",
+      "OSDK 2.0 performance improvements and lazy loading"
+    ],
+    "tags": [
+      "osdk",
+      "sdk",
+      "typescript",
+      "python",
+      "java",
+      "code-generation",
+      "lazy-loading"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/typescript-osdk-migration",
+    "title": "Ontology SDK - TypeScript OSDK migration guide - Palantir",
+    "summary": "Migration guide for upgrading from OSDK v1 to TypeScript OSDK 2.0. Documents breaking changes, new API patterns, and performance improvements in the 2.0 release including streamlined code generation and linear scaling with Ontology shape.",
+    "category": "architecture",
+    "relevantParts": [
+      "OSDK version migration patterns and breaking changes",
+      "API evolution from v1 to v2"
+    ],
+    "tags": ["osdk", "typescript", "migration", "v2", "breaking-changes"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/typescript-subscriptions",
+    "title": "Ontology SDK - Subscribe to Ontology changes with the TypeScript OSDK - Palantir",
+    "summary": "Documentation for the TypeScript OSDK subscriptions feature, enabling real-time updates when objects in a specified object set change. Covers addition/deletion of objects and property change notifications, representing the reactive data layer of the OSDK.",
+    "category": "architecture",
+    "relevantParts": [
+      "Real-time subscription architecture for Ontology changes",
+      "Object set change notification patterns"
+    ],
+    "tags": ["osdk", "typescript", "subscriptions", "real-time", "object-set"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/foundry-platform-typescript",
+    "title": "GitHub - palantir/foundry-platform-typescript: The official TypeScript library for the Foundry API",
+    "summary": "Official TypeScript library for the Foundry and Gotham Platform APIs. Provides NPM packages as @osdk/foundry.{namespace} and @osdk/gotham.{namespace}. Can be used with either an Ontology SDK client or standalone platform SDK client. Requires Developer Console application setup with client ID and redirect URL.",
+    "category": "architecture",
+    "relevantParts": [
+      "Platform-level TypeScript SDK separate from OSDK",
+      "Namespace-based package organization for Foundry and Gotham APIs",
+      "OAuth client integration pattern"
+    ],
+    "tags": [
+      "typescript",
+      "sdk",
+      "foundry-api",
+      "gotham",
+      "platform-sdk",
+      "npm"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://github.com/palantir/conjure",
+    "title": "GitHub - palantir/conjure: Strongly typed HTTP/JSON APIs for browsers and microservices",
+    "summary": "Palantir's open-source toolchain for defining APIs once in human-readable YAML and generating client/server interfaces in multiple languages (Java, TypeScript, Python). Conjure compiles to a JSON-based intermediate representation (IR). Designed to be more opinionated than Swagger/OpenREST, supporting only a restricted subset of HTTP for consistency across Palantir's hundreds of microservices.",
+    "category": "architecture",
+    "relevantParts": [
+      "Core API definition framework used across Palantir's microservice architecture",
+      "YAML-to-IR compilation pipeline and multi-language code generation",
+      "Design philosophy of opinionated API constraints vs Swagger flexibility"
+    ],
+    "tags": [
+      "conjure",
+      "api",
+      "code-generation",
+      "yaml",
+      "microservices",
+      "open-source"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-conjure-palantirs-toolchain-for-http-json-apis-2175ec172d32",
+    "title": "Introducing Conjure, Palantir's toolchain for HTTP/JSON APIs - Palantir Blog",
+    "summary": "Official Palantir blog post introducing Conjure, explaining why they built it instead of using Swagger/OpenREST. Covers the design philosophy of using a restricted API definition language for consistency, the intermediate representation approach, and how it scales across hundreds of microservice repositories.",
+    "category": "architecture",
+    "relevantParts": [
+      "Design rationale for building Conjure vs using existing tools",
+      "Battle-tested across hundreds of repos at Palantir scale"
+    ],
+    "tags": ["conjure", "api", "blog", "design-philosophy", "microservices"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "2018-11-01",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 5
+  },
+  {
+    "url": "https://github.com/palantir/conjure/blob/master/docs/spec/conjure_definitions.md",
+    "title": "Conjure Definitions Specification",
+    "summary": "The formal specification for Conjure API definitions, documenting the YAML schema used to define services, types, and endpoints. Covers the restricted set of data types (primitives, collections, recursive objects) and the intentional absence of concepts like inheritance.",
+    "category": "architecture",
+    "relevantParts": [
+      "Formal Conjure definition language specification",
+      "Type system constraints and supported data types"
+    ],
+    "tags": ["conjure", "specification", "yaml", "types", "api-definition"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/conjure/blob/master/docs/spec/intermediate_representation.md",
+    "title": "Conjure Intermediate Representation Specification",
+    "summary": "Documents the JSON-based intermediate representation (IR) that Conjure compiles YAML definitions into. This IR serves as the input for language-specific code generators, enabling the multi-language code generation pipeline.",
+    "category": "architecture",
+    "relevantParts": [
+      "IR format that bridges API definitions to code generators",
+      "Core of Conjure's multi-language compilation pipeline"
+    ],
+    "tags": ["conjure", "ir", "intermediate-representation", "code-generation"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://news.ycombinator.com/item?id=18494628",
+    "title": "Introducing Conjure, Palantir's Toolchain for HTTP/JSON APIs - Hacker News",
+    "summary": "Hacker News discussion thread about Palantir's Conjure announcement. Contains developer commentary comparing Conjure to alternatives like Swagger, gRPC/protobuf, and Thrift. Provides external perspective on Conjure's design tradeoffs and how it fits in the API tooling ecosystem.",
+    "category": "architecture",
+    "relevantParts": [
+      "Community analysis of Conjure vs competing API frameworks",
+      "Third-party developer perspectives on the design"
+    ],
+    "tags": ["conjure", "discussion", "community", "api", "comparison"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "2018-11-01",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/overview",
+    "title": "Compute modules - Overview - Palantir",
+    "summary": "Official documentation for Foundry Compute Modules, which enable running containerized workloads in Foundry regardless of programming language. Supports container-backed functions callable from Workshop or Slate, with dynamic horizontal scaling based on load. Functions are registered with API names following com.<namespace>.computemodules.<MyApiName> pattern.",
+    "category": "architecture",
+    "relevantParts": [
+      "Containerized compute architecture for custom workloads",
+      "Function registration and API naming conventions",
+      "Dynamic horizontal scaling based on load"
+    ],
+    "tags": ["compute-modules", "containers", "docker", "functions", "scaling"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Action Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/functions",
+    "title": "Compute modules - Configuration - Functions - Palantir",
+    "summary": "Documentation for configuring functions within Compute Modules, including function registration, API name conventions (com.<namespace>.computemodules.<MyApiName>), testing via the Test tab, and streaming response patterns. Functions are always registered with version 0.0.0.",
+    "category": "architecture",
+    "relevantParts": [
+      "Function configuration and registration patterns",
+      "Streaming response architecture for compute module functions"
+    ],
+    "tags": [
+      "compute-modules",
+      "functions",
+      "configuration",
+      "streaming",
+      "api"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/typescript-compute-module",
+    "title": "GitHub - palantir/typescript-compute-module: Typescript library for writing Compute Modules",
+    "summary": "Open-source TypeScript library for building Compute Modules. Provides the SDK for defining functions with type-safe inputs/outputs, handling service discovery, authentication tokens, and external source access within containerized compute module workloads.",
+    "category": "architecture",
+    "relevantParts": [
+      "TypeScript SDK for compute module development",
+      "Open-source implementation of compute module client"
+    ],
+    "tags": ["compute-modules", "typescript", "sdk", "open-source", "github"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/python-compute-module",
+    "title": "GitHub - palantir/python-compute-module: Python library for writing Compute Modules",
+    "summary": "Open-source Python library for building Compute Modules, handling service discovery, token management, and defining functions with type hints. Provides utilities for authentication and accessing external sources within containerized workloads.",
+    "category": "architecture",
+    "relevantParts": [
+      "Python SDK for compute module development",
+      "Authentication and service discovery patterns"
+    ],
+    "tags": ["compute-modules", "python", "sdk", "open-source", "github"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/java-compute-module",
+    "title": "GitHub - palantir/java-compute-module: Java library for writing Compute Modules",
+    "summary": "Open-source Java library for writing Compute Modules. Uses a builder pattern for ComputeModule instantiation with .add method for attaching functions. Handles service discovery, token management, and containerized execution.",
+    "category": "architecture",
+    "relevantParts": [
+      "Java SDK for compute module development with builder pattern",
+      "Multi-language compute module support"
+    ],
+    "tags": ["compute-modules", "java", "sdk", "open-source", "github"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://dorians.medium.com/foundry-compute-modules-0b89d4897cd0",
+    "title": "Foundry Compute Modules: The Missing Getting Started Guide - Medium",
+    "summary": "Third-party getting started guide for Foundry Compute Modules, filling gaps in official documentation. Written by a practitioner with hands-on experience, providing practical guidance for developers new to the compute module containerization model.",
+    "category": "architecture",
+    "relevantParts": [
+      "Practical getting started perspective from a developer",
+      "Fills documentation gaps for compute modules"
+    ],
+    "tags": ["compute-modules", "tutorial", "getting-started", "third-party"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/workshop/overview",
+    "title": "Workshop - Overview - Palantir",
+    "summary": "Official Workshop documentation covering the no-code/low-code application builder. Workshop empowers users to create applications from no-code, low-code, and code-based widgets using the Object layer as the primary building block. Supports common patterns like Inboxes for task triage and Common Operational Pictures (COPs) for big-screen views with maps and statistics.",
+    "category": "architecture",
+    "relevantParts": [
+      "Workshop's widget-based application architecture",
+      "Object layer as primary building block for applications",
+      "Common application patterns (Inboxes, COPs)"
+    ],
+    "tags": [
+      "workshop",
+      "no-code",
+      "low-code",
+      "widgets",
+      "application-builder"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Object Views"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/app-building/overview",
+    "title": "Overview - App building - Palantir",
+    "summary": "Overview of Palantir's application building capabilities including Workshop for no-code/low-code apps, Developer Console for OSDK-powered custom React apps, and the relationship between different app building approaches in the Foundry ecosystem.",
+    "category": "architecture",
+    "relevantParts": [
+      "Comparison of app building approaches in Foundry",
+      "Developer Console for custom React app development"
+    ],
+    "tags": [
+      "app-building",
+      "workshop",
+      "developer-console",
+      "react",
+      "overview"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Object Views"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview",
+    "title": "OSDK React applications - Overview - Palantir",
+    "summary": "Documentation for building React applications with the OSDK, covering the creation, development, and deployment process within the Palantir platform. Uses in-platform VS Code workspace and repository templates with basic React app integrated with authorization and the Ontology SDK.",
+    "category": "architecture",
+    "relevantParts": [
+      "React application development workflow with OSDK",
+      "In-platform VS Code workspace integration",
+      "Authorization and Ontology SDK integration patterns"
+    ],
+    "tags": ["react", "osdk", "vscode", "development", "deployment"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/advanced-todo-application-architecture",
+    "title": "OSDK React applications - Tutorial: Advanced to-do application - Architecture and configuration",
+    "summary": "Hands-on tutorial for building an advanced to-do application with React and OSDK, covering application architecture patterns, configuration, and best practices for structuring Ontology-backed React applications.",
+    "category": "architecture",
+    "relevantParts": [
+      "Concrete application architecture example with OSDK",
+      "Configuration patterns for React + Ontology apps"
+    ],
+    "tags": ["react", "osdk", "tutorial", "architecture", "todo-app"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Action Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/ontology-starter-react-app",
+    "title": "GitHub - palantir/ontology-starter-react-app: Example starter repo for building React applications on top of a Foundry Ontology",
+    "summary": "Official starter repository for React/TypeScript development on the Ontology SDK. Provides a skeleton application with authorization integration, OSDK setup, and development patterns for building custom frontends backed by Foundry Ontology data.",
+    "category": "architecture",
+    "relevantParts": [
+      "Official React starter template for OSDK development",
+      "Authorization and OSDK client setup patterns"
+    ],
+    "tags": ["react", "starter", "template", "osdk", "github", "open-source"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://learn.palantir.com/page/training-track-frontend-osdk-developer",
+    "title": "Training Track - Frontend & OSDK Developer - Palantir Learn",
+    "summary": "Official Palantir learning track for frontend and OSDK developers, providing structured training curriculum covering React development, OSDK integration, and building applications on the Palantir platform.",
+    "category": "architecture",
+    "relevantParts": [
+      "Official learning path for OSDK development",
+      "Structured curriculum for frontend developers"
+    ],
+    "tags": ["training", "osdk", "frontend", "learning", "developer"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://github.com/palantir/blueprint",
+    "title": "GitHub - palantir/blueprint: A React-based UI toolkit for the web",
+    "summary": "Palantir's open-source React UI toolkit optimized for building complex, data-dense web interfaces. Provides atomic components (Button, Popover, DateRangePicker) designed for composition into higher-level components. Takes a least-intrusion approach with global styling limited to typography. Not mobile-first; designed for desktop applications.",
+    "category": "architecture",
+    "relevantParts": [
+      "UI toolkit used internally at Palantir for data-dense interfaces",
+      "Component architecture philosophy of atomic composition",
+      "Design system underlying Palantir products"
+    ],
+    "tags": [
+      "blueprint",
+      "react",
+      "ui-toolkit",
+      "design-system",
+      "open-source",
+      "components"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Object Views", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/platforms/apollo/",
+    "title": "Palantir Apollo",
+    "summary": "Product page for Apollo, Palantir's continuous delivery and day-2 operations platform. Apollo unifies Dev, Sec, and Ops with autonomous software deployment across connected and disconnected/air-gapped environments. Uses Hub and Spoke architecture where Hubs manage multiple Spoke environments via Plans.",
+    "category": "architecture",
+    "relevantParts": [
+      "Apollo's Hub-Spoke deployment architecture",
+      "Autonomous deployment across cloud, on-prem, and air-gapped environments",
+      "Continuous delivery platform architecture"
+    ],
+    "tags": [
+      "apollo",
+      "deployment",
+      "continuous-delivery",
+      "hub-spoke",
+      "air-gapped"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Roles"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+    "title": "Palantir Apollo: Powering SaaS where no SaaS has gone before - Palantir Blog",
+    "summary": "Blog post detailing Apollo's capabilities for deploying software to environments where traditional SaaS cannot operate, from submarines to drones. Covers the architecture that enables thousands of daily deployments across hundreds of environments managed by 1,000+ engineers.",
+    "category": "architecture",
+    "relevantParts": [
+      "Scale metrics: hundreds of environments, thousands of daily deployments",
+      "Edge and disconnected deployment patterns"
+    ],
+    "tags": ["apollo", "deployment", "edge", "saas", "scale", "blog"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/assets/xrfr7uokpv1b/3B5KbQ9ujsiDCX4Tnfz3Hy/8d3ee9a6911665f036ce3d28c19cfa0d/PalantirApolloTechnicalWhitePaper.pdf",
+    "title": "Palantir Apollo Technical White Paper (PDF)",
+    "summary": "Official technical white paper for Apollo, Palantir's deployment platform. Likely contains detailed architecture diagrams, deployment patterns, and technical specifications for the Hub-Spoke model, autonomous deployment engine, and change management system.",
+    "category": "architecture",
+    "relevantParts": [
+      "Authoritative technical specification for Apollo",
+      "Detailed architecture and deployment patterns"
+    ],
+    "tags": ["apollo", "whitepaper", "technical", "deployment", "architecture"],
+    "source": "web-search",
+    "contentType": "whitepaper",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 5
+  },
+  {
+    "url": "https://platformengineering.org/talks-library/palantir-gitops-internal-developer-platform",
+    "title": "How Palantir built their GitOps Internal Developer Platform",
+    "summary": "Conference talk about Palantir's GitOps-based internal developer platform, covering how they built their deployment infrastructure and the engineering patterns behind Apollo's continuous delivery system.",
+    "category": "architecture",
+    "relevantParts": [
+      "GitOps patterns in Palantir's infrastructure",
+      "Internal developer platform engineering"
+    ],
+    "tags": [
+      "gitops",
+      "developer-platform",
+      "apollo",
+      "infrastructure",
+      "conference"
+    ],
+    "source": "web-search",
+    "contentType": "video",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://sstech.us/real-time-deployment-with-palantir-apollo/",
+    "title": "Palantir Apollo: Real-Time Deployment in Foundry - System Soft Technologies",
+    "summary": "Third-party analysis of Apollo's real-time deployment capabilities within Foundry. Apollo is natively aware of Foundry's object model, meaning deployments are versioned, interlinked operational logic pushed through a governed release pipeline rather than just code bundles.",
+    "category": "architecture",
+    "relevantParts": [
+      "Apollo's awareness of Foundry's object model for deployments",
+      "Governed release pipeline architecture"
+    ],
+    "tags": [
+      "apollo",
+      "deployment",
+      "real-time",
+      "foundry",
+      "release-pipeline"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://medium.com/@joshua_a/the-technical-anatomy-of-palantirs-foundry-platform-an-in-depth-analysis-d9cf6c275bba",
+    "title": "The Technical Anatomy of Palantir's Foundry Platform: An In-Depth Analysis - Medium",
+    "summary": "Third-party deep-dive analysis of Foundry's technical architecture covering the microservices design, data pipeline architecture, and how the various subsystems interact. Provides an outside perspective on Palantir's engineering decisions.",
+    "category": "architecture",
+    "relevantParts": [
+      "Independent technical analysis of Foundry architecture",
+      "Covers microservices and data pipeline internals"
+    ],
+    "tags": [
+      "foundry",
+      "analysis",
+      "architecture",
+      "microservices",
+      "third-party"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-backend/overview",
+    "title": "Overview and getting started - Object Backend - Palantir",
+    "summary": "Documentation for Foundry's Ontology backend microservices architecture, covering Object Storage V2 which separates indexing and querying for horizontal scalability. Describes the Object Data Funnel microservice responsible for orchestrating data writes from datasources and user edits (Actions) into object databases.",
+    "category": "architecture",
+    "relevantParts": [
+      "Object Storage V2 architecture with separated indexing and querying",
+      "Object Data Funnel microservice for data write orchestration",
+      "Evolution from Phonograph (V1) to V2 architecture"
+    ],
+    "tags": [
+      "object-backend",
+      "object-storage-v2",
+      "microservices",
+      "indexing",
+      "data-funnel"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Action Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-backend/object-storage-v2-breaking-changes",
+    "title": "Overview and getting started - Breaking changes between OSv1 and OSv2 - Palantir",
+    "summary": "Documents breaking changes between Object Storage V1 (Phonograph) and V2, covering the architectural migration path. Important for understanding how the Ontology backend evolved and what capabilities changed between versions.",
+    "category": "architecture",
+    "relevantParts": [
+      "OSv1 to OSv2 migration breaking changes",
+      "Architectural evolution of the Ontology backend"
+    ],
+    "tags": [
+      "object-storage",
+      "migration",
+      "breaking-changes",
+      "phonograph",
+      "v2"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/general/overview/introduction",
+    "title": "Introduction - API Reference - Palantir",
+    "summary": "Introduction to the Foundry REST API, a representational state transfer API using OAuth 2.0 authentication with JSON request/response format. Covers the API design patterns common across all endpoints including authentication via Bearer tokens.",
+    "category": "architecture",
+    "relevantParts": [
+      "REST API design patterns used across Foundry",
+      "OAuth 2.0 authentication architecture"
+    ],
+    "tags": ["api", "rest", "oauth", "authentication", "json"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/general/overview/sdks",
+    "title": "Software development kit (SDK) - API Reference - Palantir",
+    "summary": "API reference documentation for Foundry Platform SDKs, covering the two SDK types: Ontology SDK (OSDK) for generated Ontology-specific access in Python/Java/TypeScript, and Platform SDKs for generic Foundry API interaction. OSDK supports object types, actions, functions, and AIP Logic functions.",
+    "category": "architecture",
+    "relevantParts": [
+      "Distinction between OSDK and Platform SDKs",
+      "SDK capabilities: object types, actions, functions, AIP Logic"
+    ],
+    "tags": ["sdk", "osdk", "platform-sdk", "api-reference"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/generate-osdk-for-other-languages",
+    "title": "Ontology SDK - OSDK references - Generate OSDK for other languages - Palantir",
+    "summary": "Documentation for generating OSDK clients beyond the built-in Java/Python/TypeScript support. Developer Console supports exporting APIs in OpenAPI format, enabling use of open-source code generators for clients in virtually any language.",
+    "category": "architecture",
+    "relevantParts": [
+      "OpenAPI spec export for multi-language code generation",
+      "Extensibility of OSDK beyond supported languages"
+    ],
+    "tags": ["osdk", "code-generation", "openapi", "multi-language"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/developer-console/overview",
+    "title": "Developer Console - Overview - Palantir",
+    "summary": "Documentation for Developer Console, the portal for building and managing Custom Applications with their associated authorization clients, SDKs, and web hosting. Components include OAuth client, generated SDKs, auto-generated API documentation, permissions, metrics, and optional web hosting on Foundry subdomains.",
+    "category": "architecture",
+    "relevantParts": [
+      "Developer Console as the central SDK/app management portal",
+      "OAuth client management and SDK generation workflow",
+      "Web hosting on Foundry subdomains"
+    ],
+    "tags": [
+      "developer-console",
+      "oauth",
+      "sdk-generation",
+      "web-hosting",
+      "application-management"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces", "Roles"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/dev-toolchain/overview",
+    "title": "Overview - Dev toolchain - Palantir",
+    "summary": "Overview of Palantir's developer toolchain, covering the tools and workflows available for developing on the Foundry platform including code repositories, developer console, and VS Code workspaces.",
+    "category": "architecture",
+    "relevantParts": [
+      "Developer toolchain overview and component relationships",
+      "Development workflow architecture"
+    ],
+    "tags": ["dev-toolchain", "developer-tools", "workflow", "overview"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://github.com/palantir/foundry-platform-python",
+    "title": "GitHub - palantir/foundry-platform-python: The official Python SDK for the Foundry API",
+    "summary": "Official Python SDK for the Foundry API, auto-generated from the Foundry API specification. Supports user tokens and OAuth2 client credentials grant flow. Supersedes the deprecated palantir-python-sdk. Available on PyPI as foundry-platform-sdk.",
+    "category": "architecture",
+    "relevantParts": [
+      "Official Python SDK auto-generated from API spec",
+      "OAuth2 client credentials authentication pattern",
+      "Relationship to deprecated legacy Python SDK"
+    ],
+    "tags": ["python", "sdk", "foundry-api", "oauth2", "pypi", "open-source"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/overview",
+    "title": "Functions - Overview - Palantir",
+    "summary": "Overview of Foundry Functions, the mechanism for writing business logic that executes with low latency and native Ontology data access. Supports TypeScript and Python with specific decorators and type annotations for function registration.",
+    "category": "architecture",
+    "relevantParts": [
+      "Functions architecture and execution model",
+      "Language support and Ontology integration"
+    ],
+    "tags": ["functions", "business-logic", "typescript", "python", "ontology"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions", "Action Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/decorators",
+    "title": "Functions - TypeScript v1 - Decorators - Palantir",
+    "summary": "Documentation for TypeScript function decorators: @Function() for generic functions, @OntologyEditFunction() for Action-backing functions, @Query() for read-only API-callable functions, @Edits([objectType]) for object provenance, and @ModelFunction for modeling objectives. Functions must be exported from functions-typescript/src/index.ts.",
+    "category": "architecture",
+    "relevantParts": [
+      "TypeScript decorator-based function registration system",
+      "Different function types: generic, ontology edit, query, model"
+    ],
+    "tags": [
+      "functions",
+      "typescript",
+      "decorators",
+      "ontology-edit",
+      "query",
+      "actions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/language-feature-support",
+    "title": "Functions - Feature support by language - Palantir",
+    "summary": "Comparison matrix of feature support across TypeScript and Python for Foundry Functions, documenting which capabilities are available in each language including Ontology access, query support, and action backing.",
+    "category": "architecture",
+    "relevantParts": [
+      "Language-specific feature availability for Functions",
+      "TypeScript vs Python capabilities comparison"
+    ],
+    "tags": [
+      "functions",
+      "typescript",
+      "python",
+      "feature-comparison",
+      "language-support"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/code-repositories/overview",
+    "title": "Code Repositories - Overview - Palantir",
+    "summary": "Documentation for Foundry's web-based IDE supporting Git version control, code review, and collaboration. Supports three repository types: Transforms (Python/Java/SQL data transformations), Functions (TypeScript/Python business logic with Ontology access), and Model development. Features IntelliSense, linting, and Ontology-aware autocomplete.",
+    "category": "architecture",
+    "relevantParts": [
+      "Web-based IDE architecture with Git integration",
+      "Three repository types: Transforms, Functions, Model",
+      "Ontology-aware autocomplete and IntelliSense"
+    ],
+    "tags": [
+      "code-repositories",
+      "ide",
+      "git",
+      "transforms",
+      "functions",
+      "models"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/overview",
+    "title": "AIP Logic - Overview - Palantir",
+    "summary": "Documentation for AIP Logic, a no-code development environment for building LLM-powered functions. Functions are composed of blocks (Ontology read/write, calculations, aggregations, LLM interactions) that chain together. Leverages three categories of Ontology-driven tools: data, logic, and action.",
+    "category": "architecture",
+    "relevantParts": [
+      "Block-based no-code function composition architecture",
+      "Three categories of Ontology-driven tools: data, logic, action",
+      "LLM integration with Ontology"
+    ],
+    "tags": ["aip-logic", "llm", "no-code", "blocks", "ai-functions"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Action Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/overview",
+    "title": "Action types - Overview - Palantir",
+    "summary": "Documentation for Action types in the Ontology, which define how users can make changes to objects, properties, and links as single transactions. Actions provide a structured way to modify property values, create/delete objects, and link objects with complex permissions and conditions.",
+    "category": "architecture",
+    "relevantParts": [
+      "Action type architecture and transaction model",
+      "Structured writeback to Ontology with permissions/conditions"
+    ],
+    "tags": [
+      "actions",
+      "action-types",
+      "ontology",
+      "writeback",
+      "transactions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Action Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://github.com/palantir/workshop-iframe-custom-widget",
+    "title": "GitHub - palantir/workshop-iframe-custom-widget: Create custom widgets from applications",
+    "summary": "Open-source library for creating custom Workshop widgets via iframes. Uses @osdk/workshop-iframe-custom-widget npm package with useWorkshopContext hook for bidirectional communication between embedded apps and Workshop variables/events. Example code shows React component integration.",
+    "category": "architecture",
+    "relevantParts": [
+      "Custom widget iframe architecture for Workshop extensibility",
+      "Bidirectional communication pattern between apps and Workshop",
+      "useWorkshopContext React hook API"
+    ],
+    "tags": [
+      "workshop",
+      "iframe",
+      "custom-widget",
+      "react",
+      "bidirectional",
+      "open-source"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Object Views", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/pipeline-builder/overview",
+    "title": "Pipeline Builder - Overview - Palantir",
+    "summary": "Documentation for Pipeline Builder, which leverages Spark and Flink with a next-generation transformation backend acting as intermediary between logic creation and execution. Supports expressions (column-level) and transforms (table-level), with user-defined functions (UDFs) for custom code. Designed to output datasets, objects, streams, time-series, and exports.",
+    "category": "architecture",
+    "relevantParts": [
+      "Spark and Flink-based data transformation architecture",
+      "Intermediary backend between logic and execution",
+      "Multiple output types: datasets, objects, streams, time-series"
+    ],
+    "tags": [
+      "pipeline-builder",
+      "spark",
+      "flink",
+      "transforms",
+      "data-pipeline",
+      "streaming"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/architecture",
+    "title": "Data Connection - Architecture - Palantir",
+    "summary": "Architecture documentation for Foundry's Data Connection system, covering three connection patterns: direct connections for publicly accessible systems, agent proxy connections for private networks (recommended), and agent worker connections (legacy). Agents use unidirectional outbound HTTPS connections.",
+    "category": "architecture",
+    "relevantParts": [
+      "Three data connection architecture patterns",
+      "Agent proxy vs agent worker architecture",
+      "Unidirectional outbound connection security model"
+    ],
+    "tags": ["data-connection", "agents", "proxy", "architecture", "ingestion"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/overview",
+    "title": "Overview - Security - Palantir",
+    "summary": "Overview of Foundry's security model combining mandatory controls (propagated via data provenance/lineage), discretionary permissions (roles with view/edit operations), and granular row/column-level controls based on user attributes. Projects are the primary security boundary.",
+    "category": "architecture",
+    "relevantParts": [
+      "Security model with mandatory + discretionary + granular controls",
+      "Projects as primary security boundary",
+      "Role-based access control architecture"
+    ],
+    "tags": ["security", "rbac", "permissions", "access-control", "projects"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Roles", "Shared Property"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/carbon/overview",
+    "title": "Carbon - Overview - Palantir",
+    "summary": "Documentation for Carbon workspaces, which provide streamlined Foundry interfaces for operational users. Carbon creates workflows from modules (parameterized applications), with customizable home pages featuring Ontology-aware search, configurable navigation menus, and object/object-set passing between modules.",
+    "category": "architecture",
+    "relevantParts": [
+      "Carbon workspace architecture for operational users",
+      "Module-based navigation with object parameter passing",
+      "Ontology-aware search integration"
+    ],
+    "tags": [
+      "carbon",
+      "workspaces",
+      "modules",
+      "navigation",
+      "operational-users"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Object Views", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/developers/",
+    "title": "Palantir for Developers",
+    "summary": "Palantir's developer portal serving as the entry point for developers, providing access to documentation, APIs, SDKs, and developer tools. Links to AIP Developer Tier signups, bootcamps, and the broader developer ecosystem.",
+    "category": "architecture",
+    "relevantParts": [
+      "Central developer portal and entry point",
+      "AIP Developer Tier and bootcamp access"
+    ],
+    "tags": ["developer-portal", "getting-started", "aip", "developer-tier"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://dorians.medium.com/the-palantir-developer-reformation-1b4d21f5a7af",
+    "title": "The Palantir Developer Reformation - Medium",
+    "summary": "Analysis of Palantir's developer experience challenges and evolution. Identifies gaps including lack of CLI tooling, documentation issues, and how the Forward Deployed Engineering (FDE) model historically excluded external developers. Notes the organizational shift toward improving developer experience.",
+    "category": "architecture",
+    "relevantParts": [
+      "Critical analysis of Palantir developer experience gaps",
+      "FDE model's impact on external developer tooling",
+      "CLI and documentation deficiencies"
+    ],
+    "tags": ["developer-experience", "fde", "cli", "documentation", "analysis"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/witchcraft-api",
+    "title": "GitHub - palantir/witchcraft-api: Common APIs and Conjure definitions for witchcraft projects",
+    "summary": "Open-source repository containing Conjure definitions for Witchcraft health and logging APIs. Witchcraft is Palantir's Java microservice framework that integrates with Conjure for type-safe service-to-service communication, including URI live-reloading and connection pool reuse.",
+    "category": "architecture",
+    "relevantParts": [
+      "Witchcraft microservice framework's API definitions",
+      "Integration with Conjure for service communication"
+    ],
+    "tags": [
+      "witchcraft",
+      "conjure",
+      "java",
+      "microservices",
+      "health",
+      "logging"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://github.com/palantir/dialogue",
+    "title": "GitHub - palantir/dialogue: A client-side RPC library for conjure-java",
+    "summary": "Palantir's open-source client-side RPC library for Conjure-generated Java services. Provides the HTTP client implementation that works with Conjure-generated service interfaces, handling connection management, retries, and service discovery.",
+    "category": "architecture",
+    "relevantParts": [
+      "RPC client library for Conjure microservices",
+      "Java service communication infrastructure"
+    ],
+    "tags": ["dialogue", "rpc", "conjure", "java", "client", "open-source"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://medium.com/palantir/how-we-evolve-apis-60dbcfecc439",
+    "title": "How we evolve APIs - Palantir Blog",
+    "summary": "Palantir blog post about API evolution strategies, covering how they navigate the tension between maintaining backward compatibility and evolving their API surface. Relevant to understanding how the Ontology API and Conjure-based services are versioned and evolved.",
+    "category": "architecture",
+    "relevantParts": [
+      "API versioning and evolution strategies at Palantir",
+      "Backward compatibility patterns for platform APIs"
+    ],
+    "tags": [
+      "api",
+      "versioning",
+      "evolution",
+      "backward-compatibility",
+      "blog"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/platforms/foundry/open-architecture/",
+    "title": "Palantir Foundry - Open Architecture",
+    "summary": "Palantir's page on Foundry's open architecture approach, emphasizing that Foundry extends existing data platforms and analytics tools rather than replacing them. Covers in-place data lake access, Kubernetes-based builds, and comprehensive security spanning role-, classification-, and purpose-based access controls.",
+    "category": "architecture",
+    "relevantParts": [
+      "Open architecture philosophy for enterprise integration",
+      "In-place data access without data movement",
+      "Multi-layered security architecture"
+    ],
+    "tags": [
+      "open-architecture",
+      "integration",
+      "data-lake",
+      "kubernetes",
+      "security"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://learn.palantir.com/foundry-architecture",
+    "title": "Foundry Architecture - Palantir Learn",
+    "summary": "Official Palantir learning module covering Foundry's architecture in a structured educational format. Part of Palantir's training curriculum for understanding the platform's technical underpinnings.",
+    "category": "architecture",
+    "relevantParts": [
+      "Structured learning content for Foundry architecture",
+      "Official training material"
+    ],
+    "tags": ["learning", "architecture", "training", "foundry"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://build.palantir.com/platform/24af346e-637c-472f-b1de-9168dff0e74d",
+    "title": "Getting Started with Ontology SDK (OSDK) - Build with AIP",
+    "summary": "Palantir's Build with AIP portal entry for getting started with the Ontology SDK. Covers creating Developer Console applications, choosing client-facing application type, configuring OAuth redirect URLs, and generating Ontology-specific SDKs.",
+    "category": "architecture",
+    "relevantParts": [
+      "Step-by-step OSDK application creation workflow",
+      "OAuth configuration for OSDK applications"
+    ],
+    "tags": [
+      "osdk",
+      "quickstart",
+      "developer-console",
+      "oauth",
+      "getting-started"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/slate/overview",
+    "title": "Slate - Overview - Palantir",
+    "summary": "Documentation for Slate, Palantir's drag-and-drop application builder for dynamic and responsive applications with custom design. Supports custom JavaScript/HTML widgets, Ontology SDK integration, and write-back capabilities via Actions or direct Phonograph writes.",
+    "category": "architecture",
+    "relevantParts": [
+      "Slate's drag-and-drop application architecture",
+      "Custom widget and OSDK integration capabilities"
+    ],
+    "tags": [
+      "slate",
+      "application-builder",
+      "drag-drop",
+      "widgets",
+      "custom-design"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Object Views"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://github.com/palantir",
+    "title": "Palantir Technologies - GitHub",
+    "summary": "Palantir's GitHub organization with 264 open-source repositories. Contains core infrastructure tools including Conjure, Blueprint, OSDK-TS, Dialogue, Witchcraft, compute module SDKs, and various Gradle plugins. Projects use Apache 2.0 (Java) and MIT (JavaScript) licenses.",
+    "category": "architecture",
+    "relevantParts": [
+      "Overview of Palantir's open-source ecosystem (264 repos)",
+      "Licensing strategy: Apache 2.0 for Java, MIT for JavaScript"
+    ],
+    "tags": ["github", "open-source", "repositories", "ecosystem"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://docs.oracle.com/en/solutions/palantir-foundry-ai-platform-on-oci/index.html",
+    "title": "Run Palantir Foundry and Artificial Intelligence Platform on OCI",
+    "summary": "Oracle documentation for deploying Palantir Foundry on OCI, detailing the deployment architecture with control plane and data plane in separate subnets, instance pools for scaling, and the cloud-agnostic nature of Foundry supporting AWS, Azure, GCP, and hybrid deployments.",
+    "category": "architecture",
+    "relevantParts": [
+      "Detailed cloud deployment architecture (control plane + data plane)",
+      "Cloud-agnostic deployment patterns across major providers"
+    ],
+    "tags": [
+      "deployment",
+      "oci",
+      "cloud",
+      "control-plane",
+      "data-plane",
+      "infrastructure"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://a16z.com/the-palantirization-of-everything/",
+    "title": "The Palantirization of Everything - Andreessen Horowitz",
+    "summary": "Andreessen Horowitz analysis of Palantir's technology approach, noting Foundry as a combination of hundreds of microservices working toward outcomes. Provides venture capital perspective on Palantir's architectural differentiation and market positioning.",
+    "category": "architecture",
+    "relevantParts": [
+      "External analysis of Palantir's microservices scale (hundreds)",
+      "VC perspective on architectural differentiation"
+    ],
+    "tags": ["analysis", "microservices", "a16z", "market-positioning"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/typescript-v2-getting-started",
+    "title": "Functions - TypeScript v2 - Getting started - Palantir",
+    "summary": "Getting started guide for TypeScript v2 Functions in Foundry, covering the newer function authoring patterns with improved developer experience, Ontology integration, and deployment workflows.",
+    "category": "architecture",
+    "relevantParts": [
+      "TypeScript v2 function architecture and patterns",
+      "Updated developer experience for function authoring"
+    ],
+    "tags": [
+      "functions",
+      "typescript-v2",
+      "getting-started",
+      "developer-experience"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Action Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/typescript-v2-ontology-edits",
+    "title": "Functions - TypeScript v2 - Ontology edits - Palantir",
+    "summary": "Documentation for performing Ontology edits via TypeScript v2 Functions, covering how functions can create, modify, and delete objects, properties, and links through the action system. Represents the programmatic writeback architecture.",
+    "category": "architecture",
+    "relevantParts": [
+      "Programmatic Ontology edit patterns via Functions",
+      "TypeScript v2 action-backed function architecture"
+    ],
+    "tags": [
+      "functions",
+      "typescript-v2",
+      "ontology-edits",
+      "writeback",
+      "actions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://pythonebasta.medium.com/understanding-palantirs-ontology-semantic-kinetic-and-dynamic-layers-explained-c1c25b39ea3c",
+    "title": "Understanding Palantir's Ontology: Semantic, Kinetic, and Dynamic Layers Explained - Medium",
+    "summary": "Third-party analysis explaining Palantir's Ontology through three conceptual layers: semantic (data model and relationships), kinetic (actions and workflows), and dynamic (AI and real-time processing). Provides an accessible framework for understanding the Ontology architecture.",
+    "category": "architecture",
+    "relevantParts": [
+      "Three-layer Ontology architecture model: semantic, kinetic, dynamic",
+      "Accessible framework for understanding Ontology concepts"
+    ],
+    "tags": [
+      "ontology",
+      "semantic-layer",
+      "kinetic-layer",
+      "dynamic-layer",
+      "analysis"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://dorians.medium.com/foundational-ontologies-in-palantir-foundry-a774dd996e3c",
+    "title": "Foundational Ontologies in Palantir Foundry - Medium",
+    "summary": "Analysis of how to structure foundational ontologies in Palantir Foundry, covering best practices for defining object types, properties, and relationships that form the basis of enterprise data models.",
+    "category": "architecture",
+    "relevantParts": [
+      "Ontology design patterns and best practices",
+      "Foundational object type and relationship structuring"
+    ],
+    "tags": [
+      "ontology",
+      "design-patterns",
+      "best-practices",
+      "object-types",
+      "relationships"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Shared Property"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/query-functions",
+    "title": "Functions - Publish and call query functions through API gateway - Palantir",
+    "summary": "Documentation for publishing Functions as query endpoints accessible through Foundry's API gateway. Covers how to expose Functions as REST-callable queries with the @Query decorator, enabling external systems to invoke Ontology-backed logic.",
+    "category": "architecture",
+    "relevantParts": [
+      "API gateway architecture for exposing Functions",
+      "Query function publication and external access patterns"
+    ],
+    "tags": ["functions", "query", "api-gateway", "rest", "external-access"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://michaelellerbeck.com/2025/03/17/palantir-foundry-compute-module-for-absolute-beginners/",
+    "title": "Palantir Foundry Compute Module For Absolute Beginners",
+    "summary": "Beginner-friendly tutorial for Foundry Compute Modules, providing step-by-step guidance for developers new to containerized workloads in Foundry. Covers the basics of building, deploying, and configuring compute modules.",
+    "category": "architecture",
+    "relevantParts": [
+      "Accessible beginner tutorial for compute modules",
+      "Practical step-by-step containerization guidance"
+    ],
+    "tags": ["compute-modules", "tutorial", "beginner", "containers"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "2025-03-17",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/custom-widgets/parameters-and-events",
+    "title": "Custom widgets - Parameters and events - Palantir",
+    "summary": "Documentation for the parameters and events system in Foundry custom widgets, covering how custom React applications communicate with Workshop through typed parameters and event dispatching for bidirectional state management.",
+    "category": "architecture",
+    "relevantParts": [
+      "Custom widget parameter and event architecture",
+      "Bidirectional state management between widgets and Workshop"
+    ],
+    "tags": [
+      "custom-widgets",
+      "parameters",
+      "events",
+      "workshop",
+      "state-management"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Object Views", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://coder.com/success-stories/palantir",
+    "title": "Palantir's Journey to the Cloud: Leveraging Coder for Improved Development - Coder",
+    "summary": "Case study on Palantir's adoption of Coder for cloud-based development environments, covering challenges of managing complex development setups, controlling costs, and improving developer experience through standardized cloud development workspaces.",
+    "category": "architecture",
+    "relevantParts": [
+      "Palantir's internal development infrastructure choices",
+      "Cloud-based development environment architecture"
+    ],
+    "tags": [
+      "developer-experience",
+      "coder",
+      "cloud-development",
+      "infrastructure"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/execution-modes",
+    "title": "Compute modules - Configuration - Execution modes - Palantir",
+    "summary": "Documentation for compute module execution modes, covering how Functions mode allows compute modules to host logic usable across Foundry (Workshop applications, OSDK). Explains the relationship between execution modes and how functions are exposed to the platform.",
+    "category": "architecture",
+    "relevantParts": [
+      "Execution mode architecture for compute modules",
+      "Integration patterns between compute modules and Workshop/OSDK"
+    ],
+    "tags": [
+      "compute-modules",
+      "execution-modes",
+      "functions",
+      "workshop",
+      "osdk"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/how-to-bootstrapping-server-side-typescript",
+    "title": "Ontology SDK - Bootstrap a new TypeScript application with a service user - Palantir",
+    "summary": "Documentation for bootstrapping server-side TypeScript applications using OSDK with service user authentication, covering the architecture pattern for backend/headless applications that need to access the Ontology without user interaction.",
+    "category": "architecture",
+    "relevantParts": [
+      "Server-side OSDK application architecture pattern",
+      "Service user authentication for headless applications"
+    ],
+    "tags": ["osdk", "typescript", "server-side", "service-user", "backend"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions", "Roles"],
+    "quality": 3
+  }
+]

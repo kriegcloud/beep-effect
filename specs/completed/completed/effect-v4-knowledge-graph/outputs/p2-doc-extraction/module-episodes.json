@@ -1,0 +1,877 @@
+[
+  {
+    "name": "Effect v4 Module: Array",
+    "episode_body": "Title: Array Module\nCategory: module\nModule Path: effect/Array\n\nMental Model:\n- **`Array<A>`** is a standard JS array. All functions in this module return\n  new arrays; the input is never mutated.\n- **`NonEmptyReadonlyArray<A>`** (`readonly [A, ...Array<A>]`) is a readonly\n  array guaranteed to have at least one element. Many functions preserve or\n  require this guarantee at the type level.\n- **`NonEmptyArray<A>`** is the mutable counterpart: `[A, ...Array<A>]`.\n- Most functions are **dual** — they can be called either as\n  `Array.fn(array, arg)` (data-first) or piped as\n  `pipe(array, Array.fn(arg))` (data-last).\n- Functions that access elements by index return `Option<A>` for safety; use\n  the `*NonEmpty` variants (e.g. headNonEmpty) when you already know\n  the array is non-empty.\n- Set-like operations (union, intersection,\n  difference) use `Equal.equivalence()` by default; use the `*With`\n  variants for custom equality.\n\nCommon Tasks:\n- **Create** an array: make, of, empty,\n  fromIterable, range, makeBy, replicate,\n  unfold\n- **Access** elements: head, last, get, tail,\n  init\n- **Transform**: map, flatMap, flatten\n- **Filter**: filter, partition, dedupe\n- **Combine**: append, prepend, appendAll,\n  prependAll, zip, cartesian\n- **Split**: splitAt, chunksOf, span, window\n- **Search**: findFirst, findLast, contains\n- **Sort**: sort, sortBy, sortWith\n- **Fold**: reduce, scan, join\n- **Group**: groupBy, group, groupWith\n- **Set operations**: union, intersection,\n  difference\n- **Match** on empty vs non-empty: match, matchLeft,\n  matchRight\n- **Check** properties: isArray, isArrayNonEmpty,\n  every, some\n\nGotchas:\n- fromIterable returns the original array reference when given an\n  array; if you need a copy, use copy.\n- `sort`, `reverse`, etc. always allocate a new array — the input is never\n  mutated.\n- makeBy and replicate normalize `n` to an integer >= 1 —\n  they never produce an empty array.\n- range`(start, end)` is inclusive on both ends. If `start > end` it\n  returns `[start]`.\n- Functions returning `Option` (e.g. head, findFirst) return\n  `Option.none()` for empty inputs — they never throw.\n\nQuickstart:\n**Example** (Basic array operations)\n\n```ts\nimport { Array } from \"effect\"\n\nconst numbers = Array.make(1, 2, 3, 4, 5)\n\nconst doubled = Array.map(numbers, (n) => n * 2)\nconsole.log(doubled) // [2, 4, 6, 8, 10]\n\nconst evens = Array.filter(numbers, (n) => n % 2 === 0)\nconsole.log(evens) // [2, 4]\n\nconst sum = Array.reduce(numbers, 0, (acc, n) => acc + n)\nconsole.log(sum) // 15\n```\n\nSee Also:\nmake — create a non-empty array from elements\nmap — transform each element\nfilter — keep elements matching a predicate\nreduce — fold an array to a single value\n\nKey Exports by Category (138 total):\n- constructors: Array, make, allocate, makeBy, range, replicate, fromIterable, ensure, ... (11 total)\n- models: NonEmptyReadonlyArray, NonEmptyArray\n- conversions: fromRecord, fromOption, fromNullishOr\n- pattern matching: match, matchLeft, matchRight\n- concatenating: prepend, prependAll, append, appendAll\n- folding: scan, scanRight, reduce, reduceRight, join, mapAccum, countBy\n- guards: isArray, isArrayEmpty, isReadonlyArrayEmpty, isArrayNonEmpty, isReadonlyArrayNonEmpty\n- getters: length, get, head, headNonEmpty, last, lastNonEmpty, tail, tailNonEmpty, ... (16 total)\n- uncategorized: isOutOfBounds, makeReducerConcat\n- unsafe: getUnsafe\n- splitting: unprepend, unappend, span, splitAt, splitAtNonEmpty, split, splitWhere, chunksOf, ... (9 total)\n- elements: findFirstIndex, findLastIndex, findFirst, findFirstWithIndex, findLast, insertAt, replace, modify, ... (39 total)\n- sorting: sort, sortBy\n- zipping: zip, zipWith, unzip\n- grouping: groupWith, group, groupBy\n- types: ReadonlyArray, Infer, With, OrNonEmpty, AndNonEmpty, Flatten\n- mapping: map, extend\n- sequencing: flatMap, flatten, flatMapNullishOr\n- filtering: partitionMap, getSomes, getFailures, getSuccesses, filter, partition, separate\n- lifting: liftPredicate, liftOption, liftNullishOr, liftResult\n- instances: makeOrder, makeEquivalence\n- do notation: Do, bind, bindTo, getReadonlyReducerConcat\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: BigDecimal",
+    "episode_body": "Title: BigDecimal Module\nCategory: module\nModule Path: effect/BigDecimal\n\nDescription: This module provides utility functions and type class instances for working with the `BigDecimal` type in TypeScript.\nIt includes functions for basic arithmetic operations.\n\nA `BigDecimal` allows storing any real number to arbitrary precision; which avoids common floating point errors\n(such as 0.1 + 0.2 ≠ 0.3) at the cost of complexity.\n\nInternally, `BigDecimal` uses a `BigInt` object, paired with a 64-bit integer which determines the position of the\ndecimal point. Therefore, the precision *is not* actually arbitrary, but limited to 2<sup>63</sup> decimal places.\n\nIt is not recommended to convert a floating point number to a decimal directly, as the floating point representation\nmay be unexpected.\n\nKey Exports by Category (46 total):\n- models: BigDecimal\n- guards: isBigDecimal\n- constructors: make, fromBigInt, fromNumberUnsafe, fromNumber, fromString, fromStringUnsafe\n- uncategorized: makeNormalizedUnsafe, roundTerminal, digitAt\n- scaling: normalize, scale\n- math: sum, multiply, subtract, divide, divideUnsafe, clamp, min, max, ... (18 total)\n- instances: Order, Equivalence\n- predicates: isLessThan, isLessThanOrEqualTo, isGreaterThan, isGreaterThanOrEqualTo, between, equals, isInteger, isZero, ... (10 total)\n- conversions: format, toExponential, toNumberUnsafe\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: BigInt",
+    "episode_body": "Title: BigInt Module\nCategory: module\nModule Path: effect/BigInt\n\nDescription: This module provides utility functions and type class instances for working with the `bigint` type in TypeScript.\nIt includes functions for basic arithmetic operations.\n\nKey Exports by Category (35 total):\n- constructors: BigInt\n- guards: isBigInt\n- math: sum, multiply, subtract, divide, divideUnsafe, increment, decrement, clamp, ... (19 total)\n- instances: Order, Equivalence\n- predicates: isLessThan, isLessThanOrEqualTo, isGreaterThan, isGreaterThanOrEqualTo, between\n- conversions: toNumber, fromString, fromNumber\n- uncategorized: ReducerSum, ReducerMultiply, CombinerMax, CombinerMin\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Boolean",
+    "episode_body": "Title: Boolean Module\nCategory: module\nModule Path: effect/Boolean\n\nDescription: This module provides utility functions and type class instances for working with the `boolean` type in TypeScript.\nIt includes functions for basic boolean operations.\n\nKey Exports by Category (17 total):\n- constructors: Boolean\n- guards: isBoolean\n- pattern matching: match\n- instances: Order, Equivalence\n- combinators: not, and, nand, or, nor, xor, eqv, implies\n- utilities: every, some\n- uncategorized: ReducerAnd, ReducerOr\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Brand",
+    "episode_body": "Title: Brand Module\nCategory: module\nModule Path: effect/Brand\n\nDescription: This module provides types and utility functions to create and work with\nbranded types, which are TypeScript types with an added type tag to prevent\naccidental usage of a value in the wrong context.\n\nKey Exports by Category (14 total):\n- models: Brand, Constructor, BrandError\n- uncategorized: Brand, FromConstructor, Unbranded, Keys, Brands, EnsureCommonBase, check\n- alias: Branded\n- constructors: nominal, make\n- combining: all\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Cache",
+    "episode_body": "Title: Cache Module\nCategory: module\nModule Path: effect/Cache\n\nKey Exports by Category (17 total):\n- Models: Cache, Entry\n- Constructors: makeWith, make\n- Combinators: get, getOption, getSuccess, set, has, invalidate, invalidateWhen, refresh, ... (13 total)\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Cause",
+    "episode_body": "Title: Cause Module\nCategory: module\nModule Path: effect/Cause\n\nDescription: Structured representation of how an Effect can fail.\n\nA `Cause<E>` holds a flat array of `Reason` values, where each reason is one of:\n\n- **Fail** — a typed, expected error `E` (created by `Effect.fail`)\n- **Die** — an untyped defect (`unknown`) from `Effect.die` or uncaught throws\n- **Interrupt** — a fiber interruption, optionally carrying the interrupting fiber's ID\n\nMental Model:\n- A `Cause` is always flat: concurrent and sequential failures are stored together\n  in `cause.reasons` (a `ReadonlyArray<Reason<E>>`).\n- Each `Reason` carries an `annotations` map with tracing metadata (stack frames, spans).\n- An empty `reasons` array means the computation succeeded or the cause was empty\n  (empty).\n- `Cause` implements `Equal`, so two causes with identical reasons compare as equal.\n\nCommon Tasks:\n| Intent | API |\n|--------|-----|\n| Create a cause | fail, die, interrupt, fromReasons |\n| Test for reason types | hasFails, hasDies, hasInterrupts |\n| Extract the first error/defect | findError, findDefect, findFail, findDie |\n| Iterate over reasons manually | `cause.reasons.filter(Cause.isFailReason)` |\n| Combine two causes | combine |\n| Transform errors | map |\n| Collapse to a single thrown value | squash |\n| Render for logging | pretty, prettyErrors |\n| Attach/read tracing metadata | annotate, annotations, reasonAnnotations |\n\nGotchas:\n- `findError`/`findDefect` return `Filter.fail` (not `Option.none`) when no match is\n  found. Use findErrorOption if you need an `Option`.\n- `squash` picks the first `Fail` error, then the first `Die` defect, then falls back\n  to a generic \"interrupted\" / \"empty\" error. It is lossy — use `prettyErrors` or\n  iterate `reasons` directly when you need all failures.\n- The module also exports several built-in error classes (`NoSuchElementError`,\n  `TimeoutError`, `IllegalArgumentError`, `ExceededCapacityError`, `UnknownError`)\n  and the `Done` completion signal. These all implement `YieldableError` and can be\n  yielded directly inside `Effect.gen`.\n\n**Example** (inspecting a concurrent failure)\n\n```ts\nimport { Cause, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const cause = yield* Effect.sandbox(\n    Effect.all([\n      Effect.fail(\"err1\"),\n      Effect.die(\"defect\"),\n      Effect.fail(\"err2\")\n    ], { concurrency: \"unbounded\" })\n  ).pipe(Effect.flip)\n\n  const errors = cause.reasons\n    .filter(Cause.isFailReason)\n    .map((r) => r.error)\n\n  const defects = cause.reasons\n    .filter(Cause.isDieReason)\n    .map((r) => r.defect)\n\n  console.log(errors)  // [\"err1\", \"err2\"]  (order may vary)\n  console.log(defects) // [\"defect\"]\n})\n\nEffect.runPromise(program)\n```\n\nSee Also:\nCause — the core interface\nReason — the union of failure kinds\npretty — human-readable rendering\n\nKey Exports by Category (76 total):\n- symbols: TypeId, ReasonTypeId, NoSuchElementErrorTypeId, DoneTypeId, TimeoutErrorTypeId, IllegalArgumentErrorTypeId, ExceededCapacityErrorTypeId, UnknownErrorTypeId\n- models: Cause, Reason, Cause, Error, ReasonProto, Reason, Error, Die, ... (10 total)\n- guards: isCause, isReason, isFailReason, isDieReason, isInterruptReason, isNoSuchElementError, isDone, isTimeoutError, ... (11 total)\n- constructors: fromReasons, empty, fail, die, interrupt, makeFailReason, makeDieReason, makeInterruptReason, ... (15 total)\n- predicates: hasInterruptsOnly, hasFails, hasDies, hasInterrupts\n- mapping: map\n- combining: combine\n- destructors: squash\n- filters: findFail, findError, findErrorOption, findDie, findDefect, findInterrupt, filterInterruptors\n- accessors: interruptors\n- rendering: prettyErrors, pretty\n- errors: YieldableError, NoSuchElementError, Done, Done, TimeoutError, IllegalArgumentError, ExceededCapacityError, UnknownError\n- uncategorized: Extract, Only\n- annotations: annotate, reasonAnnotations, annotations, StackTrace, InterruptorStackTrace\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Channel",
+    "episode_body": "Title: Channel Module\nCategory: module\nModule Path: effect/Channel\n\nDescription: The `Channel` module provides a powerful abstraction for bi-directional communication\nand streaming operations. A `Channel` is a nexus of I/O operations that supports both\nreading and writing, forming the foundation for Effect's Stream and Sink abstractions.\n\nKey Exports by Category (142 total):\n- guards: isChannel\n- models: Channel, Variance, VarianceStruct, HaltStrategy\n- constructors: fromTransform, transformPull, fromPull, fromTransformBracket, callback, callbackArray, suspend, acquireUseRelease, ... (43 total)\n- destructors: toTransform\n- constants: DefaultChunkSize\n- Constructors: identity\n- Sequencing: map, mapDone, mapDoneEffect, mapAccum, scan, scanEffect\n- sequencing: mapEffect, mapInput, mapInputError, tap, flatMap, concatWith, concat, combine, ... (10 total)\n- utils: flattenArray, flattenTake, repeat, forever, schedule, retry, mergeAll, merge, ... (21 total)\n- Filtering: filter, filterEffect, filterArray, filterArrayEffect\n- Error handling: catchCause, tapCause, catchCauseIf, tapError, catchIf, catchTag, catchReason, catchReasons, ... (13 total)\n- String manipulation: splitLines, decodeText, encodeText\n- Buffering: buffer, bufferArray\n- Services: servicesWith, provideServices, provideService, provideServiceEffect, provide, updateServices, updateService\n- Tracing: withSpan\n- Do notation: Do, bind, bindTo\n- execution: runCount, runDrain, runForEach, runForEachWhile, runCollect, runDone, runHead, runLast, ... (10 total)\n- Destructors: toPull, toPullScoped, runIntoQueue, runIntoQueueArray, toQueue, toQueueArray, toPubSub, runIntoPubSub, ... (11 total)\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ChannelSchema",
+    "episode_body": "Title: ChannelSchema Module\nCategory: module\nModule Path: effect/ChannelSchema\n\nKey Exports by Category (6 total):\n- constructors: encode, encodeUnknown, decode, decodeUnknown\n- combinators: duplex, duplexUnknown\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Chunk",
+    "episode_body": "Title: Chunk Module\nCategory: module\nModule Path: effect/Chunk\n\nDescription: The `Chunk` module provides an immutable, high-performance sequence data structure\noptimized for functional programming patterns. A `Chunk` is a persistent data structure\nthat supports efficient append, prepend, and concatenation operations.\n\nKey Exports by Category (86 total):\n- models: Chunk, NonEmptyChunk\n- equivalence: makeEquivalence\n- constructors: isChunk, empty, make, of, fromIterable, makeBy, range\n- conversions: toArray, toReadonlyArray\n- elements: reverse, get, take, drop, dropRight, dropWhile, chunksOf, intersection, ... (33 total)\n- unsafe: fromArrayUnsafe, fromNonEmptyArrayUnsafe, getUnsafe, headUnsafe, lastUnsafe\n- concatenating: append, prepend, prependAll, appendAll\n- filtering: filterMap, filter, filterMapWhile, compact, partition, partitionMap, separate, dedupeAdjacent, ... (10 total)\n- sequencing: flatMap, flatten\n- combinators: forEach\n- types: Chunk, Infer, With, OrNonEmpty, AndNonEmpty, Flatten\n- mapping: map\n- folding: mapAccum, join, reduce, reduceRight\n- sorting: sort, sortWith\n- splitting: splitAt, splitNonEmptyAt, split, splitWhere\n- zipping: zipWith, zip\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Clock",
+    "episode_body": "Title: Clock Module\nCategory: module\nModule Path: effect/Clock\n\nDescription: The `Clock` module provides functionality for time-based operations in Effect applications.\nIt offers precise time measurements, scheduling capabilities, and controlled time management\nfor testing scenarios.\n\nThe Clock service is a core component of the Effect runtime, providing:\n- Current time access in milliseconds and nanoseconds\n- Sleep operations for delaying execution\n- Time-based scheduling primitives\n- Testable time control through `TestClock`\n\nKey Exports by Category (5 total):\n- models: Clock\n- references: Clock\n- constructors: clockWith, currentTimeMillis, currentTimeNanos\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Combiner",
+    "episode_body": "Title: Combiner Module\nCategory: module\nModule Path: effect/Combiner\n\nKey Exports by Category (9 total):\n- model: Combiner\n- uncategorized: make, flip, min, max, first, last, constant, intercalate\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Config",
+    "episode_body": "Title: Config Module\nCategory: module\nModule Path: effect/Config\n\nDescription: Declarative, schema-driven configuration loading. A `Config<T>` describes\nhow to read and validate a value of type `T` from a `ConfigProvider`. Configs\ncan be composed, transformed, and used directly as Effects.\n\nMental Model:\n- **Config\\<T\\>** – a recipe for extracting a typed value from a\n  `ConfigProvider`. Created via convenience constructors or schema.\n- **ConfigProvider** – the backing data source (env vars, JSON, `.env`\n  files). See the `ConfigProvider` module.\n- **ConfigError** – wraps either a `SourceError` (provider I/O failure) or\n  a `SchemaError` (validation / decoding failure).\n- **parse** – instance method on every `Config` that takes a provider and\n  returns `Effect<T, ConfigError>`.\n- **Yieldable** – every `Config` can be yielded inside `Effect.gen`. It\n  automatically resolves the current `ConfigProvider` from the service map.\n\nCommon Tasks:\n- Read a single env var → string, number, boolean,\n  int, port, url, date, duration,\n  logLevel, redacted\n- Read a structured config → schema with a `Schema.Struct`\n- Provide a default → withDefault\n- Make a config optional → option\n- Transform a value → map / mapOrFail\n- Fall back on error → orElse\n- Combine multiple configs → all\n- Build from a `Schema.Codec` → schema\n- Always succeed or fail → succeed / fail\n\nGotchas:\n- `withDefault` and `option` only apply when the error is caused by\n  **missing data**. Validation errors (wrong type, out of range) still\n  propagate.\n- When yielded in `Effect.gen`, the config resolves using the current\n  `ConfigProvider` service. To use a specific provider, call `.parse(provider)`\n  instead.\n- The `name` parameter on convenience constructors (e.g. `Config.string(\"HOST\")`)\n  sets the root path segment. Omit it when the config is part of a larger\n  schema.\n\nQuickstart:\n**Example** (Reading typed config from environment variables)\n\n```ts\nimport { Config, ConfigProvider, Effect, Schema } from \"effect\"\n\nconst AppConfig = Config.schema(\n  Schema.Struct({\n    host: Schema.String,\n    port: Schema.Int\n  }),\n  \"app\"\n)\n\nconst provider = ConfigProvider.fromEnv({\n  env: { app_host: \"localhost\", app_port: \"8080\" }\n})\n\n// Effect.runSync(AppConfig.parse(provider))\n// { host: \"localhost\", port: 8080 }\n```\n\nSee Also:\nschema – build a Config from any Schema.Codec\nConfigError – the error type for config failures\nmake – low-level Config constructor\n\nKey Exports by Category (35 total):\n- Guards: isConfig\n- Models: ConfigError\n- uncategorized: Config, orElse, all, withDefault, option, TrueValues, FalseValues\n- Constructors: make, fail, succeed, string, nonEmptyString, number, finite, int, ... (16 total)\n- Mapping: map, mapOrFail\n- Wrap: Wrap, unwrap\n- Schema: schema, Boolean, Duration, Port, LogLevel\n- Schemas: Record\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ConfigProvider",
+    "episode_body": "Title: ConfigProvider Module\nCategory: module\nModule Path: effect/ConfigProvider\n\nDescription: Provides the data source layer for the `Config` module. A `ConfigProvider`\nknows how to load raw configuration nodes from a backing store (environment\nvariables, JSON objects, `.env` files, file trees) and expose them through a\nuniform `Node` interface that `Config` schemas consume.\n\nMental Model:\n- **Node** – a discriminated union (`Value | Record | Array`) that describes\n  what lives at a given path in the configuration tree.\n- **Path** – an array of string or numeric segments used to address a node\n  (e.g. `[\"database\", \"host\"]`).\n- **ConfigProvider** – an object with a `load(path)` method that resolves a\n  path to a `Node | undefined`. Providers can be composed and transformed.\n- **ServiceMap.Reference** – `ConfigProvider` is registered as a reference\n  service that defaults to `fromEnv()`, so it works without explicit\n  provision.\n- **SourceError** – the typed error returned when a backing store is\n  unreadable (I/O failure, permission error, etc.).\n\nCommon Tasks:\n- Read from environment variables → fromEnv\n- Read from a JSON / plain object → fromUnknown\n- Parse a `.env` string → fromDotEnvContents\n- Load a `.env` file → fromDotEnv\n- Read from a directory tree → fromDir\n- Build a custom provider → make\n- Fall back to another provider → orElse\n- Scope a provider under a prefix → nested\n- Convert path segments to `CONSTANT_CASE` → constantCase\n- Transform path segments arbitrarily → mapInput\n- Install a provider as a Layer → layer / layerAdd\n\nGotchas:\n- `fromEnv` joins path segments with `_` for lookup **and** splits env var\n  names on `_` to discover child keys. `DATABASE_HOST=x` is therefore\n  accessible at both `[\"DATABASE_HOST\"]` and `[\"DATABASE\", \"HOST\"]`.\n- Because of `_` splitting, querying a parent path like `[\"DATABASE\"]`\n  returns a `Record` node with child key `\"HOST\"`, even if no env var\n  named `DATABASE` exists.\n- When using `fromEnv` with schemas that use camelCase keys, pipe the\n  provider through constantCase so `databaseHost` resolves to\n  `DATABASE_HOST`.\n- `orElse` only falls back when the primary provider returns `undefined`\n  (path not found). It does **not** catch `SourceError`.\n- `nested` prepends segments to the path *after* `mapInput` has run, so\n  the order of composition matters.\n\nQuickstart:\n**Example** (Reading config from environment variables)\n\n```ts\nimport { Config, ConfigProvider, Effect } from \"effect\"\n\nconst provider = ConfigProvider.fromEnv({\n  env: { APP_PORT: \"3000\", APP_HOST: \"localhost\" }\n})\n\nconst port = Config.number(\"port\")\n\nconst program = port.parse(\n  provider.pipe(\n    ConfigProvider.nested(\"app\"),\n    ConfigProvider.constantCase\n  )\n)\n\n// Effect.runSync(program) // 3000\n```\n\nSee Also:\nmake – build a provider from a lookup function\nfromEnv – the default provider backed by `process.env`\nfromUnknown – provider backed by a plain JS object\n\nKey Exports by Category (20 total):\n- Models: Node, SourceError, Path, ConfigProvider\n- Constructors: makeValue, makeRecord, makeArray, make\n- Services: ConfigProvider\n- Combinators: orElse, mapInput, constantCase, nested\n- Layers: layer, layerAdd\n- ConfigProviders: fromUnknown, fromEnv, fromDotEnvContents, fromDir\n- uncategorized: fromDotEnv\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Console",
+    "episode_body": "Title: Console Module\nCategory: module\nModule Path: effect/Console\n\nDescription: The `Console` module provides a functional interface for console operations within\nthe Effect ecosystem. It offers type-safe logging, debugging, and console manipulation\ncapabilities with built-in support for testing and environment isolation.\n\nKey Exports by Category (21 total):\n- models: Console\n- references: Console\n- constructors: consoleWith\n- accessor: assert, clear, count, countReset, debug, dir, dirxml, error, ... (18 total)\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Cron",
+    "episode_body": "Title: Cron Module\nCategory: module\nModule Path: effect/Cron\n\nKey Exports by Category (12 total):\n- models: Cron, CronParseError\n- guards: isCron, isCronParseError\n- constructors: make, parse, parseUnsafe\n- utils: match, next, sequence\n- instances: Equivalence\n- predicates: equals\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Data",
+    "episode_body": "Title: Data Module\nCategory: module\nModule Path: effect/Data\n\nDescription: This module provides utilities for creating data types with structural equality\nsemantics. Unlike regular JavaScript objects, `Data` types support value-based\nequality comparison using the `Equal` module.\n\nThe main benefits of using `Data` types are:\n- **Structural equality**: Two `Data` objects are equal if their contents are equal\n- **Immutability**: `Data` types are designed to be immutable\n- **Type safety**: Constructors ensure type safety and consistency\n- **Effect integration**: Error types work seamlessly with Effect's error handling\n\nKey Exports by Category (14 total):\n- constructors: Class, TaggedClass, taggedEnum, Error, TaggedError\n- models: TaggedEnum, WithGenerics, Kind\n- types: TaggedEnum, Args, Value, Constructor, ConstructorFrom, GenericMatchers\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: DateTime",
+    "episode_body": "Title: DateTime Module\nCategory: module\nModule Path: effect/DateTime\n\nKey Exports by Category (108 total):\n- models: DateTime, Utc, Zoned, DateTime, Input, PreserveZone, Unit, UnitSingular, ... (19 total)\n- guards: isDateTime, isTimeZone, isTimeZoneOffset, isTimeZoneNamed, isUtc, isZoned\n- instances: Equivalence, Order, clamp\n- constructors: fromDateUnsafe, makeUnsafe, makeZonedUnsafe, makeZoned, make, makeZonedFromString, now, nowAsDate, ... (9 total)\n- time zones: toUtc, setZone, setZoneOffset, zoneMakeNamedUnsafe, zoneMakeOffset, zoneMakeNamed, zoneMakeNamedEffect, zoneMakeLocal, ... (12 total)\n- comparisons: distance, distanceDurationResult, distanceDuration, min, max, isGreaterThan, isGreaterThanOrEqualTo, isLessThan, ... (14 total)\n- conversions: toDateUtc, toDate, zonedOffset, zonedOffsetIso, toEpochMillis, removeTime\n- parts: toParts, toPartsUtc, getPartUtc, getPart, setParts, setPartsUtc\n- current time zone: CurrentTimeZone, setZoneCurrent, withCurrentZone, withCurrentZoneLocal, withCurrentZoneOffset, withCurrentZoneNamed, nowInCurrentZone, layerCurrentZone, ... (11 total)\n- mapping: mutate, mutateUtc, mapEpochMillis, withDate, withDateUtc, match\n- math: addDuration, subtractDuration, add, subtract, startOf, endOf, nearest\n- formatting: format, formatLocal, formatUtc, formatIntl, formatIso, formatIsoDate, formatIsoDateUtc, formatIsoOffset, ... (9 total)\n\nSince: 3.6.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Deferred",
+    "episode_body": "Title: Deferred Module\nCategory: module\nModule Path: effect/Deferred\n\nDescription: This module provides utilities for working with `Deferred`, a powerful concurrency\nprimitive that represents an asynchronous variable that can be set exactly once.\nMultiple fibers can await the same `Deferred` and will all be notified when it\ncompletes.\n\nA `Deferred<A, E>` can be:\n- **Completed successfully** with a value of type `A`\n- **Failed** with an error of type `E`\n- **Interrupted** if the fiber setting it is interrupted\n\nKey characteristics:\n- **Single assignment**: Can only be completed once\n- **Multiple waiters**: Many fibers can await the same `Deferred`\n- **Fiber-safe**: Thread-safe operations across concurrent fibers\n- **Composable**: Works seamlessly with other Effect operations\n\n@example\n```ts\nimport { Deferred, Effect, Fiber } from \"effect\"\n\n// Basic usage: coordinate between fibers\nconst program = Effect.gen(function*() {\n  const deferred = yield* Deferred.make<string, never>()\n\n  // Fiber 1: waits for the value\n  const waiter = yield* Effect.forkChild(\n    Effect.gen(function*() {\n      const value = yield* Deferred.await(deferred)\n      console.log(\"Received:\", value)\n      return value\n    })\n  )\n\n  // Fiber 2: sets the value after a delay\n  const setter = yield* Effect.forkChild(\n    Effect.gen(function*() {\n      yield* Effect.sleep(\"1 second\")\n      yield* Deferred.succeed(deferred, \"Hello from setter!\")\n    })\n  )\n\n  // Wait for both fibers\n  yield* Fiber.join(waiter)\n  yield* Fiber.join(setter)\n})\n\n// Producer-consumer pattern\nconst producerConsumer = Effect.gen(function*() {\n  const buffer = yield* Deferred.make<Array<number>, never>()\n\n  const producer = Effect.gen(function*() {\n    const data = [1, 2, 3, 4, 5]\n    yield* Deferred.succeed(buffer, data)\n  })\n\n  const consumer = Effect.gen(function*() {\n    const data = yield* Deferred.await(buffer)\n    return data.reduce((sum, n) => sum + n, 0)\n  })\n\n  const [, result] = yield* Effect.all([producer, consumer])\n  return result // 15\n})\n```\n\nKey Exports by Category (23 total):\n- models: Deferred, Deferred, Variance\n- unsafe: makeUnsafe, doneUnsafe\n- constructors: make\n- getters: complete, isDone, isDoneUnsafe, poll\n- utils: completeWith, done, fail, failSync, failCause, failCauseSync, die, dieSync, ... (12 total)\n- Synchronization Utilities: into\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Differ",
+    "episode_body": "Title: Differ Module\nCategory: module\nModule Path: effect/Differ\n\nKey Exports by Category (1 total):\n- Model: Differ\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Duration",
+    "episode_body": "Title: Duration Module\nCategory: module\nModule Path: effect/Duration\n\nDescription: This module provides utilities for working with durations of time. A `Duration`\nis an immutable data type that represents a span of time with high precision,\nsupporting operations from nanoseconds to weeks.\n\nDurations support:\n- **High precision**: Nanosecond-level accuracy using BigInt\n- **Multiple formats**: Numbers (millis), BigInt (nanos), tuples, strings\n- **Arithmetic operations**: Add, subtract, multiply, divide\n- **Comparisons**: Equal, less than, greater than\n- **Conversions**: Between different time units\n- **Human-readable formatting**: Pretty printing and parsing\n\nKey Exports by Category (56 total):\n- models: Duration, DurationValue, Unit, DurationInput\n- constructors: fromDurationInputUnsafe, fromDurationInput, zero, infinity, negativeInfinity, nanos, micros, millis, ... (13 total)\n- guards: isDuration, isFinite, isZero, isNegative, isPositive\n- math: abs, negate, divide, divideUnsafe, times, subtract, sum\n- getters: toMillis, toSeconds, toMinutes, toHours, toDays, toWeeks, toNanosUnsafe, toNanos, ... (9 total)\n- pattern matching: match, matchPair\n- instances: Order, Equivalence\n- predicates: between, isLessThan, isLessThanOrEqualTo, isGreaterThan, isGreaterThanOrEqualTo, equals\n- order: min, max, clamp\n- conversions: parts, format\n- uncategorized: ReducerSum, CombinerMax, CombinerMin\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Effect",
+    "episode_body": "Title: Effect Module\nCategory: module\nModule Path: effect/Effect\n\nDescription: The `Effect` module is the core of the Effect library, providing a powerful and expressive\nway to model and compose asynchronous, concurrent, and effectful computations.\n\nAn `Effect<A, E, R>` represents a computation that:\n- May succeed with a value of type `A`\n- May fail with an error of type `E`\n- Requires a context/environment of type `R`\n\nEffects are lazy and immutable - they describe computations that can be executed later.\nThis allows for powerful composition, error handling, resource management, and concurrency\npatterns.\n\nKey Exports by Category (244 total):\n- Models: Effect, Variance, Success, Error, Services, EffectIterator, All, EffectAny, ... (17 total)\n- Yieldable: Yieldable, YieldableClass, Yieldable, Any, Success\n- Guards: isEffect\n- Collecting: all, partition, forEach, whileLoop, replicate, replicateEffect\n- Creating Effects: promise, tryPromise, succeed, succeedNone, succeedSome, suspend, sync, callback, ... (18 total)\n- uncategorized: gen, Return\n- Conversions: fromResult, fromOption, fromNullishOr, fromYieldable\n- Sequencing: flatMap, flatten, andThen, tap, tapError, tapErrorTag, tapCause, tapCauseIf, ... (9 total)\n- Outcome Encapsulation: result, exit\n- Output Encapsulation: option\n- Mapping: map, as, asSome, asVoid, flip, mapBoth\n- Zipping: zip, zipWith\n- Error Handling: catchTag, catchTags, catchReason, catchReasons, TagsWithReason, unwrapReason, catchCause, catchDefect, ... (20 total)\n- Converting Failures to Defects: orDie\n- Repetition / Recursion: eventually, Repeat, Return, Options, forever, repeat, repeatOrElse, schedule, ... (9 total)\n- Fallback: withExecutionPlan, orElseSucceed\n- Delays & Timeouts: timeout, timeoutOption, timeoutOrElse, delay, sleep, timed\n- Racing: raceAll, raceAllFirst, race, raceFirst\n- Filtering: filter, filterOrElse, filterOrFail\n- Conditional Operators: when\n- Pattern Matching: match, matchEager, matchCause, matchCauseEager, matchCauseEffectEager, matchCauseEffect, matchEffect\n- Condition Checking: isFailure, isSuccess\n- Environment: services, servicesWith, provide, provideServices\n- ServiceMap: service, serviceOption, updateServices, updateService, provideService, provideServiceEffect\n- References: withConcurrency\n- Resource Management & Finalization: scope, scoped, scopedWith, acquireRelease, acquireUseRelease, addFinalizer, ensuring, onError, ... (12 total)\n- Caching: cached, cachedWithTTL, cachedInvalidateWithTTL\n- Interruption: interrupt, interruptible, onInterrupt, uninterruptible, uninterruptibleMask, interruptibleMask\n- Semaphore: Semaphore, makeSemaphoreUnsafe, makeSemaphore\n- Latch: Latch, makeLatchUnsafe, makeLatch\n- Tracing: tracer, withTracer, withTracerEnabled, withTracerTiming, annotateSpans, annotateCurrentSpan, currentSpan, currentParentSpan, ... (17 total)\n- Requests & Batching: request, requestUnsafe\n- Supervision & Fibers: forkChild, forkIn, forkScoped, forkDetach, awaitAllChildren, fiber, fiberId\n- Running Effects: RunOptions, runFork, runForkWith, runCallbackWith, runCallback, runPromise, runPromiseWith, runPromiseExit, ... (13 total)\n- Function: fn, fnUntraced, fn\n- Clock: clockWith\n- Logging: logWithLevel, log, logFatal, logWarning, logError, logInfo, logDebug, logTrace, ... (11 total)\n- Tracking: track, trackSuccesses, trackErrors, trackDefects, trackDuration\n- Transactions: Transaction, atomic, atomicWith, transaction, transactionWith, retryTransaction\n- Effectify: Effectify, Effectify, effectify\n- Util: EffectifyError\n- Type Constraints: satisfiesSuccessType, satisfiesErrorType, satisfiesServicesType\n- Eager: mapEager, mapErrorEager, mapBothEager, flatMapEager, catchEager, fnUntracedEager\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Equal",
+    "episode_body": "Title: Equal Module\nCategory: module\nModule Path: effect/Equal\n\nDescription: This module provides functionality for defining and working with equality between values.\nIt includes the `Equal` interface for types that can determine equality with other values\nof the same type, and utilities for comparing values.\n\nKey Exports by Category (9 total):\n- uncategorized: symbol, makeCompareMap, makeCompareSet\n- models: Equal\n- equality: equals\n- guards: isEqual\n- instances: asEquivalence\n- utility: byReference, byReferenceUnsafe\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Equivalence",
+    "episode_body": "Title: Equivalence Module\nCategory: module\nModule Path: effect/Equivalence\n\nDescription: Utilities for defining equivalence relations - binary relations that determine when two values\nshould be considered equivalent. Equivalence relations are used for comparing, deduplicating,\nand organizing data in collections and data structures.\n\nMental Model:\n- **Equivalence relation**: A function `(a: A, b: A) => boolean` that returns `true` when values are equivalent\n- **Reflexive property**: Every value is equivalent to itself (`eq(a, a) === true`)\n- **Symmetric property**: If `a` is equivalent to `b`, then `b` is equivalent to `a` (`eq(a, b) === eq(b, a)`)\n- **Transitive property**: If `a` is equivalent to `b` and `b` is equivalent to `c`, then `a` is equivalent to `c`\n- **Reference equality optimization**: make checks `===` first for performance before calling the custom function\n- **Composition**: Equivalences can be combined using combine and combineAll to create more complex relations\n\nCommon Tasks:\n- Creating custom equivalences → make\n- Using strict equality (`===`) → strictEqual\n- Combining multiple equivalences (AND logic) → combine, combineAll\n- Transforming input before comparison → mapInput\n- Creating equivalences for structured types → Struct, Tuple, Array, Record\n\nGotchas:\n- `strictEqual` uses `===`, so `NaN !== NaN` and objects are compared by reference, not structure\n- `make` optimizes with a reference equality check, so identical references return `true` without calling the function\n- `combineAll` with an empty collection returns an equivalence that always returns `true`\n- `Tuple` and `Array` require matching lengths; different lengths are never equivalent\n\nQuickstart:\n**Example** (Case-insensitive string equivalence)\n\n```ts\nimport { Array, Equivalence } from \"effect\"\n\nconst caseInsensitive = Equivalence.make<string>((a, b) =>\n  a.toLowerCase() === b.toLowerCase()\n)\n\nconst strings = [\"Hello\", \"world\", \"HELLO\", \"World\"]\nconst deduplicated = Array.dedupeWith(strings, caseInsensitive)\nconsole.log(deduplicated) // [\"Hello\", \"world\"]\n```\n\nKey Exports by Category (15 total):\n- type class: Equivalence\n- constructors: make, strictEqual\n- instances: String, Number, Boolean, BigInt\n- combining: combine, combineAll\n- mapping: mapInput\n- combinators: Tuple, Array, Struct, Record\n- utilities: makeReducer\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ExecutionPlan",
+    "episode_body": "Title: ExecutionPlan Module\nCategory: module\nModule Path: effect/ExecutionPlan\n\nKey Exports by Category (15 total):\n- Type IDs: TypeId, TypeId\n- Guards: isExecutionPlan\n- Models: ExecutionPlan, ConfigBase\n- Constructors: make\n- uncategorized: make, Step, StepProvides, PlanProvides, StepInput, PlanInput\n- Combining: merge\n- Metadata: Metadata, CurrentMetadata\n\nSince: 3.16.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Exit",
+    "episode_body": "Title: Exit Module\nCategory: module\nModule Path: effect/Exit\n\nDescription: Represents the outcome of an Effect computation as a plain, synchronously\ninspectable value.\n\nMental Model:\n- `Exit<A, E>` is a union of two cases: `Success<A, E>` and `Failure<A, E>`\n- A `Success` wraps a value of type `A`\n- A `Failure` wraps a `Cause<E>`, which may contain typed errors, defects, or interruptions\n- `Exit` is also an `Effect`, so you can yield it directly inside `Effect.gen`\n- Constructors mirror the failure modes: fail for typed errors, die for defects, interrupt for fiber interruptions\n- Use `Exit` when you need to inspect an Effect result without running further effects\n\nCommon Tasks:\n- Create a success: succeed\n- Create a typed failure: fail\n- Create a failure from a Cause: failCause\n- Create a defect: die\n- Create an interruption: interrupt\n- Check the outcome: isSuccess, isFailure, match\n- Extract values optionally: getSuccess, getCause, findErrorOption\n- Transform the result: map, mapError, mapBoth\n- Combine multiple exits: asVoidAll\n- Inspect failure categories: hasFails, hasDies, hasInterrupts\n\nGotchas:\n- A `Failure` wraps a `Cause<E>`, not a bare `E`. Use Cause utilities to drill into it.\n- mapError and mapBoth only transform typed errors (Fail reasons in the Cause). If the Cause contains only defects or interruptions, the original failure passes through unchanged.\n- Filter-based APIs (filterSuccess, filterValue, etc.) return `Filter.fail` markers for pipeline composition. They are not `Option` values or Effect failures.\n- findError and findDefect return only the first matching reason from the Cause.\n\nQuickstart:\n**Example** (Creating and inspecting exits)\n\n```ts\nimport { Exit } from \"effect\"\n\nconst success = Exit.succeed(42)\nconst failure = Exit.fail(\"not found\")\n\nconst message = Exit.match(success, {\n  onSuccess: (value) => `Got: ${value}`,\n  onFailure: () => \"Failed\"\n})\nconsole.log(message) // \"Got: 42\"\n```\n\nKey Exports by Category (31 total):\n- models: Exit, Exit, Proto, Success, Failure\n- guards: isExit, isFailure, hasFails, hasDies, hasInterrupts\n- constructors: succeed, failCause, fail, die, interrupt, isSuccess\n- filters: filterSuccess, filterValue, filterFailure, filterCause, findError, findDefect\n- pattern matching: match\n- combinators: map, mapError, mapBoth, asVoid, asVoidAll\n- Accessors: getSuccess, getCause, findErrorOption\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Fiber",
+    "episode_body": "Title: Fiber Module\nCategory: module\nModule Path: effect/Fiber\n\nDescription: This module provides utilities for working with `Fiber`, the fundamental unit of\nconcurrency in Effect. Fibers are lightweight, user-space threads that allow\nmultiple Effects to run concurrently with structured concurrency guarantees.\n\nKey characteristics of Fibers:\n- **Lightweight**: Much lighter than OS threads, you can create millions\n- **Structured concurrency**: Parent fibers manage child fiber lifecycles\n- **Cancellation safety**: Proper resource cleanup when interrupted\n- **Cooperative**: Fibers yield control at effect boundaries\n- **Traceable**: Each fiber has an ID for debugging and monitoring\n\nCommon patterns:\n- **Fork and join**: Start concurrent work and wait for results\n- **Race conditions**: Run multiple effects, take the first to complete\n- **Supervision**: Monitor and restart failed fibers\n- **Resource management**: Ensure proper cleanup on interruption\n\n@example\n```ts\nimport { Console, Effect, Fiber } from \"effect\"\n\n// Basic fiber operations\nconst basicExample = Effect.gen(function*() {\n  // Fork an effect to run concurrently\n  const fiber = yield* Effect.forkChild(\n    Effect.gen(function*() {\n      yield* Effect.sleep(\"2 seconds\")\n      yield* Console.log(\"Background task completed\")\n      return \"background result\"\n    })\n  )\n\n  // Do other work while the fiber runs\n  yield* Console.log(\"Doing other work...\")\n  yield* Effect.sleep(\"1 second\")\n\n  // Wait for the fiber to complete\n  const result = yield* Fiber.join(fiber)\n  yield* Console.log(`Fiber result: ${result}`)\n})\n\n// Joining multiple fibers\nconst joinExample = Effect.gen(function*() {\n  const task1 = Effect.delay(Effect.succeed(\"task1\"), \"1 second\")\n  const task2 = Effect.delay(Effect.succeed(\"task2\"), \"2 seconds\")\n\n  // Start both effects as fibers\n  const fiber1 = yield* Effect.forkChild(task1)\n  const fiber2 = yield* Effect.forkChild(task2)\n\n  // Wait for both to complete\n  const result1 = yield* Fiber.join(fiber1)\n  const result2 = yield* Fiber.join(fiber2)\n  return [result1, result2] // [\"task1\", \"task2\"]\n})\n\n// Parallel execution with structured concurrency\nconst parallelExample = Effect.gen(function*() {\n  const tasks = [1, 2, 3, 4, 5].map((n) =>\n    Effect.gen(function*() {\n      yield* Effect.sleep(`${n * 100} millis`)\n      return n * n\n    })\n  )\n\n  // Run all tasks in parallel, wait for all to complete\n  const results = yield* Effect.all(tasks, { concurrency: \"unbounded\" })\n  return results // [1, 4, 9, 16, 25]\n})\n```\n\nKey Exports by Category (13 total):\n- models: Fiber, Fiber, Variance\n- combinators: awaitAll, join, joinAll\n- interruption: interrupt, interruptAs, interruptAll, interruptAllAs\n- guards: isFiber\n- accessors: getCurrent\n- Scope: runIn\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: FiberHandle",
+    "episode_body": "Title: FiberHandle Module\nCategory: module\nModule Path: effect/FiberHandle\n\nKey Exports by Category (15 total):\n- models: FiberHandle\n- refinements: isFiberHandle\n- constructors: make, makeRuntime, makeRuntimePromise\n- combinators: setUnsafe, set, getUnsafe, get, clear, run, runtime, runtimePromise, ... (10 total)\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: FiberMap",
+    "episode_body": "Title: FiberMap Module\nCategory: module\nModule Path: effect/FiberMap\n\nKey Exports by Category (19 total):\n- models: FiberMap\n- refinements: isFiberMap\n- constructors: make, makeRuntime, makeRuntimePromise\n- combinators: setUnsafe, set, getUnsafe, get, hasUnsafe, has, remove, clear, ... (14 total)\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: FiberSet",
+    "episode_body": "Title: FiberSet Module\nCategory: module\nModule Path: effect/FiberSet\n\nKey Exports by Category (14 total):\n- models: FiberSet\n- refinements: isFiberSet\n- constructors: make, makeRuntime, makeRuntimePromise\n- combinators: addUnsafe, add, clear, run, runtime, runtimePromise, size, join, ... (9 total)\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: FileSystem",
+    "episode_body": "Title: FileSystem Module\nCategory: module\nModule Path: effect/FileSystem\n\nDescription: This module provides a comprehensive file system abstraction that supports both synchronous\nand asynchronous file operations through Effect. It includes utilities for file I/O, directory\nmanagement, permissions, timestamps, and file watching with proper error handling.\n\nThe `FileSystem` interface provides a cross-platform abstraction over file system operations,\nallowing you to work with files and directories in a functional, composable way. All operations\nreturn `Effect` values that can be composed, transformed, and executed safely.\n\n@example\n```ts\nimport { Console, Effect, FileSystem } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const fs = yield* FileSystem.FileSystem\n\n  // Create a directory\n  yield* fs.makeDirectory(\"./temp\", { recursive: true })\n\n  // Write a file\n  yield* fs.writeFileString(\"./temp/hello.txt\", \"Hello, World!\")\n\n  // Read the file back\n  const content = yield* fs.readFileString(\"./temp/hello.txt\")\n  yield* Console.log(\"File content:\", content)\n\n  // Get file information\n  const stats = yield* fs.stat(\"./temp/hello.txt\")\n  yield* Console.log(\"File size:\", stats.size)\n\n  // Clean up\n  yield* fs.remove(\"./temp\", { recursive: true })\n})\n```\n\nKey Exports by Category (29 total):\n- model: FileSystem, OpenFlag, SeekMode, WatchEvent, WatchEvent, Create, Update, Remove\n- sizes: Size, SizeInput, Size, KiB, MiB, GiB, TiB, PiB\n- tag: FileSystem\n- constructor: make, makeNoop, FileDescriptor\n- layers: layerNoop\n- File: FileTypeId, isFile, File, File, Descriptor, Type, Info\n- file watcher: WatchBackend\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Filter",
+    "episode_body": "Title: Filter Module\nCategory: module\nModule Path: effect/Filter\n\nKey Exports by Category (35 total):\n- Models: Filter, FilterEffect\n- Apply: OrPredicate, ResultOrBool, Pass, Fail, ApplyResult, apply\n- Constructors: make, makeEffect, fromPredicate, fromPredicateOption, toPredicate, string, equalsStrict, has, ... (17 total)\n- Mapping: mapFail\n- Combinators: or, zipWith, zip, andLeft, andRight, compose, composePassthrough\n- Conversions: toOption, toResult\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Formatter",
+    "episode_body": "Title: Formatter Module\nCategory: module\nModule Path: effect/Formatter\n\nKey Exports by Category (6 total):\n- Model: Formatter\n- uncategorized: format, formatPropertyKey, formatPath, formatDate, formatJson\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Function",
+    "episode_body": "Title: Function Module\nCategory: module\nModule Path: effect/Function\n\nKey Exports by Category (23 total):\n- combinators: dual, apply, identity, flip, compose, tupled, untupled, pipe, ... (10 total)\n- models: LazyArg, FunctionN\n- type utils: satisfies, coerceUnsafe\n- constructors: constant\n- constants: constTrue, constFalse, constNull, constUndefined, constVoid\n- utilities: absurd, hole\n- uncategorized: memoize\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Graph",
+    "episode_body": "Title: Graph Module\nCategory: module\nModule Path: effect/Graph\n\nKey Exports by Category (80 total):\n- models: NodeIndex, EdgeIndex, Edge, Kind, Proto, Graph, MutableGraph, DirectedGraph, ... (27 total)\n- errors: GraphError\n- Guards: isGraph\n- constructors: directed, undirected\n- mutations: beginMutation, endMutation, mutate, addNode, updateEdge, addEdge, removeNode, removeEdge\n- getters: getNode, hasNode, nodeCount, findNode, findNodes, findEdge, findEdges, getEdge, ... (11 total)\n- transformations: updateNode, mapNodes, mapEdges, reverse, filterMapNodes, filterMapEdges, filterNodes, filterEdges\n- queries: neighborsDirected\n- utils: toGraphViz, toMermaid\n- algorithms: isAcyclic, isBipartite, connectedComponents, stronglyConnectedComponents, dijkstra, floydWarshall, astar, bellmanFord\n- iterators: NodeWalker, dfs, bfs, topo, dfsPostOrder, nodes, edges, externals\n- utilities: indices, values, entries\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Hash",
+    "episode_body": "Title: Hash Module\nCategory: module\nModule Path: effect/Hash\n\nDescription: This module provides utilities for hashing values in TypeScript.\n\nHashing is the process of converting data into a fixed-size numeric value,\ntypically used for data structures like hash tables, equality comparisons,\nand efficient data storage.\n\nKey Exports by Category (12 total):\n- uncategorized: symbol\n- models: Hash\n- hashing: hash, random, combine, optimize, number, string, structureKeys, structure, ... (9 total)\n- guards: isHash\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: HashMap",
+    "episode_body": "Title: HashMap Module\nCategory: module\nModule Path: effect/HashMap\n\nKey Exports by Category (44 total):\n- models: HashMap, HashMap, UpdateFn\n- type-level: Key, Value, Entry\n- refinements: isHashMap\n- constructors: empty, make, fromIterable\n- elements: isEmpty, get, getHash, has, hasHash, hasBy, findFirst, some, ... (9 total)\n- unsafe: getUnsafe\n- transformations: set, modifyAt, modifyHash, modify, remove, removeMany, setMany\n- getters: keys, values, toValues, entries, toEntries, size\n- mutations: beginMutation, endMutation, mutate\n- combining: union\n- mapping: map\n- sequencing: flatMap\n- traversing: forEach\n- folding: reduce\n- filtering: filter, compact, filterMap\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: HashRing",
+    "episode_body": "Title: HashRing Module\nCategory: module\nModule Path: effect/HashRing\n\nKey Exports by Category (9 total):\n- Models: HashRing\n- Guards: isHashRing\n- Constructors: make\n- Combinators: addMany, add, remove, has, get, getShards\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: HashSet",
+    "episode_body": "Title: HashSet Module\nCategory: module\nModule Path: effect/HashSet\n\nKey Exports by Category (21 total):\n- models: HashSet\n- namespace: HashSet\n- type-level: Value\n- constructors: empty, make, fromIterable\n- guards: isHashSet\n- mutations: add, remove\n- elements: has, isSubset, some, every\n- getters: size, isEmpty\n- combinators: union, intersection, difference\n- mapping: map\n- filtering: filter\n- folding: reduce\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: HKT",
+    "episode_body": "Title: HKT Module\nCategory: module\nModule Path: effect/HKT\n\nDescription: This module provides utilities for Higher-Kinded Types (HKT) in TypeScript.\n\nHigher-Kinded Types are types that take other types as parameters, similar to how\nfunctions take values as parameters. They enable generic programming over type\nconstructors, allowing you to write code that works with any container type\n(like Array, Option, Effect, etc.) in a uniform way.\n\nThe HKT system in Effect uses TypeLambdas to encode type-level functions that\ncan represent complex type relationships with multiple type parameters, including\ncontravariant, covariant, and invariant positions.\n\n@example\n```ts\nimport type { HKT } from \"effect\"\n\n// Define a TypeLambda for Array\ninterface ArrayTypeLambda extends HKT.TypeLambda {\n  readonly type: Array<this[\"Target\"]>\n}\n\n// Use Kind to get the concrete type\ntype MyArray = HKT.Kind<ArrayTypeLambda, never, never, never, string>\n// MyArray is Array<string>\n\n// Define a TypeClass that works with any HKT\ninterface Functor<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {\n  map<A, B>(\n    fa: HKT.Kind<F, never, never, never, A>,\n    f: (a: A) => B\n  ): HKT.Kind<F, never, never, never, B>\n}\n```\n\nKey Exports by Category (3 total):\n- symbols: URI\n- models: TypeClass\n- type utils: Kind\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Inspectable",
+    "episode_body": "Title: Inspectable Module\nCategory: module\nModule Path: effect/Inspectable\n\nDescription: This module provides utilities for making values inspectable and debuggable in TypeScript.\n\nThe Inspectable interface provides a standard way to implement custom string representations\nfor objects, making them easier to debug and inspect. It includes support for JSON\nserialization, Node.js inspection, and safe circular reference handling.\n\nThe module also includes redaction capabilities for sensitive data, allowing objects\nto provide different representations based on the current execution context.\n\n@example\n```ts\nimport { Inspectable } from \"effect\"\nimport { format } from \"effect/Formatter\"\n\nclass User extends Inspectable.Class {\n  constructor(\n    public readonly name: string,\n    public readonly email: string\n  ) {\n    super()\n  }\n\n  toJSON() {\n    return {\n      _tag: \"User\",\n      name: this.name,\n      email: this.email\n    }\n  }\n}\n\nconst user = new User(\"Alice\", \"alice@example.com\")\nconsole.log(user.toString()) // Pretty printed JSON\nconsole.log(format(user)) // Same as toString()\n```\n\nKey Exports by Category (8 total):\n- symbols: NodeInspectSymbol, NodeInspectSymbol\n- models: Inspectable\n- uncategorized: toJson, toStringUnknown, stringifyCircular, BaseProto\n- classes: Class\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Iterable",
+    "episode_body": "Title: Iterable Module\nCategory: module\nModule Path: effect/Iterable\n\nDescription: This module provides utility functions for working with Iterables in TypeScript.\n\nIterables are objects that implement the iterator protocol, allowing them to be\nconsumed with `for...of` loops, spread syntax, and other iteration constructs.\nThis module provides a comprehensive set of functions for creating, transforming,\nand working with iterables in a functional programming style.\n\nUnlike arrays, iterables can be lazy and potentially infinite, making them suitable\nfor stream processing and memory-efficient data manipulation. All functions in this\nmodule preserve the lazy nature of iterables where possible.\n\n@example\n```ts\nimport { Iterable } from \"effect\"\n\n// Create iterables\nconst numbers = Iterable.range(1, 5)\nconst doubled = Iterable.map(numbers, (x) => x * 2)\nconst filtered = Iterable.filter(doubled, (x) => x > 5)\n\nconsole.log(Array.from(filtered)) // [6, 8, 10]\n\n// Infinite iterables\nconst fibonacci = Iterable.unfold([0, 1], ([a, b]) => [a, [b, a + b]])\nconst first10 = Iterable.take(fibonacci, 10)\nconsole.log(Array.from(first10)) // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]\n```\n\nKey Exports by Category (50 total):\n- constructors: makeBy, range, replicate, repeat, forever, empty, of, unfold\n- conversions: fromRecord\n- concatenating: prepend, prependAll, append, appendAll, intersperse\n- folding: scan, reduce, countBy\n- guards: isEmpty\n- getters: size, head, headUnsafe, take, takeWhile, drop\n- elements: findFirst, findLast, containsWith, contains, some, forEach, cartesianWith, cartesian\n- zipping: zip, zipWith\n- splitting: chunksOf\n- grouping: groupWith, group, groupBy\n- mapping: map\n- sequencing: flatMap, flatten, flatMapNullishOr\n- filtering: filterMap, filterMapWhile, getSomes, getFailures, getSuccesses, filter, dedupeAdjacentWith, dedupeAdjacent\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: JsonPatch",
+    "episode_body": "Title: JsonPatch Module\nCategory: module\nModule Path: effect/JsonPatch\n\nDescription: JSON Patch operations for transforming JSON documents.\n\nThis module implements a subset of RFC 6902, providing operations that can be applied deterministically without additional context. It supports computing structural diffs between JSON values and applying patches to transform documents.\n\nMental Model:\n- **JSON Patch**: An ordered sequence of operations that transform a document from one state to another\n- **JSON Pointer**: Path syntax for targeting specific locations in a JSON document (e.g., `/users/0/name`)\n- **Operations**: Three types - `add` (insert value), `remove` (delete value), `replace` (update value)\n- **Immutable transformations**: All operations return new values; inputs are never mutated\n- **Sequential application**: Operations are applied in order, with later operations observing changes from earlier ones\n- **Structural diff**: The `get` function computes differences by comparing structure, not content semantics\n\nCommon Tasks:\n- Computing diffs between JSON values → get\n- Applying patches to transform documents → apply\n- Creating patches manually → JsonPatchOperation\n- Storing and validating patch documents → JsonPatch\n\nGotchas:\n- Array removals are emitted from highest index to lowest to avoid index shifting during application\n- Root operations use an empty string path `\"\"` to target the entire document\n- Array append operations use `-` as the last token in the path (e.g., `/items/-`)\n- Generated patches are deterministic but not guaranteed to be minimal\n- Empty patches return the original document reference (no allocation)\n- Invalid paths or operations throw errors rather than returning a result type\n\nQuickstart:\n**Example** (Computing and applying a patch)\n\n```ts\nimport * as JsonPatch from \"effect/JsonPatch\"\n\nconst oldValue = { name: \"Alice\", age: 30 }\nconst newValue = { name: \"Alice\", age: 31, city: \"NYC\" }\n\nconst patch = JsonPatch.get(oldValue, newValue)\n// [{ op: \"replace\", path: \"/age\", value: 31 }, { op: \"add\", path: \"/city\", value: \"NYC\" }]\n\nconst result = JsonPatch.apply(patch, oldValue)\n// { name: \"Alice\", age: 31, city: \"NYC\" }\n```\n\nKey Exports by Category (4 total):\n- Model: JsonPatchOperation, JsonPatch\n- uncategorized: get, apply\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: JsonPointer",
+    "episode_body": "Title: JsonPointer Module\nCategory: module\nModule Path: effect/JsonPointer\n\nDescription: Utilities for escaping and unescaping JSON Pointer reference tokens according to RFC 6901.\n\nJSON Pointer (RFC 6901) defines a string syntax for identifying a specific value within a JSON document.\nA JSON Pointer is a sequence of reference tokens separated by forward slashes (`/`). Each reference token\nmust be escaped when it contains special characters (`~` or `/`).\n\nMental Model:\n- **Reference token**: A single segment of a JSON Pointer path (e.g., `\"foo\"`, `\"bar/baz\"`, `\"key~with~tilde\"`)\n- **Escaping**: Encoding special characters in a token so it can be safely used in a JSON Pointer (`~` → `~0`, `/` → `~1`)\n- **Unescaping**: Decoding escaped characters back to their original form (`~0` → `~`, `~1` → `/`)\n- **RFC 6901 compliance**: These functions implement the standard escaping rules for JSON Pointer reference tokens\n- **Pure functions**: Both operations are pure, immutable, and have no side effects\n\nCommon Tasks:\n- Building JSON Pointers from path segments → escapeToken\n- Parsing JSON Pointers to extract original token values → unescapeToken\n- Escaping object keys or path segments before constructing JSON Pointers → escapeToken\n- Extracting unescaped identifiers from JSON Pointer strings → unescapeToken\n\nGotchas:\n- These functions operate on **reference tokens**, not full JSON Pointers. A full JSON Pointer like `/foo/bar` must be split into tokens (`[\"foo\", \"bar\"]`) before escaping/unescaping\n- The order of replacement operations matters: `escapeToken` replaces `~` before `/` to avoid double-escaping\n- Empty strings are valid tokens and are returned unchanged\n- These functions do not validate JSON Pointer syntax; they only handle token-level escaping\n\nQuickstart:\n**Example** (Building and parsing a JSON Pointer)\n\n```ts\nimport { escapeToken, unescapeToken } from \"effect/JsonPointer\"\n\n// Build a JSON Pointer from path segments\nconst segments = [\"users\", \"name/alias\", \"value\"]\nconst pointer = \"/\" + segments.map(escapeToken).join(\"/\")\n// \"/users/name~1alias/value\"\n\n// Parse a JSON Pointer back to segments\nconst tokens = pointer.split(\"/\").slice(1).map(unescapeToken)\n// [\"users\", \"name/alias\", \"value\"]\n```\n\nKey Exports by Category (2 total):\n- uncategorized: escapeToken, unescapeToken\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: JsonSchema",
+    "episode_body": "Title: JsonSchema Module\nCategory: module\nModule Path: effect/JsonSchema\n\nKey Exports by Category (19 total):\n- uncategorized: JsonSchema, Dialect, Type, Definitions, Document, MultiDocument, META_SCHEMA_URI_DRAFT_07, META_SCHEMA_URI_DRAFT_2020_12, ... (19 total)\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Layer",
+    "episode_body": "Title: Layer Module\nCategory: module\nModule Path: effect/Layer\n\nDescription: A `Layer<ROut, E, RIn>` describes how to build one or more services in your\napplication. Services can be injected into effects via\n`Effect.provideService`. Effects can require services via `Effect.service`.\n\nLayer can be thought of as recipes for producing bundles of services, given\ntheir dependencies (other services).\n\nConstruction of services can be effectful and utilize resources that must be\nacquired and safely released when the services are done being utilized.\n\nBy default layers are shared, meaning that if the same layer is used twice\nthe layer will only be allocated a single time.\n\nBecause of their excellent composition properties, layers are the idiomatic\nway in Effect-TS to create services that depend on other services.\n\nKey Exports by Category (46 total):\n- models: Layer, Variance, MemoMap, CurrentMemoMap\n- type-level: Any, Services, Error, Success\n- getters: isLayer\n- constructors: fromBuild, fromBuildMemo, succeed, succeedServices, empty, sync, syncServices, effect, ... (10 total)\n- memo map: makeMemoMapUnsafe, makeMemoMap, buildWithMemoMap\n- destructors: build, buildWithScope\n- utils: unwrap, provide, provideMerge, updateService, fresh\n- zipping: mergeAll, merge\n- sequencing: flatMap\n- error handling: orDie, catchTag, catchCause\n- conversions: launch\n- Testing: PartialEffectful, mock\n- Type constraints: satisfiesSuccessType, satisfiesErrorType, satisfiesServicesType\n- Models: SpanOptions\n- tracing: span, parentSpan, withSpan, withParentSpan\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: LayerMap",
+    "episode_body": "Title: LayerMap Module\nCategory: module\nModule Path: effect/LayerMap\n\nKey Exports by Category (11 total):\n- Models: LayerMap\n- Constructors: make, fromRecord\n- Service: TagClass, Service, Service, Key, Layers, Success, Error, Services\n\nSince: 3.14.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Logger",
+    "episode_body": "Title: Logger Module\nCategory: module\nModule Path: effect/Logger\n\nKey Exports by Category (26 total):\n- models: Logger, Logger, Variance, VarianceStruct, Options\n- guards: isLogger\n- references: CurrentLoggers, LogToStderr\n- utils: map, withConsoleLog, withConsoleError, withLeveledConsole\n- constructors: make, defaultLogger, formatSimple, formatLogFmt, formatStructured, formatJson, batched, consolePretty, ... (12 total)\n- context: layer\n- file: toFile\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: LogLevel",
+    "episode_body": "Title: LogLevel Module\nCategory: module\nModule Path: effect/LogLevel\n\nKey Exports by Category (9 total):\n- models: LogLevel, values\n- ordering: Order, getOrdinal, isGreaterThan, isGreaterThanOrEqualTo, isLessThan, isLessThanOrEqualTo\n- instances: Equivalence\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ManagedRuntime",
+    "episode_body": "Title: ManagedRuntime Module\nCategory: module\nModule Path: effect/ManagedRuntime\n\nKey Exports by Category (6 total):\n- guards: isManagedRuntime\n- uncategorized: ManagedRuntime\n- type-level: Services, Error\n- models: ManagedRuntime\n- runtime class: make\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Match",
+    "episode_body": "Title: Match Module\nCategory: module\nModule Path: effect/Match\n\nDescription: The `effect/match` module provides a type-safe pattern matching system for\nTypeScript. Inspired by functional programming, it simplifies conditional\nlogic by replacing verbose if/else or switch statements with a structured and\nexpressive API.\n\nThis module supports matching against types, values, and discriminated unions\nwhile enforcing exhaustiveness checking to ensure all cases are handled.\n\nAlthough pattern matching is not yet a native JavaScript feature,\n`effect/match` offers a reliable implementation that is available today.\n\n**How Pattern Matching Works**\n\nPattern matching follows a structured process:\n\n- **Creating a matcher**: Define a `Matcher` that operates on either a\n  specific `Match.type` or `Match.value`.\n\n- **Defining patterns**: Use combinators such as `Match.when`, `Match.not`,\n  and `Match.tag` to specify matching conditions.\n\n- **Completing the match**: Apply a finalizer such as `Match.exhaustive`,\n  `Match.orElse`, or `Match.option` to determine how unmatched cases should\n  be handled.\n\nKey Exports by Category (57 total):\n- Model: Matcher\n- models: TypeMatcher, ValueMatcher, Case, When, Not, SafeRefinement\n- Creating a matcher: type, value, valueTags, typeTags\n- utils: withReturnType\n- Defining patterns: when, whenOr, whenAnd, discriminator, discriminatorStartsWith, discriminators, discriminatorsExhaustive, tag, ... (12 total)\n- Predicates: nonEmptyString, is, any, defined, bigint, instanceOf\n- predicates: string, number, boolean, symbol, date, record, instanceOfUnsafe\n- Completion: orElse, result, option, exhaustive\n- completion: orElseAbsurd\n- types: Types, WhenMatch, NotMatch, PForMatch, PForExclude, PatternBase, PatternPrimitive, Without, ... (15 total)\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Metric",
+    "episode_body": "Title: Metric Module\nCategory: module\nModule Path: effect/Metric\n\nKey Exports by Category (52 total):\n- Models: Metric\n- Metrics: Counter, Frequency, FrequencyState, Gauge, GaugeState, Histogram, HistogramState, Summary, ... (9 total)\n- Counter: CounterState\n- models: Metric\n- types: Type, Attributes, AttributeSet, Input, State, Snapshot\n- interfaces: Hooks, Metadata, SnapshotProto\n- References: CurrentMetricAttributesKey, CurrentMetricAttributes, MetricRegistry\n- Guards: isMetric\n- Constructors: counter, gauge, frequency, histogram, summary, summaryWithTimestamp, timer\n- Utilities: value, modify, update\n- Mapping: mapInput\n- Input: withConstantInput\n- Attributes: withAttributes\n- Snapshotting: snapshot, snapshotUnsafe\n- Debugging: dump\n- Boundaries: boundariesFromIterable, linearBoundaries, exponentialBoundaries\n- Runtime Metrics: FiberRuntimeMetricsKey, FiberRuntimeMetricsService, FiberRuntimeMetrics, FiberRuntimeMetricsImpl, enableRuntimeMetricsLayer, disableRuntimeMetricsLayer, enableRuntimeMetrics, disableRuntimeMetrics\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: MutableHashMap",
+    "episode_body": "Title: MutableHashMap Module\nCategory: module\nModule Path: effect/MutableHashMap\n\nDescription: MutableHashMap is a high-performance, mutable hash map implementation designed for efficient key-value storage\nwith support for both structural and referential equality. It provides O(1) average-case performance for\nbasic operations and integrates seamlessly with Effect's Equal and Hash interfaces.\n\nThe implementation uses a hybrid approach:\n- Referential keys (without Equal implementation) are stored in a native Map\n- Structural keys (with Equal implementation) are stored in hash buckets with collision handling\n\nKey Features:\n- Mutable operations for performance-critical scenarios\n- Supports both structural and referential equality\n- Efficient collision handling through bucketing\n- Iterable interface for easy traversal\n- Memory-efficient storage with automatic bucket management\n\nPerformance Characteristics:\n- Get/Set/Has: O(1) average, O(n) worst case (hash collisions)\n- Remove: O(1) average, O(n) worst case\n- Clear: O(1)\n- Size: O(1)\n- Iteration: O(n)\n\nKey Exports by Category (16 total):\n- data-structures: MutableHashMap\n- constructors: empty, make, fromIterable\n- elements: get, keys, values, has, size\n- mutations: set, modify, modifyAt, remove, clear\n- uncategorized: isEmpty, forEach\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: MutableHashSet",
+    "episode_body": "Title: MutableHashSet Module\nCategory: module\nModule Path: effect/MutableHashSet\n\nDescription: @fileoverview\nMutableHashSet is a high-performance, mutable set implementation that provides efficient storage\nand retrieval of unique values. Built on top of MutableHashMap, it inherits the same performance\ncharacteristics and support for both structural and referential equality.\n\nThe implementation uses a MutableHashMap internally where each value is stored as a key with a\nboolean flag, providing O(1) average-case performance for all operations.\n\nKey Features:\n- Mutable operations for performance-critical scenarios\n- Supports both structural and referential equality\n- Efficient duplicate detection and removal\n- Iterable interface for easy traversal\n- Memory-efficient storage with automatic deduplication\n- Seamless integration with Effect's Equal and Hash interfaces\n\nPerformance Characteristics:\n- Add/Has/Remove: O(1) average, O(n) worst case (hash collisions)\n- Clear: O(1)\n- Size: O(1)\n- Iteration: O(n)\n\nKey Exports by Category (9 total):\n- data-structures: MutableHashSet\n- constructors: empty, fromIterable, make\n- mutations: add, remove, clear\n- elements: has, size\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: MutableList",
+    "episode_body": "Title: MutableList Module\nCategory: module\nModule Path: effect/MutableList\n\nDescription: @fileoverview\nMutableList is an efficient, mutable linked list implementation optimized for high-throughput\nscenarios like logging, queuing, and streaming. It uses a bucket-based architecture where\nelements are stored in arrays (buckets) linked together, providing optimal performance for\nboth append and prepend operations.\n\nThe implementation uses a sophisticated bucket system:\n- Each bucket contains an array of elements with an offset pointer\n- Buckets can be marked as mutable or immutable for optimization\n- Elements are taken from the head and added to the tail\n- Memory is efficiently managed through bucket reuse and cleanup\n\nKey Features:\n- Highly optimized for high-frequency append/prepend operations\n- Memory efficient with automatic cleanup of consumed elements\n- Support for bulk operations (appendAll, prependAll, takeN)\n- Filtering and removal operations\n- Zero-copy optimizations for certain scenarios\n\nPerformance Characteristics:\n- Append/Prepend: O(1) amortized\n- Take/TakeN: O(1) per element taken\n- Length: O(1)\n- Clear: O(1)\n- Filter: O(n)\n\nIdeal Use Cases:\n- High-throughput logging systems\n- Producer-consumer queues\n- Streaming data buffers\n- Real-time data processing pipelines\n\nKey Exports by Category (21 total):\n- data-structures: MutableList\n- models: MutableList, Bucket\n- Symbols: Empty, Empty\n- constructors: make\n- mutations: append, prepend, prependAll, prependAllUnsafe, appendAll, appendAllUnsafe, clear, filter, ... (9 total)\n- elements: takeN, takeNVoid, takeAll, take, toArrayN, toArray\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: MutableRef",
+    "episode_body": "Title: MutableRef Module\nCategory: module\nModule Path: effect/MutableRef\n\nDescription: @fileoverview\nMutableRef provides a mutable reference container that allows safe mutation of values\nin functional programming contexts. It serves as a bridge between functional and imperative\nprogramming paradigms, offering atomic operations for state management.\n\nUnlike regular variables, MutableRef encapsulates mutable state and provides controlled\naccess through a standardized API. It supports atomic compare-and-set operations for\nthread-safe updates and integrates seamlessly with Effect's ecosystem.\n\nKey Features:\n- Mutable reference semantics with functional API\n- Atomic compare-and-set operations for safe concurrent updates\n- Specialized operations for numeric and boolean values\n- Chainable operations that return the reference or the value\n- Integration with Effect's Equal interface for value comparison\n\nCommon Use Cases:\n- State containers in functional applications\n- Counters and accumulators\n- Configuration that needs to be updated at runtime\n- Caching and memoization scenarios\n- Inter-module communication via shared references\n\nPerformance Characteristics:\n- Get/Set: O(1)\n- Compare-and-set: O(1)\n- All operations: O(1)\n\nKey Exports by Category (17 total):\n- data-structures: MutableRef\n- constructors: make\n- general: compareAndSet, get, getAndSet, getAndUpdate, set, setAndGet, update, updateAndGet\n- numeric: decrement, decrementAndGet, getAndDecrement, getAndIncrement, increment, incrementAndGet\n- boolean: toggle\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: NonEmptyIterable",
+    "episode_body": "Title: NonEmptyIterable Module\nCategory: module\nModule Path: effect/NonEmptyIterable\n\nKey Exports by Category (3 total):\n- symbol: nonEmpty\n- model: NonEmptyIterable\n- getters: unprepend\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: NullOr",
+    "episode_body": "Title: NullOr Module\nCategory: module\nModule Path: effect/NullOr\n\nDescription: This module provides small, allocation-free utilities for working with values of type\n`A | null`, where `null` means \"no value\".\n\nWhy not `Option<A>`?\nIn TypeScript, `Option<A>` is often unnecessary. If `null` already models absence\nin your domain, using `A | null` keeps types simple, avoids extra wrappers, and\nreduces overhead. The key is that `A` itself must not include `null`; in this\nmodule `null` is reserved to mean \"no value\".\n\nWhen to use `A | null`:\n- Absence can be represented by `null` in your domain model.\n- You do not need to distinguish between \"no value\" and \"value is null\".\n- You want straightforward ergonomics and zero extra allocations.\n\nWhen to prefer `Option<A>`:\n- You must distinguish `None` from `Some(null)` (that is, `null` is a valid\n  payload and carries meaning on its own).\n- You need a tagged representation for serialization or pattern matching across\n  boundaries where `null` would be ambiguous.\n- You want the richer `Option` API and are comfortable with the extra wrapper.\n\nLawfulness note:\nAll helpers treat `null` as absence. Do not use these utilities with payloads\nwhere `A` can itself be `null`, or you will lose information. If you need to\ncarry `null` as a valid payload, use `Option<A>` instead.\n\nKey Exports by Category (8 total):\n- uncategorized: map, match, getOrThrowWith, getOrThrow, liftThrowable, makeReducer, makeCombinerFailFast, makeReducerFailFast\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Number",
+    "episode_body": "Title: Number Module\nCategory: module\nModule Path: effect/Number\n\nDescription: This module provides utility functions and type class instances for working with the `number` type in TypeScript.\nIt includes functions for basic arithmetic operations.\n\nKey Exports by Category (29 total):\n- constructors: Number, parse\n- guards: isNumber\n- math: sum, multiply, subtract, divide, increment, decrement, clamp, min, ... (15 total)\n- instances: Order, Equivalence\n- predicates: isLessThan, isLessThanOrEqualTo, isGreaterThan, isGreaterThanOrEqualTo, between\n- uncategorized: ReducerSum, ReducerMultiply, ReducerMax, ReducerMin\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Optic",
+    "episode_body": "Title: Optic Module\nCategory: module\nModule Path: effect/Optic\n\nDescription: Design: \"pretty good\" persistency.\nReal updates copy only the path; unrelated branches keep referential identity.\nNo-op updates may still allocate a new root/parents — callers must not rely on identity for no-ops.\n\nKey Exports by Category (17 total):\n- Iso: Iso, id, entries\n- Constructors: makeIso, makeLens, makePrism, fromChecks, makeOptional\n- Lens: Lens\n- Prism: Prism, some, none, success, failure\n- Optional: Optional\n- Traversal: Traversal, getAll\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Option",
+    "episode_body": "Title: Option Module\nCategory: module\nModule Path: effect/Option\n\nDescription: The `Option` module provides a type-safe way to represent values that may or\nmay not exist. An `Option<A>` is either `Some<A>` (containing a value) or\n`None` (representing absence).\n\n**Mental model**\n\n- `Option<A>` is a discriminated union: `None | Some<A>`\n- `None` represents the absence of a value (like `null`/`undefined`, but type-safe)\n- `Some<A>` wraps a present value of type `A`, accessed via `.value`\n- `Option` is a monad: chain operations with flatMap, compose pipelines with `pipe`\n- All operations are pure and return new `Option` values; the input is never mutated\n- `Option` is yieldable in `Effect.gen`, producing the inner value or short-circuiting with `NoSuchElementError`\n\n**Common tasks**\n\n- Create from a value: some, none\n- Create from nullable: fromNullishOr, fromNullOr, fromUndefinedOr\n- Create from iterable: fromIterable\n- Create from Result: getSuccess, getFailure\n- Transform: map, flatMap, andThen\n- Unwrap: getOrElse, getOrNull, getOrUndefined, getOrThrow\n- Pattern match: match\n- Fallbacks: orElse, orElseSome, firstSomeOf\n- Filter: filter, filterMap\n- Combine multiple: all, zipWith, product\n- Generator syntax: gen\n- Do notation: Do, bind, let\n- Check contents: isSome, isNone, contains, exists\n\n**Gotchas**\n\n- `Option.some(null)` is a valid `Some`; use fromNullishOr to treat `null`/`undefined` as `None`\n- filterMap is an alias for flatMap\n- getOrThrow throws a generic `Error`; prefer getOrThrowWith for custom errors\n- `None` is a singleton; compare with isNone, not `===`\n- When yielded in `Effect.gen`, a `None` becomes a `NoSuchElementError` defect\n\n**Quickstart**\n\n**Example** (Working with optional values)\n\n```ts\nimport { Option } from \"effect\"\n\nconst name = Option.some(\"Alice\")\nconst age = Option.none<number>()\n\n// Transform\nconst upper = Option.map(name, (s) => s.toUpperCase())\n\n// Unwrap with fallback\nconsole.log(Option.getOrElse(upper, () => \"unknown\"))\n// Output: \"ALICE\"\n\nconsole.log(Option.getOrElse(age, () => 0))\n// Output: 0\n\n// Combine multiple options\nconst both = Option.all({ name, age })\nconsole.log(Option.isNone(both))\n// Output: true\n```\n\n**See also**\n\n- some / none for creating values\n- map / flatMap for transforming values\n- match for pattern matching\n- gen for generator-based syntax\n\nKey Exports by Category (62 total):\n- Models: Option, None, Some\n- Namespaces: Option\n- Type-level Utils: Value\n- Constructors: none, some, fromIterable, flatMap\n- Guards: isOption, isNone, isSome\n- Pattern matching: match\n- Conversions: toRefinement, getSuccess, getFailure, fromNullishOr, fromUndefinedOr, fromNullOr, liftNullishOr, liftThrowable, ... (11 total)\n- Getters: getOrElse, getOrNull, getOrUndefined\n- Error handling: orElse, orElseSome, orElseResult, firstSomeOf\n- Mapping: map, as, asVoid\n- Sequencing: andThen, flatMapNullishOr, flatten, composeK, tap\n- Zipping: zipRight, zipLeft\n- Combining: product, productMany, zipWith\n- Reducing: reduceCompact\n- Filtering: partitionMap, filterMap, filter\n- Equivalence: makeEquivalence\n- Sorting: makeOrder\n- Lifting: lift2, liftPredicate\n- Elements: containsWith, contains, exists\n- Do notation: bindTo, bind, Do\n- Generators: gen\n- uncategorized: makeReducer, makeCombinerFailFast, makeReducerFailFast\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Order",
+    "episode_body": "Title: Order Module\nCategory: module\nModule Path: effect/Order\n\nDescription: This module provides the `Order` type class for defining total orderings on types.\nAn `Order` is a comparison function that returns `-1` (less than), `0` (equal), or `1` (greater than).\n\nMental model:\n- An `Order<A>` is a pure function `(a: A, b: A) => Ordering` that compares two values\n- The result `-1` means the first value is less than the second\n- The result `0` means the values are equal according to this ordering\n- The result `1` means the first value is greater than the second\n- Orders must satisfy total ordering laws: totality (either `x <= y` or `y <= x`), antisymmetry (if `x <= y` and `y <= x` then `x == y`), and transitivity (if `x <= y` and `y <= z` then `x <= z`)\n- Orders can be composed using combine and combineAll to create multi-criteria comparisons\n- Orders can be transformed using mapInput to compare values by extracting a comparable property\n- Built-in orders exist for common types: Number, String, Boolean, BigInt, Date\n\nCommon tasks:\n- Creating custom orders → make\n- Using built-in orders → Number, String, Boolean, BigInt, Date\n- Combining multiple orders → combine, combineAll\n- Transforming orders → mapInput\n- Comparing values → isLessThan, isGreaterThan, isLessThanOrEqualTo, isGreaterThanOrEqualTo\n- Finding min/max → min, max\n- Clamping values → clamp, isBetween\n- Ordering collections → Array, Tuple, Struct\n\nGotchas:\n- `Order.Number` treats all `NaN` values as equal and less than any other number\n- `Order.make` uses reference equality (`===`) as a shortcut: if `self === that`, it returns `0` without calling the comparison function\n- `Order.Array` compares arrays element-by-element, then by length if all elements are equal; `Order.all` only compares elements up to the shorter array's length\n- `Order.Tuple` requires a fixed-length tuple with matching order types; `Order.Array` works with variable-length arrays\n- `Order.min` and `Order.max` return the first argument when values are equal\n\nQuickstart:\n\n**Example** (Basic Usage)\n\n```ts\nimport { Order } from \"effect\"\n\nconst result = Order.Number(5, 10)\nconsole.log(result) // -1 (5 is less than 10)\n\nconst isLessThan = Order.isLessThan(Order.Number)(5, 10)\nconsole.log(isLessThan) // true\n```\n\nSee also:\n- Ordering - The result type of comparisons\n- Reducer - For combining orders in collections\n\nKey Exports by Category (24 total):\n- type class: Order\n- constructors: make, alwaysEqual\n- instances: String, Number, Boolean, BigInt, Date\n- combinators: flip, Tuple, Array, Struct\n- combining: combine, combineAll\n- mapping: mapInput\n- predicates: isLessThan, isGreaterThan, isLessThanOrEqualTo, isGreaterThanOrEqualTo, isBetween\n- comparisons: min, max, clamp\n- utilities: makeReducer\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Ordering",
+    "episode_body": "Title: Ordering Module\nCategory: module\nModule Path: effect/Ordering\n\nDescription: @fileoverview\nThe Ordering module provides utilities for working with comparison results and ordering operations.\nAn Ordering represents the result of comparing two values, expressing whether the first value is\nless than (-1), equal to (0), or greater than (1) the second value.\n\nThis module is fundamental for building comparison functions, sorting algorithms, and implementing\nordered data structures. It provides composable operations for combining multiple comparison results\nand pattern matching on ordering outcomes.\n\nKey Features:\n- Type-safe representation of comparison results (-1, 0, 1)\n- Composable operations for combining multiple orderings\n- Pattern matching utilities for handling different ordering cases\n- Ordering reversal and combination functions\n- Integration with Effect's functional programming patterns\n\nCommon Use Cases:\n- Implementing custom comparison functions\n- Building complex sorting criteria\n- Combining multiple comparison results\n- Creating ordered data structures\n- Pattern matching on comparison outcomes\n\nKey Exports by Category (4 total):\n- utilities: Ordering\n- transformations: reverse\n- pattern matching: match\n- uncategorized: Reducer\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: PartitionedSemaphore",
+    "episode_body": "Title: PartitionedSemaphore Module\nCategory: module\nModule Path: effect/PartitionedSemaphore\n\nKey Exports by Category (5 total):\n- models: TypeId, TypeId, PartitionedSemaphore\n- constructors: makeUnsafe, make\n\nSince: 3.19.4",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Path",
+    "episode_body": "Title: Path Module\nCategory: module\nModule Path: effect/Path\n\nKey Exports by Category (6 total):\n- uncategorized: TypeId\n- model: Path, Parsed\n- namespace: Path\n- tag: Path\n- Layers: layer\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Pipeable",
+    "episode_body": "Title: Pipeable Module\nCategory: module\nModule Path: effect/Pipeable\n\nKey Exports by Category (3 total):\n- models: Pipeable\n- utilities: pipeArguments\n- uncategorized: Class\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: PlatformError",
+    "episode_body": "Title: PlatformError Module\nCategory: module\nModule Path: effect/PlatformError\n\nKey Exports by Category (6 total):\n- Models: BadArgument, PlatformError\n- Model: SystemErrorKind\n- models: SystemError\n- constructors: systemError, badArgument\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Pool",
+    "episode_body": "Title: Pool Module\nCategory: module\nModule Path: effect/Pool\n\nKey Exports by Category (11 total):\n- models: Pool, Config, State, PoolItem, Strategy\n- refinements: isPool\n- constructors: make, makeWithTTL, makeWithStrategy\n- getters: get\n- combinators: invalidate\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Predicate",
+    "episode_body": "Title: Predicate Module\nCategory: module\nModule Path: effect/Predicate\n\nDescription: Predicate and Refinement helpers for runtime checks, filtering, and type narrowing.\nThis module provides small, pure functions you can combine to decide whether a\nvalue matches a condition and, when using refinements, narrow TypeScript types.\n\nMental model:\n- A `Predicate<A>` is just `(a: A) => boolean`.\n- A `Refinement<A, B>` is a predicate that narrows `A` to `B` when true.\n- Guards like `isString` are predicates/refinements for common runtime types.\n- Combinators like `and`/`or` build new predicates from existing ones.\n- `Tuple` and `Struct` lift element/property predicates to compound values.\n\nCommon tasks:\n- Reuse an existing predicate on a different input shape -> mapInput\n- Combine checks -> and, or, not, xor\n- Build tuple/object checks -> Tuple, Struct\n- Narrow `unknown` to a concrete type -> Refinement, compose\n- Check runtime types -> isString, isNumber, isObject\n\nGotchas:\n- `isTruthy` uses JavaScript truthiness; `0`, \"\", and `false` are false.\n- `isObject` excludes arrays; use isObjectOrArray for both.\n- `isIterable` treats strings as iterable.\n- `isPromise`/`isPromiseLike` are structural checks (then/catch), not `instanceof`.\n- `isTupleOf` and `isTupleOfAtLeast` only check length, not element types.\n\n**Example** (Filter by a predicate)\n\n```ts\nimport * as P from \"effect/Predicate\"\n\nconst isPositive = (n: number) => n > 0\nconst data = [2, -1, 3]\n\nconsole.log(data.filter(isPositive))\n```\n\nSee also: Predicate, Refinement, and, or, mapInput\n\nKey Exports by Category (56 total):\n- models: Predicate, Refinement\n- type-level: Predicate, In, Any, Refinement, In, Out, Any\n- combinators: mapInput, compose, Tuple, Struct, not, or, and, xor, ... (12 total)\n- guards: isTupleOf, isTupleOfAtLeast, isTruthy, isSet, isMap, isString, isNumber, isBoolean, ... (33 total)\n- elements: every, some\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: PrimaryKey",
+    "episode_body": "Title: PrimaryKey Module\nCategory: module\nModule Path: effect/PrimaryKey\n\nDescription: This module provides functionality for working with primary keys.\nA `PrimaryKey` is a simple interface that represents a unique identifier\nthat can be converted to a string representation.\n\nPrimary keys are useful for creating unique identifiers for objects,\ndatabase records, cache keys, or any scenario where you need a\nstring-based unique identifier.\n\nKey Exports by Category (4 total):\n- uncategorized: symbol\n- models: PrimaryKey, isPrimaryKey\n- accessors: value\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: PubSub",
+    "episode_body": "Title: PubSub Module\nCategory: module\nModule Path: effect/PubSub\n\nDescription: This module provides utilities for working with publish-subscribe (PubSub) systems.\n\nA PubSub is an asynchronous message hub where publishers can publish messages and subscribers\ncan subscribe to receive those messages. PubSub supports various backpressure strategies,\nmessage replay, and concurrent access from multiple producers and consumers.\n\n@example\n```ts\nimport { Effect, PubSub } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const pubsub = yield* PubSub.bounded<string>(10)\n\n  // Publisher\n  yield* PubSub.publish(pubsub, \"Hello\")\n  yield* PubSub.publish(pubsub, \"World\")\n\n  // Subscriber\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const message1 = yield* PubSub.take(subscription)\n    const message2 = yield* PubSub.take(subscription)\n    console.log(message1, message2) // \"Hello\", \"World\"\n  }))\n})\n```\n\nKey Exports by Category (37 total):\n- models: PubSub, PubSub, Atomic, BackingSubscription, Subscribers, ReplayWindow, Strategy, Subscription, ... (11 total)\n- constructors: make, bounded, dropping, sliding, unbounded, makeAtomicBounded, makeAtomicUnbounded\n- getters: capacity, size, sizeUnsafe, remaining, remainingUnsafe\n- predicates: isFull, isEmpty, isShutdown, isShutdownUnsafe\n- lifecycle: shutdown, awaitShutdown\n- publishing: publish, publishUnsafe, publishAll\n- subscription: subscribe, take, takeAll, takeUpTo, takeBetween\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Pull",
+    "episode_body": "Title: Pull Module\nCategory: module\nModule Path: effect/Pull\n\nKey Exports by Category (15 total):\n- models: Pull\n- type extractors: Success, Error, Leftover, Services, ExcludeDone\n- Done: catchDone, isDoneCause, isDoneFailure, filterDone, filterDoneVoid, filterNoDone, filterDoneLeftover, doneExitFromCause\n- pattern matching: matchEffect\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Queue",
+    "episode_body": "Title: Queue Module\nCategory: module\nModule Path: effect/Queue\n\nKey Exports by Category (46 total):\n- Guards: isQueue, isEnqueue, isDequeue\n- Conversions: asEnqueue, asDequeue\n- Models: Enqueue, Enqueue, Variance, Dequeue, Dequeue, Variance, Queue, Queue, ... (11 total)\n- Constructors: make, bounded, sliding, dropping, unbounded\n- Offering: offer, offerUnsafe, offerAll, offerAllUnsafe\n- Completion: fail, failCause, failCauseUnsafe, end, endUnsafe, interrupt, shutdown, size, ... (9 total)\n- Taking: clear, takeAll, collect, takeN, takeBetween, take, poll, peek, ... (9 total)\n- Size: isFull, sizeUnsafe, isFullUnsafe\n\nSince: 3.8.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Random",
+    "episode_body": "Title: Random Module\nCategory: module\nModule Path: effect/Random\n\nDescription: The Random module provides a service for generating random numbers in Effect\nprograms. It offers a testable and composable way to work with randomness,\nsupporting integers, floating-point numbers, and range-based generation.\n\n@example\n```ts\nimport { Effect, Random } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const randomFloat = yield* Random.next\n  console.log(\"Random float:\", randomFloat)\n\n  const randomInt = yield* Random.nextInt\n  console.log(\"Random integer:\", randomInt)\n\n  const diceRoll = yield* Random.nextIntBetween(1, 6)\n  console.log(\"Dice roll:\", diceRoll)\n})\n```\n\nKey Exports by Category (7 total):\n- Random Number Generators: Random, next, nextInt, nextBetween, nextIntBetween, nextUUIDv4\n- Seeding: withSeed\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: RcMap",
+    "episode_body": "Title: RcMap Module\nCategory: module\nModule Path: effect/RcMap\n\nKey Exports by Category (12 total):\n- models: RcMap, make\n- Models: State, State, Open, Closed, Entry\n- combinators: get, keys, invalidate, has, touch\n\nSince: 3.5.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: RcRef",
+    "episode_body": "Title: RcRef Module\nCategory: module\nModule Path: effect/RcRef\n\nKey Exports by Category (6 total):\n- models: RcRef, RcRef, Variance\n- constructors: make\n- combinators: get, invalidate\n\nSince: 3.5.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Record",
+    "episode_body": "Title: Record Module\nCategory: module\nModule Path: effect/Record\n\nDescription: This module provides utility functions for working with records in TypeScript.\n\nKey Exports by Category (46 total):\n- models: ReadonlyRecord, ReadonlyRecord, NonLiteralKey, IntersectKeys\n- constructors: empty, fromIterableWith, fromIterableBy, fromEntries, singleton\n- guards: isEmptyRecord, isEmptyReadonlyRecord, has\n- conversions: collect, toEntries\n- getters: size, get, keys, values\n- utils: modify, replace, remove, pop, set\n- mapping: map, mapKeys, mapEntries\n- filtering: filterMap, filter, getSomes, getFailures, getSuccesses, partitionMap, separate, partition\n- predicates: isSubrecordBy, isSubrecord, every, some\n- folding: reduce\n- combining: union, intersection, difference\n- instances: makeEquivalence\n- uncategorized: makeReducerUnion, makeReducerIntersection\n- elements: findFirst\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Redactable",
+    "episode_body": "Title: Redactable Module\nCategory: module\nModule Path: effect/Redactable\n\nKey Exports by Category (6 total):\n- symbol: symbolRedactable\n- Model: Redactable\n- redactable: isRedactable\n- uncategorized: redact, getRedacted, currentFiberTypeId\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Redacted",
+    "episode_body": "Title: Redacted Module\nCategory: module\nModule Path: effect/Redacted\n\nDescription: The Redacted module provides functionality for handling sensitive information\nsecurely within your application. By using the `Redacted` data type, you can\nensure that sensitive values are not accidentally exposed in logs or error\nmessages.\n\nKey Exports by Category (9 total):\n- models: Redacted, Variance\n- namespace: Redacted\n- type-level: Value\n- refinements: isRedacted\n- constructors: make\n- getters: value\n- unsafe: wipeUnsafe\n- equivalence: makeEquivalence\nSince: 3.3.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Reducer",
+    "episode_body": "Title: Reducer Module\nCategory: module\nModule Path: effect/Reducer\n\nKey Exports by Category (3 total):\n- model: Reducer\n- uncategorized: make, flip\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Ref",
+    "episode_body": "Title: Ref Module\nCategory: module\nModule Path: effect/Ref\n\nDescription: This module provides utilities for working with mutable references in a functional context.\n\nA Ref is a mutable reference that can be read, written, and atomically modified. Unlike plain\nmutable variables, Refs are thread-safe and work seamlessly with Effect's concurrency model.\nThey provide atomic operations for safe state management in concurrent programs.\n\n@example\n```ts\nimport { Effect, Ref } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create a ref with initial value\n  const counter = yield* Ref.make(0)\n\n  // Atomic operations\n  yield* Ref.update(counter, (n) => n + 1)\n  yield* Ref.update(counter, (n) => n * 2)\n\n  const value = yield* Ref.get(counter)\n  console.log(value) // 2\n\n  // Atomic modify with return value\n  const previous = yield* Ref.getAndSet(counter, 100)\n  console.log(previous) // 2\n})\n```\n\nKey Exports by Category (18 total):\n- models: Ref, Ref, Variance\n- constructors: makeUnsafe, make\n- getters: get, getUnsafe\n- setters: set, modify, modifySome, update, updateSome\n- utils: getAndSet, getAndUpdate, getAndUpdateSome, setAndGet, updateAndGet, updateSomeAndGet\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: References",
+    "episode_body": "Title: References Module\nCategory: module\nModule Path: effect/References\n\nDescription: This module provides a collection of reference implementations for commonly used\nEffect runtime configuration values. These references allow you to access and\nmodify runtime behavior such as concurrency limits, scheduling policies,\ntracing configuration, and logging settings.\n\nReferences are special service instances that can be dynamically updated\nduring runtime, making them ideal for configuration that may need to change\nbased on application state or external conditions.\n\nKey Exports by Category (12 total):\n- references: CurrentConcurrency, StackFrame, CurrentStackFrame, TracerEnabled, TracerTimingEnabled, TracerSpanAnnotations, TracerSpanLinks, CurrentLogAnnotations, ... (12 total)\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: RegExp",
+    "episode_body": "Title: RegExp Module\nCategory: module\nModule Path: effect/RegExp\n\nDescription: This module provides utility functions for working with RegExp in TypeScript.\n\nKey Exports by Category (3 total):\n- constructors: RegExp\n- guards: isRegExp\n- utilities: escape\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Request",
+    "episode_body": "Title: Request Module\nCategory: module\nModule Path: effect/Request\n\nDescription: The `Request` module provides a way to model requests to external data sources\nin a functional and composable manner. Requests represent descriptions of\noperations that can be batched, cached, and executed efficiently.\n\nA `Request<A, E, R>` represents a request that:\n- Yields a value of type `A` on success\n- Can fail with an error of type `E`\n- Requires services of type `R`\n\nRequests are primarily used with RequestResolver to implement efficient\ndata fetching patterns, including automatic batching and caching.\n\nKey Exports by Category (21 total):\n- models: Request, Any, Variance, Constructor\n- type-level: Error, Success, Services, Result\n- uncategorized: RequestPrototype\n- guards: isRequest\n- constructors: of, tagged, Class, TaggedClass\n- completion: complete, completeEffect, fail, failCause, succeed\n- entry: Entry, makeEntry\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: RequestResolver",
+    "episode_body": "Title: RequestResolver Module\nCategory: module\nModule Path: effect/RequestResolver\n\nKey Exports by Category (22 total):\n- models: RequestResolver, RequestResolver, Variance\n- guards: isRequestResolver\n- constructors: makeWith, make, makeGrouped, fromFunction, fromFunctionBatched, fromEffect, fromEffectTagged, never\n- delay: setDelayEffect, setDelay\n- combinators: around, batchN, grouped, race, withSpan\n- Caching: asCache, withCache\n- Persistence: persisted\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Resource",
+    "episode_body": "Title: Resource Module\nCategory: module\nModule Path: effect/Resource\n\nKey Exports by Category (6 total):\n- models: Resource\n- guards: isResource\n- constructors: manual, auto\n- getters: get\n- utils: refresh\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Result",
+    "episode_body": "Title: Result Module\nCategory: module\nModule Path: effect/Result\n\nDescription: A synchronous, pure type for representing computations that can succeed\n(`Success<A>`) or fail (`Failure<E>`). Unlike `Effect`, `Result` is\nevaluated eagerly and carries no side effects.\n\n**Mental model**\n\n- `Result<A, E>` is a discriminated union: `Success<A, E> | Failure<A, E>`\n- `Success` wraps a value of type `A`, accessed via `.success`\n- `Failure` wraps an error of type `E`, accessed via `.failure`\n- `Result` is a monad: chain operations with flatMap, compose pipelines with `pipe`\n- All operations are pure and return new `Result` values; the input is never mutated\n- `Result` is yieldable in `Effect.gen`, producing the inner value or short-circuiting on failure\n\n**Common tasks**\n\n- Create from a value: succeed, fail\n- Create from nullable: fromNullishOr\n- Create from Option: fromOption\n- Create from throwing code: try\n- Create from predicate: liftPredicate\n- Transform: map, mapError, mapBoth\n- Unwrap: getOrElse, getOrNull, getOrUndefined, getOrThrow\n- Pattern match: match\n- Sequence: flatMap, andThen, all\n- Recover: orElse\n- Filter: filterOrFail\n- Convert to Option: getSuccess, getFailure\n- Generator syntax: gen\n- Do notation: Do, bind, let\n- Check variant: isResult, isSuccess, isFailure\n\n**Gotchas**\n\n- `E` defaults to `never`, so `Result<number>` means a result that cannot fail\n- andThen accepts a `Result`, a function returning a `Result`, a plain value, or a function returning a plain value; flatMap only accepts a function returning a `Result`\n- all short-circuits on the first `Failure` and returns it; later elements are not inspected\n- getOrThrow throws the raw failure value `E`; use getOrThrowWith for custom error objects\n- tap runs a side-effect but does not change the result; its return value is ignored\n\n**Quickstart**\n\n**Example** (Parsing and validating with Result)\n\n```ts\nimport { Result } from \"effect\"\n\nconst parse = (input: string): Result.Result<number, string> =>\n  isNaN(Number(input))\n    ? Result.fail(\"not a number\")\n    : Result.succeed(Number(input))\n\nconst ensurePositive = (n: number): Result.Result<number, string> =>\n  n > 0 ? Result.succeed(n) : Result.fail(\"not positive\")\n\nconst result = Result.flatMap(parse(\"42\"), ensurePositive)\n\nconsole.log(Result.getOrElse(result, (err) => `Error: ${err}`))\n// Output: 42\n```\n\n**See also**\n\n- succeed / fail to create values\n- match to fold both branches\n- gen for generator-based composition\n\nKey Exports by Category (42 total):\n- Models: Result, Failure, Success\n- Type Level: Result, Failure, Success\n- Constructors: succeed, fail, failVoid, fromNullishOr, fromOption, isResult, liftPredicate, succeedNone, ... (9 total)\n- Type Guards: isFailure, isSuccess\n- Getters: getSuccess, getFailure, merge, getOrElse, getOrNull, getOrUndefined, getOrThrowWith, getOrThrow\n- Equivalence: makeEquivalence\n- Mapping: mapBoth, mapError, map, tap\n- Pattern Matching: match\n- Filtering: filterOrFail\n- Error Handling: orElse\n- Sequencing: flatMap, andThen, flip\n- Generators: gen\n- Do Notation: Do, bind, bindTo, transposeOption\n- Transposing: transposeMapOption\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Runtime",
+    "episode_body": "Title: Runtime Module\nCategory: module\nModule Path: effect/Runtime\n\nDescription: This module provides utilities for running Effect programs and managing their execution lifecycle.\n\nThe Runtime module contains functions for creating main program runners that handle process\nteardown, error reporting, and exit code management. These utilities are particularly useful\nfor creating CLI applications and server processes that need to manage their lifecycle properly.\n\n@example\n```ts\nimport { Effect, Fiber, Runtime } from \"effect\"\n\n// Create a main runner for Node.js\nconst runMain = Runtime.makeRunMain((options) => {\n  process.on(\"SIGINT\", () => Effect.runFork(Fiber.interrupt(options.fiber)))\n  process.on(\"SIGTERM\", () => Effect.runFork(Fiber.interrupt(options.fiber)))\n\n  options.fiber.addObserver((exit) => {\n    options.teardown(exit, (code) => process.exit(code))\n  })\n})\n\n// Use the runner\nconst program = Effect.log(\"Hello, World!\")\nrunMain(program)\n```\n\nKey Exports by Category (3 total):\n- Model: Teardown\n- Teardown: defaultTeardown\n- Run main: makeRunMain\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Schedule",
+    "episode_body": "Title: Schedule Module\nCategory: module\nModule Path: effect/Schedule\n\nDescription: This module provides utilities for creating and composing schedules for retrying operations,\nrepeating effects, and implementing various timing strategies.\n\nA Schedule is a function that takes an input and returns a decision whether to continue or halt,\nalong with a delay duration. Schedules can be combined, transformed, and used to implement\nsophisticated retry and repetition logic.\n\n@example\n```ts\nimport { Effect, Schedule } from \"effect\"\n\n// Retry with exponential backoff\nconst retryPolicy = Schedule.exponential(\"100 millis\", 2.0)\n  .pipe(Schedule.compose(Schedule.recurs(3)))\n\nconst program = Effect.gen(function*() {\n  // This will retry up to 3 times with exponential backoff\n  const result = yield* Effect.retry(\n    Effect.fail(\"Network error\"),\n    retryPolicy\n  )\n})\n\n// Repeat on a fixed schedule\nconst heartbeat = Effect.log(\"heartbeat\")\n  .pipe(Effect.repeat(Schedule.spaced(\"30 seconds\")))\n```\n\nKey Exports by Category (52 total):\n- Models: Schedule, Variance, VarianceStruct\n- Metadata: InputMetadata, Metadata, CurrentMetadata\n- models: Schedule\n- guards: isSchedule\n- constructors: fromStep, fromStepWithMetadata, cron, delays, duration, during, elapsed, exponential, ... (14 total)\n- destructors: toStep, toStepWithMetadata, toStepWithSleep\n- utils: addDelay\n- sequencing: andThen, andThenResult, compose, tapInput, tapOutput\n- utilities: both, bothLeft, bothRight, bothWith, collectInputs, collectOutputs, collectWhile, either, ... (16 total)\n- mapping: map\n- Constructors: satisfiesInputType\n- ensuring types: satisfiesOutputType, satisfiesErrorType, satisfiesServicesType\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Scheduler",
+    "episode_body": "Title: Scheduler Module\nCategory: module\nModule Path: effect/Scheduler\n\nKey Exports by Category (4 total):\n- models: Scheduler\n- references: Scheduler, MaxOpsBeforeYield\n- schedulers: MixedScheduler\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Schema",
+    "episode_body": "Title: Schema Module\nCategory: module\nModule Path: effect/Schema\n\nKey Exports by Category (458 total):\n- uncategorized: Optionality, Mutability, ConstructorDefault, MakeOptions, Bottom, declareConstructor, declare, revealBottom, ... (261 total)\n- Constructors: declareConstructor, declare, make, Tuple, TupleWithRest, Array, NonEmptyArray, UniqueArray, ... (24 total)\n- Annotations: annotate, annotateKey\n- Standard Schema: toStandardSchemaV1, toStandardJSONSchemaV1\n- Asserting: is, asserts\n- Decoding: decodeUnknownEffect, decodeEffect, decodeUnknownExit, decodeExit, decodeUnknownOption, decodeOption, decodeUnknownPromise, decodePromise, ... (10 total)\n- Encoding: encodeUnknownEffect, encodeEffect, encodeUnknownExit, encodeExit, encodeUnknownOption, encodeOption, encodeUnknownPromise, encodePromise, ... (10 total)\n- Guards: isSchema\n- Boolean: Boolean, BooleanFromBit\n- Struct transformations: encodeKeys\n- Filtering: check, refine\n- Branding: brand\n- Checks Constructors: makeFilter, makeFilterGroup\n- String checks: isTrimmed, isPattern, isStringFinite, isStringBigInt, isStringSymbol, isUUID, isULID, isBase64, ... (16 total)\n- Number checks: isFinite, isGreaterThan, isGreaterThanOrEqualTo, isLessThan, isLessThanOrEqualTo, isBetween, isMultipleOf\n- Order checks: makeIsGreaterThan, makeIsGreaterThanOrEqualTo, makeIsLessThan, makeIsLessThanOrEqualTo, makeIsBetween\n- Numeric checks: makeIsMultipleOf\n- Integer checks: isInt, isInt32, isUint32\n- Date checks: isDateValid, isGreaterThanDate, isGreaterThanOrEqualToDate, isLessThanDate, isLessThanOrEqualToDate, isBetweenDate\n- BigInt checks: isGreaterThanBigInt, isGreaterThanOrEqualToBigInt, isLessThanBigInt, isLessThanOrEqualToBigInt, isBetweenBigInt\n- Length checks: isMinLength, isNonEmpty, isMaxLength, isLengthBetween\n- Size checks: isMinSize, isMaxSize, isSizeBetween\n- Object checks: isMinProperties, isMaxProperties, isPropertiesLengthBetween, isPropertyNames\n- Option: Option, OptionIso, Option, OptionFromNullOr, OptionFromOptionalKey, OptionFromOptional\n- Result: Result, ResultIso, Result\n- Redacted: Redacted, Redacted, RedactedFromValue, redact, RedactedFromValue\n- CauseFailure: CauseFailure, CauseFailureIso, CauseFailure\n- Cause: Cause, CauseIso, Cause\n- Schemas: Error, ErrorWithStack\n- Exit: Exit, ExitIso, Exit\n- ReadonlyMap: ReadonlyMap, ReadonlyMapIso, ReadonlyMap\n- ReadonlySet: ReadonlySet, ReadonlySetIso, ReadonlySet\n- URL: URL, URLFromString\n- Duration: DurationFromNanos, DurationFromMillis\n- Uint8Array: Uint8Array, Uint8ArrayFromBase64, Uint8ArrayFromBase64Url, Uint8ArrayFromHex\n- DateTime: DateTimeUtc, DateTimeUtcFromDate, DateTimeUtcFromString, DateTimeUtcFromMillis\n- Arbitrary: LazyArbitrary, toArbitraryLazy, toArbitrary\n- Formatter: overrideToFormatter, toFormatter\n- Equivalence: overrideToEquivalence, toEquivalence\n- Representation: toRepresentation\n- JsonSchema: toJsonSchemaDocument\n- Serializer: toCodecJson, toCodecIso, StringTree, toCodecStringTree, toEncoderXml\n- Optic: toIso, toIsoSource, toIsoFocus, overrideToCodecIso, overrideToCodecIso\n- JsonPatch: toDifferJsonPatch\n- Tree: Tree, TreeObject, Tree, MutableTree, MutableTreeRecord, MutableTree\n- JSON: Json, Json, JsonArray, JsonObject, MutableJson, MutableJson, MutableJsonArray, MutableJsonObject\n- Schema Resolvers: resolveInto\n- Model: Annotations, Key, Bottom, Declaration, Filter, Issue\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaAST",
+    "episode_body": "Title: SchemaAST Module\nCategory: module\nModule Path: effect/SchemaAST\n\nDescription: Abstract Syntax Tree (AST) representation for Effect schemas.\n\nThis module defines the runtime data structures that represent schemas.\nMost users work with the `Schema` module directly; use `SchemaAST` when you\nneed to inspect, traverse, or programmatically transform schema definitions.\n\nMental Model:\n- **AST** — discriminated union (`_tag`) of all schema node types\n  (e.g. `String`, `Objects`, `Union`, `Suspend`)\n- **Base** — abstract base class shared by every node; carries\n  annotations, checks, encoding chain, and context\n- **Encoding** — a non-empty chain of Link values describing\n  how to transform between the decoded (type) and encoded (wire) form\n- **Check** — a validation filter (Filter or\n  FilterGroup) attached to an AST node\n- **Context** — per-property metadata: optionality, mutability,\n  default values, key annotations\n- **Guards** — type-narrowing predicates for each AST variant (e.g.\n  isString, isObjects)\n\nCommon Tasks:\n- Inspect what kind of schema you have → guard functions (isString,\n  isObjects, isUnion, etc.)\n- Get the decoded (type-level) AST → toType\n- Get the encoded (wire-format) AST → toEncoded\n- Swap decode/encode directions → flip\n- Read annotations → resolve, resolveAt,\n  resolveIdentifier\n- Build a transformation between schemas → decodeTo\n- Add regex validation → isPattern\n\nGotchas:\n- AST nodes are structurally immutable; modification helpers return new\n  objects via `Object.create`.\n- Arrays represents both tuples and arrays; Objects\n  represents both structs and records.\n- toType and toEncoded are memoized — same input yields\n  same output reference.\n- Suspend lazily resolves its inner AST via a thunk; the thunk is\n  memoized on first call.\n\nQuickstart:\n**Example** (Inspecting a schema's AST)\n\n```ts\nimport { Schema, SchemaAST } from \"effect\"\n\nconst schema = Schema.Struct({ name: Schema.String, age: Schema.Number })\nconst ast = schema.ast\n\nif (SchemaAST.isObjects(ast)) {\n  console.log(ast.propertySignatures.map(ps => ps.name))\n  // [\"name\", \"age\"]\n}\n\nconst encoded = SchemaAST.toEncoded(ast)\nconsole.log(SchemaAST.isObjects(encoded)) // true\n```\n\nKey Exports by Category (123 total):\n- model: AST, Link, Encoding, ParseOptions, Context, Checks, Base, Declaration, ... (35 total)\n- Guard: isAST, isDeclaration, isNull, isUndefined, isVoid, isNever, isUnknown, isAny, ... (22 total)\n- uncategorized: defaultParseOptions, never, any, unknown, objectKeyword, string, number, boolean, ... (66 total)\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaGetter",
+    "episode_body": "Title: SchemaGetter Module\nCategory: module\nModule Path: effect/SchemaGetter\n\nDescription: Composable transformation primitives for the Effect Schema system.\n\nA `Getter<T, E, R>` represents a single-direction transformation from an\nencoded type `E` to a decoded type `T`. Getters are the building blocks\nthat `Schema.decodeTo` and `Schema.decode` use to define how values are\ntransformed during encoding and decoding. They handle optionality\n(`Option<E>` in, `Option<T>` out), can fail with `Issue`, and can require\nEffect services via `R`.\n\nMental Model:\n- **Getter**: A function `Option<E> -> Effect<Option<T>, Issue, R>`. It\n  transforms an optional encoded value into an optional decoded value,\n  possibly failing or requiring services.\n- **Passthrough**: The identity getter — returns the input unchanged. Used\n  when no transformation is needed. Optimized away during composition.\n- **Option-awareness**: Getters receive and return `Option` to handle\n  missing keys in structs. `Option.None` means the key is absent.\n- **Composition**: Getters compose left-to-right via `.compose()`. A\n  passthrough on either side is a no-op (identity optimization).\n- **Issue**: The error type for all getter failures (see `SchemaIssue`).\n\nCommon Tasks:\n- Pass a value through unchanged → passthrough\n- Transform a value purely → transform\n- Transform a value with possible failure → transformOrFail\n- Transform with full Option control → transformOptional\n- Handle missing keys → onNone, required, withDefault\n- Handle present values → onSome\n- Validate a value with an effectful check → checkEffect\n- Produce a constant value → succeed\n- Always fail → fail, forbidden\n- Omit a value from output → omit\n- Coerce to a primitive type → String, Number, Boolean, BigInt, Date\n- Transform strings → trim, capitalize, toLowerCase, toUpperCase, split, splitKeyValue, joinKeyValue\n- Parse/stringify JSON → parseJson, stringifyJson\n- Encode/decode Base64 → encodeBase64, decodeBase64, decodeBase64String\n- Encode/decode Hex → encodeHex, decodeHex, decodeHexString\n- Parse DateTime → dateTimeUtcFromInput\n- Decode/encode FormData → decodeFormData, encodeFormData\n- Decode/encode URLSearchParams → decodeURLSearchParams, encodeURLSearchParams\n- Build nested tree from bracket paths → makeTreeRecord\n- Flatten nested tree to bracket paths → collectBracketPathEntries\n\nGotchas:\n- Getters are not bidirectional. To define a full encode/decode pair, supply\n  both a `decode` and an `encode` getter to `Schema.decodeTo`.\n- `passthrough` requires `T === E` by default. Use `{ strict: false }` to\n  bypass the type constraint, or use passthroughSupertype / passthroughSubtype.\n- `transform` skips `None` inputs (missing keys) — the function is only\n  called when a value is present. Use `transformOptional` if you need to\n  handle missing values.\n- `parseJson` without a `reviver` returns `Schema.MutableJson`. With a\n  reviver, the return type widens to `unknown`.\n- `split` treats an empty string as an empty array, not `[\"\"]`.\n\nQuickstart:\n**Example** (Using SchemaGetter with Schema.decodeTo)\n\n```ts\nimport { Schema, SchemaGetter } from \"effect\"\n\nconst NumberFromString = Schema.String.pipe(\n  Schema.decodeTo(Schema.Number, {\n    decode: SchemaGetter.transform((s) => Number(s)),\n    encode: SchemaGetter.transform((n) => String(n))\n  })\n)\n\nconst result = Schema.decodeUnknownSync(NumberFromString)(\"42\")\n// result: 42\n```\n\nKey Exports by Category (49 total):\n- model: Getter\n- Constructors: succeed, fail, forbidden, passthrough, passthroughSupertype, passthroughSubtype, onNone, required, ... (15 total)\n- Coercions: String, Number, Boolean, BigInt, Date\n- string: trim, capitalize, uncapitalize, snakeToCamel, camelToSnake, toLowerCase, toUpperCase, splitKeyValue, ... (10 total)\n- Json: parseJson, stringifyJson\n- Base64: encodeBase64, encodeBase64Url, decodeBase64, decodeBase64String, decodeBase64Url, decodeBase64UrlString\n- Hex: encodeHex, decodeHex, decodeHexString\n- DateTime: dateTimeUtcFromInput\n- FormData: decodeFormData, encodeFormData\n- URLSearchParams: decodeURLSearchParams, encodeURLSearchParams\n- Tree: makeTreeRecord, collectBracketPathEntries\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaIssue",
+    "episode_body": "Title: SchemaIssue Module\nCategory: module\nModule Path: effect/SchemaIssue\n\nDescription: Structured validation errors produced by the Effect Schema system.\n\nWhen `Schema.decode`, `Schema.encode`, or a filter rejects a value, the\nresult is an Issue — a recursive tree that describes *what* went\nwrong and *where*. This module defines every node type in that tree and\nprovides formatters that turn an `Issue` into a human-readable string or a\nStandard Schema V1 failure result.\n\nMental Model:\n- **Issue**: A discriminated union (`_tag`) of all possible validation error\n  nodes. It is recursive — composite nodes wrap inner `Issue` children.\n- **Leaf**: A terminal issue with no inner children (InvalidType,\n  InvalidValue, MissingKey, UnexpectedKey,\n  Forbidden, OneOf).\n- **Composite nodes**: Wrap one or more inner issues to add context —\n  Filter, Encoding, Pointer, Composite,\n  AnyOf.\n- **Pointer**: Adds a property-key path to an inner issue, indicating\n  *where* in the input the error occurred.\n- **Formatter**: A function `Issue → Format` that serialises the error tree.\n  Two built-in factories are provided: makeFormatterDefault (plain\n  string) and makeFormatterStandardSchemaV1 (Standard Schema V1).\n\nCommon Tasks:\n- Check if a value is an Issue → isIssue\n- Extract the actual input from any issue → getActual\n- Format an issue as a string → makeFormatterDefault\n- Format an issue for Standard Schema V1 → makeFormatterStandardSchemaV1\n- Customise leaf formatting → defaultLeafHook\n- Customise filter formatting → defaultCheckHook\n\nGotchas:\n- `Pointer` and `MissingKey` carry no actual value — getActual\n  returns `Option.none()` for them.\n- `AnyOf`, `UnexpectedKey`, `OneOf`, and `Filter` store `actual` as a plain\n  `unknown` (not `Option`), so getActual wraps them with\n  `Option.some`.\n- Calling `toString()` on any `Issue` uses the default formatter. To\n  customise output, create your own formatter with\n  makeFormatterDefault or makeFormatterStandardSchemaV1.\n- The `Issue` tree can be deeply nested for complex schemas. Formatters\n  flatten composite nodes for display.\n\nQuickstart:\n**Example** (Inspecting a validation error)\n\n```ts\nimport { Schema, SchemaIssue } from \"effect\"\n\nconst Person = Schema.Struct({\n  name: Schema.String,\n  age: Schema.Number\n})\n\ntry {\n  Schema.decodeUnknownSync(Person)({ name: 42 })\n} catch (e) {\n  if (Schema.isSchemaError(e)) {\n    console.log(SchemaIssue.isIssue(e.issue))\n    // true\n    console.log(String(e.issue))\n    // formatted error message\n  }\n}\n```\n\nKey Exports by Category (25 total):\n- uncategorized: isIssue, getActual, make, defaultFormatter, redact\n- model: Leaf, Issue, Filter, Encoding, Pointer, MissingKey, UnexpectedKey, Composite, ... (13 total)\n- Formatter: Formatter, LeafHook, defaultLeafHook, CheckHook, defaultCheckHook, makeFormatterStandardSchemaV1, makeFormatterDefault\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaParser",
+    "episode_body": "Title: SchemaParser Module\nCategory: module\nModule Path: effect/SchemaParser\n\nKey Exports by Category (27 total):\n- Constructing: makeEffect, makeUnsafe\n- Asserting: is, asserts\n- Decoding: decodeUnknownEffect, decodeEffect, decodeUnknownPromise, decodePromise, decodeUnknownExit, decodeExit, decodeUnknownOption, decodeOption, ... (10 total)\n- Encoding: encodeUnknownEffect, encodeEffect, encodeUnknownPromise, encodePromise, encodeUnknownExit, encodeExit, encodeUnknownOption, encodeOption, ... (10 total)\n- uncategorized: run, asOption, Parser\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaRepresentation",
+    "episode_body": "Title: SchemaRepresentation Module\nCategory: module\nModule Path: effect/SchemaRepresentation\n\nDescription: Serializable intermediate representation (IR) of Effect Schema types.\n\n`SchemaRepresentation` sits between the internal `SchemaAST` and external\nformats (JSON Schema, generated TypeScript code, serialized JSON). A\nRepresentation is a discriminated union describing the *shape* of a\nschema — its types, checks, annotations, and references — in a form that\ncan be round-tripped through JSON and used for code generation.\n\nMental Model:\n- **Representation**: A tagged union (`_tag`) of all supported schema shapes:\n  primitives, literals, objects, arrays, unions, declarations, references,\n  and suspensions.\n- **Document**: A single Representation paired with a map of named\n  References (analogous to JSON Schema `$defs`).\n- **MultiDocument**: Like `Document` but holds one or more representations\n  sharing the same references.\n- **Check / Filter / FilterGroup**: Validation constraints (min length,\n  pattern, integer, etc.) attached to types that support them.\n- **Meta types**: Typed metadata for checks on each category — e.g.\n  StringMeta, NumberMeta, ArraysMeta.\n- **Reviver**: A callback used by toSchema and toCodeDocument\n  to handle `Declaration` nodes (custom types like `Option`, `Date`, etc.).\n- **Code / CodeDocument**: Output of toCodeDocument — TypeScript\n  source strings for runtime schemas and their type-level counterparts.\n\nCommon Tasks:\n- Convert a Schema AST to a Document → fromAST\n- Convert multiple ASTs to a MultiDocument → fromASTs\n- Reconstruct a runtime Schema from a Document → toSchema\n- Convert a Document to JSON Schema → toJsonSchemaDocument\n- Convert a MultiDocument to JSON Schema → toJsonSchemaMultiDocument\n- Parse a JSON Schema document into a Document → fromJsonSchemaDocument\n- Parse a JSON Schema multi-document → fromJsonSchemaMultiDocument\n- Generate TypeScript code from a MultiDocument → toCodeDocument\n- Serialize/deserialize a Document as JSON → DocumentFromJson\n- Serialize/deserialize a MultiDocument as JSON → MultiDocumentFromJson\n- Wrap a Document as a MultiDocument → toMultiDocument\n\nGotchas:\n- `Declaration` nodes require a Reviver to reconstruct complex types\n  (e.g. `Option`, `Date`). Without one, `toSchema` falls back to the\n  declaration's `encodedSchema`. Use toSchemaDefaultReviver for\n  built-in Effect types.\n- `Reference` nodes are resolved against the `references` map in the\n  `Document`. An unresolvable `$ref` throws at runtime.\n- `Suspend` wraps a single `thunk` representation; it is used for recursive\n  schemas. Circular references are handled by lazy resolution in\n  toSchema.\n- The `$`-prefixed exports (e.g. {@link $Representation}, {@link $Document})\n  are Schema codecs for the representation types themselves — use them to\n  validate or encode/decode representation data, not application data.\n\nQuickstart:\n**Example** (Round-trip through JSON)\n\n```ts\nimport { Schema, SchemaRepresentation } from \"effect\"\n\nconst Person = Schema.Struct({\n  name: Schema.String,\n  age: Schema.Int\n})\n\n// Schema AST → Document\nconst doc = SchemaRepresentation.fromAST(Person.ast)\n\n// Document → JSON Schema\nconst jsonSchema = SchemaRepresentation.toJsonSchemaDocument(doc)\n\n// Document → runtime Schema\nconst reconstructed = SchemaRepresentation.toSchema(doc)\n```\n\nKey Exports by Category (62 total):\n- Model: Declaration, Suspend, Reference, Null, Undefined, Void, Never, Unknown, ... (40 total)\n- uncategorized: Meta, fromASTs, DocumentFromJson, MultiDocumentFromJson, toMultiDocument, Reviver, toSchemaDefaultReviver, toJsonSchemaDocument, ... (14 total)\n- Tree: PrimitiveTree\n- Schema: fromAST\n- Runtime Generation: toSchema\n- Code Generation: Code, makeCode, Artifact, CodeDocument, toCodeDocument\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaTransformation",
+    "episode_body": "Title: SchemaTransformation Module\nCategory: module\nModule Path: effect/SchemaTransformation\n\nDescription: Bidirectional transformations for the Effect Schema system.\n\nA `Transformation` pairs a decode `Getter` and an encode `Getter` into a\nsingle bidirectional value, used by `Schema.decodeTo`, `Schema.encodeTo`,\n`Schema.decode`, `Schema.encode`, and `Schema.link` to define how values\nare converted between encoded and decoded representations. A `Middleware`\nis the effect-level equivalent — it wraps the entire parsing `Effect`\npipeline rather than individual values.\n\nMental Model:\n- **Transformation**: A pair of `Getter`s (decode + encode) that convert\n  individual values bidirectionally. `T` is the decoded (Type) side, `E` is\n  the encoded side. `RD`/`RE` are required Effect services.\n- **Middleware**: Like `Transformation`, but each direction receives the full\n  parsing `Effect` and can intercept, retry, or modify the pipeline.\n- **Getter**: A single-direction transform `Option<E> → Effect<Option<T>, Issue, R>`\n  (see `SchemaGetter`).\n- **flip()**: Swaps decode and encode, turning a `Transformation<T, E>` into\n  `Transformation<E, T>`.\n- **compose()**: Chains two transformations left-to-right on the decode side\n  and right-to-left on the encode side.\n- **passthrough**: The identity transformation — no conversion in either\n  direction.\n\nCommon Tasks:\n- Convert values purely (sync, infallible) → transform\n- Convert values with possible failure → transformOrFail\n- Handle optional/missing keys → transformOptional\n- Build from existing Getters → make\n- No-op identity transformation → passthrough\n- Subtype/supertype coercion → passthroughSupertype, passthroughSubtype\n- Trim/case strings → trim, toLowerCase, toUpperCase, capitalize, uncapitalize, snakeToCamel\n- Parse key-value strings → splitKeyValue\n- Coerce string ↔ number/bigint → numberFromString, bigintFromString\n- Decode durations → durationFromNanos, durationFromMillis\n- Wrap nullable/optional as Option → optionFromNullOr, optionFromOptionalKey, optionFromOptional\n- Parse URLs → urlFromString\n- Base64 ↔ Uint8Array → uint8ArrayFromBase64String\n- JSON string ↔ unknown → fromJsonString\n- FormData/URLSearchParams ↔ unknown → fromFormData, fromURLSearchParams\n- Check if a value is a Transformation → isTransformation\n\nGotchas:\n- `Transformation` operates on individual values; `Middleware` wraps the\n  entire parsing Effect. Choose accordingly.\n- `passthrough` requires `T === E` by default. Use `{ strict: false }` to\n  bypass, or use passthroughSupertype / passthroughSubtype.\n- String transformations like `trim`, `toLowerCase`, and `toUpperCase` use\n  `passthrough` on the encode side — they are lossy and do not round-trip.\n- `durationFromNanos` encode can fail if the Duration cannot be represented\n  as a `bigint`.\n\nQuickstart:\n**Example** (Defining a custom transformation with Schema.decodeTo)\n\n```ts\nimport { Schema, SchemaTransformation } from \"effect\"\n\nconst CentsFromDollars = Schema.Number.pipe(\n  Schema.decodeTo(\n    Schema.Number,\n    SchemaTransformation.transform({\n      decode: (dollars) => dollars * 100,\n      encode: (cents) => cents / 100\n    })\n  )\n)\n```\n\nKey Exports by Category (30 total):\n- model: Middleware, Transformation\n- uncategorized: isTransformation, make, transformOrFail, transform, transformOptional, passthrough, passthroughSupertype, passthroughSubtype, ... (19 total)\n- String transformations: trim, snakeToCamel, toLowerCase, toUpperCase, capitalize, uncapitalize, splitKeyValue\n- Coercions: numberFromString, bigintFromString\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SchemaUtils",
+    "episode_body": "Title: SchemaUtils Module\nCategory: module\nModule Path: effect/SchemaUtils\n\nKey Exports by Category (1 total):\n- uncategorized: getNativeClassSchema\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Scope",
+    "episode_body": "Title: Scope Module\nCategory: module\nModule Path: effect/Scope\n\nDescription: The `Scope` module provides functionality for managing resource lifecycles\nand cleanup operations in a functional and composable manner.\n\nA `Scope` represents a context where resources can be acquired and automatically\ncleaned up when the scope is closed. This is essential for managing resources\nlike file handles, database connections, or any other resources that need\nproper cleanup.\n\nScopes support both sequential and parallel finalization strategies:\n- Sequential: Finalizers run one after another in reverse order of registration\n- Parallel: Finalizers run concurrently for better performance\n\nKey Exports by Category (17 total):\n- models: Scope, Closeable, State, Empty, Open, Closed\n- tags: Scope\n- constructors: make, makeUnsafe\n- combinators: provide, addFinalizerExit, addFinalizer, fork, forkUnsafe, close, use\n- uncategorized: closeUnsafe\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ScopedCache",
+    "episode_body": "Title: ScopedCache Module\nCategory: module\nModule Path: effect/ScopedCache\n\nKey Exports by Category (18 total):\n- Models: ScopedCache, State, Entry\n- Constructors: makeWith, make\n- Combinators: get, getOption, getSuccess, set, has, invalidate, invalidateWhen, refresh, ... (13 total)\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ScopedRef",
+    "episode_body": "Title: ScopedRef Module\nCategory: module\nModule Path: effect/ScopedRef\n\nKey Exports by Category (6 total):\n- models: ScopedRef\n- constructors: fromAcquire, make\n- getters: getUnsafe, get, set\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: ServiceMap",
+    "episode_body": "Title: ServiceMap Module\nCategory: module\nModule Path: effect/ServiceMap\n\nDescription: This module provides a data structure called `ServiceMap` that can be used\nfor dependency injection in effectful programs. It is essentially a table\nmapping `Service`s identifiers to their implementations, and can be used to\nmanage dependencies in a type-safe way. The `ServiceMap` data structure is\nessentially a way of providing access to a set of related services that can\nbe passed around as a single unit. This module provides functions to create,\nmodify, and query the contents of a `ServiceMap`, as well as a number of\nutility types for working with a `ServiceMap`.\n\nKey Exports by Category (31 total):\n- Models: Service, ServiceClass, ServiceClass, Shape, Reference, Service, Variance, Any, ... (11 total)\n- Constructors: Service, makeUnsafe, empty, make\n- Guards: isServiceMap, isService, isReference\n- Adders: add, addOrOmit\n- Getters: getOrElse, getOrUndefined, get, getOption\n- unsafe: getUnsafe, getReferenceUnsafe\n- Utils: merge, pick, omit\n- uncategorized: mergeAll\n- References: Reference\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Sink",
+    "episode_body": "Title: Sink Module\nCategory: module\nModule Path: effect/Sink\n\nKey Exports by Category (77 total):\n- models: Sink, End, Sink, Variance, VarianceStruct\n- guards: isSink\n- constructors: fromChannel, fromTransform, toChannel, make, fromEffectEnd, fromEffect, fromQueue, fromPubSub, ... (37 total)\n- uncategorized: make, Constructor\n- utils: ignoreLeftover, summarized, withDuration\n- folding: fold, foldArray, foldUntil\n- mapping: map, as, mapInput, mapInputEffect, mapInputArray, mapInputArrayEffect, mapEnd, mapEffectEnd, ... (11 total)\n- collecting: take\n- sequencing: flatMap\n- reducing: reduceWhile, reduceWhileEffect, reduceWhileArray, reduceWhileArrayEffect, reduce, reduceArray, reduceEffect\n- Services: provideServices, provideService\n- Error handling: orElse, catchCause, onExit\n- Finalization: ensuring\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Stdio",
+    "episode_body": "Title: Stdio Module\nCategory: module\nModule Path: effect/Stdio\n\nKey Exports by Category (5 total):\n- Type IDs: TypeId, TypeId\n- Models: Stdio\n- Services: Stdio\n- Constructors: make\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Stream",
+    "episode_body": "Title: Stream Module\nCategory: module\nModule Path: effect/Stream\n\nKey Exports by Category (225 total):\n- Models: Stream, Variance, VarianceStruct, HaltStrategy, EventListener\n- Type-Level: Success, Error, Services\n- Guards: isStream\n- Constants: DefaultChunkSize\n- Constructors: fromChannel, fromEffect, fromEffectDrain, fromEffectRepeat, fromEffectSchedule, tick, fromPull, transformPull, ... (43 total)\n- Mapping: map, mapBoth, mapArray, mapEffect, flattenEffect, mapArrayEffect, flatMap, flatten, ... (13 total)\n- Error Handling: result, catchCause, tapCause, tapError, catchIf, catchTag, catchTags, catchReason, ... (19 total)\n- Sequencing: tap, tapBoth, tapSink, switchMap, flattenArray, drain, drainFork, repeat, ... (19 total)\n- Rate Limiting: schedule, timeout, buffer, bufferArray, debounce, throttleEffect, throttle\n- Merging: merge, mergeEffect, mergeResult, mergeLeft, mergeRight, mergeAll, combine, interleave, ... (9 total)\n- Zipping: cross, crossWith, zipWith, zipWithArray, zip, zipLeft, zipRight, zipFlatten, ... (15 total)\n- Racing: raceAll, race\n- Filtering: filter, filterEffect, partitionQueue, partitionEffect, partition, when, take, takeRight, ... (18 total)\n- Destructors: peel, run, runCollect, runCount, runSum, runFold, runFoldEffect, runHead, ... (27 total)\n- Grouping: chunks, rechunk, sliding, slidingSize, split, grouped, groupedWithin, groupBy, ... (10 total)\n- Accumulation: scan, scanEffect, collect, accumulate\n- Aggregation: transduce, aggregate, aggregateWithin\n- Broadcast: broadcast, share\n- Pipe: pipeThroughChannel, pipeThroughChannelOrFail, pipeThrough\n- Deduplication: changes, changesWith, changesWithEffect\n- Encoding: decodeText, encodeText, splitLines\n- Interruption: interruptWhen, haltWhen\n- Finalization: onExit, ensuring\n- Services: provide, provideServices, provideService, provideServiceEffect, updateServices, updateService\n- Tracing: withSpan\n- Do Notation: Do, bind, bindEffect, bindTo\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: String",
+    "episode_body": "Title: String Module\nCategory: module\nModule Path: effect/String\n\nDescription: This module provides utility functions and type class instances for working with the `string` type in TypeScript.\nIt includes functions for basic string manipulation.\n\nKey Exports by Category (63 total):\n- constructors: String, empty\n- guards: isString, isNonEmpty\n- instances: Order, Equivalence\n- models: Concat, Trim, TrimStart, TrimEnd\n- concatenating: concat\n- transforming: toUpperCase, toLowerCase, capitalize, uncapitalize, replace, trim, trimStart, trimEnd, ... (34 total)\n- predicates: isEmpty, includes, startsWith, endsWith\n- utilities: length\n- elements: charCodeAt, at, charAt, codePointAt\n- searching: indexOf, lastIndexOf, match, matchAll, search\n- comparing: localeCompare\n- splitting: linesIterator, linesWithSeparators\n- uncategorized: ReducerConcat\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Struct",
+    "episode_body": "Title: Struct Module\nCategory: module\nModule Path: effect/Struct\n\nDescription: Utilities for creating, transforming, and comparing plain TypeScript objects\n(structs). Every function produces a new object — inputs are never mutated.\n\nMental Model:\n- **Struct**: A plain JS object with a fixed set of known keys (e.g.,\n  `{ name: string; age: number }`). Not a generic key-value record.\n- **Dual API**: Most functions accept arguments in both data-first\n  (`Struct.pick(obj, keys)`) and data-last (`pipe(obj, Struct.pick(keys))`)\n  style.\n- **Immutability**: All operations return a new object; the original is\n  never modified.\n- **Lambda**: A type-level function interface (`~lambda.in` / `~lambda.out`)\n  used by map, mapPick, and mapOmit so the compiler\n  can track how value types change.\n- **Evolver pattern**: evolve, evolveKeys, and\n  evolveEntries let you selectively transform values, keys, or both\n  while leaving untouched properties unchanged.\n\nCommon Tasks:\n- Access a property in a pipeline → get\n- List string keys with proper types → keys\n- Subset / remove properties → pick, omit\n- Merge two structs (second wins) → assign\n- Rename keys → renameKeys\n- Transform selected values → evolve\n- Transform selected keys → evolveKeys\n- Transform both keys and values → evolveEntries\n- Map all values with a typed lambda → map, mapPick,\n  mapOmit\n- Compare structs → makeEquivalence, makeOrder\n- Combine / reduce structs → makeCombiner, makeReducer\n- Flatten intersection types → Simplify\n- Strip `readonly` modifiers → Mutable\n\nGotchas:\n- keys only returns `string` keys; symbol keys are excluded.\n- pick and omit iterate with `for...in`, which includes\n  inherited enumerable properties but excludes non-enumerable ones.\n- assign spreads with `...`; property order follows standard\n  JS spread rules.\n- map, mapPick, mapOmit require a Lambda\n  value created with lambda; a plain function won't type-check.\n\nQuickstart:\n**Example** (Picking, renaming, and evolving struct properties)\n\n```ts\nimport { pipe, Struct } from \"effect\"\n\nconst user = { firstName: \"Alice\", lastName: \"Smith\", age: 30, admin: false }\n\nconst result = pipe(\n  user,\n  Struct.pick([\"firstName\", \"age\"]),\n  Struct.evolve({ age: (n) => n + 1 }),\n  Struct.renameKeys({ firstName: \"name\" })\n)\n\nconsole.log(result) // { name: \"Alice\", age: 31 }\n```\n\nKey Exports by Category (22 total):\n- Type-Level Programming: Simplify, Mutable, Assign\n- Getters: get\n- Key utilities: keys, evolveKeys, renameKeys\n- filtering: pick, omit\n- combining: assign\n- transforming: evolve\n- Utilities: evolveEntries\n- Equivalence: makeEquivalence\n- Ordering: makeOrder\n- Lambda: Lambda, Apply, lambda\n- Mapping: map, mapPick, mapOmit\n- uncategorized: makeCombiner, makeReducer\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SubscriptionRef",
+    "episode_body": "Title: SubscriptionRef Module\nCategory: module\nModule Path: effect/SubscriptionRef\n\nKey Exports by Category (27 total):\n- models: SubscriptionRef, Variance\n- guards: isSubscriptionRef\n- uncategorized: SubscriptionRef\n- constructors: make\n- changes: changes\n- getters: getUnsafe, get, getAndSet, getAndUpdate, getAndUpdateEffect, getAndUpdateSome, getAndUpdateSomeEffect\n- modifications: modify, modifyEffect, modifySome, modifySomeEffect\n- setters: set, setAndGet\n- updating: update, updateEffect, updateAndGet, updateAndGetEffect, updateSome, updateSomeEffect, updateSomeAndGet, updateSomeAndGetEffect\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Symbol",
+    "episode_body": "Title: Symbol Module\nCategory: module\nModule Path: effect/Symbol\n\nKey Exports by Category (1 total):\n- guards: isSymbol\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: SynchronizedRef",
+    "episode_body": "Title: SynchronizedRef Module\nCategory: module\nModule Path: effect/SynchronizedRef\n\nKey Exports by Category (24 total):\n- models: SynchronizedRef\n- constructors: makeUnsafe, make\n- getters: getUnsafe, get\n- utils: getAndSet, getAndUpdate, getAndUpdateEffect, getAndUpdateSome, getAndUpdateSomeEffect, modify, modifyEffect, modifySome, ... (19 total)\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Take",
+    "episode_body": "Title: Take Module\nCategory: module\nModule Path: effect/Take\n\nKey Exports by Category (2 total):\n- Models: Take\n- Conversions: toPull\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Terminal",
+    "episode_body": "Title: Terminal Module\nCategory: module\nModule Path: effect/Terminal\n\nKey Exports by Category (7 total):\n- Models: Terminal, Key, UserInput\n- QuitError: QuitError, isQuitError\n- Services: Terminal\n- Constructors: make\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Tracer",
+    "episode_body": "Title: Tracer Module\nCategory: module\nModule Path: effect/Tracer\n\nKey Exports by Category (21 total):\n- models: Tracer, EffectPrimitive, SpanStatus, AnySpan, ExternalSpan, SpanOptions, SpanOptionsNoTrace, TraceOptions, ... (11 total)\n- tags: ParentSpanKey, ParentSpan\n- constructors: make, externalSpan\n- references: DisablePropagation, CurrentTraceLevel, MinimumTraceLevel, TracerKey, Tracer\n- native tracer: NativeSpan\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Trie",
+    "episode_body": "Title: Trie Module\nCategory: module\nModule Path: effect/Trie\n\nDescription: A `Trie` is used for locating specific `string` keys from within a set.\n\nIt works similar to `HashMap`, but with keys required to be `string`.\nThis constraint unlocks some performance optimizations and new methods to get string prefixes (e.g. `keysWithPrefix`, `longestPrefixOf`).\n\nPrefix search is also the main feature that makes a `Trie` more suited than `HashMap` for certain usecases.\n\nA `Trie` is often used to store a dictionary (list of words) that can be searched\nin a manner that allows for efficient generation of completion lists\n(e.g. predict the rest of a word a user is typing).\n\nA `Trie` has O(n) lookup time where `n` is the size of the key,\nor even less than `n` on search misses.\n\nKey Exports by Category (29 total):\n- models: Trie\n- constructors: empty, fromIterable, make\n- mutations: insert, remove, modify, removeMany, insertMany\n- getters: keys, values, entries, toEntries, keysWithPrefix, valuesWithPrefix, entriesWithPrefix, toEntriesWithPrefix, ... (10 total)\n- elements: get, has, isEmpty\n- unsafe: getUnsafe\n- folding: reduce, map\n- filtering: filter, filterMap, compact\n- traversing: forEach\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Tuple",
+    "episode_body": "Title: Tuple Module\nCategory: module\nModule Path: effect/Tuple\n\nDescription: Utilities for creating, accessing, transforming, and comparing fixed-length\narrays (tuples). Every function produces a new tuple — inputs are never\nmutated.\n\nMental Model:\n- **Tuple**: A fixed-length readonly array where each position can have a\n  different type (e.g., `readonly [string, number, boolean]`).\n- **Index-based access**: Elements are accessed by numeric index, and the\n  type system tracks the type at each position.\n- **Dual API**: Most functions accept arguments in both data-first\n  (`Tuple.get(t, 0)`) and data-last (`pipe(t, Tuple.get(0))`) style.\n- **Immutability**: All operations return a new tuple; the original is\n  never modified.\n- **Lambda**: A type-level function interface (from Struct) used by\n  map, mapPick, and mapOmit so the compiler can\n  track how element types change.\n\nCommon Tasks:\n- Create a tuple → make\n- Access an element by index → get\n- Select / remove elements by index → pick, omit\n- Append elements → appendElement, appendElements\n- Transform selected elements → evolve\n- Swap element positions → renameIndices\n- Map all elements with a typed lambda → map, mapPick,\n  mapOmit\n- Compare tuples → makeEquivalence, makeOrder\n- Combine / reduce tuples → makeCombiner, makeReducer\n- Check tuple length at runtime → isTupleOf,\n  isTupleOfAtLeast\n\nGotchas:\n- pick and omit use numeric indices, not string keys.\n- renameIndices takes an array of stringified source indices\n  (e.g., `[\"2\", \"1\", \"0\"]`), not arbitrary names.\n- map, mapPick, mapOmit require a Lambda value\n  created with `Struct.lambda`; a plain function won't type-check.\n- isTupleOf and isTupleOfAtLeast only check length, not\n  element types.\n\nQuickstart:\n**Example** (Creating and transforming a tuple)\n\n```ts\nimport { pipe, Tuple } from \"effect\"\n\nconst point = Tuple.make(10, 20, \"red\")\n\nconst result = pipe(\n  point,\n  Tuple.evolve([\n    (x) => x * 2,\n    (y) => y * 2\n  ])\n)\n\nconsole.log(result) // [20, 40, \"red\"]\n```\n\nKey Exports by Category (15 total):\n- Constructors: make\n- Getters: get\n- Utilities: pick, omit\n- Concatenating: appendElement, appendElements\n- Mapping: evolve, map, mapPick, mapOmit\n- Index utilities: renameIndices\n- Equivalence: makeEquivalence\n- Ordering: makeOrder\n- Guards: makeCombiner\n- uncategorized: makeReducer\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxChunk",
+    "episode_body": "Title: TxChunk Module\nCategory: module\nModule Path: effect/TxChunk\n\nDescription: TxChunk is a transactional chunk data structure that provides Software Transactional Memory (STM)\nsemantics for chunk operations. It uses a `TxRef<Chunk<A>>` internally to ensure all operations\nare performed atomically within transactions.\n\nAccessed values are tracked by the transaction in order to detect conflicts and to track changes.\nA transaction will retry whenever a conflict is detected or whenever the transaction explicitly\ncalls `Effect.retryTransaction` and any of the accessed TxChunk values change.\n\nKey Exports by Category (22 total):\n- models: TxChunk\n- Constructors: make, empty, fromIterable\n- constructors: makeUnsafe\n- Combinators: modify, concat\n- combinators: update, get, set, append, prepend, size, isEmpty, isNonEmpty, ... (15 total)\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxHashMap",
+    "episode_body": "Title: TxHashMap Module\nCategory: module\nModule Path: effect/TxHashMap\n\nKey Exports by Category (41 total):\n- models: TxHashMap, TxHashMap\n- type-level: Key, Value, Entry\n- constructors: empty, make, fromIterable\n- combinators: get, set, has, remove, clear, size, isEmpty, isNonEmpty, ... (32 total)\n- guards: isTxHashMap\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxHashSet",
+    "episode_body": "Title: TxHashSet Module\nCategory: module\nModule Path: effect/TxHashSet\n\nKey Exports by Category (24 total):\n- models: TxHashSet, TxHashSet\n- type-level: Value\n- constructors: empty, make, fromIterable, fromHashSet\n- guards: isTxHashSet\n- mutations: add, remove, clear\n- elements: has, isSubset, some, every\n- getters: size, isEmpty\n- combinators: union, intersection, difference\n- mapping: map\n- filtering: filter\n- folding: reduce\n- conversions: toHashSet\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxQueue",
+    "episode_body": "Title: TxQueue Module\nCategory: module\nModule Path: effect/TxQueue\n\nDescription: TxQueue is a transactional queue data structure that provides Software Transactional Memory (STM)\nsemantics for queue operations. It uses TxRef for transactional state management and supports\nmultiple queue strategies: bounded, unbounded, dropping, and sliding.\n\nAccessed values are tracked by the transaction in order to detect conflicts and to track changes.\nA transaction will retry whenever a conflict is detected or whenever the transaction explicitly\ncalls `Effect.retryTransaction` and any of the accessed TxQueue values change.\n\nKey Exports by Category (40 total):\n- models: State, TxEnqueue, Variance, TxDequeue, Variance, TxQueue, Variance, TxQueueState, ... (11 total)\n- guards: isTxEnqueue, isTxDequeue, isTxQueue\n- constructors: bounded, unbounded, dropping, sliding\n- combinators: offer, offerAll, take, poll, takeAll, takeN, peek, size, ... (21 total)\n- taking: takeBetween\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxRef",
+    "episode_body": "Title: TxRef Module\nCategory: module\nModule Path: effect/TxRef\n\nDescription: TxRef is a transactional value, it can be read and modified within the body of a transaction.\n\nAccessed values are tracked by the transaction in order to detect conflicts and in order to\ntrack changes, a transaction will retry whenever a conflict is detected or whenever the\ntransaction explicitly calls to `Effect.retryTransaction` and any of the accessed TxRef values\nchange.\n\nKey Exports by Category (7 total):\n- Models: TxRef\n- Constructors: make, makeUnsafe\n- Combinators: modify, update, get, set\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: TxSemaphore",
+    "episode_body": "Title: TxSemaphore Module\nCategory: module\nModule Path: effect/TxSemaphore\n\nKey Exports by Category (14 total):\n- models: TxSemaphore\n- constructors: make\n- combinators: available, capacity, acquire, acquireN, tryAcquire, tryAcquireN, release, releaseN, ... (11 total)\n- guards: isTxSemaphore\n\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Types",
+    "episode_body": "Title: Types Module\nCategory: module\nModule Path: effect/Types\n\nDescription: Type-level utility types for TypeScript.\n\nThis module provides generic type aliases used throughout the Effect\necosystem. Everything here is compile-time only — there are no runtime\nvalues. Use these types to manipulate object shapes, tagged unions, tuples,\nand variance markers at the type level.\n\nMental Model:\n- **Tagged union**: a union of objects each having a discriminating\n  `_tag: string` field. Tags, ExtractTag, and\n  ExcludeTag operate on these.\n- **Reason**: a nested error pattern where an error has a `reason` field\n  containing a tagged union of sub-errors. ReasonOf,\n  ReasonTags, ExtractReason, and ExcludeReason work\n  with this pattern.\n- **Variance markers**: Covariant, Contravariant, and\n  Invariant are function-type aliases encoding variance for phantom\n  type parameters.\n- **Simplify**: Simplify flattens intersection types (`A & B`) into\n  a single object type for cleaner IDE tooltips.\n- **Concurrency**: Concurrency is a union type\n  (`number | \"unbounded\" | \"inherit\"`) used across Effect APIs that accept\n  concurrency options.\n- **Marker types**: unassigned and unhandled are branded\n  interfaces used internally to represent missing or unhandled type\n  parameters.\n\nCommon Tasks:\n- Flatten an intersection for readability → Simplify\n- Check type equality at compile time → Equals / EqualsWith\n- Merge two object types → MergeLeft / MergeRight\n- Work with tagged unions → Tags / ExtractTag / ExcludeTag\n- Work with nested reason errors → ReasonOf / ExtractReason\n- Create fixed-length tuples → TupleOf / TupleOfAtLeast\n- Strip `readonly` modifiers → Mutable / DeepMutable\n- Encode variance in phantom types → Covariant / Contravariant / Invariant\n- Check if a type is a union → IsUnion\n\nGotchas:\n- TupleOf with a non-literal `number` (e.g. `TupleOf<number, string>`)\n  degrades to `Array<string>`.\n- MergeRecord is an alias for MergeLeft; prefer\n  MergeLeft or MergeRight for clarity.\n- NoInfer uses the `[A][A extends any ? 0 : never]` trick, not the\n  built-in `NoInfer` from TypeScript 5.4+.\n- DeepMutable recurses into `Map`, `Set`, arrays, and objects but\n  stops at primitives and functions.\n\nKey Exports by Category (36 total):\n- tuples: TupleOf, TupleOfAtLeast\n- types: Tags, ExcludeTag, ExtractTag, UnionToIntersection, Simplify, Mutable, DeepMutable, MatchRecord, ... (17 total)\n- models: Equals, EqualsWith, Has, MergeLeft, MergeRight, MergeRecord, Concurrency, NoInfer, ... (17 total)\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: UndefinedOr",
+    "episode_body": "Title: UndefinedOr Module\nCategory: module\nModule Path: effect/UndefinedOr\n\nDescription: This module provides small, allocation-free utilities for working with values of type\n`A | undefined`, where `undefined` means \"no value\".\n\nWhy not `Option<A>`?\nIn TypeScript, `Option<A>` is often unnecessary. If `undefined` already models absence\nin your domain, using `A | undefined` keeps types simple, avoids extra wrappers, and\nreduces overhead. The key is that `A` itself must not include `undefined`; in this\nmodule `undefined` is reserved to mean \"no value\".\n\nWhen to use `A | undefined`:\n- Absence can be represented by `undefined` in your domain model.\n- You do not need to distinguish between \"no value\" and \"value is undefined\".\n- You want straightforward ergonomics and zero extra allocations.\n\nWhen to prefer `Option<A>`:\n- You must distinguish `None` from `Some(undefined)` (that is, `undefined` is a valid\n  payload and carries meaning on its own).\n- You need a tagged representation for serialization or pattern matching across\n  boundaries where `undefined` would be ambiguous.\n- You want the richer `Option` API and are comfortable with the extra wrapper.\n\nLawfulness note:\nAll helpers treat `undefined` as absence. Do not use these utilities with payloads\nwhere `A` can itself be `undefined`, or you will lose information. If you need to\ncarry `undefined` as a valid payload, use `Option<A>` instead.\n\nKey Exports by Category (8 total):\n- uncategorized: map, match, getOrThrowWith, getOrThrow, liftThrowable, makeReducer, makeCombinerFailFast, makeReducerFailFast\nSince: 4.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Unify",
+    "episode_body": "Title: Unify Module\nCategory: module\nModule Path: effect/Unify\n\nKey Exports by Category (7 total):\n- symbols: unifySymbol, unifySymbol, typeSymbol, typeSymbol, ignoreSymbol, ignoreSymbol\n- utilities: unify\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Module: Utils",
+    "episode_body": "Title: Utils Module\nCategory: module\nModule Path: effect/Utils\n\nKey Exports by Category (9 total):\n- models: GenKind, Variance, Gen, OptionalNumber\n- predicates: isGenKind, isGeneratorFunction\n- constructors: SingleShotGen, makeGenKind\n- tracing: internalCall\n\nSince: 2.0.0",
+    "source": "text",
+    "source_description": "Effect v4 module documentation from index.ts",
+    "group_id": "effect-v4"
+  }
+]

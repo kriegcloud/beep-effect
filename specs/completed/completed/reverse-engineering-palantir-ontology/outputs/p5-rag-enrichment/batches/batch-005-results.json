@@ -1,0 +1,1345 @@
+[
+  {
+    "url": "https://www.palantir.com/assets/xrfr7uokpv1b/3B5KbQ9ujsiDCX4Tnfz3Hy/8d3ee9a6911665f036ce3d28c19cfa0d/PalantirApolloTechnicalWhitePaper.pdf",
+    "title": "Palantir Apollo Technical White Paper (PDF)",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's deployment and delivery platform that manages continuous deployment across environments using a Hub-Spoke architecture, autonomous deployment engine, and change management system."
+      },
+      {
+        "type": "Pattern",
+        "name": "Hub-Spoke Deployment Model",
+        "description": "Architectural pattern used by Apollo where a central hub orchestrates deployments to multiple spoke environments, enabling centralized management with distributed execution."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Autonomous Deployment Engine",
+        "description": "Core Apollo component that automates software deployment decisions, rollbacks, and progressive rollouts without manual intervention."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Change Management System",
+        "description": "Apollo subsystem that tracks, validates, and audits all configuration and software changes across deployment environments."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data integration and analytics platform, one of the primary products deployed and managed through Apollo."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Apollo",
+        "relationship": "USES_PATTERN",
+        "target": "Hub-Spoke Deployment Model"
+      },
+      {
+        "source": "Autonomous Deployment Engine",
+        "relationship": "EXAMPLE_OF",
+        "target": "Apollo"
+      },
+      {
+        "source": "Change Management System",
+        "relationship": "EXAMPLE_OF",
+        "target": "Apollo"
+      },
+      {
+        "source": "Foundry",
+        "relationship": "BUILT_ON",
+        "target": "Apollo"
+      }
+    ],
+    "keyInsights": [
+      "Apollo is Palantir's dedicated deployment platform using a Hub-Spoke model for managing software delivery across distributed environments.",
+      "The autonomous deployment engine automates rollout decisions, reducing the need for manual deployment intervention.",
+      "Content was a raw PDF binary and could not be fully parsed; insights are derived from metadata and summary only."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/developer-console/overview",
+    "title": "Developer Console - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry portal for building and managing Custom Applications along with their associated authorization clients, SDKs, web hosting, permissions, and usage metrics."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Custom Application",
+        "description": "A developer-defined application that extends Foundry capabilities with custom logic, composed of an OAuth client, generated SDKs, API documentation, permissions, metrics, and optional web hosting."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth Client",
+        "description": "Authorization client that grants human and service users programmatic access to Foundry resources. Legacy OAuth clients provide unscoped access; newer custom applications provide scoped access."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Generated SDK",
+        "description": "Auto-generated SDK packages created from ontology resources added to a custom application's scope, available in TypeScript, Python, and other supported languages."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SDK Documentation",
+        "description": "Auto-generated API documentation and code snippets tailored to an application's SDK content, including installation guides, code examples for loading objects, and reference materials for object types, action types, and functions."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Application Scope",
+        "description": "Configuration that defines which ontology resources a custom application's tokens can access, ensuring tokens only grant access to approved resources."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Web Hosting",
+        "description": "Optional capability to host frontend-only applications such as React SPAs directly on a Foundry subdomain, eliminating the need for external hosting infrastructure."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Application Metrics",
+        "description": "Usage and performance monitoring for custom applications including request volume, success rates, and API latency."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Scoped Token",
+        "description": "Long-lived token generated for programmatic access that is scoped to only the resources approved for a specific application."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data integration and analytics platform that hosts the Developer Console and custom applications."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology Software Development Kit that allows external applications to interact with the Foundry Ontology, hosted via Developer Console web hosting."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Developer Console",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Custom Application",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      {
+        "source": "OAuth Client",
+        "relationship": "SECURES",
+        "target": "Custom Application"
+      },
+      {
+        "source": "Application Scope",
+        "relationship": "SECURES",
+        "target": "Custom Application"
+      },
+      {
+        "source": "Generated SDK",
+        "relationship": "EXAMPLE_OF",
+        "target": "Custom Application"
+      },
+      {
+        "source": "Web Hosting",
+        "relationship": "EXAMPLE_OF",
+        "target": "Custom Application"
+      },
+      {
+        "source": "Scoped Token",
+        "relationship": "SECURES",
+        "target": "Custom Application"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "Developer Console is the single portal for managing custom applications, their OAuth clients, generated SDKs, and web hosting on Foundry.",
+      "Custom applications replace legacy OAuth clients by providing scoped access instead of unscoped access, improving security posture.",
+      "SDKs are auto-generated from ontology resources added to an application's scope, with documentation auto-generated in TypeScript, Python, and other languages.",
+      "Frontend-only applications like React SPAs can be hosted directly on Foundry subdomains, eliminating external hosting dependencies.",
+      "Application scoping ensures that tokens only grant access to resources explicitly approved for the application, enforcing least-privilege access.",
+      "Legacy OAuth clients are being deprecated in favor of scoped custom applications."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/base-types",
+    "title": "Object and link types - Properties - Base types - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Base Type",
+        "description": "The fundamental data type of a property in the Ontology, determining the set of operations available for that property in user applications. Includes standard types (string, boolean, integer) and advanced types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A named attribute on an Object Type defined by a base type, which determines available operations and indexing behavior."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Vector",
+        "description": "An advanced property base type for storing vectors on objects for use in semantic search."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Geopoint",
+        "description": "An advanced property base type representing geographic point coordinates on objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Geoshape",
+        "description": "An advanced property base type representing geographic shapes (polygons, lines, etc.) on objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Attachment",
+        "description": "A property base type for storing files on objects for use with functions on objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Time Series",
+        "description": "A property base type for defining a property as a time series, representing data points indexed by time."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Media Reference",
+        "description": "A property base type for referencing media files (images, videos, audio, documents) stored in media sets, containing mimeType and a reference with media set RID, view RID, and media item RID."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Cipher Text",
+        "description": "A property base type for storing a string value encoded with Cipher for encrypted storage."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Struct",
+        "description": "An advanced property base type allowing schema-based properties with multiple fields, created from struct type dataset columns."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Media Set",
+        "description": "A Foundry resource that stores media items (images, videos, audio, documents) which can be referenced by media reference properties on objects."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Base Type"
+      },
+      {
+        "source": "Vector",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Geopoint",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Geoshape",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Attachment",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Time Series",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Media Reference",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Media Reference",
+        "relationship": "REFERENCES",
+        "target": "Media Set"
+      },
+      {
+        "source": "Cipher Text",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      },
+      {
+        "source": "Struct",
+        "relationship": "EXTENDS",
+        "target": "Base Type"
+      }
+    ],
+    "keyInsights": [
+      "Base types define not just storage format but also the set of operations available on a property in user applications and indexing behavior.",
+      "All base types except Vector and Time Series can be used in arrays to represent multiple values for a single property.",
+      "Map, Decimal, and Binary field types are valid field types but NOT valid base types for properties.",
+      "Media Reference is a composite type containing mimeType, media set RID, view RID, and media item RID, requiring both a backing dataset column and a configured media source.",
+      "Advanced types like Vector, Geopoint, Geoshape, and Time Series extend the standard type system for domain-specific data modeling.",
+      "Cipher Text provides encrypted string storage, indicating built-in support for field-level encryption in the Ontology."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/create-link-type",
+    "title": "Object and link types - Link types - Create a link type - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "A named, typed relationship between two Object Types in the Ontology, defined with a specific cardinality and backed by either foreign keys, a join table dataset, or a backing object type."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Cardinality",
+        "description": "The relationship multiplicity constraint for a Link Type: one-to-one, one-to-many, many-to-one, or many-to-many, indicating how many instances of each Object Type can participate in the link."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Foreign Key",
+        "description": "A property on one Object Type that references the primary key of another Object Type, used to back one-to-one and many-to-one cardinality link types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Join Table Dataset",
+        "description": "A dataset used to back many-to-many cardinality link types, containing the foreign key columns that map relationships between two Object Types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object-Backed Link",
+        "description": "A link type storage solution where an Object Type itself serves as the backing for many-to-one cardinality links, providing first-class support for links as objects."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "The Foundry application for creating, configuring, and managing Ontology resources including Object Types, Link Types, Interfaces, and other Ontology elements."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "A unique identifier property on an Object Type that distinguishes individual object instances and is referenced by foreign keys in link types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A fundamental Ontology concept representing a class of real-world entities (e.g., Aircraft, Flight), defined with properties, links, and actions."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Link Type",
+        "relationship": "CONNECTS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Cardinality"
+      },
+      {
+        "source": "Foreign Key",
+        "relationship": "REFERENCES",
+        "target": "Primary Key"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object-Backed Link",
+        "relationship": "EXTENDS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Join Table Dataset",
+        "relationship": "DEFINED_BY",
+        "target": "Link Type"
+      }
+    ],
+    "keyInsights": [
+      "Link types support three distinct backing mechanisms: foreign key properties (one-to-one/many-to-one), join table datasets (many-to-many), and object-backed links (many-to-one with first-class object support).",
+      "One-to-one cardinality is an advisory indicator of intended relationship semantics but is NOT enforced by the system.",
+      "Foreign key link types require that one Object Type's property refers to the primary key property of the other Object Type.",
+      "Object-backed links promote link data to first-class objects, enabling properties and metadata directly on the relationship.",
+      "The Link Type creation helper in Ontology Manager guides users through relationship type selection, resource definition, and naming configuration."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/parameter-overview",
+    "title": "Action types - Parameters - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An Ontology element that defines how objects should change when an action is applied, consisting of parameters (inputs), rules (logic), and submission criteria."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Parameter",
+        "description": "An input variable of an Action Type that transports values from user applications to rules. Each parameter has a type, visibility configuration, and editability settings."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Rule",
+        "description": "The logic component of an Action Type that defines how objects should change when the action is applied, receiving values from parameters."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Submission Criteria",
+        "description": "Conditions that must be met for an Action Type to be submitted, using parameter values to validate whether the action can proceed."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Override",
+        "description": "Action Type configuration that allows one parameter's value to dynamically change the configuration of a subsequent parameter."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Palantir's application builder product where Action Types can be invoked via forms and where parameter values like previous_status can be used as variables."
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Palantir's legacy application builder product that can invoke Action Types through its interface."
+      },
+      {
+        "type": "Product",
+        "name": "Object Views",
+        "description": "Palantir's object visualization product that provides the interface for users to interact with Action Type parameters."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Action Type",
+        "relationship": "CONTAINS",
+        "target": "Parameter"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "CONTAINS",
+        "target": "Rule"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "CONTAINS",
+        "target": "Submission Criteria"
+      },
+      {
+        "source": "Parameter",
+        "relationship": "REFERENCES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Slate"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Views"
+      },
+      {
+        "source": "Override",
+        "relationship": "OPERATES_ON",
+        "target": "Parameter"
+      }
+    ],
+    "keyInsights": [
+      "Parameters are the interface between Action Type rules and Foundry applications (Workshop, Slate, Object Views), acting as typed variables that carry external values.",
+      "Parameters can reference the current value of an object property before it is changed by the action, enabling before/after comparisons.",
+      "Each parameter can be individually configured for form visibility (exposed or hidden) and user editability (changeable or read-only).",
+      "Parameters support Overrides, allowing one parameter's value to dynamically alter the configuration of subsequent parameters.",
+      "Parameter values flow into rules, submission criteria, and overrides, making them the central data transport mechanism of Action Types."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/function-actions-overview",
+    "title": "Action types - Function-backed actions - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Function-Backed Action",
+        "description": "An Action Type configured to call a TypeScript or Python function that defines the mutation logic, replacing simple declarative rules with arbitrary code for complex business logic. When a function rule is present, no other rule may be configured."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Simple Rule",
+        "description": "Declarative action rules that allow creating, modifying, and deleting objects or links without code. Sufficient for basic mutations but limited in expressiveness."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function Rule",
+        "description": "An Action Type rule backed by a function. When a function rule is present, it exclusively handles all mutation logic and no other rules can coexist."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Code-defined logic in TypeScript or Python that can read any number of objects and modify objects, used to back Action Types for complex business logic."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An Ontology element defining how objects change when an action is applied, either through simple rules or function-backed logic."
+      },
+      {
+        "type": "Pattern",
+        "name": "Function-Backed Action Pattern",
+        "description": "Architectural pattern where code functions replace declarative rules in Action Types, enabling complex multi-object mutations, computed values, and cross-object link traversals during edits."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Function-Backed Action",
+        "relationship": "EXTENDS",
+        "target": "Action Type"
+      },
+      {
+        "source": "Function-Backed Action",
+        "relationship": "USES_PATTERN",
+        "target": "Function-Backed Action Pattern"
+      },
+      {
+        "source": "Function Rule",
+        "relationship": "CONTAINS",
+        "target": "Function"
+      },
+      {
+        "source": "Function-Backed Action Pattern",
+        "relationship": "ENABLES",
+        "target": "Function-Backed Action"
+      },
+      {
+        "source": "Simple Rule",
+        "relationship": "DEFINED_BY",
+        "target": "Action Type"
+      }
+    ],
+    "keyInsights": [
+      "Function-backed actions are mutually exclusive with simple rules: when a function rule is present, no other rule type may be configured.",
+      "Key use cases for function-backed actions include: modifying linked objects together (e.g., closing an Incident and resolving all linked Alerts), computing values from multiple objects, and creating multiple object types with links in one action.",
+      "Function-backed actions are subject to both action type limits and function execution limits, imposing constraints on complexity.",
+      "Functions in function-backed actions can read any number of objects and modify objects freely, providing maximum flexibility for complex business logic.",
+      "Simple rules handle create, modify, and delete for objects and links, while function-backed actions handle everything else."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/actions-on-interfaces",
+    "title": "Action types - Actions on interfaces - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Interface Action Rule",
+        "description": "Action rules that operate on all Object Types implementing a given Interface, supporting create, modify, and delete operations on Interface shared properties."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface Reference Parameter",
+        "description": "A specialized Action Type parameter constrained to a specific Interface, allowing users to select any object that implements that Interface, similar to an object reference parameter but polymorphic."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An abstract type definition in the Ontology that specifies shared properties and link constraints, enabling polymorphic behavior when multiple Object Types implement it."
+      },
+      {
+        "type": "Pattern",
+        "name": "Interface Polymorphism",
+        "description": "Design pattern where a single Action Type works across any Object Type that implements a given Interface, enabling generic CRUD operations on shared properties."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type Parameter",
+        "description": "Auto-generated parameter in Interface create actions that indicates which concrete Object Type should be created, since the action only knows the Interface."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An Ontology element defining how objects change when applied, which can operate on specific Object Types or on Interfaces for polymorphic behavior."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "A property defined on an Interface that all implementing Object Types must (or optionally may) map to one of their local properties."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Interface Action Rule",
+        "relationship": "OPERATES_ON",
+        "target": "Interface"
+      },
+      {
+        "source": "Interface Reference Parameter",
+        "relationship": "REFERENCES",
+        "target": "Interface"
+      },
+      {
+        "source": "Interface Polymorphism",
+        "relationship": "ENABLES",
+        "target": "Interface Action Rule"
+      },
+      {
+        "source": "Interface Action Rule",
+        "relationship": "EXTENDS",
+        "target": "Action Type"
+      },
+      {
+        "source": "Interface Action Rule",
+        "relationship": "OPERATES_ON",
+        "target": "Shared Property"
+      },
+      {
+        "source": "Object Type Parameter",
+        "relationship": "CONTAINED BY",
+        "target": "Interface Action Rule"
+      }
+    ],
+    "keyInsights": [
+      "Interface action rules can only modify shared properties of the interface, not properties specific to individual implementing object types.",
+      "Create actions on interfaces auto-generate an 'Object Type' parameter so the user specifies which concrete type to instantiate.",
+      "Objects cannot be created without a primary key; all implementing object types must have a primary key assigned in the create rule or the submission will fail.",
+      "Modify actions on interfaces cannot modify primary key properties; if an interface property maps to a primary key on some implementing types, the action will fail for those types.",
+      "Interface reference parameters show objects of any type implementing the interface, enabling polymorphic object selection in forms and tables.",
+      "Interface actions apply the same submission criteria and permissions across all implementing object types."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/create-interface",
+    "title": "Interfaces - Create an interface - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An abstract type definition in the Ontology that specifies shared properties and link type constraints. Object Types implement interfaces by mapping their local properties to interface properties."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface Property",
+        "description": "A property defined on an Interface that can be either required (implementing Object Types must map a local property) or optional (mapping may be skipped)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type Constraint",
+        "description": "An optional constraint on an Interface that specifies a required or expected link to another Interface or Object Type, which implementing types must satisfy."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Required Property",
+        "description": "An Interface property that mandates all implementing Object Types provide a mapping from a local property to the interface property."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Optional Property",
+        "description": "An Interface property where implementing Object Types may skip the property mapping, useful in Marketplace packages to iterate on interfaces without introducing upgrade blockers."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "The Foundry application for creating and managing Ontology resources where interfaces are defined, configured, and saved."
+      },
+      {
+        "type": "Product",
+        "name": "Marketplace",
+        "description": "Palantir's package distribution system where interfaces can be packaged and installed, with optional properties helping avoid upgrade blockers."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Interface",
+        "relationship": "CONTAINS",
+        "target": "Interface Property"
+      },
+      {
+        "source": "Interface",
+        "relationship": "CONTAINS",
+        "target": "Link Type Constraint"
+      },
+      {
+        "source": "Required Property",
+        "relationship": "EXTENDS",
+        "target": "Interface Property"
+      },
+      {
+        "source": "Optional Property",
+        "relationship": "EXTENDS",
+        "target": "Interface Property"
+      },
+      {
+        "source": "Interface",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Interface",
+        "relationship": "PART_OF",
+        "target": "Marketplace"
+      }
+    ],
+    "keyInsights": [
+      "Interface properties can be defined locally on the interface (recommended) or reference existing shared properties.",
+      "Required interface properties mandate that all implementing Object Types provide a property mapping, while optional properties allow skipping.",
+      "Optional properties are specifically useful for Marketplace packages to iterate on interfaces without introducing upgrade blockers for consumers.",
+      "Link type constraints on interfaces define expected relationships that implementing Object Types must satisfy with new or existing link types.",
+      "Interfaces must be saved to a project and then persisted to the Ontology via the Save action in Ontology Manager."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/extend-interface",
+    "title": "Interfaces - Extend an interface - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Interface Extension",
+        "description": "The mechanism by which one Interface inherits the shared properties and link type constraints of another Interface, enabling hierarchical type composition."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An abstract Ontology type that can extend any number of other interfaces, inheriting their shared properties and links while adding its own."
+      },
+      {
+        "type": "Pattern",
+        "name": "Interface Inheritance",
+        "description": "Design pattern where child interfaces extend parent interfaces to inherit properties and links, similar to class inheritance in object-oriented programming. An interface can extend multiple parents."
+      },
+      {
+        "type": "Pattern",
+        "name": "Capability Interface Pattern",
+        "description": "Design pattern where abstract object interfaces implement multiple capability interfaces through extension, composing specialized behaviors into more specific types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "A property inherited from a parent interface to a child interface through extension, maintaining consistent property definitions across the interface hierarchy."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Interface Extension",
+        "relationship": "OPERATES_ON",
+        "target": "Interface"
+      },
+      {
+        "source": "Interface Inheritance",
+        "relationship": "ENABLES",
+        "target": "Interface Extension"
+      },
+      {
+        "source": "Capability Interface Pattern",
+        "relationship": "ENABLES",
+        "target": "Interface Extension"
+      },
+      {
+        "source": "Interface",
+        "relationship": "IMPLEMENTS",
+        "target": "Interface"
+      },
+      {
+        "source": "Shared Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Interface Extension"
+      }
+    ],
+    "keyInsights": [
+      "Interface extension supports multiple inheritance: an interface can extend any number of other interfaces.",
+      "Extension is the primary mechanism for composing capability interfaces into more specific abstract object interfaces.",
+      "A child interface inherits both shared properties and link type constraints from the parent interface.",
+      "Removing an extension decouples the child from the parent, removing all inherited shared properties and link type constraints.",
+      "Interface extension enables hierarchical type modeling analogous to class inheritance in object-oriented programming."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/use-shared-property",
+    "title": "Object and link types - Shared properties - Use shared properties on object types - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "A reusable property definition that can be associated with multiple Object Types. When used, the Object Type inherits metadata from the shared property while retaining its original property ID and API name."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "An attribute on an Object Type that can optionally be associated with a Shared Property, inheriting centralized metadata while maintaining backward compatibility."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property ID",
+        "description": "The internal identifier of a property on an Object Type that remains unchanged when associating with a shared property, ensuring existing downstream workflows are not broken."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "API Name",
+        "description": "The programmatic name of a property used in SDKs and APIs that remains unchanged when associating with a shared property, ensuring backward compatibility."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Type Class",
+        "description": "A classification tag on properties. When associated with a shared property, the resulting set of type classes is a union of those from both the property and its shared property."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Render Hint",
+        "description": "Configuration values that control how a property is displayed in UI applications. Using a shared property with different render hints overrides the local property's render hint configuration."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "The Foundry application where shared properties are associated with, configured on, and detached from Object Type properties."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Shared Property",
+        "relationship": "OPERATES_ON",
+        "target": "Property"
+      },
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property ID"
+      },
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "API Name"
+      },
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Type Class"
+      },
+      {
+        "source": "Shared Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      }
+    ],
+    "keyInsights": [
+      "When associating a property with a shared property, the property ID and API name remain unchanged to avoid breaking existing downstream workflows and SDK integrations.",
+      "While associated with a shared property, direct edits to inherited metadata are disabled on the Object Type property, enforcing centralized control.",
+      "Type classes merge: the effective set of type classes is a union of those from both the local property and the shared property.",
+      "Shared property render hints override local property render hints, so render hint configuration must be validated before association.",
+      "Properties can be detached from shared properties, removing the association and restoring independent metadata control."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/value-type-constraints",
+    "title": "Object and link types - Value types - Value type constraints - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Value Type",
+        "description": "A reusable type definition in the Ontology that wraps a base type with optional constraints, enforcing data validation wherever the value type is used."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Value Type Constraint",
+        "description": "An optional validation rule on a Value Type that enforces data quality, including enum, range, regex, RID, UUID, uniqueness, and nested constraints."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Enum Constraint",
+        "description": "A Value Type constraint representing a static set of allowed values, applicable to String, Boolean, Decimal, Double, Float, Integer, or Short base types. String enums can be case-sensitive or case-insensitive."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Range Constraint",
+        "description": "A Value Type constraint specifying minimum/maximum bounds or a range of allowed values, applicable to numeric types, dates, timestamps, strings (length), and arrays (size)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Regex Constraint",
+        "description": "A String-specific Value Type constraint requiring the value to match a regex pattern, with optional substring matching mode."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Uniqueness Constraint",
+        "description": "An Array-specific Value Type constraint requiring all elements of the array to be unique."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Nested Constraint",
+        "description": "An Array-specific Value Type constraint that applies another value type constraint to each element of the array (e.g., regex on every string in an array)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Struct Element Constraint",
+        "description": "A Struct-specific constraint that maps struct field identifiers to value type references, applying validation to individual fields within a struct."
+      },
+      {
+        "type": "Product",
+        "name": "Value Type Manager",
+        "description": "A Foundry application for creating and configuring Value Types with their associated constraints."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Value Type",
+        "relationship": "CONTAINS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Enum Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Range Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Regex Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Uniqueness Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Nested Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Struct Element Constraint",
+        "relationship": "EXTENDS",
+        "target": "Value Type Constraint"
+      },
+      {
+        "source": "Value Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Value Type Manager"
+      }
+    ],
+    "keyInsights": [
+      "Value Type constraints provide a reusable data validation layer: constraints defined on a value type automatically apply everywhere that value type is used.",
+      "Constraints are type-aware: Enum applies to 7 base types, Range to 8 types (with semantic variations for strings and arrays), and Regex/RID/UUID are String-specific.",
+      "Array constraints include Uniqueness (all elements must be unique) and Nested (apply a value type constraint to each element), enabling recursive validation.",
+      "Struct element constraints map individual struct field identifiers to value type references, providing per-field validation within composite types.",
+      "String Enum constraints support both case-sensitive and case-insensitive matching modes.",
+      "Range constraints have different semantics depending on base type: numeric bounds for numbers, length for strings, and size for arrays."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/structs-overview",
+    "title": "Object and link types - Structs - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Struct",
+        "description": "An Ontology property base type that allows schema-based properties with multiple fields (depth of one, 1-10 fields), created from struct type dataset columns. Supports 12 field types but cannot be nested."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Struct Field",
+        "description": "An individual typed element within a Struct property, supporting 12 data types: Boolean, Byte, Date, Decimal, Double, Float, Geopoint, Integer, Long, Short, String, and Timestamp."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Struct Query Semantics",
+        "description": "Structs are indexed like ElasticSearch object field types. In arrays of structs, conditions on different fields are evaluated independently across array elements, leading to potential cross-element false positives."
+      },
+      {
+        "type": "UseCase",
+        "name": "Struct Full Name Example",
+        "description": "A Full Name struct property with First Name and Last Name fields, demonstrating how common composite attributes can be modeled as structs."
+      },
+      {
+        "type": "UseCase",
+        "name": "Struct Address Example",
+        "description": "An Address struct property with Street, City, Postal Code, and Country fields, demonstrating multi-field composite property modeling."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application for defining and editing struct types on Object Types."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application builder that can display and use struct properties as variables."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry data pipeline tool for defining and editing struct type dataset columns that back struct properties."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology Software Development Kit that supports loading struct properties and searching by struct property values, though not all OSDK variants support structs."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Struct",
+        "relationship": "CONTAINS",
+        "target": "Struct Field"
+      },
+      {
+        "source": "Struct Query Semantics",
+        "relationship": "EXAMPLE_OF",
+        "target": "Struct"
+      },
+      {
+        "source": "Struct Full Name Example",
+        "relationship": "DEMONSTRATES",
+        "target": "Struct"
+      },
+      {
+        "source": "Struct Address Example",
+        "relationship": "DEMONSTRATES",
+        "target": "Struct"
+      },
+      {
+        "source": "Struct",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Struct",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Struct",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Struct",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      }
+    ],
+    "keyInsights": [
+      "Structs have a strict depth of one (no nesting), must have 1-10 fields, and support 12 field types including Geopoint.",
+      "Struct query semantics follow ElasticSearch object field indexing: in arrays of structs, conditions on different fields match independently across array elements, causing potential false positives.",
+      "Structs are NOT supported in Object Storage V1 (Phonograph) and can only be created from datasets and Restricted Views.",
+      "TypeScript v2 and Python functions support struct parameters and struct property edits; not all OSDK variants support struct properties.",
+      "Struct property fields can have different data sources as long as they are transformed into a single struct type column before Ontology definition."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-views/overview",
+    "title": "Object Views - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object View",
+        "description": "A reusable representation of object data that serves as a central hub for all information related to an object, including property data, object links, and related applications. Available as Core or Custom views."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Core Object View",
+        "description": "A standardized, out-of-the-box object representation that automatically reflects an Object Type's configuration without any manual setup. Available for all Object Types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Custom Object View",
+        "description": "A fully customizable object representation built using Workshop, configured for specific workflow needs. When set, it becomes the default view but Core Object Views remain accessible."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Full Object View",
+        "description": "A form factor for Object Views providing a comprehensive, in-depth overview of all related information about an object."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Panel Object View",
+        "description": "A form factor for Object Views designed for integration with other applications, focusing on the most critical data for a specific workflow."
+      },
+      {
+        "type": "UseCase",
+        "name": "Patient Object View Example",
+        "description": "A custom full Object View for a Patient object showing demographics, vitals, linked procedures/prescriptions/diagnoses, and analytical trends from historical records."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Palantir's application builder used to create Custom Object Views with fully customizable representations for specific workflows."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Core Object View",
+        "relationship": "EXTENDS",
+        "target": "Object View"
+      },
+      {
+        "source": "Custom Object View",
+        "relationship": "EXTENDS",
+        "target": "Object View"
+      },
+      {
+        "source": "Full Object View",
+        "relationship": "EXTENDS",
+        "target": "Object View"
+      },
+      {
+        "source": "Panel Object View",
+        "relationship": "EXTENDS",
+        "target": "Object View"
+      },
+      {
+        "source": "Custom Object View",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Patient Object View Example",
+        "relationship": "DEMONSTRATES",
+        "target": "Custom Object View"
+      },
+      {
+        "source": "Object View",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Object Views have two independent dimensions: type (Core vs Custom) and form factor (Full vs Panel), creating four possible combinations.",
+      "Core Object Views are auto-generated from Object Type configuration and remain accessible even after Custom Object Views are configured.",
+      "Custom Object Views are built using Workshop, enabling fully customizable representations tailored to specific workflow needs.",
+      "Panel Object Views are designed for embedding in other applications, showing only the most critical data, while Full Object Views show comprehensive information.",
+      "Users can toggle between Core and Custom Object Views at any time, ensuring the auto-generated view always serves as a fallback."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/query-functions",
+    "title": "Functions - Publish and call query functions through API gateway - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Query",
+        "description": "A read-only subset of Functions that can be optionally exposed through the API gateway. Queries cannot have side effects such as modifying the Ontology or altering external systems."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Query Function",
+        "description": "A function decorated with @Query (TypeScript v1), exported config with apiName (TypeScript v2), or @function decorator (Python) that defines read-only logic exposed through the API gateway."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Code-defined logic in TypeScript or Python that operates on the Ontology, with Queries being the read-only subset and Actions being the write subset."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Query Decorator TypeScript v1",
+        "description": "The @Query decorator from @foundry/functions-api with an apiName parameter, used to expose TypeScript v1 functions as read-only queries through the API gateway."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Query Config TypeScript v2",
+        "description": "An exported config object with apiName property from the function file, used to expose TypeScript v2 functions as read-only queries through the API gateway."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Query Decorator Python",
+        "description": "The @function decorator from functions.api with api_name parameter, used to expose Python functions as read-only queries through the API gateway."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "API Name Validation Rules",
+        "description": "Query API names must be lowerCamelCase, under 100 characters, without leading numbers, and unique among all Ontologies imported into the repository."
+      },
+      {
+        "type": "Product",
+        "name": "API Gateway",
+        "description": "Foundry's API gateway service that exposes Query functions and Action types for external consumption via REST endpoints."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application where query types can be searched and managed as Ontology resources."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Query",
+        "relationship": "EXTENDS",
+        "target": "Function"
+      },
+      {
+        "source": "Query",
+        "relationship": "EXPOSED_BY",
+        "target": "API Gateway"
+      },
+      {
+        "source": "Query",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Query Decorator TypeScript v1",
+        "relationship": "DEFINED_BY",
+        "target": "Query Function"
+      },
+      {
+        "source": "Query Config TypeScript v2",
+        "relationship": "DEFINED_BY",
+        "target": "Query Function"
+      },
+      {
+        "source": "Query Decorator Python",
+        "relationship": "DEFINED_BY",
+        "target": "Query Function"
+      },
+      {
+        "source": "API Name Validation Rules",
+        "relationship": "DEFINED_BY",
+        "target": "Query"
+      }
+    ],
+    "keyInsights": [
+      "Queries are strictly read-only functions: they cannot modify the Ontology or alter external systems. Actions should be used for write operations through the API gateway.",
+      "Three distinct syntax patterns exist for defining queries: @Query decorator (TypeScript v1), exported config object (TypeScript v2), and @function decorator (Python).",
+      "API names for queries must be lowerCamelCase, under 100 characters, have no leading numbers, and be globally unique across all Ontologies in the repository.",
+      "TypeScript v2 queries use @osdk/client and @ontology/sdk for client access and object type imports, while v1 uses @foundry/functions-api and @foundry/ontology-api.",
+      "Queries are first-class Ontology resources that can be searched and managed in Ontology Manager alongside Object Types and Action Types."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/typescript-v2-ontology-edits",
+    "title": "Functions - TypeScript v2 - Ontology edits - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Edit",
+        "description": "A mutation operation on the Ontology performed within a TypeScript v2 function, including creating objects, updating properties, creating/deleting links, and deleting objects. Must be configured as a function-backed Action to take effect."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edits Type",
+        "description": "A type system from @osdk/functions for declaring which entities a function can edit. Supports Edits.Object<T>, Edits.Interface<T>, and Edits.Link<T, linkName>, combined with the | operator for multiple entity types."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "createEditBatch",
+        "description": "Function from @osdk/functions that creates an edit batch to track all Ontology modifications in a function. Provides update, create, delete, addLink, and removeLink methods."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edit Batch Update Method",
+        "description": "Method on edit batch for modifying object properties. Accepts either an object instance or a reference by API name and primary key. Property changes are not immediately reflected when reading the object in the same function execution."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edit Batch Create Method",
+        "description": "Method on edit batch for creating new objects. Requires specifying the object type and all required properties. Can generate unique primary keys using createPrimaryKey()."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function-Backed Action",
+        "description": "An Action Type configured with a function that performs Ontology edits. Required for edits to actually be applied; running an edit function outside of an Action will not modify any data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edits.Interface Type",
+        "description": "Type from @osdk/functions for declaring edits to interface-typed objects, enabling polymorphic edit operations across all object types implementing an interface."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edits.Link Type",
+        "description": "Type from @osdk/functions for declaring link creation and deletion between objects, parameterized by the source object type and link name."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology Software Development Kit providing the @osdk/functions and @osdk/client packages used for TypeScript v2 function development and Ontology edits."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A fundamental Ontology type representing entities that can be created, updated, and deleted through edit batch operations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "A relationship between Object Types that can be created and deleted through edit batch addLink and removeLink operations."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology Edit",
+        "relationship": "DEFINED_BY",
+        "target": "Edits Type"
+      },
+      {
+        "source": "createEditBatch",
+        "relationship": "EXAMPLE_OF",
+        "target": "Ontology Edit"
+      },
+      {
+        "source": "Ontology Edit",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Edit",
+        "relationship": "OPERATES_ON",
+        "target": "Link Type"
+      },
+      {
+        "source": "Function-Backed Action",
+        "relationship": "CONTAINS",
+        "target": "Ontology Edit"
+      },
+      {
+        "source": "Edits Type",
+        "relationship": "PART_OF",
+        "target": "OSDK"
+      },
+      {
+        "source": "createEditBatch",
+        "relationship": "PART_OF",
+        "target": "OSDK"
+      },
+      {
+        "source": "Edits.Interface Type",
+        "relationship": "EXTENDS",
+        "target": "Edits Type"
+      },
+      {
+        "source": "Edits.Link Type",
+        "relationship": "EXTENDS",
+        "target": "Edits Type"
+      }
+    ],
+    "keyInsights": [
+      "Ontology edit functions MUST be configured as function-backed Actions for edits to take effect; running edit functions outside of Actions will not modify any data.",
+      "The Edits type system requires explicit declaration of all entities a function will edit, combining Object, Interface, and Link edit types with the | operator.",
+      "Edit batch update method accepts either an in-memory object instance or a reference by API name and primary key, enabling edits without loading objects.",
+      "Property changes made via edit batch are NOT immediately reflected when reading the object later in the same function execution -- a critical caveat for sequential logic.",
+      "Searching for objects immediately after editing them may return unexpected results due to eventual consistency in Ontology indexing.",
+      "Struct properties can be edited using TypeScript interfaces matching struct fields, enabling structured data mutation within edit functions."
+    ]
+  }
+]

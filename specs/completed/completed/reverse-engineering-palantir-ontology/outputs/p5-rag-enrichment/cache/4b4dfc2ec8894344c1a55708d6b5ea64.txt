@@ -1,0 +1,168 @@
+Object permissioning • Managing object security • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Object permissioning Managing object security 
+
+ Manage object security
+
+Ontology data can be secured using object and property policies or data source policies . Both approaches support cell-level security , which is a combination of row and column level security.
+
+As an example, consider a Passenger object type in an airline management platform with the properties User ID , Flight Number , Seat Assignment , Name , Address , and Phone Number .
+
+ Row-level security: Certain users are VIPs and their object instances, corresponding to rows in the backing dataset, can only be seen if a user has the VIP marking.
+
+ Column-level security: The properties Name , Address and Phone number contain user data, and can only be accessed by users that have the PII marking.
+
+The Check access panel in the sidebar can be used to check someone's access to a Workshop or Slate application, including access to dependent object types, their data sources, and granular access controls. For more information, see the check access panel documentation .
+
+Some property values refer to data stored in additional resources outside of the Ontology. The access control mechanisms described in this section only control the visibility of the property values, but not the visibility of those additional resources. For example, a media reference property can refer to a media item stored in a media set. If the media set has different permissions from the object type, then it is possible for a user to not have access to a media reference property, but still be able to fetch the media item directly from the media set. Therefore, it is important to ensure that the additional resources are configured with the appropriate permissions when using them in the Ontology.
+
+ Object and property security policies
+
+Object and property security policies allow you to set view permissions on object instances and their properties to achieve cell-level permissions. These can be directly managed in the object type’s Ontology Manager view and are independent of the permissions on the backing data sources.
+
+The visibility of an object instance is governed by its object security policy, whereas the visibility of a property value is governed by its property security policy. Mandatory and classification based access controls, as well as granular access controls, can be applied to object and property security policies. Together, they allow for cell-level security in the Ontology.
+
+ Learn more about setting up object and property security policies. 
+
+ Data source policies
+
+Data permissions for object types are implicitly controlled by the permissions applied to the input data sources of the object type.
+
+ Object and property policies vs. data source policies
+
+Object and property security policies are recommended for managing object security in most cases. They provide a unified approach to cell-level security (row, column, and cell-level permissions) directly on the object type. This makes them simpler to configure and maintain compared to data source policies.
+
+ Benefits of object and property security policies
+
+Object and property security policies address several challenges that arise when using data source policies:
+
+ Unified cell-level security: A single feature provides row-level (object security policies), column-level (property security policies), and cell-level permissions, rather than requiring a combination of restricted views (RVs) and multi-data source object types (MDOs).
+
+ Simplified configuration: Security is managed directly on the object type in Ontology Manager, independent of the backing data sources. This reduces complexity and maintenance burden.
+
+ Near-instantaneous policy updates: Changes to object and property security policies take effect almost immediately. With RVs, policy changes require a pipeline rebuild before reads respect the new policies.
+
+ Streaming support: Object security policies can be applied to object types backed by streams, enabling row-level and column-level permissions for streaming data.
+
+ Branching compatibility: Object security policies integrate with Foundry branching , supporting development workflows where you need to test security configurations on branches before merging.
+
+ When to use data source policies
+
+Data source policies, which rely on RVs and MDOs, are appropriate in the following cases:
+
+ Granular access control outside of the Ontology: If the backing dataset is used outside of the Ontology and requires granular access control in those contexts, RVs remain the appropriate solution. For example, RVs can secure reads on the backing dataset for users with different access levels in Code Workspaces . Object and property security policies are scoped to the Ontology and do not control access to raw datasets in non-Ontology contexts.
+
+ MDOs with specific requirements: If your object types require MDOs for reasons such as different resolution strategies or different build schedules per data source, data source policies may be required. Learn more about this configuration .
+
+ Object input data sources
+
+Datasets and streams are the most widely used resources as input data sources for object types . Data permissions for these data sources are determined as follows:
+
+ Datasets : Each row in the dataset corresponds to an object instance in the Ontology, and any user that has at least Viewer permissions on the dataset and its transactions will have access to all object instances created from that dataset.
+
+ Streams : Streams are input data sources used for low-latency streaming data in the Ontology. Any user that has at least Viewer permissions on the stream data source has access to all object instances created from that stream data source.
+
+If you need row-level or column-level permissioning using data source policies, you can use restricted views (RVs) and multi-data source object types (MDOs) .
+
+ Configure data source policies with RVs and MDOs
+
+ Restricted views
+
+Restricted views can only be built on top of datasets. No other data source types are supported.
+
+Restricted views enable row-level access control to certain rows in a dataset and the corresponding object instances created from those rows. Access to an object instance with a specific primary key is governed by who can access that specific row in the restricted view's input data source.
+
+For example, a healthcare employee may be allowed to view dataset rows and object instances for patients that visit their care center, but they may be restricted from viewing data for patients that only visit other care centers, even if both types of data exist in the same dataset and object type.
+
+If a given dataset, care_event_info , has patient_id , doctor_id , and care_center columns, a restricted view can be built on top of it with the policy user.userAttribute('care_center') == care_center . The restricted view will only allow access to rows in care_event_info that have the same care center as the user.
+
+Using Ontology Manager, restricted views can be selected as the input data source of an object type in the same way as a dataset.
+
+ Learn more about setting up restricted views and governing row-level permission for objects. 
+
+ Multi-data source object types
+
+Multi-data source object types are only available in object storage v2.
+
+The Ontology offers support for mapping multiple input data sources to a single object type. Such object types are referred to as multi-data source object types (MDOs).
+
+MDOs enable you to map columns from different data sources to the various properties of an object type. This enables you to apply multiple access controls corresponding to separate input data sources, to a single object type. These input data sources can be any combination of datasets or restricted views.
+
+For example, for a given care event object type, some healthcare employees may require access to object properties containing personal health information ( PHI ), while other employees should not have access. This access control can be supported by backing the Care Event object type with two separate input data sources and applying different access controls and permissions on each input data source. The Care Event object type has Patient ID as its primary key and is backed by data sources patient_info and care_event_info .
+
+ patient_info has the columns patient_id , name , address , contact_number , and age . This dataset has the PHI marking. Only users with access to the PHI marking will have access to the property values from patient_info .
+
+ care_event_info has columns patient_id , doctor_id , and care_center . This dataset is unmarked. Users do not need access to any markings to access the property values from this dataset.
+
+These different permissions will be respected and applied to the object instance. A user will not have access to the properties mapped from patient_info , such as name , address , contact_number , and age , unless they have the PHI marking.
+
+ Learn more about setting up MDOs and governing column-level permissions for objects. 
+
+ ← 
+ PREVIOUS Legacy ontology permissions 
+
+ NEXT Configuring restricted-view-backed object types 
+ →

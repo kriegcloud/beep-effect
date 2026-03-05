@@ -1,0 +1,979 @@
+Ontology SDK • Python OSDK • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Developer toolchain Ontology SDK Python OSDK 
+
+ Python OSDK
+
+This page provides generic documentation for Python OSDK based on an Example Restaurant object. You can generate documentation specific to your Ontology in Developer Console .
+
+ Property API Name Type 
+
+ Restaurant Id (Primary key) restaurantId String 
+
+ Restaurant Name (Title) restaurantName String 
+
+ Address address String 
+
+ E Mail eMail String 
+
+ Number Of Reviews numberOfReviews Integer 
+
+ Phone Number phoneNumber String 
+
+ Review Summary reviewSummary String 
+
+ Load single restaurant
+
+Parameters:
+
+primaryKey string : The primary key of the Example Restaurant you want to fetch
+
+Example query:
+
+ Copied! 
+
+ 1
+ result = client.ontology.objects.ExampleRestaurant.get("primaryKey") 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "eMail": "E Mail",
+ "restaurantId": "Restaurant Id",
+ "address": "Address",
+ "reviewSummary": "Review Summary",
+ "phoneNumber": "Phone Number",
+ "numberOfReviews": 123,
+ "restaurantName": "Restaurant Name"
+} 
+
+ Load pages of example restaurants
+
+Load a list of objects of a requested page size, after a given page token if present.
+
+Note that this endpoint leverages the underlying object syncing technology used for the object type. If Example Restaurant is backed by Object Storage V2, there is no request limit. If it is backed by Phonograph, there is a limit of 10,000 results – when more than 10,000 Example Restaurants have been requested, a ObjectsExceededLimit error will be thrown.
+
+Parameters:
+
+pageSize integer (optional): The size of the page to request up to a maximum of 10,000. If not provided, will load up to 10,000 Example Restaurants. The pageSize of the initial page is used for subsequent pages.
+
+pageToken string (optional): If provided, will request a page with size less than or equal to the pageSize of the first requested page.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ result = client.ontology.objects.ExampleRestaurant.page(page_size=30, page_token=None)
+page_token = result.next_page_token
+data = result.data 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "eMail": "E Mail",
+ "restaurantId": "Restaurant Id",
+ "address": "Address",
+ "reviewSummary": "Review Summary",
+ "phoneNumber": "Phone Number",
+ "numberOfReviews": 123,
+ "restaurantName": "Restaurant Name"
+ }
+ // ... Rest of page
+ ]
+} 
+
+ Load all example restaurants
+
+Loads all Example Restaurants. Depending on the language, results could be a list with all rows or an iterator to loop through all rows.
+
+Note that this endpoint leverages the underlying object syncing technology used for the object type. If Example Restaurant is backed by Object Storage V2, there is no request limit. If it is backed by Phonograph, there is a limit of 10,000 results – when more than 10,000 Example Restaurants have been requested, a ObjectsExceededLimit error will be thrown.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ objects_iterator = client.ontology.objects.ExampleRestaurant.iterate()
+objects = list(objects_iterator) 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ {
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "eMail": "E Mail",
+ "restaurantId": "Restaurant Id",
+ "address": "Address",
+ "reviewSummary": "Review Summary",
+ "phoneNumber": "Phone Number",
+ "numberOfReviews": 123,
+ "restaurantName": "Restaurant Name"
+ }
+ // ... Rest of data
+ ]
+} 
+
+ Load ordered results
+
+Load an ordered list of Example Restaurants by specifying a sort direction for specific properties. When calling via APIs, sorting criteria are specified via the fields array. When calling via SDKs, you can chain multiple orderBy calls together. The sort order for strings is case-sensitive, meaning numbers will come before uppercase letters, which will come before lowercase letters. For example, Cat will come before bat.
+
+Parameters:
+
+field string : The property you want to sort by. With the SDK, this is provided for you via a sortBy interface.
+
+direction asc | desc : The direction you want to sort in, either ascending or descending. With the SDK, this is provided via the asc() and desc() functions on the sortBy interface.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+client.ontology.objects.ExampleRestaurant.where(~ExampleRestaurant.object_type.restaurant_name.is_null()).order_by(ExampleRestaurant.object_type.restaurant_name.asc()).iterate() 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Object A",
+ "restaurantName": "A"
+ // ...Rest of properties
+ },
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Object B",
+ "restaurantName": "B"
+ // ...Rest of properties
+ }
+ // ...Rest of page
+ ]
+} 
+
+ Filtering
+
+The types of filtering you can perform depend on the types of the properties on a given object type. These filters can also be combined together via Boolean expressions to construct more complex filters.
+
+Note that this endpoint leverages the underlying object syncing technology used for the object type. If Example Restaurant is backed by Object Storage V2, there is no request limit. If it is backed by Object Storage V1 (Phonograph), there is a limit of 10,000 results – when more than 10,000 Example Restaurants have been requested, a ObjectsExceededLimit error will be thrown.
+
+Parameters:
+
+where SearchQuery (optional): Filter on a particular property. The possible operations depend on the type of the property.
+
+orderBy OrderByQuery (optional): Order the results based on a particular property. If using the SDK, you can chain the .where call with an orderBy call to achieve the same result.
+
+pageSize integer (optional): The size of the page to request up to a maximum of 10,000. If not provided, will load up to 10,000 Example Restaurants. The pageSize of the initial page is used for subsequent pages. If using the SDK, chain the .where call with the .page method.
+
+pageToken string (optional): If provided, will request a page with size less than or equal to the pageSize of the first requested page. If using the SDK, chain the .where call with the .page method.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+page = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.is_null()).iterate() 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": null
+ // ... Rest of properties
+ }
+ // ... Rest of page
+ ]
+} 
+
+ Types of search filters ( SearchQuery )
+
+ Starts with
+
+Only applies to String properties. Searches for Example Restaurants where restaurantName starts with the given string (case insensitive).
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : Value to use for prefix matching against Restaurant Name. For example, "foo" will match "foobar" but not "barfoo".
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.starts_with(['foo'])) 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": "foobar"
+ // ... Rest of properties
+ }
+ ]
+} 
+
+ Contains any terms
+
+Only applies to String properties. Returns Example Restaurants where restaurantName contains any of the whitespace separated words (case insensitive) in any order in the provided value.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : White-space separated set of words to match on. For example, "foo bar" will match "bar baz" but not "baz qux".
+
+fuzzy boolean : Allows approximate matching in search queries.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.contains_any_term(['foo bar'])) 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": "foo bar baz"
+ // ... Rest of properties
+ },
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000001",
+ "restaurantName": "bar baz"
+ // ... Rest of properties
+ }
+ ]
+} 
+
+ Contains all terms
+
+Only applies to String properties. Returns Example Restaurants where restaurantName contains all the whitespace separated words (case insensitive) in any order in the provided value.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : White-space separated set of words to match on. For example, "foo bar" will match "hello foo baz bar" but not "foo qux".
+
+fuzzy boolean : Allows approximate matching in search queries.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.contains_all_terms(['foo bar'])) 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": "hello foo baz bar"
+ // ... Rest of properties
+ }
+ ]
+} 
+
+ Contains all terms in order
+
+Only applies to String properties. Returns Example Restaurants where restaurantName contains all the terms in the order provided (case insensitive), but they do have to be adjacent to each other.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : White-space separated set of words to match on. For example, "foo bar" will match "hello foo bar baz" but not "bar foo qux".
+
+fuzzy boolean : Allows approximate matching in search queries
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.contains_all_terms_in_order(['foo bar'])) 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": "foo bar baz"
+ // ... Rest of properties
+ }
+ ]
+} 
+
+ Range comparison
+
+Only applies to Numeric, String and DateTime properties. Returns Example Restaurants where ExampleRestaurant.object_type.restaurantName is less than a value.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : Value to compare Restaurant Name again
+
+Comparison types:
+
+Less than < 
+
+Greater than > 
+
+Less than or equal to <= 
+
+Greater than or equal to >= 
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name < "Restaurant Name") 
+
+ Equal to
+
+Only applies to Boolean, DateTime, Numeric, and String properties. Searches for Example Restaurants where restaurantName equals the given value.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value string : Value to do an equality check with Restaurant Name.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name == "Restaurant Name") 
+
+Example API response:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ {
+ "nextPageToken": "v1.000000000000000000000000000000000000000000000000000000000000000000000000",
+ "data": [
+ {
+ "__rid": "ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000",
+ "__primaryKey": "Restaurant Id",
+ "restaurantName": "Restaurant Name"
+ // ... Rest of properties
+ }
+ ]
+} 
+
+ Null check
+
+Only applies to Array, Boolean, DateTime, Numeric, and String properties. Searches for Example Restaurants based on whether a value for restaurantName exists or not.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+value boolean : Whether Restaurant Name exists. Note for the TypeScript SDK, you will need to use a not filter for checking that fields are non-null.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurant_name.is_null()) 
+
+ Not filter
+
+Returns Example Restaurants where the query is not satisfied. This can be further combined with other boolean filter operations.
+
+Parameters:
+
+value SearchQuery : The search query to invert.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(~ExampleRestaurant.object_type.restaurantId.is_null()) 
+
+ And filter
+
+Returns Example Restaurants where all queries are satisfied. This can be further combined with other boolean filter operations.
+
+Parameters:
+
+value SearchQuery[] : The set of search queries to and together.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(~ExampleRestaurant.object_type.restaurantId.is_null() & (ExampleRestaurant.restaurantId == '<primaryKey>')) 
+
+ Or filter
+
+Returns Example Restaurants where any of the specified queries are satisfied. This can be further combined with other Boolean filter operations.
+
+Parameters:
+
+value SearchQuery[] : The set of search queries to or together.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+ExampleRestaurantObjectSet = client.ontology.objects.ExampleRestaurant.where(ExampleRestaurant.object_type.restaurantId.is_null() | (ExampleRestaurant.object_type.restaurantId == '<primaryKey>')) 
+
+ Aggregations
+
+Perform aggregations on Example Restaurants.
+
+Parameters:
+
+aggregation Aggregation[] (optional): Set of aggregation functions to perform. With the SDK, aggregation computations can be chained together with further searches using .where .
+
+groupBy GroupBy[] (optional): A set of groupings to create for aggregation results
+
+where SearchQuery (optional): Filter on a particular property. The possible operations depend on the type of the property.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+numExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .where(~ExampleRestaurant.object_type.restaurant_name).is_null())
+ .group_by(ExampleRestaurant.object_type.restaurant_name).exact())
+ .count()
+ .compute() 
+
+Example API response:
+
+ {
+ excludedItems: 0,
+ data: [{
+ group: {
+ "restaurantName": "Restaurant Name"
+ },
+ metrics: [
+ {
+ name: "count",
+ value: 100
+ }
+ ]
+ }]
+}
+
+ Types of aggregations ( Aggregation )
+
+ Approximate distinct
+
+Computes an approximate number of distinct values for restaurantName.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+name string (optional): Alias for the computed count. By default, this is "distinctCount"
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+numExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .approximate_distinct(ExampleRestaurant.object_type.restaurant_name)
+ .compute()
+
+# This is equivalent to the above, but uses metric_name as the name instead of the default "distinctCount"
+numExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .aggregate(
+ {"metric_name": ExampleRestaurant.object_type.restaurant_name.approximate_distinct()}
+ )
+ .compute() 
+
+Example API response:
+
+ {
+ excludedItems: 0,
+ data: [{
+ group: {},
+ metrics: [
+ {
+ name: "distinctCount",
+ value: 100
+ }
+ ]
+ }]
+}
+
+ Count
+
+Computes the total count of Example Restaurants.
+
+Parameters:
+
+name string (optional): Alias for the computed count. By default, this is count .
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ numExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .count()
+ .compute() 
+
+Example API response:
+
+ {
+ excludedItems: 0,
+ data: [{
+ group: {},
+ metrics: [
+ {
+ name: "count",
+ value: 100
+ }
+ ]
+ }]
+}
+
+ Numeric aggregations
+
+Only applies to numeric properties. Calculate the maximum, minimum, sum, or average of a numeric property for Example Restaurants.
+
+Parameters:
+
+field string: Name of the property to use (for example, numberOfReviews).
+
+name string (optional): An alias for the computed value. By default, this is "avg"
+
+Aggregation types:
+
+Average: avg() 
+
+Maximum: max() 
+
+Minimum: min() 
+
+Sum: sum() 
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+avgExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .avg(ExampleRestaurant.object_type.number_of_reviews)
+ .compute()
+
+# This is equivalent to the above, but uses metric_name as the name instead of the default "avg"
+avgExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .aggregate(
+ {"metric_name": ExampleRestaurant.object_type.number_of_reviews.avg()}
+ )
+ .compute() 
+
+Example API response:
+
+ {
+ excludedItems: 0,
+ data: [{
+ group: {},
+ metrics: [
+ {
+ name: "avg",
+ value: 100
+ }
+ ]
+ }]
+}
+
+ Types of group bys ( GroupBy )
+
+ Exact grouping
+
+Groups Example Restaurants by exact values of restaurantName.
+
+Parameters:
+
+field string : Name of the property to use (for example, restaurantName).
+
+maxGroupCount integer (optional): Maximum number of groupings of restaurantName to create.
+
+Example query:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ from ontology_sdk.ontology.objects import ExampleRestaurant
+
+numExampleRestaurant = client.ontology.objects.ExampleRestaurant
+ .group_by(ExampleRestaurant.object_type.restaurant_name.exact())
+ .count()
+ .compute() 
+
+Example API response:
+
+ {
+ excludedItems: 0,
+ data: [{
+ group: {
+ "restaurantName": "Restaurant Name"
+ },
+ metrics: [
+ {
+ name: "count",
+ value: 100
+ }
+ ]
+ }]
+}
+
+ ← 
+ PREVIOUS Java OSDK 
+
+ NEXT Python OSDK migration guide 
+ →

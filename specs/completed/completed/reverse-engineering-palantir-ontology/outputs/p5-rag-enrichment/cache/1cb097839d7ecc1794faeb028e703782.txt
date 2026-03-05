@@ -1,0 +1,374 @@
+The Palantirization of everything | Andreessen Horowitz 
+
+The Palantirization of everything
+
+ Marc Andrusko 
+
+ share 
+
+ Copy Link 
+
+ Email 
+
+ X 
+
+ LinkedIn 
+
+ Facebook 
+
+ Hacker News 
+
+ WhatsApp 
+
+ Flipboard 
+
+ Reddit 
+
+ Table of Contents 
+
+ Table of Contents 
+
+ Posted January 16, 2026 
+
+There&rsquo;s a new aspiration in startup pitch decks: &ldquo;We&rsquo;re basically Palantir, but for X.&rdquo; 
+
+Founders talk about embedding forward-deployed engineers (FDEs) with customers, building deeply customized workflows, and operating more like a special-forces unit than a traditional software company. Job postings for &ldquo;forward-deployed engineers&rdquo; are up hundreds of percent this year as companies copy the model that Palantir pioneered in the early 2010s.
+
+I get why this is attractive. Enterprises are feeling seriously overwhelmed when considering which technology products they should buy off the shelf; everything now markets itself as AI, and it&rsquo;s never been harder to parse signal from noise. The Palantir pitch &mdash; parachute a small team into a messy environment, wire together homegrown, siloed systems, and ship a customized working platform in months &mdash; is compelling. And for a startup trying to win its first seven-figure deals, &ldquo;we&rsquo;ll send engineers to sit inside your org and make this work&rdquo; is a powerful promise.
+
+But I&rsquo;m skeptical that &ldquo;Palantirization&rdquo; scales as a universal playbook. Palantir is a &ldquo;category of one&rdquo; (just look at how it trades!), and most companies copying the aesthetic are setting themselves up to become expensive services businesses with a software valuation multiple and no compounding competitive advantage. It kind of reminds me of how every startup pitched itself as a &ldquo;platform&rdquo; in the 2010s, when there are in fact very few true platform companies due to how difficult they are to build!
+
+This post is an attempt to separate what&rsquo;s actually portable in the Palantir model from what&rsquo;s idiosyncratic &mdash; and to offer a more pragmatic blueprint for founders looking to pair enterprise software with high-touch delivery.
+
+What &ldquo;Palantirization&rdquo; Actually Means
+
+&ldquo;Palantirization&rdquo; has started to mean a few related things:
+
+ Forward-deployed, embedded engineering
+
+ Forward-deployed engineers (&ldquo;Deltas&rdquo; and &ldquo;Echoes&rdquo; in Palantir&rsquo;s internal jargon) sit inside the customer&rsquo;s organization (often for months), to understand domain context, stitch systems together, and ship custom workflows on top of Foundry (or Gotham in higher-security situations). Since pricing is fixed fee, there are no &ldquo;SKUs&rdquo; in a traditional sense. Engineers are responsible for building and maintaining those capabilities.
+
+ Highly opinionated, integrated platform
+
+ Under the hood, Palantir&rsquo;s products are not a toolkit of loose components. They&rsquo;re opinionated platforms for data integration, governance, and operational analytics &mdash; closer to an operating system for an organization&rsquo;s data. The stated goal is to convert fragmented data into real-time, high confidence decisions.
+
+ Upmarket, high-touch GTM
+
+ &ldquo;Palantirization&rdquo; also describes a go-to-market style: long, high-touch sales cycles into mission-critical environments (e.g. defense, policing, intelligence). Regulatory complexity and the magnitude of the &ldquo;stakes&rdquo; in the industry are features, not bugs.
+
+ Outcomes, not licenses
+
+ Revenue is driven by multi-year, outcome-aligned contracts where software, services, and ongoing optimization blend together. Engagements can be worth tens of millions of dollars per year.
+
+ A recent analysis of Palantir framed it as a &ldquo;category of one&rdquo; because it simultaneously excels at: (a) building integrated product platforms, (b) embedding elite engineers in customer operations, and (c) proving itself in mission-critical government and defense environments. Most companies can manage one of these, maybe two &mdash; not all three at once.
+
+Yet in 2025, everyone wants to borrow the brand halo of this model.
+
+Why Everyone Wants to Copy Palantir Right Now
+
+Three big forces are converging:
+
+ Enterprise AI has a production problem.
+
+ A large fraction of AI projects still stall before they ever reach production environments , often due to messy data, integration headaches, and lack of internal ownership. While buying behavior is still frenzied (with real top-down pressure from boards and C-Suites to &ldquo;buy AI&rdquo;), actual implementation and subsequent ROI often requires lots of handholding.
+
+ Forward-deployed engineers look like the missing bridge.
+
+ Media coverage and data on job postings show FDE roles exploding &mdash; up 800&ndash;1000% this year , depending on the source &mdash; as AI startups embed engineers in an effort to make deployments actually work.
+
+ Rapid growth has become the norm (and it&rsquo;s easier to grow quickly with 7 figure deals than 5!)
+
+ If putting engineers on planes is what it takes to land a $1M+ deal with a Fortune 500 or government agency, many early-stage companies will gladly trade gross margin for momentum. Investors are also increasingly comfortable with suboptimal gross margins given novel AI experiences with lots of inference often require them. The bet is that you&rsquo;ll earn the position and the trust with client leadership to deliver outcomes , and price accordingly.
+
+So the narrative becomes: &ldquo;We&rsquo;ll do what Palantir did. We&rsquo;ll send a small elite team, build something magical, and turn that into a platform over time.&rdquo;
+
+That story can be true in very specific circumstances. But there are some hard constraints founders often gloss over.
+
+Where the Analogy Breaks
+
+Trying to Sell Outcomes from Day 1
+
+Palantir&rsquo;s flagship product, Foundry, is a combination of 100s of microservices that get put to work towards an outcome. These services constitute productized + opinionated approaches to problems commonly experienced across enterprises in each domain. Having now met hundreds of AI apps founders over the past two years, I can tell you where the analogy in their pitch breaks: startups come in and pitch a bunch of lofty outcome-based goals, whereas Palantir built intentional microservices that form the bedrock of their core capabilities. These are what separate Palantir from regular consulting firms (and contribute to it trading at 77x next year&rsquo;s revenue).
+
+ Palantir Gotham is a defense and intelligence platform that helps military, intelligence, and law enforcement agencies integrate and analyze disparate data for mission planning and investigations.
+
+ Palantir Apollo is a software deployment and management platform that autonomously and securely delivers updates and new features to any environment, including multi-cloud, on-premises, and disconnected systems.
+
+ Palantir Foundry is a cross-industry data operations platform that integrates data, models, and analytics to power operational decision-making across an enterprise.
+
+ Palantir Ontology is the dynamic, actionable digital model of an organization&rsquo;s real-world entities, relationships, and logic that powers applications and decision-making within Foundry.
+
+ Palantir AIP (Artificial Intelligence Platform) connects AI models, like Large Language Models (LLMs), with an organization&rsquo;s data and operations via the Ontology to create production-ready AI-powered workflows and agents.
+
+To quote the recent Everest report again: &ldquo;Palantir&rsquo;s contracts start small. A first engagement might cover a short bootcamp and limited licenses. If value is proven, additional use cases, workflows, and data domains are layered in. Over time, the revenue mix tilts toward software subscription rather than services. Unlike consulting firms, services are a means to drive product adoption, not the primary revenue stream. Unlike most software vendors, Palantir is willing to fund its own engineering time upfront to land a meaningful customer.&rdquo;
+
+On the one hand, AI apps companies I&rsquo;m seeing today are often able to skip straight to seven-figure contracts. But on the other, that is largely because they are in full fledged customization mode &ndash; they&rsquo;re tackling whichever problems their early customers surface, and hoping they uncover themes on which to build core capabilities or &ldquo;SKUs&rdquo; later on.
+
+Not every problem is a &ldquo;Palantir-grade&rdquo; problem
+
+Palantir&rsquo;s early deployments were in domains where the alternative was &ldquo;nothing works&rdquo;: counterterrorism, fraud detection, battlefield logistics, high-stakes healthcare operations. The value of solving the problem was measured in billions of dollars, number of human lives saved, or geopolitical outcomes, not incremental efficiency.
+
+If you&rsquo;re selling to a mid-market SaaS company to optimize sales workflows by 8%, you can&rsquo;t afford the same level of bespoke deployment. The ROI envelope simply doesn&rsquo;t justify months of on-site engineering.
+
+Most customers don&rsquo;t want to be your R&D lab forever
+
+Palantir&rsquo;s customers implicitly sign up to co-evolve the product with them; they tolerate a lot because the stakes are high and alternatives are limited.
+
+Most enterprises, particularly outside of defense and regulated sectors, do not want to feel like a long-running consulting project. They want predictable implementations, interoperability with existing software tools, and fast time-to-value.
+
+Talent density and culture don&rsquo;t generalize
+
+Palantir has spent over a decade recruiting and training unusually strong generalist engineers who are comfortable writing production code, navigating bureaucracies, and sitting in rooms with colonels, CIOs, and regulators. Turnover from that role has produced an entire &ldquo;Palantir mafia&rdquo; of founders and operators. Many of these people are unicorns in that they are both highly technical and highly effective with customers.
+
+Most startups cannot assume they&rsquo;ll hire hundreds of people wired this way. In practice, &ldquo;we&rsquo;ll build a Palantir-style FDE team&rdquo; often degrades into:
+
+Pre-sales solution engineers relabeled as &ldquo;FDEs&rdquo;
+
+Junior generalists asked to do product, implementation, and account management simultaneously
+
+Leadership teams that have never actually seen a Palantir deployment up close, but like the vibe
+
+To be clear, there is an immense ocean of extremely talented individuals out there, and the ability to ship code is being democratized to formerly non-technical employees with tools like our portfolio company Cursor. But to nail the Palantir motion at scale requires an exceptionally rare blend of business and technical talent, and it really helps to have actually been there given it is such a unique company. But that n is limited!
+
+The services trap is real
+
+Palantir works because there is a real platform underneath the bespoke work. Thoughtful observers point out that if you only copy the embedded-engineer part, you end up with thousands of bespoke deployments that are impossible to maintain or upgrade. Even in a world in which AI tooling allows companies to achieve software-caliber gross margins in this model, the ones that over-rotate into forward deployment without a strong product spine may fail to generate increasing returns to scale and durable moats. The undiscerning investor may see hockey stick growth from 0 to $10M in contract value with large enterprise deals and clamor to get involved. But the question I keep asking is what happens when dozens (or even hundreds) of these $10M startups start to bump into each other with the exact same pitch?
+
+At that point, you aren&rsquo;t &ldquo;Palantir for X.&rdquo; You&rsquo;re &ldquo;Accenture for X&rdquo; with a nicer front-end.
+
+What Palantir Actually Did Differently
+
+If you strip away the mythology, there are a few elements worth studying carefully:
+
+ Platform-first, not project-first
+
+ Palantir&rsquo;s forward-deployed teams build on a small set of reusable primitives (data models, access controls, workflow engines, visualization components) rather than writing fully bespoke systems per client.
+
+ Opinionated about how work should happen
+
+ The company doesn&rsquo;t just automate existing processes; it often pushes customers into new ways of working, with the software embodying those opinions. That&rsquo;s rare courage for a vendor, and it allows reuse.
+
+ Long time horizons and capital
+
+ Being Palantir-like required long periods of negative sentiment, political controversy, and unclear near-term monetization while the platform and go-to-market matured.
+
+ A very specific market mix
+
+ The early footprint in intelligence and defense was a feature, not a bug: high willingness to pay, high switching costs, high stakes, and relatively small numbers of extremely large accounts. Not to mention a set of antiquated incumbents who barely had to compete to win business in decades.
+
+In other words, Palantir is not just &ldquo;software company + consulting.&rdquo; It&rsquo;s &ldquo;software company + consulting + political project + extremely patient capital.&rdquo;
+
+That&rsquo;s not something you casually bolt onto a vertical SaaS product and expect it to generalize.
+
+A More Realistic Framework: When Does &ldquo;Palantirization&rdquo; Make Sense?
+
+Instead of asking &ldquo;How do we be like Palantir?&rdquo; it&rsquo;s more useful to ask a series of gating questions:
+
+ Problem criticality 
+
+Is this problem mission-critical (lives, national security, billions of dollars) or nice-to-have (10&ndash;20% efficiency)?
+
+The higher the stakes, the more a forward-deployed model can be justified.
+
+ Customer concentration 
+
+Are you selling to dozens of huge customers or thousands of small ones?
+
+Embedded engineering scales much better with a concentrated, high-ACV base.
+
+ Domain fragmentation 
+
+Do customers share similar workflows/use similar software tools, or is every deployment fundamentally different?
+
+If every client is a snowflake, it&rsquo;s hard to build a consistent platform. Some level of homogeneity helps.
+
+ Regulatory and data gravity 
+
+Are you operating in highly regulated domains with significant data-integration pain (defense, healthcare, financial crime, critical infrastructure)?
+
+That&rsquo;s where Palantir-style integration work adds real value.
+
+If you&rsquo;re mostly in the bottom-left corner of these dimensions (low criticality, fragmented customers, relatively simple integration), a full &ldquo;Palantirization&rdquo; is almost certainly the wrong model. Those circumstances constitute a perfect setup for more of a bottoms-up, PLG motion.
+
+What Is Worth Copying
+
+Despite my skepticism that every early stage company can successfully deploy the Palantir model, there are pieces of the playbook that are worth considering.
+
+1. Treat forward deployment as scaffolding, not the house
+
+It can be absolutely correct to:
+
+Embed engineers alongside early design partners
+
+Do whatever it takes to get the first 3&ndash;5 customers into production
+
+Use those engagements to pressure-test your primitives and abstractions
+
+But this needs explicit constraints:
+
+Time-boxed deployments (e.g., &ldquo;90-day sprint to production&rdquo;)
+
+Clear ratios (e.g., max engineering headcount per $1M of ARR on a given account)
+
+A goal to recycle bespoke code into reusable configurations or templates each quarter
+
+Otherwise, &ldquo;we&rsquo;ll productize later&rdquo; becomes &ldquo;we never quite got around to it.&rdquo;
+
+2. Build on strong primitives, not custom workflows
+
+The real lesson from Palantir is about product architecture:
+
+Unified data model and permissioning layer
+
+Common workflow engine and UI primitives
+
+Configuration over code wherever possible
+
+Forward-deployed teams should spend their time choosing and validating which primitives to assemble &mdash; not building net-new ones for each customer. Leave the net-new builds to the engineers.
+
+3. Make FDEs part of product, not just delivery
+
+In the Palantir world, forward-deployed engineers are deeply involved in product discovery and iteration, not only implementation. Strong product orgs and platform teams feed on what FDEs learn at the front lines.
+
+If your FDEs sit in a separate &ldquo;professional services&rdquo; unit, you lose that feedback loop and drift toward a pure services business.
+
+4. Be honest about your margin structure
+
+If your pitch presumes 80%+ software gross margins and 150% net dollar retention, but your go-to-market model actually requires long on-site projects, be transparent &mdash; at least internally &mdash; about the tradeoffs.
+
+For some categories, a structurally lower-margin, higher-ACV model is entirely rational. The problem is pretending you&rsquo;re SaaS when you&rsquo;re really services with a platform. Investors are typically looking for the path to the most gross profit dollars possible, and one way to achieve that is orders of magnitude larger contracts with more significant COGS.
+
+How I&rsquo;d Pressure-Test a &ldquo;Palantirized&rdquo; Startup
+
+When I meet a founder who says &ldquo;we&rsquo;re like Palantir for X,&rdquo; the questions in my notebook look something like:
+
+ Show me an opinionated platform boundary.
+
+ Where does the shared product end and customer-specific code begin? How fast is that boundary moving?
+
+ Walk me through a deployment timeline.
+
+ How many engineer-months from signed contract to first production use? What has to be bespoke?
+
+ What does year-3 margin look like on a mature customer?
+
+ Does the amount of forward-deployed effort go down meaningfully over time? If not, why not?
+
+ What breaks if you sign 50 customers next year?
+
+ Hiring? Onboarding? Product? Support? I want to see where the model cracks.
+
+ How do you decide not to customize?
+
+ The willingness to say &ldquo;no&rdquo; to custom work is often what separates a product company from a services firm with a nice demo.
+
+If those answers are crisp, grounded in real deployments, and architecturally coherent, then some amount of Palantir-style forward deployment might be a genuine advantage.
+
+If the answers are hand-wavy or it&rsquo;s clear that every engagement to date has been entirely unique, it&rsquo;s very difficult for us to underwrite repeatability or the potential for true scale.
+
+The Takeaway
+
+Palantir&rsquo;s success has created a powerful aura dominating the venture-backed entrepreneurial zeitgeist: small teams of elite engineers parachuting into complex environments, wiring up chaotic data, and shipping systems that change how organizations make decisions.
+
+It&rsquo;s tempting to believe every AI or data startup should look like this. But for most categories, full-blown &ldquo;Palantirization&rdquo; is a treacherous fantasy:
+
+The problems aren&rsquo;t critical enough
+
+The customers are too fragmented
+
+The talent model doesn&rsquo;t scale
+
+The economics quietly collapse into services
+
+The more useful question for founders isn&rsquo;t &ldquo;How do we become Palantir?&rdquo; It&rsquo;s:
+
+What is the minimum amount of Palantir-style forward deployment we need to bridge the AI adoption gap for our category &mdash; and how quickly can we convert that into a true platform business?
+
+Get that right, and you can borrow the parts of the playbook that matter, without inheriting the parts that will break you.
+
+Want more a16z Enterprise?
+
+Sign up for news and resources to navigate the world of B2B technology, from AI and data, to security and SaaS, and more.
+
+ See All Newsletters 
+
+ Contributor 
+
+ Marc Andrusko is a partner at Andreessen Horowitz, where he focuses on B2B AI applications and fintech.
+
+Follow
+
+ X 
+
+ Linkedin 
+
+ More From this Contributor 
+
+ Investing in Sphere 
+ Marc Andrusko 
+
+ Fruits of the Walled Garden 
+ Marc Andrusko and Alex Rampell 
+
+ The AI Application Spending Report: Where Startup Dollars Really Go 
+ Olivia Moore, Marc Andrusko, and Seema Amble 
+
+ Law & Order: GPU 
+ Marc Andrusko 
+
+ The API Battleground: A New Era of Platform Wars 
+ Marc Andrusko 
+
+Views expressed in &ldquo;posts&rdquo; (including podcasts, videos, and social media) are those of the individual a16z personnel quoted therein and are not the views of a16z Capital Management, L.L.C. (&ldquo;a16z&rdquo;) or its respective affiliates. a16z Capital Management is an investment adviser registered with the Securities and Exchange Commission. Registration as an investment adviser does not imply any special skill or training. The posts are not directed to any investors or potential investors, and do not constitute an offer to sell &mdash; or a solicitation of an offer to buy &mdash; any securities, and may not be used or relied upon in evaluating the merits of any investment.
+
+The contents in here &mdash; and available on any associated distribution platforms and any public a16z online social media accounts, platforms, and sites (collectively, &ldquo;content distribution outlets&rdquo;) &mdash; should not be construed as or relied upon in any manner as investment, legal, tax, or other advice. You should consult your own advisers as to legal, business, tax, and other related matters concerning any investment. Any projections, estimates, forecasts, targets, prospects and/or opinions expressed in these materials are subject to change without notice and may differ or be contrary to opinions expressed by others. Any charts provided here or on a16z content distribution outlets are for informational purposes only, and should not be relied upon when making any investment decision. Certain information contained in here has been obtained from third-party sources, including from portfolio companies of funds managed by a16z. While taken from sources believed to be reliable, a16z has not independently verified such information and makes no representations about the enduring accuracy of the information or its appropriateness for a given situation. In addition, posts may include third-party advertisements; a16z has not reviewed such advertisements and does not endorse any advertising content contained therein. All content speaks only as of the date indicated.
+
+Under no circumstances should any posts or other information provided on this website &mdash; or on associated content distribution outlets &mdash; be construed as an offer soliciting the purchase or sale of any security or interest in any pooled investment vehicle sponsored, discussed, or mentioned by a16z personnel. Nor should it be construed as an offer to provide investment advisory services; an offer to invest in an a16z-managed pooled investment vehicle will be made separately and only by means of the confidential offering documents of the specific pooled investment vehicles &mdash; which should be read in their entirety, and only to those who, among other requirements, meet certain qualifications under federal securities laws. Such investors, defined as accredited investors and qualified purchasers, are generally deemed capable of evaluating the merits and risks of prospective investments and financial matters.
+
+There can be no assurances that a16z&rsquo;s investment objectives will be achieved or investment strategies will be successful. Any investment in a vehicle managed by a16z involves a high degree of risk including the risk that the entire amount invested is lost. Any investments or portfolio companies mentioned, referred to, or described are not representative of all investments in vehicles managed by a16z and there can be no assurance that the investments will be profitable or that other investments made in the future will have similar characteristics or results. A list of investments made by funds managed by a16z is available here: https://a16z.com/investments/ . Past results of a16z&rsquo;s investments, pooled investment vehicles, or investment strategies are not necessarily indicative of future results. Excluded from this list are investments (and certain publicly traded cryptocurrencies/ digital assets) for which the issuer has not provided permission for a16z to disclose publicly. As for its investments in any cryptocurrency or token project, a16z is acting in its own financial interest, not necessarily in the interests of other token holders. a16z has no special role in any of these projects or power over their management. a16z does not undertake to continue to have any involvement in these projects other than as an investor and token holder, and other token holders should not expect that it will or rely on it to have any particular involvement.
+
+With respect to funds managed by a16z that are registered in Japan, a16z will provide to any member of the Japanese public a copy of such documents as are required to be made publicly available pursuant to Article 63 of the Financial Instruments and Exchange Act of Japan. Please contact compliance@a16z.com to request such documents.
+
+For other site terms of use, please go here . Additional important information about a16z, including our Form ADV Part 2A Brochure, is available at the SEC&rsquo;s website: http://www.adviserinfo.sec.gov .
+
+Want more a16z Enterprise?
+
+Sign up for news and resources to navigate the world of B2B technology, from AI and data, to security and SaaS, and more.
+
+ See All Newsletters 
+
+ RECOMMENDED FOR YOU 
+
+ 2026: the biggest year of M&A in history? 
+ David Haber 
+ Read More 
+
+ Can AI Help Save Lives? 
+ Kimberly Tan and Michael Chime 
+ Read More 
+
+ Need for Speed in AI Sales: AI Doesn't Just Change What You Sell. It Also Changes How You Sell It. 
+ Seema Amble and James da Costa 
+ Read More 
+
+ The Greenfield Strategy: AI-native startup Bingo 
+ James da Costa and Alex Rampell 
+ Read More 
+
+ Fruits of the Walled Garden 
+ Marc Andrusko and Alex Rampell 
+ Read More 
+
+ go to top 
+
+ Power User Menu 
+
+ Home 
+
+ H 
+
+ By navigating this website you agree to our cookie policy . 
+
+ Accept 
+
+ Decline

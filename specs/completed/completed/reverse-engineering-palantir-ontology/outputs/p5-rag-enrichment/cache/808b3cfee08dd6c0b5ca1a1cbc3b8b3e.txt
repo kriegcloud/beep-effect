@@ -1,0 +1,210 @@
+Active Directory as Code
+Palantir
+Follow
+9 min read
+·
+Dec 6, 2018
+
+236
+
+2
+
+Press enter or click to view image in full size
+
+Windows Automation used to be hard, or at least not straightforward, manifesting itself in right-click-to-glory deployments where API-based management was a second thought. But the times, they are a-changin’! With the rise of DevOps, the release of Windows Server 2016, and the growth of the PowerShell ecosystem, opportunities to redesign traditional Windows infrastructure have opened up.
+
+One of the more prevalent Windows-based systems is Active Directory (AD) — a cornerstone in most enterprise environments which, for many, has remained an on-premise installation. At Palantir, we ❤️ Infrastructure as Code (see Terraforming Stackoverflow and Bouncer), so when we were tasked with deploying an isolated, highly available, and secure AD infrastructure in AWS, we started to explore ways we can apply Infrastructure as Code (IaC) practices to AD. The goal was to make AD deployments automated, repeatable, and configured by code. Additionally, we wanted any updates tied to patch and configuration management integrated with our CI/CD pipeline.
+
+This post walks through the approach we took to solve the problem by outlining the deployment process including building AD AMIs using Packer, configuring the AD infrastructure using Terraform, and storing configuration secrets in Vault.
+
+Packerizing Active Directory
+
+Our approach to Infrastructure as Code involves managing configuration by updating and deploying layered, immutable images. In our experience, this reduces entropy, codifies configuration, and is more aligned with CI/CD workflows which allows for faster iteration.
+
+Our AD image is a downstream layer on top of our standard Windows image built using a custom pipeline using Packer, Jenkins and AWS CodeBuild. The base image includes custom Desired State Configuration (DSC) modules which manage various components of Windows, Auto Scaling Group (ASG) lifecycle hooks, and most importantly, security tooling. By performing this configuration through the base image, we can enforce security and best practices regardless of how the image is consumed.
+
+Creating a standardized AD image
+
+The AD image can be broken down into the logical components of an instance lifecycle: initial image creation, instance bootstrapping, and decommissioning.
+
+Press enter or click to view image in full size
+Image creation
+
+It is usually best practice to front-load as much of the logic during the initial build since this process only happens once whereas bootstrapping will run for each instance. This is less relevant when it comes to AD images which tend be lightweight with minimal package dependencies.
+
+Desired State Configuration (DSC) modules
+
+AD configuration has traditionally been a very GUI-driven workflow that has been quite difficult to automate. In recent years, PowerShell has become a robust option for increasing engineer productivity, but managing configuration drift has always been a challenge. Cue DSC modules 🎉
+
+DSC modules are a great way to configure and keep configured the Windows environment with minimal user interaction. DSC configuration is run at regular intervals on the host and can be used to not only report drift, but to reinforce the desired state (similar to third-party configuration tools).
+
+One of these modules is the Microsoft AD DSC module. To illustrate how DSC can be a force multiplier, here is a quick example of a group creation invocation. This might seem heavy-handed for a single group, but the real benefit is when you are able to iterate over a list of groups such as below for the same amount of effort. The initial content of Groups can be specified in a Packer build (static CSV) or generated dynamically from an external look-up.
+
+Sample DSC configuration
+
+<#
+    .SYNOPSIS
+        Example demonstrating ingesting a list of N AD groups
+        and creating their respective resources using a single code
+        block
+        The AD groups can be baked in the AMI or retrieved from an
+        external source
+#>
+
+$ConfigData = @{
+    AllNodes = @(
+        @{
+            NodeName = '*'
+            Groups = (Get-Content "C:\dsc\groups.csv")
+        }
+    )
+}
+
+Configuration NodeConfiguration 
+{
+    Import-DSCResource -ModuleName xActiveDirectory
+    
+    Node $AllNodes.NodeName {
+        foreach ($group in $node.Groups) {
+            xADGroup $group
+            {
+                GroupName = $group
+                Ensure = "Present"
+                # additional params
+            }
+        }
+    }
+}
+
+NodeConfiguration -ConfigurationData $ConfigData
+
+We have taken this one step further by building additional modules to stand up a cluster from scratch. These modules handle everything from configuring core Windows features to deploying a new domain controller. By implementing these tasks as modules, we get the inherent DSC benefits for free, for instance reboot resilience and mitigation of configuration drift.
+
+Bootstrap scripts
+
+Secrets. A problem like handling configuration secrets like static credentials warrants additional consideration when it comes to a sensitive environment such as AD. Storing encrypted secrets on disk, manually entering them at bootstrap time, or a combination of the two are all sub-optimal solutions. We were looking for a solution that will:
+
+Be API-driven so that we can plug it in to our automation
+Address the secure introduction problem so that only trusted instances are able to gain access
+Enforce role-based access control to ensure separation between the Administrators (who create the secrets) and instances (that consume the secrets)
+Enforce a configurable access window during which the instances are able to access the required secrets
+
+Based on the above criteria, we have settled on using Vault to store our secrets for most of our automated processes. We have furthered enhanced it by creating an ecosystem which automates the management of roles and policies, allowing us to grow at scale while minimizing administrative overhead. This allows us to easily permission secrets and control what has access to them and how long by integrating Vault with AWS’ IAM service. This along with proper auditing and controls gives us the best of both worlds: automation and secure secrets management.
+
+Below is an example of how an EC2 instance might retrieve a token from a Vault cluster and use that token to retrieve secrets:
+
+Press enter or click to view image in full size
+
+Configuring the instance. AWS ASGs automatically execute the user data (usually a PowerShell script) that is specified in their launch configuration. We also have the option to dynamically pass variables into the script to configure the instance at launch time. As an example, here we are setting the short and full domain names and specifying the Vault endpoint by passing them as arguments for bootstrap.ps1:
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Terraform invocation
+
+data "template_file" "userdata" {
+     template = "${file("${path.module}/bootstrap/bootstrap.ps1")}"
+     
+      vars {
+        domain              = "${var.domain_name}"
+        shortname           = "${var.domain_short_name}"
+        vaultaddress        = "${var.vault_addr}"
+      }
+}
+resource "aws_auto_scaling_group" "my_asg" {
+    # ...
+    user_data = "${data.template_file.userdata.rendered}"
+}
+
+Bootstrap script (bootstrap.ps1)
+
+<powershell>
+Write-Host "My domain name is ${domain} (${shortname})"
+Write-Host "I get secrets from ${vaultaddress}"
+# ... continue configuration
+</powershell>
+
+In addition to ensuring that the logic is correct for configuring your instance, something else that is as equally important is validation to reduce false positives when putting an instance in service. AWS provides a tool for doing this called lifecycle hooks. Since lifecycle hook completions are called manually in a bootstrap script, the script can contain additional logic for validating settings and services before declaring the instance in-service.
+
+Instance clean-up
+
+The final part of the lifecycle that needs to be addressed is instance decommissioning. Launching instances in the cloud gives us tremendous flexibility, but we also need to be prepared for the inevitable failure of a node or user-initiated replacement. When this happens, we attempt to terminate the instance as gracefully as possible. For example, we may need to transfer the Flexible Single-Master Operation (FSMO) role and clean up DNS entries.
+
+We chose to implement lifecycle hooks using a simple scheduled task to check the instance’s state in the ASG. When the state has been set to Terminating:Wait, we run the cleanup logic and complete the terminate hook explicitly. We know that lifecycle hooks are not guaranteed to complete or fire (e.g., when instances experience hardware failure) so if consistency is a requirement for you, you should look into implementing an external cleanup service or additional logic within bootstrapping.
+
+Putting it all together: Terraforming Active Directory
+Press enter or click to view image in full size
+Bootstrapping infrastructure
+
+With our Packer configuration now complete, it is time to use Terraform to configure our AD infrastructure and deploy AMIs. We implemented this by creating and invoking a Terraform module that automagically bootstraps our new forest. Bootstrapping a new forest involves deploying a primary Domain Controller (DC) to serve as the FSMO role holder, and then updating the VPC’s DHCP Options Set so that instances can resolve AD DNS.
+
+The design pattern that we chose to automate the bootstrapping of the AD forest was to divide the process into two distinct states and switch between them by simply updating the required variables (lifecycle, configure_dhcp_os) in our Terraform module and applying it.
+
+Let us take a look at the module invocation in the two states starting with the Bootstrap State where we deploy our primary DC to the VPC:
+
+# Bootstrap Forest
+module "ad" {
+    source = "git@private-github:ad/terraform.git"
+    env      = "staging"
+    mod_name = "MyADForest"
+    key_pair_name = "myawesomekeypair"
+    vpc_id        = "vpc-12345"
+    subnet_ids    = ["subnet-54321", "subnet-64533"]
+    trusted_cidrs = ["15.0.0.0/8"]
+    need_trusted_cidrs = "true"
+    domain_name       = "ad.forest"
+    domain_short_name = "ad"
+    base_fqdn         = "DC=ad,DC=forest"
+    vault_addr        = "https://vault.secret.place"
+    need_fsmo   = "true"
+    # Add me for step 1 and swap me out for step 2
+    lifecycle = "bootstrap"
+    
+    # Set me to true when lifecyle = "steady"
+    configure_dhcp_os = "false"
+}
+
+Once the Bootstrap State is complete, we switch to the Steady State where we deploy our second DC and update the DHCP Options Set. The module invocation is exactly the same except for the changes made to the lifecycle and configure_dhcp_os variables:
+
+# Apply Steady State
+module "ad" {
+    source = "git@private-github:ad/terraform.git"
+    env      = "staging"
+    mod_name = "MyADForest"
+    key_pair_name = "myawesomekeypair"
+    vpc_id        = "vpc-12345"
+    subnet_ids    = ["subnet-54321", "subnet-64533"]
+    trusted_cidrs = ["15.0.0.0/8"]
+    need_trusted_cidrs = "true"
+    domain_name       = "ad.forest"
+    domain_short_name = "ad"
+    base_fqdn         = "DC=ad,DC=forest"
+    vault_addr        = "https://vault.secret.place"
+    need_fsmo   = "true"
+    
+    # Add me for step 1 and swap me out for step 2
+    lifecycle = "steady"
+    # Set me to true when lifecyle = "steady"
+    configure_dhcp_os = "true"
+}
+
+Using this design pattern, we were able to automate the entire deployment process and manually transition between the two states as needed. Relevant resources are conditionally provisioned during the two states by making use of the count primitive and interpolation functions in Terraform.
+
+Managing steady state
+
+Once our AD infrastructure is in a Steady state, we update the configuration and apply patches by replacing our instances with updated AMIs using Bouncer. We run Bouncer in serial mode to gracefully decommission a DC and replace it by bringing up a DC with a new image as outlined in the “Instance Clean Up” section above. Once the first DC has been replaced, Bouncer will proceed to cycle the next DC.
+
+Conclusion
+
+Using the above approach we were able to create an isolated, highly-available AD environment and manage it entirely using code. It made the secure thing to do the easy thing to do because we are able to use Git-based workflows, with 2-FA, to gate and approve changes as all of the configuration exists in source control. Furthermore, we have found that this approach of tying our patch management process to our CI/CD pipeline has led to much faster patch compliance due to reduced friction.
+
+In addition to the security wins, we have also improved the operational experience by mitigating configuration drift and being able to rely on code as a source for documentation. It also helps that our disaster recovery strategy for this forest amounts to redeploying the code in a different region. Additionally, benefits like change tracking and peer reviews that have normally been reserved for software development are now also applied to our AD ops processes.
+
+If you, much like us, are passionate about working on creating infrastructure and workflows that improve both security and efficiency outcomes, please join us!
+
+Authors and Contributors
+
+Andrew C., Andrew S., Ashir A., Glenn W., Riff K.

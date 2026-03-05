@@ -1,0 +1,11 @@
+$ vitest run graphiti-mcp.test.ts
+
+ RUN  v3.2.4 /home/elpresidank/YeeBois/projects/beep-effect3/tooling/agent-eval
+
+ ✓ test/graphiti-mcp.test.ts (4 tests) 213ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  07:23:19
+   Duration  2.05s (transform 835ms, setup 236ms, collect 174ms, tests 213ms, environment 0ms, prepare 1.17s)
+

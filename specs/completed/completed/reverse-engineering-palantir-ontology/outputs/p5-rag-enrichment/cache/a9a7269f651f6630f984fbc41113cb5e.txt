@@ -1,0 +1,232 @@
+Speedrun: Your First Agentic AIP Workflow 
+
+ Courses
+
+ Tracks
+
+ Community
+
+ Sign In 
+
+ There was an issue with saving this content. Please try again. 
+ There was an issue with removing this item from your saved content. Please try again. 
+
+Speedrun: Your First Agentic AIP Workflow
+
+Learn how to leverage AIP and the Ontology for an agentic workflow and AIP-human teaming.
+
+ Register
+
+ Already registered?
+
+ Sign In 
+
+ Cancel 
+
+ Apply 
+
+rate limit
+
+Code not recognized.
+
+ Activate
+
+About this course
+
+In this course you will work with clinic trial recruitment data and solve the problem of identifying eligible patients for clinical trials. Your goal is to learn how to leverage Foundry's AI and operational tooling to streamline the trial recruitment process. You will leverage encoded business critical processes using the Ontology for an agentic workflow and AIP-human teaming.
+
+By the end of this course you will have a functional application for operational users, that leverages an automated AIP agent performing part of the clinical trial recruitment process, ultimately achieving AI and human teaming on this process.
+
+This course typically takes 1 to 2 hours to complete.
+
+Curriculum 
+
+ Overview
+
+ Course Introduction 
+
+ Requirements 
+
+ Permissions & Help 
+
+ The Use Case 
+
+ Setting Up Your Project & Folder
+
+ Introduction 
+
+ Create a Foundry Learning Project 
+
+ Create a Course-Specific Training Folder 
+
+ Install Foundational Ontology & Understand Agentic Workflow
+
+ Introduction 
+
+ Install the Marketplace Product 
+
+ Explore the Application 
+
+ Understand Human-AI Teaming in the Agentic Workflow 
+
+ Create an Agent
+
+ Introduction 
+
+ Create an AIP Logic 
+
+ Configure Inputs 
+
+ Compose the LLM Part of your Logic 
+
+ Instruct Agent to Edit your Ontology 
+
+ Preview Results of your Agent 
+
+ Summary 
+
+ Evaluate your Agent
+
+ Introduction 
+
+ Expose LLM Output to Evaluation 
+
+ Create an Evaluation Suite 
+
+ Configure an Evaluator 
+
+ Configure Test Cases 
+
+ Run the Evaluation Suite 
+
+ Inspect the Results 
+
+ Compare Results to Another LLM 
+
+ Summary 
+
+ Automate your Agent
+
+ Introduction 
+
+ Publish your Agent 
+
+ Create Automation 
+
+ Execute your Automation 
+
+ Observe the Automation Effects 
+
+ Add a New Patient 
+
+ Observe Automatic Processing by your AIP Agent 
+
+ Summary 
+
+ Conclusion
+
+ Next Steps: Further Automation and Human-AI Teaming 
+
+ Next Steps: Interactive AIP Agents 
+
+ Conclusion 
+
+ About this course 
+
+In this course you will work with clinic trial recruitment data and solve the problem of identifying eligible patients for clinical trials. Your goal is to learn how to leverage Foundry's AI and operational tooling to streamline the trial recruitment process. You will leverage encoded business critical processes using the Ontology for an agentic workflow and AIP-human teaming.
+
+By the end of this course you will have a functional application for operational users, that leverages an automated AIP agent performing part of the clinical trial recruitment process, ultimately achieving AI and human teaming on this process.
+
+This course typically takes 1 to 2 hours to complete.
+
+ Curriculum 
+
+ Overview
+
+ Course Introduction 
+
+ Requirements 
+
+ Permissions & Help 
+
+ The Use Case 
+
+ Setting Up Your Project & Folder
+
+ Introduction 
+
+ Create a Foundry Learning Project 
+
+ Create a Course-Specific Training Folder 
+
+ Install Foundational Ontology & Understand Agentic Workflow
+
+ Introduction 
+
+ Install the Marketplace Product 
+
+ Explore the Application 
+
+ Understand Human-AI Teaming in the Agentic Workflow 
+
+ Create an Agent
+
+ Introduction 
+
+ Create an AIP Logic 
+
+ Configure Inputs 
+
+ Compose the LLM Part of your Logic 
+
+ Instruct Agent to Edit your Ontology 
+
+ Preview Results of your Agent 
+
+ Summary 
+
+ Evaluate your Agent
+
+ Introduction 
+
+ Expose LLM Output to Evaluation 
+
+ Create an Evaluation Suite 
+
+ Configure an Evaluator 
+
+ Configure Test Cases 
+
+ Run the Evaluation Suite 
+
+ Inspect the Results 
+
+ Compare Results to Another LLM 
+
+ Summary 
+
+ Automate your Agent
+
+ Introduction 
+
+ Publish your Agent 
+
+ Create Automation 
+
+ Execute your Automation 
+
+ Observe the Automation Effects 
+
+ Add a New Patient 
+
+ Observe Automatic Processing by your AIP Agent 
+
+ Summary 
+
+ Conclusion
+
+ Next Steps: Further Automation and Human-AI Teaming 
+
+ Next Steps: Interactive AIP Agents 
+
+ Conclusion

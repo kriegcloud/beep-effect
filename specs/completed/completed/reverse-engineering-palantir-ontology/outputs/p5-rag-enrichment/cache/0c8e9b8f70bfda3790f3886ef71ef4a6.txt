@@ -1,0 +1,106 @@
+AIP Agent Studio • Tools • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ AI Platform (AIP) AIP Agent Studio Tools Overview 
+
+ Tools
+
+Tools are external functionalities or APIs that can be used by a large language model (LLM) to perform specific actions or retrieve information beyond its inherent capabilities. Tools are especially useful for allowing the LLM to determine control flow and construct inputs.
+
+ Types of tools
+
+There are six types of tools available:
+
+ Action: Gives your agent the ability to execute an ontology edit. This can be configured to run automatically or to run after confirmation from the user.
+
+ Object query: This tool specifies the object types that the LLM can access. You can add multiple object types and specify accessible properties to make queries more token-efficient. The object query tool supports filtering, aggregation, inspection, and traversal of links for configured objects.
+
+ Function: This allows the LLM to call any Foundry function , including published AIP Logic functions. The latest version of the function is automatically used, but you can also specify a published version for more granular control.
+
+ Update application variable: This tool is used to update the value of an application variable configured in the Application state tab.
+
+ Command: These tools enable your agent to trigger operations in other Palantir applications using one or multiple commands .
+
+ Request clarification: This tool allows the agent to pause its execution and request clarification from the user.
+
+ (Legacy) Ontology semantic search: This tool can use a vector property to retrieve relevant Ontology context. This tool is legacy and does not include citations or input/output variables, and it does not return the resulting object set to the LLM. We recommend using Ontology context instead.
+
+ Tool mode
+
+Use the tool mode setting to control how configured tools are provided to the LLM, and how the LLM is able to call these tools. The available tool mode settings are:
+
+ Prompted tool calling: This mode inserts instructions into the prompt to provide tools and allows the LLM to use these tools. Agents in this tool mode can only call a single tool at a time, so they may take longer to answer complex queries that require multiple tool calls. This mode is supported for all tool types and all available models .
+
+ Native tool calling: This mode uses the built-in capabilities of supported models to provide tools and allow the LLM to call these tools directly. This offers improved speed and performance over prompted tool calling, due to greater token efficiency and the ability for agents in this mode to call multiple tools in parallel. This mode can currently only be used with a subset of Palantir-provided models and with the following tool types: actions, object query, function, and update application variable. If you require use of a model or tool type not supported by native tool calling mode, use prompted tool calling mode instead.
+
+ View reasoning
+
+When deployed in edit mode, view mode, Workshop, or AIP Threads, you can select View reasoning below a response to investigate the LLM reasoning process used to generate the response.
+
+ ← 
+ PREVIOUS Retrieval context / Citations 
+
+ NEXT Use commands as tools in AIP Agent Studio 
+ →

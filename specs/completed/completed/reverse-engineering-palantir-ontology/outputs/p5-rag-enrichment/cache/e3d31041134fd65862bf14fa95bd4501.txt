@@ -1,0 +1,67 @@
+User-Centered Machine Learning for Visual Search
+Palantir
+Follow
+6 min read
+·
+Apr 9, 2024
+
+15
+
+2
+
+Press enter or click to view image in full size
+
+In our previous blog post, we introduced User-Centered Machine Learning (UCML). Palantir’s core UCML workflow enables end users to rapidly adapt cutting-edge Computer Vision (CV) capabilities to their specific and evolving missions, based on their feedback. It combines the power of research-grade detection models with the last-mile customization needed to meet users’ missions requirements in the presence of imperfect models.
+
+This approach is highly effective at improving the accuracy of an existing model trained to detect specific object types. When end users, however, have entirely new or ad hoc object types they want to identify (or new forms of imagery to analyze), such a pre-trained model might not be available. For example, in a conflict scenario, enemy forces might deploy new infrastructure, such as special bridges for armored vehicles to cross rivers, or new forms of communications equipment. Creating new dedicated detectors for these objects takes time, cost, and technical knowledge as it involves curating labeled training datasets, iteratively training models and deploying them to production. Mission-side users do not have the luxury of time during a conflict. We wanted them to be able to independently and in real time direct AI to detect and track new objects and patterns as they emerge in the world, based on as little as one example.
+
+To accomplish this, our team has been hard at work augmenting UCML with Visual Search to give users the ability to initiate and self-serve their own bespoke detection needs on demand. With Visual Search, we enable users to detect any object, in any image, in real time, without the need for an underlying object detection model for an object class.
+
+With Visual Search, analysts indicate a set of pixels corresponding to any object they want to detect. They can also use free-text to provide additional guidance and context. Our UCML technology leverages foundational visual-language models to extract unique features describing the user-indicated pixels (and text), and uses these features to identify similar pixels elsewhere in the search set. As a result, UCML for Visual Search allows analysts to generate their own object detection capability for any object of interest, in any image, in real-time. No data labeling or model training is required.
+
+These visual search queries can be used interactively on a working set of images, bulk-run on an imagery archive, or deployed on a feed of images for monitoring and alerting. These generated detections can be readily fused and refined with additional data modalities and foundational metadata about an object from the Palantir Ontology, creating an enriched picture of “what,” “where,” and “when” to fuel analysis and operational workflows.
+
+Below, we unpack how a user could employ Visual Search, with support from the Ontology, to generate their own detection capabilities — in this instance for buildings and vehicles — as a conflict is unfolding and time is of the essence.
+
+How UCML for Visual Search works
+
+The diagram below provides a high-level overview of how UCML for Visual Search works. The user delineates a set of pixels by drawing a bounding box around an image indicating the object of interest to be found. In the example shown below, the user is looking for an airplane, and has drawn a bounding box around this part of the image. The user has also provided a text prompt along with the identified pixels to provide more context to the underlying vision-language models — this is optional, but can provide additional specificity for the models.
+
+Press enter or click to view image in full size
+Figure 1. High-level overview of how UCML for Visual Search works.
+
+Visual Search first processes the user-provided bounding boxes to isolate the pixels that correspond to the object of interest as opposed to background. In this case, this would be the distinction between the pixels corresponding to the airplane (as opposed to the airport tarmac). Visual Search then feeds these pixels, along with the optionally provided text prompts, to foundational vision-language models that extract a set of features to describe the object. These vision-language models have been exposed to billions of pixels during training and can generate high-quality, detailed feature descriptors.
+
+In parallel, Visual Search extracts the feature map of every input image the user would like to search for similar objects using the same vision-language models, and uses correlation/similarity metrics to identify how similar each part of the image is to the provided pixels of interest by the user. The raw output of this process is a heatmap over each image that indicates the similarity of each pixel to the object of interest the user indicated. This heatmap is then used to generate a set of bounding boxes around the identified objects of interest.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+This whole process relies only on the regions indicated by the user, and not on any separate curation, labeling, or training. As a result, UCML for Visual Search does not make — or require — any assumptions about the types of objects the user might be interested in. Users retain full flexibility in defining their own custom object detection models.
+
+While this example involved a single object of interest, in practice, multiple such objects of interest can be indicated by the user and consumed by Visual Search automatically. These user-provided objects of interest can be stored over time and grouped based on various metadata such as the type of object they indicate, the type of imagery they correspond to, and their geographic location. The result is a shared library of object “templates”, with multiple users (or groups) contributing and refining definitions.
+
+UCML for Visual Search in Action
+
+Figures 2 and 3 below show how intuitively a user can generate custom object detectors in real-time on top of satellite electro-optical images. This example demonstrates how the hypothetical user described above creates a building (Figure 2) and vehicle (Figure 3) detector.
+
+Fig. 2. Building detection in a satellite image using our UCML for Visual Search technology. The user manually indicated one of the buildings in this image, and our UCML for Visual Search technology generated accurate building footprints across the full image in real time. Note that we have not trained a building detection model in this case.
+
+Initially, the satellite images show no detection of buildings or vehicles, as there is no pre-trained model to detect these two objects of interest. The user zooms in in the image and simply indicates the objects they are interested in detecting (building and vehicle) by drawing a single bounding box around a typical building and vehicle in the image respectively. UCML for Visual Search processes the single bounding box provided by the user and in real-time outputs a heat map of buildings (Figure 2) and vehicles (Figure 3) on the image. In both cases, the same underlying foundational vision-language model is used. This model is also agnostic to what types of objects the user has provided as input. It is able to output accurate heat maps by simply processing the pixels indicated by the user.
+
+Fig. 3. Vehicle detection in the same satellite image as in Figure 2 using UCML for Visual Search. The user manually indicated one of the vehicles in this image, and Visual Search generated accurate vehicle footprints across the full image in real time. Note that we have not trained a vehicle detection model in this case. The same underlying vision-language model is used for both building and vehicle detection.
+Conclusion
+
+UCML services enable a completely new experience for analysts by putting them in control of the models within the context of the specific mission and imagery they are working with. UCML was originally developed to allow users to provide feedback on imperfect object detection models to allow them to improve in real-time. With UCML for Visual Search, we are removing the requirement for an underlying object detection model; users can generate their own object detection capability for any object of interest, in any image, in real-time. It doesn’t require any dedicated data labeling or model training.
+
+We believe this will be a huge step up in democratizing Computer Vision capabilities, and making them even more adaptable in rapidly evolving (and high-stakes) situations. We can’t wait to see what our users will do with it.
+
+Interested in learning more? Reach out to us at ucml@palantir.com.
+
+Authors
+
+Dimitrios Lymperopoulos, Head of Machine Learning, Palantir
+Ben Radford, Product Manager, Palantir

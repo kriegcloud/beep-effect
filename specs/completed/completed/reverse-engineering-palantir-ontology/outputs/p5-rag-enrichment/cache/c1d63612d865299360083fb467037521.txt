@@ -1,0 +1,154 @@
+1
+
+How Palantir Foundry Helps Customers Build and Deploy AI-Powered Decision-Making Applications
+Palantir
+Follow
+9 min read
+·
+Sep 16, 2021
+
+89
+
+2
+
+Editor’s note: The following is a joint article with the AWS Partner Network (APN) Blog. See this post and explore related content on their page.
+
+Leveraging data to make better decisions is critical for driving optimal business outcomes. Palantir empowers organizations to rapidly extract maximum value from one of their most valuable assets — their data.
+
+Today more than ever, organizations across industries are looking to artificial intelligence (AI) and machine learning (ML) solutions as a way to further accelerate and improve their decision making. The reality of operationalizing AI can be complex and costly, however.
+
+In fact, Gartner still predicts that 85% of traditional AI and ML projects developed within organizations will deliver erroneous outcomes. Even after a model is successfully developed, it often remains an experiment rather than an operational tool that generates consistent, long-term business value.
+
+This could be for any of number of reasons:
+
+The end-to-end model development process exists in a silo — far removed from subject matter experts.
+Models backed by static one-time data pulls quickly become stale and inaccurate.
+Model hand-off happens between teams without documentation, process, and structure.
+Models are deployed in a piecemeal fashion onto legacy systems and user interfaces.
+Developing a model was largely a one-time process to gain insight or an experiment, unaccountable to real business outcomes.
+
+Palantir Foundry solves for the real-world application of AI — not how it works in the lab. Effective AI is impossible without a trustworthy data foundation, a representation of an institution’s decisions, and the infrastructure to learn from every decision made.
+
+Foundry provides an end-to-end, modular and interoperable platform that meets these demands. It’s this modular and interoperable approach that’s at the heart of Foundry’s latest integrations with Amazon Web Services (AWS) AI and ML tools.
+
+In this post, we explain the process for making better AI-powered decisions with Palantir Foundry and Amazon SageMaker.
+
+Press enter or click to view image in full size
+About Palantir Foundry
+
+Foundry deployed on AWS utilizes many services under the hood — such as Amazon Simple Storage Service (Amazon S3), Amazon Elastic Compute Cloud (Amazon EC2), and AWS Key Management Service (AWS KMS).
+
+The collaboration between Palantir and AWS is helping to power critical operations at the world’s leading organizations — from accelerating clinical research and powering vaccine supply chains to improving the safety and reliability of the electric grid.
+
+Here are some examples of the innovative work that Palantir Foundry backed by AWS is powering:
+
+Sanofi, one of the world’s leading pharmaceutical companies, has used Foundry to provide core data infrastructure and an analytical platform as part of their platform for Real World Evidence (RWE) research, receiving a 2020 Gartner Healthcare and Life Sciences Eye on Innovation Award for this work.
+The U.S. National Institutes of Health utilize Foundry to combine public and internal research data in one secure interface. High-throughput screening, genomics, and other biological data are integrated into the platform to advance the research of teams at the National Cancer Institute and the National Center for Advancing Translational Sciences.
+bp and Palantir have extended their partnership to support bp as it works towards its ambition to become a net zero company by 2050 or sooner, and to help the world get to net zero. bp’s digital twin applications, powered by Palantir, have already delivered significant value. Now, there are opportunities to apply these applications to accelerate bp’s new ambition, optimizing wind farms, electric charging networks, solar generation, and supporting the achievement of other aspects of bp’s net zero aims.
+
+As Foundry evolves, the team continues to learn how customers leverage services within each platform and have found many opportunities for tighter integrations moving up the technology stack.
+
+Over recent months, Palantir’s software development teams have worked closely with AWS to bring these tighter integrations to market, enabling deep integration with AWS data science tools across all layers of the application lifecycle. The focus has been on integrating the Amazon SageMaker suite of AI and ML services together with Foundry’s data integration and decision-making modules.
+
+Solution Overview
+
+Let’s explore the latest integrations between Foundry and AWS, and show how they can be used by organizations to overcome common data and AI challenges at every stage of the AI lifecycle — from data preparation to model operationalization.
+
+Data preparation: Rapidly prepare data with Foundry’s data connection, extract, transform, load (ETL), and data branching capabilities, and then leverage this data in Amazon SageMaker Studio Notebooks via Amazon Athena to analyze data and develop models.
+Model development: Empower technical and non-technical users alike to develop meaningful ML models with Amazon SageMaker Studio Notebooks and Amazon SageMaker Autopilot for no-code model development.
+Model integration: Integrate models from Amazon SageMaker Endpoints, Amazon SageMaker Autopilot, and AWS AI services into the Foundry machine learning environment. This benefits from Foundry’s rich deployment infrastructure, monitoring, health checks, and ontology integration.
+Model operationalization: Use Amazon SageMaker models in Foundry Application Builder and Foundry Simulation Engine to power operational applications and workflows that benefit from feedback loops and model retraining and generate long-term organizational value.
+
+The following diagram illustrates the various integration points of the solution.
+
+Figure 1 — Integration architecture.
+Data Preparation
+
+Before you can train a new model, you must connect to the relevant underlying data sources and prepare the data for use.
+
+Data collection and preparation accounts for a large proportion of a data scientist’s time, leaving little bandwidth for high-value activities like algorithm design, algorithm testing, and machine learning.
+
+Foundry’s technology and bidirectional off-the-shelf data connectors (which include AWS services such as Amazon S3, Amazon SQS, and Amazon RDS) radically reduce the amount of time spent on preparing a high quality data foundation from which to start building models.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Foundry’s data integration capabilities help organizations transform source data into a digital twin of their enterprise, represented by Palantir’s unique semantic model, the “ontology.”
+
+The ontology presents all underlying data as objects that reflect the real-world components of your business — such as factories, products, and customers. Acting as a curated, validated, connected and reusable framework for models, this drastically accelerates the AI lifecycle for new models.
+
+The ontology will be used to back the operational applications, and the integrated tables backing these data objects will be used to train our ML model.
+
+Model Development
+
+Foundry has an open and interoperable approach to model development, allowing users to implement their models natively in Foundry’s Code Workbooks, or any third-party application of their choice.
+
+One of the core principles of Foundry is enabling both data scientists and business users (or other non-data science experts) to collaboratively utilize data and models to make better decisions.
+
+Less technical users — who are often the subject matter experts — are empowered by ML toolkits, no-code model development applications, and out-of-the-box AI services that complement and accelerate Foundry’s full suite of end-to-end AI modeling tools for data scientists.
+
+With AWS, users wishing to use data from Foundry in Amazon SageMaker Studio Notebooks can do so through a new integration between Foundry and Amazon Athena that leverages Amazon Athena Federated Query.
+
+Using the native Amazon SageMaker Athena SQL integration, users have an efficient way of querying the curated data asset from Foundry directly into their notebooks where it can be subsequently transformed and used for model development. Amazon Athena provides federated connectivity to a number of additional AWS applications and services.
+
+This architecture is particularly beneficial for datasets that are used for data science workflows with ad hoc or interactive queries, as the connection can be rapidly configured and does not require any additional synchronization or management.
+
+Press enter or click to view image in full size
+Figure 2 — Accessing Foundry data from Amazon SageMaker.
+
+For users looking for a more automated approach, Amazon SageMaker Autopilot eliminates the heavy lifting of building ML models, and helps you automatically build, train, and tune the best ML model based on your data.
+
+The integration between Foundry and Autopilot allows users to launch Autopilot jobs via a user interface in Foundry directly off of data in the ontology. This gives users a way to train, evaluate, and deploy a model into production in a matter of clicks, without the need for code.
+
+Model Integration
+
+Models deployed through Amazon SageMaker Endpoints (plus pre-trained AWS AI services such as Amazon Textract, Amazon Translate, and Amazon Lookout for Equipment) can now be connected to Foundry ML and bound to Palantir ontology objects in the same way as native Foundry models.
+
+Users simply browse the in-service Amazon SageMaker Endpoints and select their model. This will create a new model in Foundry that represents the connection to that Amazon SageMaker Endpoint.
+
+Press enter or click to view image in full size
+Figure 3 — Palantir Foundry’s Modeling Objective Library.
+
+Your Amazon SageMaker models and AWS AI services are now first-class citizens in Foundry, and they can benefit from the same deployment infrastructure, monitoring, health checks, as native Foundry models.
+
+The final step before making this model operational is to integrate it into the ontology. The input and output parameters of the model are simply bound to data properties in the ontology. This generates a connected web of models that are chained together through these property relations.
+
+Native ontology integration ensures your Amazon SageMaker models can be leveraged, collaboratively, for broader organizational workflows, simulations, or end-user facing applications, amplifying their usability and organizational impact.
+
+Press enter or click to view image in full size
+Figure 4 — Palantir Foundry’s ML tooling.
+Model Operationalization
+
+From here, Amazon SageMaker models can be integrated into Palantir operational applications and used to power end-user workflows in Foundry.
+
+This is the point where many AI and ML projects can fail for the reasons we outlined in the beginning of this post. However, in Foundry, once models are integrated into the ontology, any user can incorporate them into operational applications and workflows by simply consuming the model outputs.
+
+These users are likely intimately familiar with the subject matter in which the model operates but don’t need to be experts in how the model was developed. Nor do they need to be experts in how to invoke the model.
+
+Foundry Simulation Engine handles all of the data loading and model orchestration. The integration with Amazon SageMaker transparently manages the hand-off of data between the two platforms and model invocation.
+
+Foundry Simulation Engine allows users to run “what-if” simulations over these models with hypothesized inputs and outputs to inform the correct course of action. Any decision, and the context in which it was taken, will be written back to the ontology and, if applicable, the original data source.
+
+This feedback loop enables model retraining and allows the platform to continuously improve decisions and recommendations over time.
+
+For example, bp uses Foundry’s advanced simulation engines to automatically identify opportunities to increase production. Engineers pose “what-if” questions such as what configuration of wells, facilities, and routing will allow for maximal oil production. This generates hundreds of millions (USD) of additional revenues per year via 30,000 barrels of additional production per day.
+
+Press enter or click to view image in full size
+Figure 5 — Palantir Foundry’s Vertex Simulation Engine.
+Conclusion
+
+The new integration points between Palantir Foundry and Amazon SageMaker allow users to develop, integrate, and operationalize AI that can power the decision making of a modern connected enterprise.
+
+To help your organization build and deploy AI-powered decision-making applications, please contact Palantir.
+
+If you’re interested in learning about other Palantir and AWS projects, check out how the Foundry ERP Suite is delivering cost savings for AWS customers.
+
+Authors
+
+Andrew Higgins, Forward Deployed Engineer — Palantir
+Thomas Powell, Forward Deployed Engineer — Palantir
+Mehmet Bakkaloglu, Sr. Solutions Architect — AWS
+Zach Green, Solutions Architect — AWS

@@ -1,0 +1,100 @@
+Authentication • Multi-factor authentication • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Management & enablement Authentication Multi-factor authentication 
+
+ Multi-factor authentication
+
+Access to Foundry requires multi-factor authentication , which may either be performed in Foundry with app-based two-factor authentication or directly in your identity provider. Learn more about Palantir's recommendations for identity security. 
+
+After configuring a SAML 2.0 integration, click the back arrow at the top of the page and expand the Multi-factor authentication section to select a multi-factor authentication method for your users.
+
+Once you have set up multi-factor authentication, move on to Organization assignment .
+
+If you are unable to generate codes for multi-factor authentication, or if a user in your organization requires a multi-factor authentication reset, first check with your organization’s IT team to find out how your multi-factor authentication is managed.
+
+ If your multi-factor authentication is managed by your organization's IT through your identity provider 
+Your IT team will need to manage any reset requests.
+
+ If your multi-factor authentication is managed in Foundry 
+A Foundry Platform Administrator in your organization can reset two-factor authentication/multi-factor authentication with the following steps:
+
+In Foundry, go to Account > Settings from the bottom left corner of the browser.
+
+Under Platform Settings , select Users .
+
+Search for the user in question, and select their name from the list.
+
+A sidebar should appear with an option to Reset two-factor auth method... . Select this option.
+
+In the confirmation screen, confirm you would like to complete the reset.
+
+Upon confirmation, you will receive a success message and the user should receive communications regarding next steps to reset their multi-factor authentication method.
+
+ ← 
+ PREVIOUS Self-service user directory / Manage users within your enrollment 
+
+ NEXT Intake forms 
+ →

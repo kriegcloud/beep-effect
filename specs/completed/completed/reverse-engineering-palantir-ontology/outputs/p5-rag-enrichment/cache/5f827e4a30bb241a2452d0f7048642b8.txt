@@ -1,0 +1,232 @@
+Functions • Functions on objects • Objects and links • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Functions Functions on objects Objects and links 
+
+ API: Objects and links
+
+Every object type imported into your project is converted to a TypeScript API so you can easily access and manipulate objects available in Foundry.
+
+ Properties
+
+ Properties of each object type are converted to fields on the TypeScript interface generated for each object type. The generated field name uses the API Name specified in the ontology.
+
+You can access the fields for each property with simple dot notation:
+
+ Copied! 
+
+ 1
+ const firstName = employee.firstName; 
+
+Note that because properties may not have a concrete value set, the returned type when accessing a property value could be undefined . The TypeScript compiler will give an error unless you explicitly handle the undefined case. See this guide for more details on this.
+
+ Array properties
+
+Array properties on an object type are converted to ReadOnlyArray types. This is so that the semantics for editing an array property are clear—the only way to modify the values of an array property is to update it with an entirely new array value.
+
+If you want to manipulate the values of an array property, make a copy of it:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ // Copy to a new array
+let arrayCopy = [...myObject.myArrayProperty];
+// Now you can modify the copied array
+arrayCopy.push(newItem); 
+
+ Link types
+
+ Link types between object types are also converted to fields on the TypeScript interface for each object type. To traverse the link, access the field and then call one of the methods used to load the objects. Link type field names are generated using the API Name specified in the ontology.
+
+The Foundry Ontology supports defining 1-to-1, 1-to-many, and many-to-many link types. When accessing the 1 side of a link, the generated field is of the SingleLink type. You can access the linked object using the get() or getAsync() methods:
+
+ Copied! 
+
+ 1
+ const manager = employee.manager.get(); 
+
+As with properties, when you traverse a 1-to-1 or many-to-1 link, the return value may be undefined if there is no linked object. Follow the guide for handling undefined values for these links.
+
+When accessing the many side of a link, the generated field is of the MultiLink type. You can access an Array of linked objects using the all() or allAsync() methods. If there are no linked objects, these methods will return an empty Array.
+
+ Copied! 
+
+ 1
+ const employees = employee.reports.all(); 
+
+Traversing links can be expensive because it requires loading which objects are linked in the backend. For details about how to perform link traversals more efficiently, see this section .
+
+The array of linked objects returned from calling .all() or .allAsync() is a ReadOnlyArray . If you want to modify the array, make a copy of it first:
+
+ Copied! 
+
+ 1
+ let copiedEmployees = [...employee.reports.all()]; 
+
+You can traverse links as an ObjectSet to avoid loading linked object instances in the memory. When links are created in the Ontology, APIs will be generated on an object set of this type to "search around" to other linked object sets.
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ import { ObjectSet, Employee } from "@foundry/ontology-api";
+
+// Assume you have an object set available:
+// const employee_id = "123";
+// const employeeObjectSet : ObjectSet<Employee> = Objects.search().employee().filter(exactMatch(employee_id));
+
+const linkedObjs: ObjectSet<OtherObjectType> = employeeObjectSet.searchAroundToOtherObjectType(); 
+
+If you operate on a single instance of an object and search around from there, you will get a MultiLink<objectType> . You cannot convert this MultiLink to an ObjectSet ; you must convert the object instance to an object set to pivot to other object sets.
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ // Assuming:
+// const employee: Employee
+
+// MultiLink can be loaded in memory to process further.
+
+const linkedObjs: MultiLink<objectType> = employee.reports
+
+// Convert a sole object instance to an object set. This statement will take longer than an `employee().filter()` statement.
+const employeeObjectSet : ObjectSet<Employee> = Objects.search().employee([employee])
+
+// From there, you can use the above "searchAroundToOtherObjectType" to process only object sets. 
+
+ Ontology metadata
+
+Functions provides access to the available Ontology by providing the list of objects and properties. Ontology metadata information is available by accessing the constant types of each object type. See the sections below for more details.
+
+ Object property metadata
+
+Object properties also include type metadata, which provides programmatic access to the type of each property. You can use this functionality for advanced workflows like identifying all properties of a given type or validating that a given property name has a specific type.
+
+For instance, for an Ontology that contains an employee object type , you can access the type information on that object type's property as follows:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ import { Employee } from "@foundry/ontology-api";
+...
+const type = Employee.properties.firstName; 
+
+In this case, if firstName is a string property on the Employee object type, then its type will be a StringPropertyBaseType .
+
+The following property types are available:
+
+ BooleanPropertyBaseType 
+
+ BytePropertyBaseType 
+
+ DatePropertyBaseType 
+
+ FloatPropertyBaseType 
+
+ TimestampPropertyBaseType 
+
+ ShortPropertyBaseType 
+
+ GeohashPropertyBaseType (To be used with geopoint properties, previously named geohash properties.)
+
+ DecimalPropertyBaseType 
+
+ StringPropertyBaseType 
+
+ LongPropertyBaseType 
+
+ IntegerPropertyBaseType 
+
+ DoublePropertyBaseType 
+
+ ArrayPropertyBaseType 
+
+ VectorPropertyBaseType 
+
+ ← 
+ PREVIOUS Import object, interface, and link types 
+
+ NEXT Object sets 
+ →

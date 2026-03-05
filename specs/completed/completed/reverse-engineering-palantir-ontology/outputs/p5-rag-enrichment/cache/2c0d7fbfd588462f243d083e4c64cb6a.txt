@@ -1,0 +1,449 @@
+Available connectors • REST APIs • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Data connectivity & integration Available connectors REST APIs 
+
+ REST
+
+Foundry can integrate with external systems that expose a REST (representational state transfer) API. You may need to use a different approach depending on whether you are syncing, exporting, or interactively calling REST APIs. On this page you can find several connection options for secure and efficient integration with REST APIs.
+
+ REST API source
+
+The REST API source may be used for workflows requiring interactive HTTP requests to external systems directly from Foundry applications via Actions. For example, you can create a Workshop application with a button that uses a webhook to calls a REST endpoint when clicked, connecting that application to existing workflows and source systems.
+
+Webhooks to HTTP endpoints should use the REST API source type in Data Connection. You will need to configure the base URL, authentication, and an optional port.
+
+ Option Required Description 
+
+ Domain Yes At least one domain must be specified. 
+
+ Authentication Yes For each domain, the authentication must be specified. Options include None , Basic , Bearer Token , and API Key . 
+
+ Port No A port may be optionally specified. By default, all REST webhooks will use HTTPS on port 443. Ports other than 443 are only supported when using an agent worker. 
+
+ Request Options No When selecting API Key authentication, you may choose whether you want to pass the API Key as a query param or header in the webhook requests. 
+
+The example configuration below shows how to configure a connection to https://my-domain.com using bearer token authentication.
+
+The REST API source type does not support other capabilities such as syncs or exports. The legacy magritte-rest-v2 source type is no longer recommended for Webhooks workflows. Syncs and exports to REST APIs should use external transforms.
+
+ Learn more about Webhooks in Foundry. 
+
+ External transforms in Code Repositories
+
+Use external transforms to configure syncs and exports that require you to call REST APIs. Simply import a source in a Python Code Repository and write custom logic to query the API.
+
+You can use external transforms to access REST API sources inaccessible over the internet when using a Foundry worker with agent egress policies .
+
+ Learn more about calling APIs from code repositories. 
+
+ Examples
+
+The examples below show common patterns of complex external transforms.
+
+ OAuth Client Credentials grant
+
+The following example is based on a connection to NetSuite using the OAuth Client Credentials grant ↗ . To enable the grant type, the client_id , certificate_id , and certificate_private_key are added to the source as additional secrets .
+
+This flow is extensible to any other REST API sources using the OAuth Client Credentials grant type.
+
+This example updates account names in NetSuite from an input dataset of accounts, using the POST /account ↗ endpoint.
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+ 100
+ 101
+ 102
+ 103
+ 104
+ 105
+ 106
+ 107
+ 108
+ 109
+ 110
+ 111
+ from transforms.api import (
+ transform,
+ Output,
+ Input,
+ TransformInput,
+ TransformOutput,
+ TransformContext,
+)
+from transforms.external.systems import external_systems, Source, ResolvedSource
+import datetime
+import jwt
+from urllib.parse import urljoin
+import logging
+
+logger = logging.getLogger(__name__)
+
+@external_systems(
+ netsuite_rest_source=Source("<source_rid>")
+)
+@transform(
+ output=Output("<dataset_rid>"),
+ account_updates=Input("<dataset_rid>"), # Dataset with schema [account_id: String, account_name: String]
+)
+def update_account_names(
+ netsuite_rest_source: ResolvedSource,
+ account_updates: TransformInput,
+ output: TransformOutput,
+ ctx: TransformContext,
+):
+ # --- Set up connections and secrets ---
+ base_url = netsuite_rest_source.get_https_connection().url
+ client = netsuite_rest_source.get_https_connection().get_client()
+ client_id = netsuite_rest_source.get_secret("additionalSecretClientId")
+ certificate_id = netsuite_rest_source.get_secret("additionalSecretCertificateId")
+ certificate_private_key = netsuite_rest_source.get_secret("additionalSecretPrivateCertificate")
+
+ # --- Helper: Make JWT token ---
+ def make_jwt_token(
+ url, client_id, certificate_id, certificate_private_key, lifetime_in_minutes=59
+ ):
+ current_timestamp = datetime.datetime.now()
+ expiration = current_timestamp + datetime.timedelta(minutes=lifetime_in_minutes)
+
+ payload = {
+ "iss": client_id,
+ "scope": "rest_webservices",
+ "aud": url,
+ "iat": current_timestamp,
+ "exp": expiration,
+ }
+
+ additional_headers = {
+ "kid": certificate_id,
+ }
+
+ return jwt.encode(
+ payload,
+ certificate_private_key,
+ algorithm="ES256",
+ headers=additional_headers,
+ )
+
+ # --- Helper: Get OAuth2 access token ---
+ def get_oauth2_access_token():
+ url = urljoin(base_url, "/services/rest/auth/oauth2/v1/token")
+ payload = {
+ "grant_type": "client_credentials",
+ "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+ "client_assertion": make_jwt_token(
+ url,
+ client_id,
+ certificate_id,
+ certificate_private_key,
+ ),
+ }
+ headers = {"Content-Type": "application/x-www-form-urlencoded"}
+ response = client.post(url, data=payload, headers=headers)
+ return response.json()["access_token"]
+
+ # --- Prepare data for update ---
+ account_update_data = [
+ {
+ "account_id": row.account_id,
+ "payload": f'{{"acctName": "{row.account_name}"}}',
+ }
+ for row in account_updates.dataframe().collect()
+ ]
+
+ # --- Update accounts ---
+ token = get_oauth2_access_token()
+ headers = {
+ "Content-Type": "application/json",
+ "Authorization": f"Bearer {token}",
+ }
+
+ responses = []
+ for account in account_update_data:
+ account_id = account["account_id"]
+ payload = account["payload"]
+ logger.info(f"Updating account: {account_id} with payload {payload}")
+ url = urljoin(base_url, f"/services/rest/record/v1/account/{account_id}")
+ response = client.patch(url, data=payload, headers=headers)
+ responses.append(
+ {
+ "account_id": account_id,
+ "response_status": response.status_code,
+ "response": response.text,
+ }
+ )
+
+ output.write_dataframe(ctx.spark_session.createDataFrame(responses)) 
+
+ Use self-signed server certificates
+
+On-premise systems sometimes use self-signed server certificates that must be added to the source for the connection to be trusted. These certificates are typically added automatically to the built-in HTTPS client provided in external transforms. However, some Python clients might rely on the REQUESTS_CA_BUNDLE environment variable. In these cases, you will need to override the variable.
+
+The example below demonstrates how to override the REQUESTS_CA_BUNDLE to read data from an on-premise SharePoint source using the Python client for SharePoint ↗ Office365-REST-Python-Client , which is a required step to use the client.
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ from pyspark.sql import DataFrame
+from transforms.api import Output, transform, lightweight
+from transforms.external.systems import external_systems, Source
+import pandas as pd
+import polars as pl
+import tempfile
+import os
+from office365.sharepoint.client_context import ClientContext
+
+@lightweight
+@external_systems(
+ sharepoint_rest=Source("<source_rid>")
+)
+@transform(
+ output=Output("<dataset_rid>"),
+)
+def compute(ctx, output, sharepoint_rest) -> DataFrame:
+
+ # 1. Add custom certificates to default certificates environment variable
+ cert_file = tempfile.NamedTemporaryFile(delete=False)
+ with open(cert_file.name, 'w') as tmp_f:
+ with open(os.environ.get("REQUESTS_CA_BUNDLE"), 'r') as ca_f:
+ with open(sharepoint_rest.server_certificates_bundle_path, 'r') as source_ca_f:
+ tmp_f.write(ca_f.read())
+ tmp_f.write(source_ca_f.read())
+ cert_file.close()
+
+ os.environ["REQUESTS_CA_BUNDLE"] = cert_file.name # the REQUESTS_CA_BUNDLE now contains the source self-signed certificate
+
+ # 2. Connect to Sharepoint using client certificate authentication.
+ client = ClientContext("<sharepoint_url>").with_client_certificate(
+ tenant="<tenant_id>",
+ client_id="<client_id>",
+ thumbprint="<thumbprint>",
+ private_key=sharepoint_rest.get_secret("additionalSecretPrivateKey"),
+ passphrase=sharepoint_rest.get_secret("additionalSecretPrivateKeyPassphrase"), # optional, if the private key is password encrypted
+ )
+
+ # 3. Grab web title and return it as DataFrame
+ current_web = client.web
+ client.load(current_web)
+ client.execute_query()
+
+ data = [{"web_title": current_web.properties['Title']}]
+ output.write_table(pl.from_pandas(pd.DataFrame.from_records(data))) 
+
+ Foundry REST API
+
+For cases where you want to build applications on top of the Foundry platform, use the Foundry REST API. The Foundry API uses the OAuth 2.0 protocol for authentication, primarily uses JSON requests and responses, and provides support for Ontology and Modeling resources.
+
+ Learn more about the Foundry API. 
+
+ ← 
+ PREVIOUS REST API plugin (legacy) 
+
+ NEXT RSS 
+ →

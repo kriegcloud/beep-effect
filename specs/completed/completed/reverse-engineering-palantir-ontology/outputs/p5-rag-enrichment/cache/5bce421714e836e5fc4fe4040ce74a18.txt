@@ -1,0 +1,67 @@
+Palantir - the LLM Enabler for Enterprise
+
+Is Palantir's association with GenAI and LLMs hype or real? Here we dig into the company's key advantages during the current AI euphoria.
+
+ Convequity 
+
+Aug 19, 2023
+
+10
+
+2
+
+1
+
+Share
+
+Convequity’s full Palantir 2Q23 update with more tech insights and financial and valuation analysis is available at convequity.com
+
+It’s all about the ontology
+
+An effective ontology is vital for tailoring a LLM to excel within a specific enterprise or domain. It's like an apprentice learning from multiple mentors who each use different terminology to explain the same things. The apprentice, fresh out of school with good grades, may have a good level of general intelligence, but without everyone in his new place of work using the same terminology, the apprentice learns much slower compared to if the mentors used consistent language.
+
+It is the same deal when applying a general LLM to a business - the LLM has good general knowledge but will be ineffective at developing domain-specific knowledge if each system it interacts with uses different terminologies for the same types of data. You need a standardized set of concepts and relationships, an ontology, so the LLM can connect the dots.
+
+Fundamentally, the flow looks like:
+
+Data sources >>> ontology >>> knowledge graph >>> successful LLM implementation
+
+A solid ontology lets the LLM become a quick study of the entire enterprise's data and really understand how things operate.
+
+Ontologies have already shaped the modern Internet, like with RDF, OWL, etc. That's a big reason ChatGPT works so well - it's learned from the web where ontologies help organize information. But plopping ChatGPT into a company minus an ontology won't cut it. The LLM needs that structure to get smart about the business.
+
+In ML terms, you go from zero-shot learning to few-shot learning. With an ontology guiding training on labeled company data, the LLM gains enterprise-specific knowledge very fast.
+
+However, building good ontologies is hard work, and this is Palantir’s key advantage. While big tech firms have built ontologies that benefited them substantially, Palantir crafts custom ontologies for each client. And they build governance into those knowledge structures. That is Palantir’s key differentiator and we expect it will emerge as its USP (Unique Selling Point) and enterprises aim to operationalize these LLM base models.
+
+Ontology leads to better security and governance
+
+The level of security is a big concern for enterprises contemplating whether to implement a LLM. Based on previous events with ChatGPT usage in the workplace, using a LLM in an enterprise could lead to confidential data leakage. Or the LLM could give unauthorized access to someone. Or the LLM could submit inaccurate information which triggers a chain of events that lead to a security breach. 
+
+Many of these impediments to a secure LLM implementation can be mitigated with an ontology. An ontology provides the foundation for robust security and governance, by, for example, enabling more stringent access controls by restricting certain data properties or API functions to certain authorized user roles only. Another example is an ontology provides clear data lineage for efficient auditing and troubleshooting to maintain compliance and quickly resolve issues. An ontology also serves as the single source of truth, thereby preventing the delivery of inaccurate information. 
+
+Palantir has a compelling edge when it comes to deploying LLMs securely. Their expertise in crafting rigorous ontologies enables advanced AI with guardrails.
+
+Databricks is considered a competitor to Palantir for LLM implementation; however, Databricks doesn't do the ontology and hence enterprises can't use Databricks to train a LLM without giving it access to all data. Meanwhile, Palantir is able to not only provide fine-grain controls via column or row or PII masking, but it can also mask the underlying data while revealing the metadata. As enterprises consider applying LLMs and GenAI more broadly, security, governance, data protection, and IP leakage are growing concerns and impediments for successful implementation.
+
+As companies weigh LLM adoption, Palantir's strengths will prove pivotal. Their work on classified government projects has honed advanced security capabilities. While rivals chase Palantir's clearance credentials, clients prioritizing trustworthy AI already have an ideal partner.
+
+Responsible LLM adoption requires balancing automation with governance. Palantir's ontologies essentially embed policies into the knowledge graphs powering the models. This proactive approach contrasts with reactive monitoring or auditing. By shaping LLMs' decision frameworks from the start, Palantir enables AI with built-in trust.
+
+Going forward, we expect to see Palantir's compliance expertise open more enterprise doors to next-gen AI. Their ability to couple cutting-edge capabilities with ethics and governance makes them a go-to solution for organizations navigating the AI frontier. As LLMs become more pervasive, so too will the value of developing them responsibly from day one.
+
+ Human-in-the-Loop and Deterministic Advantages versus OpenAI and others 
+
+There is a discernible worry among C-level executives about letting LLM and GenAI operate freely in their enterprise. This is largely due to this type of AI being very stochastic in nature, which has connotations with being unpredictable, and even dangerous. Hence developing enterprise LLMs with human-in-the-loop functionality and a large dose of deterministic algorithm behaviour, can offset or negate much of these concerns. Given Palantir's vast experience in these realms when developing AI/ML, this is another big advantage they have against other vendors focusing on enterprise LLM with a more purist (and as a result, more autonomous) approach. This hybrid approach from Palantir could be another differentiator that allays concerns that other vendors can't yet do, and it certainly overlays with the prior advantages outlined pertaining to security and governance.
+
+Conclusion
+
+Palantir’s superiority in developing customized ontologies can power LLM base models to operate securely and effectively in an enterprise environment - and no other vendor has this capability yet. Moreover, Palantir’s vast experience in developing more traditional ML that has more deterministic behaviour, as well as the company’s focus on human-in-the-loop governed AI over the years, puts it in a strong position to prosper by delivering responsible GenAI during the renewed AI boom. 
+
+10
+
+2
+
+1
+
+Share

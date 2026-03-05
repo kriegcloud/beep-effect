@@ -1,0 +1,153 @@
+A Better Conversation (Palantir CSE, #1)
+Building an AI Solution for Human Problems
+Palantir
+Follow
+11 min read
+·
+Oct 4, 2024
+
+18
+
+3
+
+Press enter or click to view image in full size
+
+Editor’s Note: This is the first blog post in a limited series about Palantir’s AI-enabled Customer Service Engine.
+
+Part 1: Introduction and Case Study
+
+The opportunity to provide exceptional customer service is greater than ever, leveraging the latest capabilities of artificial intelligence. AI can streamline and automate aspects of customer service operations, freeing customer experience (CX) teams to focus on delivering higher-order customer experiences. Yet, most organizations struggle to build AI capabilities that can handle scale, produce accurate results, and generate consistent outputs in production. These projects often become long-running experiments that fail to produce significant business impact.
+
+After helping our partners push beyond siloed chat solutions, we decided to write this blog series to establish a foundational set of technology standards for Customer Service AI. This series will delve into the AI architecture behind our own offering, Customer Service Engine (CSE), by exploring its implementation at one of our early partner organizations — a large tools manufacturing, wholesale, and retail business. They remain an important partner in our development journey. Over an initial period of six weeks, we worked with our partner’s customer experience team to adapt, integrate, and deploy the AI Customer Service Engine to enhance their Customer Service Workflows. CSE was able to automate the handling of 90% of their customer service queries within the first six weeks of implementation.
+
+This post walks through the challenges we faced and how these challenges led to the AI architecture patterns that we employ in the CSE. In subsequent posts, we will dive deeper into the technical implementation, including wielding their full data landscape, setting up robust evaluations, and establishing feedback mechanisms.
+
+Case Study
+
+Background: Our partners are a vertically integrated manufacturing, wholesale, and retail company known for their best-in-class Customer Service (CX) team. Despite their expertise, efficiently handling a high volume and variation of queries remained a challenge. The queries ranged from invoice inquiries and product information to tracking details, and warranty claims. Addressing these often required manual work from multiple departments, leaving less time for the CX team to focus on what they do best: providing excellent service.
+
+Solution: To tackle this challenge, we deployed the Customer Service Engine (CSE), designed around an Ontology tailored specifically to our partner’s operations. Within six weeks, the CSE achieved accurate resolution for over 90% of customer service cases. The most complex cases were escalated to human agents, creating a feedback loop that enabled continuous learning and improvement for the CSE.
+
+Customer service is an art. The unique relationship between customers and organizations means that a one-size-fits-all solution is neither feasible nor desirable. The goal of the CSE is to complement and scale the expertise of CX professionals, not replace it. Blanket automation of customer support leaves no room for improving the AI using human feedback. If the system does learn, it learns by making mistakes in production, which is detrimental to customer satisfaction (CSat) and ultimately the business.
+
+Impact Metrics
+Over 90% of customer queries and cases handled by CSE within 6 weeks.
+Faster response times to customers, with all investigation and resolution actions handled in <10 seconds (down from avg. 20 mins) and submitted for final human validation.
+75+% reduction in repeat queries due to more accurate responses.
+Improved accuracy in detecting fraudulent queries, such as fraudulent return claims.
+Press enter or click to view image in full size
+Getting to Version 1
+
+The customer service team at this organization deals with a range in queries that vary widely in type and complexity. To address these issues, the team relies on legacy ERP systems, training and process manuals, as well as shared experiences and “tribal knowledge.” Our objective was to configure the CSE to effectively manage the volume, velocity, and variety of these queries, in close collaboration with the customer service experts.
+
+Press enter or click to view image in full size
+Chart: May 2024 customer queries categorized into broad functional buckets.
+
+To understand the customer support requirements better, let’s look at a few examples and the human-led resolution path for these:
+
+Product Availability Inquiry
+
+Query: “Hi, I’d like to check whether you have 6-inch pliers in stock in my local store, and how much they cost?”
+Data Points: Inventory, product catalog, pricing, regional store, open Purchase Orders (POs), promos, replenishment lead times, and demand.
+Process: Identify the product and store, check the product inventory at that store (if out of stock, leverage current POs, replenishment info, and demand data to ascertain when it will be in stock), and cross-reference pricing information with any applicable promos or deals.
+
+Invoice Inquiry
+
+Query: “Hello, can I please receive all of my invoices over the past 6 months relating to timber purchasing? I think I have been overcharged.”
+Data Points: Invoice information, order history, pricing data and historical pricing data, account information, and credit/debit information.
+Process: Retrieve the customer’s account record and order history, analyze relevant invoices and compare charges related to timber purchases to determine if there was an overcharge, and issue a refund if necessary.
+
+Order Tracking
+
+Query: “Hi there, can I please have an ETA for my order?”
+Data Points: Order information, account/customer information, and tracking information (third-party).
+Process: Retrieve the customer’s account information and order information to identify the relevant order, check the current status of the order and if it’s out for delivery, cross-check the tracking number with the third-party delivery company’s tracking system. Use a model to predict the estimated time it will take based on historical records with the third-party vendor and provide the estimated delivery time; if a problem with the delivery occurred, identify the root cause.
+
+The query context, data requirements, and process flow vary significantly across these examples. They give us a hint as to what underlying primitives would be required to build an AI solution to resolve them: data, linkages, deterministic tools, and actions.
+
+Deployment and Iteration
+
+We deployed the CSE and integrated data from SAP, Salesforce, UPS, and various ERP systems. By the end of Week One, we successfully hydrated the Ontology with data from these systems and were ready to collaborate with our partners to evaluate the quality of the generated responses. We refined and iterated on the solution, creating deterministic and reusable “tools” to aid the LLM. These tools included simple retrieval mechanisms for data access, similarity search tools, pricing and availability models, and even external web-hooks (e.g., to UPS, Salesforce, and other third parties). We incorporated around 50 such tools in Palantir AIP for AI agents to use.
+
+As we delved into the different types of queries and the complex processes involved in resolving them, we quickly realized that establishing modularity in the system architecture was essential. Implementing such an architecture would help us address unique problems that come up while running an AI system — at the scale and velocity of real business operations — in production. Specifically, it has the following advantages:
+
+Context Window Constraints: The limitations imposed by context windows necessitate the use of succinct prompts, which restricts the ability to establish comprehensive operational guidelines for the LLM. This constraint can hinder the implementation of nuanced rules, such as preventing refunds for items already out for delivery or tailoring communication responses based on feedback from customer experience (CX) experts. Multi-agent systems solve this issue by distributing tasks among specialized agents, each equipped to handle specific aspects of the interaction without being constrained by a single context window.
+Query Response Time: The average response time for queries was approximately three minutes, which is suboptimal for user experience. Analysis revealed that many queries could be resolved through simpler pathways, primarily concerning order updates or product information. Complex queries were responsible for inflating the average response time, thereby diminishing overall operational efficiency. By employing a multi-agent architecture, agents can specialize in different query types and resolution components, significantly reducing resolution times.
+Scalability: Multi-agent systems are inherently scalable; new agents can be integrated without extensive reconfiguration. This flexibility is crucial in dynamic environments where workloads fluctuate frequently.
+Task Decomposition: Complex tasks can be decomposed into smaller, manageable components that individual agents can handle. This modular approach not only simplifies task management but also enhances overall system performance by allowing parallel processing.
+Enhanced Communication Protocols: Utilizing standardized communication protocols among agents ensures efficient information exchange, minimizing misunderstandings and improving collaboration.
+Robust Error Handling: Multi-agent architectures allow incorporation of sophisticated error detection and recovery mechanisms, ensuring that the system remains operational even when individual agents encounter issues.
+Debugging Issues: Debugging within a traditional LLM architecture is complicated due to insufficient visibility into the response generation process. The concurrent execution of tasks make it challenging to identify and solve issues effectively. In contrast, multi-agent systems facilitate better monitoring and debugging capabilities through modular design and clear communication protocols among agents. This structure allows for easier identification of failures and more efficient recovery mechanisms, leading to improved system reliability.
+Solution: Multi-Agent Hierarchical Orchestration for Query Resolution
+
+We created a multi-agent target architecture incorporating various agent types in manage, execute, and support roles. This approach enabled us to adapt to different query types and address the challenges outlined earlier.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We developed resolution pathways for each query type, starting with the most frequent ones. Over four weeks, we built pathways for the most complex repetitive queries. This inductive method of building resulted in a hierarchical “swarm” system that autonomously directs queries to the best-suited agents. We managed this agent swarm using Palantir’s platform primitives, including governance, scaled compute, and Ontology.
+
+Press enter or click to view image in full size
+Fig.: CSE’s multi-agent architecture
+
+The hierarchical “swarm” contained the following agent types:
+
+Categorization Agent: Automatically sorts incoming queries.
+Response Agents: Tailored to specific query types, such as pricing or invoice information.
+Action Suggestion Agent: Generates the correct sequence of resolution actions and automates responses.
+Integration Agent: Compiles responses into a coherent customer communication.
+Modality Translators: Convert communications to the customer’s preferred modality.
+
+This approach streamlined the response process, allowing for rapid iteration and customization of each agent to meet specific customer service standards. It provided the flexibility to select the best agent not only for current needs but also for future requirements (K-LLMs).
+
+Components of a CSE Agent
+Press enter or click to view image in full size
+Memory Modules
+
+AI agents need to recall relevant information across both short-term and long-term interactions to provide context-aware responses. Implementing dual memory modules enhances their ability to retrieve information based on a composite score of semantic similarity, importance, recency, and other metrics.
+
+Short-term Memory (STM) in an AI agent functions like a temporary workspace, holding information briefly to facilitate immediate processing and decision-making. It’s akin to the agent’s “train of thought” as it answers a single question or handles a specific task. This memory is volatile and is typically cleared once the task is completed, preparing the agent for the next interaction without unnecessary carry-over data. Using AIP Logic, our AI workbench, we can specify and chain together “logic blocks,” which constitute the short-term memory for the agent.
+
+Long-term Memory (LTM) stores information from past interactions that may be relevant over extended periods, such as conversation history, user preferences, or learned knowledge. This memory persists across sessions, helping the agent build a more personalized and informed relationship with the user.
+
+We utilize the Ontology to create a feedback object that feeds into the agent through AIP Logic. The Ontology simplifies user feedback and builds a “tribal knowledge-base” within the platform. This feedback is converted to text embeddings using the Pipeline Builder tool and stored in AIP’s vector store for RAG (Retrieval-Augmented Generation) retrievals by the agents.
+
+Role of Ontology: The Ontology acts as a digital twin of the organization, containing both semantic elements (objects, properties, links) and kinetic elements (actions, functions, models, dynamic security). It serves as a powerful knowledge and reasoning base for LLMs in AIP. CSE’s agents get guardrailed access to the Ontology, which they use to obtain up-to-date contextual information.
+
+By leveraging these memory modules and the Ontology, AI agents can deliver more contextually relevant and personalized responses, enhancing user experience and interaction efficiency.
+
+Tools
+
+Agents require a range of tools to execute complex tasks specific to each enterprise and their processes. For example, tools are needed to access long-term memory stores or perform mathematical calculations and other deterministic tasks that an LLM might struggle with. Equipping agents with a suite of executable workflows and third-party APIs to enable efficient task execution is challenging because you need to manage the handoff functions between the LLM and the tools.
+
+CSE comes with a pre-built catalog of tools, which we extended by building more company-specific tooling. Some of these include:
+
+Parsing CX Team’s Standard Operating Procedures: Understanding resolution processes for complex customer support requests by parsing onboarding documents and SOPs.
+Interpreting Customer-Specific Bill of Materials: Responding to vendor queries by understanding the components in customer-specific purchase orders (POs) or related bill of materials (BOMs).
+Connecting with External Delivery Partner APIs: Checking schedule availabilities and delivery statuses by interfacing with external delivery partner APIs.
+Data Aggregation Tools: Using Functions on Objects (FoO) and the Ontology API to perform aggregations on data, such as historical counts of orders and customer lifetime value.
+
+Adding such deterministic tools has helped us validate the outputs of our agents, making them predictable and accurate.
+
+Press enter or click to view image in full size
+Fig.: Tool selector in AIP Logic
+LLMs as Plug & Play Components
+
+With the rapid advancement in LLMs and the variability in performance across different models for specific tasks, we aimed to select the best models for each agent and task. During our testing phase, we discovered that Claude 3 excelled in text and content generation, producing suggested emails that were more human-like and concise. For processing multi-modal data, GPT-4 Turbo proved to be a great fit. Its generated image summaries for our warranty claims agent accurately described images within the context of the query. AIP Logic has flexibility built in, allowing each “logic LLM block” to utilize a different LLM. This enabled us to create agents that employ multiple LLMs during execution.
+
+Press enter or click to view image in full size
+Fig.: Point and click model selection in AIP’s development workbench
+Bringing It All Together
+
+Using the company’s business context, we built an agent to categorize every query into organization and function-specific customer service buckets. This ‘categorization agent’ then determined the appropriate ‘response agent’ for each query. We developed response agents for some of the most frequent query types and integrated them as tools for the categorization agent. These agents return relevant recommended actions and reasoning, assisting the response generation agent in crafting a tailored response for the customer.
+
+Next up: Anchoring AI Agents into the Enterprise
+
+This conceptual agentic architecture of the CSE is continuously improved and tailored by developers to meet their organization’s unique and evolving customer operations, Part two of this blog series will explore how this translates to a real systems architecture (below). We will delve into how the AI agents get anchored in the enterprise with secure access to enterprise data, logic, and ever-evolving human “tribal knowledge.”
+
+Press enter or click to view image in full size
+
+If you’re interested in transforming your customer experience ecosystem and tired of conversation, reach out to us: customer-service-engine@palantir.com.

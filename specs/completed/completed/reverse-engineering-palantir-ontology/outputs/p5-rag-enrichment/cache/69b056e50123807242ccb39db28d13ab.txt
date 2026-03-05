@@ -1,0 +1,59 @@
+AI Infrastructure and Ontology
+Under the Hood of NVIDIA and Palantir
+Palantir
+Follow
+4 min read
+·
+Oct 28, 2025
+
+77
+
+1
+
+Press enter or click to view image in full size
+Turning Enterprise Data into Decision Intelligence
+
+On Tuesday, October 28 in Washington, DC, NVIDIA founder and CEO Jensen Huang announced our partnership and how we’ll be making NVIDIA models available through Palantir AIP — and pushing Ontology to the edge through NVIDIA’s accelerated compute.
+
+“Palantir and NVIDIA share a vision that puts AI into action, turning enterprise data into decision intelligence. By combining Palantir’s powerful AI-driven platform with NVIDIA CUDA-X accelerated computing and Nemotron open AI models, we’re creating a next-generation engine to fuel AI-specialized applications and agents that run within the world’s most complex industrial and operational environments.“ — Jensen Huang, Founder and CEO of NVIDIA
+
+With this new partnership, Palantir and NVIDIA are delivering:
+
+NVIDIA Nemotron Super: NVIDIA’s SOTA agentic 49B parameter reasoning model, built using Llama, now runs on Palantir’s secure cloud infrastructure with NVIDIA accelerated computing and is available through the Palantir Model Catalog.
+NVIDIA NeMo Retriever: NVIDIA’s SOTA embedding model can be leveraged via Pipeline Builder, Code Workspaces, and the Ontology Toolchain in Foundry, providing developers with novel ways to create and improve their RAG and OAG (Ontology-Augmented Generation) workflows.
+NVIDIA cuOpt Optimization Engine: With support for linear programming and mixed integer linear programming, cuOpt allows customers to tackle inventory rebalancing, vehicle routing, and related supply chain challenges through an integrated NVIDIA + Palantir stack.
+
+In short, we are enabling the integration of NVIDIA accelerated computing, NVIDIA CUDA-X data science libraries, and open-source NVIDIA Nemotron models into Palantir platforms, making them available to customers in Foundry and AIP via the Ontology — with more NVIDIA Blueprints coming soon.
+
+AI That Moves at the Speed of Operations
+
+This integration is already transforming enterprise operations. Lowe’s, a Fortune 50 home improvement company, is among the first to tap the combined power of NVIDIA’s models and Palantir’s platform to revolutionize its supply chain optimization, moving from optimizing individual nodes once a week to continuous, dynamic optimization at a global level.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+The potential goes even further. At NVIDIA’s GTC DC 2025, hundreds of attendees are seeing firsthand the potential for our partnership to optimize operations across industries, including critical healthcare processes that could save lives.
+
+The Potential for Turning Scientific Research into Action
+
+Debilitating, devastating diseases are surrounded by complex infrastructure: prescriptions, insurance claims, treatment protocols, and more. Consider an organization that’s working to expand access to a critical medication but is frequently faced with the overwhelming challenge of synthesizing volumes of relevant data quickly enough — data that, without Foundry and AIP, might take too long to understand and act on.
+
+The tight integration between NVIDIA models and the Palantir platforms can dramatically accelerate this effort by transforming complex PDF data, integrating it with other key sources, modeling the data, and building varied and critical operational workflows in a secure, accessible environment.
+
+In a typical Foundry + AIP workflow, a developer might upload thousands of pages of PDFs into a Media Set, transform the data using Pipeline Builder, configure the Ontology and the complex relationships between Object Types and Actions, create agentic functions through AIP Logic, and build AI-driven operational applications.
+
+Now, that same developer can also leverage NVIDIA Nemotron to build trustworthy AI agents with open-weight models (Nemotron Nano 2 9B, Llama Nemotron Super 1.5 49B, Llama Nemotron Nano VL 8B), datasets with trillions of tokens of pre-training and post-training data, and recipes for right-sized models that optimize for application and compute needs.
+
+The organization that was struggling to keep pace with the volume of data can now rapidly synthesize and operationalize that research, ultimately getting critical medications to patients faster.
+
+Press enter or click to view image in full size
+Building American Technological Dominance
+
+This work has never been more pressing in the race for American leadership. As Dr. Karp shared on Fox Business days ago:
+
+“This is an American dream. It’s an American technology, and [we are partnering] with a crucial American company [because] we believe you need Ontology and chips to make this work.”
+
+This is a first-of-its-kind integrated technology stack for operational AI — one that includes analytical and operational capabilities, reference workflows, automation features, and customizable, specialized AI agents, all designed to accelerate and optimize complex enterprise and government systems. And with NVIDIA, a fundamentally US-centric organization that shares Palantir’s mission to re-industrialize the United States and bolster American manufacturing, we are proud to deliver the future.

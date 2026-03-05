@@ -1,0 +1,10 @@
+{
+  "attemptedAt": "2026-02-28T13:12:58.473Z",
+  "outageUrl": "http://127.0.0.1:9/mcp",
+  "firstMs": 68,
+  "secondMs": 1,
+  "firstFactCount": 0,
+  "secondFactCount": 0,
+  "deterministicFallback": true,
+  "fallbackFacts": []
+}

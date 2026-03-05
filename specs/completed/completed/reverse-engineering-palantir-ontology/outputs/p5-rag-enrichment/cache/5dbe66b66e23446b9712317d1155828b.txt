@@ -1,0 +1,97 @@
+Top highlight
+
+Scaling product design with Blueprint
+Palantir
+Follow
+7 min read
+·
+Jan 6, 2017
+
+1.3K
+
+2
+
+Press enter or click to view image in full size
+
+Blueprint is a newly open-sourced design system implemented as a collection of composable React components and optimized for desktop applications. It has changed the way we scale design and frontend engineering at Palantir by providing a systematic way to apply unified and consistent design across a diverse set of teams. Battle tested by our own engineering teams and designers, Blueprint is easy to pick up, well-documented, actively maintained, and ready to use! Check out the full documentation. This blog post sketches Blueprint’s history at Palantir, the principles that have guided its design, as well as some implementation details.
+
+Background
+
+Until a few years ago, the user interfaces of Palantir’s core products were built in Java. It was the good ol’ type of software you had to download and install. Web technologies were not mature enough to build performant and maintainable analytics software, but that started to change as browsers evolved and new web technologies were developed (e.g., Node, Sass, ES6). Suddenly, we could deliver the full depth of our data analysis software right in the browser.
+
+We soon realized something important was missing. Our work was siloed: platform teams were not leveraging each other’s work, forward-deployed engineers built one-off solutions, and our designers and product engineers often ended up reinventing the wheel. As a result, our ecosystem of applications lacked a cohesive user experience, inefficiencies slowed us down, and the quality of our work suffered.
+
+It’s in this context that we started thinking about building a design system. Blueprint started as the side project of a single designer. As the project developed and its potential became clear, it was also apparent we needed to staff a team of designers and engineers whose purpose would be to create new tools that act as a force multiplier for the rest of the company. Through many iterations the Blueprint you know today was born. Our ultimate goal was to build a design system that allowed us to:
+
+Focus on what really matters. By providing reliable defaults for visuals and interactions that are easy to use and pass a high quality bar, we free our designers and engineers from recreating the same work over and over again, thus allowing them to use their time and talent to solve critical problems.
+Bridge the gap between design and engineering. Designers spend a disproportionate amount of time crafting mockups and prototypes that are idealistic representations of how the software should look and behave, trying desperately to communicate their ideas to developers and product stakeholders. Throughout this process, many details get lost in translation because of the inefficiencies of our tools. Better tools bridge the communication gap, allowing designers and engineers to speak the same language and maximize each other’s impact.
+Make it work and feel like Palantir. Palantir platform stacks are configured based on specific customer workflows, which means that we might deploy a different set of platform capabilities from one use case to another depending on the analytical goal. By leveraging the same design system to build each capability, we ensure a consistent, high-quality user experience across the platform that sets clear expectations for our users — this helps make our ecosystem predictable and trustworthy.
+Guiding principles
+
+The architecture of Blueprint was guided by a set of principles that we believe are critical for effective design systems.
+
+Composition
+
+Blueprint aims to keep things flexible by promoting composition and reusability. Think of a Lego set, where a handful of basic pieces can be assembled into complex constructions. You’d never ask Lego to ship you a fully-assembled model — the magic is in the assembly, in how pieces are combined. In the same way, Blueprint components can be composed to create higher-level structures.
+
+Accessibility
+
+Too often, accessibility is considered an afterthought. We decided to hold accessibility to high standards of quality because we believe that accessibility is a tenet of good design. Web Content Accessibility Guidelines 2.0 help us define the basics of our features:
+
+Distinguishable content and color perception. Blueprint’s color palette and usage consistently provides enough contrast. Colors have been chosen to be accessible to people with sensory conditions such as colorblindness.
+Keyboard navigation. Keyboard interactions are inconsistent and unreliable across browsers. Blueprint ensures consistent keyboard navigation behavior across operating systems and browsers.
+
+These features are examples of two of the four principles of accessibility: content needs to be perceivable and operable. The other two — understandable and robust — are facets of accessibility that Blueprint alone can’t enforce. The responsibility to tackle these — through such strategies as timing and navigation — rests with individual developers.
+
+Developer experience
+
+Development teams at Palantir have a tremendous amount of freedom in defining the technology stack for their products, and we always strive to choose the best tools for the job at hand. Blueprint made an early bet on TypeScript; this choice proved to be instrumental for providing a superior developer experience compared to JavaScript, and ultimately for driving Blueprint adoption at Palantir. More specifically, we have observed the following advantages:
+
+Rather than thinking about API contracts implicitly and trying to build documentation after the fact, TypeScript forces developers to be more explicit about assumptions and makes it easy to keep high quality, up-to-date docs (more on this later).
+Although TypeScript is not a fool-proof system that can catch all runtime errors, it does provide a huge productivity boost through tooling integration. Modern IDEs provide verification of React props and inline documentation; this greatly speeds up development and refactoring.
+
+Another important piece of this is how we design CSS APIs. Compared to other CSS frameworks, Blueprint attempts to take an approach of least intrusion. Global behavior and styling is limited to typography and cross-browser normalization; everything else is opt-in via CSS classes or explicit usage of interactive components. For example, sometimes you really do just need a custom <button> in your application and not a .pt-button. As a user, you don't have to fight the framework to make this happen.
+
+Behind the scenes
+
+Let’s go over the different parts of our technology stack that help us build such a system.
+
+Sass enables us to lay out the foundation of our visual design language as variables and functions. Changing a single Sass variable affects the entire system. This ensures visual consistency across the system and eases maintenance and iteration. In addition, we use mixins to define reusable pieces of particular components, such as the following example of a slider handle (pt-slider-handle) that is defined as a regular button (pt-button-base) with smaller height (pt-slider-handle-height):
+
+TypeScript provides a static type system on top of JavaScript. Typed interfaces allow us to describe our components: what they are, how they work, and how to use them. Best of all, developers can compose interfaces and maximize reusability. In the example below, we start with a couple of interfaces defining basic design concepts (every component supports a CSS className; many also support one of four colored intents) and combine them to describe a generic action and a Toast. Our documentation generator understands inheritance, so it ensures that shared behavior is documented in both the Toast and Button component sections.
+
+Larger components not only declare properties (what the component is), but also methods (what the component does).
+
+React has been the framework of choice at Palantir for some time now. Its minimal API is a snap to learn and its community is vibrant and knowledgeable. Its speed and emphasis on composition make it an easy choice for architecting complex, highly interactive applications. Blueprint provides a large set of basic building blocks for React applications, from the almost-trivial Button to the decidedly more complex Popover or DateRangePicker.
+
+The idea behind Blueprint's component architecture is not to provide every single interaction as singular components, but rather to keep things flexible and let consumers combine atomic components in order to create higher-level ones—this strategy promotes reusability. Consider the following example: Blueprint does not provide a single DropdownMenu component. Instead, we provide several atomic building blocks that can be combined to produce many different variants of a dropdown. The code below demonstrates how to create a menu that pops up when the button is clicked.
+
+The rendered menu looks like this:
+
+Bots make us harder, better, faster, stronger
+
+We use CircleCI for continuous integration builds in our GitHub repository. If all tests pass, our CI bot posts a comment to the corresponding commit with live preview links. This greatly reduces friction when developing new features because reviewers rarely need to check out, build, and run the project locally in order to provide feedback — they can simply click a link to interact with the latest compiled code.
+
+Press enter or click to view image in full size
+Giving back
+
+Blueprint is used by hundreds of forward-deployed engineers, product engineers, and designers at Palantir. It has become the foundation of our product design infrastructure. Engineers and designers choose Blueprint because it has:
+
+a tech stack that consists of well-documented and well-supported open-source projects,
+a comprehensive library of components,
+accessibility baked in from the start,
+great documentation.
+
+Looking back at what Blueprint has achieved inside Palantir, we are proud of our work and what we have accomplished so far, even if it’s only the beginning of the journey.
+
+We believe Blueprint offers a new approach for both kickstarting and scaling product design, whether you’re an individual, a small startup, or a large organization. This is why we’re incredibly excited to be giving back to the open-source community. We look forward to seeing what the community makes with Blueprint.
+
+We’re accepting contributions, and we’d love to see you improve Blueprint — even small fixes matter! If you’re interested in contributing, please review our contribution guidelines on GitHub and send us a pull request!
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Contributors: Adi D, Alessandro M, Antoine L, Bill D, Chris L, Chris Y, David L, Gilad G, Jason K, Piotr K

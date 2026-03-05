@@ -1,0 +1,96 @@
+Action types • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Action types Overview 
+
+ Action types
+
+In the Ontology, users can make changes to objects, properties, and links by applying actions. An action is a single transaction that changes the properties of one or more objects, based on a user-defined logic. Actions enable users to handle and manage data while thinking about overall objectives instead of specific property edits.
+
+An action type is the definition of a set of changes or edits to objects, property values, and links that a user can take at once. It also includes the side effect behaviors that occur with action submission.
+
+ Example: 
+
+You may create an Assign Employee action type that defines how users can change the role property value for a given Employee object. This action type could require a parameter definition enabling users to input the new role in a standardized form and can include rules for how to automatically create a link between the Employee object and that of a new Manager .
+
+The action could also:
+
+Include a notification side effect that will notify the old and new manager of the change.
+
+Validate that authorized employees such as those working in human resources can perform the action.
+
+With these parameters set, an HR employee can then take an action to switch "Melissa Chang" to a "Product Manager" role , for example.
+
+Rather than being an abstract data model, the Foundry Ontology maps each ontological concept to an organization's actual data, enabling this data asset to power real-world applications. The data asset grows in richness and value as user decisions and insights are captured in the form of edits to the Ontology.
+
+Any changes made to objects, property values, and links will be committed to the Ontology when the user takes the action and will be reflected in all user applications. Likewise, the same action logic and validations can be made available across all user-facing applications, ensuring consistent edits to the Ontology. The most up-to-date version of object data with user edits incorporated will be captured in an object type's writeback dataset.
+
+Get started by learning how to create an action type , or learn about rules , parameters , and submission criteria .
+
+ ← 
+ PREVIOUS Object and link types / Add Ontology types to a Marketplace product 
+
+ NEXT Getting started 
+ →

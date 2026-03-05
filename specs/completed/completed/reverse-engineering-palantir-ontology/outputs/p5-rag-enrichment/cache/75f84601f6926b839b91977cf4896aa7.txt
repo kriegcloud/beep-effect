@@ -1,0 +1,434 @@
+Semantic search • Ontology augmented generation • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Semantic search Ontology augmented generation 
+
+ Ontology-augmented generation
+
+LLMs are immensely powerful when applied to business-specific context. When presented with a certain task, the first step is almost always to find the relevant context that should be given to the LLM. Finding the relevant context is often the most challenging part of designing a retrieval augmented generation system. This section outlines some common approaches for context retrieval. Note there is no singular "best approach", as the best solution will be highly dependent on the specifics of the data. However, the themes outlined here are a good starting point and can be modified and combined as appropriate.
+
+With new model generations' increased context lengths, you may not need to use semantic search at all and can instead pass the full context in the prompt. For example, GPT-4o's 128k context window corresponds to 300+ pages of text. If your application's full context is within this limit, we recommend you start without search.
+
+ Basic semantic search
+
+To create a basic semantic search, do the following:
+
+Follow a chunking strategy.
+
+Create the chunk objects with a media reference property.
+
+Search for the chunk as part of a semantic search workflow .
+
+Use the PDF Viewer widget in Workshop, noting the configuration options.
+
+ Embeddings
+
+For more information on embeddings, review the documentation on using a Palantir-provided model to create a semantic search workflow. 
+
+ Retrieval
+
+For more information on retrieval, review the documentation on using a Palantir-provided model to create a semantic search workflow. 
+
+ Advanced retrieval
+
+If you are finding that your AIP-associated tool is failing to answer questions that should be found in the document corpus, you should first investigate whether the relevant context was retrieved and passed into the prompt. Often it is the retrieval step that fails to surface the most relevant context leading the LLM to respond appropriately in the subsequent step.
+
+Many approaches exist to improve the retrieval depending on the content of the data and queries, some of which are outlined below:
+
+ HyDE (Hypothetical Document Embeddings) 
+
+ Ranked keyword-based search 
+
+ Query augmentation 
+
+ Hybrid search 
+
+ Technique consideration
+
+This will ultimately depend on your specific use case requirements and how much time you are willing to invest. Depending on your use case, it could be that the original simple setup works well enough for you. Otherwise, you may just need to add HyDE and semantic chunking and leave the rest as it is. Our recommendation would be to start with the basic implementation, and then add features as it becomes necessary.
+
+ HyDE (Hypothetical document embeddings)
+
+One approach to improve retrieval performance is HyDE - otherwise known as Hypothetical document embeddings. The principle idea is that instead of embedding the query directly, you first ask an LLM to produce a hypothetical chunk that answers this question, which you then embed. Intuitively, this helps balance out the asymmetry between a query and its answer. You can also review the related academic journal titled "Precise Zero-Shot Dense Retrieval without Relevance Labels" ↗ 
+
+This can be particularly helpful in specific cases where chunks are formatted in a particular way to encode the origin document and chapter .
+
+As an example, consider the following chunk as an appropriate answer to the question: “How do we deal with animal collisions?”:
+
+ Claim Management - Motor: Animal Collision:
+Animal collision claims are generally covered in type A, B, D policies. However,
+exclusions apply...
+
+We would first prompt an LLM to generate a hypothetical chunk like so:
+
+ You are an insurance specialist assistant tasked to assist your colleagues with
+finding relevant documents for their queries.
+
+Given the following user query:
+{query}
+
+Produce a hypothetical paragraph answering it. Give your response in the following
+format:
+{Document Name}: {Chapter name}: {Section} > ...
+{Content}
+
+where {Document Name} is the name of the document that contains the passage,
+{Chapter name} is the name of the chapter, {Section} is the name of the section
+and {Content} is the content of the section.
+
+This prompt would return us a response such as the following:
+
+ Animal Claims Management: General Terms:
+Animal collision is commonly insured in fully comprehensive packages...
+
+As the LLMs response is already “closer” to the real answer (structurally), it makes its embedding closer to the chunk that contains this real answer. Our semantic search in a function would then look like the following:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ async searchChunksByEmbedding(query: string, k: Integer): Promise<Chunk[]>> {
+ // create the full prompt for the hypothetical
+ const prompt = `...`
+
+ // generate hypothetical chunk
+ const hypothetical = await GPT_4o.createChatCompletion({messages: [{"role": "user", "contents": [{"text": prompt}]}]})
+ // embed the result
+ const embedding = await TextEmbeddingAda_002.createEmbeddings({inputs: [hypothetical]})
+ // use the embedding in the nearest neighbor search
+ const docs = Objects.search()
+ .chunks()
+ .nearestNeighbors(chunk => chunk.vectorProperty.near(embedding, {kValue: k})
+ .orderByRelevance()
+ .takeAsync(k)
+ return docs 
+
+ Ranked keyword-based search
+
+Generic embedding models such as OpenAI Ada are trained on a large corpus of diverse data. If your use case requires search on a domain-specific corpus (for example, manufacturing), you may find that the retrieval does not work as well as expected. This is due to the generic embedding model only using a small part of the embedding space for a specific domain.
+
+Fine-tuning a custom model is one approach to improve retrieval in these cases, however, a much simpler out-of-the-box solution is to use a ranked keyword search, with potentially some LLM preprocessing.
+
+This is because the index that Object Storage v2 runs on already comes with a notion of “relevance” when given a query. This relevance is relative to other chunks , meaning it automatically considers the domain-specific context of a chunk.
+
+Functions on Objects support ordering the results of Object queries by said relevance, so you can write a function like the following:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ async searchChunksByKeywords(query: string, k: Integer): Promise<Chunk[]> {
+ const chunks = Objects.search()
+ .chunks()
+ .filter(chunk => chunk.text.matchAnyToken(query))
+ .orderByRelevance()
+ .takeAsync(k)
+ return chunks
+} 
+
+However, this method abstracts away the semantic element of a semantic search. For example, if a user asks “How do we deal with deer collisions?” and we just input that directly into the function, we would not find chunks that talk about animal collision in general. LLMs can bring the semantic element back in through query augmentation , described below.
+
+ Query augmentation
+
+Query pre-processing is an important step to maximize relevancy of returned results. In essence, you want to distill the user query into its core components dependent on the type of search. You can consider query enriching and the other is query extraction .
+
+ Query enriching
+
+Injecting an LLM step between the user query and what is passed to the keyword search allows the possibility of distilling the query to make it more relevant: the LLM can be prompted to remove stopwords and irrelevant filler phrases (“Help me find ...”), and add other related words or synonyms.
+
+You can set up a prompt like the following:
+
+ You are an insurance AI assistant tasked to help users find relevant documents.
+To do so, you can use keyword-search in the company's internal database.
+
+Given the following user query: {query}
+
+Give a list of search terms that would find relevant results. Be sure to remove stop words,
+and add synonyms and related terms to the most important terms.
+Give your answer as a list of comma-separated values.
+
+For our example question of "How do we deal with animal collisions?", the LLM's response would be:
+
+ deer, animal, collision, claims, wildlife, accidents, vehicle, damage, car, insurance, policy, coverage, comprehensive, reimbursement
+
+This would allow users to find documents that never mention "deer collisions", but also those that talk about “animal", "wildlife", and "accidents" in general.
+
+In code:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ async searchChunksByAugmentedKeywords(query: string, k: Integer): Promise<Chunk[]> {
+ // create the full prompt for the query augmentation
+ const prompt = `...`
+
+ const augmentedQuery = await GPT_4o.createChatCompletion({messages: [{"role": "user", "contents": [{"text": prompt}]}]})
+
+ const chunks = Objects.search()
+ .chunks()
+ .filter(chunk => chunk.text.matchAnyToken(augmentedQuery))
+ .orderByRelevance()
+ .takeAsync(k)
+ return chunks
+} 
+
+ Query extraction
+
+Query augmentation works well for relevance-ordered keyword search. For semantic search, however, you need to extract the core ask of the user query, and by doing so, remove extra terms that provide no semantic meaning such as stop words, and potentially lemmatizing or stemming ↗ query terms.
+
+To do so, conduct query extraction to convert a question to the key ask of the user.
+
+An example prompt could be:
+
+ You are preparing a user-given query in order to perform a semantic search.
+Extract the key user actions from the given query, removing unnecessary stop words
+in the process.
+
+Given the following user query: {query}
+
+Return concatanated actions delimeted by full stops.
+
+For our example question of “How do we deal with animal collisions?”, the LLM would return:
+
+ Deal with animal collisions.
+
+This response maximizes the semantic content of our query and increasing likelihood of stronger matching downstream once we run a semantic search. The above example could also be solved by removing stopwords only.
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ async searchChunksByExtractedQuery(query: string, k: Integer): Promise<Chunk[]> {
+ // create the full prompt for the query augmentation
+ const prompt = `...`
+
+ const augmentedQuery = await GPT_4o.createChatCompletion({messages: [{"role": "user", "contents": [{"text": prompt}]}]})
+ const embedding = await TextEmbeddingAda_002.createEmbeddings({inputs: [augmentedQuery]})
+
+ const chunks = Objects.search()
+ .chunks()
+ .nearestNeighbors(obj =>obj.embeddingProperty
+ .near(embedding, { kValue: k }))
+ .allAsync()
+ return chunks
+} 
+
+ Hybrid search: Combining semantic and keyword search with reciprocal rank fusion (RRF)
+
+Reciprocal rank fusion (RRF) is a simple algorithm to combine results from multiple search types into a single list. In essence, it gives a document a higher score the higher it is ranked in a given list. The total score is the sum of scores across lists.
+
+ k acts as a regularizer - the higher k, the less it matters where a document appears in a list, but merely that it appears in the list at all.
+
+ `RRFscore(d ∈ D) = Σ [1 / (k + r(d))]`
+
+`# k is a constant that helps to balance between high and low ranking.`
+`# r(d)is the rank/position of the document`
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ public combineResultsWithRRF(vectorSearchResults: Chunk[], keywordSearchResults: Chunk[], k: Integer = 60): Chunk[] {
+
+ // define the RRF scoring function
+ const RRF = (r: number, k: number) => 1 / (r + k);
+
+ // initialize a map to keep track of the scores of each chunk
+ // note we assume later that each Chunk has a string primary key property "id"
+ const resultMap: Map<string, {chunk: Chunk, score: number}> = new Map();
+ const combinedResults: Chunk[] = [];
+
+ const searchResultsList = [vectorSearchResults, keywordSearchResults];
+
+ searchResultsList.forEach((searchResults) => {
+ searchResults.forEach((chunk, rank) => {
+ // calculate the score for each Chunk in the list
+ // and add it to the Chunk's total in the map
+ const rrfScore = RRF(rank, k);
+ const chunkData = resultMap.get(chunk.id) || {chunk: chunk, score: 0};
+
+ chunkData.score += rrfScore;
+ resultMap.set(chunk.id, chunkData);
+ });
+ });
+
+ // get all Chunks into a list
+ resultMap.forEach((chunkData) => {
+ combinedResults.push(chunkData.chunk);
+ });
+
+ // sort them by their score in the resultMap, in descending order
+ combinedResults.sort((a, b) => resultMap.get(b.id).score - resultMap.get(a.id).score);
+
+ return combinedResults;
+} 
+
+A full hybrid search implementation would then look like the following:
+
+ Copied! 
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 11
+ async hybridSearch(query: string, k: Integer, n1: Integer, n2: Integer): Promise<Chunk[]> {
+
+ // Start the keyword and vector searches in parallel
+ const keywordSearchResultsPromise = searchChunksByKeywords(query, n1)
+ const vectorSearchResultsPromise = searchChunksByEmbedding(query, n2)
+
+ const [keywordSearchResults, vectorSearchResults] = await Promise.all([keywordSearchResultsPromise, vectorSearchResultsPromise])
+
+ const rerankedResults = combineResultsWithRRF(vectorSearchResults, keywordSearchResults)
+
+ return rerankedResults.slice(0, k) 
+
+ ← 
+ PREVIOUS Process multimodal and embedding models 
+
+ NEXT Use Palantir-provided models to create a semantic search workflow 
+ →

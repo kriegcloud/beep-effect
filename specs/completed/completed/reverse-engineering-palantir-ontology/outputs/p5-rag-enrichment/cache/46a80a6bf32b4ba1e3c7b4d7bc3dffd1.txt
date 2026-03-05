@@ -1,0 +1,139 @@
+Building with Palantir AIP: The Ontology Software Development Kit
+Palantir
+Follow
+8 min read
+·
+Feb 16, 2024
+
+47
+
+Press enter or click to view image in full size
+
+By Chad Wahlquist, Palantir Forward Deployed Architect
+
+Welcome to another installment of our Building with Palantir AIP series, where Palantir engineers and architects take you through how to build end-to-end workflows using our Artificial Intelligence Platform (AIP). Here, we’ll delve into the Ontology Software Development Kit (OSDK).
+
+Introduction
+
+We’ll explore how the OSDK enables you to build a custom SDK for your business, harnessing the full power of the Palantir Ontology directly from your development environment. With the OSDK, you can quickly and seamlessly integrate the data, logic, and actions that define your business — along with LLMs — into existing applications, create net new applications, integrate with back office systems, and more.
+
+We’ll start by defining the OSDK and how it fits into the broader platform ecosystem. We’ll then generate our own SDK on our notional Titan Industries ontology (exploring security, in-platform web hosting, and automatic documentation generation). Lastly, we’ll integrate our SDK into a React app for satellite tasking.
+
+Let’s build!
+
+The Use Case
+Press enter or click to view image in full size
+To help us assess the damage from a fire at one of Titan’s distribution centers, we’ll integrate our SDK into a React app to collect imagery from public satellites.
+
+Our use case will be familiar to anyone who watched my last video — using AIP, we built an application for our notional medical supplies company, Titan Industries, to help Titan respond to a supply chain emergency in the wake of a fire at one of its distribution centers. This application allowed us to surface customer orders at the distribution center impacted by the fire, identify alternative distribution centers with sufficient inventory to fill the orders, and update these orders accordingly.
+
+We now want to use AIP to help us assess the damage at this distribution center. To do this, we’ll extend the Titan ontology we already built to include tasking different public satellites, and use LLMs to find the right satellite to capture imagery of the distribution center.
+
+We’ll then create our SDK for the Titan ontology and integrate it into a React app that will help us capture the satellite imagery we need.
+
+What is the OSDK?
+
+The Palantir Ontology integrates the data, logic, and actions of your business into a decision-centric model of your enterprise. An SDK of your ontology is an SDK of your business, using the language of your business.
+
+As Peter Wilczynski, Product Lead for the Ontology System, explained in his Ontology-Oriented Software Development blog post:
+
+“The Ontology centralizes this knowledge [of the business] and encapsulates it within a shared system. This system, along with the OSDK, then functions as a higher-level abstraction for authoring business logic which operates on a harmonized layer of critical business concepts, operational processes and real-world tasks. This allows translations from component-centric representations into the shared conceptual model to happen once, rather than every time a new application is built.
+
+And this knowledge compounds rapidly; by relying on the shared decision-centric Ontology, new applications can take advantage of the preexisting system integration work, and new components can be onboarded quickly by harmonizing their data, action and logic elements with existing representations.”
+
+Press enter or click to view image in full size
+With an ontology in place, new applications benefit from preexisting system integration work. New components can be onboarded quickly and incorporated into the broader ecosystem.
+
+But what does this mean in practice? To illustrate, we’ll walk through creating a demo application in Developer Console, a portal that helps us develop applications that leverage the ontology we’ve constructed via our ontology’s SDK. We’re able to create multiple SDKs on top of our ontology (e.g., for custom integrations, mobile apps, etc.) with the security and permissions set out in the ontology respected throughout.
+
+Application Type
+
+Developer Console supports two types of applications:
+
+Client-facing: frontend services, including web, desktop, or mobile applications. For security reasons, client-facing applications are designed without the ability to store client credentials.
+Backend service: an application to support a backend workflow, such as an application server, daemon, or integration. These applications may be used to securely store client credentials.
+
+We can select one or both of these options, depending on how we want to architect our application: in general, if we want to build an application for users who already have a login, we can use the client-facing application type. As we select the different options, Developer Console shows us how our selections impact our overall security posture, with real-world examples.
+
+Permissions
+
+When creating an application, we must choose between two permission types used to access the application data:
+
+User permissions: a user’s permissions will determine what they can read and write to the Ontology. This means that anything we have already built from a security and permissions perspective is respected — we do not need to rebuild security and permissioning schemes when we build custom applications.
+Application permissions: the application will use a generated service user for permissions rather than applying user permissions.
+
+Once again, as we select the different options, Developer Console clearly illustrates the overall security implications, with real-world examples.
+
+Ontology & Resource Scopes
+Press enter or click to view image in full size
+We’re able to select ontology objects individually, and without unintentionally exposing links, actions, and functions.
+
+Next, we select the relevant ontology and organization, followed by the associated objects, actions, and functions.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We’re able to select objects one-by-one, only providing access to what is necessary for our application — without unintentionally exposing links, actions, and functions.
+
+We can then add in different actions (in this case, creating a plant event). Crucially, these actions are in the language of the business; this empowers us to effectively “close the loop” by writing back to source systems and triggering different actions within the enterprise.
+
+Exposing functions — including LLM-backed functions — is easy; in this case, we pull in a satellite tasking function that we built in AIP Logic to help us find the correct satellite in our application.
+
+Because of the OSDK, integrating writeback, LLMs, and other forms of generative AI into new and existing applications doesn’t mean building from the ground up; we’re able to easily pull in not only objects, but also actions and AI-backed functions.
+
+Review
+
+As we review, Developer Console clearly indicates what we will and will not be able to change down the line. For example, the organization and ontology cannot be changed later, but we can add more objects, links, actions, and functions after the fact.
+
+Generating Your Own SDK: Titan Satellite Tasking
+Back to our satellite tasking: to achieve our goal of using satellite imagery to assess the damage at the distribution center, we will build a React app that leverages the OSDK, which will access the Titan ontology and an LLM-backed function to help us find the right satellite.
+
+Press enter or click to view image in full size
+We’ll build a React app that leverages the OSDK, which will access the Titan ontology and an LLM-backed function we built in AIP Logic.
+
+Let’s take a look at the ontology we’ll construct our SDK on (below). Blue represents the existing Titan ontology, which we used for our supply chain management application. Green indicates new objects and action types we’ve added for our SDK: plant events (for example, the recent fire); sensor tasks (giving us the type of imagery we need at a specific location); and satellites (which can capture that imagery).
+
+Press enter or click to view image in full size
+Blue represents the existing ontology; green indicates new objects and action types we’ve added for our SDK. Modifying our ontology is simple, fast, and creates compounding benefits.
+
+Incrementally adding to our ontology is simple, fast, and creates compounding benefits for the entire enterprise. The ability to build and centrally manage our ontology in a single platform means we can focus on application building and decrease the typical burden required to build and maintain a data foundation.
+
+Now, onto our SDK. We already have our Titan Satellite Tasking application SDK, which we have provided access to different objects, links, actions, and functions in our ontology as needed — and we can easily add in more. SDKs are not static; they can evolve with the use case as needed.
+
+The SDK is created as either an NPM (Node Package Manager) package for TypeScript or as Pip or Conda for Python, or even cURL calls. We can select the specific versions of the package generators to use.
+
+Developer Console also offers fully managed web app hosting capabilities in-platform. This means that developers who want to build Ontology-backed applications quickly (and with strong type safety and security) can build them, host them in the platform, and provide access via mobile, intranet, or web.
+
+Press enter or click to view image in full size
+Developer Console auto-generates documentation — available in TypeScript, Python, and cURL — based on the ontology entities we’ve selected. This documentation automatically updates as we make changes to our ontology.
+
+Developer Console auto-generates documentation based on the ontology entities we’ve selected. This documentation is available for TypeScript, Python, and cURL (we can easily switch between the different languages using a dropdown menu). As we make updates to our ontology, this documentation automatically updates: we have an SDK that auto-documents our ontology and the different ways we can interact with it.
+
+Building a React App with the OSDK
+Press enter or click to view image in full size
+As we write our code, we can easily leverage anything we expose via the SDK, and pull from the documentation as needed — for example, calling the satellite tasking LLM function.
+
+Now we’re ready to build our application and integrate it. In VS Code, we have the SDK that we’ve installed, and we get a README file with the steps we need to take to get it running.
+
+As we write our code, we can easily leverage anything that we expose via the SDK. We can copy and paste from the documentation to pull in code as needed — for example, loading distribution centers or calling the satellite tasking LLM function.
+
+With this, we’re able to quickly create a React app that surfaces a list of distribution centers on a map, as well as available satellites and associated positions. We can select a distribution center — in this case, the Haynes distribution center that was recently impacted by a fire — and call our LLM-backed function to find a satellite that will pass over the distribution center and can capture the imagery we need to assess the damage.
+
+Press enter or click to view image in full size
+Our LLM-backed function writes back to the Titan ontology and creates a tasking object — because taskings are part of our SDK. This object is immediately available in our ontology.
+
+When the function selects a satellite and we press “Save,” it writes back to the Titan ontology and creates a tasking object — because taskings are part of our SDK. We can immediately see the tasking object we just created in the application in our ontology, complete with the satellite, links, appropriate permissions, etc.
+
+Conclusion
+
+Ontology-oriented software development with the OSDK is a new paradigm that aligns business users and engineers around the representation of the business, rather than the representation of underlying components and how they fit together.
+
+If you’re ready to unlock the power of full spectrum AI with AIP, sign up for an AIP Bootcamp today.
+
+Your team will learn from Palantir experts, and, more importantly, get hands-on experience with AIP and walk away having assembled real workflows in a production environment.
+
+Let’s build!
+Chad

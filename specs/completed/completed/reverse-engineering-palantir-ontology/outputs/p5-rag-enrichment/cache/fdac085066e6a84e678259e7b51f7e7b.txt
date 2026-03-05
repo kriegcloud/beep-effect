@@ -1,0 +1,92 @@
+Operational Responsibility Is the Only Way to Deliver Software
+Why Operational Responsibility Should Be the Norm, Not a Contrarian Concept
+Palantir
+Follow
+7 min read
+·
+Jun 18, 2024
+
+22
+
+Press enter or click to view image in full size
+
+We use Operational Responsibility (OR) at Palantir because it is the fastest and most correct approach to delivering mission critical software to production — and your organization can too. In this post, we unpack what OR is, how we do it, and why, counterintuitively, it is the only way to deliver serious software. If this speaks to you, reach out — we will help you get there whether you want help with your existing toolchain or want to try ours. Winning the future fight depends on America’s greatest strength, our software advantage.
+
+Operational Responsibility at Palantir
+
+We initially built Palantir Apollo as internal infrastructure to help us manage the thousands of microservices deployed to production environments. Apollo has transformed our upgrade process, from the high-risk, labor-intensive annual projects of a decade ago to a seamless and nearly invisible daily routine.
+
+By leveraging Palantir Apollo, we have:
+
+Increased Efficiency: Thousands of upgrades are now performed daily, without active monitoring by software developers or any impact on end-users.
+Reduced Risk: Frequent software upgrades minimize the chances of encountering issues related to legacy code or outdated systems.
+Improved Debugging: With regular updates, developers are more likely to be familiar with the relevant code when issues arise, leading to faster and more effective debugging.
+
+Apollo alone was not enough to manage the scale of software deployment so we invested in centralizing operations, specialized teams, and promoting a culture of owning production.
+
+Production Ownership: Specificity drives a higher bar of deployed product in production. Enter operational responsibility, which emphasizes engineering owning production. By assigning a team to each deployed software piece, they are recognized as the experts in that code and best placed to address any emergent issues. Since building an ethos of operational responsibility into each new product team or network, we have seen significant improvements in stability.
+
+Put the Pebble in the Right Shoe. Expediting Issue Resolution
+
+We began onboarding product teams to receive direct notifications when their product triggers an alert on a deployed customer stack. Baseline and product teams signed “deployment agreements” in which they agreed they would not log into the front end or view data. This approach allowed us to grant software developers (those writing the code) access to alerts related to their deployed products. As a result, stability and uptime saw an immediate boost.
+
+When a developer is paged numerous times for the same issue and they are the “last stop” for finding a solution, they are highly motivated to resolve the problem. Unfortunately, before implementing this approach, valuable information about production software behavior often failed to reach the product teams responsible for writing the software. With operational responsibility, software developers are now writing code to help themselves debug, creating an incredibly efficient feedback system.
+
+The primary objective of operational responsibility is to accelerate issue resolution and increase the signal-to-noise ratio by always paging the person best equipped to fix the problem first. While operational responsibility is a strategy that should yield increased stability, the ultimate goal is to make firefighting (issue resolution) more efficient and effective.
+
+Paging: Operational responsibility accomplishes this by paging the right person first, as going through a middle-man (generalist debugger) only causes a delay. It’s important to bring in the minimum number of people needed. Within each product team, those who aren’t on call can focus more deeply on other product work while those who are on call can plan appropriately with maximum focus on being a good firefighter, treating the product’s stability as the top priority. This approach also helps minimize the cognitive burden on other operationally responsible teams, such as deployment teams and Baseline, allowing them to increase focus on the issues they are best equipped to fix.
+
+Paging hygiene: To improve alerting rule hygiene and signal-to-noise ratio, treat any situation in which the first person paged is not the right person/team to resolve as an anti-pattern. Anti-patterns will occur, and the volume makes it obvious when alerting should be cleaned up. Teams organized to emphasize operational responsibility, when paired with alert volume, yields improved signal to noise.
+
+Constantly minimizing the need for centralized prioritization is crucial, as centralized prioritization tends to be a bottleneck. To achieve scale, centralized leadership should focus on editing, not authoring.
+
+Operational Responsibility on Air-Gapped Networks
+
+Operational responsibility on classified networks poses unique challenges, such as requiring personnel to be near a facility with access, maintaining access to classified systems, and understanding facility and network requirements. There’s a cost to spin people up on air gapped and classified networks, but some of our most important work happens on classified networks.
+
+Network Operations Center
+
+To address these challenges, we invested in secure spaces within Palantir offices, creating a Network Operations Center (NOC) for 24/7 presence. Although maintaining these facilities is expensive, true Product Team operational responsibility ensures a full return on investment. In these environments, stability, uptime, and performance are crucial, as national security is at stake. Swift and surgical actions are necessary, even though logistics are more difficult. We cannot expect people to be within ~5 minutes of an air-gapped workstation 24/7.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+The NOC serves as our eyes and ears for remote debugging, keeps upgrades moving with disk scanning of new software packages, and provides a first level of support for end-users. During business hours, on-call personnel are in the facility, but at night, they can go home and trust that the NOC will page them if their expertise is needed. We regularly train the NOC on emerging mission-critical workflows so its staff can offer a higher level of support when world events warrant it.
+
+In order to get highside OR to work, you must:
+
+Assume alerts are actionable. On air-gapped networks, it is crucial to treat alerts as actionable and consider it a bug when they are not. Engineer time is valuable, and false positives that require going into the facility have a higher cost than on more accessible environments. The goal is to have only real, actionable P0 alerts routed to the best team or person. Treat false positives as anti-patterns to be fixed, and invest in squashing them to keep the on-call schedule focused.
+Treat every major incident as an opportunity to improve operational posture. Analyze incidents to identify their causes, any missed opportunities in testing environments, or lower-priority alerts that could have prevented downtime. Although root cause analysis takes time, a good firefighter will become increasingly efficient at incident decomposition and follow-ups. Specificity in issue routing helps focus and narrow the scope for the firefighter.
+Introduce a secondary rotation when alert volume is high. When things are on fire, rely on the secondary rotation to manage the workload and prevent issues from falling through the cracks. Firefighting follow-ups are often the first to be dropped, which prevents improvements in efficiency and effectiveness. When there are no concurrent issues, triage some follow-ups to the secondary rotation. For example, route an alert that should have gone to Baseline to a secondary on-call to address during the week, allowing the primary firefighter to focus on getting out of a P0 state.
+Work Smarter, Not Harder
+
+Operational Responsibility aims to improve efficiency and reduce the workload for both software engineers and deployment engineers, ultimately allowing everyone to get more sleep by introducing more specific operational postures when possible. The best firefighters are determined yet efficient, striving to increase the signal-to-noise ratio so they can work smarter, not harder.
+
+In the early days of operational responsibility with teams like Baseline, we had to unlearn heroics. Many engineers were eager to tackle every issue because they were highly motivated by the mission. Introducing discipline around practices such as not “watching upgrades” or babysitting services was surprisingly challenging.
+
+To truly scale yourself and your product, it is essential to embrace automation and rely on robots to augment your capabilities. This approach ensures that the operational responsibility process remains efficient and focused on what truly matters.
+
+Operational responsibility, when implemented with proper guidelines, should enhance your quality of life. Having a timeboxed week that you can plan around is more favorable than being on-call 24/7. Rigorous scheduling allows you to feel genuinely disconnected when you’re not on-call, providing peace of mind knowing that there’s round-the-clock support for your product while you rest. This can be particularly valuable when you’re deeply invested in the outcome of your product and need to trust that support is available at all hours.
+
+Many teams with high evening workloads adopt policies to ensure firefighters can recover adequately. For example, if you’re woken up for a P0 issue between 12–6 am, you cannot be on-call the following day or night. This approach helps ensure that team members are well-rested and prepared to tackle challenges effectively.
+
+Build Teams with Operational Responsibility in Mind
+
+Operational responsibility comes with certain logistical requirements. For a single rotation, a minimum of three knowledgeable individuals with access is typically required. While four participants offer a comfortable rotation, five provide an even more relaxed schedule. However, rotations involving more than approximately six people can lead to potential drawbacks, such as individuals being on-call so infrequently that they fall out of practice.
+
+When introducing a secondary rotation (which is recommended), these numbers can be doubled. If a team cannot meet these requirements, it’s better to wait until a sustainable schedule can be supported, rather than rushing into it and potentially causing burnout.
+
+Recruitment, hiring, and staffing strategies should be designed with this end state in mind, focusing on building an organization that can meet production needs.
+
+Conclusion
+
+The concept of Operational Responsibility is deeply contrarian. But it shouldn’t be. It is anti-central planning, anti-disintermediation, and anti-bureaucracy. It maximizes developer agency and organizational responsiveness. It is the key to winning. With OR, your organization is only limited by ability and ambition. It is the software equivalent of SpaceX having no systems engineers. SpaceX says, you are all systems engineers. Palantir says, you are all SREs.
+
+We are here to help. If you are interested in going OR or learning more about how to improve your highside deployment story, reach out to risingtide@palantir.com.
+
+Author
+
+Katie Kauffman, Senior Architect, Federal, Palantir

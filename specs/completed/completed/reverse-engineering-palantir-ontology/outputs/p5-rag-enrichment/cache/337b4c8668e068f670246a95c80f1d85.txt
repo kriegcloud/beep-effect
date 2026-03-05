@@ -1,0 +1,67 @@
+1
+
+A POWERFUL AND PRACTICAL APPROACH TO DATA ACCESS GOVERNANCE
+Why you should govern data access through Purpose-Based Access Control
+PBAC is a powerful data access governance strategy that can make your data access policies more practical and secure.
+Jonathan Merlevede
+Follow
+5 min read
+·
+Feb 9, 2022
+
+77
+
+1
+
+Press enter or click to view image in full size
+A swamp. Photo by Krystian Piątek on Unsplash
+
+Although your company’s data may hold tremendous value, you are more likely to drown in a data swamp or become the target of a lawsuit than you are to unlock the data’s potential. That is, unless you have a well thought-out data governance and access strategy! Purpose-based access control (PBAC) can be an important part of your governance solution.
+
+What are data governance and data access governance?
+
+Data governance is an organisational framework — a collection of procedures, tools, roles, responsibilities, standards and guidelines — that enable effective and efficient use of data within an organisation. Data access governance is the part of data governance concerned with controlling who has access to what data.
+
+Why is data access governance important?
+
+Good data access governance puts you in control of your data, allowing you to keep track who accesses which data and why. Data access governance is a key enabler for good data management, but also a vitally important line of defence against the threat of cyberattacks and data leakage. When dealing with sensitive personally identifiable information (PII), consistent and secure access permissions are also indispensable for compliance with legal data protection requirements.
+
+What is Purpose-Based Access Control (PBAC)?
+
+Purpose-Based Access Control (PBAC) is a methodology for governing data access where access is granted not to individuals but instead to its applications, that is, to purposes. Users or machines may be allowed to work on multiple purposes, although when accessing data users always do so within the context of a single purpose. A purpose can be the creation of one or more data products, one or more reports, performing an audit, …. Purpose-based permissions may additionally be scoped to certain roles (e.g. data scientist, data engineer, …). Purpose-based access controls are used in governance tools such as Palantir Foundry, but the concept applies more generally.
+
+Grant access not to individuals but instead to applications of data — data purposes.
+
+How does PBAC differ from other control mechanisms?
+
+Attribute-based access control (ABAC), role-based access control (RBAC) and policy-based access control (unfortunately also known as PBAC) are technical implementations for organising sets of permissions. These permission sets are usually, but not necessarily, assigned to users. Purpose-based access control operates at another level, and by assigning permission sets to purposes instead of individuals you can combine PBAC with ABAC, RBAC or policy-BAC.
+
+Benefits of Purpose-Based Access Control
+
+Purpose-based access control can form the basis of an effective data access governance strategy that is secure and in compliance with regulatory requirements, while being simpler and more agile than other forms of access management.
+
+Flexible ⤧. On-boarding and off-boarding of team members is easy, as all access required to work on a purpose is conveniently bundled in the purpose definition.
+Consistent 🔃. Because users working on the same purpose in the same role always have the exact same access, you never run into issues where one team member can do something that another team member cannot. Even your processing systems share the same access rights, clearing the path to smooth industrialisation 🏭.
+Legal 👨‍⚖️. Purpose limitation, finality, proportionality and data minimisation are cornerstone principles of legal frameworks like GDPR. Likewise, cross-referencing of data without approval can be problematic. PBAC brings the legal and technical closer together by always evaluating access requests in the context of a single purpose — something your DPO will appreciate!
+Auditing 📒. Even basic PBAC audit logs are meaningful and easy to interpret. Moreover, they are not too hard to implement. Log when a purpose is approved for data access and why. Log which users are cleared to work on a purpose and why. For every data access operation, know not only who makes the request, but also for what purpose.
+Our role
+
+Authentication and authorization decisions are important, but unfortunately also hard to get right. Adopting a PBAC strategy can be the start of a good data access strategy, but many challenges remain. For example, authentication typically remains user-based, which may require some customisation of your solutions. The granularity at which data access is granted also depends on the specific practical and legal requirements for your business.
+
+Get Jonathan Merlevede’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+As a data engineering consultancy company, one of the things we do is to set up and manage data platforms at clients of all sizes. Ensuring that data and data access are handled appropriately is at the center of our creations. We can help you strike the right balance between control and flexibility, and empower you to achieve agility without compromising on security or auditability.
+
+Organisation 🏢. As seasoned data professionals we have seen the inner workings of many organisations. We are well-positioned to assist you in determining which data organisation and access strategy is most appropriate for you business — for example by introducing concepts like PBAC.
+Solution design 💡. We are are implementation partner to the three major public cloud platforms (AWS, Azure and GCP), and have hands-on experience with Cloud IAM, Kubernetes and products like S3, Redshift, Synapse, BigQuery and Snowflake. We can translate your strategy into workable technical solutions.
+Implementation 🛠️. Above all, we are engineers who love to make things work! We’re not just talk, but can set up the infrastructure and write the code required to get the job done — in short, we deliver.
+
+Interested in learning more about our experiences, ideas and how we can help you? Contact us via our website, or contact me or one of my colleagues on LinkedIn.
+
+Passionate about data engineering-related topics? So are we, and we are hiring! Contact us and maybe you will become our new colleague 🎊.
+
+Contact us

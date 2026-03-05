@@ -1,0 +1,508 @@
+Ontology and Pipeline Design Principles - Inside the Product - Palantir Developer Community 
+
+ Ontology and Pipeline Design Principles 
+
+ Inside the Product 
+
+ ontology-management , 
+ projects 
+
+ aszekely 
+
+ November 19, 2025, 1:16am
+
+ 1 
+
+I was recently asked to describe how an “ideal” Ontology is designed. I don’t think there’s such a thing as a “perfect” Ontology (if it delivers value it’s good, if not, then it’s bad). But, there are certainly some best practices that will make your experience more sane.
+
+ The Ontology 
+
+The Ontology is the API of your organization; a shared layer between engineers, business users, and AIP agents. It is composed of “intuitive business concepts” which allows us to encode operational processes.
+
+The Ontology is designed to support operational decision making. It provides the following key components:
+
+the relevant data for decisions
+
+the possible actions to record the decisions
+
+the logic to evaluate what decision to make
+
+These are the nouns (data) and verbs (actions) of your enterprise. The Ontology combines these nouns and verbs into coherent sentences , by activating all of the types of logic which power decision-making: human reasoning, traditional business logic, linear optimizations, Generative AI, etc.
+
+ Design Approach 
+
+The Ontology is not just a datastore. It’s an API that needs to be designed and maintained. Do not just take whatever dataset is in your source system and sync it to the Ontology. Object Types and Actions must support actual decision making.
+
+ Describe what the users need to do. What decisions will they make? What information will they base these on? The nouns and the verbs of this sentence will be yourOntology Objects and Actions. If the sole purpose is analysis, the data can probably stay in datasets.
+
+ Check the existing Ontology. If the Object Types already exist, you are in luck; someone else has already done the homework.
+
+ Draft your Ontology (backed by placeholder data). This will be a simple mock dataset with the primary key and the minimum necessary properties. (The Pipeline Builder “add data manually” feature is very useful here.)
+
+ Split the effort in two. 
+
+ Front End Team – Build the Ontology Objects, Actions, Applications using the dummy data. As necessary they add properties to the placeholder backing datasets.
+
+ Data Engineering Team – Integrate the data to fill out the dummy backing datasets. (Usually best to start with a sample dataset to make initial build times shorter.
+
+ Seek frequent feedback. Check in with domain experts and business users regularly. Make sure that the logic is sound and the data exists.
+
+ Be pragmatic. - If it works and delivers value then it’s good, even if it’s not perfect. If it is perfect but doesn’t deliver value, then it’s bad.
+
+ Design Rules 
+
+The purpose of the Ontology is to be shared and used company wide. Craft Object Types that you are proud to share with all.
+
+ Object Types 
+
+ Object Types should have point of contact configured. 
+
+The point of contact is the primary person responsible for maintaining or deprecating the Object Type.
+
+The point of contact can be set in the Ontology Manager Application.
+
+ Object Types should be up - to - date and healthy .
+
+Backing datasets should have schedules and health checks configured if they are produced by a pipeline.
+
+ Only make Object Types editable if necessary. 
+
+If your Object Type represents information from an immutable source of truth, don’t make them editable. It will give your users false information, and it will be difficult to clean up. Same goes for presets generated in the pipeline, metrics values, etc.
+
+ Object Types and Actions should map to natural - language business concepts .
+
+The Ontology is built to support operational decision-making. Your primary audience is business users. Use their language. If the terms can’t be used to express natural language sentences that make sense then it’s probably not a good ontology.
+
+ Avoid versioned Object Type names. 
+
+The Ontology should only contain stable Object Types required to support a decision. If you need new properties, add them to the pipeline. If you need to deprecate properties, carry out the migration fully.
+
+Bad: Message_v2 
+
+Worse: Message_v3_Embedded 
+
+ Minimise Properties. 
+
+If there’s a parent child relationship where a child’s property can be guaranteed based on the parent’s property, it should only be marked on the parent object.
+
+Break this rule for computational purposes if necessary.
+
+ Use consistent property naming. 
+
+Event timestamps should be called {verbed}_at_timestamp (e.g. created_at_timestamp, updated_at_timestamp)
+
+Event authors should be called {verbed}_by_user (e.g. created_by_user, updated_by_user)
+
+For Foundry users, this field should store their multipass ID. Then, you can configure the Property to render their Foundry account (name, etc) automatically. ( documentation )
+
+ Don’t use [tag] prefixes in Object Type names. 
+
+You should use Groups to collect related object types.
+
+The [tag] often ends up in the API name of the object and links which is hard to change. This results in production ontologies with APIs such as demoCustomer four years into deployment.
+
+ Object Type maturity (Experimental / Active / Deprecated) should be up to date. 
+
+Maturity status can be configured in the Ontology Manager Application for both Object Types, Properties, Actions, etc.
+
+ Experimental - The object type is actively worked on and unfinished. Expect frequent changes and don’t expect compliance with this design guide.
+
+ Active - The object type is stable and high quality. It adheres to this design guide. It can be confidently depended on for new workflows. Breaking changes will be communicated.
+
+ Deprecated - The object type has no production usage, redundant, low quality. It should be marked deprecated. Deprecated resources should be regularly deleted.
+
+ Add the Object Type to the relevant group(s). 
+
+Groups can be edited via the Ontology Manager Application. Groups should be used instead of [prefixes] .
+
+ Set appropriate colou rs and relevant icons.
+
+The Ontology should be intuitive. Object and Action icons, and colours give you an extra opportunity to improve intuition. Select colours that match similar / related Object Types, or that communicate purpose (red for destructive actions). Chose icons that represent the same concept as the Object Type / Action.
+
+ Add relevant Aliases. 
+
+Some object types are referred to by different words in different areas of the business. Setting up aliases in the Ontology Manager Application helps reduce duplicate Object Types.
+
+ Fill out Object Type, Action , and Property descriptions. 
+
+ Primary and Foreign Keys 
+
+ The id (primary key) column must be of type string. No exceptions. 
+
+Strings can represent numbers, not the other way around. Migrating primary key definitions is hard. Also migrating column type includes making changes everywhere that this Object Type is used, which is a huge effort.
+
+ The id (primary key) column must be inherently unique. No exceptions. 
+
+The primary key must be constructed from properties of the Object Instance only. It should have no dependency on the existence of other objects, otherwise it might unexpectedly change.
+
+Good: id = customer_id or id = customer_id + maintenance_job + maintenance_timestamp 
+
+Bad: id = rank of the object when sorted by title 
+
+This will change the moment there’s a new object inserted. At which point relations and edits will point to different objects.
+
+Bad: id = uuid generated at pipeline runtime 
+
+This will change the moment the pipeline is rebuilt.
+
+ All Object Types must have a separate Primary Key column named id . No exceptions. 
+
+You must create a separate, unique, id column, even if there’s already a column in your dataset that is unique.
+
+As ontologies evolve, previously “unique” columns stop being unique. At that point you will have to change which column is the primary key. This potentially meaning updating every function, relation, app, API to point to the new “unique” column. This is a huge amount of work.
+
+ Foreign Keys must be consistent with the foreign Object Type. No exceptions. 
+
+The following formats are allowed:
+
+ {foreign_object_type}_id 
+
+ {link_api_name}_{foreign_object_type}_id 
+
+Good: Maintenance Job(..., customer_id) 
+
+Bad: Maintenance Job(..., cust) 
+
+Good: Employee(..., manager_employee_id) 
+
+Bad: Employee(..., manager) 
+
+ Composite id s shouldn’t be hashed. 
+
+This makes debugging duplicate ids harder, because you will need to check in code what columns the id is composed of. It also doesn’t improve performance too much.
+
+Good: id = customer_id + maintenance_job + maintenance_timestamp 
+
+Bad: id = sha256( customer_id + maintenance_job + maintenance_timestamp )
+
+ Never infer an Object’s property from its id . 
+
+This is a dangerous assumption which leads to huge migration pain, especially for editable objects.
+
+Bad: flights.withColumn("split_string", F.split(F.col("flight_id"), "_", 2)).withColumn("aircaft_id", F.element_at(F.col("split_string"), 1)) .drop("split_string") 
+
+ Link Types 
+
+ Configure Link Types. 
+
+Isolated Objects are often a red flag for bad Ontology design. You should set up all Link Types that make sense to make it easier and more useful for future users to leverage your Object. Use balance, a spiderweb Ontology is equally a bad look.
+
+ Use meaningful Link Type names and API names. 
+
+This is especially important when setting up links with the same object type on either side, and when there are multiple links between two Object Types.
+
+Good: Employee <> Employee → Manager ( .manager.get() ) and Direct Report ( .directReports.all() )
+
+Bad: Employee <> Employee → Employee ( .employee.get() ) and Employee2 ( .employee2.all() )
+
+Good: Port <> Ship → Current Port <> Docked Ship and Visited Ports <> Ships Harboured 
+
+Bad: Port <> Ship → Port <> Ship and Port <> Ships2 
+
+ Link Type API name on the plural side should be plural. 
+
+Good: employee.subordinates.all() 
+
+Bad: employee.subordinate.all() 
+
+ Actions 
+
+ Configure submission criteria. 
+
+Submission criteria allows you to restrict what user groups can submit Actions. It also allows you to validate that the change actually makes sense.
+
+Good: Add Schedule → start_timestamp > now() 
+
+ Turn off “Revert Action” unless explicitly needed. 
+
+ Naming Conventions 
+
+ Use intuitive names. 
+
+This will make the platform easy to approach even for first time users.
+
+ Avoid abbreviations. 
+
+This will make the platform easy to approach even for first time users.
+
+Good: Aircraft 
+
+Bad: AC 
+
+Good: Cost Average 
+
+Bad: Cost AVG 
+
+ Use consistent names throughout the platform .
+
+This will make it easy to orient yourself and figure out what lineage a feature belongs to.
+
+Good: The prediction.py script generates the Prediction dataset, which backs the Prediction Object Type.
+
+Bad: The simulation.py script generates the Prediction dataset, which backs the Forecast Object Type.
+
+ Project Structure 
+
+The Ontology is most impactful when it’s a shared asset across the company. To achieve this while keeping security (and maintenance responsibilities) clear, we must architect a flexible Project structure.
+
+Projects are the atomic units of permissioning in Foundry. This means that people who have access to any resource in a Project should have access to all resources. If you find yourself trying to block off areas of the Project, you should consider splitting it into multiple Projects instead. It is ok (and correct) for workflows to be composed of multiple Projects.
+
+ image 2550×1403 281 KB 
+
+Project access is controlled by Roles . Roles should be granted to groups. Users should request to be added to the relevant groups (rather than to Projects directly).
+
+ OWNER - This group is responsible for the Project. They are the key points of contact for any issues / requests relating to the Project. They have admin rights, including the right to decide which user gets added to the Editors / Viewers.
+
+ EDITOR - This group is responsible for building the Project. They can modify transforms, logic, applications, and so on inside the Project.
+
+ VIEWER - Viewers are allowed to use the data and applications inside the Project. For finer control on what they CAN do inside applications, please carefully review Action Submission Criteria .
+
+ DISCOVERER - Most users should have Discoverer access throughout the platform. This allows them to see file names but not content. Importantly, this allows them to see the full data lineage.
+
+ Datasource Projects ( Datasource - {{Name}} )
+
+ image 1024×1632 75 KB 
+
+ Main Tasks 
+
+ Data Engineer ingests the data into Foundry and configures Health Checks for data quality monitoring.
+
+ Data Engineer prepares and cleans the data, this includes parsing into tables and fixing the formatting.
+
+ Best Practices 
+
+One Datasource Project is created for each source system. This allows you finer permission controls.
+
+“Raw” dataset is an identical copy of the source without aggregations or filters.
+
+“Clean” dataset parses zips, jsons, etc into tabular format. It fixes column names, malformed and missing data, and casts columns to the right types.
+
+ PII and other sensitive data is removed, obfuscated, or marked.
+
+ Health Checks are applied to monitor update frequency and data quality.
+
+ Schedules are applied to ensure fresh data on Foundry.
+
+ Access 
+
+ Data Engineers have Editor rights.
+
+ Data Experts have Editor rights.
+
+No Access for End Users / Data Scientists 
+
+ Data Integration Project ( Integration - {{Name}} )
+
+It is normal to have multiple Data Integration Projects and multiple Ontology Projects for the sake of permissioning, and to represent responsibilities. But please try to crack down on data silos and “kingdom building”.
+
+ image 1120×1632 86.9 KB 
+
+ Main Tasks 
+
+The Ontology Manager (including business users) define the Ontology Schema.
+
+ Data Engineer combines clean datasets and applies aggregations to derive Object Backing dataset and Time Series.
+
+ Best Practices 
+
+A well formed primary key ( id ) is derived for each Object Backing dataset.
+
+Health Checks are applied to monitor data quality and freshness, and to ensure unique, correct primary keys.
+
+If necessary Restricted View policy columns are derived.
+
+ Access 
+
+ Data Engineers have Editor rights.
+
+ Data Experts have Editor rights.
+
+ Ontology Managers have Editor rights.
+
+No Access for End Users / Data Scientists .
+
+ Ontology Project ( Ontology - {{Name}} )
+
+ image 1120×1216 61.2 KB 
+
+ Main Tasks 
+
+ Data Engineers configure Views and Restricted Views to link data from the Data Integration Project.
+
+The Ontology Manager configures the Object Types and their Links.
+
+ Best Practices 
+
+See the Ontology guide above for an extensive list.
+
+ Access 
+
+ Data Engineers have Editor rights.
+
+ Ontology Managers have Editor rights.
+
+ End Users have Viewer rights.
+
+ Data Analysts & Data Scientists have Viewer rights.
+
+ Application Project ( Application - {{Name}} )
+
+Project for a workstream, its logics and “auxiliary object types”… so Objects which are very specific to this work. Most Ontology objects would start in this state, before being moved to a centrally owned project.
+
+ image 1312×1216 66.2 KB 
+
+ Main Tasks 
+
+ App Developers build workflows using Objects and Ontology datasets.
+
+(Optional) App Developers , Data Scientists , or Data Engineers may build additional datasets, Objects, models, etc for the specific workflow.
+
+End-users interact with the solutions and workflows and take decisions in the platform.
+
+ Best Practices 
+
+App Developers iterate with key end-users to validate the workflow
+
+Once mature, App Developers & key end-users document the Workflow.
+
+ Access 
+
+ App Developers have Editor rights.
+
+ Data Analysts have Editor rights.
+
+ Data Scientists have Editor rights.
+
+ DataEngineers have Editor rights.
+
+ End Users have Viewer rights.
+
+ Sandbox Project ( [sandbox] Name ) 
+
+New (and experienced) Foundry users will always need a space to experiment and learn to use the Platform. The platform should make this easy, but also secure. A good way is to create a Sandbox space where people can create mock projects, Ontology objects, etc.
+
+Sandbox projects should exist only in the Sandbox namespace. Anyone can create them, and they have everyone as Owner by default. These must contain ABSOLUTELY NO business data. Instead, they are used for training purposes.
+
+ Project Templates 
+
+The above categories should also be represented by Project Templates .
+
+When creating the Project Templates, please make sure that each project is created with a specific OWNER group. This group should then be set as the Project POC. Project POCs will be emailed whenever there’s a campaign (such as upgrading from deprecated python versions).
+
+Before anyone credits me any of this knowledge. I was only able to learn and compile this because I’m surrounded by excellent colleagues who’ve learned these lessons the hard way, and helped me collect them.
+
+ 28 Likes 
+
+ tmiskow 
+
+ November 19, 2025, 5:19pm
+
+ 2 
+
+ aszekely:
+
+Turn off “Revert Action” unless explicitly needed
+
+Hmm, interesting. Could you elaborate? cc @hharris 
+
+ aszekely 
+
+ November 20, 2025, 2:50am
+
+ 3 
+
+Actions can have side-effects via Automate or external functions which are hard to reverse. So I’d err on the side of making Actions reversible and opt-in, rather than an opt-out.
+
+(Otherwise I’m a fan of this feature. It just needs to be used sensibly.)
+
+ 1 Like 
+
+ ozil496 
+
+ November 20, 2025, 7:41pm
+
+ 4 
+
+Is establishing a view to back an OT always a requirement? I think it simplifies thinking to always require one because it provides flexibility to easily remove markings or union multiple datasets into an OT, but a dataset is usually sufficient for single-datasource OTs, so curious if you have any other thoughts there!
+
+This write-up is great!
+
+ Bougs 
+
+ November 21, 2025, 5:14pm
+
+ 5 
+
+Amazing post. This belongs in the official docs!
+
+ Don’t use [tag] prefixes in Object Type names 
+
+Wouldn’t this break Marketplace installation flows?
+
+If I have a Unit object (ie DefenseOSDK ) and I bundle my work into a Marketplace App and a customer wants to install into their Ontology and they also have a Unit object type, there will be a collision. Adding a prefix at install time will break existing references to Unit API Names in code repos in the Marketplace app.
+
+I know the Marketplace team is making enhancements around this area though. Would love to know what the ultimate best practice is. cc @mitchp , marketplace 
+
+ image 332×289 15.2 KB 
+
+ 1 Like 
+
+ rawa 
+
+ November 25, 2025, 2:55pm
+
+ 6 
+
+This is exceptionally well-written. I enjoyed the Solution Designer diagrams especially. Thanks for sharing!
+
+ aszekely 
+
+ December 1, 2025, 2:02am
+
+ 7 
+
+Datasets are fine too. The rules - except the id ones - are strong opinions weekly held.
+
+The rule is included to protect from:
+
+Accidentally putting the Object backing Restricted View into the same project as the full dataset.
+
+Workflow builders introducing dependencies on the Ontology upstream, which either break immediately or worse, reduces their flexibility for maintenance.
+
+ chlor8 
+
+ December 1, 2025, 6:10am
+
+ 8 
+
+This is very good. We use [Tag] structure based on FDE recommendations. I think it’s good for very, very large ontologies though. We have situations where there could be overlapping systems, which I agree with groups.
+
+However, I find searching even with groups difficult and to new users it’s not intuitive. I wish there was a way to explore groups via a diagram similar to individual objects.
+
+That being said, I dislike anyone who does [Test] and now the API is TestMyObject. So I holistically agree with your approach.
+
+ mellerbeck 
+
+ December 12, 2025, 4:56pm
+
+ 9 
+
+ aszekely:
+
+The id (primary key) column must be of type string. No exceptions.
+
+I wish the UI would help inform this, as a more ‘Traditional’ data person I reached for ints for my keys (I have since learned the pain of changing them….) and am now string only…
+
+ 2 Likes 
+
+ mellerbeck 
+
+ February 18, 2026, 4:47pm
+
+ 10 
+
+I like to use pipe for my primary key delimiter
+
+customer_id|maintenance_job|maintenance_timestamp
+
+any best practice on this? Or pros and cons for various delimiters?

@@ -1,0 +1,75 @@
+Top highlight
+
+1
+
+Ontology: Finding meaning in data (Palantir RFx Blog Series, #1)
+A functional data ecosystem must incorporate notions of Ontology in order to be scalable and sustainable.
+Palantir
+Follow
+7 min read
+·
+Oct 3, 2022
+
+69
+
+3
+
+Press enter or click to view image in full size
+
+Editor’s note: This is the first post in the Palantir RFx Blog Series, which breaks down some of the key pillars of a data ecosystem using language commonly found in formal solicitations such as RFIs and RFPs. Each post explores one of these pillars in varying levels of granularity with the objective of providing companies useful tools to better assess technology.
+
+Introduction
+
+Spend any time studying Palantir and the software platforms we build, and you will surely come across an unusual word: Ontology. We use it so often that it may be easy to forget its origin is a rather obscure Greek philosophical concept. At Palantir, ontology is used to describe key enabling technologies we developed to tackle the enormous range of data challenges experienced by organizations around the world. We have come to the conclusion that a functional data ecosystem must incorporate notions of ontology in order to be scalable and sustainable. In this post, we explain more what we mean by ontology, its application, and why it matters.
+
+What is an Ontology?
+
+Data ecosystems are defined by how they handle data within the system. While questions about data often center around movement (Where does the data come from? Where does it go? What does it do when it gets there? Who accesses the data and how?), the more important (though overlooked) question about data has to do with meaning: what does the data mean?
+
+All data within the system — raw data, processed data, operational data, and any data outputs from computational models — is relevant to answering this question. It’s important to note that data does not have inherent meaning; rather, meaning is layered onto the data by users of the data ecosystem. This may seem like a philosophical concern, but it is actually one of the most practical considerations of any effective data system.
+
+An ontology refers to the systematic mapping of data to meaningful semantic concepts. Effective ontologies exist outside the data itself to establish a framework that empowers data integration, application building, user collaboration, and many other functions. This effective ontology recognizes that data is agnostic. While data may inform how the ontology is structured, the ontology itself should function regardless of the data present in the ecosystem. To explain why this is the case, it is necessary to further unpack what an ontology does.
+
+An ontology provides the map that links together data and meaning by defining what is meaningful. These meaningful things are the nouns, verbs, and adjectives of an organization. For example, a bank may be concerned primarily with entities or classes of objects such as Accounts, Transactions, and Financial Products. Each of these object classes would then necessitate object class definitions in an ontology, along with other concepts connected together in a web of defined relationships. Each object class definition could have certain defined properties that describe them. When an actual example of an account, transaction, or financial product is represented in data, it is mapped into a defined object class in the form of an instantiated object. These instantiated objects can be created or deleted; they can also be linked or unlinked, and their properties can change. It is the job of data scientists to establish class definitions within the ontology in order to create instantiated objects that can then be operationalized. The graphic below expands on these abstractions:
+
+Press enter or click to view image in full size
+
+In order to achieve these three levels of abstraction, the ontology must be more than just a concept; it needs to exist as a framework of services that can use these concepts and operationalize them for data workflows and applications.
+
+Why does an Ontology Matter?
+
+Ontologies create a common vocabulary for all participants in a data ecosystem. In this way, it unifies disparate data sources and systems, enabling collaboration and dependent workflows. The ontology standardizes semantics and defines categories of meaning for users to leverage in support of personal or organizational goals. Object classes (e.g., people, facilities, accounts, transactions, products, materials, suppliers, etc), are more than just rows in a spreadsheet; they are the language of the mission.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+By mapping relevant data into conceptual object classes, users of a data operating system automatically know how to think about the underlying object that is being abstracted. This enables the development of applications and workflows to be done in an ‘ontology-aware’ fashion with far less coding and custom development than would otherwise be required. Applications become more than just data processors; they become interactive interfaces that allow users to drive operational success.
+
+In this way, the ontology provides the connective tissue between data and applications. With an effective ontology in place, data integration becomes a task of mapping raw data to an ontology, while application building becomes a task of creating ways to interact with ontological objects. Standardized logic can also be embedded in the ontology itself for consistency across applications — including, but not limited to: security settings, object aggregations and filters, object transformations, webhooks to external systems, and other forms of write-back.
+
+The ontology helps obviate the need for piecemeal mappings between data sets and applications, freeing up data scientists and application builders to focus on other more practical concerns, and helps reduce management overhead of both data pipelines and applications.
+
+Requirements for an Effective Ontology Service
+
+The Ontology service must separate data pipelines and applications. Separating the data layer and application layer is one of the key defining characteristics of an ontology service. By separating these two layers, the ontology reduces the management overhead of each layer while introducing standardized logic. New data only needs to be mapped to one place (the ontology) and new applications can be built leveraging the existing object logic.
+
+The Ontology service must expose a Dynamic Metadata service allowing ontology elements to be created, defined, modified, and deprecated. The Dynamic Metadata service (aka the Ontology Language) is where objects, attributes, and relationships can be defined and tied together to build the object graph that the ontology is defining. Ontology definitions must be dynamic so that it is possible to introduce new object, attribute, and relationship types, and change existing ones. The logic associated with objects should also be dynamic so that applications can more easily leverage the centralized contract the ontology represents.
+
+The Ontology service must expose an Object Set Service that defines how classes of objects can be grouped into sets including aggregations, filters, and searches. Objects represent not only data but semantically meaningful entities; therefore, the ontology must provide mechanisms by which those semantics can be leveraged. For example, an Object Set service describes how objects of a particular class might be logically grouped, filtered, or searched. If an object should be groupable by a particular type of attribute or relationship, the Object Set service can define those aggregations.
+
+The Ontology service must expose an Object Function service that allows for the definition of functions that can be called against object classes, including arbitrary logic such as ML models. Objects are naturally useful abstractions but much of the potential power of an ontology is embedding logic into objects themselves. If certain logic can be run against objects or sets of objects, that logic is defined in the form of a function. The function could perform simple acts like averaging object attributes or more complex tasks like running models over the object or objects in question. These functions can be callable by applications while keeping the functions standardized across applications.
+
+The Ontology service must expose an Object Action service which defines how members of an object class can be changed. Once defined as object classes, objects will go through a series of changes as they traverse the data ecosystem. The Object Action service dictates how an object changes, including how the type of change defines the rules and requirements for those changes. Whether simply toggling the value of a particular attribute or linking multiple objects together, these actions can be defined and standardized across an enterprise.
+
+The Ontology service must leverage a performant object storage layer so that objects can be treated in real time, including objects that have time-sensitive or streaming attributes. Like most data storage solutions, an ontology storage service is optimized around certain types of data structures. The Ontology service must expose a storage layer specifically designed to leverage the Ontology and the various Ontology sub-services already defined in order to provide users with a rich and interactive experience.
+
+The Ontology service must expose a Webhooks service allowing object data to be directed to external systems or written back to the underlying data stores. Even though an Ontology service is critical to a modern data ecosystem, there may still be legacy systems or specific point solutions that are not able to leverage the full ontology. In order to integrate with these systems, an ontology service must expose Webhooks that allow for objects to be re-mapped into these non-ontology-aware systems so that data can be still be leveraged even if it is changed in the application layer of an enterprise. The same or similar services can be used to share data back from the application layer to the data layer so that the data representation and ontology representation of data always remain cohesive.
+
+The Ontology service must interact with enterprise security architectures, including authorization to underlying data sources. The extent to which security can be applied in an ontology-aware fashion has potentially the biggest impact on an enterprise. Objects and their attributes can be secured according to their underlying data sources while providing security around ontology types and the services that can be called on objects. Most importantly, application builders are not required to account for these security requirements as they are resident in the ontology itself, providing elevated security and standardization.
+
+Conclusion
+
+The ontology is the key enabling technology that enables data to be tamed in the interest of better outcomes, decisions, and operations — avoiding diseconomies of scale. We have provided the ontology requirements for building an effective data ecosystem. The motivations for such a capability should be obvious — and plentiful — but by far the most important reason to have an ontology is that it allows for the data ecosystem to grow and evolve over time in ways that create compounding value rather than ever increasing complexity.

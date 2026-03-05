@@ -1,0 +1,1275 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/users-and-groups",
+    "title": "Concepts - Users and groups - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "User",
+        "description": "An authenticated individual with access to Foundry, typically defined by an external identity provider with public structured attributes"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Group",
+        "description": "A set of users that simplifies permission management by granting access to projects and resources collectively rather than individually"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Identity Provider",
+        "description": "External authentication system (e.g. Active Directory) that validates users, supplies attributes, and defines groups for Foundry access"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Provider Group",
+        "description": "A group synchronized from an external identity provider into Foundry, enabling centralized access management"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "User Attributes",
+        "description": "Public structured information about a user supplied by the identity provider"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform that integrates with identity providers for user authentication and group-based access control"
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry's administration interface for configuring authentication and organization assignment"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Project",
+        "description": "A Foundry resource container to which access is typically granted via groups rather than individual users"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Identity Provider",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      { "source": "Group", "relationship": "CONTAINS", "target": "User" },
+      {
+        "source": "Identity Provider",
+        "relationship": "SECURES",
+        "target": "Group"
+      },
+      { "source": "User", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Group", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Control Panel",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      { "source": "Group", "relationship": "SECURES", "target": "Project" }
+    ],
+    "keyInsights": [
+      "Users and groups are the fundamental access control primitives in Foundry, with groups being the preferred unit for granting resource access",
+      "Foundry integrates seamlessly with external identity providers allowing centralized user and group management through existing enterprise systems",
+      "Groups can be either provider-managed (synced from IdP) or Foundry-managed, enabling hybrid identity administration"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/administration/configure-application-access",
+    "title": "Organization settings - Configure application access - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Application Access",
+        "description": "Control Panel feature that allows administrators to control which Foundry applications are visible and accessible to specific users and groups"
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry's administration interface where application access, roles, and organizational settings are managed"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Allowlist",
+        "description": "Application access configuration mode that restricts Foundry platform access to only members of specified groups"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Blocklist",
+        "description": "Application access configuration mode that restricts Foundry platform access for everyone except members of specified groups"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "User Experience Administrator",
+        "description": "A Foundry role that grants the Manage Application Access workflow for configuring application visibility"
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "A consumer-facing Foundry application accessible even to users with restricted platform access"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "A consumer-facing Foundry application accessible even to users with restricted platform access"
+      },
+      {
+        "type": "Product",
+        "name": "Approvals",
+        "description": "Foundry governance service that tracks application access change requests with configurable approval policies"
+      },
+      {
+        "type": "Pattern",
+        "name": "Application Access Restriction",
+        "description": "Pattern of limiting visible Foundry applications to streamline experience for operational users who work within custom applications or curated analyses"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Application Access",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      {
+        "source": "Application Access",
+        "relationship": "PART_OF",
+        "target": "Control Panel"
+      },
+      {
+        "source": "User Experience Administrator",
+        "relationship": "SECURES",
+        "target": "Application Access"
+      },
+      {
+        "source": "Application Access Restriction",
+        "relationship": "ENABLES",
+        "target": "Application Access"
+      },
+      {
+        "source": "Approvals",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Control Panel"
+      },
+      { "source": "Slate", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Workshop", "relationship": "PART_OF", "target": "Foundry" }
+    ],
+    "keyInsights": [
+      "Application access is a UX simplification feature, not a security feature; it only controls frontend visibility of applications, not actual permissions",
+      "The most restrictive configuration removes all Foundry platform access, leaving users with only consumer-facing apps like Slate and Workshop",
+      "Application access changes go through a governance workflow via Approvals, with configurable approval policies that default to self-approval",
+      "Two restriction modes exist: allowlist (only specified groups get access) and blocklist (everyone except specified groups gets access)",
+      "Beta application rollout is a common use case, giving advanced users early access while restricting availability to the broader base"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-enables-a-secure-rapid-software-development-environment-2f918b021568",
+    "title": "How Palantir Enables a Secure, Rapid Software Development Environment - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Software Supply Chain Security",
+        "description": "Palantir's SSCS program for securing the entire software development lifecycle against advanced persistent threats and supply chain attacks"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Zero Trust",
+        "description": "Security architecture where all devices are assumed potentially hostile or compromised, requiring continuous verification"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Device Authentication",
+        "description": "Azure AD Conditional Access policies enforcing device-based authentication including managed device certificates, Intune enrollment, and platform compliance"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Conditional Access Policies",
+        "description": "Microsoft Azure AD policies that enforce security requirements at authentication time, including device compliance, MFA, and geographic restrictions"
+      },
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's internally-hosted infrastructure for secure software deployment lifecycle, providing controlled build and deployment pipelines"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "VPN Full Tunnel",
+        "description": "Network access control requiring all Palantir devices to connect through a full-tunnel VPN authenticated via SSO passwordless login"
+      },
+      {
+        "type": "Pattern",
+        "name": "Defense in Depth",
+        "description": "Security architecture layering multiple controls so compromise of one layer does not grant full access"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Advanced Persistent Threat",
+        "description": "Sophisticated nation-state and criminal adversaries targeting Palantir through zero-day exploitation, social engineering, and supply chain attacks"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Zero Trust", "relationship": "SECURES", "target": "User" },
+      {
+        "source": "Device Authentication",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      {
+        "source": "Software Supply Chain Security",
+        "relationship": "SECURES",
+        "target": "Apollo"
+      },
+      {
+        "source": "VPN Full Tunnel",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      { "source": "Apollo", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Conditional Access Policies",
+        "relationship": "SECURES",
+        "target": "User"
+      }
+    ],
+    "keyInsights": [
+      "Palantir hosts its own infrastructure rather than relying on SaaS platforms to reduce breach likelihood from upstream vendor compromise",
+      "Zero trust and assume-breach mentalities drive Palantir's security architecture, treating all devices as potentially hostile",
+      "Device-based authentication policies enforce managed device certificates, Intune enrollment, and platform compliance at every authentication event",
+      "Palantir operates FedRAMP/IL5/IL6 accredited environments for their secure software development lifecycle",
+      "Software supply chain attacks are identified as among the greatest risks, necessitating bleeding-edge security solutions"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/authentication/multi-factor-auth",
+    "title": "Authentication - Multi-factor authentication - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Multi-Factor Authentication",
+        "description": "Required Foundry authentication layer providing additional identity verification via app-based two-factor authentication or identity provider-managed MFA"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "SAML 2.0",
+        "description": "Security Assertion Markup Language protocol used for Foundry identity provider integration and single sign-on configuration"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Two-Factor Authentication",
+        "description": "App-based authentication method managed within Foundry that generates codes for multi-factor verification"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Platform Administrator",
+        "description": "Foundry role with elevated privileges including the ability to reset user two-factor authentication methods"
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry administration interface where MFA configuration and user management are performed"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organization Assignment",
+        "description": "Foundry configuration step following MFA setup that assigns users to their organizational context"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Multi-Factor Authentication",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      { "source": "SAML 2.0", "relationship": "SECURES", "target": "User" },
+      {
+        "source": "Multi-Factor Authentication",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Platform Administrator",
+        "relationship": "SECURES",
+        "target": "Multi-Factor Authentication"
+      },
+      {
+        "source": "Two-Factor Authentication",
+        "relationship": "PART_OF",
+        "target": "Multi-Factor Authentication"
+      }
+    ],
+    "keyInsights": [
+      "Multi-factor authentication is mandatory for all Foundry access, either managed through the platform or delegated to the identity provider",
+      "MFA can be managed in two modes: directly within Foundry using app-based 2FA, or through the organization's identity provider",
+      "Platform Administrators can reset user MFA methods through Control Panel's user management interface",
+      "SAML 2.0 integration is configured before MFA setup, establishing the identity provider connection first"
+    ]
+  },
+  {
+    "url": "https://bronson.ai/resources/security-and-privacy-on-palantir-best-practices/",
+    "title": "Security and Privacy on Palantir: Best Practices - Bronson.AI",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Encryption at Rest",
+        "description": "Data protection mechanism using AES-256/128 encryption for stored data in Foundry databases"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Encryption in Transit",
+        "description": "Data protection mechanism using TLS 1.2+ encryption for data transmitted across networks in Foundry"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Access Controls",
+        "description": "Foundational security element defining user roles and permissions to ensure only authorized personnel access sensitive data"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Minimization",
+        "description": "Privacy practice of collecting only necessary data for specific purposes, supported by Foundry tooling"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Anonymization",
+        "description": "Privacy technique for removing or obfuscating personally identifiable information, with Foundry providing supporting tools"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Audit Logging",
+        "description": "Comprehensive tracking of user activities and data access patterns for security monitoring and compliance"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "HIPAA Compliance",
+        "description": "Healthcare regulatory compliance framework supported by Palantir's security controls"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "GDPR Compliance",
+        "description": "European data protection regulatory compliance supported by Palantir's privacy and security features"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "ITAR Compliance",
+        "description": "International Traffic in Arms Regulations compliance supported by Palantir's data governance capabilities"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data platform supporting robust encryption, access controls, audit logging, and regulatory compliance"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Encryption at Rest",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Encryption in Transit",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Access Controls",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      {
+        "source": "Audit Logging",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Anonymization",
+        "relationship": "SECURES",
+        "target": "User"
+      },
+      {
+        "source": "Multi-Factor Authentication",
+        "relationship": "SECURES",
+        "target": "User"
+      }
+    ],
+    "keyInsights": [
+      "Palantir supports robust encryption standards including TLS 1.2+ for transit and AES-256/128 for data at rest",
+      "Foundry provides built-in tools for data minimization and anonymization to reduce risk of sensitive data exposure",
+      "Comprehensive audit logging tracks user activities and data access patterns enabling real-time anomaly detection",
+      "Palantir platforms are designed to meet stringent compliance requirements including GDPR, HIPAA, SOC 2, and ITAR",
+      "Human error is identified as a leading cause of data breaches, making employee security training essential alongside platform controls"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/listeners-security",
+    "title": "Data Connection - Listeners - Security - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Listener",
+        "description": "Data Connection component that allows external systems to push data into Foundry, implementing security protocols defined by the external system rather than standard Foundry authentication"
+      },
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry's data ingestion platform that supports listeners for external system push-based data flow"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Listener Subdomain",
+        "description": "Dedicated subdomain assigned to listeners for granular ingress control, governance workflows, and isolation from primary enrollment domains"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Endpoint Rotation",
+        "description": "Security mechanism allowing compromised listener endpoints to be migrated to new endpoints with zero downtime"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Listener Security",
+        "description": "Security paradigm for listeners where external system protocols define request authorization rather than standard Foundry authentication"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Security labels that can be applied to listeners for additional access control and data governance"
+      },
+      {
+        "type": "Pattern",
+        "name": "Subdomain Isolation",
+        "description": "Pattern of isolating less secure listener endpoints from primary enrollment domains using dedicated subdomains"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Output Stream",
+        "description": "The data stream produced by a listener that must be secured alongside the listener itself"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Listener",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Listener Subdomain",
+        "relationship": "SECURES",
+        "target": "Listener"
+      },
+      {
+        "source": "Endpoint Rotation",
+        "relationship": "SECURES",
+        "target": "Listener"
+      },
+      { "source": "Markings", "relationship": "SECURES", "target": "Listener" },
+      {
+        "source": "Subdomain Isolation",
+        "relationship": "ENABLES",
+        "target": "Listener"
+      },
+      {
+        "source": "Listener",
+        "relationship": "CONTAINS",
+        "target": "Output Stream"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Listeners bypass standard Foundry authentication, instead implementing security protocols defined by the external systems pushing data",
+      "Dedicated subdomains provide granular ingress control and isolate less secure listener endpoints from primary Foundry enrollment domains",
+      "Endpoint rotation enables zero-downtime migration when a listener endpoint is compromised, supporting one active endpoint at a time",
+      "Data redaction on incoming listener data is best-effort only; Palantir cannot guarantee full removal of sensitive tokens from request bodies",
+      "Both the listener itself and its output stream must be secured, typically by placing both in a restricted project and applying markings"
+    ]
+  },
+  {
+    "url": "https://news.ycombinator.com/item?id=18494628",
+    "title": "Introducing Conjure, Palantir's Toolchain for HTTP/JSON APIs - Hacker News",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Conjure",
+        "description": "Palantir's API definition toolchain for HTTP/JSON APIs that generates human-quality client and server code from declarative API definitions across multiple languages"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure API Definition",
+        "description": "Declarative API format that constrains API design to ensure consistency across services while generating drop-in code replacements"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure Backcompat Checker",
+        "description": "CI tool that automatically validates wire-format backward compatibility of Conjure API changes"
+      },
+      {
+        "type": "Pattern",
+        "name": "Semver API Versioning",
+        "description": "Pattern where Conjure APIs use semantic versioning with embedded minimum/maximum version constraints in microservices and frontends"
+      },
+      {
+        "type": "Product",
+        "name": "SLS Packaging",
+        "description": "Palantir's open-source deployment packaging tooling that manages version constraints between services"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Wire Format Compatibility",
+        "description": "API design constraint requiring only additive changes to requests (optional fields) and no removals from responses to maintain backward compatibility"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Conjure", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Conjure API Definition",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure Backcompat Checker",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "Semver API Versioning",
+        "relationship": "ENABLES",
+        "target": "Conjure"
+      },
+      {
+        "source": "SLS Packaging",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Conjure"
+      },
+      {
+        "source": "Wire Format Compatibility",
+        "relationship": "EXAMPLE_OF",
+        "target": "Conjure API Definition"
+      }
+    ],
+    "keyInsights": [
+      "Conjure was created in 2016 to replace hand-maintained JAX-RS Java services and TypeScript frontend clients with generated code from declarative API definitions",
+      "Conjure was chosen over gRPC/Protobuf because browser support for gRPC was poor at the time, and frontend-backend communication was the primary pain point",
+      "Conjure enforces strong enough constraints to ensure consistent APIs across services, unlike Swagger/OpenAPI which was too general",
+      "Deployment infrastructure enforces embedded version constraints, ensuring major API version bumps only roll out when all callers declare support",
+      "A CI backcompat checker automatically catches unintended wire-format breaking changes before they reach production"
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/java-compute-module",
+    "title": "GitHub - palantir/java-compute-module: Java library for writing Compute Modules",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Java Compute Module SDK",
+        "description": "Open-source Java library for creating Compute Modules using a builder pattern with function registration, service discovery, and token management"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Compute Module",
+        "description": "Foundry feature enabling containerized workloads with registered functions that handle typed input/output and execute within Foundry's managed runtime"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "A named unit of logic registered on a Compute Module with typed input and output classes, referenced by a unique identifier"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "ComputeModule Builder",
+        "description": "Builder pattern API for constructing ComputeModule instances by adding functions with input/output types and identifiers via .add() method"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Context",
+        "description": "Runtime context object passed to Compute Module functions providing access to service discovery and authentication tokens"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform in which Compute Modules are deployed and executed as containerized workloads"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Compute Module",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "CONTAINS",
+        "target": "Function"
+      },
+      {
+        "source": "Java Compute Module SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      {
+        "source": "ComputeModule Builder",
+        "relationship": "DEFINED_BY",
+        "target": "Java Compute Module SDK"
+      },
+      {
+        "source": "Context",
+        "relationship": "DEFINED_BY",
+        "target": "Java Compute Module SDK"
+      },
+      {
+        "source": "Function",
+        "relationship": "DEFINED_BY",
+        "target": "ComputeModule Builder"
+      }
+    ],
+    "keyInsights": [
+      "Compute Modules use a builder pattern where functions are registered with typed input/output classes and unique string identifiers",
+      "The Java SDK is in incubating phase and provides ComputeModule, Context, and function registration APIs",
+      "Functions receive a Context object providing service discovery and token management alongside their typed input parameter",
+      "The SDK handles containerized execution concerns including service discovery and authentication token management transparently"
+    ]
+  },
+  {
+    "url": "https://dorians.medium.com/foundry-compute-modules-0b89d4897cd0",
+    "title": "Foundry Compute Modules: The Missing Getting Started Guide - Medium",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Compute Module",
+        "description": "Foundry feature for building and deploying containerized workloads, enabling developers to use any programming language for compute-intensive, long-running, or stateful processes"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Sidecar Container",
+        "description": "Container provided by Foundry's deployment process that polls for function invocations and passes jobs to the user's compute module container"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Job Polling",
+        "description": "Long-polling mechanism where the sidecar container checks for function invocations, returning 200 with job data when found or 204 to retry"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Module Auth Token",
+        "description": "Authentication token read from MODULE_AUTH_TOKEN environment variable, required in Module-Auth-Token header for all sidecar API calls"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Internal Query API",
+        "description": "Sidecar REST API at localhost:8945 with /internal-query/job for getting jobs and /internal-query/results/{jobId} for posting results"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Named computation registered in a Compute Module that processes typed queries and returns results via the sidecar container"
+      },
+      {
+        "type": "UseCase",
+        "name": "Compute Module Use Cases",
+        "description": "Job queues for optimization, reverse proxies, data caching, image processing with ImageMagick, and SSR/PDF generation with Puppeteer"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform where Compute Modules run as containerized workloads with integrated job routing and authentication"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Compute Module",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Sidecar Container",
+        "relationship": "DEFINED_BY",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Job Polling",
+        "relationship": "DEFINED_BY",
+        "target": "Sidecar Container"
+      },
+      {
+        "source": "Internal Query API",
+        "relationship": "DEFINED_BY",
+        "target": "Sidecar Container"
+      },
+      {
+        "source": "Module Auth Token",
+        "relationship": "SECURES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Compute Module Use Cases",
+        "relationship": "DEMONSTRATES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "CONTAINS",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "Compute Modules use a sidecar container architecture where Foundry's sidecar polls for jobs and routes them to the user's container",
+      "The sidecar exposes a localhost REST API at port 8945 for job retrieval (GET) and result posting (POST), authenticated via MODULE_AUTH_TOKEN",
+      "All jobs must have results posted back; failure to do so prevents new jobs from being routed to the worker",
+      "Compute Modules fill gaps where Foundry Functions are ill-suited: compute-intensive, long-running, or stateful processes",
+      "While giving full container control, Compute Modules trade off Foundry benefits like integrated git repositories and built-in tooling"
+    ]
+  },
+  {
+    "url": "https://learn.palantir.com/page/training-track-frontend-osdk-developer",
+    "title": "Training Track - Frontend & OSDK Developer - Palantir Learn",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Ontology SDK",
+        "description": "SDK enabling developers to get the full power of the Ontology directly in custom frontends or backends, generated via Developer Console with support for high-scale queries and Foundry writeback"
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Palantir portal for creating and managing applications using Palantir APIs, generating Ontology SDKs, and optionally hosting custom React frontends"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity that OSDK developers interact with for reading, querying, and writing data"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology computation callable through OSDK for performing operations on Ontology data"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction accessible through OSDK that provides polymorphic access to Object Types"
+      },
+      {
+        "type": "Pattern",
+        "name": "Foundry as Backend",
+        "description": "Architecture pattern where Foundry serves as the backend for custom frontend applications, providing high-scale queries, writeback, and governance controls via OSDK"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform serving as the backend for OSDK-powered applications with robust query capabilities and granular governance controls"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      {
+        "source": "Ontology SDK",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology SDK",
+        "relationship": "OPERATES_ON",
+        "target": "Function"
+      },
+      {
+        "source": "Ontology SDK",
+        "relationship": "OPERATES_ON",
+        "target": "Interface"
+      },
+      {
+        "source": "Foundry as Backend",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology SDK",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Developer Console",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "OSDK treats Foundry as a backend, enabling custom frontends to leverage Ontology's high-scale queries and writeback alongside granular governance controls",
+      "Developer Console is the central portal for generating OSDK, managing applications, and optionally hosting custom React frontends",
+      "The OSDK training track covers end-to-end workflows from Ontology creation through building custom React applications that read and write Ontology data",
+      "OAuth authentication is used for OSDK applications accessing data as either public or confidential clients"
+    ]
+  },
+  {
+    "url": "https://platformengineering.org/talks-library/palantir-gitops-internal-developer-platform",
+    "title": "How Palantir built their GitOps Internal Developer Platform",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's continuous deployment platform powering GitOps-based delivery of Foundry and Gotham across hundreds of environments with thousands of daily deployments"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "One of Palantir's primary customer-facing products deployed and operated through the Apollo platform"
+      },
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "One of Palantir's primary customer-facing products deployed and operated through the Apollo platform"
+      },
+      {
+        "type": "Pattern",
+        "name": "GitOps",
+        "description": "Deployment pattern where infrastructure and application state is managed through Git repositories, chosen by Palantir for developer-friendly workflows"
+      },
+      {
+        "type": "Pattern",
+        "name": "Continuous Deployment",
+        "description": "Apollo's delivery model enabling thousands of deployments and configuration changes daily across cloud, on-premises, and edge environments"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Apollo Pull Request Scale",
+        "description": "Apollo adoption reached over 10,000 monthly pull requests by 2021 with linear growth since 2017"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Apollo", "relationship": "BUILT_ON", "target": "Foundry" },
+      { "source": "Apollo", "relationship": "BUILT_ON", "target": "Gotham" },
+      {
+        "source": "Apollo",
+        "relationship": "USES_PATTERN",
+        "target": "GitOps"
+      },
+      {
+        "source": "Apollo",
+        "relationship": "USES_PATTERN",
+        "target": "Continuous Deployment"
+      },
+      {
+        "source": "Apollo Pull Request Scale",
+        "relationship": "DEFINED_BY",
+        "target": "Apollo"
+      }
+    ],
+    "keyInsights": [
+      "Apollo is Palantir's internal developer platform serving hundreds of environments with over 1,000 engineers across four-to-twelve-person teams",
+      "Palantir divided Apollo ownership between production infrastructure (~110 engineers) and internal infrastructure (<20 engineers) teams",
+      "Apollo supports three GitOps use cases: continuous deployment service management, infrastructure management, and internal developer tool management",
+      "GitOps at scale was significantly harder than expected, requiring Palantir to regroup multiple times and build a better internal developer platform",
+      "Apollo operates across hyper-scale cloud, on-premises government, and edge environments with thousands of daily deployments"
+    ]
+  },
+  {
+    "url": "https://sstech.us/real-time-deployment-with-palantir-apollo/",
+    "title": "Palantir Apollo: Real-Time Deployment in Foundry - System Soft Technologies",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Continuous delivery and deployment platform for Foundry that versions and promotes Ontologies, Pipelines, Workflows, Code Repositories, and UI tools across secure environments"
+      },
+      {
+        "type": "Pattern",
+        "name": "Object-Aware Versioning",
+        "description": "Apollo pattern of tracking versions at the operational layer including object types, actions, logic flows, policy rules, and UI definitions rather than just code commits"
+      },
+      {
+        "type": "Pattern",
+        "name": "Secure Multi-Domain Delivery",
+        "description": "Apollo pattern supporting deployments across disconnected networks, air-gapped servers, and cross-agency environments with cryptographically signed artifacts"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Environment-Specific Configuration",
+        "description": "Apollo feature for defining environment overrides including feature flags, access tiers, and compliance-specific adjustments while maintaining configuration parity"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity that Apollo versions and promotes as part of deployment packages across environments"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology entity tracked by Apollo's object-aware versioning alongside object types and logic flows"
+      },
+      {
+        "type": "UseCase",
+        "name": "Defense Logistics Deployment",
+        "description": "Use case where Apollo synchronized field asset updates across four isolated networks, reducing sync errors by 40% and eliminating three manual deployment touchpoints"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform whose applications are deeply coupled with ontology models, policy enforcement layers, and object semantics that vary by domain"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Apollo",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Object-Aware Versioning",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object-Aware Versioning",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Secure Multi-Domain Delivery",
+        "relationship": "ENABLES",
+        "target": "Apollo"
+      },
+      {
+        "source": "Defense Logistics Deployment",
+        "relationship": "DEMONSTRATES",
+        "target": "Apollo"
+      },
+      {
+        "source": "Apollo",
+        "relationship": "USES_PATTERN",
+        "target": "Object-Aware Versioning"
+      },
+      {
+        "source": "Apollo",
+        "relationship": "USES_PATTERN",
+        "target": "Secure Multi-Domain Delivery"
+      }
+    ],
+    "keyInsights": [
+      "Apollo is natively aware of Foundry's object model, meaning deployments are versioned operational logic rather than just code bundles",
+      "Standard CI/CD models break in Foundry because applications are deeply coupled with ontology models, policy enforcement, and object semantics that change by domain",
+      "Object-aware versioning tracks object types, actions, logic flows, policy rules, and UI definitions as a complete deployment unit",
+      "Apollo supports deployments across air-gapped, disconnected networks with cryptographically signed artifacts and end-to-end auditability",
+      "Every deployment is traceable and reversible without affecting data integrity or downstream objects"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/dev-toolchain/overview",
+    "title": "Overview - Dev toolchain - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Developer Toolchain",
+        "description": "Palantir's suite of developer tools for building on the Ontology including APIs, SDKs, development environments, MCP integration, and compute modules"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology SDK",
+        "description": "SDK generated from ontologies in Python, Java, and TypeScript for accessing object types, applying actions, calling functions, and running AIP Logic functions"
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "In-platform portal providing Ontology-specific documentation, OSDK generation, application management, and VS Code workspace creation"
+      },
+      {
+        "type": "Product",
+        "name": "Palantir MCP",
+        "description": "Model Context Protocol implementation allowing AI IDEs and agents to autonomously build end-to-end applications in Foundry from data integration through ontology configuration"
+      },
+      {
+        "type": "Product",
+        "name": "Code Workspaces",
+        "description": "VS Code-based development environment integrated with Developer Console for building React applications on the Palantir platform"
+      },
+      {
+        "type": "Product",
+        "name": "Platform SDK",
+        "description": "Beta SDK available in Python and TypeScript for programmatic management of platform access and data, usable alongside Ontology SDKs with same platform clients"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Compute Module",
+        "description": "Containerized code execution unit for scaling deployments as part of the developer toolchain"
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry data connection tool for building data transformation pipelines"
+      },
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry-hosted git repositories for code development and collaboration"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Foundry Branching",
+        "description": "Development feature creating safe, streamlined environments for development of end-to-end workflows"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology SDK",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Developer Console",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Palantir MCP",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Code Workspaces",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Platform SDK",
+        "relationship": "PART_OF",
+        "target": "Developer Toolchain"
+      },
+      {
+        "source": "Developer Toolchain",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      {
+        "source": "Code Workspaces",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "The developer toolchain centers on APIs and SDKs that open the Ontology to external applications, with OSDK supporting Python, Java, and TypeScript generation",
+      "Palantir MCP enables AI IDEs and agents to autonomously build end-to-end Foundry applications from data integration through ontology configuration and application development",
+      "Platform SDKs are distinct from Ontology SDKs: Platform SDKs manage platform access and data, while Ontology SDKs access ontology entities",
+      "Developer Console serves as the unified portal for OSDK generation, API documentation, application management, and VS Code workspace creation",
+      "OSDK applications use OAuth flow as public or confidential clients for data access authentication"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/language-feature-support",
+    "title": "Functions - Feature support by language - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Foundry computation unit available in TypeScript v1, TypeScript v2, Python, and AIP Logic with varying feature support across languages"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "TypeScript v2 Functions",
+        "description": "Latest TypeScript function runtime running in full Node.js environment with first-class OSDK support, configurable resources up to 8 vCPUs and 5GB memory"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "TypeScript v1 Functions",
+        "description": "Legacy TypeScript function runtime with fewer platform features than v2 but supporting functions on models and webhooks"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Python Functions",
+        "description": "Python function runtime supporting Pipeline Builder integration, deployed execution, external API calls, and Ontology interfaces"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AIP Logic Functions",
+        "description": "AI-powered function runtime supporting functions on models, bring-your-own-model, and semantic search but not interfaces or Pipeline Builder"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction accessible only in Python functions, not supported in TypeScript v1, v2, or AIP Logic"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Serverless Functions",
+        "description": "Function execution mode where resources are spun up on demand when invoked, supported across all language runtimes"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Deployed Functions",
+        "description": "Function execution mode with dedicated pre-allocated resources, supported only in TypeScript v2 and Python"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application from which functions can be invoked as queries across all language runtimes"
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry pipeline tool that can call Python functions but not TypeScript or AIP Logic functions"
+      },
+      {
+        "type": "Product",
+        "name": "Marketplace",
+        "description": "Foundry marketplace for packaging and distributing functions across all language runtimes"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "TypeScript v2 Functions",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "TypeScript v1 Functions",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Python Functions",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "AIP Logic Functions",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      { "source": "Function", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Python Functions",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Interface",
+        "relationship": "OPERATES_ON",
+        "target": "Python Functions"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Marketplace"
+      }
+    ],
+    "keyInsights": [
+      "Ontology interface support in functions is exclusive to Python; TypeScript v1, v2, and AIP Logic do not support interfaces",
+      "TypeScript v2 is the recommended runtime, providing full Node.js environment, first-class OSDK support, and configurable resources up to 8 vCPUs and 5GB memory",
+      "Pipeline Builder integration is exclusive to Python functions, making Python the choice for data pipeline workflows",
+      "Functions on models and bring-your-own-model capabilities are only available in TypeScript v1 and AIP Logic, not in v2 or Python",
+      "All function runtimes support serverless execution, but deployed execution with dedicated resources is only available in TypeScript v2 and Python",
+      "Webhook support is exclusive to TypeScript v1 functions"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/carbon/overview",
+    "title": "Carbon - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Carbon",
+        "description": "Foundry application for configuring custom platform experiences called workspaces, providing focused interfaces for operational users with streamlined navigation and curated workflows"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Workspace",
+        "description": "Custom Carbon-configured platform experience tailored to specific user groups with customized landing pages and configured module sets"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Module",
+        "description": "Parameterized application within a Carbon workspace representing a specific workflow or tool, such as a Workshop application or Quiver analysis"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application that can be embedded as modules within Carbon workspaces for operational workflows"
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry analytics tool that can be embedded as modules within Carbon workspaces for data analysis"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity that Carbon workspaces interact with through Ontology-aware search and object passing between modules"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction used in Carbon for Ontology-aware search functionality across workspaces"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "Collection of objects that can be passed between modules within Carbon workspaces"
+      },
+      {
+        "type": "UseCase",
+        "name": "Aircraft Parts Maintenance",
+        "description": "Example Carbon workspace use case with maintenance lists, triage actions, investigation modules, and trend analysis"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology actions integrated into Carbon workspaces for operational workflows like triaging parts"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Carbon", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Carbon", "relationship": "CONTAINS", "target": "Workspace" },
+      { "source": "Workspace", "relationship": "CONTAINS", "target": "Module" },
+      {
+        "source": "Module",
+        "relationship": "REFERENCES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Module",
+        "relationship": "REFERENCES",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Carbon"
+      },
+      {
+        "source": "Quiver",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Carbon"
+      },
+      {
+        "source": "Aircraft Parts Maintenance",
+        "relationship": "DEMONSTRATES",
+        "target": "Carbon"
+      },
+      {
+        "source": "Carbon",
+        "relationship": "REFERENCES",
+        "target": "Interface"
+      }
+    ],
+    "keyInsights": [
+      "Carbon creates focused experiences for operational users by selectively hiding platform complexity and restricting navigation outside the workspace",
+      "Workspaces consist of customized landing pages and configured modules that pass objects and object sets between each other",
+      "Carbon is designed for less technical users who need to carry out critical operational workflows without exposure to the full Foundry platform",
+      "Multiple workspaces can be tailored to specific user profiles with robust permissions governing access to each workspace",
+      "Modules are parameterized applications that can include Workshop apps, Foundry Actions, investigation tools, and Quiver analyses"
+    ]
+  }
+]

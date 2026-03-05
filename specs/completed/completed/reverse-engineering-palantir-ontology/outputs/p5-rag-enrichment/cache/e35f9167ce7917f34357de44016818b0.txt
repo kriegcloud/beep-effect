@@ -1,0 +1,64 @@
+Top highlight
+
+Data Protection in Palantir Foundry
+Palantir
+Follow
+6 min read
+·
+Apr 22, 2020
+
+161
+
+1
+
+Governments around the world have begun using Palantir Foundry to accelerate their response to the COVID-19 pandemic. As we recently wrote on our blog, we believe data-driven approaches to crises must be grounded in a broader understanding of technology’s promises and limitations, including a focused regard for preserving societal values such as privacy and civil liberties. Our enterprise platform, Palantir Foundry, is currently used by customers around the world to integrate data critical to combatting the COVID-19 crisis. In this post, we’ll describe in greater detail how our customers can do so in a secure and privacy-protective way.
+
+Press enter or click to view image in full size
+
+Palantir Foundry is a software platform that lets our customers integrate their data in a secure environment so everyone in the organization can use it to make decisions, with access controls that govern how users see and interact with data. Organizations use Foundry to bring together their existing data sources to which they already have lawful access, and they retain control over their data at all times. Foundry offers a range of data protection functionalities that have been developed in close partnership with our customers over the years and now enable them and others to comply with complex laws, such as the EU General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA).
+
+We recognize that privacy concerns are often complex, multifaceted, and can rarely be addressed by technology alone. We have, therefore, built on our broad experience across industries to also develop procedural best practices in data governance that give meaning and merit to the technical controls that are built into our products by design.
+
+Below, we share both technical and organizational approaches that guide our customers toward sustainable business transformation through responsible data use.
+
+Bring compliance users into the platform. There’s a fundamental tension between enterprise platform architectures, which promise to break down silos and make data from different sources more broadly accessible across an organization, and the core tenets of data protection law, which focus on data minimization and purpose specification. Business teams face an immense amount of pressure to unlock value, and compliance teams can struggle to keep pace with ever-changing institutional demands. As a result, business and compliance teams often work past, if not against, each other.
+
+To facilitate communication and collaboration between these teams, we have developed a data governance infrastructure that allows business and compliance users to collaborate in Palantir Foundry itself. Often, compliance workflows are entirely disconnected from the technology they are intended to govern. Rules may or may not be rigorously followed and cannot be reliably tracked; users may end up accidentally sharing sensitive information in an attempt to seek approvals. In Foundry, approval processes can be tracked directly in the platform, with rules dynamically enforced and attached to the data itself. Business users can be asked to specify the purpose of processing at ingestion, and compliance users can review the legitimacy and minimize access to sensitive data in Foundry. This seamless process reduces friction and enables teams with different priorities to work towards the same long-term goals.
+
+Identify the sensitive data that you most need to protect. In our experience, data is often spread across legacy systems that have accumulated over decades of mergers, acquisitions, and organizational refactoring. This complexity makes it difficult to answer basic questions about regulated data, such as what type of data is flowing and where (both organizationally and geographically), and for what purposes.
+
+Palantir Foundry facilitates this process by allowing organizations to build up their own library of sensitive data definitions that can help infer the presence of sensitive data as soon as they land onto the platform. For example, an organization might have their own format of a customer ID or proprietary data that they want to trigger an alert on when it enters Palantir Foundry. Compliance teams can then immediately take actions to control further processing of that data, ranging from temporary restrictions for review to automatic lock-downs.
+
+Limit access to sensitive data based on legitimate need. Integrating data into a unified platform is not an end in itself. The goal of data integration is to break down silos to grant users a level of access to data that is necessary and proportional to achieving legitimate processing purposes.
+
+Palantir Foundry implements granular and differentiated access controls that travel along data pipelines as data is transformed, ensuring that the most restrictive controls always apply and avoiding accidental overexposure of data. Data access can also dynamically be minimized downstream, e.g., by removing or hashing columns containing sensitive data.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Trace the provenance and any further transformations of your data. Transparency is a core principle of privacy by design and an integral part of maintaining organizational accountability and oversight. The more data an organization holds, the more easily an organization loses track of how this data is processed over time.
+
+In order to make its data processing activities transparent to data subjects and regulatory authorities, enterprises need infrastructure that maintains the provenance of all data, including any changes that have been made to it, when they were made, and by whom. Foundry automatically generates data provenance, which can help administrators trace data to its source and track any access to, as well as transformations thereof, the data throughout its lifecycle. (Technically minded readers can learn more in an earlier blog post.)
+
+Facilitate responsible data use through intuitive controls. From product to business development, design to deployment, it is critical for organizations to work with users, not against them. Expecting employees to remember complex laws and requiring them to fill in form after form more often leads to mistakes and frustration, rather than enabling them and their employers to comply.
+
+To help users truly understand what responsible data use means in practice, organizations can complement hands-on training with technical controls such as nudges and checkpoints. Foundry allows organizations to remind users when they are about to engage in potentially sensitive processing operations, prompting them to review and acknowledge relevant policies, and to provide the purpose of processing prior to being able to proceed. This has the added benefit of creating an auditable notation for subsequent verification and accountability.
+
+Delete data when you no longer need it. The importance of adopting a whole-of-platform approach to data protection becomes immediately apparent in the context of deletion. Deletion is often a significant technical challenge when data is distributed across systems, because an organization needs to determine what data needs to be deleted and when, then find that data and securely remove it without accidentally affecting any other data processing downstream. An integrated data foundation can help compliance users maintain a comprehensive overview of their processing operations, trace, and delete data back to the source.
+
+Note that deleting data when it is no longer needed is important not only from a data protection, but also business perspective: it enables organizations to focus on the data that matters while minimizing the risks of accidental exposure in the event of a breach. Foundry includes a flexible policy engine that can be configured to manage complex retention and deletion policies, so that enterprises can be confident they have deleted personal data to the standard required by law.
+
+A comprehensive approach. Since Palantir’s founding, we’ve believed that protecting privacy and civil liberties requires a comprehensive approach. At an organizational level, we have committed our intellectual and financial capital to the creation of an in-house Privacy and Civil Liberties (PCL) engineering team. This interdisciplinary team of software engineers, data scientists, philosophers, policy experts, and designers regularly meets with customers to help them develop privacy and civil liberties-protective workflows.
+
+We have taken a similar “whole-of-platform” approach to privacy engineering at the technical level. Just as siloed data prevents users from answering complex business questions, piecemeal solutions to technical privacy challenges do not prepare organizations for an evolving global data protection landscape. There is no “protect privacy” button. It is only on the basis of an integrated data foundation that organizations can build a comprehensive overview of their processing operations and apply the appropriate controls.
+
+Comprehensive privacy protection is especially important as our society works to resolve the current public health crisis. As the head of our Privacy and Civil Liberties team wrote recently, “In acting decisively to defeat this pandemic, we must do so in a way that we will recognize ourselves when it’s done.” That requires ensuring sensitive data is used in accordance with data protection principles.
+
+We built Foundry to help organizations map, understand, and operationalize their data, so they can use that data to make informed, timely decisions. Those same capabilities are helping our partners maintain critical legal and ethical standards, even as they move quickly to combat the pandemic. We’re proud to build technology that upholds our shared values and incentivizes the responsible use of data to solve urgent problems.
+
+Authors
+
+Paula Kift, Palantir Head of Privacy Partnerships, and Yeong Wei Wee, Palantir Privacy Engineering Lead

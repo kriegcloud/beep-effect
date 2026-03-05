@@ -1,0 +1,91 @@
+Testing in Depth. (Also, please don’t use undeclared dependencies.)
+Robert Fink
+Follow
+7 min read
+·
+May 27, 2021
+
+36
+
+Press enter or click to view image in full size
+
+I caught the following discussion (slightly paraphrased) in our internal chat this morning:
+
+Alice: We see a java.lang.ClassNotFoundException in our start-up logs; this happened after a dependencies upgrade of our database clients.
+
+Bob: The database folks need to update their RPC library dependency. The database client was using an OkHttp dependency coming transitively from the RPC library. The RPC library removed support for OkHttp, and so when you upgraded the database client can’t find the OkHttp class.
+
+Alice: Hmm, but our builds didn’t fail? Ah, I guess we use in-memory databases for our integration tests. They won’t hit the OkHttp path.
+
+Bob. Exactly. Fortunately, this won’t be a P0 for anyone, because Apollo has already automatically rolled back and recalled the affected release.
+
+Alice: True. But still, let’s fix the database dependency setup as soon as possible?
+
+How did this bug escape testing? Why didn’t it wake the engineers up in middle of the night? How exactly did our continuous delivery system, Apollo, help us? There’s a lot to unpack here, which the following blog post attempts to do.
+
+Don’t use undeclared dependencies: AKA, the bug.
+Press enter or click to view image in full size
+
+The product being discussed above has roughly the call shown here.
+
+The product uses an RPC library (we use Conjure for RPC) to make calls to several web services. It also has a dependency on a Database Client with two different implementations:
+
+For pre-release integration testing (“in vitro”, blue), we use an in-memory fake implementation (more on this below).
+The production implementation (“in vivo”, red) uses the RPC library to make calls to a remote database service. (This is AtlasDb/Cassandra).
+
+You may already smell a diamond dependency problem; well, here it comes. The RPC library initially used OkHttp internally to make HTTP calls, yielding the following dependency setup:
+
+Product @1.0.0
+    → RPC @2.0.0
+        → OkHttp
+    → DatabaseClient
+        → RPC @2.0.0
+            → OkHttp
+
+The RPC library later migrated to the Apache HTTP client and removed the OkHttp dependency; when the product upgraded to the new RPC library with version 2.1. The dependency graph looked like this:
+
+Product @1.1.0
+    → RPC @2.1.0
+    → DatabaseClient
+        → RPC @2.0.0
+            → OkHttp
+
+Note that the RPC dependency appears twice in the dependency graph — once as a direct dependency with version 2.1.0 (using the Apache HTTP Client) and once as a transitive dependency of DatabaseClient with version 2.0.0 (using OkHttp). Our build system (Gradle) uses lock files for dependencies (relatedly, check out our gradle-consistent-versions plugin, it’s pretty neat). Typically, the product developer would lock the RPC dependency to 2.1.0, effectively overriding and upgrading the DatabaseClient dependency on RPC@2.0.0.
+
+Get Robert Fink’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Thus far, we haven’t done anything wrong: RPC upgraded an internal library, none of its behavior or APIs changed (and so a minor version bump 2.0.0 → 2.1.0 is justified), and the build system picked up the new RPC dependency and applied it consistently. Note that OkHttp is no longer a dependency, but this is fine because RPC@2.1.0 no longer uses OkHttp.
+
+So, if we haven’t done anything wrong, how did this go sideways? It turns out that DatabaseClient was using OkHttp classes directly (i.e. outside of the RPC library). But, DatabaseClient did not declare a dependency on OkHttp. In other words, DatabaseClient used a transitive dependency without declaring it, effectively relying on private implementation details of the RPC library. This is a build system bug and is easily fixed by adding an explicit OkHttp dependency to the DatabaseClient library.
+
+Could we have prevented the bug? Well, it depends on the build system tooling. At Palantir, we use many Gradle plugins to help with dependency hygiene:
+
+gradle-consistent-versions lets developers declare dependency versions for projects. (It’s subtly different from nebula.dependency-recommender and vanilla Gradle 4.8+ lock files, take a look at the README for more detail.)
+checkClassUniqueness prevents duplicate classes on the class path. Note that deduplicating dependencies by Maven coordinate is not sufficient, for instance when internal or open-source dependencies get renamed. Duplicate classes are a nasty source of subtle bugs, because the runtime behavior (i.e. which class gets used) depends on hard-to-observe properties like the file system order of dependency JAR files.
+checkImplicitDependencies tries hard to prevent exactly what was causing the bug described above: dependencies that are used but not declared. At this point, determining exactly when a class is used but not declared is not a fully solved problem, in particular when libraries use reflection. Why didn’t checkImplicitDependencies catch the problem in this case? Unfortunately, the check was not enforced at CI time; we are of course fixing the root cause by adding the check.
+checkUnusedDependencies alerts developers when they declare dependencies that they don’t use. While this might look primarily like a hygiene problem, a minimal dependency footprint reduces the risk of shipping vulnerabilities and helps keep release sizes small.
+gradle-dependency-control (internal) manages central allowlists and denylists for dependencies
+
+The Java Jigsaw project as well as Maven’s dependency scopes (cleanly expressed using Gradle’s api vs implementation configurations) target these problems in a more principled way by letting developers make explicit (and enforceable!) splits between public and private APIs and dependencies. I hope that Jigsaw module adoption will slowly percolate through open-source and Palantir code bases, helping to increase code quality and prevent dependency bugs. For more reading on the topic, check out the documentation to Google’s Bazel build system, describing exactly the same problem.
+
+Testing in Depth
+
+So far, we have discussed Alice and Bob’s bug and how certain build systems and plugins help with dependency hygiene. Now, let’s move on and talk about Alice’s “Hmm, but our builds didn’t fail?“ and Bob’s “this won’t be a P0 for anyone“ statements. Why did this bug not lead to a widespread outage at Palantir? The answer is what I call Testing in Depth. By analogy with the concept of Defense in Depth in information security, Testing in Depth is the practice of layering different testing and monitoring techniques, each of them focusing on various aspects of overall software correctness.
+
+Standard testing layers are unit, integration, and end-to-end tests. The product discussed above has extensive unit test coverage and employs pre-merge integration tests to exercise product ↔ database interactions. With a focus on quick CI times, those tests are written against an in-memory test fake implementation of the database service. None of these tests failed, because they didn’t hit the RPC code path that depends on the (absent) OkHttp library.
+
+The obvious choice is to add end-to-end tests that exercise the RPC code path, for instance against a development database stack or against a Docker container. But is the obvious answer also the correct answer? It depends, and as always, there are trade-offs. End-to-end tests are slow and notoriously hard to maintain (see Software Engineering at Google for a second opinion). In other words, they are bad for development velocity and, thus, expensive in terms of developer time and ultimately dollars. If they only very occasionally catch problems, then the cost/benefit analysis doesn’t balance out.
+
+At Palantir, we prefer to layer in-vitro (i.e. pre-release) unit and integration tests with in-vivo (i.e. post-release) monitoring. I have previously written about Apollo, the continuous delivery system for our SaaS platforms. As alluded to in the conversation between Alice and Bob, a couple of Apollo features combined their powers to catch the dependency bug cheaply and effectively. First, all Apollo-managed applications produce health checks that Apollo, in turn, monitors. Health checks can alert on degraded performance, exception behavior, RPC issues, memory footprint, etc. Apollo continually monitors all health checks and uses them to take corrective action (see below).
+
+Second, new product releases are rolled out by Apollo in a controlled fashion. Apollo first upgrades development and canary stacks before moving to internal and finally customer-facing production stacks. Within a given stack, Apollo uses a variant of blue/green deployment to upgrade different nodes of the same application node-by-node. After each node upgrade, Apollo examines the health checks (we call this adjudication). When health checks fail, two things happen: the upgrade immediately gets rolled back to the latest known-good version and the release gets recalled. A recalled release gets rolled back on all stacks (not just the one that reported the issue) and Apollo will never install it again. Affected development teams are automatically alerted of the rollback and recall so they can investigate and fix their product.
+
+This entire process is automatic, managed by Apollo across hundreds of stacks with hundreds of services, applications, and databases. In the case of Alice and Bob, Apollo prevented a fleet-wide outage and P0 by catching a small oversight in library dependency declaration. More generally, we have found that in-vivo monitoring produces better and cheaper error signaling than in-vitro end-to-end testing and as such is an integral component of Palantir’s Testing in Depth strategy.
+
+Authors
+
+Robert Fink is a Distinguished Software Engineer at Palantir and the founding engineer of Palantir Foundry. If you’d like to work on my team: I am hiring.

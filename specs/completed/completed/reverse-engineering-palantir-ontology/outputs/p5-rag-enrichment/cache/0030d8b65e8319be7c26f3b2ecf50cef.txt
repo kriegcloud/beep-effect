@@ -1,0 +1,257 @@
+A Practical Guide to Using the @incremental Decorator in Foundry
+Panos Michelakis
+Follow
+8 min read
+·
+Jun 10, 2025
+
+158
+
+1
+
+This blog post was written by Panos Michelakis with support from D ONE.
+
+Press enter or click to view image in full size
+This image was created by AI
+
+In
+the world of data pipelines, efficiency isn’t just a luxury; it’s a necessity. As datasets grow and real-time expectations rise, reprocessing everything from scratch becomes both computationally expensive and operationally unsustainable.
+
+That’s where incremental computation comes in.
+
+It allows you to process only what has changed rather than the entire dataset. If you’re working in Palantir Foundry, mastering the @incremental() decorator is your key to unlocking this efficiency.
+
+Incremental logic is often tricky to implement and test. We hope this article serves as a practical guide and a reference point for best practices and common pitfalls to avoid for all data engineers.
+
+Without further ado, let’s jump right in!
+
+A Refresher for the Curious Reader
+
+Before diving into the incremental computation, let’s revisit the fundamentals that power every data pipeline in Palantir Foundry: the transform decorator and the distinction between snapshot and incremental builds.
+
+At the heart of every Foundry data transformation lies the @transform() decorator (or one of its variants, like @transform_df()). It defines the inputs and outputs of a computation and connects your code to the Foundry platform's orchestration layer. This decorator enables your logic to interact with the broader data ecosystem, handling dependencies, lineage, and execution environments behind the scenes.
+
+from transforms.api import transform, Input, Output
+@transform(
+    hair_eye_color=Input('/examples/students_hair_eye_color'),
+    processed=Output('/examples/hair_eye_color_processed')
+)
+def filter_hair_color(hair_eye_color, processed):
+    # type: (TransformInput, TransformOutput) -> None
+    filtered_df = hair_eye_color.dataframe().filter(hair_eye_color.dataframe().hair == 'Brown')
+    processed.write_dataframe(filtered_df)
+
+Here is what is happening in the code example above:
+
+Input and Output Specification: The decorator specifies that the function will take /examples/students_hair_eye_color as input and produce /examples/hair_eye_color_processed as output.
+Data Processing: The function filter_hair_color filters the input DataFrame to include only rows where the hair column is 'Brown'.
+Writing Output: The filtered DataFrame is then written to the output dataset.
+
+In a typical setup, like the one above, transforms run in snapshot mode, meaning they process the entire dataset as if it’s the first time every time. While this approach ensures completeness and simplicity, it’s often wasteful when dealing with large, slowly changing datasets.
+
+Understanding Incremental Computation in Foundry
+
+Imagine a dataset containing historical financial transactions for a multinational bank. The dataset may contain tens of millions of rows and grow daily, but the business logic only needs to process the new transactions appended each day.
+
+With a traditional snapshot build, every run would reprocess the entire history, leading to a colossal waste of time and compute. By contrast, an incremental transform can filter and process just the latest additions, writing only the relevant output. This seemingly small shift can translate into massive performance gains, especially in long-running production pipelines.
+
+Enter the incremental()decorator. This decorator can be used to wrap a transform’s compute function with logic for enabling incremental computation:
+
+from transforms.api import transform, incremental, Input, Output
+
+@incremental()
+@transform(
+    students=Input('/examples/students_hair_eye_color'),
+    processed=Output('/examples/hair_eye_color_processed')
+)
+def filter_hair_color(students, processed):
+    # type: (IncrementalTransformInput, IncrementalTransformOutput) -> None
+    students_df = students.dataframe('added')
+    processed.write_dataframe(students_df.filter(students_df.hair == 'Brown'))
+
+Despite its great potential, incremental logic needs to be handled with caution. Several questions arise when you think about the overall functionality:
+
+Will the compute function run incrementally every time?
+If not, what are the requirements for incremental computation?
+How do I handle both incremental and non-incremental logic?
+What if not all of my inputs are incremental in nature?
+Can I access the previously built datasets?
+
+These are only some of the questions that need to be answered in order to master this powerful Foundry feature. Let’s dissect them together, starting with the first one.
+
+To benefit from the performance gains of incremental builds, a few conditions need to align behind the scenes. The @incremental() decorator doesn’t blindly assume that your logic can be run incrementally every time. Instead, it performs a validation step before execution, checking whether your inputs and outputs are compatible with incremental behavior. When they are, and only when they are, the transform runs in a mode that processes only newly added data.
+
+This mechanism hinges on a key transformation: once the decorator is applied, your compute function no longer receives standard input and output objects, but incremental-aware ones. These enhanced interfaces allow you to read only new rows from your input datasets and append to, rather than overwrite, your outputs.
+
+The typical default behavior is to read inputs in "added" mode and write outputs in "modify" mode. These defaults are crucial: they allow your logic to scale smoothly as new data arrives, while keeping previously processed output untouched. Another useful computation mode is "replace" , where the entire output dataset is replaced with the new results from the current build. This is akin to a full refresh of the dataset.
+
+That said, not every input is treated the same. In cases where upstream datasets are periodically replaced, such as lookup tables or small static mappings, you can explicitly mark them as snapshot inputs.
+
+This tells Foundry: “This dataset may be rewritten, but it won’t break the logic of my transform.” Snapshot inputs are always read in full, which is perfectly safe for reference-like tables that don’t affect the incremental nature of your computation.
+
+Get Panos Michelakis’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Take a look at the following examples:
+
+@incremental(snapshot_inputs=['country_codes'])
+@transform(
+    phone_numbers=Input('/examples/phone_numbers'),
+    country_codes=Input('/examples/country_codes'),
+    output=Output('/examples/phone_numbers_to_country')
+)
+def map_phone_number_to_country(phone_numbers, country_codes, output):
+    # type: (TransformInput, TransformInput, TransformOutput) -> None
+
+    # this will be all unseen phone numbers since the previous run
+    phone_numbers = phone_numbers.dataframe()
+    # this will be all country codes, regardless of what has been seen previously
+    country_codes = country_codes.dataframe()
+
+    cond = [phone_numbers.country_code == country_codes.code]
+    output.write_dataframe(phone_numbers.join(country_codes, on=cond, how='left_outer'))
+
+In this example, the dataset country_codes is treated as a snapshot input, not because it's expected to change, but because we intentionally want to load it entirely on every run. At the same time, only the newly added phone_numbers are processed, allowing the transform to run incrementally without needing to recompute the entire dataset.
+
+from transforms.api import transform, incremental, Input, Output
+
+@incremental(snapshot_inputs=["employee_registry"])
+@transform(
+    new_hires=Input("/examples/new_hires"),
+    employee_registry=Input("/examples/employee_registry"),
+    output=Output("/examples/validated_new_hires")
+)
+def validate_new_hires(new_hires, employee_registry, output):
+    # type: (TransformInput, TransformInput, TransformOutput) -> None
+
+    # Only process new records added to new_hires since last run
+    new_hires_df = new_hires.dataframe()  # equivalent to 'added' mode
+
+    # Load the full registry — expected to be updated or cleaned regularly
+    registry_df = employee_registry.dataframe()
+
+    # Exclude duplicates based on employee ID
+    validated = new_hires_df.join(
+        registry_df,
+        on="employee_id",
+        how="left_anti"
+    )
+
+    output.write_dataframe(validated)
+
+In this case, employee_registry is not static. It may be modified, cleaned, or even partially overwritten between builds. Since we expect non-append changes, we explicitly declare it as a snapshot_input to:
+
+Avoid breaking incremental computation.
+Ensure the dataset is always loaded fully, as expected.
+Signal to Foundry that changes to this dataset should not invalidate the transform’s incremental logic.
+
+Let us now analyze a more realistic (and complex) scenario:
+
+from transforms.api import transform, Input, Output, incremental
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
+
+# Define the schema for the output dataset
+output_schema = T.StructType([
+    T.StructField('student_id', T.StringType(), True),
+    T.StructField('score', T.IntegerType(), True),
+    T.StructField('processed_at', T.TimestampType(), True)
+])
+
+@incremental(snapshot_inputs=["snapshot_scores"])
+@transform(
+    snapshot_scores=Input("/examples/snapshot_student_scores"),
+    processed_scores=Output("/examples/processed_student_scores")
+)
+def compute(ctx, snapshot_scores, processed_scores):
+    # Read the input dataset as a snapshot
+    input_df = snapshot_scores.dataframe(mode="current")
+
+    # Check if the transform is running incrementally
+    if ctx.is_incremental:
+        # Read the previous output to access already processed data
+        previous_df = processed_scores.dataframe(mode='previous', schema=output_schema)
+
+        # Find new rows by performing a left anti join with the previous output
+        new_rows_df = input_df.join(previous_df, on="student_id", how="left_anti")
+
+        # Add a timestamp to the new rows
+        new_rows_df = new_rows_df.withColumn('processed_at', F.current_timestamp())
+
+        # Set the mode to modify and append new rows to the output
+        processed_scores.set_mode("modify")
+        processed_scores.write_dataframe(new_rows_df)
+    else:
+        # Non-incremental processing: process the entire input dataset
+        input_df = input_df.withColumn('processed_at', F.current_timestamp())
+
+        # Write the entire processed input to the output
+        processed_scores.write_dataframe(input_df)
+
+Here is a step-by-step explanation for the code:
+
+Decorator Usage:
+The @incremental decorator is used to enable incremental processing. We specify snapshot_inputs=["snapshot_scores"] to indicate that the input dataset is a snapshot, meaning it is fully rewritten each time.
+
+2. Input and Output:
+
+The transformation function compute takes snapshot_scores as input and writes to processed_scores as output. The paths to these datasets are specified using the Input and Output classes.
+
+3. Incremental Check:
+
+Inside the function, we use ctx.is_incremental to check if the transform is running incrementally. This allows us to differentiate between incremental and non-incremental processing.
+
+4. Using “Previous” Mode:
+
+When running incrementally, we read the previous output using processed_scores.dataframe(mode='previous', schema=output_schema). This lets us access the data that was processed in previous builds.
+
+5. Data Processing:
+
+We perform a left anti-join between the current input and the previous output to find new rows that haven’t been processed before. We add a processed_at timestamp to these new rows for tracking.
+
+6. Output Mode:
+
+We set the output mode to “modify” to append new rows to the existing output dataset. In non-incremental mode, we simply process the entire input and write it to the output.
+
+In general, the compute function for your transform must support both incremental and non-incremental execution. To enforce strict incrementally, particularly in production-critical pipelines, you can set require_incremental=True in the @incremental decorator. This configuration ensures that the transform will fail if it cannot run incrementally.
+
+However, there are two notable exceptions where the transform is permitted to run non-incrementally, even with require_incremental=True:
+
+Initial Output Build: If the output dataset has never been built, Foundry allows the first build to proceed non-incrementally.
+Semantic Version Update: When the semantic_version parameter is increased, it signals that the transform's logic or expectations have changed, prompting Foundry to execute a full recomputation.
+
+During these scenarios, Foundry indicates that the transform “can run incrementally,” confirming that the incremental configuration is correct and that the non-incremental run is intentional.
+
+The following code example illustrates the use of require_incremental and semantic_version:
+
+from transforms.api import transform, Input, Output, incremental
+from pyspark.sql import functions as F
+
+@incremental(require_incremental=True, semantic_version=2)
+@transform(
+    input_data=Input("/examples/input_dataset"),
+    output_data=Output("/examples/output_dataset")
+)
+def compute(ctx, input_data, output_data):
+    input_df = input_data.dataframe()
+
+    if ctx.is_incremental:
+        processed_df = input_df.filter(input_df.column_name == 'value')
+    else:
+        processed_df = input_df.withColumn('processed_at', F.current_timestamp())
+
+    output_data.set_mode("modify")
+    output_data.write_dataframe(processed_df)
+
+In this example, increasing the semantic_version to 2 forces the next build to run non-incrementally, accommodating changes in the transform's logic. Subsequent builds will adhere to incremental execution, with require_incremental=True ensuring that any deviation from incremental conditions will result in a build failure.
+
+Conclusion
+
+In conclusion, mastering the @incremental decorator in Palantir Foundry is essential for building efficient and scalable data pipelines. By processing only new or changed data, incremental transforms significantly reduce computational overhead, improve performance, and ensure timely data delivery. This approach is particularly beneficial when dealing with large datasets or when aiming to provide real-time insights.
+
+Implementing incremental logic requires careful consideration of input and output configurations, understanding the nuances of read and write modes, and handling scenarios where full recomputation is necessary. Utilizing features like snapshot_inputs, require_incremental, and semantic_version allows for greater control and flexibility in managing data transformations.
+
+By adhering to best practices and leveraging the capabilities of the @incremental decorator, data engineers can create robust, maintainable, and efficient data workflows within Foundry. This not only optimizes resource utilization but also enhances the overall agility and responsiveness of data-driven applications.

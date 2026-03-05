@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-02-22T05:39:26Z",
+  "total_ingested": 1906,
+  "total_failed": 0,
+  "total_duration_s": 3853.7,
+  "batch_results": [
+    {
+      "batch": "functions-top20",
+      "ingested": 1906,
+      "failed": 0,
+      "duration_s": 3853.7
+    }
+  ]
+}

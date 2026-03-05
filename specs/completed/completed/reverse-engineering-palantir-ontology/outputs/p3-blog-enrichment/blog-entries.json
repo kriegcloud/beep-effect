@@ -1,0 +1,2128 @@
+[
+  {
+    "url": "https://blog.palantir.com/a-better-conversation-palantir-cse-1-8c6fb00ba5be",
+    "title": "A Better Conversation (Palantir CSE, #1)",
+    "summary": "Palantir's Customer Service Engine (CSE) is establishing a foundational set of technology standards for Customer Service AI. Dive into a related case study.",
+    "category": "case-study",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study", "ontology", "agents"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/active-directory-as-code-e9666a2e548d",
+    "title": "Active Directory as Code",
+    "summary": "Active Directory as Code Windows Automation used to be hard, or at least not straightforward, manifesting itself in right-click-to-glory deployments where API-based management was a second thought …",
+    "category": "architecture",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/a-day-in-the-life-of-a-palantir-forward-deployed-software-engineer-45ef2de257b1",
+    "title": "A Day in the Life of a Palantir Forward Deployed Software Engineer",
+    "summary": "A Palantir Forward Deployed Software Engineer talks about why he joined Palantir, his typical workday, and what makes engineering at Palantir unique.",
+    "category": "engineering-culture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["engineering-culture", "foundry", "gotham", "data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/ai-infrastructure-and-ontology-78b86f173ea6",
+    "title": "AI Infrastructure and Ontology",
+    "summary": "The Palantir - NVIDIA partnership makes NVIDIA models available through Palantir AIP and pushes Ontology to the edge through NVIDIA’s accelerated compute.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": [
+      "ontology-core",
+      "foundry",
+      "aip",
+      "ontology",
+      "open-source",
+      "agents"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/aip-virtual-tables-5094b5e4b3bd",
+    "title": "AIP Virtual Tables",
+    "summary": "Palantir AIP brings the power of Generative AI to the entire organization, securely integrating cutting-edge models with daily decision-making systems.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "aip"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/ais-role-in-reimagining-the-classification-system-2d7878c71217",
+    "title": "AI’s Role in Reimagining the Classification System",
+    "summary": "The outdated U.S. Government classification system is about to have its AI revolution. Learn how Palantir's Artificial Intelligence Platform (AIP) can help.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "aip", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/ai-systems-governance-through-the-palantir-platform-74e52d95bdb5",
+    "title": "AI Systems Governance through the Palantir Platform",
+    "summary": "How Palantir helps organizations meet AI compliance requirements, focusing on Data Governance, Risk Management, and Record Keeping under the EU AI Act.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/alerting-and-detection-strategy-framework-52dc33722df2",
+    "title": "Alerting and Detection Strategy Framework",
+    "summary": "Alerting and Detection Strategy Framework Alerting and Detection Strategies (ADS) are one of the critical requirements for an effective Incident Response (IR) and Detection team. Well-functioning IR …",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/announcing-open-source-for-palantir-government-web-services-a2dd2f821126",
+    "title": "Announcing Open Source for Palantir Government Web Services",
+    "summary": "Palantir Government Web Services offers open source tooling to accelerate builders in the defense tech ecosystem. Policy Bot for compliant change management.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "kubernetes", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/are-you-ready-new-palantir-modules-help-enable-readiness-at-the-worlds-most-critical-institutions-d088caa12725",
+    "title": "Are You Ready? New Palantir modules help enable readiness at the world’s most critical institutions",
+    "summary": "Palantir for Readiness helps leaders be proactive in asset, personnel, and financial management with an integrated 360-degree view into their organizations.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/auditing-with-osquery-part-one-introduction-to-the-linux-audit-framework-217967cec406",
+    "title": "Auditing with osquery: Part One — Introduction to the Linux Audit Framework",
+    "summary": "This blog post is the first in a two-part series where we will cover osquery’s auditing features in depth.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/beyond-anonymisation-palantir-explained-3-46d9924df953",
+    "title": "Beyond Anonymization (Palantir Explained, #3)",
+    "summary": "This accessible blog post explains data anonymisation: what the term means, why it's hard to get right, and how to mitigate the risks of re-identification.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/beyond-founder-mode-mission-mode-b81bfa5a8d82",
+    "title": "Beyond Founder Mode: Mission Mode",
+    "summary": "Silicon Valley embraces \"Founder Mode.\" But what if your entire organization could operate like a founder? Why \"Mission Mode\" is the answer.",
+    "category": "engineering-culture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["engineering-culture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/building-end-to-end-e3a8349aee70",
+    "title": "Building End-to-End",
+    "summary": "Palantir is looking for engineers excited about taking end-to-end ownership of complex problems and building software that makes a real difference.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/building-software-for-a-zero-trust-world-61d440e5976e",
+    "title": "Building Software for a Zero Trust World",
+    "summary": "How Palantir is helping build Zero Trust architectures to safeguard the most protected data in the world",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/building-the-customer-centric-bank-drawing-up-a-tech-blueprint-e2d22a8dc341",
+    "title": "Building the Customer-Centric Bank: Drawing up a tech blueprint",
+    "summary": "Building the Customer-Centric Bank: Drawing up a tech blueprint Editors Note: This is the first post in a two-part series exploring how banks and financial service institutions can evolve to become …",
+    "category": "case-study",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/building-trust-at-scale-33f6e2f5f8f9",
+    "title": "Building Trust at Scale",
+    "summary": "Who watches the watchers? At Palantir, this isn't a rhetorical question — it's a design requirement. Read about how we're building trust at scale.",
+    "category": "security",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "foundry", "aip", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-ai-powered-process-mining-a5e0d7f10922",
+    "title": "Building with Palantir AIP: AI-Powered Process Mining",
+    "summary": "Palantir's AI-powered process mining allows companies to identify issues slowing down operations and deploy AI-driven copilots to save time and resources.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "ontology", "data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-data-tools-for-rag-oag-b3b509c8b0f3",
+    "title": "Building with Palantir AIP: Data Tools for RAG / OAG",
+    "summary": "Retrieval Augmented Generation enables gen AI to retrieve data from outside sources.\nPalantir's Ontology Augmented Generation takes RAG to the next level.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "aip", "ontology", "data-integration", "rag"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-logic-tools-for-rag-oag-fdaf8938d02e",
+    "title": "Building with Palantir AIP: Logic Tools for RAG/OAG",
+    "summary": "With Palantir’s Ontology Augmented Generation (OAG), Chad Wahlquist continues to level up Retrieval Augmented Generation (RAG)—this time, with logic tools.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "ontology", "machine-learning", "rag"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-semantic-search-dc3adf40f6a6",
+    "title": "Building with Palantir AIP: Semantic Search",
+    "summary": "Building with Palantir AIP: Semantic Search  By Chad Wahlquist, Palantir Forward Deployed Architect Welcome! This is the first “cooking show”-style video in the Building with Palantir AIP series …",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-the-ontology-software-development-kit-823fe5ac7aae",
+    "title": "Building with Palantir AIP: The Ontology Software Development Kit",
+    "summary": "The OSDK allows to you seamlessly integrate the decisions that define your business into AI-powered applications.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "References the Ontology SDK",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ontology-core", "aip", "osdk", "ontology", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+    "title": "Connecting AI to Decisions with the Palantir Ontology",
+    "summary": "The Palantir Ontology brings together data, logic, and action into a decision-centric model of the enterprise which can be leveraged by humans and AI.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ontology-core", "aip", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/customer-centric-transformation-at-a-european-bank-dabfa338a411",
+    "title": "Customer-Centric Transformation at a European Bank",
+    "summary": "How Palantir Foundry has helped a European bank make customer centricity top of its digital transformation agenda.",
+    "category": "case-study",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study", "foundry", "ontology", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/data-cataloging-bringing-order-to-chaos-9fa0db75f3f0",
+    "title": "Data Cataloging: Bringing order to chaos",
+    "summary": "How to use Palantir Foundry to manage vast quantities of organizational data at speed and scale",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/data-connection-the-first-step-in-data-integration-palantir-rfx-blog-series-2-efd908a449bb",
+    "title": "Data Connection: The first step in data integration (Palantir RFx Blog Series, #2)",
+    "summary": "Every data ecosystem requires data integration, and the first step is establishing secure, timely, and reliable data connections to source systems.",
+    "category": "architecture",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "security", "data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/data-is-the-new-snake-oil-244fdb47ad86",
+    "title": "Data is the New Snake Oil",
+    "summary": "Data is the New Snake Oil Editor’s Note: This op-ed by Palantir’s President, Shyam Sankar, was originally published in the St. Gallen Business Review. Data is often peddled as the new oil, an …",
+    "category": "case-study",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["case-study", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/data-pipeline-version-control-tracking-code-data-together-palantir-rfx-blog-series-3-4d1783d548a2",
+    "title": "Data Pipeline Version Control: Tracking code & data together (Palantir RFx Blog Series, #3)",
+    "summary": "Version control matters because it engenders trust in the data ecosystem itself, ensuring a tight security posture over all data in the system.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry", "gotham", "ontology", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/data-protection-in-palantir-foundry-5ab9f346195",
+    "title": "Data Protection in Palantir Foundry",
+    "summary": "How Palantir Foundry lets organizations integrate data in a secure and privacy-protective way to comply with complex laws like the GDPR and CCPA",
+    "category": "security",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "foundry", "privacy", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/data-streaming-real-time-data-for-real-time-decisions-palantir-rfx-blog-series-8-58a68fbc5a72",
+    "title": "Data Streaming: Real-time data for real-time decisions (Palantir RFx Blog Series, #8)",
+    "summary": "We explore the importance of data streaming technologies in contextualizing real-time data within the broader data ecosystem for business-critical decision-making.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["data-integration", "ontology", "security", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/defensive-databases-optimizing-index-refresh-semantics-554ef3852ff1",
+    "title": "Defensive Databases: Optimizing Index-Refresh Semantics",
+    "summary": "The first in a series exploring how Palantir customizes infrastructure software for reliable operation at scale.",
+    "category": "architecture",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": [
+      "architecture",
+      "foundry",
+      "aip",
+      "apollo",
+      "gotham",
+      "open-source"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/deploying-across-security-domains-449c786d92c0",
+    "title": "Deploying Across Security Domains",
+    "summary": "In this post, we unpack Palantir Apollo’s approach to deploying software into unclassified and classified air-gapped environments.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["security", "apollo"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/deploying-full-spectrum-ai-in-days-how-aip-bootcamps-work-21829ec8d560",
+    "title": "Deploying Full Spectrum AI in Days: How AIP Bootcamps Work",
+    "summary": "Palantir has introduced AIP Bootcamps, offering participants immersive, hands-on-keyboard sessions to go from zero to use case in just one to five days.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "ontology", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/designing-for-deletion-palantir-explained-6-adfe25fda810",
+    "title": "Designing for Deletion (Palantir Explained, #6)",
+    "summary": "In this blog post, we explain what deletion is, why it matters, and what challenges it poses to constructing a world-class framework for data protection.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "privacy", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/enabling-responsible-ai-in-palantir-foundry-ac23e3ad7500",
+    "title": "Enabling Responsible AI in Palantir Foundry",
+    "summary": "Find out more Foundry's latest model management capabilities for responsible AI with this blog authored by Palantir's Product Development and Privacy & Civil Liberties Teams.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": [
+      "ai-llm",
+      "foundry",
+      "security",
+      "privacy",
+      "machine-learning",
+      "responsible-ai"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/engineering-for-impact-166065e35142",
+    "title": "Engineering for Impact",
+    "summary": "UK Health Lead Joanna Peller, recipient of Data IQ’s 2022 100 award, discusses what she’s learned leading Palantir’s UK health work during the pandemic.",
+    "category": "engineering-culture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["engineering-culture", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/escaping-the-cargo-cult-4953e65e9ee1",
+    "title": "Escaping the Cargo Cult: Exchanging blind faith for real-world outcomes",
+    "summary": "Enterprise accountability requires realignment to real-world outcomes after years of scaling isolated systems bred a “cargo cult” of performative progress.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/evaluating-generative-ai-a-field-manual-0cdaf574a9e1",
+    "title": "Evaluating Generative AI (Engineering Responsible AI, #4)",
+    "summary": "Ensuring Generative AI systems are robust and reliable is more critical than ever. This blog offers essential testing and evaluation (T&E) strategies.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "responsible-ai"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/evaluating-software-palantir-rfx-blog-series-0-d40e95f39c6f",
+    "title": "Evaluating Software (Palantir RFx Blog Series, #0)",
+    "summary": "Tackling the rarely simple and often messy solicitation process, we explore how commercial organizations should evaluate digital transformation software.",
+    "category": "case-study",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/fellowships-for-open-source-developers-3892e6b75ee1",
+    "title": "Announcing Fellowships for Open-Source Developers",
+    "summary": "Announcing Fellowships for Open-Source Developers TL;DR: Palantir is offering paid opportunities for open-source developers contributing to our OSS projects. Get in touch with …",
+    "category": "engineering-culture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["engineering-culture", "kubernetes", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/from-fragile-to-resilient-building-a-connected-company-3a4f98a6518a",
+    "title": "From Fragile to Resilient: Building a connected company",
+    "summary": "The COVID-19 crisis has revealed fundamental weaknesses in our institutions. Learn how to adapt and prepare for the future.",
+    "category": "case-study",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["case-study"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/from-human-defined-to-software-defined-data-integration-part-i-42a35c568731",
+    "title": "From Human-Defined to Software-Defined Data Integration — Part I",
+    "summary": "Palantir has tackled some of the toughest data integration challenges. Until recently, most data integration work remained 'human-defined.' We decided to change that.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/from-human-defined-to-software-defined-data-integration-part-ii-data-discovery-489ad40de902",
+    "title": "From Human-Defined to Software-Defined Data Integration — Part II, Data Discovery",
+    "summary": "Data can quickly turn from commodity to avalanche. Palantir's Software-Defined Data Integration enables users to discover insights across vast data landscapes.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["data-integration", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/from-human-defined-to-software-defined-data-integration-part-iii-data-pipelines-a60b634bd8f7",
+    "title": "From Human-Defined to Software-Defined Data Integration — Part III, Data Pipelines",
+    "summary": "Writing data pipelines is slow, messy and expensive. Palantir's SDDI automates this pain away by generating complete pipelines out-of-the-box.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["data-integration", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/from-prototype-to-production-engineering-responsible-ai-3-ea18818cd222",
+    "title": "From Prototype to Production (Engineering Responsible AI, #3)",
+    "summary": "The third post in the Engineering Responsible AI series shows how rigorous testing and evaluation with Palantir AIP Evals is essential for effective AI.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "aip", "responsible-ai"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/from-service-to-software-76c1a15f32a2",
+    "title": "From Service to Software",
+    "summary": "From Service to Software Editor’s Note: This post’s author/interviewer, Chris Musselman, joined Palantir‘s Commercial business team after a long career in the US Navy. Listen to Chris talk more …",
+    "category": "engineering-culture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["engineering-culture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/hardening-palantirs-kubernetes-infrastructure-with-cilium-1c40d4c7ef0",
+    "title": "Hardening Palantir’s Kubernetes Infrastructure with Cilium",
+    "summary": "Palantir's InfoSec team shares their experience using Cilium to harden our Kubernetes Infrastructure.",
+    "category": "architecture",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "security", "kubernetes", "open-source", "agents"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/hardware-selection-and-logistics-passwordless-authentication-series-1-cef0a4550fab",
+    "title": "Hardware Selection and Logistics (Passwordless Authentication Series, #1)",
+    "summary": "The first in a series by Palantir InfoSec on our journey enforcing FIDO2 authentication via hardware authenticators (YubiKeys) across all of Palantir.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-aip-accelerates-data-migration-4c6abdd1891c",
+    "title": "How Palantir AIP Accelerates Data Migration",
+    "summary": "Enterprise data migration can be among the most costly, complex, and time-consuming endeavors organizations undertake — but it doesn’t have to be.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-enables-a-secure-rapid-software-development-environment-2f918b021568",
+    "title": "How Palantir Enables a Secure, Rapid Software Development Environment (Software Supply Chain Security, #1)",
+    "summary": "In a world of advanced threats, Palantir is committed to security-by-design. Learn how we secure our software supply chain against sophisticated adversaries.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-foundry-extends-your-data-platforms-de0e2ad82ea7",
+    "title": "How Palantir Foundry Extends Your Data Platforms",
+    "summary": "Palantir Foundry is far more than a data platform. Learn how Foundry closes the loop between data, analytics, and operational decisions.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["data-integration", "foundry", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-foundry-fuels-your-data-platform-c65c15c30e70",
+    "title": "How Palantir Foundry Fuels Your Data Platform",
+    "summary": "Learn how Foundry supercharges your existing data platform architecture through both software-defined data integration and decision orchestration.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["data-integration", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-foundry-helps-customers-build-and-deploy-ai-powered-decision-making-applications-dbfb5161279b",
+    "title": "How Palantir Foundry Helps Customers Build and Deploy AI-Powered Decision-Making Applications",
+    "summary": "Today, organizations are looking to AI solutions as a way to accelerate decision-making. Learn about Palantir's integration with AWS to power effective AI.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "foundry", "data-integration", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-foundrys-ontology-deploys-data-science-to-the-front-line-7a9679bdfd01",
+    "title": "How Palantir Foundry’s Ontology Deploys Data Science to the Front Line",
+    "summary": "Palantirian Wes Field explains how the Foundry Ontology can help data scientists revolutionize how they devise, deploy, and get results from their models.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ontology-core", "foundry", "ontology", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-integrates-threat-modeling-into-product-development-software-supply-chain-series-2-5193fb3be1b1",
+    "title": "How Palantir Integrates Threat Modeling Into Product Development (Software Supply Chain Security, #2)",
+    "summary": "The second post in our Software Supply Chain Series explores how Palantir uses Threat Modeling to catch vulnerabilities early and build secure products.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["security", "apollo"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-secures-source-control-105c49079eae",
+    "title": "How Palantir Secures Source Control (Software Supply Chain Security Series, #3)",
+    "summary": "Securing the software supply chain is crucial for national security. Learn how Palantir protects source code, from zero-trust development to commit signing.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-we-do-agile-1-35fa76e48cad",
+    "title": "How we do Agile",
+    "summary": "How we do Agile Editor’s note: This is the first of four posts in our blog series “How we do Agile”. Part 1 (this post), Part 2, Part 3, Part 4. Coined in 2001 by a group of developers who had …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "gotham"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/how-we-evolve-apis-60dbcfecc439",
+    "title": "How we evolve APIs",
+    "summary": "How we evolve APIs The APIs of Palantir’s software platforms are generally open to our customers and users and as such have to bear a natural tension between stability and agility. API consumers …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "gotham", "api-design"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/indexing-and-querying-telemetry-logs-with-lucene-234c5ce3e5f3",
+    "title": "Indexing and Querying Telemetry Logs with Lucene",
+    "summary": "Indexing and Querying Telemetry Logs with Lucene Today’s modern web applications are typically composed of tens to thousands of individual services, each providing a subset of the application’s …",
+    "category": "architecture",
+    "relevantParts": [
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/industry-ai-8cd003a81be1",
+    "title": "Industry AI",
+    "summary": "Amid geopolitical competition and the rise of Industry AI, the adoption of a Unified Namespace (UNS) is a strategic necessity.  Learn more!",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": [
+      "ai-llm",
+      "aip",
+      "ontology",
+      "data-integration",
+      "machine-learning",
+      "agents"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/inside-devops-staying-compliant-staying-productive-242b9a972cd1",
+    "title": "Inside DevOps: Staying compliant, staying productive",
+    "summary": "Inside DevOps: Staying compliant, staying productive Growing companies often face a tradeoff between speed and compliance, forced to choose between moving fast and breaking things, to use Mark …",
+    "category": "security",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["security", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/inside-the-aipcon-8-demos-redefining-the-future-of-enterprise-ai-a0a740fe44ce",
+    "title": "Inside the AIPCon 8 Demos Redefining the Future of Enterprise AI",
+    "summary": "Part 1: AIPCon 8's breakthrough demos from Andretti, Nebraska Medicine, HSS, and a leading retailer show how Palantir AI transforms enterprises.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "foundry", "aip", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/interoperability-the-ins-and-outs-of-sharing-data-palantir-rfx-blog-series-4-c984497ce42f",
+    "title": "Interoperability: The ins and outs of sharing data (Palantir RFx Blog Series, #4)",
+    "summary": "Ensuring that data systems are equipped with interoperability features is key to maximizing their utility and efficacy into the future.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/interviewing-at-palantir-advice-from-palantirians-88444a90e7c4",
+    "title": "Interviewing at Palantir",
+    "summary": "Palantir employees share tips on interviewing and insights on what makes our company a place where candidates from all backgrounds can find success.",
+    "category": "engineering-culture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["engineering-culture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-conjure-palantirs-toolchain-for-http-json-apis-2175ec172d32",
+    "title": "Introducing Conjure, Palantir’s toolchain for HTTP/JSON APIs",
+    "summary": "Introducing Conjure, Palantir’s toolchain for HTTP/JSON APIs Today we’re open sourcing Conjure, Palantir’s toolchain for HTTP/JSON APIs. From a declarative API definition written in YAML …",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture", "api-design"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-palantirs-next-gen-pipeline-builder-cc19cb48b47e",
+    "title": "Introducing Palantir’s Next-Gen Pipeline Builder",
+    "summary": "Today’s organizations require transformative approaches to getting the most out of their data. Palantir is thrilled to announce the Next-Gen Pipeline Builder.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["data-integration", "foundry", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-pfcs-forward-d8755d34c429",
+    "title": "Introducing PFCS Forward: Extending IL5/IL6 Authorization from Cloud to Edge",
+    "summary": "PFCS Forward extends Palantir's Federal Cloud Service IL5 and IL6 authorizations from cloud to edge, delivering advanced C2 capabilities to warfighters.",
+    "category": "architecture",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": [
+      "architecture",
+      "foundry",
+      "aip",
+      "apollo",
+      "gotham",
+      "security",
+      "kubernetes"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-rubix-kubernetes-at-palantir-ab0ce16ea42e",
+    "title": "Introducing Rubix: Kubernetes at Palantir",
+    "summary": "Introducing Rubix: Kubernetes at Palantir Editor’s note: In January of 2017, Palantir kicked off a project called Rubix, our effort to rebuild our cloud architecture around Kubernetes. Given the …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "security", "kubernetes"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/levels-9be772098942",
+    "title": "Leveling Up Your Company: A lexicon for digital transformation success",
+    "summary": "Leveling Up Your Company: A lexicon for digital transformation success Over the course of fifteen years and hundreds of customer deployments, we at Palantir have had some time to reflect on what …",
+    "category": "case-study",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/making-ai-and-ml-operational-the-modeling-objective-b4024897a766",
+    "title": "Making AI and ML Operational: The Modeling Objective (Palantir RFx Blog Series, #7)",
+    "summary": "We explore ML Ops, an important part of the AI-OS, with a focus on the often overlooked deployment of models into the operational environment.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": [
+      "ai-llm",
+      "ontology",
+      "security",
+      "privacy",
+      "machine-learning",
+      "responsible-ai"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/managing-and-automating-browser-extensions-at-scale-41adbadae552",
+    "title": "Managing and Automating Browser Extensions at Scale",
+    "summary": "Palantir's Information Security (InfoSec) team shares how we approach managing and automating browser extensions at scale across the enterprise.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/managing-and-securing-vs-code-extensions-at-scale-b75b2cf72b02",
+    "title": "Managing and Securing VS Code Extensions at Scale",
+    "summary": "How Palantir's InfoSec team secured VS Code extensions at scale while maintaining developer productivity and satisfaction.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/metadata-management-for-data-protection-202852a8b33c",
+    "title": "Metadata Management for Data Protection",
+    "summary": "This Palantir blog post explores why metadata should be considered a central component for every data platform and for protecting data more widely.",
+    "category": "security",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["security", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/net-zero-is-a-data-integration-problem-1255a8853d38",
+    "title": "Net Zero is a Data Integration Problem: How Palantir enables data-driven decarbonization",
+    "summary": "Palantir is helping companies achieve net zero goals through data-driven decarbonization, aligning long-term goals with day-to-day operations.",
+    "category": "case-study",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study", "foundry", "data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/on-dataset-versioning-in-palantir-foundry-8f23de22cc4c",
+    "title": "On dataset versioning in Palantir Foundry",
+    "summary": "On dataset versioning in Palantir Foundry If you have visited Palantir’s website recently, you have learned that our platforms let organizations “manage data like software engineers manage …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/on-monotonicity-in-relational-databases-and-service-oriented-architecture-90b0a848dd3d",
+    "title": "On Monotonicity in Relational Databases and Service-oriented Architecture",
+    "summary": "Monotonicity is an important concept in relational databases and APIs in service-oriented architectures. Learn about this useful framework in this blog post.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-finding-meaning-in-data-palantir-rfx-blog-series-1-399bd1a5971b",
+    "title": "Ontology: Finding meaning in data (Palantir RFx Blog Series, #1)",
+    "summary": "An ontology allows for the data ecosystem to grow and evolve over time in ways that create compounding value rather than ever increasing complexity.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ontology-core", "ontology", "data-integration"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-oriented-software-development-68d7353fdb12",
+    "title": "Ontology-Oriented Software Development",
+    "summary": "Realizing the potential of operational AI in an enterprise context is not an AI problem - it's an ontology problem.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ontology-core", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/operational-responsibility-is-the-only-way-to-deliver-software-8331676a2163",
+    "title": "Operational Responsibility Is the Only Way to Deliver Software",
+    "summary": "We use Operational Responsibility at Palantir because it is the fastest and most correct approach to delivering mission-critical software to production.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "apollo"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/operational-security-enabling-transparency-collaboration-and-privacy-palantir-rfx-blog-series-28062c37bea6",
+    "title": "Operational Security: Enabling transparency, collaboration, and privacy (Palantir RFx Blog Series, #5)",
+    "summary": "Palantir’s latest RFx Blog Series post explores how organizations can identify security features that enable - rather than hamper - transparency and collaboration.",
+    "category": "security",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["security", "ontology", "privacy", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/osquery-across-the-enterprise-3c3c9d13ec55",
+    "title": "osquery Across the Enterprise",
+    "summary": "osquery Across the Enterprise Every effective Incident Response team needs the ability to “ask a question” to a single or multiple hosts in the fleet and receive timely and accurate answers …",
+    "category": "architecture",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "security", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-and-gaia-x-85ab9845144d",
+    "title": "Palantir and GAIA-X",
+    "summary": "Palantir is proud to be a Day 1 member of GAIA-X, Europe's effort to build a sovereign data ecosystem. Learn why we joined and what we hope to contribute.",
+    "category": "architecture",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "security", "privacy", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-and-open-source-software-815a9bd40392",
+    "title": "Palantir and Open-Source Software",
+    "summary": "Palantir and Open-Source Software Palantir is a substantial user of and contributor to open-source software (OSS). Our software and internal tools are built around OSS databases like Cassandra and …",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture", "kubernetes", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-apollo-orchestration-constraint-based-continuous-deployment-for-modern-architectures-cdf42da19ba4",
+    "title": "Palantir Apollo Orchestration: Constraint-Based Continuous Deployment For Modern Architectures",
+    "summary": "By intelligently applying declared constraints, Palantir Apollo helps engineering organizations achieve stability and velocity.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "apollo", "kubernetes"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+    "title": "Palantir Apollo: Powering SaaS where no SaaS has gone before",
+    "summary": "Palantir Apollo is a continuous delivery system that powers our SaaS platforms in nearly any environment. It automatically manages and updates our platforms in a way that obviates the need for user downtime or human intervention.",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "apollo", "gotham", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-developers-learn-to-build-in-palantir-foundry-83bcf0c4a861",
+    "title": "Palantir Developers: Learn to build in Palantir Foundry",
+    "summary": "Introducing new resources and tutorials for developers to elevate their impact in Foundry.",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns"
+    ],
+    "tags": ["architecture", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-is-not-a-data-company-palantir-explained-1-a6fcf8b3e4cb",
+    "title": "Palantir is Not a Data Company (Palantir Explained, #1)",
+    "summary": "Palantir is not a data company — we're a software company. In this blog post, we debunk common rumors about our business and describe how we operate.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "privacy", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-specterops-partnership-288d06f7136d",
+    "title": "Palantir + SpecterOps Partnership",
+    "summary": "Palantir + SpecterOps Partnership At Palantir, we’re passionate about building software that solves real-world problems. Our software has been used to stop terrorist attacks, develop new medicines …",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["security", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/palantirs-recommendations-to-the-nscai-f5d7d5dad344",
+    "title": "Our Recommendations to the NSCAI",
+    "summary": "Palantir shares recommendations for deploying AI that is effective and reliable in the real world, from biotech labs and oil platforms to the battlefield.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/phishcatch-detecting-password-reuse-from-the-inside-out-77aa93e3e6fb",
+    "title": "PhishCatch: Detecting password reuse from the inside out",
+    "summary": "To bolster Palantir's password hygiene, our Information Security team created a Chrome extension that detects password reuse in a robust and versatile way.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/product-design-at-palantir-q-a-with-the-team-e93a82e9c74",
+    "title": "Product Design at Palantir: Q&A with the team",
+    "summary": "In this blog post, Product Designers share why they joined Palantir, their day-to-day schedules, advice for potential applicants, and more.",
+    "category": "engineering-culture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["engineering-culture", "foundry", "apollo", "gotham", "security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/production-infrastructure-at-palantir-user-minded-api-design-714d6017122d",
+    "title": "Production Infrastructure at Palantir: User-minded API design",
+    "summary": "Palantir’s Production Infrastructure group is committed to enabling user outcomes. This post explore how that informs feature planning and API design.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture", "kubernetes", "api-design"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/products-with-purpose-foundry-archetypes-27a8538df12a",
+    "title": "Products with Purpose: Foundry — Archetypes",
+    "summary": "Palantir Software Engineer Julien shares how Foundry Archetypes is driving successful outcomes for customers when timelines matter most.",
+    "category": "case-study",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/protecting-data-with-privacy-first-principles-f76f20d8e63",
+    "title": "Data Lifecycles: Protecting Data with Privacy First Principles",
+    "summary": "From ingestion to deletion, see how Palantir Foundry enables data privacy throughout its lifecycle",
+    "category": "security",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "foundry", "privacy", "data-protection"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/protecting-terraform-resources-with-sentinel-c7ba75946b95",
+    "title": "Protecting Terraform resources with Sentinel",
+    "summary": "Protecting Terraform resources with Sentinel I want to tell you about something cool we’ve recently rolled out in Palantir’s cloud infrastructure: Sentinel policies in Terraform! This blog post …",
+    "category": "security",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/purpose-based-access-controls-at-palantir-f419faa400b3",
+    "title": "Purpose-based Access Controls at Palantir (Palantir Explained, #2)",
+    "summary": "Tracking who has access to what information and why, across thousands of datasets and users, is an intractable challenge. Here's how Palantir solved it.",
+    "category": "security",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security", "foundry", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/reducing-hallucinations-with-the-ontology-in-palantir-aip-288552477383",
+    "title": "Reducing Hallucinations with the Ontology in Palantir AIP (Engineering Responsible AI , #1)",
+    "summary": "Hallucinations are a key challenge in AI safety, and reducing the risk of hallucinations is crucial for using AI effectively and responsibly.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ai-llm", "aip", "ontology", "responsible-ai"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/renaming-and-deep-directory-hierarchies-in-git-f8e96d5e39a9",
+    "title": "Renaming and Deep Directory Hierarchies in Git",
+    "summary": "Renaming and Deep Directory Hierarchies in Git At Palantir, one of our repositories has a large number of files (on par with the linux kernel) and has deep directory hierarchies due to primarily …",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/requirements-for-ai-in-production-in-insurance-underwriting-04f7c1eed13d",
+    "title": "Requirements for AI in Production in Insurance Underwriting",
+    "summary": "Learn how insurers can deploy AI in production in accordance with, and anticipating, the most rigorous legal, regulatory, and ethical considerations.",
+    "category": "case-study",
+    "relevantParts": [
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["case-study"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/rethinking-crud-for-rest-api-designs-a2a8287dc2af",
+    "title": "Rethinking CRUD For REST API Designs",
+    "summary": "Time to rethink CRUD. Palantir engineer examines scenarios where CRUD falls short, and suggests alternative patterns for API designers to consider.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture", "api-design"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/rethinking-the-foundry-job-orchestration-back-end-from-crud-to-event-sourcing-658716afdd7c",
+    "title": "Rethinking the Foundry job orchestration back end: From CRUD to event-sourcing",
+    "summary": "Rethinking the Foundry job orchestration back end: From CRUD to event-sourcing In his talk, Microservices: A retrospective at Reversim 2019, Tomer Gabel provided an overview of the benefits of …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/roboslack-a-java-library-for-planet-scale-messaging-with-slack-938476340b76",
+    "title": "RoboSlack: A Java library for planet-scale messaging with Slack",
+    "summary": "RoboSlack: A Java library for planet-scale messaging with Slack RoboSlack is a Java library for Slack’s HTTP API. Initially developed by Palantir’s operations team for internal use, RoboSlack has …",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/scaling-product-design-with-blueprint-25492827bb4a",
+    "title": "Scaling product design with Blueprint",
+    "summary": "Scaling product design with Blueprint Blueprint is a newly open-sourced design system implemented as a collection of composable React components and optimized for desktop applications. It has changed …",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/securing-agents-in-production-agentic-runtime-1-5191a0715240",
+    "title": "Securing Agents in Production (Agentic Runtime, #1)",
+    "summary": "This blog post explores the security architecture of Palantir AIP’s Agentic Runtime — from insulated orchestration to provenance-based tool management.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "foundry", "aip", "security", "open-source", "agents"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/slow-down-to-go-faster-56f1b5aa04ae",
+    "title": "Slow Down to Go Faster",
+    "summary": "Whether you're sailing or building software, this counterintuitive advice can help you and your team accelerate your race to the finish.",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/supercharging-your-bi-analytics-f360c0791935",
+    "title": "Palantir Foundry: Supercharge Your BI & Analytics",
+    "summary": "Palantir Foundry does more than work alongside your enterprise business intelligence (BI) and analytics software, it supercharges them.",
+    "category": "data-integration",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["data-integration", "foundry", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/taking-your-data-science-models-to-the-next-level-149d9c4269ec",
+    "title": "Taking Your Data Science Models to the Next Level",
+    "summary": "Unlocking the full value of your data science models means driving decision-making processes and systems at scale. Learn how Palantir makes this possible.",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "security", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/technical-challenges-in-data-sharing-3ec353f6c4da",
+    "title": "Technical Challenges in Data Sharing",
+    "summary": "Technical Challenges in Data Sharing The COVID-19 crisis is creating unprecedented need and demand for information sharing. Decision-makers today require more context than their own organization …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["architecture", "foundry", "gotham", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/technical-controls-rollout-and-edge-cases-passwordless-authentication-series-2-c9b6dcd349e",
+    "title": "Technical Controls, Rollout & Edge Cases (Passwordless Authentication Series, #2)",
+    "summary": "The second in a series by Palantir InfoSec on our journey enforcing FIDO2 authentication via hardware authenticators (YubiKeys) across all of Palantir.",
+    "category": "security",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["security"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/testing-in-depth-also-please-dont-use-undeclared-dependencies-1a46101a9e72",
+    "title": "Testing in Depth. (Also, please don’t use undeclared dependencies.)",
+    "summary": "Testing in Depth. (Also, please don’t use undeclared dependencies.) I caught the following discussion (slightly paraphrased) in our internal chat this morning: Alice: We see a …",
+    "category": "architecture",
+    "relevantParts": [
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "apollo"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-benefits-of-remote-ephemeral-workspaces-1a1251ed6e53",
+    "title": "The Benefits of Remote Ephemeral Workspaces",
+    "summary": "Palantir's DevOps team explores how to best to combine the benefits of ephemeral infrastructure with the benefits of remote workspaces.",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "kubernetes"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-challenges-of-building-an-architecture-from-scratch-e4610acb908d",
+    "title": "The Challenges of Building an Architecture from Scratch",
+    "summary": "One of Palantir's Foundry for Builders partners shares why they decided to use Foundry as a foundation on top of which to build their business.",
+    "category": "architecture",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "ontology", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-code-base-knowledge-singularity-3a5e2afe280d",
+    "title": "The Code Base Knowledge Singularity",
+    "summary": "A Palantir engineering leader's advice on retaining organizational knowledge so that the stability of code doesn't disappear when its authors do.",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-cybernetic-enterprise-62f2072c39fa",
+    "title": "The Cybernetic Enterprise",
+    "summary": "For the AI revolution to be a worthy one, it must be driven through open, extensible architectures, freed from the shackles of the Software Industrial Complex.",
+    "category": "ai-llm",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["ai-llm", "rag"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-efficacy-and-ethics-of-ai-must-move-beyond-the-performative-to-the-operational-1792e933b34",
+    "title": "The Efficacy and Ethics of AI Must Move Beyond the Performative to the Operational",
+    "summary": "An integrated and operationally-orientated approach to artificial intelligence to preserve privacy and civil liberties, while ensuring its efficacy.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Addresses security and access controls",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "security", "privacy"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/the-ontology-operating-at-optimum-complexity-as-simply-as-possible-39f4a9724fdf",
+    "title": "The Ontology: Operating at optimum complexity — as simply as possible",
+    "summary": "Palantir's Senior Director of Enterprise Technology, Markus Löffler, reflects on how the Foundry Ontology is foundational to an enterprise's software stack.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ontology-core", "foundry", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/the-ontology-resilience-in-crisis-7833bb5e15e7",
+    "title": "The Ontology: Resilience in crisis",
+    "summary": "The Ontology: Resilience in crisis The Palantir Foundry Ontology enables organizations to withstand crisis — from war in Ukraine, an energy crisis in Europe, inflation, to rising tensions in the …",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["ontology-core", "foundry", "ontology"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/thinking-outside-the-black-box-24d0c87ec8a5",
+    "title": "Thinking Outside the (Black) Box (Engineering Responsible AI , #2)",
+    "summary": "Building explainable, transparent AI systems is crucial for responsible AI deployment. Learn how Palantir AIP enables deeper insights into AI capabilities.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Covers AIP platform features",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "aip", "responsible-ai"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/tips-on-finding-great-jobs-da9d62524726",
+    "title": "Tips on finding great jobs",
+    "summary": "Tips on finding great jobs Fall of 2018, I applied to and interviewed with many tech companies in Seattle: everything from satellite offices of established companies to a two-person startup. Through …",
+    "category": "engineering-culture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["engineering-culture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/transfer-learning-5c9f9f9b076f",
+    "title": "Transfer Learning: Object Detection in Satellite Imagery",
+    "summary": "Transfer Learning: Object Detection in Satellite Imagery Object detection in satellite imagery is a critical component of many complex commercial and government workflows. At Palantir, we’ve worked …",
+    "category": "ai-llm",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["ai-llm"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/tslint-in-2019-1a144c2317a9",
+    "title": "TSLint in 2019",
+    "summary": "TSLint in 2019 Palantir is the creator and primary maintainer of TSLint, the standard linter for the TypeScript programming language. As the TypeScript community is working toward a unified developer …",
+    "category": "architecture",
+    "relevantParts": ["Discusses AI/ML capabilities"],
+    "tags": ["architecture"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/turning-conversation-into-action-c6bc4ed8c8be",
+    "title": "Turning Conversation Into Action (Palantir CSE, #2)",
+    "summary": "Palantir's AI-enabled Customer Service Engine can transform customer service operations by giving AI agents the operational context to perform at their best.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Covers AIP platform features",
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": [
+      "ai-llm",
+      "foundry",
+      "aip",
+      "ontology",
+      "machine-learning",
+      "agents"
+    ],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/understanding-roi-with-palantir-foundry-51cc53d77511",
+    "title": "Understanding ROI with Palantir Foundry",
+    "summary": "With Palantir Foundry, leaders can get a real-time view of their projects, and better measure ROI for more effective future strategy.",
+    "category": "case-study",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Discusses AI/ML capabilities"
+    ],
+    "tags": ["case-study", "foundry"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 2
+  },
+  {
+    "url": "https://blog.palantir.com/user-centered-machine-learning-0514adb4c98b",
+    "title": "User-Centered Machine Learning",
+    "summary": "User-Centered Machine Learning A New Paradigm for Computer Vision Workflows Massive investments are being made across the DoD to develop and field Machine Learning (ML) based capabilities for …",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/user-centered-machine-learning-for-visual-search-348f4eb696a1",
+    "title": "User-Centered Machine Learning for Visual Search",
+    "summary": "With Palantir's UCML for Visual Search, analysts can detect any object, in any image, in real-time. No data labeling or model training required.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Discusses Palantir Ontology concepts",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["ai-llm", "ontology", "machine-learning"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/using-static-code-analysis-to-improve-log-parsing-18f0d1843965",
+    "title": "Using Static Code Analysis to Improve Log Parsing",
+    "summary": "Using Static Code Analysis to Improve Log Parsing Introduction Palantir has invested extensively in enabling remote debugging workflows powered by our log and telemetry infrastructure. Sometimes we …",
+    "category": "architecture",
+    "relevantParts": [
+      "Describes Foundry platform capabilities",
+      "Covers data integration patterns",
+      "Discusses AI/ML capabilities",
+      "Covers deployment and infrastructure"
+    ],
+    "tags": ["architecture", "foundry", "gotham", "kubernetes", "open-source"],
+    "source": "blog-list",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [],
+    "quality": 3
+  }
+]

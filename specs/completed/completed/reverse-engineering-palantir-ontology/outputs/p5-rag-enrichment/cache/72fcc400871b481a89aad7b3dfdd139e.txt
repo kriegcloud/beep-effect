@@ -1,0 +1,132 @@
+Top highlight
+
+Slow Down to Go Faster
+Robert Fink
+Follow
+11 min read
+·
+Jan 6, 2021
+
+103
+
+1
+
+Last week I found myself giving the same counterintuitive advice to regatta sailors in my local sail club and to one of my team members at Palantir: “Sometimes you have to slow down to go faster.” Let me explain.
+
+Press enter or click to view image in full size
+In software engineering
+
+We’ll begin with a software engineering anecdote from my job at Palantir. [Of course, if you’re really just interested in the sailing material, feel free to skip ahead to the second section below!] A new colleague recently joined my team and I began working with him on a new project in the context of Foundry. From day one I was super impressed with his ability to quickly analyze and understand complex code bases, and to decompose problems into such software systems; he’s clearly a very fast thinker and I envy him for his ability to hold large and complex state in his head, and to turn that state in code.
+
+A few weeks in, he submitted a code change of about 1000 lines for my review. I asked whether this change was necessarily this large or whether we could split it up into smaller, self-contained portions. (See my earlier blog post Code Review Best Practices for more details on why I believe that’s usually a good idea.) He responded, roughly, that this was indeed the functionality we required. OK, so I went ahead and reviewed it, and eventually we merged the code.
+
+Bringing along your teammates. Bring along yourself.
+
+Another couple of weeks later we found that the code had a few bugs and that the decomposition was maybe not ideal. So what went wrong, didn’t I establish above that he was super sharp and great at problem decomposition and coding? Well, yes, but it turns out he was primarily too fast for me.
+
+Even if he had understood the problem perfectly well and had found a perfect solution, I as the reviewer certainly had not. I had not spent hours immersing myself in the problem, I had not tried a few different solutions, I had not written down the code, I had not written the tests. As such, it took me a long time to follow his reasoning across 1000 lines of code, and obviously I missed both the bugs and the fact that maybe the design was not ideal.
+
+In contrast to mere coding, software engineering is a team activity, and the velocity of the team is different from the velocity of its individual members, on all time scales:
+
+Short-term, the code change will merge at the pace of the slowest participant: even when the code is written quickly, if the reviewer can’t follow along then the code won’t merge (or it will merge without being thoroughly reviewed and understood).
+Long-term, it is critical that the team as a whole understands the code base: singularities in understanding get punished as soon as those knowledgable team members leave the team and the new code owners have to resort to code archeology in order to understand what’s going on. I encourage you to take a look at Software Engineering at Google for a much more thorough discussion of this argument and of organizational culture and software engineering more generally.
+
+In software engineering it is sometimes better to slow down in order to go fast. Minimally, bring your team members along, but maybe also bring yourself along: even the sharpest developer who can hold complex changes with thousands of lines in their head may encounter situations where a step-by-step implementation yields a better, more understandable, and more well-tested solution. Let’s look at a concrete example.
+
+A concrete example
+Press enter or click to view image in full size
+An event reporter interface (in Java).
+
+Say we need a class that submits events to some consumer, say a message queue or a database. The code listing on the left depicts a suitable interface.
+
+Press enter or click to view image in full size
+A simple implementation of the event reporter interface that submits events to a remote message queue system via remote procedure call (RPC).
+
+The second code listing shows a simple implementation that submits events by posting them to a message queue service via RPC. Experienced engineers know, of course, that the performance of this implementation may not be suitable for some use cases, in particular when the RPC call has high network latency: the RPC call is executed synchronously on the calling thread and will block application progress. When synchronous submission is not actually necessary (because, maybe, the application only requires ‘best effort’ delivery of these messages), such a high-latency implementation will be very wasteful.
+
+How can we solve these performance problems? Well, there are a number options, but to name just two, we could either make the interface asynchronous, thereby offloading the expensive RPC call to a pool of worker threads, or we could batch up messages and send them together in order to avoid network round trips.
+
+Press enter or click to view image in full size
+
+Here’s an attempt at implementing variant two, batching up messages. Now let’s assume that these three classes (plus tests) were submitted for code review: the developer implemented the interface and the simple MessageQueueEventReporter implementation, and also correctly identified the potential performance problems and solved them by providing a batching implementation. As a reviewer would I be happy or not? Can you guess?
+
+I would be unhappy, and there are two classes of reasons for my dissatisfaction.
+
+The first class of problems concerns the code itself. The MessageQueueEventReporter is easy to understand and easy to test, great. But the BatchingMessageQueueEventReporter implementation is problematic. At first glance, it seems to be doing what it promises, but there are a few subtle problems with the API and the implementation:
+
+In contrast to MessageQueueEventReporter, this class is not thread-safe.
+The error behavior is broken: users can happily submit events without ever learning that they were not actually submitted, because the exception is thrown on some future submit() call.
+The performance of this method is unpredictable: most calls are super fast, but some are very slow.
+
+You might argue that these problems are merely an oversight and shouldn’t happen in a team of good developers. In my experience, they do happen, and they happen to the best of the best.
+
+Get Robert Fink’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+The second class of problems concerns our overall team productivity:
+
+Larger code reviews are often either poorly reviewed or take substantially longer to review. (Yes, I claim that it’s usually faster to review two 300 line changes than one 600 line change.)
+Complex implementations require complex tests. The synchronous implementation can probably get away with two unit tests, one for the happy path and one for the error path. The batching implementation needs to worry about thread safety and concurrency, ordering guarantees, error handling edge conditions (i.e., do I clear the queue correctly?), and error propagation. If the MessageQueueEventReporter change requires 50 lines of tests, then I’d expect the BatchingMessageQueueEventReporter tests to come in at a few hundred lines, making the code review three or four times larger and slower.
+Worse yet, while the code author and the reviewer discuss the merits of the change, none of the other developers on the team can use the new interface. They are blocked on us and in worst case idle until we have merged the change. Even if the naive implementation is not suitable for production, it is likely good enough for other developers to test and experiment with while in parallel someone else figures out the performant implementation for the production scenario.
+
+In my experience, teams usually iterate faster and produce higher quality code if they break up their problems into incremental, self-contained steps: slow down to go faster!
+
+Caveats
+
+As usual in software engineering, there are a caveats and tradeoffs to the simple slow down to go faster mantra. Just like you won’t win the sailing race if you take down your sails and drift, you won’t ever build successful software if you spend more energy trying to minimize changes into their atomic essence than on actually implementing the desired functionality.
+
+Consider for example the influence of code review throughput and latency. A large number of small code reviews can be a productive mode for teams that consider reviewing their colleagues’ code their top priority (i.e., code reviews have low latency); they would drop their own development work in order to unblock their colleagues. Conversely, if required reviewers are geographically dispersed and thus only available once a day or maybe every other day due to competing priorities (i.e., code reviews have high latency), then one large code review can yield higher overall code throughput.
+
+Second, the breakdown into small, incremental steps must be informed by a larger design and implementation strategy that lays out how the pieces fit together to eventually make up the whole. It is imperative that the plan is communicated to all team members and that they understand and are on board with the plan. Absent such a plan (and the effort to communicate the plan to all team members), the team effectively performs a random walk with baby steps:
+
+The designs of separate changes may be mutually incompatible, i.e., different team members implement different visions of the product
+Code authors and reviewers will spend more time arguing about the particular decomposition than about the code itself
+In sailing
+
+With software engineering out of the way, we can now finally focus on sailing. I hosted a workshop on sailing tactics a few months ago at my local sail club in Starnberg, Bavaria. We talked about a number of different topics, from wind patterns to boat physics to sailing rules. One of the more interesting (and counterintuitive!) ideas we covered is that sometimes you can do better in a race if you slow down in certain situations. I’ll give you two such examples.
+
+Sailing anecdote #1: Holding your lane in dirty air
+Press enter or click to view image in full size
+“Dirty air” behind a sail boat. The boat sails towards the top right corner and the wind blows down from the top. There’s a cone of disturbed air extending several boat lengths behind and (mostly) to leeward of the boat.
+
+Sail boats distort the wind “behind them”, roughly in the direction of their apparent wind. For boats going upwind, i.e., towards the wind in an angle, this means that the area behind and to leeward of a boat has less wind and wind from a less favorable direction, causing boats in that area to go both slower and in a greater angle to the true wind. When you’re racing in a regatta, this generally means that you’re going to be much worse off when sailing in such an area of distorted wind (called “dirty air” in sailor parlance) behind or in leeward of another boat.
+
+The distortion is worst directly behind and to leeward of a boat, but is still pretty bad a couple of boat lengths to leeward. Remarkably, boats can still feel the effect of dirty air in a straight line behind a leading boat, maybe up to 5–10 boat lengths depending on the wind speed.
+
+Boat B in the red position will have a hard time “holding its lane” behind A because it sails in disturbed air; red will slowly fall to leeward and eventually behind A. In contrast, the green position provides mostly undisturbed air and green will be able to keep the distance to A.
+
+Now consider the situation on the left with boat A in front and boat B following behind. In the red position, B is affected by A’s dirty air and will slow down and, importantly, slowly fall to leeward (i.e., to the right) of A because of the wind angle change, thus getting sucked into an area with even worse wind conditions. Conversely, in the green position, slightly further behind and just a little bit to windward (i.e., to the left) of A, B will feel almost no dirty air effect and will be able to “hold its lane”, i.e., keep a constant distance behind A.
+
+Alright, now what does this have to do with slowing down to go faster? Consider a situation where a large fleet of boats is rounding a leeward mark: the boats come from the top left of the diagram, round the mark in counterclockwise direction, and continue upwind to the top right.
+
+Press enter or click to view image in full size
+Boats A, B, and C are rounding a leeward mark. In the top right corner, A (in green) rounded far enough behind and thus outside the zone of disturbed air of the boat in front; A will be able to hold its lane. B (in red) has rounded too close to the boat in front and will gradually loose ground to the boat in front. Boat C has not yet rounded the mark and is trailing close behind another boat. C must slow down to get a good mark rounding and a viable lane after the mark!
+
+Boat A (green) picked a great lane behind the race leader: A is both to windward and far enough behind the leader to avoid its dirty air. A will hold its lane. Boat B is right behind the boat in front and is affected by its dirty air. B will get sucked to leeward and loose a lot of ground.
+
+Lesson learnt: Boat C, which follows right behind another boat around the mark, should therefore slow down before the mark and leave a gap to the boat in front, if possible rounding very close to the mark and finding a lane just to windward of that boat. Overall, C will be better off if it slows down before the mark than if it tries to stay directly behind the boat in front. My friends from raceQs have a great video illustrating this effect: Leeward Mark Basics: Round wide-and-tight.
+
+Sailing anecdote #2: Burning your lead to get to favorable conditions first
+
+This one’s a little harder for non-sailors to grasp, but let me try. Wind direction and wind speed are two of the most important factors in determining which boats will lead a race. And of course both wind direction and speed vary both over time and across different locations on the race course. This means that sailors should always seek to sail in favorable wind conditions and that we should adjust our strategy such that we can get to favorable wind conditions faster than our competitors.
+
+Press enter or click to view image in full size
+
+The diagram on the left shows a group of boats in two consecutive situations: “now” on the left, and “in 10 minutes” on the right. On the left, the whole fleet is sailing towards the top right corner of the diagram green boat A is leading the race because it’s the most upwind boat.
+
+Now assume that 10 minutes later a strong, right-shifted gust comes into the race course from the right side. Clearly the boats that get to those favorable wind conditions first will make gains over boats that arrive there later. So what strategy should A pursue? If it keeps sailing its current course (called “best VMG — velocity made good”, because it gets A to the windward mark fastest assuming constant conditions), B will get to the right side first and likely beat A; this scenario is depicted in red.
+
+On the other hand, if A instead sails “low and fast” (depicted in green), it will burn some of its overall lead on B and the rest of the boats, but it will get to the favorable wind conditions first and thus benefit most from the changing wind conditions and ultimately stay ahead in the race.
+
+The lesson is similar to the first sailing example: in oscillating wind conditions, it is often better to sacrifice some of your overall lead in order to stay ahead of the competition. America’s Cup veteran David Dellenbaugh has a great blog post on this topic: How to Sail Fast Up the First Beat When You Have Oscillating Shifts.
+
+Conclusion
+
+I hope I managed to illustrate that sometimes you have to slow down to go faster, both in competitive sailing and in software engineering, and very much look forward to your comments and anecdotes!
+
+Author
+
+Robert Fink is a software engineer at Palantir Technologies during the week and an avid sailor on the weekend.

@@ -1,0 +1,1658 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/overview",
+    "title": "Functions - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Code-based logic that takes input parameters and returns output, natively integrated with the Ontology. Functions include first-class support for reading properties, traversing links, and making Ontology edits. Executed server-side in an isolated environment."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Query",
+        "description": "A read-only subset of Functions exposed through the API gateway with no side effects. Queries cannot modify Ontology state and are safe for external consumption."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A collection of objects that can be returned by Functions for use in applications like Workshop dashboards."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A semantic type in the Ontology whose properties can be read and links traversed by Functions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An Ontology entity that can be backed by Functions to express complex edits updating many objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A typed attribute of an Object Type whose values can be read and transformed by Functions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "A defined relationship between Object Types that Functions can traverse to navigate the Ontology graph."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "External Function",
+        "description": "A Function variant that queries external systems to enrich objects in the Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Palantir application for building dashboards and operational applications. Functions return object sets and values for use in Workshop, including function-backed columns and charts."
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Palantir application where Functions run backend logic to return information displayed in the frontend."
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Palantir analytics application where Functions compute custom metrics or aggregations for display."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Palantir data transformation application where Python functions can be used as sidecar containers."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "TypeScript Functions",
+        "description": "Functions can be authored in TypeScript, with v1 and v2 language versions supported."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Python Functions",
+        "description": "Functions can be authored in Python, supporting use cases including sidecar containers in Pipeline Builder."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Property"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Link Type"
+      },
+      { "source": "Query", "relationship": "EXTENDS", "target": "Function" },
+      {
+        "source": "Action Type",
+        "relationship": "REFERENCES",
+        "target": "Function"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      { "source": "Function", "relationship": "EXPOSED_BY", "target": "Slate" },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Quiver"
+      },
+      {
+        "source": "External Function",
+        "relationship": "EXTENDS",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "Functions are the primary mechanism for embedding code-based business logic into the Ontology, bridging data and action.",
+      "Queries are a read-only, side-effect-free subset of Functions specifically designed for safe external API exposure.",
+      "Functions provide first-class Ontology integration: reading properties, traversing links, and making edits — not just arbitrary code execution.",
+      "Function-backed Actions enable complex multi-object edits expressed as code rather than declarative rules.",
+      "External Functions extend the Ontology beyond Foundry by querying external systems to enrich object data.",
+      "Functions execute server-side in isolated environments, ensuring security and resource control."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/overview",
+    "title": "Ontology SDK - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology Software Development Kit that provides type-safe, generated code for accessing the Ontology from external development environments. Supports TypeScript (NPM), Python (Pip/Conda), Java (Maven), and OpenAPI for other languages."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Palantir application for creating and managing OSDK applications, including bootstrapping and configuring Ontology access."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that serves as the backend for OSDK applications, providing high-scale queries, writeback, and granular governance controls."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A semantic type in the Ontology for which the OSDK generates strongly-typed interfaces and query functions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Object Type attributes whose names and descriptions are embedded in OSDK-generated code as metadata available in the editor."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships between Object Types that are represented as typed accessors in the generated OSDK code."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology actions that are exposed as type-safe functions in the generated OSDK code for performing writebacks."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An Ontology entity supported by the OSDK for polymorphic access to Object Types."
+      },
+      {
+        "type": "Pattern",
+        "name": "Code Generation",
+        "description": "The OSDK generates strongly-typed code from Ontology metadata, scaling linearly with Ontology shape rather than contents. Supports lazy loading."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK 2.0 Scaling",
+        "description": "OSDK 2.0 scales linearly with Ontology shape/metadata rather than actual Ontology contents, and supports lazy loading of generated types."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Scoped Token",
+        "description": "The OSDK uses a token scoped only to the ontological entities the application needs to access, combined with the user's own data permissions."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      { "source": "OSDK", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "Code Generation",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Code Generation",
+        "relationship": "ENABLES",
+        "target": "Property"
+      },
+      {
+        "source": "Code Generation",
+        "relationship": "ENABLES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Code Generation",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Code Generation",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Scoped Token",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      { "source": "OSDK", "relationship": "PART_OF", "target": "Foundry" }
+    ],
+    "keyInsights": [
+      "The OSDK treats Foundry as a backend, enabling external applications to leverage Ontology queries and writeback with granular governance.",
+      "OSDK 2.0's linear scaling with Ontology shape (not contents) is a critical architectural property enabling large-scale Ontology adoption.",
+      "Strong type-safety is achieved by generating code from the specific subset of the Ontology relevant to each application, not the entire Ontology.",
+      "Security is built into the OSDK architecture: tokens are scoped to specific ontological entities, layered on top of user-level permissions.",
+      "Centralized Ontology maintenance means application developers focus on building, not maintaining the data foundation.",
+      "The OSDK supports four language ecosystems (TypeScript, Python, Java, OpenAPI), making the Ontology accessible across the development landscape."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/osdk-ts",
+    "title": "GitHub - palantir/osdk-ts: Typescript related OSDK libraries",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "osdk-ts",
+        "description": "The official open-source TypeScript OSDK monorepo hosted on GitHub, containing multiple packages for interacting with Palantir's Ontology via TypeScript."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/client",
+        "description": "The core OSDK client package for TypeScript. Used to create an authenticated client that provides typed access to Ontology entities."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/oauth",
+        "description": "The OSDK OAuth package providing createPublicOauthClient and createConfidentialOauthClient for authentication against Foundry."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/api",
+        "description": "The OSDK API types package defining the core type interfaces used by the generated SDK."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/foundry-sdk-generator",
+        "description": "The code generator that produces type-safe TypeScript bindings from Ontology definitions in Developer Console."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "foundry-platform-typescript",
+        "description": "A standalone package providing direct Foundry API access without needing to generate ontology-specific SDKs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/create-app",
+        "description": "CLI tool for quickly bootstrapping a frontend application using the OSDK."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Public OAuth Client",
+        "description": "OAuth client type for browser/frontend applications requiring client ID, Foundry URL, and redirect URL. No client secret needed."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Confidential OAuth Client",
+        "description": "OAuth client type for server-side/backend applications requiring client ID, client secret, and Foundry URL. Used with service users."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Palantir application used to create OSDK applications and generate SDKs, providing the client ID and configuration needed for OAuth."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "@osdk/client",
+        "relationship": "PART_OF",
+        "target": "osdk-ts"
+      },
+      {
+        "source": "@osdk/oauth",
+        "relationship": "PART_OF",
+        "target": "osdk-ts"
+      },
+      { "source": "@osdk/api", "relationship": "PART_OF", "target": "osdk-ts" },
+      {
+        "source": "@osdk/foundry-sdk-generator",
+        "relationship": "PART_OF",
+        "target": "osdk-ts"
+      },
+      {
+        "source": "foundry-platform-typescript",
+        "relationship": "PART_OF",
+        "target": "osdk-ts"
+      },
+      { "source": "osdk-ts", "relationship": "BUILT_ON", "target": "OSDK" },
+      {
+        "source": "Public OAuth Client",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Confidential OAuth Client",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "osdk-ts",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "The TypeScript OSDK is a mature open-source monorepo with 2,844+ commits and active maintenance, signaling Palantir's commitment to external developer ecosystem.",
+      "Two distinct OAuth flows (public and confidential) support both browser-based and server-side application architectures.",
+      "foundry-platform-typescript provides a no-code-generation path for developers who want direct Foundry API access without ontology-specific types.",
+      "The @osdk/foundry-sdk-generator bridges the gap between Ontology definitions and type-safe TypeScript code.",
+      "The monorepo architecture separates concerns: client, auth, API types, code generation, and app scaffolding are all independent packages."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/ontology-system",
+    "title": "The Ontology system - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The system at the heart of Palantir's architecture, designed to represent the complex, interconnected decisions of an enterprise — not simply the data. Enables humans and AI agents to collaborate across operational workflows."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data-Logic-Action-Security Integration",
+        "description": "The Ontology models decisions through the four-fold integration of data (semantic objects/properties/links), logic (business rules, ML, LLMs), action (transactions to edits), and security (role-based, attribute-based access)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Language",
+        "description": "The semantic layer of the Ontology system comprising types (Object Types, Properties, Links), kinetic actions, and logic. Defines the vocabulary for modeling enterprise decisions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Engine",
+        "description": "The read/write architecture of the Ontology system providing SQL queries, real-time subscriptions, atomic transactions, batch mutations, and streaming capabilities."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Toolchain",
+        "description": "The development and management tools for building, maintaining, and evolving the Ontology."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Semantic types representing real-world entities (nouns) that unify disparate data sources into coherent objects with properties and links."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Typed attributes that describe Object Types, forming the adjectives in the Ontology's semantic vocabulary."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Defined relationships connecting Object Types in a web of semantic connections."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Kinetic operations (verbs) that model the full range of actions from simple transactions to complex multi-step updates written back to operational systems in real time."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Security Model",
+        "description": "Security woven into data, logic, and actions. Different scopes of access are relevant for different team members (e.g., production teams see global telemetry, warehouse associates have regional restrictions)."
+      },
+      {
+        "type": "UseCase",
+        "name": "Airline Flight Operations",
+        "description": "An airline models flights, aircraft, crew manifests, scheduling optimizers into their ontology to power day-of operations and longer-range planning."
+      },
+      {
+        "type": "UseCase",
+        "name": "Hospital System Operations",
+        "description": "A hospital models patients, nurse schedules, medical supplies, bed capacities for real-time patient lifecycle management."
+      },
+      {
+        "type": "UseCase",
+        "name": "Medical Manufacturing",
+        "description": "A medical manufacturer models plants, work orders, customer details, shipments, with differentiated access for production teams, warehouse associates, and supply chain analysts."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Ontology Language"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Ontology Engine"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Ontology Toolchain"
+      },
+      {
+        "source": "Ontology Language",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Language",
+        "relationship": "CONTAINS",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Data-Logic-Action-Security Integration"
+      },
+      {
+        "source": "Ontology Security Model",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Security Model",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Airline Flight Operations",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Hospital System Operations",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology is explicitly designed to model decisions, not data — this is the core architectural distinction from traditional data platforms.",
+      "The four-fold integration of data, logic, action, and security is the fundamental design principle of the Ontology system.",
+      "Semantics (nouns) must be paired with kinetics (verbs) to model decisions — Object Types alone are insufficient without Action Types.",
+      "The Ontology system is decomposed into three major subsystems: Language (what you model), Engine (how it executes), and Toolchain (how you build it).",
+      "Security is not a bolt-on concern but is woven into every layer — data, logic, and actions each have security implications.",
+      "Logic underlying actions can range from simple business rules to LLM-driven functions to complex multi-step orchestrations, reflecting real-world decision diversity."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-backend/overview",
+    "title": "Overview and getting started - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Ontology Metadata Service",
+        "description": "Overarching service (OMS) that defines the set of ontological entities that exist — including metadata for object types, link types, action types, and more."
+      },
+      {
+        "type": "Product",
+        "name": "Object Set Service",
+        "description": "Service (OSS) responsible for serving reads from the Ontology, enabling searching, filtering, aggregating, and loading of objects."
+      },
+      {
+        "type": "Product",
+        "name": "Object Storage V2",
+        "description": "Next-generation canonical data store for backing the Ontology. Supports higher-scale Search Arounds (100K+ objects) and accurate aggregations via Spark-based query layer."
+      },
+      {
+        "type": "Product",
+        "name": "Object Storage V1 (Phonograph)",
+        "description": "Foundry's legacy Ontology backend component, predecessor to Object Storage V2."
+      },
+      {
+        "type": "Product",
+        "name": "Object Data Funnel",
+        "description": "Service responsible for indexing data from datasources into the Ontology object databases."
+      },
+      {
+        "type": "Product",
+        "name": "Functions on Objects",
+        "description": "Backend service that executes Functions in the context of Ontology objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "Lists of real-world entities saved for future reference and use across Foundry applications. Saved as resources for easy sharing and application integration."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity whose schema, datasource, and metadata are managed by the Ontology backend services."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Typed attributes of Object Types stored and indexed by object databases for querying and filtering."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships between Object Types whose metadata is defined in OMS and whose traversals are served by OSS."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Structured, controlled modifications to object data orchestrated through the Ontology backend."
+      },
+      {
+        "type": "Pattern",
+        "name": "Microservices Architecture",
+        "description": "The Foundry Ontology backend uses a microservices architecture where multiple services collectively handle datasource management, querying, and write orchestration."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Search Around",
+        "description": "A query operation traversing Link Types between objects. Object Storage V2 supports scales of 100K+ objects for Search Arounds."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology Metadata Service",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Metadata Service",
+        "relationship": "OPERATES_ON",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology Metadata Service",
+        "relationship": "OPERATES_ON",
+        "target": "Action Type"
+      },
+      {
+        "source": "Object Set Service",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Data Funnel",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Object Set Service",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology Metadata Service",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Microservices Architecture",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology backend is a composition of specialized microservices: OMS for metadata, OSS for reads, Object Storage for persistence, Data Funnel for indexing, and Functions on Objects for computation.",
+      "The Ontology Metadata Service (OMS) is the authoritative source of truth for what ontological entities exist and their schemas.",
+      "Object Set Service (OSS) is the single read path for all Ontology queries — it mediates between applications and the underlying object databases.",
+      "Object Storage V2 represents a generational leap: Spark-based query layer enables 100K+ object Search Arounds and accurate aggregations that were limited in V1.",
+      "The Ontology serves as a digital twin containing both semantic elements (objects, properties, links) and kinetic elements (actions, functions, dynamic security).",
+      "ObjectSets are first-class resources — saved lists of entities that can be shared and reused across applications."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-manager/overview",
+    "title": "Ontology Manager - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "The primary Palantir application (also called OMA) for building and maintaining the Ontology. Provides UI for creating object types, defining action types, connecting data, and investigating data updates."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A core Ontology entity created and configured in Ontology Manager with metadata, backing datasource, property mappings, and primary key configuration."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Typed attributes of Object Types configured through the Property editor view in Ontology Manager. Includes mapping to backing datasource columns."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships between Object Types visualized and configured through the link type graph in Ontology Manager."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology actions configured through a dedicated view in Ontology Manager, defining structured modifications to objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function Type",
+        "description": "Functions configured and viewed through a dedicated function type view in Ontology Manager."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "A Property that is shared across multiple Object Types, configured in Ontology Manager for consistent semantic representation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Ontology Branch",
+        "description": "Ontology Manager supports branching for creating and testing Ontology changes in isolation before merging, analogous to Git branches."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Property Mapping",
+        "description": "The configuration that maps Object Type properties to columns in a backing datasource, defining how raw data becomes semantic Ontology properties."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Primary Key",
+        "description": "The unique identifier configuration for an Object Type, ensuring each object instance is uniquely addressable."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Function Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Shared Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology Manager",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Ontology Manager is the single pane of glass for all Ontology configuration — object types, properties, links, actions, and functions are all managed here.",
+      "Object Type creation follows a guided workflow: metadata, backing datasource, property mappings, and primary key configuration.",
+      "Ontology branching enables safe, isolated changes to the Ontology schema before deployment — critical for production Ontology governance.",
+      "Shared Properties enable consistent semantic representation across multiple Object Types, promoting Ontology reuse.",
+      "The Discover view provides personalized navigation with favorites, recent views, and group-based organization for large Ontologies.",
+      "Property mapping is the bridge between raw data (datasource columns) and semantic Ontology attributes (properties)."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-oriented-software-development-68d7353fdb12",
+    "title": "Ontology-Oriented Software Development - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Ontology-Oriented Development",
+        "description": "A new software development paradigm where programmers abstract away internal implementation details and interact with business concepts. The OSDK functions as a higher-level abstraction for authoring business logic over harmonized critical business concepts."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology Software Development Kit that enables ontology-oriented development by providing a toolkit for building APIs in the language of the business."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The technology that centralizes business knowledge and encapsulates it within a shared system, enabling defragmentation of the enterprise by integrating isolated components into a holistic system."
+      },
+      {
+        "type": "Pattern",
+        "name": "Enterprise Defragmentation",
+        "description": "The architectural pattern of integrating isolated software components into a holistic system through the Ontology, replacing the fragmented vendor-driven enterprise architecture."
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision-Centric Architecture",
+        "description": "Software architecture centered on modeling and executing enterprise decisions rather than optimizing individual data components."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Business entities modeled in the Ontology (e.g., Aircraft, Flights, Mechanics) that developers interact with directly rather than through low-level data access."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Business operations modeled in the Ontology (e.g., reassigning mechanics, rerouting flights) that are invoked as type-safe functions in the OSDK."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction enabling polymorphic access to Object Types, allowing applications to work with shared contracts across different entity types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Code-based logic operating on Ontology entities that is shared and reusable across applications through the OSDK."
+      },
+      {
+        "type": "UseCase",
+        "name": "Airline Maintenance Optimization",
+        "description": "An airline uses the Ontology to model aircraft, flights, mechanics, and maintenance schedules, enabling real-time reassignment of mechanics when warning lights trigger during routes."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology-Oriented Development"
+      },
+      {
+        "source": "Ontology-Oriented Development",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology-Oriented Development",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology-Oriented Development",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Enterprise Defragmentation",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Decision-Centric Architecture"
+      },
+      {
+        "source": "Airline Maintenance Optimization",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Airline Maintenance Optimization",
+        "relationship": "DEMONSTRATES",
+        "target": "Action Type"
+      }
+    ],
+    "keyInsights": [
+      "Ontology-oriented development is positioned as a new paradigm alongside object-oriented and functional programming — abstracting business concepts rather than data structures.",
+      "The core thesis: enterprise software failure is not a technology problem but an architecture problem — optimizing components in isolation degrades system-level performance.",
+      "The OSDK makes the marginal cost of bespoke enterprise software development approach zero by reusing shared Ontology integration work.",
+      "Knowledge compounds in the Ontology: each new application benefits from all previous integration work, creating a flywheel effect.",
+      "The Ontology aligns business users and engineers around shared business representation rather than underlying component architectures.",
+      "Interfaces enable polymorphic programming against the Ontology, allowing code to work across different Object Types sharing a common contract."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-finding-meaning-in-data-palantir-rfx-blog-series-1-399bd1a5971b",
+    "title": "Ontology: Finding meaning in data - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "A systematic mapping of data to meaningful semantic concepts. Exists outside the data itself to establish a framework that empowers data integration, application building, and user collaboration. Functions regardless of the specific data present."
+      },
+      {
+        "type": "Pattern",
+        "name": "Three Levels of Abstraction",
+        "description": "The Ontology operates at three levels: (1) Class definitions (abstract object type schemas), (2) Instantiated objects (real data mapped to classes), and (3) Operational use (linked, created, deleted, property changes)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Class definitions in the Ontology representing the nouns of an organization (e.g., Accounts, Transactions, Financial Products for a bank)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Defined attributes that describe Object Type classes, forming the adjectives in the Ontology's semantic vocabulary."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Defined relationships connecting object classes in a web, enabling navigation between related entities."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Instantiated Object",
+        "description": "A concrete representation of data mapped into a defined Object Type class. Can be created, deleted, linked, unlinked, and have properties changed."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Agnosticism",
+        "description": "The Ontology is data-agnostic: while data may inform how the Ontology is structured, the Ontology itself functions regardless of the specific data present in the ecosystem."
+      },
+      {
+        "type": "UseCase",
+        "name": "Banking Ontology",
+        "description": "A bank models Accounts, Transactions, and Financial Products as Object Types in the Ontology, with defined properties and relationships between them."
+      },
+      {
+        "type": "Pattern",
+        "name": "Nouns-Verbs-Adjectives Model",
+        "description": "The Ontology defines the nouns (Object Types), verbs (Actions/Links), and adjectives (Properties) of an organization's semantic vocabulary."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Instantiated Object",
+        "relationship": "IMPLEMENTS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Three Levels of Abstraction"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Data Agnosticism"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Nouns-Verbs-Adjectives Model"
+      },
+      {
+        "source": "Banking Ontology",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Banking Ontology",
+        "relationship": "DEMONSTRATES",
+        "target": "Property"
+      }
+    ],
+    "keyInsights": [
+      "Data does not have inherent meaning — meaning is layered onto data by users through the Ontology, making Ontology design a fundamentally human activity.",
+      "The Ontology exists outside the data itself, functioning as a schema-level framework that is independent of specific data contents.",
+      "Data agnosticism is a key design principle: the Ontology should function regardless of what data is present, enabling it to evolve independently of data sources.",
+      "Three levels of abstraction (class definitions, instantiated objects, operational use) mirror the class/instance/operation pattern in object-oriented programming.",
+      "The Nouns-Verbs-Adjectives model provides an intuitive mental framework for Ontology design that maps directly to natural language thinking about business domains.",
+      "A functional data ecosystem must incorporate Ontology concepts to be scalable and sustainable — without semantic meaning, data remains inert."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+    "title": "Connecting AI to Decisions with the Palantir Ontology - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Decision-centric software architecture integrating data, logic, and action into a scalable, dynamic, collaborative foundation reflecting real-time organizational conditions."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform that enables LLMs and AI agents to query and reason over the Ontology using natural language, safely leveraging AI in enterprise operations."
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision-Centric Model",
+        "description": "Every decision comprises three elements: data (information used to decide), logic (process of evaluating), and action (execution of the decision). The Ontology integrates all three."
+      },
+      {
+        "type": "Pattern",
+        "name": "Tools Paradigm",
+        "description": "Rather than fine-tuning LLMs on enterprise data, AIP provides LLMs with tools (Ontology queries, actions, functions) that the AI calls to interact with the real world through the Ontology."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Semantic types that integrate all modalities of data (ERPs, IoT, unstructured, geospatial) into a full-scale representation surfaced in the language of the enterprise."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Kinetic operations ranging from simple transactions to multi-step orchestrations. The Ontology captures the full lifecycle including guardrails, side effects, and downstream implications."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Logic elements that can be simple business rules, ML models, LLM-driven functions, or complex multi-step orchestrations. Composed and evolved over time."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Decision Data",
+        "description": "Data generated by end users as decisions are made, including context, options evaluated, and downstream implications. Distinct from traditional enterprise data."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Governance",
+        "description": "Security model woven into the Ontology ensuring that both human users and AI agents operate within defined access controls, guardrails, and audit trails."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Real-time Subscriptions",
+        "description": "The Ontology Engine provides real-time subscription capabilities for live updates to Ontology state changes."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Atomic Transactions",
+        "description": "The Ontology Engine supports atomic transactions ensuring consistency when multiple objects are modified simultaneously."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Decision-Centric Model"
+      },
+      {
+        "source": "AIP",
+        "relationship": "USES_PATTERN",
+        "target": "Tools Paradigm"
+      },
+      { "source": "AIP", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "AIP",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Ontology"
+      },
+      {
+        "source": "Tools Paradigm",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Tools Paradigm",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Ontology Governance",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology Governance",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Decision Data",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology is designed to represent decisions, not data — this is the fundamental architectural distinction enabling AI integration.",
+      "AIP uses a tools paradigm rather than fine-tuning: LLMs call Ontology tools (queries, actions, functions) rather than being trained on enterprise data.",
+      "Decision Data is a novel concept: the context, options, and implications generated during decision-making become first-class data in the Ontology, enabling learning loops.",
+      "The three elements of any decision (data, logic, action) map directly to the Ontology's three pillars, making the Ontology a natural substrate for AI-driven decisions.",
+      "Security governance for AI is the same governance used for humans — the Ontology's access controls, guardrails, and audit trails apply equally to LLM agents.",
+      "Real-time capabilities (subscriptions, atomic transactions, streaming) are essential Engine features for operational decision-making where latency matters."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-the-ontology-software-development-kit-823fe5ac7aae",
+    "title": "Building with Palantir AIP: The Ontology Software Development Kit - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology Software Development Kit that generates a custom SDK for a specific business ontology, enabling type-safe interaction with business objects from external development environments."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform within which the OSDK enables building external applications that leverage LLMs integrated with the Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Portal for developing applications that leverage the Ontology, used to create OSDK applications with scoped access to specific Ontology entities."
+      },
+      {
+        "type": "Pattern",
+        "name": "SDK-of-Your-Business",
+        "description": "The OSDK generates an SDK that is an SDK of the business itself, using the language and concepts of the business domain, not generic API endpoints."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Business entities (e.g., Distribution Centers, Satellites, Customer Orders) that become type-safe objects in the generated OSDK code."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Business operations (e.g., updating orders, tasking satellites) exposed as type-safe functions in the OSDK for writeback to the Ontology."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Logic elements that can be invoked through the OSDK, including LLM-driven functions for satellite selection."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OSDK Token Scoping",
+        "description": "The OSDK application token is scoped to only the ontological entities the application needs, providing least-privilege access control."
+      },
+      {
+        "type": "UseCase",
+        "name": "Satellite Imagery Tasking",
+        "description": "Titan Industries extends their Ontology to include satellite tasking, using LLMs through the OSDK to find the right satellite to capture imagery of a damaged distribution center."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "React OSDK Integration",
+        "description": "The OSDK provides TypeScript bindings specifically optimized for React applications, enabling type-safe frontend development against the Ontology."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Automatic Documentation Generation",
+        "description": "Developer Console automatically generates API documentation from Ontology metadata, keeping docs in sync with the Ontology schema."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "OSDK", "relationship": "PART_OF", "target": "AIP" },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "USES_PATTERN",
+        "target": "SDK-of-Your-Business"
+      },
+      {
+        "source": "SDK-of-Your-Business",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "SDK-of-Your-Business",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "OSDK Token Scoping",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Satellite Imagery Tasking",
+        "relationship": "DEMONSTRATES",
+        "target": "OSDK"
+      },
+      {
+        "source": "Satellite Imagery Tasking",
+        "relationship": "DEMONSTRATES",
+        "target": "Function"
+      },
+      {
+        "source": "React OSDK Integration",
+        "relationship": "EXAMPLE_OF",
+        "target": "OSDK"
+      }
+    ],
+    "keyInsights": [
+      "The OSDK generates an SDK of your business — not generic API client code, but domain-specific typed interfaces reflecting actual business entities.",
+      "Developer Console acts as the bridge between Ontology definitions and external application development, handling SDK generation and token scoping.",
+      "The OSDK enables a composable ecosystem: new applications leverage all existing Ontology integration work, and new components onboard quickly.",
+      "LLM integration through the OSDK demonstrates the tools paradigm in practice: AI selects satellites by reasoning over typed Ontology objects.",
+      "Automatic documentation generation from Ontology metadata ensures that OSDK documentation stays in sync without manual maintenance.",
+      "Security is least-privilege by default: OSDK tokens are scoped to specific ontological entities, not broad platform access."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/pipeline-builder/overview",
+    "title": "Pipeline Builder - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry's primary application for data integration, enabling point-and-click pipeline building with a next-generation transformation backend acting as intermediary between logic creation and execution."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Expressions",
+        "description": "Column-level transformations in Pipeline Builder that operate on individual values within a dataset."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transforms",
+        "description": "Table-level operations in Pipeline Builder that modify dataset structure (joins, filters, aggregations, unions)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "User-Defined Functions (UDFs)",
+        "description": "Custom code functions in Pipeline Builder for computations that built-in expressions and transforms do not cover."
+      },
+      {
+        "type": "Product",
+        "name": "Apache Spark",
+        "description": "Distributed compute engine leveraged by Pipeline Builder for batch data transformation processing."
+      },
+      {
+        "type": "Product",
+        "name": "Apache Flink",
+        "description": "Stream processing engine leveraged by Pipeline Builder for real-time streaming pipeline execution."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transformation Backend",
+        "description": "Pipeline Builder's next-generation backend that acts as a middle layer between logic creation and execution, writing transform code, performing integrity checks, and identifying refactoring errors."
+      },
+      {
+        "type": "Pattern",
+        "name": "Compute-Agnostic Pipeline",
+        "description": "Pipeline Builder abstracts the execution engine: the same pipeline logic can execute on Spark, Flink, or other engines without user modification."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entities that Pipeline Builder can output to, feeding the Ontology from transformed data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pipeline Outputs",
+        "description": "Pipeline Builder can output to datasets, objects, streams, time-series, and exports — connecting raw data to the Ontology and beyond."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Pipelines",
+        "description": "Real-time latency pipeline execution capability in Pipeline Builder, enabling continuous data processing."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Pipeline Builder",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Apache Spark"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Apache Flink"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "USES_PATTERN",
+        "target": "Compute-Agnostic Pipeline"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Expressions",
+        "relationship": "PART_OF",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Transforms",
+        "relationship": "PART_OF",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "User-Defined Functions (UDFs)",
+        "relationship": "PART_OF",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Transformation Backend",
+        "relationship": "DEFINED_BY",
+        "target": "Pipeline Builder"
+      }
+    ],
+    "keyInsights": [
+      "Pipeline Builder's transformation backend acts as an intelligent intermediary: it writes code, checks integrity, and identifies errors before execution — not just a visual wrapper.",
+      "The compute-agnostic architecture means Pipeline Builder logic is portable across Spark, Flink, and other engines without rewriting.",
+      "Pipeline Builder bridges the gap between no-code users and code-first engineers through a layered approach: point-and-click UI, expressions, transforms, and UDFs.",
+      "Outputs include objects (feeding the Ontology), streams, time-series, and exports — making Pipeline Builder a gateway from raw data to semantic Ontology.",
+      "Type-safe functions flag errors immediately rather than at build time, reducing the feedback loop for pipeline authors.",
+      "Automatic build path pruning avoids unnecessary computation by trimming disconnected transform paths."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-integration/overview",
+    "title": "Overview - Data Integration - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry Data Integration",
+        "description": "Foundry's highly configurable data connectivity and integration toolset extending far beyond typical ETL/ELT solutions. Designed to reduce the cost of data integration over time through capabilities that act as a force multiplier."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry application for fast, flexible, and scalable delivery of data pipelines with integrated robustness and security."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Connection Framework",
+        "description": "Extensible framework establishing connections with all types of source systems (structured, unstructured, semi-structured) using batch, micro-batch, or streaming approaches."
+      },
+      {
+        "type": "Pattern",
+        "name": "Compute-Agnostic Build Framework",
+        "description": "Foundry's Build framework provides fully integrated security and data lineage while enabling mixing and matching of third-party compute runtimes."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Data Lineage",
+        "description": "Full lineage tracking of data versions throughout the integration pipeline, from source through transformation to Ontology."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pipeline Health Checks",
+        "description": "Rigorous release process for production pipelines including health checks guaranteeing only fully compliant data is deployed."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The end destination for integrated data: raw data is connected, transformed, and ultimately mapped into Object Types in the Ontology."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Pipeline Security",
+        "description": "Granular security for collaborative management of data extraction, with branching of data sync configurations and integrated governance."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry Data Integration",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "PART_OF",
+        "target": "Foundry Data Integration"
+      },
+      {
+        "source": "Foundry Data Integration",
+        "relationship": "USES_PATTERN",
+        "target": "Data Connection Framework"
+      },
+      {
+        "source": "Foundry Data Integration",
+        "relationship": "USES_PATTERN",
+        "target": "Compute-Agnostic Build Framework"
+      },
+      {
+        "source": "Foundry Data Integration",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Pipeline Security",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Foundry data integration is explicitly designed to reduce cost over time — a force multiplier philosophy rather than one-time ETL.",
+      "The compute-agnostic Build framework is a foundational architectural pattern: security and lineage are integrated regardless of which compute engine runs.",
+      "The data integration layer spans four capabilities: connecting, transforming, managing pipelines, and quality assurance — each with dedicated tooling.",
+      "Pipeline health checks enforce that only compliant data reaches production, providing a quality gate before Ontology ingestion.",
+      "Data lineage from source to Ontology is a first-class capability, enabling full auditability of how raw data becomes semantic objects."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/overview",
+    "title": "Data Connection - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Palantir application for synchronizing data from external systems into Foundry. Supports batch, streaming, media, CDC syncs, virtual tables, and manages source credentials."
+      },
+      {
+        "type": "Pattern",
+        "name": "Raw Data Ingestion",
+        "description": "Data Connection philosophy that data should be ingested as-is from its most raw source with no external preprocessing, making the Foundry pipeline the single source of all transformations."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Batch Sync",
+        "description": "Data Connection sync mode for periodic bulk data transfer from external systems."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Sync",
+        "description": "Data Connection sync mode for continuous real-time data ingestion from external systems."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "CDC Sync",
+        "description": "Change Data Capture sync mode that captures only incremental changes from source systems."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Virtual Tables",
+        "description": "Data Connection capability enabling query-time access to external data without copying it into Foundry."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Media Sync",
+        "description": "Data Connection sync mode for ingesting unstructured media files (images, video, PDFs) from external systems."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Webhook Writeback",
+        "description": "Outbound Data Connection capability enabling writeback to external systems via webhooks."
+      },
+      {
+        "type": "Pattern",
+        "name": "Robustness Through Simplicity",
+        "description": "Data Connection uses simple functions (filesystem, database syncs) to pull data in small batches with low-complexity queries, combined with automatic retries and health monitoring."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The downstream destination for data synchronized through Data Connection, after transformation in the pipeline layer."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Connection",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "USES_PATTERN",
+        "target": "Raw Data Ingestion"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "USES_PATTERN",
+        "target": "Robustness Through Simplicity"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Batch Sync",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Streaming Sync",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "CDC Sync",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Virtual Tables",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      }
+    ],
+    "keyInsights": [
+      "Data Connection deliberately ingests data as-is with no preprocessing, making Foundry the single source of truth for all transformations.",
+      "Five sync modes (batch, streaming, media, CDC, virtual tables) cover the full spectrum of data ingestion patterns.",
+      "Virtual Tables enable query-time federation — accessing external data without copying it into Foundry, useful for compliance or latency requirements.",
+      "Robustness is achieved through simplicity: small batches, low-complexity queries, automatic retries, and health monitoring rather than complex resilience patterns.",
+      "Data Connection also supports outbound connections via webhooks and data exports, making it bidirectional not just ingest-only.",
+      "Extensibility is a core design principle: new source systems can often reuse existing plugins with minor changes."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/on-dataset-versioning-in-palantir-foundry-8f23de22cc4c",
+    "title": "On dataset versioning in Palantir Foundry - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Dataset",
+        "description": "The fundamental data representation in Foundry. Datasets use immutable versions (analogous to Git commits) enabling concurrent read/write access without conflicts."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Transaction",
+        "description": "Dataset transaction type that replaces the current view entirely with a new set of files. The basis of batch pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "APPEND Transaction",
+        "description": "Dataset transaction type that adds new files without modifying existing ones. The basis of incremental pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "UPDATE Transaction",
+        "description": "Dataset transaction type that modifies specific existing files within the dataset view."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "DELETE Transaction",
+        "description": "Dataset transaction type that removes specific files from the dataset view."
+      },
+      {
+        "type": "Pattern",
+        "name": "Git-for-Data",
+        "description": "Foundry's dataset versioning model parallels Git: transactions are analogous to commits, dataset branches parallel Git branches, enabling versioning over both logic and data simultaneously."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Branching",
+        "description": "Datasets support branching that isolates changes, enabling concurrent development on different versions of the same dataset without interference."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Immutable Versions",
+        "description": "Each committed dataset transaction creates an immutable version, ensuring atomic reads and preventing mixed-version inconsistencies."
+      },
+      {
+        "type": "Pattern",
+        "name": "Dual Branching",
+        "description": "Foundry combines dataset branching (data versioning) with Git branching (logic versioning) to support versioning over both data and transformation code simultaneously."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Dataset",
+        "relationship": "USES_PATTERN",
+        "target": "Git-for-Data"
+      },
+      {
+        "source": "SNAPSHOT Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "APPEND Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "UPDATE Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "DELETE Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset Branching",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Immutable Versions",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dual Branching",
+        "relationship": "ENABLES",
+        "target": "Dataset"
+      }
+    ],
+    "keyInsights": [
+      "Dataset versioning through immutable transactions solves the fundamental problem of concurrent read/write access in collaborative data engineering.",
+      "Four transaction types (SNAPSHOT, APPEND, UPDATE, DELETE) provide precise control over how datasets evolve, analogous to different Git operations.",
+      "Dataset branching enables sandbox development: data engineers can experiment on isolated branches without affecting production data or other engineers' work.",
+      "Dual branching (data + logic) is Foundry's unique capability: versioning both the transformation code and the data it produces simultaneously.",
+      "Without versioning, exported data suffers from non-deterministic mixed versions during concurrent access — a subtle but critical correctness issue.",
+      "APPEND transactions are the foundation of incremental pipelines, processing only new data rather than recomputing entire datasets."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-integration/datasets",
+    "title": "Core Concepts - Datasets - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Dataset",
+        "description": "The most essential representation of data in Foundry, from when it lands through when it is mapped into the Ontology. A wrapper around a collection of files in a backing file system with integrated permission, schema, and version control."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset View",
+        "description": "The current state of a dataset as seen by users — the result of all committed transactions up to the latest version."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transaction Lifecycle",
+        "description": "A dataset transaction follows a lifecycle: OPEN (files can be written), COMMITTED (changes visible in view), or ABORTED (changes ignored)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Transaction",
+        "description": "Replaces the entire current dataset view with a new set of files. The basis of batch pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "APPEND Transaction",
+        "description": "Adds new files to the current view without modifying existing files. Cannot overwrite existing files. The basis of incremental pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "UPDATE Transaction",
+        "description": "Modifies specific existing files within the dataset. Supports row-level operations."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "DELETE Transaction",
+        "description": "Removes specific files from the dataset view."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Schema",
+        "description": "Metadata describing the columns of structured (tabular) datasets, stored alongside the dataset."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The Ontology entity that datasets are ultimately mapped into, with datasets providing the backing data for Object Type properties."
+      },
+      {
+        "type": "Pattern",
+        "name": "Git-for-Data",
+        "description": "Dataset transactions are analogous to Git commits — atomic, immutable changes that together form the version history of a dataset."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Dataset",
+        "relationship": "REFERENCES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Dataset",
+        "relationship": "USES_PATTERN",
+        "target": "Git-for-Data"
+      },
+      {
+        "source": "SNAPSHOT Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "APPEND Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "UPDATE Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "DELETE Transaction",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset Schema",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset View",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      }
+    ],
+    "keyInsights": [
+      "Datasets are the fundamental abstraction in Foundry — everything from landing to Ontology mapping flows through datasets.",
+      "A dataset is fundamentally a wrapper around files, not a database table — this enables support for structured, unstructured, and semi-structured data.",
+      "The transaction model (OPEN, COMMITTED, ABORTED) provides atomicity guarantees: either all changes apply or none do.",
+      "Four transaction types map to distinct pipeline patterns: SNAPSHOT for batch, APPEND for incremental, UPDATE for row-level modifications, DELETE for removals.",
+      "Datasets bridge the gap from raw data to Ontology: data lands as files, gets structured through schemas, and is ultimately mapped into Object Types.",
+      "Foundry datasets provide integrated permission management, schema management, and version control — capabilities absent from raw file systems."
+    ]
+  }
+]

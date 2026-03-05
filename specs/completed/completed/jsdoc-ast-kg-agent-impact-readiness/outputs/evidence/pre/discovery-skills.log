@@ -1,0 +1,9 @@
+$ bun run beep docs skills
+$ bun run tooling/cli/src/bin.ts -- docs skills
+Agent Skills
+High-signal skills and usage expectations for coding agents.
+- Use focused skills when a task clearly matches a specialized domain.
+- Prefer minimal skill sets that directly match requested outcomes.
+- Keep context tight and avoid broad, unfocused skill loading.
+- Pair skills with verification commands before completion.
+- Run: bun run beep docs find effect

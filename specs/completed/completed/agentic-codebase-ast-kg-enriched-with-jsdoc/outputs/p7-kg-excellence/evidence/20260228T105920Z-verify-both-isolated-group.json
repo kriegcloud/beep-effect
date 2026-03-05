@@ -1,0 +1,32 @@
+{
+  "target": "both",
+  "group": "beep-ast-kg-p7-batch-20260228T105611Z",
+  "commit": "b2b0202da5ea768eb9da09687b43b92d562b91d8",
+  "falkor": {
+    "nodeCount": 5866,
+    "edgeCount": 9811,
+    "fileCount": 509,
+    "commitCount": 1,
+    "commitContextCount": 509
+  },
+  "graphiti": {
+    "status": 200,
+    "bodySnippet": "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":\"kg-verify-episodes\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"message\\\": \\\"Episodes retrieved successfully\\\",\\n  \\\"episodes\\\": [\\n    {\\n      \\\"uuid\\\": \\\"d77e8160-2a89-44bf-a567-ed27835c8553\\\",\\n      \\\"name\\\": \\\"ast-kg:beep-effect3:b2b0202da5ea768eb9da09687b43b92d562b91d8:.claude/hooks/agent-init/index.ts\\\",\\n      \\\"content\\\": \\\"{\\\\\\\"envelop",
+    "message": "Episodes retrieved successfully",
+    "episodesObserved": 1,
+    "episodesScanned": 1,
+    "episodesCommitMatched": 1,
+    "expectedCommitSha": "b2b0202da5ea768eb9da09687b43b92d562b91d8",
+    "requiresCommitMatch": true,
+    "contractSatisfied": true,
+    "attempts": 1,
+    "waitedMs": 6,
+    "pollMs": 500,
+    "pollMaxMs": 4000,
+    "pollMultiplier": 1.5,
+    "maxWaitMs": 180000,
+    "requestTimeoutMs": 10000,
+    "firstVisibleAtMs": 6,
+    "timedOut": false
+  }
+}

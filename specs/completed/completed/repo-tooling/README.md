@@ -1,0 +1,191 @@
+# Repo Tooling: create-package Overhaul
+
+## Status
+- Status: `completed`
+
+## Purpose
+Overhaul the `beep create-package` CLI command to scaffold production-ready packages with Handlebars templates, full config bootstrapping (LICENSE, README, AGENTS.md, ai-context.md, CLAUDE.md symlink, docgen.json, vitest.config.ts), and alignment with established beep-effect conventions.
+
+## Scope
+
+### In Scope
+- Handlebars (.hbs) template system for all template-rendered scaffold files (with intentional non-template outputs for `package.json`, `.gitkeep` markers, and `CLAUDE.md` symlink creation)
+- Template directory at `tooling/cli/src/commands/create-package/templates/`
+- Generated file inventory: package.json, tsconfig.json, src/index.ts, test/.gitkeep, LICENSE, README.md, AGENTS.md, ai-context.md, CLAUDE.md (symlink), docgen.json, vitest.config.ts, dtslint/.gitkeep, docs/index.md
+- Three package types: `library`, `tool`, `app` (existing behavior preserved)
+- Interactive `--description` flag for package description
+- Dry-run mode (existing behavior preserved)
+- Comprehensive test coverage for all generated files
+- Type tests (dtslint) for any new public API changes
+
+### Out of Scope
+- Package publishing workflow
+- Codegen pipeline integration (separate `codegen` command)
+- Monorepo-wide tsconfig.packages.json auto-registration (tracked in cli-next-steps)
+- Turbo pipeline auto-registration
+
+## Success Criteria
+- [x] All template-rendered scaffold files use Handlebars templates (intentional non-template outputs remain: Schema-encoded `package.json`, static `.gitkeep` markers, and `CLAUDE.md` symlink action)
+- [x] `handlebars` added to root dependency catalog and cli package
+- [x] Template directory contains one `.hbs` file per template-rendered output (`tsconfig.json`, `src/index.ts`, `LICENSE`, `README.md`, `AGENTS.md`, `ai-context.md`, `docgen.json`, `vitest.config.ts`, `docs/index.md`)
+- [x] `LICENSE` file generated with MIT license text (matches existing package pattern)
+- [x] `README.md` generated with package name, description placeholder, and standard sections
+- [x] `AGENTS.md` generated with canonical structure (Purpose & Fit, Surface Map, Guardrails, Verifications, Contributor Checklist)
+- [x] `ai-context.md` generated with YAML frontmatter (path, summary, tags) and skeleton sections
+- [x] `CLAUDE.md` created as symlink to `AGENTS.md`
+- [x] `docgen.json` generated with correct schema path, srcLink, and path aliases
+- [x] `vitest.config.ts` generated with shared config merge pattern
+- [x] `docs/index.md` generated with front matter
+- [x] `dtslint/.gitkeep` generated for type test directory
+- [x] Dry-run mode lists all files including new ones
+- [x] All 135+ existing tests continue to pass
+- [x] New tests cover every generated file's content and structure
+- [x] Type tests pass (`bun run test:types`)
+- [x] Full quality checks pass (build, check, test, lint)
+- [x] Core scaffolding modules are reusable by a new `create-slice` implementation
+- [x] Creating `@beep/types` and `@beep/utils` under `packages/common` requires zero manual post-fix work
+
+## Expected Outputs
+- `specs/completed/repo-tooling/outputs/create-package-template-inventory.md` - Complete file-by-file template specification
+- `specs/completed/repo-tooling/outputs/create-package-design.md` - Architecture decisions, template variable schema, handler refactor plan
+- `specs/completed/repo-tooling/outputs/create-slice-reuse-gap-analysis.md` - Gap matrix and concrete extraction targets for create-slice reuse
+- Updated `tooling/cli/src/commands/create-package/` directory with templates and handler
+- Updated test suite with coverage for all generated files
+
+## Phase Overview
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| 0 | Research & Design: inventory templates, define variables, design handler architecture | Complete |
+| 1 | Template Creation: write all .hbs templates, add handlebars dependency | Complete |
+| 2 | Implementation: refactor handler to use templates, add symlink creation, update tests | Complete |
+| 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Complete (resolved by Phases 5-8) |
+| 4 | Reuse Extraction: make create-package core reusable for `.repos/beep-effect` `create-slice` and close zero-manual baseline gaps | Complete |
+| 5 | Hardening: fix dist/runtime defects, output correctness, and missing error-path tests | Complete |
+| 6 | Validation: certify spec completion with traceability evidence and zero-manual acceptance checks | Complete |
+
+## Prior Work
+Existing outputs from repo-utils migration (completed):
+- [repo-utils-implementation-plan.md](./outputs/repo-utils-implementation-plan.md)
+- [repo-utils-legacy-inventory.md](./outputs/repo-utils-legacy-inventory.md)
+- [repo-utils-effect-v4-corrections.md](./outputs/repo-utils-effect-v4-corrections.md)
+- [repo-utils-handoff-prompt.md](./outputs/repo-utils-handoff-prompt.md)
+- [repo-utils-README.md](./outputs/repo-utils-README.md)
+
+## Current State
+
+### What create-package generates today (13 files + root config updates)
+| File | Method | Content |
+|------|--------|---------|
+| `package.json` | Effect.fn + `encodePackageJsonPrettyEffect` | Full npm metadata, Effect v4 deps, scripts |
+| `tsconfig.json` | Handlebars template | Extends root config using package-depth-aware relative path |
+| `src/index.ts` | Handlebars template | Module JSDoc + VERSION export |
+| `test/.gitkeep` | Static write | Directory marker |
+| `dtslint/.gitkeep` | Static write | Type test directory marker |
+| `LICENSE` | Handlebars template | MIT license |
+| `README.md` | Handlebars template | Package docs skeleton |
+| `AGENTS.md` | Handlebars template | Contributor/agent guidance |
+| `ai-context.md` | Handlebars template | YAML frontmatter + context skeleton |
+| `CLAUDE.md` | Symlink | Symlink target: `AGENTS.md` |
+| `docgen.json` | Handlebars template | Package-specific docgen config |
+| `vitest.config.ts` | Handlebars template | Shared vitest merge config |
+| `docs/index.md` | Handlebars template | Docs front matter |
+
+### What well-structured packages contain (target state)
+| File | Purpose | Template Vars |
+|------|---------|---------------|
+| `package.json` | npm metadata, deps, scripts, exports | name, type, description |
+| `tsconfig.json` | TypeScript config extending base | (none - static per type) |
+| `src/index.ts` | Module entry with VERSION | name |
+| `test/.gitkeep` | Test directory marker | (none) |
+| `LICENSE` | MIT license text | year |
+| `README.md` | Package documentation | name, description |
+| `AGENTS.md` | Agent/contributor guide | name, description |
+| `ai-context.md` | AI context with YAML frontmatter | name, parentDir, description |
+| `CLAUDE.md` | Symlink to AGENTS.md | (symlink, no template) |
+| `docgen.json` | @effect/docgen configuration | name, parentDir |
+| `vitest.config.ts` | Test runner config | (none - static) |
+| `dtslint/.gitkeep` | Type test directory marker | (none) |
+| `docs/index.md` | Generated docs front matter | (none - static) |
+
+### Template Variables
+| Variable | Source | Example |
+|----------|--------|---------|
+| `name` | CLI argument | `my-utils` |
+| `scopedName` | Derived: `@beep/${name}` | `@beep/my-utils` |
+| `type` | `--type` flag | `library`, `tool`, `app` |
+| `description` | `--description` flag | `Utility functions for...` |
+| `year` | `new Date().getFullYear()` | `2026` |
+| `parentDir` | Derived from type or `--parent-dir` override | `tooling`, `apps`, `packages/common` |
+| `packagePath` | Derived: `${parentDir}/${name}` | `packages/common/types` |
+| `rootRelative` | Derived from package path depth | `../../`, `../../../` |
+
+## New Phase Trigger (2026-02-20)
+
+`create-package` now scaffolds `packages/common` packages, but reuse requirements for a new `.repos/beep-effect` `create-slice` are still incomplete:
+
+- Core logic is still handler-centric, not service-oriented (`FileGeneratorService`, `ConfigUpdaterService`, `TsMorphService` style modules are missing).
+- Verification gates are not reliably green for zero-manual work across the current branch.
+- A dedicated extraction phase is required to turn create-package internals into reusable primitives for multi-package slice generation.
+
+See:
+- `outputs/create-slice-reuse-gap-analysis.md`
+- `handoffs/HANDOFF_P4.md`
+
+## Hardening Trigger (2026-02-20)
+
+A comprehensive `tooling/cli` review identified hardening issues that must be fixed before final acceptance:
+
+- `create-package` dist runtime missing template assets
+- `topo-sort` output includes unexpected numeric index suffixes
+- missing tests for `tsconfig-sync` filter/cycle error paths and `codegen` empty-module branch
+
+See:
+- `handoffs/HANDOFF_P5.md`
+- `handoffs/P5_ORCHESTRATOR_PROMPT.md`
+
+## Validation Trigger (2026-02-20)
+
+After hardening, a dedicated validation phase is required to prove all repo-tooling success criteria with explicit evidence and confirm zero-manual generation workflows.
+
+See:
+- `handoffs/HANDOFF_P6.md`
+- `handoffs/P6_ORCHESTRATOR_PROMPT.md`
+
+## Reference Patterns
+
+### CLAUDE.md Symlink Pattern (from legacy beep-effect)
+Every package root has `CLAUDE.md -> AGENTS.md` (symlink). Single source of truth for both Claude Code and other AI tools.
+
+### AGENTS.md Canonical Structure
+```
+# @beep/{name} Agent Guide
+## Purpose & Fit
+## Surface Map
+## Usage Snapshots
+## Authoring Guardrails
+## Quick Recipes
+## Verifications
+## Contributor Checklist
+```
+
+### ai-context.md Canonical Structure
+```yaml
+---
+path: {parentDir}/{name}
+summary: {description}
+tags: [effect, ...]
+---
+# @beep/{name}
+## Architecture
+## Core Modules
+## Usage Patterns
+## Design Decisions
+## Dependencies
+## Related
+```
+
+## Navigation
+- [Reflection Log](./REFLECTION_LOG.md) - Learnings & patterns
+- [Handoffs](./handoffs/) - Phase transition documents
+- [Outputs](./outputs/) - Phase artifacts

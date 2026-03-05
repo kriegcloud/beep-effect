@@ -1,0 +1,102 @@
+Trust in Data (Palantir Explained, #4)
+Palantir
+Follow
+8 min read
+·
+Jul 21, 2021
+
+95
+
+Press enter or click to view image in full size
+
+Editor’s note: This is the fourth post in Palantir Explained, a series that explores a range of topics, including our approach to privacy, security, AI/ML safety and more. Previous posts explored our business model, purpose-based access controls, and data anonymization.
+
+Organizations around the world leverage Palantir’s software for their most critical initiatives: from pandemic response to cancer research, supply chain operations and clean energy development. While these projects vary in scope and impact, they all begin with the same fundamental question: is the relevant data available? If so, what is the quality of this data, in terms of completeness, accuracy, and timeliness? It is crucial we safeguard our most consequential institutions from the downfalls of data entropy: poor data, poor decisions.
+
+In this blog post, we will explore why a high bar of data quality is imperative for every institution. We will highlight strategies to track and monitor data quality and integrity, and address how organizations can promote user trust in data. Finally, as a longstanding technology partner of governments, we will share our learnings from the COVID-19 response efforts, among others, on why the tenets of accountability and transparency are particularly crucial in crisis situations. For more information about how our data quality and lineage tools work, read our full whitepaper, available here.
+
+Why It Matters
+
+Data quality is the foundation upon which all successful data and analytics projects are built. A single bad dataset has the potential to compromise an entire data-driven initiative, triggering consumer distrust and rendering the effort moot.
+
+Furthermore, regardless of the reason for low data quality — incorrect source data, misaligned definitions, skewed data collection, or even data preparation mistakes — decisions made on bad data can propagate quickly and insidiously throughout an organization. Without proper data health checks in place, misinformed decisions can go unnoticed, resulting in fraught or misguided decisions that can create compounding issues. This is why data quality must be paired with robust data transparency: all users, with relevant roles and permissions, should have the full context necessary to appropriately use and trust their data.
+
+Why It Is Difficult
+
+All data is not created equal, and rarely does it come packaged in a clean, reliable form that is easy to analyze. In reality, there is no perfect data source. Sometimes, the source lacks the breadth or depth of necessary information. Other times, the source systems are antiquated, rendering the data architecture, schemas, or structure inadequate to support a new use case. Worse, sources can contain inaccurate or out-of-date data.
+
+Beyond the data itself, important context surrounding the data can be piecemeal or non-existent. All too often, updates are received in the form of one-off extracts or CSVs with no visibility into where the data came from, when it was last updated, or any indications of potential issues or shortcomings. In the event the information does exist, it might only be found in an email or verbal exchange with no lasting record.
+
+All of these issues can affect a single dataset. Now, imagine taking tens or hundreds of these unique data feeds and harmonizing them into a single source of truth. Differing reporting standards, definitions, schemas, and formats make it difficult to ensure the data is properly prepared, merged, and vetted before it goes in front of decision-makers.
+
+Press enter or click to view image in full size
+How We Think About It
+
+Whenever we commence a project, we encourage users and decision makers to ask these fundamental questions of any integrated data asset:
+
+What sources make up this data asset? How reputable are these data sources? What do we know about where this data comes from?
+How trustworthy are these data sources? Is this data skewed such that it might result in misleading interpretations?
+How consistent is this data? Will we know if the shape or quality of the data changes or deteriorates?
+When was this data last updated? Is there a lag or reporting? If so, how might it affect the data and decision-making?
+If there are multiple data sources that need to be joined together, which data source takes precedence if there is a conflict? How can we track the decision to overwrite or prioritize a data source?
+
+Answers to these questions are relevant not only for initial data integration, but at every stage of the subsequent data lifecycle, and are necessary for creating a trustworthy data asset. From our extensive work with enterprise customers over the years, we learned that answering these questions at the necessary scale and pace was extraordinarily difficult in the absence of structures and applications to help track and secure data quality.
+
+As a result, we designed Foundry’s data integration tools such that any data engineer is empowered to track the general health of the data pipeline as part of the process of managing it, and so the user could know where the data came from and how it should be interpreted.
+
+How It Works
+Data Quality, Integrity, and Transparency for Producers in Foundry
+
+Foundry enables data engineers to build quality data pipelines with a set of tools to monitor and detect anomalies in the data that may contaminate the quality of the data asset.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Data Lineage Tools: Understanding where the data has been and where it is going allows data engineers to trace potential data quality issues across the platform, ensuring verified data is available to every applicable business division and team.
+
+Exploring Upstream Inputs: Foundry allows data engineers and users to trace back, investigate, and resolve the data quality issues at the source.
+Tracking Downstream Effects: Foundry’s Data Lineage allows users to proactively trace where data quality issues may have impacted downstream artifacts.
+Press enter or click to view image in full size
+
+Automated Data Health Checks: Foundry automates checks designed to detect aberrations in the data — whether timeliness of data updates, completeness, consistency, or even identify missing contents — to ensure robust data quality at scale. The pipelines can also listen for these checks and prevent propagation of the data downstream, if any of the checks fail.
+
+Press enter or click to view image in full size
+Global View of Issues
+Dataset Level View of Issues
+
+Ad Hoc Analyses for Comparison: Foundry provides tooling for data engineers to conduct ad hoc analyses to better understand the shape of data and how it trends over time. This allows data engineers to proactively identify anomalous patterns and conduct root-cause analyses on data issues.
+
+Data Quality, Integrity, and Transparency for Consumers in Foundry
+
+Even after methodically validating the data, the work is still not done — the use and interpretation of data depends on the users, and users vary widely in their approach and needs. Some users are not required or expected to inspect data, others “trust but verify,” and some want to know every step of how the data was prepared. Foundry is designed to meet the needs of many of these user profiles, providing tooling to surface the information critical to their work.
+
+Data Source Trackers and Data Catalogs: Foundry allows users to explore permissioned data across the enterprise. Giving users visibility into what is in their data asset is key to establishing a baseline of trust and context on the platform. Foundry not only provides visibility into what data is on the platform, but also for critical metadata such as descriptions, classifications, and data handling and sharing guidance.
+
+Data Profiles, Documentation, and Metadata: Foundry can also surface to users critical contextual information alongside the data itself, such as data gaps, limitations, time range, or known data owner concerns, allowing all users to have the necessary context about the data inputs before using it to drive decisions.
+
+Issues Tagged to Columns: Regularly-updated datasets change and evolve over time: data that is healthy today may not be in the future. Platform-wide transparency about potential data issues gives platform users, data engineers, and data owners agency to ask questions or flag potential issues about the data, democratizing data quality inspections.
+
+Visual Data Lineage: End-to-end visibility from initial integration to data cleaning, aggregation and analysis allows users to track how data is prepared and how it fits into the bigger picture. This includes reports, analyses, models, and everything in-between.
+
+Empowering users with transparency into data origins, preparation, and pipelines gives them confidence in the quality and lineage of their information, as well as the validity of their derived results.
+
+Data Transparency for Public Trust
+
+For organizations whose mandates and efficacy rely on public trust, such as government health departments, transparency is of utmost importance. To foster this trust, many organizations publish aggregated or de-identified data along with detailed notes on the origin and preparation of the information, providing the public with key insight into the inputs driving critical decisions.
+
+Such documentation should include clear communication about the sources of all relevant information, how the data was prepared, and where data quality gaps exist. Being upfront about potential issues demonstrates that the organization is acting in good faith, thoughtfully using available data, and being mindful of limitations.
+
+We have seen this take shape both in the UK and US where providing public access to comprehensive COVID-19 data powered by Palantir Foundry enables not only immense utility for universities, local policy makers, and citizens, but also unprecedented visibility into the quality and completeness of the data being reported as it evolves over time. This level of public data reporting has also created a larger feedback loop as local communities use the same national data to inform local policies, which in turn, improve data quality and collection at the source.
+
+We believe that trust in data is a public good that prevents institutions from seeming like they are operating in a black box. If the public is to trust their institutions, that trust must be built on a foundation of transparency.
+
+Tying It All Together
+
+More than fifteen years of supporting customers tackling the world’s hardest problems and the most complex data pipelines has made at least one thing clear: data quality requires a virtuous cycle between transparent data producers and informed data consumers. Making better, trustworthy decisions with data requires leveraging the right tools to automate and conduct reviews, providing documentation and feedback, and engaging with the full context of the data lineage and history. Foundry provides all of these tools, along with transparency from source to output. Our customers make some of the most consequential decisions in the world, and we are proud to say we are building the tools that allows society to trust in their data.
+
+Author
+
+Alice Yu, Privacy & Civil Liberties North America Lead and 2020 Enterprise Lead of the US COVID-19 response’s HHS Protect system.

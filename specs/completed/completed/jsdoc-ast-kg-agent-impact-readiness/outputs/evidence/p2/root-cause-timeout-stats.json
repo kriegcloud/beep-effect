@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-02-28T13:33:27.335Z",
+  "labels": {
+    "baseline-direct": {
+      "attempts": 3,
+      "successCount": 3,
+      "errorCount": 0,
+      "timeoutLikeCount": 0,
+      "errorRatePercent": 0,
+      "timeoutLikeRatePercent": 0,
+      "latencyMs": {
+        "min": 158,
+        "p50": 164,
+        "p95": 412,
+        "p99": 412,
+        "max": 412,
+        "mean": 244.67
+      },
+      "sample": [
+        {
+          "outcome": "ok",
+          "latencyMs": 412,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 158,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 164,
+          "message": null
+        }
+      ]
+    },
+    "unhealthy-direct": {
+      "attempts": 3,
+      "successCount": 0,
+      "errorCount": 3,
+      "timeoutLikeCount": 3,
+      "errorRatePercent": 100,
+      "timeoutLikeRatePercent": 100,
+      "latencyMs": {
+        "min": 10748,
+        "p50": 10790,
+        "p95": 10840,
+        "p99": 10840,
+        "max": 10840,
+        "mean": 10792.67
+      },
+      "sample": [
+        {
+          "outcome": "err",
+          "latencyMs": 10790,
+          "message": "Graphiti search_memory_facts operation failed after 5 attempts"
+        },
+        {
+          "outcome": "err",
+          "latencyMs": 10748,
+          "message": "Graphiti search_memory_facts operation failed after 5 attempts"
+        },
+        {
+          "outcome": "err",
+          "latencyMs": 10840,
+          "message": "Graphiti search_memory_facts operation failed after 5 attempts"
+        }
+      ]
+    },
+    "unhealthy-proxy-preflight": {
+      "attempts": 1,
+      "successCount": 0,
+      "errorCount": 1,
+      "timeoutLikeCount": 0,
+      "errorRatePercent": 100,
+      "timeoutLikeRatePercent": 0,
+      "latencyMs": {
+        "min": 34,
+        "p50": 34,
+        "p95": 34,
+        "p99": 34,
+        "max": 34,
+        "mean": 34
+      },
+      "sample": [
+        {
+          "outcome": "err",
+          "latencyMs": 34,
+          "message": "Graphiti proxy preflight failed: HTTP 503 from http://127.0.0.1:8123/healthz"
+        }
+      ]
+    },
+    "recovered-proxy": {
+      "attempts": 5,
+      "successCount": 5,
+      "errorCount": 0,
+      "timeoutLikeCount": 0,
+      "errorRatePercent": 0,
+      "timeoutLikeRatePercent": 0,
+      "latencyMs": {
+        "min": 141,
+        "p50": 169,
+        "p95": 383,
+        "p99": 383,
+        "max": 383,
+        "mean": 223
+      },
+      "sample": [
+        {
+          "outcome": "ok",
+          "latencyMs": 383,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 281,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 141,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 169,
+          "message": null
+        },
+        {
+          "outcome": "ok",
+          "latencyMs": 141,
+          "message": null
+        }
+      ]
+    }
+  }
+}

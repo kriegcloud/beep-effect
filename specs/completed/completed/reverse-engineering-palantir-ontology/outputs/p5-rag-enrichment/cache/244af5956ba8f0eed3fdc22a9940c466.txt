@@ -1,0 +1,75 @@
+Taking Your Data Science Models to the Next Level
+Unlocking the full value of your data science models means driving decision-making processes and systems at scale
+Palantir
+Follow
+5 min read
+·
+May 3, 2022
+
+32
+
+1
+
+By Akshay Krishnaswamy, Chief Architect, and Anirvan Mukherjee, Head of AI/ML Solutions, Palantir Technologies
+
+Press enter or click to view image in full size
+
+Our first few posts in this series discussed the importance of enhancing the operational decisions that power an enterprise.
+
+Recently, organizations have been leveraging artificial intelligence (AI), machine learning (ML), and optimization (OPT) models to improve organizational decision-making. Many model-building tools — such as Sagemaker, Azure ML, DataRobot, and Dataiku — let you easily build, train, and tune models, as well as utilize out-of-the-box models to fit against specific datasets.
+
+However, the journey from development sandbox to impactful operational tool for users remains precarious. One-off AI/ML/OPT models may be developed to address specific business needs via a point-solution or made available on an API endpoint, but many organizations lack the overarching framework to ensure that data, models, and decisions can be captured and deployed across use cases — resulting in fragmentation and limited learning.
+
+Unlocking the full value of your data science models means going beyond serving an API endpoint. It means driving decision-making processes and systems at scale. Achieving this state requires: a trustworthy data foundation, full-fidelity feedback loops between consumers and model builders, safe mechanisms for writing back to systems of action, shared security and lineage frameworks across teams — and much more. Foundry can make this possible.
+
+Press enter or click to view image in full size
+Palantir Foundry provides a complete matrix for AI/ML, with deep operational connectivity and dynamic feedback loops between consumers and model builders.
+How it works
+
+Palantir Foundry provides a complete matrix for AI/ML. For data scientists and AI/ML/OPT teams, Foundry offers deep operational connectivity and dynamic feedback loops between consumers and model builders. For business teams, Foundry enables technical and non-technical users alike to interact with key model levers, search and discover available data, test “what-if” scenarios, run large-scale simulations, and make decisions through entirely customizable user-facing applications.
+
+Whether you choose to bring your own model building tools or use FoundryML, our built-in modeling framework, the Foundry operating system helps you unlock the full potential of your models in three steps.
+
+1) Integrate
+
+Foundry builds on the foundational work from your data science teams, combining relevant data and models using a suite of interoperable connectors to external systems.
+
+For data, Foundry enables bi-directional connection to your enterprise data platform as well as your operational and transactional systems (e.g. ERP, CRM, MES, Asset Config, Edge, and more). Similarly, for models, integration can occur via native platform integrations (e.g., AWS Sagemaker, Azure ML, DataRobot, or Databricks) or by importing your model artifact directly into Foundry (as code, libraries, or trained models).
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Once data and models have been integrated, Foundry provides a range of operational AI/ML capabilities intended to complement model building:
+
+Full versioning, branching, reproducibility, security, and lineage for integrated models
+Multiple applications for cross-functional collaboration with data and operations teams
+Foundry Model Management framework, which provides a gateway for context, relevant data sources, metadata, upfront and ongoing evaluation of model candidates, and connection to the Ontology (discussed below)
+Collective awareness of production environments, individual model health, and granular feedback-driven metrics — enabling rich and structured iteration
+
+The extensive support for versioning and branching of data and models enables your data scientists to quickly switch from data-centric workflows (where the model is fixed and iterations focus on improving data) to model-centric ones (where the data is fixed and iterations focus on enhancing the model). The ability to pivot in both dimensions accelerates analytic improvements while maintaining engineering rigor throughout experimentation.
+
+2) Bind
+
+Once integrated, Foundry binds your models to the Foundry Ontology. The Ontology sits atop the digital assets in Foundry and connects them to their real-world counterparts, ranging from physical assets like manufacturing plants, equipment, and products to concepts like customer orders or financial transactions. In many settings, the Ontology serves as a digital twin of the organization.
+
+The Ontology helps orchestrate the flow of data and models through operational workflows and enables collaboration among data scientists, AI/ML/OPT, business, and operational teams on a shared substrate. Models — and their features — can be bound directly to the primitives and processes that drive the business. The Ontology then allows them to be governed, released, and injected directly into core applications and systems — without additional adapters or glue-code — and served in-platform (batch, streaming, or query-driven) or externally.
+
+3) Operationalize
+
+Once you bind your AI/ML/OPT models to the Foundry Ontology, you can unleash their full potential. By leveraging Ontology objects and native application builders, Foundry provides the needed primitives to design, configure, and deploy AI-infused workflows. As operators, business processes, and systems make decisions and take action, the results are written back into the Ontology — providing unprecedented feedback loops to model monitoring, evaluation, re-training, and MLOps.
+
+This advanced operationalization helps to “close the loop” between AI/ML/OPT and operations in several ways:
+
+Capture decisions. As end users make decisions, Foundry captures them back in the Ontology — in accordance with governance paradigms — and with a full lineage trail that encompasses both data and model inputs.
+Automatically write-back to systems of action. With Foundry’s extensive suite of bidirectional connectors, all decisions made by end users are recorded and written back to both the Ontology and systems of action. This orchestration means that organizations can benefit from Foundry’s operational AI/ML/OPT without needing to supplant any core operational systems. Foundry maintains a complete log of decisions and states to ensure auditability and complete transparency. Decisions are always non-destructive since underlying data is brought in through system integrations and versioned.
+Use model feedback to monitor, re-train and improve models. As end user actions are taken in operational contexts, the decisions are captured back into the Ontology, and made seamlessly available for model monitoring, as well as to labeling and training environments. This feedback loop ensures that data scientists are able to quickly evolve models to meet ever-changing real-world conditions.
+Press enter or click to view image in full size
+Foundry integrates data and models from external systems, binds them to the organization’s Ontology, and embeds them in operational workflows and applications. Foundry captures decisions made in the operational sphere and writes data back to both the Ontology and systems of action, providing a “closed loop” between AI/ML/OPT and operations.
+Doubling Down on Your Data Science Investments
+
+We built Foundry to help organizations more deeply connect their data, analytics, and operations. Integrating your data science models with Foundry allows you to begin augmenting and amplifying existing data and model investments in hours. Binding your models to the Ontology helps you move your models out of the lab and onto the front lines of the organization, enabling technical and non-technical users alike to interact with model levers. Finally, operationalization helps you close the loop with operators, continuously improve models through rich end user feedback, and achieve continuous learning.
+
+Learn more about how Foundry can help you unlock the power of your data science models and get in touch with a member of our Foundry product team.

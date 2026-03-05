@@ -1,0 +1,172 @@
+Deep Dive: Creating Your First Ontology 
+
+ Courses
+
+ Tracks
+
+ Community
+
+ Sign In 
+
+ There was an issue with saving this content. Please try again. 
+ There was an issue with removing this item from your saved content. Please try again. 
+
+Deep Dive: Creating Your First Ontology
+
+Learn what the Foundry Ontology is, why it is valuable, and how to build your own. [60 to 90 minutes]
+
+ Register
+
+ Already registered?
+
+ Sign In 
+
+ Cancel 
+
+ Apply 
+
+rate limit
+
+Code not recognized.
+
+ Activate
+
+About this course
+
+ All courses require access to Foundry. If your organization already works with Palantir, contact your administrator for access to your organization-specific Foundry account. Otherwise, eligible individuals can get started by signing-up for a free Developer Tier account here. 
+
+In this course, you will:
+
+Get hands-on with an existing Ontology to better understand what it is and how it makes data easier to use.
+
+See how an Ontology is built and how it provides a common vocabulary to an organization.
+
+Learn how to start building your own Ontology by defining your own object type, relationship, and action
+
+Learn more about how the Ontology lies at the heart of Foundry and how that position impacts how you should think about Foundry-based solutions
+
+This course typically takes about 60 to 90 minutes to complete.
+
+Curriculum 
+
+ Training Overview
+
+ Introduction 
+
+ Permissions & Help 
+
+ Getting Started
+
+ Install the Marketplace Bundle 
+
+ Object Explorer
+
+ Context: Fresh Air 
+
+ Object Explorer 
+
+ Fresh Air Operations 
+
+ Reflections 
+
+ Data Lineage
+
+ Context: Why data lineage matters 
+
+ Data Lineage: Fresh Air pipeline 
+
+ Data Lineage Exploration 
+
+ Reflections 
+
+ Ontology Manager
+
+ Context: Extending Fresh Air's Ontology 
+
+ Ontology Manager 
+
+ Create an object type 
+
+ Create a link type 
+
+ Create an action type 
+
+ Execute your action 
+
+ Reflections 
+
+ Conclusion
+
+ Conclusion 
+
+ [Optional] Course Feedback 
+
+ About this course 
+
+ All courses require access to Foundry. If your organization already works with Palantir, contact your administrator for access to your organization-specific Foundry account. Otherwise, eligible individuals can get started by signing-up for a free Developer Tier account here. 
+
+In this course, you will:
+
+Get hands-on with an existing Ontology to better understand what it is and how it makes data easier to use.
+
+See how an Ontology is built and how it provides a common vocabulary to an organization.
+
+Learn how to start building your own Ontology by defining your own object type, relationship, and action
+
+Learn more about how the Ontology lies at the heart of Foundry and how that position impacts how you should think about Foundry-based solutions
+
+This course typically takes about 60 to 90 minutes to complete.
+
+ Curriculum 
+
+ Training Overview
+
+ Introduction 
+
+ Permissions & Help 
+
+ Getting Started
+
+ Install the Marketplace Bundle 
+
+ Object Explorer
+
+ Context: Fresh Air 
+
+ Object Explorer 
+
+ Fresh Air Operations 
+
+ Reflections 
+
+ Data Lineage
+
+ Context: Why data lineage matters 
+
+ Data Lineage: Fresh Air pipeline 
+
+ Data Lineage Exploration 
+
+ Reflections 
+
+ Ontology Manager
+
+ Context: Extending Fresh Air's Ontology 
+
+ Ontology Manager 
+
+ Create an object type 
+
+ Create a link type 
+
+ Create an action type 
+
+ Execute your action 
+
+ Reflections 
+
+ Conclusion
+
+ Conclusion 
+
+ [Optional] Course Feedback

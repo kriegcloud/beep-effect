@@ -1,0 +1,39 @@
+AIP Logic Semantic Search Block - Ask the Community - Palantir Developer Community 
+
+ AIP Logic Semantic Search Block 
+
+ Ask the Community 
+
+ aip-logic 
+
+ smitshahngra 
+
+ November 13, 2024, 1:00am
+
+ 1 
+
+In AIP logic there is a semantic search block to find closest items based on a property and a query.
+
+What embedding model is used to convert the query and find closest elements to the property specified by the user?
+
+Can the customer/organization admin change the embedding model used to convert the query?
+
+ mhawes 
+
+ November 13, 2024, 1:08am
+
+ 2 
+
+Great question, the model used depends on the configuration of the property within the Ontology.
+
+Here is a screenshot of a notional example from the Ontology object type configuration:
+
+ CleanShot 2024-11-12 at 17.06.08@2x 2584×1830 428 KB 
+
+As for enrollment-wide configuration, if you have specific models that you want users to be able to access then these can be registered as custom models (the ‘Foundry ML Live Model’ option).
+
+For more information about semantic search there are some useful resources in our documentation: https://www.palantir.com/docs/foundry/functions/overview-semantic-search/
+
+Let me know if this answers your question!
+
+ 1 Like

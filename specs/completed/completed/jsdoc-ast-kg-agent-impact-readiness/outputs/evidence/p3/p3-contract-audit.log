@@ -1,0 +1,13 @@
+12:- Label-set definition: one label per `(exported symbol x required tag)` for `@domain`, `@provides`, `@depends`, `@errors`
+14:- Total labeled semantic-tag slots (denominator universe): `68` (`17 * 4`)
+19:2. Build labeled slots for required tags (`@domain/@provides/@depends/@errors`) per symbol.
+25:   - Required-tag parse success = `parsed_required_slots / labeled_required_slots`
+26:   - Semantic edge precision = `TP / (TP + FP)`
+27:   - Semantic edge recall = `TP / (TP + FN)`
+33:| Required-tag parse success (`@domain/@provides/@depends/@errors`) | `parsed / labeled` | `68` | `68` | `100.00%` | `>= 99%` | PASS |
+34:| Semantic edge precision (`@domain/@provides/@depends/@errors`) | `TP / (TP + FP)` | `68` | `68` | `100.00%` | `>= 90%` | PASS |
+35:| Semantic edge recall (`@domain/@provides/@depends/@errors`) | `TP / (TP + FN)` | `68` | `68` | `100.00%` | `>= 85%` | PASS |
+66:| `@domain` | `17` | `100.00%` (`17/17`) | `100.00%` (`17/17`) | `100.00%` (`17/17`) |
+67:| `@provides` | `17` | `100.00%` (`17/17`) | `100.00%` (`17/17`) | `100.00%` (`17/17`) |
+68:| `@depends` | `17` | `100.00%` (`17/17`) | `100.00%` (`17/17`) | `100.00%` (`17/17`) |
+69:| `@errors` | `17` | `100.00%` (`17/17`) | `100.00%` (`17/17`) | `100.00%` (`17/17`) |

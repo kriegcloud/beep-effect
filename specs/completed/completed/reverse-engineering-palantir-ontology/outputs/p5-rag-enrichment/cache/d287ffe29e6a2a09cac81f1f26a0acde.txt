@@ -1,0 +1,39 @@
+Polymorphic Interface with Unique Primary Keys – Best Practice? - Ask the Community - Palantir Developer Community 
+
+ Polymorphic Interface with Unique Primary Keys – Best Practice? 
+
+ Ask the Community 
+
+ ontology-management 
+
+ sumankundu 
+
+ April 22, 2025, 11:14am
+
+ 1 
+
+Hi all,
+
+I’m building a polymorphic model using a Task interface shared by three object types: Incident, Case, and Problem. All implement task_id, status, and priority.
+
+I’ve also created an SLA object type that should link to any of these task types via a single task_id (polymorphic reference through toInterfaceRid).
+
+The issue is that since Foundry enforces primary keys locally, the same task_id (e.g., TSK-001) could exist in more than one object type — which breaks the assumption of uniqueness when linking from SLA.
+
+What I need help with:
+
+How can I enforce global uniqueness of task_id across all object types implementing the interface?
+
+Is there a better way to model polymorphism in Foundry that avoids this issue while supporting interface-level links?
+
+Would appreciate any best practices or examples.
+
+ system 
+
+ Closed 
+
+ June 21, 2025, 11:15am
+
+ 2 
+
+This topic was automatically closed 60 days after the last reply. New replies are no longer allowed.
