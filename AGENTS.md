@@ -1,13 +1,28 @@
 # Agent Guide
 
 ## Mission
+
 Build and maintain features with effect first development.
 
 ## Rules
+
 - Use schema first domain models.
 - Prefer typed errors and tagged unions.
 - Prefer effect modules over native helpers.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
-- When the user asks questions on differences between effect v3 & effect v4 use the `graphiti-memory` & skill, tool 
+- When the user asks questions on differences between effect v3 & effect v4 use the `graphiti-memory` & skill, tool
   on the effect v4 knowledge graph.
+
+I'm migrating my codebase from v3→v4 where services are declared with Context.Tag/Effect.Service and wired through 
+layers Layer, while error handling uses Effect.catchAll/catchSome and some code “yields” Deferred values directly. In v4
+we’re seeing multiple breaking changes:
+ServiceMap.Service replaces service construction, Context module is gone/reworked, Effect.catchAll→Effect.catch,
+catchSome→catchFilter, and Deferred no longer extends Effect (so await style changed).
+Can you give me a migration strategy that minimizes behavior regressions? I want a concrete order of operations for:
+
+- converting service definitions + layer composition without breaking dependency resolution or causing duplicate service instances,
+- preserving typed error handling so domain errors are recovered and defects still fail fast,
+- updating all Deferred usages that relied on Yieldable/implicit await behavior,
+- and keeping runtime context/FiberRef behavior stable during rollout.
+  Please call out the v3 docs equivalents and the exact v4 replacements, and call out any hidden pitfalls.
