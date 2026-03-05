@@ -8,4 +8,4 @@
  * @since 0.0.0
  * @category
  */
-export * from "./errors/index.js";
+export * as Errors from "./errors/index.js";

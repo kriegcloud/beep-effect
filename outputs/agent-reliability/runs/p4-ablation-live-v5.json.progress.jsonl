@@ -1,0 +1,6 @@
+{"type":"suite.started","atEpochMs":1772298134680,"plannedRunCount":16,"strictTaskCount":4,"maxWallMinutes":90}
+{"type":"run.started","atEpochMs":1772298134681,"runId":"apps_web_p4_token_01:current:codex:1","runIndex":1,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"current","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772298248934,"runId":"apps_web_p4_token_01:current:codex:1","runIndex":1,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":114250.92115}
+{"type":"run.started","atEpochMs":1772298248935,"runId":"apps_web_p4_token_01:minimal:codex:1","runIndex":2,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772298492447,"runId":"apps_web_p4_token_01:minimal:codex:1","runIndex":2,"totalRuns":16,"success":false,"failureType":"runtime","wallMs":243507.230927}
+{"type":"run.started","atEpochMs":1772298492450,"runId":"apps_web_p4_token_01:adaptive:codex:1","runIndex":3,"totalRuns":16,"taskId":"apps_web_p4_token_01","condition":"adaptive","agent":"codex","trial":1}

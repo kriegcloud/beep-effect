@@ -1,0 +1,23 @@
+{
+  "target": "both",
+  "group": "beep-ast-kg-p7-final2-20260226T020435Z",
+  "commit": "a8373cb846226d3de57cced8f8138c450acb7089",
+  "falkor": {
+    "nodeCount": 2656,
+    "edgeCount": 4220,
+    "fileCount": 280,
+    "commitCount": 1,
+    "commitContextCount": 280
+  },
+  "graphiti": {
+    "status": 200,
+    "bodySnippet": "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":\"kg-verify-episodes\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"message\\\": \\\"Episodes retrieved successfully\\\",\\n  \\\"episodes\\\": [\\n    {\\n      \\\"uuid\\\": \\\"ac33b10f-a3da-4e69-b075-ef242f24ca64\\\",\\n      \\\"name\\\": \\\"ast-kg:beep-effect3:a8373cb846226d3de57cced8f8138c450acb7089:.claude/hooks/agent-init/index.ts\\\",\\n      \\\"content\\\": \\\"{\\\\\\\"envelop",
+    "message": "Episodes retrieved successfully",
+    "episodesObserved": 1,
+    "attempts": 35,
+    "waitedMs": 68271,
+    "pollMs": 2000,
+    "maxWaitMs": 300000,
+    "timedOut": false
+  }
+}

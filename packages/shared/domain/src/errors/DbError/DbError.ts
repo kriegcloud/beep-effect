@@ -1,4 +1,5 @@
 import { $SharedDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
 import { Match } from "effect";
 import * as O from "effect/Option";
@@ -21,7 +22,7 @@ const hasKnownErrorCode = (error: RawPgErrorType): error is KnownRawPgError =>
  *
  * @since 0.0.0
  */
-export class DbError extends S.TaggedErrorClass<DbError>($I`DbError`)("DbError", {
+export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
   type: S.OptionFromOptionalKey(ErrorCodeFromKey.From),
   pgError: S.OptionFromOptionalKey(RawPgError),
   cause: S.DefectWithStack,

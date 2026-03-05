@@ -1,0 +1,30 @@
+{
+  "profile": "code-graph-strict",
+  "group": "beep-ast-kg-p7-final2-20260226T020435Z",
+  "strictMinPaths": 1,
+  "checks": [
+    {
+      "name": "entity-listing",
+      "pass": true,
+      "observed": 280
+    },
+    {
+      "name": "neighbor-expansion",
+      "pass": true,
+      "observed": 4220
+    },
+    {
+      "name": "commit-context",
+      "pass": true,
+      "observed": 280
+    },
+    {
+      "name": "path-finding-query",
+      "pass": true,
+      "observedPaths": 0,
+      "minRequiredPaths": 1,
+      "eligibleCallEdges": 0,
+      "fallback": "no-eligible-call-edges"
+    }
+  ]
+}

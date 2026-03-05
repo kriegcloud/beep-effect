@@ -1,0 +1,1674 @@
+{
+  "formatVersion": 1,
+  "runAtEpochMs": 1772298656718,
+  "strictTaskCount": 4,
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "runMode": "live",
+  "executionBackend": "cli",
+  "matrixFingerprint": "apps_web_p4_token_01|current|codex|1\napps_web_p4_token_01|minimal|codex|1\napps_web_p4_token_01|adaptive|codex|1\napps_web_p4_token_01|adaptive_kg|codex|1\ntooling_cli_p4_token_01|current|codex|1\ntooling_cli_p4_token_01|minimal|codex|1\ntooling_cli_p4_token_01|adaptive|codex|1\ntooling_cli_p4_token_01|adaptive_kg|codex|1\npackage_lib_p4_token_01|current|codex|1\npackage_lib_p4_token_01|minimal|codex|1\npackage_lib_p4_token_01|adaptive|codex|1\npackage_lib_p4_token_01|adaptive_kg|codex|1\npackage_lib_p4_token_02|current|codex|1\npackage_lib_p4_token_02|minimal|codex|1\npackage_lib_p4_token_02|adaptive|codex|1\npackage_lib_p4_token_02|adaptive_kg|codex|1",
+  "status": "completed",
+  "plannedRunCount": 16,
+  "completedRunCount": 16,
+  "records": [
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_p4_token_01",
+        "title": "Apps web retrieval token write",
+        "category": "apps_web",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt)\" = \"8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_APPS_WEB"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.5
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "apps_web_p4_token_01:current:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 690,
+        "outputTokens": 299,
+        "costUsd": 0.0023575000000000002,
+        "wallMs": 6323.561022
+      },
+      "selectedPolicyIds": ["core", "category_apps_web"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "apps_web_p4_token_01:current:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: apps_web_p4_token_01\nCondition: current\nCategory: apps_web\nPolicies: core, category_apps_web\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-61f9-7713-adb0-8e3b61b39d40\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-61f9-7713-adb0-8e3b61b39d40\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "apps_web_p4_token_01:current:codex:1:signature",
+        "runId": "apps_web_p4_token_01:current:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "condition": "current",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_APPS_WEB"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_p4_token_01",
+        "title": "Apps web retrieval token write",
+        "category": "apps_web",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt)\" = \"8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_APPS_WEB"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.5
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "apps_web_p4_token_01:minimal:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 442,
+        "outputTokens": 196,
+        "costUsd": 0.0015325,
+        "wallMs": 3781.1302209999994
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_apps_web"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "apps_web_p4_token_01:minimal:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: apps_web_p4_token_01\nCondition: minimal\nCategory: apps_web\nPolicies: core, minimal, category_apps_web\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-790c-7330-bb4b-902e30836445\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-790c-7330-bb4b-902e30836445\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "apps_web_p4_token_01:minimal:codex:1:signature",
+        "runId": "apps_web_p4_token_01:minimal:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "condition": "minimal",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_APPS_WEB"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_p4_token_01",
+        "title": "Apps web retrieval token write",
+        "category": "apps_web",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt)\" = \"8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_APPS_WEB"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.5
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "apps_web_p4_token_01:adaptive:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 552,
+        "outputTokens": 242,
+        "costUsd": 0.0018999999999999998,
+        "wallMs": 5413.963114999999
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_apps_web"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "apps_web_p4_token_01:adaptive:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: apps_web_p4_token_01\nCondition: adaptive\nCategory: apps_web\nPolicies: core, adaptive, category_apps_web\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-879a-79b2-885b-1c2c8b0b49cb\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-879a-79b2-885b-1c2c8b0b49cb\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "apps_web_p4_token_01:adaptive:codex:1:signature",
+        "runId": "apps_web_p4_token_01:adaptive:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "condition": "adaptive",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_APPS_WEB"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_p4_token_01",
+        "title": "Apps web retrieval token write",
+        "category": "apps_web",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt)\" = \"8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_APPS_WEB"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.5
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "apps_web_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 607,
+        "outputTokens": 265,
+        "costUsd": 0.00208375,
+        "wallMs": 3608.753346999998
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_apps_web"
+      ],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [
+        "The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created and populated with the retrieval token labeled P4_TOKEN_APPS_WEB.",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for apps_web_p4_token_01",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for task apps_web_p4_token_01",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the token for retrieval label P4_TOKEN_APPS_WEB"
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "apps_web_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: apps_web_p4_token_01\nCondition: adaptive_kg\nCategory: apps_web\nPolicies: core, adaptive, adaptive_kg, category_apps_web\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_APPS_WEB. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n1. The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.\n2. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created and populated with the retrieval token labeled P4_TOKEN_APPS_WEB.\n3. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)\n4. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for apps_web_p4_token_01\n5. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for task apps_web_p4_token_01\n6. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the token for retrieval label P4_TOKEN_APPS_WEB\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-b37d-7123-851a-aff9e3307040\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-b37d-7123-851a-aff9e3307040\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "apps_web_p4_token_01:adaptive_kg:codex:1:signature",
+        "runId": "apps_web_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "apps_web_p4_token_01",
+        "condition": "adaptive_kg",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_APPS_WEB"],
+        "top5Facts": [
+          "The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created and populated with the retrieval token labeled P4_TOKEN_APPS_WEB.",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for apps_web_p4_token_01",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created for task apps_web_p4_token_01"
+        ],
+        "matchedTargets": ["P4_TOKEN_APPS_WEB"],
+        "hit": true
+      },
+      "kgContextReview": {
+        "reviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.5
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ],
+        "meanScore": 4.4,
+        "minimumReviewers": 2,
+        "qualifies": true
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_p4_token_01",
+        "title": "Tooling CLI retrieval token write",
+        "category": "tooling_cli",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt)\" = \"630bbf76-f535-44f0-83ea-96834fbece55\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_TOOLING_CLI"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.2
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_p4_token_01:current:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 690,
+        "outputTokens": 299,
+        "costUsd": 0.0023575000000000002,
+        "wallMs": 4447.6758770000015
+      },
+      "selectedPolicyIds": ["core", "category_tooling_cli"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "tooling_cli_p4_token_01:current:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: tooling_cli_p4_token_01\nCondition: current\nCategory: tooling_cli\nPolicies: core, category_tooling_cli\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-c37f-7e33-b9b6-7bf3b0936eb2\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-c37f-7e33-b9b6-7bf3b0936eb2\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "tooling_cli_p4_token_01:current:codex:1:signature",
+        "runId": "tooling_cli_p4_token_01:current:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "condition": "current",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_TOOLING_CLI"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_p4_token_01",
+        "title": "Tooling CLI retrieval token write",
+        "category": "tooling_cli",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt)\" = \"630bbf76-f535-44f0-83ea-96834fbece55\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_TOOLING_CLI"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.2
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_p4_token_01:minimal:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 442,
+        "outputTokens": 196,
+        "costUsd": 0.0015325,
+        "wallMs": 4751.182692999999
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_tooling_cli"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "tooling_cli_p4_token_01:minimal:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: tooling_cli_p4_token_01\nCondition: minimal\nCategory: tooling_cli\nPolicies: core, minimal, category_tooling_cli\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-d47d-7bf3-a7aa-ba7fe8e8f2ac\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-d47d-7bf3-a7aa-ba7fe8e8f2ac\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "tooling_cli_p4_token_01:minimal:codex:1:signature",
+        "runId": "tooling_cli_p4_token_01:minimal:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "condition": "minimal",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_TOOLING_CLI"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_p4_token_01",
+        "title": "Tooling CLI retrieval token write",
+        "category": "tooling_cli",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt)\" = \"630bbf76-f535-44f0-83ea-96834fbece55\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_TOOLING_CLI"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.2
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_p4_token_01:adaptive:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 552,
+        "outputTokens": 242,
+        "costUsd": 0.0018999999999999998,
+        "wallMs": 5955.804731000004
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_tooling_cli"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "tooling_cli_p4_token_01:adaptive:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: tooling_cli_p4_token_01\nCondition: adaptive\nCategory: tooling_cli\nPolicies: core, adaptive, category_tooling_cli\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-e6d2-7170-9bb1-ee8fadacd8c0\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53b-e6d2-7170-9bb1-ee8fadacd8c0\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "tooling_cli_p4_token_01:adaptive:codex:1:signature",
+        "runId": "tooling_cli_p4_token_01:adaptive:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "condition": "adaptive",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_TOOLING_CLI"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_p4_token_01",
+        "title": "Tooling CLI retrieval token write",
+        "category": "tooling_cli",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt)\" = \"630bbf76-f535-44f0-83ea-96834fbece55\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_TOOLING_CLI"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.2
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 607,
+        "outputTokens": 265,
+        "costUsd": 0.00208375,
+        "wallMs": 5029.056952999999
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_tooling_cli"
+      ],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains only the token value 8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea (36 bytes, no trailing newline).",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token value",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task"
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "tooling_cli_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: tooling_cli_p4_token_01\nCondition: adaptive_kg\nCategory: tooling_cli\nPolicies: core, adaptive, adaptive_kg, category_tooling_cli\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_TOOLING_CLI. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n1. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)\n2. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)\n3. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.\n4. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains only the token value 8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea (36 bytes, no trailing newline).\n5. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token value\n6. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/tooling-cli-token.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-172a-79e0-b759-0b3160850bc4\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-172a-79e0-b759-0b3160850bc4\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "tooling_cli_p4_token_01:adaptive_kg:codex:1:signature",
+        "runId": "tooling_cli_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "tooling_cli_p4_token_01",
+        "condition": "adaptive_kg",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_TOOLING_CLI"],
+        "top5Facts": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains only the token value 8bfa40d4-4f40-4f22-a68d-efcb63d0b6ea (36 bytes, no trailing newline).",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token value"
+        ],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.2
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ],
+        "meanScore": 4.300000000000001,
+        "minimumReviewers": 2,
+        "qualifies": true
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_01",
+        "title": "Package lib retrieval token write",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt)\" = \"8d0471fb-ac26-4e0f-a58a-0a2eec6cd27d\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.1
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_01:current:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 690,
+        "outputTokens": 299,
+        "costUsd": 0.0023575000000000002,
+        "wallMs": 5989.899944999997
+      },
+      "selectedPolicyIds": ["core", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_01:current:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_01\nCondition: current\nCategory: package_lib\nPolicies: core, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-2b4b-77b0-8b4a-e628fc4ca644\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-2b4b-77b0-8b4a-e628fc4ca644\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_01:current:codex:1:signature",
+        "runId": "package_lib_p4_token_01:current:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "condition": "current",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_01",
+        "title": "Package lib retrieval token write",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt)\" = \"8d0471fb-ac26-4e0f-a58a-0a2eec6cd27d\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.1
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_01:minimal:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 442,
+        "outputTokens": 196,
+        "costUsd": 0.0015325,
+        "wallMs": 5346.211319000002
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_01:minimal:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_01\nCondition: minimal\nCategory: package_lib\nPolicies: core, minimal, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-432a-7953-87f8-fce8ec433d83\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-432a-7953-87f8-fce8ec433d83\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_01:minimal:codex:1:signature",
+        "runId": "package_lib_p4_token_01:minimal:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "condition": "minimal",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_01",
+        "title": "Package lib retrieval token write",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt)\" = \"8d0471fb-ac26-4e0f-a58a-0a2eec6cd27d\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.1
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_01:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 552,
+        "outputTokens": 242,
+        "costUsd": 0.0018999999999999998,
+        "wallMs": 5363.879123000006
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_01:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_01\nCondition: adaptive\nCategory: package_lib\nPolicies: core, adaptive, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-56c5-7831-a3e3-ad14c41373fd\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-56c5-7831-a3e3-ad14c41373fd\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_01:adaptive:codex:1:signature",
+        "runId": "package_lib_p4_token_01:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "condition": "adaptive",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_01",
+        "title": "Package lib retrieval token write",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt)\" = \"8d0471fb-ac26-4e0f-a58a-0a2eec6cd27d\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.1
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 607,
+        "outputTokens": 265,
+        "costUsd": 0.00208375,
+        "wallMs": 5260.978581000003
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_package_lib"
+      ],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+        "The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task"
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_01\nCondition: adaptive_kg\nCategory: package_lib\nPolicies: core, adaptive, adaptive_kg, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_A. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n1. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.\n2. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)\n3. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label\n4. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)\n5. The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.\n6. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-8593-75b0-9e36-a5ee401b30c9\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-8593-75b0-9e36-a5ee401b30c9\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_01:adaptive_kg:codex:1:signature",
+        "runId": "package_lib_p4_token_01:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_01",
+        "condition": "adaptive_kg",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "top5Facts": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+          "The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB."
+        ],
+        "matchedTargets": ["P4_TOKEN_PACKAGE_LIB_A"],
+        "hit": true
+      },
+      "kgContextReview": {
+        "reviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.1
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.3
+          }
+        ],
+        "meanScore": 4.199999999999999,
+        "minimumReviewers": 2,
+        "qualifies": true
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_02",
+        "title": "Package lib retrieval token write B",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt)\" = \"2adfd7f9-281d-45de-b83d-f0424f4c0218\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.6
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_02:current:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 690,
+        "outputTokens": 299,
+        "costUsd": 0.0023575000000000002,
+        "wallMs": 5742.485117000004
+      },
+      "selectedPolicyIds": ["core", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_02:current:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_02\nCondition: current\nCategory: package_lib\nPolicies: core, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-99cd-73e1-ae4d-58a7dae23062\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-99cd-73e1-ae4d-58a7dae23062\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_02:current:codex:1:signature",
+        "runId": "package_lib_p4_token_02:current:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "condition": "current",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_02",
+        "title": "Package lib retrieval token write B",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt)\" = \"2adfd7f9-281d-45de-b83d-f0424f4c0218\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.6
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_02:minimal:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 442,
+        "outputTokens": 196,
+        "costUsd": 0.0015325,
+        "wallMs": 5514.644549999997
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_02:minimal:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_02\nCondition: minimal\nCategory: package_lib\nPolicies: core, minimal, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-b07d-73f0-bd01-d6ac1624a565\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-b07d-73f0-bd01-d6ac1624a565\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_02:minimal:codex:1:signature",
+        "runId": "package_lib_p4_token_02:minimal:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "condition": "minimal",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_02",
+        "title": "Package lib retrieval token write B",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt)\" = \"2adfd7f9-281d-45de-b83d-f0424f4c0218\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.6
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_02:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 552,
+        "outputTokens": 242,
+        "costUsd": 0.0018999999999999998,
+        "wallMs": 4303.1624049999955
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_package_lib"],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_02:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_02\nCondition: adaptive\nCategory: package_lib\nPolicies: core, adaptive, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-c5c7-73f0-97aa-00d3a41bcf2e\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-c5c7-73f0-97aa-00d3a41bcf2e\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_02:adaptive:codex:1:signature",
+        "runId": "package_lib_p4_token_02:adaptive:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "condition": "adaptive",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "top5Facts": [],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [],
+        "meanScore": null,
+        "minimumReviewers": 2,
+        "qualifies": false
+      }
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_p4_token_02",
+        "title": "Package lib retrieval token write B",
+        "category": "package_lib",
+        "prompt": "Create the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.",
+        "cwd": ".",
+        "acceptanceCommands": [
+          "test -f benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+          "test \"$(cat benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt)\" = \"2adfd7f9-281d-45de-b83d-f0424f4c0218\""
+        ],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt"
+        ],
+        "expectedTop5Targets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "requireExpectedTop5ForPass": true,
+        "kgContextReviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.6
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ]
+      },
+      "result": {
+        "runId": "package_lib_p4_token_02:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "success": false,
+        "checkPass": false,
+        "lintPass": false,
+        "testPass": false,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 607,
+        "outputTokens": 265,
+        "costUsd": 0.00208375,
+        "wallMs": 4843.467340000003
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_package_lib"
+      ],
+      "selectedSkills": [],
+      "correctionFacts": [],
+      "retrievedFacts": [
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+        "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task",
+        "The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": {
+        "runId": "package_lib_p4_token_02:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "command": "codex exec --json --model gpt-5.2 --config model_reasoning_effort=\"minimal\"",
+        "promptPacket": "Task ID: package_lib_p4_token_02\nCondition: adaptive_kg\nCategory: package_lib\nPolicies: core, adaptive, adaptive_kg, category_package_lib\nSkills: \n\nPrompt:\nCreate the file benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt containing only the token value (the text after '=') from retrieval facts labeled P4_TOKEN_PACKAGE_LIB_B. Do not invent a token.\n\nHard Constraints (must pass):\n- Use Effect-first modules and aliases; avoid native date/array/promise patterns in domain logic.\n- No node:fs/node:path imports or requires for benchmark task implementations.\n- No JSON.parse/JSON.stringify for typed boundaries; use Schema decode/encode helpers.\n- No try/catch, throw, new Error, or extends Error; use typed Effect error channels.\n- No nullable unions/initializers, no type assertions, and no non-null assertions.\n- Edit only allowlisted paths.\n\nCorrection Facts:\n1. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.\n2. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)\n3. benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label\n4. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)\n5. benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task\n6. The file benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt contains the P4 retrieval token labeled P4_TOKEN_APPS_WEB.\n\nTouched Path Allowlist:\n- benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-b.txt",
+        "rawOutput": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-ee25-7c50-b045-eb19a0b4d89c\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "assistantText": "{\"type\":\"thread.started\",\"thread_id\":\"019ca53c-ee25-7c50-b045-eb19a0b4d89c\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\n  \\\"type\\\": \\\"error\\\",\\n  \\\"error\\\": {\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"message\\\": \\\"The following tools cannot be used with reasoning.effort 'minimal': web_search.\\\",\\n    \\\"param\\\": \\\"tools\\\"\\n  },\\n  \\\"status\\\": 400\\n}\"}}\n",
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUsd": 0,
+        "touchedPaths": [],
+        "backend": "cli",
+        "completionObserved": false,
+        "exitCode": 1,
+        "signal": null
+      },
+      "failureSignature": {
+        "id": "package_lib_p4_token_02:adaptive_kg:codex:1:signature",
+        "runId": "package_lib_p4_token_02:adaptive_kg:codex:1",
+        "taskId": "package_lib_p4_token_02",
+        "condition": "adaptive_kg",
+        "agent": "codex",
+        "failureType": "runtime",
+        "rootCause": "Agent command failed or timed out",
+        "ruleIds": [],
+        "touchedPaths": []
+      },
+      "retrievalTop5": {
+        "labeled": true,
+        "expectedTargets": ["P4_TOKEN_PACKAGE_LIB_B"],
+        "top5Facts": [
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the P4_TOKEN_PACKAGE_LIB_A token value.",
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains only the token value (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/package-lib-token-a.txt contains the P4_TOKEN_PACKAGE_LIB_A token label",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt has the token value written into it (value-only, no trailing newline)",
+          "benchmarks/agent-reliability/p4-token-artifacts/apps-web-token.txt was created as required by the benchmark task"
+        ],
+        "matchedTargets": [],
+        "hit": false
+      },
+      "kgContextReview": {
+        "reviewerScores": [
+          {
+            "reviewerId": "panel_a",
+            "score": 4.6
+          },
+          {
+            "reviewerId": "panel_b",
+            "score": 4.4
+          }
+        ],
+        "meanScore": 4.5,
+        "minimumReviewers": 2,
+        "qualifies": true
+      }
+    }
+  ]
+}

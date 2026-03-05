@@ -1,0 +1,43 @@
+{
+  "totalRuns": 7,
+  "commandTimedOutCount": 7,
+  "completionObservedCount": 0,
+  "backendCounts": [
+    {
+      "backend": "sdk",
+      "count": 7
+    }
+  ],
+  "stderrTailSet": [
+    {
+      "runId": "apps_web_01:minimal:codex:1",
+      "stderrTail": "The operation was aborted.\n"
+    },
+    {
+      "runId": "apps_web_01:minimal:claude:1",
+      "stderrTail": "Claude Code process aborted by user\n"
+    },
+    {
+      "runId": "tooling_cli_01:minimal:codex:1",
+      "stderrTail": "The operation was aborted.\n"
+    },
+    {
+      "runId": "tooling_cli_01:minimal:claude:1",
+      "stderrTail": "Claude Code process aborted by user\n"
+    },
+    {
+      "runId": "package_lib_01:minimal:codex:1",
+      "stderrTail": "The operation was aborted.\n"
+    },
+    {
+      "runId": "package_lib_01:minimal:claude:1",
+      "stderrTail": "Claude Code process aborted by user\n"
+    },
+    {
+      "runId": "apps_web_01:minimal:codex:1",
+      "stderrTail": "The operation was aborted.\n"
+    }
+  ],
+  "stdoutTruncatedCount": 7,
+  "stderrTruncatedCount": 0
+}

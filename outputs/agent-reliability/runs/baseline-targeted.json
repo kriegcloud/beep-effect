@@ -1,0 +1,1201 @@
+{
+  "formatVersion": 1,
+  "runAtEpochMs": 1772048632429,
+  "strictTaskCount": 3,
+  "conditions": ["current", "minimal", "adaptive", "adaptive_kg"],
+  "status": "completed",
+  "plannedRunCount": 24,
+  "completedRunCount": 24,
+  "records": [
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:current:codex:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 420,
+        "outputTokens": 182,
+        "costUsd": 0.001435,
+        "wallMs": 1.1027300000000082
+      },
+      "selectedPolicyIds": ["core", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:current:claude:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 420,
+        "outputTokens": 182,
+        "costUsd": 0.0039900000000000005,
+        "wallMs": 0.24887300000000323
+      },
+      "selectedPolicyIds": ["core", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:minimal:codex:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 269,
+        "outputTokens": 119,
+        "costUsd": 0.00093125,
+        "wallMs": 0.10408699999999271
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:minimal:claude:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 269,
+        "outputTokens": 119,
+        "costUsd": 0.002592,
+        "wallMs": 0.09968799999995781
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:adaptive:codex:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 336,
+        "outputTokens": 147,
+        "costUsd": 0.001155,
+        "wallMs": 0.11390700000004017
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:adaptive:claude:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 336,
+        "outputTokens": 147,
+        "costUsd": 0.0032129999999999997,
+        "wallMs": 0.1108560000000125
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_apps_web"],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:adaptive_kg:codex:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 370,
+        "outputTokens": 161,
+        "costUsd": 0.0012675,
+        "wallMs": 0.171812999999986
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_apps_web"
+      ],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "apps_web_01",
+        "title": "Chat Route Effect v4 service wiring",
+        "category": "apps_web",
+        "prompt": "Implement a robust chat route using ServiceMap.Service, typed errors, and bounded retrieval packet behavior.",
+        "cwd": "apps/web",
+        "acceptanceCommands": ["bun run lint"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "apps/web/src/app/api/chat/route.ts",
+          "apps/web/src/lib/ai"
+        ]
+      },
+      "result": {
+        "runId": "apps_web_01:adaptive_kg:claude:1",
+        "taskId": "apps_web_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 370,
+        "outputTokens": 161,
+        "costUsd": 0.003525,
+        "wallMs": 0.09188699999998562
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_apps_web"
+      ],
+      "selectedSkills": ["effect-v4-errors", "effect-v4-http-ai"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:current:codex:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 420,
+        "outputTokens": 182,
+        "costUsd": 0.001435,
+        "wallMs": 0.1259939999999915
+      },
+      "selectedPolicyIds": ["core", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:current:claude:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 420,
+        "outputTokens": 182,
+        "costUsd": 0.0039900000000000005,
+        "wallMs": 0.10289499999998952
+      },
+      "selectedPolicyIds": ["core", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:minimal:codex:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 269,
+        "outputTokens": 119,
+        "costUsd": 0.00093125,
+        "wallMs": 0.08900899999997591
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:minimal:claude:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 269,
+        "outputTokens": 119,
+        "costUsd": 0.002592,
+        "wallMs": 0.120474999999999
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:adaptive:codex:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 336,
+        "outputTokens": 147,
+        "costUsd": 0.001155,
+        "wallMs": 0.10693099999997457
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:adaptive:claude:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 336,
+        "outputTokens": 147,
+        "costUsd": 0.0032129999999999997,
+        "wallMs": 0.10456900000002634
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_tooling_cli"],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:adaptive_kg:codex:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 370,
+        "outputTokens": 161,
+        "costUsd": 0.0012675,
+        "wallMs": 0.10303400000003649
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_tooling_cli"
+      ],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "tooling_cli_01",
+        "title": "CLI root command Effect service alignment",
+        "category": "tooling_cli",
+        "prompt": "Refactor root command wiring to use ServiceMap.Service and Layer.effect composition in Effect v4 style.",
+        "cwd": "tooling/cli",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": [
+          "tooling/cli/src/commands",
+          "tooling/cli/src/bin.ts"
+        ]
+      },
+      "result": {
+        "runId": "tooling_cli_01:adaptive_kg:claude:1",
+        "taskId": "tooling_cli_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 4,
+        "inputTokens": 370,
+        "outputTokens": 161,
+        "costUsd": 0.003525,
+        "wallMs": 0.09124200000002247
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_tooling_cli"
+      ],
+      "selectedSkills": ["effect-v4-services"],
+      "correctionFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "retrievedFacts": [
+        "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+        "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:current:codex:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 300,
+        "outputTokens": 130,
+        "costUsd": 0.0010249999999999999,
+        "wallMs": 0.12916400000000294
+      },
+      "selectedPolicyIds": ["core", "category_package_lib"],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "current",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:current:claude:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 300,
+        "outputTokens": 130,
+        "costUsd": 0.00285,
+        "wallMs": 0.1027159999999867
+      },
+      "selectedPolicyIds": ["core", "category_package_lib"],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:minimal:codex:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 192,
+        "outputTokens": 85,
+        "costUsd": 0.000665,
+        "wallMs": 0.0896200000000249
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_package_lib"],
+      "selectedSkills": ["effect-v4-errors"],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "minimal",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:minimal:claude:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 3,
+        "inputTokens": 192,
+        "outputTokens": 85,
+        "costUsd": 0.0018510000000000002,
+        "wallMs": 0.09288799999995945
+      },
+      "selectedPolicyIds": ["core", "minimal", "category_package_lib"],
+      "selectedSkills": ["effect-v4-errors"],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:adaptive:codex:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 240,
+        "outputTokens": 105,
+        "costUsd": 0.0008250000000000001,
+        "wallMs": 0.08526200000000017
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_package_lib"],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:adaptive:claude:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 5,
+        "inputTokens": 240,
+        "outputTokens": 105,
+        "costUsd": 0.002295,
+        "wallMs": 0.08414300000004005
+      },
+      "selectedPolicyIds": ["core", "adaptive", "category_package_lib"],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "codex",
+        "model": "gpt-5.2",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:adaptive_kg:codex:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 6,
+        "inputTokens": 264,
+        "outputTokens": 115,
+        "costUsd": 0.000905,
+        "wallMs": 0.1559570000000008
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_package_lib"
+      ],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    },
+    {
+      "config": {
+        "agent": "claude",
+        "model": "claude-sonnet-4-6",
+        "condition": "adaptive_kg",
+        "trial": 1
+      },
+      "task": {
+        "id": "package_lib_01",
+        "title": "Utils error channels cleanup",
+        "category": "package_lib",
+        "prompt": "Refine utility package error channels using Schema.TaggedErrorClass and Effect.catchTag patterns.",
+        "cwd": "packages/common/utils",
+        "acceptanceCommands": ["bun run check"],
+        "timeoutMinutes": 1,
+        "touchedPathAllowlist": ["packages/common/utils/src"]
+      },
+      "result": {
+        "runId": "package_lib_01:adaptive_kg:claude:1",
+        "taskId": "package_lib_01",
+        "success": true,
+        "checkPass": true,
+        "lintPass": true,
+        "testPass": true,
+        "wrongApiIncidentCount": 0,
+        "steps": 6,
+        "inputTokens": 264,
+        "outputTokens": 115,
+        "costUsd": 0.002517,
+        "wallMs": 0.13000099999999293
+      },
+      "selectedPolicyIds": [
+        "core",
+        "adaptive",
+        "adaptive_kg",
+        "category_package_lib"
+      ],
+      "selectedSkills": [
+        "effect-v4-errors",
+        "effect-v4-imports",
+        "effect-v4-services"
+      ],
+      "correctionFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "retrievedFacts": [
+        "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+        "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+      ],
+      "allowlistPass": true,
+      "touchedPaths": [],
+      "transcript": null,
+      "failureSignature": null
+    }
+  ]
+}

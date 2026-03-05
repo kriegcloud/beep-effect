@@ -1,0 +1,79 @@
+$ biome check .
+src/objectSet/ObjectSet.ts:136:3 lint/style/useShorthandFunctionType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Use a function type instead of a call signature.
+  
+    134 │    * Gets a page of objects of this type.
+    135 │    */
+  > 136 │   <
+        │   ^
+  > 137 │     L extends PropertyKeys<Q> | (string & keyof RDPs),
+         ...
+  > 157 │     >
+  > 158 │   >;
+        │   ^^
+    159 │ }
+    160 │ 
+  
+  i Types containing only a call signature can be shortened to a function type.
+  
+
+src/objectSet/ObjectSet.ts:180:3 lint/style/useShorthandFunctionType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Use a function type instead of a call signature.
+  
+    178 │    * Gets a page of objects of this type wrapped in `Result`.
+    179 │    */
+  > 180 │   <
+        │   ^
+  > 181 │     L extends PropertyKeys<Q> | (string & keyof RDPs),
+         ...
+  > 202 │     >
+  > 203 │   >;
+        │   ^^
+    204 │ }
+    205 │ 
+  
+  i Types containing only a call signature can be shortened to a function type.
+  
+
+src/objectSet/ObjectSet.ts:313:3 lint/style/useShorthandFunctionType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Use a function type instead of a call signature.
+  
+    311 │ interface FetchOneSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> {
+    312 │   /** Fetches one object by primary key. */
+  > 313 │   <
+        │   ^
+  > 314 │     const L extends PropertyKeys<Q> | (string & keyof RDPs),
+         ...
+  > 327 │     >
+  > 328 │   >;
+        │   ^^
+    329 │ }
+    330 │ 
+  
+  i Types containing only a call signature can be shortened to a function type.
+  
+
+src/objectSet/ObjectSet.ts:333:3 lint/style/useShorthandFunctionType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Use a function type instead of a call signature.
+  
+    331 │ interface FetchOneWithErrorsSignature<Q extends ObjectTypeDefinition, RDPs extends Record<string, SimplePropertyDef>> {
+    332 │   /** Fetches one object by primary key wrapped in `Result`. */
+  > 333 │   <
+        │   ^
+  > 334 │     const L extends PropertyKeys<Q> | (string & keyof RDPs),
+         ...
+  > 349 │     >
+  > 350 │   >;
+        │   ^^
+    351 │ }
+    352 │ 
+  
+  i Types containing only a call signature can be shortened to a function type.
+  
+
+Checked 92 files in 66ms. No fixes applied.
+Found 4 infos.

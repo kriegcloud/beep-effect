@@ -1,0 +1,88 @@
+[
+  {
+    "runId": "apps_web_01:minimal:codex:1",
+    "taskId": "apps_web_01",
+    "failureType": "AcceptanceFailure",
+    "rootCause": "Agent command failed or timed out",
+    "correctionFacts": [
+      "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+    ],
+    "sourceFiles": [
+      "apps/web/src/app/api/chat/route.ts",
+      "apps/web/src/lib/ai"
+    ],
+    "condition": "minimal"
+  },
+  {
+    "runId": "apps_web_01:minimal:claude:1",
+    "taskId": "apps_web_01",
+    "failureType": "AcceptanceFailure",
+    "rootCause": "Agent command failed or timed out",
+    "correctionFacts": [
+      "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax."
+    ],
+    "sourceFiles": [
+      "apps/web/src/app/api/chat/route.ts",
+      "apps/web/src/lib/ai"
+    ],
+    "condition": "minimal"
+  },
+  {
+    "runId": "tooling_cli_01:minimal:codex:1",
+    "taskId": "tooling_cli_01",
+    "failureType": "AcceptanceFailure",
+    "rootCause": "Agent command failed or timed out",
+    "correctionFacts": [
+      "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+      "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+    ],
+    "sourceFiles": [
+      "tooling/cli/src/commands",
+      "tooling/cli/src/bin.ts"
+    ],
+    "condition": "minimal"
+  },
+  {
+    "runId": "tooling_cli_01:minimal:claude:1",
+    "taskId": "tooling_cli_01",
+    "failureType": "EffectComplianceFailure",
+    "rootCause": "Mandatory Effect-first compliance rule violation detected",
+    "correctionFacts": [
+      "Effect v4 removed Context.Tag/Context.GenericTag. Use ServiceMap.Service with class syntax.",
+      "Layer.scoped was removed in v4. Use Layer.effect and scoped effects inside constructors."
+    ],
+    "sourceFiles": [
+      "tooling/cli/src/commands",
+      "tooling/cli/src/bin.ts"
+    ],
+    "condition": "minimal"
+  },
+  {
+    "runId": "package_lib_01:minimal:codex:1",
+    "taskId": "package_lib_01",
+    "failureType": "AcceptanceFailure",
+    "rootCause": "Agent command failed or timed out",
+    "correctionFacts": [
+      "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+      "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+    ],
+    "sourceFiles": [
+      "packages/common/utils/src"
+    ],
+    "condition": "minimal"
+  },
+  {
+    "runId": "package_lib_01:minimal:claude:1",
+    "taskId": "package_lib_01",
+    "failureType": "EffectComplianceFailure",
+    "rootCause": "Mandatory Effect-first compliance rule violation detected",
+    "correctionFacts": [
+      "Effect.catchAll no longer exists in v4; prefer Effect.catch and Effect.catchTag.",
+      "Schema.decode is removed in v4. Use Schema.decodeUnknownSync or Schema.decodeUnknownEffect."
+    ],
+    "sourceFiles": [
+      "packages/common/utils/src"
+    ],
+    "condition": "minimal"
+  }
+]
