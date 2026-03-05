@@ -1,0 +1,66 @@
+{
+  "name": "@beep/repo-configs",
+  "version": "0.0.0",
+  "description": "An library for shared build & tooling configurations",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "bun run ./scripts/GenerateEffectLawsAllowlistSnapshot.ts",
+    "build": "bun run codegen && tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-jsdoc": "catalog:",
+    "jsonc-parser": "catalog:",
+    "effect": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@types/node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@types/estree": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/configs"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/configs",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.ts",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

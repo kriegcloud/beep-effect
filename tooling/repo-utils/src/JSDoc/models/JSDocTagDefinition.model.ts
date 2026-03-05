@@ -108,12 +108,12 @@ export declare namespace JSDocTagDefinition {
    */
   export interface Instance<Tag extends TagName, Def extends Encoded> extends Encoded {
     _tag: Tag;
-    synonyms: Def["synonyms"];
-    tagKind: Def["tagKind"];
-    specifications: Def["specifications"];
     applicableTo: Def["applicableTo"];
     astDerivable: Def["astDerivable"];
     relatedTags: Def["relatedTags"];
+    specifications: Def["specifications"];
+    synonyms: Def["synonyms"];
+    tagKind: Def["tagKind"];
   }
 }
 

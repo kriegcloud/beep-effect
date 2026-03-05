@@ -24,11 +24,17 @@ type TaggedErrorBase<Self, Schema extends TaggedErrorStruct, Brand> = S.ErrorCla
 type TaggedErrorSchema<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   ErrorClass extends S.ErrorClass<TUnsafe.Any, infer Schema, TUnsafe.Any> ? Schema : never;
 
+/**
+ * @since 0.0.0
+ */
 export type TaggedErrorNewInput<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
   S.Schema.Type<TaggedErrorSchema<ErrorClass>>,
   "_tag"
 >;
 
+/**
+ * @since 0.0.0
+ */
 export type TaggedErrorClassWithNew<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   ErrorClass & {
     new: (input: TaggedErrorNewInput<ErrorClass>) => S.Schema.Type<ErrorClass>;
@@ -43,6 +49,9 @@ type TaggedErrorFromSchema<Self, Brand, Tag extends string, Schema extends Tagge
   TaggedErrorBase<Self, TaggedStructFromSchema<Tag, Schema>, Brand>
 >;
 
+/**
+ * @since 0.0.0
+ */
 export interface TaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends TaggedErrorFields>(
     tag: Tag,
@@ -57,6 +66,9 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
   ): TaggedErrorFromSchema<Self, Brand, Tag, Schema>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export type TaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: string
 ) => TaggedErrorClassFactory<Self, Brand>;

@@ -44,11 +44,11 @@ const EFFECT_INFRASTRUCTURE = HashSet.fromIterable([
 const EXCLUDED_FROM_GRAPH = HashSet.fromIterable(["AtomRegistry", "Registry"]);
 
 interface LayerMatch {
+  readonly factoryName?: string;
+  readonly isParametrized: boolean;
+  readonly line: number;
   readonly name: string;
   readonly serviceName: string;
-  readonly line: number;
-  readonly isParametrized: boolean;
-  readonly factoryName?: string;
 }
 
 const countLinesBefore = (content: string, index: number): number =>

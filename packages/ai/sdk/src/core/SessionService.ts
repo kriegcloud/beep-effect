@@ -38,12 +38,12 @@ const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
  * @since 0.0.0
  */
 export interface SessionServiceShape {
-  readonly handle: SessionHandle;
-  readonly sessionId: Effect.Effect<string, SessionError>;
-  readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
-  readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>;
-  readonly stream: Stream.Stream<SDKMessage, SessionError>;
   readonly close: Effect.Effect<void, SessionError>;
+  readonly handle: SessionHandle;
+  readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
+  readonly sessionId: Effect.Effect<string, SessionError>;
+  readonly stream: Stream.Stream<SDKMessage, SessionError>;
+  readonly turn: (message: string | SDKUserMessage) => Stream.Stream<SDKMessage, SessionError>;
 }
 
 /**

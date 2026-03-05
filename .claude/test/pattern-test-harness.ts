@@ -11,16 +11,16 @@ beforeAll(async () => {
 });
 
 export interface PatternTestConfig {
-  name: string;
-  tag: string | string[];
   glob?: undefined | string;
+  name: string;
   shouldMatch: string[];
   shouldNotMatch: string[];
+  tag: string | string[];
 }
 
 export interface BashPatternTestConfig {
-  name: string;
   decision: "ask" | "deny";
+  name: string;
   shouldMatch: string[];
   shouldNotMatch: string[];
 }
@@ -36,8 +36,8 @@ const inferFilePathFromGlob = (glob?: string): string => {
 };
 
 export interface WritePatternTestConfig {
-  name: string;
   decision: "ask" | "deny";
+  name: string;
   shouldMatch: string[];
   shouldNotMatch: string[];
 }
@@ -71,9 +71,9 @@ export const testWritePattern = (config: WritePatternTestConfig) => {
 
 export interface FilePathPatternTestConfig {
   name: string;
-  tag: string;
   shouldMatch: Array<{ code: string; filePath: string }>;
   shouldNotMatch: Array<{ code: string; filePath: string }>;
+  tag: string;
 }
 
 export const testFilePathPattern = (config: FilePathPatternTestConfig) => {

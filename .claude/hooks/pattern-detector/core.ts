@@ -125,7 +125,7 @@ export const loadPatterns = Effect.gen(function* () {
               Effect.map(
                 O.match({
                   onNone: A.empty<PatternDefinition>,
-                  onSome: A.make,
+                  onSome: A.of,
                 })
               )
             );

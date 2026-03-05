@@ -2,7 +2,7 @@ import type { TUnsafe } from "@beep/types";
 import { Function } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { thunkFalse, thunkTrue } from "./thunk.js";
+import { thunkFalse, thunkTrue } from "./thunk.ts";
 
 const { dual, flow } = Function;
 
@@ -107,4 +107,9 @@ export const flatMapNonEmptyReadonly: {
   }
 );
 
+/**
+ * Re-export of `effect/Array`.
+ *
+ * @since 0.0.0
+ */
 export * from "effect/Array";

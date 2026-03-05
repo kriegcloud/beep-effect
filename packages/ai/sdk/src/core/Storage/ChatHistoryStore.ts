@@ -656,13 +656,13 @@ export interface ChatHistoryStoreShape {
     messages: Iterable<SDKMessage>,
     options?: ChatHistoryAppendOptions
   ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>;
+  readonly cleanup?: () => Effect.Effect<void, StorageError>;
   readonly list: (
     sessionId: string,
     options?: ChatHistoryListOptions
   ) => Effect.Effect<ReadonlyArray<ChatEvent>, StorageError>;
-  readonly stream: (sessionId: string, options?: ChatHistoryListOptions) => Stream.Stream<ChatEvent, StorageError>;
   readonly purge: (sessionId: string) => Effect.Effect<void, StorageError>;
-  readonly cleanup?: () => Effect.Effect<void, StorageError>;
+  readonly stream: (sessionId: string, options?: ChatHistoryListOptions) => Stream.Stream<ChatEvent, StorageError>;
 }
 
 /**

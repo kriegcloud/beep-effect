@@ -15,9 +15,9 @@ import * as Tool from "./Tool.js";
  */
 export interface Toolkit<Tools extends Record<string, Tool.Any>> {
   /**
-   * Registered tool definitions.
+   * Finalize the toolkit into a runtime handler with validation.
    */
-  readonly tools: Tools;
+  commit(): Effect.Effect<WithHandler<Tools>, never, never>;
   /**
    * Helper to type-check handler maps.
    */
@@ -35,9 +35,9 @@ export interface Toolkit<Tools extends Record<string, Tool.Any>> {
     build: Handlers | Effect.Effect<Handlers, EX, RX>
   ): Layer.Layer<never, EX, Exclude<RX, Scope.Scope>>;
   /**
-   * Finalize the toolkit into a runtime handler with validation.
+   * Registered tool definitions.
    */
-  commit(): Effect.Effect<WithHandler<Tools>, never, never>;
+  readonly tools: Tools;
 }
 
 /**
@@ -94,7 +94,6 @@ export type WithHandlerTools<T> = T extends WithHandler<infer Tools> ? Tools : n
  * @since 0.0.0
  */
 export interface WithHandler<Tools extends Record<string, Tool.Any>> {
-  readonly tools: Tools;
   readonly handle: (
     name: string,
     params: unknown
@@ -107,6 +106,7 @@ export interface WithHandler<Tools extends Record<string, Tool.Any>> {
     ToolInputError | ToolOutputError | ToolNotFoundError | unknown,
     unknown
   >;
+  readonly tools: Tools;
 }
 
 type HandlerBinding = {

@@ -6,7 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap } from "effect";
+import { thunkEffectSucceed } from "@beep/utils";
+import { Effect, flow, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -63,7 +64,7 @@ const parseUnknown: JsoncCodecServiceShape["parseUnknown"] = Effect.fn(function*
   const parsed = jsonc.parse(content, parseErrors);
 
   return yield* A.match(parseErrors, {
-    onEmpty: () => Effect.succeed(parsed),
+    onEmpty: thunkEffectSucceed(parsed),
     onNonEmpty: (errors) =>
       Effect.fail(
         new SchemaIssue.InvalidValue(O.some(content), {
@@ -123,5 +124,5 @@ export const JsoncTextToUnknown = S.String.pipe(
 export const decodeJsoncTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeJsoncUnknown = S.decodeUnknownEffect(JsoncTextToUnknown);
   const decodeTarget = S.decodeUnknownEffect(schema);
-  return (content: string) => decodeJsoncUnknown(content).pipe(Effect.flatMap(decodeTarget));
+  return flow(decodeJsoncUnknown, Effect.flatMap(decodeTarget));
 };

@@ -29,8 +29,8 @@ export type SyncCompactionAudit = {
  * @since 0.0.0
  */
 export interface SyncAuditService {
-  readonly conflict: (input: SyncConflictAudit) => Effect.Effect<void>;
   readonly compaction: (input: SyncCompactionAudit) => Effect.Effect<void>;
+  readonly conflict: (input: SyncConflictAudit) => Effect.Effect<void>;
 }
 
 const defaultSyncAudit: SyncAuditService = {

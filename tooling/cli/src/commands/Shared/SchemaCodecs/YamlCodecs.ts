@@ -6,7 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap } from "effect";
+import { thunkEffectSucceed } from "@beep/utils";
+import { Effect, flow, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -45,13 +46,13 @@ const parseUnknown: YamlCodecServiceShape["parseUnknown"] = Effect.fn(function* 
   const document = parseDocument(content);
 
   return yield* A.match(document.errors, {
-    onEmpty: () => Effect.succeed(document.toJSON()),
+    onEmpty: thunkEffectSucceed(document.toJSON()),
     onNonEmpty: (errors) =>
       Effect.fail(
         new SchemaIssue.InvalidValue(O.some(content), {
           message: pipe(
             errors,
-            A.map((error) => error.message),
+            A.map(Struct.get("message")),
             A.join("; "),
             (details) => `Invalid YAML input (${details}).`
           ),
@@ -105,5 +106,5 @@ export const YamlTextToUnknown = S.String.pipe(
 export const decodeYamlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeYamlUnknown = S.decodeUnknownEffect(YamlTextToUnknown);
   const decodeTarget = S.decodeUnknownEffect(schema);
-  return (content: string) => decodeYamlUnknown(content).pipe(Effect.flatMap(decodeTarget));
+  return flow(decodeYamlUnknown, Effect.flatMap(decodeTarget));
 };

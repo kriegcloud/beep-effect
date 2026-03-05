@@ -110,9 +110,9 @@ export interface SyncServiceShape {
    */
   readonly disconnectRemoteId: (remoteId: string) => Effect.Effect<void>;
   readonly disconnectWebSocket: (url: string) => Effect.Effect<void>;
-  readonly syncNow: () => Effect.Effect<void>;
   readonly status: () => Effect.Effect<ReadonlyArray<RemoteStatus>>;
   readonly statusStream: () => Stream.Stream<ReadonlyArray<RemoteStatus>>;
+  readonly syncNow: () => Effect.Effect<void>;
 }
 
 /**

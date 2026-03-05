@@ -62,3 +62,6 @@ storybook-static/
 .sst/
 sst-env.d.ts
 /outputs/agent-reliability/worktrees/
+
+# lsmcp cache
+.lsmcp/cache

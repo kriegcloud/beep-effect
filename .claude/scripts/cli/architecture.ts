@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { renderCommonAncestors } from "@beep/claude/scripts/util";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { HashMap, HashSet, MutableHashMap, MutableHashSet } from "effect";
+import { HashMap, HashSet, MutableHashMap } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -11,66 +11,29 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
 import {
+  type AnalysisGraph,
   type ArchitectureGraph,
+  buildAnalysisGraph,
   buildArchitectureGraph,
+  computeBlastRadius,
+  computeCommonAncestors,
   formatAgentWithHints,
   type LayerDefinition,
+  renderBlastRadius,
   type ServiceDefinition,
 } from "../analyze-architecture.ts";
 
-interface AnalysisGraph {
-  readonly graph: Graph.DirectedGraph<ServiceDefinition, void>;
-  readonly serviceIndex: MutableHashMap.MutableHashMap<string, Graph.NodeIndex>;
-}
-
-const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
-  const graph = Graph.directed<ServiceDefinition, void>((mutable) => {
-    const serviceIndex = MutableHashMap.empty<string, Graph.NodeIndex>();
-
-    arch.services.forEach((service) => {
-      const nodeIndex = Graph.addNode(mutable, service);
-      MutableHashMap.set(serviceIndex, service.name, nodeIndex);
-    });
-
-    const layerMap = HashMap.fromIterable(arch.layers.map((layer) => [layer.serviceName, layer] as const));
-
-    arch.services.forEach((service) => {
-      const layer = O.getOrUndefined(HashMap.get(layerMap, service.name));
-      if (!layer) return;
-
-      const sourceIndex = O.getOrUndefined(MutableHashMap.get(serviceIndex, service.name));
-      if (sourceIndex === undefined) return;
-
-      layer.dependencies.forEach((depName) => {
-        const targetIndex = O.getOrUndefined(MutableHashMap.get(serviceIndex, depName));
-        if (targetIndex !== undefined) {
-          Graph.addEdge(mutable, sourceIndex, targetIndex, undefined);
-        }
-      });
-    });
-  });
-
-  const serviceIndex = MutableHashMap.empty<string, Graph.NodeIndex>();
-  let index = 0;
-  for (const service of arch.services) {
-    MutableHashMap.set(serviceIndex, service.name, index);
-    index++;
-  }
-
-  return { graph, serviceIndex };
-};
-
 interface GraphMetrics {
+  readonly averageDegree: number;
   readonly density: number;
   readonly diameter: number;
-  readonly averageDegree: number;
 }
 
 interface GroupedServices {
   readonly leaf: ReadonlyArray<ServiceDefinition>;
   readonly mid: ReadonlyArray<ServiceDefinition>;
-  readonly vm: ReadonlyArray<ServiceDefinition>;
   readonly orphans: ReadonlyArray<ServiceDefinition>;
+  readonly vm: ReadonlyArray<ServiceDefinition>;
 }
 
 const makeShortPath = (fullPath: string): string => Str.replace(/^(\.\/)?.*\/src\//, "")(fullPath);
@@ -177,10 +140,10 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
 };
 
 interface ServiceWithIndex {
-  readonly service: ServiceDefinition;
-  readonly layer: LayerDefinition | undefined;
-  readonly index: Graph.NodeIndex;
   readonly depCount: number;
+  readonly index: Graph.NodeIndex;
+  readonly layer: LayerDefinition | undefined;
+  readonly service: ServiceDefinition;
 }
 
 const orderServicesByDependencyCount = (
@@ -294,268 +257,6 @@ const formatAgent = (graph: ArchitectureGraph): string => {
   output.push(renderMetrics(metrics));
 
   return output.join("\n");
-};
-
-interface BlastRadiusResult {
-  readonly service: string;
-  readonly downstream: ReadonlyArray<{
-    readonly depth: number;
-    readonly services: ReadonlyArray<string>;
-  }>;
-  readonly upstream: ReadonlyArray<{
-    readonly depth: number;
-    readonly services: ReadonlyArray<string>;
-  }>;
-  readonly downstreamCount: number;
-  readonly upstreamCount: number;
-  readonly risk: "HIGH" | "MEDIUM" | "LOW";
-}
-
-const groupByDepth = (
-  analysisGraph: AnalysisGraph,
-  walker: Graph.NodeWalker<ServiceDefinition>,
-  startIdx: Graph.NodeIndex
-): ReadonlyArray<{ readonly depth: number; readonly services: ReadonlyArray<string> }> => {
-  const depthMap = MutableHashMap.empty<Graph.NodeIndex, number>();
-  MutableHashMap.set(depthMap, startIdx, 0);
-
-  for (const [idx] of walker) {
-    if (idx === startIdx) continue;
-
-    const neighbors = Graph.neighbors(analysisGraph.graph, idx);
-    const neighborDepths = pipe(
-      neighbors,
-      A.map((neighborIdx: Graph.NodeIndex) => {
-        const depth = O.getOrUndefined(MutableHashMap.get(depthMap, neighborIdx));
-        return depth !== undefined ? O.some(depth) : O.none<number>();
-      }),
-      A.getSomes
-    );
-
-    if (neighborDepths.length > 0) {
-      MutableHashMap.set(depthMap, idx, Math.min(...neighborDepths) + 1);
-    }
-  }
-
-  const levelGroups = MutableHashMap.empty<number, string[]>();
-  for (const [idx, depth] of depthMap) {
-    if (idx === startIdx) continue;
-    const node = Graph.getNode(analysisGraph.graph, idx);
-    if (O.isSome(node)) {
-      const group = O.getOrElse(MutableHashMap.get(levelGroups, depth), () => A.empty<string>());
-      group.push(node.value.name);
-      MutableHashMap.set(levelGroups, depth, group);
-    }
-  }
-
-  return pipe(
-    A.fromIterable(levelGroups),
-    A.map(([depth, services]) => ({
-      depth,
-      services: services.sort(),
-    })),
-    A.sort(Order.mapInput(Order.Number, (item: { depth: number; services: ReadonlyArray<string> }) => item.depth))
-  );
-};
-
-const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): O.Option<BlastRadiusResult> => {
-  const serviceIdx = O.getOrUndefined(MutableHashMap.get(analysisGraph.serviceIndex, serviceName));
-  if (serviceIdx === undefined) return O.none();
-
-  const downstreamWalker = Graph.bfs(analysisGraph.graph, {
-    start: [serviceIdx],
-    direction: "incoming",
-  });
-
-  const downstream = groupByDepth(analysisGraph, downstreamWalker, serviceIdx);
-  const downstreamCount = pipe(
-    downstream,
-    A.flatMap((level) => level.services)
-  ).length;
-
-  const upstreamWalker = Graph.bfs(analysisGraph.graph, {
-    start: [serviceIdx],
-    direction: "outgoing",
-  });
-
-  const upstream = groupByDepth(analysisGraph, upstreamWalker, serviceIdx);
-  const upstreamCount = pipe(
-    upstream,
-    A.flatMap((level) => level.services)
-  ).length;
-
-  const risk = downstreamCount >= 5 ? "HIGH" : downstreamCount >= 3 ? "MEDIUM" : "LOW";
-
-  return O.some({
-    service: serviceName,
-    downstream,
-    upstream,
-    downstreamCount,
-    upstreamCount,
-    risk,
-  });
-};
-
-const renderBlastRadius = (result: BlastRadiusResult): string => {
-  const sections = A.empty<string>();
-  sections.push(`<blast_radius service="${result.service}">`);
-
-  sections.push(`  <downstream n="${result.downstreamCount}" risk="${result.risk}">`);
-  if (result.downstream.length > 0) {
-    result.downstream.forEach((level) => {
-      sections.push(`    <level depth="${level.depth}" count="${level.services.length}">`);
-      level.services.forEach((service) => {
-        sections.push(`      <service>${service}</service>`);
-      });
-      sections.push(`    </level>`);
-    });
-  }
-  sections.push(`  </downstream>`);
-
-  sections.push(`  <upstream n="${result.upstreamCount}">`);
-  if (result.upstream.length > 0) {
-    result.upstream.forEach((level) => {
-      sections.push(`    <level depth="${level.depth}" count="${level.services.length}">`);
-      level.services.forEach((service) => {
-        sections.push(`      <service>${service}</service>`);
-      });
-      sections.push(`    </level>`);
-    });
-  }
-  sections.push(`  </upstream>`);
-
-  sections.push(`</blast_radius>`);
-  return sections.join("\n");
-};
-
-interface CommonAncestor {
-  readonly service: string;
-  readonly coverage: number;
-  readonly affectedBy: ReadonlyArray<string>;
-  readonly risk: "HIGH" | "MEDIUM" | "LOW";
-}
-
-interface CommonAncestorsResult {
-  readonly inputServices: ReadonlyArray<string>;
-  readonly commonDependencies: ReadonlyArray<CommonAncestor>;
-  readonly rootCauseCandidates: ReadonlyArray<{
-    readonly rank: number;
-    readonly service: string;
-    readonly coverage: number;
-  }>;
-}
-
-const intersection = <T>(sets: ReadonlyArray<HashSet.HashSet<T>>): HashSet.HashSet<T> => {
-  if (sets.length === 0) return HashSet.empty();
-  if (sets.length === 1) return sets[0];
-
-  return pipe(
-    sets.slice(1),
-    A.reduce(sets[0], (acc, set) => HashSet.intersection(acc, set))
-  );
-};
-
-const computeCommonAncestors = (
-  analysisGraph: AnalysisGraph,
-  serviceNames: ReadonlyArray<string>
-): CommonAncestorsResult => {
-  const dependencySets = MutableHashMap.empty<string, HashSet.HashSet<Graph.NodeIndex>>();
-
-  for (const serviceName of serviceNames) {
-    const nodeIndex = O.getOrUndefined(MutableHashMap.get(analysisGraph.serviceIndex, serviceName));
-    if (nodeIndex === undefined) {
-      MutableHashMap.set(dependencySets, serviceName, HashSet.empty<Graph.NodeIndex>());
-      continue;
-    }
-
-    const walker = Graph.bfs(analysisGraph.graph, {
-      start: [nodeIndex],
-      direction: "outgoing",
-    });
-
-    const deps = pipe(
-      Graph.indices(walker),
-      A.fromIterable,
-      A.filter((idx) => idx !== nodeIndex),
-      HashSet.fromIterable
-    );
-
-    MutableHashMap.set(dependencySets, serviceName, deps);
-  }
-
-  const depSetArray = pipe(
-    A.fromIterable(dependencySets),
-    A.map(([, depSet]) => depSet)
-  );
-  if (depSetArray.length === 0) {
-    return {
-      inputServices: serviceNames,
-      commonDependencies: [],
-      rootCauseCandidates: [],
-    };
-  }
-
-  const commonIndices = intersection(depSetArray);
-
-  const coverageMap = MutableHashMap.empty<Graph.NodeIndex, MutableHashSet.MutableHashSet<string>>();
-  for (const [serviceName, depSet] of dependencySets) {
-    for (const depIndex of commonIndices) {
-      if (HashSet.has(depSet, depIndex)) {
-        const affected = O.getOrElse(MutableHashMap.get(coverageMap, depIndex), () => MutableHashSet.empty<string>());
-        MutableHashSet.add(affected, serviceName);
-        MutableHashMap.set(coverageMap, depIndex, affected);
-      }
-    }
-  }
-
-  const commonDependencies = pipe(
-    A.fromIterable(commonIndices),
-    A.map((depIndex: Graph.NodeIndex) => {
-      const node = Graph.getNode(analysisGraph.graph, depIndex);
-      if (O.isNone(node)) return O.none<CommonAncestor>();
-
-      const affectedBySet = O.getOrElse(MutableHashMap.get(coverageMap, depIndex), () =>
-        MutableHashSet.empty<string>()
-      );
-      const affectedBy = A.fromIterable(affectedBySet);
-      const coverage = affectedBy.length;
-
-      const risk: "HIGH" | "MEDIUM" | "LOW" =
-        coverage === serviceNames.length ? "HIGH" : coverage >= serviceNames.length * 0.5 ? "MEDIUM" : "LOW";
-
-      return O.some({
-        service: node.value.name,
-        coverage,
-        affectedBy,
-        risk,
-      });
-    }),
-    A.getSomes,
-    A.sort(
-      Order.flip(
-        Order.combine(
-          Order.mapInput(Order.Number, (a: CommonAncestor) => a.coverage),
-          Order.mapInput(Order.String, (a: CommonAncestor) => a.service)
-        )
-      )
-    )
-  );
-
-  const rootCauseCandidates = pipe(
-    commonDependencies,
-    A.take(5),
-    A.map((ancestor: CommonAncestor, index: number) => ({
-      rank: index + 1,
-      service: ancestor.service,
-      coverage: ancestor.coverage,
-    }))
-  );
-
-  return {
-    inputServices: serviceNames,
-    commonDependencies,
-    rootCauseCandidates,
-  };
 };
 
 const helpText = `

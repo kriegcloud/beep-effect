@@ -76,14 +76,14 @@ export interface SessionManagerShape {
   readonly create: (
     options: SDKSessionOptions
   ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
-  readonly resume: (
-    sessionId: string,
-    options: SDKSessionOptions
-  ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
   readonly prompt: (
     message: string,
     options: SDKSessionOptions
   ) => Effect.Effect<SDKResultMessage, SessionErrorType | ConfigError>;
+  readonly resume: (
+    sessionId: string,
+    options: SDKSessionOptions
+  ) => Effect.Effect<SessionHandle, SessionErrorType | ConfigError, Scope.Scope>;
   readonly withSession: <A, E, R>(
     options: SDKSessionOptions,
     use: (session: ManagedSession) => Effect.Effect<A, E, R>

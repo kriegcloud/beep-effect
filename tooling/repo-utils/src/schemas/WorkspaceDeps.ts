@@ -27,19 +27,18 @@ export type DependencyRecord = Readonly<Record<string, string>>;
  * @category DomainModel
  */
 export interface WorkspaceDeps {
-  /** The package name this dependency set belongs to. */
-  readonly packageName: string;
-
-  /** Dependencies that reference other packages within the monorepo. */
-  readonly workspace: {
+  /** Dependencies that reference external NPM packages. */
+  readonly npm: {
     readonly dependencies: DependencyRecord;
     readonly devDependencies: DependencyRecord;
     readonly peerDependencies: DependencyRecord;
     readonly optionalDependencies: DependencyRecord;
   };
+  /** The package name this dependency set belongs to. */
+  readonly packageName: string;
 
-  /** Dependencies that reference external NPM packages. */
-  readonly npm: {
+  /** Dependencies that reference other packages within the monorepo. */
+  readonly workspace: {
     readonly dependencies: DependencyRecord;
     readonly devDependencies: DependencyRecord;
     readonly peerDependencies: DependencyRecord;

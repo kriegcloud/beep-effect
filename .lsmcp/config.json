@@ -1,0 +1,29 @@
+{
+  "preset": "tsgo",
+  "files": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "apps/**/*.d.ts",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.d.ts",
+    "tooling/**/*.ts",
+    "tooling/**/*.tsx",
+    "tooling/**/*.d.ts"
+  ],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/.repos/**",
+    "**/specs/**",
+    "**/.turbo/**",
+    "**/.sst/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "settings": {
+    "autoIndex": true,
+    "indexConcurrency": 8,
+    "enableWatchers": true
+  }
+}

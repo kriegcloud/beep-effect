@@ -1004,7 +1004,7 @@ const planPackageReferenceSync = Effect.fn(function* (
         const descriptor = HashMap.get(workspaceByName, depName);
         return O.isNone(descriptor) || descriptor.value.ownerTsconfigPath === undefined
           ? A.empty<string>()
-          : A.make(descriptor.value.ownerTsconfigPath);
+          : A.of(descriptor.value.ownerTsconfigPath);
       })
     );
 
@@ -1012,7 +1012,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     const parsed = yield* parseJsonc(original, sourceOwnerTsconfigPath, TsconfigWithReferences);
 
     const existingRefs = compareReferencePathsInOrder(parsed);
-    const existingResolvedTargets: Array<string> = [];
+    const existingResolvedTargets = A.empty<string>();
 
     for (const refPath of existingRefs) {
       const canonicalTarget = yield* canonicalizeExistingRefTarget(

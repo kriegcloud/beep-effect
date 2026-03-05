@@ -1,12 +1,12 @@
 declare module "madge" {
   export interface MadgeOptions {
-    readonly fileExtensions?: ReadonlyArray<string>;
-    readonly tsConfig?: string;
     readonly detectiveOptions?: {
       readonly ts?: {
         readonly skipTypeImports?: boolean;
       };
     };
+    readonly fileExtensions?: ReadonlyArray<string>;
+    readonly tsConfig?: string;
   }
 
   export interface MadgeResult {

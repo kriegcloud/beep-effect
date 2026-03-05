@@ -5,15 +5,6 @@
   "include": [
     "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
-    "./packages/*/*/test/**/*.ts",
-    "./packages/*/*/test/**/*.json",
-    "./packages/*/*/dtslint/**/*.ts",
-    "./packages/*/*/benchmark/**/*.ts",
-    "./tooling/*/test/**/*.ts",
-    "./tooling/*/test/**/*.json",
-    "./tooling/*/dtslint/**/*.ts",
-    "./apps/*/test/**/*.ts",
-    "./apps/*/test/**/*.json",
     "./.claude/*.ts",
     "./.claude/*.json"
   ],
@@ -26,6 +17,7 @@
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
     "rootDir": ".",
     "noEmit": true,
+    "rewriteRelativeImportExtensions": false,
     "erasableSyntaxOnly": false,
     "resolveJsonModule": true,
     "types": ["node", "bun"],
@@ -64,7 +56,9 @@
       "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
       "@beep/shared-server/*": ["./packages/shared/server/src/*.ts"],
       "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"]
+      "@beep/shared-client/*": ["./packages/shared/client/src/*.ts"],
+      "@beep/repo-configs": ["./tooling/configs/src/index.ts"],
+      "@beep/repo-configs/*": ["./tooling/configs/src/*.ts"]
     },
     "plugins": [
       {

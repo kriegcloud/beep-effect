@@ -41,4 +41,9 @@ export const thunkMatch: () => {
     ): A | B => (value ? options.onTrue() : options.onFalse())
   );
 
+/**
+ * Re-export of `effect/Boolean`.
+ *
+ * @since 0.0.0
+ */
 export * from "effect/Boolean";

@@ -58,6 +58,9 @@
       "path": "tooling/cli"
     },
     {
+      "path": "tooling/configs"
+    },
+    {
       "path": "tooling/repo-utils"
     }
   ]

@@ -177,8 +177,8 @@ export type SchemaAnnotationExtras<SchemaType> = S.Annotations.Documentation<Sch
  */
 export interface IdentityAnnotation<Value extends string, Identifier extends string>
   extends S.Annotations.Documentation<unknown> {
-  readonly schemaId: IdentitySymbol<Value>;
   readonly identifier: Identifier;
+  readonly schemaId: IdentitySymbol<Value>;
   readonly title: string;
 }
 
@@ -205,17 +205,16 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  * @category DomainModel
  */
 export interface IdentityComposer<Value extends string> {
-  readonly value: IdentityString<Value>;
-  readonly identifier: IdentityString<Value>;
-  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
-
   /**
-   *
-   * @param {TemplateStringsArray} strings
-   * @param values
-   * @returns {IdentityString<`${Value}/${string}`>}
+   * @template Next,SchemaType
+   * @param {SegmentValue<Next>} identifier
+   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
+   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
    */
-  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
+  annote<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
 
   /**
    *
@@ -234,6 +233,8 @@ export interface IdentityComposer<Value extends string> {
   create<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
+  readonly identifier: IdentityString<Value>;
+  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 
   /**
    * @template Next
@@ -255,17 +256,15 @@ export interface IdentityComposer<Value extends string> {
    * @returns {IdentitySymbol<Value>}
    */
   symbol(): IdentitySymbol<Value>;
+  readonly value: IdentityString<Value>;
 
   /**
-   * @template Next,SchemaType
-   * @param {SegmentValue<Next>} identifier
-   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
-   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
+   *
+   * @param {TemplateStringsArray} strings
+   * @param values
+   * @returns {IdentityString<`${Value}/${string}`>}
    */
-  annote<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
-    identifier: SegmentValue<Next>,
-    extras?: undefined | SchemaAnnotationExtras<SchemaType>
-  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
 }
 
 type NormalizedBase<Base extends TString.NonEmpty> = Base extends `@beep/${infer Rest extends TString.NonEmpty}`

@@ -23,14 +23,14 @@ const $I = $RepoUtilsId.create("FsUtils");
  * @category DomainModel
  */
 export interface GlobOptions {
+  /** Return absolute paths. Defaults to `false`. */
+  readonly absolute?: boolean | undefined;
   /** The working directory for the glob pattern. Defaults to `process.cwd()`. */
   readonly cwd?: string | undefined;
   /** Include dotfiles in results. Defaults to `false`. */
   readonly dot?: boolean | undefined;
   /** Glob patterns to exclude from results. */
   readonly ignore?: string | string[] | undefined;
-  /** Return absolute paths. Defaults to `false`. */
-  readonly absolute?: boolean | undefined;
 }
 
 /**
@@ -40,6 +40,19 @@ export interface GlobOptions {
  * @category DomainModel
  */
 export interface FsUtilsShape {
+  /**
+   * Verify that a path exists on disk, or fail with `NoSuchFileError`.
+   *
+   * @since 0.0.0
+   */
+  readonly existsOrThrow: (filePath: string) => Effect.Effect<void, NoSuchFileError>;
+
+  /**
+   * Get the parent directory of a path.
+   *
+   * @since 0.0.0
+   */
+  readonly getParentDirectory: (filePath: string) => Effect.Effect<string>;
   /**
    * Match files and directories using glob patterns.
    *
@@ -61,38 +74,6 @@ export interface FsUtilsShape {
   ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
-   * Read and parse a JSON file.
-   *
-   * @since 0.0.0
-   */
-  readonly readJson: (filePath: string) => Effect.Effect<unknown, NoSuchFileError | DomainError>;
-
-  /**
-   * Write a value as JSON to a file with 2-space indentation and trailing newline.
-   *
-   * @since 0.0.0
-   */
-  readonly writeJson: (filePath: string, json: unknown) => Effect.Effect<void, DomainError>;
-
-  /**
-   * Read a file, apply a transform to its content, and write back only if the
-   * content actually changed.
-   *
-   * @since 0.0.0
-   */
-  readonly modifyFile: (
-    filePath: string,
-    transform: (content: string) => string
-  ) => Effect.Effect<boolean, NoSuchFileError | DomainError>;
-
-  /**
-   * Verify that a path exists on disk, or fail with `NoSuchFileError`.
-   *
-   * @since 0.0.0
-   */
-  readonly existsOrThrow: (filePath: string) => Effect.Effect<void, NoSuchFileError>;
-
-  /**
    * Check whether a path is a directory.
    *
    * @since 0.0.0
@@ -107,11 +88,29 @@ export interface FsUtilsShape {
   readonly isFile: (filePath: string) => Effect.Effect<boolean, NoSuchFileError>;
 
   /**
-   * Get the parent directory of a path.
+   * Read a file, apply a transform to its content, and write back only if the
+   * content actually changed.
    *
    * @since 0.0.0
    */
-  readonly getParentDirectory: (filePath: string) => Effect.Effect<string>;
+  readonly modifyFile: (
+    filePath: string,
+    transform: (content: string) => string
+  ) => Effect.Effect<boolean, NoSuchFileError | DomainError>;
+
+  /**
+   * Read and parse a JSON file.
+   *
+   * @since 0.0.0
+   */
+  readonly readJson: (filePath: string) => Effect.Effect<unknown, NoSuchFileError | DomainError>;
+
+  /**
+   * Write a value as JSON to a file with 2-space indentation and trailing newline.
+   *
+   * @since 0.0.0
+   */
+  readonly writeJson: (filePath: string, json: unknown) => Effect.Effect<void, DomainError>;
 }
 
 /**

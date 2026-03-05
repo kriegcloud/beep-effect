@@ -48,3 +48,5 @@ test-results/
 
 # Claude plugin state files (ralph-wiggum loop state)
 .claude/ralph-loop.local.md
+# lsmcp cache
+.lsmcp/cache

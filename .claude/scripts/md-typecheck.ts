@@ -28,10 +28,10 @@ interface CodeBlockLocation {
 }
 
 interface TypeError {
+  message: string;
+  sourceCol: number;
   sourceFile: string;
   sourceLine: number;
-  sourceCol: number;
-  message: string;
 }
 
 // ============================================================================

@@ -138,9 +138,9 @@ const makeStore = Effect.gen(function* () {
  * @since 0.0.0
  */
 export interface AuditEventStoreShape {
-  readonly write: (input: AuditEventInput) => Effect.Effect<void, StorageError>;
-  readonly entries: Effect.Effect<ReadonlyArray<EventJournal.Entry>, StorageError>;
   readonly cleanup?: () => Effect.Effect<void, StorageError>;
+  readonly entries: Effect.Effect<ReadonlyArray<EventJournal.Entry>, StorageError>;
+  readonly write: (input: AuditEventInput) => Effect.Effect<void, StorageError>;
 }
 
 /**

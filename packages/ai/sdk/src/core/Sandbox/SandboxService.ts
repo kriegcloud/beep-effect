@@ -24,17 +24,16 @@ export type ExecResult = {
  * @since 0.0.0
  */
 export interface SandboxServiceShape {
-  /** Which backend is active. */
-  readonly provider: SandboxProvider;
-
-  /** Whether execution is isolated from the host. */
-  readonly isolated: boolean;
+  /** Tear down the sandbox instance. Noop for local. */
+  readonly destroy: Effect.Effect<void, SandboxError>;
 
   /** Execute a shell command in the sandbox environment. */
   readonly exec: (command: string, args?: ReadonlyArray<string>) => Effect.Effect<ExecResult, SandboxError>;
 
-  /** Write a file inside the sandbox. */
-  readonly writeFile: (path: string, content: string) => Effect.Effect<void, SandboxError>;
+  /** Whether execution is isolated from the host. */
+  readonly isolated: boolean;
+  /** Which backend is active. */
+  readonly provider: SandboxProvider;
 
   /** Read a file from the sandbox. */
   readonly readFile: (path: string) => Effect.Effect<string, SandboxError>;
@@ -48,8 +47,8 @@ export interface SandboxServiceShape {
    */
   readonly runAgent: (prompt: string, options?: Options) => Effect.Effect<QueryHandle, SandboxError, Scope.Scope>;
 
-  /** Tear down the sandbox instance. Noop for local. */
-  readonly destroy: Effect.Effect<void, SandboxError>;
+  /** Write a file inside the sandbox. */
+  readonly writeFile: (path: string, content: string) => Effect.Effect<void, SandboxError>;
 }
 
 /**

@@ -52,21 +52,21 @@ export type SessionErrorEncoded = typeof SessionError.Encoded;
  */
 export interface SessionHandle {
   /**
-   * Session id once the init message arrives (or immediately for resumed sessions).
+   * Close the session after in-flight sends and streams settle.
    */
-  readonly sessionId: Effect.Effect<string, SessionClosedError>;
+  readonly close: Effect.Effect<void, SessionError>;
   /**
    * Send a user message into the session.
    */
   readonly send: (message: string | SDKUserMessage) => Effect.Effect<void, SessionError>;
   /**
+   * Session id once the init message arrives (or immediately for resumed sessions).
+   */
+  readonly sessionId: Effect.Effect<string, SessionClosedError>;
+  /**
    * Stream session messages (single-use unless shared downstream).
    */
   readonly stream: Stream.Stream<SDKMessage, SessionError>;
-  /**
-   * Close the session after in-flight sends and streams settle.
-   */
-  readonly close: Effect.Effect<void, SessionError>;
 }
 
 const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);

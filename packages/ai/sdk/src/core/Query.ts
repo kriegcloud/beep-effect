@@ -50,32 +50,9 @@ export type StreamBroadcastConfig =
  */
 export interface QueryHandle {
   /**
-   * Stream of SDK messages produced by the query.
-   * This stream is single-use unless you `share` or `broadcast` it.
+   * Fetch account info for the running query.
    */
-  readonly stream: Stream.Stream<SDKMessage, AgentSdkError>;
-  /**
-   * Send a single user message into the streaming prompt (if enabled).
-   */
-  readonly send: (message: SDKUserMessage) => Effect.Effect<void, AgentSdkError>;
-  /**
-   * Send multiple user messages into the streaming prompt (if enabled).
-   */
-  readonly sendAll: (messages: Iterable<SDKUserMessage>) => Effect.Effect<void, AgentSdkError>;
-  /**
-   * Fire-and-forget send scoped to the current fiber.
-   */
-  readonly sendForked: (message: SDKUserMessage) => Effect.Effect<void, AgentSdkError, Scope.Scope>;
-  /**
-   * Close the streaming input and stop accepting new messages.
-   */
-  readonly closeInput: Effect.Effect<void, AgentSdkError>;
-  /**
-   * Share the output stream across multiple consumers in a scope.
-   */
-  readonly share: (
-    config?: undefined | StreamShareConfig
-  ) => Effect.Effect<Stream.Stream<SDKMessage, AgentSdkError>, never, Scope.Scope>;
+  readonly accountInfo: Effect.Effect<AccountInfo, AgentSdkError>;
   /**
    * Broadcast the output stream for concurrent subscribers in a scope.
    */
@@ -83,52 +60,9 @@ export interface QueryHandle {
     config?: undefined | StreamBroadcastConfig
   ) => Effect.Effect<Stream.Stream<SDKMessage, AgentSdkError>, never, Scope.Scope>;
   /**
-   * Interrupt the underlying SDK query process.
+   * Close the streaming input and stop accepting new messages.
    */
-  readonly interrupt: Effect.Effect<void, AgentSdkError>;
-  /**
-   * Update the permission mode for the running query.
-   */
-  readonly setPermissionMode: (mode: PermissionMode) => Effect.Effect<void, AgentSdkError>;
-  /**
-   * Override the model for the running query.
-   */
-  readonly setModel: (model?: undefined | string) => Effect.Effect<void, AgentSdkError>;
-  /**
-   * Adjust max thinking tokens for the running query.
-   */
-  readonly setMaxThinkingTokens: (maxTokens: number | null) => Effect.Effect<void, AgentSdkError>;
-  /**
-   * Rewind the workspace to a prior user message.
-   */
-  readonly rewindFiles: (
-    userMessageUuid: string,
-    options?: {
-      readonly dryRun?: undefined | boolean;
-    }
-  ) => Effect.Effect<RewindFilesResult, AgentSdkError>;
-  /**
-   * Fetch supported slash commands.
-   */
-  readonly supportedCommands: Effect.Effect<ReadonlyArray<SlashCommand>, AgentSdkError>;
-  /**
-   * Fetch supported models.
-   */
-  readonly supportedModels: Effect.Effect<ReadonlyArray<ModelInfo>, AgentSdkError>;
-  /**
-   * Fetch MCP server status for the running query.
-   */
-  readonly mcpServerStatus: Effect.Effect<ReadonlyArray<McpServerStatus>, AgentSdkError>;
-  /**
-   * Update MCP server configuration for the running query.
-   */
-  readonly setMcpServers: (
-    servers: Record<string, McpServerConfig>
-  ) => Effect.Effect<McpSetServersResult, AgentSdkError>;
-  /**
-   * Fetch account info for the running query.
-   */
-  readonly accountInfo: Effect.Effect<AccountInfo, AgentSdkError>;
+  readonly closeInput: Effect.Effect<void, AgentSdkError>;
   /**
    * Get the full initialization result including commands, models, account info,
    * and output style configuration.
@@ -144,7 +78,73 @@ export interface QueryHandle {
     AgentSdkError
   >;
   /**
+   * Interrupt the underlying SDK query process.
+   */
+  readonly interrupt: Effect.Effect<void, AgentSdkError>;
+  /**
+   * Fetch MCP server status for the running query.
+   */
+  readonly mcpServerStatus: Effect.Effect<ReadonlyArray<McpServerStatus>, AgentSdkError>;
+  /**
+   * Rewind the workspace to a prior user message.
+   */
+  readonly rewindFiles: (
+    userMessageUuid: string,
+    options?: {
+      readonly dryRun?: undefined | boolean;
+    }
+  ) => Effect.Effect<RewindFilesResult, AgentSdkError>;
+  /**
+   * Send a single user message into the streaming prompt (if enabled).
+   */
+  readonly send: (message: SDKUserMessage) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Send multiple user messages into the streaming prompt (if enabled).
+   */
+  readonly sendAll: (messages: Iterable<SDKUserMessage>) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Fire-and-forget send scoped to the current fiber.
+   */
+  readonly sendForked: (message: SDKUserMessage) => Effect.Effect<void, AgentSdkError, Scope.Scope>;
+  /**
+   * Adjust max thinking tokens for the running query.
+   */
+  readonly setMaxThinkingTokens: (maxTokens: number | null) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Update MCP server configuration for the running query.
+   */
+  readonly setMcpServers: (
+    servers: Record<string, McpServerConfig>
+  ) => Effect.Effect<McpSetServersResult, AgentSdkError>;
+  /**
+   * Override the model for the running query.
+   */
+  readonly setModel: (model?: undefined | string) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Update the permission mode for the running query.
+   */
+  readonly setPermissionMode: (mode: PermissionMode) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Share the output stream across multiple consumers in a scope.
+   */
+  readonly share: (
+    config?: undefined | StreamShareConfig
+  ) => Effect.Effect<Stream.Stream<SDKMessage, AgentSdkError>, never, Scope.Scope>;
+  /**
    * Stop a running task by its ID.
    */
   readonly stopTask: (taskId: string) => Effect.Effect<void, AgentSdkError>;
+  /**
+   * Stream of SDK messages produced by the query.
+   * This stream is single-use unless you `share` or `broadcast` it.
+   */
+  readonly stream: Stream.Stream<SDKMessage, AgentSdkError>;
+  /**
+   * Fetch supported slash commands.
+   */
+  readonly supportedCommands: Effect.Effect<ReadonlyArray<SlashCommand>, AgentSdkError>;
+  /**
+   * Fetch supported models.
+   */
+  readonly supportedModels: Effect.Effect<ReadonlyArray<ModelInfo>, AgentSdkError>;
 }

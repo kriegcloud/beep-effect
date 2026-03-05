@@ -55,8 +55,8 @@ class LenientUserPromptInput extends S.Class<LenientUserPromptInput>($I`LenientU
 ) {}
 
 export interface SkillMetadata {
-  readonly name: string;
   readonly keywords: ReadonlyArray<string>;
+  readonly name: string;
 }
 
 class HookState extends S.Class<HookState>($I`HookState`)(
@@ -381,16 +381,16 @@ const formatOutput = (context: string) =>
 interface KgContextSymbol {
   readonly id: string;
   readonly kind: string;
-  readonly score: number;
   readonly provenance: string;
+  readonly score: number;
 }
 
 interface KgContextRelationship {
-  readonly type: string;
   readonly from: string;
-  readonly to: string;
-  readonly score: number;
   readonly provenance: string;
+  readonly score: number;
+  readonly to: string;
+  readonly type: string;
 }
 
 class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(

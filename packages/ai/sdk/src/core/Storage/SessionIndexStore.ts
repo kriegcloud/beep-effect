@@ -141,12 +141,12 @@ const emptyState: SessionIndexState = {
  * @since 0.0.0
  */
 export interface SessionIndexStoreService {
-  readonly touch: (sessionId: string, options?: SessionIndexTouchOptions) => Effect.Effect<SessionMeta, StorageError>;
   readonly get: (sessionId: string) => Effect.Effect<O.Option<SessionMeta>, StorageError>;
   readonly list: (options?: SessionIndexListOptions) => Effect.Effect<ReadonlyArray<SessionMeta>, StorageError>;
   readonly listIds: () => Effect.Effect<ReadonlyArray<string>, StorageError>;
-  readonly remove: (sessionId: string) => Effect.Effect<void, StorageError>;
   readonly listPage: (options?: SessionIndexListOptions) => Effect.Effect<SessionIndexPage, StorageError>;
+  readonly remove: (sessionId: string) => Effect.Effect<void, StorageError>;
+  readonly touch: (sessionId: string, options?: SessionIndexTouchOptions) => Effect.Effect<SessionMeta, StorageError>;
 }
 
 /**

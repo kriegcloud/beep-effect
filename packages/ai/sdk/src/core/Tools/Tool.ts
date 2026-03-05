@@ -46,16 +46,27 @@ export interface Tool<
   },
   Requirements = never,
 > extends Tool.Variance<Requirements> {
-  readonly id: string;
-  readonly name: Name;
+  addDependency(tag: ServiceMap.Service<unknown, unknown>): Tool<Name, Config, Requirements>;
+
+  annotate<I, S>(tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>, value: S): Tool<Name, Config, Requirements>;
+  readonly annotations: ServiceMap.ServiceMap<never>;
   readonly description?: string | undefined;
   readonly failureMode: FailureMode;
-  readonly parametersSchema: Config["parameters"];
-  readonly successSchema: Config["success"];
   readonly failureSchema: Config["failure"];
-  readonly annotations: ServiceMap.ServiceMap<never>;
+  readonly id: string;
+  readonly name: Name;
+  readonly parametersSchema: Config["parameters"];
 
-  addDependency(tag: ServiceMap.Service<unknown, unknown>): Tool<Name, Config, Requirements>;
+  setFailure(schema: AnySchema): Tool<
+    Name,
+    {
+      readonly parameters: Config["parameters"];
+      readonly success: Config["success"];
+      readonly failure: AnySchema;
+      readonly failureMode: Config["failureMode"];
+    },
+    Requirements
+  >;
 
   setParameters(schema: S.Struct<S.Struct.Fields> | S.Struct.Fields): Tool<
     Name,
@@ -78,19 +89,7 @@ export interface Tool<
     },
     Requirements
   >;
-
-  setFailure(schema: AnySchema): Tool<
-    Name,
-    {
-      readonly parameters: Config["parameters"];
-      readonly success: Config["success"];
-      readonly failure: AnySchema;
-      readonly failureMode: Config["failureMode"];
-    },
-    Requirements
-  >;
-
-  annotate<I, S>(tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>, value: S): Tool<Name, Config, Requirements>;
+  readonly successSchema: Config["success"];
 }
 
 /**

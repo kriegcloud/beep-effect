@@ -15,25 +15,25 @@ import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as ts from "typescript";
 export interface ServiceDefinition {
+  readonly line: number;
   readonly name: string;
   readonly path: string;
-  readonly line: number;
 }
 
 export interface LayerDefinition {
-  readonly name: string;
-  readonly serviceName: string;
-  readonly path: string;
-  readonly line: number;
   readonly dependencies: ReadonlyArray<string>;
   readonly errorTypes: ReadonlyArray<string>;
-  readonly isParametrized: boolean;
   readonly factoryName?: undefined | string;
+  readonly isParametrized: boolean;
+  readonly line: number;
+  readonly name: string;
+  readonly path: string;
+  readonly serviceName: string;
 }
 
 export interface ArchitectureGraph {
-  readonly services: ReadonlyArray<ServiceDefinition>;
   readonly layers: ReadonlyArray<LayerDefinition>;
+  readonly services: ReadonlyArray<ServiceDefinition>;
 }
 
 export interface AnalysisGraph {
@@ -42,9 +42,9 @@ export interface AnalysisGraph {
 }
 
 interface GraphMetrics {
+  readonly averageDegree: number;
   readonly density: number;
   readonly diameter: number;
-  readonly averageDegree: number;
 }
 
 const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
@@ -89,11 +89,11 @@ export const extractServicesFromContent = (content: string, filePath: string): R
 };
 
 interface LayerMatch {
+  readonly factoryName?: string;
+  readonly isParametrized: boolean;
+  readonly line: number;
   readonly name: string;
   readonly serviceName: string;
-  readonly line: number;
-  readonly isParametrized: boolean;
-  readonly factoryName?: string;
 }
 
 export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
@@ -566,11 +566,11 @@ interface DependencyInfo {
 }
 
 interface GroupedServices {
-  readonly root: ReadonlyArray<ServiceDefinition>;
   readonly intermediate: ReadonlyArray<ServiceDefinition>;
   readonly leaf: ReadonlyArray<ServiceDefinition>;
-  readonly vm: ReadonlyArray<ServiceDefinition>;
   readonly orphans: ReadonlyArray<ServiceDefinition>;
+  readonly root: ReadonlyArray<ServiceDefinition>;
+  readonly vm: ReadonlyArray<ServiceDefinition>;
 }
 
 const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): HashMap.HashMap<string, LayerDefinition> =>
@@ -743,8 +743,8 @@ export const formatHuman = (graph: ArchitectureGraph): string => {
 };
 
 interface Violation {
-  readonly invariant: string;
   readonly description: string;
+  readonly invariant: string;
 }
 
 interface RedundantWarning {
@@ -754,19 +754,19 @@ interface RedundantWarning {
 }
 
 interface HotWarning {
-  readonly service: string;
   readonly count: number;
+  readonly service: string;
 }
 
 interface WideWarning {
-  readonly service: string;
   readonly count: number;
+  readonly service: string;
 }
 
 interface Warnings {
-  readonly redundant: ReadonlyArray<RedundantWarning>;
   readonly hot: ReadonlyArray<HotWarning>;
   readonly orphan: ReadonlyArray<string>;
+  readonly redundant: ReadonlyArray<RedundantWarning>;
   readonly wide: ReadonlyArray<WideWarning>;
 }
 
@@ -1048,21 +1048,21 @@ const countConnectedComponents = (analysisGraph: AnalysisGraph, excludeNode?: Gr
 };
 
 export interface BlastRadiusResult {
-  readonly service: string;
   readonly downstream: ReadonlyArray<{
     readonly depth: number;
     readonly services: ReadonlyArray<string>;
   }>;
   readonly downstreamCount: number;
   readonly risk: "HIGH" | "MEDIUM" | "LOW";
+  readonly service: string;
 }
 
 export interface AncestorsResult {
-  readonly service: string;
   readonly ancestors: ReadonlyArray<{
     readonly depth: number;
     readonly services: ReadonlyArray<string>;
   }>;
+  readonly service: string;
   readonly totalCount: number;
 }
 
@@ -1196,15 +1196,15 @@ export const renderAncestors = (result: AncestorsResult): string => {
 };
 
 export interface CommonAncestor {
-  readonly service: string;
-  readonly coverage: number;
   readonly affectedBy: ReadonlyArray<string>;
+  readonly coverage: number;
   readonly risk: "HIGH" | "MEDIUM" | "LOW";
+  readonly service: string;
 }
 
 export interface CommonAncestorsResult {
-  readonly inputServices: ReadonlyArray<string>;
   readonly commonDependencies: ReadonlyArray<CommonAncestor>;
+  readonly inputServices: ReadonlyArray<string>;
   readonly rootCauseCandidates: ReadonlyArray<{
     readonly rank: number;
     readonly service: string;
@@ -1916,12 +1916,12 @@ const renderDomainsFromAdvanced = (advancedMetrics: AdvancedMetrics): string => 
 };
 
 interface RenderOptions {
-  readonly showMetrics: boolean;
-  readonly showDomains: boolean;
   readonly showAdvanced: boolean;
+  readonly showCommands: boolean;
+  readonly showDomains: boolean;
+  readonly showMetrics: boolean;
   readonly showWarnings: boolean;
   readonly showWorkflows: boolean;
-  readonly showCommands: boolean;
 }
 
 export const formatAgentWithHints = (graph: ArchitectureGraph, options: RenderOptions): string => {
@@ -2089,10 +2089,10 @@ export const formatAgent = (graph: ArchitectureGraph): string => {
 };
 
 interface ServiceWithIndex {
-  readonly service: ServiceDefinition;
-  readonly layer: LayerDefinition | undefined;
-  readonly index: Graph.NodeIndex;
   readonly depCount: number;
+  readonly index: Graph.NodeIndex;
+  readonly layer: LayerDefinition | undefined;
+  readonly service: ServiceDefinition;
 }
 
 const orderServicesByDependencyCount = (

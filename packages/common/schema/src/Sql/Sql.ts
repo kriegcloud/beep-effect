@@ -6,6 +6,9 @@ import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Sql/Sql");
 
+/**
+ * @since 0.0.0
+ */
 export const Dialect = LiteralKit([
   "pg",
   "mysql",
@@ -21,8 +24,14 @@ export const Dialect = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type Dialect = typeof Dialect.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataType = LiteralKit([
   "array",
   "bigint",
@@ -37,8 +46,14 @@ export const ColumnDataType = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataType = typeof ColumnDataType.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataArrayConstraint = LiteralKit([
   "vector",
   "int64vector",
@@ -53,16 +68,28 @@ export const ColumnDataArrayConstraint = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataArrayConstraint = typeof ColumnDataArrayConstraint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataBigIntConstraint = LiteralKit(["int64", "uint64"]).annotate(
   $I.annote("ColumnDataBigIntConstraint", {
     description: "BigInt constraints supported by SQL columns",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataBigIntConstraint = typeof ColumnDataBigIntConstraint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataNumberConstraint = LiteralKit([
   "double",
   "float",
@@ -86,8 +113,14 @@ export const ColumnDataNumberConstraint = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataNumberConstraint = typeof ColumnDataNumberConstraint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataObjectConstraint = LiteralKit([
   "buffer",
   "date",
@@ -108,8 +141,14 @@ export const ColumnDataObjectConstraint = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataObjectConstraint = typeof ColumnDataObjectConstraint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataStringConstraint = LiteralKit([
   "binary",
   "cidr",
@@ -134,8 +173,14 @@ export const ColumnDataStringConstraint = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataStringConstraint = typeof ColumnDataStringConstraint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnDataConstraint = LiteralKit([
   ...ColumnDataArrayConstraint.Options,
   ...ColumnDataBigIntConstraint.Options,
@@ -148,6 +193,9 @@ export const ColumnDataConstraint = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnDataConstraint = typeof ColumnDataConstraint.Type;
 
 // const
@@ -159,6 +207,9 @@ const prefixTypeMap = {
   string: Str.mapPrefix("string " as const),
 };
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnType = LiteralKit([
   ...ColumnDataType.Options,
   ...prefixTypeMap.array(ColumnDataArrayConstraint.Options),
@@ -172,16 +223,28 @@ export const ColumnType = LiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnType = typeof ColumnType.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const UpdateDeleteAction = LiteralKit(["cascade", "restrict", "no action", "set null", "set default"]).annotate(
   $I.annote("UpdateDeleteAction", {
     description: "All actions supported by SQL update and delete operations",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type UpdateDeleteAction = typeof UpdateDeleteAction.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const DimensionStringFromNumber = MappedLiteralKit([
   [0, "[]"],
   [1, "[][]"],
@@ -195,85 +258,157 @@ export const DimensionStringFromNumber = MappedLiteralKit([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export declare namespace DimensionStringFromNumber {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof DimensionStringFromNumber.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = keyof typeof DimensionStringFromNumber.Encoded;
 }
 
+/**
+ * @since 0.0.0
+ */
 export const ArrayDimension = LiteralKit(DimensionStringFromNumber.From.Options).annotate(
   $I.annote("ArrayDimension", {
     description: "All array dimensions supported by SQL columns",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ArrayDimension = typeof ArrayDimension.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ArrayDimensionString = LiteralKit(DimensionStringFromNumber.To.Options).annotate(
   $I.annote("ArrayDimensionString", {
     description: "All array dimensions supported by SQL columns as string",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ArrayDimensionString = typeof ArrayDimensionString.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PolicyConfigAs = LiteralKit(["permissive", "restrictive"]).annotate(
   $I.annote("PolicyConfigAs", {
     description: "All policy configuration options supported by SQL columns",
   })
 );
+/**
+ * @since 0.0.0
+ */
 export type PolicyConfigAs = typeof PolicyConfigAs.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PolicyConfigFor = LiteralKit(["all", "select", "insert", "update", "delete"]).annotate(
   $I.annote("PolicyConfigFor", {
     description: "All policy configuration options supported by SQL columns",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PolicyConfigFor = typeof PolicyConfigFor.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const Casing = LiteralKit(["snake_case", "camelCase"]).annotate(
   $I.annote("Casing", {
     description: "Casing configuration for sql",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type Casing = typeof Casing.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const RelationType = LiteralKit(["many", "one"]).annotate(
   $I.annote("RelationType", {
     description: "All relation types supported by SQL columns",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type RelationType = typeof RelationType.Type;
 
+/**
+ * @since 0.0.0
+ */
 export declare namespace ColumnDataType {
+  /**
+   * @since 0.0.0
+   */
   export type Enum = typeof ColumnDataType.Enum;
+  /**
+   * @since 0.0.0
+   */
   export type Map = {
     readonly [K in keyof Enum]: Enum[K];
   };
+  /**
+   * @since 0.0.0
+   */
   export type NarrowTo<T extends ColumnDataType> = Enum[T];
+  /**
+   * @since 0.0.0
+   */
   export type SchemaMember<TType extends ColumnDataType, TConstraint extends ColumnDataConstraint> = S.Struct<{
     type: S.tag<TType>;
     constraint: S.tag<TConstraint>;
   }>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export interface ColumnTypeData<
   TType extends ColumnDataType = ColumnDataType,
   TConstraint extends ColumnDataConstraint | undefined = ColumnDataConstraint | undefined,
 > {
-  type: TType;
   constraint: TConstraint;
+  type: TType;
 }
 
+/**
+ * @since 0.0.0
+ */
 export type Assume<T, U> = T extends U ? T : U;
 
+/**
+ * @since 0.0.0
+ */
 export type ExtractColumnTypeData<T extends ColumnType> =
   T extends `${infer Type extends ColumnDataType} ${infer Constraint extends ColumnDataConstraint}`
     ? ColumnTypeData<Type, Constraint>
     : ColumnTypeData<Assume<T, ColumnDataType>, undefined>;
 
+/**
+ * @since 0.0.0
+ */
 export const ArrayColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.array,
   " ",
@@ -284,11 +419,23 @@ export const ArrayColumnTypeDataConstraint = S.TemplateLiteralParser([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export declare namespace ArrayColumnTypeDataConstraint {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof ArrayColumnTypeDataConstraint.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof ArrayColumnTypeDataConstraint.Encoded;
 }
 
+/**
+ * @since 0.0.0
+ */
 export const BigIntColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.bigint,
   " ",
@@ -299,11 +446,23 @@ export const BigIntColumnTypeDataConstraint = S.TemplateLiteralParser([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export declare namespace BigIntColumnTypeDataConstraint {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof BigIntColumnTypeDataConstraint.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof BigIntColumnTypeDataConstraint.Encoded;
 }
 
+/**
+ * @since 0.0.0
+ */
 export const NumberColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.number,
   " ",
@@ -313,11 +472,23 @@ export const NumberColumnTypeDataConstraint = S.TemplateLiteralParser([
     description: "Constraint for column data of type number",
   })
 );
+/**
+ * @since 0.0.0
+ */
 export declare namespace NumberColumnTypeDataConstraint {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof NumberColumnTypeDataConstraint.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof NumberColumnTypeDataConstraint.Encoded;
 }
 
+/**
+ * @since 0.0.0
+ */
 export const ObjectColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.object,
   " ",
@@ -327,10 +498,22 @@ export const ObjectColumnTypeDataConstraint = S.TemplateLiteralParser([
     description: "Constraint for column data of type object",
   })
 );
+/**
+ * @since 0.0.0
+ */
 export declare namespace ObjectColumnTypeDataConstraint {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof ObjectColumnTypeDataConstraint.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof ObjectColumnTypeDataConstraint.Encoded;
 }
+/**
+ * @since 0.0.0
+ */
 export const StringColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.string,
   " ",
@@ -340,7 +523,16 @@ export const StringColumnTypeDataConstraint = S.TemplateLiteralParser([
     description: "Constraint for column data of type string",
   })
 );
+/**
+ * @since 0.0.0
+ */
 export declare namespace StringColumnTypeDataConstraint {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof StringColumnTypeDataConstraint.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof StringColumnTypeDataConstraint.Encoded;
 }

@@ -416,6 +416,8 @@ const makeSessionPool = (options: SessionPoolOptions) =>
  * @since 0.0.0
  */
 export interface SessionPoolShape {
+  readonly close: (sessionId: string, tenant?: string) => Effect.Effect<void, SessionError | SessionPoolError>;
+  readonly closeAll: Effect.Effect<void, SessionError>;
   readonly create: (
     overrides?: Partial<SDKSessionOptions>,
     tenant?: string
@@ -426,15 +428,13 @@ export interface SessionPoolShape {
     tenant?: string
   ) => Effect.Effect<SessionHandle, SessionManagerError | SessionPoolError>;
   readonly info: (sessionId: string, tenant?: string) => Effect.Effect<SessionInfo, SessionPoolError>;
+  readonly list: Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
+  readonly listByTenant: (tenant?: string) => Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
   readonly withSession: <A, E, R>(
     sessionId: string,
     use: (handle: SessionHandle) => Effect.Effect<A, E, R>,
     tenant?: string
   ) => Effect.Effect<A, E | SessionManagerError | SessionPoolError, R>;
-  readonly list: Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
-  readonly listByTenant: (tenant?: string) => Effect.Effect<ReadonlyArray<SessionInfo>, SessionPoolError>;
-  readonly close: (sessionId: string, tenant?: string) => Effect.Effect<void, SessionError | SessionPoolError>;
-  readonly closeAll: Effect.Effect<void, SessionError>;
 }
 
 /**

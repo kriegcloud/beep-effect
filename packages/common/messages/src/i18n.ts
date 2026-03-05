@@ -44,8 +44,8 @@ export const t = i18next.t;
  * @category DomainModel
  */
 export interface GetLogIssuesOptions {
-  readonly leafHook?: undefined | SchemaIssue.LeafHook;
   readonly checkHook?: undefined | SchemaIssue.CheckHook;
+  readonly leafHook?: undefined | SchemaIssue.LeafHook;
 }
 
 /**

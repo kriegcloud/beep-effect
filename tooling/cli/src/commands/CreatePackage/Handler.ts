@@ -409,7 +409,7 @@ export const createPackageCommand = Command.make(
           ),
           identity
         ),
-        symlinks: A.make(new PlannedSymlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
+        symlinks: A.of(new PlannedSymlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
       })
     );
 

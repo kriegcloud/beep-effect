@@ -64,12 +64,21 @@
   "assist": {
     "actions": {
       "source": {
+        "useSortedInterfaceMembers": "on",
+        "useSortedKeys": {
+          "options": {
+            "sortOrder": "natural"
+          }
+        },
         "organizeImports": "on"
       }
     }
   },
   "linter": {
     "enabled": true,
+    "domains": {
+      "turborepo": "recommended"
+    },
     "rules": {
       "security": {
         "noDangerouslySetInnerHtml": "warn",

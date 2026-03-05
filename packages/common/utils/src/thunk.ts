@@ -110,8 +110,7 @@ export const thunkEffectVoid = thunkEffect(Effect.void);
  *
  * @since 0.0.0
  */
-export const thunkEffectSucceed = <A>(a: A): LazyArg<Effect.Effect<unknown, never, A>> =>
-  thunkEffect(Effect.succeed(a));
+export const thunkEffectSucceed = <A>(a: A): (() => Effect.Effect<A>) => thunkEffect(Effect.succeed(a));
 
 /**
  * Returns a thunk that yields an empty record.
@@ -120,16 +119,59 @@ export const thunkEffectSucceed = <A>(a: A): LazyArg<Effect.Effect<unknown, neve
  */
 export const thunkEmptyRecord = <K extends string | symbol = never, V = never>() => R.empty<K, V>();
 
+/**
+ * Returns a thunk that yields `Option.some(value)`.
+ *
+ * @since 0.0.0
+ */
 export const thunkSome =
   <A>(value: A): (() => O.Option<A>) =>
   () =>
     O.some(value);
 
+/**
+ * Returns a thunk yielding `Option.some("")`.
+ *
+ * @since 0.0.0
+ */
 export const thunkSomeEmptyStr = thunkSome("");
 
+/**
+ * Returns a thunk yielding `-1`.
+ *
+ * @since 0.0.0
+ */
 export const thunkNegative1 = thunk(-1);
 
+/**
+ * Returns a thunk yielding `Option.some(false)`.
+ *
+ * @since 0.0.0
+ */
 export const thunkSomeFalse = thunkSome(false);
+/**
+ * Returns a thunk yielding `Option.some(true)`.
+ *
+ * @since 0.0.0
+ */
 export const thunkSomeTrue = thunkSome(true);
 
+/**
+ * Returns a thunk yielding `Option.some([])`.
+ *
+ * @since 0.0.0
+ */
 export const thunkSomeEmptyArray = <A = never>() => O.some(A.empty<A>());
+/**
+ * Returns a thunk yielding `Option.some({})`.
+ *
+ * @since 0.0.0
+ */
+export const thunkSomeEmptyRecord = <K extends string | symbol = never, V = never>() => O.some(R.empty<K, V>());
+
+/**
+ * Returns a thunk yielding `Option.some(Option.none())`.
+ *
+ * @since 0.0.0
+ */
+export const thunkSomeNone = <A>(): O.Option<O.Option<A>> => O.some(O.none<A>());

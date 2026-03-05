@@ -21,10 +21,10 @@ import { Command, Flag } from "effect/unstable/cli";
  * Module context metadata
  */
 interface ModuleContext {
-  readonly path: string;
-  readonly summary: string;
   readonly content: string;
+  readonly path: string;
   readonly source: ModuleSource;
+  readonly summary: string;
 }
 
 /**

@@ -55,15 +55,15 @@ type ArtifactState = {
  * @since 0.0.0
  */
 export interface ArtifactStoreService {
-  readonly put: (record: ArtifactRecord) => Effect.Effect<void, StorageError>;
+  readonly cleanup?: () => Effect.Effect<void, StorageError>;
+  readonly delete: (id: string) => Effect.Effect<void, StorageError>;
   readonly get: (id: string) => Effect.Effect<O.Option<ArtifactRecord>, StorageError>;
   readonly list: (
     sessionId: string,
     options?: ArtifactListOptions
   ) => Effect.Effect<ReadonlyArray<ArtifactRecord>, StorageError>;
-  readonly delete: (id: string) => Effect.Effect<void, StorageError>;
   readonly purgeSession: (sessionId: string) => Effect.Effect<void, StorageError>;
-  readonly cleanup?: () => Effect.Effect<void, StorageError>;
+  readonly put: (record: ArtifactRecord) => Effect.Effect<void, StorageError>;
 }
 
 const emptyState: ArtifactState = {
