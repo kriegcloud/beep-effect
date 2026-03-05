@@ -85,11 +85,7 @@ export const NormalizedBooleanString = S.String.pipe(
     S.Boolean,
     SchemaTransformation.transform({
       decode: normalizeBooleanString,
-      encode: (value) =>
-        Bool.match(value, {
-          onTrue: () => "true",
-          onFalse: () => "false",
-        }),
+      encode: String,
     })
   ),
   S.annotate(
