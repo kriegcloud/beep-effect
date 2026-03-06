@@ -8,12 +8,13 @@
  * @since 0.0.0
  * @module
  */
-import { Effect } from "effect";
+
+import { $RepoUtilsId } from "@beep/identity";
 import type { Exit } from "effect";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
-import { $RepoUtilsId } from "@beep/identity";
 
 const $I = $RepoUtilsId.create("schemas/PackageJson");
 
@@ -119,7 +120,8 @@ export const Person = S.Union([
 ]).annotate(
   $I.annote("Person", {
     title: "Person",
-    description: "A package author, contributor, or maintainer, either as a string or a structured object with a required name.",
+    description:
+      "A package author, contributor, or maintainer, either as a string or a structured object with a required name.",
   })
 );
 
@@ -178,7 +180,8 @@ export const Repository = S.Union([
 ]).annotate(
   $I.annote("Repository", {
     title: "Repository",
-    description: "A package repository reference represented as a shorthand string or a structured object with required type and url.",
+    description:
+      "A package repository reference represented as a shorthand string or a structured object with required type and url.",
   })
 );
 
@@ -197,7 +200,8 @@ export const Bugs = S.Union([
 ]).annotate(
   $I.annote("Bugs", {
     title: "Bugs",
-    description: "A package bug tracker reference represented as a URL string or a structured object with optional url and email.",
+    description:
+      "A package bug tracker reference represented as a URL string or a structured object with optional url and email.",
   })
 );
 
@@ -225,7 +229,8 @@ export const Funding = S.Union([
 ]).annotate(
   $I.annote("Funding", {
     title: "Funding",
-    description: "Package funding metadata represented as a URL string, a structured funding object, or a non-empty array of those.",
+    description:
+      "Package funding metadata represented as a URL string, a structured funding object, or a non-empty array of those.",
   })
 );
 
@@ -251,7 +256,8 @@ export const Bin = S.Union([S.String, StringRecord]).annotate(
 export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).annotate(
   $I.annote("Browser", {
     title: "Browser",
-    description: "Browser-specific entry points represented as a replacement path string or a record of module replacements.",
+    description:
+      "Browser-specific entry points represented as a replacement path string or a record of module replacements.",
   })
 );
 
@@ -361,14 +367,16 @@ export const DevEngineDependency = S.Struct({
 }).annotate(
   $I.annote("DevEngineDependency", {
     title: "Dev Engine Dependency",
-    description: "A development environment requirement such as a runtime, package manager, CPU, OS, or libc constraint.",
+    description:
+      "A development environment requirement such as a runtime, package manager, CPU, OS, or libc constraint.",
   })
 );
 
 const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDependency)]).annotate(
   $I.annote("DevEngineRequirement", {
     title: "Dev Engine Requirement",
-    description: "A development environment requirement represented as a single dependency entry or an array of dependency entries.",
+    description:
+      "A development environment requirement represented as a single dependency entry or an array of dependency entries.",
   })
 );
 
@@ -407,12 +415,11 @@ const PackageExportsEntryObject: S.Codec<
   { readonly [key: string]: PackageExportsEntryOrFallback },
   never,
   never
-> = S.suspend(() =>
-  S.Record(ExportConditionKey, PackageExportsEntryOrFallback)
-).annotate(
+> = S.suspend(() => S.Record(ExportConditionKey, PackageExportsEntryOrFallback)).annotate(
   $I.annote("PackageExportsEntryObject", {
     title: "Package Exports Entry Object",
-    description: "A conditional exports object keyed by conditions such as import, require, default, or types@ selectors.",
+    description:
+      "A conditional exports object keyed by conditions such as import, require, default, or types@ selectors.",
   })
 );
 
@@ -437,9 +444,7 @@ const PackageExportsEntryOrFallback: S.Codec<
   PackageExportsEntryOrFallback,
   never,
   never
-> = S.suspend(() =>
-  S.Union([PackageExportsEntry, PackageExportsFallback])
-).annotate(
+> = S.suspend(() => S.Union([PackageExportsEntry, PackageExportsFallback])).annotate(
   $I.annote("PackageExportsEntryOrFallback", {
     title: "Package Exports Entry Or Fallback",
     description: "An exports target represented as a single entry or a non-empty fallback array of entries.",
@@ -467,7 +472,8 @@ export const PackageExports = S.Union([
 ]).annotate(
   $I.annote("PackageExports", {
     title: "Package Exports",
-    description: "The package exports field modeled as a path target, conditional exports object, subpath map, or fallback array.",
+    description:
+      "The package exports field modeled as a path target, conditional exports object, subpath map, or fallback array.",
   })
 );
 
@@ -487,12 +493,11 @@ const PackageImportsEntryObject: S.Codec<
   { readonly [key: string]: PackageImportsEntryOrFallback },
   never,
   never
-> = S.suspend(() =>
-  S.Record(ExportConditionKey, PackageImportsEntryOrFallback)
-).annotate(
+> = S.suspend(() => S.Record(ExportConditionKey, PackageImportsEntryOrFallback)).annotate(
   $I.annote("PackageImportsEntryObject", {
     title: "Package Imports Entry Object",
-    description: "A conditional imports object keyed by conditions such as import, require, default, or types@ selectors.",
+    description:
+      "A conditional imports object keyed by conditions such as import, require, default, or types@ selectors.",
   })
 );
 
@@ -517,9 +522,7 @@ const PackageImportsEntryOrFallback: S.Codec<
   PackageImportsEntryOrFallback,
   never,
   never
-> = S.suspend(() =>
-  S.Union([PackageImportsEntry, PackageImportsFallback])
-).annotate(
+> = S.suspend(() => S.Union([PackageImportsEntry, PackageImportsFallback])).annotate(
   $I.annote("PackageImportsEntryOrFallback", {
     title: "Package Imports Entry Or Fallback",
     description: "An imports target represented as a single entry or a non-empty fallback array of entries.",
@@ -569,7 +572,8 @@ const WorkspacesObject = S.Struct({
 export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
   $I.annote("Workspaces", {
     title: "Workspaces",
-    description: "Workspace package globs represented as an array of strings or an object with packages and optional nohoist.",
+    description:
+      "Workspace package globs represented as an array of strings or an object with packages and optional nohoist.",
   })
 );
 
@@ -659,8 +663,6 @@ const packageJsonFields = {
 
 const PackageJsonShape = S.Struct(packageJsonFields);
 
-
-
 /**
  * Type-safe schema for npm package.json files.
  *
@@ -693,36 +695,121 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
   })
 ) {}
 
+/**
+ * Namespace helpers for the strict npm package-json schema.
+ *
+ * @since 0.0.0
+ */
 export declare namespace NpmPackageJson {
+  /**
+   * @since 0.0.0
+   */
   export type Type = S.Schema.Type<typeof NpmPackageJson>;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = S.Codec.Encoded<typeof NpmPackageJson>;
 }
 
+/**
+ * Namespace helpers for the repo-aware package-json schema.
+ *
+ * @since 0.0.0
+ */
 export declare namespace PackageJson {
+  /**
+   * @since 0.0.0
+   */
   export type Type = S.Schema.Type<typeof PackageJson>;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = S.Codec.Encoded<typeof PackageJson>;
 }
 
+/**
+ * @since 0.0.0
+ */
 export type Person = (typeof Person)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Author = (typeof Author)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Contributors = (typeof Contributors)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Maintainers = (typeof Maintainers)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Repository = (typeof Repository)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Bugs = (typeof Bugs)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Funding = (typeof Funding)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Bin = (typeof Bin)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Browser = (typeof Browser)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Directories = (typeof Directories)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Man = (typeof Man)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type SideEffects = (typeof SideEffects)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type BundleDependencies = (typeof BundleDependencies)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type PeerDependenciesMeta = (typeof PeerDependenciesMeta)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type TypesVersions = (typeof TypesVersions)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type DevEngineDependency = (typeof DevEngineDependency)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type DevEngines = (typeof DevEngines)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type PackageExports = (typeof PackageExports)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type PackageImports = (typeof PackageImports)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type Workspaces = (typeof Workspaces)["Type"];
+/**
+ * @since 0.0.0
+ */
 export type PublishConfig = (typeof PublishConfig)["Type"];
 
 const decodePackageJsonUnknownSync = S.decodeUnknownSync(PackageJson);
@@ -735,6 +822,7 @@ const encodePackageJsonJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString
  * Synchronously decode an unknown value into a strict `PackageJson`.
  * Throws a `SchemaError` if validation fails.
  *
+ * @param input
  * @since 0.0.0
  * @category Validation
  */
@@ -745,6 +833,7 @@ export const decodePackageJson = (input: unknown): PackageJson.Type =>
  * Synchronously decode an unknown value into a strict `PackageJson`,
  * returning an `Exit` instead of throwing.
  *
+ * @param input
  * @since 0.0.0
  * @category Validation
  */
@@ -754,13 +843,13 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
 /**
  * Decode an unknown value into a strict `PackageJson` as an Effect.
  *
+ * @param input
  * @since 0.0.0
  * @category Validation
  */
 export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError, never> = (
   input
-) =>
-  decodePackageJsonUnknownEffect(input, strictDecodeOptions);
+) => decodePackageJsonUnknownEffect(input, strictDecodeOptions);
 
 /**
  * Encode a strict `PackageJson` value back to its encoded form as an Effect.

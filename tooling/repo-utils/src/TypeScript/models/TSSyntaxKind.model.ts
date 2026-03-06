@@ -424,6 +424,12 @@ const toNameOptions = <
 
 const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
 
+/**
+ * Lookup table from canonical SyntaxKind names to their numeric codes.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const TSSyntaxKindCode = Object.freeze(Object.fromEntries(TSSyntaxKindEntries)) as {
   readonly [K in TSSyntaxKindEntries[number][0]]: Extract<TSSyntaxKindEntries[number], readonly [K, number]>[1];
 };

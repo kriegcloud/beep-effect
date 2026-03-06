@@ -3,7 +3,6 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-
 type DestructiveTransform<Self extends S.Top, B> = S.decodeTo<
   S.Schema<Readonly<B>>,
   S.Unknown,
@@ -53,9 +52,12 @@ export const destructiveTransform: {
                 })
               )
             ),
-          encode: (decoded) => Effect.fail(new SchemaIssue.Forbidden(O.some(decoded), {
-              message: "Transformation result is forbidden",
-            })),
+          encode: (decoded) =>
+            Effect.fail(
+              new SchemaIssue.Forbidden(O.some(decoded), {
+                message: "Transformation result is forbidden",
+              })
+            ),
         })
       )
     );

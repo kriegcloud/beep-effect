@@ -9,7 +9,7 @@ import {
 } from "@beep/schema";
 import { Effect, SchemaGetter, Tuple } from "effect";
 import * as S from "effect/Schema";
-import { Node as TsMorphNode, Project, SourceFile } from "ts-morph";
+import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
 import { TSSyntaxKind } from "../TypeScript/models/TSSyntaxKind.model.ts";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.model");
@@ -99,6 +99,9 @@ const symbolKindOptions = TSSyntaxKind.pickOptions([
   "EnumDeclaration",
 ] as const);
 
+/**
+ * @since 0.0.0
+ */
 export const RepoRootPath = FilePath.pipe(
   S.brand("RepoRootPath"),
   S.annotate(
@@ -108,8 +111,14 @@ export const RepoRootPath = FilePath.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type RepoRootPath = typeof RepoRootPath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const WorkspaceDirectoryPath = FilePath.pipe(
   S.brand("WorkspaceDirectoryPath"),
   S.annotate(
@@ -119,8 +128,14 @@ export const WorkspaceDirectoryPath = FilePath.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
   S.brand("TsConfigFilePath"),
   S.annotate(
@@ -130,8 +145,14 @@ export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TsConfigFilePath = typeof TsConfigFilePath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImplementationFilePathChecks).pipe(
   S.brand("TypeScriptImplementationFilePath"),
   S.annotate(
@@ -141,8 +162,14 @@ export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImpleme
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFilePath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclarationFilePathChecks).pipe(
   S.brand("TypeScriptDeclarationFilePath"),
   S.annotate(
@@ -152,12 +179,15 @@ export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclaratio
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath.Type;
 
-export const TypeScriptFilePath = S.Union([
-  TypeScriptImplementationFilePath,
-  TypeScriptDeclarationFilePath,
-]).pipe(
+/**
+ * @since 0.0.0
+ */
+export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, TypeScriptDeclarationFilePath]).pipe(
   S.annotate(
     $I.annote("TypeScriptFilePath", {
       description: "A TypeScript source file path covering implementation and declaration files.",
@@ -165,8 +195,14 @@ export const TypeScriptFilePath = S.Union([
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSafePathChecks).pipe(
   S.brand("SymbolFilePath"),
   S.annotate(
@@ -176,8 +212,14 @@ export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSaf
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolFilePath = typeof SymbolFilePath.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_PATTERN)).pipe(
   S.brand("SymbolNameSegment"),
   S.annotate(
@@ -187,8 +229,14 @@ export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolNameSegment = typeof SymbolNameSegment.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_NAME_PATTERN)).pipe(
   S.brand("SymbolQualifiedName"),
   S.annotate(
@@ -198,16 +246,34 @@ export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_N
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolQualifiedName = typeof SymbolQualifiedName.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolKind = LiteralKit(symbolKindOptions);
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolKind = typeof SymbolKind.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolCategory = LiteralKit(["function", "class", "member", "type"] as const);
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolCategory = typeof SymbolCategory.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const symbolCategoryFromKind = SymbolKind.$match({
   FunctionDeclaration: SymbolCategory.thunk.function,
   ClassDeclaration: SymbolCategory.thunk.class,
@@ -220,14 +286,16 @@ export const symbolCategoryFromKind = SymbolKind.$match({
   EnumDeclaration: SymbolCategory.thunk.type,
 });
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolKindToCategory = SymbolKind.pipe(
-  S.decodeTo(
-    SymbolCategory,
-    {
-      decode: SchemaGetter.transform(symbolCategoryFromKind),
-      encode: SchemaGetter.forbidden(() => "Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."),
-    }
-  ),
+  S.decodeTo(SymbolCategory, {
+    decode: SchemaGetter.transform(symbolCategoryFromKind),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."
+    ),
+  }),
   S.annotate(
     $I.annote("SymbolKindToCategory", {
       description: "One-way schema transformation from exact TypeScript declaration kind to coarse symbol category.",
@@ -235,8 +303,14 @@ export const SymbolKindToCategory = SymbolKind.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SourceText = S.NonEmptyString.pipe(
   S.brand("SourceText"),
   S.annotate(
@@ -246,8 +320,14 @@ export const SourceText = S.NonEmptyString.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SourceText = typeof SourceText.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
   S.brand("LineNumber"),
   S.annotate(
@@ -257,8 +337,14 @@ export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type LineNumber = typeof LineNumber.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
   S.brand("ColumnNumber"),
   S.annotate(
@@ -268,8 +354,14 @@ export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ColumnNumber = typeof ColumnNumber.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ByteOffset = NonNegativeInt.pipe(
   S.brand("ByteOffset"),
   S.annotate(
@@ -279,8 +371,14 @@ export const ByteOffset = NonNegativeInt.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ByteOffset = typeof ByteOffset.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ByteLength = NonNegativeInt.pipe(
   S.brand("ByteLength"),
   S.annotate(
@@ -290,8 +388,14 @@ export const ByteLength = NonNegativeInt.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ByteLength = typeof ByteLength.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ContentHash = Sha256Hex.pipe(
   S.brand("ContentHash"),
   S.annotate(
@@ -301,14 +405,29 @@ export const ContentHash = Sha256Hex.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ContentHash = typeof ContentHash.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"] as const);
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphReferencePolicy = typeof TsMorphReferencePolicy.Type;
 
 const resolvedProjectIdentity = S.TemplateLiteral([
@@ -319,6 +438,9 @@ const resolvedProjectIdentity = S.TemplateLiteral([
   TsMorphReferencePolicy,
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const ProjectScopeId = resolvedProjectIdentity.pipe(
   S.brand("ProjectScopeId"),
   S.annotate(
@@ -328,8 +450,14 @@ export const ProjectScopeId = resolvedProjectIdentity.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ProjectScopeId = typeof ProjectScopeId.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ProjectScopeIdParts = S.TemplateLiteralParser([
   TsConfigFilePath,
   "::",
@@ -342,6 +470,9 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export const ProjectCacheKey = resolvedProjectIdentity.pipe(
   S.brand("ProjectCacheKey"),
   S.annotate(
@@ -351,8 +482,14 @@ export const ProjectCacheKey = resolvedProjectIdentity.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ProjectCacheKey = typeof ProjectCacheKey.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).pipe(
   S.brand("SymbolId"),
   S.annotate(
@@ -362,14 +499,29 @@ export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualified
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolId = typeof SymbolId.Type;
 
-export const SymbolIdParts = S.TemplateLiteralParser([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).annotate(
+/**
+ * @since 0.0.0
+ */
+export const SymbolIdParts = S.TemplateLiteralParser([
+  SymbolFilePath,
+  "::",
+  SymbolQualifiedName,
+  "#",
+  SymbolKind,
+]).annotate(
   $I.annote("SymbolIdParts", {
     description: "Parsed symbol id parts for file path, qualified name, and exact kind.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export const FilePathToTsConfigFilePath = FilePath.pipe(
   S.decodeTo(TsConfigFilePath, {
     decode: SchemaGetter.passthrough({ strict: false }),
@@ -382,6 +534,9 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
   S.decodeTo(TypeScriptImplementationFilePath, {
     decode: SchemaGetter.passthrough({ strict: false }),
@@ -394,6 +549,9 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
   S.decodeTo(TypeScriptDeclarationFilePath, {
     decode: SchemaGetter.passthrough({ strict: false }),
@@ -406,6 +564,11 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
   )
 );
 
+/**
+ * Schema transformation from a generic file path to a TypeScript source file path.
+ *
+ * @since 0.0.0
+ */
 export const FilePathToTypeScriptFilePath = FilePath.pipe(
   S.decodeTo(TypeScriptFilePath, {
     decode: SchemaGetter.passthrough({ strict: false }),
@@ -418,6 +581,11 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(
   )
 );
 
+/**
+ * Schema transformation from a TypeScript implementation file path to a symbol-safe file path.
+ *
+ * @since 0.0.0
+ */
 export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplementationFilePath.pipe(
   S.decodeTo(SymbolFilePath, {
     decode: SchemaGetter.passthrough({ strict: false }),
@@ -435,19 +603,23 @@ const decodeProjectScopeId = S.decodeUnknownSync(ProjectScopeId);
 const decodeContentHash = S.decodeUnknownSync(ContentHash);
 const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes);
 
+/**
+ * Effectful one-way schema transformation from source bytes to a canonical content hash.
+ *
+ * @since 0.0.0
+ */
 export const ContentHashFromBytes = S.Uint8Array.pipe(
-  S.decodeTo(
-    ContentHash,
-    {
-      decode: SchemaGetter.transformOrFail((value) =>
-        decodeSha256HexFromBytesEffect(value).pipe(
-          Effect.mapError((error) => error.issue),
-          Effect.map(decodeContentHash)
-        )
-      ),
-      encode: SchemaGetter.forbidden(() => "Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."),
-    }
-  ),
+  S.decodeTo(ContentHash, {
+    decode: SchemaGetter.transformOrFail((value) =>
+      decodeSha256HexFromBytesEffect(value).pipe(
+        Effect.mapError((error) => error.issue),
+        Effect.map(decodeContentHash)
+      )
+    ),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."
+    ),
+  }),
   S.annotate(
     $I.annote("ContentHashFromBytes", {
       description: "Effectful one-way schema transformation from source bytes to a canonical content hash.",
@@ -458,20 +630,20 @@ export const ContentHashFromBytes = S.Uint8Array.pipe(
 const textEncoder = new TextEncoder();
 const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBytes);
 
+/**
+ * Effectful one-way schema transformation from source text to a canonical content hash.
+ *
+ * @since 0.0.0
+ */
 export const ContentHashFromSourceText = SourceText.pipe(
-  S.decodeTo(
-    ContentHash,
-    {
-      decode: SchemaGetter.transformOrFail((value) =>
-        decodeContentHashFromBytesEffect(textEncoder.encode(value)).pipe(
-          Effect.mapError((error) => error.issue)
-        )
-      ),
-      encode: SchemaGetter.forbidden(
-        () => "Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."
-      ),
-    }
-  ),
+  S.decodeTo(ContentHash, {
+    decode: SchemaGetter.transformOrFail((value) =>
+      decodeContentHashFromBytesEffect(textEncoder.encode(value)).pipe(Effect.mapError((error) => error.issue))
+    ),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."
+    ),
+  }),
   S.annotate(
     $I.annote("ContentHashFromSourceText", {
       description: "Effectful one-way schema transformation from source text to a canonical content hash.",
@@ -482,6 +654,8 @@ export const ContentHashFromSourceText = SourceText.pipe(
 /**
  * Internal runtime schemas.
  * These are intentionally not re-exported from the package entrypoint.
+ *
+ * @since 0.0.0
  */
 export const InternalTsMorphProject = S.instanceOf(Project).pipe(
   S.annotate(
@@ -491,7 +665,14 @@ export const InternalTsMorphProject = S.instanceOf(Project).pipe(
   )
 );
 
-export const InternalTsMorphSourceFile = S.declare<SourceFile>((value): value is SourceFile => value instanceof SourceFile).pipe(
+/**
+ * Internal runtime schema for a live ts-morph SourceFile instance.
+ *
+ * @since 0.0.0
+ */
+export const InternalTsMorphSourceFile = S.declare<SourceFile>(
+  (value): value is SourceFile => value instanceof SourceFile
+).pipe(
   S.annotate(
     $I.annote("InternalTsMorphSourceFile", {
       description: "Internal runtime schema for a live ts-morph SourceFile instance.",
@@ -499,7 +680,14 @@ export const InternalTsMorphSourceFile = S.declare<SourceFile>((value): value is
   )
 );
 
-export const InternalTsMorphNode = S.declare<TsMorphNode>((value): value is TsMorphNode => value instanceof TsMorphNode).pipe(
+/**
+ * Internal runtime schema for a live ts-morph Node instance.
+ *
+ * @since 0.0.0
+ */
+export const InternalTsMorphNode = S.declare<TsMorphNode>(
+  (value): value is TsMorphNode => value instanceof TsMorphNode
+).pipe(
   S.annotate(
     $I.annote("InternalTsMorphNode", {
       description: "Internal runtime schema for a live ts-morph Node instance.",
@@ -507,6 +695,11 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>((value): value is TsMo
   )
 );
 
+/**
+ * TS-native symbol record with strict identity, kind, and source-location metadata.
+ *
+ * @since 0.0.0
+ */
 export class Symbol extends S.Class<Symbol>($I`Symbol`)(
   {
     id: SymbolId.annotateKey({
@@ -566,22 +759,42 @@ export class Symbol extends S.Class<Symbol>($I`Symbol`)(
   })
 ) {}
 
+/**
+ * Namespace helpers for normalized TSMorph symbols.
+ *
+ * @since 0.0.0
+ */
 export declare namespace Symbol {
+  /**
+   * @since 0.0.0
+   */
   export type Type = typeof Symbol.Type;
+  /**
+   * @since 0.0.0
+   */
   export type Encoded = typeof Symbol.Encoded;
 }
 
+/**
+ * @since 0.0.0
+ */
 export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
   readonly id?: SymbolId | undefined;
   readonly category?: SymbolCategory | undefined;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const makeSymbolId = (parts: {
   readonly filePath: SymbolFilePath;
   readonly qualifiedName: SymbolQualifiedName;
   readonly kind: SymbolKind;
 }): SymbolId => decodeSymbolId(`${parts.filePath}::${parts.qualifiedName}#${parts.kind}`);
 
+/**
+ * @since 0.0.0
+ */
 export const makeProjectScopeId = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
@@ -590,12 +803,18 @@ export const makeProjectScopeId = (parts: {
 
 const decodeProjectCacheKey = S.decodeUnknownSync(ProjectCacheKey);
 
+/**
+ * @since 0.0.0
+ */
 export const makeProjectCacheKey = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
   readonly referencePolicy: TsMorphReferencePolicy;
 }): ProjectCacheKey => decodeProjectCacheKey(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`);
 
+/**
+ * @since 0.0.0
+ */
 export const makeSymbol = (input: SymbolInit): Symbol =>
   new Symbol({
     ...input,
@@ -609,7 +828,9 @@ export const makeSymbol = (input: SymbolInit): Symbol =>
     category: input.category ?? symbolCategoryFromKind(input.kind),
   });
 
-class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsConfig>($I`TsMorphScopeEntrypointTsConfig`)(
+class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsConfig>(
+  $I`TsMorphScopeEntrypointTsConfig`
+)(
   {
     _tag: S.tag("tsconfig"),
     tsConfigPath: TsConfigFilePath,
@@ -629,10 +850,10 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
   })
 ) {}
 
-export const TsMorphScopeEntrypoint = S.Union([
-  TsMorphScopeEntrypointTsConfig,
-  TsMorphScopeEntrypointFile,
-])
+/**
+ * @since 0.0.0
+ */
+export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, TsMorphScopeEntrypointFile])
   .annotate(
     $I.annote("TsMorphScopeEntrypointBase", {
       description: "Tagged union describing how a ts-morph scope should be resolved.",
@@ -640,8 +861,14 @@ export const TsMorphScopeEntrypoint = S.Union([
   )
   .pipe(S.toTaggedUnion("_tag"));
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
   {
     entrypoint: TsMorphScopeEntrypoint,
@@ -654,6 +881,9 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorphProjectScope`)(
   {
     scopeId: ProjectScopeId,
@@ -669,6 +899,9 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>($I`TsMorphFileOutlineRequest`)(
   {
     scopeId: ProjectScopeId,
@@ -679,6 +912,9 @@ export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFileOutline`)(
   {
     scopeId: ProjectScopeId,
@@ -690,6 +926,9 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>($I`TsMorphSourceTextRequest`)(
   {
     filePath: TypeScriptFilePath,
@@ -699,6 +938,9 @@ export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I`TsMorphSourceTextResult`)(
   {
     filePath: TypeScriptFilePath,
@@ -710,6 +952,9 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>($I`TsMorphSymbolLookupRequest`)(
   {
     scopeId: ProjectScopeId,
@@ -720,6 +965,9 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>($I`TsMorphSymbolLookupResult`)(
   {
     scopeId: ProjectScopeId,
@@ -730,6 +978,9 @@ export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
   S.brand("TsMorphSearchLimit"),
   S.annotate(
@@ -739,8 +990,14 @@ export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>($I`TsMorphSymbolSearchRequest`)(
   {
     scopeId: ProjectScopeId,
@@ -754,6 +1011,9 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>($I`TsMorphSymbolSearchResult`)(
   {
     scopeId: ProjectScopeId,
@@ -767,6 +1027,9 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>($I`TsMorphSymbolSourceRequest`)(
   {
     scopeId: ProjectScopeId,
@@ -777,6 +1040,9 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>($I`TsMorphSymbolSourceResult`)(
   {
     scopeId: ProjectScopeId,
@@ -789,8 +1055,14 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"] as const);
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphDiagnosticCategory = typeof TsMorphDiagnosticCategory.Type;
 
 class TsMorphDiagnosticBase extends S.Class<TsMorphDiagnosticBase>($I`TsMorphDiagnosticBase`)(
@@ -817,7 +1089,9 @@ class TsMorphDiagnosticError extends TsMorphDiagnosticBase.extend<TsMorphDiagnos
   })
 ) {}
 
-class TsMorphDiagnosticWarning extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticWarning>($I`TsMorphDiagnosticWarning`)(
+class TsMorphDiagnosticWarning extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticWarning>(
+  $I`TsMorphDiagnosticWarning`
+)(
   {
     category: S.tag("warning"),
   },
@@ -837,7 +1111,9 @@ class TsMorphDiagnosticSuggestion extends TsMorphDiagnosticBase.extend<TsMorphDi
   })
 ) {}
 
-class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticMessage>($I`TsMorphDiagnosticMessage`)(
+class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticMessage>(
+  $I`TsMorphDiagnosticMessage`
+)(
   {
     category: S.tag("message"),
   },
@@ -846,6 +1122,9 @@ class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagn
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
   Tuple.evolve([
     () => TsMorphDiagnosticError,
@@ -861,8 +1140,14 @@ export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
   )
   .pipe(S.toTaggedUnion("category"));
 
+/**
+ * @since 0.0.0
+ */
 export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
   {
     scopeId: ProjectScopeId,
@@ -873,6 +1158,9 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>($I`TsMorphDiagnosticsResult`)(
   {
     scopeId: ProjectScopeId,

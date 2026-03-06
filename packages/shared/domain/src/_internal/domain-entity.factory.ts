@@ -3,6 +3,11 @@
 import type { TString } from "@beep/types";
 import type { EntityId } from "../entity-ids/internal/index.js";
 
+/**
+ * Temporary domain-entity constructor helper.
+ *
+ * @since 0.0.0
+ */
 export const make = <
   const TTag extends TString.NonEmpty,
   const TTableName extends TString.NonEmpty,

@@ -8,11 +8,14 @@
  * @module
  */
 import { Effect, HashMap } from "effect";
-import * as A from "effect/Array";
-import type * as O from "effect/Option";
+import * as O from "effect/Option";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
-import { decodePackageJsonEffect, type PackageJson } from "./schemas/PackageJson.js";
+import {
+  decodePackageJsonEffect,
+  type PackageJson,
+  type Workspaces as PackageJsonWorkspaces,
+} from "./schemas/PackageJson.js";
 
 /**
  * Directories to exclude when scanning workspace globs.
@@ -22,16 +25,15 @@ import { decodePackageJsonEffect, type PackageJson } from "./schemas/PackageJson
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
 
+const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => Array.isArray(value);
+
 const workspaceGlobsFrom = (workspaces: PackageJson["workspaces"]): ReadonlyArray<string> => {
-  if (workspaces === undefined) {
+  if (workspaces === undefined || O.isNone(workspaces)) {
     return [];
   }
 
-  if (A.isArray(workspaces)) {
-    return workspaces;
-  }
-
-  return workspaces.packages ?? [];
+  const presentWorkspaces = workspaces.value;
+  return isWorkspacePatternArray(presentWorkspaces) ? presentWorkspaces : (presentWorkspaces.packages ?? []);
 };
 
 /**

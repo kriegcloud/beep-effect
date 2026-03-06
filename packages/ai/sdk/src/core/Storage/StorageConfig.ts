@@ -95,14 +95,14 @@ const defaultSettings: StorageConfigData = {
     interval: Duration.millis(0),
   },
 };
-const thunkFallback = <T>(fallback: T) => () => fallback
+const thunkFallback =
+  <T>(fallback: T) =>
+  () =>
+    fallback;
 const normalizeBoolean = (value: O.Option<boolean>, fallback: boolean) => O.getOrElse(value, thunkFallback(fallback));
 
 const normalizeNumber = (value: O.Option<number>, fallback: number, min: number) =>
-  Math.max(
-    min,
-    O.getOrElse(value, thunkFallback(fallback))
-  );
+  Math.max(min, O.getOrElse(value, thunkFallback(fallback)));
 
 const normalizeDuration = (value: O.Option<Duration.Duration>, fallback: Duration.Duration) =>
   O.getOrElse(value, thunkFallback(fallback));

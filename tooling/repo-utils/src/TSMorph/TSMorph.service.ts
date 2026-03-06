@@ -3,8 +3,6 @@ import { Effect, FileSystem, Layer, Option as O, Path, ServiceMap } from "effect
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import {
-  Node,
-  Project,
   type ClassDeclaration,
   type ConstructorDeclaration,
   type EnumDeclaration,
@@ -12,53 +10,55 @@ import {
   type GetAccessorDeclaration,
   type InterfaceDeclaration,
   type MethodDeclaration,
+  Node,
+  Project,
   type SetAccessorDeclaration,
   type SourceFile,
   type TypeAliasDeclaration,
 } from "ts-morph";
+import { findRepoRoot } from "../Root.js";
 import {
   ByteLength,
   ByteOffset,
   ContentHashFromSourceText,
   LineNumber,
+  makeProjectCacheKey,
+  makeProjectScopeId,
+  makeSymbol,
+  type ProjectCacheKey,
   ProjectScopeId,
   ProjectScopeIdParts,
   RepoRootPath,
   SourceText,
   SymbolFilePath,
+  type SymbolKind,
   SymbolNameSegment,
   SymbolQualifiedName,
-  TsConfigFilePath,
-  TsMorphFileOutline,
-  TsMorphProjectScope,
-  TsMorphReferencePolicy,
-  TsMorphScopeMode,
-  TsMorphSourceTextResult,
-  TypeScriptFilePath,
-  TypeScriptImplementationFilePath,
-  TypeScriptImplementationFilePathToSymbolFilePath,
-  WorkspaceDirectoryPath,
-  makeProjectCacheKey,
-  makeProjectScopeId,
-  makeSymbol,
   symbolCategoryFromKind,
-  type ProjectCacheKey,
-  type Symbol as TsMorphSymbol,
-  type SymbolKind,
+  TsConfigFilePath,
   type TsMorphDiagnosticsRequest,
   type TsMorphDiagnosticsResult,
+  TsMorphFileOutline,
   type TsMorphFileOutlineRequest,
+  TsMorphProjectScope,
   type TsMorphProjectScopeRequest,
+  TsMorphReferencePolicy,
   type TsMorphScopeEntrypoint,
+  TsMorphScopeMode,
   type TsMorphSourceTextRequest,
+  TsMorphSourceTextResult,
+  type Symbol as TsMorphSymbol,
   type TsMorphSymbolLookupRequest,
   type TsMorphSymbolLookupResult,
   type TsMorphSymbolSearchRequest,
   type TsMorphSymbolSearchResult,
   type TsMorphSymbolSourceRequest,
   type TsMorphSymbolSourceResult,
+  TypeScriptFilePath,
+  TypeScriptImplementationFilePath,
+  TypeScriptImplementationFilePathToSymbolFilePath,
+  WorkspaceDirectoryPath,
 } from "./TSMorph.model.js";
-import { findRepoRoot } from "../Root.js";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.service");
 
@@ -80,7 +80,9 @@ const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
 const decodeTsConfigFilePath = S.decodeUnknownSync(TsConfigFilePath);
 const decodeTypeScriptFilePath = S.decodeUnknownSync(TypeScriptFilePath);
 const decodeTypeScriptImplementationFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePath);
-const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePathToSymbolFilePath);
+const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(
+  TypeScriptImplementationFilePathToSymbolFilePath
+);
 const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
 
 const isSymbolNameSegment = S.is(SymbolNameSegment);
@@ -88,6 +90,8 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
 
 /**
  * Typed error returned by the remaining placeholder TSMorphService methods.
+ *
+ * @since 0.0.0
  */
 export class TsMorphServiceUnavailableError extends S.TaggedErrorClass<TsMorphServiceUnavailableError>(
   $I`TsMorphServiceUnavailableError`
@@ -98,12 +102,15 @@ export class TsMorphServiceUnavailableError extends S.TaggedErrorClass<TsMorphSe
     message: S.String,
   },
   $I.annote("TsMorphServiceUnavailableError", {
-    description: "Typed error indicating that a TSMorphService method contract exists but is not yet backed by a live implementation.",
+    description:
+      "Typed error indicating that a TSMorphService method contract exists but is not yet backed by a live implementation.",
   })
 ) {}
 
 /**
  * Typed error returned when a scope or repository path cannot be resolved.
+ *
+ * @since 0.0.0
  */
 export class TsMorphScopeResolutionError extends S.TaggedErrorClass<TsMorphScopeResolutionError>(
   $I`TsMorphScopeResolutionError`
@@ -114,12 +121,15 @@ export class TsMorphScopeResolutionError extends S.TaggedErrorClass<TsMorphScope
     message: S.String,
   },
   $I.annote("TsMorphScopeResolutionError", {
-    description: "Typed error indicating that a repository path or tsconfig scope could not be resolved for TSMorphService.",
+    description:
+      "Typed error indicating that a repository path or tsconfig scope could not be resolved for TSMorphService.",
   })
 ) {}
 
 /**
  * Typed error returned when a scoped ts-morph project cannot be constructed.
+ *
+ * @since 0.0.0
  */
 export class TsMorphProjectLoadError extends S.TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
   "TsMorphProjectLoadError",
@@ -135,6 +145,8 @@ export class TsMorphProjectLoadError extends S.TaggedErrorClass<TsMorphProjectLo
 
 /**
  * Typed error returned when a TypeScript file cannot be loaded from a resolved scope.
+ *
+ * @since 0.0.0
  */
 export class TsMorphSourceFileError extends S.TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
   "TsMorphSourceFileError",
@@ -144,12 +156,15 @@ export class TsMorphSourceFileError extends S.TaggedErrorClass<TsMorphSourceFile
     message: S.String,
   },
   $I.annote("TsMorphSourceFileError", {
-    description: "Typed error indicating that a TypeScript source file could not be loaded or normalized by TSMorphService.",
+    description:
+      "Typed error indicating that a TypeScript source file could not be loaded or normalized by TSMorphService.",
   })
 ) {}
 
 /**
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
+ *
+ * @since 0.0.0
  */
 export class TsMorphUnsupportedFileError extends S.TaggedErrorClass<TsMorphUnsupportedFileError>(
   $I`TsMorphUnsupportedFileError`
@@ -160,10 +175,14 @@ export class TsMorphUnsupportedFileError extends S.TaggedErrorClass<TsMorphUnsup
     message: S.String,
   },
   $I.annote("TsMorphUnsupportedFileError", {
-    description: "Typed error indicating that a TypeScript file is valid input but is not yet supported by the current TSMorphService operation.",
+    description:
+      "Typed error indicating that a TypeScript file is valid input but is not yet supported by the current TSMorphService operation.",
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export type TSMorphServiceError =
   | TsMorphProjectLoadError
   | TsMorphScopeResolutionError
@@ -173,12 +192,16 @@ export type TSMorphServiceError =
 
 /**
  * Read-only v1 service contract for ts-morph-backed scope, symbol, source, and diagnostic operations.
+ *
+ * @since 0.0.0
  */
 export type TSMorphServiceShape = {
   readonly resolveProjectScope: (
     request: TsMorphProjectScopeRequest
   ) => Effect.Effect<TsMorphProjectScope, TSMorphServiceError>;
-  readonly getFileOutline: (request: TsMorphFileOutlineRequest) => Effect.Effect<TsMorphFileOutline, TSMorphServiceError>;
+  readonly getFileOutline: (
+    request: TsMorphFileOutlineRequest
+  ) => Effect.Effect<TsMorphFileOutline, TSMorphServiceError>;
   readonly getSymbolById: (
     request: TsMorphSymbolLookupRequest
   ) => Effect.Effect<TsMorphSymbolLookupResult, TSMorphServiceError>;
@@ -198,6 +221,8 @@ export type TSMorphServiceShape = {
 
 /**
  * Service tag for the read-only v1 ts-morph contract.
+ *
+ * @since 0.0.0
  */
 export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
@@ -560,7 +585,11 @@ const collectOutlineSymbols = (
         continue;
       }
 
-      if (Node.isInterfaceDeclaration(statement) || Node.isTypeAliasDeclaration(statement) || Node.isEnumDeclaration(statement)) {
+      if (
+        Node.isInterfaceDeclaration(statement) ||
+        Node.isTypeAliasDeclaration(statement) ||
+        Node.isEnumDeclaration(statement)
+      ) {
         const symbol = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
         if (O.isSome(symbol)) {
           symbols.push(symbol.value);
@@ -573,6 +602,8 @@ const collectOutlineSymbols = (
 
 /**
  * Construct the current live implementation for the v1 TSMorphService contract.
+ *
+ * @since 0.0.0
  */
 export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
@@ -582,39 +613,46 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
     const resolvedScopes = new Map<string, TsMorphProjectScope>();
     const projectPool = createProjectPool(pathApi);
 
-    const resolveRepoRoot = (repoRootPath: O.Option<RepoRootPath>): Effect.Effect<RepoRootPath, TsMorphScopeResolutionError> =>
-      O.match(repoRootPath, {
-        onNone: () =>
-          findRepoRoot(process.cwd()).pipe(
-            Effect.mapError(
-              (error) =>
-                new TsMorphScopeResolutionError({
-                  entrypoint: process.cwd(),
-                  message: error.message,
-                })
-            ),
-            Effect.flatMap((path) =>
-              decodeOrFail(
-                decodeRepoRootPath,
-                pathApi.normalize(path),
-                (message) =>
-                  new TsMorphScopeResolutionError({
-                    entrypoint: path,
-                    message: `Failed to normalize discovered repository root "${path}": ${message}`,
-                  })
-              )
-            )
-          ),
-        onSome: (value) =>
-          decodeOrFail(
+    const resolveRepoRoot = (
+      repoRootPath: O.Option<RepoRootPath>
+    ): Effect.Effect<RepoRootPath, TsMorphScopeResolutionError> =>
+      Effect.gen(function* () {
+        if (O.isSome(repoRootPath)) {
+          return yield* decodeOrFail(
             decodeRepoRootPath,
-            pathApi.normalize(pathApi.isAbsolute(value) ? value : pathApi.resolve(process.cwd(), value)),
+            pathApi.normalize(
+              pathApi.isAbsolute(repoRootPath.value)
+                ? repoRootPath.value
+                : pathApi.resolve(process.cwd(), repoRootPath.value)
+            ),
             (message) =>
               new TsMorphScopeResolutionError({
-                entrypoint: value,
-                message: `Failed to normalize explicit repository root "${value}": ${message}`,
+                entrypoint: repoRootPath.value,
+                message: `Failed to normalize explicit repository root "${repoRootPath.value}": ${message}`,
               })
-          ),
+          );
+        }
+
+        const discoveredRepoRoot = yield* findRepoRoot(process.cwd()).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.mapError(
+            (error) =>
+              new TsMorphScopeResolutionError({
+                entrypoint: process.cwd(),
+                message: error.message,
+              })
+          )
+        );
+
+        return yield* decodeOrFail(
+          decodeRepoRootPath,
+          pathApi.normalize(discoveredRepoRoot),
+          (message) =>
+            new TsMorphScopeResolutionError({
+              entrypoint: discoveredRepoRoot,
+              message: `Failed to normalize discovered repository root "${discoveredRepoRoot}": ${message}`,
+            })
+        );
       });
 
     const resolveTsConfigPath = (
@@ -697,7 +735,11 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(() => false));
 
           if (candidateExists) {
-            const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, candidateTsConfigPath);
+            const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(
+              pathApi,
+              repoRootPath,
+              candidateTsConfigPath
+            );
             return yield* decodeOrFail(
               decodeTsConfigFilePath,
               repoRelativeTsConfigPath,
@@ -720,12 +762,10 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           currentDirectory = parentDirectory;
         }
 
-        return yield* Effect.fail(
-          new TsMorphScopeResolutionError({
-            entrypoint: filePath,
-            message: `No owning "${DEFAULT_TSCONFIG_FILE_NAME}" could be found for "${filePath}" within repository root "${repoRootPath}".`,
-          })
-        );
+        return yield* new TsMorphScopeResolutionError({
+          entrypoint: filePath,
+          message: `No owning "${DEFAULT_TSCONFIG_FILE_NAME}" could be found for "${filePath}" within repository root "${repoRootPath}".`,
+        });
       });
 
     const buildResolvedScope = (
@@ -819,32 +859,32 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       TSMorphServiceError
     > =>
       Effect.gen(function* () {
-        const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(scope.repoRootPath, filePath);
+        const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(
+          scope.repoRootPath,
+          filePath
+        );
 
         if (
           scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
           isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
         ) {
-          return yield* Effect.fail(
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: normalizedFilePath,
-              message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
-            })
-          );
+          return yield* new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: normalizedFilePath,
+            message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
+          });
         }
 
         const project = yield* projectPool.getOrCreate(scope);
-        const sourceFile = project.getSourceFile(absoluteFilePath) ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
+        const sourceFile =
+          project.getSourceFile(absoluteFilePath) ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
 
         if (sourceFile === undefined) {
-          return yield* Effect.fail(
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: normalizedFilePath,
-              message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
-            })
-          );
+          return yield* new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: normalizedFilePath,
+            message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
+          });
         }
 
         return {
@@ -854,7 +894,12 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       });
 
     const resolveProjectScope: TSMorphServiceShape["resolveProjectScope"] = Effect.fn(function* (request) {
-      return yield* resolveScopeFromEntrypoint(request.entrypoint, request.repoRootPath, request.mode, request.referencePolicy);
+      return yield* resolveScopeFromEntrypoint(
+        request.entrypoint,
+        request.repoRootPath,
+        request.mode,
+        request.referencePolicy
+      );
     });
 
     const readSourceText: TSMorphServiceShape["readSourceText"] = Effect.fn(function* (request) {
@@ -921,6 +966,8 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
 
 /**
  * Default live layer for the current TSMorphService contract.
+ *
+ * @since 0.0.0
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   TSMorphService,

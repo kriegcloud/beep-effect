@@ -1,6 +1,12 @@
-import { decodePackageJson, decodePackageJsonExit, NpmPackageJson, PackageJson } from "@beep/repo-utils/schemas/PackageJson";
+import {
+  decodePackageJson,
+  decodePackageJsonExit,
+  NpmPackageJson,
+  type PackageJson,
+} from "@beep/repo-utils/schemas/PackageJson";
 import { describe, expect, it } from "@effect/vitest";
 import { Exit } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 describe("PackageJson schema", () => {
@@ -60,19 +66,22 @@ describe("PackageJson schema", () => {
 
       const result = decodePackageJson(input);
       expect(result.name).toBe("@beep/repo-utils");
-      expect(result.browser).toEqual({
-        "./src/server.ts": "./src/browser.ts",
-        fs: false,
-      });
-      expect(result.peerDependenciesMeta).toEqual({
-        typescript: {
-          optional: true,
-        },
-      });
-      expect(result.funding).toEqual([
-        "https://github.com/sponsors/beep",
-        { type: "github", url: "https://github.com/sponsors/beep-effect" },
-      ]);
+      expect(result.browser).toEqual(
+        O.some({
+          "./src/server.ts": "./src/browser.ts",
+          fs: false,
+        })
+      );
+      expect(result.peerDependenciesMeta).toEqual(
+        O.some({
+          typescript: {
+            optional: true,
+          },
+        })
+      );
+      expect(result.funding).toEqual(
+        O.some(["https://github.com/sponsors/beep", { type: "github", url: "https://github.com/sponsors/beep-effect" }])
+      );
     });
 
     it("decodes package exports and publishConfig exports as structured data", () => {
@@ -103,28 +112,32 @@ describe("PackageJson schema", () => {
       };
 
       const result = decodePackageJson(input);
-      expect(result.exports).toEqual({
-        "./package.json": "./package.json",
-        ".": {
-          types: "./dist/index.d.ts",
-          import: "./dist/index.js",
-          require: "./dist/index.cjs",
-        },
-        "./internal/*": null,
-        "./*": ["./dist/*.js", "./dist/*.cjs"],
-      });
-      expect(result.publishConfig).toEqual({
-        access: "public",
-        provenance: true,
-        bin: {
-          "pkg-cli": "./dist/bin.js",
-        },
-        exports: {
+      expect(result.exports).toEqual(
+        O.some({
           "./package.json": "./package.json",
-          ".": "./dist/index.js",
+          ".": {
+            types: "./dist/index.d.ts",
+            import: "./dist/index.js",
+            require: "./dist/index.cjs",
+          },
           "./internal/*": null,
-        },
-      });
+          "./*": ["./dist/*.js", "./dist/*.cjs"],
+        })
+      );
+      expect(result.publishConfig).toEqual(
+        O.some({
+          access: "public",
+          provenance: true,
+          bin: {
+            "pkg-cli": "./dist/bin.js",
+          },
+          exports: {
+            "./package.json": "./package.json",
+            ".": "./dist/index.js",
+            "./internal/*": null,
+          },
+        })
+      );
     });
 
     it("decodes imports mappings", () => {
@@ -139,13 +152,15 @@ describe("PackageJson schema", () => {
         },
       });
 
-      expect(result.imports).toEqual({
-        "#internal": "./src/internal.ts",
-        "#runtime/*": {
-          types: "./src/runtime/*.d.ts",
-          default: "./src/runtime/*.ts",
-        },
-      });
+      expect(result.imports).toEqual(
+        O.some({
+          "#internal": "./src/internal.ts",
+          "#runtime/*": {
+            types: "./src/runtime/*.d.ts",
+            default: "./src/runtime/*.ts",
+          },
+        })
+      );
     });
 
     it("decodes workspaces as an array", () => {
@@ -154,7 +169,7 @@ describe("PackageJson schema", () => {
         workspaces: ["packages/*", "tooling/*"],
       });
 
-      expect(result.workspaces).toEqual(["packages/*", "tooling/*"]);
+      expect(result.workspaces).toEqual(O.some(["packages/*", "tooling/*"]));
     });
 
     it("decodes workspaces as an object", () => {
@@ -166,10 +181,12 @@ describe("PackageJson schema", () => {
         },
       });
 
-      expect(result.workspaces).toEqual({
-        packages: ["packages/*"],
-        nohoist: ["react"],
-      });
+      expect(result.workspaces).toEqual(
+        O.some({
+          packages: ["packages/*"],
+          nohoist: ["react"],
+        })
+      );
     });
 
     it("decodes sideEffects as a boolean or array", () => {
@@ -182,8 +199,8 @@ describe("PackageJson schema", () => {
         sideEffects: ["**/*.css"],
       });
 
-      expect(booleanResult.sideEffects).toBe(false);
-      expect(arrayResult.sideEffects).toEqual(["**/*.css"]);
+      expect(booleanResult.sideEffects).toEqual(O.some(false));
+      expect(arrayResult.sideEffects).toEqual(O.some(["**/*.css"]));
     });
 
     it("decodes repo-local top-level fields", () => {
@@ -206,14 +223,18 @@ describe("PackageJson schema", () => {
         },
       });
 
-      expect(result.packageManager).toBe("bun@1.3.10");
-      expect(result.catalog).toEqual({
-        effect: "^4.0.0-beta.27",
-        typescript: "^5.9.3",
-      });
-      expect(result["resolutions#"]).toEqual({
-        "@beep/*": "Needed to force PNPM to install local packages",
-      });
+      expect(result.packageManager).toEqual(O.some("bun@1.3.10"));
+      expect(result.catalog).toEqual(
+        O.some({
+          effect: "^4.0.0-beta.27",
+          typescript: "^5.9.3",
+        })
+      );
+      expect(result["resolutions#"]).toEqual(
+        O.some({
+          "@beep/*": "Needed to force PNPM to install local packages",
+        })
+      );
     });
 
     it("keeps npm-only schema separate from repo-only extensions", () => {
@@ -348,9 +369,9 @@ describe("PackageJson schema", () => {
         workspaces: [],
       });
 
-      expect(result.keywords).toEqual([]);
-      expect(result.files).toEqual([]);
-      expect(result.workspaces).toEqual([]);
+      expect(result.keywords).toEqual(O.some([]));
+      expect(result.files).toEqual(O.some([]));
+      expect(result.workspaces).toEqual(O.some([]));
     });
 
     it("handles scoped package names", () => {
@@ -405,11 +426,13 @@ describe("PackageJson schema", () => {
         },
       });
 
-      expect(result.repository).toEqual({
-        type: "git",
-        url: "git@github.com:kriegcloud/beep-effect.git",
-        directory: "tooling/repo-utils",
-      });
+      expect(result.repository).toEqual(
+        O.some({
+          type: "git",
+          url: "git@github.com:kriegcloud/beep-effect.git",
+          directory: "tooling/repo-utils",
+        })
+      );
     });
 
     it("decodePackageJson throws on invalid input", () => {
@@ -419,14 +442,12 @@ describe("PackageJson schema", () => {
 
   describe("type inference", () => {
     it("schema Type is correctly shaped", () => {
-      const schema = PackageJson;
-      type PkgType = (typeof schema)["Type"];
-
-      const check: PkgType = {
+      const encoded: PackageJson.Encoded = {
         name: "test",
         version: "1.0.0",
         dependencies: { effect: "^4.0.0" },
       };
+      const check: PackageJson.Type = decodePackageJson(encoded);
 
       expect(check.name).toBe("test");
     });

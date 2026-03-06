@@ -76,6 +76,7 @@
     "sccs",
     "unprepend",
     "catchable",
+    "Decoratable",
     "falsey",
     "Kosaraju",
     "Somes",
@@ -218,7 +219,8 @@
     "fibrational",
     "codegraph",
     "arktype",
-    "kysely"
+    "kysely",
+    "libc"
   ],
   "ignorePaths": [
     "bun.lock",
@@ -229,6 +231,7 @@
     "tmp",
     "dist",
     "coverage",
+    "outputs",
     ".next",
     "storybook-static",
     ".beep/**",

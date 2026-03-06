@@ -1,3 +1,7 @@
+import { describe, expect, it } from "@effect/vitest";
+import { Effect, Option as O } from "effect";
+import * as S from "effect/Schema";
+import { Project } from "ts-morph";
 import {
   ByteLength,
   ByteOffset,
@@ -9,6 +13,10 @@ import {
   FilePathToTypeScriptFilePath,
   FilePathToTypeScriptImplementationFilePath,
   LineNumber,
+  makeProjectCacheKey,
+  makeProjectScopeId,
+  makeSymbol,
+  makeSymbolId,
   ProjectScopeId,
   ProjectScopeIdParts,
   RepoRootPath,
@@ -21,6 +29,7 @@ import {
   SymbolKindToCategory,
   SymbolNameSegment,
   SymbolQualifiedName,
+  symbolCategoryFromKind,
   TsConfigFilePath,
   TsMorphDiagnostic,
   TsMorphDiagnosticsResult,
@@ -40,21 +49,12 @@ import {
   TypeScriptImplementationFilePath,
   TypeScriptImplementationFilePathToSymbolFilePath,
   WorkspaceDirectoryPath,
-  makeProjectCacheKey,
-  makeProjectScopeId,
-  makeSymbol,
-  makeSymbolId,
-  symbolCategoryFromKind,
 } from "../src/TSMorph/index.js";
 import {
   InternalTsMorphNode,
   InternalTsMorphProject,
   InternalTsMorphSourceFile,
 } from "../src/TSMorph/TSMorph.model.js";
-import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option as O } from "effect";
-import * as S from "effect/Schema";
-import { Project } from "ts-morph";
 
 const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
 const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
@@ -198,11 +198,13 @@ describe("TSMorph model taxonomy", () => {
         "#",
         "workspaceOnly",
       ]);
-      expect(makeProjectCacheKey({
-        tsConfigPath: decodeTsConfigFilePath("tooling/repo-utils/tsconfig.json"),
-        mode: TsMorphScopeMode.Enum.syntax,
-        referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
-      })).toBe("tooling/repo-utils/tsconfig.json::syntax#workspaceOnly");
+      expect(
+        makeProjectCacheKey({
+          tsConfigPath: decodeTsConfigFilePath("tooling/repo-utils/tsconfig.json"),
+          mode: TsMorphScopeMode.Enum.syntax,
+          referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
+        })
+      ).toBe("tooling/repo-utils/tsconfig.json::syntax#workspaceOnly");
     });
   });
 
@@ -255,25 +257,27 @@ describe("TSMorph model taxonomy", () => {
         })
       );
       expect(symbol.category).toBe(SymbolCategory.Enum.member);
-      expect(decodeSymbol({
-        id: "src/main.ts::UserService.login#MethodDeclaration",
-        filePath: "src/main.ts",
-        name: "login",
-        qualifiedName: "UserService.login",
-        kind: "MethodDeclaration",
-        category: "member",
-        signature: "login(id: string): User",
-        docstring: null,
-        summary: null,
-        decorators: [],
-        keywords: ["login"],
-        parentId: null,
-        startLine: 10,
-        endLine: 18,
-        byteOffset: 128,
-        byteLength: 84,
-        contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-      }).kind).toBe("MethodDeclaration");
+      expect(
+        decodeSymbol({
+          id: "src/main.ts::UserService.login#MethodDeclaration",
+          filePath: "src/main.ts",
+          name: "login",
+          qualifiedName: "UserService.login",
+          kind: "MethodDeclaration",
+          category: "member",
+          signature: "login(id: string): User",
+          docstring: null,
+          summary: null,
+          decorators: [],
+          keywords: ["login"],
+          parentId: null,
+          startLine: 10,
+          endLine: 18,
+          byteOffset: 128,
+          byteLength: 84,
+          contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        }).kind
+      ).toBe("MethodDeclaration");
     });
   });
 
@@ -303,17 +307,21 @@ describe("TSMorph model taxonomy", () => {
 
       expect(scope.scopeId).toBe("tooling/repo-utils/tsconfig.json::syntax#workspaceOnly");
 
-      expect(decodeTsMorphFileOutline({
-        scopeId: scope.scopeId,
-        filePath: "src/main.ts",
-        symbols: [baseSymbolEncoded],
-      }).symbols).toHaveLength(1);
+      expect(
+        decodeTsMorphFileOutline({
+          scopeId: scope.scopeId,
+          filePath: "src/main.ts",
+          symbols: [baseSymbolEncoded],
+        }).symbols
+      ).toHaveLength(1);
 
-      expect(decodeTsMorphSourceTextResult({
-        filePath: "src/main.ts",
-        sourceText: "export const a = 1;",
-        contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-      }).filePath).toBe("src/main.ts");
+      expect(
+        decodeTsMorphSourceTextResult({
+          filePath: "src/main.ts",
+          sourceText: "export const a = 1;",
+          contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        }).filePath
+      ).toBe("src/main.ts");
     });
 
     it("decodes symbol lookup, search, source, and diagnostics results", () => {
@@ -321,10 +329,12 @@ describe("TSMorph model taxonomy", () => {
       expect(decodeLineNumber(1)).toBe(1);
       expect(decodeColumnNumber(2)).toBe(2);
 
-      expect(decodeTsMorphSymbolLookupResult({
-        scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        symbol: baseSymbolEncoded,
-      }).symbol.id).toBe(baseSymbol.id);
+      expect(
+        decodeTsMorphSymbolLookupResult({
+          scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
+          symbol: baseSymbolEncoded,
+        }).symbol.id
+      ).toBe(baseSymbol.id);
 
       const searchRequest = decodeTsMorphSymbolSearchRequest({
         scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
@@ -336,48 +346,56 @@ describe("TSMorph model taxonomy", () => {
 
       expect(searchRequest.limit).toBe(25);
 
-      expect(decodeTsMorphSymbolSearchResult({
-        scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        query: "user",
-        limit: 25,
-        symbols: [baseSymbolEncoded],
-        total: 1,
-      }).total).toBe(1);
+      expect(
+        decodeTsMorphSymbolSearchResult({
+          scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
+          query: "user",
+          limit: 25,
+          symbols: [baseSymbolEncoded],
+          total: 1,
+        }).total
+      ).toBe(1);
 
-      expect(decodeTsMorphSymbolSourceResult({
-        scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        symbol: baseSymbolEncoded,
-        sourceText: "login(id: string): User { return user; }",
-        contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-      }).symbol.id).toBe(baseSymbol.id);
+      expect(
+        decodeTsMorphSymbolSourceResult({
+          scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
+          symbol: baseSymbolEncoded,
+          sourceText: "login(id: string): User { return user; }",
+          contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        }).symbol.id
+      ).toBe(baseSymbol.id);
 
-      expect(decodeTsMorphDiagnostic({
-        category: "error",
-        code: 2322,
-        message: "Type 'string' is not assignable to type 'number'.",
-        source: null,
-        startLine: 4,
-        startColumn: 10,
-        endLine: 4,
-        endColumn: 16,
-      }).category).toBe("error");
+      expect(
+        decodeTsMorphDiagnostic({
+          category: "error",
+          code: 2322,
+          message: "Type 'string' is not assignable to type 'number'.",
+          source: null,
+          startLine: 4,
+          startColumn: 10,
+          endLine: 4,
+          endColumn: 16,
+        }).category
+      ).toBe("error");
 
-      expect(decodeTsMorphDiagnosticsResult({
-        scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        filePath: "src/main.ts",
-        diagnostics: [
-          {
-            category: "error",
-            code: 2322,
-            message: "Type 'string' is not assignable to type 'number'.",
-            source: null,
-            startLine: 4,
-            startColumn: 10,
-            endLine: 4,
-            endColumn: 16,
-          },
-        ],
-      }).diagnostics).toHaveLength(1);
+      expect(
+        decodeTsMorphDiagnosticsResult({
+          scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
+          filePath: "src/main.ts",
+          diagnostics: [
+            {
+              category: "error",
+              code: 2322,
+              message: "Type 'string' is not assignable to type 'number'.",
+              source: null,
+              startLine: 4,
+              startColumn: 10,
+              endLine: 4,
+              endColumn: 16,
+            },
+          ],
+        }).diagnostics
+      ).toHaveLength(1);
     });
   });
 });

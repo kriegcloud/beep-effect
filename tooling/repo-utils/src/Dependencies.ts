@@ -9,6 +9,7 @@
  * @module
  */
 import { HashSet } from "effect";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import type { PackageJson } from "./schemas/PackageJson.js";
 import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js";
@@ -21,14 +22,15 @@ import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js
  * @returns Classified dependency maps for workspace and npm packages.
  */
 const classifyRecord = (
-  record: Readonly<Record<string, string>> | undefined,
+  record: PackageJson["dependencies"] | Readonly<Record<string, string>> | undefined,
   workspaceNames: HashSet.HashSet<string>
 ): { readonly workspace: DependencyRecord; readonly npm: DependencyRecord } => {
   const workspace = R.empty<string, string>();
   const npm = R.empty<string, string>();
+  const presentRecord = O.isOption(record) ? (O.isSome(record) ? record.value : undefined) : record;
 
-  if (record) {
-    for (const [name, version] of R.toEntries(record)) {
+  if (presentRecord !== undefined) {
+    for (const [name, version] of R.toEntries(presentRecord)) {
       if (HashSet.has(workspaceNames, name)) {
         workspace[name] = version;
       } else {
@@ -53,12 +55,15 @@ const classifyRecord = (
  * @example
  * ```ts-morph
  * import { HashSet } from "effect"
+ * import * as O from "effect/Option"
  * import { extractWorkspaceDependencies } from "@beep/repo-utils/Dependencies"
+ * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
  *
- * const deps = extractWorkspaceDependencies(
- *   { name: "@my/pkg", dependencies: { "@my/other": "workspace:*", "lodash": "^4.0.0" } },
- *   HashSet.make("@my/other", "@my/another")
- * )
+ * const pkg = decodePackageJson({
+ *   name: "@my/pkg",
+ *   dependencies: O.some({ "@my/other": "workspace:*", "lodash": "^4.0.0" }),
+ * })
+ * const deps = extractWorkspaceDependencies(pkg, HashSet.make("@my/other", "@my/another"))
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```

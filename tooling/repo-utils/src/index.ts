@@ -168,12 +168,20 @@ export {
 /**
  * @since 0.0.0
  */
+export * from "./TSMorph/index.js";
+/**
+ * @since 0.0.0
+ */
 export {
   /**
    * @since 0.0.0
    */
   collectTsConfigPaths,
 } from "./TsConfig.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./TypeScript/index.js";
 /**
  * @since 0.0.0
  */
@@ -200,12 +208,4 @@ export {
    */
   resolveWorkspaceDirs,
 } from "./Workspaces.js";
-/**
- * @since 0.0.0
- */
-export * from "./TSMorph/index.js";
-/**
- * @since 0.0.0
- */
-export * from "./TypeScript/index.js";
 // bench

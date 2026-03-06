@@ -10,6 +10,7 @@ import {
   type PackageJson,
 } from "@beep/repo-utils";
 import type { Effect, Exit, Schema } from "effect";
+import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
 
 describe("PackageJson", () => {
@@ -19,30 +20,31 @@ describe("PackageJson", () => {
     });
 
     it("Type has optional version field", () => {
-      expect<PackageJson["version"]>().type.toBe<string | undefined>();
+      expect<PackageJson["version"]>().type.toBe<O.Option<string>>();
     });
 
     it("Type has optional dependencies record", () => {
-      expect<PackageJson["dependencies"]>().type.toBe<{ readonly [x: string]: string } | undefined>();
+      expect<PackageJson["dependencies"]>().type.toBe<O.Option<{ readonly [x: string]: string }>>();
     });
 
     it("Type has widened workspaces union", () => {
       expect<PackageJson["workspaces"]>().type.toBe<
-        | ReadonlyArray<string>
-        | {
-            readonly packages?: ReadonlyArray<string>;
-            readonly nohoist?: ReadonlyArray<string>;
-          }
-        | undefined
+        O.Option<
+          | ReadonlyArray<string>
+          | {
+              readonly packages?: ReadonlyArray<string>;
+              readonly nohoist?: ReadonlyArray<string>;
+            }
+        >
       >();
     });
 
     it("Type has repo-local catalog field", () => {
-      expect<PackageJson["catalog"]>().type.toBe<{ readonly [x: string]: string } | undefined>();
+      expect<PackageJson["catalog"]>().type.toBe<O.Option<{ readonly [x: string]: string }>>();
     });
 
     it("NpmPackageJson keeps packageManager but not repo-only fields", () => {
-      expect<NpmPackageJson["packageManager"]>().type.toBe<string | undefined>();
+      expect<NpmPackageJson["packageManager"]>().type.toBe<O.Option<string>>();
     });
   });
 
@@ -65,8 +67,10 @@ describe("PackageJson", () => {
   });
 
   describe("encodePackageJsonEffect", () => {
-    it("returns Effect<PackageJson, SchemaError>", () => {
-      expect(encodePackageJsonEffect({ name: "test" })).type.toBe<Effect.Effect<PackageJson, Schema.SchemaError>>();
+    it("returns Effect<PackageJson.Encoded, SchemaError>", () => {
+      expect(encodePackageJsonEffect({ name: "test" })).type.toBe<
+        Effect.Effect<PackageJson.Encoded, Schema.SchemaError>
+      >();
     });
   });
 

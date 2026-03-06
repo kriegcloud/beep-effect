@@ -50,6 +50,11 @@ export const PgSerial = S.Int.check(isSerialRange).pipe(
  */
 export type PgSerial = typeof PgSerial.Type;
 
+/**
+ * Schema class describing an entity-id definition.
+ *
+ * @since 0.0.0
+ */
 export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdDefinition`)(
   {
     _tag: S.NonEmptyString,
@@ -66,7 +71,18 @@ export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdD
     i: unknown
   ): asserts i is S.Schema.Type<EntityId.Any> => S.asserts(EntityIdDefinition)(i);
 }
+
+/**
+ * Entity-id schema namespace and associated type helpers.
+ *
+ * @since 0.0.0
+ */
 export declare namespace EntityId {
+  /**
+   * Runtime shape of a branded entity id.
+   *
+   * @since 0.0.0
+   */
   export interface Instance<
     TTag extends TString.NonEmpty,
     TTableName extends TString.NonEmpty,
@@ -77,18 +93,39 @@ export declare namespace EntityId {
     slice: TSlice;
     tableName: TTableName;
   }
+
+  /**
+   * Construction options for an entity-id schema.
+   *
+   * @since 0.0.0
+   */
   export interface Options<TTableName extends string> {
     tableName: TTableName;
   }
 
+  /**
+   * Broad entity-id instance type.
+   *
+   * @since 0.0.0
+   */
   export type Any = S.Schema.Type<Instance<TString.NonEmpty, TString.NonEmpty, TString.NonEmpty>>;
 
+  /**
+   * Encoded representation of an entity id.
+   *
+   * @since 0.0.0
+   */
   export type Encoded<
     TTag extends TString.NonEmpty,
     TTableName extends TString.NonEmpty,
     TSlice extends TString.NonEmpty,
   > = Instance<TTag, TTableName, TSlice>["Encoded"];
 
+  /**
+   * Decoded representation of an entity id.
+   *
+   * @since 0.0.0
+   */
   export type Type<
     TTag extends TString.NonEmpty,
     TTableName extends TString.NonEmpty,
@@ -96,6 +133,11 @@ export declare namespace EntityId {
   > = Instance<TTag, TTableName, TSlice>["Type"];
 }
 
+/**
+ * Builds a branded entity-id schema for a slice-specific identity composer.
+ *
+ * @since 0.0.0
+ */
 export const make =
   <
     const TSlice extends TString.NonEmpty,
@@ -124,12 +166,22 @@ export const make =
     return instance;
   };
 
+/**
+ * Type alias for a decoded entity-id value.
+ *
+ * @since 0.0.0
+ */
 export type EntityId<
   TTag extends TString.NonEmpty,
   TTableName extends TString.NonEmpty,
   TSlice extends TString.NonEmpty,
 > = EntityId.Type<TTag, TTableName, TSlice>;
 
+/**
+ * Curried entity-id factory creator.
+ *
+ * @since 0.0.0
+ */
 export const factory = flow(
   <const TSlice extends TString.NonEmpty>(
     slice: TSlice,

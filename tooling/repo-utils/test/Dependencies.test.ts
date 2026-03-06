@@ -1,5 +1,5 @@
 import { extractWorkspaceDependencies } from "@beep/repo-utils/Dependencies";
-import type { PackageJson } from "@beep/repo-utils/schemas/PackageJson";
+import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson";
 import { describe, expect, it } from "@effect/vitest";
 import { HashSet } from "effect";
 import * as R from "effect/Record";
@@ -9,13 +9,13 @@ describe("Dependencies", () => {
 
   describe("extractWorkspaceDependencies", () => {
     it("should classify workspace dependencies separately from npm dependencies", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/pkg-a",
         dependencies: {
           "@mock/pkg-b": "workspace:*",
           effect: "^3.0.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -25,13 +25,13 @@ describe("Dependencies", () => {
     });
 
     it("should classify devDependencies correctly", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/pkg-b",
         devDependencies: {
           "@mock/pkg-c": "workspace:*",
           vitest: "^1.0.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -40,13 +40,13 @@ describe("Dependencies", () => {
     });
 
     it("should classify peerDependencies correctly", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/pkg-c",
         peerDependencies: {
           "@mock/pkg-a": ">=1.0.0",
           react: "^18.0.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -55,13 +55,13 @@ describe("Dependencies", () => {
     });
 
     it("should classify optionalDependencies correctly", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/pkg-a",
         optionalDependencies: {
           "@mock/pkg-c": "workspace:*",
           fsevents: "^2.3.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -70,9 +70,9 @@ describe("Dependencies", () => {
     });
 
     it("should handle package with no dependencies", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/empty",
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -88,14 +88,14 @@ describe("Dependencies", () => {
     });
 
     it("should handle all-workspace dependencies", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/consumer",
         dependencies: {
           "@mock/pkg-a": "workspace:*",
           "@mock/pkg-b": "workspace:*",
           "@mock/pkg-c": "workspace:*",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -104,13 +104,13 @@ describe("Dependencies", () => {
     });
 
     it("should handle all-npm dependencies", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/external-only",
         dependencies: {
           lodash: "^4.0.0",
           express: "^4.18.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, workspaceNames);
 
@@ -119,13 +119,13 @@ describe("Dependencies", () => {
     });
 
     it("should use empty HashSet to treat all deps as npm", () => {
-      const pkg: PackageJson = {
+      const pkg = decodePackageJson({
         name: "@mock/pkg-a",
         dependencies: {
           "@mock/pkg-b": "workspace:*",
           effect: "^3.0.0",
         },
-      };
+      });
 
       const result = extractWorkspaceDependencies(pkg, HashSet.empty<string>());
 
