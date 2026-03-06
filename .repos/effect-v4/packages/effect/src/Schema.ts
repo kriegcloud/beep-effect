@@ -8318,7 +8318,9 @@ export const ErrorClass: {
   annotations?: Annotations.Declaration<Self, readonly [Struct<Struct.Fields>]>
 ): ErrorClass<Self, Struct<Struct.Fields>, Cause_.YieldableError & Brand> => {
   const struct = isStruct(schema) ? schema : Struct(schema)
-  return makeClass(core.Error, identifier, struct, annotations)
+  const self = makeClass(core.Error, identifier, struct, annotations)
+  ;(self.prototype as any).name = identifier
+  return self
 }
 
 /**

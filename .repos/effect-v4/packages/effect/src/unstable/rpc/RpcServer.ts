@@ -305,7 +305,7 @@ export const makeNoSerialization: <Rpcs extends Rpc.Any>(
       effect = concurrencySemaphore.withPermits(1)(effect)
     }
     const serviceMap = new Map(entry.services.mapUnsafe)
-    serviceMap.forEach((value, key) => serviceMap.set(key, value))
+    requestFiber.services.mapUnsafe.forEach((value, key) => serviceMap.set(key, value))
     serviceMap.set(Scope.Scope.key, scope)
     const runFork = Effect.runForkWith(ServiceMap.makeUnsafe(serviceMap))
     const fiber = trackFiber(
@@ -1181,7 +1181,7 @@ export const makeProtocolStdio = Effect.gen(function*() {
     )
 
     yield* Stream.fromQueue(queue).pipe(
-      Stream.run(stdio.stdout),
+      Stream.run(stdio.stdout()),
       Effect.retry(Schedule.spaced(500)),
       Effect.forkScoped
     )

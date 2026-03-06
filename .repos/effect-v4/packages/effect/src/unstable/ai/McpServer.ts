@@ -5,6 +5,7 @@ import * as Arr from "../../Array.ts"
 import * as Cause from "../../Cause.ts"
 import * as Effect from "../../Effect.ts"
 import * as Exit from "../../Exit.ts"
+import * as Fiber from "../../Fiber.ts"
 import * as Layer from "../../Layer.ts"
 import * as Option from "../../Option.ts"
 import * as Queue from "../../Queue.ts"
@@ -19,7 +20,10 @@ import * as Stream from "../../Stream.ts"
 import type * as Types from "../../Types.ts"
 import * as FindMyWay from "../http/FindMyWay.ts"
 import * as Headers from "../http/Headers.ts"
-import type * as HttpRouter from "../http/HttpRouter.ts"
+import { appendPreResponseHandlerUnsafe } from "../http/HttpEffect.ts"
+import * as HttpRouter from "../http/HttpRouter.ts"
+import * as HttpServerRequest from "../http/HttpServerRequest.ts"
+import * as HttpServerResponse from "../http/HttpServerResponse.ts"
 import type * as Rpc from "../rpc/Rpc.ts"
 import * as RpcClient from "../rpc/RpcClient.ts"
 import type * as RpcGroup from "../rpc/RpcGroup.ts"
@@ -33,6 +37,7 @@ import {
   CompleteResult,
   Elicit,
   ElicitationDeclined,
+  EnabledWhen,
   GetPromptResult,
   InternalError,
   InvalidParams,
@@ -52,10 +57,11 @@ import {
   Tool as McpTool
 } from "./McpSchema.ts"
 import type {
-  Annotations,
   CallTool,
+  ClientCapabilities,
   Complete,
   GetPrompt,
+  Initialize,
   Param,
   PromptArgument,
   PromptMessage,
@@ -74,25 +80,37 @@ export class McpServer extends ServiceMap.Service<McpServer, {
   readonly notificationsQueue: Queue.Dequeue<RpcMessage.Request<any>>
   readonly initializedClients: Set<number>
 
-  readonly tools: ReadonlyArray<McpTool>
+  readonly tools: ReadonlyArray<{
+    readonly tool: McpTool
+    readonly annotations: ServiceMap.ServiceMap<never>
+  }>
   readonly addTool: (options: {
     readonly tool: McpTool
+    readonly annotations: ServiceMap.ServiceMap<never>
     readonly handle: (payload: any) => Effect.Effect<CallToolResult, never, McpServerClient>
   }) => Effect.Effect<void>
   readonly callTool: (
     requests: typeof CallTool.payloadSchema.Type
   ) => Effect.Effect<CallToolResult, InternalError | InvalidParams, McpServerClient>
 
-  readonly resources: ReadonlyArray<Resource>
-  readonly addResource: (
-    resource: Resource,
-    handle: Effect.Effect<typeof ReadResourceResult.Type, InternalError, McpServerClient>
-  ) => Effect.Effect<void>
+  readonly resources: ReadonlyArray<{
+    readonly resource: Resource
+    readonly annotations: ServiceMap.ServiceMap<never>
+  }>
+  readonly addResource: (options: {
+    readonly resource: Resource
+    readonly annotations: ServiceMap.ServiceMap<never>
+    readonly handle: Effect.Effect<typeof ReadResourceResult.Type, InternalError, McpServerClient>
+  }) => Effect.Effect<void>
 
-  readonly resourceTemplates: ReadonlyArray<ResourceTemplate>
+  readonly resourceTemplates: ReadonlyArray<{
+    readonly template: ResourceTemplate
+    readonly annotations: ServiceMap.ServiceMap<never>
+  }>
   readonly addResourceTemplate: (
     options: {
       readonly template: ResourceTemplate
+      readonly annotations: ServiceMap.ServiceMap<never>
       readonly routerPath: string
       readonly completions: Record<string, (input: string) => Effect.Effect<CompleteResult, InternalError>>
       readonly handle: (
@@ -106,9 +124,13 @@ export class McpServer extends ServiceMap.Service<McpServer, {
     uri: string
   ) => Effect.Effect<typeof ReadResourceResult.Type, InvalidParams | InternalError, McpServerClient>
 
-  readonly prompts: ReadonlyArray<Prompt>
+  readonly prompts: ReadonlyArray<{
+    readonly prompt: Prompt
+    readonly annotations: ServiceMap.ServiceMap<never>
+  }>
   readonly addPrompt: (options: {
     readonly prompt: Prompt
+    readonly annotations: ServiceMap.ServiceMap<never>
     readonly completions: Record<
       string,
       (input: string) => Effect.Effect<CompleteResult, InternalError, McpServerClient>
@@ -141,11 +163,23 @@ export class McpServer extends ServiceMap.Service<McpServer, {
         readonly effect: Effect.Effect<typeof ReadResourceResult.Type, InternalError, McpServerClient>
       }
     >()
-    const tools = Arr.empty<McpTool>()
+    const tools = Arr.empty<{
+      readonly tool: McpTool
+      readonly annotations: ServiceMap.ServiceMap<never>
+    }>()
     const toolMap = new Map<string, (payload: any) => Effect.Effect<CallToolResult, InternalError, McpServerClient>>()
-    const resources: Array<Resource> = []
-    const resourceTemplates: Array<ResourceTemplate> = []
-    const prompts: Array<Prompt> = []
+    const resources: Array<{
+      readonly resource: Resource
+      readonly annotations: ServiceMap.ServiceMap<never>
+    }> = []
+    const resourceTemplates: Array<{
+      readonly template: ResourceTemplate
+      readonly annotations: ServiceMap.ServiceMap<never>
+    }> = []
+    const prompts: Array<{
+      readonly prompt: Prompt
+      readonly annotations: ServiceMap.ServiceMap<never>
+    }> = []
     const promptMap = new Map<
       string,
       (params: Record<string, string>) => Effect.Effect<GetPromptResult, InternalError | InvalidParams, McpServerClient>
@@ -189,13 +223,13 @@ export class McpServer extends ServiceMap.Service<McpServer, {
     return McpServer.of({
       notifications: notifications.client,
       notificationsQueue,
-      initializedClients: new Set<number>(),
+      initializedClients: new Set(),
       get tools() {
         return tools
       },
       addTool: (options) =>
         Effect.suspend(() => {
-          tools.push(options.tool)
+          tools.push(options)
           toolMap.set(options.tool.name, options.handle)
           return notifications.client["notifications/tools/list_changed"]({})
         }),
@@ -213,15 +247,15 @@ export class McpServer extends ServiceMap.Service<McpServer, {
       get resourceTemplates() {
         return resourceTemplates
       },
-      addResource: (resource, effect) =>
+      addResource: (options) =>
         Effect.suspend(() => {
-          resources.push(resource)
-          matcher.add(resource.uri, { _tag: "Resource", effect })
+          resources.push(options)
+          matcher.add(options.resource.uri, { _tag: "Resource", effect: options.handle })
           return notifications.client["notifications/resources/list_changed"]({})
         }),
-      addResourceTemplate: ({ completions, handle, routerPath, template }) =>
+      addResourceTemplate: ({ annotations, completions, handle, routerPath, template }) =>
         Effect.suspend(() => {
-          resourceTemplates.push(template)
+          resourceTemplates.push({ template, annotations })
           matcher.add(routerPath, { _tag: "ResourceTemplate", handle })
           for (const [param, handle] of Object.entries(completions)) {
             completionsMap.set(`ref/resource/${template.uriTemplate}/${param}`, handle)
@@ -247,7 +281,7 @@ export class McpServer extends ServiceMap.Service<McpServer, {
       },
       addPrompt: (options) =>
         Effect.suspend(() => {
-          prompts.push(options.prompt)
+          prompts.push(options)
           promptMap.set(options.prompt.name, options.handle)
           for (const [param, handle] of Object.entries(options.completions)) {
             completionsMap.set(`ref/prompt/${options.prompt.name}/${param}`, handle)
@@ -285,14 +319,18 @@ const SUPPORTED_PROTOCOL_VERSIONS = [
   "2024-11-05",
   "2024-10-07"
 ]
+const mcpSessionIdHeader = "mcp-session-id"
+const mcpProtocolVersionHeader = "mcp-protocol-version"
 
 /**
  * @since 4.0.0
  * @category constructors
  */
-export const run: (
-  options: { readonly name: string; readonly version: string }
-) => Effect.Effect<
+export const run: (options: {
+  readonly name: string
+  readonly version: string
+  readonly extensions?: Record<`${string}/${string}`, unknown> | undefined
+}) => Effect.Effect<
   never,
   never,
   McpServer | RpcServer.Protocol
@@ -301,8 +339,10 @@ export const run: (
   readonly version: string
 }) {
   const protocol = yield* RpcServer.Protocol
-  const handlers = yield* Layer.build(layerHandlers(options))
   const server = yield* McpServer
+  const isHttp = Option.isSome(yield* Effect.serviceOption(HttpRouter.HttpRouter))
+  const clientSessions = new Map<string, typeof Initialize.payloadSchema.Type>()
+  const handlers = yield* Layer.build(layerHandlers(options, { clientSessions }))
 
   const clients = yield* RcMap.make({
     lookup: Effect.fnUntraced(function*(clientId: number) {
@@ -337,18 +377,24 @@ export const run: (
     idleTimeToLive: 10000
   })
 
-  const clientMiddleware = McpServerClientMiddleware.of((effect, { clientId }) =>
-    Effect.provideService(
+  const clientMiddleware = McpServerClientMiddleware.of((effect, { clientId, headers, rpc }) => {
+    const initializePayload = getInitializedClient(clientSessions, clientId, headers)
+    const isInitialize = rpc._tag === "initialize"
+    if (!isInitialize && !initializePayload) {
+      return Effect.die(new Error(`Mcp-Session-Id does not exist`))
+    }
+    return Effect.provideService(
       effect,
       McpServerClient,
       McpServerClient.of({
         clientId,
+        initializePayload: initializePayload!,
         getClient: RcMap.get(clients, clientId).pipe(
           Effect.map(({ client }) => client)
         )
       })
     )
-  )
+  })
 
   const patchedProtocol = RpcServer.Protocol.of({
     ...protocol,
@@ -359,6 +405,17 @@ export const run: (
           | RpcMessage.FromClientEncoded
         switch (request._tag) {
           case "Request": {
+            if (isHttp) {
+              const fiber = Fiber.getCurrent()!
+              const httpRequest = ServiceMap.getUnsafe(fiber.services, HttpServerRequest.HttpServerRequest)
+              const client = getInitializedClient(clientSessions, clientId, httpRequest.headers)
+              if (client) {
+                appendPreResponseHandlerUnsafe(httpRequest, (_, res) =>
+                  Effect.succeed(
+                    HttpServerResponse.setHeader(res, mcpProtocolVersionHeader, client.protocolVersion)
+                  ))
+              }
+            }
             const rpc = ClientNotificationRpcs.requests.get(request.tag)
             if (rpc) {
               if (request.tag === "notifications/cancelled") {
@@ -409,7 +466,7 @@ export const run: (
         payload: encoded
       } as any
       const clientIds = yield* patchedProtocol.clientIds
-      for (const clientId of server.initializedClients) {
+      for (const clientId of server.initializedClients.keys()) {
         if (!clientIds.has(clientId)) {
           server.initializedClients.delete(clientId)
           continue
@@ -439,6 +496,7 @@ export const run: (
 export const layer = (options: {
   readonly name: string
   readonly version: string
+  readonly extensions?: Record<`${string}/${string}`, unknown> | undefined
 }): Layer.Layer<McpServer | McpServerClient, never, RpcServer.Protocol> =>
   Layer.effectDiscard(Effect.forkScoped(run(options))).pipe(
     Layer.provideMerge(McpServer.layer)
@@ -504,6 +562,7 @@ export const layer = (options: {
 export const layerStdio = (options: {
   readonly name: string
   readonly version: string
+  readonly extensions?: Record<`${string}/${string}`, unknown> | undefined
 }): Layer.Layer<McpServer | McpServerClient, never, Stdio> =>
   layer(options).pipe(
     Layer.provide(RpcServer.layerProtocolStdio),
@@ -520,6 +579,7 @@ export const layerHttp = (options: {
   readonly name: string
   readonly version: string
   readonly path: HttpRouter.PathInput
+  readonly extensions?: Record<`${string}/${string}`, unknown> | undefined
 }): Layer.Layer<McpServer | McpServerClient, never, HttpRouter.HttpRouter> =>
   layer(options).pipe(
     Layer.provide(RpcServer.layerProtocolHttp(options)),
@@ -549,7 +609,8 @@ export const registerToolkit: <Tools extends Record<string, Tool.Any>>(
   >)
   const services = yield* Effect.services<never>()
   for (const tool of Object.values(built.tools)) {
-    const toolMeta = ServiceMap.getOrUndefined(tool.annotations, Tool.Meta)
+    const annotations = tool.annotations
+    const toolMeta = ServiceMap.getOrUndefined(annotations, Tool.Meta)
     const mcpTool = new McpTool({
       name: tool.name,
       description: Tool.getDescription(tool),
@@ -568,6 +629,7 @@ export const registerToolkit: <Tools extends Record<string, Tool.Any>>(
     })
     yield* registry.addTool({
       tool: mcpTool,
+      annotations,
       handle(payload) {
         return built.handle(tool.name as any, payload).pipe(
           Stream.unwrap,
@@ -655,6 +717,7 @@ export const registerResource: {
       E,
       R
     >
+    readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   }): Effect.Effect<void, never, Exclude<R, McpServerClient> | McpServer>
   <const Schemas extends ReadonlyArray<Schema.Top>>(segments: TemplateStringsArray, ...schemas: Schemas): <
     E,
@@ -672,6 +735,7 @@ export const registerResource: {
       E,
       R
     >
+    readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   }) => Effect.Effect<
     void,
     never,
@@ -688,26 +752,34 @@ export const registerResource: {
   >
 } = function() {
   if (arguments.length === 1) {
-    const options = arguments[0] as Resource & typeof Annotations.Type & {
-      readonly content: Effect.Effect<typeof ReadResourceResult.Type | string | Uint8Array>
+    const options = arguments[0] as {
+      readonly uri: string
+      readonly name: string
+      readonly description?: string | undefined
+      readonly mimeType?: string | undefined
+      readonly audience?: ReadonlyArray<"user" | "assistant"> | undefined
+      readonly priority?: number | undefined
+      readonly content: Effect.Effect<typeof ReadResourceResult.Type | string | Uint8Array, any, any>
+      readonly annotations?: ServiceMap.ServiceMap<never> | undefined
     }
     return Effect.gen(function*() {
       const services = yield* Effect.services<any>()
       const registry = yield* McpServer
-      yield* registry.addResource(
-        new Resource({
+      yield* registry.addResource({
+        resource: new Resource({
           ...options,
           annotations: options
         }),
-        options.content.pipe(
+        handle: options.content.pipe(
           Effect.provideServices(services),
           Effect.map((content) => resolveResourceContent(options.uri, content)),
           Effect.catchCause((cause) => {
             const prettyError = Cause.prettyErrors(cause)[0]
             return Effect.fail(new InternalError({ message: prettyError.message }))
           })
-        )
-      )
+        ),
+        annotations: options.annotations ?? ServiceMap.empty()
+      })
     })
   }
   const {
@@ -728,6 +800,7 @@ export const registerResource: {
       E,
       R
     >
+    readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   }) {
     const services = yield* Effect.services<any>()
     const registry = yield* McpServer
@@ -762,6 +835,7 @@ export const registerResource: {
       template,
       routerPath,
       completions,
+      annotations: options.annotations ?? ServiceMap.empty(),
       handle: (uri, params) =>
         decode(params).pipe(
           Effect.mapError((error) => new InvalidParams({ message: error.message })),
@@ -860,6 +934,7 @@ export const registerPrompt = <
     readonly parameters?: Params | undefined
     readonly completion?: ValidateCompletions<Completions, Extract<keyof Params, string>> | undefined
     readonly content: (params: Params) => Effect.Effect<Array<typeof PromptMessage.Type> | string, E, R>
+    readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   }
 ): Effect.Effect<void, never, Exclude<Schema.Struct.DecodingServices<Params> | R, McpServerClient> | McpServer> => {
   const args = Arr.empty<typeof PromptArgument.Type>()
@@ -910,6 +985,7 @@ export const registerPrompt = <
     yield* registry.addPrompt({
       prompt,
       completions,
+      annotations: options.annotations ?? ServiceMap.empty(),
       handle: (params) =>
         decode(params).pipe(
           Effect.mapError((error) => new InvalidParams({ message: error.message })),
@@ -955,6 +1031,7 @@ export const prompt = <
     readonly content: (
       params: Schema.Struct.Type<Params>
     ) => Effect.Effect<Array<typeof PromptMessage.Type> | string, E, R>
+    readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   }
 ): Layer.Layer<never, never, Exclude<Schema.Struct.DecodingServices<Params> | R, McpServerClient>> =>
   Layer.effectDiscard(registerPrompt(options)).pipe(
@@ -997,6 +1074,18 @@ export const elicit: <S extends Schema.Encoder<Record<string, unknown>, unknown>
       return yield* new ElicitationDeclined({ request })
   }
 }, Effect.scoped)
+
+/**
+ * Access the current client's capabilities.
+ *
+ * @since 4.0.0
+ * @category capabilities
+ */
+export const clientCapabilities: Effect.Effect<
+  ClientCapabilities,
+  never,
+  McpServerClient
+> = McpServerClient.useSync((_) => _.initializePayload.capabilities)
 
 // -----------------------------------------------------------------------------
 // Internal
@@ -1047,6 +1136,9 @@ const compileUriTemplate = (segments: TemplateStringsArray, ...schemas: Readonly
 const layerHandlers = (serverInfo: {
   readonly name: string
   readonly version: string
+  readonly extensions?: Record<`${string}/${string}`, unknown> | undefined
+}, options: {
+  readonly clientSessions: Map<string, typeof Initialize.payloadSchema.Type>
 }) =>
   ClientRpcs.toLayer(
     Effect.gen(function*() {
@@ -1057,7 +1149,15 @@ const layerHandlers = (serverInfo: {
         // Requests
         ping: () => Effect.succeed({}),
         initialize(params, { clientId }) {
-          const requestedVersion = params.protocolVersion
+          const requestedVersion = SUPPORTED_PROTOCOL_VERSIONS.includes(params.protocolVersion)
+            ? params.protocolVersion
+            : LATEST_PROTOCOL_VERSION
+          if (requestedVersion !== params.protocolVersion) {
+            params = {
+              ...params,
+              protocolVersion: requestedVersion
+            }
+          }
           const capabilities: Types.DeepMutable<typeof ServerCapabilities.Type> = {
             completions: {}
           }
@@ -1073,13 +1173,27 @@ const layerHandlers = (serverInfo: {
           if (server.prompts.length > 0) {
             capabilities.prompts = { listChanged: true }
           }
-          server.initializedClients.add(clientId)
-          return Effect.succeed({
-            capabilities,
-            serverInfo,
-            protocolVersion: SUPPORTED_PROTOCOL_VERSIONS.includes(requestedVersion)
-              ? requestedVersion
-              : LATEST_PROTOCOL_VERSION
+          if (serverInfo.extensions) {
+            capabilities.extensions = serverInfo.extensions as any
+          }
+          return Effect.withFiber((fiber) => {
+            const httpRequest = ServiceMap.getOrUndefined(fiber.services, HttpServerRequest.HttpServerRequest)
+            if (httpRequest) {
+              const sessionId = crypto.randomUUID()
+              options.clientSessions.set(sessionId, params)
+              appendPreResponseHandlerUnsafe(httpRequest, (_req, res) =>
+                Effect.succeed(HttpServerResponse.setHeaders(res, {
+                  [mcpSessionIdHeader]: sessionId,
+                  [mcpProtocolVersionHeader]: requestedVersion
+                })))
+            } else {
+              options.clientSessions.set(String(clientId), params)
+            }
+            return Effect.succeed({
+              capabilities,
+              serverInfo,
+              protocolVersion: requestedVersion
+            })
           })
         },
         "completion/complete": (r) =>
@@ -1113,21 +1227,42 @@ const layerHandlers = (serverInfo: {
           server.getPromptResult(r).pipe(
             Effect.provideService(CurrentLogLevel, currentLogLevel)
           ),
-        "prompts/list": () => Effect.sync(() => new ListPromptsResult({ prompts: server.prompts })),
-        "resources/list": () => Effect.sync(() => new ListResourcesResult({ resources: server.resources })),
+        "prompts/list": (_, { clientId, headers }) =>
+          Effect.sync(() => {
+            const client = getInitializedClient(options.clientSessions, clientId, headers)
+            return new ListPromptsResult({ prompts: filterByClient(client, server.prompts, "prompt") })
+          }),
+        "resources/list": (_, { clientId, headers }) =>
+          Effect.sync(() => {
+            const client = getInitializedClient(options.clientSessions, clientId, headers)
+            return new ListResourcesResult({ resources: filterByClient(client, server.resources, "resource") })
+          }),
         "resources/read": ({ uri }) =>
           server.findResource(uri).pipe(
             Effect.provideService(CurrentLogLevel, currentLogLevel)
           ),
-        "resources/subscribe": () => InternalError.notImplemented.asEffect(),
-        "resources/unsubscribe": () => InternalError.notImplemented.asEffect(),
-        "resources/templates/list": () =>
-          Effect.sync(() => new ListResourceTemplatesResult({ resourceTemplates: server.resourceTemplates })),
+        "resources/subscribe": () =>
+          InternalError.notImplemented.asEffect(),
+        "resources/unsubscribe": () =>
+          InternalError.notImplemented.asEffect(),
+        "resources/templates/list": (_, { clientId, headers }) =>
+          Effect.sync(() => {
+            const client = getInitializedClient(options.clientSessions, clientId, headers)
+            return new ListResourceTemplatesResult({
+              resourceTemplates: filterByClient(client, server.resourceTemplates, "template")
+            })
+          }),
         "tools/call": (r) =>
           server.callTool(r).pipe(
             Effect.provideService(CurrentLogLevel, currentLogLevel)
           ),
-        "tools/list": () => Effect.sync(() => new ListToolsResult({ tools: server.tools })),
+        "tools/list": (_, { clientId, headers }) =>
+          Effect.sync(() => {
+            const client = getInitializedClient(options.clientSessions, clientId, headers)
+            return new ListToolsResult({
+              tools: filterByClient(client, server.tools, "tool")
+            })
+          }),
 
         // Notifications
         "notifications/cancelled": (_) => Effect.void,
@@ -1158,4 +1293,40 @@ const resolveResourceContent = (
     }
   }
   return content
+}
+
+const filterByClient = <
+  A extends {
+    readonly annotations: ServiceMap.ServiceMap<never>
+  },
+  P extends keyof A
+>(
+  client: typeof Initialize.payloadSchema.Type | undefined,
+  items: ReadonlyArray<A>,
+  prop: P
+): Array<A[P]> => {
+  if (!client) {
+    return items.map((item) => item[prop])
+  }
+  const out = Arr.empty<A[P]>()
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    const enabledWhen = ServiceMap.getOrUndefined(item.annotations, EnabledWhen)
+    if (!enabledWhen || enabledWhen(client)) {
+      out.push(item[prop])
+    }
+  }
+  return out
+}
+
+const getInitializedClient = (
+  sessions: Map<string, typeof Initialize.payloadSchema.Type>,
+  clientId: number,
+  headers: Headers.Headers
+) => {
+  const sessionId = headers[mcpSessionIdHeader]
+  if (sessionId === undefined) {
+    return sessions.get(String(clientId))
+  }
+  return sessions.get(sessionId)
 }

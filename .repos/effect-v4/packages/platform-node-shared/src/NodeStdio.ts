@@ -16,26 +16,30 @@ export const layer: Layer.Layer<Stdio.Stdio> = Layer.succeed(
   Stdio.Stdio,
   Stdio.make({
     args: Effect.sync(() => process.argv.slice(2)),
-    stdout: fromWritable({
-      evaluate: () => process.stdout,
-      onError: (cause) =>
-        systemError({
-          module: "Stdio",
-          method: "stdout",
-          _tag: "Unknown",
-          cause
-        })
-    }),
-    stderr: fromWritable({
-      evaluate: () => process.stderr,
-      onError: (cause) =>
-        systemError({
-          module: "Stdio",
-          method: "stderr",
-          _tag: "Unknown",
-          cause
-        })
-    }),
+    stdout: (options) =>
+      fromWritable({
+        evaluate: () => process.stdout,
+        onError: (cause) =>
+          systemError({
+            module: "Stdio",
+            method: "stdout",
+            _tag: "Unknown",
+            cause
+          }),
+        endOnDone: options?.endOnDone ?? true
+      }),
+    stderr: (options) =>
+      fromWritable({
+        evaluate: () => process.stderr,
+        onError: (cause) =>
+          systemError({
+            module: "Stdio",
+            method: "stderr",
+            _tag: "Unknown",
+            cause
+          }),
+        endOnDone: options?.endOnDone ?? true
+      }),
     stdin: fromReadable({
       evaluate: () => process.stdin,
       onError: (cause) =>
