@@ -3,19 +3,21 @@
  */
 import * as Duration from "../../Duration.ts"
 import * as Effect from "../../Effect.ts"
+import * as Hash from "../../Hash.ts"
 import * as Layer from "../../Layer.ts"
 import type { ReadonlyRecord } from "../../Record.ts"
+import * as Schema from "../../Schema.ts"
 import type { SchemaError } from "../../Schema.ts"
 import * as ServiceMap from "../../ServiceMap.ts"
 import type { Mutable, Simplify } from "../../Types.ts"
 import type * as HttpClient from "../http/HttpClient.ts"
-import type * as HttpClientError from "../http/HttpClientError.ts"
+import * as HttpClientError from "../http/HttpClientError.ts"
 import type { HttpClientResponse } from "../http/HttpClientResponse.ts"
 import type * as HttpApi from "../httpapi/HttpApi.ts"
 import * as HttpApiClient from "../httpapi/HttpApiClient.ts"
-import type * as HttpApiEndpoint from "../httpapi/HttpApiEndpoint.ts"
+import * as HttpApiEndpoint from "../httpapi/HttpApiEndpoint.ts"
 import type * as HttpApiGroup from "../httpapi/HttpApiGroup.ts"
-import type * as AsyncResult from "./AsyncResult.ts"
+import * as AsyncResult from "./AsyncResult.ts"
 import * as Atom from "./Atom.ts"
 import * as Reactivity from "./Reactivity.ts"
 
@@ -67,7 +69,7 @@ export interface AtomHttpApiClient<Self, Id extends string, Groups extends HttpA
         }
       >,
       WithResponse extends true ? [_Success["Type"], HttpClientResponse] : _Success["Type"],
-      _Error["Type"] | HttpClientError.HttpClientError | SchemaError
+      _Error["Type"]
     >
     : never
 
@@ -124,7 +126,7 @@ export interface AtomHttpApiClient<Self, Id extends string, Groups extends HttpA
   ] ? Atom.Atom<
       AsyncResult.AsyncResult<
         WithResponse extends true ? [_Success["Type"], HttpClientResponse] : _Success["Type"],
-        _Error["Type"] | HttpClientError.HttpClientError | SchemaError
+        _Error["Type"]
       >
     >
     : never
@@ -169,8 +171,12 @@ export const Service = <Self>() =>
   const runtimeFactory = options.runtime ?? Atom.runtime
   self.runtime = runtimeFactory(self.layer)
 
-  const mutationFamily = Atom.family(({ endpoint, group, withResponse }: MutationKey) =>
-    self.runtime.fn<{
+  const catchErrors = Effect.catch((e: unknown) =>
+    Schema.isSchemaError(e) || HttpClientError.isHttpClientError(e) ? Effect.die(e) : Effect.fail(e)
+  )
+
+  const mutationFamily = Atom.family(({ endpoint, group, withResponse }: MutationKey) => {
+    const atom = self.runtime.fn<{
       params: any
       query: any
       headers: any
@@ -179,16 +185,27 @@ export const Service = <Self>() =>
     }>()(
       Effect.fnUntraced(function*(opts) {
         const client = (yield* self) as any
-        const effect = client[group][endpoint]({
+        const effect = catchErrors(client[group][endpoint]({
           ...opts,
           withResponse
-        }) as Effect.Effect<any>
+        }) as Effect.Effect<any>)
         return yield* opts.reactivityKeys
           ? Reactivity.mutation(effect, opts.reactivityKeys)
           : effect
       })
     )
-  ) as any
+    if (withResponse === false) {
+      const definition = options.api.groups[group]!.endpoints[endpoint]! as HttpApiEndpoint.AnyWithProps
+      return Atom.serializable(atom, {
+        key: `AtomHttpApi:mutation:${group}:${endpoint}`,
+        schema: AsyncResult.Schema({
+          success: Schema.Union(HttpApiEndpoint.getSuccessSchemas(definition)),
+          error: Schema.Union(HttpApiEndpoint.getErrorSchemas(definition))
+        }) as any
+      })
+    }
+    return atom
+  }) as any
 
   self.mutation = ((group: string, endpoint: string, options?: {
     readonly withResponse?: boolean | undefined
@@ -202,8 +219,21 @@ export const Service = <Self>() =>
   const queryFamily = Atom.family((opts: QueryKey) => {
     let atom = self.runtime.atom(self.use((client_) => {
       const client = client_ as any
-      return client[opts.group][opts.endpoint](opts) as Effect.Effect<any>
+      return catchErrors(client[opts.group][opts.endpoint](opts) as Effect.Effect<
+        any,
+        HttpClientError.HttpClientError | SchemaError
+      >)
     }))
+    if (opts.withResponse === false) {
+      const endpoint = options.api.groups[opts.group]!.endpoints[opts.endpoint]! as HttpApiEndpoint.AnyWithProps
+      atom = Atom.serializable(atom, {
+        key: makeSerializableKey(opts),
+        schema: AsyncResult.Schema({
+          success: Schema.Union(HttpApiEndpoint.getSuccessSchemas(endpoint)),
+          error: Schema.Union(HttpApiEndpoint.getErrorSchemas(endpoint))
+        }) as any
+      })
+    }
     if (opts.timeToLive) {
       atom = Duration.isFinite(opts.timeToLive)
         ? Atom.setIdleTTL(atom, opts.timeToLive)
@@ -261,3 +291,7 @@ interface QueryKey {
   reactivityKeys?: ReadonlyArray<unknown> | ReadonlyRecord<string, ReadonlyArray<unknown>> | undefined
   timeToLive?: Duration.Duration | undefined
 }
+
+const makeSerializableKey = (
+  key: QueryKey
+): string => `AtomHttpApi:${key.group}:${key.endpoint}:${Hash.hash(key)}`

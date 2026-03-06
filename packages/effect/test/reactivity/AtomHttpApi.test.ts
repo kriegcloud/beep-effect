@@ -3,7 +3,7 @@ import { Effect, Layer, Ref, Schema } from "effect"
 import { HttpClient, HttpClientResponse } from "effect/unstable/http"
 import type * as HttpClientError from "effect/unstable/http/HttpClientError"
 import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi"
-import { AtomHttpApi, AtomRegistry } from "effect/unstable/reactivity"
+import { Atom, AtomHttpApi, AtomRegistry, Hydration } from "effect/unstable/reactivity"
 
 const Api = HttpApi.make("api").add(
   HttpApiGroup.make("group").add(
@@ -50,17 +50,35 @@ describe("AtomHttpApi", () => {
         query: { page: 2 }
       })
 
+      if (!Atom.isSerializable(atom)) {
+        assert.fail("expected query atom to be serializable")
+      }
+      const key = atom[Atom.SerializableTypeId].key
+
+      const atomFromEncodedInput = Client.query("group", "get", {
+        params: { id: 1 },
+        query: { page: 2 }
+      })
+      if (!Atom.isSerializable(atomFromEncodedInput)) {
+        assert.fail("expected query atom from encoded input to be serializable")
+      }
+      assert.strictEqual(atomFromEncodedInput[Atom.SerializableTypeId].key, key)
+
       const registry = AtomRegistry.make()
-      registry.get(atom)
+      const unmount = registry.mount(atom)
       yield* Effect.yieldNow
       yield* Effect.yieldNow
       yield* Effect.yieldNow
 
       const request = yield* Ref.get(requestRef)
-      if (request === undefined) {
-        assert.fail("expected query request to execute")
-      }
+      assert(request !== undefined)
       assert.strictEqual(request.url, "/users/1")
       assert.deepStrictEqual(request.urlParams, [["page", "2"]])
+
+      const dehydrated = Hydration.toValues(Hydration.dehydrate(registry))
+      assert.lengthOf(dehydrated, 1)
+      assert.strictEqual(dehydrated[0]!.key, key)
+
+      unmount()
     }))
 })

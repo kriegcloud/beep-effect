@@ -1842,6 +1842,7 @@ export class ElicitationDeclined
  */
 export class McpServerClient extends ServiceMap.Service<McpServerClient, {
   readonly clientId: number
+  readonly initializePayload: typeof Initialize.payloadSchema["Type"]
   readonly getClient: Effect.Effect<
     RpcClient.RpcClient<RpcGroup.Rpcs<typeof ServerRequestRpcs>, RpcClientError>,
     never,
@@ -2121,3 +2122,16 @@ export function param<const Name extends string, S extends Schema.Top>(
 ): Param<Name, S> {
   return Schema.make(schema.ast, { [ParamSchemaTypeId]: ParamSchemaTypeId, name, schema })
 }
+
+/**
+ * Annotation to conditionally enable or disable tools based on client
+ * information.
+ *
+ * @since 4.0.0
+ * @category annotations
+ */
+export class EnabledWhen
+  extends ServiceMap.Service<EnabledWhen, Predicate.Predicate<typeof Initialize.payloadSchema.Type>>()(
+    "effect/unstable/ai/McpSchema/EnabledWhen"
+  )
+{}

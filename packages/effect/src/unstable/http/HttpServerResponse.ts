@@ -5,7 +5,7 @@ import * as Effect from "../../Effect.ts"
 import * as ErrorReporter from "../../ErrorReporter.ts"
 import type * as FileSystem from "../../FileSystem.ts"
 import { dual } from "../../Function.ts"
-import type * as Inspectable from "../../Inspectable.ts"
+import * as Inspectable from "../../Inspectable.ts"
 import { PipeInspectableProto } from "../../internal/core.ts"
 import type { Pipeable } from "../../Pipeable.ts"
 import type { PlatformError } from "../../PlatformError.ts"
@@ -19,6 +19,10 @@ import type { Mutable } from "../../Types.ts"
 import * as Cookies from "./Cookies.ts"
 import * as Headers from "./Headers.ts"
 import * as Body from "./HttpBody.ts"
+import * as HttpClientError from "./HttpClientError.ts"
+import * as HttpClientRequest from "./HttpClientRequest.ts"
+import * as HttpClientResponse from "./HttpClientResponse.ts"
+import * as HttpIncomingMessage from "./HttpIncomingMessage.ts"
 import type { HttpPlatform } from "./HttpPlatform.ts"
 import * as Template from "./Template.ts"
 import * as UrlParams from "./UrlParams.ts"
@@ -490,6 +494,39 @@ export const setCookie: {
  * @since 4.0.0
  * @category combinators
  */
+export const expireCookie: {
+  (
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): (
+    self: HttpServerResponse
+  ) => Effect.Effect<HttpServerResponse, Cookies.CookiesError>
+  (
+    self: HttpServerResponse,
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): Effect.Effect<HttpServerResponse, Cookies.CookiesError>
+} = dual(
+  (args) => isHttpServerResponse(args[0]),
+  (
+    self: HttpServerResponse,
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): Effect.Effect<HttpServerResponse, Cookies.CookiesError> =>
+    Effect.map(
+      Cookies.expireCookie(self.cookies, name, options).asEffect(),
+      (cookies) =>
+        makeResponse({
+          ...self,
+          cookies
+        })
+    )
+)
+
+/**
+ * @since 4.0.0
+ * @category combinators
+ */
 export const setCookieUnsafe: {
   (
     name: string,
@@ -513,6 +550,33 @@ export const setCookieUnsafe: {
     makeResponse({
       ...self,
       cookies: Cookies.setUnsafe(self.cookies, name, value, options)
+    })
+)
+
+/**
+ * @since 4.0.0
+ * @category combinators
+ */
+export const expireCookieUnsafe: {
+  (
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): (self: HttpServerResponse) => HttpServerResponse
+  (
+    self: HttpServerResponse,
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): HttpServerResponse
+} = dual(
+  (args) => isHttpServerResponse(args[0]),
+  (
+    self: HttpServerResponse,
+    name: string,
+    options?: Omit<NonNullable<Cookies.Cookie["options"]>, "expires" | "maxAge">
+  ): HttpServerResponse =>
+    makeResponse({
+      ...self,
+      cookies: Cookies.expireCookieUnsafe(self.cookies, name, options)
     })
 )
 
@@ -750,6 +814,210 @@ export const toWeb = (
     }
   }
 }
+
+/**
+ * @since 4.0.0
+ * @category conversions
+ */
+export const toClientResponse = (
+  response: HttpServerResponse,
+  options?: {
+    readonly request?: HttpClientRequest.HttpClientRequest | undefined
+  }
+): HttpClientResponse.HttpClientResponse =>
+  new ServerHttpClientResponse(
+    options?.request ?? HttpClientRequest.empty,
+    response
+  )
+
+class ServerHttpClientResponse extends Inspectable.Class implements HttpClientResponse.HttpClientResponse {
+  readonly [HttpIncomingMessage.TypeId]: typeof HttpIncomingMessage.TypeId
+  readonly [HttpClientResponse.TypeId]: typeof HttpClientResponse.TypeId
+
+  readonly request: HttpClientRequest.HttpClientRequest
+  private readonly response: HttpServerResponse
+
+  constructor(
+    request: HttpClientRequest.HttpClientRequest,
+    response: HttpServerResponse
+  ) {
+    super()
+    this.request = request
+    this.response = response
+    this[HttpIncomingMessage.TypeId] = HttpIncomingMessage.TypeId
+    this[HttpClientResponse.TypeId] = HttpClientResponse.TypeId
+  }
+
+  toJSON(): unknown {
+    return HttpIncomingMessage.inspect(this, {
+      _id: "HttpClientResponse",
+      request: this.request.toJSON(),
+      status: this.status
+    })
+  }
+
+  get status(): number {
+    return this.response.status
+  }
+
+  get headers(): Headers.Headers {
+    return this.response.headers
+  }
+
+  get cookies(): Cookies.Cookies {
+    return this.response.cookies
+  }
+
+  get remoteAddress(): string | undefined {
+    return undefined
+  }
+
+  get stream(): Stream.Stream<Uint8Array, HttpClientError.HttpClientError> {
+    const body = this.response.body
+    switch (body._tag) {
+      case "Empty": {
+        return Stream.empty
+      }
+      case "Stream": {
+        return Stream.mapError(body.stream, (cause) => this.decodeError(cause))
+      }
+      case "Uint8Array": {
+        return Stream.succeed(body.body)
+      }
+      case "Raw": {
+        const rawBody = body.body
+        if (rawBody instanceof Response) {
+          return rawBody.body
+            ? Stream.fromReadableStream({
+              evaluate: () => rawBody.body!,
+              onError: (cause) => this.decodeError(cause)
+            })
+            : Stream.empty
+        }
+        if (isReadableStream(rawBody)) {
+          return Stream.fromReadableStream({
+            evaluate: () => rawBody,
+            onError: (cause) => this.decodeError(cause)
+          })
+        }
+        if (rawBody instanceof Blob) {
+          return Stream.fromReadableStream({
+            evaluate: () => rawBody.stream(),
+            onError: (cause) => this.decodeError(cause)
+          })
+        }
+        return Stream.unwrap(Effect.map(this.bytes, Stream.succeed))
+      }
+      case "FormData": {
+        return Stream.fromReadableStream({
+          evaluate: () => new Response(body.formData, { headers: this.headers }).body!,
+          onError: (cause) => this.decodeError(cause)
+        })
+      }
+    }
+  }
+
+  get json(): Effect.Effect<unknown, HttpClientError.HttpClientError> {
+    return Effect.flatMap(this.text, (text) =>
+      Effect.try({
+        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        catch: (cause) =>
+          new HttpClientError.HttpClientError({
+            reason: new HttpClientError.DecodeError({
+              request: this.request,
+              response: this,
+              cause
+            })
+          })
+      }))
+  }
+
+  private get bytes(): Effect.Effect<Uint8Array, HttpClientError.HttpClientError> {
+    const body = this.response.body
+    switch (body._tag) {
+      case "Empty": {
+        return Effect.succeed(new Uint8Array(0))
+      }
+      case "Uint8Array": {
+        return Effect.succeed(body.body)
+      }
+      case "Stream": {
+        return Stream.mkUint8Array(this.stream)
+      }
+      case "Raw": {
+        const rawBody = body.body
+        if (rawBody instanceof Response) {
+          return Effect.tryPromise({
+            try: () => rawBody.arrayBuffer().then((buffer) => new Uint8Array(buffer)),
+            catch: (cause) => this.decodeError(cause)
+          })
+        }
+        return Effect.tryPromise({
+          try: () => new Response(rawBody as any).arrayBuffer().then((buffer) => new Uint8Array(buffer)),
+          catch: (cause) => this.decodeError(cause)
+        })
+      }
+      case "FormData": {
+        return Effect.tryPromise({
+          try: () => new Response(body.formData).arrayBuffer().then((buffer) => new Uint8Array(buffer)),
+          catch: (cause) => this.decodeError(cause)
+        })
+      }
+    }
+  }
+
+  get text(): Effect.Effect<string, HttpClientError.HttpClientError> {
+    return Effect.map(this.bytes, (bytes) => textDecoder.decode(bytes))
+  }
+
+  get urlParamsBody(): Effect.Effect<UrlParams.UrlParams, HttpClientError.HttpClientError> {
+    return Effect.flatMap(this.text, (_) =>
+      Effect.try({
+        try: () => UrlParams.fromInput(new URLSearchParams(_)),
+        catch: (cause) =>
+          new HttpClientError.HttpClientError({
+            reason: new HttpClientError.DecodeError({
+              request: this.request,
+              response: this,
+              cause
+            })
+          })
+      }))
+  }
+
+  get formData(): Effect.Effect<FormData, HttpClientError.HttpClientError> {
+    const body = this.response.body
+    if (body._tag === "FormData") {
+      return Effect.succeed(body.formData)
+    }
+    return Effect.servicesWith((services: ServiceMap.ServiceMap<never>) => {
+      const readableStream = Stream.toReadableStreamWith(this.stream, services)
+      return Effect.tryPromise({
+        try: () => new Response(readableStream, { headers: this.headers }).formData(),
+        catch: (cause) => this.decodeError(cause)
+      })
+    })
+  }
+
+  get arrayBuffer(): Effect.Effect<ArrayBuffer, HttpClientError.HttpClientError> {
+    return Effect.map(this.bytes, (bytes) => bytes.slice().buffer)
+  }
+
+  private decodeError(cause: unknown): HttpClientError.HttpClientError {
+    return new HttpClientError.HttpClientError({
+      reason: new HttpClientError.DecodeError({
+        request: this.request,
+        response: this,
+        cause
+      })
+    })
+  }
+}
+
+const textDecoder = new TextDecoder()
+
+const isReadableStream = (u: unknown): u is ReadableStream<Uint8Array> =>
+  typeof ReadableStream !== "undefined" && u instanceof ReadableStream
 
 const Proto: Omit<
   HttpServerResponse,
