@@ -1,3 +1,7 @@
+/**
+ * @module @beep/utils/Str
+ * @since 0.0.0
+ */
 import { Function, String as Str } from "effect";
 import type * as TF from "type-fest";
 import * as A from "./Array.ts";
