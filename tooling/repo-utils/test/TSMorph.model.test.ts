@@ -2,6 +2,7 @@ import {
   ByteLength,
   ByteOffset,
   ColumnNumber,
+  ContentHash,
   ContentHashFromSourceText,
   FilePathToTsConfigFilePath,
   FilePathToTypeScriptDeclarationFilePath,
@@ -10,14 +11,12 @@ import {
   LineNumber,
   ProjectScopeId,
   ProjectScopeIdParts,
-  ProjectScopeIdToParts,
   RepoRootPath,
   Symbol,
   SymbolCategory,
   SymbolFilePath,
   SymbolId,
   SymbolIdParts,
-  SymbolIdToParts,
   SymbolKind,
   SymbolKindToCategory,
   SymbolNameSegment,
@@ -46,12 +45,12 @@ import {
   makeSymbol,
   makeSymbolId,
   symbolCategoryFromKind,
-} from "@beep/repo-utils/TSMorph";
+} from "../src/TSMorph/index.js";
 import {
   InternalTsMorphNode,
   InternalTsMorphProject,
   InternalTsMorphSourceFile,
-} from "@beep/repo-utils/TSMorph/TSMorph.model";
+} from "../src/TSMorph/TSMorph.model.js";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Option as O } from "effect";
 import * as S from "effect/Schema";
@@ -69,16 +68,15 @@ const decodeSymbolKind = S.decodeUnknownSync(SymbolKind);
 const decodeSymbolCategory = S.decodeUnknownSync(SymbolCategory);
 const decodeSymbolId = S.decodeUnknownSync(SymbolId);
 const decodeSymbolIdParts = S.decodeUnknownSync(SymbolIdParts);
-const decodeSymbolIdToParts = S.decodeUnknownSync(SymbolIdToParts);
 const decodeProjectScopeId = S.decodeUnknownSync(ProjectScopeId);
 const decodeProjectScopeIdParts = S.decodeUnknownSync(ProjectScopeIdParts);
-const decodeProjectScopeIdToParts = S.decodeUnknownSync(ProjectScopeIdToParts);
 const decodeLineNumber = S.decodeUnknownSync(LineNumber);
 const decodeColumnNumber = S.decodeUnknownSync(ColumnNumber);
 const decodeByteOffset = S.decodeUnknownSync(ByteOffset);
 const decodeByteLength = S.decodeUnknownSync(ByteLength);
 const decodeSymbolNameSegment = S.decodeUnknownSync(SymbolNameSegment);
 const decodeSearchLimit = S.decodeUnknownSync(TsMorphSearchLimit);
+const decodeContentHash = S.decodeUnknownSync(ContentHash);
 const decodeSymbol = S.decodeUnknownSync(Symbol);
 const decodeTsMorphProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
 const decodeTsMorphProjectScope = S.decodeUnknownSync(TsMorphProjectScope);
@@ -93,6 +91,7 @@ const decodeTsMorphDiagnosticsResult = S.decodeUnknownSync(TsMorphDiagnosticsRes
 const decodeInternalProject = S.decodeUnknownSync(InternalTsMorphProject);
 const decodeInternalSourceFile = S.decodeUnknownSync(InternalTsMorphSourceFile);
 const decodeInternalNode = S.decodeUnknownSync(InternalTsMorphNode);
+const encodeSymbol = S.encodeSync(Symbol);
 
 const baseSymbolInput = {
   filePath: decodeSymbolFilePath("src/main.ts"),
@@ -104,20 +103,19 @@ const baseSymbolInput = {
   summary: O.none<string>(),
   decorators: [],
   keywords: ["login"],
-  parentId: O.none<typeof SymbolId.Type>(),
+  parentId: O.none<SymbolId>(),
   startLine: decodeLineNumber(10),
   endLine: decodeLineNumber(18),
   byteOffset: decodeByteOffset(128),
   byteLength: decodeByteLength(84),
-  contentHash: S.decodeUnknownSync(S.String.check(S.isPattern(/^[0-9a-f]{64}$/))) (
-    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-  ) as never,
+  contentHash: decodeContentHash("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"),
 };
 
 const baseSymbol = makeSymbol({
   ...baseSymbolInput,
   contentHash: baseSymbolInput.contentHash,
 });
+const baseSymbolEncoded = encodeSymbol(baseSymbol);
 
 describe("TSMorph model taxonomy", () => {
   describe("path primitives", () => {
@@ -184,13 +182,6 @@ describe("TSMorph model taxonomy", () => {
         "#",
         "MethodDeclaration",
       ]);
-      expect(decodeSymbolIdToParts(symbolId)).toEqual([
-        "src/main.ts",
-        "::",
-        "UserService.login",
-        "#",
-        "MethodDeclaration",
-      ]);
 
       const scopeId = makeProjectScopeId({
         tsConfigPath: decodeTsConfigFilePath("tooling/repo-utils/tsconfig.json"),
@@ -201,13 +192,6 @@ describe("TSMorph model taxonomy", () => {
       expect(scopeId).toBe("tooling/repo-utils/tsconfig.json::syntax#workspaceOnly");
       expect(decodeProjectScopeId(scopeId)).toBe(scopeId);
       expect(decodeProjectScopeIdParts(scopeId)).toEqual([
-        "tooling/repo-utils/tsconfig.json",
-        "::",
-        "syntax",
-        "#",
-        "workspaceOnly",
-      ]);
-      expect(decodeProjectScopeIdToParts(scopeId)).toEqual([
         "tooling/repo-utils/tsconfig.json",
         "::",
         "syntax",
@@ -322,7 +306,7 @@ describe("TSMorph model taxonomy", () => {
       expect(decodeTsMorphFileOutline({
         scopeId: scope.scopeId,
         filePath: "src/main.ts",
-        symbols: [baseSymbol],
+        symbols: [baseSymbolEncoded],
       }).symbols).toHaveLength(1);
 
       expect(decodeTsMorphSourceTextResult({
@@ -339,7 +323,7 @@ describe("TSMorph model taxonomy", () => {
 
       expect(decodeTsMorphSymbolLookupResult({
         scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        symbol: baseSymbol,
+        symbol: baseSymbolEncoded,
       }).symbol.id).toBe(baseSymbol.id);
 
       const searchRequest = decodeTsMorphSymbolSearchRequest({
@@ -356,13 +340,13 @@ describe("TSMorph model taxonomy", () => {
         scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
         query: "user",
         limit: 25,
-        symbols: [baseSymbol],
+        symbols: [baseSymbolEncoded],
         total: 1,
       }).total).toBe(1);
 
       expect(decodeTsMorphSymbolSourceResult({
         scopeId: "tooling/repo-utils/tsconfig.json::syntax#workspaceOnly",
-        symbol: baseSymbol,
+        symbol: baseSymbolEncoded,
         sourceText: "login(id: string): User { return user; }",
         contentHash: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       }).symbol.id).toBe(baseSymbol.id);

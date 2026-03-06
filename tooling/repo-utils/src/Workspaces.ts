@@ -8,10 +8,11 @@
  * @module
  */
 import { Effect, HashMap } from "effect";
+import * as A from "effect/Array";
 import type * as O from "effect/Option";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
-import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
+import { decodePackageJsonEffect, type PackageJson } from "./schemas/PackageJson.js";
 
 /**
  * Directories to exclude when scanning workspace globs.
@@ -20,6 +21,18 @@ import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
  * @category Configuration
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
+
+const workspaceGlobsFrom = (workspaces: PackageJson["workspaces"]): ReadonlyArray<string> => {
+  if (workspaces === undefined) {
+    return [];
+  }
+
+  if (A.isArray(workspaces)) {
+    return workspaces;
+  }
+
+  return workspaces.packages ?? [];
+};
 
 /**
  * Resolve all workspace directories declared in the root `package.json`.
@@ -62,7 +75,7 @@ export const resolveWorkspaceDirs: (
       )
     );
 
-    const workspaceGlobs: ReadonlyArray<string> = rootPkg.workspaces ?? [];
+    const workspaceGlobs = workspaceGlobsFrom(rootPkg.workspaces);
     if (workspaceGlobs.length === 0) {
       return HashMap.empty<string, string>();
     }

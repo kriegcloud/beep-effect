@@ -19,11 +19,9 @@
     "tooling/repo-utils"
   ],
   "repository": {
-    "repository": {
-      "type": "git",
-      "url": "git@github.com:kriegcloud/beep-effect.git",
-      "directory": "."
-    }
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "."
   },
   "scripts": {
     "op": "op run --env-file=.env --",

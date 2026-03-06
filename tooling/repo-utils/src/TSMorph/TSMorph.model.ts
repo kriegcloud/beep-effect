@@ -7,7 +7,7 @@ import {
   Sha256Hex,
   Sha256HexFromBytes,
 } from "@beep/schema";
-import { Effect, identity, Option as O, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, SchemaGetter, Tuple } from "effect";
 import * as S from "effect/Schema";
 import { Node as TsMorphNode, Project, SourceFile } from "ts-morph";
 import { TSSyntaxKind } from "../TypeScript/models/TSSyntaxKind.model.ts";
@@ -86,20 +86,6 @@ const typeScriptDeclarationFilePathChecks = S.makeFilterGroup(
     description: "A TypeScript declaration file path for .d.ts, .d.mts, or .d.cts files.",
   }
 );
-
-const encodeUnsupported =
-  (message: string) =>
-  (value: unknown): Effect.Effect<never, SchemaIssue.Issue> =>
-    Effect.fail(
-      new SchemaIssue.InvalidValue(O.some(value), {
-        message,
-      })
-    );
-
-const stringIdentityTransform = SchemaTransformation.transform({
-  decode: identity,
-  encode: identity,
-});
 
 const symbolKindOptions = TSSyntaxKind.pickOptions([
   "FunctionDeclaration",
@@ -237,10 +223,10 @@ export const symbolCategoryFromKind = SymbolKind.$match({
 export const SymbolKindToCategory = SymbolKind.pipe(
   S.decodeTo(
     SymbolCategory,
-    SchemaTransformation.transformOrFail({
-      decode: (value) => Effect.succeed(symbolCategoryFromKind(value)),
-      encode: encodeUnsupported("Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."),
-    })
+    {
+      decode: SchemaGetter.transform(symbolCategoryFromKind),
+      encode: SchemaGetter.forbidden(() => "Encoding SymbolCategory back to SymbolKind is not supported by SymbolKindToCategory."),
+    }
   ),
   S.annotate(
     $I.annote("SymbolKindToCategory", {
@@ -385,7 +371,10 @@ export const SymbolIdParts = S.TemplateLiteralParser([SymbolFilePath, "::", Symb
 );
 
 export const FilePathToTsConfigFilePath = FilePath.pipe(
-  S.decodeTo(TsConfigFilePath, stringIdentityTransform),
+  S.decodeTo(TsConfigFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
   S.annotate(
     $I.annote("FilePathToTsConfigFilePath", {
       description: "Schema transformation from a generic file path to a validated tsconfig file path.",
@@ -394,7 +383,10 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(
 );
 
 export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
-  S.decodeTo(TypeScriptImplementationFilePath, stringIdentityTransform),
+  S.decodeTo(TypeScriptImplementationFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
   S.annotate(
     $I.annote("FilePathToTypeScriptImplementationFilePath", {
       description: "Schema transformation from a generic file path to a TypeScript implementation file path.",
@@ -403,7 +395,10 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
 );
 
 export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
-  S.decodeTo(TypeScriptDeclarationFilePath, stringIdentityTransform),
+  S.decodeTo(TypeScriptDeclarationFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
   S.annotate(
     $I.annote("FilePathToTypeScriptDeclarationFilePath", {
       description: "Schema transformation from a generic file path to a TypeScript declaration file path.",
@@ -412,7 +407,10 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
 );
 
 export const FilePathToTypeScriptFilePath = FilePath.pipe(
-  S.decodeTo(TypeScriptFilePath, stringIdentityTransform),
+  S.decodeTo(TypeScriptFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
   S.annotate(
     $I.annote("FilePathToTypeScriptFilePath", {
       description: "Schema transformation from a generic file path to a TypeScript source file path.",
@@ -421,7 +419,10 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(
 );
 
 export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplementationFilePath.pipe(
-  S.decodeTo(SymbolFilePath, stringIdentityTransform),
+  S.decodeTo(SymbolFilePath, {
+    decode: SchemaGetter.passthrough({ strict: false }),
+    encode: SchemaGetter.passthrough({ strict: false }),
+  }),
   S.annotate(
     $I.annote("TypeScriptImplementationFilePathToSymbolFilePath", {
       description: "Schema transformation from a TypeScript implementation file path to a symbol-id-safe file path.",
@@ -430,55 +431,22 @@ export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplem
 );
 
 const decodeSymbolId = S.decodeUnknownSync(SymbolId);
-const decodeSymbolIdPartsEffect = S.decodeUnknownEffect(SymbolIdParts);
 const decodeProjectScopeId = S.decodeUnknownSync(ProjectScopeId);
-const decodeProjectScopeIdPartsEffect = S.decodeUnknownEffect(ProjectScopeIdParts);
 const decodeContentHash = S.decodeUnknownSync(ContentHash);
 const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes);
-
-export const SymbolIdToParts = SymbolId.pipe(
-  S.decodeTo(
-    SymbolIdParts,
-    SchemaTransformation.transformOrFail({
-      decode: (value, options) => decodeSymbolIdPartsEffect(value, options),
-      encode: (value) =>
-        Effect.succeed(
-          decodeSymbolId(`${value[0]}${value[1]}${value[2]}${value[3]}${value[4]}`)
-        ),
-    })
-  ),
-  S.annotate(
-    $I.annote("SymbolIdToParts", {
-      description: "Bidirectional schema transformation between SymbolId strings and parsed SymbolId tuple parts.",
-    })
-  )
-);
-
-export const ProjectScopeIdToParts = ProjectScopeId.pipe(
-  S.decodeTo(
-    ProjectScopeIdParts,
-    SchemaTransformation.transformOrFail({
-      decode: (value, options) => decodeProjectScopeIdPartsEffect(value, options),
-      encode: (value) =>
-        Effect.succeed(
-          decodeProjectScopeId(`${value[0]}${value[1]}${value[2]}${value[3]}${value[4]}`)
-        ),
-    })
-  ),
-  S.annotate(
-    $I.annote("ProjectScopeIdToParts", {
-      description: "Bidirectional schema transformation between ProjectScopeId strings and parsed scope identity tuple parts.",
-    })
-  )
-);
 
 export const ContentHashFromBytes = S.Uint8Array.pipe(
   S.decodeTo(
     ContentHash,
-    SchemaTransformation.transformOrFail({
-      decode: (value, options) => decodeSha256HexFromBytesEffect(value, options).pipe(Effect.map(decodeContentHash)),
-      encode: encodeUnsupported("Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."),
-    })
+    {
+      decode: SchemaGetter.transformOrFail((value) =>
+        decodeSha256HexFromBytesEffect(value).pipe(
+          Effect.mapError((error) => error.issue),
+          Effect.map(decodeContentHash)
+        )
+      ),
+      encode: SchemaGetter.forbidden(() => "Encoding ContentHash back to original bytes is not supported by ContentHashFromBytes."),
+    }
   ),
   S.annotate(
     $I.annote("ContentHashFromBytes", {
@@ -493,10 +461,16 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBy
 export const ContentHashFromSourceText = SourceText.pipe(
   S.decodeTo(
     ContentHash,
-    SchemaTransformation.transformOrFail({
-      decode: (value, options) => decodeContentHashFromBytesEffect(textEncoder.encode(value), options),
-      encode: encodeUnsupported("Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."),
-    })
+    {
+      decode: SchemaGetter.transformOrFail((value) =>
+        decodeContentHashFromBytesEffect(textEncoder.encode(value)).pipe(
+          Effect.mapError((error) => error.issue)
+        )
+      ),
+      encode: SchemaGetter.forbidden(
+        () => "Encoding ContentHash back to original source text is not supported by ContentHashFromSourceText."
+      ),
+    }
   ),
   S.annotate(
     $I.annote("ContentHashFromSourceText", {
@@ -517,7 +491,7 @@ export const InternalTsMorphProject = S.instanceOf(Project).pipe(
   )
 );
 
-export const InternalTsMorphSourceFile = S.instanceOf(SourceFile).pipe(
+export const InternalTsMorphSourceFile = S.declare<SourceFile>((value): value is SourceFile => value instanceof SourceFile).pipe(
   S.annotate(
     $I.annote("InternalTsMorphSourceFile", {
       description: "Internal runtime schema for a live ts-morph SourceFile instance.",
@@ -525,7 +499,7 @@ export const InternalTsMorphSourceFile = S.instanceOf(SourceFile).pipe(
   )
 );
 
-export const InternalTsMorphNode = S.instanceOf(TsMorphNode).pipe(
+export const InternalTsMorphNode = S.declare<TsMorphNode>((value): value is TsMorphNode => value instanceof TsMorphNode).pipe(
   S.annotate(
     $I.annote("InternalTsMorphNode", {
       description: "Internal runtime schema for a live ts-morph Node instance.",
@@ -819,9 +793,8 @@ export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "sugges
 
 export type TsMorphDiagnosticCategory = typeof TsMorphDiagnosticCategory.Type;
 
-export class TsMorphDiagnostic extends S.Class<TsMorphDiagnostic>($I`TsMorphDiagnostic`)(
+class TsMorphDiagnosticBase extends S.Class<TsMorphDiagnosticBase>($I`TsMorphDiagnosticBase`)(
   {
-    category: TsMorphDiagnosticCategory,
     code: NonNegativeInt,
     message: S.NonEmptyString,
     source: S.OptionFromNullOr(S.NonEmptyString),
@@ -830,10 +803,65 @@ export class TsMorphDiagnostic extends S.Class<TsMorphDiagnostic>($I`TsMorphDiag
     endLine: LineNumber,
     endColumn: ColumnNumber,
   },
-  $I.annote("TsMorphDiagnostic", {
-    description: "Normalized TypeScript diagnostic for a single file within a resolved scope.",
+  $I.annote("TsMorphDiagnosticBase", {
+    description: "Shared fields for normalized TypeScript diagnostics within a resolved scope.",
   })
 ) {}
+
+class TsMorphDiagnosticError extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticError>($I`TsMorphDiagnosticError`)(
+  {
+    category: S.tag("error"),
+  },
+  $I.annote("TsMorphDiagnosticError", {
+    description: "Normalized TypeScript error diagnostic.",
+  })
+) {}
+
+class TsMorphDiagnosticWarning extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticWarning>($I`TsMorphDiagnosticWarning`)(
+  {
+    category: S.tag("warning"),
+  },
+  $I.annote("TsMorphDiagnosticWarning", {
+    description: "Normalized TypeScript warning diagnostic.",
+  })
+) {}
+
+class TsMorphDiagnosticSuggestion extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticSuggestion>(
+  $I`TsMorphDiagnosticSuggestion`
+)(
+  {
+    category: S.tag("suggestion"),
+  },
+  $I.annote("TsMorphDiagnosticSuggestion", {
+    description: "Normalized TypeScript suggestion diagnostic.",
+  })
+) {}
+
+class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagnosticMessage>($I`TsMorphDiagnosticMessage`)(
+  {
+    category: S.tag("message"),
+  },
+  $I.annote("TsMorphDiagnosticMessage", {
+    description: "Normalized TypeScript message diagnostic.",
+  })
+) {}
+
+export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
+  Tuple.evolve([
+    () => TsMorphDiagnosticError,
+    () => TsMorphDiagnosticWarning,
+    () => TsMorphDiagnosticSuggestion,
+    () => TsMorphDiagnosticMessage,
+  ])
+)
+  .annotate(
+    $I.annote("TsMorphDiagnostic", {
+      description: "Tagged union of normalized TypeScript diagnostics keyed by category.",
+    })
+  )
+  .pipe(S.toTaggedUnion("category"));
+
+export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
 
 export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
   {

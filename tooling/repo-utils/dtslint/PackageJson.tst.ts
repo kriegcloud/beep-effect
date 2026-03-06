@@ -6,6 +6,7 @@ import {
   encodePackageJsonEffect,
   encodePackageJsonPrettyEffect,
   encodePackageJsonToJsonEffect,
+  type NpmPackageJson,
   type PackageJson,
 } from "@beep/repo-utils";
 import type { Effect, Exit, Schema } from "effect";
@@ -25,8 +26,23 @@ describe("PackageJson", () => {
       expect<PackageJson["dependencies"]>().type.toBe<{ readonly [x: string]: string } | undefined>();
     });
 
-    it("Type has optional workspaces array", () => {
-      expect<PackageJson["workspaces"]>().type.toBe<ReadonlyArray<string> | undefined>();
+    it("Type has widened workspaces union", () => {
+      expect<PackageJson["workspaces"]>().type.toBe<
+        | ReadonlyArray<string>
+        | {
+            readonly packages?: ReadonlyArray<string>;
+            readonly nohoist?: ReadonlyArray<string>;
+          }
+        | undefined
+      >();
+    });
+
+    it("Type has repo-local catalog field", () => {
+      expect<PackageJson["catalog"]>().type.toBe<{ readonly [x: string]: string } | undefined>();
+    });
+
+    it("NpmPackageJson keeps packageManager but not repo-only fields", () => {
+      expect<NpmPackageJson["packageManager"]>().type.toBe<string | undefined>();
     });
   });
 

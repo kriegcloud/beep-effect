@@ -420,7 +420,7 @@ const toNameOptions = <
   const Entries extends readonly [readonly [string, number], ...ReadonlyArray<readonly [string, number]>],
 >(
   entries: Entries
-) => entries.map(([name]) => name) as readonly [Entries[0][0], ...Array<Entries[number][0]>];
+) => entries.map(([name]) => name) as unknown as readonly [Entries[0][0], ...Array<Entries[number][0]>];
 
 const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
 

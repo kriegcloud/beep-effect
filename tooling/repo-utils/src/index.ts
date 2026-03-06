@@ -142,6 +142,10 @@ export {
   /**
    * @since 0.0.0
    */
+  NpmPackageJson,
+  /**
+   * @since 0.0.0
+   */
   PackageJson,
 } from "./schemas/PackageJson.js";
 /**

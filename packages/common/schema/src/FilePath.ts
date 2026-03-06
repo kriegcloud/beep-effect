@@ -468,7 +468,7 @@ const isWindowsUncRoot = S.is(WindowsUncRoot);
 export const HasLeafSegment = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(Eq.equals("/"), {
+      S.makeFilter(P.not(Eq.equals("/")), {
         identifier: $I`HasLeafSegmentNotPosixRootCheck`,
         title: "Has Leaf Segment Not Posix Root",
         description: "A path that is not exactly the POSIX root /.",
@@ -766,17 +766,13 @@ const classifyPathFamily = Match.type<string>().pipe(
 
 const matchesSupportedPathFamily = (value: string): boolean =>
   isSupportedWindowsNamespace(value) &&
-  pipe(
-    value,
-    classifyPathFamily,
-    SupportedPathFamilyKit.$match({
-      posixAbsolute: thunkTrue,
-      posixRelative: thunkTrue,
-      windowsDrive: isWindowsDrivePath,
-      windowsUnc: isWindowsUncPath,
-      windowsRelative: isWindowsRelativePath,
-    })
-  );
+  SupportedPathFamilyKit.$match(classifyPathFamily(value), {
+    posixAbsolute: thunkTrue,
+    posixRelative: thunkTrue,
+    windowsDrive: () => isWindowsDrivePath(value),
+    windowsUnc: () => isWindowsUncPath(value),
+    windowsRelative: () => isWindowsRelativePath(value),
+  });
 
 const FilePathChecks = S.makeFilterGroup(
   [

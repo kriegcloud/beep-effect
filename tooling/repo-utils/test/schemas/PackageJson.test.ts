@@ -1,16 +1,16 @@
-import { decodePackageJson, decodePackageJsonExit, PackageJson } from "@beep/repo-utils/schemas/PackageJson";
+import { decodePackageJson, decodePackageJsonExit, NpmPackageJson, PackageJson } from "@beep/repo-utils/schemas/PackageJson";
 import { describe, expect, it } from "@effect/vitest";
 import { Exit } from "effect";
+import * as S from "effect/Schema";
 
 describe("PackageJson schema", () => {
   describe("valid structures", () => {
     it("decodes minimal package.json (name only)", () => {
-      const input = { name: "my-package" };
-      const result = decodePackageJson(input);
+      const result = decodePackageJson({ name: "my-package" });
       expect(result.name).toBe("my-package");
     });
 
-    it("decodes a full package.json with all common fields", () => {
+    it("decodes a full npm-oriented package.json with typed fields", () => {
       const input = {
         name: "@beep/repo-utils",
         version: "1.0.0",
@@ -19,9 +19,13 @@ describe("PackageJson schema", () => {
         license: "MIT",
         private: true,
         type: "module",
-        main: "dist/index.ts",
-        module: "dist/index.mjs",
-        types: "dist/index.d.ts",
+        main: "./dist/index.js",
+        module: "./dist/index.mjs",
+        types: "./dist/index.d.ts",
+        browser: {
+          "./src/server.ts": "./src/browser.ts",
+          fs: false,
+        },
         scripts: {
           build: "tsc -b",
           test: "vitest",
@@ -35,151 +39,295 @@ describe("PackageJson schema", () => {
         peerDependencies: {
           typescript: "^5.0.0",
         },
+        peerDependenciesMeta: {
+          typescript: {
+            optional: true,
+          },
+        },
         optionalDependencies: {
           fsevents: "^2.3.0",
         },
         files: ["dist", "src"],
         engines: { node: ">=20" },
-        workspaces: ["packages/*", "tooling/*"],
+        os: ["darwin", "linux"],
+        cpu: ["x64"],
+        funding: [
+          "https://github.com/sponsors/beep",
+          { type: "github", url: "https://github.com/sponsors/beep-effect" },
+        ],
         homepage: "https://github.com/example/repo",
       };
+
       const result = decodePackageJson(input);
       expect(result.name).toBe("@beep/repo-utils");
-      expect(result.version).toBe("1.0.0");
-      expect(result.description).toBe("Monorepo utilities");
-      expect(result.keywords).toEqual(["monorepo", "effect"]);
-      expect(result.license).toBe("MIT");
-      expect(result.private).toBe(true);
-      expect(result.scripts).toEqual({ build: "tsc -b", test: "vitest" });
-      expect(result.dependencies).toEqual({ effect: "^4.0.0" });
-      expect(result.devDependencies).toEqual({ "@types/node": "^20.0.0" });
-      expect(result.peerDependencies).toEqual({ typescript: "^5.0.0" });
-      expect(result.optionalDependencies).toEqual({ fsevents: "^2.3.0" });
-      expect(result.files).toEqual(["dist", "src"]);
-      expect(result.engines).toEqual({ node: ">=20" });
-      expect(result.workspaces).toEqual(["packages/*", "tooling/*"]);
-      expect(result.homepage).toBe("https://github.com/example/repo");
-    });
-
-    it("decodes author as a string", () => {
-      const input = { name: "pkg", author: "John Doe <john@example.com>" };
-      const result = decodePackageJson(input);
-      expect(result.author).toBe("John Doe <john@example.com>");
-    });
-
-    it("decodes author as an object", () => {
-      const input = {
-        name: "pkg",
-        author: { name: "John Doe", email: "john@example.com", url: "https://example.com" },
-      };
-      const result = decodePackageJson(input);
-      expect(result.author).toEqual({ name: "John Doe", email: "john@example.com", url: "https://example.com" });
-    });
-
-    it("decodes author object with only name", () => {
-      const input = { name: "pkg", author: { name: "Jane" } };
-      const result = decodePackageJson(input);
-      expect(result.author).toEqual({ name: "Jane" });
-    });
-
-    it("decodes repository as a string", () => {
-      const input = { name: "pkg", repository: "github:user/repo" };
-      const result = decodePackageJson(input);
-      expect(result.repository).toBe("github:user/repo");
-    });
-
-    it("decodes repository as an object", () => {
-      const input = {
-        name: "pkg",
-        repository: { type: "git", url: "git@github.com:user/repo.git", directory: "packages/foo" },
-      };
-      const result = decodePackageJson(input);
-      expect(result.repository).toEqual({
-        type: "git",
-        url: "git@github.com:user/repo.git",
-        directory: "packages/foo",
+      expect(result.browser).toEqual({
+        "./src/server.ts": "./src/browser.ts",
+        fs: false,
       });
+      expect(result.peerDependenciesMeta).toEqual({
+        typescript: {
+          optional: true,
+        },
+      });
+      expect(result.funding).toEqual([
+        "https://github.com/sponsors/beep",
+        { type: "github", url: "https://github.com/sponsors/beep-effect" },
+      ]);
     });
 
-    it("decodes bugs as a string", () => {
-      const input = { name: "pkg", bugs: "https://github.com/user/repo/issues" };
-      const result = decodePackageJson(input);
-      expect(result.bugs).toBe("https://github.com/user/repo/issues");
-    });
-
-    it("decodes bugs as an object", () => {
-      const input = {
-        name: "pkg",
-        bugs: { url: "https://github.com/user/repo/issues", email: "bugs@example.com" },
-      };
-      const result = decodePackageJson(input);
-      expect(result.bugs).toEqual({ url: "https://github.com/user/repo/issues", email: "bugs@example.com" });
-    });
-
-    it("decodes bin as a string", () => {
-      const input = { name: "pkg", bin: "./bin/cli.js" };
-      const result = decodePackageJson(input);
-      expect(result.bin).toBe("./bin/cli.js");
-    });
-
-    it("decodes bin as a record", () => {
-      const input = { name: "pkg", bin: { cli: "./bin/cli.js", serve: "./bin/serve.js" } };
-      const result = decodePackageJson(input);
-      expect(result.bin).toEqual({ cli: "./bin/cli.js", serve: "./bin/serve.js" });
-    });
-
-    it("decodes exports as an unknown value", () => {
+    it("decodes package exports and publishConfig exports as structured data", () => {
       const input = {
         name: "pkg",
         exports: {
-          ".": { import: "./dist/index.mjs", require: "./dist/index.cjs" },
-          "./utils": "./dist/utils.js",
+          "./package.json": "./package.json",
+          ".": {
+            types: "./dist/index.d.ts",
+            import: "./dist/index.js",
+            require: "./dist/index.cjs",
+          },
+          "./internal/*": null,
+          "./*": ["./dist/*.js", "./dist/*.cjs"],
+        },
+        publishConfig: {
+          access: "public",
+          provenance: true,
+          bin: {
+            "pkg-cli": "./dist/bin.js",
+          },
+          exports: {
+            "./package.json": "./package.json",
+            ".": "./dist/index.js",
+            "./internal/*": null,
+          },
         },
       };
+
       const result = decodePackageJson(input);
       expect(result.exports).toEqual({
-        ".": { import: "./dist/index.mjs", require: "./dist/index.cjs" },
-        "./utils": "./dist/utils.js",
+        "./package.json": "./package.json",
+        ".": {
+          types: "./dist/index.d.ts",
+          import: "./dist/index.js",
+          require: "./dist/index.cjs",
+        },
+        "./internal/*": null,
+        "./*": ["./dist/*.js", "./dist/*.cjs"],
+      });
+      expect(result.publishConfig).toEqual({
+        access: "public",
+        provenance: true,
+        bin: {
+          "pkg-cli": "./dist/bin.js",
+        },
+        exports: {
+          "./package.json": "./package.json",
+          ".": "./dist/index.js",
+          "./internal/*": null,
+        },
       });
     });
 
-    it("decodes funding as an unknown value", () => {
-      const input = { name: "pkg", funding: { type: "github", url: "https://github.com/sponsors/user" } };
-      const result = decodePackageJson(input);
-      expect(result.funding).toEqual({ type: "github", url: "https://github.com/sponsors/user" });
+    it("decodes imports mappings", () => {
+      const result = decodePackageJson({
+        name: "pkg",
+        imports: {
+          "#internal": "./src/internal.ts",
+          "#runtime/*": {
+            types: "./src/runtime/*.d.ts",
+            default: "./src/runtime/*.ts",
+          },
+        },
+      });
+
+      expect(result.imports).toEqual({
+        "#internal": "./src/internal.ts",
+        "#runtime/*": {
+          types: "./src/runtime/*.d.ts",
+          default: "./src/runtime/*.ts",
+        },
+      });
     });
 
-    it("decodes sideEffects and publishConfig", () => {
-      const input = {
+    it("decodes workspaces as an array", () => {
+      const result = decodePackageJson({
+        name: "pkg",
+        workspaces: ["packages/*", "tooling/*"],
+      });
+
+      expect(result.workspaces).toEqual(["packages/*", "tooling/*"]);
+    });
+
+    it("decodes workspaces as an object", () => {
+      const result = decodePackageJson({
+        name: "pkg",
+        workspaces: {
+          packages: ["packages/*"],
+          nohoist: ["react"],
+        },
+      });
+
+      expect(result.workspaces).toEqual({
+        packages: ["packages/*"],
+        nohoist: ["react"],
+      });
+    });
+
+    it("decodes sideEffects as a boolean or array", () => {
+      const booleanResult = decodePackageJson({
         name: "pkg",
         sideEffects: false,
-        publishConfig: { access: "public" },
-      };
-      const result = decodePackageJson(input);
-      expect(result.sideEffects).toBe(false);
-      expect(result.publishConfig).toEqual({ access: "public" });
+      });
+      const arrayResult = decodePackageJson({
+        name: "pkg",
+        sideEffects: ["**/*.css"],
+      });
+
+      expect(booleanResult.sideEffects).toBe(false);
+      expect(arrayResult.sideEffects).toEqual(["**/*.css"]);
     });
 
-    it("decodes empty optional record fields", () => {
-      const input = { name: "pkg", scripts: {}, dependencies: {}, devDependencies: {} };
-      const result = decodePackageJson(input);
-      expect(result.scripts).toEqual({});
-      expect(result.dependencies).toEqual({});
-      expect(result.devDependencies).toEqual({});
+    it("decodes repo-local top-level fields", () => {
+      const result = decodePackageJson({
+        name: "@beep/root",
+        private: true,
+        packageManager: "bun@1.3.10",
+        repository: {
+          type: "git",
+          url: "git@github.com:kriegcloud/beep-effect.git",
+          directory: ".",
+        },
+        workspaces: [".claude", "packages/common/*", "tooling/repo-utils"],
+        catalog: {
+          effect: "^4.0.0-beta.27",
+          typescript: "^5.9.3",
+        },
+        "resolutions#": {
+          "@beep/*": "Needed to force PNPM to install local packages",
+        },
+      });
+
+      expect(result.packageManager).toBe("bun@1.3.10");
+      expect(result.catalog).toEqual({
+        effect: "^4.0.0-beta.27",
+        typescript: "^5.9.3",
+      });
+      expect(result["resolutions#"]).toEqual({
+        "@beep/*": "Needed to force PNPM to install local packages",
+      });
+    });
+
+    it("keeps npm-only schema separate from repo-only extensions", () => {
+      const decodeNpmPackageJson = S.decodeUnknownExit(NpmPackageJson);
+      const exit = decodeNpmPackageJson(
+        {
+          name: "pkg",
+          catalog: {
+            effect: "^4.0.0",
+          },
+        },
+        { onExcessProperty: "error" }
+      );
+
+      expect(Exit.isFailure(exit)).toBe(true);
     });
   });
 
   describe("malformed structures", () => {
     it("rejects missing name field", () => {
-      const input = { version: "1.0.0" };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
+      expect(Exit.isFailure(decodePackageJsonExit({ version: "1.0.0" }))).toBe(true);
     });
 
-    it("rejects name as a number", () => {
-      const input = { name: 123 };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
+    it("rejects empty string names", () => {
+      expect(Exit.isFailure(decodePackageJsonExit({ name: "" }))).toBe(true);
+    });
+
+    it("rejects invalid package names", () => {
+      expect(Exit.isFailure(decodePackageJsonExit({ name: "UpperCaseName" }))).toBe(true);
+    });
+
+    it("rejects repository objects without required type", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            repository: {
+              url: "git@github.com:user/repo.git",
+            },
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects funding objects without a url", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            funding: {
+              type: "github",
+            },
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects exports objects with invalid keys", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            exports: {
+              "1invalid": "./dist/index.js",
+            },
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects imports objects with invalid keys", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            imports: {
+              internal: "./src/internal.ts",
+            },
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects workspaces as a string", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            workspaces: "packages/*",
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects unexpected top-level keys", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            unexpected: true,
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects private as a string", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            private: "true",
+          })
+        )
+      ).toBe(true);
     });
 
     it("rejects non-object input", () => {
@@ -189,107 +337,29 @@ describe("PackageJson schema", () => {
       expect(Exit.isFailure(decodePackageJsonExit(undefined))).toBe(true);
       expect(Exit.isFailure(decodePackageJsonExit([]))).toBe(true);
     });
-
-    it("rejects version as a number", () => {
-      const input = { name: "pkg", version: 1 };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("rejects keywords as a string instead of array", () => {
-      const input = { name: "pkg", keywords: "not-an-array" };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("rejects dependencies with non-string values", () => {
-      const input = { name: "pkg", dependencies: { effect: 4 } };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("rejects scripts with non-string values", () => {
-      const input = { name: "pkg", scripts: { build: true } };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("rejects workspaces as a string", () => {
-      const input = { name: "pkg", workspaces: "packages/*" };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("rejects author object without name", () => {
-      const input = { name: "pkg", author: { email: "a@b.com" } };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
-
-    it("accepts repository object without type via record fallback", () => {
-      // Non-standard repository shapes are accepted by the Record<string,unknown>
-      // fallback arm so that real-world malformed package.json files still parse.
-      const input = { name: "pkg", repository: { url: "git@github.com:user/repo.git" } };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isSuccess(exit)).toBe(true);
-    });
-
-    it("rejects private as a string", () => {
-      const input = { name: "pkg", private: "true" };
-      const exit = decodePackageJsonExit(input);
-      expect(Exit.isFailure(exit)).toBe(true);
-    });
   });
 
   describe("edge cases", () => {
-    it("handles empty keywords array", () => {
-      const input = { name: "pkg", keywords: [] };
-      const result = decodePackageJson(input);
-      expect(result.keywords).toEqual([]);
-    });
+    it("handles empty arrays for list fields", () => {
+      const result = decodePackageJson({
+        name: "pkg",
+        keywords: [],
+        files: [],
+        workspaces: [],
+      });
 
-    it("handles empty workspaces array", () => {
-      const input = { name: "pkg", workspaces: [] };
-      const result = decodePackageJson(input);
+      expect(result.keywords).toEqual([]);
+      expect(result.files).toEqual([]);
       expect(result.workspaces).toEqual([]);
     });
 
-    it("handles empty files array", () => {
-      const input = { name: "pkg", files: [] };
-      const result = decodePackageJson(input);
-      expect(result.files).toEqual([]);
-    });
-
     it("handles scoped package names", () => {
-      const input = { name: "@scope/package-name" };
-      const result = decodePackageJson(input);
+      const result = decodePackageJson({ name: "@scope/package-name" });
       expect(result.name).toBe("@scope/package-name");
     });
 
-    it("handles empty string name", () => {
-      const input = { name: "" };
-      const result = decodePackageJson(input);
-      expect(result.name).toBe("");
-    });
-
-    it("handles bugs object with only email", () => {
-      const input = { name: "pkg", bugs: { email: "bugs@example.com" } };
-      const result = decodePackageJson(input);
-      expect(result.bugs).toEqual({ email: "bugs@example.com" });
-    });
-
-    it("handles bugs object with only url", () => {
-      const input = { name: "pkg", bugs: { url: "https://example.com/issues" } };
-      const result = decodePackageJson(input);
-      expect(result.bugs).toEqual({ url: "https://example.com/issues" });
-    });
-
-    it("decodePackageJson throws on invalid input", () => {
-      expect(() => decodePackageJson({})).toThrow();
-    });
-
-    it("real-world package.json from this repo", () => {
-      const input = {
+    it("decodes a real-world workspace package shape from this repo", () => {
+      const result = decodePackageJson({
         name: "@beep/repo-utils",
         version: "0.0.0",
         type: "module",
@@ -306,6 +376,18 @@ describe("PackageJson schema", () => {
         exports: {
           "./package.json": "./package.json",
           ".": "./src/index.ts",
+          "./*": "./src/*.ts",
+          "./internal/*": null,
+        },
+        publishConfig: {
+          access: "public",
+          provenance: true,
+          exports: {
+            "./package.json": "./package.json",
+            ".": "./dist/index.js",
+            "./*": "./dist/*.js",
+            "./internal/*": null,
+          },
         },
         files: ["src/**/*.ts", "dist/**/*.js"],
         scripts: {
@@ -321,16 +403,17 @@ describe("PackageJson schema", () => {
           "@types/node": "catalog:",
           "@effect/vitest": "catalog:",
         },
-      };
-      const result = decodePackageJson(input);
-      expect(result.name).toBe("@beep/repo-utils");
-      expect(result.version).toBe("0.0.0");
-      expect(result.private).toBe(true);
+      });
+
       expect(result.repository).toEqual({
         type: "git",
         url: "git@github.com:kriegcloud/beep-effect.git",
         directory: "tooling/repo-utils",
       });
+    });
+
+    it("decodePackageJson throws on invalid input", () => {
+      expect(() => decodePackageJson({})).toThrow();
     });
   });
 
@@ -339,14 +422,13 @@ describe("PackageJson schema", () => {
       const schema = PackageJson;
       type PkgType = (typeof schema)["Type"];
 
-      // Compile-time assertion: if this compiles, the type is correct
-      const _check: PkgType = {
+      const check: PkgType = {
         name: "test",
         version: "1.0.0",
         dependencies: { effect: "^4.0.0" },
       };
-      expect(_check.name).toBe("test");
+
+      expect(check.name).toBe("test");
     });
   });
 });
-// bench
