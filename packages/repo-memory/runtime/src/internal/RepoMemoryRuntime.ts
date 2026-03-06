@@ -863,7 +863,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunServiceShape>()($I`RepoRunService`)() {
+export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunServiceShape>()($I`RepoRunService`) {
   static readonly layer: Layer.Layer<
     RepoRunService,
     never,
