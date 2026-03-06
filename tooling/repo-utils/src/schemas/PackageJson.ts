@@ -113,8 +113,8 @@ export const Person = S.Union([
   S.String,
   S.Struct({
     name: S.String,
-    email: S.OptionFromOptionalKey(S.String),
-    url: S.OptionFromOptionalKey(S.String),
+    email: S.optionalKey(S.String),
+    url: S.optionalKey(S.String),
   }),
 ]).annotate(
   $I.annote("Person", {
@@ -173,7 +173,7 @@ export const Repository = S.Union([
   S.Struct({
     type: S.String,
     url: S.String,
-    directory: S.OptionFromOptionalKey(S.String),
+    directory: S.optionalKey(S.String),
   }),
 ]).annotate(
   $I.annote("Repository", {
@@ -191,8 +191,8 @@ export const Repository = S.Union([
 export const Bugs = S.Union([
   S.String,
   S.Struct({
-    url: S.OptionFromOptionalKey(S.String),
-    email: S.OptionFromOptionalKey(S.String),
+    url: S.optionalKey(S.String),
+    email: S.optionalKey(S.String),
   }),
 ]).annotate(
   $I.annote("Bugs", {
@@ -211,14 +211,14 @@ export const Funding = S.Union([
   S.String,
   S.Struct({
     url: S.String,
-    type: S.OptionFromOptionalKey(S.String),
+    type: S.optionalKey(S.String),
   }),
   S.NonEmptyArray(
     S.Union([
       S.String,
       S.Struct({
         url: S.String,
-        type: S.OptionFromOptionalKey(S.String),
+        type: S.optionalKey(S.String),
       }),
     ])
   ),
@@ -262,12 +262,12 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
  * @category Validation
  */
 export const Directories = S.Struct({
-  bin: S.OptionFromOptionalKey(S.String),
-  doc: S.OptionFromOptionalKey(S.String),
-  example: S.OptionFromOptionalKey(S.String),
-  lib: S.OptionFromOptionalKey(S.String),
-  man: S.OptionFromOptionalKey(S.String),
-  test: S.OptionFromOptionalKey(S.String),
+  bin: S.optionalKey(S.String),
+  doc: S.optionalKey(S.String),
+  example: S.optionalKey(S.String),
+  lib: S.optionalKey(S.String),
+  man: S.optionalKey(S.String),
+  test: S.optionalKey(S.String),
 }).annotate(
   $I.annote("Directories", {
     title: "Directories",
@@ -324,7 +324,7 @@ export const PeerDependenciesMeta = S.Record(
   S.String,
   S.StructWithRest(
     S.Struct({
-      optional: S.OptionFromOptionalKey(S.Boolean),
+      optional: S.optionalKey(S.Boolean),
     }),
     [S.Record(S.String, Json)]
   )
@@ -356,8 +356,8 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
  */
 export const DevEngineDependency = S.Struct({
   name: S.String,
-  version: S.OptionFromOptionalKey(S.String),
-  onFail: S.OptionFromOptionalKey(S.Literals(["ignore", "warn", "error", "download"] as const)),
+  version: S.optionalKey(S.String),
+  onFail: S.optionalKey(S.Literals(["ignore", "warn", "error", "download"] as const)),
 }).annotate(
   $I.annote("DevEngineDependency", {
     title: "Dev Engine Dependency",
@@ -379,11 +379,11 @@ const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDepe
  * @category Validation
  */
 export const DevEngines = S.Struct({
-  os: S.OptionFromOptionalKey(DevEngineRequirement),
-  cpu: S.OptionFromOptionalKey(DevEngineRequirement),
-  libc: S.OptionFromOptionalKey(DevEngineRequirement),
-  runtime: S.OptionFromOptionalKey(DevEngineRequirement),
-  packageManager: S.OptionFromOptionalKey(DevEngineRequirement),
+  os: S.optionalKey(DevEngineRequirement),
+  cpu: S.optionalKey(DevEngineRequirement),
+  libc: S.optionalKey(DevEngineRequirement),
+  runtime: S.optionalKey(DevEngineRequirement),
+  packageManager: S.optionalKey(DevEngineRequirement),
 }).annotate(
   $I.annote("DevEngines", {
     title: "Dev Engines",
@@ -551,8 +551,8 @@ const OverrideValue: S.Codec<OverrideValue, OverrideValue, never, never> = S.sus
 );
 
 const WorkspacesObject = S.Struct({
-  packages: S.OptionFromOptionalKey(StringArray),
-  nohoist: S.OptionFromOptionalKey(StringArray),
+  packages: S.optionalKey(StringArray),
+  nohoist: S.optionalKey(StringArray),
 }).annotate(
   $I.annote("WorkspacesObject", {
     title: "Workspaces Object",
@@ -581,12 +581,12 @@ export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
  */
 export const PublishConfig = S.StructWithRest(
   S.Struct({
-    access: S.OptionFromOptionalKey(S.Literals(["public", "restricted"] as const)),
-    tag: S.OptionFromOptionalKey(S.String),
-    registry: S.OptionFromOptionalKey(S.String),
-    provenance: S.OptionFromOptionalKey(S.Boolean),
-    bin: S.OptionFromOptionalKey(Bin),
-    exports: S.OptionFromOptionalKey(PackageExports),
+    access: S.optionalKey(S.Literals(["public", "restricted"] as const)),
+    tag: S.optionalKey(S.String),
+    registry: S.optionalKey(S.String),
+    provenance: S.optionalKey(S.Boolean),
+    bin: S.optionalKey(Bin),
+    exports: S.optionalKey(PackageExports),
   }),
   [S.Record(S.String, Json)]
 ).annotate(
