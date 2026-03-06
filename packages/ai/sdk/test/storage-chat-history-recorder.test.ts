@@ -1,9 +1,9 @@
+import { Storage } from "@beep/ai-sdk";
 import type { QueryHandle, StreamBroadcastConfig } from "@beep/ai-sdk/Query";
 import type { SDKMessage, SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import { Storage } from "../src/core/index.js";
 
 const makeUserMessage = (sessionId: string, text: string): SDKUserMessage => ({
   type: "user",

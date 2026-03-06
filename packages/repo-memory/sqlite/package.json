@@ -1,0 +1,61 @@
+{
+  "name": "@beep/repo-memory-sqlite",
+  "version": "0.0.0",
+  "description": "SQLite-backed repo-memory persistence implementation",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check src/",
+    "lint:fix": "biome check src/ --write"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/repo-memory-model": "workspace:^",
+    "@beep/repo-memory-store": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@beep/test-utils": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@types/node": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/repo-memory/sqlite"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/sqlite",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

@@ -133,6 +133,7 @@ export const decodeCreateTaskInput = S.decodeUnknownEffect(CreateTaskInput)
 
 - Use `A`, `R`, `Str`, `Eq`, `HashMap`, `HashSet`, `MutableHashMap`, `MutableHashSet`.
 - Avoid domain usage of native `Object`, `Map`, `Set`, `Date`, and direct native string helpers.
+- When behavior is unchanged, prefer the tersest helper form: direct helper refs over trivial wrapper lambdas, `flow(...)` over passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 
 Example:
 
@@ -1216,8 +1217,9 @@ Use this before submitting code:
 37. Intermediate schemas are exported only when reusable or materially clarifying; otherwise they stay module-local.
 38. Schema-modeled comparisons use `S.toEquivalence(...)` where practical.
 39. Deterministic format conversions use `S.decodeTo(..., SchemaTransformation.transform(...))`.
-40. Runtime source avoids `node:fs` / `node:path` / `node:child_process`; use Effect `FileSystem` / `Path` / process services.
-41. Runtime source avoids native `fetch`; HTTP boundaries use `effect/unstable/http` + platform layers (`BunHttpClient.layer`, etc.).
-42. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
-43. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
-44. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
+40. Trivial helper wrapper lambdas are collapsed to direct helper refs where safe, and passthrough `pipe(...)` callbacks are expressed with `flow(...)`.
+41. Runtime source avoids `node:fs` / `node:path` / `node:child_process`; use Effect `FileSystem` / `Path` / process services.
+42. Runtime source avoids native `fetch`; HTTP boundaries use `effect/unstable/http` + platform layers (`BunHttpClient.layer`, etc.).
+43. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
+44. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
+45. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).

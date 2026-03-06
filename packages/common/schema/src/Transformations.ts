@@ -3,10 +3,12 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 type DestructiveTransform<Self extends S.Top, B> = S.decodeTo<
-  S.Schema<Readonly<B>>,
-  S.Unknown,
+  S.Codec<Readonly<B>>,
+  typeof S.Unknown,
   Self["DecodingServices"]
 >;
+
+const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Readonly<B>>>(S.Unknown.ast);
 
 /**
  * Applies a lossy transform by inferring the target type from a callback result.
@@ -32,7 +34,7 @@ export const destructiveTransform: {
   2,
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B> => {
     const decodeInput = S.decodeUnknownEffect(self);
-    const output = S.declare<Readonly<B>>((_input): _input is Readonly<B> => true);
+    const output = makeDestructiveOutput<B>();
 
     return S.Unknown.pipe(
       S.decodeTo(
@@ -51,12 +53,7 @@ export const destructiveTransform: {
                 })
               )
             ),
-          encode: (decoded) =>
-            Effect.fail(
-              new SchemaIssue.Forbidden(O.some(decoded), {
-                message: "Transformation result is forbidden",
-              })
-            ),
+          encode: (decoded) => Effect.succeed(decoded),
         })
       )
     );

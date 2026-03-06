@@ -1,13 +1,13 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
   GenerationAction,
   PlannedFile,
   PlannedSymlink,
-} from "../src/commands/CreatePackage/FileGenerationPlanService.js";
-import { VersionSyncOptions } from "../src/commands/VersionSync/internal/Models.js";
+} from "@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService";
+import { VersionSyncOptions } from "@beep/repo-cli/commands/VersionSync/internal/Models";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 describe("tooling/cli schema-first models", () => {
   it("applies decoding defaults for FileGenerationPlanInput.symlinks", () => {

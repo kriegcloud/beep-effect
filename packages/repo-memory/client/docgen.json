@@ -1,0 +1,4 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/client/src/"
+}

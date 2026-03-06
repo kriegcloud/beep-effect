@@ -11,9 +11,6 @@
       "path": "../../packages/repo-memory/client/tsconfig.json"
     },
     {
-      "path": "../../packages/repo-memory/domain/tsconfig.json"
-    },
-    {
       "path": "../../packages/runtime/protocol/tsconfig.json"
     }
   ]

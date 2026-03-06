@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkTrue } from "@beep/utils";
 import { Boolean as Bool, Layer, Match, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import {
@@ -52,7 +53,7 @@ const shouldCheck: CategorySelectionServiceShape["shouldCheck"] = (options, cate
     options.bunOnly || options.nodeOnly || options.dockerOnly || options.biomeOnly || options.effectOnly;
 
   return Bool.match(hasAnyExplicitCategoryFilter, {
-    onFalse: () => true,
+    onFalse: thunkTrue,
     onTrue: () => hasExplicitCategoryFilter,
   });
 };

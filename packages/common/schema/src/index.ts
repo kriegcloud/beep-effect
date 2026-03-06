@@ -4,6 +4,13 @@
  * @since 0.0.0
  */
 
+import {
+  isNegative as isNegativeInternal,
+  isNonNegative as isNonNegativeInternal,
+  isNonPositive as isNonPositiveInternal,
+  isPositive as isPositiveInternal,
+} from "./Number.js";
+
 /**
  * @since 0.0.0
  * @category Configuration
@@ -62,7 +69,22 @@ export * from "./MimeType.js";
  * @since 0.0.0
  * @category Validation
  */
-export { isNegative, isNonNegative, isNonPositive, isPositive } from "./Number.js";
+export const isNegative = isNegativeInternal;
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export const isNonNegative = isNonNegativeInternal;
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export const isNonPositive = isNonPositiveInternal;
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export const isPositive = isPositiveInternal;
 /**
  * @since 0.0.0
  * @category Validation

@@ -5,4 +5,4 @@
  * @module
  */
 
-export {};
+void 0;

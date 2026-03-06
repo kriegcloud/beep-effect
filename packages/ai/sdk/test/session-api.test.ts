@@ -110,7 +110,7 @@ test("Session.createSession defaults executable and closes on scope exit", async
 });
 
 test("Session.resumeSession passes session id and defaults executable", async () => {
-  const { resumeSession } = await import("../src/core/Session.js");
+  const { resumeSession } = await import("@beep/ai-sdk/Session");
   const program = Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* resumeSession("session-42", {
@@ -134,7 +134,7 @@ test("Session.resumeSession passes session id and defaults executable", async ()
 test("Session.createSession maps errors to TransportError", async () => {
   createErrorModel = "claude-test-error";
 
-  const { createSession } = await import("../src/core/Session.js");
+  const { createSession } = await import("@beep/ai-sdk/Session");
   const program = Effect.scoped(createSession({ model: "claude-test-error", env: { ANTHROPIC_API_KEY: "test-key" } }));
   const result = await runEffect(Effect.result(program));
 
@@ -149,7 +149,7 @@ test("Session.createSession maps errors to TransportError", async () => {
 test("Session.prompt maps errors to TransportError", async () => {
   promptErrorModel = "claude-test-error";
 
-  const { prompt } = await import("../src/core/Session.js");
+  const { prompt } = await import("@beep/ai-sdk/Session");
   const result = await runEffect(
     Effect.result(prompt("hello", { model: "claude-test-error", env: { ANTHROPIC_API_KEY: "test-key" } }))
   );

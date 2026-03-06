@@ -1,16 +1,16 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { RunId, RunStreamFailure } from "@beep/repo-memory-domain";
-import { LocalRepoMemoryDriver, LocalRepoMemoryDriverConfig } from "@beep/repo-memory-drivers-local";
+import { RunId, RunStreamFailure } from "@beep/repo-memory-model";
 import {
   GroundedRetrievalService,
   IndexRepoRunWorkflow,
   QueryRepoRunWorkflow,
-  RepoMemoryServer,
-  RepoMemoryServerError,
+  RepoRunService,
+  RepoRunServiceError,
   RepoRunWorkflows,
   RepoRunWorkflowsLayer,
   TypeScriptIndexService,
-} from "@beep/repo-memory-server";
+} from "@beep/repo-memory-runtime";
+import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import {
   ControlPlaneApi,
   RepoRegistrationInput,
@@ -134,7 +134,7 @@ const toRuntimeError = (message: string, status: number, cause?: unknown): Sidec
     cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
   });
 
-const toRunStreamFailure = (error: RepoMemoryServerError): RunStreamFailure =>
+const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
   new RunStreamFailure({
     message: error.message,
     status: error.status,
@@ -183,7 +183,7 @@ const toControlPlaneErrorPayload = (
     });
   }
 
-  if (S.is(RepoMemoryServerError)(error) || S.is(SidecarRuntimeError)(error)) {
+  if (S.is(RepoRunServiceError)(error) || S.is(SidecarRuntimeError)(error)) {
     if (error.status === 400) {
       return new SidecarBadRequestPayload({
         message: error.message,
@@ -357,14 +357,14 @@ const makeRpcHandlersLayer = () => {
   });
   const publicRepoRunHandlersLayer = RepoRunRpcGroup.toLayer(
     Effect.gen(function* () {
-      const repoMemoryServer = yield* RepoMemoryServer;
+      const repoRunService = yield* RepoRunService;
 
       return RepoRunRpcGroup.of({
         StartIndexRepoRun: (payload) =>
           Effect.gen(function* () {
             const executionId = yield* IndexRepoRunWorkflow.executionId(payload);
             const runId = yield* decodeExecutionRunId(IndexRepoRunWorkflow.name, executionId);
-            const decision = yield* repoMemoryServer
+            const decision = yield* repoRunService
               .acceptIndexRun(payload, runId)
               .pipe(Effect.mapError(toRunStreamFailure));
 
@@ -378,7 +378,7 @@ const makeRpcHandlersLayer = () => {
           Effect.gen(function* () {
             const executionId = yield* QueryRepoRunWorkflow.executionId(payload);
             const runId = yield* decodeExecutionRunId(QueryRepoRunWorkflow.name, executionId);
-            const decision = yield* repoMemoryServer
+            const decision = yield* repoRunService
               .acceptQueryRun(payload, runId)
               .pipe(Effect.mapError(toRunStreamFailure));
 
@@ -388,7 +388,7 @@ const makeRpcHandlersLayer = () => {
 
             return decision.ack;
           }),
-        StreamRunEvents: (payload) => repoMemoryServer.streamRunEvents(payload),
+        StreamRunEvents: (payload) => repoRunService.streamRunEvents(payload),
       });
     })
   );
@@ -434,27 +434,27 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       });
 
       const respondListRepos = Effect.fn("SidecarRuntime.route.listRepos")(function* () {
-        const repoMemoryServer = yield* RepoMemoryServer;
-        return yield* repoMemoryServer.listRepos;
+        const repoRunService = yield* RepoRunService;
+        return yield* repoRunService.listRepos;
       });
 
       const respondRegisterRepo = Effect.fn("SidecarRuntime.route.registerRepo")(function* () {
         const input = yield* HttpServerRequest.schemaBodyJson(RepoRegistrationInput);
-        const repoMemoryServer = yield* RepoMemoryServer;
-        return yield* repoMemoryServer.registerRepo(input);
+        const repoRunService = yield* RepoRunService;
+        return yield* repoRunService.registerRepo(input);
       });
 
       const respondListRuns = Effect.fn("SidecarRuntime.route.listRuns")(function* () {
-        const repoMemoryServer = yield* RepoMemoryServer;
-        return yield* repoMemoryServer.listRuns;
+        const repoRunService = yield* RepoRunService;
+        return yield* repoRunService.listRuns;
       });
 
       const respondGetRun = Effect.fn("SidecarRuntime.route.getRun")(function* (runId: string) {
-        const repoMemoryServer = yield* RepoMemoryServer;
+        const repoRunService = yield* RepoRunService;
         const decodedRunId = yield* decodeRunId(runId).pipe(
           Effect.mapError((cause) => toRuntimeError(`Invalid run id: "${runId}".`, 400, cause))
         );
-        return yield* repoMemoryServer.getRun(decodedRunId);
+        return yield* repoRunService.getRun(decodedRunId);
       });
 
       const controlPlaneHandlersLayer = Layer.mergeAll(
@@ -546,10 +546,10 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         Layer.provide(clusterClientLayer)
       );
 
-      const localDriverConfig = new LocalRepoMemoryDriverConfig({
+      const repoMemorySqlConfig = new RepoMemorySqlConfig({
         appDataDir: config.appDataDir,
       });
-      const localDriverLayer = LocalRepoMemoryDriver.layer(localDriverConfig).pipe(
+      const repoMemorySqlLayer = RepoMemorySqlLive(repoMemorySqlConfig).pipe(
         Layer.provide([fileSystemLayer, sqliteLayer])
       );
       const eventJournalLayer = SqlEventLogJournal.layer({
@@ -557,10 +557,10 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         remotesTable: "repo_memory_run_journal_remotes",
       }).pipe(Layer.provide(sqliteLayer));
       const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(Layer.provide(fileSystemLayer));
-      const groundedRetrievalLayer = GroundedRetrievalService.layer.pipe(Layer.provide(localDriverLayer));
-      const repoMemoryLayer = RepoMemoryServer.layer.pipe(
+      const groundedRetrievalLayer = GroundedRetrievalService.layer.pipe(Layer.provide(repoMemorySqlLayer));
+      const repoRunServiceLayer = RepoRunService.layer.pipe(
         Layer.provide([
-          localDriverLayer,
+          repoMemorySqlLayer,
           eventJournalLayer,
           groundedRetrievalLayer,
           typeScriptIndexLayer,
@@ -569,13 +569,13 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       );
       const workflowHandlersLayer = RepoRunWorkflowsLayer.pipe(
         Layer.provide(clusterWorkflowLayer),
-        Layer.provide(repoMemoryLayer)
+        Layer.provide(repoRunServiceLayer)
       );
       const { handlersLayer, rpcGroup } = makeRpcHandlersLayer();
       const repoRunRpcHandlersLayer = handlersLayer.pipe(
         Layer.provide(clusterWorkflowLayer),
         Layer.provide(workflowHandlersLayer),
-        Layer.provide(repoMemoryLayer)
+        Layer.provide(repoRunServiceLayer)
       );
       const repoRunRpcRouteLayer = RpcServer.layerHttp({
         group: rpcGroup,
@@ -590,7 +590,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         controlPlaneApiLayer,
         repoRunRpcRouteLayer,
         prometheusMetricsLayer
-      ).pipe(Layer.provide(repoMemoryLayer));
+      ).pipe(Layer.provide(repoRunServiceLayer));
 
       const routesLayer = Layer.mergeAll(applicationRoutesLayer, clusterHttpRouteLayer);
       const httpServerLayer = Layer.fresh(

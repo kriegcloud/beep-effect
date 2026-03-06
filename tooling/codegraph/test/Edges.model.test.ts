@@ -1,5 +1,3 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   BaseEdge,
   CallResolution,
@@ -28,7 +26,9 @@ import {
   UsesEnvEdge,
   UsesMetricEdge,
   WritesToEdge,
-} from "../src/Graph/Edges.model.ts";
+} from "@beep/codegraph/Graph/Edges.model";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 const decodeBaseEdge = S.decodeUnknownSync(BaseEdge);
 const decodeCallResolution = S.decodeUnknownSync(CallResolution);

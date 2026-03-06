@@ -4,6 +4,7 @@ import jsdoc from "eslint-plugin-jsdoc";
 import effectImportStyleRule from "./EffectImportStyleRule.ts";
 import noNativeRuntimeRule from "./NoNativeRuntimeRule.ts";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
+import terseEffectStyleRule from "./TerseEffectStyleRule.ts";
 
 const beepJsdoc = {
   rules: {
@@ -15,6 +16,7 @@ const beepLaws = {
   rules: {
     "effect-import-style": effectImportStyleRule,
     "no-native-runtime": noNativeRuntimeRule,
+    "terse-effect-style": terseEffectStyleRule,
   },
 };
 
@@ -85,6 +87,7 @@ export const ESLintConfig: ESLintConfigShape = [
     rules: {
       "beep-laws/effect-import-style": "warn",
       "beep-laws/no-native-runtime": "warn",
+      "beep-laws/terse-effect-style": "warn",
     },
   },
   {

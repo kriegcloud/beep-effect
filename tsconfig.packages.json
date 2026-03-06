@@ -13,6 +13,9 @@
       "path": "apps/desktop"
     },
     {
+      "path": "packages/_internal/db-admin"
+    },
+    {
       "path": "packages/ai/sdk"
     },
     {
@@ -40,13 +43,16 @@
       "path": "packages/repo-memory/client"
     },
     {
-      "path": "packages/repo-memory/domain"
+      "path": "packages/repo-memory/model"
     },
     {
-      "path": "packages/repo-memory/drivers-local"
+      "path": "packages/repo-memory/runtime"
     },
     {
-      "path": "packages/repo-memory/server"
+      "path": "packages/repo-memory/sqlite"
+    },
+    {
+      "path": "packages/repo-memory/store"
     },
     {
       "path": "packages/runtime/protocol"
@@ -77,6 +83,9 @@
     },
     {
       "path": "tooling/cli"
+    },
+    {
+      "path": "tooling/codegraph"
     },
     {
       "path": "tooling/configs"

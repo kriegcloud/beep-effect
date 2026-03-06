@@ -58,7 +58,7 @@ class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFiles
   {
     files: S.Array(ManagedFile).pipe(
       S.withConstructorDefault(() => O.some(A.empty<ManagedFile>())),
-      S.withDecodingDefault(() => A.empty<ManagedFile>())
+      S.withDecodingDefault(A.empty<ManagedFile>)
     ),
   },
   $I.annote("ManagedFilesManifest", {

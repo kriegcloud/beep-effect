@@ -1100,7 +1100,7 @@ const groupByDepth = (
 
     const node = Graph.getNode(analysisGraph.graph, idx);
     if (O.isSome(node)) {
-      const group = O.getOrElse(MutableHashMap.get(levelGroups, depth), () => A.empty<string>());
+      const group = O.getOrElse(MutableHashMap.get(levelGroups, depth), A.empty<string>);
       group.push(node.value.name);
       MutableHashMap.set(levelGroups, depth, group);
     }

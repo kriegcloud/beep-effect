@@ -156,7 +156,7 @@ const findContextFiles = Effect.gen(function* () {
     dir
   ) =>
     Effect.gen(function* () {
-      const entries = yield* Effect.orElseSucceed(fs.readDirectory(dir), () => A.empty<string>());
+      const entries = yield* Effect.orElseSucceed(fs.readDirectory(dir), A.empty<string>);
 
       return yield* pipe(
         entries,
@@ -173,7 +173,7 @@ const findContextFiles = Effect.gen(function* () {
                 ? Effect.suspend(() => searchDir(fullPath))
                 : Effect.succeed(A.empty<string>())
             ),
-            Effect.orElseSucceed(() => A.empty<string>())
+            Effect.orElseSucceed(A.empty<string>)
           );
         }),
         Effect.all,

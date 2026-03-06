@@ -37,7 +37,7 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null
+    "./internal/*": "./src/internal/*.ts"
   },
   "files": [
     "src/**/*.ts",
@@ -60,7 +60,7 @@
       "./package.json": "./package.json",
       ".": "./dist/index.ts",
       "./*": "./dist/*.js",
-      "./internal/*": null
+      "./internal/*": "./dist/internal/*.js"
     }
   }
 }

@@ -21,7 +21,8 @@ Core expectations:
 3. Avoid unsafe typing escapes and untyped runtime errors.
 4. Keep domain logic free of disallowed native utilities.
 5. Keep comments minimal unless they explain non obvious intent.
-6. Complete work only when check, lint, test, and docgen pass.
+6. Prefer tersest equivalent helper forms when behavior is unchanged: direct helper refs over trivial lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
+7. Complete work only when check, lint, test, and docgen pass.
 
 Validation loop:
 

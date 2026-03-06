@@ -28,6 +28,7 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "tooling/cli/src/commands/Lint/index.ts",
   "tooling/cli/src/commands/Laws/index.ts",
   "tooling/cli/src/commands/Laws/EffectImports.ts",
+  "tooling/cli/src/commands/Laws/TerseEffect.ts",
   "tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
   "tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts",
   "tooling/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
@@ -97,7 +98,7 @@ const runRgFiles = (
       )
     );
     return pipe(output, Str.split("\n"), A.map(Str.trim), A.filter(Str.endsWith(".ts")));
-  }).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+  }).pipe(Effect.orElseSucceed(A.empty<string>));
 
 const runLintToolingTaggedErrors = Effect.fn(function* () {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;

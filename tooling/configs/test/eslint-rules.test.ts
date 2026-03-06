@@ -1,16 +1,17 @@
+import effectImportStyleRule from "@beep/repo-configs/eslint/EffectImportStyleRule";
+import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist";
+import { ESLintConfig } from "@beep/repo-configs/eslint/ESLintConfig";
+import noNativeRuntimeRule from "@beep/repo-configs/eslint/NoNativeRuntimeRule";
+import requireCategoryTagRule from "@beep/repo-configs/eslint/RequireCategoryTagRule";
+import terseEffectStyleRule from "@beep/repo-configs/eslint/TerseEffectStyleRule";
 import tsParser from "@typescript-eslint/parser";
 import { Linter, type Linter as LinterTypes } from "eslint";
 import { beforeEach, describe, expect, it } from "vitest";
-import effectImportStyleRule from "../src/eslint/EffectImportStyleRule.ts";
-import { resetAllowlistCache } from "../src/eslint/EffectLawsAllowlist.ts";
-import { ESLintConfig } from "../src/eslint/ESLintConfig.ts";
-import noNativeRuntimeRule from "../src/eslint/NoNativeRuntimeRule.ts";
-import requireCategoryTagRule from "../src/eslint/RequireCategoryTagRule.ts";
 
-const verify = (source: string, config: LinterTypes.Config | ReadonlyArray<LinterTypes.Config>, filename: string) =>
+const verify = (source: string, config: LinterTypes.Config | Array<LinterTypes.Config>, filename: string) =>
   new Linter({ configType: "flat" }).verify(source, config, filename);
 
-const effectImportStyleConfig: ReadonlyArray<LinterTypes.Config> = [
+const effectImportStyleConfig: Array<LinterTypes.Config> = [
   {
     files: ["**/*.ts"],
     languageOptions: {
@@ -33,7 +34,7 @@ const effectImportStyleConfig: ReadonlyArray<LinterTypes.Config> = [
   },
 ];
 
-const noNativeRuntimeConfig: ReadonlyArray<LinterTypes.Config> = [
+const noNativeRuntimeConfig: Array<LinterTypes.Config> = [
   {
     files: ["**/*.ts"],
     languageOptions: {
@@ -56,7 +57,7 @@ const noNativeRuntimeConfig: ReadonlyArray<LinterTypes.Config> = [
   },
 ];
 
-const requireCategoryConfig: ReadonlyArray<LinterTypes.Config> = [
+const requireCategoryConfig: Array<LinterTypes.Config> = [
   {
     files: ["**/*.ts"],
     languageOptions: {
@@ -75,6 +76,29 @@ const requireCategoryConfig: ReadonlyArray<LinterTypes.Config> = [
     },
     rules: {
       "beep-jsdoc/require-category-tag": "error",
+    },
+  },
+];
+
+const terseEffectStyleConfig: Array<LinterTypes.Config> = [
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      "beep-laws": {
+        rules: {
+          "terse-effect-style": terseEffectStyleRule,
+        },
+      },
+    },
+    rules: {
+      "beep-laws/terse-effect-style": "error",
     },
   },
 ];
@@ -162,6 +186,80 @@ describe("eslint rule migration", () => {
     );
 
     expect(messages.some((message) => message.ruleId === "beep-jsdoc/require-category-tag")).toBe(false);
+  });
+
+  it("flags trivial helper wrapper lambdas for direct helper references", () => {
+    const messages = verify(
+      ['import * as A from "effect/Array";', "export const value = { onNone: () => A.empty<string>() };"].join("\n"),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseHelpers.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/terse-effect-style" && message.message.includes("A.empty")
+      )
+    ).toBe(true);
+  });
+
+  it("flags one-argument wrappers that can use direct helper references", () => {
+    const messages = verify(
+      ['import * as A from "effect/Array";', "export const value = { onSome: (reference) => A.make(reference) };"].join(
+        "\n"
+      ),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseOnSome.ts"
+    );
+
+    expect(
+      messages.some((message) => message.ruleId === "beep-laws/terse-effect-style" && message.message.includes("A.of"))
+    ).toBe(true);
+  });
+
+  it("flags passthrough pipe callbacks that should use flow", () => {
+    const messages = verify(
+      [
+        'import { pipe } from "effect";',
+        'import * as O from "effect/Option";',
+        "declare const parse: (value: string) => O.Option<string>;",
+        "export const value = (input) => pipe(input, parse, O.getOrElse(() => input));",
+      ].join("\n"),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseFlow.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/terse-effect-style" && message.message.includes("flow(...)")
+      )
+    ).toBe(true);
+  });
+
+  it("does not flag annotated wrappers that may affect inference", () => {
+    const messages = verify(
+      [
+        'import * as A from "effect/Array";',
+        "export const value = { onSome: (reference: string) => A.make(reference) };",
+      ].join("\n"),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseAnnotated.ts"
+    );
+
+    expect(messages.some((message) => message.ruleId === "beep-laws/terse-effect-style")).toBe(false);
+  });
+
+  it("flags trivial literal thunks only when the shared helper is already imported", () => {
+    const messages = verify(
+      ['import { thunkUndefined } from "@beep/utils";', "export const value = { onNone: () => undefined };"].join("\n"),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseThunk.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/terse-effect-style" && message.message.includes("thunkUndefined")
+      )
+    ).toBe(true);
   });
 
   it("exports a root ESLintConfig array with beep-laws plugin registration", () => {

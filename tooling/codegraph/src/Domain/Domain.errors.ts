@@ -80,7 +80,7 @@ class McpErrorContext extends S.Class<McpErrorContext>($I`McpErrorContext`)(
  * @since 0.0.0
  * @category Errors
  */
-export const ErrorSeverity = LiteralKit(["low", "medium", "high", "critical"] as const).annotate(
+export const ErrorSeverity = LiteralKit(["low", "medium", "high", "critical"]).annotate(
   $I.annote("ErrorSeverity", {
     description: "Severity assigned to a codegraph domain error.",
   })

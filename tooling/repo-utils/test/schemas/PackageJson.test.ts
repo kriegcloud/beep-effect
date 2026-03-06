@@ -1,13 +1,24 @@
 import {
+  applyPackageJsonPatchEffect,
   decodePackageJson,
   decodePackageJsonExit,
+  diffPackageJsonEffect,
+  encodePackageJsonCanonicalPrettyEffect,
+  getPackageJsonSchemaIssues,
   NpmPackageJson,
-  type PackageJson,
-} from "@beep/repo-utils/schemas/PackageJson";
+  normalizePackageJsonEffect,
+  PackageJson,
+  packageJsonJsonSchema,
+} from "@beep/repo-utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Exit } from "effect";
+import { Effect, Exit, Order, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
+
+const objectKeys = (value: unknown): ReadonlyArray<string> => (P.isObject(value) ? Struct.keys(value) : A.empty());
 
 describe("PackageJson schema", () => {
   describe("valid structures", () => {
@@ -266,6 +277,17 @@ describe("PackageJson schema", () => {
       expect(Exit.isFailure(decodePackageJsonExit({ name: "UpperCaseName" }))).toBe(true);
     });
 
+    it("rejects invalid package type values", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            type: "esm",
+          })
+        )
+      ).toBe(true);
+    });
+
     it("rejects repository objects without required type", () => {
       expect(
         Exit.isFailure(
@@ -346,6 +368,30 @@ describe("PackageJson schema", () => {
           decodePackageJsonExit({
             name: "pkg",
             private: "true",
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects dependency records with invalid keys or empty values", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            dependencies: {
+              "Invalid Name": "catalog:",
+            },
+          })
+        )
+      ).toBe(true);
+
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            dependencies: {
+              effect: "",
+            },
           })
         )
       ).toBe(true);
@@ -451,5 +497,162 @@ describe("PackageJson schema", () => {
 
       expect(check.name).toBe("test");
     });
+  });
+
+  describe("canonical helpers", () => {
+    it.effect(
+      "normalizes top-level ordering and nested map ordering",
+      Effect.fn(function* () {
+        const normalized = yield* normalizePackageJsonEffect({
+          private: true,
+          name: "pkg",
+          scripts: {
+            test: "vitest",
+            build: "tsc -b",
+          },
+          exports: {
+            "./z": "./z.js",
+            ".": "./index.js",
+            "./a": "./a.js",
+          },
+          dependencies: {
+            zod: "catalog:",
+            effect: "catalog:",
+          },
+          catalog: {
+            zod: "^4.3.6",
+            effect: "^4.0.0-beta.28",
+          },
+        });
+
+        expect(Struct.keys(normalized)).toEqual(["name", "private", "scripts", "exports", "dependencies", "catalog"]);
+        expect(Struct.keys(normalized.scripts ?? {})).toEqual(["build", "test"]);
+        expect(objectKeys(normalized.exports)).toEqual([".", "./a", "./z"]);
+        expect(Struct.keys(normalized.dependencies ?? {})).toEqual(["effect", "zod"]);
+        expect(Struct.keys(normalized.catalog ?? {})).toEqual(["effect", "zod"]);
+      })
+    );
+
+    it.effect(
+      "encodes canonical pretty JSON",
+      Effect.fn(function* () {
+        const json = yield* encodePackageJsonCanonicalPrettyEffect({
+          private: true,
+          name: "pkg",
+          scripts: {
+            test: "vitest",
+            build: "tsc -b",
+          },
+          exports: {
+            "./z": "./z.js",
+            ".": "./index.js",
+            "./a": "./a.js",
+          },
+          dependencies: {
+            zod: "catalog:",
+            effect: "catalog:",
+          },
+          catalog: {
+            zod: "^4.3.6",
+            effect: "^4.0.0-beta.28",
+          },
+        });
+
+        expect(json).toBe(`{
+  "name": "pkg",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./a": "./a.js",
+    "./z": "./z.js"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "zod": "catalog:"
+  },
+  "catalog": {
+    "effect": "^4.0.0-beta.28",
+    "zod": "^4.3.6"
+  }
+}`);
+      })
+    );
+
+    it.effect(
+      "diffs and applies typed JSON Patch with escaped scoped dependency keys",
+      Effect.fn(function* () {
+        const patch = yield* diffPackageJsonEffect(
+          {
+            name: "pkg",
+            dependencies: {
+              "@beep/schema": "workspace:^",
+            },
+          },
+          {
+            name: "pkg",
+            dependencies: {
+              "@beep/schema": "catalog:",
+            },
+            private: true,
+          }
+        );
+
+        expect(patch).toEqual([
+          { op: "replace", path: "/dependencies/@beep~1schema", value: "catalog:" },
+          { op: "add", path: "/private", value: true },
+        ]);
+
+        const patched = yield* applyPackageJsonPatchEffect(
+          {
+            name: "pkg",
+            dependencies: {
+              "@beep/schema": "workspace:^",
+            },
+          },
+          patch
+        );
+
+        expect(patched.dependencies).toEqual(
+          O.some({
+            "@beep/schema": "catalog:",
+          })
+        );
+        expect(patched.private).toEqual(O.some(true));
+      })
+    );
+  });
+
+  describe("artifacts and diagnostics", () => {
+    it("exports a JSON Schema document with strict object definitions", () => {
+      expect(packageJsonJsonSchema.schema.$ref).toBe("#/$defs/PackageJson");
+      expect(packageJsonJsonSchema.definitions.PackageJson.additionalProperties).toBe(false);
+    });
+
+    it.effect(
+      "formats SchemaError issues with JSON Pointers",
+      Effect.fn("PackageJson.test.formatSchemaIssues")(function* () {
+        const issues = yield* S.decodeUnknownEffect(PackageJson)(
+          {
+            name: "",
+            private: "true",
+            unexpected: true,
+          },
+          { onExcessProperty: "error", errors: "all" }
+        ).pipe(Effect.flip, Effect.map(getPackageJsonSchemaIssues));
+
+        expect(
+          pipe(
+            issues,
+            A.map((issue) => issue.pointer),
+            A.dedupe,
+            A.sort(Order.String)
+          )
+        ).toEqual(["/name", "/private", "/unexpected"]);
+      })
+    );
   });
 });

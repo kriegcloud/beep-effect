@@ -113,3 +113,9 @@ export const flatMapNonEmptyReadonly: {
  * @since 0.0.0
  */
 export * from "effect/Array";
+
+/**
+ *
+ * @since 0.0.0
+ */
+export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => (A.isArray(a) ? a : A.of(a));

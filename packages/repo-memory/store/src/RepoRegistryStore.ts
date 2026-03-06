@@ -1,0 +1,28 @@
+import { $RepoMemoryStoreId } from "@beep/identity/packages";
+import type { RepoId, RepoRegistration, RepoRegistrationInput } from "@beep/repo-memory-model";
+import { type Effect, ServiceMap } from "effect";
+import type { RepoStoreError } from "./RepoStoreError.js";
+
+const $I = $RepoMemoryStoreId.create("RepoRegistryStore");
+
+/**
+ * Contract for repository registration persistence.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export interface RepoRegistryStoreShape {
+  readonly getRepo: (repoId: RepoId) => Effect.Effect<RepoRegistration, RepoStoreError>;
+  readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, RepoStoreError>;
+  readonly registerRepo: (input: RepoRegistrationInput) => Effect.Effect<RepoRegistration, RepoStoreError>;
+}
+
+/**
+ * Repository registration store service.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export class RepoRegistryStore extends ServiceMap.Service<RepoRegistryStore, RepoRegistryStoreShape>()(
+  $I`RepoRegistryStore`
+) {}

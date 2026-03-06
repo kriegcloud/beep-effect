@@ -227,7 +227,7 @@ const tryResolvePackageVersion = (specifier: string): Effect.Effect<O.Option<str
 
     const payloadOption = yield* HttpClientResponse.schemaBodyJson(PackageVersion)(responseOption.value).pipe(
       Effect.map((payload) => O.fromUndefinedOr(payload.version)),
-      Effect.orElseSucceed(() => O.none<string>())
+      Effect.orElseSucceed(O.none<string>)
     );
 
     if (_hasBody) {

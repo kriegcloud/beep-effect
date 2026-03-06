@@ -1,9 +1,9 @@
+import { Storage } from "@beep/ai-sdk";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { Storage } from "../src/core/index.js";
 import { runEffect } from "./effect-test.js";
 
 test("AuditEventStore memory writes events", async () => {

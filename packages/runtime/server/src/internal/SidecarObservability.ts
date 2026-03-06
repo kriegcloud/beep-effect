@@ -43,8 +43,8 @@ const defaultEnvironment = "local";
 const defaultSlice = "repo-memory-v0";
 const devtoolsSpanPrefixes = [
   "GroundedRetrieval",
-  "LocalRepoMemoryDriver",
-  "RepoMemoryServer",
+  "RepoMemorySql",
+  "RepoRunService",
   "SidecarRuntime",
   "TypeScriptIndex",
 ] as const;
@@ -220,6 +220,12 @@ const recordHttpRequestMetrics = Effect.fn("SidecarObservability.recordHttpReque
   yield* Metric.update(Metric.withAttributes(httpRequestDuration, attributes), Duration.millis(normalizedDurationMs));
 });
 
+/**
+ * Observe one HTTP request with success and failure metrics.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
   options: {
     readonly method: string;
@@ -256,6 +262,12 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
     )
   );
 
+/**
+ * Observe one HTTP request with success and failure metrics.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export const provideSidecarObservability = <A, E, R>(
   config: SidecarObservabilityConfig,
   effect: Effect.Effect<A, E, R>

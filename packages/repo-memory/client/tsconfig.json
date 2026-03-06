@@ -18,9 +18,6 @@
       "path": "../../common/types/tsconfig.json"
     },
     {
-      "path": "../domain/tsconfig.json"
-    },
-    {
       "path": "../../runtime/protocol/tsconfig.json"
     }
   ]

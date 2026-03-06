@@ -50,10 +50,11 @@ const composers = $I.compose(
   "shared-env",
   "runtime-protocol",
   "runtime-server",
-  "repo-memory-domain",
-  "repo-memory-server",
+  "repo-memory-model",
+  "repo-memory-store",
+  "repo-memory-sqlite",
+  "repo-memory-runtime",
   "repo-memory-client",
-  "repo-memory-drivers-local",
   "codegraph",
 
   // iam
@@ -234,25 +235,31 @@ export const $RuntimeServerId = composers.$RuntimeServerId;
  * @since 0.0.0
  * @category Configuration
  */
-export const $RepoMemoryDomainId = composers.$RepoMemoryDomainId;
+export const $RepoMemoryModelId = composers.$RepoMemoryModelId;
 
 /**
  * @since 0.0.0
  * @category Configuration
  */
-export const $RepoMemoryServerId = composers.$RepoMemoryServerId;
+export const $RepoMemoryStoreId = composers.$RepoMemoryStoreId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemorySqliteId = composers.$RepoMemorySqliteId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemoryRuntimeId = composers.$RepoMemoryRuntimeId;
 
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export const $RepoMemoryClientId = composers.$RepoMemoryClientId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- */
-export const $RepoMemoryDriversLocalId = composers.$RepoMemoryDriversLocalId;
 
 // --- iam ---
 

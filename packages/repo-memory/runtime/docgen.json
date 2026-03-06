@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "exclude": [
+    "src/index.ts",
+    "src/indexing/IndexedTypeScriptArtifacts.ts",
+    "src/indexing/TypeScriptIndexRequest.ts",
+    "src/retrieval/GroundedQueryResult.ts",
+    "src/retrieval/QueryInterpretation.ts",
+    "src/run/RepoRunService.ts",
+    "src/run/RepoRunWorkflows.ts",
+    "src/run/RunProjector.ts",
+    "src/run/RunStateMachine.ts"
+  ],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/runtime/src/"
+}

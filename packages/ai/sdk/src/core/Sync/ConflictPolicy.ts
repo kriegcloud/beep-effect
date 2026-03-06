@@ -16,6 +16,11 @@ export class ConflictResolutionAccept extends S.TaggedClass<ConflictResolutionAc
   }
 ) {}
 
+/**
+ * Reject conflict resolution outcome.
+ *
+ * @since 0.0.0
+ */
 export class ConflictResolutionReject extends S.TaggedClass<ConflictResolutionReject>($I`ConflictResolutionReject`)(
   "reject",
   {
@@ -23,6 +28,11 @@ export class ConflictResolutionReject extends S.TaggedClass<ConflictResolutionRe
   }
 ) {}
 
+/**
+ * Merge conflict resolution outcome.
+ *
+ * @since 0.0.0
+ */
 export class ConflictResolutionMerge extends S.TaggedClass<ConflictResolutionMerge>($I`ConflictResolutionMerge`)(
   "merge",
   {
@@ -30,12 +40,22 @@ export class ConflictResolutionMerge extends S.TaggedClass<ConflictResolutionMer
   }
 ) {}
 
+/**
+ * Union of supported conflict resolution outcomes.
+ *
+ * @since 0.0.0
+ */
 export const ConflictResolution = S.Union([
   ConflictResolutionAccept,
   ConflictResolutionReject,
   ConflictResolutionMerge,
 ]).pipe(S.toTaggedUnion("_tag"));
 
+/**
+ * Runtime type for `ConflictResolution`.
+ *
+ * @since 0.0.0
+ */
 export type ConflictResolution = typeof ConflictResolution.Type;
 
 const accept = (entry: EventJournal.Entry): ConflictResolution =>

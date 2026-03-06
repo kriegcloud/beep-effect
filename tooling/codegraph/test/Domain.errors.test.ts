@@ -1,5 +1,3 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   CodegraphDomainError,
   CodegraphError,
@@ -11,7 +9,9 @@ import {
   McpError,
   ParseError,
   WatcherError,
-} from "../src/Domain/Domain.errors.ts";
+} from "@beep/codegraph/Domain/Domain.errors";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 const decodeCodegraphDomainError = S.decodeUnknownSync(CodegraphDomainError);
 const decodeCodegraphError = S.decodeUnknownSync(CodegraphError);

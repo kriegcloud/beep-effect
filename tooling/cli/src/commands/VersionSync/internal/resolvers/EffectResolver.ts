@@ -65,7 +65,7 @@ export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCat
     ),
     packages: S.Array(EffectCatalogPackage).pipe(
       S.withConstructorDefault(() => O.some(A.empty<EffectCatalogPackage>())),
-      S.withDecodingDefault(() => A.empty<EffectCatalogPackage>())
+      S.withDecodingDefault(A.empty<EffectCatalogPackage>)
     ),
   },
   $I.annote("EffectCatalogState", {

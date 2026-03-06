@@ -1,5 +1,3 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   ClassNode,
   CronJobNode,
@@ -22,7 +20,9 @@ import {
   SpanNode,
   TopicNode,
   VariableNode,
-} from "../src/Graph/Nodes.model.ts";
+} from "@beep/codegraph/Graph/Nodes.model";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 const decodeGraphNode = S.decodeUnknownSync(GraphNode);
 const decodeNodeType = S.decodeUnknownSync(NodeType);

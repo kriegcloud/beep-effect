@@ -19,7 +19,7 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./commands/*": null,
+    "./commands/*": "./src/commands/*.ts",
     "./internal/*": null,
     "./bin": null
   },
@@ -41,7 +41,7 @@
       "./package.json": "./package.json",
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./commands/*": null,
+      "./commands/*": "./dist/commands/*.js",
       "./internal/*": null,
       "./bin": null
     }

@@ -18,8 +18,9 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
-    "@beep/repo-memory-drivers-local": "workspace:^",
-    "@beep/repo-memory-server": "workspace:^",
+    "@beep/repo-memory-model": "workspace:^",
+    "@beep/repo-memory-runtime": "workspace:^",
+    "@beep/repo-memory-sqlite": "workspace:^",
     "@beep/runtime-protocol": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/platform-bun": "catalog:",

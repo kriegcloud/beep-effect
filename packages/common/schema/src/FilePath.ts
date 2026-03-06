@@ -6,9 +6,8 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { thunkFalse, thunkTrue } from "@beep/utils";
-import { Equal as Eq, Match, pipe, String as Str } from "effect";
-import * as A from "effect/Array";
+import { A, thunkFalse, thunkTrue } from "@beep/utils";
+import { Equal as Eq, flow, Match, pipe, String as Str } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { LiteralKit } from "./LiteralKit.ts";
@@ -28,10 +27,10 @@ const matchesPattern =
   (value: string): boolean =>
     P.isNotNull(Str.match(pattern)(value));
 
-const splitNonEmpty =
-  (separator: string | RegExp) =>
-  (value: string): ReadonlyArray<string> =>
-    pipe(Str.split(separator)(value), A.filter(Str.isNonEmpty));
+const split = (separator: string | RegExp, value: string) => Str.split(separator)(value);
+
+const splitNonEmpty = (separator: string | RegExp) =>
+  flow((value: string): ReadonlyArray<string> => split(separator, value), A.filter(Str.isNonEmpty));
 
 const usesUnsupportedWindowsNamespacePrefix = Match.type<string>().pipe(
   Match.when(Str.startsWith("\\\\?\\"), thunkTrue),

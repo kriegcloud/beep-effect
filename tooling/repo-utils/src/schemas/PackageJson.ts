@@ -9,7 +9,7 @@
  * @module
  */
 
-import { $RepoUtilsId } from "@beep/identity";
+import { $RepoUtilsId } from "@beep/identity/packages";
 import type { Exit } from "effect";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
@@ -22,6 +22,7 @@ const strictDecodeOptions = { onExcessProperty: "error" as const };
 
 const packageNamePattern = /^(?:(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?\/[a-z0-9-._~])|[a-z0-9-~])[a-z0-9-._~]*$/;
 const packageManagerPattern = /^(npm|pnpm|yarn|bun)@\d+\.\d+\.\d+(-.+)?$/;
+const packageTypePattern = /^(module|commonjs)$/;
 const relativeDotPathPattern = /^\.\//;
 const exportTopLevelPattern = /^(?:\.|\.\/.+)$/;
 const importSpecifierPattern = /^#.+$/;
@@ -79,10 +80,38 @@ const StringArray = S.Array(S.String).annotate(
   })
 );
 
+const NonEmptyStringValue = S.String.check(S.isMinLength(1)).annotate(
+  $I.annote("NonEmptyStringValue", {
+    title: "Non Empty String Value",
+    description: "A non-empty string value used for package metadata fields that should not be blank.",
+  })
+);
+
 const StringRecord = S.Record(S.String, S.String).annotate(
   $I.annote("StringRecord", {
     title: "String Record",
     description: "A record mapping string keys to string values, used for dependency maps, scripts, and engines.",
+  })
+);
+
+const DependencyRecord = S.Record(PackageName, NonEmptyStringValue).annotate(
+  $I.annote("DependencyRecord", {
+    title: "Dependency Record",
+    description: "A record of npm package names to non-empty version or protocol specifiers.",
+  })
+);
+
+const NonEmptyStringRecord = S.Record(NonEmptyStringValue, NonEmptyStringValue).annotate(
+  $I.annote("NonEmptyStringRecord", {
+    title: "Non Empty String Record",
+    description: "A record whose keys and values are non-empty strings.",
+  })
+);
+
+const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).annotate(
+  $I.annote("PackageTypeField", {
+    title: "Package Type Field",
+    description: "The package type field constrained to the supported Node.js package types.",
   })
 );
 
@@ -613,17 +642,17 @@ const npmPackageJsonFields = {
   man: S.OptionFromOptionalKey(Man),
   directories: S.OptionFromOptionalKey(Directories),
   repository: S.OptionFromOptionalKey(Repository),
-  scripts: S.OptionFromOptionalKey(StringRecord),
+  scripts: S.OptionFromOptionalKey(NonEmptyStringRecord),
   config: S.OptionFromOptionalKey(S.Record(S.String, Json)),
-  dependencies: S.OptionFromOptionalKey(StringRecord),
-  devDependencies: S.OptionFromOptionalKey(StringRecord),
-  peerDependencies: S.OptionFromOptionalKey(StringRecord),
+  dependencies: S.OptionFromOptionalKey(DependencyRecord),
+  devDependencies: S.OptionFromOptionalKey(DependencyRecord),
+  peerDependencies: S.OptionFromOptionalKey(DependencyRecord),
   peerDependenciesMeta: S.OptionFromOptionalKey(PeerDependenciesMeta),
   bundleDependencies: S.OptionFromOptionalKey(BundleDependencies),
   bundledDependencies: S.OptionFromOptionalKey(BundleDependencies),
-  optionalDependencies: S.OptionFromOptionalKey(StringRecord),
+  optionalDependencies: S.OptionFromOptionalKey(DependencyRecord),
   overrides: S.OptionFromOptionalKey(S.Record(S.String, OverrideValue)),
-  engines: S.OptionFromOptionalKey(StringRecord),
+  engines: S.OptionFromOptionalKey(NonEmptyStringRecord),
   engineStrict: S.OptionFromOptionalKey(S.Boolean),
   os: S.OptionFromOptionalKey(StringArray),
   cpu: S.OptionFromOptionalKey(StringArray),
@@ -637,7 +666,7 @@ const npmPackageJsonFields = {
   sideEffects: S.OptionFromOptionalKey(SideEffects),
   types: S.OptionFromOptionalKey(S.String),
   typings: S.OptionFromOptionalKey(S.String),
-  type: S.OptionFromOptionalKey(S.String),
+  type: S.OptionFromOptionalKey(PackageTypeField),
   typesVersions: S.OptionFromOptionalKey(TypesVersions),
   resolutions: S.OptionFromOptionalKey(StringRecord),
   readme: S.OptionFromOptionalKey(S.String),
@@ -647,8 +676,8 @@ const NpmPackageJsonShape = S.Struct(npmPackageJsonFields);
 
 const packageJsonFields = {
   ...npmPackageJsonFields,
-  catalog: S.OptionFromOptionalKey(StringRecord),
-  "resolutions#": S.OptionFromOptionalKey(StringRecord),
+  catalog: S.OptionFromOptionalKey(DependencyRecord),
+  "resolutions#": S.OptionFromOptionalKey(NonEmptyStringRecord),
 } as const;
 
 const PackageJsonShape = S.Struct(packageJsonFields);

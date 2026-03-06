@@ -9,6 +9,7 @@ Build and maintain features with effect first development.
 - Use schema first domain models.
 - Prefer typed errors and tagged unions.
 - Prefer effect modules over native helpers.
+- Prefer tersest equivalent helper forms when behavior is unchanged: direct helper refs over trivial lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 - Prefer named schema building blocks, derived `S.is(...)` guards, and `LiteralKit` internal domains over ad-hoc predicate helpers.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.

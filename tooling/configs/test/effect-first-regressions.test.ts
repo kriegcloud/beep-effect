@@ -1,14 +1,20 @@
 import { fileURLToPath } from "node:url";
+import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
-import { buildAllowlistSnapshotModuleFromJsoncText } from "../src/internal/eslint/EffectLawsAllowlistSnapshotCodegen.ts";
 
 const effectImportRulePath = fileURLToPath(new URL("../src/eslint/EffectImportStyleRule.ts", import.meta.url));
 const noNativeRuntimeRulePath = fileURLToPath(new URL("../src/eslint/NoNativeRuntimeRule.ts", import.meta.url));
 const requireCategoryTagRulePath = fileURLToPath(new URL("../src/eslint/RequireCategoryTagRule.ts", import.meta.url));
+const terseEffectStyleRulePath = fileURLToPath(new URL("../src/eslint/TerseEffectStyleRule.ts", import.meta.url));
 
-const ruleFilePaths = [effectImportRulePath, noNativeRuntimeRulePath, requireCategoryTagRulePath];
+const ruleFilePaths = [
+  effectImportRulePath,
+  noNativeRuntimeRulePath,
+  requireCategoryTagRulePath,
+  terseEffectStyleRulePath,
+];
 
 const allowlistRuntimePath = fileURLToPath(new URL("../src/eslint/EffectLawsAllowlist.ts", import.meta.url));
 const snapshotCodegenPath = fileURLToPath(

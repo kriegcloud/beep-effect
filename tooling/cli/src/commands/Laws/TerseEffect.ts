@@ -1,0 +1,251 @@
+/**
+ * Terse Effect style migration and check logic.
+ *
+ * @since 0.0.0
+ * @module
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { Effect, Inspectable, Order, Path, pipe, String as Str } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { type ArrowFunction, type CallExpression, Node, Project, SyntaxKind } from "ts-morph";
+
+const $I = $RepoCliId.create("commands/Laws/TerseEffect");
+
+/**
+ * Runtime options for terse Effect style migration checks.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I`TerseEffectRulesOptions`)(
+  {
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(() => O.some(false)),
+      S.withDecodingDefault(() => false)
+    ),
+    strictCheck: S.Boolean.pipe(
+      S.withConstructorDefault(() => O.some(false)),
+      S.withDecodingDefault(() => false)
+    ),
+    excludePaths: S.Array(S.String).pipe(
+      S.withConstructorDefault(() => O.some([])),
+      S.withDecodingDefault(() => [])
+    ),
+  },
+  $I.annote("TerseEffectRulesOptions", {
+    description: "Runtime options for terse Effect style migration checks.",
+  })
+) {}
+
+/**
+ * Summary of terse Effect style migration results.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I`TerseEffectRulesSummary`)(
+  {
+    touchedFiles: S.Number,
+    helpersSimplified: S.Number,
+    strictFailure: S.Boolean,
+    changedFiles: S.Array(S.String).pipe(
+      S.withConstructorDefault(() => O.some([])),
+      S.withDecodingDefault(() => [])
+    ),
+  },
+  $I.annote("TerseEffectRulesSummary", {
+    description: "Summary of terse Effect style migration results.",
+  })
+) {}
+
+class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffectRulesPersistenceError>(
+  $I`TerseEffectRulesPersistenceError`
+)(
+  "TerseEffectRulesPersistenceError",
+  {
+    message: S.String,
+  },
+  $I.annote("TerseEffectRulesPersistenceError", {
+    description: "Terse Effect rule updates could not be persisted to disk.",
+  })
+) {}
+
+const INCLUDED_GLOBS = [
+  "apps/**/*.{ts,tsx}",
+  "packages/**/*.{ts,tsx}",
+  "tooling/**/*.{ts,tsx}",
+  "infra/**/*.ts",
+] as const;
+const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"] as const;
+const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
+
+const toPosix = (value: string): string => Str.replace(/\\/g, "/")(value);
+
+const getSimpleIdentifierParameterName = (arrowFunction: ArrowFunction): O.Option<string> => {
+  const parameters = arrowFunction.getParameters();
+  if (parameters.length !== 1) {
+    return O.none();
+  }
+
+  const parameter = parameters[0];
+  if (parameter === undefined || !Node.isIdentifier(parameter.getNameNode())) {
+    return O.none();
+  }
+
+  return parameter.getText() === parameter.getName() ? O.some(parameter.getName()) : O.none();
+};
+
+const typeArgumentSuffix = (callExpression: CallExpression): string =>
+  pipe(
+    callExpression.getTypeArguments(),
+    A.match({
+      onEmpty: () => "",
+      onNonEmpty: (typeArguments) =>
+        `<${pipe(
+          typeArguments,
+          A.map((typeArgument) => typeArgument.getText()),
+          A.join(", ")
+        )}>`,
+    })
+  );
+
+const getZeroArgHelperReference = (callExpression: CallExpression): O.Option<string> => {
+  const expression = callExpression.getExpression();
+
+  if (!Node.isPropertyAccessExpression(expression) || callExpression.getArguments().length !== 0) {
+    return O.none();
+  }
+
+  const receiverText = expression.getExpression().getText();
+  const propertyText = expression.getName();
+
+  if ((receiverText === "A" && propertyText === "empty") || (receiverText === "O" && propertyText === "none")) {
+    return O.some(`${receiverText}.${propertyText}${typeArgumentSuffix(callExpression)}`);
+  }
+
+  return O.none();
+};
+
+const getSingleArgHelperReference = (callExpression: CallExpression, parameterName: string): O.Option<string> => {
+  const expression = callExpression.getExpression();
+  const argumentsList = callExpression.getArguments();
+
+  if (
+    !Node.isPropertyAccessExpression(expression) ||
+    argumentsList.length !== 1 ||
+    argumentsList[0] === undefined ||
+    !Node.isIdentifier(argumentsList[0]) ||
+    argumentsList[0].getText() !== parameterName
+  ) {
+    return O.none();
+  }
+
+  const receiverText = expression.getExpression().getText();
+  const propertyText = expression.getName();
+  const suffix = typeArgumentSuffix(callExpression);
+
+  if (receiverText === "A" && propertyText === "make") {
+    return O.some(`A.of${suffix}`);
+  }
+
+  if (receiverText === "O" && propertyText === "some") {
+    return O.some(`O.some${suffix}`);
+  }
+
+  return O.none();
+};
+
+const getArrowReplacement = (arrowFunction: ArrowFunction): O.Option<string> => {
+  const body = arrowFunction.getBody();
+  if (!Node.isCallExpression(body)) {
+    return O.none();
+  }
+
+  if (arrowFunction.getParameters().length === 0) {
+    return getZeroArgHelperReference(body);
+  }
+
+  return pipe(
+    getSimpleIdentifierParameterName(arrowFunction),
+    O.flatMap((parameterName) => getSingleArgHelperReference(body, parameterName))
+  );
+};
+
+/**
+ * Run terse Effect style migration/check logic.
+ *
+ * @since 0.0.0
+ * @category UseCase
+ */
+export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRulesOptions) {
+  const path = yield* Path.Path;
+
+  const isExcludedFile = (filePath: string): boolean => {
+    const normalized = toPosix(filePath);
+    if (A.some(options.excludePaths, (excludePath) => normalized === toPosix(excludePath))) return true;
+    if (A.some(EXCLUDED_SUFFIXES, (suffix) => Str.endsWith(suffix)(normalized))) return true;
+    return A.some(EXCLUDED_SEGMENTS, (segment) => Str.includes(segment)(normalized));
+  };
+
+  const project = new Project({
+    tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
+    skipAddingFilesFromTsConfig: true,
+  });
+
+  for (const pattern of INCLUDED_GLOBS) {
+    project.addSourceFilesAtPaths(pattern);
+  }
+
+  const sourceFiles = A.filter(project.getSourceFiles(), (sourceFile) => !isExcludedFile(sourceFile.getFilePath()));
+
+  let helpersSimplified = 0;
+  let touchedFiles = 0;
+  const changedFiles = A.empty<string>();
+
+  for (const sourceFile of sourceFiles) {
+    let fileTouched = false;
+    const arrowFunctions = A.sort(
+      sourceFile.getDescendantsOfKind(SyntaxKind.ArrowFunction),
+      Order.mapInput(Order.Number, (arrowFunction: ArrowFunction) => -arrowFunction.getStart())
+    );
+
+    for (const arrowFunction of arrowFunctions) {
+      pipe(
+        getArrowReplacement(arrowFunction),
+        O.map((replacement) => {
+          arrowFunction.replaceWithText(replacement);
+          helpersSimplified += 1;
+          fileTouched = true;
+        })
+      );
+    }
+
+    if (fileTouched) {
+      touchedFiles += 1;
+      changedFiles.push(toPosix(path.relative(process.cwd(), sourceFile.getFilePath())));
+    }
+  }
+
+  if (options.write) {
+    yield* Effect.tryPromise({
+      try: () => project.save(),
+      catch: (cause) =>
+        new TerseEffectRulesPersistenceError({
+          message: `Failed to persist terse Effect style updates: ${Inspectable.toStringUnknown(cause, 0)}`,
+        }),
+    });
+  }
+
+  const strictFailure = options.strictCheck && helpersSimplified > 0;
+
+  return new TerseEffectRulesSummary({
+    touchedFiles,
+    helpersSimplified,
+    strictFailure,
+    changedFiles,
+  });
+});

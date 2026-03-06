@@ -1,6 +1,6 @@
 import { LiteralKit } from "@beep/schema";
 import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
-import { Match, pipe, String as Str } from "effect";
+import { flow, Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -508,7 +508,7 @@ const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
         O.fromNullishOr,
         O.map(Str.trim),
         O.filter((value) => Str.length(value) > 0),
-        O.map((value) => pipe(value, Str.split(","), A.map(Str.trim))),
+        O.map(flow(Str.split(","), A.map(Str.trim))),
         O.getOrElse(A.empty<string>)
       );
       return { query, params };

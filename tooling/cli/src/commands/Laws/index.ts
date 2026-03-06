@@ -14,6 +14,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.js";
+import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.js";
 
 const $I = $RepoCliId.create("commands/Laws");
 const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
@@ -54,7 +55,7 @@ class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>($
     version: S.Literal(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(() => O.some(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefault(() => A.empty<EffectLawsAllowlistEntry>())
+      S.withDecodingDefault(A.empty<EffectLawsAllowlistEntry>)
     ),
   },
   $I.annote("EffectLawsAllowlistDocument", {
@@ -87,6 +88,32 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
   },
   $I.annote("EffectImportsCommandOptions", {
     description: "CLI options for effect import law command.",
+  })
+) {}
+
+/**
+ * CLI options for terse Effect style command.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`TerseEffectCommandOptions`)(
+  {
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(() => O.some(false)),
+      S.withDecodingDefault(() => false)
+    ),
+    check: S.Boolean.pipe(
+      S.withConstructorDefault(() => O.some(false)),
+      S.withDecodingDefault(() => false)
+    ),
+    exclude: S.String.pipe(
+      S.withConstructorDefault(() => O.some("")),
+      S.withDecodingDefault(thunkEmptyStr)
+    ),
+  },
+  $I.annote("TerseEffectCommandOptions", {
+    description: "CLI options for terse Effect style command.",
   })
 ) {}
 
@@ -138,6 +165,51 @@ const lawsEffectImportsCommand = Command.make(
     }
   })
 ).pipe(Command.withDescription("Check or rewrite Effect import style rules"));
+
+/**
+ * CLI command for terse Effect style migration/check.
+ *
+ * @since 0.0.0
+ * @category UseCase
+ */
+const lawsTerseEffectCommand = Command.make(
+  "terse-effect",
+  {
+    write: Flag.boolean("write").pipe(Flag.withDescription("Persist terse Effect rewrites to disk")),
+    check: Flag.boolean("check").pipe(Flag.withDescription("Fail when terse Effect rewrites are required")),
+    exclude: Flag.string("exclude").pipe(
+      Flag.withDescription("Comma-separated list of file paths to exclude"),
+      Flag.withDefault("")
+    ),
+  },
+  Effect.fn(function* ({ write, check, exclude }) {
+    const options = new TerseEffectCommandOptions({ write, check, exclude });
+    const summary = yield* runTerseEffectRules(
+      new TerseEffectRulesOptions({
+        write: options.write,
+        strictCheck: options.check,
+        excludePaths: parseExcludePaths(options.exclude),
+      })
+    );
+
+    const mode = options.write ? "write" : "dry-run";
+    yield* Console.log(`[effect-laws-terse-effect] mode=${mode}`);
+    yield* Console.log(`[effect-laws-terse-effect] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-laws-terse-effect] helpers_simplified=${summary.helpersSimplified}`);
+
+    if (!options.write) {
+      yield* Console.log("[effect-laws-terse-effect] Run with --write to persist changes.");
+    }
+
+    for (const filePath of summary.changedFiles) {
+      yield* Console.log(filePath);
+    }
+
+    if (summary.strictFailure) {
+      process.exitCode = 1;
+    }
+  })
+).pipe(Command.withDescription("Check or rewrite terse Effect helper wrappers"));
 
 /**
  * CLI command for validating effect laws allowlist integrity.
@@ -213,9 +285,11 @@ export const lawsCommand = Command.make(
     yield* Console.log("Laws commands:");
     yield* Console.log("- bun run beep laws effect-imports --check");
     yield* Console.log("- bun run beep laws effect-imports --write");
+    yield* Console.log("- bun run beep laws terse-effect --check");
+    yield* Console.log("- bun run beep laws terse-effect --write");
     yield* Console.log("- bun run beep laws allowlist-check");
   })
 ).pipe(
   Command.withDescription("Effect law validation and migration commands"),
-  Command.withSubcommands([lawsEffectImportsCommand, lawsAllowlistCheckCommand])
+  Command.withSubcommands([lawsEffectImportsCommand, lawsTerseEffectCommand, lawsAllowlistCheckCommand])
 );

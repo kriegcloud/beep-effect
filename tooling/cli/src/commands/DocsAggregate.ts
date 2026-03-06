@@ -78,7 +78,7 @@ const walkRoot = (root: string): Effect.Effect<ReadonlyArray<DocsPackage>, DocsA
           );
         }
 
-        const entries = yield* fs.readDirectory(packageDir).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+        const entries = yield* fs.readDirectory(packageDir).pipe(Effect.orElseSucceed(A.empty<string>));
         const directories = yield* Effect.forEach(entries, (entry) =>
           Effect.gen(function* () {
             if (HashSet.has(IGNORED_DIRS, entry)) {

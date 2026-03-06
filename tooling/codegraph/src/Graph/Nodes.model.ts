@@ -5,67 +5,67 @@ import * as S from "effect/Schema";
 
 const $I = $CodegraphId.create("Graph/Nodes.model");
 
-const VariableKind = LiteralKit(["const", "let", "var"] as const).annotate(
+const VariableKind = LiteralKit(["const", "let", "var"]).annotate(
   $I.annote("VariableKind", {
     description: "Supported variable declaration kinds.",
   })
 );
 
-const ModuleType = LiteralKit(["file", "package", "external"] as const).annotate(
+const ModuleType = LiteralKit(["file", "package", "external"]).annotate(
   $I.annote("ModuleType", {
     description: "Supported module node categories.",
   })
 );
 
-const RouteMethod = LiteralKit(["GET", "POST", "PUT", "DELETE", "PATCH", "ALL"] as const).annotate(
+const RouteMethod = LiteralKit(["GET", "POST", "PUT", "DELETE", "PATCH", "ALL"]).annotate(
   $I.annote("RouteMethod", {
     description: "Supported HTTP methods for route nodes.",
   })
 );
 
-const DbOperation = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE"] as const).annotate(
+const DbOperation = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE"]).annotate(
   $I.annote("DbOperation", {
     description: "Supported database operations for table nodes.",
   })
 );
 
-const EventKind = LiteralKit(["emit", "listen"] as const).annotate(
+const EventKind = LiteralKit(["emit", "listen"]).annotate(
   $I.annote("EventKind", {
     description: "Supported event node kinds.",
   })
 );
 
-const QueueJobKind = LiteralKit(["producer", "consumer"] as const).annotate(
+const QueueJobKind = LiteralKit(["producer", "consumer"]).annotate(
   $I.annote("QueueJobKind", {
     description: "Supported queue job node kinds.",
   })
 );
 
-const MetricType = LiteralKit(["counter", "gauge", "histogram", "summary", "unknown"] as const).annotate(
+const MetricType = LiteralKit(["counter", "gauge", "histogram", "summary", "unknown"]).annotate(
   $I.annote("MetricType", {
     description: "Supported metric node kinds.",
   })
 );
 
-const SpanKind = LiteralKit(["server", "client", "producer", "consumer", "internal"] as const).annotate(
+const SpanKind = LiteralKit(["server", "client", "producer", "consumer", "internal"]).annotate(
   $I.annote("SpanKind", {
     description: "Supported tracing span kinds.",
   })
 );
 
-const TopicBroker = LiteralKit(["kafka", "rabbitmq", "nats", "sqs", "sns", "pubsub", "unknown"] as const).annotate(
+const TopicBroker = LiteralKit(["kafka", "rabbitmq", "nats", "sqs", "sns", "pubsub", "unknown"]).annotate(
   $I.annote("TopicBroker", {
     description: "Supported topic brokers for message nodes.",
   })
 );
 
-const TopicKind = LiteralKit(["producer", "consumer"] as const).annotate(
+const TopicKind = LiteralKit(["producer", "consumer"]).annotate(
   $I.annote("TopicKind", {
     description: "Supported topic node roles.",
   })
 );
 
-const SecurityIssueSeverity = LiteralKit(["critical", "high", "medium", "low"] as const).annotate(
+const SecurityIssueSeverity = LiteralKit(["critical", "high", "medium", "low"]).annotate(
   $I.annote("SecurityIssueSeverity", {
     description: "Supported security issue severities.",
   })
@@ -76,7 +76,7 @@ const SecurityIssueCategory = LiteralKit([
   "weak_crypto",
   "insecure_config",
   "exposed_credential",
-] as const).annotate(
+]).annotate(
   $I.annote("SecurityIssueCategory", {
     description: "Supported security issue categories.",
   })
@@ -500,7 +500,7 @@ export const NodeType = LiteralKit([
   "topic",
   "security_issue",
   "project",
-] as const).annotate(
+]).annotate(
   $I.annote("NodeType", {
     description: "Supported graph node kinds.",
   })

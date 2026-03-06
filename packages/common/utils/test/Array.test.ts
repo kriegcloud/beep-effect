@@ -1,4 +1,4 @@
-import { Array } from "@beep/utils";
+import * as Array from "@beep/utils/Array";
 import { pipe } from "effect/Function";
 import { describe, expect, it } from "vitest";
 

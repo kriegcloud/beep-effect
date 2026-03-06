@@ -19,6 +19,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../Shared/SchemaCodecs/index.js";
+import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 
 const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
 
@@ -54,6 +55,8 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
   {
     packageName: S.String,
     packagePath: S.String,
+    rootAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
+    wildcardAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
   },
   $I.annote("ConfigUpdateTarget", {
     description: "Config update target for a package registered in root tsconfig files.",
@@ -150,6 +153,7 @@ const PackagePathToTstychePattern = PackagePath.pipe(
 const decodeTstychePattern = S.decodeUnknownSync(PackagePathToTstychePattern);
 const isPackagePath = S.is(PackagePath);
 const stringEquivalence = S.toEquivalence(S.String);
+const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
 const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
   $I.annote("JsoncUnknownObject", {
     description: "Generic decoded JSONC object document map.",
@@ -174,6 +178,14 @@ const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknow
   if (!P.isObject(parsed.compilerOptions)) return {};
   if (!P.isObject(parsed.compilerOptions.paths)) return {};
   return parsed.compilerOptions.paths;
+};
+
+const pathValuesEqual = (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean => {
+  if (!A.isArray(currentValue) || !A.every(currentValue, P.isString)) {
+    return false;
+  }
+
+  return stringArrayEquivalence(currentValue, expectedValue);
 };
 
 const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
@@ -203,6 +215,15 @@ const normalizeTargets = (targets: ReadonlyArray<ConfigUpdateTarget>): ReadonlyA
 
   return A.sort([...HashMap.values(deduped)], byPackagePathAscending);
 };
+
+const defaultAliasTargetsForPackage = (packagePath: string) =>
+  buildCanonicalAliasTargets(packagePath, "./src/index.ts");
+
+const aliasTargetsForTarget = (target: ConfigUpdateTarget) => ({
+  rootAliasTarget: target.rootAliasTarget ?? defaultAliasTargetsForPackage(target.packagePath).rootAliasTarget,
+  wildcardAliasTarget:
+    target.wildcardAliasTarget ?? defaultAliasTargetsForPackage(target.packagePath).wildcardAliasTarget,
+});
 
 /**
  * Read → transform → write-if-changed. Returns `true` when the file was
@@ -284,53 +305,46 @@ export const updateTsconfigPackages: (
  */
 export const updateTsconfigPaths: (
   repoRoot: string,
-  packageName: string,
-  packagePath: string
-) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, packageName, packagePath) {
-    const path = yield* Path.Path;
-    const filePath = path.join(repoRoot, "tsconfig.json");
-    const alias = `@beep/${packageName}`;
+  target: ConfigUpdateTarget
+) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (repoRoot, target) {
+  const path = yield* Path.Path;
+  const filePath = path.join(repoRoot, "tsconfig.json");
+  const alias = `@beep/${target.packageName}`;
+  const { rootAliasTarget, wildcardAliasTarget } = aliasTargetsForTarget(target);
 
-    return yield* modifyFileString(
-      filePath,
-      Effect.fn(function* (content: string) {
-        const parsed = yield* parseJsoncObject(content, filePath);
-        const paths = readPathsRecord(parsed);
-        const hasBaseAlias = alias in paths;
-        const hasWildcardAlias = `${alias}/*` in paths;
+  return yield* modifyFileString(
+    filePath,
+    Effect.fn(function* (content: string) {
+      const parsed = yield* parseJsoncObject(content, filePath);
+      const paths = readPathsRecord(parsed);
+      const hasBaseAlias = pathValuesEqual(paths[alias], [rootAliasTarget]);
+      const hasWildcardAlias = pathValuesEqual(paths[`${alias}/*`], [wildcardAliasTarget]);
 
-        // Idempotency: skip if both aliases already present
-        if (hasBaseAlias && hasWildcardAlias) {
-          return content;
-        }
+      // Idempotency: skip if both aliases already present
+      if (hasBaseAlias && hasWildcardAlias) {
+        return content;
+      }
 
-        let result = content;
+      let result = content;
 
-        if (!hasBaseAlias) {
-          const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [`./${packagePath}/src/index.ts`], {
-            formattingOptions: FORMATTING_OPTIONS,
-          });
-          result = jsonc.applyEdits(result, edits1);
-        }
+      if (!hasBaseAlias) {
+        const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [rootAliasTarget], {
+          formattingOptions: FORMATTING_OPTIONS,
+        });
+        result = jsonc.applyEdits(result, edits1);
+      }
 
-        if (!hasWildcardAlias) {
-          const edits2 = jsonc.modify(
-            result,
-            ["compilerOptions", "paths", `${alias}/*`],
-            [`./${packagePath}/src/*.ts`],
-            {
-              formattingOptions: FORMATTING_OPTIONS,
-            }
-          );
-          result = jsonc.applyEdits(result, edits2);
-        }
+      if (!hasWildcardAlias) {
+        const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [wildcardAliasTarget], {
+          formattingOptions: FORMATTING_OPTIONS,
+        });
+        result = jsonc.applyEdits(result, edits2);
+      }
 
-        return result;
-      })
-    );
-  }
-);
+      return result;
+    })
+  );
+});
 
 /**
  * Add a test file match entry to `tstyche.config.json`.
@@ -387,7 +401,7 @@ const updateRootConfigsForTarget: (
 ) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot, target) {
     const tsconfigPackages = yield* updateTsconfigPackages(repoRoot, target.packagePath);
-    const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target.packageName, target.packagePath);
+    const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target);
     const tstycheConfig = yield* updateTstycheConfig(repoRoot, target.packagePath);
     return new ConfigUpdateResult({ tsconfigPackages, tsconfigPaths, tstycheConfig });
   }
@@ -414,7 +428,10 @@ const checkConfigNeedsUpdateForTarget: (
     const rootParsed = yield* parseJsoncObject(rootContent, "tsconfig.json");
     const paths = readPathsRecord(rootParsed);
     const alias = `@beep/${target.packageName}`;
-    const tsconfigPaths = !(alias in paths && `${alias}/*` in paths);
+    const { rootAliasTarget, wildcardAliasTarget } = aliasTargetsForTarget(target);
+    const tsconfigPaths = !(
+      pathValuesEqual(paths[alias], [rootAliasTarget]) && pathValuesEqual(paths[`${alias}/*`], [wildcardAliasTarget])
+    );
 
     const tstycheContent = yield* fs
       .readFileString(path.join(repoRoot, "tstyche.config.json"))
@@ -510,7 +527,11 @@ export const updateRootConfigs: (
   packagePath: string
 ) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot, packageName, packagePath) {
-    const target = new ConfigUpdateTarget({ packageName, packagePath });
+    const target = new ConfigUpdateTarget({
+      packageName,
+      packagePath,
+      ...defaultAliasTargetsForPackage(packagePath),
+    });
     const batchResult = yield* updateRootConfigsForTargets(repoRoot, [target]);
     return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
   }
@@ -535,7 +556,11 @@ export const checkConfigNeedsUpdate: (
   packagePath: string
 ) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot, packageName, packagePath) {
-    const target = new ConfigUpdateTarget({ packageName, packagePath });
+    const target = new ConfigUpdateTarget({
+      packageName,
+      packagePath,
+      ...defaultAliasTargetsForPackage(packagePath),
+    });
     const batchResult = yield* checkConfigNeedsUpdateForTargets(repoRoot, [target]);
     return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
   }

@@ -82,7 +82,7 @@ class ParserExtractorsConfig extends S.Class<ParserExtractorsConfig>($I`ParserEx
  * @since 0.0.0
  * @category Configuration
  */
-export const GraphDriver = LiteralKit(["neo4j", "falkordb"] as const).annotate(
+export const GraphDriver = LiteralKit(["neo4j", "falkordb"]).annotate(
   $I.annote("GraphDriver", {
     description: "Supported graph database drivers.",
   })
@@ -102,7 +102,7 @@ export type GraphDriver = typeof GraphDriver.Type;
  * @since 0.0.0
  * @category Configuration
  */
-export const Language = LiteralKit(["typescript"] as const).annotate(
+export const Language = LiteralKit(["typescript"]).annotate(
   $I.annote("Language", {
     description: "Supported parser languages for codegraph extraction.",
   })
@@ -122,7 +122,7 @@ export type Language = typeof Language.Type;
  * @since 0.0.0
  * @category Configuration
  */
-export const WatchStrategy = LiteralKit(["full", "incremental"] as const).annotate(
+export const WatchStrategy = LiteralKit(["full", "incremental"]).annotate(
   $I.annote("WatchStrategy", {
     description: "Supported filesystem watch strategies.",
   })
@@ -142,7 +142,7 @@ export type WatchStrategy = typeof WatchStrategy.Type;
  * @since 0.0.0
  * @category Configuration
  */
-export const McpTransport = LiteralKit(["stdio", "sse", "http"] as const).annotate(
+export const McpTransport = LiteralKit(["stdio", "sse", "http"]).annotate(
   $I.annote("McpTransport", {
     description: "Supported MCP server transports.",
   })
@@ -162,7 +162,7 @@ export type McpTransport = typeof McpTransport.Type;
  * @since 0.0.0
  * @category Configuration
  */
-export const VizTheme = LiteralKit(["light", "dark"] as const).annotate(
+export const VizTheme = LiteralKit(["light", "dark"]).annotate(
   $I.annote("VizTheme", {
     description: "Supported visualization themes.",
   })
@@ -182,7 +182,7 @@ export type VizTheme = typeof VizTheme.Type;
  * @since 0.0.0
  * @category Configuration
  */
-export const LogLevel = LiteralKit(["trace", "debug", "info", "warn", "error", "fatal"] as const).annotate(
+export const LogLevel = LiteralKit(["trace", "debug", "info", "warn", "error", "fatal"]).annotate(
   $I.annote("LogLevel", {
     description: "Supported runtime log levels.",
   })

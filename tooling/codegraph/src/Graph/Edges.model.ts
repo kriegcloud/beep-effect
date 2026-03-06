@@ -5,19 +5,19 @@ import * as S from "effect/Schema";
 
 const $I = $CodegraphId.create("Graph/Edges.model");
 
-const DependsOnKind = LiteralKit(["import", "call", "http", "event", "env", "test"] as const).annotate(
+const DependsOnKind = LiteralKit(["import", "call", "http", "event", "env", "test"]).annotate(
   $I.annote("DependsOnKind", {
     description: "Supported dependency kinds for dependency edges.",
   })
 );
 
-const WritesToOperation = LiteralKit(["INSERT", "UPDATE", "DELETE", "UPSERT"] as const).annotate(
+const WritesToOperation = LiteralKit(["INSERT", "UPDATE", "DELETE", "UPSERT"]).annotate(
   $I.annote("WritesToOperation", {
     description: "Supported write operations for database write edges.",
   })
 );
 
-const UsesMetricOperation = LiteralKit(["inc", "dec", "set", "observe", "startTimer", "define"] as const).annotate(
+const UsesMetricOperation = LiteralKit(["inc", "dec", "set", "observe", "startTimer", "define"]).annotate(
   $I.annote("UsesMetricOperation", {
     description: "Supported metric operations for metric usage edges.",
   })
@@ -65,7 +65,7 @@ export const EdgeType = LiteralKit([
   "CONSUMES_MESSAGE",
   "HAS_SECURITY_ISSUE",
   "SCHEDULES",
-] as const).annotate(
+]).annotate(
   $I.annote("EdgeType", {
     description: "Supported graph edge kinds.",
   })
@@ -85,12 +85,7 @@ export type EdgeType = typeof EdgeType.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const CallResolution = LiteralKit([
-  "same-file",
-  "file-context",
-  "import-resolved",
-  "global-filtered",
-] as const).annotate(
+export const CallResolution = LiteralKit(["same-file", "file-context", "import-resolved", "global-filtered"]).annotate(
   $I.annote("CallResolution", {
     description: "Resolution strategies for call edges.",
   })

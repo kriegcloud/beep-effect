@@ -47,6 +47,7 @@ const HOTSPOT_RUNTIME_PATTERNS = [
   /^tooling\/cli\/src\/commands\/Lint\/index\.ts$/,
   /^tooling\/cli\/src\/commands\/Laws\/index\.ts$/,
   /^tooling\/cli\/src\/commands\/Laws\/EffectImports\.ts$/,
+  /^tooling\/cli\/src\/commands\/Laws\/TerseEffect\.ts$/,
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyConfig\.ts$/,
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyServices\.ts$/,
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyRuntime\.ts$/,

@@ -108,7 +108,7 @@ export const loadPatterns = Effect.gen(function* () {
 
   const walk = (dir: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
     Effect.gen(function* () {
-      const entries: Array<string> = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+      const entries: Array<string> = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
       const processEntry = (entry: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
         Effect.gen(function* () {

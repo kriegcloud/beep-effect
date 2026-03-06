@@ -1,5 +1,5 @@
+import { ErrorCodeFromKey } from "@beep/shared-domain/errors/DbError/ErrorEnum";
 import { describe, expect, it } from "tstyche";
-import { ErrorCodeFromKey } from "../src/errors/DbError/ErrorEnum.js";
 
 describe("ErrorCodeFromKey", () => {
   it("narrows forward enum members to mapped codes", () => {

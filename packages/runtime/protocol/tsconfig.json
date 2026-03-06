@@ -18,7 +18,7 @@
       "path": "../../common/types/tsconfig.json"
     },
     {
-      "path": "../../repo-memory/domain/tsconfig.json"
+      "path": "../../repo-memory/model/tsconfig.json"
     }
   ]
 }

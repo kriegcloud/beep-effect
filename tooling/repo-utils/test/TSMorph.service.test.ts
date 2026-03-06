@@ -1,15 +1,15 @@
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Layer, Path } from "effect";
-import * as S from "effect/Schema";
 import {
   TSMorphService,
   TSMorphServiceLive,
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
   TsMorphSourceTextRequest,
-} from "../src/TSMorph/index.js";
+} from "@beep/repo-utils/TSMorph/index";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { describe, expect, layer } from "@effect/vitest";
+import { Effect, Layer, Path } from "effect";
+import * as S from "effect/Schema";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));

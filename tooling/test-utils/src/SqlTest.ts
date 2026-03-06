@@ -10,13 +10,13 @@ import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 const $I = $TestUtilsId.create("SqlTest");
 
-const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"] as const).annotate(
+const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
   $I.annote("SqlTestHarnessPhase", {
     description: "Lifecycle phases for reusable SQL integration-test harness failures.",
   })
 );
 
-const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"] as const).annotate(
+const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
   $I.annote("TestDatabaseDriver", {
     description: "Driver identifier for reusable SQL integration-test harnesses.",
   })

@@ -1,19 +1,29 @@
+import {
+  makeSqlTestLayer,
+  NodeSqliteTestDriver,
+  SqlTestHarnessError,
+  type SqlTestHooks,
+  TestDatabaseInfo,
+} from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit, Layer, pipe, Scope, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
-import { makeSqlTestLayer, NodeSqliteTestDriver, SqlTestHarnessError, TestDatabaseInfo } from "../src/index.js";
 
-const makeLayer = (hooks?: {
-  readonly migrate?: Effect.Effect<void, unknown, SqlClient.SqlClient>;
-  readonly seed?: Effect.Effect<void, unknown, SqlClient.SqlClient>;
-}) =>
-  makeSqlTestLayer({
-    config: undefined,
-    driver: NodeSqliteTestDriver,
-    hooks,
-  });
+const makeLayer = (hooks?: SqlTestHooks) =>
+  makeSqlTestLayer(
+    hooks === undefined
+      ? {
+          config: undefined,
+          driver: NodeSqliteTestDriver,
+        }
+      : {
+          config: undefined,
+          driver: NodeSqliteTestDriver,
+          hooks,
+        }
+  );
 
 const doesTableExist = (tableName: string) =>
   Effect.gen(function* () {

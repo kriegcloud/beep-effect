@@ -1,15 +1,20 @@
 import {
+  applyPackageJsonPatchEffect,
   type DomainError,
   decodePackageJson,
   decodePackageJsonEffect,
   decodePackageJsonExit,
+  diffPackageJsonEffect,
+  encodePackageJsonCanonicalPrettyEffect,
   encodePackageJsonEffect,
   encodePackageJsonPrettyEffect,
   encodePackageJsonToJsonEffect,
   type NpmPackageJson,
+  normalizePackageJsonEffect,
   type PackageJson,
 } from "@beep/repo-utils";
 import type { Effect, Exit, Schema } from "effect";
+import type * as JsonPatch from "effect/JsonPatch";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
 
@@ -84,6 +89,38 @@ describe("PackageJson", () => {
     it("returns Effect<string, SchemaError | DomainError>", () => {
       expect(encodePackageJsonPrettyEffect({ name: "test" })).type.toBe<
         Effect.Effect<string, Schema.SchemaError | DomainError>
+      >();
+    });
+  });
+
+  describe("normalizePackageJsonEffect", () => {
+    it("returns Effect<PackageJson.Encoded, SchemaError>", () => {
+      expect(normalizePackageJsonEffect({ name: "test" })).type.toBe<
+        Effect.Effect<PackageJson.Encoded, Schema.SchemaError>
+      >();
+    });
+  });
+
+  describe("encodePackageJsonCanonicalPrettyEffect", () => {
+    it("returns Effect<string, SchemaError | DomainError>", () => {
+      expect(encodePackageJsonCanonicalPrettyEffect({ name: "test" })).type.toBe<
+        Effect.Effect<string, Schema.SchemaError | DomainError>
+      >();
+    });
+  });
+
+  describe("diffPackageJsonEffect", () => {
+    it("returns Effect<JsonPatch, SchemaError>", () => {
+      expect(diffPackageJsonEffect({ name: "before" }, { name: "after" })).type.toBe<
+        Effect.Effect<JsonPatch.JsonPatch, Schema.SchemaError>
+      >();
+    });
+  });
+
+  describe("applyPackageJsonPatchEffect", () => {
+    it("returns Effect<PackageJson, SchemaError | DomainError>", () => {
+      expect(applyPackageJsonPatchEffect({ name: "test" }, [])).type.toBe<
+        Effect.Effect<PackageJson, Schema.SchemaError | DomainError>
       >();
     });
   });

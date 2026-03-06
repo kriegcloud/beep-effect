@@ -18,7 +18,7 @@ import { updatePlainTextFile } from "../updaters/PlainTextUpdater.js";
 import { replaceNodeVersionWithFile, updateYamlValue } from "../updaters/YamlFileUpdater.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/UpdateApplierService");
-const VersionCategoryName = S.Literals(["bun", "node", "docker", "biome", "effect"] as const).annotate(
+const VersionCategoryName = S.Literals(["bun", "node", "docker", "biome", "effect"]).annotate(
   $I.annote("VersionCategoryName", {
     description: "Supported update categories for write-mode version-sync application.",
   })

@@ -1,0 +1,9 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "exclude": [
+    "src/index.ts",
+    "src/RepoMemorySqlConfig.ts",
+    "src/internal/Telemetry.ts"
+  ],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/sqlite/src/"
+}

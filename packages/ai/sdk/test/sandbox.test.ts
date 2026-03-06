@@ -211,7 +211,7 @@ test("QuerySupervisor applies stripped SessionEnd hooks to sandbox streams", asy
 });
 
 test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
@@ -308,7 +308,7 @@ test("QuerySupervisor replays PostToolUse hooks from sandbox tool messages", asy
 });
 
 test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query errors", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
@@ -413,7 +413,7 @@ test("QuerySupervisor replays PostToolUseFailure and Stop hooks on sandbox query
 });
 
 test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before result", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
@@ -512,7 +512,7 @@ test("QuerySupervisor emits Stop and SessionEnd when sandbox stream fails before
 });
 
 test("QuerySupervisor sandbox hook matcher supports wildcards and blocks non-matches", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
@@ -613,7 +613,7 @@ test("QuerySupervisor sandbox hook matcher supports wildcards and blocks non-mat
 });
 
 test("QuerySupervisor rejects non-string prompts when sandbox is isolated", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   let sdkQueryCalled = false;
   let sandboxRunAgentCalled = false;
@@ -669,7 +669,7 @@ test("QuerySupervisor rejects non-string prompts when sandbox is isolated", asyn
 });
 
 test("QuerySupervisor applies concurrency and active stats to sandbox queries", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),
@@ -748,7 +748,7 @@ test("QuerySupervisor applies concurrency and active stats to sandbox queries", 
 });
 
 test("QuerySupervisor.interruptAll interrupts active sandbox handles", async () => {
-  const { AgentSdk } = await import("../src/core/AgentSdk.js");
+  const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
 
   const sdk = AgentSdk.of({
     query: () => Effect.succeed(makeHandle()),

@@ -167,7 +167,7 @@ class VersionCategoryReportBun extends S.Class<VersionCategoryReportBun>($I`Vers
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+      S.withDecodingDefault(A.empty<VersionDriftItem>)
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
@@ -183,7 +183,7 @@ class VersionCategoryReportNode extends S.Class<VersionCategoryReportNode>($I`Ve
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+      S.withDecodingDefault(A.empty<VersionDriftItem>)
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
@@ -199,7 +199,7 @@ class VersionCategoryReportDocker extends S.Class<VersionCategoryReportDocker>($
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+      S.withDecodingDefault(A.empty<VersionDriftItem>)
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
@@ -215,7 +215,7 @@ class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+      S.withDecodingDefault(A.empty<VersionDriftItem>)
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
@@ -231,7 +231,7 @@ class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+      S.withDecodingDefault(A.empty<VersionDriftItem>)
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
@@ -423,7 +423,7 @@ export class VersionSyncResolution extends S.Class<VersionSyncResolution>($I`Ver
     report: VersionSyncReport,
     nodeLocations: S.Array(VersionSyncUpdateLocation).pipe(
       S.withConstructorDefault(() => O.some(A.empty<VersionSyncUpdateLocation>())),
-      S.withDecodingDefault(() => A.empty<VersionSyncUpdateLocation>())
+      S.withDecodingDefault(A.empty<VersionSyncUpdateLocation>)
     ),
   },
   $I.annote("VersionSyncResolution", {

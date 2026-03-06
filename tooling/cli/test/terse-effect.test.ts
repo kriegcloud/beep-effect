@@ -1,0 +1,156 @@
+import { runTerseEffectRules, TerseEffectRulesOptions } from "@beep/repo-cli/commands/Laws/TerseEffect";
+import { NodeServices } from "@effect/platform-node";
+import { Effect, FileSystem, Layer, Path } from "effect";
+import { describe, expect, it } from "vitest";
+
+const testLayer = Layer.mergeAll(NodeServices.layer);
+
+const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
+  Effect.acquireUseRelease(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectory();
+      const previousCwd = process.cwd();
+      process.chdir(tmpDir);
+      return { fs, previousCwd, tmpDir } as const;
+    }),
+    () => use,
+    ({ fs, previousCwd, tmpDir }) =>
+      Effect.gen(function* () {
+        process.chdir(previousCwd);
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+  );
+
+const writeProjectFile = Effect.fn(function* (relativePath: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.join(process.cwd(), relativePath);
+  const directoryPath = path.dirname(absolutePath);
+
+  yield* fs.makeDirectory(directoryPath, { recursive: true });
+  yield* fs.writeFileString(absolutePath, content);
+});
+
+const readProjectFile = Effect.fn(function* (relativePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.readFileString(path.join(process.cwd(), relativePath));
+});
+
+const writeTsconfig = writeProjectFile(
+  "tsconfig.json",
+  ["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"].join("\n")
+);
+
+describe("terse effect laws", () => {
+  it("reports helper simplifications in dry-run check mode without rewriting files", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import * as A from "effect/Array";',
+              "",
+              "export const value = {",
+              "  onNone: () => A.empty<string>(),",
+              "  onSome: (reference) => A.make(reference),",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+          const source = yield* readProjectFile("packages/demo/src/index.ts");
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.helpersSimplified).toBe(2);
+          expect(summary.strictFailure).toBe(true);
+          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(source).toContain("onNone: () => A.empty<string>()");
+          expect(source).toContain("onSome: (reference) => A.make(reference)");
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("rewrites supported helper wrappers in write mode", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import * as A from "effect/Array";',
+              "",
+              "export const value = {",
+              "  onNone: () => A.empty<string>(),",
+              "  onSome: (reference) => A.make(reference),",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: true,
+              strictCheck: false,
+              excludePaths: [],
+            })
+          );
+          const source = yield* readProjectFile("packages/demo/src/index.ts");
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.helpersSimplified).toBe(2);
+          expect(summary.strictFailure).toBe(false);
+          expect(source).toContain("onNone: A.empty<string>");
+          expect(source).toContain("onSome: A.of");
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("leaves already-terse code unchanged", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import * as A from "effect/Array";',
+              "",
+              "export const value = {",
+              "  onNone: A.empty<string>,",
+              "  onSome: A.of,",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(0);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.strictFailure).toBe(false);
+          expect(summary.changedFiles).toEqual([]);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+});

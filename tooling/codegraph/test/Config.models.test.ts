@@ -1,5 +1,3 @@
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import {
   CodegraphConfig,
   GraphConfig,
@@ -9,7 +7,9 @@ import {
   TargetConfig,
   VizConfig,
   WatcherConfig,
-} from "../src/Config/Config.models.ts";
+} from "@beep/codegraph/Config/Config.models";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "vitest";
 
 const decodeGraphConfig = S.decodeUnknownSync(GraphConfig);
 const decodeLogConfig = S.decodeUnknownSync(LogConfig);

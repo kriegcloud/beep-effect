@@ -11,7 +11,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
+import { DomainError, encodePackageJsonCanonicalPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { thunkFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
@@ -19,6 +19,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
+import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 import {
   ConfigUpdateBatchResult,
   ConfigUpdateResult,
@@ -326,6 +327,7 @@ export const createPackageCommand = Command.make(
     const configTarget = new ConfigUpdateTarget({
       packageName: name,
       packagePath,
+      ...buildCanonicalAliasTargets(packagePath, "./src/index.ts"),
     });
 
     // ── Dry-run: preview output and root config updates ────────────────
@@ -358,7 +360,7 @@ export const createPackageCommand = Command.make(
         `  - tsconfig.packages.json: ${configNeeds.tsconfigPackages ? `Add reference { "path": "${packagePath}" }` : "SKIP (already exists)"}`
       );
       yield* Console.log(
-        `  - tsconfig.json: ${configNeeds.tsconfigPaths ? `Add path aliases @beep/${name}, @beep/${name}/*` : "SKIP (already exists)"}`
+        `  - tsconfig.json: ${configNeeds.tsconfigPaths ? `Add path aliases @beep/${name} -> ${configTarget.rootAliasTarget}, @beep/${name}/* -> ${configTarget.wildcardAliasTarget}` : "SKIP (already exists)"}`
       );
       yield* Console.log(
         `  - tstyche.config.json: ${configNeeds.tstycheConfig ? `Add test file match "${packagePath}/dtslint/**/*.tst.*"` : "SKIP (already covered)"}`
@@ -436,7 +438,9 @@ export const createPackageCommand = Command.make(
         yield* Console.log(`  - tsconfig.packages.json: Added reference "${packagePath}"`);
       }
       if (configResults.tsconfigPaths) {
-        yield* Console.log(`  - tsconfig.json: Added path aliases @beep/${name}`);
+        yield* Console.log(
+          `  - tsconfig.json: Added path aliases @beep/${name} -> ${configTarget.rootAliasTarget}, @beep/${name}/* -> ${configTarget.wildcardAliasTarget}`
+        );
       }
       if (configResults.tstycheConfig) {
         yield* Console.log(`  - tstyche.config.json: Added test file match "${packagePath}/dtslint/**/*.tst.*"`);
@@ -454,8 +458,8 @@ export const createPackageCommand = Command.make(
  * Build a pretty-printed `package.json` string for a new package.
  *
  * Constructs the package manifest object with standard scripts, exports map,
- * and publish configuration, then encodes it through the repo-utils Schema
- * encoder to guarantee structural validity.
+ * and publish configuration, then encodes it through the repo-utils canonical
+ * package.json encoder to guarantee structural validity and stable formatting.
  *
  * @param name - The unscoped package name (e.g. `"my-utils"`). Will be prefixed with `@beep/`.
  * @param type - One of `"library"`, `"tool"`, or `"app"`. Tools receive an extra `@effect/platform-node` dependency.
@@ -528,6 +532,6 @@ const generatePackageJson: (
     },
   };
 
-  const json = yield* encodePackageJsonPrettyEffect(pkg);
+  const json = yield* encodePackageJsonCanonicalPrettyEffect(pkg);
   return `${json}\n`;
 });

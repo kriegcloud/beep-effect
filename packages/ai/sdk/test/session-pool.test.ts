@@ -1,12 +1,12 @@
+import type { SDKSessionOptions } from "@beep/ai-sdk/Schema/Session";
+import type { SessionHandle } from "@beep/ai-sdk/Session";
+import { SessionManager } from "@beep/ai-sdk/SessionManager";
+import { SessionPool } from "@beep/ai-sdk/SessionPool";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
-import type { SDKSessionOptions } from "../src/core/Schema/Session.js";
-import type { SessionHandle } from "../src/core/Session.js";
-import { SessionManager } from "../src/core/SessionManager.js";
-import { SessionPool } from "../src/core/SessionPool.js";
 import { runEffect } from "./effect-test.js";
 
 const makeHandle = (id: string): SessionHandle => ({

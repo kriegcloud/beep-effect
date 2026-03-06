@@ -11,6 +11,7 @@ import {
   type CyclicDependencyError,
   collectTsConfigPaths,
   DomainError,
+  decodePackageJsonEffect,
   detectCycles,
   type FsUtils,
   findRepoRoot,
@@ -43,6 +44,24 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "./Shared/SchemaCodecs/index.js";
+import { buildCanonicalAliasTargets, resolveRootExportTarget } from "./Shared/TsconfigAliasTargets.js";
+
+export {
+  /**
+   * Build canonical tsconfig alias targets from a package root export.
+   *
+   * @since 0.0.0
+   * @category Constructors
+   */
+  buildCanonicalAliasTargets,
+  /**
+   * Resolve the canonical root export target from a package `exports` field.
+   *
+   * @since 0.0.0
+   * @category Constructors
+   */
+  resolveRootExportTarget,
+} from "./Shared/TsconfigAliasTargets.js";
 
 /**
  * Formatting options used for jsonc edits.
@@ -141,7 +160,7 @@ const byStringAscending: Order.Order<string> = Order.String;
 const isArrayEmpty = <T>(values: ReadonlyArray<T>): boolean =>
   A.match(values, {
     onEmpty: () => true,
-    onNonEmpty: () => false,
+    onNonEmpty: thunkFalse,
   });
 
 /**
@@ -508,7 +527,8 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     relativeDir: S.String,
     ownerTsconfigPath: S.UndefinedOr(S.String),
     hasProjectTsconfig: S.Boolean,
-    hasSourceIndex: S.Boolean,
+    rootAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
+    wildcardAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
   },
   $I.annote("WorkspaceDescriptor", {
     description: "A workspace package descriptor with metadata for tsconfig synchronization.",
@@ -666,7 +686,6 @@ const workspaceContainsPath = (workspace: WorkspaceDescriptor, targetPath: strin
 
 const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
   const path = yield* Path.Path;
-  const fs = yield* FileSystem.FileSystem;
 
   const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
   const tsconfigPathsByPackage = yield* collectTsConfigPaths(rootDir);
@@ -678,9 +697,35 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
 
     const ownerTsconfigPath = chooseOwnerTsconfig(tsconfigPaths);
     const hasProjectTsconfig = A.some(tsconfigPaths, (entry) => Str.endsWith("/tsconfig.json")(toPosixPath(entry)));
-    const hasSourceIndex = yield* fs
-      .exists(path.join(absoluteDir, "src", "index.ts"))
-      .pipe(Effect.orElseSucceed(thunkFalse));
+    const packageJsonPath = path.join(absoluteDir, "package.json");
+    const packageJsonContent = yield* readFileString(packageJsonPath);
+    const packageJson = yield* Effect.try({
+      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(packageJsonContent),
+      catch: (cause) =>
+        new DomainError({
+          message: `Failed to parse JSON in "${packageJsonPath}"`,
+          cause,
+        }),
+    }).pipe(
+      Effect.flatMap((parsed) =>
+        decodePackageJsonEffect(parsed).pipe(
+          Effect.mapError(
+            (cause) =>
+              new DomainError({
+                message: `Failed to decode package.json at "${packageJsonPath}"`,
+                cause,
+              })
+          )
+        )
+      )
+    );
+    const aliasTargets = pipe(
+      packageJson.exports,
+      O.flatMap(resolveRootExportTarget),
+      O.map((rootExportTarget) =>
+        buildCanonicalAliasTargets(toPosixPath(path.relative(rootDir, absoluteDir)), rootExportTarget)
+      )
+    );
 
     descriptors.push(
       new WorkspaceDescriptor({
@@ -689,7 +734,8 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         relativeDir: toPosixPath(path.relative(rootDir, absoluteDir)),
         ownerTsconfigPath,
         hasProjectTsconfig,
-        hasSourceIndex,
+        rootAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.rootAliasTarget)),
+        wildcardAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.wildcardAliasTarget)),
       })
     );
   }
@@ -784,13 +830,17 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
 const canonicalAliasEntriesForWorkspace = (
   workspace: WorkspaceDescriptor
 ): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => {
-  if (!isBeepScopedPackageName(workspace.packageName) || !workspace.hasSourceIndex) {
+  if (
+    !isBeepScopedPackageName(workspace.packageName) ||
+    workspace.rootAliasTarget === undefined ||
+    workspace.wildcardAliasTarget === undefined
+  ) {
     return A.empty();
   }
 
   return [
-    [workspace.packageName, [`./${workspace.relativeDir}/src/index.ts`]],
-    [`${workspace.packageName}/*`, [`./${workspace.relativeDir}/src/*.ts`]],
+    [workspace.packageName, [workspace.rootAliasTarget]],
+    [`${workspace.packageName}/*`, [workspace.wildcardAliasTarget]],
   ] as const;
 };
 
@@ -958,7 +1008,7 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const packageNameMatchesFilter = O.match(O.fromUndefinedOr(filter), {
-      onNone: () => false,
+      onNone: thunkFalse,
       onSome: (filterValue) => stringEquivalence(workspace.packageName, filterValue),
     });
 

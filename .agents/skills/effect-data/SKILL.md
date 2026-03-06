@@ -140,6 +140,32 @@ const transform = flow(step1, step2, step3)
 // later: transform(input)
 ```
 
+## Prefer Terse Equivalents
+
+```ts
+import { flow, pipe } from "effect"
+import * as A from "effect/Array"
+import * as O from "effect/Option"
+
+const direct = O.match({
+  onNone: A.empty<string>,
+  onSome: A.of
+})
+
+const transform = flow(
+  parseValue,
+  O.match({
+    onNone: A.empty<string>,
+    onSome: A.of
+  })
+)
+
+// Avoid trivial wrappers like:
+// onNone: () => A.empty<string>()
+// onSome: (value) => A.make(value)
+// (input) => pipe(input, parseValue, direct)
+```
+
 ## Verify
 
 1. Grep for `.map(`, `.filter(`, `.reduce(`, `.find(` on arrays — all should be `A.map`, `A.filter`, etc.

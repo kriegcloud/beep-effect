@@ -285,7 +285,7 @@ const parentDirectoriesOf = (relativePath: string): ReadonlyArray<string> => {
 
 const readIfExists = Effect.fn(function* (absolutePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const exists = yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
   if (!exists) {
     return O.none<string>();
   }

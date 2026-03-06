@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
-    "@beep/repo-memory-domain": "workspace:^",
+    "@beep/repo-memory-model": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

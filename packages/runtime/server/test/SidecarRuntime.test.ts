@@ -1,7 +1,7 @@
 import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import net from "node:net";
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { RunCursor, RunEventSequence } from "@beep/repo-memory-domain";
+import { RunCursor, RunEventSequence } from "@beep/repo-memory-model";
 import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import * as NodeHttpClient from "@effect/platform-node/NodeHttpClient";

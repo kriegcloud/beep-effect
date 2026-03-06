@@ -1,9 +1,9 @@
+import { agentsCommand } from "@beep/repo-cli/commands/Agents/index";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
-import { agentsCommand } from "../src/commands/Agents/index.js";
 
 const runAgentsCommand = Command.runWith(agentsCommand, { version: "0.0.0" });
 

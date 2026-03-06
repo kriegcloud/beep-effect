@@ -81,7 +81,7 @@ class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
   {
     steps: S.Array(WorkflowStep).pipe(
       S.withConstructorDefault(() => O.some(A.empty<WorkflowStep>())),
-      S.withDecodingDefault(() => A.empty<WorkflowStep>())
+      S.withDecodingDefault(A.empty<WorkflowStep>)
     ),
   },
   $I.annote("WorkflowJob", {

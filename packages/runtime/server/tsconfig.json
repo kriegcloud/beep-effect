@@ -18,10 +18,13 @@
       "path": "../../common/types/tsconfig.json"
     },
     {
-      "path": "../../repo-memory/drivers-local/tsconfig.json"
+      "path": "../../repo-memory/model/tsconfig.json"
     },
     {
-      "path": "../../repo-memory/server/tsconfig.json"
+      "path": "../../repo-memory/runtime/tsconfig.json"
+    },
+    {
+      "path": "../../repo-memory/sqlite/tsconfig.json"
     },
     {
       "path": "../protocol/tsconfig.json"

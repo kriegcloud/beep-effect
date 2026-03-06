@@ -1,7 +1,3 @@
-import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option as O } from "effect";
-import * as S from "effect/Schema";
-import { Project } from "ts-morph";
 import {
   ByteLength,
   ByteOffset,
@@ -49,12 +45,16 @@ import {
   TypeScriptImplementationFilePath,
   TypeScriptImplementationFilePathToSymbolFilePath,
   WorkspaceDirectoryPath,
-} from "../src/TSMorph/index.js";
+} from "@beep/repo-utils/TSMorph/index";
 import {
   InternalTsMorphNode,
   InternalTsMorphProject,
   InternalTsMorphSourceFile,
-} from "../src/TSMorph/TSMorph.model.js";
+} from "@beep/repo-utils/TSMorph/TSMorph.model";
+import { describe, expect, it } from "@effect/vitest";
+import { Effect, Option as O } from "effect";
+import * as S from "effect/Schema";
+import { Project } from "ts-morph";
 
 const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
 const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);

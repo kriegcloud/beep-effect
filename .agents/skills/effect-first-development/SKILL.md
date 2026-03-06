@@ -66,6 +66,7 @@ Before writing code, run this checklist:
 47. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
 48. Am I designing a service or test helper? Keep `FileSystem`, `Path`, and `SqlClient` inside the layer/service unless they are the explicit domain boundary.
 49. Am I writing tests for platform/runtime semantics? Prefer `@effect/vitest` for supporting tests, but spawn the real runtime when the assertion is about platform lifecycle behavior.
+50. Am I wrapping a helper in a trivial lambda or passthrough `pipe(...)` callback? Prefer direct helper refs, `flow(...)`, and shared thunk helpers when behavior is unchanged.
 
 ## Non-Negotiable Laws
 
@@ -128,6 +129,7 @@ Before writing code, run this checklist:
 50. Prefer `P.isTagged("Tag")` over manual `_tag` guard helpers built from `P.hasProperty`, `P.isObject`, or inline `_tag` string checks.
 51. When a matcher is the function body or a reusable helper, prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` over `Match.value(...)`.
 52. At logging/recovery boundaries, render causes with `Cause.pretty(...)` or `Cause.prettyErrors(...)` instead of ad-hoc `String(error)` fallback chains.
+53. Prefer the tersest equivalent helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 
 ## Always / Never Examples
 

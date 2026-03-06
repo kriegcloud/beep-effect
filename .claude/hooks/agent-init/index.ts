@@ -12,7 +12,19 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
+import {
+  Config,
+  Console,
+  Effect,
+  FileSystem,
+  flow,
+  HashSet,
+  Layer,
+  Path,
+  pipe,
+  ServiceMap,
+  String as Str,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -272,16 +284,8 @@ export const program = Effect.gen(function* () {
       ),
       pipe(
         sh`git log ${"--since=7 days ago"} --format=%an --no-merges`,
-        Effect.map((out) =>
-          pipe(
-            out,
-            Str.trim,
-            Str.split("\n"),
-            A.filter(Str.isNonEmpty),
-            HashSet.fromIterable,
-            A.fromIterable,
-            A.join(", ")
-          )
+        Effect.map(
+          flow(Str.trim, Str.split("\n"), A.filter(Str.isNonEmpty), HashSet.fromIterable, A.fromIterable, A.join(", "))
         ),
         Effect.catch(() => Effect.succeed(""))
       ),

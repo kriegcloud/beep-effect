@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@beep/repo-memory-client": "workspace:^",
-    "@beep/repo-memory-domain": "workspace:^",
     "@beep/runtime-protocol": "workspace:^",
     "@tanstack/react-router": "catalog:",
     "react": "catalog:",

@@ -1,12 +1,15 @@
+import {
+  buildEffectReport,
+  resolveEffectCatalog,
+} from "@beep/repo-cli/commands/VersionSync/internal/resolvers/EffectResolver";
+import { updateCatalogEntry } from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
 import * as O from "effect/Option";
-import {
-  buildEffectReport,
-  resolveEffectCatalog,
-} from "../src/commands/VersionSync/internal/resolvers/EffectResolver.js";
-import { updateCatalogEntry } from "../src/commands/VersionSync/internal/updaters/PackageJsonUpdater.js";
+import * as S from "effect/Schema";
+
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
   describe("resolveEffectCatalog", () => {
@@ -20,21 +23,17 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
 
         yield* fs.writeFileString(
           packageJsonPath,
-          `${JSON.stringify(
-            {
-              name: "@beep/test-root",
-              catalog: {
-                effect: "^4.0.0-beta.28",
-                "@effect/opentelemetry": "^4.0.0-beta.27",
-                "@effect/platform-bun": "^4.0.0-beta.28",
-                "@effect/vitest": "^4.0.0-beta.26",
-                "@effect/language-service": "^0.78.0",
-                "@effect/docgen": "https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e7fe055",
-              },
+          `${encodeJson({
+            name: "@beep/test-root",
+            catalog: {
+              effect: "^4.0.0-beta.28",
+              "@effect/opentelemetry": "^4.0.0-beta.27",
+              "@effect/platform-bun": "^4.0.0-beta.28",
+              "@effect/vitest": "^4.0.0-beta.26",
+              "@effect/language-service": "^0.78.0",
+              "@effect/docgen": "https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e7fe055",
             },
-            null,
-            2
-          )}\n`
+          })}\n`
         );
 
         const state = yield* resolveEffectCatalog(tmpDir);
@@ -68,25 +67,24 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
 
         yield* fs.writeFileString(
           packageJsonPath,
-          `${JSON.stringify(
-            {
-              name: "@beep/test-root",
-              catalog: {
-                effect: "^4.0.0-beta.28",
-                "@effect/opentelemetry": "^4.0.0-beta.27",
-              },
+          `${encodeJson({
+            name: "@beep/test-root",
+            catalog: {
+              effect: "^4.0.0-beta.28",
+              "@effect/opentelemetry": "^4.0.0-beta.27",
             },
-            null,
-            2
-          )}\n`
+          })}\n`
         );
 
         const changed = yield* updateCatalogEntry(packageJsonPath, "@effect/opentelemetry", "^4.0.0-beta.28");
         const updated = yield* fs.readFileString(packageJsonPath);
+        const decodedUpdated = S.decodeUnknownSync(S.UnknownFromJsonString)(updated) as {
+          readonly catalog: Record<string, string>;
+        };
 
         expect(changed).toBe(true);
-        expect(updated).toContain('"@effect/opentelemetry": "^4.0.0-beta.28"');
-        expect(updated).toContain('"effect": "^4.0.0-beta.28"');
+        expect(decodedUpdated.catalog["@effect/opentelemetry"]).toBe("^4.0.0-beta.28");
+        expect(decodedUpdated.catalog.effect).toBe("^4.0.0-beta.28");
 
         yield* fs.remove(tmpDir, { recursive: true });
       })
