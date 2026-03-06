@@ -1,0 +1,77 @@
+{
+  "name": "@nomik-ai/cli",
+  "version": "1.1.1",
+  "description": "NOMIK \u2014 The Living Blueprint. AI-native code intelligence graph CLI. Scan, watch, query your codebase knowledge graph.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "nomik": "./dist/index.js",
+    "nomik-mcp": "./dist/mcp-server.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "code-intelligence",
+    "knowledge-graph",
+    "neo4j",
+    "ast",
+    "parser",
+    "codebase-analysis",
+    "ai",
+    "mcp",
+    "tree-sitter"
+  ],
+  "author": {
+    "name": "willFreed1",
+    "url": "https://hamzabenjeddi.com/"
+  },
+  "license": "MIT",
+  "homepage": "https://nomik.co",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/willFreed1/nomik",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/willFreed1/nomik/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "commander": "^13.1.0",
+    "dotenv": "^17.3.1",
+    "glob": "^11.0.0",
+    "neo4j-driver": "^5.12.0",
+    "pino": "^9.0.0",
+    "pino-pretty": "^13.0.0",
+    "tree-sitter": "^0.22.0",
+    "tree-sitter-javascript": "^0.23.0",
+    "tree-sitter-python": "^0.21.0",
+    "tree-sitter-rust": "^0.21.0",
+    "tree-sitter-typescript": "^0.23.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@nomik/core": "workspace:*",
+    "@nomik/graph": "workspace:*",
+    "@nomik/parser": "workspace:*",
+    "@nomik/watcher": "workspace:*",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
+  }
+}

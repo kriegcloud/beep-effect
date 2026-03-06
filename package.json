@@ -1,0 +1,43 @@
+{
+  "name": "nomik",
+  "version": "1.1.1",
+  "private": true,
+  "description": "The Living Blueprint \u2014 AI-native code intelligence graph",
+  "author": {
+    "name": "willFreed1",
+    "url": "https://hamzabenjeddi.com/"
+  },
+  "license": "MIT",
+  "homepage": "https://nomik.co",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willFreed1/NOMIK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/willFreed1/NOMIK/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "nomik": "node packages/cli/dist/index.js",
+    "build:mcp": "turbo run build --filter=@nomik/mcp-server"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.0",
+    "tsup": "^8.0.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
