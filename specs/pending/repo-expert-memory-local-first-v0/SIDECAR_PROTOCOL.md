@@ -151,7 +151,7 @@ They are not the target transport model.
 
 ## Evidence Contracts
 ### `Citation`
-`Citation` lives conceptually in `packages/repo-memory/domain`.
+`Citation` lives conceptually in `packages/repo-memory/model`.
 
 Rules:
 - every final grounded query answer should include citations when the system claims repo-grounded knowledge

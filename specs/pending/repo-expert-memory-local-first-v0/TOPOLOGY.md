@@ -13,13 +13,14 @@ The sidecar is the runtime center of gravity, and the topology should reflect th
 │
 └── packages/
     ├── runtime/
-    │   ├── protocol/                # HttpApi contracts, Rpc groups, run event schemas
+    │   ├── protocol/                # transport-only HttpApi contracts and Rpc groups
     │   └── server/                  # Bun sidecar, cluster/runtime assembly, router, lifecycle
     │
     ├── repo-memory/
-    │   ├── domain/                  # RepoId, RunId, Citation, RetrievalPacket, workflow payloads
-    │   ├── server/                  # Repo workflows, projections, journal-facing services
-    │   ├── drivers-local/           # SQLite-backed repo-memory persistence
+    │   ├── model/                   # pure schemas, brands, tagged unions, workflow payloads
+    │   ├── store/                   # repo-memory store service contracts
+    │   ├── sqlite/                  # SQLite-backed repo-memory store implementations
+    │   ├── runtime/                 # repo workflows, projections, grounded retrieval semantics
     │   └── client/                  # UI-side client contracts/helpers
     │
     └── common/
@@ -45,8 +46,8 @@ It should assemble:
 - `SqlEventLogJournal`
 - sidecar lifecycle / shutdown coordination
 
-## Runtime Shape Inside `packages/repo-memory/server`
-The `repo-memory/server` package owns repo-specific execution semantics.
+## Runtime Shape Inside `packages/repo-memory/runtime`
+The `repo-memory/runtime` package owns repo-specific execution semantics.
 
 It should define:
 - `IndexRepoRun`
@@ -69,15 +70,16 @@ It should not own:
 - the shell talks to the sidecar through the transport boundary, not in-process service imports
 
 ### Sidecar runtime
-- `packages/runtime/server` composes `repo-memory/server`, `repo-memory/drivers-local`, and runtime infrastructure layers
+- `packages/runtime/server` composes `repo-memory/runtime`, `repo-memory/sqlite`, and runtime infrastructure layers
 - `packages/runtime/server` owns route layout and process lifecycle
 - `packages/runtime/server` is the only package that should know about the final router topology
 
 ### Repo-memory packages
-- `packages/repo-memory/domain` stays pure and schema-first
-- `packages/repo-memory/server` depends on domain contracts and driver interfaces
-- `packages/repo-memory/drivers-local` stays below semantic/runtime layers and only knows local persistence concerns
-- `packages/repo-memory/client` depends on protocol/domain contracts, not server internals
+- `packages/repo-memory/model` stays pure and schema-first
+- `packages/repo-memory/store` defines repo-memory storage contracts only
+- `packages/repo-memory/sqlite` stays below semantic/runtime layers and only knows local persistence concerns
+- `packages/repo-memory/runtime` depends on model/store contracts and owns repo-specific execution semantics
+- `packages/repo-memory/client` depends on protocol/model contracts, not runtime internals
 
 ### Common packages
 - `packages/common/*` remain domain-agnostic support packages

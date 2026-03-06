@@ -28,7 +28,7 @@ The current handwritten HTTP transport lives in:
 - [packages/runtime/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server/src/index.ts)
 
 The repo-memory business logic lives in:
-- [packages/repo-memory/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/server/src/index.ts)
+- [packages/repo-memory/runtime/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/runtime/src/index.ts)
 
 That means any transport rewrite would primarily churn the runtime composition root, not the repo-memory service layer.
 
@@ -142,7 +142,7 @@ If more salvage work is needed before the redesign, keep it read-only and focus 
 ## Evidence
 Primary source files explored for this note:
 - [packages/runtime/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server/src/index.ts)
-- [packages/repo-memory/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/server/src/index.ts)
+- [packages/repo-memory/runtime/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/runtime/src/index.ts)
 - [packages/ai/sdk/src/core/service/AgentHttpApi.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpApi.ts)
 - [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
 - [packages/ai/sdk/src/core/service/AgentHttpServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpServer.ts)

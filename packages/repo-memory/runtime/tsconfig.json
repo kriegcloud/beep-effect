@@ -21,6 +21,9 @@
       "path": "../model/tsconfig.json"
     },
     {
+      "path": "../sqlite/tsconfig.json"
+    },
+    {
       "path": "../store/tsconfig.json"
     },
     {

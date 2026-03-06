@@ -9,10 +9,11 @@ Start with Graphiti memory lookup:
 `mcp__graphiti-memory__search_memory_facts({"query":"repo-memory runtime protocol effect-first schema patterns LiteralKit S.toTaggedUnion OptionFromOptionalKey annotations effect modules sidecar lifecycle","group_ids":"[\"beep-dev\"]","max_facts":10})`
 
 Then inspect these files before editing:
-- `packages/repo-memory/domain/src/index.ts`
+- `packages/repo-memory/model/src/index.ts`
+- `packages/repo-memory/store/src/index.ts`
 - `packages/runtime/protocol/src/index.ts`
-- `packages/repo-memory/server/src/index.ts`
-- `packages/repo-memory/drivers-local/src/index.ts`
+- `packages/repo-memory/runtime/src/index.ts`
+- `packages/repo-memory/sqlite/src/index.ts`
 - `packages/runtime/server/src/index.ts`
 
 Use these as canonical local style references:
@@ -97,7 +98,7 @@ Execution expectations:
 Validation you must run:
 - `rg -n "S\\.Union\\(\\[S\\.Literal|S\\.optional\\(|undefined|Date\\.now\\(|globalThis\\.crypto|new Array\\(|\\.push\\(" packages/repo-memory packages/runtime`
 - `bunx biome check packages/repo-memory packages/runtime`
-- `bunx tsc -b packages/repo-memory/domain packages/runtime/protocol packages/repo-memory/client packages/repo-memory/drivers-local packages/repo-memory/server packages/runtime/server`
+- `bunx tsc -b packages/repo-memory/model packages/repo-memory/store packages/runtime/protocol packages/repo-memory/client packages/repo-memory/sqlite packages/repo-memory/runtime packages/runtime/server`
 - If behavior changed materially, rerun the sidecar smoke path for:
   - health
   - repo registration

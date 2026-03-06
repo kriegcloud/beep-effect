@@ -64,7 +64,7 @@ Shutdown order is fixed:
 Do not rely on incidental nested finalizers as the only lifecycle model.
 
 ### 3. Workflow model
-Implement repo runs in `packages/repo-memory/server` as real workflows:
+Implement repo runs in `packages/repo-memory/runtime` as real workflows:
 - `IndexRepoRun`
 - `QueryRepoRun`
 
@@ -144,7 +144,7 @@ Build `RunProjectionStore` from those events:
 Cluster mailbox persistence is infrastructure. `EventJournal` is the user-facing audit model.
 
 ### 6. Repo-memory storage
-Move `packages/repo-memory/drivers-local` off the JSON state-file model and onto SQLite-backed local stores for:
+Implement `packages/repo-memory/sqlite` as the SQLite-backed local store layer over `packages/repo-memory/store` contracts for:
 - repo registration
 - source snapshot metadata
 - index manifests
@@ -166,7 +166,7 @@ Use `Reactivity` for invalidation keys:
 
 ## Public Interfaces
 
-### `packages/repo-memory/domain`
+### `packages/repo-memory/model`
 Keep and extend:
 - `RepoId`
 - `RunId`
@@ -180,6 +180,19 @@ Add:
 - `RunCursor`
 - `RunEventSequence`
 - `RunStreamFailure`
+
+### `packages/repo-memory/store`
+Define the repo-memory storage service contracts:
+- repo registry store
+- snapshot/artifact store
+- symbol/import-edge store
+- run/retrieval-packet store
+
+### `packages/repo-memory/sqlite`
+Provide the local `SqlClient`-backed implementations for the repo-memory store contracts.
+
+### `packages/repo-memory/runtime`
+Implement repo workflows, projections, grounded retrieval, and repo-specific runtime semantics.
 
 ### `packages/runtime/protocol`
 Split into:

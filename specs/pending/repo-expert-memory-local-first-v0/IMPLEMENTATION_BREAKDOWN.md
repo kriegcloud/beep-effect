@@ -8,7 +8,7 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 ## Workstream 1: Contracts
 Lock the public contracts first.
 
-### `packages/repo-memory/domain`
+### `packages/repo-memory/model`
 Define and keep stable:
 - `RepoId`
 - `RunId`
@@ -17,6 +17,13 @@ Define and keep stable:
 - `Citation`
 - `RetrievalPacket`
 - workflow payloads for `IndexRepoRun` and `QueryRepoRun`
+
+### `packages/repo-memory/store`
+Define and keep stable:
+- repo registry store contract
+- snapshot/artifact store contract
+- symbol/import-edge store contract
+- run/retrieval-packet store contract
 
 ### `packages/runtime/protocol`
 Define and keep stable:
@@ -30,6 +37,7 @@ Define and keep stable:
 ## Workstream 2: Local SQL substrate
 Adopt:
 - `@effect/sql-sqlite-bun`
+- `packages/repo-memory/sqlite`
 - one local SQLite database under app data
 
 Use the generic `SqlClient` abstraction so the provider choice remains swappable.
@@ -46,7 +54,7 @@ Assemble the sidecar runtime from:
 Keep the runtime server as the explicit composition root. Do not collapse this into `BunClusterHttp.layer(...)`.
 
 ## Workstream 4: Workflow-backed repo runs
-Implement:
+Implement in `packages/repo-memory/runtime`:
 - `IndexRepoRun`
 - `QueryRepoRun`
 

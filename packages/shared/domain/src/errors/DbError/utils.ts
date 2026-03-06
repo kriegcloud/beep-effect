@@ -445,6 +445,7 @@ const extractPgErrorOption = (error: unknown): O.Option<PgDatabaseError> =>
   pipe(
     error,
     Match.value,
+    // eslint-disable-next-line beep-laws/terse-effect-style -- Match.when does not preserve the narrowed predicate type for direct helper refs here.
     Match.when(S.is(RawPgError), (pgError): O.Option<PgDatabaseError> => O.some(pgError)),
     Match.when(
       S.is(RawSqlError),
