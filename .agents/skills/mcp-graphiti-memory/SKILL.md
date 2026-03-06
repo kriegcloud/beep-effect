@@ -11,7 +11,7 @@ description: "Use for Graphiti MCP memory workflows including startup checks, fa
 
 ## Quick Smoke
 1. Call `mcp__graphiti-memory__get_status`.
-2. Call `mcp__graphiti-memory__search_memory_facts` with `group_ids: ["beep-dev"]`.
+2. Call `mcp__graphiti-memory__search_memory_facts` with `group_ids: "[\"beep-dev\"]"` when the wrapper exposes `group_ids` as a string. If the tool accepts native arrays, `["beep-dev"]` is also valid.
 
 ## Representative Calls
 - Read status: `get_status`.
@@ -24,6 +24,8 @@ description: "Use for Graphiti MCP memory workflows including startup checks, fa
 - Handshake closes before `initialize` completes.
 
 ## Fix Patterns
-- Always pass `group_ids` as an array, for example `["beep-dev"]`.
+- The server expects `group_ids` to decode to a list. Never pass the plain string `"beep-dev"`.
+- If the MCP tool schema exposes `group_ids` as `string`, pass the JSON array literal string `"[\"beep-dev\"]"`.
+- If the MCP tool schema exposes `group_ids` as an array, pass `["beep-dev"]`.
 - Confirm URL is `http://localhost:8000/mcp`.
 - Retest with a lightweight call (`get_status`) before deeper calls.

@@ -11,6 +11,7 @@ Build and maintain features with effect first development.
 - Prefer effect modules over native helpers.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
+- Graphiti memory MCP startup gotcha: the server expects `group_ids` as a list. If the tool wrapper exposes `group_ids` as `string`, pass `group_ids: "[\"beep-dev\"]"` instead of the plain string `"beep-dev"`.
 - When the user asks questions on differences between effect v3 & effect v4 use the `graphiti-memory` & skill, tool
   on the effect v4 knowledge graph.
 
