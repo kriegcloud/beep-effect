@@ -106,6 +106,7 @@ import * as P from "effect/Predicate"
 P.isString(x)   // x is string
 P.isNumber(x)   // x is number
 P.isObject(x)   // x is object (not null)
+P.isTagged("SchemaError")(x) // x has readonly _tag: "SchemaError"
 
 // Compose guards
 const isActiveUser = P.struct({
@@ -145,3 +146,4 @@ const transform = flow(step1, step2, step3)
 2. Grep for `Object.keys`, `Object.entries`, `Object.values` — all should be `R.keys`, `R.entries`, `R.values`.
 3. Grep for `typeof ` — all should be `P.isString`, `P.isNumber`, etc.
 4. No `Date.now()` or `Math.random()` — use `Clock` and `Random` services.
+5. No manual `_tag` guard helpers — prefer `P.isTagged(...)`.

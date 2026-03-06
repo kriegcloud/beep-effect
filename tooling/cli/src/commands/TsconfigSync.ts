@@ -19,7 +19,7 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import {
   Boolean as Bool,
@@ -150,7 +150,7 @@ const isArrayEmpty = <T>(values: ReadonlyArray<T>): boolean =>
  * @since 0.0.0
  * @category CrossCutting
  */
-export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
+export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
   {
     fileCount: S.Number,
@@ -168,7 +168,7 @@ export class TsconfigSyncDriftError extends S.TaggedErrorClass<TsconfigSyncDrift
  * @since 0.0.0
  * @category CrossCutting
  */
-export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
+export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
   {
     cycles: S.Array(S.Array(S.String)),
@@ -186,7 +186,7 @@ export class TsconfigSyncCycleError extends S.TaggedErrorClass<TsconfigSyncCycle
  * @since 0.0.0
  * @category CrossCutting
  */
-export class TsconfigSyncFilterError extends S.TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
+export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
   "TsconfigSyncFilterError",
   {
     filter: S.String,

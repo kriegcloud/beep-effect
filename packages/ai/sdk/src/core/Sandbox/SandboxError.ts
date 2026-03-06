@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/Sandbox/SandboxError");
@@ -7,7 +7,7 @@ const $I = $AiSdkId.create("core/Sandbox/SandboxError");
 /**
  * @since 0.0.0
  */
-export class SandboxError extends S.TaggedErrorClass<SandboxError>($I`SandboxError`)(
+export class SandboxError extends TaggedErrorClass<SandboxError>($I`SandboxError`)(
   "SandboxError",
   {
     message: S.String,

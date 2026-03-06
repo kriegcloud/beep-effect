@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { NormalizedBooleanString } from "@beep/schema";
+import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
 import { Boolean as Bool, Config, Effect, Option as O, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
 
@@ -176,7 +176,7 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
  * @since 0.0.0
  * @category Errors
  */
-export class GraphitiProxyConfigLoadError extends S.TaggedErrorClass<GraphitiProxyConfigLoadError>(
+export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxyConfigLoadError>(
   $I`GraphitiProxyConfigLoadError`
 )(
   "GraphitiProxyConfigLoadError",

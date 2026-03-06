@@ -1,3 +1,4 @@
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 /**
@@ -6,7 +7,7 @@ import * as S from "effect/Schema";
 /**
  * @since 0.0.0
  */
-export class ToolNotFoundError extends S.TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
+export class ToolNotFoundError extends TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
   name: S.String,
   available: S.Array(S.String),
 }) {
@@ -19,7 +20,7 @@ export class ToolNotFoundError extends S.TaggedErrorClass<ToolNotFoundError>()("
 /**
  * @since 0.0.0
  */
-export class ToolInputError extends S.TaggedErrorClass<ToolInputError>()("ToolInputError", {
+export class ToolInputError extends TaggedErrorClass<ToolInputError>()("ToolInputError", {
   name: S.String,
   message: S.String,
   input: S.optional(S.Unknown),
@@ -35,7 +36,7 @@ export class ToolInputError extends S.TaggedErrorClass<ToolInputError>()("ToolIn
 /**
  * @since 0.0.0
  */
-export class ToolOutputError extends S.TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
+export class ToolOutputError extends TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
   name: S.String,
   message: S.String,
   output: S.optional(S.Unknown),

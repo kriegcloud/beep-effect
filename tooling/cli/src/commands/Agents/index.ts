@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Console, Effect, FileSystem, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -84,7 +85,7 @@ class PathlessViolation extends S.Class<PathlessViolation>($I`PathlessViolation`
   })
 ) {}
 
-class AgentsManifestDecodeError extends S.TaggedErrorClass<AgentsManifestDecodeError>($I`AgentsManifestDecodeError`)(
+class AgentsManifestDecodeError extends TaggedErrorClass<AgentsManifestDecodeError>($I`AgentsManifestDecodeError`)(
   "AgentsManifestDecodeError",
   {
     message: S.String,

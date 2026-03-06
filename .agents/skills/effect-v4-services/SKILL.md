@@ -12,10 +12,12 @@ status: active
 1. Service class shape:
 - Use `import { $PackageNameId } from "@beep/identity/packages"; const $I = $PackageNameId.create("relative/path/to/file"); class X extends ServiceMap.Service<X, Shape>()($I\`X\`) {}`.
 - Do not use `Context.Tag` or `Context.GenericTag`.
-- Keep service error channels typed (`S.TaggedErrorClass`), not native `Error`.
+- Keep service error channels typed with `TaggedErrorClass` from `@beep/schema`, not native `Error`.
 
 2. Layer wiring:
 - Use `Layer.effect(Service, constructorEffect)`.
+- Reusable service methods and constructor helpers that are functions should be named `Effect.fn("Service.method")` / `Effect.fn("Service.make")`.
+- Zero-arg constructor values may stay `Effect.gen(...).pipe(Effect.withSpan("Service.make"))`.
 - Keep dependencies explicit at the composition boundary.
 - Avoid `try/catch` in service setup flows; prefer `Effect.try*` and `Effect.catchTag`.
 
@@ -23,3 +25,4 @@ status: active
 - Prefer `yield* Service` in effectful handlers.
 - Keep service interfaces small and test-first.
 - Return `Option` for optional values; avoid nullable/null-assertion patterns.
+- Add spans and structured log annotations to important service workflows from the start.

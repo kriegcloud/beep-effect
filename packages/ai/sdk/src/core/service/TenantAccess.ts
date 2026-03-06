@@ -1,3 +1,4 @@
+import { TaggedErrorClass } from "@beep/schema";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -10,7 +11,7 @@ const callerTenantHeader = "x-agent-tenant";
 /**
  * @since 0.0.0
  */
-export class SessionTenantAccessError extends S.TaggedErrorClass<SessionTenantAccessError>()(
+export class SessionTenantAccessError extends TaggedErrorClass<SessionTenantAccessError>()(
   "SessionTenantAccessError",
   {
     message: S.String,

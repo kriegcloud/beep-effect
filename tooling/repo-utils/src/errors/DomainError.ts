@@ -8,6 +8,7 @@
  * @category CrossCutting
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("errors/DomainError");
@@ -18,7 +19,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * @since 0.0.0
  * @category CrossCutting
  */
-export class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`)(
+export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",
   {
     message: S.String,

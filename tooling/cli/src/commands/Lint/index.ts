@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
@@ -67,7 +68,7 @@ class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
   })
 ) {}
 
-class LintCircularAnalysisError extends S.TaggedErrorClass<LintCircularAnalysisError>($I`LintCircularAnalysisError`)(
+class LintCircularAnalysisError extends TaggedErrorClass<LintCircularAnalysisError>($I`LintCircularAnalysisError`)(
   "LintCircularAnalysisError",
   {
     message: S.String,
@@ -121,7 +122,7 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
 
   if (Str.isNonEmpty(Str.trim(output))) {
     yield* Console.error(
-      "[check-tooling-tagged-errors] native Error usage detected in tooling/*/src. Use S.TaggedErrorClass errors."
+      "[check-tooling-tagged-errors] native Error usage detected in tooling/*/src. Use TaggedErrorClass from @beep/schema."
     );
     yield* Console.error(Str.trim(output));
     process.exitCode = 1;

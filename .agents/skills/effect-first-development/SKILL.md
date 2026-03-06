@@ -27,39 +27,42 @@ Before writing code, run this checklist:
 8. For non-class schemas, did I export the runtime type alias with the same identifier name?
 9. Did I annotate schemas with canonical `$I.annote(...)` metadata?
 10. Is this a discriminated union or literal-union schema? Prefer `LiteralKit` + `.mapMembers` + `Tuple.evolve` + `S.toTaggedUnion` (or `S.TaggedUnion` for `_tag` cases).
-11. Is this a reusable domain function returning an `Effect`? Use `Effect.fn` or `Effect.fnUntraced`.
-12. Is this effect observable? Add logs, span annotations, and metrics where relevant.
-13. Am I expressing durations/time windows? Use `effect/Duration`.
-14. Am I mapping nullable/nullish schema values to `Option`? Use `S.OptionFrom*` helpers.
-15. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
-16. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
-17. Am I executing an effect? Keep `Effect.run*` calls at app/test runtime boundaries only.
-18. Am I wrapping Promise-based APIs at boundaries with `Effect.tryPromise`?
-19. Am I acquiring resources? Use `Effect.acquireUseRelease` / `Effect.scoped` so release is guaranteed.
-20. Am I retrying work? Use `Effect.retry` with `Schedule`, never manual retry loops.
-21. Am I modeling timeout outcomes? Prefer `Effect.timeoutOption` or `Effect.timeoutOrElse`.
-22. Am I forking? Prefer `Effect.forkChild`; use `Effect.forkDetach` only for explicit daemon behavior.
-23. Am I running fan-out work? Set explicit concurrency for `Effect.forEach` / `Effect.all` where appropriate.
-24. Am I reading config? Use `Config` / `ConfigProvider`, not direct `process.env` in domain code.
-25. Am I handling secrets? Use `Config.redacted` / `Redacted` so values stay protected in logs.
-26. Am I recovering errors? Prefer `Effect.catchTag` / `Effect.catchFilter` over broad catch-all recovery.
-27. Am I encoding expected failure vs invariant defect correctly (`fail` vs `die`)?
-28. Am I providing layers where isolation matters? Use `Effect.provide(..., { local: true })` or `Layer.fresh(...)`.
-29. Am I about to write a plain `type` / `interface` that can be expressed as `Schema`? If yes, make Schema the source of truth.
-30. Am I adding fallback objects in handlers/services? Move defaults into schemas with `S.withConstructorDefault` and `S.withDecodingDefault*`.
-31. Am I writing a guard helper for strings/paths/tags? Prefer branded schemas + `S.is(...)` over ad-hoc `regex.test` helpers.
-32. Am I comparing schema-modeled domain values? Prefer `S.toEquivalence(...)` over direct `===` / `!==`.
-33. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
-34. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
-35. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
-36. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
-37. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
-38. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
-39. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
-40. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
-41. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
-42. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
-43. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
+11. Is this a reusable function returning an `Effect`? Use named `Effect.fn("Namespace.name")` or `Effect.fnUntraced`.
+12. Is this a zero-arg effect value rather than a reusable function? Prefer `Effect.gen(...).pipe(Effect.withSpan("Name"))` over immediate `Effect.fn` IIFEs.
+13. Is this effect observable? Add spans and structured logs from the start; add metrics where the path is materially important.
+14. Am I expressing durations/time windows? Use `effect/Duration`.
+15. Am I mapping nullable/nullish schema values to `Option`? Use `S.OptionFrom*` helpers.
+16. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
+17. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
+18. Am I executing an effect? Keep `Effect.run*` calls at app/test runtime boundaries only.
+19. Am I wrapping Promise-based APIs at boundaries with `Effect.tryPromise`?
+20. Am I acquiring resources? Use `Effect.acquireUseRelease` / `Effect.scoped` so release is guaranteed.
+21. Am I retrying work? Use `Effect.retry` with `Schedule`, never manual retry loops.
+22. Am I modeling timeout outcomes? Prefer `Effect.timeoutOption` or `Effect.timeoutOrElse`.
+23. Am I forking? Prefer `Effect.forkChild`; use `Effect.forkDetach` only for explicit daemon behavior.
+24. Am I running fan-out work? Set explicit concurrency for `Effect.forEach` / `Effect.all` where appropriate.
+25. Am I reading config? Use `Config` / `ConfigProvider`, not direct `process.env` in domain code.
+26. Am I handling secrets? Use `Config.redacted` / `Redacted` so values stay protected in logs.
+27. Am I recovering errors? Prefer `Effect.catchTag` / `Effect.catchFilter` inside the domain, and `Effect.catchCause` / `Effect.matchCauseEffect` at recovery boundaries.
+28. Am I rendering or logging failure detail? Use `Cause.pretty` / `Cause.prettyErrors`, not ad-hoc stringification.
+29. Am I encoding expected failure vs invariant defect correctly (`fail` vs `die`)?
+30. Am I providing layers where isolation matters? Use `Effect.provide(..., { local: true })` or `Layer.fresh(...)`.
+31. Am I about to write a plain `type` / `interface` that can be expressed as `Schema`? If yes, make Schema the source of truth.
+32. Am I adding fallback objects in handlers/services? Move defaults into schemas with `S.withConstructorDefault` and `S.withDecodingDefault*`.
+33. Am I writing a guard helper for strings/paths/tags? Prefer branded schemas + `S.is(...)` or `P.isTagged(...)` over ad-hoc predicate helpers.
+34. Am I comparing schema-modeled domain values? Prefer `S.toEquivalence(...)` over direct `===` / `!==`.
+35. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
+36. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
+37. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
+38. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
+39. Am I directly returning a matcher or extracting a reusable matcher? Prefer `Match.type<T>().pipe(...)` or `Match.tags(...)` over `Match.value(...)`.
+40. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
+41. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
+42. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
+43. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
+44. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
+45. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
+46. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
 
 ## Non-Negotiable Laws
 
@@ -75,7 +78,7 @@ Before writing code, run this checklist:
 5. No nullish leak in domain logic; convert nullish to `Option` at boundaries.
 6. No direct `typeof` checks when `effect/Predicate` covers the case.
 7. No native `Object/Map/Set/Date/String` helpers in domain logic.
-8. For tooling source, use `S.TaggedErrorClass` typed errors.
+8. For tooling source, use `TaggedErrorClass` from `@beep/schema`.
 9. Exported APIs need JSDoc and docgen-clean examples.
 10. Do not finish with failing `check`, `lint`, `test`, or `docgen`.
 11. Do not suffix schema constants with `Schema`; use the domain name.
@@ -84,8 +87,8 @@ Before writing code, run this checklist:
 14. All new schemas must be meaningfully annotated with `$I.annote("Name", { description })`.
 15. Service identifiers must use package composer `.create(...)` and `$I\`MyService\``.
 16. If a schema has properties that are a union of literal strings, it should be a tagged union composed via `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalized with `S.toTaggedUnion`. Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
-17. Reusable domain functions returning `Effect` should use `Effect.fn` (or `Effect.fnUntraced` for hot/internal paths). Combinator helpers and schema-derived constructors may return `Effect` directly.
-18. Effect workflows should be observable with logging, spans, and metrics (`effect/Metric` + `Effect.track*`).
+17. Reusable functions returning `Effect` should use named `Effect.fn("Namespace.name")` (or `Effect.fnUntraced` for hot/internal paths). Zero-arg effect values may stay `Effect.gen(...).pipe(Effect.withSpan("Name"))` when there is no exported/reused function to expose.
+18. Effect workflows should be observable with spans and structured logs from the start; add metrics (`effect/Metric` + `Effect.track*`) where the path is important enough to measure.
 19. Durations and time windows should use `effect/Duration`, not ad-hoc number literals.
 20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`.
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
@@ -100,7 +103,7 @@ Before writing code, run this checklist:
 30. Parallel fan-out should set explicit concurrency for `Effect.forEach` / `Effect.all` / `Effect.validate` when load is non-trivial.
 31. Config should be modeled via `Config` and `ConfigProvider`, not direct `process.env` access in domain services.
 32. Secrets must be represented as `Redacted` values (`Config.redacted` / `Redacted.make`) and never logged raw.
-33. Error recovery should be precise (`catchTag` / `catchFilter`) instead of blanket recovery that hides unrelated failures.
+33. Error recovery should be precise (`catchTag` / `catchFilter`) instead of blanket recovery that hides unrelated failures; at outer HTTP/process boundaries prefer `Effect.catchCause` / `Effect.matchCauseEffect`.
 34. Use `Effect.fail` for expected business errors and reserve `Effect.die` / `Effect.orDie` for invariants and impossible states.
 35. When layer memoization sharing is unsafe, force isolation with `Effect.provide(..., { local: true })` or `Layer.fresh`.
 36. Schema-first development: if a data model can be represented as `Schema`, define the `Schema` first and derive runtime types from it; avoid plain `type` / `interface` for domain data shapes.
@@ -117,6 +120,9 @@ Before writing code, run this checklist:
 47. Named or reused domain constraints must be modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, then derive guards with `S.is(...)`.
 48. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
 49. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
+50. Prefer `P.isTagged("Tag")` over manual `_tag` guard helpers built from `P.hasProperty`, `P.isObject`, or inline `_tag` string checks.
+51. When a matcher is the function body or a reusable helper, prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` over `Match.value(...)`.
+52. At logging/recovery boundaries, render causes with `Cause.pretty(...)` or `Cause.prettyErrors(...)` instead of ad-hoc `String(error)` fallback chains.
 
 ## Always / Never Examples
 
@@ -149,10 +155,11 @@ const name = pipe(
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class JsonParseError extends S.TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
+class JsonParseError extends TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
   "JsonParseError",
   { message: S.String, input: S.String },
   $I.annote("JsonParseError", { description: "Invalid JSON payload" })
@@ -311,13 +318,12 @@ type Status = "queued" | "running" | "failed"
 // }
 
 // ALWAYS:
-const toLabel = (status: Status) =>
-  Match.value(status).pipe(
-    Match.when("queued", () => "queued"),
-    Match.when("running", () => "running"),
-    Match.when("failed", () => "failed"),
-    Match.exhaustive
-  )
+const toLabel = Match.type<Status>().pipe(
+  Match.when("queued", () => "queued"),
+  Match.when("running", () => "running"),
+  Match.when("failed", () => "failed"),
+  Match.exhaustive
+)
 
 const summarize = (items: ReadonlyArray<string>) =>
   A.match(items, {
@@ -444,6 +450,11 @@ export const fetchProfile = Effect.fn("Profile.fetch")(function* (userId: string
 const parseSmallPayload = Effect.fnUntraced(function* (raw: string) {
   return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(raw)
 })
+
+// Zero-arg reusable values can stay as effects instead of immediate Effect.fn() invocation.
+const loadAppConfig = Effect.gen(function* () {
+  return yield* S.decodeUnknownEffect(S.Struct({ port: S.Number }))({ port: 8787 })
+}).pipe(Effect.withSpan("AppConfig.load"))
 ```
 
 ### 10) Observability and metrics
@@ -467,6 +478,25 @@ const runOperation = Effect.fn("Operation.run")(function* (id: string) {
   Effect.trackDuration(latency),
   Effect.trackErrors(errors)
 )
+```
+
+### 10b) Boundary logging with Cause
+
+```ts
+import { Cause, Effect } from "effect"
+
+const respond = <A>(effect: Effect.Effect<A, DomainError>) =>
+  effect.pipe(
+    Effect.catchCause((cause) => {
+      const error = Cause.squash(cause)
+      return Effect.logError({
+        message: "request failed",
+        cause: Cause.pretty(cause)
+      }).pipe(
+        Effect.zipRight(Effect.fail(error))
+      )
+    })
+  )
 ```
 
 ### 11) Duration values
@@ -688,7 +718,10 @@ const isolatedProgram = program.pipe(
 17. `rg -n "Redacted\\.value\\(" apps packages tooling`
 18. `rg -n "Effect\\.die\\(|Effect\\.orDie\\(" apps packages tooling`
 19. `rg -n "Effect\\.provide\\(.*local:\\s*true|Layer\\.fresh\\(" apps packages tooling`
-20. `bun run check`
-21. `bun run lint`
-22. `bun run test`
-23. `bun run docgen`
+20. `rg -n "const hasTag|P\\.hasProperty\\(.*_tag|P\\.isObject\\(.*_tag|Match\\.value\\(" apps packages tooling`
+21. `rg -n "Effect\\.fn\\(function\\*|=\\s*Effect\\.gen\\(function\\*" apps packages tooling`
+22. `rg -n "Cause\\.pretty\\(|Cause\\.prettyErrors\\(|Effect\\.catchCause\\(|Effect\\.matchCauseEffect\\(" apps packages tooling`
+23. `bun run check`
+24. `bun run lint`
+25. `bun run test`
+26. `bun run docgen`

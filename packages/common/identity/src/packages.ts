@@ -34,7 +34,7 @@ const composers = $I.compose(
   "web",
   "beep-sync",
   "repo-cli",
-  "docgen",
+  "codegraph",
   "agent-eval",
   "codebase-search",
   "repo-utils",
@@ -47,6 +47,13 @@ const composers = $I.compose(
   "shared-server",
   "shared-ui",
   "shared-env",
+  "runtime-protocol",
+  "runtime-server",
+  "repo-memory-domain",
+  "repo-memory-server",
+  "repo-memory-client",
+  "repo-memory-drivers-local",
+	"codegraph",
 
   // iam
   "iam-domain",
@@ -200,6 +207,46 @@ export const $SharedUiId = composers.$SharedUiId;
  */
 export const $SharedEnvId = composers.$SharedEnvId;
 
+// --- runtime ---
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RuntimeProtocolId = composers.$RuntimeProtocolId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RuntimeServerId = composers.$RuntimeServerId;
+
+// --- repo-memory ---
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemoryDomainId = composers.$RepoMemoryDomainId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemoryServerId = composers.$RepoMemoryServerId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemoryClientId = composers.$RepoMemoryClientId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $RepoMemoryDriversLocalId = composers.$RepoMemoryDriversLocalId;
+
 // --- iam ---
 
 /**
@@ -237,6 +284,6 @@ export const $IamUiId: Identity.IdentityComposer<"@beep/iam-ui"> = composers.$Ia
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/docgen">}
+ * @type {Identity.IdentityComposer<"@beep/codegraph">}
  */
-export const $DocgenId: Identity.IdentityComposer<"@beep/docgen"> = composers.$DocgenId;
+export const $CodegraphId: Identity.IdentityComposer<"@beep/codegraph"> = composers.$CodegraphId;

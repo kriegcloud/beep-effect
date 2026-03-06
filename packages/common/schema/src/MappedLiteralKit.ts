@@ -6,6 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { HashMap, pipe, type SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -63,7 +64,7 @@ type DirectionalKit<
  * @category CrossCutting
  * @since 0.0.0
  */
-export class MappedLiteralDuplicateError extends S.TaggedErrorClass<MappedLiteralDuplicateError>(
+export class MappedLiteralDuplicateError extends TaggedErrorClass<MappedLiteralDuplicateError>(
   $I`MappedLiteralDuplicateError`
 )(
   "MappedLiteralDuplicateError",

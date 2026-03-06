@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Effect, Inspectable, MutableHashSet, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -62,7 +63,7 @@ export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>(
   })
 ) {}
 
-class EffectImportRulesPersistenceError extends S.TaggedErrorClass<EffectImportRulesPersistenceError>(
+class EffectImportRulesPersistenceError extends TaggedErrorClass<EffectImportRulesPersistenceError>(
   $I`EffectImportRulesPersistenceError`
 )(
   "EffectImportRulesPersistenceError",

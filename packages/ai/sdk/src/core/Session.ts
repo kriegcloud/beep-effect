@@ -4,6 +4,7 @@ import {
   unstable_v2_prompt,
   unstable_v2_resumeSession,
 } from "@anthropic-ai/claude-agent-sdk";
+import { TaggedErrorClass } from "@beep/schema";
 import { Deferred, Duration, Effect, Exit, Semaphore, Stream, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -24,7 +25,7 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
 /**
  * @since 0.0.0
  */
-export class SessionClosedError extends S.TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
+export class SessionClosedError extends TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
   message: S.String,
 }) {
   static readonly make = (message: string) => new SessionClosedError({ message });

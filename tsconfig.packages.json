@@ -10,6 +10,9 @@
       "path": ".claude"
     },
     {
+      "path": "apps/desktop"
+    },
+    {
       "path": "packages/ai/sdk"
     },
     {
@@ -32,6 +35,24 @@
     },
     {
       "path": "packages/common/utils"
+    },
+    {
+      "path": "packages/repo-memory/client"
+    },
+    {
+      "path": "packages/repo-memory/domain"
+    },
+    {
+      "path": "packages/repo-memory/drivers-local"
+    },
+    {
+      "path": "packages/repo-memory/server"
+    },
+    {
+      "path": "packages/runtime/protocol"
+    },
+    {
+      "path": "packages/runtime/server"
     },
     {
       "path": "packages/shared/client"

@@ -9,6 +9,7 @@
  * @category CrossCutting
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("errors/NoSuchFileError");
@@ -19,7 +20,7 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  * @since 0.0.0
  * @category CrossCutting
  */
-export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>($I`NoSuchFileError`)(
+export class NoSuchFileError extends TaggedErrorClass<NoSuchFileError>($I`NoSuchFileError`)(
   "NoSuchFileError",
   {
     path: S.String,

@@ -1,0 +1,30 @@
+{
+  "name": "@beep/desktop",
+  "version": "0.0.0",
+  "description": "Thin React shell for the local-first repo-memory desktop prototype",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check src/",
+    "lint:fix": "biome check src/ --write"
+  },
+  "dependencies": {
+    "@beep/repo-memory-client": "workspace:^",
+    "@beep/repo-memory-domain": "workspace:^",
+    "@beep/runtime-protocol": "workspace:^",
+    "@tanstack/react-router": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

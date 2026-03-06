@@ -1,4 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 import { QuerySupervisorError } from "./QuerySupervisorError.js";
 import { SandboxError } from "./Sandbox/index.js";
@@ -11,7 +12,7 @@ const $I = $AiSdkId.create("core/Errors");
 /**
  * @since 0.0.0
  */
-export class ConfigError extends S.TaggedErrorClass<ConfigError>($I`ConfigError`)(
+export class ConfigError extends TaggedErrorClass<ConfigError>($I`ConfigError`)(
   "ConfigError",
   {
     message: S.String,
@@ -30,7 +31,7 @@ export class ConfigError extends S.TaggedErrorClass<ConfigError>($I`ConfigError`
 /**
  * @since 0.0.0
  */
-export class DecodeError extends S.TaggedErrorClass<DecodeError>($I`DecodeError`)(
+export class DecodeError extends TaggedErrorClass<DecodeError>($I`DecodeError`)(
   "DecodeError",
   {
     message: S.String,
@@ -50,7 +51,7 @@ export class DecodeError extends S.TaggedErrorClass<DecodeError>($I`DecodeError`
 /**
  * @since 0.0.0
  */
-export class TransportError extends S.TaggedErrorClass<TransportError>($I`TransportError`)(
+export class TransportError extends TaggedErrorClass<TransportError>($I`TransportError`)(
   "TransportError",
   {
     message: S.String,
@@ -73,7 +74,7 @@ export class TransportError extends S.TaggedErrorClass<TransportError>($I`Transp
 /**
  * @since 0.0.0
  */
-export class HookError extends S.TaggedErrorClass<HookError>($I`HookError`)(
+export class HookError extends TaggedErrorClass<HookError>($I`HookError`)(
   "HookError",
   {
     message: S.String,
@@ -90,7 +91,7 @@ export class HookError extends S.TaggedErrorClass<HookError>($I`HookError`)(
 /**
  * @since 0.0.0
  */
-export class McpError extends S.TaggedErrorClass<McpError>($I`McpError`)(
+export class McpError extends TaggedErrorClass<McpError>($I`McpError`)(
   "McpError",
   {
     message: S.String,

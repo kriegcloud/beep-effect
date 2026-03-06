@@ -1,4 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/QuerySupervisorError");
@@ -9,7 +10,7 @@ const $I = $AiSdkId.create("core/QuerySupervisorError");
 /**
  * @since 0.0.0
  */
-export class QueryQueueFullError extends S.TaggedErrorClass<QueryQueueFullError>($I`QueryQueueFullError`)(
+export class QueryQueueFullError extends TaggedErrorClass<QueryQueueFullError>($I`QueryQueueFullError`)(
   "QueryQueueFullError",
   {
     message: S.String,
@@ -28,7 +29,7 @@ export class QueryQueueFullError extends S.TaggedErrorClass<QueryQueueFullError>
 /**
  * @since 0.0.0
  */
-export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTimeoutError>(
+export class QueryPendingTimeoutError extends TaggedErrorClass<QueryPendingTimeoutError>(
   $I`QueryPendingTimeoutError`
 )(
   "QueryPendingTimeoutError",
@@ -51,7 +52,7 @@ export class QueryPendingTimeoutError extends S.TaggedErrorClass<QueryPendingTim
 /**
  * @since 0.0.0
  */
-export class QueryPendingCanceledError extends S.TaggedErrorClass<QueryPendingCanceledError>(
+export class QueryPendingCanceledError extends TaggedErrorClass<QueryPendingCanceledError>(
   $I`QueryPendingCanceledError`
 )(
   "QueryPendingCanceledError",

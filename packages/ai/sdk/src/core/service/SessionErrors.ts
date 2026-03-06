@@ -1,3 +1,4 @@
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 import { SessionManagerError } from "../SessionManager.js";
 import { SessionPoolError } from "../SessionPool.js";
@@ -6,7 +7,7 @@ import { SessionTenantAccessError } from "./TenantAccess.js";
 /**
  * @since 0.0.0
  */
-export class SessionPoolUnavailableError extends S.TaggedErrorClass<SessionPoolUnavailableError>()(
+export class SessionPoolUnavailableError extends TaggedErrorClass<SessionPoolUnavailableError>()(
   "SessionPoolUnavailableError",
   {
     message: S.String,

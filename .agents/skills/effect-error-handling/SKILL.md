@@ -25,12 +25,13 @@ Choose based on what throws:
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 // Step 1: Define a tagged error with Schema annotations.
 // WHY: TaggedErrorClass gives you a _tag discriminant for catchTag + Schema encode/decode.
-class JsonParseError extends S.TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
+class JsonParseError extends TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
   "JsonParseError",
   { input: S.String, message: S.String },
   // WHY: Annotations make errors self-documenting and inspectable.
@@ -90,12 +91,41 @@ const handleEvent = Match.type<AppEvent>().pipe(
 )
 
 // For plain values:
-const label = Match.value(statusCode).pipe(
+const label = Match.type<number>().pipe(
   Match.when(200, () => "OK"),
   Match.when((n) => n >= 400 && n < 500, () => "Client Error"),
   Match.when((n) => n >= 500, () => "Server Error"),
   Match.orElse(() => "Unknown")
+)(statusCode)
+```
+
+## Boundary Recovery With Cause
+
+At app, HTTP, worker, and process boundaries, recover with `Effect.catchCause` or `Effect.matchCauseEffect`, then render/log the cause with `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+
+```ts
+import { Cause, Effect, Match } from "effect"
+import * as P from "effect/Predicate"
+
+const statusForUnknown = Match.type<unknown>().pipe(
+  Match.when(P.isTagged("SchemaError"), () => 400),
+  Match.when(P.isTagged("HttpBodyError"), () => 400),
+  Match.orElse(() => 500)
 )
+
+const handleBoundary = <A>(effect: Effect.Effect<A, DomainError>) =>
+  effect.pipe(
+    Effect.catchCause((cause) => {
+      const error = Cause.squash(cause)
+      return Effect.logError({
+        message: "request failed",
+        status: statusForUnknown(error),
+        rendered: Cause.pretty(cause)
+      }).pipe(
+        Effect.zipRight(Effect.fail(error))
+      )
+    })
+  )
 ```
 
 ## Verify
@@ -103,4 +133,7 @@ const label = Match.value(statusCode).pipe(
 1. No `try`/`catch` blocks in your code — grep for `catch (` to confirm.
 2. No `null` or `undefined` return types — grep for `: null` and `| undefined`.
 3. No `if`/`else` chains longer than 2 branches — all use `Match`.
-4. Every error class extends `S.TaggedErrorClass` with Identity-based key and annotations.
+4. Every error class extends `TaggedErrorClass` from `@beep/schema` with Identity-based key and annotations.
+5. No manual `_tag` guards — use `P.isTagged(...)`.
+6. Boundary recovery paths use `Effect.catchCause` / `Effect.matchCauseEffect` plus `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+7. Direct-return or reusable matchers use `Match.type<T>().pipe(...)` / `Match.tags(...)`, not `Match.value(...)`.

@@ -7,6 +7,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
@@ -183,7 +184,7 @@ const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
  * @category CrossCutting
  * @since 0.0.0
  */
-export class LiteralNotInSetError extends S.TaggedErrorClass<LiteralNotInSetError>($I`LiteralNotInSetError`)(
+export class LiteralNotInSetError extends TaggedErrorClass<LiteralNotInSetError>($I`LiteralNotInSetError`)(
   "LiteralNotInSetError",
   {
     literals: S.Array(LiteralValueSchema),

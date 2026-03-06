@@ -1,5 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
+import { TaggedErrorClass } from "@beep/schema";
 import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";
@@ -21,7 +22,7 @@ export type EventLogRemoteServerOptions = {
 /**
  * @since 0.0.0
  */
-export class EventLogRemoteServerError extends S.TaggedErrorClass<EventLogRemoteServerError>(
+export class EventLogRemoteServerError extends TaggedErrorClass<EventLogRemoteServerError>(
   $I`EventLogRemoteServerError`
 )(
   "EventLogRemoteServerError",

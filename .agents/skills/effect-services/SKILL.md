@@ -38,22 +38,27 @@ class Notifications extends ServiceMap.Service<Notifications, {
 
 ## Step 3: Add the Constructor
 
-Use the `make` option for effectful construction. Do NOT use `dependencies` — it does not exist in v4.
+Use an explicit constructor effect and `Layer.effect(...)`. Parameterized or reusable constructor functions should be named `Effect.fn("Service.make")`. Zero-arg constructor values may stay `Effect.gen(...).pipe(Effect.withSpan("Service.make"))` to avoid immediate `Effect.fn()` IIFEs.
 
 ```ts
+const makeNotifications = Effect.gen(function*() {
+  const config = yield* AppConfig
+  return {
+    notify: Effect.fn("Notifications.notify")(function*(msg: string) {
+      yield* Effect.annotateCurrentSpan({ message_length: msg.length })
+      yield* Effect.logInfo({ message: "notification emitted" }).pipe(
+        Effect.annotateLogs({ service: "notifications" })
+      )
+      return yield* Effect.log(`[${config.prefix}] ${msg}`)
+    })
+  }
+}).pipe(Effect.withSpan("Notifications.make"))
+
 class Notifications extends ServiceMap.Service<Notifications, {
   readonly notify: (msg: string) => Effect.Effect<void>
-}>()($I`Notifications`, {
-  // WHY: `make` stores the constructor on the class but does NOT auto-generate a Layer.
-  make: Effect.gen(function*() {
-    const config = yield* AppConfig
-    return {
-      notify: (msg) => Effect.log(`[${config.prefix}] ${msg}`)
-    }
-  })
-}) {
+}>()($I`Notifications`) {
   // WHY: Explicit layer construction. Wire deps with Layer.provide, not `dependencies`.
-  static layer = Layer.effect(this, this.make).pipe(
+  static layer = Layer.effect(this, makeNotifications).pipe(
     Layer.provide(AppConfig.layer)
   )
 }
@@ -101,6 +106,8 @@ const program = myEffect.pipe(Effect.provide(AppLayer))
 ## Verify
 
 1. `yield* ServiceName` compiles — the R channel includes the service.
-2. `Layer.effect(Service, Service.make)` compiles — shape matches.
+2. `Layer.effect(Service, constructorEffect)` compiles — shape matches.
 3. No `Context.Tag`, `Effect.Tag`, `Effect.Service`, or `.Default` anywhere in your code.
 4. All service keys use `$I\`Name\`` template tags, not string literals.
+5. Reusable service methods use named `Effect.fn("Service.method")`.
+6. Constructor flows are observable with `Effect.withSpan(...)` plus structured log annotations where the path matters.

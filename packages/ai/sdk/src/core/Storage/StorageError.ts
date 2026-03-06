@@ -1,9 +1,10 @@
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 /**
  * @since 0.0.0
  */
-export class StorageError extends S.TaggedErrorClass<StorageError>()("StorageError", {
+export class StorageError extends TaggedErrorClass<StorageError>()("StorageError", {
   store: S.String,
   operation: S.String,
   message: S.String,

@@ -13,6 +13,7 @@ import {
   ServiceMap,
   Stream,
 } from "effect";
+import { TaggedErrorClass } from "@beep/schema";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { SDKSessionOptions } from "./Schema/Session.js";
@@ -45,7 +46,7 @@ export type SessionPoolOptions = {
 /**
  * @since 0.0.0
  */
-export class SessionPoolFullError extends S.TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
+export class SessionPoolFullError extends TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
   message: S.String,
   maxSessions: S.Number,
 }) {
@@ -56,7 +57,7 @@ export class SessionPoolFullError extends S.TaggedErrorClass<SessionPoolFullErro
 /**
  * @since 0.0.0
  */
-export class SessionPoolNotFoundError extends S.TaggedErrorClass<SessionPoolNotFoundError>()(
+export class SessionPoolNotFoundError extends TaggedErrorClass<SessionPoolNotFoundError>()(
   "SessionPoolNotFoundError",
   {
     message: S.String,
@@ -70,7 +71,7 @@ export class SessionPoolNotFoundError extends S.TaggedErrorClass<SessionPoolNotF
 /**
  * @since 0.0.0
  */
-export class SessionPoolInvalidTenantError extends S.TaggedErrorClass<SessionPoolInvalidTenantError>()(
+export class SessionPoolInvalidTenantError extends TaggedErrorClass<SessionPoolInvalidTenantError>()(
   "SessionPoolInvalidTenantError",
   {
     message: S.String,

@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -22,7 +22,7 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/Models");
  * @since 0.0.0
  * @category CrossCutting
  */
-export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
+export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
   "VersionSyncError",
   { message: S.String, file: S.String, cause: S.optional(S.Defect) },
   $I.annote("VersionSyncError", {
@@ -37,7 +37,7 @@ export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>($I`Ve
  * @since 0.0.0
  * @category CrossCutting
  */
-export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailableError>($I`NetworkUnavailableError`)(
+export class NetworkUnavailableError extends TaggedErrorClass<NetworkUnavailableError>($I`NetworkUnavailableError`)(
   "NetworkUnavailableError",
   { message: S.String },
   $I.annote("NetworkUnavailableError", {
@@ -52,7 +52,7 @@ export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailab
  * @since 0.0.0
  * @category CrossCutting
  */
-export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftError>($I`VersionSyncDriftError`)(
+export class VersionSyncDriftError extends TaggedErrorClass<VersionSyncDriftError>($I`VersionSyncDriftError`)(
   "VersionSyncDriftError",
   { message: S.String, driftCount: S.Number },
   $I.annote("VersionSyncDriftError", {

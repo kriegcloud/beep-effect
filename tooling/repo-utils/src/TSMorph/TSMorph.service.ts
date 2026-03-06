@@ -1,4 +1,5 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Effect, FileSystem, Layer, Option as O, Path, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -93,7 +94,7 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  *
  * @since 0.0.0
  */
-export class TsMorphServiceUnavailableError extends S.TaggedErrorClass<TsMorphServiceUnavailableError>(
+export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServiceUnavailableError>(
   $I`TsMorphServiceUnavailableError`
 )(
   "TsMorphServiceUnavailableError",
@@ -112,7 +113,7 @@ export class TsMorphServiceUnavailableError extends S.TaggedErrorClass<TsMorphSe
  *
  * @since 0.0.0
  */
-export class TsMorphScopeResolutionError extends S.TaggedErrorClass<TsMorphScopeResolutionError>(
+export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeResolutionError>(
   $I`TsMorphScopeResolutionError`
 )(
   "TsMorphScopeResolutionError",
@@ -131,7 +132,7 @@ export class TsMorphScopeResolutionError extends S.TaggedErrorClass<TsMorphScope
  *
  * @since 0.0.0
  */
-export class TsMorphProjectLoadError extends S.TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
+export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
   "TsMorphProjectLoadError",
   {
     scopeId: ProjectScopeId,
@@ -148,7 +149,7 @@ export class TsMorphProjectLoadError extends S.TaggedErrorClass<TsMorphProjectLo
  *
  * @since 0.0.0
  */
-export class TsMorphSourceFileError extends S.TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
+export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
   "TsMorphSourceFileError",
   {
     scopeId: S.OptionFromNullOr(ProjectScopeId),
@@ -166,7 +167,7 @@ export class TsMorphSourceFileError extends S.TaggedErrorClass<TsMorphSourceFile
  *
  * @since 0.0.0
  */
-export class TsMorphUnsupportedFileError extends S.TaggedErrorClass<TsMorphUnsupportedFileError>(
+export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsupportedFileError>(
   $I`TsMorphUnsupportedFileError`
 )(
   "TsMorphUnsupportedFileError",

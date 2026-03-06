@@ -1,4 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { SchemaAST as AST, Effect, Result } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -9,7 +10,7 @@ const $I = $AiSdkId.create("core/internal/schemaToZod");
 /**
  * @since 0.0.0
  */
-export class SchemaToZodError extends S.TaggedErrorClass<SchemaToZodError>($I`SchemaToZodError`)(
+export class SchemaToZodError extends TaggedErrorClass<SchemaToZodError>($I`SchemaToZodError`)(
   "SchemaToZodError",
   {
     message: S.String,

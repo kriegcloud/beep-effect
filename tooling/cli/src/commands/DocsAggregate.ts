@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Console, Effect, FileSystem, HashSet, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -41,7 +42,7 @@ class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDoc
   })
 ) {}
 
-class DocsAggregateFailure extends S.TaggedErrorClass<DocsAggregateFailure>($I`DocsAggregateFailure`)(
+class DocsAggregateFailure extends TaggedErrorClass<DocsAggregateFailure>($I`DocsAggregateFailure`)(
   "DocsAggregateFailure",
   {
     message: S.String,

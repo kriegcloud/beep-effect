@@ -36,7 +36,7 @@ Use three layers:
 ### EF-1: Errors are data, not side effects
 
 - If logic can fail, return `Effect.Effect<A, E, R>` with a typed error `E`.
-- Use `S.TaggedErrorClass` for public or cross-module failures.
+- Use `TaggedErrorClass` from `@beep/schema` for public or cross-module failures.
 - Do not `throw` or use `new Error(...)` in production domain logic.
 
 Example:
@@ -46,10 +46,11 @@ import { Effect } from "effect"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class MissingConfigError extends S.TaggedErrorClass<MissingConfigError>($I`MissingConfigError`)(
+class MissingConfigError extends TaggedErrorClass<MissingConfigError>($I`MissingConfigError`)(
   "MissingConfigError",
   { key: S.String },
   $I.annote("MissingConfigError", { description: "Required configuration key is missing" })
@@ -963,12 +964,13 @@ const UnknownToString = S.Unknown.pipe(
 ### Template: Tagged error with Identity composer
 
 ```ts
+import { TaggedErrorClass } from "@beep/schema"
 import * as S from "effect/Schema"
 import { $PackageNameId } from "@beep/identity/packages"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class DomainError extends S.TaggedErrorClass<DomainError>($I`DomainError`)(
+class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",
   {
     message: S.String
