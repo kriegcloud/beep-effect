@@ -395,7 +395,7 @@ export function RepoMemoryDesktop() {
         setStatusMessage(`Connected to sidecar ${nextBootstrap.baseUrl}.`);
       });
     } catch (error) {
-      if (scope !== null) {
+      if (P.isNotNull(scope)) {
         Effect.runFork(Scope.close(scope, Exit.void).pipe(Effect.ignore));
       }
 
