@@ -83,7 +83,6 @@ const decodeTypeScriptImplementationFilePath = S.decodeUnknownSync(TypeScriptImp
 const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePathToSymbolFilePath);
 const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
 
-const isTypeScriptImplementationFilePath = S.is(TypeScriptImplementationFilePath);
 const isSymbolNameSegment = S.is(SymbolNameSegment);
 const isSymbolQualifiedName = S.is(SymbolQualifiedName);
 
@@ -227,11 +226,11 @@ const unavailable = <A>(method: string): Effect.Effect<A, TSMorphServiceError> =
     })
   );
 
-const decodeOrFail = <A>(
+const decodeOrFail = <A, E extends TSMorphServiceError>(
   decode: (value: unknown) => A,
   value: unknown,
-  makeError: (message: string) => TSMorphServiceError
-): Effect.Effect<A, TSMorphServiceError> =>
+  makeError: (message: string) => E
+): Effect.Effect<A, E> =>
   Effect.try({
     try: () => decode(value),
     catch: (cause) => makeError(schemaMessage(cause)),
@@ -264,11 +263,11 @@ const decodeRepoRelativePath = (
   return Effect.succeed(relativePath);
 };
 
-const ensureExists = (
+const ensureExists = <E extends TSMorphServiceError>(
   fs: FileSystem.FileSystem,
   absolutePath: string,
-  makeError: () => TSMorphServiceError
-): Effect.Effect<void, TSMorphServiceError> =>
+  makeError: () => E
+): Effect.Effect<void, E> =>
   fs.exists(absolutePath).pipe(
     Effect.orElseSucceed(() => false),
     Effect.flatMap((exists) => (exists ? Effect.void : Effect.fail(makeError())))
@@ -381,10 +380,13 @@ const getDeclarationName = (
   }
 
   if (Node.isClassDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "ClassDeclaration",
-    });
+    const name = declaration.getName();
+    return name === undefined
+      ? O.none()
+      : O.some({
+          name,
+          kind: "ClassDeclaration",
+        });
   }
 
   if (Node.isMethodDeclaration(declaration)) {
@@ -409,23 +411,32 @@ const getDeclarationName = (
   }
 
   if (Node.isInterfaceDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "InterfaceDeclaration",
-    });
+    const name = declaration.getName();
+    return name === undefined
+      ? O.none()
+      : O.some({
+          name,
+          kind: "InterfaceDeclaration",
+        });
   }
 
   if (Node.isTypeAliasDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "TypeAliasDeclaration",
-    });
+    const name = declaration.getName();
+    return name === undefined
+      ? O.none()
+      : O.some({
+          name,
+          kind: "TypeAliasDeclaration",
+        });
   }
 
-  return O.some({
-    name: declaration.getName(),
-    kind: "EnumDeclaration",
-  });
+  const name = declaration.getName();
+  return name === undefined
+    ? O.none()
+    : O.some({
+        name,
+        kind: "EnumDeclaration",
+      });
 };
 
 const normalizeOutlineSymbol = (
