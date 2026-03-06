@@ -95,17 +95,17 @@ const defaultSettings: StorageConfigData = {
     interval: Duration.millis(0),
   },
 };
-
-const normalizeBoolean = (value: O.Option<boolean>, fallback: boolean) => O.getOrElse(value, () => fallback);
+const thunkFallback = <T>(fallback: T) => () => fallback
+const normalizeBoolean = (value: O.Option<boolean>, fallback: boolean) => O.getOrElse(value, thunkFallback(fallback));
 
 const normalizeNumber = (value: O.Option<number>, fallback: number, min: number) =>
   Math.max(
     min,
-    O.getOrElse(value, () => fallback)
+    O.getOrElse(value, thunkFallback(fallback))
   );
 
 const normalizeDuration = (value: O.Option<Duration.Duration>, fallback: Duration.Duration) =>
-  O.getOrElse(value, () => fallback);
+  O.getOrElse(value, thunkFallback(fallback));
 
 const makeStorageConfig = Effect.gen(function* () {
   const chatEnabled = yield* Config.option(Config.boolean("STORAGE_CHAT_ENABLED"));

@@ -121,12 +121,16 @@ export const decodeCreateTaskInput = S.decodeUnknownEffect(CreateTaskInput)
   - `import * as P from "effect/Predicate"`
   - `import * as R from "effect/Record"`
   - `import * as S from "effect/Schema"`
-- For other stable modules, prefer root imports from `"effect"`.
+- Prefer dedicated namespace imports for stable helper/data modules:
+  - `import * as Str from "effect/String"`
+  - `import * as Eq from "effect/Equal"`
+  - `import * as Bool from "effect/Boolean"`
+- Reserve root imports from `"effect"` for core combinators/types such as `Effect`, `Match`, `pipe`, and `flow`.
 - Keep unstable imports deliberate and local.
 
 ### EF-5: Effect modules over native collection helpers
 
-- Use `A`, `R`, `Str`, `HashMap`, `HashSet`, `MutableHashMap`, `MutableHashSet`.
+- Use `A`, `R`, `Str`, `Eq`, `HashMap`, `HashSet`, `MutableHashMap`, `MutableHashSet`.
 - Avoid domain usage of native `Object`, `Map`, `Set`, `Date`, and direct native string helpers.
 
 Example:
@@ -159,8 +163,8 @@ const findActiveEmail = (users: ReadonlyArray<{ readonly active: boolean; readon
 Example:
 
 ```ts
+import { Match } from "effect"
 import * as A from "effect/Array"
-import * as Match from "effect/Match"
 
 type SyncPhase = "idle" | "running" | "failed"
 
@@ -246,6 +250,20 @@ export const Tenant = S.String.annotate(
 
 export type Tenant = typeof Tenant.Type
 ```
+
+### EF-12b: Schema-first internal domain building blocks
+
+- If an intermediate domain concept is named, reused, matched on, or structurally validated, model it as a schema first instead of an ad-hoc boolean helper.
+- Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncludes` before reaching for `S.makeFilter`.
+- Derive domain guards with `S.is(SomeSchema)`.
+- If an internal literal domain needs `.is`, `.thunk`, `$match`, or an annotation-bearing schema value, use `LiteralKit`.
+- Prefer named intermediate schemas; export and document them when reusable or when they materially clarify the module’s domain model, otherwise keep them module-local.
+
+### EF-12c: Reusable schema checks carry metadata
+
+- Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`.
+- Keep `message` focused on the user-facing decode failure.
+- Tiny one-off test checks may stay lighter when the schema itself is not reusable.
 
 ### EF-13: Discriminated union schemas
 
@@ -755,29 +773,113 @@ export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSy
 ) {}
 ```
 
-### EF-35: Guard predicates should come from branded schemas
+### EF-35: Schema-backed guards and internal domain modeling
 
 - If a guard validates domain strings/paths/tags, define a branded schema and use `S.is(...)`.
-- Prefer schema-backed guards over ad-hoc `regex.test(...)` helpers.
-- Keep guard intent in schema annotations.
+- If a domain constraint is named, reused, matched on, or structurally validated, model it as a schema first rather than a forest of ad-hoc predicate helpers.
+- Prefer built-in schema constructors/checks before `S.makeFilter`.
+- Keep guard intent and reusable check intent in schema annotations and check metadata.
+- Use `LiteralKit` for internal literal domains whenever `.is`, `.thunk`, `$match`, or annotation-bearing schema values are useful.
+- Prefer named intermediate schemas; export them only when reusable or when they materially clarify the module’s domain model.
 
 Example:
 
 ```ts
+import { LiteralKit } from "@beep/schema"
 import { $PackageNameId } from "@beep/identity/packages"
+import { Match, pipe } from "effect"
+import * as A from "effect/Array"
+import * as P from "effect/Predicate"
 import * as S from "effect/Schema"
+import * as Str from "effect/String"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export const CanonicalAliasKey = S.String.check(S.isPattern(/^@beep\/[^/*]+(?:\/\*)?$/)).pipe(
-  S.brand("CanonicalAliasKey"),
-  S.annotate($I.annote("CanonicalAliasKey", {
-    description: "Canonical @beep alias key for tsconfig paths."
+const TopicKind = LiteralKit(["plain", "scoped"] as const)
+
+const ContainsScopeSeparator = S.String.check(
+  S.isIncludes(":", {
+    identifier: $I`ContainsScopeSeparatorCheck`,
+    title: "Contains Scope Separator",
+    description: "A string that contains `:`.",
+    message: "Topic text must contain :"
+  })
+).pipe(
+  S.brand("ContainsScopeSeparator"),
+  S.annotate($I.annote("ContainsScopeSeparator", {
+    description: "A string that contains the topic scope separator `:`."
   }))
 )
 
-export const isCanonicalAliasKey = S.is(CanonicalAliasKey)
+const isContainsScopeSeparator = S.is(ContainsScopeSeparator)
+
+const TopicSegment = S.NonEmptyString.check(
+  S.makeFilter(P.not(isContainsScopeSeparator), {
+    identifier: $I`TopicSegmentNoSeparatorCheck`,
+    title: "Topic Segment No Separator",
+    description: "A topic segment that does not contain `:`.",
+    message: "Topic segments must not contain :"
+  })
+).pipe(
+  S.brand("TopicSegment"),
+  S.annotate($I.annote("TopicSegment", {
+    description: "A non-empty topic segment without the scope separator."
+  }))
+)
+
+const isTopicSegment = S.is(TopicSegment)
+
+const splitNonEmpty =
+  (separator: string | RegExp) =>
+  (value: string): ReadonlyArray<string> =>
+    pipe(Str.split(separator)(value), A.filter(Str.isNonEmpty))
+
+const classifyTopicKind = Match.type<string>().pipe(
+  Match.when(isContainsScopeSeparator, TopicKind.thunk.scoped),
+  Match.orElse(TopicKind.thunk.plain)
+)
+
+export const TopicName = S.NonEmptyString.check(
+  S.makeFilterGroup(
+    [
+      S.makeFilter(P.not(Str.endsWith(":")), {
+        identifier: $I`TopicNameNoTrailingSeparatorCheck`,
+        title: "Topic Name No Trailing Separator",
+        description: "A topic name that does not end with `:`.",
+        message: "Topic names must not end with :"
+      }),
+      S.makeFilter((value: string) =>
+        pipe(
+          value,
+          classifyTopicKind,
+          TopicKind.$match({
+            plain: isTopicSegment,
+            scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
+          })
+        ), {
+        identifier: $I`TopicNameSegmentsCheck`,
+        title: "Topic Name Segments",
+        description: "A topic name whose segments are valid topic segments.",
+        message: "Topic names must contain only valid segments"
+      })
+    ],
+    {
+      identifier: $I`TopicNameChecks`,
+      title: "Topic Name",
+      description: "Checks for a plain or scoped topic name."
+    }
+  )
+).pipe(
+  S.brand("TopicName"),
+  S.annotate($I.annote("TopicName", {
+    description: "A topic name composed from valid plain or scoped segments."
+  }))
+)
 ```
+
+Avoid this:
+
+- A forest of `const hasX = ...`, `const isY = /.../.test(...)`, and unannotated predicate helpers when the named concepts can be expressed as schemas and reused with `S.is(...)`.
 
 ### EF-36: Prefer schema equivalence for domain comparisons
 
@@ -803,8 +905,9 @@ const arraysEqual = (left: ReadonlyArray<string>, right: ReadonlyArray<string>) 
 Example:
 
 ```ts
-import { SchemaTransformation, String as Str } from "effect"
+import { SchemaTransformation } from "effect"
 import * as S from "effect/Schema"
+import * as Str from "effect/String"
 
 const NativePathToPosixPath = S.String.pipe(
   S.decodeTo(
@@ -933,8 +1036,8 @@ export class UserProfile extends S.Class<UserProfile>($I`UserProfile`)(
 ### Template: Match over switch
 
 ```ts
+import { Match } from "effect"
 import * as A from "effect/Array"
-import * as Match from "effect/Match"
 
 type Phase = "draft" | "running" | "done"
 
@@ -1103,13 +1206,16 @@ Use this before submitting code:
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
-32. Literal-string discriminant unions use `LiteralKit` + `.mapMembers` + `Tuple.evolve` + `S.toTaggedUnion`.
+32. Literal-string discriminant unions and internal literal domains use `LiteralKit` when `.mapMembers`, `.is`, `.thunk`, `$match`, or annotation-bearing schema values are needed.
 33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefault*`, not ad-hoc fallback objects in handlers/services.
-34. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.
-35. Schema-modeled comparisons use `S.toEquivalence(...)` where practical.
-36. Deterministic format conversions use `S.decodeTo(..., SchemaTransformation.transform(...))`.
-37. Runtime source avoids `node:fs` / `node:path` / `node:child_process`; use Effect `FileSystem` / `Path` / process services.
-38. Runtime source avoids native `fetch`; HTTP boundaries use `effect/unstable/http` + platform layers (`BunHttpClient.layer`, etc.).
-39. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
-40. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
-41. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
+34. Named or reused domain constraints are modeled as schemas first; built-in schema constructors/checks are preferred before `S.makeFilter`.
+35. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.
+36. Reusable schema checks and filter groups carry `identifier`, `title`, and `description`.
+37. Intermediate schemas are exported only when reusable or materially clarifying; otherwise they stay module-local.
+38. Schema-modeled comparisons use `S.toEquivalence(...)` where practical.
+39. Deterministic format conversions use `S.decodeTo(..., SchemaTransformation.transform(...))`.
+40. Runtime source avoids `node:fs` / `node:path` / `node:child_process`; use Effect `FileSystem` / `Path` / process services.
+41. Runtime source avoids native `fetch`; HTTP boundaries use `effect/unstable/http` + platform layers (`BunHttpClient.layer`, etc.).
+42. Runtime sorting uses `A.sort` with explicit `Order`, not native `Array.prototype.sort`.
+43. Boolean branching prefers `Bool.match` over ad-hoc `if/else` when branching on booleans.
+44. HTTP request/response composition uses Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).

@@ -1,13 +1,13 @@
-import { Effect, Function, Option, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, SchemaIssue, SchemaTransformation } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const { dual } = Function;
 
 type DestructiveTransform<Self extends S.Top, B> = S.decodeTo<
   S.Schema<Readonly<B>>,
   S.Unknown,
-  Self["DecodingServices"],
-  never
+  Self["DecodingServices"]
 >;
 
 /**
@@ -47,13 +47,15 @@ export const destructiveTransform: {
                 Effect.try({
                   try: () => transform(decoded),
                   catch: () =>
-                    new SchemaIssue.InvalidValue(Option.some(decoded), {
+                    new SchemaIssue.InvalidValue(O.some(decoded), {
                       message: "Error applying transformation",
                     }),
                 })
               )
             ),
-          encode: (value) => Effect.succeed(value),
+          encode: (decoded) => Effect.fail(new SchemaIssue.Forbidden(O.some(decoded), {
+              message: "Transformation result is forbidden",
+            })),
         })
       )
     );

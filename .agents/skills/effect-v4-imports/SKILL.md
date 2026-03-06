@@ -1,7 +1,8 @@
 ---
 name: effect-v4-imports
 description: >
-  Focused import hygiene for Effect v4 migrations. Use for root import preference,
+  Focused import hygiene for Effect v4 migrations. Use for namespace-first helper
+  module imports,
   A/O/P/R/S aliases, and migration of deprecated package paths.
 version: 0.1.0
 status: active
@@ -17,7 +18,11 @@ status: active
 - `effect/Schema` -> `S`
 
 2. Stable module policy:
-- Prefer root imports from `"effect"` for other stable modules.
+- Prefer dedicated namespace imports for helper/data modules:
+  - `effect/String` -> `Str`
+  - `effect/Equal` -> `Eq`
+  - `effect/Boolean` -> `Bool`
+- Reserve root imports from `"effect"` for core combinators/types like `Effect`, `Match`, `pipe`, and `flow`.
 - Keep `effect/unstable/*` usage deliberate and local.
 - For data/time helpers prefer Effect modules over native APIs.
 

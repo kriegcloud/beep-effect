@@ -10,7 +10,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
    - `import * as P from "effect/Predicate"`
    - `import * as R from "effect/Record"`
    - `import * as S from "effect/Schema"`
-2. For other stable Effect modules, prefer root imports from `"effect"`.
+2. For other stable helper/data modules, prefer dedicated namespace imports (`effect/String` as `Str`, `effect/Equal` as `Eq`, `effect/Boolean` as `Bool`, etc.); reserve root `effect` imports for core combinators/types such as `Effect`, `Match`, `pipe`, and `flow`.
 3. `effect/unstable/*` imports are allowed when needed.
 4. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
 5. No runtime `typeof ... === ...`; use `effect/Predicate` guards.
@@ -24,6 +24,9 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 13. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
 14. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
 15. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+16. Named or reused domain constraints are modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, and derive guards with `S.is(...)`.
+17. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
+18. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
 
 ## Allowlist Contract
 

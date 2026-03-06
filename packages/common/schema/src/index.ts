@@ -42,12 +42,22 @@ export * from "./Email.js";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./FilePath.js";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./MimeType.js";
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * from "./Number.js";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Sha256.js";
 /**
  * @since 0.0.0
  * @category Validation

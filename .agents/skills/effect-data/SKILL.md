@@ -13,12 +13,14 @@ status: active
 ## Core Rule
 
 NEVER call methods on native objects. Effect re-exports every collection/primitive operation as a pipeable function.
+Prefer dedicated namespace imports for helper/data modules such as `effect/String`, `effect/Predicate`, and `effect/Equal`; keep root `effect` imports for core combinators like `pipe`, `flow`, `Effect`, and `Match`.
 
 | Native | Effect Module | Import |
 |--------|--------------|--------|
 | `[].map()`, `[].filter()`, `[].reduce()` | `effect/Array` | `import * as A from "effect/Array"` |
 | `Object.keys()`, `Object.entries()` | `effect/Record` | `import * as R from "effect/Record"` |
 | `"".split()`, `"".trim()` | `effect/String` | `import * as Str from "effect/String"` |
+| equality helpers for `Equal`-aware values | `effect/Equal` or `S.toEquivalence(...)` | `import * as Eq from "effect/Equal"` |
 | `path.join()`, `path.resolve()`, `path.relative()` | `effect/Path` service | `const path = yield* Path.Path` |
 | `fetch()` | `effect/unstable/http` `HttpClient` | Provide runtime layer (Bun: `BunHttpClient.layer`) |
 | `Date.now()` | `effect/DateTime` or `effect/Clock` | Use `Clock` service for testability |
@@ -110,6 +112,18 @@ const isActiveUser = P.struct({
   active: P.isBoolean,
   name: P.isString
 })
+```
+
+## Equality
+
+```ts
+import * as Eq from "effect/Equal"
+import * as S from "effect/Schema"
+
+Eq.equals(left, right)
+
+const userEq = S.toEquivalence(User)
+const sameUser = userEq(userA, userB)
 ```
 
 ## Pipe and Flow

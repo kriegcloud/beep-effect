@@ -196,4 +196,12 @@ export {
    */
   resolveWorkspaceDirs,
 } from "./Workspaces.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./TSMorph/index.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./TypeScript/index.js";
 // bench

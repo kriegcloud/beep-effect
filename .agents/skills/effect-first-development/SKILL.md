@@ -56,6 +56,10 @@ Before writing code, run this checklist:
 37. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
 38. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
 39. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
+40. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
+41. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
+42. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
+43. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
 
 ## Non-Negotiable Laws
 
@@ -65,7 +69,7 @@ Before writing code, run this checklist:
    - `effect/Predicate` as `P`
    - `effect/Record` as `R`
    - `effect/Schema` as `S`
-2. For other stable modules, prefer root imports from `"effect"`.
+2. For other stable helper/data modules, prefer dedicated namespace imports (`effect/String` as `Str`, `effect/Equal` as `Eq`, `effect/Boolean` as `Bool`, etc.); reserve root `effect` imports for core combinators/types such as `Effect`, `Match`, `pipe`, and `flow`.
 3. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
 4. No plain `throw`, `new Error`, or untyped error channels in production logic.
 5. No nullish leak in domain logic; convert nullish to `Option` at boundaries.
@@ -76,7 +80,7 @@ Before writing code, run this checklist:
 10. Do not finish with failing `check`, `lint`, `test`, or `docgen`.
 11. Do not suffix schema constants with `Schema`; use the domain name.
 12. For non-class schemas, export runtime type aliases with the same name: `export type X = typeof X.Type`.
-13. Do not use native `switch`; use `effect/Match`. For empty/non-empty array branching, prefer `A.match` over manual length checks.
+13. Do not use native `switch`; use `Match`. For empty/non-empty array branching, prefer `A.match` over manual length checks.
 14. All new schemas must be meaningfully annotated with `$I.annote("Name", { description })`.
 15. Service identifiers must use package composer `.create(...)` and `$I\`MyService\``.
 16. If a schema has properties that are a union of literal strings, it should be a tagged union composed via `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalized with `S.toTaggedUnion`. Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
@@ -110,6 +114,9 @@ Before writing code, run this checklist:
 44. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
 45. Do not import `node:path` in production/tooling source. Use `Path.Path` service (`yield* Path.Path`) for `join`, `resolve`, `relative`, `basename`, etc.
 46. Do not use native `fetch` in production/tooling source. Use `HttpClient` from `effect/unstable/http` and provide platform client layers (Bun: `BunHttpClient.layer`).
+47. Named or reused domain constraints must be modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, then derive guards with `S.is(...)`.
+48. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
+49. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
 
 ## Always / Never Examples
 
@@ -191,35 +198,108 @@ import * as P from "effect/Predicate"
 const isStringValue = P.isString(value)
 ```
 
-### 4b) Branded guards + equivalence + transformations
+### 4b) Schema-backed guards + internal modeling
 
 ```ts
-import { SchemaTransformation, String as Str } from "effect"
+import { LiteralKit } from "@beep/schema"
+import { $PackageNameId } from "@beep/identity/packages"
+import { Match, pipe } from "effect"
+import * as A from "effect/Array"
+import * as P from "effect/Predicate"
 import * as S from "effect/Schema"
+import * as Str from "effect/String"
 
-const CanonicalAliasKey = S.String.check(S.isPattern(/^@beep\/[^/*]+(?:\/\*)?$/)).pipe(
-  S.brand("CanonicalAliasKey")
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+const TopicKind = LiteralKit(["plain", "scoped"] as const)
+
+const ContainsScopeSeparator = S.String.check(
+  S.isIncludes(":", {
+    identifier: $I`ContainsScopeSeparatorCheck`,
+    title: "Contains Scope Separator",
+    description: "A string that contains `:`.",
+    message: "Topic text must contain :"
+  })
+).pipe(
+  S.brand("ContainsScopeSeparator"),
+  S.annotate($I.annote("ContainsScopeSeparator", {
+    description: "A string containing the topic scope separator `:`."
+  }))
 )
-const isCanonicalAliasKey = S.is(CanonicalAliasKey)
 
-const aliasKeyEq = S.toEquivalence(CanonicalAliasKey)
+const isContainsScopeSeparator = S.is(ContainsScopeSeparator)
 
-const NativePathToPosixPath = S.String.pipe(
-  S.decodeTo(
-    S.String.check(S.isPattern(/^[^\\]*$/)).pipe(S.brand("PosixPath")),
-    SchemaTransformation.transform({
-      decode: (pathString) => Str.replaceAll("\\", "/")(pathString),
-      encode: (pathString) => pathString
+const TopicSegment = S.NonEmptyString.check(
+  S.makeFilter(P.not(isContainsScopeSeparator), {
+    identifier: $I`TopicSegmentNoSeparatorCheck`,
+    title: "Topic Segment No Separator",
+    description: "A topic segment that does not contain `:`.",
+    message: "Topic segments must not contain :"
+  })
+).pipe(
+  S.brand("TopicSegment"),
+  S.annotate($I.annote("TopicSegment", {
+    description: "A non-empty topic segment without the scope separator."
+  }))
+)
+
+const isTopicSegment = S.is(TopicSegment)
+
+const splitNonEmpty =
+  (separator: string | RegExp) =>
+  (value: string): ReadonlyArray<string> =>
+    pipe(Str.split(separator)(value), A.filter(Str.isNonEmpty))
+
+const classifyTopicKind = Match.type<string>().pipe(
+  Match.when(isContainsScopeSeparator, TopicKind.thunk.scoped),
+  Match.orElse(TopicKind.thunk.plain)
+)
+
+export const TopicName = S.NonEmptyString.check(
+  S.makeFilterGroup(
+    [
+      S.makeFilter(P.not(Str.endsWith(":")), {
+        identifier: $I`TopicNameNoTrailingSeparatorCheck`,
+        title: "Topic Name No Trailing Separator",
+        description: "A topic name that does not end with `:`.",
+        message: "Topic names must not end with :"
+      }),
+      S.makeFilter((value: string) =>
+        pipe(
+          value,
+          classifyTopicKind,
+          TopicKind.$match({
+            plain: isTopicSegment,
+            scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
+          })
+        ), {
+        identifier: $I`TopicNameSegmentsCheck`,
+        title: "Topic Name Segments",
+        description: "A topic name whose segments are valid topic segments.",
+        message: "Topic names must contain only valid segments"
+      })
+    ],
+    {
+      identifier: $I`TopicNameChecks`,
+      title: "Topic Name",
+      description: "Checks for a plain or scoped topic name."
     })
   )
+).pipe(
+  S.brand("TopicName"),
+  S.annotate($I.annote("TopicName", {
+    description: "A topic name composed from valid plain or scoped segments."
+  }))
 )
 ```
+
+// NEVER: build forests of regex/predicate helpers when the named concepts can be schemas.
 
 ### 5) Match over switch
 
 ```ts
+import { Match } from "effect"
 import * as A from "effect/Array"
-import * as Match from "effect/Match"
 
 type Status = "queued" | "running" | "failed"
 

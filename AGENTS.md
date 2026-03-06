@@ -9,6 +9,7 @@ Build and maintain features with effect first development.
 - Use schema first domain models.
 - Prefer typed errors and tagged unions.
 - Prefer effect modules over native helpers.
+- Prefer named schema building blocks, derived `S.is(...)` guards, and `LiteralKit` internal domains over ad-hoc predicate helpers.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
 - Graphiti memory MCP startup gotcha: the server expects `group_ids` as a list. If the tool wrapper exposes `group_ids` as `string`, pass `group_ids: "[\"beep-dev\"]"` instead of the plain string `"beep-dev"`.
