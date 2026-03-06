@@ -7,6 +7,7 @@ import terseEffectStyleRule from "@beep/repo-configs/eslint/TerseEffectStyleRule
 import tsParser from "@typescript-eslint/parser";
 import { Linter, type Linter as LinterTypes } from "eslint";
 import { beforeEach, describe, expect, it } from "vitest";
+import schemaFirstRule from "../src/eslint/SchemaFirstRule.ts";
 
 const verify = (source: string, config: LinterTypes.Config | Array<LinterTypes.Config>, filename: string) =>
   new Linter({ configType: "flat" }).verify(source, config, filename);
@@ -103,6 +104,29 @@ const terseEffectStyleConfig: Array<LinterTypes.Config> = [
   },
 ];
 
+const schemaFirstConfig: Array<LinterTypes.Config> = [
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      "beep-laws": {
+        rules: {
+          "schema-first": schemaFirstRule,
+        },
+      },
+    },
+    rules: {
+      "beep-laws/schema-first": "error",
+    },
+  },
+];
+
 describe("eslint rule migration", () => {
   beforeEach(() => {
     resetAllowlistCache();
@@ -120,6 +144,26 @@ describe("eslint rule migration", () => {
         (message) => message.ruleId === "beep-laws/effect-import-style" && message.message.includes("Use alias A")
       )
     ).toBe(true);
+  });
+
+  it("flags exported pure-data interfaces for schema-first modeling", () => {
+    const messages = verify(
+      ["export interface StorageConfigShape {", "  readonly enabled: boolean;", "}"].join("\n"),
+      schemaFirstConfig,
+      "packages/ai/sdk/src/core/Storage/StorageConfig.ts"
+    );
+
+    expect(messages.some((message) => message.ruleId === "beep-laws/schema-first")).toBe(true);
+  });
+
+  it("ignores exported service interfaces with function members", () => {
+    const messages = verify(
+      ["export interface StorageService {", "  readonly get: (key: string) => Promise<string>;", "}"].join("\n"),
+      schemaFirstConfig,
+      "packages/ai/sdk/src/core/Storage/StorageService.ts"
+    );
+
+    expect(messages.some((message) => message.ruleId === "beep-laws/schema-first")).toBe(false);
   });
 
   it("flags stable Effect submodule imports that should come from root effect", () => {

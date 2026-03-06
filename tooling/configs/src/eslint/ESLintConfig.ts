@@ -4,6 +4,7 @@ import jsdoc from "eslint-plugin-jsdoc";
 import effectImportStyleRule from "./EffectImportStyleRule.ts";
 import noNativeRuntimeRule from "./NoNativeRuntimeRule.ts";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
+import schemaFirstRule from "./SchemaFirstRule.ts";
 import terseEffectStyleRule from "./TerseEffectStyleRule.ts";
 
 const beepJsdoc = {
@@ -16,6 +17,7 @@ const beepLaws = {
   rules: {
     "effect-import-style": effectImportStyleRule,
     "no-native-runtime": noNativeRuntimeRule,
+    "schema-first": schemaFirstRule,
     "terse-effect-style": terseEffectStyleRule,
   },
 };
@@ -43,6 +45,7 @@ export const ESLintConfig: ESLintConfigShape = [
       ".sst/**",
       "coverage/**",
       "dist/**",
+      "**/dist/**",
       "node_modules/**",
       "**/storybook-static/**",
       "**/.turbo/**",
@@ -87,7 +90,32 @@ export const ESLintConfig: ESLintConfigShape = [
     rules: {
       "beep-laws/effect-import-style": "warn",
       "beep-laws/no-native-runtime": "warn",
+      "beep-laws/schema-first": "warn",
       "beep-laws/terse-effect-style": "warn",
+    },
+  },
+  {
+    files: [
+      "tooling/cli/src/**/*.ts",
+      "tooling/repo-utils/src/FsUtils.ts",
+      "tooling/repo-utils/src/UniqueDeps.ts",
+      "tooling/repo-utils/src/schemas/WorkspaceDeps.ts",
+      "packages/ai/sdk/src/core/Schema/Session.ts",
+      "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
+      "packages/ai/sdk/src/core/Storage/StorageConfig.ts",
+    ],
+    ignores: ["**/*.d.ts"],
+    plugins: {
+      "beep-laws": beepLaws,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      "beep-laws/schema-first": "error",
     },
   },
   {

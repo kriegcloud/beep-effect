@@ -1,4 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Clock, Effect, HashMap, Layer, Order, pipe, ServiceMap, SynchronizedRef } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -15,64 +16,109 @@ const $I = $AiSdkId.create("core/Storage/SessionIndexStore");
 /**
  * @since 0.0.0
  */
-export type SessionIndexListOptions = {
-  readonly offset?: number;
-  readonly limit?: number;
-  readonly orderBy?: SessionIndexOrderBy;
-  readonly direction?: SessionIndexDirection;
-  readonly cursor?: SessionIndexCursor;
-};
+export const SessionIndexOrderBy = LiteralKit(["updatedAt", "createdAt"] as const).annotate(
+  $I.annote("SessionIndexOrderBy", {
+    description: "Ordering keys supported by SessionIndexStore list APIs.",
+  })
+);
 
 /**
  * @since 0.0.0
  */
-export type SessionIndexTouchOptions = {
-  readonly createdAt?: number;
-  readonly updatedAt?: number;
-};
+export type SessionIndexOrderBy = typeof SessionIndexOrderBy.Type;
 
 /**
  * @since 0.0.0
  */
-export type SessionIndexOrderBy = "updatedAt" | "createdAt";
-/**
- * @since 0.0.0
- */
-export type SessionIndexDirection = "asc" | "desc";
+export const SessionIndexDirection = LiteralKit(["asc", "desc"] as const).annotate(
+  $I.annote("SessionIndexDirection", {
+    description: "Sort directions supported by SessionIndexStore list APIs.",
+  })
+);
 
 /**
  * @since 0.0.0
  */
-export type SessionIndexCursor = {
-  readonly value: number;
-  readonly sessionId: string;
-};
+export type SessionIndexDirection = typeof SessionIndexDirection.Type;
 
 /**
  * @since 0.0.0
  */
-export type SessionIndexPage = {
-  readonly items: ReadonlyArray<SessionMeta>;
-  readonly nextCursor?: SessionIndexCursor;
-};
+export class SessionIndexCursor extends S.Class<SessionIndexCursor>($I`SessionIndexCursor`)(
+  {
+    value: S.Number,
+    sessionId: S.String,
+  },
+  $I.annote("SessionIndexCursor", {
+    description: "Opaque cursor used for SessionIndexStore pagination.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export class SessionIndexListOptions extends S.Class<SessionIndexListOptions>($I`SessionIndexListOptions`)(
+  {
+    offset: S.optionalKey(S.UndefinedOr(S.Number)),
+    limit: S.optionalKey(S.UndefinedOr(S.Number)),
+    orderBy: S.optionalKey(S.UndefinedOr(SessionIndexOrderBy)),
+    direction: S.optionalKey(S.UndefinedOr(SessionIndexDirection)),
+    cursor: S.optionalKey(S.UndefinedOr(SessionIndexCursor)),
+  },
+  $I.annote("SessionIndexListOptions", {
+    description: "Options for listing SessionIndexStore metadata with ordering and cursor pagination.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export class SessionIndexTouchOptions extends S.Class<SessionIndexTouchOptions>($I`SessionIndexTouchOptions`)(
+  {
+    createdAt: S.optionalKey(S.UndefinedOr(S.Number)),
+    updatedAt: S.optionalKey(S.UndefinedOr(S.Number)),
+  },
+  $I.annote("SessionIndexTouchOptions", {
+    description: "Optional timestamp overrides when touching session index metadata.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export class SessionIndexPage extends S.Class<SessionIndexPage>($I`SessionIndexPage`)(
+  {
+    items: S.Array(SessionMeta),
+    nextCursor: S.optionalKey(S.UndefinedOr(SessionIndexCursor)),
+  },
+  $I.annote("SessionIndexPage", {
+    description: "Cursor-paginated SessionIndexStore response payload.",
+  })
+) {}
 
 const storeName = "SessionIndexStore";
 
-const SessionIndexMeta = S.Struct({
-  pageCount: S.Number,
-  total: S.Number,
-  pageSize: S.Number,
-  updatedAt: S.DateTimeUtcFromMillis,
-});
+class SessionIndexMeta extends S.Class<SessionIndexMeta>($I`SessionIndexMeta`)(
+  {
+    pageCount: S.Number,
+    total: S.Number,
+    pageSize: S.Number,
+    updatedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("SessionIndexMeta", {
+    description: "Internal key-value metadata describing session index pagination state.",
+  })
+) {}
 
-type SessionIndexMeta = typeof SessionIndexMeta.Type;
-
-const SessionIndexPageSchema = S.Struct({
-  ids: S.Array(S.String),
-  updatedAt: S.DateTimeUtcFromMillis,
-});
-
-type SessionIndexPageData = typeof SessionIndexPageSchema.Type;
+class SessionIndexPageData extends S.Class<SessionIndexPageData>($I`SessionIndexPageData`)(
+  {
+    ids: S.Array(S.String),
+    updatedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("SessionIndexPageData", {
+    description: "Internal key-value page payload storing ordered session ids.",
+  })
+) {}
 
 const resolveListLimit = (options: SessionIndexListOptions | undefined, fallback?: number) => {
   const resolved = options?.limit ?? fallback;
@@ -120,10 +166,11 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
 /**
  * @since 0.0.0
  */
-export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = defaultOrderBy): SessionIndexCursor => ({
-  value: utcToMillis(orderBy === "createdAt" ? meta.createdAt : meta.updatedAt),
-  sessionId: meta.sessionId,
-});
+export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = defaultOrderBy): SessionIndexCursor =>
+  new SessionIndexCursor({
+    value: utcToMillis(orderBy === "createdAt" ? meta.createdAt : meta.updatedAt),
+    sessionId: meta.sessionId,
+  });
 
 type SessionIndexState = {
   readonly ids: ReadonlyArray<string>;
@@ -163,7 +210,7 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
   list: () => Effect.succeed([]),
   listIds: () => Effect.succeed([]),
   remove: () => Effect.void,
-  listPage: () => Effect.succeed({ items: [] }),
+  listPage: () => Effect.succeed(new SessionIndexPage({ items: [] })),
 };
 
 /**
@@ -225,9 +272,9 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         const config = yield* Effect.serviceOption(StorageConfig);
         const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
         const limit = resolveListLimit(options, fallbackLimit);
-        if (limit <= 0) return { items: A.empty<SessionMeta>() };
+        if (limit <= 0) return new SessionIndexPage({ items: A.empty<SessionMeta>() });
         const items = yield* list({ ...options, limit: limit + 1 });
-        if (A.length(items) <= limit) return { items };
+        if (A.length(items) <= limit) return new SessionIndexPage({ items });
         const pageItems = A.take(items, limit);
         const orderBy = options?.orderBy ?? defaultOrderBy;
         const nextCursor = pipe(
@@ -236,10 +283,10 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           O.map((last) => makeCursor(last, orderBy)),
           O.getOrUndefined
         );
-        return {
+        return new SessionIndexPage({
           items: pageItems,
           ...(nextCursor !== undefined ? { nextCursor } : {}),
-        };
+        });
       });
 
       const remove = Effect.fn("SessionIndexStore.remove")((sessionId: string) =>
@@ -269,7 +316,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         const kv = yield* KeyValueStore.KeyValueStore;
         const prefix = options?.prefix ?? defaultSessionIndexPrefix;
         const indexMetaStore = KeyValueStore.toSchemaStore(kv, SessionIndexMeta);
-        const pageStore = KeyValueStore.toSchemaStore(kv, SessionIndexPageSchema);
+        const pageStore = KeyValueStore.toSchemaStore(kv, SessionIndexPageData);
         const sessionStore = KeyValueStore.toSchemaStore(kv, SessionMeta);
 
         const metaKey = `${prefix}/index/meta`;
@@ -284,18 +331,20 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             .pipe(Effect.mapError((cause) => mapError("loadIndexMeta", cause)));
           if (O.isSome(metaOption)) {
             const meta = metaOption.value;
-            return {
-              ...meta,
+            return new SessionIndexMeta({
+              pageCount: meta.pageCount,
+              total: meta.total,
               pageSize: normalizePageSize(meta.pageSize),
-            } satisfies SessionIndexMeta;
+              updatedAt: meta.updatedAt,
+            });
           }
           const pageSize = normalizePageSize(yield* resolvePageSize);
-          return {
+          return new SessionIndexMeta({
             pageCount: 0,
             total: 0,
             pageSize,
             updatedAt: utcFromMillis(0),
-          } satisfies SessionIndexMeta;
+          });
         });
 
         const saveIndexMeta = (meta: SessionIndexMeta) =>
@@ -305,14 +354,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           pageStore.get(pageKey(page)).pipe(
             Effect.mapError((cause) => mapError("loadPage", cause)),
             Effect.map((maybe) =>
-              O.getOrElse(
-                maybe,
-                () =>
-                  ({
-                    ids: [],
-                    updatedAt: utcFromMillis(0),
-                  }) satisfies SessionIndexPageData
-              )
+              O.getOrElse(maybe, () => new SessionIndexPageData({ ids: [], updatedAt: utcFromMillis(0) }))
             )
           );
 
@@ -367,9 +409,9 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const config = yield* Effect.serviceOption(StorageConfig);
           const fallbackLimit = O.isNone(config) ? defaultIndexPageSize : config.value.settings.kv.indexPageSize;
           const limit = resolveListLimit(options, fallbackLimit);
-          if (limit <= 0) return { items: A.empty<SessionMeta>() };
+          if (limit <= 0) return new SessionIndexPage({ items: A.empty<SessionMeta>() });
           const items = yield* list({ ...options, limit: limit + 1 });
-          if (A.length(items) <= limit) return { items };
+          if (A.length(items) <= limit) return new SessionIndexPage({ items });
           const pageItems = A.take(items, limit);
           const orderBy = options?.orderBy ?? defaultOrderBy;
           const nextCursor = pipe(
@@ -378,10 +420,10 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             O.map((last) => makeCursor(last, orderBy)),
             O.getOrUndefined
           );
-          return {
+          return new SessionIndexPage({
             items: pageItems,
             ...(nextCursor !== undefined ? { nextCursor } : {}),
-          };
+          });
         });
 
         const get = Effect.fn("SessionIndexStore.get")((sessionId: string) =>
@@ -413,7 +455,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const pageSize = normalizePageSize(meta.pageSize);
 
           if (pageCount === 0) {
-            yield* savePage(0, { ids: [sessionId], updatedAt: utcFromMillis(now) });
+            yield* savePage(0, new SessionIndexPageData({ ids: [sessionId], updatedAt: utcFromMillis(now) }));
             pageCount = 1;
             total = 1;
           } else {
@@ -422,26 +464,27 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
               const lastPageIndex = pageCount - 1;
               const lastPage = yield* loadPage(lastPageIndex);
               if (lastPage.ids.length < pageSize) {
-                yield* savePage(lastPageIndex, {
-                  ids: lastPage.ids.concat(sessionId),
-                  updatedAt: utcFromMillis(now),
-                });
+                yield* savePage(
+                  lastPageIndex,
+                  new SessionIndexPageData({ ids: lastPage.ids.concat(sessionId), updatedAt: utcFromMillis(now) })
+                );
               } else {
-                yield* savePage(pageCount, { ids: [sessionId], updatedAt: utcFromMillis(now) });
+                yield* savePage(
+                  pageCount,
+                  new SessionIndexPageData({ ids: [sessionId], updatedAt: utcFromMillis(now) })
+                );
                 pageCount += 1;
               }
               total += 1;
             } else if (utcToMillis(found.pageData.updatedAt) !== now) {
-              yield* savePage(found.page, { ...found.pageData, updatedAt: utcFromMillis(now) });
+              yield* savePage(
+                found.page,
+                new SessionIndexPageData({ ids: found.pageData.ids, updatedAt: utcFromMillis(now) })
+              );
             }
           }
 
-          yield* saveIndexMeta({
-            pageCount,
-            total,
-            pageSize,
-            updatedAt: utcFromMillis(now),
-          });
+          yield* saveIndexMeta(new SessionIndexMeta({ pageCount, total, pageSize, updatedAt: utcFromMillis(now) }));
 
           return nextSession;
         });
@@ -478,10 +521,10 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
                     }
                   }
                 } else {
-                  yield* savePage(found.page, {
-                    ids: remaining,
-                    updatedAt: utcFromMillis(now),
-                  });
+                  yield* savePage(
+                    found.page,
+                    new SessionIndexPageData({ ids: remaining, updatedAt: utcFromMillis(now) })
+                  );
                 }
                 total = Math.max(0, total - 1);
               }
@@ -491,12 +534,14 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
               .remove(sessionKey(sessionId))
               .pipe(Effect.mapError((cause) => mapError("remove", cause)));
 
-            yield* saveIndexMeta({
-              pageCount,
-              total,
-              pageSize: normalizePageSize(meta.pageSize),
-              updatedAt: utcFromMillis(now),
-            });
+            yield* saveIndexMeta(
+              new SessionIndexMeta({
+                pageCount,
+                total,
+                pageSize: normalizePageSize(meta.pageSize),
+                updatedAt: utcFromMillis(now),
+              })
+            );
           })
         );
 

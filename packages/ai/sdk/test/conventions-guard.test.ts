@@ -1,8 +1,9 @@
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { expect, test } from "@effect/vitest";
 
 const coreDir = new URL("../src/core", import.meta.url);
+const testDir = new URL(".", import.meta.url);
 
 type SourceFile = {
   readonly path: string;
@@ -36,6 +37,19 @@ const findRegexHits = (files: ReadonlyArray<SourceFile>, pattern: RegExp) =>
 
 const castPattern = ["as unknown", "as"].join(" ");
 const anyPattern = new RegExp(["\\b", "an", "y", "\\b"].join(""));
+const serviceMapUnsafePattern = ["ServiceMap", ".makeUnsafe("].join("");
+const directRunPromisePattern = ["Effect", ".runPromise("].join("");
+const directRunPromiseAllowlist = [
+  "experimental-event-log.test.ts",
+  "experimental-persisted-queue.test.ts",
+  "hooks-audit-logging.test.ts",
+  "logging.test.ts",
+  "mcp-tool.test.ts",
+  "message-filters.test.ts",
+  "query-result.test.ts",
+  "storage-artifact-store.test.ts",
+  "storage-chat-history-recorder.test.ts",
+] as const;
 
 test("core schema and identity conventions disallow legacy patterns", async () => {
   const files = await collectSourceFiles(coreDir.pathname);
@@ -79,4 +93,18 @@ test("discriminator-heavy schema modules include tagged-union modeling", async (
       expect(content.includes("S.toTaggedUnion(")).toBe(true);
     })
   );
+});
+
+test("ai-sdk tests keep runtime boundaries and unsafe ServiceMap usage explicit", async () => {
+  const files = await collectSourceFiles(testDir.pathname);
+
+  const serviceMapUnsafeHits = findPatternHits(files, serviceMapUnsafePattern).map((filePath) =>
+    relative(testDir.pathname, filePath)
+  );
+  const directRunPromiseHits = findPatternHits(files, directRunPromisePattern).map((filePath) =>
+    relative(testDir.pathname, filePath)
+  );
+
+  expect(serviceMapUnsafeHits).toEqual([]);
+  expect(directRunPromiseHits).toEqual([...directRunPromiseAllowlist]);
 });

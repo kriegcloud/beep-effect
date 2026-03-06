@@ -11,7 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
-import { thunkFalse } from "@beep/utils";
+import { Text, thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -163,7 +163,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
         const fullPath = path.join(dir, entry);
 
         // Check if this entry is a directory
-        const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(() => undefined));
+        const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(thunkUndefined));
         if (info === undefined) continue;
 
         if (stringEquivalence(info.type, "Directory")) {
@@ -207,12 +207,12 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
   const header = pipe(
     A.make("/**", ` * Re-exports for ${packageName}.`, " *", " * @since 0.0.0", " */", ""),
-    A.join("\n")
+    Text.joinLines
   );
 
   const exportLines = A.map(modules, (mod) => {
     const importPath = toImportPath(mod);
-    return pipe(A.make("/**", " * @since 0.0.0", " */", `export * from "${importPath}";`), A.join("\n"));
+    return pipe(A.make("/**", " * @since 0.0.0", " */", `export * from "${importPath}";`), Text.joinLines);
   });
 
   return `${header + A.join(exportLines, "\n\n")}\n`;

@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { thunkFalse, thunkSomeFalse } from "@beep/utils";
 import { Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -322,8 +323,8 @@ export const VersionSyncModeMatch = VersionSyncModeKit.$match;
 export type VersionSyncMode = typeof VersionSyncMode.Type;
 
 const DefaultedVersionSyncFlag = S.Boolean.pipe(
-  S.withConstructorDefault(() => O.some(false)),
-  S.withDecodingDefault(() => false)
+  S.withConstructorDefault(thunkSomeFalse),
+  S.withDecodingDefault(thunkFalse)
 );
 
 class VersionSyncOptionsCheck extends S.Class<VersionSyncOptionsCheck>($I`VersionSyncOptionsCheck`)(

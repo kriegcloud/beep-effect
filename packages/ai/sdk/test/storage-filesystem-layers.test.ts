@@ -8,6 +8,7 @@ import { FileSystem } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
+import { runEffect } from "./effect-test.js";
 
 const withTempDir = <A, E, R>(prefix: string, effect: (dir: string) => Effect.Effect<A, E, R>) =>
   Effect.scoped(
@@ -39,7 +40,7 @@ test("ChatHistoryStore layerFileSystemBun persists events", async () => {
     })
   );
 
-  const count = await Effect.runPromise(program);
+  const count = await runEffect(program);
   expect(count).toBe(1);
 });
 
@@ -72,7 +73,7 @@ test("ArtifactStore layerFileSystemBun persists records", async () => {
     })
   );
 
-  const count = await Effect.runPromise(program);
+  const count = await runEffect(program);
   expect(count).toBe(0);
 });
 
@@ -111,6 +112,6 @@ test("AuditEventStore layerFileSystemBun persists entries", async () => {
     })
   );
 
-  const count = await Effect.runPromise(program);
+  const count = await runEffect(program);
   expect(count).toBe(1);
 });

@@ -7,12 +7,14 @@ import { Effect, FileSystem } from "effect";
 const effectImportRulePath = fileURLToPath(new URL("../src/eslint/EffectImportStyleRule.ts", import.meta.url));
 const noNativeRuntimeRulePath = fileURLToPath(new URL("../src/eslint/NoNativeRuntimeRule.ts", import.meta.url));
 const requireCategoryTagRulePath = fileURLToPath(new URL("../src/eslint/RequireCategoryTagRule.ts", import.meta.url));
+const schemaFirstRulePath = fileURLToPath(new URL("../src/eslint/SchemaFirstRule.ts", import.meta.url));
 const terseEffectStyleRulePath = fileURLToPath(new URL("../src/eslint/TerseEffectStyleRule.ts", import.meta.url));
 
 const ruleFilePaths = [
   effectImportRulePath,
   noNativeRuntimeRulePath,
   requireCategoryTagRulePath,
+  schemaFirstRulePath,
   terseEffectStyleRulePath,
 ];
 

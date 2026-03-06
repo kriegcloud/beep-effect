@@ -1,5 +1,5 @@
 import { $RepoMemoryModelId } from "@beep/identity/packages";
-import { FilePath, LiteralKit, NonNegativeInt, PosInt, Sha256Hex } from "@beep/schema";
+import { ArrayOfStrings, FilePath, LiteralKit, NonNegativeInt, PosInt, Sha256Hex } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $RepoMemoryModelId.create("internal/domain");
@@ -430,7 +430,7 @@ export class RepoSymbolDocumentation extends S.Class<RepoSymbolDocumentation>($I
     params: S.Array(RepoDocumentedParameter),
     returns: S.OptionFromOptionalKey(RepoDocumentedReturn),
     throws: S.Array(RepoDocumentedThrow),
-    see: S.Array(S.String),
+    see: ArrayOfStrings,
     tags: S.Array(RepoJSDocCoreTag),
   },
   $I.annote("RepoSymbolDocumentation", {
@@ -452,7 +452,7 @@ export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket
     retrievedAt: S.DateTimeUtcFromMillis,
     summary: S.String,
     citations: S.Array(Citation),
-    notes: S.Array(S.String),
+    notes: ArrayOfStrings,
   },
   $I.annote("RetrievalPacket", {
     description: "Bounded answer context returned by the sidecar so grounded answers stay inspectable.",

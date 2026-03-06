@@ -1,5 +1,5 @@
 import { LiteralKit } from "@beep/schema";
-import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
+import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { flow, Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -282,7 +282,7 @@ export const highlightSql = (sql: string): string => {
     linesBetweenQueries: 1,
   });
 
-  return pipe(formatted, Str.split("\n"), A.map(processLineHighlight), A.join("\n"));
+  return pipe(formatted, Str.split("\n"), A.map(processLineHighlight), Text.joinLines);
 };
 
 /**
@@ -351,7 +351,7 @@ export const padEnd = (str: string, targetLen: number): string => {
     currentLen >= targetLen,
     Match.value,
     Match.when(true, () => str),
-    Match.orElse(() => `${str}${pipe(A.replicate(" ", targetLen - currentLen), A.join(Str.empty))}`)
+    Match.orElse(() => `${str}${CommonStr.repeat(" ", targetLen - currentLen)}`)
   );
 };
 
@@ -405,7 +405,7 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
         })
       );
 
-      return pipe(rows, A.join("\n"));
+      return Text.joinLines(rows);
     })
   );
 };
@@ -701,5 +701,5 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
   // Footer.
   appendLine(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
 
-  return pipe(lines, A.join("\n"));
+  return Text.joinLines(lines);
 };

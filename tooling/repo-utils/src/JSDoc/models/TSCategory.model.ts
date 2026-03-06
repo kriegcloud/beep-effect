@@ -5,7 +5,7 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit } from "@beep/schema";
 import { Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -108,14 +108,14 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
       description: "Concrete production-like TypeScript patterns for this category.",
     }),
     /** Disambiguation patterns that belong in other categories. */
-    counterExamples: S.Array(S.String).annotateKey({
+    counterExamples: ArrayOfStrings.annotateKey({
       description: "Disambiguation patterns that belong in other categories.",
     }),
     /**
      * Common SyntaxKind names for this category.
      * This is indicative, not exclusive.
      */
-    typicalSyntaxKinds: S.Array(S.String).annotateKey({
+    typicalSyntaxKinds: ArrayOfStrings.annotateKey({
       description: "Common SyntaxKind names for this category.\\nThis is indicative, not exclusive.",
     }),
     /**
@@ -151,12 +151,12 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
      * Semantically adjacent categories for query expansion and ambiguity handling.
      * Reference by `_tag` value.
      */
-    adjacentCategories: S.Array(S.String).annotateKey({
+    adjacentCategories: ArrayOfStrings.annotateKey({
       description:
         "Semantically adjacent categories for query expansion and ambiguity handling.\\nReference by `_tag` value.",
     }),
     /** Import path glob patterns that are strong classification hints. */
-    typicalImportPatterns: S.Array(S.String).annotateKey({
+    typicalImportPatterns: ArrayOfStrings.annotateKey({
       description: "Import path glob patterns that are strong classification hints.",
     }),
     /** Typical dependency direction profile. */

@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { FilePath, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { withSdkMessage } from "./Annotations.js";
 import { ApiKeySource, ModelUsage, NonNullableUsage, SDKPermissionDenial, UUID } from "./Common.js";
@@ -446,7 +446,7 @@ export const SDKSystemMessage = withSdkMessage(
     plugins: S.Array(
       S.Struct({
         name: S.String,
-        path: S.String,
+        path: FilePath,
       })
     ),
     uuid: UUID,
@@ -475,7 +475,7 @@ export const SDKTaskNotificationMessage = withSdkMessage(
     subtype: S.Literal("task_notification"),
     task_id: S.String,
     status: LiteralKit(["completed", "failed", "stopped"]),
-    output_file: S.String,
+    output_file: FilePath,
     summary: S.String,
     uuid: UUID,
     session_id: S.String,

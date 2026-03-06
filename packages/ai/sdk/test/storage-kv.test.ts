@@ -2,6 +2,7 @@ import { type KVNamespace, layerKV } from "@beep/ai-sdk/Storage/StorageKV";
 import { expect, test } from "@effect/vitest";
 import { Effect } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { runEffect } from "./effect-test.js";
 
 const makeMockKVNamespace = (data: Record<string, string> = {}): KVNamespace => ({
   get: async (key, _type?) => data[key] ?? null,
@@ -39,7 +40,7 @@ test("KV get/set/remove round-trip", async () => {
     const after = yield* kv.get("key1");
     expect(after).toBeUndefined();
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+  await runEffect(program.pipe(Effect.provide(layerKV(ns))));
 });
 
 test("KV size paginates correctly", async () => {
@@ -53,7 +54,7 @@ test("KV size paginates correctly", async () => {
     const size = yield* kv.size;
     expect(size).toBe(5);
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+  await runEffect(program.pipe(Effect.provide(layerKV(ns))));
 });
 
 test("KV clear deletes all keys sequentially", async () => {
@@ -65,7 +66,7 @@ test("KV clear deletes all keys sequentially", async () => {
     const empty = yield* kv.isEmpty;
     expect(empty).toBe(true);
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+  await runEffect(program.pipe(Effect.provide(layerKV(ns))));
 });
 
 test("KV coalesces rapid writes to the same key", async () => {
@@ -87,7 +88,7 @@ test("KV coalesces rapid writes to the same key", async () => {
     return yield* kv.get("hot-key");
   });
 
-  const result = await Effect.runPromise(program.pipe(Effect.provide(layerKV(ns))));
+  const result = await runEffect(program.pipe(Effect.provide(layerKV(ns))));
   expect(result).toBe("v3");
   expect(putCalls).toBe(2);
 });

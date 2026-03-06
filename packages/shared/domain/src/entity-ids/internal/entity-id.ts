@@ -4,6 +4,7 @@
 
 import type { IdentityComposer, SegmentValue } from "@beep/identity";
 import { $SharedDomainId } from "@beep/identity/packages";
+import { CONSTANTS } from "@beep/schema/Sql/Constants";
 import type { TString } from "@beep/types";
 import { flow } from "effect";
 import * as S from "effect/Schema";
@@ -15,7 +16,7 @@ const $I = $SharedDomainId.create("EntityId");
  *
  * @since 0.0.0
  */
-export const PG_SERIAL_MAX = 2_147_483_647;
+export const PG_SERIAL_MAX = CONSTANTS.INT32_MAX;
 
 /**
  * Range filter constraining a number to the PostgreSQL serial range (1 to 2,147,483,647).

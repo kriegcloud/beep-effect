@@ -1,7 +1,11 @@
+import { $RepoCliId } from "@beep/identity/packages";
 import { String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
 
 /**
  * Canonical alias targets derived for a package root export.
@@ -9,10 +13,15 @@ import * as P from "effect/Predicate";
  * @since 0.0.0
  * @category Models
  */
-export type CanonicalAliasTargets = {
-  readonly rootAliasTarget: string;
-  readonly wildcardAliasTarget: string;
-};
+export class CanonicalAliasTargets extends S.Class<CanonicalAliasTargets>($I`CanonicalAliasTargets`)(
+  {
+    rootAliasTarget: S.String,
+    wildcardAliasTarget: S.String,
+  },
+  $I.annote("CanonicalAliasTargets", {
+    description: "Canonical root and wildcard alias targets derived for a package root export.",
+  })
+) {}
 
 const isRelativeDotPath = (value: unknown): value is string => P.isString(value) && Str.startsWith("./")(value);
 
@@ -95,8 +104,8 @@ export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget
   const rootAliasTarget = `./${packagePath}/${normalizedRootExportTarget}`;
   const lastSlash = rootAliasTarget.lastIndexOf("/");
 
-  return {
+  return new CanonicalAliasTargets({
     rootAliasTarget,
     wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${rootAliasTarget.slice(0, lastSlash)}/*`,
-  };
+  });
 };

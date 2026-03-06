@@ -1,5 +1,5 @@
 import { $CodegraphId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit } from "@beep/schema";
 import { Option as O, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
@@ -40,7 +40,7 @@ const defaultedPositiveInt = (value: number) =>
   );
 
 const defaultedStringArray = (...values: ReadonlyArray<string>) =>
-  S.Array(S.String).pipe(
+  ArrayOfStrings.pipe(
     S.withConstructorDefault(() => O.some(A.fromIterable(values))),
     S.withDecodingDefault(() => A.fromIterable(values))
   );

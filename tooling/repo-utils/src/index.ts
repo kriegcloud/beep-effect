@@ -8,12 +8,6 @@
 
 /**
  * @since 0.0.0
- * @category Configuration
- */
-export const VERSION = "0.0.0" as const;
-
-/**
- * @since 0.0.0
  */
 export {
   /**
@@ -47,9 +41,6 @@ export {
    */
   NoSuchFileError,
 } from "./errors/index.js";
-/**
- * @since 0.0.0
- */
 export {
   /**
    * @since 0.0.0
@@ -66,7 +57,10 @@ export {
   /**
    * @since 0.0.0
    */
-  type GlobOptions,
+  GlobOptions,
+  /**
+   * @since 0.0.0
+   */
 } from "./FsUtils.js";
 /**
  * @since 0.0.0
@@ -200,7 +194,7 @@ export {
   /**
    * @since 0.0.0
    */
-  type WorkspaceDeps,
+  WorkspaceDeps,
 } from "./schemas/WorkspaceDeps.js";
 /**
  * @since 0.0.0
@@ -219,9 +213,6 @@ export {
  * @since 0.0.0
  */
 export * from "./TypeScript/index.js";
-/**
- * @since 0.0.0
- */
 export {
   /**
    * @since 0.0.0
@@ -230,7 +221,10 @@ export {
   /**
    * @since 0.0.0
    */
-  type UniqueNpmDeps,
+  UniqueNpmDeps,
+  /**
+   * @since 0.0.0
+   */
 } from "./UniqueDeps.js";
 /**
  * @since 0.0.0

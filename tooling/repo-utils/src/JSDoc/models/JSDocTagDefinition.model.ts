@@ -1,4 +1,5 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { ArrayOfStrings } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
 import { SchemaGetter } from "effect";
 import * as S from "effect/Schema";
@@ -27,7 +28,7 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
       description: "Canonical tag name without '@' prefix. Used as discriminant.",
     }),
     /** Alternative names that resolve to this tag (without '@' prefix) */
-    synonyms: S.Array(S.String).annotateKey({
+    synonyms: ArrayOfStrings.annotateKey({
       description: "Alternative names that resolve to this tag (without '@' prefix)",
     }),
     /** Human-readable description of what this tag does */
@@ -59,7 +60,7 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
       description: "Structured parameter info",
     }),
     /** Tags that are semantically related */
-    relatedTags: S.Array(S.String).annotateKey({
+    relatedTags: ArrayOfStrings.annotateKey({
       description: "Tags that are semantically related",
     }),
     /** Whether this tag is deprecated in favor of another approach */

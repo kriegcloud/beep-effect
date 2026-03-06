@@ -7,6 +7,7 @@
  * @since 0.0.0
  * @module
  */
+import { thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -53,7 +54,7 @@ export const findRepoRoot: (
   while (true) {
     for (const marker of ROOT_MARKERS) {
       const markerPath = Str.endsWith("/")(current) ? current + marker : `${current}/${marker}`;
-      const exists = yield* fs.exists(markerPath).pipe(Effect.orElseSucceed(() => false));
+      const exists = yield* fs.exists(markerPath).pipe(Effect.orElseSucceed(thunkFalse));
       if (exists) {
         return current;
       }

@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -59,7 +60,7 @@ const walkRoot = (root: string): Effect.Effect<ReadonlyArray<DocsPackage>, DocsA
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    const exists = yield* fs.exists(root).pipe(Effect.orElseSucceed(() => false));
+    const exists = yield* fs.exists(root).pipe(Effect.orElseSucceed(thunkFalse));
     if (!exists) {
       return A.empty<DocsPackage>();
     }
@@ -68,7 +69,7 @@ const walkRoot = (root: string): Effect.Effect<ReadonlyArray<DocsPackage>, DocsA
       Effect.gen(function* () {
         const packageDir = Str.isNonEmpty(relativePath) ? path.join(root, relativePath) : root;
         const docsModulesPath = path.join(packageDir, "docs", "modules");
-        const hasDocsModules = yield* fs.exists(docsModulesPath).pipe(Effect.orElseSucceed(() => false));
+        const hasDocsModules = yield* fs.exists(docsModulesPath).pipe(Effect.orElseSucceed(thunkFalse));
         if (hasDocsModules) {
           return A.make(
             new DocsPackage({
@@ -162,7 +163,7 @@ const copyFiles = (pkg: DocsPackage, name: string): Effect.Effect<void, DocsAggr
     const docs = path.join(pkg.packageDir, "docs", "modules");
     const dest = path.join("docs", pkg.outputPath);
 
-    yield* fs.remove(dest, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => undefined));
+    yield* fs.remove(dest, { recursive: true, force: true }).pipe(Effect.orElseSucceed(thunkUndefined));
     yield* fs.makeDirectory(dest, { recursive: true }).pipe(
       Effect.mapError(
         (cause) =>

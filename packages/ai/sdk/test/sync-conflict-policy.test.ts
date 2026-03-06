@@ -2,6 +2,7 @@ import { Storage, Sync } from "@beep/ai-sdk";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { runEffect } from "./effect-test.js";
@@ -66,7 +67,7 @@ test("ConflictPolicy.reject returns rejection with reason", async () => {
 
   expect(result._tag).toBe("reject");
   if (result._tag === "reject") {
-    expect(result.reason).toBe("conflict");
+    expect(result.reason).toEqual(O.some("conflict"));
   }
 });
 

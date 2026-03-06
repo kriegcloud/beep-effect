@@ -1,3 +1,4 @@
+import { Text } from "@beep/utils";
 import { Effect, Layer, Match, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -130,7 +131,7 @@ const isStaleResumeFailure = (error: unknown): boolean => {
     readonly cause?: unknown;
   };
   if (candidate._tag !== "SandboxError") return false;
-  const text = [candidate.message ?? "", ...collectStringFragments(candidate.cause)].join("\n").toLowerCase();
+  const text = Text.joinLines([candidate.message ?? "", ...collectStringFragments(candidate.cause)]).toLowerCase();
   if (!text.includes("resume") && !text.includes("session")) return false;
   return staleResumeIndicators.some((indicator) => text.includes(indicator));
 };

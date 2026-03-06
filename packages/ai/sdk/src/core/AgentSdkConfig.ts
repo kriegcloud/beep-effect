@@ -1,9 +1,8 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Text } from "@beep/utils";
+import { Struct, Text } from "@beep/utils";
 import { Config, ConfigProvider, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ConfigError } from "./Errors.js";
 import {
@@ -228,7 +227,7 @@ export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, AgentSdkC
       return AgentSdkConfig.layer;
     }
     const provider = ConfigProvider.orElse(
-      ConfigProvider.fromUnknown(R.fromEntries(entries)),
+      ConfigProvider.fromUnknown(Struct.fromEntries(entries)),
       ConfigProvider.fromEnv()
     );
     return AgentSdkConfig.layer.pipe(Layer.provide(ConfigProvider.layerAdd(provider)));

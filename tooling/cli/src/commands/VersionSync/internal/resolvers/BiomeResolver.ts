@@ -9,7 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { thunkEmptyStr } from "@beep/utils";
+import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -126,12 +126,12 @@ class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocume
 class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
   {
     catalog: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(() => O.some({})),
-      S.withDecodingDefault(() => ({}))
+      S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
+      S.withDecodingDefault(thunkEmptyRecord<string, string>)
     ),
     devDependencies: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(() => O.some({})),
-      S.withDecodingDefault(() => ({}))
+      S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
+      S.withDecodingDefault(thunkEmptyRecord<string, string>)
     ),
   },
   $I.annote("RootPackageJsonDocument", {

@@ -12,7 +12,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, encodePackageJsonCanonicalPrettyEffect, findRepoRoot } from "@beep/repo-utils";
-import { thunkFalse } from "@beep/utils";
+import { LiteralKit } from "@beep/schema";
+import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -81,9 +82,8 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: str
   }
 
   return yield* new DomainError({
-    message: `Unable to resolve create-package templates. Checked:\n${A.join(
-      A.map(candidates, (candidate) => `  - ${candidate}`),
-      "\n"
+    message: `Unable to resolve create-package templates. Checked:\n${Text.joinLines(
+      A.map(candidates, (candidate) => `  - ${candidate}`)
     )}`,
   });
 });
@@ -98,7 +98,7 @@ const VALID_TYPES = ["library", "tool", "app"] as const;
 const PACKAGE_NAME_PATTERN = /^[a-z_][a-z0-9._-]*$/;
 const PARENT_DIR_PATTERN = /^(?!.*\/\/)(?!.*\/$)(?!.*(?:^|\/)\.{1,2}(?:\/|$))[a-z0-9][a-z0-9/_-]*$/;
 
-const PackageType = S.Literals(VALID_TYPES).annotate(
+const PackageType = LiteralKit(VALID_TYPES).annotate(
   $I.annote("PackageType", {
     description: "Supported package scaffold type.",
   })
@@ -224,11 +224,7 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  * @param packagePath Repo-relative package path.
  * @returns Relative path from the package directory to repo root.
  */
-const toRootRelative = (packagePath: string): string =>
-  A.join(
-    A.makeBy(A.length(Str.split(packagePath, "/")), () => "../"),
-    Str.empty
-  );
+const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
 
 const singleTargetFallback = (target: ConfigUpdateTarget, result: ConfigUpdateResult) =>
   new ConfigUpdateBatchResult({

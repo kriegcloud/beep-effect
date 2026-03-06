@@ -18,14 +18,14 @@ const failWithPrettyCause = (cause: Cause.Cause<unknown>) =>
   });
 
 export const runEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-  Effect.runPromiseWith(ServiceMap.makeUnsafe<R>(new Map()))(
+  Effect.runPromiseWith(ServiceMap.empty() as ServiceMap.ServiceMap<Exclude<R, TestClock.TestClock>>)(
     effect.pipe(
       Effect.provide(Layer.mergeAll(TestClock.layer())),
       Effect.matchCauseEffect({
         onSuccess: Effect.succeed,
         onFailure: failWithPrettyCause,
       })
-    )
+    ) as Effect.Effect<A, never, Exclude<R, TestClock.TestClock>>
   );
 
 export const runEffectLive = <A, E, R>(effect: Effect.Effect<A, E, R>) => runEffect(TestClock.withLive(effect));

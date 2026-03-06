@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { FilePath, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/Schema/Common");
@@ -245,7 +245,7 @@ export type RewindFilesResultEncoded = typeof RewindFilesResult.Encoded;
  */
 export const SdkPluginConfig = S.Struct({
   type: S.Literal("local"),
-  path: S.String,
+  path: FilePath,
 }).annotate(
   $I.annote("SdkPluginConfig", {
     description: "Schema for SdkPluginConfig.",

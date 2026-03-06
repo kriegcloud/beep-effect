@@ -1,5 +1,6 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Layer, MutableHashMap, Option as O, Path, ServiceMap, String as Str } from "effect";
 import * as S from "effect/Schema";
 import {
@@ -304,7 +305,7 @@ const ensureExists = <E extends TSMorphServiceError>(
   makeError: () => E
 ): Effect.Effect<void, E> =>
   fs.exists(absolutePath).pipe(
-    Effect.orElseSucceed(() => false),
+    Effect.orElseSucceed(thunkFalse),
     Effect.flatMap((exists) => (exists ? Effect.void : Effect.fail(makeError())))
   );
 
@@ -744,7 +745,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         let currentDirectory = pathApi.dirname(absoluteFilePath);
         while (true) {
           const candidateTsConfigPath = pathApi.join(currentDirectory, DEFAULT_TSCONFIG_FILE_NAME);
-          const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(() => false));
+          const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(thunkFalse));
 
           if (candidateExists) {
             const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(

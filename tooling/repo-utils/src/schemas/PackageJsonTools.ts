@@ -6,6 +6,7 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { ArrayOfStrings } from "@beep/schema";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Effect, identity, type JsonPatch, JsonPointer, Order, pipe, SchemaIssue, Tuple } from "effect";
 import * as A from "effect/Array";
@@ -225,7 +226,7 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  */
 export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIssue>($I`PackageJsonValidationIssue`)(
   {
-    path: S.Array(S.String),
+    path: ArrayOfStrings,
     pointer: S.String,
     message: S.String,
   },

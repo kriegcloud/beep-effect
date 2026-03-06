@@ -11,7 +11,7 @@ const DATE_YMD_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 
 const NonEmptyString = S.NonEmptyString;
 const DateYmdString = S.String.check(S.isPattern(DATE_YMD_PATTERN));
-
+const ArrayOfStrings = S.Array(S.String);
 export class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>("EffectLawsAllowlistEntry")({
   rule: NonEmptyString,
   file: NonEmptyString,
@@ -36,7 +36,7 @@ export class EffectLawsAllowlistSnapshot extends S.Class<EffectLawsAllowlistSnap
     S.withConstructorDefault(thunkSomeEmptyArray<EffectLawsAllowlistEntry>),
     S.withDecodingDefault(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>)
   ),
-  diagnostics: S.Array(S.String).pipe(
+  diagnostics: ArrayOfStrings.pipe(
     S.withConstructorDefault(thunkSomeEmptyArray<string>),
     S.withDecodingDefault(A.empty<string>)
   ),

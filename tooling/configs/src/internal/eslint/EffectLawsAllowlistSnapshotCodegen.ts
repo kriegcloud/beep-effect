@@ -1,4 +1,4 @@
-import { thunkEmptyStr } from "@beep/utils";
+import { Text, thunkEmptyStr } from "@beep/utils";
 import { Effect, pipe, SchemaGetter, type SchemaIssue } from "effect";
 import * as O from "effect/Option";
 import { normalizePath } from "../../eslint/Shared.ts";
@@ -68,7 +68,12 @@ export const renderAllowlistSnapshotModule = (
     Effect.flatMap((encodedSnapshot) => stringifyJsonPretty.run(O.some(encodedSnapshot), {})),
     Effect.map(O.getOrElse(thunkEmptyStr)),
     Effect.map((serializedSnapshot) =>
-      [...GENERATED_FILE_BANNER, "", `export const ALLOWLIST_SNAPSHOT = ${serializedSnapshot} as const;`, ""].join("\n")
+      Text.joinLines([
+        ...GENERATED_FILE_BANNER,
+        "",
+        `export const ALLOWLIST_SNAPSHOT = ${serializedSnapshot} as const;`,
+        "",
+      ])
     )
   );
 

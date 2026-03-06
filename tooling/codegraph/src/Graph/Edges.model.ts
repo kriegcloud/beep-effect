@@ -1,5 +1,5 @@
 import { $CodegraphId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit } from "@beep/schema";
 import { Tuple } from "effect";
 import * as S from "effect/Schema";
 
@@ -142,7 +142,7 @@ export class ContainsEdge extends GraphEdgeBase.extend<ContainsEdge>($I`Contains
 export class ImportsEdge extends GraphEdgeBase.extend<ImportsEdge>($I`ImportsEdge`)(
   {
     type: S.tag("IMPORTS"),
-    specifiers: S.Array(S.String),
+    specifiers: ArrayOfStrings,
     isDefault: S.Boolean,
     isDynamic: S.Boolean,
   },
@@ -241,7 +241,7 @@ export class DependsOnEdge extends GraphEdgeBase.extend<DependsOnEdge>($I`Depend
 export class HandlesEdge extends GraphEdgeBase.extend<HandlesEdge>($I`HandlesEdge`)(
   {
     type: S.tag("HANDLES"),
-    middleware: S.Array(S.String),
+    middleware: ArrayOfStrings,
   },
   $I.annote("HandlesEdge", {
     description: "Edge describing a handler relationship.",

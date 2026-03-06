@@ -1,8 +1,7 @@
 import { CommaSeparatedList } from "@beep/schema";
-import { Text } from "@beep/utils";
+import { Struct, Text } from "@beep/utils";
 import { Effect, Redacted, String as Str } from "effect";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 /**
@@ -61,7 +60,7 @@ export const buildAuthEnv = (
   return authEnvEntries.length > 0
     ? {
         ...processEnv,
-        ...R.fromEntries(authEnvEntries),
+        ...Struct.fromEntries(authEnvEntries),
       }
     : undefined;
 };

@@ -23,7 +23,6 @@
     "jsonc-parser": "catalog:",
     "effect": "catalog:",
     "@effect/platform-node": "catalog:",
-    "@beep/schema": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^"
   },

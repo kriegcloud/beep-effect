@@ -4,11 +4,12 @@ import {
   SidecarInternalError,
   SidecarNotFound,
 } from "@beep/runtime-protocol";
+import { Struct } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import type * as S from "effect/Schema";
 
 const getHttpStatus = (schema: S.Top): number | undefined =>
-  schema.ast.annotations?.httpApiStatus as number | undefined;
+  Struct.dotGet(schema, ["ast", "annotations", "httpApiStatus"] as const) as number | undefined;
 
 describe("runtime protocol", () => {
   it("preserves explicit HTTP status annotations on control-plane schemas", () => {

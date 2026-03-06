@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
 import { Effect, FileSystem, identity, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -92,8 +92,8 @@ class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
 class WorkflowDocument extends S.Class<WorkflowDocument>($I`WorkflowDocument`)(
   {
     jobs: S.Record(S.String, WorkflowJob).pipe(
-      S.withConstructorDefault(() => O.some({})),
-      S.withDecodingDefault(() => ({}))
+      S.withConstructorDefault(thunkSomeEmptyRecord<string, WorkflowJob>),
+      S.withDecodingDefault(thunkEmptyRecord<string, WorkflowJob>)
     ),
   },
   $I.annote("WorkflowDocument", {

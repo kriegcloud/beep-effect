@@ -7,6 +7,10 @@
  * @since 0.0.0
  * @module
  */
+import { $RepoUtilsId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $RepoUtilsId.create("schemas/WorkspaceDeps");
 
 /**
  * A record mapping package names to version specifiers.
@@ -14,7 +18,31 @@
  * @since 0.0.0
  * @category DomainModel
  */
-export type DependencyRecord = Readonly<Record<string, string>>;
+export const DependencyRecord = S.Record(S.String, S.String).annotate(
+  $I.annote("DependencyRecord", {
+    description: "A mapping of dependency package names to version specifiers.",
+  })
+);
+
+/**
+ * A record mapping package names to version specifiers.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type DependencyRecord = typeof DependencyRecord.Type;
+
+class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`WorkspaceDependencyBuckets`)(
+  {
+    dependencies: DependencyRecord,
+    devDependencies: DependencyRecord,
+    peerDependencies: DependencyRecord,
+    optionalDependencies: DependencyRecord,
+  },
+  $I.annote("WorkspaceDependencyBuckets", {
+    description: "Dependency buckets grouped by dependency kind for either workspace or npm references.",
+  })
+) {}
 
 /**
  * Classified dependencies for a single workspace package.
@@ -26,25 +54,17 @@ export type DependencyRecord = Readonly<Record<string, string>>;
  * @since 0.0.0
  * @category DomainModel
  */
-export interface WorkspaceDeps {
-  /** Dependencies that reference external NPM packages. */
-  readonly npm: {
-    readonly dependencies: DependencyRecord;
-    readonly devDependencies: DependencyRecord;
-    readonly peerDependencies: DependencyRecord;
-    readonly optionalDependencies: DependencyRecord;
-  };
-  /** The package name this dependency set belongs to. */
-  readonly packageName: string;
-
-  /** Dependencies that reference other packages within the monorepo. */
-  readonly workspace: {
-    readonly dependencies: DependencyRecord;
-    readonly devDependencies: DependencyRecord;
-    readonly peerDependencies: DependencyRecord;
-    readonly optionalDependencies: DependencyRecord;
-  };
-}
+export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
+  {
+    npm: WorkspaceDependencyBuckets,
+    packageName: S.String,
+    workspace: WorkspaceDependencyBuckets,
+  },
+  $I.annote("WorkspaceDeps", {
+    description:
+      "Classified dependencies for a workspace package, split into workspace-local and external npm buckets.",
+  })
+) {}
 
 /**
  * Create an empty WorkspaceDeps for a given package name.
@@ -54,18 +74,19 @@ export interface WorkspaceDeps {
  * @since 0.0.0
  * @category DomainModel
  */
-export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps => ({
-  packageName,
-  workspace: {
-    dependencies: {},
-    devDependencies: {},
-    peerDependencies: {},
-    optionalDependencies: {},
-  },
-  npm: {
-    dependencies: {},
-    devDependencies: {},
-    peerDependencies: {},
-    optionalDependencies: {},
-  },
-});
+export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps =>
+  new WorkspaceDeps({
+    packageName,
+    workspace: new WorkspaceDependencyBuckets({
+      dependencies: {},
+      devDependencies: {},
+      peerDependencies: {},
+      optionalDependencies: {},
+    }),
+    npm: new WorkspaceDependencyBuckets({
+      dependencies: {},
+      devDependencies: {},
+      peerDependencies: {},
+      optionalDependencies: {},
+    }),
+  });

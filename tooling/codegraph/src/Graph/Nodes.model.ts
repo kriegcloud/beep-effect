@@ -1,5 +1,5 @@
 import { $CodegraphId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit } from "@beep/schema";
 import { Tuple } from "effect";
 import * as S from "effect/Schema";
 
@@ -148,7 +148,7 @@ export class FunctionNode extends GraphNodeBase.extend<FunctionNode>($I`Function
     isAsync: S.Boolean,
     isExported: S.Boolean,
     isGenerator: S.Boolean,
-    decorators: S.Array(S.String),
+    decorators: ArrayOfStrings,
     confidence: S.Number,
     bodyHash: S.optional(S.String),
   },
@@ -173,10 +173,10 @@ export class ClassNode extends GraphNodeBase.extend<ClassNode>($I`ClassNode`)(
     isExported: S.Boolean,
     isAbstract: S.Boolean,
     superClass: S.optional(S.String),
-    interfaces: S.Array(S.String),
-    decorators: S.Array(S.String),
-    methods: S.Array(S.String),
-    properties: S.Array(S.String),
+    interfaces: ArrayOfStrings,
+    decorators: ArrayOfStrings,
+    methods: ArrayOfStrings,
+    properties: ArrayOfStrings,
     bodyHash: S.optional(S.String),
   },
   $I.annote("ClassNode", {
@@ -236,8 +236,8 @@ export class RouteNode extends GraphNodeBase.extend<RouteNode>($I`RouteNode`)(
     path: S.String,
     handlerName: S.String,
     filePath: S.String,
-    middleware: S.Array(S.String),
-    apiTags: S.optional(S.Array(S.String)),
+    middleware: ArrayOfStrings,
+    apiTags: S.optional(ArrayOfStrings),
     apiSummary: S.optional(S.String),
     apiDescription: S.optional(S.String),
     apiResponseStatus: S.optional(S.Array(S.Number)),
@@ -295,7 +295,7 @@ export class ExternalAPINode extends GraphNodeBase.extend<ExternalAPINode>($I`Ex
     type: S.tag("external_api"),
     name: S.String,
     baseUrl: S.optional(S.String),
-    methods: S.Array(S.String),
+    methods: ArrayOfStrings,
   },
   $I.annote("ExternalAPINode", {
     description: "Graph node representing an external API.",
@@ -408,7 +408,7 @@ export class SpanNode extends GraphNodeBase.extend<SpanNode>($I`SpanNode`)(
     type: S.tag("span"),
     name: S.String,
     spanKind: S.optional(SpanKind),
-    attributes: S.optional(S.Array(S.String)),
+    attributes: S.optional(ArrayOfStrings),
     filePath: S.String,
   },
   $I.annote("SpanNode", {

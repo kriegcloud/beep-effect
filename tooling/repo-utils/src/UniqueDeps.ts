@@ -8,11 +8,15 @@
  * @since 0.0.0
  * @module
  */
+import { $RepoUtilsId } from "@beep/identity/packages";
 import { Effect, MutableHashSet, Order, pipe, Struct } from "effect";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import { buildRepoDependencyIndex } from "./DependencyIndex.js";
 import type { DomainError, NoSuchFileError } from "./errors/index.js";
 import type { FsUtils } from "./FsUtils.js";
+
+const $I = $RepoUtilsId.create("UniqueDeps");
 
 /**
  * Result of collecting unique NPM dependencies across the monorepo.
@@ -20,12 +24,15 @@ import type { FsUtils } from "./FsUtils.js";
  * @since 0.0.0
  * @category DomainModel
  */
-export interface UniqueNpmDeps {
-  /** Sorted array of unique runtime dependency names. */
-  readonly dependencies: ReadonlyArray<string>;
-  /** Sorted array of unique dev dependency names. */
-  readonly devDependencies: ReadonlyArray<string>;
-}
+export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
+  {
+    dependencies: S.Array(S.String),
+    devDependencies: S.Array(S.String),
+  },
+  $I.annote("UniqueNpmDeps", {
+    description: "Sorted runtime and development dependency names aggregated across the monorepo.",
+  })
+) {}
 
 /**
  * Collect all unique external NPM dependency names from every package
@@ -83,10 +90,10 @@ export const collectUniqueNpmDependencies: (
     }
   }
 
-  return {
+  return new UniqueNpmDeps({
     dependencies: sortHashSet(depsSet),
     devDependencies: sortHashSet(devDepsSet),
-  };
+  });
 });
 
 const sortHashSet = (set: MutableHashSet.MutableHashSet<string>) => pipe(set, A.fromIterable, A.sort(Order.String));

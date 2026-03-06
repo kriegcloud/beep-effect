@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { thunkFalse, thunkSomeFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -23,10 +24,7 @@ const $I = $RepoCliId.create("commands/Agents");
  */
 class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptions`)(
   {
-    strict: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
+    strict: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
   },
   $I.annote("AgentsCheckOptions", {
     description: "Resolved options for agents check command.",

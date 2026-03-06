@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { FilePath, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { withToolInput } from "./Annotations.js";
 
@@ -35,7 +35,7 @@ export type AgentInput = typeof AgentInput.Type;
 export type AgentInputEncoded = typeof AgentInput.Encoded;
 
 const SimulatedSedEdit = S.Struct({
-  filePath: S.String,
+  filePath: FilePath,
   newContent: S.String,
 });
 
@@ -124,7 +124,7 @@ export type ExitPlanModeInputEncoded = typeof ExitPlanModeInput.Encoded;
  */
 export const FileEditInput = withToolInput(
   S.Struct({
-    file_path: S.String,
+    file_path: FilePath,
     old_string: S.String,
     new_string: S.String,
     replace_all: S.optional(S.Boolean),
@@ -148,7 +148,7 @@ export type FileEditInputEncoded = typeof FileEditInput.Encoded;
  */
 export const FileReadInput = withToolInput(
   S.Struct({
-    file_path: S.String,
+    file_path: FilePath,
     offset: S.optional(S.Number),
     limit: S.optional(S.Number),
   }),
@@ -171,7 +171,7 @@ export type FileReadInputEncoded = typeof FileReadInput.Encoded;
  */
 export const FileWriteInput = withToolInput(
   S.Struct({
-    file_path: S.String,
+    file_path: FilePath,
     content: S.String,
   }),
   $I.annote("FileWriteInput", {
@@ -314,7 +314,7 @@ const NotebookEditMode = LiteralKit(["replace", "insert", "delete"]);
  */
 export const NotebookEditInput = withToolInput(
   S.Struct({
-    notebook_path: S.String,
+    notebook_path: FilePath,
     cell_id: S.optional(S.String),
     new_source: S.String,
     cell_type: S.optional(NotebookCellType),

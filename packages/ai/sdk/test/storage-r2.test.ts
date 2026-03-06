@@ -2,6 +2,7 @@ import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
 import { expect, test } from "@effect/vitest";
 import { Effect } from "effect";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { runEffectLive } from "./effect-test.js";
 
 const makeMockR2Bucket = (data: Record<string, string> = {}): R2Bucket => ({
   put: async (key, value) => {
@@ -50,7 +51,7 @@ test("R2 get/set/remove round-trip", async () => {
     const after = yield* kv.get("key1");
     expect(after).toBeUndefined();
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
+  await runEffectLive(program.pipe(Effect.provide(layerR2(bucket))));
 });
 
 test("R2 has uses head (not get)", async () => {
@@ -73,7 +74,7 @@ test("R2 has uses head (not get)", async () => {
     const result = yield* kv.has("existing");
     expect(result).toBe(true);
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
+  await runEffectLive(program.pipe(Effect.provide(layerR2(bucket))));
   expect(headCalled).toBe(true);
   expect(getCalled).toBe(false);
 });
@@ -92,7 +93,7 @@ test("R2 size paginates correctly", async () => {
     const size = yield* kv.size;
     expect(size).toBe(5);
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
+  await runEffectLive(program.pipe(Effect.provide(layerR2(bucket))));
 });
 
 test("R2 clear deletes all keys", async () => {
@@ -104,7 +105,7 @@ test("R2 clear deletes all keys", async () => {
     const empty = yield* kv.isEmpty;
     expect(empty).toBe(true);
   });
-  await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
+  await runEffectLive(program.pipe(Effect.provide(layerR2(bucket))));
 });
 
 test("R2 set retries transient errors with backoff", async () => {
@@ -125,7 +126,7 @@ test("R2 set retries transient errors with backoff", async () => {
     return yield* kv.get("retry-key");
   });
 
-  const value = await Effect.runPromise(program.pipe(Effect.provide(layerR2(bucket))));
+  const value = await runEffectLive(program.pipe(Effect.provide(layerR2(bucket))));
   expect(value).toBe("retry-value");
   expect(attempts).toBe(3);
 });

@@ -4,6 +4,7 @@ import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { runEffect } from "./effect-test.js";
 
 test("SessionIndexStore memory tracks sessions", async () => {
   const program = Effect.gen(function* () {
@@ -13,7 +14,7 @@ test("SessionIndexStore memory tracks sessions", async () => {
     return yield* index.listIds();
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const ids = await Effect.runPromise(program);
+  const ids = await runEffect(program);
   expect(ids).toEqual(["session-1", "session-2"]);
 });
 
@@ -29,7 +30,7 @@ test("SessionIndexStore key value store tracks sessions", async () => {
     return yield* index.listIds();
   }).pipe(Effect.provide(layer));
 
-  const ids = await Effect.runPromise(program);
+  const ids = await runEffect(program);
   expect(ids).toEqual(["session-1", "session-2"]);
 });
 
@@ -48,7 +49,7 @@ test("SessionIndexStore orders and paginates by cursor", async () => {
     return { ordered, next };
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.ordered[0]?.sessionId).toBe("session-2");
   expect(result.next.map((meta) => meta.sessionId)).toEqual(["session-1"]);
 });
@@ -76,7 +77,7 @@ test("SessionIndexStore listPage returns next cursor", async () => {
     return { first, second };
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.first.items.map((meta) => meta.sessionId)).toEqual(["session-2"]);
   expect(result.second.items.map((meta) => meta.sessionId)).toEqual(["session-1"]);
 });
@@ -89,7 +90,7 @@ test("SessionIndexStore listPage omits next cursor on final page", async () => {
     return yield* index.listPage({ orderBy: "updatedAt", direction: "desc", limit: 2 });
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.items.map((meta) => meta.sessionId)).toEqual(["session-2", "session-1"]);
   expect(result.nextCursor).toBeUndefined();
 });
@@ -118,7 +119,7 @@ test("SessionIndexStore orders by createdAt asc", async () => {
     return { first, second };
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.first.items.map((meta) => meta.sessionId)).toEqual(["session-1", "session-2"]);
   expect(result.second.items.map((meta) => meta.sessionId)).toEqual(["session-3"]);
   expect(result.second.nextCursor).toBeUndefined();
@@ -136,7 +137,7 @@ test("SessionIndexStore applies default limit without StorageConfig", async () =
     return { first, second };
   }).pipe(Effect.provide(Storage.SessionIndexStore.layerMemory));
 
-  const result = await Effect.runPromise(program);
+  const result = await runEffect(program);
   expect(result.first.items.length).toBe(Storage.defaultIndexPageSize);
   expect(result.first.nextCursor).toBeDefined();
   expect(result.second.items.length).toBe(1);
@@ -158,6 +159,6 @@ test("ChatHistoryStore updates SessionIndexStore when provided", async () => {
     return yield* index.listIds();
   }).pipe(Effect.provide(Layer.mergeAll(sessionIndexLayer, chatLayer)));
 
-  const ids = await Effect.runPromise(program);
+  const ids = await runEffect(program);
   expect(ids).toEqual(["session-1"]);
 });

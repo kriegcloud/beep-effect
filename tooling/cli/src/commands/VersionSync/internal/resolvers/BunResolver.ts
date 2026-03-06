@@ -9,7 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { thunkEmptyStr } from "@beep/utils";
+import { A as CommonArray, thunkEmptyStr } from "@beep/utils";
 import { Boolean as Bool, Effect, FileSystem, Inspectable, identity, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -242,10 +242,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
     );
   }
 
-  const hasDrift = A.match(items, {
-    onEmpty: () => false,
-    onNonEmpty: () => true,
-  });
+  const hasDrift = CommonArray.matchToBoolean(items);
   const hasInternalMismatch = state.bunVersionFile !== state.packageManagerField;
 
   return VersionCategoryReport.cases.bun.makeUnsafe({

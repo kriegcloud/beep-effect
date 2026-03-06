@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { FilePath, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { SdkBeta, SdkPluginConfig } from "./Common.js";
 import { HookCallbackMatcher, HookEvent } from "./Hooks.js";
@@ -190,7 +190,7 @@ export const Options = S.Struct({
   continue: S.optional(S.Boolean),
   cwd: S.optional(S.String),
   debug: S.optional(S.Boolean),
-  debugFile: S.optional(S.String),
+  debugFile: S.optional(FilePath),
   disallowedTools: S.optional(S.Array(S.String)),
   effort: S.optional(LiteralKit(["low", "medium", "high", "max"])),
   enableFileCheckpointing: S.optional(S.Boolean),
@@ -207,7 +207,7 @@ export const Options = S.Struct({
   mcpServers: S.optional(S.Record(S.String, McpServerConfig)),
   model: S.optional(S.String),
   outputFormat: S.optional(OutputFormat),
-  pathToClaudeCodeExecutable: S.optional(S.String),
+  pathToClaudeCodeExecutable: S.optional(FilePath),
   permissionMode: S.optional(PermissionMode),
   permissionPromptToolName: S.optional(S.String),
   persistSession: S.optional(S.Boolean),

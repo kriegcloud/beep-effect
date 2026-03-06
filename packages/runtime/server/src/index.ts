@@ -351,6 +351,27 @@ const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Addre
   });
 };
 
+const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLine")(function* (
+  config: SidecarRuntimeConfig,
+  startedAt: DateTime.Utc
+) {
+  const bootstrap = {
+    type: "bootstrap" as const,
+    sessionId: config.sessionId,
+    version: config.version,
+    host: config.host,
+    port: config.port,
+    baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
+    pid: process.pid,
+    status: "healthy" as const,
+    startedAt: DateTime.toEpochMillis(startedAt),
+  };
+
+  yield* Effect.sync(() => {
+    process.stdout.write(`${JSON.stringify(bootstrap)}\n`);
+  });
+});
+
 const makeRpcHandlersLayer = () => {
   const internalWorkflowRpcGroup = WorkflowProxy.toRpcGroup(RepoRunWorkflows, {
     prefix: "InternalRepoRun",
@@ -635,6 +656,7 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
     Effect.gen(function* () {
       yield* Effect.annotateCurrentSpan(runtimeAnnotations);
 
+      const startedAt = yield* DateTime.now;
       const shutdownRequested = yield* Ref.make(false);
       const shutdownDeferred = yield* Deferred.make<void>();
 
@@ -671,6 +693,7 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
       const serverFiber = yield* launchSidecar(config).pipe(Effect.forkScoped);
       const advertisedHost = internalRunnerHost(config.host);
 
+      yield* emitBootstrapStdoutLine(config, startedAt);
       yield* Effect.logInfo({
         message: "repo-memory sidecar listening",
         base_url: `http://${advertisedHost}:${config.port}`,

@@ -1,9 +1,24 @@
-import { RepoMemoryClient, RepoMemoryClientConfig, RepoMemoryClientError } from "@beep/repo-memory-client";
-import { SidecarBootstrap } from "@beep/runtime-protocol";
+import {
+  type QueryRepoRunInput,
+  type RepoRegistrationInput,
+  RunId,
+  SidecarBootstrap,
+  StreamRunEventsRequest,
+} from "@beep/runtime-protocol";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import {
+  makeRepoMemoryClient,
+  makeRepoMemoryHttpClientDefault,
+  makeRepoMemoryRpcClient,
+  makeRepoMemoryRpcUrl,
+  normalizeSidecarBaseUrl,
+  RepoMemoryClient,
+  RepoMemoryClientConfig,
+  RepoMemoryClientError,
+} from "../src/index.ts";
 
 const clientError = () =>
   new RepoMemoryClientError({
@@ -11,6 +26,8 @@ const clientError = () =>
     status: 500,
     cause: O.none(),
   });
+
+const decodeRunId = S.decodeUnknownSync(RunId);
 
 describe("repo-memory client", () => {
   it("decodes client configuration", () => {
@@ -23,6 +40,15 @@ describe("repo-memory client", () => {
     expect(config.sessionId).toBe("session:test");
   });
 
+  it("normalizes root and control-plane sidecar URLs", () => {
+    expect(normalizeSidecarBaseUrl("http://127.0.0.1:8788")).toBe("http://127.0.0.1:8788");
+    expect(normalizeSidecarBaseUrl("http://127.0.0.1:8788/")).toBe("http://127.0.0.1:8788");
+    expect(normalizeSidecarBaseUrl("http://127.0.0.1:8788/api/v0")).toBe("http://127.0.0.1:8788");
+    expect(normalizeSidecarBaseUrl("http://127.0.0.1:8788/api/v0/")).toBe("http://127.0.0.1:8788");
+    expect(normalizeSidecarBaseUrl(new URL("http://127.0.0.1:8788/api/v0/"))).toBe("http://127.0.0.1:8788");
+    expect(makeRepoMemoryRpcUrl("http://127.0.0.1:8788/api/v0")).toBe("http://127.0.0.1:8788/api/v0/rpc");
+  });
+
   it("constructs typed client errors", () => {
     const error = clientError();
 
@@ -30,25 +56,108 @@ describe("repo-memory client", () => {
     expect(error.message).toBe("boom");
   });
 
-  it.effect("provides the client service tag", () =>
+  it.effect("provides the expanded client service tag", () =>
     Effect.gen(function* () {
       const client = yield* RepoMemoryClient;
       const repos = yield* client.listRepos;
       const runs = yield* client.listRuns;
+      const bootstrap = yield* Effect.flip(client.bootstrap);
 
       expect(repos).toEqual([]);
       expect(runs).toEqual([]);
+      expect(bootstrap._tag).toBe("RepoMemoryClientError");
+      expect(typeof client.getRun).toBe("function");
+      expect(typeof client.registerRepo).toBe("function");
+      expect(typeof client.startIndexRun).toBe("function");
+      expect(typeof client.startQueryRun).toBe("function");
+      expect(typeof client.streamRunEvents).toBe("function");
     }).pipe(
       Effect.provide(
         Layer.succeed(RepoMemoryClient)(
           RepoMemoryClient.of({
             bootstrap: Effect.fail(clientError()),
+            getRun: () => Effect.fail(clientError()),
             listRepos: Effect.succeed([]),
             listRuns: Effect.succeed([]),
+            registerRepo: (_input: RepoRegistrationInput) => Effect.fail(clientError()),
+            startIndexRun: () => Effect.fail(clientError()),
+            startQueryRun: (_input: QueryRepoRunInput) => Effect.fail(clientError()),
+            streamRunEvents: () => Stream.fail(clientError()),
           })
         )
       )
     )
+  );
+
+  it.effect("constructs protocol clients and the composed boundary without issuing requests", () =>
+    Effect.gen(function* () {
+      const controlPlane = yield* makeRepoMemoryHttpClientDefault({
+        baseUrl: "http://127.0.0.1:8788/api/v0",
+      });
+      const rpc = yield* makeRepoMemoryRpcClient({
+        baseUrl: "http://127.0.0.1:8788/api/v0",
+      });
+      const client = yield* makeRepoMemoryClient(
+        new RepoMemoryClientConfig({
+          baseUrl: "http://127.0.0.1:8788/api/v0",
+          sessionId: "session:test",
+        })
+      );
+
+      expect(typeof controlPlane.health).toBe("function");
+      expect(typeof controlPlane.listRepos).toBe("function");
+      expect(typeof controlPlane.registerRepo).toBe("function");
+      expect(typeof controlPlane.listRuns).toBe("function");
+      expect(typeof controlPlane.getRun).toBe("function");
+      expect(typeof rpc.StartIndexRepoRun).toBe("function");
+      expect(typeof rpc.StartQueryRepoRun).toBe("function");
+      expect(typeof rpc.StreamRunEvents).toBe("function");
+      expect(typeof client.bootstrap).toBe("object");
+      expect(typeof client.registerRepo).toBe("function");
+      expect(typeof client.streamRunEvents).toBe("function");
+    }).pipe(Effect.scoped)
+  );
+
+  it.effect("maps invalid client-side bootstrap failures into a stable typed error", () =>
+    Effect.gen(function* () {
+      const client = yield* makeRepoMemoryClient(
+        new RepoMemoryClientConfig({
+          baseUrl: "://repo-memory",
+          sessionId: "session:test",
+        })
+      );
+      const error = yield* Effect.flip(client.bootstrap);
+
+      expect(error._tag).toBe("RepoMemoryClientError");
+      expect(error.message).toBe("Failed to load sidecar bootstrap.");
+      expect(error.status).toBe(500);
+    }).pipe(Effect.scoped)
+  );
+
+  it.effect("maps invalid stream transport failures into a stable typed error", () =>
+    Effect.gen(function* () {
+      const client = yield* makeRepoMemoryClient(
+        new RepoMemoryClientConfig({
+          baseUrl: "://repo-memory",
+          sessionId: "session:test",
+        })
+      );
+      const runId = decodeRunId("run:client:stream");
+      const error = yield* Effect.flip(
+        Stream.runDrain(
+          client.streamRunEvents(
+            new StreamRunEventsRequest({
+              runId,
+              cursor: O.none(),
+            })
+          )
+        )
+      );
+
+      expect(error._tag).toBe("RepoMemoryClientError");
+      expect(error.message).toBe(`Failed to stream run events for "${runId}".`);
+      expect(error.status).toBe(500);
+    }).pipe(Effect.scoped)
   );
 
   it("keeps bootstrap decoding aligned with the transport schema", () => {

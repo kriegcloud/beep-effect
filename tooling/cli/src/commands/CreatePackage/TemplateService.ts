@@ -7,8 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { thunkEmptyStr } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, SchemaTransformation, ServiceMap, String as Str } from "effect";
+import { Str as CommonStr, thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
+import { Effect, FileSystem, flow, identity, SchemaTransformation, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import Handlebars from "handlebars";
@@ -58,8 +58,8 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
     templateDir: S.String,
     templates: S.Array(TemplateSpec),
     context: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(() => O.some({})),
-      S.withDecodingDefault(() => ({}))
+      S.withConstructorDefault(thunkSomeEmptyRecord<string, unknown>),
+      S.withDecodingDefault(thunkEmptyRecord<string, unknown>)
     ),
   },
   $I.annote("TemplateRenderRequest", {
@@ -112,10 +112,10 @@ const toHelperValue = (value: unknown): string => decodeTemplateHelperString(val
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
 
-  hbs.registerHelper("camelCase", flow(toHelperValue, Str.camelCase));
-  hbs.registerHelper("pascalCase", flow(toHelperValue, Str.pascalCase));
-  hbs.registerHelper("kebabCase", flow(toHelperValue, Str.kebabCase));
-  hbs.registerHelper("snakeCase", flow(toHelperValue, Str.snakeCase));
+  hbs.registerHelper("camelCase", flow(toHelperValue, CommonStr.camelCase));
+  hbs.registerHelper("pascalCase", flow(toHelperValue, CommonStr.pascalCase));
+  hbs.registerHelper("kebabCase", flow(toHelperValue, CommonStr.kebabCase));
+  hbs.registerHelper("snakeCase", flow(toHelperValue, CommonStr.snakeCase));
 
   return hbs;
 };

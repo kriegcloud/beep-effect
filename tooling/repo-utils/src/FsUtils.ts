@@ -24,16 +24,17 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
  * @since 0.0.0
  * @category DomainModel
  */
-export interface GlobOptions {
-  /** Return absolute paths. Defaults to `false`. */
-  readonly absolute?: boolean | undefined;
-  /** The working directory for the glob pattern. Defaults to `process.cwd()`. */
-  readonly cwd?: string | undefined;
-  /** Include dotfiles in results. Defaults to `false`. */
-  readonly dot?: boolean | undefined;
-  /** Glob patterns to exclude from results. */
-  readonly ignore?: string | string[] | undefined;
-}
+export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
+  {
+    absolute: S.optionalKey(S.Boolean),
+    cwd: S.optionalKey(S.String),
+    dot: S.optionalKey(S.Boolean),
+    ignore: S.optionalKey(S.Union([S.String, S.Array(S.String)])),
+  },
+  $I.annote("GlobOptions", {
+    description: "Optional glob matching controls used by FsUtils path queries.",
+  })
+) {}
 
 /**
  * Shape of the FsUtils service.

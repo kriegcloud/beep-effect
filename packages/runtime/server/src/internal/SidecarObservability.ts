@@ -50,7 +50,6 @@ const devtoolsSpanPrefixes = [
 ] as const;
 
 const currentTimeMillis = DateTime.now.pipe(Effect.map(DateTime.toEpochMillis));
-const isNonEmptyString = (value: string): boolean => Str.length(value) > 0;
 
 const metricAttributes = (attributes: Record<string, string>) => attributes;
 
@@ -61,7 +60,7 @@ const otelEnv = (name: string): string | undefined => {
   }
 
   const normalized = pipe(value, Str.trim);
-  return isNonEmptyString(normalized) ? normalized : undefined;
+  return Str.isNonEmpty(normalized) ? normalized : undefined;
 };
 
 const parseResourceAttributes = (): Record<string, string> => {
@@ -82,7 +81,7 @@ const parseResourceAttributes = (): Record<string, string> => {
       const key = pipe(pair, Str.slice(0, separatorIndex), Str.trim);
       const value = pipe(pair, Str.slice(separatorIndex + 1), Str.trim);
 
-      if (!isNonEmptyString(key) || !isNonEmptyString(value)) {
+      if (!Str.isNonEmpty(key) || !Str.isNonEmpty(value)) {
         return attributes;
       }
 

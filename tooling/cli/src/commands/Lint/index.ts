@@ -14,6 +14,7 @@ import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import madge from "madge";
+import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
 const $I = $RepoCliId.create("commands/Lint");
 
@@ -393,10 +394,16 @@ export const lintCommand = Command.make(
   Effect.fn(function* () {
     yield* Console.log("Lint commands:");
     yield* Console.log("- bun run beep lint circular");
+    yield* Console.log("- bun run beep lint schema-first");
     yield* Console.log("- bun run beep lint tooling-tagged-errors");
     yield* Console.log("- bun run beep lint tooling-schema-first");
   })
 ).pipe(
   Command.withDescription("Repository lint policy checks"),
-  Command.withSubcommands([lintCircularCommand, lintToolingTaggedErrorsCommand, lintToolingSchemaFirstCommand])
+  Command.withSubcommands([
+    lintCircularCommand,
+    lintSchemaFirstCommand,
+    lintToolingTaggedErrorsCommand,
+    lintToolingSchemaFirstCommand,
+  ])
 );

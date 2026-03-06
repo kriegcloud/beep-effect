@@ -1,100 +1,182 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Config, Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { layerConfigFromEnv } from "../internal/config.js";
 
 const $I = $AiSdkId.create("core/Storage/StorageConfig");
+const StorageDuration = S.DurationFromMillis.annotate(
+  $I.annote("StorageDuration", {
+    description: "Runtime duration value used by storage configuration after config decoding.",
+  })
+);
 
 /**
  * @since 0.0.0
  */
-export type StorageConfigData = {
-  readonly enabled: {
-    readonly chatHistory: boolean;
-    readonly artifacts: boolean;
-    readonly auditLog: boolean;
-  };
-  readonly retention: {
-    readonly chat: {
-      readonly maxEvents: number;
-      readonly maxAge: Duration.Duration;
-    };
-    readonly artifacts: {
-      readonly maxArtifacts: number;
-      readonly maxArtifactBytes: number;
-      readonly maxAge: Duration.Duration;
-    };
-    readonly audit: {
-      readonly maxEntries: number;
-      readonly maxAge: Duration.Duration;
-    };
-  };
-  readonly pagination: {
-    readonly chatPageSize: number;
-    readonly artifactPageSize: number;
-  };
-  readonly kv: {
-    readonly indexPageSize: number;
-  };
-  readonly cleanup: {
-    readonly enabled: boolean;
-    readonly interval: Duration.Duration;
-    readonly runOnStart: boolean;
-  };
-  readonly sync: {
-    readonly interval: Duration.Duration;
-  };
-};
+class StorageEnabledConfig extends S.Class<StorageEnabledConfig>($I`StorageEnabledConfig`)(
+  {
+    chatHistory: S.Boolean,
+    artifacts: S.Boolean,
+    auditLog: S.Boolean,
+  },
+  $I.annote("StorageEnabledConfig", {
+    description: "Feature toggles controlling storage subsystems.",
+  })
+) {}
+
+class StorageChatRetention extends S.Class<StorageChatRetention>($I`StorageChatRetention`)(
+  {
+    maxEvents: S.Number,
+    maxAge: StorageDuration,
+  },
+  $I.annote("StorageChatRetention", {
+    description: "Retention limits applied to stored chat history events.",
+  })
+) {}
+
+class StorageArtifactRetention extends S.Class<StorageArtifactRetention>($I`StorageArtifactRetention`)(
+  {
+    maxArtifacts: S.Number,
+    maxArtifactBytes: S.Number,
+    maxAge: StorageDuration,
+  },
+  $I.annote("StorageArtifactRetention", {
+    description: "Retention limits applied to persisted artifacts.",
+  })
+) {}
+
+class StorageAuditRetention extends S.Class<StorageAuditRetention>($I`StorageAuditRetention`)(
+  {
+    maxEntries: S.Number,
+    maxAge: StorageDuration,
+  },
+  $I.annote("StorageAuditRetention", {
+    description: "Retention limits applied to persisted audit log entries.",
+  })
+) {}
+
+class StorageRetentionConfig extends S.Class<StorageRetentionConfig>($I`StorageRetentionConfig`)(
+  {
+    chat: StorageChatRetention,
+    artifacts: StorageArtifactRetention,
+    audit: StorageAuditRetention,
+  },
+  $I.annote("StorageRetentionConfig", {
+    description: "Retention settings grouped by storage domain.",
+  })
+) {}
+
+class StoragePaginationConfig extends S.Class<StoragePaginationConfig>($I`StoragePaginationConfig`)(
+  {
+    chatPageSize: S.Number,
+    artifactPageSize: S.Number,
+  },
+  $I.annote("StoragePaginationConfig", {
+    description: "Pagination settings for storage list APIs.",
+  })
+) {}
+
+class StorageKvConfig extends S.Class<StorageKvConfig>($I`StorageKvConfig`)(
+  {
+    indexPageSize: S.Number,
+  },
+  $I.annote("StorageKvConfig", {
+    description: "Key-value store tuning values for storage indexes.",
+  })
+) {}
+
+class StorageCleanupConfig extends S.Class<StorageCleanupConfig>($I`StorageCleanupConfig`)(
+  {
+    enabled: S.Boolean,
+    interval: StorageDuration,
+    runOnStart: S.Boolean,
+  },
+  $I.annote("StorageCleanupConfig", {
+    description: "Background cleanup configuration for storage maintenance.",
+  })
+) {}
+
+class StorageSyncConfig extends S.Class<StorageSyncConfig>($I`StorageSyncConfig`)(
+  {
+    interval: StorageDuration,
+  },
+  $I.annote("StorageSyncConfig", {
+    description: "Storage synchronization cadence settings.",
+  })
+) {}
 
 /**
  * @since 0.0.0
  */
-export type StorageConfigSettings = {
-  readonly settings: StorageConfigData;
-};
+export class StorageConfigData extends S.Class<StorageConfigData>($I`StorageConfigData`)(
+  {
+    enabled: StorageEnabledConfig,
+    retention: StorageRetentionConfig,
+    pagination: StoragePaginationConfig,
+    kv: StorageKvConfig,
+    cleanup: StorageCleanupConfig,
+    sync: StorageSyncConfig,
+  },
+  $I.annote("StorageConfigData", {
+    description: "Fully resolved runtime storage configuration data.",
+  })
+) {}
 
 /**
  * @since 0.0.0
  */
-export interface StorageConfigShape extends StorageConfigSettings {}
+export class StorageConfigSettings extends S.Class<StorageConfigSettings>($I`StorageConfigSettings`)(
+  {
+    settings: StorageConfigData,
+  },
+  $I.annote("StorageConfigSettings", {
+    description: "StorageConfig service payload containing resolved storage settings.",
+  })
+) {}
 
-const defaultSettings: StorageConfigData = {
-  enabled: {
+/**
+ * @since 0.0.0
+ */
+export type StorageConfigShape = StorageConfigSettings;
+
+const defaultSettings = new StorageConfigData({
+  enabled: new StorageEnabledConfig({
     chatHistory: true,
     artifacts: true,
     auditLog: false,
-  },
-  retention: {
-    chat: {
+  }),
+  retention: new StorageRetentionConfig({
+    chat: new StorageChatRetention({
       maxEvents: 10_000,
       maxAge: Duration.days(30),
-    },
-    artifacts: {
+    }),
+    artifacts: new StorageArtifactRetention({
       maxArtifacts: 5_000,
       maxArtifactBytes: 500_000_000,
       maxAge: Duration.days(90),
-    },
-    audit: {
+    }),
+    audit: new StorageAuditRetention({
       maxEntries: 100_000,
       maxAge: Duration.days(180),
-    },
-  },
-  pagination: {
+    }),
+  }),
+  pagination: new StoragePaginationConfig({
     chatPageSize: 100,
     artifactPageSize: 100,
-  },
-  kv: {
+  }),
+  kv: new StorageKvConfig({
     indexPageSize: 500,
-  },
-  cleanup: {
+  }),
+  cleanup: new StorageCleanupConfig({
     enabled: true,
     interval: Duration.hours(1),
     runOnStart: false,
-  },
-  sync: {
+  }),
+  sync: new StorageSyncConfig({
     interval: Duration.millis(0),
-  },
-};
+  }),
+});
 const thunkFallback =
   <T>(fallback: T) =>
   () =>
@@ -131,45 +213,45 @@ const makeStorageConfig = Effect.gen(function* () {
   const cleanupRunOnStart = yield* Config.option(Config.boolean("STORAGE_CLEANUP_RUN_ON_START"));
   const syncInterval = yield* Config.option(Config.duration("STORAGE_SYNC_INTERVAL"));
 
-  const settings: StorageConfigData = {
-    enabled: {
+  const settings = new StorageConfigData({
+    enabled: new StorageEnabledConfig({
       chatHistory: normalizeBoolean(chatEnabled, defaultSettings.enabled.chatHistory),
       artifacts: normalizeBoolean(artifactsEnabled, defaultSettings.enabled.artifacts),
       auditLog: normalizeBoolean(auditEnabled, defaultSettings.enabled.auditLog),
-    },
-    retention: {
-      chat: {
+    }),
+    retention: new StorageRetentionConfig({
+      chat: new StorageChatRetention({
         maxEvents: normalizeNumber(chatMaxEvents, defaultSettings.retention.chat.maxEvents, 0),
         maxAge: normalizeDuration(chatMaxAge, defaultSettings.retention.chat.maxAge),
-      },
-      artifacts: {
+      }),
+      artifacts: new StorageArtifactRetention({
         maxArtifacts: normalizeNumber(artifactMaxCount, defaultSettings.retention.artifacts.maxArtifacts, 0),
         maxArtifactBytes: normalizeNumber(artifactMaxBytes, defaultSettings.retention.artifacts.maxArtifactBytes, 0),
         maxAge: normalizeDuration(artifactMaxAge, defaultSettings.retention.artifacts.maxAge),
-      },
-      audit: {
+      }),
+      audit: new StorageAuditRetention({
         maxEntries: normalizeNumber(auditMaxEntries, defaultSettings.retention.audit.maxEntries, 0),
         maxAge: normalizeDuration(auditMaxAge, defaultSettings.retention.audit.maxAge),
-      },
-    },
-    pagination: {
+      }),
+    }),
+    pagination: new StoragePaginationConfig({
       chatPageSize: normalizeNumber(chatPageSize, defaultSettings.pagination.chatPageSize, 1),
       artifactPageSize: normalizeNumber(artifactPageSize, defaultSettings.pagination.artifactPageSize, 1),
-    },
-    kv: {
+    }),
+    kv: new StorageKvConfig({
       indexPageSize: normalizeNumber(indexPageSize, defaultSettings.kv.indexPageSize, 1),
-    },
-    cleanup: {
+    }),
+    cleanup: new StorageCleanupConfig({
       enabled: normalizeBoolean(cleanupEnabled, defaultSettings.cleanup.enabled),
       interval: normalizeDuration(cleanupInterval, defaultSettings.cleanup.interval),
       runOnStart: normalizeBoolean(cleanupRunOnStart, defaultSettings.cleanup.runOnStart),
-    },
-    sync: {
+    }),
+    sync: new StorageSyncConfig({
       interval: normalizeDuration(syncInterval, defaultSettings.sync.interval),
-    },
-  };
+    }),
+  });
 
-  return { settings };
+  return new StorageConfigSettings({ settings });
 });
 // export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
 //  Effect.Effect<, Config.ConfigError, never>

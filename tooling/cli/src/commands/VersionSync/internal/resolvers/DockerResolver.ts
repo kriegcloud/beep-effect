@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
 import {
   Boolean as Bool,
   Effect,
@@ -110,8 +111,8 @@ class DockerComposeService extends S.Class<DockerComposeService>($I`DockerCompos
 class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComposeDocument`)(
   {
     services: S.Record(S.String, DockerComposeService).pipe(
-      S.withConstructorDefault(() => O.some({})),
-      S.withDecodingDefault(() => ({}))
+      S.withConstructorDefault(thunkSomeEmptyRecord<string, DockerComposeService>),
+      S.withDecodingDefault(thunkEmptyRecord<string, DockerComposeService>)
     ),
   },
   $I.annote("DockerComposeDocument", {
@@ -329,7 +330,7 @@ export const resolveDockerImages: (
     const path = yield* Path.Path;
 
     const composePath = path.join(repoRoot, "docker-compose.yml");
-    const composeExists = yield* fs.exists(composePath).pipe(Effect.orElseSucceed(() => false));
+    const composeExists = yield* fs.exists(composePath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (!composeExists) {
       return new DockerImageState({});

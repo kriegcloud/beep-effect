@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue, String as Str } from "effect";
+import { Text, thunkEmptyStr, thunkFalse, thunkSomeEmptyStr, thunkSomeFalse } from "@beep/utils";
+import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -73,18 +73,9 @@ const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocum
  */
 class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($I`EffectImportsCommandOptions`)(
   {
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    exclude: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
-    ),
+    write: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    check: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    exclude: S.String.pipe(S.withConstructorDefault(thunkSomeEmptyStr), S.withDecodingDefault(thunkEmptyStr)),
   },
   $I.annote("EffectImportsCommandOptions", {
     description: "CLI options for effect import law command.",
@@ -99,18 +90,9 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
  */
 class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`TerseEffectCommandOptions`)(
   {
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(() => false)
-    ),
-    exclude: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
-    ),
+    write: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    check: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    exclude: S.String.pipe(S.withConstructorDefault(thunkSomeEmptyStr), S.withDecodingDefault(thunkEmptyStr)),
   },
   $I.annote("TerseEffectCommandOptions", {
     description: "CLI options for terse Effect style command.",
@@ -118,7 +100,7 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
 ) {}
 
 const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>
-  pipe(Str.split(",")(excludeValue), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  Text.splitCommaSeparatedTrimmed(excludeValue);
 
 /**
  * CLI command for effect import style migration/check.

@@ -1,6 +1,7 @@
+import { Text } from "@beep/utils";
 import { ConfigError } from "../Errors.js";
 
-const missingCredentialsMessage = [
+const missingCredentialsMessage = Text.joinLines([
   "Missing API credentials.",
   "",
   "To fix this, choose one:",
@@ -12,7 +13,7 @@ const missingCredentialsMessage = [
   '   { env: { ANTHROPIC_API_KEY: "sk-ant-..." } }',
   "",
   "See: https://docs.anthropic.com/en/docs/quickstart",
-].join("\n");
+]);
 
 /**
  * @since 0.0.0

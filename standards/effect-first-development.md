@@ -94,6 +94,7 @@ const toDisplayName = (rawName: string | null | undefined) =>
 - Prefer `S.decodeUnknownEffect` for effectful paths and `S.decodeUnknownSync` only where sync failure handling is explicit.
 - Never use `JSON.parse` / `JSON.stringify`; use schema JSON codecs (`S.UnknownFromJsonString`, `S.fromJsonString`, `S.decodeUnknown*`, `S.encode*`).
 - Prefer `S.Class` over `S.Struct` for object/domain schemas.
+- Repo-wide outstanding schema-first findings are tracked in `standards/schema-first.inventory.jsonc` and verified by `bun run beep lint schema-first`.
 - Do not name schemas with a `Schema` suffix; schema constants should be named after the domain type.
 - For non-class schemas, export type aliases with the same identifier name as the schema value.
 

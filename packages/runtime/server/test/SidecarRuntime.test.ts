@@ -4,6 +4,7 @@ import { $RuntimeServerId } from "@beep/identity/packages";
 import { RunCursor, RunEventSequence } from "@beep/repo-memory-model";
 import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
+import { Text } from "@beep/utils";
 import * as NodeHttpClient from "@effect/platform-node/NodeHttpClient";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { describe, expect, it } from "@effect/vitest";
@@ -136,7 +137,7 @@ const writeFixtureRepo = (repoPath: FilePath) =>
     yield* fs.makeDirectory(repoSourceDir, { recursive: true });
     yield* fs.writeFileString(
       path.join(repoSourceDir, "index.ts"),
-      [
+      Text.joinLines([
         'import { helper } from "./util";',
         'import type { Thing } from "./types";',
         "",
@@ -146,15 +147,15 @@ const writeFixtureRepo = (repoPath: FilePath) =>
         "  return `hello ${name}`;",
         "}",
         "",
-      ].join("\n")
+      ])
     );
     yield* fs.writeFileString(
       path.join(repoSourceDir, "util.ts"),
-      ["export const helper = (value: number): number => value + 1;", ""].join("\n")
+      Text.joinLines(["export const helper = (value: number): number => value + 1;", ""])
     );
     yield* fs.writeFileString(
       path.join(repoSourceDir, "types.ts"),
-      ["export interface Thing {", "  readonly name: string;", "}", ""].join("\n")
+      Text.joinLines(["export interface Thing {", "  readonly name: string;", "}", ""])
     );
     yield* fs.writeFileString(
       path.join(repoPath, "tsconfig.json"),
@@ -309,6 +310,41 @@ const waitForHealthyBootstrap = (sidecar: SpawnedSidecar) =>
     )
   );
 
+const readBootstrapStdoutLine = (sidecar: SpawnedSidecar) =>
+  Effect.gen(function* () {
+    const stdout = yield* Ref.get(sidecar.stdout);
+    const bootstrapLine = pipe(
+      stdout.split("\n"),
+      A.findFirst((line) => line.includes('"type":"bootstrap"')),
+      O.getOrUndefined
+    );
+
+    if (bootstrapLine === undefined) {
+      return yield* toTestError("Expected a machine-readable bootstrap line on sidecar stdout.");
+    }
+
+    const decoded = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bootstrapLine).pipe(
+      Effect.flatMap(
+        S.decodeUnknownEffect(
+          S.Struct({
+            type: S.Literal("bootstrap"),
+            sessionId: S.String,
+            version: S.String,
+            host: S.String,
+            port: S.Number,
+            baseUrl: S.String,
+            pid: S.Number,
+            status: S.Literal("healthy"),
+            startedAt: S.Number,
+          })
+        )
+      ),
+      Effect.mapError((cause) => toTestError(`Failed to decode bootstrap stdout line: ${bootstrapLine}`, cause))
+    );
+
+    return decoded;
+  });
+
 const expectQueryRun = (run: RepoRun) => {
   if (run.kind !== "query") {
     throw toTestError(`Expected a query run projection, received "${run.kind}".`);
@@ -339,7 +375,12 @@ describe("spawned Bun sidecar lifecycle", () => {
             version: "0.0.0-test",
             otlpEnabled: false,
           });
-          yield* waitForHealthyBootstrap(sidecar);
+          const bootstrap = yield* waitForHealthyBootstrap(sidecar);
+          const stdoutBootstrap = yield* readBootstrapStdoutLine(sidecar);
+
+          expect(stdoutBootstrap.sessionId).toBe(bootstrap.sessionId);
+          expect(stdoutBootstrap.baseUrl).toBe(bootstrap.baseUrl);
+          expect(stdoutBootstrap.port).toBe(bootstrap.port);
 
           const registrationResponse = yield* requestJson(RepoRegistration, `${sidecar.baseUrl}/repos`, {
             body: encodeJson({
@@ -485,6 +526,8 @@ describe("spawned Bun sidecar lifecycle", () => {
             otlpEnabled: false,
           });
           yield* waitForHealthyBootstrap(secondSidecar);
+          const secondBootstrapLine = yield* readBootstrapStdoutLine(secondSidecar);
+          expect(secondBootstrapLine.port).toBe(port);
 
           const restoredQueryRunResponse = yield* requestJson(
             RepoRun,

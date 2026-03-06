@@ -1,13 +1,13 @@
+import { Struct } from "@beep/utils";
 import { type LogLevel, Match } from "effect";
 import * as A from "effect/Array";
-import * as R from "effect/Record";
 import type { QueryEvent } from "../QuerySupervisor.js";
 import type { HookInput } from "../Schema/Hooks.js";
 import type { SDKMessage } from "../Schema/Message.js";
 import type { AgentLogEvent } from "./Types.js";
 
 const compact = (value: Record<string, unknown>) =>
-  R.fromEntries(A.filter(R.toEntries(value), ([, entry]) => entry !== undefined && entry !== null));
+  Struct.fromEntries(A.filter(Struct.entries(value), ([, entry]) => entry !== undefined && entry !== null));
 
 const compactData = (value: Record<string, unknown>) => compact(value);
 

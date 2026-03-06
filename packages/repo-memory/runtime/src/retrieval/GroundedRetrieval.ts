@@ -21,7 +21,7 @@ import {
 } from "@beep/repo-memory-store";
 import { PosInt, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Effect, flow, Layer, Number as N, Order, pipe, ServiceMap, String as Str } from "effect";
+import { DateTime, Effect, Layer, Order, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -37,7 +37,6 @@ const citationOrder = Order.mapInput(
   Order.String,
   (citation: Citation) => `${citation.span.filePath}:${citation.span.startLine}:${citation.label}:${citation.id}`
 );
-const isNonEmptyString = flow(Str.length, N.isGreaterThan(0));
 type GroundedRetrievalStoreShape = RepoSnapshotStoreShape & RepoSymbolStoreShape;
 
 class CountFilesInterpretation extends S.Class<CountFilesInterpretation>($I`CountFilesInterpretation`)(
@@ -298,7 +297,7 @@ const extractSymbolName = (question: string): O.Option<string> =>
         question
       );
     }),
-    O.filter(isNonEmptyString)
+    O.filter(Str.isNonEmpty)
   );
 
 const extractFileQuery = (question: string): O.Option<string> =>
@@ -312,7 +311,7 @@ const extractModuleQuery = (question: string): O.Option<string> =>
   pipe(
     extractBacktickValue(question),
     O.orElse(() => firstCapture(/(?:who|what)\s+imports?\s+([A-Za-z0-9_./@-]+)/i, question)),
-    O.filter(isNonEmptyString)
+    O.filter(Str.isNonEmpty)
   );
 
 const interpretQuery = (question: string): QueryInterpretation => {
@@ -688,7 +687,7 @@ const normalizeModuleSpecifierQuery = (query: string): ReadonlyArray<string> => 
 
   return pipe(
     A.make(normalized, withoutExtension, basename, basenameWithoutExtension),
-    A.filter(isNonEmptyString),
+    A.filter(Str.isNonEmpty),
     A.dedupe
   );
 };

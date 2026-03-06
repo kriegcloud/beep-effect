@@ -18,6 +18,7 @@ import {
 } from "@beep/repo-memory-model";
 import { RepoStoreError } from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
+import { thunk0, thunkEffectSucceedNone, thunkEffectSucceedNull } from "@beep/utils";
 import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -518,7 +519,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     pipe(
       row.js_doc_json,
       O.match({
-        onNone: () => Effect.succeed(O.none<RepoSymbolDocumentation>()),
+        onNone: thunkEffectSucceedNone<RepoSymbolDocumentation>,
         onSome: (json) =>
           decodeDocumentationJson(json).pipe(
             Effect.map(O.some),
@@ -671,7 +672,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       rows,
       A.head,
       O.match({
-        onNone: () => Effect.succeed(O.none()),
+        onNone: thunkEffectSucceedNone<RepoRun>,
         onSome: (row) =>
           decodeRunRow(row).pipe(
             Effect.flatMap(runRowToModel),
@@ -794,7 +795,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         rows,
         A.head,
         O.match({
-          onNone: () => Effect.succeed(O.none()),
+          onNone: thunkEffectSucceedNone<RepoIndexArtifact>,
           onSome: (row) =>
             decodeIndexArtifactRow(row).pipe(
               Effect.map(indexArtifactRowToModel),
@@ -829,7 +830,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       rows,
       A.head,
       O.match({
-        onNone: () => Effect.succeed(O.none()),
+        onNone: thunkEffectSucceedNone<RepoSourceSnapshot>,
         onSome: (row) =>
           decodeSourceSnapshotRow(row).pipe(
             Effect.map(sourceSnapshotRowToModel),
@@ -860,7 +861,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         rows,
         A.head,
         O.map((row) => row.file_count),
-        O.getOrElse(() => 0)
+        O.getOrElse(thunk0)
       );
     }
   );
@@ -1181,7 +1182,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
             const jsDocJson = yield* pipe(
               symbol.documentation,
               O.match({
-                onNone: () => Effect.succeed<string | null>(null),
+                onNone: thunkEffectSucceedNull,
                 onSome: (documentation) =>
                   encodeDocumentationJson(documentation).pipe(
                     Effect.mapError((cause) =>
@@ -1334,7 +1335,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         rows,
         A.head,
         O.match({
-          onNone: () => Effect.succeed(O.none()),
+          onNone: thunkEffectSucceedNone<RetrievalPacket>,
           onSome: (row) =>
             decodePacketRow(row).pipe(
               Effect.flatMap(packetRowToModel),

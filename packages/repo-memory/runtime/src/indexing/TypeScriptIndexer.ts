@@ -23,7 +23,7 @@ import {
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
 import { FilePath, NonNegativeInt, PosInt, Sha256HexFromBytes, TaggedErrorClass } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { Text, thunkEmptyStr } from "@beep/utils";
 import {
   DateTime,
   Effect,
@@ -52,7 +52,6 @@ const decodePosInt = S.decodeUnknownSync(PosInt);
 const decodeSourceSnapshotId = S.decodeUnknownSync(SourceSnapshotId);
 const textEncoder = new TextEncoder();
 const maxDeclarationTextLength = 4000;
-const isNonEmptyString = (value: string): boolean => Str.length(value) > 0;
 const ignoredDirectoryNames = HashSet.fromIterable([
   ".git",
   ".next",
@@ -629,7 +628,7 @@ const extractVariableSymbols = Effect.fn("TypeScriptIndex.extractVariableSymbols
 
   for (const declaration of options.statement.getDeclarations()) {
     const symbolName = pipe(declaration.getName(), Str.trim);
-    if (!isNonEmptyString(symbolName)) {
+    if (!Str.isNonEmpty(symbolName)) {
       continue;
     }
 
@@ -986,7 +985,7 @@ const snapshotIdFromFiles = Effect.fn("TypeScriptIndex.snapshotIdFromFiles")(fun
     files,
     A.sort(Order.mapInput(Order.String, (file: RepoSourceFile) => file.filePath)),
     A.map((file) => `${file.filePath}:${file.contentHash}`),
-    A.join("\n")
+    Text.joinLines
   );
 
   const digest = yield* decodeContentHash(textEncoder.encode(fingerprint)).pipe(

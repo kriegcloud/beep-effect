@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -18,7 +19,7 @@ import { updatePlainTextFile } from "../updaters/PlainTextUpdater.js";
 import { replaceNodeVersionWithFile, updateYamlValue } from "../updaters/YamlFileUpdater.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/UpdateApplierService");
-const VersionCategoryName = S.Literals(["bun", "node", "docker", "biome", "effect"]).annotate(
+const VersionCategoryName = LiteralKit(["bun", "node", "docker", "biome", "effect"]).annotate(
   $I.annote("VersionCategoryName", {
     description: "Supported update categories for write-mode version-sync application.",
   })
