@@ -1,5 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { FilePath, LiteralKit } from "@beep/schema";
 import { Config, type Duration, Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import {
@@ -70,7 +70,7 @@ const makeSessionConfig = Effect.gen(function* () {
   );
 
   const executable = yield* Config.option(Config.schema(LiteralKit(["bun", "node"]), "EXECUTABLE"));
-  const pathToClaudeCodeExecutable = yield* Config.option(Config.string("PATH_TO_CLAUDE_CODE_EXECUTABLE"));
+  const pathToClaudeCodeExecutable = yield* Config.option(Config.schema(FilePath, "PATH_TO_CLAUDE_CODE_EXECUTABLE"));
   const executableArgsValue = yield* Config.option(Config.string("EXECUTABLE_ARGS"));
   const permissionMode = yield* Config.option(Config.schema(SessionPermissionMode, "PERMISSION_MODE"));
   const allowedToolsValue = yield* Config.option(Config.string("ALLOWED_TOOLS"));

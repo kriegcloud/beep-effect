@@ -105,8 +105,18 @@ const signalIdleIfNeeded = (state: SessionState) =>
     : Effect.void;
 
 const normalizeOptions = (options: SDKSessionOptions): SDKSessionOptions => ({
-  ...options,
+  model: options.model,
   executable: options.executable ?? "bun",
+  ...(options.pathToClaudeCodeExecutable !== undefined
+    ? { pathToClaudeCodeExecutable: options.pathToClaudeCodeExecutable }
+    : {}),
+  ...(options.executableArgs !== undefined ? { executableArgs: [...options.executableArgs] } : {}),
+  ...(options.env !== undefined ? { env: options.env } : {}),
+  ...(options.canUseTool !== undefined ? { canUseTool: options.canUseTool } : {}),
+  ...(options.hooks !== undefined ? { hooks: options.hooks } : {}),
+  ...(options.allowedTools !== undefined ? { allowedTools: [...options.allowedTools] } : {}),
+  ...(options.disallowedTools !== undefined ? { disallowedTools: [...options.disallowedTools] } : {}),
+  ...(options.permissionMode !== undefined ? { permissionMode: options.permissionMode } : {}),
 });
 
 const markSessionId = (deferred: Deferred.Deferred<string, SessionClosedError>, message: SDKMessage) =>
@@ -326,7 +336,7 @@ const createSessionEffect = Effect.fn("Session.createSession")(function* (
 ) {
   const resolved = normalizeOptions(options);
   const sdkSession = yield* Effect.try({
-    try: () => unstable_v2_createSession(resolved as Parameters<typeof unstable_v2_createSession>[0]),
+    try: () => unstable_v2_createSession(resolved as unknown as Parameters<typeof unstable_v2_createSession>[0]),
     catch: (cause) => toTransportError("Failed to create session", cause),
   });
   return yield* fromSdkSession(sdkSession, runtimeOptions);
@@ -339,7 +349,8 @@ const resumeSessionEffect = Effect.fn("Session.resumeSession")(function* (
 ) {
   const resolved = normalizeOptions(options);
   const sdkSession = yield* Effect.try({
-    try: () => unstable_v2_resumeSession(sessionId, resolved as Parameters<typeof unstable_v2_resumeSession>[1]),
+    try: () =>
+      unstable_v2_resumeSession(sessionId, resolved as unknown as Parameters<typeof unstable_v2_resumeSession>[1]),
     catch: (cause) => toTransportError("Failed to resume session", cause),
   });
   return yield* fromSdkSession(sdkSession, runtimeOptions);
@@ -372,7 +383,8 @@ export const resumeSession = (sessionId: string, options: SDKSessionOptions, run
 export const prompt = Effect.fn("Session.prompt")(
   (message: string, options: SDKSessionOptions): Effect.Effect<SDKResultMessage, TransportError> =>
     Effect.tryPromise({
-      try: () => unstable_v2_prompt(message, normalizeOptions(options) as Parameters<typeof unstable_v2_prompt>[1]),
+      try: () =>
+        unstable_v2_prompt(message, normalizeOptions(options) as unknown as Parameters<typeof unstable_v2_prompt>[1]),
       catch: (cause) => toTransportError("Failed to run session prompt", cause),
     })
 );
