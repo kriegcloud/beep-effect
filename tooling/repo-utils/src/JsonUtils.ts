@@ -8,6 +8,7 @@
  * @module
  */
 
+import { thunkEmptyStr } from "@beep/utils";
 import { Effect, SchemaGetter } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -28,7 +29,7 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
   const result = yield* prettyGetter
     .run(O.some(value), {})
     .pipe(Effect.mapError((issue) => new DomainError({ message: `JSON serialization failed: ${issue}` })));
-  return O.getOrElse(result, () => "");
+  return O.getOrElse(result, thunkEmptyStr);
 });
 
 /**
@@ -44,7 +45,7 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
     const result = yield* compactGetter
       .run(O.some(value), {})
       .pipe(Effect.mapError((issue) => new DomainError({ message: `JSON serialization failed: ${issue}` })));
-    return O.getOrElse(result, () => "");
+    return O.getOrElse(result, thunkEmptyStr);
   }
 );
 

@@ -1,19 +1,28 @@
 import type { TUnsafe } from "@beep/types";
 import { Function as Fn, String as Str } from "effect";
-import type * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import type { Get, Paths, Simplify } from "type-fest";
+import * as A from "./Array.ts";
 
-type PathInput = string | ReadonlyArray<string>;
-type PathLookup =
-  | {
-      readonly found: false;
-    }
-  | {
-      readonly found: true;
-      readonly value: unknown;
-    };
+const PathInput = S.Union([S.String, S.Array(S.String)]);
+
+type PathInput = typeof PathInput.Type;
+
+const PathLookup = S.TaggedUnion({
+  notFound: { found: S.tag(false) },
+  found: { found: S.tag(true), value: S.Unknown },
+});
+
+/**
+ * Result of a runtime struct path lookup.
+ *
+ * @since 0.2.0
+ * @category DomainModel
+ */
+export type PathLookup = typeof PathLookup.Type;
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
@@ -22,35 +31,40 @@ const normalizePath = (path: PathInput): ReadonlyArray<string> => (P.isString(pa
 const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
   const parts = normalizePath(path);
   if (parts.length === 0) {
-    return { found: false };
+    return PathLookup.cases.notFound.makeUnsafe({ found: false });
   }
 
   let current: unknown = self;
 
   for (const part of parts) {
     if (part.length === 0) {
-      return { found: false };
+      return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
 
     if (P.isNullish(current)) {
-      return { found: false };
+      return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
-    if (!P.isObject(current) && !Array.isArray(current) && !P.isFunction(current)) {
-      return { found: false };
+    if (P.not(P.isObject)(current) && P.not(A.isArray)(current) && P.not(P.isFunction)(current)) {
+      return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
 
     const record = Fn.coerceUnsafe<unknown, Record<string, unknown>>(current);
     if (!hasOwn.call(record, part)) {
-      return { found: false };
+      return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
 
     current = record[part];
   }
 
-  return {
+  return PathLookup.cases.found.makeUnsafe({
     found: true,
     value: current,
-  };
+  });
+};
+
+const unsafeDotGet = (self: object, path: PathInput): unknown => {
+  const lookup = lookupAtPath(self, path);
+  return lookup.found ? lookup.value : undefined;
 };
 
 /**
@@ -72,8 +86,7 @@ export const dotGet: {
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): Get<S, P>;
 } = Fn.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
-  const lookup = lookupAtPath(self, path);
-  return lookup.found ? lookup.value : undefined;
+  return unsafeDotGet(self, path);
 }) as {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
@@ -104,6 +117,152 @@ export const dotGetOption: {
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<Get<S, P>>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<Get<S, P>>;
 };
+
+/**
+ * Applies a unary function to a value retrieved from a struct by path.
+ *
+ * Uses {@link dotGet} under the hood, so string paths are type-validated and
+ * tuple paths resolve via `type-fest` `Get`.
+ *
+ * Supports a dual API:
+ * - Data-last: `pipe(self, Struct.mapPath(renderName, "profile.name"))`
+ * - Data-first: `Struct.mapPath(self, renderName, "profile.name")`
+ * - Tuple paths: `Struct.mapPath(self, renderName, ["profile", "name"] as const)`
+ *
+ * If the runtime value does not actually satisfy the statically-declared path,
+ * `undefined` is forwarded to `f`, matching {@link dotGet}.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const mapPath: {
+  <A, B, const P extends string>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => B;
+  <A, B, const P extends ReadonlyArray<string>>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => B;
+  <S extends object, A, B, const P extends string & Paths<S>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): B;
+  <S extends object, A, B, const P extends ReadonlyArray<string>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): B;
+} = Fn.dual(
+  3,
+  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): B => f(unsafeDotGet(self, path))
+) as {
+  <A, B, const P extends string>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => B;
+  <A, B, const P extends ReadonlyArray<string>>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => B;
+  <S extends object, A, B, const P extends string & Paths<S>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): B;
+  <S extends object, A, B, const P extends ReadonlyArray<string>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): B;
+};
+
+/**
+ * Returns a thunk that applies a unary function to a value retrieved from a
+ * struct by path.
+ *
+ * Mirrors {@link mapPath}, but delays both the path lookup and the function
+ * application until the returned zero-argument function is invoked.
+ *
+ * Supports a dual API:
+ * - Data-last: `pipe(self, Struct.mapPathLazy(renderName, "profile.name"))()`
+ * - Data-first: `Struct.mapPathLazy(self, renderName, "profile.name")()`
+ * - Tuple paths: `Struct.mapPathLazy(self, renderName, ["profile", "name"] as const)()`
+ *
+ * If the runtime value does not actually satisfy the statically-declared path,
+ * `undefined` is forwarded to `f`, matching {@link dotGet}.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const mapPathLazy: {
+  <A, B, const P extends string>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => Fn.LazyArg<B>;
+  <A, B, const P extends ReadonlyArray<string>>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => Fn.LazyArg<B>;
+  <S extends object, A, B, const P extends string & Paths<S>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): Fn.LazyArg<B>;
+  <S extends object, A, B, const P extends ReadonlyArray<string>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): Fn.LazyArg<B>;
+} = Fn.dual(
+  3,
+  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): Fn.LazyArg<B> =>
+    () =>
+      f(unsafeDotGet(self, path))
+) as {
+  <A, B, const P extends string>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => Fn.LazyArg<B>;
+  <A, B, const P extends ReadonlyArray<string>>(
+    f: (a: A) => B,
+    path: P
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => Fn.LazyArg<B>;
+  <S extends object, A, B, const P extends string & Paths<S>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): Fn.LazyArg<B>;
+  <S extends object, A, B, const P extends ReadonlyArray<string>>(
+    self: S,
+    f: Get<S, P> extends A ? (a: A) => B : never,
+    path: P
+  ): Fn.LazyArg<B>;
+};
+
+/**
+ * Retrieves a thunk that reads a value from a struct by key.
+ *
+ * Mirrors `effect/Struct.get`, but delays the property access until the
+ * returned zero-argument function is invoked.
+ *
+ * Supports a dual API:
+ * - Data-last: `pipe(self, Struct.getLazy("name"))()`
+ * - Data-first: `Struct.getLazy(self, "name")()`
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const getLazy: {
+  <S extends object, const K extends keyof S>(key: K): (self: S) => () => S[K];
+  <S extends object, const K extends keyof S>(self: S, key: K): () => S[K];
+} = Fn.dual(
+  2,
+  <S extends object, const K extends keyof S>(self: S, key: K): (() => S[K]) =>
+    () =>
+      self[key]
+);
 // bench
 
 /**
@@ -115,18 +274,20 @@ export const dotGetOption: {
  * @since 0.2.0
  * @category Utility
  */
-export const pathsOf = <const S extends object>(obj: S): A.NonEmptyReadonlyArray<Extract<Paths<S>, string>> => {
-  const result: Array<string> = [];
+export const pathsOf = <const S extends Record<string, unknown>>(
+  obj: S
+): A.NonEmptyReadonlyArray<Extract<Paths<S>, string>> => {
+  const result = A.empty<string>();
   const walk = (current: unknown, prefix: string): void => {
     if (P.isNullish(current) || !P.isObject(current)) return;
-    for (const key of Object.keys(current as object)) {
+    for (const key of R.keys(current)) {
       const path = prefix ? `${prefix}.${key}` : key;
       result.push(path);
-      walk((current as Record<string, unknown>)[key], path);
+      walk(current[key], path);
     }
   };
   walk(obj, "");
-  return result as TUnsafe.Any;
+  return Fn.coerceUnsafe(result);
 };
 
 /**
@@ -276,6 +437,6 @@ export const reverse: {
       out[self[key]] = key;
     }
 
-    return Fn.coerceUnsafe<Record<PropertyKey, PropertyKey>, ReverseStruct<S>>(out);
+    return Fn.coerceUnsafe(out);
   }
 );

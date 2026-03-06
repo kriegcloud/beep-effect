@@ -7,7 +7,10 @@
  * @since 0.0.0
  * @module
  */
+
+import { thunkEffectSucceedNull } from "@beep/utils";
 import { Effect, HashMap, HashSet } from "effect";
+import * as O from "effect/Option";
 import { extractWorkspaceDependencies } from "./Dependencies.js";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
@@ -65,7 +68,12 @@ export const buildRepoDependencyIndex: (
     // Process root package.json
     const rootPkgPath = `${rootDir}/package.json`;
     const rawRootPkg = yield* fsUtils.readJson(rootPkgPath);
-    const rootPkg = yield* decodePackageJsonEffect(rawRootPkg).pipe(
+    if (O.isNone(rawRootPkg)) {
+      return yield* new DomainError({
+        message: `Failed to parse JSON at "${rootPkgPath}"`,
+      });
+    }
+    const rootPkg = yield* decodePackageJsonEffect(rawRootPkg.value).pipe(
       Effect.mapError(
         (error) =>
           new DomainError({
@@ -80,13 +88,16 @@ export const buildRepoDependencyIndex: (
     // Process each workspace package.json
     for (const [name, dir] of workspaces) {
       const pkgPath = `${dir}/package.json`;
-      const rawPkg = yield* fsUtils
-        .readJson(pkgPath)
-        .pipe(Effect.catchTag("NoSuchFileError", () => Effect.succeed(null)));
+      const rawPkg = yield* fsUtils.readJson(pkgPath).pipe(Effect.catchTag("NoSuchFileError", thunkEffectSucceedNull));
       if (rawPkg === null) {
         continue;
       }
-      const pkg = yield* decodePackageJsonEffect(rawPkg).pipe(
+      if (O.isNone(rawPkg)) {
+        return yield* new DomainError({
+          message: `Failed to parse JSON at "${pkgPath}"`,
+        });
+      }
+      const pkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
         Effect.mapError(
           (error) =>
             new DomainError({

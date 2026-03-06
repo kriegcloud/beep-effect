@@ -1,4 +1,6 @@
+import { Struct } from "@beep/utils";
 import { Clock, Duration, Effect, HashSet } from "effect";
+import * as A from "effect/Array";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 /**
@@ -16,10 +18,11 @@ export type CompactionStrategy = (
 const toBracket = (
   compacted: ReadonlyArray<EventJournal.RemoteEntry>,
   remoteEntries: ReadonlyArray<EventJournal.RemoteEntry> = compacted
-): Array<CompactionBracket> => [[compacted.map((entry) => entry.entry), remoteEntries]];
+): Array<CompactionBracket> => A.of([A.map(compacted, Struct.get("entry")), remoteEntries]);
 
 const toRemoteEntries = (entries: ReadonlyArray<EventJournal.Entry>) =>
-  entries.map(
+  A.map(
+    entries,
     (entry, index) =>
       new EventJournal.RemoteEntry({
         remoteSequence: index + 1,
@@ -34,7 +37,7 @@ export const compactEntries = (strategy: CompactionStrategy, entries: ReadonlyAr
   strategy(toRemoteEntries(entries)).pipe(
     Effect.map((brackets) => {
       const last = brackets[brackets.length - 1];
-      return last ? last[0] : [];
+      return last ? last[0] : A.empty();
     })
   );
 
@@ -45,25 +48,23 @@ const estimateEntrySize = (entry: EventJournal.Entry) =>
  * @since 0.0.0
  */
 export const Compaction = {
-  byAge:
-    (maxAge: Duration.Input): CompactionStrategy =>
-    (entries) =>
-      Effect.gen(function* () {
-        const maxAgeDuration = Duration.fromInput(maxAge);
-        if (maxAgeDuration === undefined) return toBracket([], entries);
-        const maxAgeMs = Duration.toMillis(maxAgeDuration);
-        if (maxAgeMs <= 0) return toBracket([], entries);
-        const now = yield* Clock.currentTimeMillis;
-        const cutoff = now - maxAgeMs;
-        const filtered = entries.filter((entry) => entry.entry.createdAtMillis >= cutoff);
-        return toBracket(filtered, entries);
-      }),
+  byAge: (maxAge: Duration.Input): CompactionStrategy =>
+    Effect.fn("Compaction.byAge")(function* (entries) {
+      const maxAgeDuration = Duration.fromInput(maxAge);
+      if (maxAgeDuration === undefined) return toBracket(A.empty(), entries);
+      const maxAgeMs = Duration.toMillis(maxAgeDuration);
+      if (maxAgeMs <= 0) return toBracket(A.empty(), entries);
+      const now = yield* Clock.currentTimeMillis;
+      const cutoff = now - maxAgeMs;
+      const filtered = entries.filter((entry) => entry.entry.createdAtMillis >= cutoff);
+      return toBracket(filtered, entries);
+    }),
 
   byCount:
     (maxEntries: number): CompactionStrategy =>
     (entries) =>
       Effect.sync(() => {
-        if (maxEntries <= 0) return toBracket([], entries);
+        if (maxEntries <= 0) return toBracket(A.empty(), entries);
         if (entries.length <= maxEntries) return toBracket(entries, entries);
         return toBracket(entries.slice(entries.length - maxEntries), entries);
       }),
@@ -72,9 +73,9 @@ export const Compaction = {
     (maxBytes: number): CompactionStrategy =>
     (entries) =>
       Effect.sync(() => {
-        if (maxBytes <= 0) return toBracket([], entries);
+        if (maxBytes <= 0) return toBracket(A.empty(), entries);
         let total = 0;
-        const kept: Array<EventJournal.RemoteEntry> = [];
+        const kept = A.empty<EventJournal.RemoteEntry>();
         for (let i = entries.length - 1; i >= 0; i -= 1) {
           const entry = entries[i]!;
           const size = estimateEntrySize(entry.entry);
@@ -86,21 +87,19 @@ export const Compaction = {
         return toBracket(kept, entries);
       }),
 
-  composite:
-    (...strategies: ReadonlyArray<CompactionStrategy>): CompactionStrategy =>
-    (entries) =>
-      Effect.gen(function* () {
-        let current = entries;
-        for (const strategy of strategies) {
-          const brackets = yield* strategy(current);
-          const next = brackets[brackets.length - 1];
-          if (!next) {
-            current = [];
-            continue;
-          }
-          const compactedIds = HashSet.fromIterable(next[0].map((entry) => entry.idString));
-          current = current.filter((remoteEntry) => HashSet.has(compactedIds, remoteEntry.entry.idString));
+  composite: (...strategies: ReadonlyArray<CompactionStrategy>): CompactionStrategy =>
+    Effect.fn("Compaction.composite")(function* (entries) {
+      let current = entries;
+      for (const strategy of strategies) {
+        const brackets = yield* strategy(current);
+        const next = brackets[brackets.length - 1];
+        if (!next) {
+          current = A.empty();
+          continue;
         }
-        return toBracket(current, entries);
-      }),
+        const compactedIds = HashSet.fromIterable(A.map(next[0], Struct.get("idString")));
+        current = A.filter(current, (remoteEntry) => HashSet.has(compactedIds, remoteEntry.entry.idString));
+      }
+      return toBracket(current, entries);
+    }),
 };

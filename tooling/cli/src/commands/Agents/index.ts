@@ -144,9 +144,11 @@ const agentsCheckCommand = Command.make(
     const manifestExists = yield* fs.exists(manifestPath);
 
     if (!manifestExists) {
-      yield* Console.log(`[agents-check] manifest missing: ${manifestPath}`);
       if (options.strict) {
+        yield* Console.error(`[agents-check] manifest missing: ${manifestPath}`);
         process.exitCode = 1;
+      } else {
+        yield* Console.log(`[agents-check] skipped: no managed-files manifest at ${manifestPath} (non-strict mode)`);
       }
       return;
     }

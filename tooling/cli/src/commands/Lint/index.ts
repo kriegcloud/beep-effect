@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
@@ -150,7 +151,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     }
 
     const absolute = path.join(process.cwd(), file);
-    const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(() => ""));
+    const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(thunkEmptyStr));
 
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
       violations.push(
@@ -250,7 +251,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 
     for (const file of toolingFiles) {
       const absolute = path.join(process.cwd(), file);
-      const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(() => ""));
+      const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(thunkEmptyStr));
       const match = declarationPattern.exec(content);
 
       if (match === null) {

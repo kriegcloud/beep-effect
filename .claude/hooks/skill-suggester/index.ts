@@ -112,7 +112,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     tasks,
     A.map((t) => {
       const aliases = A.match(t.aliases, {
-        onEmpty: () => "",
+        onEmpty: thunkEmptyStr,
         onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
       });
       return `${t.name}${aliases}: ${t.description}`;

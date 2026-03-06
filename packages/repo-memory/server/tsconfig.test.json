@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../tsconfig.json",
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "tsBuildInfoFile": "./dist/tsconfig.test.tsbuildinfo",
+    "types": ["node"]
+  },
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    },
+    {
+      "path": "../domain/tsconfig.json"
+    },
+    {
+      "path": "../drivers-local/tsconfig.json"
+    },
+    {
+      "path": "../../runtime/protocol/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-utils/tsconfig.json"
+    }
+  ]
+}

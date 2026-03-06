@@ -3,6 +3,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as Fs from "effect/FileSystem";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 // Build a TestLayer that provides FsUtils AND also passes through FileSystem/Path
@@ -77,7 +78,7 @@ layer(TestLayer)("FsUtils", (it) => {
         yield* utils.writeJson(filePath, data);
         const result = yield* utils.readJson(filePath);
 
-        expect(result).toEqual(data);
+        expect(result).toEqual(O.some(data));
 
         // Clean up
         yield* fs.remove(tmpDir, { recursive: true });
@@ -113,7 +114,7 @@ layer(TestLayer)("FsUtils", (it) => {
     );
 
     it.effect(
-      "should fail with DomainError for invalid JSON",
+      "should return None for invalid JSON",
       Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
@@ -122,11 +123,8 @@ layer(TestLayer)("FsUtils", (it) => {
         const filePath = `${tmpDir}/bad.json`;
         yield* fs.writeFileString(filePath, "not valid json {{{");
 
-        const result = yield* utils
-          .readJson(filePath)
-          .pipe(Effect.catchTag("DomainError", (e) => Effect.succeed(`caught: ${e.message}`)));
-        expect(result).toContain("caught:");
-        expect(result).toContain("Failed to parse JSON");
+        const result = yield* utils.readJson(filePath);
+        expect(result).toEqual(O.none());
 
         yield* fs.remove(tmpDir, { recursive: true });
       })

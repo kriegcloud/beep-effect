@@ -1,6 +1,8 @@
 import { $RuntimeProtocolId } from "@beep/identity/packages";
 import {
   Citation,
+  IndexRepoRunInput,
+  QueryRepoRunInput,
   RepoId,
   RepoRunKind,
   RepoRunStatus,
@@ -11,12 +13,12 @@ import {
   RunStreamFailure,
 } from "@beep/repo-memory-domain";
 import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Tuple } from "effect";
+import { PrimaryKey, pipe, Tuple } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
 import * as Rpc from "effect/unstable/rpc/Rpc";
-import type * as Workflow from "effect/unstable/workflow/Workflow";
-import * as WorkflowProxy from "effect/unstable/workflow/WorkflowProxy";
+import * as RpcGroup from "effect/unstable/rpc/RpcGroup";
 
 const $I = $RuntimeProtocolId.create("index");
 
@@ -154,7 +156,7 @@ export class QueryRun extends S.Class<QueryRun>($I`QueryRun`)(
  * @since 0.0.0
  * @category DomainModel
  */
-export const RepoRun = RepoRunKind.mapMembers(Tuple.evolve([() => IndexRun, () => QueryRun]))
+export const RepoRun = S.Union([IndexRun, QueryRun])
   .annotate(
     $I.annote("RepoRun", {
       description: "Union of all run projection shapes tracked by the repo-memory sidecar.",
@@ -407,6 +409,33 @@ export class StreamRunEventsRequest extends S.Class<StreamRunEventsRequest>($I`S
   $I.annote("StreamRunEventsRequest", {
     description: "Request payload used to replay and continue streaming run events for a workflow execution.",
   })
+) {
+  [PrimaryKey.symbol](): string {
+    return pipe(
+      this.cursor,
+      O.match({
+        onNone: () => `${this.runId}:stream`,
+        onSome: (cursor) => `${this.runId}:stream:${cursor}`,
+      })
+    );
+  }
+}
+
+/**
+ * Immediate acknowledgment returned when a workflow-backed run has been accepted.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunAcceptedAck extends S.Class<RunAcceptedAck>($I`RunAcceptedAck`)(
+  {
+    runId: RunId,
+    kind: RepoRunKind,
+    acceptedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("RunAcceptedAck", {
+    description: "Immediate acknowledgment returned when a repo-memory workflow execution is accepted.",
+  })
 ) {}
 
 /**
@@ -577,11 +606,33 @@ export const StreamRunEvents = Rpc.make("StreamRunEvents", {
 });
 
 /**
- * Builds an RPC group by extending workflow RPCs with run event streaming.
+ * RPC used to accept a deterministic repository index run and return its run id immediately.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category PortContract
  */
-export const makeRepoRunRpcGroup = <const Workflows extends readonly [Workflow.Any, ...ReadonlyArray<Workflow.Any>]>(
-  workflows: Workflows
-) => WorkflowProxy.toRpcGroup(workflows).add(StreamRunEvents);
+export const StartIndexRepoRun = Rpc.make("StartIndexRepoRun", {
+  payload: IndexRepoRunInput,
+  success: RunAcceptedAck,
+  error: RunStreamFailure,
+});
+
+/**
+ * RPC used to accept a deterministic repository query run and return its run id immediately.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
+  payload: QueryRepoRunInput,
+  success: RunAcceptedAck,
+  error: RunStreamFailure,
+});
+
+/**
+ * App-facing RPC group for repo-memory run execution and streaming.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export class RepoRunRpcGroup extends RpcGroup.make(StartIndexRepoRun, StartQueryRepoRun, StreamRunEvents) {}

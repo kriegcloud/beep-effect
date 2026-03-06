@@ -1,5 +1,7 @@
 import { type DomainError, type FsUtils, FsUtilsLive, type FsUtilsShape, type NoSuchFileError } from "@beep/repo-utils";
 import type { Effect, FileSystem, Layer, Path } from "effect";
+import type * as O from "effect/Option";
+import type * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
 describe("FsUtils", () => {
@@ -8,8 +10,8 @@ describe("FsUtils", () => {
       expect<ReturnType<FsUtilsShape["glob"]>>().type.toBe<Effect.Effect<ReadonlyArray<string>, DomainError>>();
     });
 
-    it("readJson returns Effect<unknown, NoSuchFileError | DomainError>", () => {
-      expect<ReturnType<FsUtilsShape["readJson"]>>().type.toBe<Effect.Effect<unknown, NoSuchFileError | DomainError>>();
+    it("readJson returns Effect<Option<S.Json>, NoSuchFileError>", () => {
+      expect<ReturnType<FsUtilsShape["readJson"]>>().type.toBe<Effect.Effect<O.Option<S.Json>, NoSuchFileError>>();
     });
 
     it("writeJson returns Effect<void, DomainError>", () => {

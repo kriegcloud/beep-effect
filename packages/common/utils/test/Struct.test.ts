@@ -89,6 +89,86 @@ describe("@beep/utils Struct.dotGet", () => {
 });
 // bench
 
+describe("@beep/utils Struct.mapPath", () => {
+  it("supports data-first and data-last calls", () => {
+    const source = { profile: { name: "beep" } } as const;
+    const renderName = (value: string) => `${value}!`;
+
+    const dataFirst = Struct.mapPath(source, renderName, "profile.name");
+    const dataLast = pipe(source, Struct.mapPath(renderName, "profile.name"));
+
+    expect(dataFirst).toBe("beep!");
+    expect(dataLast).toBe("beep!");
+    expectTypeOf(dataFirst).toEqualTypeOf<string>();
+    expectTypeOf(dataLast).toEqualTypeOf<string>();
+  });
+
+  it("supports tuple paths", () => {
+    const source = { profile: { name: "boop" } } as const;
+    const shout = (value: "boop") => value.toUpperCase();
+
+    const result = Struct.mapPath(source, shout, ["profile", "name"] as const);
+
+    expect(result).toBe("BOOP");
+  });
+
+  it("forwards runtime undefined the same way as dotGet", () => {
+    const runtimeMismatch = { profile: {} } as unknown as { profile: { name: string } };
+    const fallback = (value: string | undefined) => value ?? "anonymous";
+
+    expect(Struct.mapPath(runtimeMismatch, fallback, "profile.name")).toBe("anonymous");
+  });
+});
+
+describe("@beep/utils Struct.mapPathLazy", () => {
+  it("supports data-first and data-last calls", () => {
+    const source = { profile: { name: "beep" }, count: 1 } as const;
+
+    const dataFirst = Struct.mapPathLazy(source, (value: string) => value.toUpperCase(), "profile.name");
+    const dataLast = pipe(
+      source,
+      Struct.mapPathLazy((value: 1) => value + 1, "count")
+    );
+
+    expect(dataFirst()).toBe("BEEP");
+    expect(dataLast()).toBe(2);
+    expectTypeOf(dataFirst).toEqualTypeOf<() => string>();
+    expectTypeOf(dataLast).toEqualTypeOf<() => number>();
+  });
+
+  it("defers the lookup until the thunk is invoked", () => {
+    const source = { profile: { name: "before" } };
+    const getUpper = Struct.mapPathLazy(source, (value: string) => value.toUpperCase(), "profile.name");
+
+    source.profile.name = "after";
+
+    expect(getUpper()).toBe("AFTER");
+  });
+});
+
+describe("@beep/utils Struct.getLazy", () => {
+  it("supports data-first and data-last calls", () => {
+    const source = { name: "beep", count: 1 } as const;
+
+    const dataFirst = Struct.getLazy(source, "name");
+    const dataLast = pipe(source, Struct.getLazy("count"));
+
+    expect(dataFirst()).toBe("beep");
+    expect(dataLast()).toBe(1);
+    expectTypeOf(dataFirst).toEqualTypeOf<() => "beep">();
+    expectTypeOf(dataLast).toEqualTypeOf<() => 1>();
+  });
+
+  it("defers the property lookup until the thunk is invoked", () => {
+    const source = { name: "before" };
+    const getName = Struct.getLazy(source, "name");
+
+    source.name = "after";
+
+    expect(getName()).toBe("after");
+  });
+});
+
 describe("@beep/utils Struct.reverse", () => {
   it("reverses key/value mappings and preserves literals", () => {
     const ErrorEnum = {

@@ -113,6 +113,20 @@ export const thunkEffectVoid = thunkEffect(Effect.void);
 export const thunkEffectSucceed = <A>(a: A): (() => Effect.Effect<A>) => thunkEffect(Effect.succeed(a));
 
 /**
+ * Returns a thunk for `Effect.succeed(null)`.
+ *
+ * @since 0.0.0
+ */
+export const thunkEffectSucceedNull = thunkEffectSucceed(null);
+
+/**
+ * Returns a thunk for `Effect.succeed(O.none())`.
+ *
+ * @since 0.0.0
+ */
+export const thunkEffectSucceedNone = <A = never>() => Effect.succeed(O.none<A>());
+
+/**
  * Returns a thunk that yields an empty record.
  *
  * @since 0.0.0

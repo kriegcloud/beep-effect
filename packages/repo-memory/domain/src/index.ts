@@ -1,5 +1,5 @@
 import { $RepoMemoryDomainId } from "@beep/identity/packages";
-import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
+import { FilePath, LiteralKit, NonNegativeInt, PosInt, Sha256Hex } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $RepoMemoryDomainId.create("index");
@@ -89,6 +89,27 @@ export const RunCursor = NonNegativeInt.pipe(
 export type RunCursor = typeof RunCursor.Type;
 
 /**
+ * Stable identifier for a persisted repository source snapshot.
+ *
+ * @since 0.0.0
+ * @category Identity
+ */
+export const SourceSnapshotId = S.String.pipe(
+  S.brand("SourceSnapshotId"),
+  S.annotate(
+    $I.annote("SourceSnapshotId", {
+      description: "Stable identifier for a persisted repository source snapshot.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category Identity
+ */
+export type SourceSnapshotId = typeof SourceSnapshotId.Type;
+
+/**
  * Canonical run kind for repo-memory workflows.
  *
  * @since 0.0.0
@@ -157,10 +178,10 @@ export type RunTerminalState = typeof RunTerminalState.Type;
 export class CitationSpan extends S.Class<CitationSpan>($I`CitationSpan`)(
   {
     filePath: FilePath,
-    startLine: NonNegativeInt,
-    endLine: NonNegativeInt,
-    startColumn: S.OptionFromOptionalKey(NonNegativeInt),
-    endColumn: S.OptionFromOptionalKey(NonNegativeInt),
+    startLine: PosInt,
+    endLine: PosInt,
+    startColumn: S.OptionFromOptionalKey(PosInt),
+    endColumn: S.OptionFromOptionalKey(PosInt),
     symbolName: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("CitationSpan", {
@@ -196,6 +217,7 @@ export class Citation extends S.Class<Citation>($I`Citation`)(
 export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket`)(
   {
     repoId: RepoId,
+    sourceSnapshotId: S.OptionFromOptionalKey(SourceSnapshotId),
     query: S.String,
     retrievedAt: S.DateTimeUtcFromMillis,
     summary: S.String,
@@ -204,6 +226,121 @@ export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket
   },
   $I.annote("RetrievalPacket", {
     description: "Bounded answer context returned by the sidecar so grounded answers stay inspectable.",
+  })
+) {}
+
+/**
+ * Persisted repository source snapshot metadata.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
+export class RepoSourceSnapshot extends S.Class<RepoSourceSnapshot>($I`RepoSourceSnapshot`)(
+  {
+    id: SourceSnapshotId,
+    repoId: RepoId,
+    capturedAt: S.DateTimeUtcFromMillis,
+    fileCount: NonNegativeInt,
+  },
+  $I.annote("RepoSourceSnapshot", {
+    description: "Persisted repository source snapshot metadata for deterministic retrieval.",
+  })
+) {}
+
+/**
+ * Persisted repository source file metadata.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
+export class RepoSourceFile extends S.Class<RepoSourceFile>($I`RepoSourceFile`)(
+  {
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    filePath: FilePath,
+    contentHash: Sha256Hex,
+    lineCount: NonNegativeInt,
+    workspaceName: S.String,
+    tsconfigPath: FilePath,
+  },
+  $I.annote("RepoSourceFile", {
+    description: "Persisted repository source file metadata for a deterministic snapshot.",
+  })
+) {}
+
+/**
+ * Canonical TypeScript symbol kinds captured during deterministic indexing.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
+export const RepoSymbolKind = LiteralKit([
+  "function",
+  "class",
+  "interface",
+  "typeAlias",
+  "const",
+  "enum",
+  "namespace",
+] as const).annotate(
+  $I.annote("RepoSymbolKind", {
+    description: "Canonical TypeScript symbol kinds captured during deterministic indexing.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category Models
+ */
+export type RepoSymbolKind = typeof RepoSymbolKind.Type;
+
+/**
+ * Persisted repository symbol metadata.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
+export class RepoSymbolRecord extends S.Class<RepoSymbolRecord>($I`RepoSymbolRecord`)(
+  {
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    symbolId: S.String,
+    symbolName: S.String,
+    qualifiedName: S.String,
+    symbolKind: RepoSymbolKind,
+    exported: S.Boolean,
+    filePath: FilePath,
+    startLine: PosInt,
+    endLine: PosInt,
+    signature: S.String,
+    jsDocSummary: S.OptionFromOptionalKey(S.String),
+    declarationText: S.String,
+    searchText: S.String,
+  },
+  $I.annote("RepoSymbolRecord", {
+    description: "Persisted repository symbol metadata used for deterministic grounded retrieval.",
+  })
+) {}
+
+/**
+ * Persisted import edge metadata for future dependency-aware retrieval.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
+export class RepoImportEdge extends S.Class<RepoImportEdge>($I`RepoImportEdge`)(
+  {
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    importerFilePath: FilePath,
+    startLine: PosInt,
+    endLine: PosInt,
+    moduleSpecifier: S.String,
+    importedName: S.OptionFromOptionalKey(S.String),
+    typeOnly: S.Boolean,
+  },
+  $I.annote("RepoImportEdge", {
+    description: "Persisted import edge metadata for future dependency-aware retrieval.",
   })
 ) {}
 

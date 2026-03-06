@@ -48,8 +48,11 @@ export const versionSyncCommand = Command.make(
     nodeOnly: Flag.boolean("node-only").pipe(Flag.withDescription("Only sync Node versions")),
     dockerOnly: Flag.boolean("docker-only").pipe(Flag.withDescription("Only sync Docker image versions")),
     biomeOnly: Flag.boolean("biome-only").pipe(Flag.withDescription("Only sync Biome schema version")),
+    effectOnly: Flag.boolean("effect-only").pipe(
+      Flag.withDescription("Only sync lockstep Effect catalog versions in the root package.json")
+    ),
   },
-  Effect.fn(function* ({ write, dryRun, skipNetwork, bunOnly, nodeOnly, dockerOnly, biomeOnly }) {
+  Effect.fn(function* ({ write, dryRun, skipNetwork, bunOnly, nodeOnly, dockerOnly, biomeOnly, effectOnly }) {
     const mode = resolveMode(write, dryRun);
 
     yield* handleVersionSync({
@@ -59,6 +62,7 @@ export const versionSyncCommand = Command.make(
       nodeOnly,
       dockerOnly,
       biomeOnly,
+      effectOnly,
     }).pipe(
       Effect.catchTag(
         "VersionSyncDriftError",
@@ -85,6 +89,6 @@ export const versionSyncCommand = Command.make(
   })
 ).pipe(
   Command.withDescription(
-    "Detect and fix version drift across .bun-version, package.json, .nvmrc, CI workflows, docker-compose.yml, and biome.jsonc"
+    "Detect and fix version drift across .bun-version, package.json, .nvmrc, CI workflows, docker-compose.yml, biome.jsonc, and the root Effect catalog"
   )
 );

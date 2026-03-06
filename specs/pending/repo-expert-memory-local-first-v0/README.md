@@ -43,6 +43,11 @@ Read these documents in order:
 7. [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md)
 8. [CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md](./CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
 
+Important reading posture:
+- [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) is transport evidence and guardrail, not the implementation checklist
+- the public execution contract is now `StartIndexRepoRun`, `StartQueryRepoRun`, and `StreamRunEvents`
+- generated `WorkflowProxy` discard RPCs remain useful internally, but they do not replace the public run-start contract because they do not return `runId`
+
 ## In Scope For V0
 - single-user desktop prototype
 - local repo registration and indexing

@@ -29,7 +29,7 @@
     "check": "tsc -b tsconfig.json",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "bun test",
+    "test": "vitest run",
     "coverage": "vitest --coverage",
     "docgen": "bunx @effect/docgen"
   },
@@ -37,10 +37,13 @@
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
+    "@effect/sql-sqlite-node": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:"
   },

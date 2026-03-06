@@ -9,12 +9,14 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
 
 const $I = $RepoUtilsId.create("FsUtils");
+const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
 
 /**
  * Options for glob matching operations.
@@ -101,9 +103,12 @@ export interface FsUtilsShape {
   /**
    * Read and parse a JSON file.
    *
+   * Returns `Option.none` when the file content is not valid JSON, while
+   * missing-file failures remain in the error channel.
+   *
    * @since 0.0.0
    */
-  readonly readJson: (filePath: string) => Effect.Effect<unknown, NoSuchFileError | DomainError>;
+  readonly readJson: (filePath: string) => Effect.Effect<O.Option<S.Json>, NoSuchFileError>;
 
   /**
    * Write a value as JSON to a file with 2-space indentation and trailing newline.
@@ -166,23 +171,15 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
     });
 
     const readJson: FsUtilsShape["readJson"] = Effect.fn(function* (filePath) {
-      const content = yield* fs.readFileString(filePath).pipe(
+      return yield* fs.readFileString(filePath).pipe(
         Effect.mapError(
           (e) =>
             new NoSuchFileError({
               path: filePath,
               message: `Failed to read file: ${e.message}`,
             })
-        )
-      );
-      return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(content).pipe(
-        Effect.mapError(
-          (error) =>
-            new DomainError({
-              message: `Failed to parse JSON at "${filePath}"`,
-              cause: error,
-            })
-        )
+        ),
+        Effect.map(decodeJsonString)
       );
     });
 

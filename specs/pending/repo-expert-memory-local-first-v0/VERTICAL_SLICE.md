@@ -26,6 +26,7 @@ Lock these in for `v0`:
 - single-user local desktop prototype
 - TypeScript-first repo ingestion
 - deterministic-first extraction
+- `ts-morph` used only at index time, scoped per workspace / `tsconfig`
 - workflow-backed run lifecycle
 - cluster-backed durable execution substrate
 - visible citations and evidence panel
@@ -51,7 +52,7 @@ The shell forwards that request to the sidecar control plane.
 The sidecar returns a stable `RepoRegistration`.
 
 ### 2. Start index run
-The UI triggers `IndexRepoRunDiscard` or `IndexRepoRun` through the execution plane.
+The UI triggers `StartIndexRepoRun` through the execution plane.
 The sidecar returns a deterministic `runId`.
 The UI opens a `StreamRunEvents` subscription.
 
@@ -65,7 +66,7 @@ Progress is streamed through `Rpc`, not modeled as the long-term SSE contract.
 
 ### 4. Ask a query
 The user asks a question about the repo.
-The UI triggers `QueryRepoRunDiscard` or `QueryRepoRun` and subscribes to `StreamRunEvents`.
+The UI triggers `StartQueryRepoRun` and subscribes to `StreamRunEvents`.
 
 ### 5. Inspect grounded result
 The final query view must show:
@@ -74,6 +75,25 @@ The final query view must show:
 - retrieval packet
 - run metadata
 - enough history to understand what happened
+
+Supported query classes in the current grounded slice:
+- `countFiles`
+- `countSymbols`
+- `locateSymbol`
+- `describeSymbol`
+- `listFileExports`
+- `listFileImports`
+- `listFileImporters`
+- `keywordSearch`
+
+Out of scope for this slice:
+- freeform semantic repo QA
+- model-synthesized answers without deterministic source backing
+
+Testing posture for this slice:
+- `@effect/vitest` is the default supporting harness
+- Node-backed supporting tests are intentional for service and SQL integration logic
+- spawned Bun subprocess tests are the lifecycle source of truth
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.
@@ -100,4 +120,4 @@ If this slice fails, broader domain transfer to law, wealth, or compliance shoul
 
 ## Questions Worth Keeping Open
 - How much answer assembly can stay deterministic in the first slice before a model is actually useful?
-- When should the first slice move from metadata-backed answers to real source-backed retrieval packets?
+- When should the bounded grounded query set expand beyond declaration/export lookup into dependency-aware retrieval?

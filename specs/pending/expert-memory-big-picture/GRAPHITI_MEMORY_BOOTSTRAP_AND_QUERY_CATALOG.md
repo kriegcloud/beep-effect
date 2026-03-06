@@ -33,7 +33,7 @@ If a future wrapper behaves differently, document the exact transport quirk rath
 | `Nomik uses tree-sitter because it is polyglot and extraction-first` | Preserve why Nomik chose tree-sitter | `Nomik`, `tree-sitter`, `polyglot`, `extraction-oriented`, `Neo4j`, `ts-morph`, `different problem` |
 | `Graph store choice depends on product shape and needs a driver boundary` | Preserve FalkorDB vs Neo4j guidance | `FalkorDB`, `Neo4j`, `driver boundary`, `local-first`, `service-grade`, `Graphiti`, `not native temporal magic` |
 | `Code generalizes to law wealth and compliance through the expert-memory stack` | Preserve the domain-transfer thesis | `law`, `wealth`, `compliance`, `domain adapters`, `identity`, `normativity`, `contradiction`, `time` |
-| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal`, `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite` |
+| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal`, `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite`, `custom start RPC`, `runId` |
 
 ## Primary Queries
 ### Core expert-memory cluster
@@ -93,7 +93,7 @@ mcp__graphiti-memory__search_memory_facts({
 ### Cluster-first runtime cluster
 ```json
 mcp__graphiti-memory__search_memory_facts({
-  "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot",
+  "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot custom start RPC runId WorkflowProxy discard",
   "group_ids": ["beep-dev"],
   "max_facts": 10
 })

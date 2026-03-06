@@ -67,7 +67,12 @@ export const resolveWorkspaceDirs: (
     // Read and decode root package.json
     const rootPkgPath = `${rootDir}/package.json`;
     const rawPkg = yield* fsUtils.readJson(rootPkgPath);
-    const rootPkg = yield* decodePackageJsonEffect(rawPkg).pipe(
+    if (O.isNone(rawPkg)) {
+      return yield* new DomainError({
+        message: `Failed to parse JSON at "${rootPkgPath}"`,
+      });
+    }
+    const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
       Effect.mapError(
         (error) =>
           new DomainError({
@@ -100,8 +105,13 @@ export const resolveWorkspaceDirs: (
       if (rawChildPkg === null) {
         continue;
       }
+      if (O.isNone(rawChildPkg)) {
+        return yield* new DomainError({
+          message: `Failed to parse JSON at "${pkgJsonPath}"`,
+        });
+      }
 
-      const childPkg = yield* decodePackageJsonEffect(rawChildPkg).pipe(
+      const childPkg = yield* decodePackageJsonEffect(rawChildPkg.value).pipe(
         Effect.mapError(
           (error) =>
             new DomainError({

@@ -1,8 +1,8 @@
 import { $TestUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
-import * as BunPath from "@effect/platform-bun/BunPath";
-import { SqliteClient } from "@effect/sql-sqlite-bun";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
 import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -16,7 +16,7 @@ const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardow
   })
 );
 
-const TestDatabaseDriver = LiteralKit(["bun-sqlite"] as const).annotate(
+const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"] as const).annotate(
   $I.annote("TestDatabaseDriver", {
     description: "Driver identifier for reusable SQL integration-test harnesses.",
   })
@@ -140,14 +140,14 @@ export const makeSqlTestLayer = <Config, Services, SqlService extends Services>(
   readonly driver: SqlTestDriver<Config, Services, SqlService>;
   readonly hooks?: SqlTestHooks;
 }): Layer.Layer<Services, SqlTestHarnessError> =>
-  Layer.effectServices(
+  Layer.unwrap(
     Effect.gen(function* () {
       const context = yield* Layer.build(Layer.fresh(options.driver.makeLayer(options.config)));
 
       yield* runHook(options.driver.name, "migrate", options.driver.sqlClient, options.hooks?.migrate, context);
       yield* runHook(options.driver.name, "seed", options.driver.sqlClient, options.hooks?.seed, context);
 
-      return context;
+      return Layer.succeedServices(context);
     }).pipe(
       Effect.withSpan("SqlTest.makeLayer"),
       Effect.annotateLogs({
@@ -158,8 +158,24 @@ export const makeSqlTestLayer = <Config, Services, SqlService extends Services>(
   );
 
 const buildBunSqliteLayer = Effect.gen(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+  const BunFileSystem = yield* Effect.tryPromise({
+    try: () => import("@effect/platform-bun/BunFileSystem"),
+    catch: (cause) =>
+      toHarnessError("bun-sqlite", "provision", "Failed to load Bun filesystem support for SQL tests.", cause),
+  });
+  const BunPath = yield* Effect.tryPromise({
+    try: () => import("@effect/platform-bun/BunPath"),
+    catch: (cause) =>
+      toHarnessError("bun-sqlite", "provision", "Failed to load Bun path support for SQL tests.", cause),
+  });
+  const BunSqliteClient = yield* Effect.tryPromise({
+    try: () => import("@effect/sql-sqlite-bun"),
+    catch: (cause) =>
+      toHarnessError("bun-sqlite", "provision", "Failed to load Bun SQLite support for SQL tests.", cause),
+  });
+  const context = yield* Layer.build(Layer.mergeAll(BunFileSystem.layer, BunPath.layer));
+  const fs = ServiceMap.get(context, FileSystem.FileSystem);
+  const path = ServiceMap.get(context, Path.Path);
   const tempDir = yield* fs
     .makeTempDirectoryScoped({ prefix: "beep-sql-test-" })
     .pipe(
@@ -172,7 +188,7 @@ const buildBunSqliteLayer = Effect.gen(function* () {
   return Layer.mergeAll(
     BunFileSystem.layer,
     BunPath.layer,
-    SqliteClient.layer({ filename: databasePath }),
+    BunSqliteClient.SqliteClient.layer({ filename: databasePath }),
     Layer.succeed(TestDatabaseInfo, {
       databasePath,
       driver: "bun-sqlite",
@@ -185,7 +201,6 @@ const buildBunSqliteLayer = Effect.gen(function* () {
       ? cause
       : toHarnessError("bun-sqlite", "provision", "Failed to provision the Bun SQLite test driver.", cause)
   ),
-  Effect.provide([BunFileSystem.layer, BunPath.layer]),
   Effect.withSpan("SqlTest.BunSqliteTestDriver.build")
 );
 
@@ -197,10 +212,58 @@ const buildBunSqliteLayer = Effect.gen(function* () {
  */
 export const BunSqliteTestDriver: SqlTestDriver<
   void,
-  FileSystem.FileSystem | Path.Path | SqlClient.SqlClient | SqliteClient.SqliteClient | TestDatabaseInfo,
+  FileSystem.FileSystem | Path.Path | SqlClient.SqlClient | TestDatabaseInfo,
   SqlClient.SqlClient
 > = {
   makeLayer: () => Layer.unwrap(buildBunSqliteLayer),
   name: "bun-sqlite",
+  sqlClient: SqlClient.SqlClient,
+};
+
+const buildNodeSqliteLayer = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const tempDir = yield* fs
+    .makeTempDirectoryScoped({ prefix: "beep-sql-test-" })
+    .pipe(
+      Effect.mapError((cause) =>
+        toHarnessError("node-sqlite", "provision", "Failed to create a temporary SQLite test directory.", cause)
+      )
+    );
+  const databasePath = path.join(tempDir, "test.db");
+
+  return Layer.mergeAll(
+    NodeFileSystem.layer,
+    NodePath.layer,
+    NodeSqliteClient.layer({ filename: databasePath }),
+    Layer.succeed(TestDatabaseInfo, {
+      databasePath,
+      driver: "node-sqlite",
+      tempDir,
+    } satisfies TestDatabaseInfoShape)
+  );
+}).pipe(
+  Effect.mapError((cause) =>
+    S.is(SqlTestHarnessError)(cause)
+      ? cause
+      : toHarnessError("node-sqlite", "provision", "Failed to provision the Node SQLite test driver.", cause)
+  ),
+  Effect.provide([NodeFileSystem.layer, NodePath.layer]),
+  Effect.withSpan("SqlTest.NodeSqliteTestDriver.build")
+);
+
+/**
+ * Fresh Node SQLite integration-test driver backed by a scoped temp directory.
+ *
+ * @since 0.0.0
+ * @category Drivers
+ */
+export const NodeSqliteTestDriver: SqlTestDriver<
+  void,
+  FileSystem.FileSystem | Path.Path | SqlClient.SqlClient | NodeSqliteClient.SqliteClient | TestDatabaseInfo,
+  SqlClient.SqlClient
+> = {
+  makeLayer: () => Layer.unwrap(buildNodeSqliteLayer),
+  name: "node-sqlite",
   sqlClient: SqlClient.SqlClient,
 };

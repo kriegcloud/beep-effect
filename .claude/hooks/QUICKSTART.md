@@ -4,11 +4,10 @@
 
 ```bash
 # Make executable
-chmod +x .claude/hooks/pattern-detector.sh
-chmod +x .claude/hooks/test-pattern-detector.sh
+chmod +x .claude/hooks/pattern-detector/run.sh
 
-# Run tests
-.claude/hooks/test-pattern-detector.sh
+# Run hook tests
+cd .claude && bun run test
 ```
 
 ## 2. Expected Output
@@ -85,7 +84,7 @@ EOF
 
 ```bash
 echo '{"hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"src/test.ts","new_string":"console.log(\"test\")"}}' | \
-  CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector.ts
+  CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector/index.ts
 ```
 
 ## 5. Pattern Types Cheat Sheet
@@ -117,13 +116,67 @@ level: critical
 
 ## 6. Integration with Hooks
 
-Update `.claude/hooks.json`:
+Register the hooks in `.claude/settings.json`:
 
 ```json
 {
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": false,
+    "serena@claude-plugins-official": true,
+    "claude-supermemory@supermemory-plugins": true
+  },
   "hooks": {
-    "PreToolUse": ".claude/hooks/pattern-detector.sh",
-    "PostToolUse": ".claude/hooks/pattern-detector.sh"
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/agent-init/run.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/skill-suggester/run.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/subagent-init/run.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pattern-detector/run.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pattern-detector/run.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -157,7 +210,7 @@ pattern: for\s*\(
 ### Enable verbose output
 ```bash
 # See what's happening
-CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector.ts <<< '{
+CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector/index.ts <<< '{
   "hook_event_name": "PreToolUse",
   "tool_name": "Bash",
   "tool_input": {"command": "git push --force"}
@@ -166,7 +219,7 @@ CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector.ts <<< '{
 
 ### Check pattern loading
 ```bash
-# Add debug logging to pattern-detector.ts temporarily
+# Add debug logging to hooks/pattern-detector/index.ts temporarily
 yield* Console.log(`Loaded ${patterns.length} patterns`)
 ```
 
@@ -189,7 +242,7 @@ CLAUDE_PROJECT_DIR=. bun run .claude/hooks/migrate-patterns.ts
 ls -R .claude/patterns/
 
 # Test migrated patterns
-.claude/hooks/test-pattern-detector.sh
+cd .claude && bun run test
 
 # Archive old directories
 mv .claude/smells .claude/smells.backup

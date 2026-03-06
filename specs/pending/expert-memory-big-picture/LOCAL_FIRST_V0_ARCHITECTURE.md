@@ -35,6 +35,10 @@ The preferred `v0` stack is:
 - `@effect/sql-sqlite-bun` for local SQL persistence
 - driver boundaries around graph/search/vector/artifact infrastructure
 
+Public execution should stay explicit:
+- custom start RPCs return `runId` immediately
+- generated workflow discard RPCs remain internal/supporting because they do not return `runId`
+
 ## Why This Is The Right Shape
 This architecture preserves the original local-first reasoning while tightening the runtime story:
 - local data gravity still matters

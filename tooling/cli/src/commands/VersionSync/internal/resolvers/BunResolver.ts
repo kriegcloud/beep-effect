@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import { Boolean as Bool, Effect, FileSystem, Inspectable, identity, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -46,7 +47,7 @@ class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPacka
   {
     packageManager: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
   },
   $I.annote("BunPackageJsonDocument", {
@@ -94,11 +95,11 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
   {
     bunVersionFile: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
     packageManagerField: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
   },

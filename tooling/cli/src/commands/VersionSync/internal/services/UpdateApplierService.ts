@@ -13,12 +13,12 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { VersionCategoryReport, VersionSyncError, VersionSyncResolution } from "../Models.js";
 import { updateBiomeSchema } from "../resolvers/BiomeResolver.js";
-import { updatePackageManagerField } from "../updaters/PackageJsonUpdater.js";
+import { updateCatalogEntry, updatePackageManagerField } from "../updaters/PackageJsonUpdater.js";
 import { updatePlainTextFile } from "../updaters/PlainTextUpdater.js";
 import { replaceNodeVersionWithFile, updateYamlValue } from "../updaters/YamlFileUpdater.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/services/UpdateApplierService");
-const VersionCategoryName = S.Literals(["bun", "node", "docker", "biome"] as const).annotate(
+const VersionCategoryName = S.Literals(["bun", "node", "docker", "biome", "effect"] as const).annotate(
   $I.annote("VersionCategoryName", {
     description: "Supported update categories for write-mode version-sync application.",
   })
@@ -141,6 +141,30 @@ const applyBiomeUpdates = Effect.fn(function* (repoRoot: string, report: Version
   return filesChanged;
 });
 
+const EFFECT_CATALOG_FIELD_PREFIX = "catalog.";
+
+const applyEffectUpdates = Effect.fn(function* (repoRoot: string, report: VersionCategoryReport) {
+  const path = yield* Path.Path;
+  const packageJsonPath = path.join(repoRoot, "package.json");
+  let filesChanged = 0;
+
+  for (const item of report.items) {
+    if (!Str.startsWith(EFFECT_CATALOG_FIELD_PREFIX)(item.field)) {
+      continue;
+    }
+
+    const dependencyName = Str.slice(EFFECT_CATALOG_FIELD_PREFIX.length)(item.field);
+    if (Str.isEmpty(dependencyName)) {
+      continue;
+    }
+
+    const changed = yield* updateCatalogEntry(packageJsonPath, dependencyName, item.expected);
+    filesChanged += changed ? 1 : 0;
+  }
+
+  return filesChanged;
+});
+
 const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot, resolution) {
   let totalChanges = 0;
 
@@ -152,6 +176,9 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
   );
   const biomeReport = A.findFirst(resolution.report.categories, (category) =>
     versionCategoryNameEquivalence(category.category, "biome")
+  );
+  const effectReport = A.findFirst(resolution.report.categories, (category) =>
+    versionCategoryNameEquivalence(category.category, "effect")
   );
 
   totalChanges += yield* O.match(bunReport, {
@@ -187,6 +214,15 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
       A.match(report.items, {
         onEmpty: () => Effect.succeed(0),
         onNonEmpty: () => applyBiomeUpdates(repoRoot, report),
+      }),
+  });
+
+  totalChanges += yield* O.match(effectReport, {
+    onNone: () => Effect.succeed(0),
+    onSome: (report) =>
+      A.match(report.items, {
+        onEmpty: () => Effect.succeed(0),
+        onNonEmpty: () => applyEffectUpdates(repoRoot, report),
       }),
   });
 

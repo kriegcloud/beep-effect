@@ -9,6 +9,7 @@
  * @since 1.0.0
  */
 
+import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect, FileSystem, HashSet, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -127,7 +128,7 @@ const loadSubmodulePaths = Effect.gen(function* () {
   const exists = yield* fs.exists(".gitmodules");
   if (!exists) return A.empty<string>();
 
-  const content = yield* Effect.orElseSucceed(fs.readFileString(".gitmodules"), () => "");
+  const content = yield* Effect.orElseSucceed(fs.readFileString(".gitmodules"), thunkEmptyStr);
 
   return parseGitmodules(content);
 });

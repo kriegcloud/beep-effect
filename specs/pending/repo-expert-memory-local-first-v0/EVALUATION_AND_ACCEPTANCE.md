@@ -14,11 +14,14 @@ That means acceptance needs to cover:
 The prototype needs a fixed question set against `beep-effect3` so regressions are visible.
 
 At minimum, include questions like:
-- where is the Graphiti proxy command implemented?
-- where is the local sidecar runtime configured?
-- what package defines the repo-memory protocol contracts?
-- where is the desktop shell wired to the sidecar?
-- where are workflow or run lifecycle decisions recorded in specs?
+- describe symbol `StartQueryRepoRun`
+- locate symbol `TypeScriptIndexService`
+- what does `packages/runtime/server/src/index.ts` export?
+- how many indexed TypeScript files are in the latest snapshot?
+- how many indexed symbols are in the latest snapshot?
+- what does `packages/runtime/server/src/index.ts` import?
+- what imports `./internal/GroundedRetrieval.js`?
+- search `cluster workflow`
 
 ## Acceptance Checks
 ### 1. Repo registration
@@ -44,6 +47,8 @@ At minimum, include questions like:
 - citations must point to real file spans or symbol-backed spans
 - retrieval packet must be visible and bounded
 - unsupported confidence should not be presented as certainty
+- supported query classes must be source-grounded
+- unsupported query classes must fail safe instead of inventing answers
 
 ### 5. Projection integrity
 - `GET /runs` and `GET /runs/:runId` must reflect durable run state
@@ -55,9 +60,13 @@ At minimum, include questions like:
 - sidecar shuts down cleanly on signal
 - no leaked long-lived resources after shutdown
 - SQLite-backed runtime comes back without corrupting run history
+- same-port restart validation is exercised through a spawned Bun subprocess against the real sidecar entrypoint
+- supporting tests may use Node-backed harnesses, but those tests do not stand in for Bun lifecycle behavior
 
 ### 7. Type and spec discipline
 - touched packages must pass typecheck
+- supporting test suites should use `@effect/vitest` by default
+- test fixtures and request/response bodies should use schema JSON codecs instead of native JSON helpers
 - the spec set must not still recommend the superseded `HTTP + SSE` run model
 - the spec set must not still recommend a custom local workflow engine
 
@@ -78,3 +87,4 @@ It does need:
 ## Questions Worth Keeping Open
 - What is the smallest restart/resume test that proves the cluster/workflow substrate is really earning its place?
 - At what point should evaluation add latency targets instead of only correctness and inspectability?
+- When should evaluation add dependency-aware retrieval instead of declaration/export-only grounding?

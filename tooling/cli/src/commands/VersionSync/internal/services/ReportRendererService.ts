@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import { Boolean as Bool, Console, Effect, Layer, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -50,6 +51,7 @@ const renderCategoryLabel = (report: VersionCategoryReportValue): string =>
     node: () => "Node.js Runtime",
     docker: () => "Docker Images",
     biome: () => "Biome Schema",
+    effect: () => "Effect Catalog",
   });
 
 const renderStatusLabel = (status: VersionCategoryStatusValue): string =>
@@ -68,19 +70,20 @@ const renderCategoryReport: ReportRendererServiceShape["renderCategoryReport"] =
     onSome: (latest) => Console.log(`  Latest: ${latest}`),
   });
 
-  const wasEmpty = yield* A.match(report.items, {
-    onEmpty: () => Console.log("  Status: OK (no drift)").pipe(Effect.as(true)),
+  const hasItems = yield* A.match(report.items, {
+    onEmpty: () => Effect.succeed(false),
     onNonEmpty: (items) =>
       Effect.forEach(items, (item) => {
         const arrow = Bool.match(stringEquivalence(item.current, item.expected), {
-          onTrue: () => "",
+          onTrue: thunkEmptyStr,
           onFalse: () => ` -> ${item.expected}`,
         });
         return Console.log(`  ${item.file} ${item.field}: ${item.current}${arrow}`);
-      }).pipe(Effect.as(false)),
+      }).pipe(Effect.as(true)),
   });
 
-  if (wasEmpty) {
+  if (!hasItems && report.status === "ok" && O.isNone(report.error)) {
+    yield* Console.log("  Status: OK (no drift)");
     return;
   }
 

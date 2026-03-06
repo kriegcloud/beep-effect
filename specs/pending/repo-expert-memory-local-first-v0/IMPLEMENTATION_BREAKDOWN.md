@@ -58,8 +58,9 @@ Use:
 Rules:
 - `runId === executionId`
 - execution IDs are deterministic from normalized payload + version stamp
-- discard RPCs return `runId`
-- resume RPCs come from workflow proxy generation
+- custom public start RPCs compute `workflow.executionId(payload)` and return `runId`
+- generated workflow discard RPCs do not return `runId`
+- resume RPCs can still come from workflow proxy generation
 
 ## Workstream 5: Product-level run journal and projections
 Add:
@@ -112,6 +113,43 @@ Delete the superseded public transport surface once the new runtime path lands:
 - `GET /api/v0/runs/:runId/events`
 
 Also remove doc language that still treats those as the target design.
+
+## Workstream 9: Grounded retrieval
+The current next slice is no longer hypothetical. It is:
+- deterministic TypeScript extraction at index time
+- persisted source snapshots, source files, symbol records, and import edges in SQLite
+- bounded deterministic query interpretation
+- source-grounded retrieval packets and citations for supported query classes
+
+Current supported query classes:
+- `countFiles`
+- `countSymbols`
+- `locateSymbol`
+- `describeSymbol`
+- `listFileExports`
+- `listFileImports`
+- `listFileImporters`
+- `keywordSearch`
+
+Current non-goals:
+- freeform semantic repo QA
+- model-generated answers without deterministic grounding
+- long-lived `ts-morph` projects outside workflow-scoped indexing
+
+## Workstream 10: Test split and lifecycle proof
+Testing is now intentionally split by runtime concern.
+
+Supporting tests:
+- default to `@effect/vitest`
+- use Node-backed supporting layers where possible
+- use `sqlite-node` for local SQL integration in supporting tests
+- keep `FileSystem`, `Path`, and `SqlClient` requirements inside layers and shared harnesses rather than leaking them through helper method signatures
+- use schema JSON codecs in tests and fixtures; do not reintroduce native `JSON.parse` / `JSON.stringify`
+
+Authoritative lifecycle test:
+- spawn the real Bun sidecar through `packages/runtime/server/src/main.ts`
+- keep `sqlite-bun`
+- prove same-port shutdown/restart and replay against the real runtime
 
 ## Immediate Guardrail
 The paused reduced `HttpApi` rewrite is not a prerequisite step.

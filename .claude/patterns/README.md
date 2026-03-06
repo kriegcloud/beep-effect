@@ -140,10 +140,10 @@ When multiple patterns match:
 ```bash
 # Test detection
 echo '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"git push --force"}}' | \
-  CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector.ts
+  CLAUDE_PROJECT_DIR=. bun run .claude/hooks/pattern-detector/index.ts
 
 # Run test suite
-.claude/hooks/test-pattern-detector.sh
+cd .claude && bun run test
 ```
 
 ## Hook Integration
@@ -152,9 +152,63 @@ The pattern detector is used by Claude's hook system:
 
 ```json
 {
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": false,
+    "serena@claude-plugins-official": true,
+    "claude-supermemory@supermemory-plugins": true
+  },
   "hooks": {
-    "PreToolUse": ".claude/hooks/pattern-detector.sh",
-    "PostToolUse": ".claude/hooks/pattern-detector.sh"
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/agent-init/run.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/skill-suggester/run.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/subagent-init/run.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pattern-detector/run.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pattern-detector/run.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ```

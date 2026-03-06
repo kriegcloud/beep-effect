@@ -9,6 +9,8 @@
  */
 
 import { $ClaudeId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -50,7 +52,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     tasks,
     A.map((t) => {
       const aliases = A.match(t.aliases, {
-        onEmpty: () => "",
+        onEmpty: thunkEmptyStr,
         onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
       });
       return `${t.name}${aliases}: ${t.description}`;
@@ -86,11 +88,11 @@ const listMemories = pipe(
   Effect.catch(() => Effect.succeed("Error listing memories."))
 );
 
-export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
+export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
   {
     reason: S.String,
-    cause: S.optional(S.Defect),
+    cause: S.optional(S.DefectWithStack),
   },
   $I.annote("AgentConfigError", {
     description: "Raised when hook configuration cannot be decoded.",
@@ -219,11 +221,7 @@ export const program = Effect.gen(function* () {
         sh`git branch -vv --list --sort=-committerdate`,
         Effect.map((s) => {
           const lines = Str.split("\n")(Str.trim(s));
-          const current = pipe(
-            lines,
-            A.findFirst(Str.startsWith("*")),
-            O.getOrElse(() => "")
-          );
+          const current = pipe(lines, A.findFirst(Str.startsWith("*")), O.getOrElse(thunkEmptyStr));
           const recent = pipe(lines, A.filter(P.not(Str.startsWith("*"))), A.take(4));
           return {
             current: Str.trim(Str.replace(/^\*\s*/, "")(current)),

@@ -10,6 +10,7 @@ import {
   type LayerDefinition,
   type ServiceDefinition,
 } from "@beep/claude/scripts/analyze-architecture";
+import { thunkEmptyStr } from "@beep/utils";
 import { HashSet, MutableHashMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -606,10 +607,10 @@ export const Default: Layer.Layer<
       const host: ts.CompilerHost = {
         getSourceFile: (fileName) => (fileName === testFile ? sourceFile : undefined),
         writeFile: () => {},
-        getCurrentDirectory: () => "",
+        getCurrentDirectory: thunkEmptyStr,
         getDirectories: () => [],
         fileExists: () => true,
-        readFile: () => "",
+        readFile: thunkEmptyStr,
         getCanonicalFileName: (fileName) => fileName,
         useCaseSensitiveFileNames: () => true,
         getNewLine: () => "\n",

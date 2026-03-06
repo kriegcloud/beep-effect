@@ -4,6 +4,7 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, HashMap, Layer, Path } from "effect";
+import * as Fs from "effect/FileSystem";
 import * as O from "effect/Option";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
@@ -58,6 +59,48 @@ layer(TestLayer)("Workspaces", (it) => {
           Effect.catchTag("NoSuchFileError", (e) => Effect.succeed(`caught: ${e._tag}`))
         );
         expect(result).toBe("caught: NoSuchFileError");
+      })
+    );
+
+    it.effect(
+      "should fail with DomainError for invalid root package.json",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+
+        yield* fs.writeFileString(pathApi.join(tmpDir, "package.json"), "not valid json");
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Failed to parse JSON at "${pathApi.join(tmpDir, "package.json")}"`);
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+
+    it.effect(
+      "should fail with DomainError for invalid child package.json",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const packagesDir = pathApi.join(tmpDir, "packages");
+        const packageDir = pathApi.join(packagesDir, "pkg-a");
+        const rootPackageJsonPath = pathApi.join(tmpDir, "package.json");
+        const childPackageJsonPath = pathApi.join(packageDir, "package.json");
+
+        yield* fs.makeDirectory(packageDir, { recursive: true });
+        yield* fs.writeFileString(rootPackageJsonPath, '{ "name": "root", "workspaces": ["packages/*"] }');
+        yield* fs.writeFileString(childPackageJsonPath, "not valid json");
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Failed to parse JSON at "${childPackageJsonPath}"`);
+
+        yield* fs.remove(tmpDir, { recursive: true });
       })
     );
   });

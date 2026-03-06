@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -81,7 +82,7 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
     ),
     exclude: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
   },
   $I.annote("EffectImportsCommandOptions", {

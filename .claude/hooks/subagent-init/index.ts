@@ -13,6 +13,8 @@
  */
 
 import { $ClaudeId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -48,7 +50,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     tasks,
     A.map((t) => {
       const aliases = A.match(t.aliases, {
-        onEmpty: () => "",
+        onEmpty: thunkEmptyStr,
         onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
       });
       return `${t.name}${aliases}: ${t.description}`;
@@ -56,9 +58,9 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
     A.join("\n")
   );
 
-export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
+export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
-  { reason: S.String, cause: S.optional(S.Defect) },
+  { reason: S.String, cause: S.optional(S.DefectWithStack) },
   $I.annote("AgentConfigError", {
     description: "Raised when subagent hook configuration cannot be decoded.",
   })

@@ -63,6 +63,7 @@ describe("tooling/cli schema-first models", () => {
       nodeOnly: false,
       dockerOnly: false,
       biomeOnly: false,
+      effectOnly: false,
     });
 
     const modeLabel = VersionSyncOptions.match(option, {

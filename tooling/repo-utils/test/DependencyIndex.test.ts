@@ -4,6 +4,7 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, HashMap, Layer, Path } from "effect";
+import * as Fs from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 
@@ -96,6 +97,51 @@ layer(TestLayer)("DependencyIndex", (it) => {
           expect(deps.npm.dependencies).toHaveProperty("typescript");
           expect(deps.npm.devDependencies).toHaveProperty("vitest");
         }
+      })
+    );
+
+    it.effect(
+      "should fail with DomainError for invalid root package.json",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const rootPackageJsonPath = pathApi.join(tmpDir, "package.json");
+
+        yield* fs.writeFileString(rootPackageJsonPath, "not valid json");
+
+        const result = yield* buildRepoDependencyIndex(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Failed to parse JSON at "${rootPackageJsonPath}"`);
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+
+    it.effect(
+      "should fail with DomainError for invalid child package.json",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const packageDir = pathApi.join(tmpDir, "packages", "pkg-a");
+        const rootPackageJsonPath = pathApi.join(tmpDir, "package.json");
+        const childPackageJsonPath = pathApi.join(packageDir, "package.json");
+
+        yield* fs.makeDirectory(packageDir, { recursive: true });
+        yield* fs.writeFileString(
+          rootPackageJsonPath,
+          '{ "name": "root", "private": true, "workspaces": ["packages/*"], "dependencies": {}, "devDependencies": {} }'
+        );
+        yield* fs.writeFileString(childPackageJsonPath, "not valid json");
+
+        const result = yield* buildRepoDependencyIndex(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Failed to parse JSON at "${childPackageJsonPath}"`);
+
+        yield* fs.remove(tmpDir, { recursive: true });
       })
     );
   });

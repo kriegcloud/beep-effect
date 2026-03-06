@@ -44,10 +44,12 @@ const shouldCheck: CategorySelectionServiceShape["shouldCheck"] = (options, cate
     Match.when("node", () => options.nodeOnly),
     Match.when("docker", () => options.dockerOnly),
     Match.when("biome", () => options.biomeOnly),
+    Match.when("effect", () => options.effectOnly),
     Match.exhaustive
   );
 
-  const hasAnyExplicitCategoryFilter = options.bunOnly || options.nodeOnly || options.dockerOnly || options.biomeOnly;
+  const hasAnyExplicitCategoryFilter =
+    options.bunOnly || options.nodeOnly || options.dockerOnly || options.biomeOnly || options.effectOnly;
 
   return Bool.match(hasAnyExplicitCategoryFilter, {
     onFalse: () => true,

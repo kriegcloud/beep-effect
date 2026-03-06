@@ -44,6 +44,12 @@ Before making broad recommendations:
    - graph-store choice sits behind a driver boundary
    - the product shape is local-first native shell + Bun sidecar
    - the repo expert-memory v0 runtime is cluster-first: workflow semantic model, cluster durable substrate, HttpApi control plane, Rpc execution plane, EventJournal audit/projection input, sqlite-bun local SQL provider
+   - public run-start uses custom RPCs that return runId; generated workflow discard RPCs are internal/supporting because they do not return runId
+   - current repo QA is bounded and source-grounded for supported query classes only; it is not freeform semantic repo chat
+   - supporting tests default to @effect/vitest and may use Node-backed layers; real same-port sidecar lifecycle is proven with spawned Bun subprocess tests
+   - schema JSON codecs are used even in tests and fixtures; avoid native JSON helpers
+   - keep FileSystem/Path/SqlClient requirements in layers and services, not public method signatures
+   - ts-morph is an index-time extractor only, scoped per workspace / tsconfig and released when the workflow step completes
    - the paused reduced HttpApi rewrite remains superseded
 
 4. Briefly summarize your understanding before proposing a new direction. Preserve the architecture thesis and tradeoffs instead of re-debating them from scratch.

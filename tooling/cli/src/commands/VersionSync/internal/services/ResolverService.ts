@@ -22,6 +22,7 @@ import {
 import { BiomeSchemaState, buildBiomeReport, resolveBiomeSchema } from "../resolvers/BiomeResolver.js";
 import { BunVersionState, buildBunReport, resolveBunVersions } from "../resolvers/BunResolver.js";
 import { buildDockerReport, DockerImageState, resolveDockerImages } from "../resolvers/DockerResolver.js";
+import { buildEffectReport, EffectCatalogState, resolveEffectCatalog } from "../resolvers/EffectResolver.js";
 import { buildNodeReport, resolveNodeVersions } from "../resolvers/NodeResolver.js";
 import { CategorySelectionService } from "./CategorySelectionService.js";
 
@@ -115,6 +116,20 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
     if (Str.isNonEmpty(biomeState.installedVersion)) {
       categories = A.append(categories, buildBiomeReport(biomeState));
     }
+  }
+
+  if (categorySelection.shouldCheck(options, "effect")) {
+    const effectState = yield* resolveEffectCatalog(repoRoot).pipe(
+      Effect.catchTag(
+        "VersionSyncError",
+        Effect.fn(function* (error) {
+          yield* Effect.logWarning(`Effect catalog resolution failed: ${error.message}`);
+          return new EffectCatalogState({});
+        })
+      )
+    );
+
+    categories = A.append(categories, buildEffectReport(effectState));
   }
 
   const report = new VersionSyncReport({

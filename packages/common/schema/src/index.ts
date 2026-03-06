@@ -47,6 +47,11 @@ export * from "./FilePath.js";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Int.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Logs.js";
 /**
  * @since 0.0.0
@@ -57,7 +62,7 @@ export * from "./MimeType.js";
  * @since 0.0.0
  * @category Validation
  */
-export * from "./Number.js";
+export { isNegative, isNonNegative, isNonPositive, isPositive } from "./Number.js";
 /**
  * @since 0.0.0
  * @category Validation

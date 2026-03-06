@@ -74,3 +74,57 @@ export const updatePackageManagerField: (
 
   return true;
 });
+
+/**
+ * Update a root package.json `catalog` entry using `jsonc-parser`.
+ *
+ * Returns `true` when the file was modified, `false` when already correct.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const updateCatalogEntry: (
+  filePath: string,
+  dependencyName: string,
+  versionSpecifier: string
+) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn(
+  function* (filePath, dependencyName, versionSpecifier) {
+    const fs = yield* FileSystem.FileSystem;
+
+    const original = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
+      )
+    );
+
+    const edits = jsonc.modify(original, ["catalog", dependencyName], versionSpecifier, {
+      formattingOptions: FORMATTING_OPTIONS,
+    });
+
+    if (A.isReadonlyArrayEmpty(edits)) {
+      return false;
+    }
+
+    const updated = jsonc.applyEdits(original, edits);
+
+    if (updated === original) {
+      return false;
+    }
+
+    yield* fs.writeFileString(filePath, updated).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: filePath,
+          })
+      )
+    );
+
+    return true;
+  }
+);

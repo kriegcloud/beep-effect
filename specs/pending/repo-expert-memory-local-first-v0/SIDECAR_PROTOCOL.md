@@ -17,9 +17,10 @@ This protocol is aligned to official primitives rather than plugin folklore:
 - [Bun standalone executables](https://bun.sh/docs/bundler/executables)
 - [Effect HttpRunner](https://github.com/Effect-TS/effect-smol)
 - [Effect WorkflowProxy](https://github.com/Effect-TS/effect-smol)
+- [Effect EventJournal](https://github.com/Effect-TS/effect-smol)
 
 ## Explicit Rejections For V0
-The implementation must reject these as `v0` foundations:
+The implementation rejects these as `v0` foundations:
 - full-stack Next.js local server as the primary backend runtime
 - `tauri-plugin-js` as the primary lifecycle dependency
 - shell-owned business logic
@@ -92,15 +93,18 @@ These routes should be modeled in `packages/runtime/protocol` as `HttpApi` contr
 The execution plane is workflow-backed `Rpc`, not ad hoc long-running HTTP routes.
 
 The target public execution surface is:
-- workflow-proxy generated RPCs for:
-  - `IndexRepoRun`
-  - `IndexRepoRunDiscard`
-  - `IndexRepoRunResume`
-  - `QueryRepoRun`
-  - `QueryRepoRunDiscard`
-  - `QueryRepoRunResume`
+- custom start RPCs for:
+  - `StartIndexRepoRun`
+  - `StartQueryRepoRun`
 - one custom streamed RPC:
   - `StreamRunEvents`
+
+The runtime may still register workflow-proxy generated handlers internally for:
+- workflow resume
+- workflow poll/inspection paths
+- intra-runtime workflow integration
+
+Those are not the primary desktop-facing run-start contract.
 
 ### `StreamRunEvents`
 `StreamRunEvents` must:
@@ -113,8 +117,9 @@ The target public execution surface is:
 ## Run Lifecycle Identity
 - `runId === executionId`
 - workflow execution IDs are deterministic from normalized payload + version stamp
-- discard RPCs return `runId`
-- resume RPCs come from workflow proxy generation, not custom route logic
+- custom start RPCs compute `workflow.executionId(payload)` before dispatch, append `RunAccepted`, and return `runId` immediately
+- generated `WorkflowProxy` discard RPCs do not return `runId`; they are not sufficient as the public run-start surface
+- resume RPCs may still come from workflow proxy generation or internal workflow plumbing, but they are not the only execution-plane primitive
 
 ## Product-Level Run Events
 `EventJournal` is the product audit model.
@@ -162,5 +167,5 @@ Rules:
 - it should remain smaller and more inspectable than a raw unbounded subgraph dump
 
 ## Questions Worth Keeping Open
-- Should `StreamRunEvents` remain the only custom RPC beyond workflow-proxy generated RPCs?
+- Should `StreamRunEvents` remain the only custom RPC beyond the two public start RPCs?
 - Which compatibility routes should stay briefly during migration, and which should be deleted immediately once the cluster path lands?

@@ -10,7 +10,7 @@
     "build": "tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "echo 'no tests yet'",
+    "test": "vitest run",
     "docgen": "bunx @effect/docgen",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write"
@@ -24,6 +24,8 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@beep/test-utils": "workspace:^",
     "@beep/types": "workspace:^",
     "@types/node": "catalog:"
   },

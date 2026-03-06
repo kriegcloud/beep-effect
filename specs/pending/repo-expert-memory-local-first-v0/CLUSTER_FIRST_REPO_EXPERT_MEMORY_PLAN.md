@@ -76,8 +76,9 @@ Use:
 Rules:
 - `runId === executionId`
 - execution ids are deterministic from normalized payload + version stamp
-- discard RPCs return `runId`
-- resume RPCs come from workflow proxy generation
+- public start RPCs compute `workflow.executionId(payload)` and return `runId` explicitly
+- generated workflow discard RPCs do not return `runId`
+- resume RPCs can still come from workflow proxy generation
 - no custom local `WorkflowEngine`
 - no ad hoc run fibers as the authoritative lifecycle
 
@@ -92,15 +93,12 @@ Refactor `packages/runtime/protocol` into two explicit surfaces.
 - `GET /api/v0/runs/:runId`
 
 `Rpc` execution plane:
-- workflow-derived RPCs for:
-  - `IndexRepoRun`
-  - `IndexRepoRunDiscard`
-  - `IndexRepoRunResume`
-  - `QueryRepoRun`
-  - `QueryRepoRunDiscard`
-  - `QueryRepoRunResume`
+- custom public start RPCs for:
+  - `StartIndexRepoRun`
+  - `StartQueryRepoRun`
 - one custom streamed RPC:
   - `StreamRunEvents`
+- workflow-generated RPC handlers may still exist internally for resume/poll semantics
 
 `StreamRunEvents` rules:
 - input: `runId` plus optional replay cursor
@@ -248,7 +246,7 @@ Also write a final Graphiti memory episode summarizing:
 - control plane:
   - all five `HttpApi` endpoints return deterministic public payloads
 - execution plane:
-  - discard RPCs return deterministic `runId`
+  - `StartIndexRepoRun` and `StartQueryRepoRun` return deterministic `runId`
   - `StreamRunEvents` replays from cursor and continues live
   - disconnect does not kill underlying workflow
 - journal/projection:
@@ -257,9 +255,10 @@ Also write a final Graphiti memory episode summarizing:
 - docs:
   - no conflicting architecture text remains
   - README and decision docs link to the pivot note correctly
+  - docs do not claim that generated discard RPCs return `runId`
 
 ## Assumptions
 - single local runner only for v0, but implemented through real cluster services
 - `RpcSerialization.layerNdjson` is used globally for v0
-- `WorkflowProxy` is used for workflow execution/resume RPC generation
+- `WorkflowProxy` remains useful for internal workflow handler generation, but public run-start remains custom RPCs that return `runId`
 - the paused reduced `HttpApi` rewrite is abandoned rather than merged incrementally

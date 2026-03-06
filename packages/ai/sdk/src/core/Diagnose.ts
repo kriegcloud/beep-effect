@@ -1,5 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import { Config, Effect, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -128,7 +129,7 @@ const getBun = (): BunLike | undefined => {
 const readApiKey = Effect.gen(function* () {
   const apiKey = yield* Config.option(Config.string("ANTHROPIC_API_KEY"));
   const fallback = yield* Config.option(Config.string("API_KEY"));
-  return O.isSome(apiKey) ? apiKey.value : O.getOrElse(fallback, () => "");
+  return O.isSome(apiKey) ? apiKey.value : O.getOrElse(fallback, thunkEmptyStr);
 });
 
 const checkApiKey = () =>
@@ -198,8 +199,8 @@ const tryResolvePackageVersion = (specifier: string): Effect.Effect<O.Option<str
     if (bunFile) {
       const textResult = yield* Effect.tryPromise({
         try: () => bunFile(url).text(),
-        catch: () => "",
-      }).pipe(Effect.orElseSucceed(() => ""));
+        catch: thunkEmptyStr,
+      }).pipe(Effect.orElseSucceed(thunkEmptyStr));
       return decodePackageVersionFromText(textResult);
     }
 

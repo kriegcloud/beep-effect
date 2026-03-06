@@ -88,7 +88,7 @@ export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftI
  * @since 0.0.0
  * @category DomainModel
  */
-const VersionCategoryKit = LiteralKit(["bun", "node", "docker", "biome"]);
+const VersionCategoryKit = LiteralKit(["bun", "node", "docker", "biome", "effect"]);
 /**
  * Version category for grouping drift items.
  *
@@ -225,8 +225,24 @@ class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`
   })
 ) {}
 
+class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($I`VersionCategoryReportEffect`)(
+  {
+    category: S.tag("effect"),
+    status: VersionCategoryStatus,
+    items: S.Array(VersionDriftItem).pipe(
+      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(() => A.empty<VersionDriftItem>())
+    ),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+  },
+  $I.annote("VersionCategoryReportEffect", {
+    description: "Version report entry for Effect catalog packages.",
+  })
+) {}
+
 /**
- * Report for a single version category (bun, node, docker, or biome).
+ * Report for a single version category (bun, node, docker, biome, or effect).
  *
  * @returns Tagged union schema keyed by `category`.
  * @since 0.0.0
@@ -238,6 +254,7 @@ export const VersionCategoryReport = VersionCategory.mapMembers(
     () => VersionCategoryReportNode,
     () => VersionCategoryReportDocker,
     () => VersionCategoryReportBiome,
+    () => VersionCategoryReportEffect,
   ])
 )
   .annotate(
@@ -317,6 +334,7 @@ class VersionSyncOptionsCheck extends S.Class<VersionSyncOptionsCheck>($I`Versio
     nodeOnly: DefaultedVersionSyncFlag,
     dockerOnly: DefaultedVersionSyncFlag,
     biomeOnly: DefaultedVersionSyncFlag,
+    effectOnly: DefaultedVersionSyncFlag,
   },
   $I.annote("VersionSyncOptionsCheck", {
     description: "Resolved option set for check mode.",
@@ -331,6 +349,7 @@ class VersionSyncOptionsWrite extends S.Class<VersionSyncOptionsWrite>($I`Versio
     nodeOnly: DefaultedVersionSyncFlag,
     dockerOnly: DefaultedVersionSyncFlag,
     biomeOnly: DefaultedVersionSyncFlag,
+    effectOnly: DefaultedVersionSyncFlag,
   },
   $I.annote("VersionSyncOptionsWrite", {
     description: "Resolved option set for write mode.",
@@ -345,6 +364,7 @@ class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`Vers
     nodeOnly: DefaultedVersionSyncFlag,
     dockerOnly: DefaultedVersionSyncFlag,
     biomeOnly: DefaultedVersionSyncFlag,
+    effectOnly: DefaultedVersionSyncFlag,
   },
   $I.annote("VersionSyncOptionsDryRun", {
     description: "Resolved option set for dry-run mode.",

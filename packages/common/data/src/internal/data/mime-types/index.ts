@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 
+import { thunkEmptyStr } from "@beep/utils";
 import { pipe, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -19,7 +20,6 @@ import { image as _image } from "./image.js";
 import { misc as _misc } from "./misc.js";
 import { text as _text } from "./text.js";
 import { video as _video } from "./video.js";
-
 /**
  * Record of `application/*` MIME type definitions sourced from IANA, Apache,
  * and Nginx registries.
@@ -152,7 +152,7 @@ export const mimeTypes = mimes as unknown as Record<MimeType, { source: string; 
 function extname(path: string) {
   return O.fromUndefinedOr(Str.lastIndexOf(".")(path)).pipe(
     O.map((index) => Str.substring(index)(path)),
-    O.getOrElse(() => "")
+    O.getOrElse(thunkEmptyStr)
   );
 }
 

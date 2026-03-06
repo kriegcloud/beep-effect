@@ -11,7 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
-import { thunkFalse, thunkUndefined } from "@beep/utils";
+import { thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -259,17 +259,17 @@ export const codegenCommand = Command.make(
     // Read package.json to extract the package name for the header
     const packageJsonPath = pathSvc.join(packageDir, "package.json");
     const packageName = yield* Effect.gen(function* () {
-      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(thunkUndefined));
+      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(O.none));
       if (
-        P.isNotUndefined(json) &&
-        P.isObject(json) &&
-        P.isNotNull(json) &&
-        P.hasProperty(json, "name") &&
+        O.isSome(json) &&
+        P.isObject(json.value) &&
+        P.isNotNull(json.value) &&
+        P.hasProperty(json.value, "name") &&
         P.Struct({
           name: P.isString,
-        })(json)
+        })(json.value)
       ) {
-        return json.name;
+        return json.value.name;
       }
       return pathSvc.basename(packageDir);
     });

@@ -34,35 +34,38 @@ Before writing code, run this checklist:
 15. Am I mapping nullable/nullish schema values to `Option`? Use `S.OptionFrom*` helpers.
 16. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
 17. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
-18. Am I executing an effect? Keep `Effect.run*` calls at app/test runtime boundaries only.
-19. Am I wrapping Promise-based APIs at boundaries with `Effect.tryPromise`?
-20. Am I acquiring resources? Use `Effect.acquireUseRelease` / `Effect.scoped` so release is guaranteed.
-21. Am I retrying work? Use `Effect.retry` with `Schedule`, never manual retry loops.
-22. Am I modeling timeout outcomes? Prefer `Effect.timeoutOption` or `Effect.timeoutOrElse`.
-23. Am I forking? Prefer `Effect.forkChild`; use `Effect.forkDetach` only for explicit daemon behavior.
-24. Am I running fan-out work? Set explicit concurrency for `Effect.forEach` / `Effect.all` where appropriate.
-25. Am I reading config? Use `Config` / `ConfigProvider`, not direct `process.env` in domain code.
-26. Am I handling secrets? Use `Config.redacted` / `Redacted` so values stay protected in logs.
-27. Am I recovering errors? Prefer `Effect.catchTag` / `Effect.catchFilter` inside the domain, and `Effect.catchCause` / `Effect.matchCauseEffect` at recovery boundaries.
-28. Am I rendering or logging failure detail? Use `Cause.pretty` / `Cause.prettyErrors`, not ad-hoc stringification.
-29. Am I encoding expected failure vs invariant defect correctly (`fail` vs `die`)?
-30. Am I providing layers where isolation matters? Use `Effect.provide(..., { local: true })` or `Layer.fresh(...)`.
-31. Am I about to write a plain `type` / `interface` that can be expressed as `Schema`? If yes, make Schema the source of truth.
-32. Am I adding fallback objects in handlers/services? Move defaults into schemas with `S.withConstructorDefault` and `S.withDecodingDefault*`.
-33. Am I writing a guard helper for strings/paths/tags? Prefer branded schemas + `S.is(...)` or `P.isTagged(...)` over ad-hoc predicate helpers.
-34. Am I comparing schema-modeled domain values? Prefer `S.toEquivalence(...)` over direct `===` / `!==`.
-35. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
-36. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
-37. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
-38. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
-39. Am I directly returning a matcher or extracting a reusable matcher? Prefer `Match.type<T>().pipe(...)` or `Match.tags(...)` over `Match.value(...)`.
-40. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
-41. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
-42. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
-43. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
-44. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
-45. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
-46. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
+18. Am I in test code? The same JSON rule still applies there; test fixtures and request bodies should use schema codecs too.
+19. Am I executing an effect? Keep `Effect.run*` calls at app/test runtime boundaries only.
+20. Am I wrapping Promise-based APIs at boundaries with `Effect.tryPromise`?
+21. Am I acquiring resources? Use `Effect.acquireUseRelease` / `Effect.scoped` so release is guaranteed.
+22. Am I retrying work? Use `Effect.retry` with `Schedule`, never manual retry loops.
+23. Am I modeling timeout outcomes? Prefer `Effect.timeoutOption` or `Effect.timeoutOrElse`.
+24. Am I forking? Prefer `Effect.forkChild`; use `Effect.forkDetach` only for explicit daemon behavior.
+25. Am I running fan-out work? Set explicit concurrency for `Effect.forEach` / `Effect.all` where appropriate.
+26. Am I reading config? Use `Config` / `ConfigProvider`, not direct `process.env` in domain code.
+27. Am I handling secrets? Use `Config.redacted` / `Redacted` so values stay protected in logs.
+28. Am I recovering errors? Prefer `Effect.catchTag` / `Effect.catchFilter` inside the domain, and `Effect.catchCause` / `Effect.matchCauseEffect` at recovery boundaries.
+29. Am I rendering or logging failure detail? Use `Cause.pretty` / `Cause.prettyErrors`, not ad-hoc stringification.
+30. Am I encoding expected failure vs invariant defect correctly (`fail` vs `die`)?
+31. Am I providing layers where isolation matters? Use `Effect.provide(..., { local: true })` or `Layer.fresh(...)`.
+32. Am I about to write a plain `type` / `interface` that can be expressed as `Schema`? If yes, make Schema the source of truth.
+33. Am I adding fallback objects in handlers/services? Move defaults into schemas with `S.withConstructorDefault` and `S.withDecodingDefault*`.
+34. Am I writing a guard helper for strings/paths/tags? Prefer branded schemas + `S.is(...)` or `P.isTagged(...)` over ad-hoc predicate helpers.
+35. Am I comparing schema-modeled domain values? Prefer `S.toEquivalence(...)` over direct `===` / `!==`.
+36. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
+37. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
+38. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
+39. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
+40. Am I directly returning a matcher or extracting a reusable matcher? Prefer `Match.type<T>().pipe(...)` or `Match.tags(...)` over `Match.value(...)`.
+41. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
+42. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
+43. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
+44. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
+45. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
+46. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
+47. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
+48. Am I designing a service or test helper? Keep `FileSystem`, `Path`, and `SqlClient` inside the layer/service unless they are the explicit domain boundary.
+49. Am I writing tests for platform/runtime semantics? Prefer `@effect/vitest` for supporting tests, but spawn the real runtime when the assertion is about platform lifecycle behavior.
 
 ## Non-Negotiable Laws
 
@@ -93,21 +96,23 @@ Before writing code, run this checklist:
 20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`.
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
 22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code; use `S.UnknownFromJsonString` / `S.fromJsonString` + `S.decodeUnknown*` / `S.encode*`.
-23. Prefer `S.Class` over `S.Struct` for domain object schemas; use `S.Struct` only when a concrete boundary exception is required.
-24. Only runtime boundaries (app entrypoints/tests) may call `Effect.runSync` / `Effect.runPromise` / `Effect.runFork`; libraries return `Effect`.
-25. Promise-returning APIs must be lifted with `Effect.tryPromise` at boundaries.
-26. Resource lifetimes must be explicit with `Effect.acquireUseRelease` or `Effect.scoped`.
-27. Retries must be expressed via `Effect.retry` and `Schedule`, not manual retry loops.
-28. Timeout behavior should be modeled with `Effect.timeoutOption` / `Effect.timeoutOrElse` instead of ad-hoc timers.
-29. Forking defaults to `Effect.forkChild`; `Effect.forkDetach` requires explicit daemon intent.
-30. Parallel fan-out should set explicit concurrency for `Effect.forEach` / `Effect.all` / `Effect.validate` when load is non-trivial.
-31. Config should be modeled via `Config` and `ConfigProvider`, not direct `process.env` access in domain services.
-32. Secrets must be represented as `Redacted` values (`Config.redacted` / `Redacted.make`) and never logged raw.
-33. Error recovery should be precise (`catchTag` / `catchFilter`) instead of blanket recovery that hides unrelated failures; at outer HTTP/process boundaries prefer `Effect.catchCause` / `Effect.matchCauseEffect`.
-34. Use `Effect.fail` for expected business errors and reserve `Effect.die` / `Effect.orDie` for invariants and impossible states.
-35. When layer memoization sharing is unsafe, force isolation with `Effect.provide(..., { local: true })` or `Layer.fresh`.
-36. Schema-first development: if a data model can be represented as `Schema`, define the `Schema` first and derive runtime types from it; avoid plain `type` / `interface` for domain data shapes.
-37. Prefer schema-level defaults (`S.withConstructorDefault`, `S.withDecodingDefault`, `S.withDecodingDefaultKey`) instead of ad-hoc runtime fallback object literals.
+23. This JSON rule applies in tests and fixtures too; do not introduce native JSON helpers just because the file is under `test/`.
+24. Prefer `S.Class` over `S.Struct` for domain object schemas; use `S.Struct` only when a concrete boundary exception is required.
+25. Only runtime boundaries (app entrypoints/tests) may call `Effect.runSync` / `Effect.runPromise` / `Effect.runFork`; libraries return `Effect`.
+26. Promise-returning APIs must be lifted with `Effect.tryPromise` at boundaries.
+27. Resource lifetimes must be explicit with `Effect.acquireUseRelease` or `Effect.scoped`.
+28. Retries must be expressed via `Effect.retry` and `Schedule`, not manual retry loops.
+29. Timeout behavior should be modeled with `Effect.timeoutOption` / `Effect.timeoutOrElse` instead of ad-hoc timers.
+30. Forking defaults to `Effect.forkChild`; `Effect.forkDetach` requires explicit daemon intent.
+31. Parallel fan-out should set explicit concurrency for `Effect.forEach` / `Effect.all` / `Effect.validate` when load is non-trivial.
+32. Config should be modeled via `Config` and `ConfigProvider`, not direct `process.env` access in domain services.
+33. Secrets must be represented as `Redacted` values (`Config.redacted` / `Redacted.make`) and never logged raw.
+34. Error recovery should be precise (`catchTag` / `catchFilter`) instead of blanket recovery that hides unrelated failures; at outer HTTP/process boundaries prefer `Effect.catchCause` / `Effect.matchCauseEffect`.
+35. Use `Effect.fail` for expected business errors and reserve `Effect.die` / `Effect.orDie` for invariants and impossible states.
+36. When layer memoization sharing is unsafe, force isolation with `Effect.provide(..., { local: true })` or `Layer.fresh`.
+37. Schema-first development: if a data model can be represented as `Schema`, define the `Schema` first and derive runtime types from it; avoid plain `type` / `interface` for domain data shapes.
+38. Service contracts may stay interfaces, but row shapes, wire payloads, and persisted models should not.
+39. Prefer schema-level defaults (`S.withConstructorDefault`, `S.withDecodingDefault`, `S.withDecodingDefaultKey`) instead of ad-hoc runtime fallback object literals.
 38. Guard predicates for domain strings/paths/tags should come from branded schemas via `S.is(...)`, not ad-hoc `regex.test(...)` helpers.
 39. For schema-modeled domain comparisons, prefer `S.toEquivalence(schema)` over manual `===` / `!==` checks.
 40. For deterministic format conversions, prefer schema transformations (`S.decodeTo` + `SchemaTransformation.transform`) over ad-hoc string conversion helpers.

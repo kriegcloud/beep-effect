@@ -1,31 +1,57 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Effect, Layer, ServiceMap } from "effect";
-import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 const $I = $AiSdkId.create("core/Sync/ConflictPolicy");
 
 /**
  * @since 0.0.0
  */
-export type ConflictResolution =
-  | { readonly _tag: "accept"; readonly entry: EventJournal.Entry }
-  | { readonly _tag: "reject"; readonly reason?: string }
-  | { readonly _tag: "merge"; readonly entry: EventJournal.Entry };
+export class ConflictResolutionAccept extends S.TaggedClass<ConflictResolutionAccept>($I`ConflictResolutionAccept`)(
+  "accept",
+  {
+    entry: EventJournal.Entry,
+  }
+) {}
 
-const accept = (entry: EventJournal.Entry): ConflictResolution => ({
-  _tag: "accept",
-  entry,
-});
+export class ConflictResolutionReject extends S.TaggedClass<ConflictResolutionReject>($I`ConflictResolutionReject`)(
+  "reject",
+  {
+    reason: S.OptionFromOptionalKey(S.String),
+  }
+) {}
 
-const merge = (entry: EventJournal.Entry): ConflictResolution => ({
-  _tag: "merge",
-  entry,
-});
+export class ConflictResolutionMerge extends S.TaggedClass<ConflictResolutionMerge>($I`ConflictResolutionMerge`)(
+  "merge",
+  {
+    entry: EventJournal.Entry,
+  }
+) {}
 
-const reject = (reason?: string): ConflictResolution => ({
-  _tag: "reject",
-  ...(reason ? { reason } : {}),
-});
+export const ConflictResolution = S.Union([
+  ConflictResolutionAccept,
+  ConflictResolutionReject,
+  ConflictResolutionMerge,
+]).pipe(S.toTaggedUnion("_tag"));
+
+export type ConflictResolution = typeof ConflictResolution.Type;
+
+const accept = (entry: EventJournal.Entry): ConflictResolution =>
+  new ConflictResolutionAccept({
+    entry,
+  });
+
+const merge = (entry: EventJournal.Entry): ConflictResolution =>
+  new ConflictResolutionMerge({
+    entry,
+  });
+
+const reject = (reason?: string): ConflictResolution =>
+  ConflictResolution.cases.reject.makeUnsafe({
+    reason: O.fromNullishOr(reason),
+  });
 
 const pickLatest = (entries: ReadonlyArray<EventJournal.Entry>) => {
   if (entries.length === 0) return undefined;

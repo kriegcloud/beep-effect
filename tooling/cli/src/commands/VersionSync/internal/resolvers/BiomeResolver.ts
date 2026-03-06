@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -114,7 +115,7 @@ class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocume
   {
     $schema: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
   },
   $I.annote("BiomeJsoncDocument", {
@@ -150,12 +151,12 @@ export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaSt
   {
     schemaUrl: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
     schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
     installedVersion: S.String.pipe(
       S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(() => "")
+      S.withDecodingDefault(thunkEmptyStr)
     ),
   },
   $I.annote("BiomeSchemaState", {
@@ -227,7 +228,7 @@ export const resolveBiomeSchema: (
 
     const rawVersion = O.getOrElse(
       O.orElse(R.get(pkgJson.catalog, "@biomejs/biome"), () => R.get(pkgJson.devDependencies, "@biomejs/biome")),
-      () => ""
+      thunkEmptyStr
     );
 
     const installedVersion = decodeExactVersion(rawVersion);

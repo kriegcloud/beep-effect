@@ -17,6 +17,12 @@ For the concrete repo expert-memory `v0`, the runtime shape is now also locked:
 - `Rpc` execution plane
 - `EventJournal` audit/projection input
 - `@effect/sql-sqlite-bun` as the local SQL provider
+- custom public start RPCs because generated workflow discard RPCs do not return `runId`
+- bounded source-grounded repo answers for supported query classes
+- `ts-morph` used only at index time, scoped per workspace / `tsconfig`
+- `@effect/vitest` for supporting tests and spawned Bun subprocess tests for real lifecycle proof
+- schema JSON codecs are required even in tests and fixtures; avoid native `JSON.parse` / `JSON.stringify`
+- keep `FileSystem`, `Path`, and `SqlClient` inside layers/services rather than leaking them into public helper signatures
 
 ## Non-Negotiables
 Unless new evidence materially overturns them, keep these defaults:
@@ -58,6 +64,8 @@ Keep these stable:
 - `control plane`
 - `epistemic runtime`
 - `cluster-first runtime substrate`
+- `run accepted ack`
+- `spawned Bun lifecycle test`
 
 ## Memory Bootstrap
 Use Graphiti before making broad assumptions.
@@ -115,6 +123,7 @@ Do not reopen these by default:
 - local-first sidecar as the right product shape
 - `cluster-first` as the repo expert-memory v0 substrate
 - the paused reduced `HttpApi` rewrite remaining superseded
+- generated workflow discard RPCs not being sufficient as the public run-start surface
 
 ## Writeback Protocol For Siblings
 Write memory when a conclusion changes future planning or implementation.
@@ -123,6 +132,7 @@ Good writeback topics:
 - runtime substrate decisions
 - parser/provider/database tradeoffs that changed the architecture
 - lifecycle or finalizer lessons from implementation
+- test harness decisions that preserve runtime honesty
 - query catalog improvements that materially improve retrieval quality
 - new docs that replace prior source-of-truth guidance
 
@@ -145,3 +155,5 @@ The fastest correct mental model is:
 - think `grounded answer substrate`, not generic RAG
 - think `local-first sidecar`, not browser-first SaaS
 - think `cluster-backed workflow runtime`, not ad hoc run fibers
+- think `bounded deterministic repo QA`, not freeform semantic repo chat
+- think `Node-backed supporting tests + Bun subprocess lifecycle tests`, not one harness pretending to cover both concerns
