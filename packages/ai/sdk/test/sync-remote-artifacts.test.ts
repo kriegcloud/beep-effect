@@ -1,5 +1,6 @@
 import { Storage, Sync } from "@beep/ai-sdk";
 import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -36,7 +37,7 @@ test("ArtifactStore.layerJournaledWithSyncWebSocket builds replicas", { skip: !h
         kind: "file",
         encoding: "utf8",
         content: "console.log('hello');",
-        createdAt: Date.now(),
+        createdAt: makeUnsafeUtc(Date.now()),
       });
       yield* storeA.put(record);
 

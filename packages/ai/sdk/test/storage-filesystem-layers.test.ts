@@ -1,5 +1,6 @@
 import { Schema, Storage } from "@beep/ai-sdk";
 import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { expect, test } from "@effect/vitest";
@@ -54,7 +55,7 @@ test("ArtifactStore layerFileSystemBun persists records", async () => {
         encoding: "utf8",
         content: "Example artifact",
         sizeBytes: "Example artifact".length,
-        createdAt: Date.now(),
+        createdAt: makeUnsafeUtc(Date.now()),
       });
 
       yield* Effect.gen(function* () {

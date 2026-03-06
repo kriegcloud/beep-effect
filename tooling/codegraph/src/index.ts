@@ -1,6 +1,7 @@
 /**
- * @beep/code-graph
+ * Public entrypoint for the codegraph schemas and domain models.
  *
+ * @packageDocumentation
  * @since 0.0.0
  */
 

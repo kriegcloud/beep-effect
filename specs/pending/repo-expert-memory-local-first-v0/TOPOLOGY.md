@@ -1,131 +1,106 @@
-# V0 Topology
+# Topology
 
 ## Thesis
-The `v0` topology should be the smallest package and app graph that cleanly supports a local-first repo-memory prototype.
+The `v0` topology should stay small and explicit.
 
-It should not attempt to reproduce the full long-term bounded-context lattice. It should only create the packages needed to prove the local-first sidecar architecture and grounded repo-memory workflow.
+The sidecar is the runtime center of gravity, and the topology should reflect that. This is not the place to reproduce the full long-term bounded-context tree.
 
-## Actual V0 Topology
+## V0 Topology
 ```text
 .
 ├── apps/
-│   └── desktop/                  # Tauri v2 shell + React/Vite/TanStack Router frontend
+│   └── desktop/                     # Tauri shell + React/Vite/TanStack Router UI
 │
 └── packages/
     ├── runtime/
-    │   ├── protocol/             # shell <-> sidecar contracts, SSE event shapes, shared request/response types
-    │   └── server/               # Bun + Effect sidecar composition root and transport host
+    │   ├── protocol/                # HttpApi contracts, Rpc groups, run event schemas
+    │   └── server/                  # Bun sidecar, cluster/runtime assembly, router, lifecycle
     │
     ├── repo-memory/
-    │   ├── domain/               # RepoTarget, IndexRun, QueryRun, Citation, RetrievalPacket, repo-memory errors
-    │   ├── server/               # ingestion, indexing, retrieval, grounded-answer orchestration services
-    │   ├── client/               # protocol-aware client helpers for desktop frontend
-    │   └── drivers-local/        # local graph/search/artifact/persistence adapters
+    │   ├── domain/                  # RepoId, RunId, Citation, RetrievalPacket, workflow payloads
+    │   ├── server/                  # Repo workflows, projections, journal-facing services
+    │   ├── drivers-local/           # SQLite-backed repo-memory persistence
+    │   └── client/                  # UI-side client contracts/helpers
     │
     └── common/
-        ├── utils/                # existing generic utilities
-        ├── schema/               # existing generic schema primitives
-        ├── identity/             # existing identity/tagging helpers where useful
-        └── ui/                   # existing domain-agnostic UI primitives if reused
+        ├── identity/
+        └── schema/
 ```
 
-## Package Responsibilities
-### `apps/desktop`
-Owns:
-- Tauri shell configuration
-- sidecar launch and lifecycle supervision
-- React UI
-- Vite build
-- TanStack Router route tree
-- sidecar health/reconnect UX
+## Runtime Shape Inside `packages/runtime/server`
+The `runtime/server` package owns the sidecar composition root.
 
-Must not own:
-- repo-memory semantics
-- indexing logic
-- retrieval logic
-- graph driver logic
+It should assemble:
+- Bun HTTP server
+- shared `HttpRouter`
+- internal cluster route at `"/__cluster"`
+- control-plane `HttpApi` at `"/api/v0"`
+- execution-plane `Rpc` at `"/api/v0/rpc"`
+- `SqlMessageStorage`
+- `SqlRunnerStorage`
+- `Sharding`
+- `Runners.layerRpc`
+- `RunnerHealth.layerPing`
+- `ClusterWorkflowEngine.layer`
+- `SqlEventLogJournal`
+- sidecar lifecycle / shutdown coordination
 
-### `packages/runtime/protocol`
-Owns the stable shell-to-sidecar contract:
-- `SidecarBootstrap`
-- `RepoRegistration`
-- `IndexRun`
-- `QueryRun`
-- `RunStreamEvent`
+## Runtime Shape Inside `packages/repo-memory/server`
+The `repo-memory/server` package owns repo-specific execution semantics.
 
-This package is transport-aware but domain-light. It defines how the UI and sidecar speak, not how repo-memory itself works internally.
+It should define:
+- `IndexRepoRun`
+- `QueryRepoRun`
+- projection-building logic for run summaries and final answers
+- product-level run events
+- retrieval packet materialization
+- citation-facing answer assembly boundaries
 
-### `packages/runtime/server`
-Owns the sidecar runtime composition:
-- Bun HTTP host
-- SSE host
-- Effect layer composition
-- process bootstrap behavior
-- health endpoint
-- runtime logging and diagnostics boundary
-
-It depends on `packages/repo-memory/server` and `packages/runtime/protocol`.
-
-### `packages/repo-memory/domain`
-Owns the repo-memory domain model:
-- `RepoTarget`
-- `Citation`
-- `RetrievalPacket`
-- repo-memory run/result summaries
-- repo-memory-specific typed errors
-
-This package should be the semantic home for evidence-bearing answer primitives.
-
-### `packages/repo-memory/server`
-Owns repo-memory behavior:
-- repo registration service
-- indexing service
-- query service
-- grounded-answer orchestration
-- retrieval packet assembly
-
-It depends on `repo-memory/domain`, `runtime/protocol`, and `repo-memory/drivers-local` abstractions.
-
-### `packages/repo-memory/client`
-Owns UI-facing helpers for the desktop frontend:
-- typed request helpers for runtime protocol
-- SSE subscription helpers
-- view-model shaping for query/index runs
-
-It must not reach into server internals.
-
-### `packages/repo-memory/drivers-local`
-Owns the first local persistence layer:
-- local repo registry storage
-- local index artifact storage
-- local graph/search/vector/artifact adapters
-- local run artifact persistence
-
-This package sits below repo-memory semantics and below the runtime protocol.
+It should not own:
+- HTTP route registration
+- Bun server lifecycle
+- cluster transport setup
+- shell concerns
 
 ## Dependency Rules
-Lock these dependency rules for v0:
-- frontend depends on `runtime/protocol` and `repo-memory/client`, never server internals
-- `runtime/server` composes `repo-memory/server` and drivers, but does not contain repo semantics itself
-- `repo-memory/server` depends on `repo-memory/domain` and local driver abstractions, not on the desktop shell
-- `repo-memory/drivers-local` stays below semantic and runtime layers
-- `common/*` remains domain-agnostic
-- no package in v0 may depend on hypothetical future BC packages such as `iam`, `pages`, `email`, `calendar`, or `settings`
+### UI and shell
+- `apps/desktop` depends on `packages/runtime/protocol` and `packages/repo-memory/client`
+- `apps/desktop` must not import `packages/runtime/server` internals
+- the shell talks to the sidecar through the transport boundary, not in-process service imports
+
+### Sidecar runtime
+- `packages/runtime/server` composes `repo-memory/server`, `repo-memory/drivers-local`, and runtime infrastructure layers
+- `packages/runtime/server` owns route layout and process lifecycle
+- `packages/runtime/server` is the only package that should know about the final router topology
+
+### Repo-memory packages
+- `packages/repo-memory/domain` stays pure and schema-first
+- `packages/repo-memory/server` depends on domain contracts and driver interfaces
+- `packages/repo-memory/drivers-local` stays below semantic/runtime layers and only knows local persistence concerns
+- `packages/repo-memory/client` depends on protocol/domain contracts, not server internals
+
+### Common packages
+- `packages/common/*` remain domain-agnostic support packages
+- common packages must not grow sidecar-specific runtime logic
 
 ## Future Direction Only
-These are explicitly not part of the v0 topology, even though they remain valid future directions:
+These remain intentionally out of the `v0` topology:
 - `apps/server`
 - `apps/web`
 - `apps/mobile`
-- full BC lattice like `iam`, `pages`, `email`, `calendar`, `settings`
-- workspace and page-tree product concepts as first-class runtime concerns
+- broad BC packages like `iam`, `pages`, `email`, `calendar`, `settings`
 
-If a later spec promotes them, they should be layered on top of the sidecar/runtime principles established here rather than folded into v0.
+They are valid future directions, but they are not implementation obligations for this prototype.
 
-## Principle Borrowed From The Claude Tree
-The Claude-era tree remains useful as a principles document in three ways:
-- dependency direction should remain disciplined and layered
-- common packages should stay domain-agnostic
-- future product expansion should happen by adding bounded packages around a stable runtime/protocol core, not by bloating the first prototype
+## Notes On Temporary Code
+The current codebase may carry temporary transport-compatible scaffolding while the cluster-first runtime is landing.
 
-That is the relationship. `v0` uses the principles, not the whole tree.
+That does not change the topology authority in this document.
+The target shape is still:
+- `HttpApi` for control-plane reads and commands
+- `Rpc` for run execution and event streaming
+- cluster/workflow for durable lifecycle
+
+## Questions Worth Keeping Open
+- When should run projections move out of temporary compatibility code and become purely journal-derived?
+- How much of the existing transport compatibility layer should survive once the workflow-proxy RPC surface is mounted?

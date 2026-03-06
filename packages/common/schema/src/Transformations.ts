@@ -1,5 +1,4 @@
-import { Effect, SchemaIssue, SchemaTransformation } from "effect";
-import { dual } from "effect/Function";
+import { Effect, Function as Fn, SchemaIssue, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -29,7 +28,7 @@ type DestructiveTransform<Self extends S.Top, B> = S.decodeTo<
 export const destructiveTransform: {
   <Self extends S.Top, B>(transform: (input: Self["Type"]) => B): (self: Self) => DestructiveTransform<Self, B>;
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B>;
-} = dual(
+} = Fn.dual(
   2,
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B> => {
     const decodeInput = S.decodeUnknownEffect(self);

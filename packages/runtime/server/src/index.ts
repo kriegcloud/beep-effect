@@ -1,43 +1,81 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { RepoId, RunId } from "@beep/repo-memory-domain";
+import { QueryRepoRunInput, RepoId, RunEventSequence, RunId } from "@beep/repo-memory-domain";
 import { LocalRepoMemoryDriver, LocalRepoMemoryDriverConfig } from "@beep/repo-memory-drivers-local";
-import { RepoMemoryServer, type RepoMemoryServerError } from "@beep/repo-memory-server";
+import { RepoMemoryServer, RepoMemoryServerError } from "@beep/repo-memory-server";
 import {
+  AnswerDraftedEvent,
+  ControlPlaneApi,
   IndexRun,
   QueryRun,
-  QueryRunInput,
-  RepoRegistration,
   RepoRegistrationInput,
-  RepoRun,
-  RunAnswerEvent,
+  type RepoRun,
+  RetrievalPacketMaterializedEvent,
+  RunAcceptedEvent,
   RunCompletedEvent,
-  RunErrorEvent,
-  RunProgressEvent,
-  RunRetrievalPacketEvent,
+  RunFailedEvent,
+  RunInterruptedEvent,
+  RunProgressUpdatedEvent,
+  RunStartedEvent,
   RunStreamEvent,
+  SidecarBadRequestPayload,
   SidecarBootstrap,
+  SidecarInternalErrorPayload,
+  SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
 import { FilePath, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Cause, Clock, Config, Deferred, Effect, Fiber, Layer, Match, pipe, Ref, ServiceMap } from "effect";
+import * as SqliteClient from "@effect/sql-sqlite-bun/SqliteClient";
+import {
+  Boolean as Bool,
+  Cause,
+  Clock,
+  Config,
+  type DateTime,
+  Deferred,
+  Effect,
+  Fiber,
+  FileSystem,
+  Layer,
+  Match,
+  Path,
+  pipe,
+  Ref,
+  Stream,
+} from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
-import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Stream from "effect/Stream";
 import * as Sse from "effect/unstable/encoding/Sse";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServer from "effect/unstable/http/HttpServer";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import { HttpApiBuilder } from "effect/unstable/httpapi";
 
 const $I = $RuntimeServerId.create("index");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
+const decodeRunId = S.decodeUnknownEffect(RunId);
 const encodeRunStreamEventJson = S.encodeUnknownEffect(S.fromJsonString(RunStreamEvent));
+const startedAtForRun = (run: RepoRun): DateTime.Utc =>
+  pipe(
+    run.startedAt,
+    O.match({
+      onNone: () => run.acceptedAt,
+      onSome: (startedAt) => startedAt,
+    })
+  );
+const completedAtForRun = (run: RepoRun): DateTime.Utc =>
+  pipe(
+    run.completedAt,
+    O.match({
+      onNone: () => startedAtForRun(run),
+      onSome: (completedAt) => completedAt,
+    })
+  );
 
 class RepoIdPathParams extends S.Class<RepoIdPathParams>($I`RepoIdPathParams`)(
   {
@@ -68,14 +106,15 @@ class SidecarErrorPayload extends S.Class<SidecarErrorPayload>($I`SidecarErrorPa
 ) {}
 
 const sidecarErrorResponse = HttpServerResponse.schemaJson(SidecarErrorPayload);
-const sidecarBootstrapResponse = HttpServerResponse.schemaJson(SidecarBootstrap);
-const repoListResponse = HttpServerResponse.schemaJson(S.Array(RepoRegistration));
-const repoResponse = HttpServerResponse.schemaJson(RepoRegistration);
-const runListResponse = HttpServerResponse.schemaJson(S.Array(RepoRun));
-const runResponse = HttpServerResponse.schemaJson(RepoRun);
 const indexRunResponse = HttpServerResponse.schemaJson(IndexRun);
 const queryRunResponse = HttpServerResponse.schemaJson(QueryRun);
 
+/**
+ * Startup configuration for the local sidecar runtime.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`SidecarRuntimeConfig`)(
   {
     host: S.String,
@@ -89,6 +128,12 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
   })
 ) {}
 
+/**
+ * Typed runtime error emitted during sidecar bootstrap and request handling.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
 export class SidecarRuntimeError extends TaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
   "SidecarRuntimeError",
   {
@@ -101,256 +146,153 @@ export class SidecarRuntimeError extends TaggedErrorClass<SidecarRuntimeError>($
   })
 ) {}
 
-export interface SidecarRuntimeShape {
-  readonly bootstrap: Effect.Effect<SidecarBootstrap, SidecarRuntimeError>;
-  readonly getRun: (runId: RunId) => Effect.Effect<RepoRun, SidecarRuntimeError>;
-  readonly getRunEvents: (runId: RunId) => Effect.Effect<ReadonlyArray<RunStreamEvent>, SidecarRuntimeError>;
-  readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, SidecarRuntimeError>;
-  readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, SidecarRuntimeError>;
-  readonly registerRepo: (input: RepoRegistrationInput) => Effect.Effect<RepoRegistration, SidecarRuntimeError>;
-  readonly startIndexRun: (repoId: RepoId) => Effect.Effect<IndexRun, SidecarRuntimeError>;
-  readonly startQueryRun: (input: QueryRunInput) => Effect.Effect<QueryRun, SidecarRuntimeError>;
-}
-
-export class SidecarRuntime extends ServiceMap.Service<SidecarRuntime, SidecarRuntimeShape>()($I`SidecarRuntime`) {
-  static readonly layer = (
-    config: SidecarRuntimeConfig
-  ): Layer.Layer<SidecarRuntime, never, HttpServer.HttpServer | RepoMemoryServer> =>
-    Layer.effect(SidecarRuntime, makeSidecarRuntime(config));
-}
-
-const makeSidecarRuntime = Effect.fn("SidecarRuntime.make")(function* (config: SidecarRuntimeConfig) {
-  const repoMemoryServer = yield* RepoMemoryServer;
-  const httpServer = yield* HttpServer.HttpServer;
-  const startedAt = yield* Clock.currentTimeMillis;
-
-  const toRuntimeError = (message: string, status: number, cause?: unknown): SidecarRuntimeError =>
-    new SidecarRuntimeError({
-      message,
-      status,
-      cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
-    });
-
-  const runtimeAnnotations = (annotations: Record<string, unknown>): Record<string, unknown> => ({
-    session_id: config.sessionId,
-    ...annotations,
+const toRuntimeError = (message: string, status: number, cause?: unknown): SidecarRuntimeError =>
+  new SidecarRuntimeError({
+    message,
+    status,
+    cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
   });
 
-  const annotateRuntimeSpan = Effect.fn("SidecarRuntime.annotateSpan")(function* (
-    annotations: Record<string, unknown>
-  ) {
-    yield* Effect.annotateCurrentSpan(runtimeAnnotations(annotations));
-  });
+type RuntimeBoundaryPayload = {
+  readonly message: string;
+  readonly status: number;
+};
 
-  const withRuntimeLogAnnotations = <A, E, R>(
-    annotations: Record<string, unknown>,
-    effect: Effect.Effect<A, E, R>
-  ): Effect.Effect<A, E, R> => effect.pipe(Effect.annotateLogs(runtimeAnnotations(annotations)));
-
-  const mapServerError = <A>(effect: Effect.Effect<A, RepoMemoryServerError>) =>
-    effect.pipe(Effect.mapError((error) => toRuntimeError(error.message, error.status, error.cause)));
-
-  const toPublicAddress = Effect.fn("SidecarRuntime.toPublicAddress")(function* (address: HttpServer.Address) {
-    return yield* Match.type<HttpServer.Address>().pipe(
-      Match.when({ _tag: "TcpAddress" }, (tcpAddress) => {
-        const rawHost = config.host === "0.0.0.0" ? "127.0.0.1" : config.host === "::" ? "::1" : config.host;
-        const host = rawHost.includes(":") && !rawHost.startsWith("[") ? `[${rawHost}]` : rawHost;
-
-        return Effect.succeed({
-          baseUrl: `http://${host}:${tcpAddress.port}`,
-          port: tcpAddress.port,
-        });
-      }),
-      Match.orElse(() =>
-        Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address to publish a local base URL.", 500))
-      )
-    )(address);
-  });
-
-  const buildBootstrap = Effect.fn("SidecarRuntime.bootstrap")(function* () {
-    yield* annotateRuntimeSpan({
-      host: config.host,
-      port: config.port,
-    });
-
-    const publicAddress = yield* toPublicAddress(httpServer.address);
-
-    return yield* S.decodeUnknownEffect(SidecarBootstrap)({
-      sessionId: config.sessionId,
-      host: config.host,
-      port: publicAddress.port,
-      baseUrl: publicAddress.baseUrl,
-      pid: process.pid,
-      version: config.version,
-      status: "healthy",
-      startedAt,
-    }).pipe(Effect.mapError((cause) => toRuntimeError("Failed to encode sidecar bootstrap payload.", 500, cause)));
-  });
-
-  const bootstrap: SidecarRuntimeShape["bootstrap"] = buildBootstrap().pipe(
-    Effect.withSpan("SidecarRuntime.bootstrap"),
-    Effect.annotateLogs(runtimeAnnotations({}))
-  );
-
-  const getRun: SidecarRuntimeShape["getRun"] = Effect.fn("SidecarRuntime.getRun")(function* (runId) {
-    yield* annotateRuntimeSpan({ run_id: runId });
-    return yield* withRuntimeLogAnnotations({ run_id: runId }, mapServerError(repoMemoryServer.getRun(runId)));
-  });
-
-  const getRunEvents: SidecarRuntimeShape["getRunEvents"] = Effect.fn("SidecarRuntime.getRunEvents")(function* (runId) {
-    yield* annotateRuntimeSpan({ run_id: runId });
-    const run = yield* withRuntimeLogAnnotations({ run_id: runId }, mapServerError(repoMemoryServer.getRun(runId)));
-    return buildRunEvents(run);
-  });
-
-  const listRepos: SidecarRuntimeShape["listRepos"] = withRuntimeLogAnnotations(
-    {},
-    mapServerError(repoMemoryServer.listRepos)
-  ).pipe(Effect.withSpan("SidecarRuntime.listRepos"), Effect.annotateLogs(runtimeAnnotations({})));
-
-  const listRuns: SidecarRuntimeShape["listRuns"] = withRuntimeLogAnnotations(
-    {},
-    mapServerError(repoMemoryServer.listRuns)
-  ).pipe(Effect.withSpan("SidecarRuntime.listRuns"), Effect.annotateLogs(runtimeAnnotations({})));
-
-  const registerRepo: SidecarRuntimeShape["registerRepo"] = Effect.fn("SidecarRuntime.registerRepo")(function* (input) {
-    yield* annotateRuntimeSpan({ repo_path: input.repoPath });
-    return yield* withRuntimeLogAnnotations(
-      { repo_path: input.repoPath },
-      mapServerError(repoMemoryServer.registerRepo(input))
-    );
-  });
-
-  const startIndexRun: SidecarRuntimeShape["startIndexRun"] = Effect.fn("SidecarRuntime.startIndexRun")(
-    function* (repoId) {
-      yield* annotateRuntimeSpan({ repo_id: repoId });
-      return yield* withRuntimeLogAnnotations(
-        { repo_id: repoId },
-        mapServerError(repoMemoryServer.startIndexRun(repoId))
-      );
-    }
-  );
-
-  const startQueryRun: SidecarRuntimeShape["startQueryRun"] = Effect.fn("SidecarRuntime.startQueryRun")(
-    function* (input) {
-      const annotations = {
-        repo_id: input.repoId,
-        question_length: input.question.length,
-      };
-
-      yield* annotateRuntimeSpan(annotations);
-      return yield* withRuntimeLogAnnotations(annotations, mapServerError(repoMemoryServer.startQueryRun(input)));
-    }
-  );
-
-  return {
-    bootstrap,
-    getRun,
-    getRunEvents,
-    listRepos,
-    listRuns,
-    registerRepo,
-    startIndexRun,
-    startQueryRun,
-  } satisfies SidecarRuntimeShape;
-});
-
-const progressEventForRun = Match.type<RepoRun>().pipe(
-  Match.when(
-    { kind: "index" },
-    (run) =>
-      new RunProgressEvent({
-        _tag: "progress",
-        runId: run.id,
-        phase: "indexing",
-        message: `Indexed ${run.indexedFileCount} TypeScript source files.`,
-        percent: O.some(decodeNonNegativeInt(100)),
-        emittedAt: run.startedAt,
-      })
-  ),
-  Match.when(
-    { kind: "query" },
-    (run) =>
-      new RunProgressEvent({
-        _tag: "progress",
-        runId: run.id,
-        phase: "query",
-        message: "Deterministic metadata-backed query response assembled.",
-        percent: O.some(decodeNonNegativeInt(100)),
-        emittedAt: run.startedAt,
-      })
-  ),
-  Match.exhaustive
-);
-
-const queryEventsForRun = (run: RepoRun, emittedAt: number): ReadonlyArray<RunStreamEvent> =>
+const progressEventForRun = (run: RepoRun): RunProgressUpdatedEvent =>
   Match.type<RepoRun>().pipe(
-    Match.when({ kind: "query" }, (queryRun) =>
-      A.appendAll(
-        O.match(queryRun.retrievalPacket, {
-          onNone: A.empty<RunStreamEvent>,
-          onSome: (packet) =>
-            A.of(
-              new RunRetrievalPacketEvent({
-                _tag: "retrieval-packet",
-                runId: queryRun.id,
-                packet,
-                emittedAt,
-              })
-            ),
-        }),
-        O.match(queryRun.answer, {
-          onNone: A.empty<RunStreamEvent>,
-          onSome: (answer) =>
-            A.of(
-              new RunAnswerEvent({
-                _tag: "answer",
-                runId: queryRun.id,
-                answer,
-                citations: queryRun.citations,
-                emittedAt,
-              })
-            ),
+    Match.when(
+      { kind: "index" },
+      (indexRun) =>
+        new RunProgressUpdatedEvent({
+          kind: "progress",
+          runId: indexRun.id,
+          sequence: decodeRunEventSequence(3),
+          emittedAt: startedAtForRun(indexRun),
+          phase: "indexing",
+          message: pipe(
+            indexRun.indexedFileCount,
+            O.match({
+              onNone: () => "Repository indexing completed.",
+              onSome: (count) => `Indexed ${count} TypeScript source files.`,
+            })
+          ),
+          percent: O.some(decodeNonNegativeInt(100)),
         })
-      )
     ),
-    Match.orElse(() => A.empty<RunStreamEvent>())
+    Match.when(
+      { kind: "query" },
+      (queryRun) =>
+        new RunProgressUpdatedEvent({
+          kind: "progress",
+          runId: queryRun.id,
+          sequence: decodeRunEventSequence(3),
+          emittedAt: startedAtForRun(queryRun),
+          phase: "query",
+          message: "Deterministic metadata-backed query response assembled.",
+          percent: O.some(decodeNonNegativeInt(100)),
+        })
+    ),
+    Match.exhaustive
   )(run);
 
-const buildRunEvents = (run: RepoRun): ReadonlyArray<RunStreamEvent> => {
-  const terminalAt = pipe(
-    run.completedAt,
-    O.getOrElse(() => run.startedAt)
-  );
-  const progressEvent = progressEventForRun(run);
-  const queryEvents = queryEventsForRun(run, terminalAt);
-  const errorEvents = O.match(run.errorMessage, {
-    onNone: A.empty<RunStreamEvent>,
-    onSome: (message) =>
-      A.of(
-        new RunErrorEvent({
-          _tag: "error",
-          runId: run.id,
-          message,
-          emittedAt: terminalAt,
-        })
-      ),
-  });
-  const baseEvents: ReadonlyArray<RunStreamEvent> = A.of(progressEvent);
+const terminalEventForRun = (run: RepoRun) => {
+  const emittedAt = completedAtForRun(run);
 
-  return pipe(
-    baseEvents,
-    A.appendAll(queryEvents),
-    A.appendAll(errorEvents),
-    A.append(
-      new RunCompletedEvent({
-        _tag: "completed",
-        runId: run.id,
-        status: run.status,
-        emittedAt: terminalAt,
-      })
+  return Match.type<RepoRun>().pipe(
+    Match.when(
+      { status: "failed" },
+      (failedRun) =>
+        new RunFailedEvent({
+          kind: "failed",
+          runId: failedRun.id,
+          sequence: failedRun.lastEventSequence,
+          emittedAt,
+          message: pipe(
+            failedRun.errorMessage,
+            O.getOrElse(() => "Run failed.")
+          ),
+          run: failedRun,
+        })
+    ),
+    Match.when(
+      { status: "interrupted" },
+      (interruptedRun) =>
+        new RunInterruptedEvent({
+          kind: "interrupted",
+          runId: interruptedRun.id,
+          sequence: interruptedRun.lastEventSequence,
+          emittedAt,
+          run: interruptedRun,
+        })
+    ),
+    Match.orElse(
+      (completedRun) =>
+        new RunCompletedEvent({
+          kind: "completed",
+          runId: completedRun.id,
+          sequence: completedRun.lastEventSequence,
+          emittedAt,
+          run: completedRun,
+        })
     )
-  );
+  )(run);
+};
+
+const buildRunEvents = (run: RepoRun): ReadonlyArray<RunStreamEvent> => {
+  const startedAt = startedAtForRun(run);
+  const baseEvents: Array<RunStreamEvent> = [
+    new RunAcceptedEvent({
+      kind: "accepted",
+      runId: run.id,
+      sequence: decodeRunEventSequence(1),
+      emittedAt: run.acceptedAt,
+      run,
+    }),
+    new RunStartedEvent({
+      kind: "started",
+      runId: run.id,
+      sequence: decodeRunEventSequence(2),
+      emittedAt: startedAt,
+      run,
+    }),
+    progressEventForRun(run),
+  ];
+
+  if (run.kind === "query") {
+    pipe(
+      run.retrievalPacket,
+      O.map((packet) =>
+        baseEvents.push(
+          new RetrievalPacketMaterializedEvent({
+            kind: "retrieval-packet",
+            runId: run.id,
+            sequence: decodeRunEventSequence(4),
+            emittedAt: packet.retrievedAt,
+            packet,
+          })
+        )
+      )
+    );
+
+    pipe(
+      run.answer,
+      O.map((answer) =>
+        baseEvents.push(
+          new AnswerDraftedEvent({
+            kind: "answer",
+            runId: run.id,
+            sequence: decodeRunEventSequence(5),
+            emittedAt: completedAtForRun(run),
+            answer,
+            citations: run.citations,
+          })
+        )
+      )
+    );
+  }
+
+  baseEvents.push(terminalEventForRun(run));
+  return baseEvents;
 };
 
 const toSseStream = (events: ReadonlyArray<RunStreamEvent>) =>
@@ -360,8 +302,8 @@ const toSseStream = (events: ReadonlyArray<RunStreamEvent>) =>
         Effect.map((data) =>
           Sse.encoder.write({
             _tag: "Event",
-            event: event._tag,
-            id: `${event.runId}:${event.emittedAt}`,
+            event: event.kind,
+            id: `${event.runId}:${event.sequence}`,
             data,
           })
         )
@@ -373,20 +315,17 @@ const toSseStream = (events: ReadonlyArray<RunStreamEvent>) =>
 const hasMessage = (input: unknown): input is { readonly message: string } =>
   P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
 
-const isSidecarRuntimeError = (input: unknown): input is SidecarRuntimeError => input instanceof SidecarRuntimeError;
-
 const matchUnknownMessage = Match.type<unknown>().pipe(
-  Match.when(isSidecarRuntimeError, ({ message }) => message),
   Match.when(P.isError, ({ message }) => message),
   Match.when(hasMessage, ({ message }) => message),
   Match.orElse(() => "Sidecar request failed.")
 );
 
 const matchUnknownStatus = Match.type<unknown>().pipe(
-  Match.when(isSidecarRuntimeError, ({ status }) => status),
   Match.when(P.isTagged("SchemaError"), () => 400),
   Match.when(P.isTagged("HttpBodyError"), () => 400),
   Match.when(P.isTagged("HttpServerError"), () => 400),
+  Match.when(S.is(RepoMemoryServerError), () => 500),
   Match.orElse(() => 500)
 );
 
@@ -396,6 +335,39 @@ const toSidecarErrorPayload = (cause: Cause.Cause<unknown>): SidecarErrorPayload
   return new SidecarErrorPayload({
     message: matchUnknownMessage(error),
     status: matchUnknownStatus(error),
+  });
+};
+
+const toControlPlaneErrorPayload = (
+  cause: Cause.Cause<unknown>
+): SidecarBadRequestPayload | SidecarNotFoundPayload | SidecarInternalErrorPayload => {
+  const error = Cause.squash(cause);
+
+  if (P.isTagged("SchemaError")(error) || P.isTagged("HttpBodyError")(error) || P.isTagged("HttpServerError")(error)) {
+    return new SidecarBadRequestPayload({
+      message: matchUnknownMessage(error),
+      status: 400,
+    });
+  }
+
+  if (S.is(RepoMemoryServerError)(error) || S.is(SidecarRuntimeError)(error)) {
+    const status = error.status;
+    const message = error.message;
+
+    if (status === 400) {
+      return new SidecarBadRequestPayload({ message, status: 400 });
+    }
+
+    if (status === 404) {
+      return new SidecarNotFoundPayload({ message, status: 404 });
+    }
+
+    return new SidecarInternalErrorPayload({ message, status: 500 });
+  }
+
+  return new SidecarInternalErrorPayload({
+    message: matchUnknownMessage(error),
+    status: 500,
   });
 };
 
@@ -411,7 +383,7 @@ const logRuntimeBoundaryFailure = Effect.fn("SidecarRuntime.logBoundaryFailure")
   method: string,
   route: string,
   sessionId: string,
-  payload: SidecarErrorPayload,
+  payload: RuntimeBoundaryPayload,
   cause: Cause.Cause<unknown>
 ) {
   const interrupted = Cause.hasInterruptsOnly(cause);
@@ -482,57 +454,147 @@ const handleRuntimeErrors = <A, E, R>(
     })
   );
 
-export const sidecarLayer = (config: SidecarRuntimeConfig): Layer.Layer<never, never, never> => {
+const handleControlPlaneInternalErrors = <A, E, R>(
+  method: string,
+  route: string,
+  sessionId: string,
+  effect: Effect.Effect<A, E, R>
+) =>
+  Effect.annotateCurrentSpan({
+    session_id: sessionId,
+    http_method: method,
+    http_route: route,
+  }).pipe(
+    Effect.flatMap(() =>
+      effect.pipe(
+        Effect.annotateLogs({
+          session_id: sessionId,
+          http_method: method,
+          http_route: route,
+        }),
+        Effect.withLogSpan(`${method} ${route}`)
+      )
+    ),
+    Effect.catchCause((cause) => {
+      const payload = new SidecarInternalErrorPayload({
+        message: matchUnknownMessage(Cause.squash(cause)),
+        status: 500,
+      });
+
+      return logRuntimeBoundaryFailure(method, route, sessionId, payload, cause).pipe(
+        Effect.flatMap(() => Effect.fail(payload))
+      );
+    })
+  );
+
+const handleControlPlaneErrors = <A, E, R>(
+  method: string,
+  route: string,
+  sessionId: string,
+  effect: Effect.Effect<A, E, R>
+) =>
+  Effect.annotateCurrentSpan({
+    session_id: sessionId,
+    http_method: method,
+    http_route: route,
+  }).pipe(
+    Effect.flatMap(() =>
+      effect.pipe(
+        Effect.annotateLogs({
+          session_id: sessionId,
+          http_method: method,
+          http_route: route,
+        }),
+        Effect.withLogSpan(`${method} ${route}`)
+      )
+    ),
+    Effect.catchCause((cause) => {
+      const payload = toControlPlaneErrorPayload(cause);
+
+      return logRuntimeBoundaryFailure(method, route, sessionId, payload, cause).pipe(
+        Effect.flatMap(() => Effect.fail(payload))
+      );
+    })
+  );
+
+const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Address) =>
+  Match.type<HttpServer.Address>().pipe(
+    Match.when({ _tag: "TcpAddress" }, (tcpAddress) => {
+      const rawHost = config.host === "0.0.0.0" ? "127.0.0.1" : config.host === "::" ? "::1" : config.host;
+      const host = rawHost.includes(":") && !rawHost.startsWith("[") ? `[${rawHost}]` : rawHost;
+
+      return Effect.succeed({
+        baseUrl: `http://${host}:${tcpAddress.port}`,
+        port: tcpAddress.port,
+      });
+    }),
+    Match.orElse(() => Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address.", 500)))
+  )(address);
+
+/**
+ * Builds the live HTTP layer for the local sidecar runtime.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const sidecarLayer = (config: SidecarRuntimeConfig) => {
   const respondHealth = Effect.fn("SidecarRuntime.route.health")(function* () {
-    const runtime = yield* SidecarRuntime;
-    const bootstrap = yield* runtime.bootstrap;
-    return yield* sidecarBootstrapResponse(bootstrap);
+    const httpServer = yield* HttpServer.HttpServer;
+    const startedAt = yield* Clock.currentTimeMillis;
+    const publicAddress = yield* toPublicAddress(config, httpServer.address);
+    return yield* S.decodeUnknownEffect(SidecarBootstrap)({
+      sessionId: config.sessionId,
+      host: config.host,
+      port: publicAddress.port,
+      baseUrl: publicAddress.baseUrl,
+      pid: process.pid,
+      version: config.version,
+      status: "healthy",
+      startedAt,
+    }).pipe(Effect.mapError((cause) => toRuntimeError("Failed to encode sidecar bootstrap payload.", 500, cause)));
   });
 
   const respondListRepos = Effect.fn("SidecarRuntime.route.listRepos")(function* () {
-    const runtime = yield* SidecarRuntime;
-    const repos = yield* runtime.listRepos;
-    return yield* repoListResponse(repos);
+    const repoMemoryServer = yield* RepoMemoryServer;
+    return yield* repoMemoryServer.listRepos;
   });
 
   const respondRegisterRepo = Effect.fn("SidecarRuntime.route.registerRepo")(function* () {
     const input = yield* HttpServerRequest.schemaBodyJson(RepoRegistrationInput);
-    const runtime = yield* SidecarRuntime;
-    const repo = yield* runtime.registerRepo(input);
-    return yield* repoResponse(repo, { status: 201 });
+    const repoMemoryServer = yield* RepoMemoryServer;
+    return yield* repoMemoryServer.registerRepo(input);
   });
 
   const respondStartIndexRun = Effect.fn("SidecarRuntime.route.startIndexRun")(function* () {
     const params = yield* HttpRouter.schemaParams(RepoIdPathParams);
-    const runtime = yield* SidecarRuntime;
-    const run = yield* runtime.startIndexRun(params.repoId);
+    const repoMemoryServer = yield* RepoMemoryServer;
+    const run = yield* repoMemoryServer.startIndexRun(params.repoId);
     return yield* indexRunResponse(run, { status: 201 });
   });
 
   const respondStartQueryRun = Effect.fn("SidecarRuntime.route.startQueryRun")(function* () {
-    const input = yield* HttpServerRequest.schemaBodyJson(QueryRunInput);
-    const runtime = yield* SidecarRuntime;
-    const run = yield* runtime.startQueryRun(input);
+    const input = yield* HttpServerRequest.schemaBodyJson(QueryRepoRunInput);
+    const repoMemoryServer = yield* RepoMemoryServer;
+    const run = yield* repoMemoryServer.startQueryRun(input);
     return yield* queryRunResponse(run, { status: 201 });
   });
 
   const respondListRuns = Effect.fn("SidecarRuntime.route.listRuns")(function* () {
-    const runtime = yield* SidecarRuntime;
-    const runs = yield* runtime.listRuns;
-    return yield* runListResponse(runs);
+    const repoMemoryServer = yield* RepoMemoryServer;
+    return yield* repoMemoryServer.listRuns;
   });
 
-  const respondGetRun = Effect.fn("SidecarRuntime.route.getRun")(function* () {
-    const params = yield* HttpRouter.schemaParams(RunIdPathParams);
-    const runtime = yield* SidecarRuntime;
-    const run = yield* runtime.getRun(params.runId);
-    return yield* runResponse(run);
+  const respondGetRun = Effect.fn("SidecarRuntime.route.getRun")(function* (runId: string) {
+    const repoMemoryServer = yield* RepoMemoryServer;
+    const decodedRunId = yield* decodeRunId(runId);
+    return yield* repoMemoryServer.getRun(decodedRunId);
   });
 
   const respondGetRunEvents = Effect.fn("SidecarRuntime.route.getRunEvents")(function* () {
     const params = yield* HttpRouter.schemaParams(RunIdPathParams);
-    const runtime = yield* SidecarRuntime;
-    const events = yield* runtime.getRunEvents(params.runId);
+    const repoMemoryServer = yield* RepoMemoryServer;
+    const run = yield* repoMemoryServer.getRun(params.runId);
+    const events = buildRunEvents(run);
 
     return HttpServerResponse.stream(toSseStream(events), {
       headers: {
@@ -542,26 +604,36 @@ export const sidecarLayer = (config: SidecarRuntimeConfig): Layer.Layer<never, n
     });
   });
 
-  const routesLayer = HttpRouter.use(
+  const controlPlaneHandlersLayer = Layer.mergeAll(
+    HttpApiBuilder.group(ControlPlaneApi, "system", (handlers) =>
+      handlers.handle("health", () =>
+        handleControlPlaneInternalErrors("GET", "/api/v0/health", config.sessionId, respondHealth())
+      )
+    ),
+    HttpApiBuilder.group(ControlPlaneApi, "repos", (handlers) =>
+      handlers
+        .handle("listRepos", () =>
+          handleControlPlaneInternalErrors("GET", "/api/v0/repos", config.sessionId, respondListRepos())
+        )
+        .handleRaw("registerRepo", () =>
+          handleControlPlaneErrors("POST", "/api/v0/repos", config.sessionId, respondRegisterRepo())
+        )
+    ),
+    HttpApiBuilder.group(ControlPlaneApi, "runs", (handlers) =>
+      handlers
+        .handle("listRuns", () =>
+          handleControlPlaneInternalErrors("GET", "/api/v0/runs", config.sessionId, respondListRuns())
+        )
+        .handle("getRun", ({ params }) =>
+          handleControlPlaneErrors("GET", "/api/v0/runs/:runId", config.sessionId, respondGetRun(params.runId))
+        )
+    )
+  );
+
+  const controlPlaneApiLayer = HttpApiBuilder.layer(ControlPlaneApi).pipe(Layer.provide(controlPlaneHandlersLayer));
+
+  const runExecutionRoutesLayer = HttpRouter.use(
     Effect.fn("SidecarRuntime.routes")(function* (router) {
-      yield* router.add(
-        "GET",
-        "/api/v0/health",
-        handleRuntimeErrors("GET", "/api/v0/health", config.sessionId, respondHealth())
-      );
-
-      yield* router.add(
-        "GET",
-        "/api/v0/repos",
-        handleRuntimeErrors("GET", "/api/v0/repos", config.sessionId, respondListRepos())
-      );
-
-      yield* router.add(
-        "POST",
-        "/api/v0/repos",
-        handleRuntimeErrors("POST", "/api/v0/repos", config.sessionId, respondRegisterRepo())
-      );
-
       yield* router.add(
         "POST",
         "/api/v0/repos/:repoId/index-runs",
@@ -576,18 +648,6 @@ export const sidecarLayer = (config: SidecarRuntimeConfig): Layer.Layer<never, n
 
       yield* router.add(
         "GET",
-        "/api/v0/runs",
-        handleRuntimeErrors("GET", "/api/v0/runs", config.sessionId, respondListRuns())
-      );
-
-      yield* router.add(
-        "GET",
-        "/api/v0/runs/:runId",
-        handleRuntimeErrors("GET", "/api/v0/runs/:runId", config.sessionId, respondGetRun())
-      );
-
-      yield* router.add(
-        "GET",
         "/api/v0/runs/:runId/events",
         handleRuntimeErrors("GET", "/api/v0/runs/:runId/events", config.sessionId, respondGetRunEvents())
       );
@@ -596,17 +656,35 @@ export const sidecarLayer = (config: SidecarRuntimeConfig): Layer.Layer<never, n
 
   const localDriverConfig = new LocalRepoMemoryDriverConfig({ appDataDir: config.appDataDir });
   const fileSystemLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
-  const localDriverLayer = LocalRepoMemoryDriver.layer(localDriverConfig).pipe(Layer.provide(fileSystemLayer));
+  const sqliteLayer = Layer.unwrap(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      yield* fs.makeDirectory(config.appDataDir, { recursive: true });
+      return SqliteClient.layer({
+        filename: path.join(config.appDataDir, "repo-memory.sqlite"),
+      });
+    }).pipe(Effect.provide(fileSystemLayer))
+  );
+  const localDriverLayer = LocalRepoMemoryDriver.layer(localDriverConfig).pipe(
+    Layer.provide([fileSystemLayer, sqliteLayer])
+  );
   const repoMemoryLayer = RepoMemoryServer.layer.pipe(Layer.provide([localDriverLayer, fileSystemLayer]));
   const httpServerLayer = BunHttpServer.layer({ hostname: config.host, port: config.port });
-  const runtimeLayer = SidecarRuntime.layer(config).pipe(Layer.provide([repoMemoryLayer, httpServerLayer]));
+  const routesLayer = Layer.mergeAll(controlPlaneApiLayer, runExecutionRoutesLayer);
 
   return HttpRouter.serve(routesLayer, {
     disableListenLog: true,
     disableLogger: true,
-  }).pipe(Layer.provide([runtimeLayer, httpServerLayer]));
+  }).pipe(Layer.provide([repoMemoryLayer, httpServerLayer]));
 };
 
+/**
+ * Runs the sidecar runtime until shutdown is requested.
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (config: SidecarRuntimeConfig) {
   const runtimeAnnotations = {
     session_id: config.sessionId,
@@ -651,7 +729,10 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
           })
       );
 
-      const serverFiber = yield* Layer.launch(sidecarLayer(config)).pipe(Effect.forkScoped);
+      const serverFiber = yield* Layer.launch(sidecarLayer(config)).pipe(
+        Effect.mapError((cause) => toRuntimeError("Failed to launch sidecar runtime.", 500, cause)),
+        Effect.forkScoped
+      );
       const advertisedHost = config.host === "0.0.0.0" ? "127.0.0.1" : config.host === "::" ? "::1" : config.host;
 
       yield* Effect.logInfo({
@@ -666,6 +747,12 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
   );
 });
 
+/**
+ * Loads sidecar runtime configuration from environment defaults.
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(function* () {
   const path = yield* Path.Path;
   const host = yield* Config.string("BEEP_REPO_MEMORY_HOST").pipe(Config.withDefault("127.0.0.1"));
@@ -690,16 +777,7 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
     appDataDir,
     sessionId,
     version,
-  }).pipe(
-    Effect.mapError(
-      (cause) =>
-        new SidecarRuntimeError({
-          message: "Failed to load sidecar runtime config.",
-          status: 500,
-          cause: O.fromUndefinedOr(cause),
-        })
-    )
-  );
+  }).pipe(Effect.mapError((cause) => toRuntimeError("Failed to load sidecar runtime config.", 500, cause)));
 
   yield* Effect.annotateCurrentSpan({
     session_id: config.sessionId,

@@ -11,7 +11,7 @@
     "build": "tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "echo 'no tests yet'",
+    "test": "bun test",
     "docgen": "bunx @effect/docgen",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write"
@@ -23,6 +23,7 @@
     "@beep/runtime-protocol": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/platform-bun": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

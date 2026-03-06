@@ -134,8 +134,8 @@ export type SessionSendInputEncoded = typeof SessionSendInput.Encoded;
 export const SessionInfo = S.Struct({
   sessionId: S.String,
   tenant: S.optional(Tenant),
-  createdAt: S.Number,
-  lastUsedAt: S.Number,
+  createdAt: S.DateTimeUtcFromMillis,
+  lastUsedAt: S.DateTimeUtcFromMillis,
 }).annotate(
   $I.annote("SessionInfo", {
     description: "Schema for SessionInfo.",

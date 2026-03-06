@@ -1,19 +1,51 @@
 import { $RuntimeProtocolId } from "@beep/identity/packages";
-import { Citation, RepoId, RepoRunKind, RepoRunStatus, RetrievalPacket, RunId } from "@beep/repo-memory-domain";
+import {
+  Citation,
+  RepoId,
+  RepoRunKind,
+  RepoRunStatus,
+  RetrievalPacket,
+  RunCursor,
+  RunEventSequence,
+  RunId,
+  RunStreamFailure,
+} from "@beep/repo-memory-domain";
 import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Tuple } from "effect";
 import * as S from "effect/Schema";
+import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
+import * as Rpc from "effect/unstable/rpc/Rpc";
+import type * as Workflow from "effect/unstable/workflow/Workflow";
+import * as WorkflowProxy from "effect/unstable/workflow/WorkflowProxy";
 
 const $I = $RuntimeProtocolId.create("index");
 
+/**
+ * Health posture reported by the local sidecar.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const SidecarHealthStatus = LiteralKit(["starting", "healthy", "degraded", "stopping"] as const).annotate(
   $I.annote("SidecarHealthStatus", {
     description: "Health posture reported by the local sidecar.",
   })
 );
 
+/**
+ * Runtime type for `SidecarHealthStatus`.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type SidecarHealthStatus = typeof SidecarHealthStatus.Type;
 
+/**
+ * Bootstrap payload emitted by the sidecar for discovery and health checks.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootstrap`)(
   {
     sessionId: S.String,
@@ -23,13 +55,19 @@ export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootst
     pid: NonNegativeInt,
     version: S.String,
     status: SidecarHealthStatus,
-    startedAt: S.Number,
+    startedAt: S.DateTimeUtcFromMillis,
   },
   $I.annote("SidecarBootstrap", {
     description: "Bootstrap payload emitted by the sidecar so the shell can discover and health-check it.",
   })
 ) {}
 
+/**
+ * Request payload used to register a local repository with the sidecar.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class RepoRegistrationInput extends S.Class<RepoRegistrationInput>($I`RepoRegistrationInput`)(
   {
     repoPath: FilePath,
@@ -40,45 +78,55 @@ export class RepoRegistrationInput extends S.Class<RepoRegistrationInput>($I`Rep
   })
 ) {}
 
+/**
+ * Registered repository metadata tracked by the runtime.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class RepoRegistration extends S.Class<RepoRegistration>($I`RepoRegistration`)(
   {
     id: RepoId,
     repoPath: FilePath,
     displayName: S.String,
     language: S.Literal("typescript"),
-    registeredAt: S.Number,
+    registeredAt: S.DateTimeUtcFromMillis,
   },
   $I.annote("RepoRegistration", {
     description: "Local repository registration known to the repo-memory runtime.",
   })
 ) {}
 
+/**
+ * Projection shape for repository indexing runs.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class IndexRun extends S.Class<IndexRun>($I`IndexRun`)(
   {
     kind: S.tag("index"),
     id: RunId,
     repoId: RepoId,
     status: RepoRunStatus,
-    startedAt: S.Number,
-    completedAt: S.OptionFromOptionalKey(S.Number),
-    indexedFileCount: NonNegativeInt,
+    acceptedAt: S.DateTimeUtcFromMillis,
+    startedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+    completedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+    lastEventSequence: RunEventSequence,
+    indexedFileCount: S.OptionFromOptionalKey(NonNegativeInt),
     errorMessage: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("IndexRun", {
-    description: "Metadata for a deterministic indexing run against a tracked repository.",
+    description: "Projection shape for a deterministic repository indexing workflow.",
   })
 ) {}
 
-export class QueryRunInput extends S.Class<QueryRunInput>($I`QueryRunInput`)(
-  {
-    repoId: RepoId,
-    question: S.String,
-  },
-  $I.annote("QueryRunInput", {
-    description: "Request payload used to start a repo-memory query run.",
-  })
-) {}
-
+/**
+ * Projection shape for repository query runs.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class QueryRun extends S.Class<QueryRun>($I`QueryRun`)(
   {
     kind: S.tag("query"),
@@ -86,107 +134,454 @@ export class QueryRun extends S.Class<QueryRun>($I`QueryRun`)(
     repoId: RepoId,
     question: S.String,
     status: RepoRunStatus,
+    acceptedAt: S.DateTimeUtcFromMillis,
+    startedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+    completedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+    lastEventSequence: RunEventSequence,
     answer: S.OptionFromOptionalKey(S.String),
-    startedAt: S.Number,
-    completedAt: S.OptionFromOptionalKey(S.Number),
     citations: S.Array(Citation),
     retrievalPacket: S.OptionFromOptionalKey(RetrievalPacket),
     errorMessage: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("QueryRun", {
-    description: "Metadata and final grounded-answer payload for a repo-memory query run.",
+    description: "Projection shape for a deterministic repository query workflow.",
   })
 ) {}
 
+/**
+ * Union of all run projection shapes tracked by the sidecar.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const RepoRun = RepoRunKind.mapMembers(Tuple.evolve([() => IndexRun, () => QueryRun]))
   .annotate(
     $I.annote("RepoRun", {
-      description: "Union of all persisted run shapes tracked by the repo-memory sidecar.",
+      description: "Union of all run projection shapes tracked by the repo-memory sidecar.",
     })
   )
   .pipe(S.toTaggedUnion("kind"));
 
+/**
+ * Runtime type for `RepoRun`.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type RepoRun = typeof RepoRun.Type;
 
-export class RunProgressEvent extends S.Class<RunProgressEvent>($I`RunProgressEvent`)(
+/**
+ * Event emitted when a run is accepted.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunAcceptedEvent extends S.Class<RunAcceptedEvent>($I`RunAcceptedEvent`)(
   {
-    _tag: S.tag("progress"),
+    kind: S.tag("accepted"),
     runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    run: RepoRun,
+  },
+  $I.annote("RunAcceptedEvent", {
+    description: "Event emitted when a workflow execution has been accepted and projected.",
+  })
+) {}
+
+/**
+ * Event emitted when a run starts.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunStartedEvent extends S.Class<RunStartedEvent>($I`RunStartedEvent`)(
+  {
+    kind: S.tag("started"),
+    runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    run: RepoRun,
+  },
+  $I.annote("RunStartedEvent", {
+    description: "Event emitted when a workflow execution starts running.",
+  })
+) {}
+
+/**
+ * Event emitted while a run reports progress.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunProgressUpdatedEvent extends S.Class<RunProgressUpdatedEvent>($I`RunProgressUpdatedEvent`)(
+  {
+    kind: S.tag("progress"),
+    runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
     phase: S.String,
     message: S.String,
     percent: S.OptionFromOptionalKey(NonNegativeInt),
-    emittedAt: S.Number,
   },
-  $I.annote("RunProgressEvent", {
-    description: "Incremental progress event emitted while a run is still executing.",
+  $I.annote("RunProgressUpdatedEvent", {
+    description: "Incremental progress event emitted while a workflow execution is still running.",
   })
 ) {}
 
-export class RunRetrievalPacketEvent extends S.Class<RunRetrievalPacketEvent>($I`RunRetrievalPacketEvent`)(
+/**
+ * Event emitted when a retrieval packet is materialized.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalPacketMaterializedEvent extends S.Class<RetrievalPacketMaterializedEvent>(
+  $I`RetrievalPacketMaterializedEvent`
+)(
   {
-    _tag: S.tag("retrieval-packet"),
+    kind: S.tag("retrieval-packet"),
     runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
     packet: RetrievalPacket,
-    emittedAt: S.Number,
   },
-  $I.annote("RunRetrievalPacketEvent", {
-    description: "Event emitted when the bounded retrieval packet is ready for inspection.",
+  $I.annote("RetrievalPacketMaterializedEvent", {
+    description: "Event emitted when the retrieval packet is durable and ready for inspection.",
   })
 ) {}
 
-export class RunAnswerEvent extends S.Class<RunAnswerEvent>($I`RunAnswerEvent`)(
+/**
+ * Event emitted when an answer draft is assembled.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class AnswerDraftedEvent extends S.Class<AnswerDraftedEvent>($I`AnswerDraftedEvent`)(
   {
-    _tag: S.tag("answer"),
+    kind: S.tag("answer"),
     runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
     answer: S.String,
     citations: S.Array(Citation),
-    emittedAt: S.Number,
   },
-  $I.annote("RunAnswerEvent", {
-    description: "Final grounded answer event emitted after retrieval and synthesis complete.",
+  $I.annote("AnswerDraftedEvent", {
+    description: "Event emitted when the grounded answer has been assembled.",
   })
 ) {}
 
-export class RunErrorEvent extends S.Class<RunErrorEvent>($I`RunErrorEvent`)(
-  {
-    _tag: S.tag("error"),
-    runId: RunId,
-    message: S.String,
-    emittedAt: S.Number,
-  },
-  $I.annote("RunErrorEvent", {
-    description: "Error event emitted when a run fails before producing a final grounded answer.",
-  })
-) {}
-
+/**
+ * Event emitted when a run completes successfully.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class RunCompletedEvent extends S.Class<RunCompletedEvent>($I`RunCompletedEvent`)(
   {
-    _tag: S.tag("completed"),
+    kind: S.tag("completed"),
     runId: RunId,
-    status: RepoRunStatus,
-    emittedAt: S.Number,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    run: RepoRun,
   },
   $I.annote("RunCompletedEvent", {
-    description: "Terminal event emitted when a run completes or fails.",
+    description: "Terminal event emitted when a run completes successfully.",
   })
 ) {}
 
-const RunStreamEventTag = LiteralKit(["progress", "retrieval-packet", "answer", "error", "completed"] as const);
+/**
+ * Event emitted when a run fails.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunFailedEvent extends S.Class<RunFailedEvent>($I`RunFailedEvent`)(
+  {
+    kind: S.tag("failed"),
+    runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    message: S.String,
+    run: RepoRun,
+  },
+  $I.annote("RunFailedEvent", {
+    description: "Terminal event emitted when a run fails with a public error message.",
+  })
+) {}
 
-export const RunStreamEvent = RunStreamEventTag.mapMembers(
+/**
+ * Event emitted when a run is interrupted.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunInterruptedEvent extends S.Class<RunInterruptedEvent>($I`RunInterruptedEvent`)(
+  {
+    kind: S.tag("interrupted"),
+    runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    run: RepoRun,
+  },
+  $I.annote("RunInterruptedEvent", {
+    description: "Terminal event emitted when a run is interrupted before completion.",
+  })
+) {}
+
+/**
+ * Event emitted when a durable run resumes.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunResumedEvent extends S.Class<RunResumedEvent>($I`RunResumedEvent`)(
+  {
+    kind: S.tag("resumed"),
+    runId: RunId,
+    sequence: RunEventSequence,
+    emittedAt: S.DateTimeUtcFromMillis,
+    run: RepoRun,
+  },
+  $I.annote("RunResumedEvent", {
+    description: "Event emitted when a durable run resumes after interruption or restart.",
+  })
+) {}
+
+const RunStreamEventKind = LiteralKit([
+  "accepted",
+  "started",
+  "progress",
+  "retrieval-packet",
+  "answer",
+  "completed",
+  "failed",
+  "interrupted",
+  "resumed",
+] as const);
+
+/**
+ * Union of all replayable run stream events.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RunStreamEvent = RunStreamEventKind.mapMembers(
   Tuple.evolve([
-    () => RunProgressEvent,
-    () => RunRetrievalPacketEvent,
-    () => RunAnswerEvent,
-    () => RunErrorEvent,
+    () => RunAcceptedEvent,
+    () => RunStartedEvent,
+    () => RunProgressUpdatedEvent,
+    () => RetrievalPacketMaterializedEvent,
+    () => AnswerDraftedEvent,
     () => RunCompletedEvent,
+    () => RunFailedEvent,
+    () => RunInterruptedEvent,
+    () => RunResumedEvent,
   ])
 )
   .annotate(
     $I.annote("RunStreamEvent", {
-      description: "Streaming event union used by the desktop shell to observe long-running sidecar work.",
+      description: "Durable run event union used for replayable live execution streaming.",
     })
   )
-  .pipe(S.toTaggedUnion("_tag"));
+  .pipe(S.toTaggedUnion("kind"));
 
+/**
+ * Runtime type for `RunStreamEvent`.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type RunStreamEvent = typeof RunStreamEvent.Type;
+
+/**
+ * Request payload for replaying and continuing a run event stream.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class StreamRunEventsRequest extends S.Class<StreamRunEventsRequest>($I`StreamRunEventsRequest`)(
+  {
+    runId: RunId,
+    cursor: S.OptionFromOptionalKey(RunCursor),
+  },
+  $I.annote("StreamRunEventsRequest", {
+    description: "Request payload used to replay and continue streaming run events for a workflow execution.",
+  })
+) {}
+
+/**
+ * Deterministic bad-request payload returned by the control plane.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class SidecarBadRequestPayload extends S.Class<SidecarBadRequestPayload>($I`SidecarBadRequestPayload`)(
+  {
+    message: S.String,
+    status: S.Literal(400),
+  },
+  $I.annote("SidecarBadRequestPayload", {
+    description: "Deterministic bad-request payload returned by the sidecar control plane.",
+  })
+) {}
+
+/**
+ * Deterministic not-found payload returned by the control plane.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class SidecarNotFoundPayload extends S.Class<SidecarNotFoundPayload>($I`SidecarNotFoundPayload`)(
+  {
+    message: S.String,
+    status: S.Literal(404),
+  },
+  $I.annote("SidecarNotFoundPayload", {
+    description: "Deterministic not-found payload returned by the sidecar control plane.",
+  })
+) {}
+
+/**
+ * Deterministic internal-error payload returned by the control plane.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class SidecarInternalErrorPayload extends S.Class<SidecarInternalErrorPayload>($I`SidecarInternalErrorPayload`)(
+  {
+    message: S.String,
+    status: S.Literal(500),
+  },
+  $I.annote("SidecarInternalErrorPayload", {
+    description: "Deterministic internal-error payload returned by the sidecar control plane.",
+  })
+) {}
+
+/**
+ * HTTP 400 response schema for the control plane.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const SidecarBadRequest = SidecarBadRequestPayload.pipe(HttpApiSchema.status(400));
+/**
+ * HTTP 404 response schema for the control plane.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const SidecarNotFound = SidecarNotFoundPayload.pipe(HttpApiSchema.status(404));
+/**
+ * HTTP 500 response schema for the control plane.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const SidecarInternalError = SidecarInternalErrorPayload.pipe(HttpApiSchema.status(500));
+/**
+ * HTTP 201 response schema for successful repo registration.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const RepoRegistrationCreated = RepoRegistration.pipe(HttpApiSchema.status(201));
+
+/**
+ * Route params for repo-scoped endpoints.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RepoIdPathParams extends S.Class<RepoIdPathParams>($I`RepoIdPathParams`)(
+  {
+    repoId: S.String,
+  },
+  $I.annote("RepoIdPathParams", {
+    description: "Route params for repo-specific sidecar endpoints.",
+  })
+) {}
+
+/**
+ * Route params for run-scoped endpoints.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunIdPathParams extends S.Class<RunIdPathParams>($I`RunIdPathParams`)(
+  {
+    runId: S.String,
+  },
+  $I.annote("RunIdPathParams", {
+    description: "Route params for run-specific sidecar endpoints.",
+  })
+) {}
+
+class SystemGroup extends HttpApiGroup.make("system", { topLevel: true }).add(
+  HttpApiEndpoint.get("health", "/health", {
+    success: SidecarBootstrap,
+    error: SidecarInternalError,
+  })
+) {}
+
+class ReposGroup extends HttpApiGroup.make("repos", { topLevel: true })
+  .add(
+    HttpApiEndpoint.get("listRepos", "/repos", {
+      success: S.Array(RepoRegistration),
+      error: SidecarInternalError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("registerRepo", "/repos", {
+      payload: RepoRegistrationInput,
+      success: RepoRegistrationCreated,
+      error: S.Union([SidecarBadRequest, SidecarNotFound, SidecarInternalError]),
+    })
+  ) {}
+
+class RunsGroup extends HttpApiGroup.make("runs", { topLevel: true })
+  .add(
+    HttpApiEndpoint.get("listRuns", "/runs", {
+      success: S.Array(RepoRun),
+      error: SidecarInternalError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.get("getRun", "/runs/:runId", {
+      params: RunIdPathParams,
+      success: RepoRun,
+      error: S.Union([SidecarBadRequest, SidecarNotFound, SidecarInternalError]),
+    })
+  ) {}
+
+/**
+ * HTTP API contract exposed by the repo-memory control plane.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export class ControlPlaneApi extends HttpApi.make("repo-memory-control-plane")
+  .add(SystemGroup, ReposGroup, RunsGroup)
+  .prefix("/api/v0") {}
+
+/**
+ * Streaming RPC contract for durable run events.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
+export const StreamRunEvents = Rpc.make("StreamRunEvents", {
+  payload: StreamRunEventsRequest,
+  success: RunStreamEvent,
+  error: RunStreamFailure,
+  stream: true,
+});
+
+/**
+ * Builds an RPC group by extending workflow RPCs with run event streaming.
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
+export const makeRepoRunRpcGroup = <const Workflows extends readonly [Workflow.Any, ...ReadonlyArray<Workflow.Any>]>(
+  workflows: Workflows
+) => WorkflowProxy.toRpcGroup(workflows).add(StreamRunEvents);

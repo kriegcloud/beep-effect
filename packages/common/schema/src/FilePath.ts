@@ -7,12 +7,10 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { thunkFalse, thunkTrue } from "@beep/utils";
-import { Match, pipe } from "effect";
+import { Equal as Eq, Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { LiteralKit } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("FilePath");

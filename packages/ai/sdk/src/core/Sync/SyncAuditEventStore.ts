@@ -1,4 +1,5 @@
 import { Clock, Effect, Layer } from "effect";
+import { utcFromMillis } from "../internal/dateTime.js";
 import { AuditEventStore } from "../Storage/index.js";
 import type { SyncCompactionAudit, SyncConflictAudit } from "./SyncAudit.js";
 import { SyncAudit } from "./SyncAudit.js";
@@ -37,7 +38,7 @@ export const layerAuditEventStore = Layer.effect(
           remoteId: input.remoteId,
           before: input.before,
           after: input.after,
-          timestamp,
+          timestamp: utcFromMillis(timestamp),
         };
         const payload = input.events.length === 0 ? basePayload : { ...basePayload, events: input.events };
         return yield* store

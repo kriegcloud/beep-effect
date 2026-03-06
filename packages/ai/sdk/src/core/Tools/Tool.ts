@@ -45,7 +45,8 @@ export interface Tool<
     readonly failureMode: FailureMode;
   },
   Requirements = never,
-> extends Tool.Variance<Requirements> {
+> {
+  readonly _R?: (_: Requirements) => void;
   addDependency(tag: ServiceMap.Service<unknown, unknown>): Tool<Name, Config, Requirements>;
 
   annotate<I, S>(tag: ServiceMap.Service<I, S> | ServiceMap.Reference<S>, value: S): Tool<Name, Config, Requirements>;

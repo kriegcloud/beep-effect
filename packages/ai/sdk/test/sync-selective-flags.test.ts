@@ -4,6 +4,7 @@ import * as path from "node:path";
 import { Storage, Sync } from "@beep/ai-sdk";
 import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
 import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -73,7 +74,7 @@ maybeTest("Storage sync flags only sync artifacts when configured", { timeout: 1
           kind: "file",
           encoding: "utf8",
           content: "sync me",
-          createdAt: Date.now(),
+          createdAt: makeUnsafeUtc(Date.now()),
         });
         yield* artifactA.put(record);
 

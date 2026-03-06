@@ -1,27 +1,27 @@
 import { $RepoMemoryDriversLocalId } from "@beep/identity/packages";
-import { RepoId, RunId } from "@beep/repo-memory-domain";
-import {
-  type IndexRun,
-  type QueryRun,
-  RepoRegistration,
-  type RepoRegistrationInput,
-  RepoRun,
-} from "@beep/runtime-protocol";
-import { FilePath, Sha256HexFromBytes, TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
+import { RepoId, RetrievalPacket, RunId } from "@beep/repo-memory-domain";
+import { RepoRegistration, type RepoRegistrationInput } from "@beep/runtime-protocol";
+import { FilePath, NonNegativeInt, Sha256HexFromBytes, TaggedErrorClass } from "@beep/schema";
+import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
+
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 const $I = $RepoMemoryDriversLocalId.create("index");
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRepoId = S.decodeUnknownSync(RepoId);
 const decodeSha256Hex = S.decodeUnknownEffect(Sha256HexFromBytes);
-const repoIdEquivalence = S.toEquivalence(RepoId);
-const runIdEquivalence = S.toEquivalence(RunId);
-const stateFileName = "state.json";
+const encodePacketJson = S.encodeUnknownEffect(S.fromJsonString(RetrievalPacket));
+const decodePacketJson = S.decodeUnknownEffect(S.fromJsonString(RetrievalPacket));
 
+/**
+ * Configuration for the local repo-memory persistence driver.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class LocalRepoMemoryDriverConfig extends S.Class<LocalRepoMemoryDriverConfig>($I`LocalRepoMemoryDriverConfig`)(
   {
     appDataDir: FilePath,
@@ -31,19 +31,12 @@ export class LocalRepoMemoryDriverConfig extends S.Class<LocalRepoMemoryDriverCo
   })
 ) {}
 
-class RepoMemoryState extends S.Class<RepoMemoryState>($I`RepoMemoryState`)(
-  {
-    repos: S.Array(RepoRegistration),
-    runs: S.Array(RepoRun),
-  },
-  $I.annote("RepoMemoryState", {
-    description: "Persisted state for the local repo-memory prototype.",
-  })
-) {}
-
-const decodeRepoMemoryState = S.decodeUnknownEffect(S.fromJsonString(RepoMemoryState));
-const encodeRepoMemoryState = S.encodeUnknownEffect(S.fromJsonString(RepoMemoryState));
-
+/**
+ * Typed persistence error emitted by the local repo-memory driver.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
 export class LocalRepoMemoryDriverError extends TaggedErrorClass<LocalRepoMemoryDriverError>(
   $I`LocalRepoMemoryDriverError`
 )(
@@ -58,22 +51,104 @@ export class LocalRepoMemoryDriverError extends TaggedErrorClass<LocalRepoMemory
   })
 ) {}
 
+/**
+ * Persisted artifact for a completed repository index run.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RepoIndexArtifact extends S.Class<RepoIndexArtifact>($I`RepoIndexArtifact`)(
+  {
+    runId: RunId,
+    repoId: RepoId,
+    sourceSnapshotId: S.String,
+    indexedFileCount: S.Number,
+    completedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("RepoIndexArtifact", {
+    description: "Deterministic index artifact persisted for a completed repository index run.",
+  })
+) {}
+
+class RepoRow extends S.Class<RepoRow>($I`RepoRow`)(
+  {
+    id: RepoId,
+    repo_path: FilePath,
+    display_name: S.String,
+    language: S.Literal("typescript"),
+    registered_at: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("RepoRow", {
+    description: "SQLite row shape for persisted repo registrations.",
+  })
+) {}
+
+class IndexArtifactRow extends S.Class<IndexArtifactRow>($I`IndexArtifactRow`)(
+  {
+    run_id: RunId,
+    repo_id: RepoId,
+    source_snapshot_id: S.String,
+    indexed_file_count: NonNegativeInt,
+    completed_at: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("IndexArtifactRow", {
+    description: "SQLite row shape for persisted repo index artifacts.",
+  })
+) {}
+
+class PacketRow extends S.Class<PacketRow>($I`PacketRow`)(
+  {
+    run_id: RunId,
+    packet_json: S.String,
+  },
+  $I.annote("PacketRow", {
+    description: "SQLite row shape for persisted retrieval packets.",
+  })
+) {}
+
+const decodeRepoRow = S.decodeUnknownEffect(RepoRow);
+const decodeIndexArtifactRow = S.decodeUnknownEffect(IndexArtifactRow);
+const decodePacketRow = S.decodeUnknownEffect(PacketRow);
+
+/**
+ * Service contract for the local repo-memory persistence boundary.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export interface LocalRepoMemoryDriverShape {
-  readonly getRun: (runId: RunId) => Effect.Effect<RepoRun, LocalRepoMemoryDriverError>;
+  readonly getRepo: (repoId: RepoId) => Effect.Effect<RepoRegistration, LocalRepoMemoryDriverError>;
+  readonly getRetrievalPacket: (runId: RunId) => Effect.Effect<O.Option<RetrievalPacket>, LocalRepoMemoryDriverError>;
+  readonly latestIndexArtifact: (
+    repoId: RepoId
+  ) => Effect.Effect<O.Option<RepoIndexArtifact>, LocalRepoMemoryDriverError>;
   readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, LocalRepoMemoryDriverError>;
-  readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, LocalRepoMemoryDriverError>;
-  readonly listRunsForRepo: (repoId: RepoId) => Effect.Effect<ReadonlyArray<RepoRun>, LocalRepoMemoryDriverError>;
   readonly registerRepo: (input: RepoRegistrationInput) => Effect.Effect<RepoRegistration, LocalRepoMemoryDriverError>;
-  readonly saveIndexRun: (run: IndexRun) => Effect.Effect<IndexRun, LocalRepoMemoryDriverError>;
-  readonly saveQueryRun: (run: QueryRun) => Effect.Effect<QueryRun, LocalRepoMemoryDriverError>;
+  readonly saveIndexArtifact: (
+    artifact: RepoIndexArtifact
+  ) => Effect.Effect<RepoIndexArtifact, LocalRepoMemoryDriverError>;
+  readonly saveRetrievalPacket: (
+    runId: RunId,
+    packet: RetrievalPacket
+  ) => Effect.Effect<RetrievalPacket, LocalRepoMemoryDriverError>;
 }
 
+/**
+ * Service tag for the local repo-memory persistence driver.
+ *
+ * @since 0.0.0
+ * @category PortContract
+ */
 export class LocalRepoMemoryDriver extends ServiceMap.Service<LocalRepoMemoryDriver, LocalRepoMemoryDriverShape>()(
   $I`LocalRepoMemoryDriver`
 ) {
   static readonly layer = (
     config: LocalRepoMemoryDriverConfig
-  ): Layer.Layer<LocalRepoMemoryDriver, never, FileSystem.FileSystem | Path.Path> =>
+  ): Layer.Layer<
+    LocalRepoMemoryDriver,
+    LocalRepoMemoryDriverError,
+    FileSystem.FileSystem | Path.Path | SqlClient.SqlClient
+  > =>
     Layer.effect(
       LocalRepoMemoryDriver,
       makeLocalRepoMemoryDriver(config).pipe(
@@ -88,7 +163,11 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const stateFilePath = path.join(config.appDataDir, stateFileName);
+  const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+  const reposTable = sql("repo_memory_repos");
+  const indexArtifactsTable = sql("repo_memory_index_artifacts");
+  const retrievalPacketsTable = sql("repo_memory_retrieval_packets");
+  const citationsTable = sql("repo_memory_citations");
 
   const toDriverError = (message: string, status: number, cause?: unknown): LocalRepoMemoryDriverError =>
     new LocalRepoMemoryDriverError({
@@ -103,91 +182,78 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
     yield* Effect.annotateCurrentSpan(annotations);
   });
 
-  const withDriverLogAnnotations = <A, E, R>(
-    annotations: Record<string, unknown>,
-    effect: Effect.Effect<A, E, R>
-  ): Effect.Effect<A, E, R> => effect.pipe(Effect.annotateLogs(annotations));
-
-  const emptyState = (): RepoMemoryState => new RepoMemoryState({ repos: A.empty(), runs: A.empty() });
-
-  const ensureStateFile = Effect.fn("LocalRepoMemoryDriver.ensureStateFile")(function* (): Effect.fn.Return<
+  const initializeTables = Effect.fn("LocalRepoMemoryDriver.initializeTables")(function* (): Effect.fn.Return<
     void,
     LocalRepoMemoryDriverError
   > {
-    yield* annotateDriverSpan({ state_file: stateFilePath });
+    yield* sql`
+      CREATE TABLE IF NOT EXISTS ${reposTable} (
+        id TEXT PRIMARY KEY,
+        repo_path TEXT NOT NULL UNIQUE,
+        display_name TEXT NOT NULL,
+        language TEXT NOT NULL,
+        registered_at INTEGER NOT NULL
+      )
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create repo registration table.", 500, cause)));
 
-    yield* fs
-      .makeDirectory(config.appDataDir, { recursive: true })
-      .pipe(
-        Effect.mapError((cause) =>
-          toDriverError(`Failed to create repo-memory app data directory at "${config.appDataDir}".`, 500, cause)
-        )
-      );
+    yield* sql`
+      CREATE TABLE IF NOT EXISTS ${indexArtifactsTable} (
+        run_id TEXT PRIMARY KEY,
+        repo_id TEXT NOT NULL,
+        source_snapshot_id TEXT NOT NULL,
+        indexed_file_count INTEGER NOT NULL,
+        completed_at INTEGER NOT NULL
+      )
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create index artifact table.", 500, cause)));
 
-    const exists = yield* fs
-      .exists(stateFilePath)
-      .pipe(Effect.mapError((cause) => toDriverError(`Failed to check state file at "${stateFilePath}".`, 500, cause)));
+    yield* sql`
+      CREATE TABLE IF NOT EXISTS ${retrievalPacketsTable} (
+        run_id TEXT PRIMARY KEY,
+        packet_json TEXT NOT NULL
+      )
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create retrieval packet table.", 500, cause)));
 
-    if (exists) {
-      return;
-    }
-
-    const encoded = yield* encodeRepoMemoryState(emptyState()).pipe(
-      Effect.mapError((cause) => toDriverError("Failed to encode empty repo-memory state.", 500, cause))
-    );
-
-    yield* fs
-      .writeFileString(stateFilePath, `${encoded}\n`)
-      .pipe(
-        Effect.mapError((cause) => toDriverError(`Failed to initialize state file at "${stateFilePath}".`, 500, cause))
-      );
-
-    yield* Effect.logInfo({
-      message: "repo-memory state file initialized",
-      state_file: stateFilePath,
-    }).pipe(Effect.annotateLogs({ component: "repo-memory-driver" }));
+    yield* sql`
+      CREATE TABLE IF NOT EXISTS ${citationsTable} (
+        citation_id TEXT PRIMARY KEY,
+        run_id TEXT NOT NULL,
+        repo_id TEXT NOT NULL,
+        label TEXT NOT NULL,
+        rationale TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        start_line INTEGER NOT NULL,
+        end_line INTEGER NOT NULL,
+        start_column INTEGER,
+        end_column INTEGER,
+        symbol_name TEXT
+      )
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create citation backing table.", 500, cause)));
   });
 
-  const readState = Effect.fn("LocalRepoMemoryDriver.readState")(function* (): Effect.fn.Return<
-    RepoMemoryState,
-    LocalRepoMemoryDriverError
-  > {
-    yield* annotateDriverSpan({ state_file: stateFilePath });
-    yield* ensureStateFile();
-
-    const content = yield* fs
-      .readFileString(stateFilePath)
-      .pipe(Effect.mapError((cause) => toDriverError(`Failed to read state file at "${stateFilePath}".`, 500, cause)));
-
-    return yield* decodeRepoMemoryState(content).pipe(
-      Effect.mapError((cause) => toDriverError(`Failed to decode state file at "${stateFilePath}".`, 500, cause))
-    );
-  });
-
-  const writeState = Effect.fn("LocalRepoMemoryDriver.writeState")(function* (
-    state: RepoMemoryState
-  ): Effect.fn.Return<void, LocalRepoMemoryDriverError> {
-    yield* annotateDriverSpan({
-      state_file: stateFilePath,
-      repo_count: A.length(state.repos),
-      run_count: A.length(state.runs),
+  const repoRowToRegistration = (row: RepoRow): RepoRegistration =>
+    new RepoRegistration({
+      id: row.id,
+      repoPath: row.repo_path,
+      displayName: row.display_name,
+      language: "typescript",
+      registeredAt: row.registered_at,
     });
 
-    const content = yield* encodeRepoMemoryState(state).pipe(
-      Effect.mapError((cause) => toDriverError("Failed to encode repo-memory state.", 500, cause))
+  const indexArtifactRowToModel = (row: IndexArtifactRow): RepoIndexArtifact =>
+    new RepoIndexArtifact({
+      runId: row.run_id,
+      repoId: row.repo_id,
+      sourceSnapshotId: row.source_snapshot_id,
+      indexedFileCount: row.indexed_file_count,
+      completedAt: row.completed_at,
+    });
+
+  const packetRowToModel = (row: PacketRow) =>
+    decodePacketJson(row.packet_json).pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to decode retrieval packet for run "${row.run_id}".`, 500, cause)
+      )
     );
-
-    yield* fs
-      .writeFileString(stateFilePath, `${content}\n`)
-      .pipe(Effect.mapError((cause) => toDriverError(`Failed to write state file at "${stateFilePath}".`, 500, cause)));
-
-    yield* Effect.logDebug({
-      message: "repo-memory state persisted",
-      state_file: stateFilePath,
-      repo_count: A.length(state.repos),
-      run_count: A.length(state.runs),
-    }).pipe(Effect.annotateLogs({ component: "repo-memory-driver" }));
-  });
 
   const repoIdFromPath = Effect.fn("LocalRepoMemoryDriver.repoIdFromPath")(function* (
     normalizedRepoPath: string
@@ -200,18 +266,96 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
     );
   });
 
-  const upsertRun = (runs: ReadonlyArray<RepoRun>, run: RepoRun): ReadonlyArray<RepoRun> =>
-    pipe(
-      O.fromUndefinedOr(A.findFirstIndex(runs, (candidate) => runIdEquivalence(candidate.id, run.id))),
-      O.match({
-        onNone: () => A.append(runs, run),
-        onSome: (index) =>
-          pipe(
-            O.fromUndefinedOr(A.replace(runs, index, run)),
-            O.getOrElse(() => A.append(runs, run))
-          ),
-      })
+  const insertCitationRows = Effect.fn("LocalRepoMemoryDriver.insertCitationRows")(function* (
+    runId: RunId,
+    packet: RetrievalPacket
+  ): Effect.fn.Return<void, LocalRepoMemoryDriverError> {
+    yield* sql`DELETE FROM ${citationsTable} WHERE run_id = ${runId}`.pipe(
+      Effect.mapError((cause) => toDriverError(`Failed to clear citations for run "${runId}".`, 500, cause))
     );
+
+    if (A.isReadonlyArrayEmpty(packet.citations)) {
+      return;
+    }
+
+    for (const citation of packet.citations) {
+      yield* sql`
+        INSERT INTO ${citationsTable} (
+          citation_id,
+          run_id,
+          repo_id,
+          label,
+          rationale,
+          file_path,
+          start_line,
+          end_line,
+          start_column,
+          end_column,
+          symbol_name
+        ) VALUES (
+          ${citation.id},
+          ${runId},
+          ${citation.repoId},
+          ${citation.label},
+          ${citation.rationale},
+          ${citation.span.filePath},
+          ${citation.span.startLine},
+          ${citation.span.endLine},
+          ${pipe(citation.span.startColumn, O.getOrNull)},
+          ${pipe(citation.span.endColumn, O.getOrNull)},
+          ${pipe(citation.span.symbolName, O.getOrNull)}
+        )
+      `.pipe(
+        Effect.mapError((cause) =>
+          toDriverError(`Failed to persist citation backing record "${citation.id}" for run "${runId}".`, 500, cause)
+        )
+      );
+    }
+  });
+
+  yield* fs
+    .makeDirectory(config.appDataDir, { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to create repo-memory app data directory at "${config.appDataDir}".`, 500, cause)
+      )
+    );
+  yield* initializeTables();
+
+  const listRepos: LocalRepoMemoryDriverShape["listRepos"] = sql<RepoRow>`
+    SELECT id, repo_path, display_name, language, registered_at
+    FROM ${reposTable}
+    ORDER BY registered_at ASC
+  `.pipe(
+    Effect.flatMap((rows) => Effect.forEach(rows, (row) => decodeRepoRow(row).pipe(Effect.map(repoRowToRegistration)))),
+    Effect.mapError((cause) => toDriverError("Failed to list registered repositories.", 500, cause)),
+    Effect.withSpan("LocalRepoMemoryDriver.listRepos"),
+    Effect.annotateLogs({ component: "repo-memory-driver" })
+  );
+
+  const getRepo: LocalRepoMemoryDriverShape["getRepo"] = Effect.fn("LocalRepoMemoryDriver.getRepo")(
+    function* (repoId): Effect.fn.Return<RepoRegistration, LocalRepoMemoryDriverError> {
+      yield* annotateDriverSpan({ repo_id: repoId });
+
+      const rows = yield* sql<RepoRow>`
+        SELECT id, repo_path, display_name, language, registered_at
+        FROM ${reposTable}
+        WHERE id = ${repoId}
+        LIMIT 1
+      `.pipe(Effect.mapError((cause) => toDriverError(`Failed to load repository "${repoId}".`, 500, cause)));
+
+      const row = rows[0];
+      if (!row) {
+        return yield* toDriverError(`Repository not found: "${repoId}".`, 404);
+      }
+
+      return repoRowToRegistration(
+        yield* decodeRepoRow(row).pipe(
+          Effect.mapError((cause) => toDriverError(`Failed to decode repository "${repoId}".`, 500, cause))
+        )
+      );
+    }
+  );
 
   const registerRepo: LocalRepoMemoryDriverShape["registerRepo"] = Effect.fn("LocalRepoMemoryDriver.registerRepo")(
     function* (input): Effect.fn.Return<RepoRegistration, LocalRepoMemoryDriverError> {
@@ -242,16 +386,30 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
         return yield* toDriverError(`Repository path must be a directory: "${normalizedRepoPath}".`, 400);
       }
 
-      const state = yield* withDriverLogAnnotations({ repo_path: normalizedRepoPath }, readState());
-      const existing = A.findFirst(state.repos, (repo) => repo.repoPath === normalizedRepoPath);
-      if (O.isSome(existing)) {
-        yield* Effect.logDebug({
-          message: "repo already registered",
-          repo_id: existing.value.id,
-          repo_path: existing.value.repoPath,
-        }).pipe(Effect.annotateLogs({ component: "repo-memory-driver" }));
+      const existingRows = yield* sql<RepoRow>`
+        SELECT id, repo_path, display_name, language, registered_at
+        FROM ${reposTable}
+        WHERE repo_path = ${normalizedRepoPath}
+        LIMIT 1
+      `.pipe(
+        Effect.mapError((cause) =>
+          toDriverError(
+            `Failed to check for an existing repository registration at "${normalizedRepoPath}".`,
+            500,
+            cause
+          )
+        )
+      );
 
-        return existing.value;
+      const existing = existingRows[0];
+      if (existing) {
+        return repoRowToRegistration(
+          yield* decodeRepoRow(existing).pipe(
+            Effect.mapError((cause) =>
+              toDriverError(`Failed to decode existing repository registration at "${normalizedRepoPath}".`, 500, cause)
+            )
+          )
+        );
       }
 
       const displayName = pipe(
@@ -264,16 +422,21 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
         repoPath: decodeFilePath(normalizedRepoPath),
         displayName,
         language: "typescript",
-        registeredAt: yield* Clock.currentTimeMillis,
+        registeredAt: yield* DateTime.now,
       });
 
-      yield* withDriverLogAnnotations(
-        { repo_id: registration.id, repo_path: normalizedRepoPath },
-        writeState(
-          new RepoMemoryState({
-            repos: A.append(state.repos, registration),
-            runs: state.runs,
-          })
+      yield* sql`
+        INSERT INTO ${reposTable} (id, repo_path, display_name, language, registered_at)
+        VALUES (
+          ${registration.id},
+          ${registration.repoPath},
+          ${registration.displayName},
+          ${registration.language},
+          ${DateTime.toEpochMillis(registration.registeredAt)}
+        )
+      `.pipe(
+        Effect.mapError((cause) =>
+          toDriverError(`Failed to persist repository registration for "${registration.repoPath}".`, 500, cause)
         )
       );
 
@@ -287,82 +450,133 @@ const makeLocalRepoMemoryDriver = Effect.fn("LocalRepoMemoryDriver.make")(functi
     }
   );
 
-  const getRun: LocalRepoMemoryDriverShape["getRun"] = Effect.fn("LocalRepoMemoryDriver.getRun")(
-    function* (runId): Effect.fn.Return<RepoRun, LocalRepoMemoryDriverError> {
-      yield* annotateDriverSpan({ run_id: runId });
-
-      const state = yield* withDriverLogAnnotations({ run_id: runId }, readState());
-      const run = A.findFirst(state.runs, (candidate) => runIdEquivalence(candidate.id, runId));
-
-      return yield* pipe(
-        run,
-        O.match({
-          onNone: () => toDriverError(`Run not found: "${runId}".`, 404),
-          onSome: Effect.succeed,
-        })
-      );
-    }
-  );
-
-  const listRepos: LocalRepoMemoryDriverShape["listRepos"] = readState().pipe(
-    Effect.map((state) => state.repos),
-    Effect.withSpan("LocalRepoMemoryDriver.listRepos"),
-    Effect.annotateLogs({ component: "repo-memory-driver" })
-  );
-
-  const listRuns: LocalRepoMemoryDriverShape["listRuns"] = readState().pipe(
-    Effect.map((state) => state.runs),
-    Effect.withSpan("LocalRepoMemoryDriver.listRuns"),
-    Effect.annotateLogs({ component: "repo-memory-driver" })
-  );
-
-  const listRunsForRepo: LocalRepoMemoryDriverShape["listRunsForRepo"] = Effect.fn(
-    "LocalRepoMemoryDriver.listRunsForRepo"
-  )(function* (repoId): Effect.fn.Return<ReadonlyArray<RepoRun>, LocalRepoMemoryDriverError> {
+  const latestIndexArtifact: LocalRepoMemoryDriverShape["latestIndexArtifact"] = Effect.fn(
+    "LocalRepoMemoryDriver.latestIndexArtifact"
+  )(function* (repoId): Effect.fn.Return<O.Option<RepoIndexArtifact>, LocalRepoMemoryDriverError> {
     yield* annotateDriverSpan({ repo_id: repoId });
-    const state = yield* withDriverLogAnnotations({ repo_id: repoId }, readState());
-    return A.filter(state.runs, (run) => repoIdEquivalence(run.repoId, repoId));
+
+    const rows = yield* sql<IndexArtifactRow>`
+      SELECT run_id, repo_id, source_snapshot_id, indexed_file_count, completed_at
+      FROM ${indexArtifactsTable}
+      WHERE repo_id = ${repoId}
+      ORDER BY completed_at DESC
+      LIMIT 1
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to load latest index artifact for repo "${repoId}".`, 500, cause)
+      )
+    );
+
+    const row = rows[0];
+    if (!row) {
+      return O.none();
+    }
+
+    return O.some(
+      indexArtifactRowToModel(
+        yield* decodeIndexArtifactRow(row).pipe(
+          Effect.mapError((cause) => toDriverError(`Failed to decode index artifact for repo "${repoId}".`, 500, cause))
+        )
+      )
+    );
   });
 
-  const saveIndexRun: LocalRepoMemoryDriverShape["saveIndexRun"] = Effect.fn("LocalRepoMemoryDriver.saveIndexRun")(
-    function* (run): Effect.fn.Return<IndexRun, LocalRepoMemoryDriverError> {
-      yield* annotateDriverSpan({ run_id: run.id, repo_id: run.repoId, run_kind: "index" });
-      const state = yield* withDriverLogAnnotations({ run_id: run.id }, readState());
+  const saveIndexArtifact: LocalRepoMemoryDriverShape["saveIndexArtifact"] = Effect.fn(
+    "LocalRepoMemoryDriver.saveIndexArtifact"
+  )(function* (artifact): Effect.fn.Return<RepoIndexArtifact, LocalRepoMemoryDriverError> {
+    yield* annotateDriverSpan({ repo_id: artifact.repoId, run_id: artifact.runId });
 
-      yield* writeState(
-        new RepoMemoryState({
-          repos: state.repos,
-          runs: upsertRun(state.runs, run),
+    yield* sql`
+      INSERT INTO ${indexArtifactsTable} (
+        run_id,
+        repo_id,
+        source_snapshot_id,
+        indexed_file_count,
+        completed_at
+      ) VALUES (
+        ${artifact.runId},
+        ${artifact.repoId},
+        ${artifact.sourceSnapshotId},
+        ${artifact.indexedFileCount},
+        ${DateTime.toEpochMillis(artifact.completedAt)}
+      )
+      ON CONFLICT(run_id) DO UPDATE SET
+        repo_id = excluded.repo_id,
+        source_snapshot_id = excluded.source_snapshot_id,
+        indexed_file_count = excluded.indexed_file_count,
+        completed_at = excluded.completed_at
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to persist index artifact for run "${artifact.runId}".`, 500, cause)
+      )
+    );
+
+    return artifact;
+  });
+
+  const saveRetrievalPacket: LocalRepoMemoryDriverShape["saveRetrievalPacket"] = Effect.fn(
+    "LocalRepoMemoryDriver.saveRetrievalPacket"
+  )(function* (runId, packet): Effect.fn.Return<RetrievalPacket, LocalRepoMemoryDriverError> {
+    yield* annotateDriverSpan({ repo_id: packet.repoId, run_id: runId });
+
+    const packetJson = yield* encodePacketJson(packet).pipe(
+      Effect.mapError((cause) => toDriverError(`Failed to encode retrieval packet for run "${runId}".`, 500, cause))
+    );
+
+    yield* sql
+      .withTransaction(
+        Effect.gen(function* () {
+          yield* sql`
+          INSERT INTO ${retrievalPacketsTable} (run_id, packet_json)
+          VALUES (${runId}, ${packetJson})
+          ON CONFLICT(run_id) DO UPDATE SET packet_json = excluded.packet_json
+        `;
+          yield* insertCitationRows(runId, packet);
         })
+      )
+      .pipe(
+        Effect.mapError((cause) => toDriverError(`Failed to persist retrieval packet for run "${runId}".`, 500, cause))
       );
 
-      return run;
+    return packet;
+  });
+
+  const getRetrievalPacket: LocalRepoMemoryDriverShape["getRetrievalPacket"] = Effect.fn(
+    "LocalRepoMemoryDriver.getRetrievalPacket"
+  )(function* (runId): Effect.fn.Return<O.Option<RetrievalPacket>, LocalRepoMemoryDriverError> {
+    yield* annotateDriverSpan({ run_id: runId });
+
+    const rows = yield* sql<PacketRow>`
+      SELECT run_id, packet_json
+      FROM ${retrievalPacketsTable}
+      WHERE run_id = ${runId}
+      LIMIT 1
+    `.pipe(
+      Effect.mapError((cause) => toDriverError(`Failed to load retrieval packet for run "${runId}".`, 500, cause))
+    );
+
+    const row = rows[0];
+    if (!row) {
+      return O.none();
     }
-  );
 
-  const saveQueryRun: LocalRepoMemoryDriverShape["saveQueryRun"] = Effect.fn("LocalRepoMemoryDriver.saveQueryRun")(
-    function* (run): Effect.fn.Return<QueryRun, LocalRepoMemoryDriverError> {
-      yield* annotateDriverSpan({ run_id: run.id, repo_id: run.repoId, run_kind: "query" });
-      const state = yield* withDriverLogAnnotations({ run_id: run.id }, readState());
-
-      yield* writeState(
-        new RepoMemoryState({
-          repos: state.repos,
-          runs: upsertRun(state.runs, run),
-        })
-      );
-
-      return run;
-    }
-  );
+    return O.some(
+      yield* decodePacketRow(row).pipe(
+        Effect.mapError((cause) =>
+          toDriverError(`Failed to decode retrieval packet row for run "${runId}".`, 500, cause)
+        ),
+        Effect.flatMap(packetRowToModel)
+      )
+    );
+  });
 
   return {
-    getRun,
+    getRepo,
+    getRetrievalPacket,
+    latestIndexArtifact,
     listRepos,
-    listRuns,
-    listRunsForRepo,
     registerRepo,
-    saveIndexRun,
-    saveQueryRun,
+    saveIndexArtifact,
+    saveRetrievalPacket,
   } satisfies LocalRepoMemoryDriverShape;
 });

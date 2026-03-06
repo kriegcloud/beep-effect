@@ -175,12 +175,14 @@ export type SchemaAnnotationExtras<SchemaType> = S.Annotations.Documentation<Sch
  * @since 0.0.0
  * @category DomainModel
  */
-export interface IdentityAnnotation<Value extends string, Identifier extends string>
-  extends S.Annotations.Documentation<unknown> {
+export type IdentityAnnotation<
+  Value extends string,
+  Identifier extends string,
+> = S.Annotations.Documentation<unknown> & {
   readonly identifier: Identifier;
   readonly schemaId: IdentitySymbol<Value>;
   readonly title: string;
-}
+};
 
 /**
  * @since 0.0.0

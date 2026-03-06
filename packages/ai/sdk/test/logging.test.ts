@@ -9,6 +9,7 @@ import type {
   SDKResultSuccess,
   SDKToolProgressMessage,
 } from "@beep/ai-sdk/Schema/Message";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -116,7 +117,7 @@ test("matchQueryEvent maps failure completion to warning", () => {
   const queryEvent: QueryEvent = {
     _tag: "QueryCompleted",
     queryId: "query-1",
-    completedAt: 42,
+    completedAt: makeUnsafeUtc(42),
     status: "failure",
   };
   const event = matchQueryEvent(queryEvent);
@@ -134,7 +135,7 @@ test("logQueryEvent runs without failure when queryEvents logging is disabled", 
     logQueryEvent({
       _tag: "QueryQueued",
       queryId: "query-2",
-      submittedAt: 10,
+      submittedAt: makeUnsafeUtc(10),
     }).pipe(
       Effect.provide(
         makeLoggingLayer({

@@ -100,6 +100,9 @@ const symbolKindOptions = TSSyntaxKind.pickOptions([
 ] as const);
 
 /**
+ * Repository root directory path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const RepoRootPath = FilePath.pipe(
@@ -112,11 +115,17 @@ export const RepoRootPath = FilePath.pipe(
 );
 
 /**
+ * Branded repository root directory path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type RepoRootPath = typeof RepoRootPath.Type;
 
 /**
+ * Workspace directory path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const WorkspaceDirectoryPath = FilePath.pipe(
@@ -129,11 +138,17 @@ export const WorkspaceDirectoryPath = FilePath.pipe(
 );
 
 /**
+ * Branded workspace directory path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
 
 /**
+ * `tsconfig*.json` file path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
@@ -146,11 +161,17 @@ export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
 );
 
 /**
+ * Branded `tsconfig*.json` file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsConfigFilePath = typeof TsConfigFilePath.Type;
 
 /**
+ * TypeScript implementation file path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImplementationFilePathChecks).pipe(
@@ -163,11 +184,17 @@ export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImpleme
 );
 
 /**
+ * Branded TypeScript implementation file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFilePath.Type;
 
 /**
+ * TypeScript declaration file path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclarationFilePathChecks).pipe(
@@ -180,11 +207,17 @@ export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclaratio
 );
 
 /**
+ * Branded TypeScript declaration file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath.Type;
 
 /**
+ * TypeScript source file path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, TypeScriptDeclarationFilePath]).pipe(
@@ -196,11 +229,17 @@ export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, Typ
 );
 
 /**
+ * Branded TypeScript source file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
 
 /**
+ * Symbol-safe implementation file path schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSafePathChecks).pipe(
@@ -213,11 +252,17 @@ export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSaf
 );
 
 /**
+ * Branded symbol-safe implementation file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolFilePath = typeof SymbolFilePath.Type;
 
 /**
+ * Single segment schema for a symbol name.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_PATTERN)).pipe(
@@ -230,11 +275,17 @@ export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_
 );
 
 /**
+ * Branded single symbol name segment.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolNameSegment = typeof SymbolNameSegment.Type;
 
 /**
+ * Qualified symbol name schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_NAME_PATTERN)).pipe(
@@ -247,31 +298,49 @@ export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_N
 );
 
 /**
+ * Branded qualified symbol name.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolQualifiedName = typeof SymbolQualifiedName.Type;
 
 /**
+ * Supported TypeScript declaration kinds for normalized symbols.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolKind = LiteralKit(symbolKindOptions);
 
 /**
+ * Literal union of supported TypeScript declaration kinds.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolKind = typeof SymbolKind.Type;
 
 /**
+ * Coarse symbol categories used by the TSMorph models.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolCategory = LiteralKit(["function", "class", "member", "type"] as const);
 
 /**
+ * Literal union of coarse TSMorph symbol categories.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolCategory = typeof SymbolCategory.Type;
 
 /**
+ * Maps a declaration kind to its coarse symbol category.
+ *
+ * @category Utility
  * @since 0.0.0
  */
 export const symbolCategoryFromKind = SymbolKind.$match({
@@ -287,6 +356,9 @@ export const symbolCategoryFromKind = SymbolKind.$match({
 });
 
 /**
+ * Schema transformation from declaration kind to coarse symbol category.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolKindToCategory = SymbolKind.pipe(
@@ -304,11 +376,17 @@ export const SymbolKindToCategory = SymbolKind.pipe(
 );
 
 /**
+ * Output type produced by `SymbolKindToCategory`.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
 
 /**
+ * Non-empty source text schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SourceText = S.NonEmptyString.pipe(
@@ -321,11 +399,17 @@ export const SourceText = S.NonEmptyString.pipe(
 );
 
 /**
+ * Branded non-empty source text.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SourceText = typeof SourceText.Type;
 
 /**
+ * Positive 1-based line number schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -338,11 +422,17 @@ export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
 );
 
 /**
+ * Branded positive 1-based line number.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type LineNumber = typeof LineNumber.Type;
 
 /**
+ * Positive 1-based column number schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -355,11 +445,17 @@ export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
 );
 
 /**
+ * Branded positive 1-based column number.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ColumnNumber = typeof ColumnNumber.Type;
 
 /**
+ * Non-negative byte offset schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ByteOffset = NonNegativeInt.pipe(
@@ -372,11 +468,17 @@ export const ByteOffset = NonNegativeInt.pipe(
 );
 
 /**
+ * Branded non-negative byte offset.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ByteOffset = typeof ByteOffset.Type;
 
 /**
+ * Non-negative byte length schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ByteLength = NonNegativeInt.pipe(
@@ -389,11 +491,17 @@ export const ByteLength = NonNegativeInt.pipe(
 );
 
 /**
+ * Branded non-negative byte length.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ByteLength = typeof ByteLength.Type;
 
 /**
+ * SHA-256 content hash schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ContentHash = Sha256Hex.pipe(
@@ -406,26 +514,41 @@ export const ContentHash = Sha256Hex.pipe(
 );
 
 /**
+ * Branded SHA-256 content hash.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ContentHash = typeof ContentHash.Type;
 
 /**
+ * Supported ts-morph project scope modes.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
 
 /**
+ * Literal union of ts-morph project scope modes.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
 
 /**
+ * Reference traversal policies for ts-morph scope resolution.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"] as const);
 
 /**
+ * Literal union of ts-morph reference traversal policies.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphReferencePolicy = typeof TsMorphReferencePolicy.Type;
@@ -439,6 +562,9 @@ const resolvedProjectIdentity = S.TemplateLiteral([
 ]);
 
 /**
+ * Stable identity schema for a resolved ts-morph project scope.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ProjectScopeId = resolvedProjectIdentity.pipe(
@@ -451,11 +577,17 @@ export const ProjectScopeId = resolvedProjectIdentity.pipe(
 );
 
 /**
+ * Branded stable identity for a resolved ts-morph project scope.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ProjectScopeId = typeof ProjectScopeId.Type;
 
 /**
+ * Parsed components of a `ProjectScopeId`.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ProjectScopeIdParts = S.TemplateLiteralParser([
@@ -471,6 +603,9 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
 );
 
 /**
+ * Cache key schema for memoized ts-morph projects.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ProjectCacheKey = resolvedProjectIdentity.pipe(
@@ -483,11 +618,17 @@ export const ProjectCacheKey = resolvedProjectIdentity.pipe(
 );
 
 /**
+ * Branded cache key for memoized ts-morph projects.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type ProjectCacheKey = typeof ProjectCacheKey.Type;
 
 /**
+ * Stable symbol identity schema.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).pipe(
@@ -500,11 +641,17 @@ export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualified
 );
 
 /**
+ * Branded stable symbol identity.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolId = typeof SymbolId.Type;
 
 /**
+ * Parsed components of a `SymbolId`.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const SymbolIdParts = S.TemplateLiteralParser([
@@ -520,6 +667,9 @@ export const SymbolIdParts = S.TemplateLiteralParser([
 );
 
 /**
+ * Schema transformation from a generic file path to a `TsConfigFilePath`.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const FilePathToTsConfigFilePath = FilePath.pipe(
@@ -535,6 +685,9 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(
 );
 
 /**
+ * Schema transformation from a generic file path to a TypeScript implementation file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
@@ -550,6 +703,9 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
 );
 
 /**
+ * Schema transformation from a generic file path to a TypeScript declaration file path.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
@@ -567,6 +723,7 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
 /**
  * Schema transformation from a generic file path to a TypeScript source file path.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const FilePathToTypeScriptFilePath = FilePath.pipe(
@@ -584,6 +741,7 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(
 /**
  * Schema transformation from a TypeScript implementation file path to a symbol-safe file path.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplementationFilePath.pipe(
@@ -606,6 +764,7 @@ const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes)
 /**
  * Effectful one-way schema transformation from source bytes to a canonical content hash.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ContentHashFromBytes = S.Uint8Array.pipe(
@@ -633,6 +792,7 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBy
 /**
  * Effectful one-way schema transformation from source text to a canonical content hash.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const ContentHashFromSourceText = SourceText.pipe(
@@ -655,6 +815,7 @@ export const ContentHashFromSourceText = SourceText.pipe(
  * Internal runtime schemas.
  * These are intentionally not re-exported from the package entrypoint.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const InternalTsMorphProject = S.instanceOf(Project).pipe(
@@ -668,6 +829,7 @@ export const InternalTsMorphProject = S.instanceOf(Project).pipe(
 /**
  * Internal runtime schema for a live ts-morph SourceFile instance.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const InternalTsMorphSourceFile = S.declare<SourceFile>(
@@ -683,6 +845,7 @@ export const InternalTsMorphSourceFile = S.declare<SourceFile>(
 /**
  * Internal runtime schema for a live ts-morph Node instance.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const InternalTsMorphNode = S.declare<TsMorphNode>(
@@ -698,6 +861,7 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>(
 /**
  * TS-native symbol record with strict identity, kind, and source-location metadata.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class Symbol extends S.Class<Symbol>($I`Symbol`)(
@@ -762,20 +926,30 @@ export class Symbol extends S.Class<Symbol>($I`Symbol`)(
 /**
  * Namespace helpers for normalized TSMorph symbols.
  *
+ * @category DomainModel
  * @since 0.0.0
  */
 export declare namespace Symbol {
   /**
+   * Runtime-decoded `Symbol` value type.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export type Type = typeof Symbol.Type;
   /**
+   * Encoded representation of a `Symbol` value.
+   *
+   * @category DomainModel
    * @since 0.0.0
    */
   export type Encoded = typeof Symbol.Encoded;
 }
 
 /**
+ * Input shape for constructing a normalized `Symbol`.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
@@ -784,6 +958,14 @@ export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
 };
 
 /**
+ * Builds a stable `SymbolId` from validated symbol identity parts.
+ *
+ * @param parts - Validated file path, qualified name, and declaration kind.
+ * @param parts.filePath - Normalized relative file path for the declaration.
+ * @param parts.qualifiedName - Fully qualified symbol name within the file.
+ * @param parts.kind - TSMorph declaration kind used to disambiguate the symbol.
+ * @returns Stable symbol identifier.
+ * @category Utility
  * @since 0.0.0
  */
 export const makeSymbolId = (parts: {
@@ -793,6 +975,14 @@ export const makeSymbolId = (parts: {
 }): SymbolId => decodeSymbolId(`${parts.filePath}::${parts.qualifiedName}#${parts.kind}`);
 
 /**
+ * Builds a stable `ProjectScopeId` from validated scope identity parts.
+ *
+ * @param parts - Validated tsconfig path, scope mode, and reference policy.
+ * @param parts.tsConfigPath - Tsconfig path anchoring the scope.
+ * @param parts.mode - Scope mode controlling project loading breadth.
+ * @param parts.referencePolicy - Reference traversal policy for the scope.
+ * @returns Stable project scope identifier.
+ * @category Utility
  * @since 0.0.0
  */
 export const makeProjectScopeId = (parts: {
@@ -804,6 +994,14 @@ export const makeProjectScopeId = (parts: {
 const decodeProjectCacheKey = S.decodeUnknownSync(ProjectCacheKey);
 
 /**
+ * Builds a stable `ProjectCacheKey` from validated scope identity parts.
+ *
+ * @param parts - Validated tsconfig path, scope mode, and reference policy.
+ * @param parts.tsConfigPath - Tsconfig path anchoring the cache entry.
+ * @param parts.mode - Scope mode controlling cache segmentation.
+ * @param parts.referencePolicy - Reference traversal policy captured in the cache key.
+ * @returns Stable project cache key.
+ * @category Utility
  * @since 0.0.0
  */
 export const makeProjectCacheKey = (parts: {
@@ -813,6 +1011,11 @@ export const makeProjectCacheKey = (parts: {
 }): ProjectCacheKey => decodeProjectCacheKey(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`);
 
 /**
+ * Normalizes symbol input by deriving missing identity and category fields.
+ *
+ * @param input - Symbol fields to normalize into a `Symbol` instance.
+ * @returns Normalized symbol instance.
+ * @category Utility
  * @since 0.0.0
  */
 export const makeSymbol = (input: SymbolInit): Symbol =>
@@ -851,6 +1054,9 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
 ) {}
 
 /**
+ * Tagged union schema for ts-morph scope resolution entrypoints.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, TsMorphScopeEntrypointFile])
@@ -862,11 +1068,17 @@ export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, T
   .pipe(S.toTaggedUnion("_tag"));
 
 /**
+ * Decoded ts-morph scope entrypoint union.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
 
 /**
+ * Request schema for resolving a ts-morph project scope.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
@@ -882,6 +1094,9 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
 ) {}
 
 /**
+ * Resolved ts-morph project scope payload.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorphProjectScope`)(
@@ -900,6 +1115,9 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
 ) {}
 
 /**
+ * Request schema for extracting a file outline.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>($I`TsMorphFileOutlineRequest`)(
@@ -913,6 +1131,9 @@ export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest
 ) {}
 
 /**
+ * File outline payload for a TypeScript source file.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFileOutline`)(
@@ -927,6 +1148,9 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
 ) {}
 
 /**
+ * Request schema for reading file source text.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>($I`TsMorphSourceTextRequest`)(
@@ -939,6 +1163,9 @@ export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
 ) {}
 
 /**
+ * Source text payload for a TypeScript file.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I`TsMorphSourceTextResult`)(
@@ -953,6 +1180,9 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
 ) {}
 
 /**
+ * Request schema for symbol lookup by stable identifier.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>($I`TsMorphSymbolLookupRequest`)(
@@ -966,6 +1196,9 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
 ) {}
 
 /**
+ * Symbol lookup result payload.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>($I`TsMorphSymbolLookupResult`)(
@@ -979,6 +1212,9 @@ export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult
 ) {}
 
 /**
+ * Positive result-limit schema for ts-morph search.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -991,11 +1227,17 @@ export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
 );
 
 /**
+ * Branded positive result limit for ts-morph search.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
 
 /**
+ * Request schema for symbol search within a resolved scope.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>($I`TsMorphSymbolSearchRequest`)(
@@ -1012,6 +1254,9 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
 ) {}
 
 /**
+ * Symbol search result payload.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>($I`TsMorphSymbolSearchResult`)(
@@ -1028,6 +1273,9 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
 ) {}
 
 /**
+ * Request schema for reading symbol source text.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>($I`TsMorphSymbolSourceRequest`)(
@@ -1041,6 +1289,9 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
 ) {}
 
 /**
+ * Symbol source payload including extracted text.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>($I`TsMorphSymbolSourceResult`)(
@@ -1056,11 +1307,17 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
 ) {}
 
 /**
+ * Supported normalized diagnostic categories.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"] as const);
 
 /**
+ * Literal union of normalized diagnostic categories.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphDiagnosticCategory = typeof TsMorphDiagnosticCategory.Type;
@@ -1123,6 +1380,10 @@ class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagn
 ) {}
 
 /**
+ * Tagged union schema for normalized TypeScript diagnostics.
+ *
+ * @returns Tagged union schema keyed by diagnostic category.
+ * @category DomainModel
  * @since 0.0.0
  */
 export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
@@ -1141,11 +1402,17 @@ export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
   .pipe(S.toTaggedUnion("category"));
 
 /**
+ * Decoded normalized TypeScript diagnostic union.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
 
 /**
+ * Request schema for TypeScript diagnostics in a resolved scope.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
@@ -1159,6 +1426,9 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
 ) {}
 
 /**
+ * Diagnostics payload for a TypeScript file.
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>($I`TsMorphDiagnosticsResult`)(

@@ -29,9 +29,7 @@ export class QueryQueueFullError extends TaggedErrorClass<QueryQueueFullError>($
 /**
  * @since 0.0.0
  */
-export class QueryPendingTimeoutError extends TaggedErrorClass<QueryPendingTimeoutError>(
-  $I`QueryPendingTimeoutError`
-)(
+export class QueryPendingTimeoutError extends TaggedErrorClass<QueryPendingTimeoutError>($I`QueryPendingTimeoutError`)(
   "QueryPendingTimeoutError",
   {
     message: S.String,

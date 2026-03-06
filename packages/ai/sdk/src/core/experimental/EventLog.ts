@@ -225,7 +225,7 @@ const SyncCompactionPayload = S.Struct({
   before: S.Number,
   after: S.Number,
   events: S.optional(S.Array(S.String)),
-  timestamp: S.Number,
+  timestamp: S.DateTimeUtcFromMillis,
 }).annotate(
   $I.annote("SyncCompactionPayload", {
     description: "Payload for sync compaction audit events.",

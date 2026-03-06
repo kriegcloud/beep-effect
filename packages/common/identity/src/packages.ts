@@ -38,6 +38,7 @@ const composers = $I.compose(
   "agent-eval",
   "codebase-search",
   "repo-utils",
+  "test-utils",
   "claude",
   "ai-sdk",
   // Shared Slice
@@ -53,7 +54,7 @@ const composers = $I.compose(
   "repo-memory-server",
   "repo-memory-client",
   "repo-memory-drivers-local",
-	"codegraph",
+  "codegraph",
 
   // iam
   "iam-domain",
@@ -154,6 +155,12 @@ export const $CodebaseSearchId = composers.$CodebaseSearchId;
  * @category Configuration
  */
 export const $RepoUtilsId = composers.$RepoUtilsId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $TestUtilsId = composers.$TestUtilsId;
 
 // --- claude ---
 

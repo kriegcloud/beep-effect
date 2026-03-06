@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { utcFromMillis, utcToMillis } from "../internal/dateTime.js";
 import { SessionMeta } from "../Schema/Storage.js";
 import { defaultIndexPageSize, defaultSessionIndexPrefix, defaultStorageDirectory } from "./defaults.js";
 import { StorageConfig } from "./StorageConfig.js";
@@ -61,20 +62,17 @@ const SessionIndexMeta = S.Struct({
   pageCount: S.Number,
   total: S.Number,
   pageSize: S.Number,
-  updatedAt: S.Number,
+  updatedAt: S.DateTimeUtcFromMillis,
 });
 
 type SessionIndexMeta = typeof SessionIndexMeta.Type;
 
 const SessionIndexPageSchema = S.Struct({
   ids: S.Array(S.String),
-  updatedAt: S.Number,
+  updatedAt: S.DateTimeUtcFromMillis,
 });
 
-type SessionIndexPageData = {
-  readonly ids: ReadonlyArray<string>;
-  readonly updatedAt: number;
-};
+type SessionIndexPageData = typeof SessionIndexPageSchema.Type;
 
 const resolveListLimit = (options: SessionIndexListOptions | undefined, fallback?: number) => {
   const resolved = options?.limit ?? fallback;
@@ -97,7 +95,7 @@ const resolveTupleOrder = (direction: SessionIndexDirection) =>
   direction === "desc" ? Order.flip(tupleOrder) : tupleOrder;
 
 const toOrderKey = (meta: SessionMeta, orderBy: SessionIndexOrderBy) =>
-  [orderBy === "createdAt" ? meta.createdAt : meta.updatedAt, meta.sessionId] as const;
+  [utcToMillis(orderBy === "createdAt" ? meta.createdAt : meta.updatedAt), meta.sessionId] as const;
 
 const toCursorKey = (cursor: SessionIndexCursor) => [cursor.value, cursor.sessionId] as const;
 
@@ -123,7 +121,7 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
  * @since 0.0.0
  */
 export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = defaultOrderBy): SessionIndexCursor => ({
-  value: orderBy === "createdAt" ? meta.createdAt : meta.updatedAt,
+  value: utcToMillis(orderBy === "createdAt" ? meta.createdAt : meta.updatedAt),
   sessionId: meta.sessionId,
 });
 
@@ -157,8 +155,8 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
     Effect.succeed(
       SessionMeta.make({
         sessionId,
-        createdAt: options?.createdAt ?? options?.updatedAt ?? 0,
-        updatedAt: options?.updatedAt ?? options?.createdAt ?? 0,
+        createdAt: utcFromMillis(options?.createdAt ?? options?.updatedAt ?? 0),
+        updatedAt: utcFromMillis(options?.updatedAt ?? options?.createdAt ?? 0),
       })
     ),
   get: () => Effect.succeed(O.none()),
@@ -189,8 +187,8 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
         const now = options?.updatedAt ?? (yield* Clock.currentTimeMillis);
         return yield* SynchronizedRef.modify(stateRef, (state) => {
           const existing = HashMap.get(state.meta, sessionId);
-          const createdAt = O.isSome(existing) ? existing.value.createdAt : (options?.createdAt ?? now);
-          const updatedAt = now;
+          const createdAt = O.isSome(existing) ? existing.value.createdAt : utcFromMillis(options?.createdAt ?? now);
+          const updatedAt = utcFromMillis(now);
           const meta = SessionMeta.make({ sessionId, createdAt, updatedAt });
           const ids = O.isSome(existing) ? state.ids : state.ids.concat(sessionId);
           return [meta, { ids, meta: HashMap.set(state.meta, sessionId, meta) }] as const;
@@ -296,7 +294,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             pageCount: 0,
             total: 0,
             pageSize,
-            updatedAt: 0,
+            updatedAt: utcFromMillis(0),
           } satisfies SessionIndexMeta;
         });
 
@@ -312,7 +310,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
                 () =>
                   ({
                     ids: [],
-                    updatedAt: 0,
+                    updatedAt: utcFromMillis(0),
                   }) satisfies SessionIndexPageData
               )
             )
@@ -400,11 +398,11 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             .get(sessionKey(sessionId))
             .pipe(Effect.mapError((cause) => mapError("touch", cause)));
           const existing = O.getOrUndefined(sessionOption);
-          const createdAt = existing?.createdAt ?? options?.createdAt ?? now;
+          const createdAt = existing?.createdAt ?? utcFromMillis(options?.createdAt ?? now);
           const nextSession = SessionMeta.make({
             sessionId,
             createdAt,
-            updatedAt: now,
+            updatedAt: utcFromMillis(now),
           });
           yield* sessionStore
             .set(sessionKey(sessionId), nextSession)
@@ -415,7 +413,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           const pageSize = normalizePageSize(meta.pageSize);
 
           if (pageCount === 0) {
-            yield* savePage(0, { ids: [sessionId], updatedAt: now });
+            yield* savePage(0, { ids: [sessionId], updatedAt: utcFromMillis(now) });
             pageCount = 1;
             total = 1;
           } else {
@@ -426,15 +424,15 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
               if (lastPage.ids.length < pageSize) {
                 yield* savePage(lastPageIndex, {
                   ids: lastPage.ids.concat(sessionId),
-                  updatedAt: now,
+                  updatedAt: utcFromMillis(now),
                 });
               } else {
-                yield* savePage(pageCount, { ids: [sessionId], updatedAt: now });
+                yield* savePage(pageCount, { ids: [sessionId], updatedAt: utcFromMillis(now) });
                 pageCount += 1;
               }
               total += 1;
-            } else if (found.pageData.updatedAt !== now) {
-              yield* savePage(found.page, { ...found.pageData, updatedAt: now });
+            } else if (utcToMillis(found.pageData.updatedAt) !== now) {
+              yield* savePage(found.page, { ...found.pageData, updatedAt: utcFromMillis(now) });
             }
           }
 
@@ -442,7 +440,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             pageCount,
             total,
             pageSize,
-            updatedAt: now,
+            updatedAt: utcFromMillis(now),
           });
 
           return nextSession;
@@ -482,7 +480,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
                 } else {
                   yield* savePage(found.page, {
                     ids: remaining,
-                    updatedAt: now,
+                    updatedAt: utcFromMillis(now),
                   });
                 }
                 total = Math.max(0, total - 1);
@@ -497,7 +495,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
               pageCount,
               total,
               pageSize: normalizePageSize(meta.pageSize),
-              updatedAt: now,
+              updatedAt: utcFromMillis(now),
             });
           })
         );

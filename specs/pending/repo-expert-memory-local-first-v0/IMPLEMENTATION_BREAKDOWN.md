@@ -1,173 +1,124 @@
 # Implementation Breakdown
 
 ## Thesis
-The first implementation pass should establish `shape`, not `breadth`.
+Implementation should now proceed from the cluster-first decision, not from the superseded `HttpApi` rewrite branch.
 
-That means wiring the monorepo for the chosen topology, defining the protocol and domain contracts that future slices must honor, and standing up a thin desktop shell placeholder that proves the package boundaries are coherent.
+The point of this breakdown is to sequence the work so lifecycle, transport, and persistence land coherently.
 
-## Current Repo Reality
-- The repo already has `packages/common/*`, `packages/shared/*`, and `tooling/*` conventions.
-- The repo already uses `Effect`, `Schema`, `ServiceMap.Service`, package identity composers, and TS project references.
-- The repo does not yet have:
-  - `apps/desktop`
-  - `packages/runtime/*`
-  - `packages/repo-memory/*`
+## Workstream 1: Contracts
+Lock the public contracts first.
 
-## Strongly Supported Pattern
-The lowest-risk order of operations is:
-
-1. Wire workspaces and TS references.
-2. Create the protocol and domain packages first.
-3. Add server and local-driver service boundaries on top.
-4. Add the desktop shell last, consuming only public package surfaces.
-
-This keeps the shell from reaching into server internals and prevents a frontend-led architecture.
-
-## Exploratory Direction
-Later iterations may split the runtime more aggressively, add richer local storage, or promote `apps/server`, `apps/web`, and `apps/mobile`. None of that belongs in the first scaffold pass.
-
-## Work Packages
-
-### 1. Monorepo Wiring
-Goal:
-- register the new packages and app in workspaces
-- add TS project references
-- add root path aliases
-- extend identity composers for new package namespaces
-
-Exit condition:
-- the new packages can be imported by package name
-- TS project references describe the new graph explicitly
-
-### 2. Runtime Protocol
-Goal:
-- define the stable local protocol contracts
-
-Scope:
-- `SidecarBootstrap`
-- `RepoRegistration`
-- `IndexRun`
-- `QueryRun`
-- `RunStreamEvent`
-
-Design rule:
-- keep the protocol transport-neutral enough that the same shapes can back local HTTP now and a remote server later
-
-Exit condition:
-- the shell and sidecar can depend on one shared contract package instead of duplicating request and response shapes
-
-### 3. Repo-Memory Domain
-Goal:
-- define the domain-grounding objects that make answers inspectable
-
-Scope:
+### `packages/repo-memory/domain`
+Define and keep stable:
+- `RepoId`
+- `RunId`
+- `RunEventSequence`
+- `RunCursor`
 - `Citation`
 - `RetrievalPacket`
-- repo and run identifiers
-- minimal repo-memory status literals
+- workflow payloads for `IndexRepoRun` and `QueryRepoRun`
 
-Design rule:
-- keep the domain smaller than the future vision; v0 only needs enough structure to ground answers and track runs
+### `packages/runtime/protocol`
+Define and keep stable:
+- `ControlPlaneApi`
+- workflow-derived RPC surface
+- `StreamRunEventsRequest`
+- `RunStreamEvent`
+- public `HttpApi` error payloads
+- public `Rpc` error payloads
 
-Exit condition:
-- answer surfaces can reference one canonical citation and retrieval-packet model
+## Workstream 2: Local SQL substrate
+Adopt:
+- `@effect/sql-sqlite-bun`
+- one local SQLite database under app data
 
-### 4. Runtime and Repo-Memory Services
-Goal:
-- define effect-first service boundaries without overbuilding implementations
+Use the generic `SqlClient` abstraction so the provider choice remains swappable.
 
-Scope:
-- `SidecarRuntime`
-- `RepoMemoryServer`
-- `RepoMemoryClient`
-- `LocalRepoMemoryDriver`
+## Workstream 3: Durable runtime substrate
+Assemble the sidecar runtime from:
+- `SqlMessageStorage`
+- `SqlRunnerStorage`
+- `Sharding`
+- `Runners.layerRpc`
+- `RunnerHealth.layerPing`
+- `ClusterWorkflowEngine.layer`
 
-Design rule:
-- services expose behavior, not storage choices
-- driver packages remain below runtime and semantic layers
+Keep the runtime server as the explicit composition root. Do not collapse this into `BunClusterHttp.layer(...)`.
 
-Exit condition:
-- the sidecar shape is explicit even before HTTP handlers and persistence are implemented
+## Workstream 4: Workflow-backed repo runs
+Implement:
+- `IndexRepoRun`
+- `QueryRepoRun`
 
-### 5. Desktop Shell Placeholder
-Goal:
-- reserve the UI/application slot with the agreed stack
+Use:
+- `Workflow.make(...)`
+- `WorkflowProxy.toRpcGroup(...)`
+- `WorkflowProxyServer.layerRpcHandlers(...)`
 
-Scope:
-- `React + Vite + TanStack Router`
-- a simple routed shell page
-- no fake server semantics
-- no embedded business logic
+Rules:
+- `runId === executionId`
+- execution IDs are deterministic from normalized payload + version stamp
+- discard RPCs return `runId`
+- resume RPCs come from workflow proxy generation
 
-Design rule:
-- the desktop shell is a consumer of the sidecar, not the source of truth for runtime behavior
+## Workstream 5: Product-level run journal and projections
+Add:
+- `EventJournal`
+- `RunProjectionStore`
 
-Exit condition:
-- the app package exists, builds as a thin shell, and clearly marks `src-tauri` as the next runtime integration step
+Journal product events such as:
+- `RunAccepted`
+- `RunStarted`
+- `RunProgressUpdated`
+- `RetrievalPacketMaterialized`
+- `AnswerDrafted`
+- `RunCompleted`
+- `RunFailed`
+- `RunInterrupted`
+- `RunResumed`
 
-### 6. First Real Implementation Pass
-Goal:
-- move from scaffold to one runnable vertical slice
+Use journal events to build run summaries and final answer detail views.
 
-Scope:
-- sidecar bootstrap JSON on stdout
-- local HTTP health endpoint
-- repo registration
-- deterministic TypeScript indexing
-- grounded repo question flow
+## Workstream 6: Shared router assembly
+Host one shared router with:
+- `"/__cluster"`
+- `"/api/v0"`
+- `"/api/v0/rpc"`
 
-Exit condition:
-- the desktop shell can register `beep-effect3`, trigger an index run, and render one grounded answer with citations
+Use:
+- `HttpRunner.layerHttpOptions({ path: "/__cluster" })`
+- `HttpRunner.layerClientProtocolHttp({ path: "__cluster" })`
+- `HttpApiBuilder.layer(...)`
+- `RpcServer.layerHttp(...)`
 
-## Dependency Order
-Follow this order unless a concrete blocker appears:
+## Workstream 7: Desktop shell integration
+Keep the desktop app thin.
 
-1. `packages/repo-memory/domain`
-2. `packages/runtime/protocol`
-3. `packages/runtime/server`
-4. `packages/repo-memory/server`
-5. `packages/repo-memory/drivers-local`
-6. `packages/repo-memory/client`
-7. `apps/desktop`
+The shell should own:
+- sidecar launch
+- bootstrap discovery
+- disconnected/restart UI state
+- native OS integration
 
-Reason:
-- domain objects should exist before protocol shapes try to reference them
-- protocol should exist before client and server surfaces
-- the shell should be the last consumer, not the place where missing abstractions are invented
+The shell should not own:
+- repo-memory semantics
+- workflow lifecycle
+- retrieval logic
 
-## Suggested Task Sequence
-### Slice A: Shape Lock
-- create package manifests and tsconfigs
-- add identity composers
-- add public `src/index.ts` files
-- run targeted TS validation
+## Workstream 8: Compatibility cleanup
+Delete the superseded public transport surface once the new runtime path lands:
+- `POST /api/v0/repos/:repoId/index-runs`
+- `POST /api/v0/query-runs`
+- `GET /api/v0/runs/:runId/events`
 
-### Slice B: Protocol Lock
-- make the transport contracts concrete in `@beep/runtime-protocol`
-- make the grounding contracts concrete in `@beep/repo-memory-domain`
-- expose minimal service boundaries in `@beep/runtime-server` and `@beep/repo-memory-server`
+Also remove doc language that still treats those as the target design.
 
-### Slice C: Shell Lock
-- create the routed desktop placeholder
-- render the stack and contract assumptions in the UI
-- keep `src-tauri` intentionally thin
+## Immediate Guardrail
+The paused reduced `HttpApi` rewrite is not a prerequisite step.
+It remains superseded.
 
-### Slice D: Runnable Vertical Slice
-- implement sidecar startup
-- expose HTTP + SSE
-- persist local repo-memory artifacts
-- answer the first canonical repo questions
-
-## Non-Goals For This Pass
-- multi-user architecture
-- auth
-- sync
-- remote server deployment
-- legal or wealth domain support
-- advanced ontology or reasoning engine work
-- graph store selection beyond the existing driver boundary
+Use [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) as evidence and guardrail only.
 
 ## Questions Worth Keeping Open
-- Should `@beep/runtime-protocol` stay repo-memory specific for v0, or should it become a more generic sidecar protocol later?
-- When the local driver becomes real, does the first persistence target need both graph and vector storage immediately, or can the first slice persist only deterministic index artifacts plus retrieval packets?
-- How soon should `src-tauri` move from placeholder to real sidecar process supervision?
+- Which temporary compatibility code should stay just long enough to land cluster/workflow without breaking the dev loop?
+- When should `workers` enter the design for CPU-bound parsing, if at all?

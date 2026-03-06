@@ -1,6 +1,7 @@
 import { Storage } from "@beep/ai-sdk";
 import type { SDKUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -64,7 +65,7 @@ test("ArtifactStore skips writes when disabled", async () => {
         encoding: "utf8",
         content: "ok",
         sizeBytes: 2,
-        createdAt: Date.now(),
+        createdAt: makeUnsafeUtc(Date.now()),
       })
     );
     return yield* store.list("session-1");

@@ -1,0 +1,60 @@
+{
+  "name": "@beep/test-utils",
+  "version": "0.0.0",
+  "description": "An library for re-usable vitest & @effect/vitest testing utilities",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/test-utils",
+  "license": "MIT",
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/test-utils"
+  },
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "bun test",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:"
+  },
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.ts",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  },
+  "sideEffects": [],
+  "type": "module"
+}

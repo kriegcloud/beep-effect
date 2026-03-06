@@ -88,7 +88,7 @@ const StringRecord = S.Record(S.String, S.String).annotate(
 
 type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
 
-const Json: S.Codec<Json, Json, never, never> = S.suspend(() =>
+const Json: S.Codec<Json, Json> = S.suspend(() =>
   S.Union([S.String, S.Number, S.Boolean, S.Null, S.Array(Json), S.Record(S.String, Json)])
 ).annotate(
   $I.annote("Json", {
@@ -412,9 +412,7 @@ const PackageExportsEntryPath = S.Union([RelativeDotPath, S.Null]).annotate(
 
 const PackageExportsEntryObject: S.Codec<
   { readonly [key: string]: PackageExportsEntryOrFallback },
-  { readonly [key: string]: PackageExportsEntryOrFallback },
-  never,
-  never
+  { readonly [key: string]: PackageExportsEntryOrFallback }
 > = S.suspend(() => S.Record(ExportConditionKey, PackageExportsEntryOrFallback)).annotate(
   $I.annote("PackageExportsEntryObject", {
     title: "Package Exports Entry Object",
@@ -423,7 +421,7 @@ const PackageExportsEntryObject: S.Codec<
   })
 );
 
-const PackageExportsEntry: S.Codec<PackageExportsEntry, PackageExportsEntry, never, never> = S.suspend(() =>
+const PackageExportsEntry: S.Codec<PackageExportsEntry, PackageExportsEntry> = S.suspend(() =>
   S.Union([PackageExportsEntryPath, PackageExportsEntryObject])
 ).annotate(
   $I.annote("PackageExportsEntry", {
@@ -439,12 +437,9 @@ const PackageExportsFallback = S.NonEmptyArray(PackageExportsEntry).annotate(
   })
 );
 
-const PackageExportsEntryOrFallback: S.Codec<
-  PackageExportsEntryOrFallback,
-  PackageExportsEntryOrFallback,
-  never,
-  never
-> = S.suspend(() => S.Union([PackageExportsEntry, PackageExportsFallback])).annotate(
+const PackageExportsEntryOrFallback: S.Codec<PackageExportsEntryOrFallback, PackageExportsEntryOrFallback> = S.suspend(
+  () => S.Union([PackageExportsEntry, PackageExportsFallback])
+).annotate(
   $I.annote("PackageExportsEntryOrFallback", {
     title: "Package Exports Entry Or Fallback",
     description: "An exports target represented as a single entry or a non-empty fallback array of entries.",
@@ -490,9 +485,7 @@ const PackageImportsEntryPath = S.Union([S.String, S.Null]).annotate(
 
 const PackageImportsEntryObject: S.Codec<
   { readonly [key: string]: PackageImportsEntryOrFallback },
-  { readonly [key: string]: PackageImportsEntryOrFallback },
-  never,
-  never
+  { readonly [key: string]: PackageImportsEntryOrFallback }
 > = S.suspend(() => S.Record(ExportConditionKey, PackageImportsEntryOrFallback)).annotate(
   $I.annote("PackageImportsEntryObject", {
     title: "Package Imports Entry Object",
@@ -501,7 +494,7 @@ const PackageImportsEntryObject: S.Codec<
   })
 );
 
-const PackageImportsEntry: S.Codec<PackageImportsEntry, PackageImportsEntry, never, never> = S.suspend(() =>
+const PackageImportsEntry: S.Codec<PackageImportsEntry, PackageImportsEntry> = S.suspend(() =>
   S.Union([PackageImportsEntryPath, PackageImportsEntryObject])
 ).annotate(
   $I.annote("PackageImportsEntry", {
@@ -517,12 +510,9 @@ const PackageImportsFallback = S.NonEmptyArray(PackageImportsEntry).annotate(
   })
 );
 
-const PackageImportsEntryOrFallback: S.Codec<
-  PackageImportsEntryOrFallback,
-  PackageImportsEntryOrFallback,
-  never,
-  never
-> = S.suspend(() => S.Union([PackageImportsEntry, PackageImportsFallback])).annotate(
+const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, PackageImportsEntryOrFallback> = S.suspend(
+  () => S.Union([PackageImportsEntry, PackageImportsFallback])
+).annotate(
   $I.annote("PackageImportsEntryOrFallback", {
     title: "Package Imports Entry Or Fallback",
     description: "An imports target represented as a single entry or a non-empty fallback array of entries.",
@@ -544,7 +534,7 @@ export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOr
 
 type OverrideValue = string | { readonly [key: string]: OverrideValue };
 
-const OverrideValue: S.Codec<OverrideValue, OverrideValue, never, never> = S.suspend(() =>
+const OverrideValue: S.Codec<OverrideValue, OverrideValue> = S.suspend(() =>
   S.Union([S.String, S.Record(S.String, OverrideValue)])
 ).annotate(
   $I.annote("OverrideValue", {
@@ -702,11 +692,17 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
  */
 export declare namespace NpmPackageJson {
   /**
+   * Decoded runtime type for {@link NpmPackageJson}.
+   *
    * @since 0.0.0
+   * @category DomainModel
    */
   export type Type = S.Schema.Type<typeof NpmPackageJson>;
   /**
+   * Encoded representation for {@link NpmPackageJson}.
+   *
    * @since 0.0.0
+   * @category DomainModel
    */
   export type Encoded = S.Codec.Encoded<typeof NpmPackageJson>;
 }
@@ -718,97 +714,166 @@ export declare namespace NpmPackageJson {
  */
 export declare namespace PackageJson {
   /**
+   * Decoded runtime type for {@link PackageJson}.
+   *
    * @since 0.0.0
+   * @category DomainModel
    */
   export type Type = S.Schema.Type<typeof PackageJson>;
   /**
+   * Encoded representation for {@link PackageJson}.
+   *
    * @since 0.0.0
+   * @category DomainModel
    */
   export type Encoded = S.Codec.Encoded<typeof PackageJson>;
 }
 
 /**
+ * Runtime type for {@link Person}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Person = (typeof Person)["Type"];
 /**
+ * Runtime type for {@link Author}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Author = (typeof Author)["Type"];
 /**
+ * Runtime type for {@link Contributors}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Contributors = (typeof Contributors)["Type"];
 /**
+ * Runtime type for {@link Maintainers}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Maintainers = (typeof Maintainers)["Type"];
 /**
+ * Runtime type for {@link Repository}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Repository = (typeof Repository)["Type"];
 /**
+ * Runtime type for {@link Bugs}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Bugs = (typeof Bugs)["Type"];
 /**
+ * Runtime type for {@link Funding}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Funding = (typeof Funding)["Type"];
 /**
+ * Runtime type for {@link Bin}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Bin = (typeof Bin)["Type"];
 /**
+ * Runtime type for {@link Browser}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Browser = (typeof Browser)["Type"];
 /**
+ * Runtime type for {@link Directories}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Directories = (typeof Directories)["Type"];
 /**
+ * Runtime type for {@link Man}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Man = (typeof Man)["Type"];
 /**
+ * Runtime type for {@link SideEffects}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SideEffects = (typeof SideEffects)["Type"];
 /**
+ * Runtime type for {@link BundleDependencies}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type BundleDependencies = (typeof BundleDependencies)["Type"];
 /**
+ * Runtime type for {@link PeerDependenciesMeta}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PeerDependenciesMeta = (typeof PeerDependenciesMeta)["Type"];
 /**
+ * Runtime type for {@link TypesVersions}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type TypesVersions = (typeof TypesVersions)["Type"];
 /**
+ * Runtime type for {@link DevEngineDependency}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type DevEngineDependency = (typeof DevEngineDependency)["Type"];
 /**
+ * Runtime type for {@link DevEngines}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type DevEngines = (typeof DevEngines)["Type"];
 /**
+ * Runtime type for {@link PackageExports}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PackageExports = (typeof PackageExports)["Type"];
 /**
+ * Runtime type for {@link PackageImports}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PackageImports = (typeof PackageImports)["Type"];
 /**
+ * Runtime type for {@link Workspaces}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Workspaces = (typeof Workspaces)["Type"];
 /**
+ * Runtime type for {@link PublishConfig}.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PublishConfig = (typeof PublishConfig)["Type"];
 
@@ -822,7 +887,8 @@ const encodePackageJsonJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString
  * Synchronously decode an unknown value into a strict `PackageJson`.
  * Throws a `SchemaError` if validation fails.
  *
- * @param input
+ * @param input - Unknown package.json-shaped value to validate and decode.
+ * @returns Decoded strict `PackageJson` value.
  * @since 0.0.0
  * @category Validation
  */
@@ -833,7 +899,8 @@ export const decodePackageJson = (input: unknown): PackageJson.Type =>
  * Synchronously decode an unknown value into a strict `PackageJson`,
  * returning an `Exit` instead of throwing.
  *
- * @param input
+ * @param input - Unknown package.json-shaped value to validate and decode.
+ * @returns Exit describing either the decoded package.json or the schema failure.
  * @since 0.0.0
  * @category Validation
  */
@@ -843,13 +910,13 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
 /**
  * Decode an unknown value into a strict `PackageJson` as an Effect.
  *
- * @param input
+ * @param input - Unknown package.json-shaped value to validate and decode.
+ * @returns Effect that yields a decoded strict package.json value.
  * @since 0.0.0
  * @category Validation
  */
-export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError, never> = (
-  input
-) => decodePackageJsonUnknownEffect(input, strictDecodeOptions);
+export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError> = (input) =>
+  decodePackageJsonUnknownEffect(input, strictDecodeOptions);
 
 /**
  * Encode a strict `PackageJson` value back to its encoded form as an Effect.
@@ -857,22 +924,27 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed package.json objects.
  *
+ * @param input - Unknown package.json-shaped value to validate before encoding.
+ * @returns Effect that yields the encoded package.json representation.
  * @since 0.0.0
  * @category Validation
  */
-export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError, never> =
-  Effect.fn(function* (input) {
+export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError> = Effect.fn(
+  function* (input) {
     const validated = yield* decodePackageJsonEffect(input);
     return yield* encodePackageJsonUnknownEffect(validated);
-  });
+  }
+);
 
 /**
  * Encode a strict `PackageJson` value to a compact JSON string as an Effect.
  *
+ * @param input - Unknown package.json-shaped value to validate before encoding.
+ * @returns Effect that yields a compact JSON string.
  * @since 0.0.0
  * @category Validation
  */
-export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<string, S.SchemaError, never> = Effect.fn(
+export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<string, S.SchemaError> = Effect.fn(
   function* (input) {
     const validated = yield* decodePackageJsonEffect(input);
     return yield* encodePackageJsonJsonStringEffect(validated);
@@ -882,6 +954,8 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
 /**
  * Encode a strict `PackageJson` value to a pretty-printed JSON string.
  *
+ * @param input - Unknown package.json-shaped value to validate before encoding.
+ * @returns Effect that yields a formatted JSON string or a domain formatting error.
  * @since 0.0.0
  * @category Validation
  */

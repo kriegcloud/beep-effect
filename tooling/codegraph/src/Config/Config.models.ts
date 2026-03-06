@@ -232,6 +232,7 @@ class GraphConfigFalkordb extends GraphConfigBase.extend<GraphConfigFalkordb>($I
 /**
  * Graph database configuration.
  *
+ * @returns Tagged schema for graph driver configuration variants.
  * @since 0.0.0
  * @category Configuration
  */
@@ -321,6 +322,7 @@ class WatcherConfigFull extends WatcherConfigBase.extend<WatcherConfigFull>($I`W
 /**
  * File watcher configuration.
  *
+ * @returns Tagged schema for filesystem watcher strategy variants.
  * @since 0.0.0
  * @category Configuration
  */
@@ -381,6 +383,7 @@ class McpConfigHttp extends McpConfigBase.extend<McpConfigHttp>($I`McpConfigHttp
 /**
  * MCP server configuration.
  *
+ * @returns Tagged schema for MCP transport configuration variants.
  * @since 0.0.0
  * @category Configuration
  */
@@ -432,6 +435,7 @@ class VizConfigDark extends VizConfigBase.extend<VizConfigDark>($I`VizConfigDark
 /**
  * Visualization configuration.
  *
+ * @returns Tagged schema for visualization theme configuration variants.
  * @since 0.0.0
  * @category Configuration
  */
@@ -518,6 +522,7 @@ class LogConfigFatal extends LogConfigBase.extend<LogConfigFatal>($I`LogConfigFa
 /**
  * Logging configuration.
  *
+ * @returns Tagged schema for runtime logging level configuration variants.
  * @since 0.0.0
  * @category Configuration
  */

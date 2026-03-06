@@ -7,6 +7,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as EventLogModule from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { utcFromMillis, utcToMillis } from "../internal/dateTime.js";
 import type { SDKMessage } from "../Schema/Message.js";
 import { ChatEvent, type ChatEventSource } from "../Schema/Storage.js";
 import type { CompactionStrategy } from "../Sync/index.js";
@@ -66,7 +67,7 @@ const defaultSource: ChatEventSource = "sdk";
 
 const ChatMeta = S.Struct({
   lastSequence: S.Number,
-  updatedAt: S.Number,
+  updatedAt: S.DateTimeUtcFromMillis,
 });
 
 type ChatMeta = typeof ChatMeta.Type;
@@ -91,7 +92,7 @@ const makeEvent = (
   ChatEvent.make({
     sessionId,
     sequence,
-    timestamp,
+    timestamp: utcFromMillis(timestamp),
     source,
     message,
   });
@@ -204,7 +205,7 @@ const applyRetention = (events: ReadonlyArray<ChatEvent>, retention: ChatRetenti
   let filtered = events;
   if (retention.maxAgeMs !== undefined) {
     const cutoff = now - retention.maxAgeMs;
-    filtered = filtered.filter((event) => event.timestamp >= cutoff);
+    filtered = filtered.filter((event) => utcToMillis(event.timestamp) >= cutoff);
   }
   if (retention.maxEvents !== undefined) {
     const maxEvents = retention.maxEvents;
@@ -243,7 +244,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
                 () =>
                   ({
                     lastSequence: 0,
-                    updatedAt: 0,
+                    updatedAt: utcFromMillis(0),
                   }) satisfies ChatMeta
               )
             )
@@ -292,7 +293,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
                 if (O.isNone(eventOption)) return;
                 const sequence = sequences[index];
                 if (sequence === undefined) return;
-                if (eventOption.value.timestamp < cutoff) {
+                if (utcToMillis(eventOption.value.timestamp) < cutoff) {
                   removals = HashSet.add(removals, sequence);
                 }
               });
@@ -313,7 +314,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
         const event = payload;
         const meta = yield* loadMeta(event.sessionId);
         const lastSequence = Math.max(meta.lastSequence, event.sequence);
-        const updatedAt = Math.max(meta.updatedAt, event.timestamp);
+        const updatedAt = utcFromMillis(Math.max(utcToMillis(meta.updatedAt), utcToMillis(event.timestamp)));
 
         yield* eventStore
           .set(eventKey(event.sessionId, event.sequence), event)
@@ -337,8 +338,8 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
         );
 
         const retention = yield* resolveRetention;
-        yield* applyRetentionKv(event.sessionId, lastSequence, event.timestamp, retention);
-        yield* touchSessionIndex(event.sessionId, event.timestamp);
+        yield* applyRetentionKv(event.sessionId, lastSequence, utcToMillis(event.timestamp), retention);
+        yield* touchSessionIndex(event.sessionId, utcToMillis(event.timestamp));
       }).pipe(Effect.mapError((cause) => mapError("journalHandler", cause)))
     )
   );
@@ -406,7 +407,7 @@ const makeJournaledStore = (options?: {
             () =>
               ({
                 lastSequence: 0,
-                updatedAt: 0,
+                updatedAt: utcFromMillis(0),
               }) satisfies ChatMeta
           )
         )
@@ -607,7 +608,7 @@ const makeJournaledStore = (options?: {
                         if (O.isNone(eventOption)) return;
                         const sequence = sequences[index];
                         if (sequence === undefined) return;
-                        if (eventOption.value.timestamp < cutoff) {
+                        if (utcToMillis(eventOption.value.timestamp) < cutoff) {
                           removals = HashSet.add(removals, sequence);
                         }
                       });
@@ -812,7 +813,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
                 () =>
                   ({
                     lastSequence: 0,
-                    updatedAt: 0,
+                    updatedAt: utcFromMillis(0),
                   }) satisfies ChatMeta
               )
             )
@@ -889,7 +890,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
                 if (O.isNone(eventOption)) return;
                 const sequence = sequences[index];
                 if (sequence === undefined) return;
-                if (eventOption.value.timestamp < cutoff) {
+                if (utcToMillis(eventOption.value.timestamp) < cutoff) {
                   removals = HashSet.add(removals, sequence);
                 }
               });
@@ -925,7 +926,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           yield* eventStore
             .set(eventKey(sessionId, sequence), event)
             .pipe(Effect.mapError((cause) => toStorageError(storeName, "appendMessage", cause)));
-          yield* saveMeta(sessionId, { lastSequence: sequence, updatedAt: timestamp }).pipe(
+          yield* saveMeta(sessionId, { lastSequence: sequence, updatedAt: utcFromMillis(timestamp) }).pipe(
             Effect.catch((error) =>
               eventStore.remove(eventKey(sessionId, sequence)).pipe(
                 Effect.catch((cleanupCause) =>
@@ -979,7 +980,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           const writtenSequences = events.map((event) => event.sequence);
           yield* saveMeta(sessionId, {
             lastSequence: meta.lastSequence + events.length,
-            updatedAt: timestamp,
+            updatedAt: utcFromMillis(timestamp),
           }).pipe(
             Effect.catch((error) =>
               Effect.forEach(

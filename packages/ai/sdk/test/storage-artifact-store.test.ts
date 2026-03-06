@@ -1,3 +1,4 @@
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,7 +12,7 @@ const makeRecord = (id: string, sessionId: string) =>
     kind: "tool_result",
     encoding: "utf8",
     content: `content-${id}`,
-    createdAt: 0,
+    createdAt: makeUnsafeUtc(0),
   });
 
 const runWithLayer = (layer: Layer.Layer<Storage.ArtifactStore>) =>

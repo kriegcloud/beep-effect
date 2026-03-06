@@ -6,6 +6,7 @@ import { defaultArtifactPrefix, defaultChatHistoryPrefix } from "@beep/ai-sdk/St
 import { type KVNamespace, layerKV } from "@beep/ai-sdk/Storage/StorageKV";
 import { layers as storageLayers } from "@beep/ai-sdk/Storage/StorageLayers";
 import { layerR2, type R2Bucket } from "@beep/ai-sdk/Storage/StorageR2";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -115,7 +116,7 @@ const sampleArtifact = (sessionId: string, id: string): ArtifactRecord =>
     kind: "summary",
     encoding: "utf8",
     content: "artifact payload",
-    createdAt: Date.now(),
+    createdAt: makeUnsafeUtc(Date.now()),
   }) as ArtifactRecord;
 
 test("StorageR2 layer supports key-value operations", async () => {

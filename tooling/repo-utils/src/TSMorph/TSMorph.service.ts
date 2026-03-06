@@ -1,8 +1,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, FileSystem, Layer, Option as O, Path, ServiceMap } from "effect";
+import { Effect, FileSystem, Layer, MutableHashMap, Option as O, Path, ServiceMap, String as Str } from "effect";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,
@@ -93,6 +92,7 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * Typed error returned by the remaining placeholder TSMorphService methods.
  *
  * @since 0.0.0
+ * @category Errors
  */
 export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServiceUnavailableError>(
   $I`TsMorphServiceUnavailableError`
@@ -112,6 +112,7 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * Typed error returned when a scope or repository path cannot be resolved.
  *
  * @since 0.0.0
+ * @category Errors
  */
 export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeResolutionError>(
   $I`TsMorphScopeResolutionError`
@@ -131,6 +132,7 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * Typed error returned when a scoped ts-morph project cannot be constructed.
  *
  * @since 0.0.0
+ * @category Errors
  */
 export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
   "TsMorphProjectLoadError",
@@ -148,6 +150,7 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * Typed error returned when a TypeScript file cannot be loaded from a resolved scope.
  *
  * @since 0.0.0
+ * @category Errors
  */
 export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
   "TsMorphSourceFileError",
@@ -166,6 +169,7 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
  *
  * @since 0.0.0
+ * @category Errors
  */
 export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsupportedFileError>(
   $I`TsMorphUnsupportedFileError`
@@ -182,7 +186,10 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
 ) {}
 
 /**
+ * Tagged union of all recoverable service errors emitted by `TSMorphService`.
+ *
  * @since 0.0.0
+ * @category Errors
  */
 export type TSMorphServiceError =
   | TsMorphProjectLoadError
@@ -195,6 +202,7 @@ export type TSMorphServiceError =
  * Read-only v1 service contract for ts-morph-backed scope, symbol, source, and diagnostic operations.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type TSMorphServiceShape = {
   readonly resolveProjectScope: (
@@ -224,6 +232,7 @@ export type TSMorphServiceShape = {
  * Service tag for the read-only v1 ts-morph contract.
  *
  * @since 0.0.0
+ * @category PortContract
  */
 export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
@@ -300,12 +309,12 @@ const ensureExists = <E extends TSMorphServiceError>(
   );
 
 const createProjectPool = (pathApi: Path.Path): ProjectPool => {
-  const projects = new Map<ProjectCacheKey, Project>();
+  const projects = MutableHashMap.empty<ProjectCacheKey, Project>();
 
   const getOrCreate: ProjectPool["getOrCreate"] = Effect.fn(function* (scope) {
-    const cachedProject = projects.get(scope.cacheKey);
-    if (cachedProject !== undefined) {
-      return cachedProject;
+    const cachedProject = MutableHashMap.get(projects, scope.cacheKey);
+    if (O.isSome(cachedProject)) {
+      return cachedProject.value;
     }
 
     const absoluteTsConfigPath = resolveAbsolutePath(pathApi, scope.repoRootPath, scope.tsConfigPath);
@@ -324,7 +333,7 @@ const createProjectPool = (pathApi: Path.Path): ProjectPool => {
         }),
     });
 
-    projects.set(scope.cacheKey, project);
+    MutableHashMap.set(projects, scope.cacheKey, project);
     return project;
   });
 
@@ -604,14 +613,16 @@ const collectOutlineSymbols = (
 /**
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
+ * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
  * @since 0.0.0
+ * @category Constructors
  */
 export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const pathApi = yield* Path.Path;
 
-    const resolvedScopes = new Map<string, TsMorphProjectScope>();
+    const resolvedScopes = MutableHashMap.empty<string, TsMorphProjectScope>();
     const projectPool = createProjectPool(pathApi);
 
     const resolveRepoRoot = (
@@ -807,7 +818,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           referencePolicy,
         });
 
-        resolvedScopes.set(scope.scopeId, scope);
+        MutableHashMap.set(resolvedScopes, scope.scopeId, scope);
         return scope;
       });
 
@@ -829,9 +840,9 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
 
     const resolveScopeById = (scopeId: string): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
       Effect.gen(function* () {
-        const cachedScope = resolvedScopes.get(scopeId);
-        if (cachedScope !== undefined) {
-          return cachedScope;
+        const cachedScope = MutableHashMap.get(resolvedScopes, scopeId);
+        if (O.isSome(cachedScope)) {
+          return cachedScope.value;
         }
 
         const [tsConfigPath, _scopeSeparator, mode, _policySeparator, referencePolicy] = yield* decodeOrFail(
@@ -969,6 +980,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
  * Default live layer for the current TSMorphService contract.
  *
  * @since 0.0.0
+ * @category Layers
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   TSMorphService,

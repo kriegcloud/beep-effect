@@ -4,6 +4,7 @@ import type { SessionHandle } from "@beep/ai-sdk/Session";
 import { SessionManager } from "@beep/ai-sdk/SessionManager";
 import { SessionService } from "@beep/ai-sdk/SessionService";
 import { ChatHistoryStore } from "@beep/ai-sdk/Storage/ChatHistoryStore";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
@@ -389,7 +390,7 @@ test("SessionService.layerWithHistory records turn output after consumer cancell
           return ChatEvent.make({
             sessionId: "session-history",
             sequence: recordedTypes.length,
-            timestamp: 0,
+            timestamp: makeUnsafeUtc(0),
             source: "sdk",
             message,
           });
@@ -401,7 +402,7 @@ test("SessionService.layerWithHistory records turn output after consumer cancell
             return ChatEvent.make({
               sessionId: "session-history",
               sequence: recordedTypes.length,
-              timestamp: 0,
+              timestamp: makeUnsafeUtc(0),
               source: "sdk",
               message,
             });

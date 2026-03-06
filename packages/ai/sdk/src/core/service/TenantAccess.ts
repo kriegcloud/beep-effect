@@ -11,14 +11,11 @@ const callerTenantHeader = "x-agent-tenant";
 /**
  * @since 0.0.0
  */
-export class SessionTenantAccessError extends TaggedErrorClass<SessionTenantAccessError>()(
-  "SessionTenantAccessError",
-  {
-    message: S.String,
-    requestedTenant: S.optional(S.String),
-    callerTenant: S.optional(S.String),
-  }
-) {
+export class SessionTenantAccessError extends TaggedErrorClass<SessionTenantAccessError>()("SessionTenantAccessError", {
+  message: S.String,
+  requestedTenant: S.optional(S.String),
+  callerTenant: S.optional(S.String),
+}) {
   static readonly make = (params: Pick<SessionTenantAccessError, "message" | "requestedTenant" | "callerTenant">) =>
     new SessionTenantAccessError(params);
 }

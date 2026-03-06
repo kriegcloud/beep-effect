@@ -17,4 +17,4 @@ This app is the thin local-first shell for the repo expert-memory prototype.
 The real runtime still belongs in the Bun + Effect sidecar described in:
 
 - `specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md`
-- `specs/pending/repo-expert-memory-local-first-v0/SIDECARE_PROTOCOL.md`
+- `specs/pending/repo-expert-memory-local-first-v0/SIDECAR_PROTOCOL.md`

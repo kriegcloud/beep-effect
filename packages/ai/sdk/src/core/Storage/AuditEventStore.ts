@@ -1,6 +1,7 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
+import type * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -14,6 +15,8 @@ import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
 
 const $I = $AiSdkId.create("core/Storage/AuditEventStore");
+
+type Utc = typeof S.DateTimeUtcFromMillis.Type;
 
 /**
  * @since 0.0.0
@@ -66,7 +69,7 @@ export type AuditEventInput =
         readonly before: number;
         readonly after: number;
         readonly events?: ReadonlyArray<string>;
-        readonly timestamp: number;
+        readonly timestamp: Utc;
       };
     };
 

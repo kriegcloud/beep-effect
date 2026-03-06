@@ -4,6 +4,7 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import { Clock, Duration, Effect, HashMap, HashSet, Layer, ServiceMap, SynchronizedRef } from "effect";
 import * as O from "effect/Option";
 import { KeyValueStore } from "effect/unstable/persistence";
+import { utcToMillis } from "../internal/dateTime.js";
 import type { ArtifactRecord } from "../Schema/Storage.js";
 import type { ConflictPolicy } from "../Sync/index.js";
 import { defaultArtifactPrefix, defaultStorageDirectory } from "./defaults.js";
@@ -107,7 +108,7 @@ const applyRetention = (
     const cutoff = now - retention.maxAgeMs;
     filteredIds = filteredIds.filter((id) => {
       const record = HashMap.get(state.byId, id);
-      return O.isSome(record) ? record.value.createdAt >= cutoff : false;
+      return O.isSome(record) ? utcToMillis(record.value.createdAt) >= cutoff : false;
     });
   }
 
@@ -180,7 +181,7 @@ const makeMemoryStore = Effect.gen(function* () {
     Effect.gen(function* () {
       const enabled = yield* resolveEnabled;
       if (!enabled) return;
-      const now = record.createdAt || (yield* Clock.currentTimeMillis);
+      const now = utcToMillis(record.createdAt);
       const retention = yield* resolveRetention;
       yield* SynchronizedRef.update(stateRef, (state) => {
         const byId = HashMap.set(HashMap.fromIterable(state.byId), record.id, record);

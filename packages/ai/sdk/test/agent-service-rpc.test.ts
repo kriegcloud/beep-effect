@@ -3,6 +3,7 @@ import type { QueryHandle } from "@beep/ai-sdk/Query";
 import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { layer as AgentRpcHandlers } from "@beep/ai-sdk/service/AgentRpcHandlers";
 import { AgentRpcs } from "@beep/ai-sdk/service/AgentRpcs";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -312,8 +313,8 @@ test("agent RPC session routes enforce tenant scoping", async () => {
       Effect.succeed({
         sessionId: "session-tenant",
         ...(tenant !== undefined ? { tenant } : {}),
-        createdAt: 1,
-        lastUsedAt: 1,
+        createdAt: makeUnsafeUtc(1),
+        lastUsedAt: makeUnsafeUtc(1),
       }),
     withSession: (_sessionId: string, _use: unknown, _tenant?: string) =>
       Effect.die("withSession not used in test") as never,

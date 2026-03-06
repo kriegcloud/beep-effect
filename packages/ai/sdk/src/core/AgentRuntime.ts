@@ -8,6 +8,7 @@ import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeCon
 import type { AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
 import { withHooks } from "./Hooks/utils.js";
+import { utcFromMillis } from "./internal/dateTime.js";
 import { mergeOptions } from "./internal/options.js";
 import type { QueryHandle } from "./Query.js";
 import { QuerySupervisor } from "./QuerySupervisor.js";
@@ -314,7 +315,7 @@ export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeS
                   encoding: "utf8",
                   content,
                   sizeBytes,
-                  createdAt,
+                  createdAt: utcFromMillis(createdAt),
                 });
                 yield* artifactStore.put(record);
               }).pipe(Effect.catch(() => Effect.void))

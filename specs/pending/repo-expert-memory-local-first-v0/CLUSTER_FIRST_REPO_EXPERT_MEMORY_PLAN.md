@@ -212,7 +212,7 @@ Keep and link:
 Update:
 - `specs/pending/repo-expert-memory-local-first-v0/README.md`
 - `specs/pending/repo-expert-memory-local-first-v0/TOPOLOGY.md`
-- `specs/pending/repo-expert-memory-local-first-v0/SIDECARE_PROTOCOL.md`
+- `specs/pending/repo-expert-memory-local-first-v0/SIDECAR_PROTOCOL.md`
 - `specs/pending/repo-expert-memory-local-first-v0/VERTICAL_SLICE.md`
 - `specs/pending/repo-expert-memory-local-first-v0/EVALUATION_AND_ACCEPTANCE.md`
 - `specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md`

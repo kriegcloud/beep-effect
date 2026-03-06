@@ -495,6 +495,7 @@ export class SchedulesEdge extends GraphEdgeBase.extend<SchedulesEdge>($I`Schedu
 /**
  * Graph edge union keyed by `type`.
  *
+ * @returns Tagged schema covering every supported graph edge relationship.
  * @since 0.0.0
  * @category DomainModel
  */

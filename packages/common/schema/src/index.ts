@@ -47,6 +47,11 @@ export * from "./FilePath.js";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Logs.js";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./MimeType.js";
 /**
  * @since 0.0.0
@@ -68,9 +73,3 @@ export * from "./TaggedErrorClass.ts";
  * @category Validation
  */
 export * from "./Transformations.js";
-
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./Logs.js";

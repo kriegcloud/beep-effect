@@ -28,6 +28,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { AgentSdk } from "./AgentSdk.js";
 import type { AgentSdkError } from "./Errors.js";
+import { utcFromMillis } from "./internal/dateTime.js";
 import type { QueryHandle } from "./Query.js";
 import type { PendingQueueStrategy } from "./QuerySupervisorConfig.js";
 import { QuerySupervisorConfig } from "./QuerySupervisorConfig.js";
@@ -76,23 +77,23 @@ const CompletionStatus = LiteralKit(["success", "failure", "interrupted"]);
 
 const QueryQueuedEvent = S.TaggedStruct("QueryQueued", {
   queryId: S.String,
-  submittedAt: S.Number,
+  submittedAt: S.DateTimeUtcFromMillis,
 });
 
 const QueryStartedEvent = S.TaggedStruct("QueryStarted", {
   queryId: S.String,
-  startedAt: S.Number,
+  startedAt: S.DateTimeUtcFromMillis,
 });
 
 const QueryCompletedEvent = S.TaggedStruct("QueryCompleted", {
   queryId: S.String,
-  completedAt: S.Number,
+  completedAt: S.DateTimeUtcFromMillis,
   status: CompletionStatus,
 });
 
 const QueryStartFailedEvent = S.TaggedStruct("QueryStartFailed", {
   queryId: S.String,
-  failedAt: S.Number,
+  failedAt: S.DateTimeUtcFromMillis,
   errorTag: S.optional(S.String),
 });
 
@@ -463,7 +464,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
             yield* publishEvent({
               _tag: "QueryCompleted",
               queryId: request.queryId,
-              completedAt,
+              completedAt: utcFromMillis(completedAt),
               status: exitStatus(exit),
             });
           }).pipe(Effect.ignore)
@@ -472,7 +473,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
         yield* publishEvent({
           _tag: "QueryStarted",
           queryId: request.queryId,
-          startedAt,
+          startedAt: utcFromMillis(startedAt),
         });
         return handle;
       })
@@ -484,7 +485,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
           yield* publishEvent({
             _tag: "QueryStartFailed",
             queryId: request.queryId,
-            failedAt,
+            failedAt: utcFromMillis(failedAt),
             errorTag: extractErrorTag(error),
           });
         })
@@ -556,7 +557,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
     yield* publishEvent({
       _tag: "QueryQueued",
       queryId,
-      submittedAt,
+      submittedAt: utcFromMillis(submittedAt),
     });
 
     const awaitHandle = Deferred.await(deferred);

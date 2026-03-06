@@ -1,4 +1,5 @@
 import { $AiSdkId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import {
   Clock,
   Duration,
@@ -13,9 +14,10 @@ import {
   ServiceMap,
   Stream,
 } from "effect";
-import { TaggedErrorClass } from "@beep/schema";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { utcFromMillis } from "./internal/dateTime.js";
+import type { SessionInfo as SessionInfoSchema } from "./Schema/Service.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import type { SessionError, SessionHandle } from "./Session.js";
 import { SessionManager, type SessionManagerError } from "./SessionManager.js";
@@ -57,13 +59,10 @@ export class SessionPoolFullError extends TaggedErrorClass<SessionPoolFullError>
 /**
  * @since 0.0.0
  */
-export class SessionPoolNotFoundError extends TaggedErrorClass<SessionPoolNotFoundError>()(
-  "SessionPoolNotFoundError",
-  {
-    message: S.String,
-    sessionId: S.String,
-  }
-) {
+export class SessionPoolNotFoundError extends TaggedErrorClass<SessionPoolNotFoundError>()("SessionPoolNotFoundError", {
+  message: S.String,
+  sessionId: S.String,
+}) {
   static readonly make = (params: Pick<SessionPoolNotFoundError, "message" | "sessionId">) =>
     new SessionPoolNotFoundError(params);
 }
@@ -103,12 +102,7 @@ export type SessionPoolErrorEncoded = typeof SessionPoolError.Encoded;
 /**
  * @since 0.0.0
  */
-export type SessionInfo = {
-  readonly sessionId: string;
-  readonly tenant?: string;
-  readonly createdAt: number;
-  readonly lastUsedAt: number;
-};
+export type SessionInfo = SessionInfoSchema;
 
 type SessionEntry = {
   readonly sessionId: string;
@@ -138,8 +132,8 @@ const sessionKey = (sessionId: string, tenant: string | undefined) =>
 const toInfo = (entry: SessionEntry): SessionInfo => ({
   sessionId: entry.sessionId,
   ...(entry.tenant !== undefined ? { tenant: entry.tenant } : {}),
-  createdAt: entry.createdAt,
-  lastUsedAt: entry.lastUsedAt,
+  createdAt: utcFromMillis(entry.createdAt),
+  lastUsedAt: utcFromMillis(entry.lastUsedAt),
 });
 
 const resolveOptions = (options: SessionPoolOptions, overrides?: Partial<SDKSessionOptions>): SDKSessionOptions => ({

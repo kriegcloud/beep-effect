@@ -62,18 +62,28 @@
       "@beep/runtime-protocol/*": ["./packages/runtime/protocol/src/*.ts"],
       "@beep/runtime-server": ["./packages/runtime/server/src/index.ts"],
       "@beep/runtime-server/*": ["./packages/runtime/server/src/*.ts"],
-      "@beep/repo-memory-domain": ["./packages/repo-memory/domain/src/index.ts"],
+      "@beep/repo-memory-domain": [
+        "./packages/repo-memory/domain/src/index.ts"
+      ],
       "@beep/repo-memory-domain/*": ["./packages/repo-memory/domain/src/*.ts"],
-      "@beep/repo-memory-server": ["./packages/repo-memory/server/src/index.ts"],
+      "@beep/repo-memory-server": [
+        "./packages/repo-memory/server/src/index.ts"
+      ],
       "@beep/repo-memory-server/*": ["./packages/repo-memory/server/src/*.ts"],
-      "@beep/repo-memory-client": ["./packages/repo-memory/client/src/index.ts"],
+      "@beep/repo-memory-client": [
+        "./packages/repo-memory/client/src/index.ts"
+      ],
       "@beep/repo-memory-client/*": ["./packages/repo-memory/client/src/*.ts"],
-      "@beep/repo-memory-drivers-local": ["./packages/repo-memory/drivers-local/src/index.ts"],
-      "@beep/repo-memory-drivers-local/*": ["./packages/repo-memory/drivers-local/src/*.ts"],
+      "@beep/repo-memory-drivers-local": [
+        "./packages/repo-memory/drivers-local/src/index.ts"
+      ],
+      "@beep/repo-memory-drivers-local/*": [
+        "./packages/repo-memory/drivers-local/src/*.ts"
+      ],
       "@beep/repo-configs": ["./tooling/configs/src/index.ts"],
-      "@beep/repo-configs/*": [
-        "./tooling/configs/src/*.ts"
-      ]
+      "@beep/repo-configs/*": ["./tooling/configs/src/*.ts"],
+      "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
+      "@beep/test-utils/*": ["./tooling/test-utils/src/*.ts"]
     },
     "plugins": [
       {

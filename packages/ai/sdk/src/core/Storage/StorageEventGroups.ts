@@ -23,7 +23,7 @@ export const ArtifactDeleteTag = "artifact_deleted" as const;
 export const ArtifactDelete = S.Struct({
   id: S.String,
   sessionId: S.String,
-  deletedAt: S.Number,
+  deletedAt: S.DateTimeUtcFromMillis,
 });
 /**
  * @since 0.0.0

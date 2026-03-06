@@ -1,126 +1,103 @@
 # Vertical Slice
 
 ## Thesis
-The first runnable slice must prove the `local-first sidecar architecture` and the `grounded repo-memory workflow` at the same time.
+The first runnable slice should prove the `local-first expert-memory` loop end to end, using the real runtime shape wherever it matters.
 
-The slice is intentionally narrow:
-- one user
-- one desktop app
-- one local sidecar
-- one registered repo at a time in the main flow
-- TypeScript-first deterministic ingestion
-- repo question answering with visible citations and retrieval packet output
+That means the slice is not just `index a repo and answer a question`. It is:
+- launch the local sidecar
+- register a repo
+- run a durable index workflow
+- run a durable query workflow
+- inspect grounded output, citations, and retrieval packet
+- survive disconnect/reconnect without losing the run story
 
-## First Runnable User Flow
-The first runnable user flow is:
-1. Launch the desktop app.
-2. The shell starts the Bun sidecar and confirms health.
-3. The user selects a local repo directory.
-4. The sidecar registers that repo and persists it locally.
-5. The user triggers indexing.
-6. The sidecar indexes TypeScript sources deterministically and persists local repo-memory artifacts.
-7. The user asks a question about the repo.
-8. The sidecar produces a grounded answer, citations, and a retrieval packet.
-9. The UI renders the answer, citations/evidence panel, and run progress history.
-
-If this flow works reliably, `v0` has proven the right thing.
+## First Runnable Slice
+The first runnable slice is:
+1. select a local repo
+2. register it with the sidecar
+3. index TypeScript sources deterministically
+4. persist repo-memory artifacts locally
+5. ask a repo question in the desktop UI
+6. receive a grounded answer with citations and retrieval packet
+7. inspect the completed run detail after the fact
 
 ## Scope In
-Lock these as `v0` scope:
+Lock these in for `v0`:
 - single-user local desktop prototype
-- local repo registration and persistence
 - TypeScript-first repo ingestion
-- deterministic indexing flow
-- grounded repo Q&A flow
-- visible citations / evidence panel
-- visible indexing and query progress stream
-- enough ingestion/run metadata to anchor provenance and basic temporal identity
-- local run artifact persistence sufficient for a simple run history panel
+- deterministic-first extraction
+- workflow-backed run lifecycle
+- cluster-backed durable execution substrate
+- visible citations and evidence panel
+- retrieval packet visibility
+- enough provenance and temporal identity to explain when a run happened and what it used
+- reconnectable streamed run events through `Rpc`
 
 ## Scope Out
-Lock these as `v0` out of scope:
+Lock these out for `v0`:
 - auth / IAM
 - multi-user collaboration
-- cloud sync
-- pages / workspaces as first-class product concepts
-- email / calendar / settings BCs
-- rich agent connector ecosystem beyond what the repo-memory Q&A flow requires
-- multi-repo orchestration UX as a primary product surface
-- full semantic-web / ontology machinery in the UI
-- polished end-user product design beyond what a research prototype needs
+- sync
+- `pages` / workspaces as first-class business contexts
+- email / calendar / settings product surfaces
+- broad agent connector ecosystems
+- semantic-web maximalism
+- cloud deployment hardening
 
-## First UI Surface
-The first UI must have exactly three core surfaces.
+## User Flow
+### 1. Register repo
+The user picks a local repo path from the desktop UI.
+The shell forwards that request to the sidecar control plane.
+The sidecar returns a stable `RepoRegistration`.
 
-### 1. Sidecar and repo setup screen
-Required capabilities:
-- show sidecar health state
-- let the user choose a local repo directory
-- show registered repo metadata
-- offer `Index` and `Refresh` actions
-- show last indexed time if available
+### 2. Start index run
+The UI triggers `IndexRepoRunDiscard` or `IndexRepoRun` through the execution plane.
+The sidecar returns a deterministic `runId`.
+The UI opens a `StreamRunEvents` subscription.
 
-### 2. Query workspace
-Required capabilities:
-- ask a freeform question about the selected repo
-- show live run progress while the query is executing
-- show final answer text
-- show failure state if the query run fails
+### 3. Watch run progress
+The UI renders:
+- accepted/running/completed state
+- progress messages
+- final index summary
 
-### 3. Citations / evidence panel
-Required capabilities:
-- list citations from the retrieval packet
-- show file path and line-span metadata
-- show excerpt text and rationale
-- let the user inspect exactly what grounded the answer
+Progress is streamed through `Rpc`, not modeled as the long-term SSE contract.
 
-Nothing else is required for the first runnable UI.
+### 4. Ask a query
+The user asks a question about the repo.
+The UI triggers `QueryRepoRunDiscard` or `QueryRepoRun` and subscribes to `StreamRunEvents`.
 
-## First Storage Needs
-The v0 implementation must persist these local artifacts:
-- repo registry entries
-- local index artifacts for registered repos
-- query/index run metadata
-- retrieval packets for recent query runs
-- enough diagnostic logs to debug sidecar start and run failures
+### 5. Inspect grounded result
+The final query view must show:
+- final answer
+- citations
+- retrieval packet
+- run metadata
+- enough history to understand what happened
 
-It does not need to persist:
-- user accounts
-- shared workspaces
-- collaboration state
-- synchronized cloud copies
+## Minimal Data Shown In The UI
+The first UI does not need to be broad, but it does need to be inspectable.
 
-## First Ingestion Rules
-The deterministic ingestion rules for `v0` are:
-- primary target: TypeScript repos
-- files in scope: `.ts`, `.tsx`, `.mts`, `.cts`
-- exclude non-TypeScript code from the initial index
-- the sidecar may use compiler-backed deterministic parsing and source-span extraction
-- indexing output must support file-span and symbol-span citations
+Minimum surfaces:
+- repo picker / registration view
+- run list
+- run detail view
+- question input
+- answer panel
+- citations panel
+- retrieval packet panel
+- runtime health / disconnected state indicator
 
-This keeps the prototype focused on the strongest proving ground.
+## Why This Slice Matters
+This slice proves the larger thesis on a bounded problem:
+- deterministic substrate
+- durable lifecycle
+- product-level run audit
+- grounded output
+- local-first trust posture
 
-## First Query Behavior
-The query flow must do all of the following:
-- run entirely through the sidecar protocol
-- operate against locally persisted repo-memory artifacts
-- produce a human-readable answer
-- produce a retrieval packet
-- produce span-backed citations
-- surface progress through SSE
+If this slice fails, broader domain transfer to law, wealth, or compliance should not be trusted yet.
 
-The query flow does not need to prove:
-- broad autonomous agent execution
-- tool use beyond repo-memory retrieval
-- multi-step planning across domains
-
-## First Prototype Story
-The product story for `v0` is not:
-- "a general AI desktop app"
-- "a Notion replacement"
-- "a local cloud clone"
-
-The product story is:
-- "a local native research prototype that can build expert memory for a TypeScript repo and answer grounded questions about it"
-
-That framing should govern implementation choices.
+## Questions Worth Keeping Open
+- How much answer assembly can stay deterministic in the first slice before a model is actually useful?
+- When should the first slice move from metadata-backed answers to real source-backed retrieval packets?

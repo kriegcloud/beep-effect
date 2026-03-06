@@ -1,5 +1,6 @@
 import { Schema, Storage } from "@beep/ai-sdk";
 import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -14,7 +15,7 @@ const makeArtifactRecord = (id: string, sessionId: string) =>
     kind: "tool_result",
     encoding: "utf8",
     content: `content-${id}`,
-    createdAt: Date.now(),
+    createdAt: makeUnsafeUtc(Date.now()),
   });
 
 const makeControlledKeyValueLayer = () => {

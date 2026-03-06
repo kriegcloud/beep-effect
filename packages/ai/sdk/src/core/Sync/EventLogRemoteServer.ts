@@ -1,6 +1,6 @@
 import { $AiSdkId } from "@beep/identity/packages";
-import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { TaggedErrorClass } from "@beep/schema";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Cause, Effect, Exit, Layer, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 import * as EventLogServer from "effect/unstable/eventlog/EventLogServer";

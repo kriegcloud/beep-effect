@@ -158,7 +158,7 @@ export class FunctionNode extends GraphNodeBase.extend<FunctionNode>($I`Function
 ) {}
 
 /**
- * Class node.
+ * Captures class declarations and their structural metadata.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -185,7 +185,7 @@ export class ClassNode extends GraphNodeBase.extend<ClassNode>($I`ClassNode`)(
 ) {}
 
 /**
- * Variable node.
+ * Captures variable declarations that participate in the graph.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -206,7 +206,7 @@ export class VariableNode extends GraphNodeBase.extend<VariableNode>($I`Variable
 ) {}
 
 /**
- * Module node.
+ * Captures a logical module boundary within the indexed project.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -224,7 +224,7 @@ export class ModuleNode extends GraphNodeBase.extend<ModuleNode>($I`ModuleNode`)
 ) {}
 
 /**
- * Route node.
+ * Captures HTTP route handlers and their attached API metadata.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -303,7 +303,7 @@ export class ExternalAPINode extends GraphNodeBase.extend<ExternalAPINode>($I`Ex
 ) {}
 
 /**
- * Cron job node.
+ * Captures scheduled job handlers and their execution schedule.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -322,7 +322,7 @@ export class CronJobNode extends GraphNodeBase.extend<CronJobNode>($I`CronJobNod
 ) {}
 
 /**
- * Event node.
+ * Captures application events that can be emitted or handled.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -360,7 +360,7 @@ export class EnvVarNode extends GraphNodeBase.extend<EnvVarNode>($I`EnvVarNode`)
 ) {}
 
 /**
- * Queue job node.
+ * Captures queued work items and the job kind they represent.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -379,7 +379,7 @@ export class QueueJobNode extends GraphNodeBase.extend<QueueJobNode>($I`QueueJob
 ) {}
 
 /**
- * Metric node.
+ * Captures metrics that are produced or observed by the system.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -398,7 +398,7 @@ export class MetricNode extends GraphNodeBase.extend<MetricNode>($I`MetricNode`)
 ) {}
 
 /**
- * Span node.
+ * Captures tracing spans and their optional semantic attributes.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -417,7 +417,7 @@ export class SpanNode extends GraphNodeBase.extend<SpanNode>($I`SpanNode`)(
 ) {}
 
 /**
- * Topic node.
+ * Captures broker topics or queues used for message transport.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -436,7 +436,7 @@ export class TopicNode extends GraphNodeBase.extend<TopicNode>($I`TopicNode`)(
 ) {}
 
 /**
- * Security issue node.
+ * Captures detected security findings anchored to source locations.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -457,7 +457,7 @@ export class SecurityIssueNode extends GraphNodeBase.extend<SecurityIssueNode>($
 ) {}
 
 /**
- * Project node.
+ * Captures the top-level project boundary represented in the graph.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -517,6 +517,7 @@ export type NodeType = typeof NodeType.Type;
 /**
  * Graph node union keyed by `type`.
  *
+ * @returns Tagged schema covering every supported graph node variant.
  * @since 0.0.0
  * @category DomainModel
  */

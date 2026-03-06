@@ -83,6 +83,9 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+    {
+      "path": "tooling/test-utils"
     }
   ]
 }

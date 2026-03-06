@@ -30,7 +30,7 @@ export class ChatEvent extends S.Class<ChatEvent>($I`ChatEvent`)(
   {
     sessionId: S.String,
     sequence: S.Number,
-    timestamp: S.Number,
+    timestamp: S.DateTimeUtcFromMillis,
     source: ChatEventSource,
     message: SDKMessage,
   },
@@ -52,8 +52,8 @@ export type ChatEventEncoded = typeof ChatEvent.Encoded;
 export class SessionMeta extends S.Class<SessionMeta>($I`SessionMeta`)(
   {
     sessionId: S.String,
-    createdAt: S.Number,
-    updatedAt: S.Number,
+    createdAt: S.DateTimeUtcFromMillis,
+    updatedAt: S.DateTimeUtcFromMillis,
   },
   $I.annote("SessionMeta", {
     description: "Metadata timestamps for a session record.",
@@ -116,7 +116,7 @@ export class ArtifactRecord extends S.Class<ArtifactRecord>($I`ArtifactRecord`)(
     encoding: ArtifactEncoding,
     content: S.String,
     sizeBytes: S.optional(S.Number),
-    createdAt: S.Number,
+    createdAt: S.DateTimeUtcFromMillis,
     metadata: S.optional(S.Record(S.String, S.Unknown)),
   },
   $I.annote("ArtifactRecord", {
