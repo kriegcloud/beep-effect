@@ -1,0 +1,22 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "../../",
+        "baseUrl": ".",
+        "paths": {
+            "@nomik/core": [
+                "../../packages/core/src/index.ts"
+            ],
+            "@nomik/parser": [
+                "../../packages/parser/src/index.ts"
+            ],
+            "@nomik/graph": [
+                "../../packages/graph/src/index.ts"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

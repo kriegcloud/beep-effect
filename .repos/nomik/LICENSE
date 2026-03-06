@@ -1,0 +1,31 @@
+Functional Source License, Version 1.1
+
+## License
+
+The Licensor hereby grants you the right to copy, modify, create derivative works, and/or redistribute the Software, with the following exceptions:
+
+- You may not use the Software to provide a product or service that competes with products or services offered by the Licensor or its Affiliates.
+- You may not remove or alter any copyright or other proprietary notices from the Software.
+- You must include a copy of this License in any copy of the Software you distribute.
+
+You need not comply with the above conditions for any portion of the Software you use, modify, create derivative works of, or redistribute that was created by you or your Affiliates.
+
+## Change Date
+
+On the Change Date, this License automatically transitions to either the Apache License, Version 2.0 or the MIT License (as specified by the Licensor). 
+
+If no Change Date is specified in the Software, the Change Date is the date two (2) years after the initial release of the Software. 
+
+If no Target License is specified in the Software, the Target License is the Apache License, Version 2.0.
+
+## Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Definitions
+
+- **Software**: The software licensed under this License.
+- **Licensor**: willFreed1 (or the copyright holder).
+- **Affiliate**: An entity that directly or indirectly controls, is controlled by, or is under common control with a party.
+- **Target License**: Apache License, Version 2.0.
+- **Change Date**: Two (2) years from the date of each release.

@@ -1,0 +1,22 @@
+services:
+  neo4j:
+    image: neo4j:5.12-community
+    container_name: nomik-neo4j
+    ports:
+      - "127.0.0.1:7474:7474" # HTTP — localhost uniquement
+      - "127.0.0.1:7687:7687" # Bolt — localhost uniquement
+    environment:
+      - NEO4J_AUTH=neo4j/nomik_local
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_memory_heap_max__size=512M
+    volumes:
+      - ./docker/data:/data
+      - ./docker/logs:/logs
+      - ./docker/import:/var/lib/neo4j/import
+      - ./docker/plugins:/plugins
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
