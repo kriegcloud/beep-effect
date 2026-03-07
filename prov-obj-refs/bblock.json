@@ -1,0 +1,20 @@
+{
+  "name": "Prov Object Refs",
+  "highlighted": true ,
+  "abstract": "Utility schemas for referencing prov objects as ids, arrays or nested objects.",
+  "status": "under-development",
+  "dateTimeAddition": "2023-07-10T00:00:00Z",
+  "itemClass": "schema",
+  "register": "ogc-utils",
+  "version": "0.1",
+  "dateOfLastChange": "2023-07-10",
+  "sources": [
+    {
+      "link": "https://www.w3.org/TR/prov-o/",
+      "title": "The PROV-O vocabulary"
+    }
+  ],
+  "maturity": "development",
+  "scope": "unstable",
+  "tags": ["prov", "utils"]
+}

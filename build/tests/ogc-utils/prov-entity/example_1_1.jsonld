@@ -1,0 +1,10 @@
+{
+  "@context": [
+    {
+      "iana": "http://www.iana.org/assignments/"
+    },
+    "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-entity/context.jsonld"
+  ],
+  "id": "Object2",
+  "wasDerivedFrom": "Object1"
+}

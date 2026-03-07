@@ -1,0 +1,40 @@
+@prefix agents: <https://someagentregister.eg/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ns1: <http://www.iana.org/assignments/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix surveyreg: <https://example.org/surveys/> .
+@prefix thing: <https://example.org/entities/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/aThing/DP-1> a <http://example.org/myEntities/Survey> ;
+    dcterms:provenance <https://example.org/aThing/DP-2223>,
+        surveyreg:DP-1-S1 ;
+    prov:wasGeneratedBy surveyreg:DP-1-S1,
+        surveyreg:DP-1-S2 .
+
+<https://example.org/aThing/DP-2223> a <http://example.org/myEntities/Survey>,
+        prov:Entity ;
+    prov:wasGeneratedBy <https://example.org/aThing/DP-1-S1> .
+
+<https://example.org/aThing/Example-Act> rdfs:seeAlso [ ns1:relation <http://www.iana.org/assignments/relation/related> ;
+            oa:hasTarget <https://nze.gov/linktoact/Example1> ] ;
+    prov:wasAttributedTo agents:nz .
+
+thing:Act3 a <https://example.org/aThing/Legislation> ;
+    rdfs:seeAlso [ ns1:relation <http://www.iana.org/assignments/relation/related> ;
+            oa:hasTarget <https://some.gov/linktoact/> ] ;
+    prov:wasAttributedTo agents:nz .
+
+surveyreg:DP-1-S2 a <http://example.org/myActivityTypes/Registration> ;
+    prov:endedAtTime "2019-01-01T19:03:15+01:00"^^xsd:dateTime ;
+    prov:used <https://example.org/aThing/Example-Act> ;
+    prov:wasAssociatedWith agents:bc-3 .
+
+surveyreg:DP-1-S1 a <http://example.org/myActivityTypes/InitialSurvey>,
+        prov:Activity ;
+    prov:endedAtTime "2023-10-05T05:03:15+01:00"^^xsd:dateTime ;
+    prov:used thing:Act3 ;
+    prov:wasAssociatedWith agents:ah-2344503 .
+
