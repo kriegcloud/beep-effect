@@ -17,7 +17,7 @@ import {
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
 import { RepoStoreError } from "@beep/repo-memory-store";
-import { FilePath, NonNegativeInt, PosInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
+import { FilePath, makeStatusCauseError, NonNegativeInt, PosInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { thunk0, thunkEffectSucceedNone, thunkEffectSucceedNull } from "@beep/utils";
 import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -267,12 +267,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
   const citationsTable = sql("repo_memory_citations");
   const runsTable = sql("repo_memory_runs");
 
-  const toDriverError = (message: string, status: number, cause?: unknown): RepoStoreError =>
-    new RepoStoreError({
-      message,
-      status,
-      cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
-    });
+  const toDriverError = makeStatusCauseError(RepoStoreError);
 
   const annotateDriverSpan = Effect.fn("RepoMemorySql.annotateSpan")(function* (annotations: Record<string, unknown>) {
     yield* Effect.annotateCurrentSpan(annotations);

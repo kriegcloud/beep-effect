@@ -22,7 +22,15 @@ import {
   RepoSymbolRecord,
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
-import { FilePath, NonNegativeInt, PosInt, Sha256HexFromBytes, TaggedErrorClass } from "@beep/schema";
+import {
+  FilePath,
+  makeStatusCauseError,
+  NonNegativeInt,
+  PosInt,
+  Sha256HexFromBytes,
+  StatusCauseFields,
+  TaggedErrorClass,
+} from "@beep/schema";
 import { Text, thunkEmptyStr } from "@beep/utils";
 import {
   DateTime,
@@ -127,11 +135,7 @@ export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`T
  */
 export class TypeScriptIndexError extends TaggedErrorClass<TypeScriptIndexError>($I`TypeScriptIndexError`)(
   "TypeScriptIndexError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-  },
+  StatusCauseFields,
   $I.annote("TypeScriptIndexError", {
     description: "Typed failure from deterministic TypeScript index extraction.",
   })
@@ -177,12 +181,7 @@ export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexSe
   );
 }
 
-const toIndexError = (message: string, status: number, cause?: unknown): TypeScriptIndexError =>
-  new TypeScriptIndexError({
-    message,
-    status,
-    cause: O.fromUndefinedOr(cause),
-  });
+const toIndexError = makeStatusCauseError(TypeScriptIndexError);
 
 const isTypeScriptSourceFile = (filePath: string): boolean => {
   if (pipe(filePath, Str.endsWith(".d.ts"))) {

@@ -8,7 +8,7 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/timezones.js";
+import * as internal from "./internal/data/timezones.ts";
 
 // -------------------------------------------------------------------------------------
 // types

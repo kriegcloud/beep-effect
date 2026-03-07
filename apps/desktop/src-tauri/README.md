@@ -1,12 +1,25 @@
-# src-tauri Placeholder
+# Beep Desktop Tauri Wrapper
 
-This directory is intentionally a placeholder in the first scaffold pass.
+This directory now contains the real Tauri v2 native wrapper for the repo-memory desktop prototype.
 
-The next implementation step is to add the real Tauri wrapper that:
+## Lifecycle ownership
 
-- launches the packaged Bun sidecar as an external binary
-- reads the sidecar bootstrap JSON line from stdout
-- health-checks `GET /api/v0/health`
-- stops the sidecar on app shutdown
+- Rust commands own sidecar launch, bootstrap parsing, health checks, and shutdown
+- the React shell consumes only the typed native bridge
+- repo-memory semantics still live in the Bun + Effect sidecar
 
-Until that lands, the desktop app remains a thin Vite shell that reserves the final application slot without pulling business logic into the frontend.
+## Launch modes
+
+- `bun run --cwd apps/desktop dev:native`
+  launches the Tauri shell and manages the sidecar with raw `bun run packages/runtime/server/src/main.ts`
+- `bun run --cwd apps/desktop build:native`
+  builds the frontend, compiles the standalone Bun sidecar into `src-tauri/binaries/`, and then bundles the native app
+
+## Sidecar expectations
+
+The managed sidecar must continue to:
+
+- emit a machine-readable bootstrap line on stdout
+- serve the public control plane at `"/api/v0"`
+- serve the public run RPC surface at `"/api/v0/rpc"`
+- persist its SQLite runtime data under the Tauri app data directory

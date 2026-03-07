@@ -1,4 +1,4 @@
-import { formalizeValues } from "../utils.js";
+import { formalizeValues } from "../utils.ts";
 
 export const MonthNameValues = [
   "january",

@@ -7,26 +7,14 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, normalizePath } from "@beep/schema";
 import { thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
-import {
-  Effect,
-  FileSystem,
-  flow,
-  identity,
-  Order,
-  Path,
-  SchemaTransformation,
-  ServiceMap,
-  String as Str,
-  Struct,
-} from "effect";
+import { Effect, FileSystem, flow, identity, Order, Path, ServiceMap, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
-const POSIX_PATH_PATTERN = /^[^\\]*$/;
 /**
  * A file write operation.
  *
@@ -215,32 +203,7 @@ export class FileGenerationPlanService extends ServiceMap.Service<
   FileGenerationPlanServiceShape
 >()($I`FileGenerationPlanService`) {}
 
-const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
-  S.brand("PosixPath"),
-  S.annotate(
-    $I.annote("PosixPath", {
-      description: "Path string normalized to posix separators.",
-    })
-  )
-);
-
-const NativePathToPosixPath = S.String.pipe(
-  S.decodeTo(
-    PosixPath,
-    SchemaTransformation.transform({
-      decode: Str.replaceAll("\\", "/"),
-      encode: identity,
-    })
-  ),
-  S.annotate(
-    $I.annote("NativePathToPosixPath", {
-      description: "Schema transformation from native separators to posix separators.",
-    })
-  )
-);
-
-const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
-const toPosixPath = (value: string): string => decodePosixPath(value);
+const toPosixPath = normalizePath;
 const stringEquivalence = S.toEquivalence(S.String);
 
 const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(values);

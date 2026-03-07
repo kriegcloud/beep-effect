@@ -7,12 +7,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:native": "tauri dev",
     "build": "vite build",
+    "build:native": "tauri build",
+    "build:sidecar": "bun run scripts/build-sidecar.ts",
     "check": "tsc -b tsconfig.json",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.8.0",
     "@beep/repo-memory-client": "workspace:^",
     "@beep/runtime-protocol": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -25,6 +29,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "@tauri-apps/cli": "^2.10.1",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

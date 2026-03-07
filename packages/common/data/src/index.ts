@@ -12,19 +12,19 @@
 /**
  * @since 0.0.0
  */
-export * as Calendar from "./Calendar.js";
+export * as Calendar from "./Calendar.ts";
 
 /**
  * @since 0.0.0
  */
-export * as CurrencyCodes from "./CurrencyCodes.js";
+export * as CurrencyCodes from "./CurrencyCodes.ts";
 
 /**
  * @since 0.0.0
  */
-export * as MimeTypesData from "./MimeTypes.js";
+export * as MimeTypesData from "./MimeTypes.ts";
 
 /**
  * @since 0.0.0
  */
-export * as Timezones from "./Timezones.js";
+export * as Timezones from "./Timezones.ts";

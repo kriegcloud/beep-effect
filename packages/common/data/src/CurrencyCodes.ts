@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/currency-codes.js";
+import * as internal from "./internal/data/currency-codes.ts";
 
 // -------------------------------------------------------------------------------------
 // types

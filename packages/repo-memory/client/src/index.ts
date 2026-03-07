@@ -13,7 +13,7 @@ import {
   type SidecarBootstrap,
   type StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
-import { TaggedErrorClass } from "@beep/schema";
+import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { Cause, Effect, Layer, ServiceMap, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -52,11 +52,7 @@ export class RepoMemoryClientConfig extends S.Class<RepoMemoryClientConfig>($I`R
  */
 export class RepoMemoryClientError extends TaggedErrorClass<RepoMemoryClientError>($I`RepoMemoryClientError`)(
   "RepoMemoryClientError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-  },
+  StatusCauseFields,
   $I.annote("RepoMemoryClientError", {
     description: "Typed client error for local sidecar communication failures.",
   })

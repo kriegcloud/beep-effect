@@ -20,7 +20,7 @@ import {
   SidecarInternalErrorPayload,
   SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
-import { FilePath, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
+import { FilePath, makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
@@ -117,22 +117,13 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
  */
 export class SidecarRuntimeError extends TaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
   "SidecarRuntimeError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-  },
+  StatusCauseFields,
   $I.annote("SidecarRuntimeError", {
     description: "Typed error for sidecar runtime bootstrap and transport boundaries.",
   })
 ) {}
 
-const toRuntimeError = (message: string, status: number, cause?: unknown): SidecarRuntimeError =>
-  new SidecarRuntimeError({
-    message,
-    status,
-    cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
-  });
+const toRuntimeError = makeStatusCauseError(SidecarRuntimeError);
 
 const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
   new RunStreamFailure({

@@ -14,12 +14,12 @@ import { pipe, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import { application as _application } from "./application.js";
-import { audio as _audio } from "./audio.js";
-import { image as _image } from "./image.js";
-import { misc as _misc } from "./misc.js";
-import { text as _text } from "./text.js";
-import { video as _video } from "./video.js";
+import { application as _application } from "./application.ts";
+import { audio as _audio } from "./audio.ts";
+import { image as _image } from "./image.ts";
+import { misc as _misc } from "./misc.ts";
+import { text as _text } from "./text.ts";
+import { video as _video } from "./video.ts";
 /**
  * Record of `application/*` MIME type definitions sourced from IANA, Apache,
  * and Nginx registries.

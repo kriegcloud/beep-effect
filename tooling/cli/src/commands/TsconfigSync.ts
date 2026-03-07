@@ -20,7 +20,7 @@ import {
   topologicalSort,
   type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import {
   Boolean as Bool,
@@ -32,7 +32,6 @@ import {
   Order,
   Path,
   pipe,
-  SchemaTransformation,
   String as Str,
   Tuple,
 } from "effect";
@@ -99,7 +98,6 @@ const RootDepIndexKey = S.Literal(ROOT_DEP_INDEX_KEY).annotate(
  * @category Configuration
  */
 const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
-const POSIX_PATH_PATTERN = /^[^\\]*$/;
 
 const CanonicalAliasKey = S.String.check(S.isPattern(CANONICAL_ALIAS_KEY_PATTERN)).pipe(
   S.brand("CanonicalAliasKey"),
@@ -119,30 +117,6 @@ const BeepScopedPackageName = S.String.check(S.isStartsWith("@beep/")).pipe(
   )
 );
 
-const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
-  S.brand("PosixPath"),
-  S.annotate(
-    $I.annote("PosixPath", {
-      description: "Path string normalized to use '/' separators only.",
-    })
-  )
-);
-
-const NativePathToPosixPath = S.String.pipe(
-  S.decodeTo(
-    PosixPath,
-    SchemaTransformation.transform({
-      decode: (pathString) => Str.replaceAll("\\", "/")(pathString),
-      encode: (pathString) => pathString,
-    })
-  ),
-  S.annotate(
-    $I.annote("NativePathToPosixPath", {
-      description: "Schema transformation that normalizes native path separators to posix format.",
-    })
-  )
-);
-
 const StringArray = S.Array(S.String).annotate(
   $I.annote("StringArray", {
     description: "Reusable schema for arrays of strings.",
@@ -152,7 +126,6 @@ const StringArray = S.Array(S.String).annotate(
 const isCanonicalAliasKey = S.is(CanonicalAliasKey);
 const isBeepScopedPackageName = S.is(BeepScopedPackageName);
 const isRootDepIndexKey = S.is(RootDepIndexKey);
-const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
 const stringEquivalence = S.toEquivalence(S.String);
 const stringArrayEquivalence = S.toEquivalence(StringArray);
 const byStringAscending: Order.Order<string> = Order.String;
@@ -597,7 +570,7 @@ const byPlannedChangeSectionAscending: Order.Order<PlannedFileChange> = Order.ma
 );
 const byPlannedChangeAscending = Order.combine(byPlannedChangeFileAscending, byPlannedChangeSectionAscending);
 
-const toPosixPath = (value: string): string => decodePosixPath(value);
+const toPosixPath = normalizePath;
 
 const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
   return pipe(values, HashSet.fromIterable, A.fromIterable, A.sort(byStringAscending));

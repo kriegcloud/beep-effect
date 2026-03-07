@@ -46,6 +46,7 @@
     "changeset:version": "changeset version",
     "check": "tsc -p tsconfig.json --noEmit && bun run --cwd .claude check",
     "check:infra": "tsc -p infra/tsconfig.json --noEmit",
+    "check:migration-drift": "if [ -f apps/web/drizzle.config.ts ]; then bunx drizzle-kit check --config apps/web/drizzle.config.ts; elif [ -f apps/web/drizzle.config.json ]; then bunx drizzle-kit check --config apps/web/drizzle.config.json; else echo 'skipped: no drizzle config present'; fi",
     "test": "vitest run && tstyche",
     "test:watch": "vitest",
     "test:types": "tstyche",
@@ -54,7 +55,7 @@
     "lint": "bunx turbo run lint lint:jsdoc lint:spell lint:markdown lint:circular lint:versions && bun run lint:effect-laws && bun run lint:tooling-tagged-errors && bun run lint:schema-first && bun run agents:check && bun run agents:pathless:check && bun run lint:typos && bun run lint:repo && bun run lint:ox",
     "lint:versions": "bun run beep version-sync --skip-network",
     "lint:fix": "bunx turbo run lint:fix",
-    "lint:jsdoc": "eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' --ignore-pattern '.repos/**'",
+    "lint:jsdoc": "eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' --ignore-pattern '.repos/**' --ignore-pattern 'apps/desktop/scripts/**' --ignore-pattern 'apps/desktop/src-tauri/target/**'",
     "lint:effect-laws": "eslint --config eslint.config.mjs --no-error-on-unmatched-pattern \"apps/**/*.{ts,tsx}\" \"packages/**/*.{ts,tsx}\" \"tooling/**/*.{ts,tsx}\" \"infra/**/*.ts\" \".claude/hooks/**/*.ts\" --ignore-pattern '.repos/**'",
     "lint:tooling-tagged-errors": "bun run beep lint tooling-tagged-errors",
     "lint:schema-first": "bun run beep lint schema-first",
@@ -150,6 +151,12 @@
     "turbo": "catalog:",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "catalog:"
+  },
+  "overrides": {
+    "@hono/node-server": "^1.19.11",
+    "express-rate-limit": "^8.3.0",
+    "hono": "^4.12.5",
+    "minimatch": "^10.2.3"
   },
   "catalog": {
     "zod": "^4.3.6",

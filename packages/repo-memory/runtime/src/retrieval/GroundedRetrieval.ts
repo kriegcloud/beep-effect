@@ -19,7 +19,7 @@ import {
   RepoSymbolStore,
   type RepoSymbolStoreShape,
 } from "@beep/repo-memory-store";
-import { PosInt, TaggedErrorClass } from "@beep/schema";
+import { makeStatusCauseError, PosInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { DateTime, Effect, Layer, Order, pipe, ServiceMap, String as Str } from "effect";
 import * as A from "effect/Array";
@@ -228,11 +228,7 @@ export class GroundedQueryResult extends S.Class<GroundedQueryResult>($I`Grounde
  */
 export class GroundedRetrievalError extends TaggedErrorClass<GroundedRetrievalError>($I`GroundedRetrievalError`)(
   "GroundedRetrievalError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-  },
+  StatusCauseFields,
   $I.annote("GroundedRetrievalError", {
     description: "Typed error raised while resolving a bounded deterministic grounded query.",
   })
@@ -268,12 +264,7 @@ export class GroundedRetrievalService extends ServiceMap.Service<
     );
 }
 
-const toRetrievalError = (message: string, status: number, cause?: unknown): GroundedRetrievalError =>
-  new GroundedRetrievalError({
-    message,
-    status,
-    cause: O.fromUndefinedOr(cause),
-  });
+const toRetrievalError = makeStatusCauseError(GroundedRetrievalError);
 
 const mapStoreError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
   effect.pipe(Effect.mapError((error) => toRetrievalError(error.message, error.status, error.cause)));

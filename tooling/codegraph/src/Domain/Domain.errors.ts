@@ -1,5 +1,5 @@
 import { $CodegraphId } from "@beep/identity";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { SeverityLevel, TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $CodegraphId.create("Domain/Domain.errors");
@@ -80,7 +80,7 @@ class McpErrorContext extends S.Class<McpErrorContext>($I`McpErrorContext`)(
  * @since 0.0.0
  * @category Errors
  */
-export const ErrorSeverity = LiteralKit(["low", "medium", "high", "critical"]).annotate(
+export const ErrorSeverity = SeverityLevel.annotate(
   $I.annote("ErrorSeverity", {
     description: "Severity assigned to a codegraph domain error.",
   })

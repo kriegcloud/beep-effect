@@ -35,7 +35,7 @@ import {
   RepoSymbolStore,
   type RepoSymbolStoreShape,
 } from "@beep/repo-memory-store";
-import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
+import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEffectVoid, thunkTrue } from "@beep/utils";
 import { DateTime, Effect, flow, Layer, Match, pipe, ServiceMap, String as Str, Stream } from "effect";
 import * as A from "effect/Array";
@@ -79,11 +79,7 @@ class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`RunAccepta
  */
 export class RepoRunServiceError extends TaggedErrorClass<RepoRunServiceError>($I`RepoRunServiceError`)(
   "RepoRunServiceError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-  },
+  StatusCauseFields,
   $I.annote("RepoRunServiceError", {
     description: "Typed error for repo run service orchestration boundaries.",
   })
@@ -178,12 +174,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const typeScriptIndex = yield* TypeScriptIndexServiceInternal;
   const groundedRetrieval = yield* GroundedRetrievalServiceInternal;
 
-  const toRunServiceError = (message: string, status: number, cause?: unknown): RepoRunServiceError =>
-    new RepoRunServiceError({
-      message,
-      status,
-      cause: O.isOption(cause) ? cause : O.fromUndefinedOr(cause),
-    });
+  const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
 
   const mapDriverError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
     effect.pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));

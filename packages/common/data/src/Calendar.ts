@@ -10,7 +10,7 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/calendar/index.js";
+import * as internal from "./internal/data/calendar/index.ts";
 
 // -------------------------------------------------------------------------------------
 // types

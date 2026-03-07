@@ -1,5 +1,5 @@
 import { $CodegraphId } from "@beep/identity";
-import { ArrayOfStrings, LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit, SeverityLevel } from "@beep/schema";
 import { Tuple } from "effect";
 import * as S from "effect/Schema";
 
@@ -65,7 +65,7 @@ const TopicKind = LiteralKit(["producer", "consumer"]).annotate(
   })
 );
 
-const SecurityIssueSeverity = LiteralKit(["critical", "high", "medium", "low"]).annotate(
+const SecurityIssueSeverity = SeverityLevel.annotate(
   $I.annote("SecurityIssueSeverity", {
     description: "Supported security issue severities.",
   })

@@ -99,8 +99,7 @@ jobs:
         run: bun run check
 
       - name: Check migration drift
-        working-directory: apps/web
-        run: npx drizzle-kit check
+        run: bun run check:migration-drift
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}

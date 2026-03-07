@@ -8,8 +8,8 @@ const rootRoute = createRootRoute({
         <p className="eyebrow">Beep Desktop</p>
         <h1>Local-first repo expert memory</h1>
         <p className="lede">
-          Thin React shell. Bun + Effect sidecar owns runtime semantics. The desktop surface only talks to the public
-          control plane and workflow RPC boundary.
+          Native Tauri shell. Bun + Effect sidecar owns runtime semantics. The desktop surface only talks to the public
+          control plane and workflow RPC boundary while the shell owns process lifecycle and OS glue.
         </p>
         <nav className="nav">
           <Link to="/" activeProps={{ className: "nav-link nav-link-active" }} className="nav-link">

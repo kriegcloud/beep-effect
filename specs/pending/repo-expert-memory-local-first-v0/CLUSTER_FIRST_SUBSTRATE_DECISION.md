@@ -124,8 +124,13 @@ The current implemented slice now goes further:
 - the control plane is `HttpApi`
 - run execution moved to custom public `Rpc` start handlers plus `StreamRunEvents`
 - the old HTTP run mutation and SSE routes are no longer the active integration target
+- one shared Bun router already hosts `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`
+- the desktop shell is now a real Tauri wrapper with Rust-managed sidecar lifecycle and a typed client over the public protocol
+- restart/replay is already proved through spawned Bun lifecycle tests against the real sidecar entrypoint
 
-That keeps the repo moving toward the locked substrate without pretending the migration is already complete.
+What remains incomplete is not the transport split itself but the last runtime seams:
+- explicit `RunProjector` and `RunStateMachine` extraction
+- end-to-end interrupt/resume behavior and proof
 
 ## What This Supersedes
 This decision supersedes:

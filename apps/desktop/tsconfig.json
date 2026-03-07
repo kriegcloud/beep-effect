@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "scripts", "vite.config.ts"],
   "compilerOptions": {
     "rootDir": ".",
     "types": ["node"],

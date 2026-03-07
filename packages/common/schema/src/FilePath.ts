@@ -8,6 +8,7 @@
 import { $SchemaId } from "@beep/identity/packages";
 import { A, thunkFalse, thunkTrue } from "@beep/utils";
 import { Equal as Eq, flow, Match, pipe, String as Str } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { LiteralKit } from "./LiteralKit.ts";
@@ -25,7 +26,7 @@ const windowsInvalidTrailingSegmentRegExp = /^(?!.*[ .]$).+$/;
 const matchesPattern =
   (pattern: RegExp) =>
   (value: string): boolean =>
-    P.isNotNull(Str.match(pattern)(value));
+    O.isSome(O.fromNullishOr(Str.match(pattern)(value)));
 
 const split = (separator: string | RegExp, value: string) => Str.split(separator)(value);
 

@@ -9,7 +9,7 @@ import {
   isNonNegative as isNonNegativeInternal,
   isNonPositive as isNonPositiveInternal,
   isPositive as isPositiveInternal,
-} from "./Number.js";
+} from "./Number.ts";
 
 /**
  * @since 0.0.0
@@ -21,12 +21,12 @@ export const VERSION = "0.0.0" as const;
  * @since 0.0.0
  * @category Validation
  */
-export * from "./LiteralKit.js";
+export * from "./LiteralKit.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
-export * from "./MappedLiteralKit.js";
+export * from "./MappedLiteralKit.ts";
 
 // bench
 
@@ -34,22 +34,22 @@ export * from "./MappedLiteralKit.js";
  * @since 0.0.0
  * @category Validation
  */
-export * from "./ArrayOf.js";
+export * from "./ArrayOf.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
-export * from "./CommonTextSchemas.js";
+export * from "./CommonTextSchemas.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
-export * from "./Email.js";
+export * from "./Email.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
-export * from "./FilePath.js";
+export * from "./FilePath.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -59,12 +59,17 @@ export * from "./Int.ts";
  * @since 0.0.0
  * @category Validation
  */
-export * from "./Logs.js";
+export * from "./Logs.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
-export * from "./MimeType.js";
+export * from "./MimeType.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./PosixPath.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -89,7 +94,17 @@ export const isPositive = isPositiveInternal;
  * @since 0.0.0
  * @category Validation
  */
-export * from "./Sha256.js";
+export * from "./SeverityLevel.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Sha256.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./StatusCauseError.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -99,4 +114,4 @@ export * from "./TaggedErrorClass.ts";
  * @since 0.0.0
  * @category Validation
  */
-export * from "./Transformations.js";
+export * from "./Transformations.ts";

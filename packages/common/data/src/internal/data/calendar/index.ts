@@ -1,2 +1,2 @@
-export * from "./month.js";
-export * as Weekday from "./weekday.js";
+export * from "./month.ts";
+export * as Weekday from "./weekday.ts";

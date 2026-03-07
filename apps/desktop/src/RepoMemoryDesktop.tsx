@@ -20,12 +20,20 @@ import {
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { FilePath } from "@beep/schema";
-import { DateTime, Effect, Exit, Fiber, Order, pipe, Scope, Stream } from "effect";
+import { DateTime, Effect, Fiber, Order, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type FormEvent, startTransition, useEffect, useMemo, useRef, useState } from "react";
+import {
+  getManagedSidecarState,
+  isNativeDesktop,
+  type ManagedSidecarState,
+  pickRepoDirectory,
+  startManagedSidecar,
+  stopManagedSidecar,
+} from "./native.ts";
 
 const defaultBaseUrl = "http://127.0.0.1:8788";
 const desktopSessionId = "desktop-shell";
@@ -35,6 +43,7 @@ const decodeRunId = S.decodeUnknownSync(RunId);
 
 type ConnectionState = "idle" | "connecting" | "connected" | "error";
 type ActionState = "idle" | "registering" | "indexing" | "querying" | "refreshing" | "streaming";
+type ShellMode = "browser" | "native-managed" | "manual-override";
 
 const repoOrder = Order.mapInput(Order.flip(Order.Number), (repo: RepoRegistration) =>
   DateTime.toEpochMillis(repo.registeredAt)
@@ -249,18 +258,25 @@ const formatCitationSpan = (citation: Citation): string => {
   return `${citation.span.filePath}:${citation.span.startLine}-${citation.span.endLine}${columnSuffix}`;
 };
 
+const optionToNullable = <A,>(option: O.Option<A>): A | null => O.getOrNull(option);
+
 export function RepoMemoryDesktop() {
+  const [nativeAvailable] = useState(() => isNativeDesktop());
+  const [shellMode, setShellMode] = useState<ShellMode>(() => (isNativeDesktop() ? "native-managed" : "browser"));
   const [baseUrlInput, setBaseUrlInput] = useState(() =>
     typeof window === "undefined" ? defaultBaseUrl : (window.localStorage.getItem(sidecarBaseUrlKey) ?? defaultBaseUrl)
   );
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
   const [actionState, setActionState] = useState<ActionState>("idle");
   const [statusMessage, setStatusMessage] = useState(
-    "Point the shell at a local sidecar and inspect its public protocol."
+    isNativeDesktop()
+      ? "Launching the managed local sidecar."
+      : "Point the shell at a local sidecar and inspect its public protocol."
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [client, setClient] = useState<RepoMemoryClientShape | null>(null);
   const [bootstrap, setBootstrap] = useState<SidecarBootstrap | null>(null);
+  const [managedState, setManagedState] = useState<ManagedSidecarState | null>(null);
   const [repos, setRepos] = useState<ReadonlyArray<RepoRegistration>>([]);
   const [runs, setRuns] = useState<ReadonlyArray<RepoRun>>([]);
   const [selectedRepoId, setSelectedRepoId] = useState("");
@@ -271,7 +287,6 @@ export function RepoMemoryDesktop() {
   const [eventsByRunId, setEventsByRunId] = useState<Record<string, ReadonlyArray<RunStreamEvent>>>({});
   const [activeStreamRunId, setActiveStreamRunId] = useState<string | null>(null);
   const streamFiberRef = useRef<Fiber.Fiber<void, never> | null>(null);
-  const clientScopeRef = useRef<Scope.Closeable | null>(null);
 
   const selectedRepo = useMemo(() => findRepoById(repos, selectedRepoId), [repos, selectedRepoId]);
   const selectedRun = useMemo(() => findRunById(runs, selectedRunId), [runs, selectedRunId]);
@@ -293,21 +308,9 @@ export function RepoMemoryDesktop() {
       if (streamFiberRef.current !== null) {
         Effect.runFork(Fiber.interrupt(streamFiberRef.current).pipe(Effect.ignore));
       }
-
-      if (clientScopeRef.current !== null) {
-        Effect.runFork(Scope.close(clientScopeRef.current, Exit.void).pipe(Effect.ignore));
-      }
     },
     []
   );
-
-  const closeClientScope = () => {
-    if (clientScopeRef.current !== null) {
-      const scope = clientScopeRef.current;
-      clientScopeRef.current = null;
-      Effect.runFork(Scope.close(scope, Exit.void).pipe(Effect.ignore));
-    }
-  };
 
   const stopStreaming = () => {
     if (streamFiberRef.current !== null) {
@@ -318,6 +321,47 @@ export function RepoMemoryDesktop() {
     startTransition(() => {
       setActiveStreamRunId(null);
     });
+  };
+
+  const clearClientState = (
+    nextStatusMessage: string,
+    nextConnectionState: ConnectionState,
+    nextErrorMessage: string | null = null
+  ) => {
+    stopStreaming();
+
+    startTransition(() => {
+      setClient(null);
+      setBootstrap(null);
+      setRepos([]);
+      setRuns([]);
+      setSelectedRepoId("");
+      setSelectedRunId("");
+      setEventsByRunId({});
+      setConnectionState(nextConnectionState);
+      setActionState("idle");
+      setErrorMessage(nextErrorMessage);
+      setStatusMessage(nextStatusMessage);
+    });
+  };
+
+  const syncManagedSidecar = async (): Promise<ManagedSidecarState | null> => {
+    if (!nativeAvailable) {
+      return null;
+    }
+
+    try {
+      const nextState = await Effect.runPromise(getManagedSidecarState());
+      startTransition(() => {
+        setManagedState(nextState);
+      });
+      return nextState;
+    } catch {
+      startTransition(() => {
+        setManagedState(null);
+      });
+      return null;
+    }
   };
 
   const syncSnapshot = async (
@@ -357,60 +401,98 @@ export function RepoMemoryDesktop() {
     });
   };
 
+  const connectToBaseUrl = async (rawBaseUrl: string) => {
+    const normalizedBaseUrl = normalizeSidecarBaseUrl(rawBaseUrl);
+    const nextClient = await Effect.runPromise(
+      makeRepoMemoryClient(
+        new RepoMemoryClientConfig({
+          baseUrl: normalizedBaseUrl,
+          sessionId: desktopSessionId,
+        })
+      )
+    );
+    const nextBootstrap = await Effect.runPromise(nextClient.bootstrap);
+
+    stopStreaming();
+    await syncSnapshot(nextClient);
+
+    startTransition(() => {
+      setBaseUrlInput(normalizedBaseUrl);
+      setClient(nextClient);
+      setBootstrap(nextBootstrap);
+      setConnectionState("connected");
+      setErrorMessage(null);
+      setStatusMessage(`Connected to sidecar ${nextBootstrap.baseUrl}.`);
+    });
+
+    return nextClient;
+  };
+
   const connect = async () => {
     setConnectionState("connecting");
     setActionState("refreshing");
     setErrorMessage(null);
-    setStatusMessage("Connecting to the repo-memory sidecar.");
-
-    let scope: Scope.Closeable | null = null;
+    setStatusMessage(
+      shellMode === "manual-override"
+        ? "Connecting to a manual sidecar override."
+        : "Connecting to the repo-memory sidecar."
+    );
 
     try {
-      closeClientScope();
-
-      const normalizedBaseUrl = normalizeSidecarBaseUrl(baseUrlInput);
-      scope = await Effect.runPromise(Scope.make());
-      const nextClient = await Effect.runPromise(
-        Scope.provide(scope)(
-          makeRepoMemoryClient(
-            new RepoMemoryClientConfig({
-              baseUrl: normalizedBaseUrl,
-              sessionId: desktopSessionId,
-            })
-          )
-        )
-      );
-      const nextBootstrap = await Effect.runPromise(nextClient.bootstrap);
-
-      stopStreaming();
-      await syncSnapshot(nextClient);
-      clientScopeRef.current = scope;
-      scope = null;
-
-      startTransition(() => {
-        setBaseUrlInput(normalizedBaseUrl);
-        setClient(nextClient);
-        setBootstrap(nextBootstrap);
-        setConnectionState("connected");
-        setStatusMessage(`Connected to sidecar ${nextBootstrap.baseUrl}.`);
-      });
+      await connectToBaseUrl(baseUrlInput);
     } catch (error) {
-      if (P.isNotNull(scope)) {
-        Effect.runFork(Scope.close(scope, Exit.void).pipe(Effect.ignore));
+      clearClientState("The shell could not reach the repo-memory sidecar.", "error", errorToMessage(error));
+    } finally {
+      startTransition(() => {
+        setActionState("idle");
+      });
+    }
+  };
+
+  const connectManaged = async (options?: { readonly restart?: boolean }) => {
+    if (!nativeAvailable) {
+      return;
+    }
+
+    setConnectionState("connecting");
+    setActionState("refreshing");
+    setErrorMessage(null);
+    setStatusMessage(
+      options?.restart ? "Restarting the managed local sidecar." : "Launching the managed local sidecar."
+    );
+
+    try {
+      if (options?.restart === true) {
+        await Effect.runPromise(stopManagedSidecar());
       }
 
-      startTransition(() => {
-        setConnectionState("error");
-        setClient(null);
-        setBootstrap(null);
-        setRepos([]);
-        setRuns([]);
-        setSelectedRepoId("");
-        setSelectedRunId("");
-        setEventsByRunId({});
-        setErrorMessage(errorToMessage(error));
-        setStatusMessage("The shell could not reach the repo-memory sidecar.");
-      });
+      let nextManagedState: ManagedSidecarState | null = await syncManagedSidecar();
+      let nextBootstrap: SidecarBootstrap | null =
+        nextManagedState === null ? null : optionToNullable(nextManagedState.bootstrap);
+
+      if (nextManagedState?.status !== "healthy" || nextBootstrap === null) {
+        nextBootstrap = await Effect.runPromise(startManagedSidecar());
+        nextManagedState = await syncManagedSidecar();
+      }
+
+      if (nextBootstrap === null) {
+        throw new Error("Managed sidecar did not report a bootstrap payload.");
+      }
+
+      await connectToBaseUrl(nextBootstrap.baseUrl);
+
+      if (nextManagedState !== null) {
+        startTransition(() => {
+          setManagedState(nextManagedState);
+        });
+      }
+    } catch (error) {
+      await syncManagedSidecar();
+      clearClientState(
+        "The native shell could not launch the managed repo-memory sidecar.",
+        "error",
+        errorToMessage(error)
+      );
     } finally {
       startTransition(() => {
         setActionState("idle");
@@ -419,23 +501,64 @@ export function RepoMemoryDesktop() {
   };
 
   const disconnect = () => {
-    stopStreaming();
-    closeClientScope();
-
-    startTransition(() => {
-      setClient(null);
-      setBootstrap(null);
-      setRepos([]);
-      setRuns([]);
-      setSelectedRepoId("");
-      setSelectedRunId("");
-      setEventsByRunId({});
-      setConnectionState("idle");
-      setActionState("idle");
-      setErrorMessage(null);
-      setStatusMessage("Disconnected from the sidecar.");
-    });
+    clearClientState("Disconnected from the sidecar.", "idle");
   };
+
+  const stopManagedConnection = async () => {
+    if (!nativeAvailable) {
+      disconnect();
+      return;
+    }
+
+    try {
+      await Effect.runPromise(stopManagedSidecar());
+    } catch (error) {
+      setErrorMessage(errorToMessage(error));
+    } finally {
+      await syncManagedSidecar();
+      clearClientState("Stopped the managed local sidecar.", "idle");
+    }
+  };
+
+  const enableManualOverride = async () => {
+    if (nativeAvailable) {
+      try {
+        await Effect.runPromise(stopManagedSidecar());
+      } catch (error) {
+        setErrorMessage(errorToMessage(error));
+      } finally {
+        await syncManagedSidecar();
+      }
+    }
+
+    setShellMode(nativeAvailable ? "manual-override" : "browser");
+    clearClientState("Manual URL override enabled. The native shell is no longer managing a sidecar.", "idle");
+  };
+
+  const chooseRepoDirectory = async () => {
+    if (!nativeAvailable) {
+      return;
+    }
+
+    try {
+      const nextPath = await Effect.runPromise(pickRepoDirectory());
+      O.match(nextPath, {
+        onNone: () => undefined,
+        onSome: (pickedPath) =>
+          startTransition(() => {
+            setRepoPathInput(pickedPath);
+          }),
+      });
+    } catch (error) {
+      setErrorMessage(errorToMessage(error));
+    }
+  };
+
+  useEffect(() => {
+    if (nativeAvailable && shellMode === "native-managed") {
+      void connectManaged();
+    }
+  }, [nativeAvailable, shellMode]);
 
   const refresh = async () => {
     if (client === null) {
@@ -446,6 +569,10 @@ export function RepoMemoryDesktop() {
     setErrorMessage(null);
 
     try {
+      if (nativeAvailable && shellMode === "native-managed") {
+        await syncManagedSidecar();
+      }
+
       await syncSnapshot(client);
 
       if (selectedRunId !== "") {
@@ -674,7 +801,15 @@ export function RepoMemoryDesktop() {
         <article className="summary-card">
           <span className="summary-label">Connection</span>
           <strong>{formatConnectionLabel(connectionState)}</strong>
-          <p>{bootstrap === null ? "Waiting for a sidecar." : bootstrap.status}</p>
+          <p>
+            {bootstrap === null
+              ? nativeAvailable && shellMode === "native-managed"
+                ? managedState === null
+                  ? "Managed sidecar booting."
+                  : `${managedState.mode} ${managedState.status}`
+                : "Waiting for a sidecar."
+              : bootstrap.status}
+          </p>
         </article>
         <article className="summary-card">
           <span className="summary-label">Repos</span>
@@ -704,42 +839,110 @@ export function RepoMemoryDesktop() {
               {formatConnectionLabel(connectionState)}
             </span>
           </div>
-          <form
-            className="stack"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void connect();
-            }}
-          >
-            <label className="field">
-              <span>Sidecar base URL</span>
-              <input
-                value={baseUrlInput}
-                onChange={(nextEvent) => setBaseUrlInput(nextEvent.target.value)}
-                onBlur={() => setBaseUrlInput((current) => normalizeSidecarBaseUrl(current))}
-                placeholder={defaultBaseUrl}
-              />
-            </label>
-            <p className="field-note">Use the root sidecar URL. Legacy `/api/v0` input is normalized automatically.</p>
-            <div className="button-row">
-              <button type="submit" disabled={connectionState === "connecting"}>
-                {connectionState === "connecting" ? "Connecting..." : "Connect"}
-              </button>
-              <button
-                type="button"
-                className="button-secondary"
-                disabled={client === null}
-                onClick={() => void refresh()}
-              >
-                Refresh
-              </button>
-              <button type="button" className="button-secondary" disabled={client === null} onClick={disconnect}>
-                Disconnect
-              </button>
+          {nativeAvailable && shellMode === "native-managed" ? (
+            <div className="stack">
+              <p className="field-note">
+                The native shell owns sidecar launch, bootstrap discovery, and health checks before the client connects.
+              </p>
+              <div className="button-row">
+                <button
+                  type="button"
+                  disabled={connectionState === "connecting"}
+                  onClick={() => void connectManaged({ restart: true })}
+                >
+                  {connectionState === "connecting" ? "Starting..." : "Restart sidecar"}
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={client === null}
+                  onClick={() => void refresh()}
+                >
+                  Refresh
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={connectionState === "connecting"}
+                  onClick={() => void stopManagedConnection()}
+                >
+                  Stop sidecar
+                </button>
+              </div>
+              <details className="debug-panel">
+                <summary>Debug override</summary>
+                <div className="stack">
+                  <p className="field-note">
+                    Stop the managed sidecar and switch back to the old manual URL flow only when you need to inspect a
+                    different runtime.
+                  </p>
+                  <button type="button" className="button-secondary" onClick={() => void enableManualOverride()}>
+                    Use manual URL override
+                  </button>
+                </div>
+              </details>
             </div>
-          </form>
+          ) : (
+            <form
+              className="stack"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void connect();
+              }}
+            >
+              <label className="field">
+                <span>Sidecar base URL</span>
+                <input
+                  value={baseUrlInput}
+                  onChange={(nextEvent) => setBaseUrlInput(nextEvent.target.value)}
+                  onBlur={() => setBaseUrlInput((current) => normalizeSidecarBaseUrl(current))}
+                  placeholder={defaultBaseUrl}
+                />
+              </label>
+              <p className="field-note">
+                Use the root sidecar URL. Legacy `/api/v0` input is normalized automatically.
+              </p>
+              <div className="button-row">
+                <button type="submit" disabled={connectionState === "connecting"}>
+                  {connectionState === "connecting" ? "Connecting..." : "Connect"}
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={client === null}
+                  onClick={() => void refresh()}
+                >
+                  Refresh
+                </button>
+                <button type="button" className="button-secondary" disabled={client === null} onClick={disconnect}>
+                  Disconnect
+                </button>
+                {nativeAvailable ? (
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    disabled={connectionState === "connecting"}
+                    onClick={() => setShellMode("native-managed")}
+                  >
+                    Resume managed sidecar
+                  </button>
+                ) : null}
+              </div>
+            </form>
+          )}
           <p className="status-line">{statusMessage}</p>
           {errorMessage === null ? null : <p className="notice notice-error">{errorMessage}</p>}
+          {managedState !== null ? (
+            <p className="notice">
+              Native state: <code>{managedState.mode}</code> {managedState.status}
+            </p>
+          ) : null}
+          {managedState !== null && managedState.stderrTail.length > 0 ? (
+            <div className="notice">
+              <strong>Sidecar stderr</strong>
+              <pre className="mono-block">{managedState.stderrTail.join("\n")}</pre>
+            </div>
+          ) : null}
           {bootstrap === null ? null : (
             <dl className="meta-grid">
               <div>
@@ -760,6 +963,18 @@ export function RepoMemoryDesktop() {
                 <dt>Started</dt>
                 <dd>{formatDateTime(bootstrap.startedAt)}</dd>
               </div>
+              {managedState === null ? null : (
+                <div>
+                  <dt>Launch mode</dt>
+                  <dd>{managedState.mode}</dd>
+                </div>
+              )}
+              {managedState === null ? null : (
+                <div>
+                  <dt>Native state</dt>
+                  <dd>{managedState.status}</dd>
+                </div>
+              )}
             </dl>
           )}
         </section>
@@ -775,12 +990,24 @@ export function RepoMemoryDesktop() {
           <form className="stack" onSubmit={(event) => void registerRepo(event)}>
             <label className="field">
               <span>Repo path</span>
-              <input
-                value={repoPathInput}
-                onChange={(nextEvent) => setRepoPathInput(nextEvent.target.value)}
-                placeholder="/absolute/path/to/repo"
-                disabled={client === null}
-              />
+              <div className="field-row">
+                <input
+                  value={repoPathInput}
+                  onChange={(nextEvent) => setRepoPathInput(nextEvent.target.value)}
+                  placeholder="/absolute/path/to/repo"
+                  disabled={client === null}
+                />
+                {nativeAvailable ? (
+                  <button
+                    type="button"
+                    className="button-secondary button-compact"
+                    disabled={actionState === "registering"}
+                    onClick={() => void chooseRepoDirectory()}
+                  >
+                    Choose folder
+                  </button>
+                ) : null}
+              </div>
             </label>
             <label className="field">
               <span>Display name</span>

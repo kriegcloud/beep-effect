@@ -8,7 +8,8 @@ For `v0`, that boundary is:
 - `HttpApi` at `"/api/v0"` for control-plane reads and commands
 - `Rpc` at `"/api/v0/rpc"` for workflow execution and streamed run events
 
-The shell launches the sidecar as an official Tauri sidecar/external binary. The sidecar owns runtime semantics. The shell owns process launch and OS glue only.
+The sidecar owns runtime semantics.
+The shell owns process launch, bootstrap discovery, health gating, shutdown, native file picking, and diagnostics only.
 
 ## Official Grounding
 This protocol is aligned to official primitives rather than plugin folklore:
@@ -29,18 +30,31 @@ The implementation rejects these as `v0` foundations:
 
 ## Process Model
 ### Shell startup sequence
-1. The Tauri shell launches a packaged sidecar executable.
-2. The shell passes:
-   - `--host 127.0.0.1`
-   - `--port <chosen local port>`
-   - `--session-id <uuid>`
-   - `--app-data-dir <absolute path>`
-3. The sidecar boots the SQLite-backed cluster/runtime substrate.
-4. The sidecar writes one bootstrap line to stdout as JSON.
-5. The shell parses that bootstrap line and begins health checks.
-6. The shell marks the sidecar usable only after a successful control-plane health response.
+1. The native shell decides whether it is in:
+   - managed dev mode using raw `bun run packages/runtime/server/src/main.ts`
+   - managed packaged mode using the bundled `repo-memory-sidecar` external binary
+2. The shell chooses a concrete localhost port and generates a fresh `sessionId`.
+3. The shell passes startup configuration through environment variables:
+   - `BEEP_REPO_MEMORY_HOST=127.0.0.1`
+   - `BEEP_REPO_MEMORY_PORT=<chosen local port>`
+   - `BEEP_REPO_MEMORY_SESSION_ID=<uuid>`
+   - `BEEP_REPO_MEMORY_APP_DATA_DIR=<absolute path>`
+   - `BEEP_REPO_MEMORY_VERSION=<desktop version>`
+   - `BEEP_REPO_MEMORY_OTLP_ENABLED=false`
+   - `BEEP_REPO_MEMORY_DEVTOOLS_ENABLED=false`
+4. The sidecar boots the SQLite-backed cluster/runtime substrate.
+5. The sidecar writes one machine-readable bootstrap line to stdout as JSON.
+6. The shell parses that bootstrap line and begins health checks against `GET /api/v0/health`.
+7. The shell marks the sidecar usable only after the health payload decodes as `SidecarBootstrap`.
 
-`v0` should not depend on `--port 0` for the real app flow. The shell should choose a concrete local port.
+`v0` does not rely on `port: 0` for the real app flow.
+The shell chooses a concrete local port.
+
+## Current Shell Integration
+- `apps/desktop/src-tauri` now owns four native commands: `start_sidecar`, `stop_sidecar`, `get_sidecar_state`, and `pick_repo_directory`.
+- Dev mode launches `bun run packages/runtime/server/src/main.ts` from the repo root. Packaged mode launches the bundled `repo-memory-sidecar` external binary.
+- The React shell auto-starts the managed sidecar, waits for bootstrap plus `GET /api/v0/health`, and keeps manual base-URL connection only as a debug override.
+- The shared desktop-side client boundary already lives in `packages/repo-memory/client` and talks only through `ControlPlaneApi` plus `RepoRunRpcGroup`.
 
 ### Bootstrap stdout line
 The first machine-readable stdout line should conceptually match `SidecarBootstrap`:
@@ -56,6 +70,10 @@ The first machine-readable stdout line should conceptually match `SidecarBootstr
   "pid": 12345
 }
 ```
+
+The current runtime also includes:
+- `status`
+- `startedAt`
 
 ### Shutdown behavior
 The shutdown order is part of the architecture:
@@ -80,19 +98,20 @@ Use:
 ## Control Plane
 The control plane is ordinary request/response API surface.
 
-These routes are part of the target public surface:
+These routes are the live public surface:
 - `GET /api/v0/health`
 - `GET /api/v0/repos`
 - `POST /api/v0/repos`
 - `GET /api/v0/runs`
 - `GET /api/v0/runs/:runId`
 
-These routes should be modeled in `packages/runtime/protocol` as `HttpApi` contracts and served through `HttpApiBuilder` on the shared router.
+`GET /api/v0/health` returns `SidecarBootstrap`.
+These routes are modeled in `packages/runtime/protocol` as `HttpApi` contracts and served through `HttpApiBuilder` on the shared router.
 
 ## Execution Plane
 The execution plane is workflow-backed `Rpc`, not ad hoc long-running HTTP routes.
 
-The target public execution surface is:
+The live public execution surface is:
 - custom start RPCs for:
   - `StartIndexRepoRun`
   - `StartQueryRepoRun`
@@ -141,13 +160,13 @@ These events drive:
 - final answer detail views
 - replay after reconnect/restart
 
-## Retired Target Routes
-These current HTTP routes should be treated as transitional only and removed after migration:
+`RunInterrupted` and `RunResumed` remain part of the locked event vocabulary even though end-to-end interruption/resume commands are still an open `v0` gap.
+
+## Retired Routes
+These HTTP routes are retired and should not be reintroduced:
 - `POST /api/v0/repos/:repoId/index-runs`
 - `POST /api/v0/query-runs`
 - `GET /api/v0/runs/:runId/events`
-
-They are not the target transport model.
 
 ## Evidence Contracts
 ### `Citation`
@@ -168,4 +187,4 @@ Rules:
 
 ## Questions Worth Keeping Open
 - Should `StreamRunEvents` remain the only custom RPC beyond the two public start RPCs?
-- Which compatibility routes should stay briefly during migration, and which should be deleted immediately once the cluster path lands?
+- What is the smallest native-sidecar diagnostic surface that still makes startup failures inspectable without pulling repo-memory semantics into Rust?

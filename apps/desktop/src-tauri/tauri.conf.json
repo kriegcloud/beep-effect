@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Beep Desktop",
+  "version": "0.0.0",
+  "identifier": "com.beep.desktop",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://127.0.0.1:4173",
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build && bun run build:sidecar"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Beep Desktop",
+        "width": 1440,
+        "height": 960,
+        "minWidth": 1120,
+        "minHeight": 720,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "deb",
+    "externalBin": ["binaries/repo-memory-sidecar"]
+  }
+}

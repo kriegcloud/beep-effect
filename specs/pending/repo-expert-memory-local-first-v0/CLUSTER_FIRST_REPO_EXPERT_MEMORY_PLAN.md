@@ -3,6 +3,8 @@
 ## Summary
 Replace the current ad hoc sidecar runtime with a `cluster-first`, `workflow-backed`, `local-first` architecture and record that decision in the spec set so there is no conflicting guidance left in the repo.
 
+Large parts of this plan are now implemented. Use [README.md](./README.md) plus [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md) for the current-state view, and use this file as the historical sequencing and remaining-work reference.
+
 Lock these decisions:
 - `effect/unstable/cluster` is the v0 runtime substrate.
 - `ClusterWorkflowEngine` is the workflow engine.

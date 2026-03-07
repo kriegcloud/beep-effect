@@ -1,27 +1,20 @@
-import { identity, SchemaTransformation, String as Str } from "effect";
-import * as S from "effect/Schema";
-
-const POSIX_PATH_PATTERN = /^[^\\]*$/;
+import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } from "@beep/schema";
 
 /**
- * POSIX-normalized path string schema.
+ * POSIX-normalized path string schema re-exported for tooling config consumers.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const PosixPath = PosixPathSchema;
+
+/**
+ * Type for {@link PosixPath}.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN));
-
-const NativePathToPosixPath = S.String.pipe(
-  S.decodeTo(
-    PosixPath,
-    SchemaTransformation.transform({
-      decode: Str.replaceAll("\\", "/"),
-      encode: identity,
-    })
-  )
-);
-
-const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
+export type PosixPath = typeof PosixPath.Type;
 
 /**
  * Normalize a file-system path to POSIX separators.
@@ -31,4 +24,4 @@ const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
  * @since 0.0.0
  * @category Utility
  */
-export const normalizePath = (value: string): string => decodePosixPath(value);
+export const normalizePath = (value: string): PosixPath => normalizeSchemaPath(value);

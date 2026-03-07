@@ -21,6 +21,11 @@ The first runnable slice is:
 6. receive a grounded answer with citations and retrieval packet
 7. inspect the completed run detail after the fact
 
+## Current Implementation Snapshot
+- The native desktop shell already auto-launches the managed sidecar, registers repos through the control plane, starts runs through custom public RPCs, and renders run lists, run detail, citations, retrieval packets, and event history.
+- The sidecar already persists repo-memory artifacts and run projections in SQLite, and it already replays journaled run events after reconnect or restart.
+- Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, and replay against the real sidecar entrypoint.
+
 ## Scope In
 Lock these in for `v0`:
 - single-user local desktop prototype
@@ -47,9 +52,12 @@ Lock these out for `v0`:
 
 ## User Flow
 ### 1. Register repo
-The user picks a local repo path from the desktop UI.
+The native desktop app auto-starts the managed local sidecar and waits for a healthy bootstrap.
+The user picks a local repo path from the desktop UI through the native folder picker.
 The shell forwards that request to the sidecar control plane.
 The sidecar returns a stable `RepoRegistration`.
+
+Browser/manual mode remains useful for debugging, but it is not the primary `v0` product shape.
 
 ### 2. Start index run
 The UI triggers `StartIndexRepoRun` through the execution plane.
@@ -81,6 +89,10 @@ Supported query classes in the current grounded slice:
 - `countSymbols`
 - `locateSymbol`
 - `describeSymbol`
+- `symbolParams`
+- `symbolReturns`
+- `symbolThrows`
+- `symbolDeprecation`
 - `listFileExports`
 - `listFileImports`
 - `listFileImporters`
@@ -94,11 +106,17 @@ Testing posture for this slice:
 - `@effect/vitest` is the default supporting harness
 - Node-backed supporting tests are intentional for service and SQL integration logic
 - spawned Bun subprocess tests are the lifecycle source of truth
+- lifecycle tests should continue to prove machine-readable bootstrap, same-port restart, and replay of only missing events against the real sidecar entrypoint
+
+## Remaining Slice Gaps
+- End-to-end interrupt/resume behavior is not yet implemented even though the event model and projection schema reserve it.
+- `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.
 
 Minimum surfaces:
+- managed sidecar status card
 - repo picker / registration view
 - run list
 - run detail view
@@ -107,6 +125,8 @@ Minimum surfaces:
 - citations panel
 - retrieval packet panel
 - runtime health / disconnected state indicator
+- startup failure diagnostics including recent stderr
+- manual URL override only as a debug panel
 
 ## Why This Slice Matters
 This slice proves the larger thesis on a bounded problem:

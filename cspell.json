@@ -120,6 +120,8 @@
     "networkidle",
     "tauri",
     "Tauri",
+    "rustc",
+    "msvc",
     "lede",
     "replayable",
     "finalizers",

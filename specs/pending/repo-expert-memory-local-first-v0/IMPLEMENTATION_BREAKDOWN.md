@@ -5,6 +5,18 @@ Implementation should now proceed from the cluster-first decision, not from the 
 
 The point of this breakdown is to sequence the work so lifecycle, transport, and persistence land coherently.
 
+## Current Status By Workstream
+- Contracts: landed in `packages/repo-memory/model`, `packages/repo-memory/store`, and `packages/runtime/protocol`.
+- Local SQL substrate: landed on `@effect/sql-sqlite-bun` in `packages/repo-memory/sqlite`.
+- Durable runtime substrate: landed in `packages/runtime/server` with one Bun server hosting `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`.
+- Workflow-backed repo runs: landed with deterministic execution ids, custom public run-start RPCs that return `runId`, and internal workflow-proxy handler registration.
+- Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, and replay; extraction into explicit projector/state-machine seams remains open.
+- Desktop shell integration: landed with a real Tauri wrapper, Rust-managed sidecar lifecycle, native repo-folder picking, and a debug-only manual URL override.
+- Compatibility cleanup: landed; the old HTTP run-mutation and SSE routes are no longer the active integration target.
+- Grounded retrieval: landed with bounded deterministic query interpretation and durable citations/retrieval packets.
+- Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
+- Remaining `v0` closure: implement real interrupt/resume behavior and extract the spec-named runtime seams (`RunProjector`, `RunStateMachine`).
+
 ## Workstream 1: Contracts
 Lock the public contracts first.
 
@@ -28,7 +40,7 @@ Define and keep stable:
 ### `packages/runtime/protocol`
 Define and keep stable:
 - `ControlPlaneApi`
-- workflow-derived RPC surface
+- `RepoRunRpcGroup`
 - `StreamRunEventsRequest`
 - `RunStreamEvent`
 - public `HttpApi` error payloads
@@ -134,6 +146,10 @@ Current supported query classes:
 - `countSymbols`
 - `locateSymbol`
 - `describeSymbol`
+- `symbolParams`
+- `symbolReturns`
+- `symbolThrows`
+- `symbolDeprecation`
 - `listFileExports`
 - `listFileImports`
 - `listFileImporters`
@@ -158,6 +174,9 @@ Authoritative lifecycle test:
 - spawn the real Bun sidecar through `packages/runtime/server/src/main.ts`
 - keep `sqlite-bun`
 - prove same-port shutdown/restart and replay against the real runtime
+
+Add once the runtime behavior exists:
+- equally honest public-path interruption/resume proof against the real sidecar
 
 ## Immediate Guardrail
 The paused reduced `HttpApi` rewrite is not a prerequisite step.

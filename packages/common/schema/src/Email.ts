@@ -1,4 +1,4 @@
-import { Email as InternalEmail } from "./internal/email.js";
+import { Email as InternalEmail } from "./internal/email.ts";
 
 /**
  * RFC 5322 compliant email address schema.

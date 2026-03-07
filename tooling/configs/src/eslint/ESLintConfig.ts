@@ -49,6 +49,7 @@ export const ESLintConfig: ESLintConfigShape = [
       "node_modules/**",
       "**/storybook-static/**",
       "**/.turbo/**",
+      "**/src-tauri/target/**",
     ],
   },
   {

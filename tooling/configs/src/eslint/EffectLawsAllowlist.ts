@@ -76,7 +76,7 @@ export const isViolationAllowlisted = (input: unknown): boolean =>
             normalizedLookupKey,
             new EffectLawsAllowlistLookupKey({
               rule: entry.rule,
-              file: entry.file,
+              file: normalizePath(entry.file),
               kind: entry.kind,
             })
           )

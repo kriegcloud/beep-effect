@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/mime-types/index.js";
+import * as internal from "./internal/data/mime-types/index.ts";
 
 // -------------------------------------------------------------------------------------
 // types

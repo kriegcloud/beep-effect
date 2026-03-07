@@ -373,6 +373,13 @@ code {
   gap: 0.48rem;
 }
 
+.field-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
 .field span {
   color: rgba(245, 241, 230, 0.86);
   font-size: 0.92rem;
@@ -417,6 +424,12 @@ code {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.button-compact {
+  padding-right: 1rem;
+  padding-left: 1rem;
+  white-space: nowrap;
+}
+
 .notice {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -428,6 +441,36 @@ code {
   border-color: rgba(255, 139, 136, 0.18);
   color: #ffd2d0;
   background: rgba(255, 139, 136, 0.1);
+}
+
+.debug-panel {
+  border: 1px solid rgba(245, 241, 230, 0.08);
+  border-radius: 18px;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.debug-panel summary {
+  cursor: pointer;
+  color: rgba(245, 241, 230, 0.9);
+  font-weight: 700;
+}
+
+.debug-panel[open] summary {
+  margin-bottom: 0.85rem;
+}
+
+.mono-block {
+  overflow: auto;
+  margin: 0.75rem 0 0;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  color: #d8e2f0;
+  background: rgba(7, 10, 16, 0.92);
+  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
 }
 
 .meta-grid {

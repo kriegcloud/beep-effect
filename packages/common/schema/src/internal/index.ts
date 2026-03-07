@@ -1,2 +1,2 @@
-export * from "./email.js";
-export * from "./ip.js";
+export * from "./email.ts";
+export * from "./ip.ts";

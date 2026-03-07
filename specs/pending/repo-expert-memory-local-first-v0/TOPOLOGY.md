@@ -9,29 +9,36 @@ The sidecar is the runtime center of gravity, and the topology should reflect th
 ```text
 .
 ├── apps/
-│   └── desktop/                     # Tauri shell + React/Vite/TanStack Router UI
+│   └── desktop/
+│       ├── src/                     # React/Vite/TanStack Router shell over the public client boundary
+│       └── src-tauri/               # minimal Rust wrapper for sidecar lifecycle and native OS glue
 │
 └── packages/
     ├── runtime/
     │   ├── protocol/                # transport-only HttpApi contracts and Rpc groups
-    │   └── server/                  # Bun sidecar, cluster/runtime assembly, router, lifecycle
+    │   └── server/                  # Bun sidecar, cluster/runtime assembly, shared router, bootstrap, lifecycle
     │
     ├── repo-memory/
     │   ├── model/                   # pure schemas, brands, tagged unions, workflow payloads
     │   ├── store/                   # repo-memory store service contracts
     │   ├── sqlite/                  # SQLite-backed repo-memory store implementations
     │   ├── runtime/                 # repo workflows, projections, grounded retrieval semantics
-    │   └── client/                  # UI-side client contracts/helpers
+    │   └── client/                  # typed desktop-side HttpApi + Rpc client boundary
     │
     └── common/
         ├── identity/
         └── schema/
 ```
 
+## Current Native Shell Boundary
+- `apps/desktop/src-tauri` owns sidecar launch, bootstrap parsing, health gating, shutdown, and the native repo-folder picker.
+- `apps/desktop/src` owns presentation, state inspection, and the optional manual-override debug path only.
+- Desktop code still communicates exclusively through `packages/repo-memory/client` and `packages/runtime/protocol`; it does not import sidecar runtime internals in process.
+
 ## Runtime Shape Inside `packages/runtime/server`
 The `runtime/server` package owns the sidecar composition root.
 
-It should assemble:
+It already assembles:
 - Bun HTTP server
 - shared `HttpRouter`
 - internal cluster route at `"/__cluster"`
@@ -49,7 +56,7 @@ It should assemble:
 ## Runtime Shape Inside `packages/repo-memory/runtime`
 The `repo-memory/runtime` package owns repo-specific execution semantics.
 
-It should define:
+It currently defines:
 - `IndexRepoRun`
 - `QueryRepoRun`
 - projection-building logic for run summaries and final answers
@@ -63,11 +70,17 @@ It should not own:
 - cluster transport setup
 - shell concerns
 
+Current debt to keep explicit:
+- `RunProjector.ts` and `RunStateMachine.ts` exist as named seams in the package, but projection and transition logic still lives inside `RepoRunService`.
+- `RunInterrupted` and `RunResumed` are modeled in `packages/repo-memory/model`, but the runtime does not yet expose real interruption/resume behavior.
+
 ## Dependency Rules
 ### UI and shell
 - `apps/desktop` depends on `packages/runtime/protocol` and `packages/repo-memory/client`
 - `apps/desktop` must not import `packages/runtime/server` internals
 - the shell talks to the sidecar through the transport boundary, not in-process service imports
+- the native wrapper owns only sidecar lifecycle, native file picking, and diagnostics
+- manual base-URL override remains a debug fallback, not the primary product shape
 
 ### Sidecar runtime
 - `packages/runtime/server` composes `repo-memory/runtime`, `repo-memory/sqlite`, and runtime infrastructure layers
@@ -94,15 +107,12 @@ These remain intentionally out of the `v0` topology:
 
 They are valid future directions, but they are not implementation obligations for this prototype.
 
-## Notes On Temporary Code
-The current codebase may carry temporary transport-compatible scaffolding while the cluster-first runtime is landing.
+## Current Status
+The transport split in this topology is already the live code path.
 
-That does not change the topology authority in this document.
-The target shape is still:
-- `HttpApi` for control-plane reads and commands
-- `Rpc` for run execution and event streaming
-- cluster/workflow for durable lifecycle
+The old compatibility HTTP run routes are retired.
+The remaining work is about finishing runtime seams and lifecycle honesty, not preserving transitional transport code.
 
 ## Questions Worth Keeping Open
-- When should run projections move out of temporary compatibility code and become purely journal-derived?
-- How much of the existing transport compatibility layer should survive once the workflow-proxy RPC surface is mounted?
+- When should `RepoRunService` hand projection materialization and transition rules to real `RunProjector` and `RunStateMachine` modules?
+- What is the thinnest correct interruption/resume implementation that proves the cluster/workflow substrate is earning its place?

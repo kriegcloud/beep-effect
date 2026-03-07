@@ -1,6 +1,5 @@
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
-import * as S from "effect/Schema";
+import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 
 const $I = $RepoMemoryStoreId.create("RepoStoreError");
 
@@ -11,7 +10,5 @@ const $I = $RepoMemoryStoreId.create("RepoStoreError");
  * @category Errors
  */
 export class RepoStoreError extends TaggedErrorClass<RepoStoreError>($I`RepoStoreError`)("RepoStoreError", {
-  message: S.String,
-  status: S.Number,
-  cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  ...StatusCauseFields,
 }) {}
