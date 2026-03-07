@@ -89,11 +89,11 @@ export type PersistenceLayers = {
 /**
  * @since 0.0.0
  */
-export type PersistenceOptions = {
+export type PersistenceOptions = Readonly<{
   readonly layers?: PersistenceLayers;
   readonly history?: RecorderOptions;
   readonly audit?: AuditLoggingOptions;
-};
+}>;
 
 /**
  * @since 0.0.0

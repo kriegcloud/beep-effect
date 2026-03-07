@@ -11,7 +11,7 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Durable runtime substrate: landed in `packages/runtime/server` with one Bun server hosting `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`.
 - Workflow-backed repo runs: landed with deterministic execution ids, custom public run-start RPCs that return `runId`, and internal workflow-proxy handler registration.
 - Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, and replay; extraction into explicit projector/state-machine seams remains open.
-- Desktop shell integration: landed with a real Tauri wrapper, Rust-managed sidecar lifecycle, native repo-folder picking, and a debug-only manual URL override.
+- Desktop shell integration: landed with a real Tauri wrapper, Rust-managed sidecar lifecycle, native repo-folder picking, same-origin `portless` desktop dev over HTTPS, and a debug-only manual URL override.
 - Compatibility cleanup: landed; the old HTTP run-mutation and SSE routes are no longer the active integration target.
 - Grounded retrieval: landed with bounded deterministic query interpretation and durable citations/retrieval packets.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.

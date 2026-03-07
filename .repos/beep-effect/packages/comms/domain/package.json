@@ -34,14 +34,10 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@effect/sql": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/shared-domain": "workspace:^",
     "@effect/docgen": "catalog:",
-    "@effect/sql": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "effect": "catalog:"
   },
@@ -56,5 +52,9 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@effect/sql": "catalog:"
   }
 }

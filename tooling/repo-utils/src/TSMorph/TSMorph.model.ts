@@ -10,7 +10,7 @@ import {
 import { Effect, SchemaGetter, Tuple } from "effect";
 import * as S from "effect/Schema";
 import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
-import { TSSyntaxKind } from "../TypeScript/models/TSSyntaxKind.model.ts";
+import { TSSyntaxKind } from "../TypeScript/index.ts";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.model");
 

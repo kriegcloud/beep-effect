@@ -27,18 +27,18 @@ import { type ExecResult, SandboxService } from "./SandboxService.js";
 /**
  * @since 0.0.0
  */
-export type CloudflareSandboxEnv = {
+export type CloudflareSandboxEnv = Readonly<{
   // DurableObjectNamespace<Sandbox> from @cloudflare/sandbox
   // Typed as `unknown` to avoid hard import; actual type:
   //   import type { Sandbox } from "@cloudflare/sandbox"
   //   DurableObjectNamespace<Sandbox>
   readonly Sandbox: unknown;
-};
+}>;
 
 /**
  * @since 0.0.0
  */
-export type CloudflareSandboxOptions = {
+export type CloudflareSandboxOptions = Readonly<{
   /** Cloudflare Worker env bindings. */
   readonly env: CloudflareSandboxEnv;
   /** Unique sandbox instance ID. Same ID = same sandbox. */
@@ -53,7 +53,7 @@ export type CloudflareSandboxOptions = {
   readonly envVars?: Record<string, string | undefined>;
   /** Optional timeout (milliseconds) applied to sandbox execStream calls. */
   readonly execTimeoutMs?: number;
-};
+}>;
 
 const mapError = (operation: string, cause: unknown) =>
   SandboxError.make({

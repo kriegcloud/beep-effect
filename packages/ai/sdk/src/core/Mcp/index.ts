@@ -14,10 +14,10 @@ import type * as Toolkit from "../Tools/Toolkit.js";
 /**
  * @since 0.0.0
  */
-export type ToolNameValidation = {
+export type ToolNameValidation = Readonly<{
   readonly isValid: boolean;
   readonly warnings: ReadonlyArray<string>;
-};
+}>;
 
 const TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 
@@ -152,11 +152,11 @@ export type ToolErrorRenderer = (tool: Tool.Any, error: unknown) => SdkCallToolR
 /**
  * @since 0.0.0
  */
-export type ToolkitMcpOptions = {
+export type ToolkitMcpOptions = Readonly<{
   readonly inputSchema?: Record<string, McpToolInputSchema>;
   readonly renderResult?: ToolResultRenderer;
   readonly renderError?: ToolErrorRenderer;
-};
+}>;
 
 const getSignalFromExtra = (extra: unknown): AbortSignal | undefined => {
   const isAbortSignal = (value: unknown): value is AbortSignal =>

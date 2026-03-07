@@ -36,6 +36,32 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts"
   },
   "peerDependencies": {
+    "effect": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@wojtekmaj/react-recaptcha-v3": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "dependencies": {
     "@beep/ui-core": "workspace:^",
     "@beep/ui": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
@@ -56,36 +82,6 @@
     "@lexical/utils": "catalog:",
     "@mui/material": "catalog:",
     "@tanstack/react-form": "catalog:",
-    "effect": "catalog:",
-    "lexical": "catalog:",
-    "next": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:"
-  },
-  "devDependencies": {
-    "@beep/ui-core": "workspace:^",
-    "@beep/ui": "workspace:^",
-    "@effect-atom/atom-react": "catalog:",
-    "@mui/material": "catalog:",
-    "@tanstack/react-form": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@wojtekmaj/react-recaptcha-v3": "catalog:",
-    "effect": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:"
-  },
-  "effect": {
-    "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
-    },
-    "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
-    }
+    "lexical": "catalog:"
   }
 }

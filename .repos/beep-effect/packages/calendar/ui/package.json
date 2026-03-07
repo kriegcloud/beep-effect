@@ -40,8 +40,7 @@
     "@babel/preset-react": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "babel-plugin-transform-next-use-client": "catalog:",
-    "effect": "catalog:"
+    "babel-plugin-transform-next-use-client": "catalog:"
   },
   "effect": {
     "generateExports": {

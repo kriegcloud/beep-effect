@@ -43,10 +43,10 @@ export const t = i18next.t;
  * @since 0.0.0
  * @category DomainModel
  */
-export interface GetLogIssuesOptions {
+export type GetLogIssuesOptions = Readonly<{
   readonly checkHook?: undefined | SchemaIssue.CheckHook;
   readonly leafHook?: undefined | SchemaIssue.LeafHook;
-}
+}>;
 
 /**
  * A helper to retrieve issues from schema parse issues

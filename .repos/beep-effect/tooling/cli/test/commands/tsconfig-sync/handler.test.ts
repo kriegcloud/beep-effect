@@ -33,6 +33,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.check).toBe(false);
@@ -42,6 +43,7 @@ describe("TsconfigSyncInput", () => {
     expect(input.verbose).toBe(false);
     expect(input.packagesOnly).toBe(false);
     expect(input.appsOnly).toBe(false);
+    expect(input.preCommit).toBe(false);
   });
 
   it("creates input with check mode enabled", () => {
@@ -52,6 +54,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.check).toBe(true);
@@ -65,6 +68,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.dryRun).toBe(true);
@@ -79,6 +83,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.filter).toBe("@beep/iam-server");
@@ -92,6 +97,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.noHoist).toBe(true);
@@ -105,6 +111,7 @@ describe("TsconfigSyncInput", () => {
       verbose: true,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.verbose).toBe(true);
@@ -118,6 +125,7 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: true,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(input.packagesOnly).toBe(true);
@@ -131,9 +139,24 @@ describe("TsconfigSyncInput", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: true,
+      preCommit: false,
     });
 
     expect(input.appsOnly).toBe(true);
+  });
+
+  it("creates input with preCommit enabled", () => {
+    const input = new TsconfigSyncInput({
+      check: false,
+      dryRun: false,
+      noHoist: false,
+      verbose: false,
+      packagesOnly: false,
+      appsOnly: false,
+      preCommit: true,
+    });
+
+    expect(input.preCommit).toBe(true);
   });
 });
 
@@ -150,6 +173,7 @@ describe("getSyncMode", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(getSyncMode(input)).toBe("check");
@@ -163,6 +187,7 @@ describe("getSyncMode", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(getSyncMode(input)).toBe("dry-run");
@@ -176,6 +201,7 @@ describe("getSyncMode", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(getSyncMode(input)).toBe("sync");
@@ -189,6 +215,7 @@ describe("getSyncMode", () => {
       verbose: false,
       packagesOnly: false,
       appsOnly: false,
+      preCommit: false,
     });
 
     expect(getSyncMode(input)).toBe("check");

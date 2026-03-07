@@ -369,10 +369,10 @@ export * from "effect/Struct";
  * @since 0.1.0
  * @category DomainModel
  */
-export interface ReverseableStruct {
+export type ReverseableStruct = Readonly<{
   readonly [key: string]: PropertyKey;
   readonly [key: symbol]: PropertyKey;
-}
+}>;
 
 /**
  * Type-level inversion of a struct where each value becomes a key.

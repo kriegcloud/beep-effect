@@ -1,6 +1,24 @@
 import { make } from "@beep/identity";
 import { $I, $SchemaId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
+
+declare module "effect/Schema" {
+  namespace Annotations {
+    interface Annotations {
+      readonly version?: 1 | undefined;
+    }
+  }
+}
+
+const getProperty = (value: unknown, key: PropertyKey): unknown =>
+  value !== null && typeof value === "object" ? Reflect.get(value, key) : undefined;
+
+const getKeyAnnotations = (schema: S.Top, index = 0): unknown =>
+  getProperty(
+    getProperty(getProperty(getProperty(getProperty(schema.ast, "propertySignatures"), index), "type"), "context"),
+    "annotations"
+  );
 
 describe("@beep/identity", () => {
   it("builds root identity strings and symbols", () => {
@@ -47,16 +65,82 @@ describe("@beep/identity", () => {
     expect($I.make("GraphitiService")).toBe("@beep/lib/graphiti/client/GraphitiService");
   });
 
-  it("creates schema annote and merges extras", () => {
+  it("creates schema annote and preserves arbitrary extras plus derived title", () => {
     const $SchemaId = make("beep").$BeepId.create("schema");
-    const annotation = $SchemaId.annote("Tenant", {
+    const annotation = $SchemaId.annote("tenant_profile-name", {
+      default: { version: 1 as const },
       description: "Tenant schema",
+      version: 1 as const,
     });
 
-    expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
-    expect(annotation.identifier).toBe("Tenant");
-    expect(annotation.title).toBe("Tenant");
+    expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/tenant_profile-name"));
+    expect(annotation.identifier).toBe("tenant_profile-name");
+    expect(annotation.title).toBe("Tenant Profile Name");
+    expect(annotation.default).toEqual({ version: 1 });
     expect(annotation.description).toBe("Tenant schema");
+    expect(annotation.version).toBe(1);
+  });
+
+  it("applies schema annotations via annoteSchema", () => {
+    const toArbitrary: S.Annotations.ToArbitrary.Declaration<string, readonly []> = () => (fc) => fc.constant("tenant");
+    const schema = S.String.pipe(
+      $SchemaId.annoteSchema("tenant_profile-name", {
+        default: "tenant",
+        description: "Tenant schema",
+        toArbitrary,
+        version: 1 as const,
+      })
+    );
+    const annotations = S.resolveInto(schema);
+
+    expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/tenant_profile-name"));
+    expect(annotations?.identifier).toBe("tenant_profile-name");
+    expect(annotations?.title).toBe("Tenant Profile Name");
+    expect(annotations?.default).toBe("tenant");
+    expect(annotations?.description).toBe("Tenant schema");
+    expect(annotations?.toArbitrary).toBe(toArbitrary);
+    expect(annotations?.version).toBe(1);
+  });
+
+  it("applies key annotations via annoteKey", () => {
+    const schema = S.Struct({
+      field1: S.String.pipe(
+        $SchemaId.annoteKey<{ readonly field1: string }>()("MyClass.field1", {
+          description: "Primary field",
+          messageMissingKey: "Field1 is required",
+        })
+      ),
+    });
+    const annotations = getKeyAnnotations(schema);
+
+    expect(String(S.decodeUnknownExit(schema)({}))).toContain("Field1 is required");
+    expect(getProperty(annotations, "schemaId")).toBe(Symbol.for("@beep/schema/MyClass.field1"));
+    expect(getProperty(annotations, "identifier")).toBe("MyClass.field1");
+    expect(getProperty(annotations, "title")).toBe("MyClass.field1");
+    expect(getProperty(annotations, "description")).toBe("Primary field");
+    expect(getProperty(annotations, "messageMissingKey")).toBe("Field1 is required");
+  });
+
+  it("applies raw HTTP annotations via annoteHttp", () => {
+    const encoding = {
+      _tag: "Text",
+      contentType: "text/plain",
+    } as const;
+    const schema = S.String.pipe(
+      $SchemaId.annoteHttp("TextResponse", {
+        description: "Text response payload",
+        httpApiStatus: 202,
+        "~httpApiEncoding": encoding,
+      })
+    );
+    const annotations = S.resolveInto(schema);
+
+    expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/TextResponse"));
+    expect(annotations?.identifier).toBe("TextResponse");
+    expect(annotations?.title).toBe("TextResponse");
+    expect(annotations?.description).toBe("Text response payload");
+    expect(annotations?.httpApiStatus).toBe(202);
+    expect(getProperty(annotations, "~httpApiEncoding")).toEqual(encoding);
   });
 
   it("throws schema validation messages for invalid values", () => {
@@ -82,18 +166,16 @@ describe("@beep/identity", () => {
     ).toThrowError("Identity template tags do not allow interpolations.");
   });
 
-  it("shares registry across all derived composers", () => {
+  it("creates consistent identities across derived composers", () => {
     const $BeepId = make("beep").$BeepId;
     const { $SchemaId } = $BeepId.compose("schema");
-    $SchemaId.make("Entity");
+    const entityId = $SchemaId.make("Entity");
     const serviceId = $SchemaId`Service`;
 
-    const values = Array.from($BeepId.identityRegistry);
+    expect($BeepId.value).toBe("@beep");
+    expect($SchemaId.value).toBe("@beep/schema");
+    expect(entityId).toBe("@beep/schema/Entity");
     expect(serviceId).toBe("@beep/schema/Service");
-    expect(values).toContain("@beep");
-    expect(values).toContain("@beep/schema");
-    expect(values).toContain("@beep/schema/Entity");
-    expect(values).toContain("@beep/schema/Service");
   });
 
   it("composes nested module records from sub-composers", () => {

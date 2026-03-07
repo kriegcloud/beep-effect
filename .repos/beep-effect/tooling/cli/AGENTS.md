@@ -42,11 +42,18 @@
   - Outputs workspace packages in dependency order (fewest dependencies first)
   - Uses Kahn's algorithm to detect cycles
   - Useful for sequential processing pipelines
+- **`src/commands/peer-deps-sync/`** — Peer dependency policy synchronization
+  - Deprecated compatibility/debug alias for the manifest-policy phase of config sync
+  - Syncs `packages/**/package.json` dependency placement to the repo peer policy
+  - Loads live peer policy evidence from the sibling `effect-v4` checkout
+  - Supports `--check`, `--dry-run`, `--filter`, `--verbose`, and `--pre-commit`
 - **`src/commands/tsconfig-sync/`** — TypeScript configuration synchronization
-  - Syncs tsconfig `references` arrays to match `package.json` dependencies
+  - Canonical config-sync flow for package manifest policy plus tsconfig/reference synchronization
+  - Normalizes workspace library dependency placement before computing the dependency graph
+  - Syncs tsconfig `references` arrays to match the effective normalized `package.json` dependencies
   - Generates `paths` aliases and `references` for Next.js apps (including transitive deps)
-  - Sorts package.json dependencies: workspace (topological) + external (alphabetical)
-  - Supports `--check` mode for CI validation, `--dry-run` for previews
+  - Sorts package.json dependencies for non-library workspace packages
+  - Supports `--check`, `--dry-run`, `--filter`, `--verbose`, `--pre-commit`, `--packages-only`, and `--apps-only`
   - Detects and reports circular dependencies
 - **`src/commands/verify/`** — Codebase verification command group
   - `verify entityids` — Detect EntityId pattern violations (plain S.String IDs, missing .$type<>())
@@ -74,12 +81,16 @@
 - `bun run repo-cli create-slice -n notifications -d "User notification system"` — Create new slice
 - `bun run repo-cli create-slice --name billing --description "Billing" --dry-run` — Preview slice creation
 - `bun run repo-cli topo-sort` — Output packages in topological order
-- `bun run repo-cli tsconfig-sync` — Sync all tsconfig files and package.json dependencies
-- `bun run repo-cli tsconfig-sync --check` — Validate configs without modifying (CI mode)
-- `bun run repo-cli tsconfig-sync --dry-run --verbose` — Preview changes
+- `bun run config-sync` — Canonical root script for manifest policy and tsconfig/reference synchronization
+- `bun run config-sync:check` — Check config drift without modifying files
+- `bun run repo-cli tsconfig-sync` — Sync all package manifests and tsconfig files
+- `bun run repo-cli tsconfig-sync --check` — Validate config drift without modifying files
+- `bun run repo-cli tsconfig-sync --dry-run --verbose` — Preview manifest and tsconfig changes
 - `bun run repo-cli tsconfig-sync --filter @beep/schema` — Sync specific package
+- `bun run repo-cli tsconfig-sync --check --pre-commit` — Pre-commit scoped validation for staged relevant files
 - `bun run repo-cli tsconfig-sync --packages-only` — Skip Next.js apps
 - `bun run repo-cli tsconfig-sync --apps-only` — Only sync Next.js apps
+- `bun run repo-cli peer-deps-sync` — Deprecated compatibility/debug alias for the manifest policy phase only
 - `bun run repo-cli verify all` — Run all verification checks
 - `bun run repo-cli verify entityids` — Check EntityId patterns only
 - `bun run repo-cli verify patterns` — Check Effect patterns only

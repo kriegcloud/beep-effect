@@ -41,15 +41,15 @@ export type RemoteKind = "remoteId" | "url";
 /**
  * @since 0.0.0
  */
-export type RemoteKey = {
+export type RemoteKey = Readonly<{
   readonly key: string;
   readonly kind: RemoteKind;
-};
+}>;
 
 /**
  * @since 0.0.0
  */
-export type RemoteStatus = {
+export type RemoteStatus = Readonly<{
   readonly key: string;
   readonly kind: RemoteKind;
   readonly remoteId: string;
@@ -57,14 +57,14 @@ export type RemoteStatus = {
   readonly connected: boolean;
   readonly lastSyncAt?: number;
   readonly lastError?: string;
-};
+}>;
 
 /**
  * @since 0.0.0
  */
-export type SyncConfigOptions = {
+export type SyncConfigOptions = Readonly<{
   readonly syncInterval?: Duration.Input;
-};
+}>;
 
 /**
  * @since 0.0.0
@@ -74,10 +74,10 @@ export interface SyncConfigShape extends SyncConfigOptions {}
 /**
  * @since 0.0.0
  */
-export type SyncServiceWebSocketOptions = {
+export type SyncServiceWebSocketOptions = Readonly<{
   readonly disablePing?: boolean;
   readonly protocols?: string | Array<string>;
-};
+}>;
 
 type EventLogRemoteService = ServiceMap.Service.Shape<typeof EventLogRemote.EventLogRemote>;
 

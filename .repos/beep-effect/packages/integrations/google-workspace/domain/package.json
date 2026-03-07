@@ -21,13 +21,13 @@
     "lint:fix": "biome check . --write"
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
     "effect": "catalog:"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^"
   }
 }

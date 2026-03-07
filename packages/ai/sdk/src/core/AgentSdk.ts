@@ -22,11 +22,11 @@ const $I = $AiSdkId.create("core/AgentSdk");
 /**
  * @since 0.0.0
  */
-export type CreateSdkMcpServerOptions = {
+export type CreateSdkMcpServerOptions = Readonly<{
   readonly name: string;
   readonly version?: string;
   readonly tools?: Parameters<typeof sdkCreateSdkMcpServer>[0]["tools"];
-};
+}>;
 
 type SdkUuid = NonNullable<SdkSDKUserMessage["uuid"]>;
 type SourceMcpServers = NonNullable<Options["mcpServers"]>;

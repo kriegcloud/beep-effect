@@ -34,28 +34,13 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/ui-core": "workspace:^",
-    "@beep/shared-client": "workspace:^",
-    "@beep/ui": "workspace:^",
-    "@effect-atom/atom-react": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/ui-core": "workspace:^",
-    "@beep/shared-client": "workspace:^",
-    "@beep/ui": "workspace:^",
     "@babel/preset-react": "catalog:",
-    "@effect-atom/atom-react": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "babel-plugin-transform-next-use-client": "catalog:",
-    "effect": "catalog:"
+    "babel-plugin-transform-next-use-client": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -68,5 +53,14 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@beep/shared-client": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@effect-atom/atom-react": "catalog:"
   }
 }

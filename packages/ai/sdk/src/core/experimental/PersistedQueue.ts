@@ -34,7 +34,7 @@ export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueu
 /**
  * @since 0.0.0
  */
-export const makeUserMessageQueue = (options?: { readonly name?: string }) =>
+export const makeUserMessageQueue = (options?: undefined | { readonly name?: undefined | string }) =>
   PersistedQueue.make({
     name: options?.name ?? "claude-sdk-user-messages",
     schema: SDKUserMessage,
@@ -63,7 +63,7 @@ const toTransportError = (message: string, cause: unknown) => TransportError.mak
  */
 export const makeInputAdapter = (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
-  options?: { readonly maxAttempts?: number }
+  options?: undefined | { readonly maxAttempts?: undefined | number }
 ) =>
   Effect.gen(function* () {
     const stream = Stream.fromEffectRepeat(
@@ -131,7 +131,7 @@ export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedI
  */
 export const queryWithPersistedInput = Effect.fn("PersistedQueue.queryWithPersistedInput")(function* (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
-  options?: Options
+  options?: undefined | Options
 ) {
   const adapter = yield* makeInputAdapter(queue);
   const agentSdk = yield* AgentSdk;

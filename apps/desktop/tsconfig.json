@@ -4,10 +4,13 @@
   "include": ["src", "scripts", "vite.config.ts"],
   "compilerOptions": {
     "rootDir": ".",
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "noEmit": true
   },
   "references": [
+    {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
     {
       "path": "../../packages/repo-memory/client/tsconfig.json"
     },

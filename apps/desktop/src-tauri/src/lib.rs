@@ -18,6 +18,7 @@ use tokio::sync::oneshot;
 use uuid::Uuid;
 
 const DEV_SIDECAR_ENTRYPOINT: &str = "packages/runtime/server/src/main.ts";
+const DEV_SIDECAR_HOSTNAME: &str = "repo-memory-sidecar";
 const PACKAGED_SIDECAR_NAME: &str = "repo-memory-sidecar";
 const SIDECAR_START_TIMEOUT: Duration = Duration::from_secs(10);
 const HEALTH_POLL_INTERVAL: Duration = Duration::from_millis(200);
@@ -44,14 +45,14 @@ impl ManagedSidecarStatus {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ManagedSidecarMode {
-  DevBun,
+  DevPortless,
   Packaged,
 }
 
 impl ManagedSidecarMode {
   fn as_str(self) -> &'static str {
     match self {
-      Self::DevBun => "managed-dev-bun",
+      Self::DevPortless => "managed-dev-portless",
       Self::Packaged => "managed-packaged",
     }
   }
@@ -127,7 +128,7 @@ impl Default for ManagedSidecarInner {
     Self {
       child: None,
       status: ManagedSidecarStatus::Stopped,
-      mode: ManagedSidecarMode::DevBun,
+      mode: ManagedSidecarMode::DevPortless,
       bootstrap: None,
       error_message: None,
       stderr_tail: VecDeque::new(),
@@ -184,7 +185,7 @@ impl Default for ManagedSidecarState {
 struct LaunchPlan {
   mode: ManagedSidecarMode,
   host: String,
-  port: u16,
+  port: Option<u16>,
   session_id: String,
   app_data_dir: PathBuf,
   version: String,
@@ -194,7 +195,7 @@ impl LaunchPlan {
   fn new(app: &AppHandle) -> Result<Self, String> {
     let app_data_dir = managed_app_data_dir(app)?;
     let mode = if cfg!(debug_assertions) && repo_root().join(DEV_SIDECAR_ENTRYPOINT).exists() {
-      ManagedSidecarMode::DevBun
+      ManagedSidecarMode::DevPortless
     } else {
       ManagedSidecarMode::Packaged
     };
@@ -202,7 +203,10 @@ impl LaunchPlan {
     Ok(Self {
       mode,
       host: "127.0.0.1".to_string(),
-      port: allocate_local_port()?,
+      port: match mode {
+        ManagedSidecarMode::DevPortless => None,
+        ManagedSidecarMode::Packaged => Some(allocate_local_port()?),
+      },
       session_id: Uuid::new_v4().to_string(),
       app_data_dir,
       version: app.package_info().version.to_string(),
@@ -244,9 +248,8 @@ fn allocate_local_port() -> Result<u16, String> {
 }
 
 fn sidecar_env(plan: &LaunchPlan) -> Vec<(&'static str, String)> {
-  vec![
+  let mut envs = vec![
     ("BEEP_REPO_MEMORY_HOST", plan.host.clone()),
-    ("BEEP_REPO_MEMORY_PORT", plan.port.to_string()),
     ("BEEP_REPO_MEMORY_SESSION_ID", plan.session_id.clone()),
     (
       "BEEP_REPO_MEMORY_APP_DATA_DIR",
@@ -255,7 +258,17 @@ fn sidecar_env(plan: &LaunchPlan) -> Vec<(&'static str, String)> {
     ("BEEP_REPO_MEMORY_VERSION", plan.version.clone()),
     ("BEEP_REPO_MEMORY_OTLP_ENABLED", "false".to_string()),
     ("BEEP_REPO_MEMORY_DEVTOOLS_ENABLED", "false".to_string()),
-  ]
+  ];
+
+  if let Some(port) = plan.port {
+    envs.push(("BEEP_REPO_MEMORY_PORT", port.to_string()));
+  }
+
+  if plan.mode == ManagedSidecarMode::DevPortless {
+    envs.push(("PORTLESS_HTTPS", "1".to_string()));
+  }
+
+  envs
 }
 
 fn spawn_sidecar(
@@ -271,9 +284,9 @@ fn spawn_sidecar(
   let envs = sidecar_env(plan);
 
   let command = match plan.mode {
-    ManagedSidecarMode::DevBun => {
-      let mut command = app.shell().command("bun");
-      command = command.args(["run", DEV_SIDECAR_ENTRYPOINT]);
+    ManagedSidecarMode::DevPortless => {
+      let mut command = app.shell().command("portless");
+      command = command.args([DEV_SIDECAR_HOSTNAME, "bun", "run", DEV_SIDECAR_ENTRYPOINT]);
       command = command.current_dir(repo_root());
       command.envs(envs)
     }
@@ -464,12 +477,14 @@ async fn start_sidecar(app: AppHandle, state: State<'_, ManagedSidecarState>) ->
     return Err("Managed sidecar bootstrap session id mismatch.".into());
   }
 
-  if bootstrap.port != plan.port {
-    update_failure(&state, "Managed sidecar bootstrap port did not match the requested port.".into());
-    if let Some(child) = take_child(&state, false) {
-      let _ = child.kill();
+  if let Some(port) = plan.port {
+    if bootstrap.port != port {
+      update_failure(&state, "Managed sidecar bootstrap port did not match the requested port.".into());
+      if let Some(child) = take_child(&state, false) {
+        let _ = child.kill();
+      }
+      return Err("Managed sidecar bootstrap port mismatch.".into());
     }
-    return Err("Managed sidecar bootstrap port mismatch.".into());
   }
 
   let healthy_bootstrap = match wait_for_healthy(&bootstrap).await {

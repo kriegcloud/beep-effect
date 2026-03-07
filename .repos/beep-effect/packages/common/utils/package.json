@@ -37,21 +37,12 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/invariant": "workspace:^",
-    "@effect/platform": "catalog:",
-    "@effect/platform-browser": "catalog:",
-    "@faker-js/faker": "catalog:",
-    "cheerio": "catalog:",
-    "effect": "catalog:",
-    "mutative": "catalog:",
-    "next": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/testkit": "workspace:^",
-    "@beep/types": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -64,5 +55,16 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@effect/platform": "catalog:",
+    "@effect/platform-browser": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "cheerio": "catalog:",
+    "mutative": "catalog:",
+    "next": "catalog:"
   }
 }

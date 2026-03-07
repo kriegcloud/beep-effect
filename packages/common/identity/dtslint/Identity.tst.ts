@@ -1,14 +1,24 @@
 import type {
-  IdentityAnnotationResult,
+  HttpApiEncoding,
   IdentityComposer,
   IdentityString,
   IdentitySymbol,
   ModuleSegmentValue,
   SegmentValue,
+  TitleFromIdentifier,
 } from "@beep/identity";
 import { make } from "@beep/identity";
 import { ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+
+declare module "effect/Schema" {
+  namespace Annotations {
+    interface Annotations {
+      readonly version?: 1 | undefined;
+    }
+  }
+}
 
 describe("Identity", () => {
   it("preserves literal types for make, compose, string, and symbol", () => {
@@ -26,21 +36,86 @@ describe("Identity", () => {
     expect($SchemaId.symbol()).type.toBe<IdentitySymbol<"@beep/schema">>();
   });
 
-  it("preserves literal types for annote", () => {
+  it("preserves literal types for annote and derived titles", () => {
     const { $SchemaId } = make("beep").$BeepId.compose("schema");
-    const annotation = $SchemaId.annote("Tenant", {
+    const annotation = $SchemaId.annote("tenant_profile-name", {
       default: { version: 1 as const },
       description: "Tenant schema",
-    });
-    const secondAnnotation = $SchemaId.annote("Tenant", {
-      default: { version: 1 as const },
-      description: "Tenant schema",
+      version: 1 as const,
     });
 
-    expect(annotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
-    expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
-    expect(secondAnnotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
-    expect(secondAnnotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
+    expect<TitleFromIdentifier<"tenant_profile-name">>().type.toBe<"Tenant Profile Name">();
+    expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/tenant_profile-name">>();
+    expect(annotation.identifier).type.toBe<"tenant_profile-name">();
+    expect(annotation.title).type.toBe<"Tenant Profile Name">();
+    expect(annotation.default).type.toBe<{ readonly version: 1 }>();
+    expect(annotation.version).type.toBe<1>();
+  });
+
+  it("types annoteSchema and annoteHttp like schema annotators", () => {
+    const { $SchemaId } = make("beep").$BeepId.compose("schema");
+    const textEncoding = { _tag: "Text", contentType: "text/plain" } as const satisfies HttpApiEncoding;
+    const schemaAnnotated = S.String.pipe(
+      $SchemaId.annoteSchema("tenant_profile-name", {
+        default: "tenant",
+        description: "Tenant schema",
+        version: 1 as const,
+      })
+    );
+    const httpAnnotated = S.String.pipe(
+      $SchemaId.annoteHttp("TextResponse", {
+        description: "Text response payload",
+        httpApiStatus: 202,
+        "~httpApiEncoding": textEncoding,
+      })
+    );
+
+    expect(schemaAnnotated).type.toBe<typeof S.String>();
+    expect(httpAnnotated).type.toBe<typeof S.String>();
+  });
+
+  it("supports ergonomic and strict annoteKey typing", () => {
+    const { $SchemaId } = make("beep").$BeepId.compose("schema");
+    type MyClass = {
+      readonly field1: string;
+      readonly nested: {
+        readonly count: number;
+      };
+    };
+
+    const ergonomicAnnotated = S.String.pipe(
+      $SchemaId.annoteKey("MyClass.field1", {
+        default: "tenant",
+        messageMissingKey: "Field1 is required",
+      })
+    );
+    const strictAnnotated = S.String.pipe(
+      $SchemaId.annoteKey<MyClass>()("MyClass.field1", {
+        default: "tenant",
+        messageMissingKey: "Field1 is required",
+      })
+    );
+    const strictNestedAnnotated = S.Number.pipe(
+      $SchemaId.annoteKey<MyClass>()("MyClass.nested.count", {
+        default: 1,
+      })
+    );
+
+    expect(ergonomicAnnotated).type.toBe<typeof S.String>();
+    expect(strictAnnotated).type.toBe<typeof S.String>();
+    expect(strictNestedAnnotated).type.toBe<typeof S.Number>();
+
+    // @ts-expect-error!
+    $SchemaId.annoteKey<MyClass>()("MyClass.missing", {
+      default: "tenant",
+    });
+
+    // @ts-expect-error!
+    S.String.pipe(
+      $SchemaId.annoteKey<MyClass>()("MyClass.nested.count", {
+        default: 1,
+      })
+    );
   });
 
   it("supports base normalization while preserving keys/literals", () => {

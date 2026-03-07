@@ -6,5 +6,12 @@ export default defineConfig({
   server: {
     host: "127.0.0.1",
     port: 4173,
+    proxy: {
+      "/api": {
+        target: "https://repo-memory-sidecar.localhost:1355",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

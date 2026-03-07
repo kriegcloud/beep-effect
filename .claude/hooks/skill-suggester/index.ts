@@ -54,10 +54,10 @@ class LenientUserPromptInput extends S.Class<LenientUserPromptInput>($I`LenientU
   })
 ) {}
 
-export interface SkillMetadata {
+export type SkillMetadata = Readonly<{
   readonly keywords: ReadonlyArray<string>;
   readonly name: string;
-}
+}>;
 
 class HookState extends S.Class<HookState>($I`HookState`)(
   {

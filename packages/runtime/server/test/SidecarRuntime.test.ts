@@ -76,10 +76,7 @@ const requestJson = <Schema extends S.Top & { readonly DecodingServices: never }
   init?: RequestInit
 ) =>
   Effect.gen(function* () {
-    const response = yield* Effect.tryPromise({
-      try: () => fetch(url, init),
-      catch: (cause) => toTestError(`HTTP request failed for ${url}.`, cause),
-    });
+    const response = yield* requestResponse(url, init);
     const bodyText = yield* Effect.tryPromise({
       try: () => response.text(),
       catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
@@ -100,12 +97,15 @@ const requestJson = <Schema extends S.Top & { readonly DecodingServices: never }
     };
   });
 
+const requestResponse = (url: string, init?: RequestInit) =>
+  Effect.tryPromise({
+    try: () => fetch(url, init),
+    catch: (cause) => toTestError(`HTTP request failed for ${url}.`, cause),
+  });
+
 const requestText = (url: string, init?: RequestInit) =>
   Effect.gen(function* () {
-    const response = yield* Effect.tryPromise({
-      try: () => fetch(url, init),
-      catch: (cause) => toTestError(`HTTP request failed for ${url}.`, cause),
-    });
+    const response = yield* requestResponse(url, init);
     const body = yield* Effect.tryPromise({
       try: () => response.text(),
       catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
@@ -354,6 +354,73 @@ const expectQueryRun = (run: RepoRun) => {
 };
 
 describe("spawned Bun sidecar lifecycle", () => {
+  it.live(
+    "serves CORS preflight and security headers for local desktop origins",
+    () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempRoot = yield* fs.makeTempDirectoryScoped({ prefix: "spawned-sidecar-cors-test-" });
+          const appDataDir = decodeFilePath(path.join(tempRoot, "app-data"));
+          const port = yield* allocatePort;
+
+          const sidecar = yield* spawnSidecar({
+            appDataDir,
+            port,
+            sessionId: "spawned-runtime-cors-test",
+            version: "0.0.0-test",
+            otlpEnabled: false,
+          });
+          yield* waitForHealthyBootstrap(sidecar);
+
+          const preflightResponse = yield* requestResponse(`${sidecar.baseUrl}/health`, {
+            headers: {
+              Origin: "https://desktop.localhost:1355",
+              "Access-Control-Request-Method": "GET",
+            },
+            method: "OPTIONS",
+          });
+
+          expect(preflightResponse.status).toBe(204);
+          expect(preflightResponse.headers.get("access-control-allow-origin")).toBe("https://desktop.localhost:1355");
+          expect(preflightResponse.headers.get("access-control-allow-methods")).toContain("GET");
+          expect(preflightResponse.headers.get("access-control-allow-methods")).toContain("OPTIONS");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("Content-Type");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("Authorization");
+          expect(preflightResponse.headers.get("access-control-max-age")).toBe("86400");
+          expect(preflightResponse.headers.get("x-content-type-options")).toBe("nosniff");
+          expect(preflightResponse.headers.get("x-frame-options")).toBe("DENY");
+          expect(preflightResponse.headers.get("referrer-policy")).toBe("no-referrer");
+
+          const healthResponse = yield* requestResponse(`${sidecar.baseUrl}/health`, {
+            headers: {
+              Origin: "tauri://localhost",
+            },
+          });
+
+          expect(healthResponse.status).toBe(200);
+          expect(healthResponse.headers.get("access-control-allow-origin")).toBe("tauri://localhost");
+          expect(healthResponse.headers.get("x-content-type-options")).toBe("nosniff");
+          expect(healthResponse.headers.get("x-frame-options")).toBe("DENY");
+          expect(healthResponse.headers.get("referrer-policy")).toBe("no-referrer");
+
+          const disallowedOriginResponse = yield* requestResponse(`${sidecar.baseUrl}/health`, {
+            headers: {
+              Origin: "https://example.com",
+            },
+          });
+
+          expect(disallowedOriginResponse.status).toBe(200);
+          expect(disallowedOriginResponse.headers.get("access-control-allow-origin")).toBeNull();
+          expect(disallowedOriginResponse.headers.get("x-content-type-options")).toBe("nosniff");
+          expect(disallowedOriginResponse.headers.get("x-frame-options")).toBe("DENY");
+          expect(disallowedOriginResponse.headers.get("referrer-policy")).toBe("no-referrer");
+        })
+      ).pipe(Effect.provide(NodeServices.layer, { local: true })),
+    60_000
+  );
+
   it.live(
     "serves Prometheus metrics after run execution",
     () =>

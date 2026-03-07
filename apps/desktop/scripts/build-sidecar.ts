@@ -1,32 +1,38 @@
+import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const rustTripleToBunTarget = new Map<string, string>([
-  ["x86_64-unknown-linux-gnu", "bun-linux-x64-modern"],
-  ["aarch64-unknown-linux-gnu", "bun-linux-arm64-modern"],
-  ["x86_64-apple-darwin", "bun-darwin-x64-modern"],
-  ["aarch64-apple-darwin", "bun-darwin-arm64-modern"],
-  ["x86_64-pc-windows-msvc", "bun-windows-x64-modern"],
-]);
+const rustTripleToBunTarget = {
+  "x86_64-unknown-linux-gnu": "bun-linux-x64-modern",
+  "aarch64-unknown-linux-gnu": "bun-linux-arm64-modern",
+  "x86_64-apple-darwin": "bun-darwin-x64-modern",
+  "aarch64-apple-darwin": "bun-darwin-arm64-modern",
+  "x86_64-pc-windows-msvc": "bun-windows-x64-modern",
+} as const satisfies Record<string, string>;
 
-const decode = (buffer: Uint8Array): string => new TextDecoder().decode(buffer).trim();
+const decode = (buffer: Uint8Array | string | null | undefined): string => {
+  if (buffer === undefined || buffer === null) {
+    return "";
+  }
+
+  return `${buffer}`.trim();
+};
 
 const rustHostTriple = (): string => {
-  const hostTuple = Bun.spawnSync(["rustc", "--print", "host-tuple"], {
-    stdout: "pipe",
-    stderr: "pipe",
+  const hostTuple = spawnSync("rustc", ["--print", "host-tuple"], {
+    encoding: "utf8",
   });
 
-  if (hostTuple.exitCode === 0) {
+  if (hostTuple.status === 0) {
     return decode(hostTuple.stdout);
   }
 
-  const verboseVersion = Bun.spawnSync(["rustc", "-vV"], {
-    stdout: "pipe",
-    stderr: "pipe",
+  const verboseVersion = spawnSync("rustc", ["-vV"], {
+    encoding: "utf8",
   });
 
-  if (verboseVersion.exitCode !== 0) {
+  if (verboseVersion.status !== 0) {
     throw new Error(`Failed to inspect rust host triple.\n${decode(verboseVersion.stderr)}`);
   }
 
@@ -42,35 +48,29 @@ const rustHostTriple = (): string => {
 };
 
 const targetTriple = process.env.TAURI_ENV_TARGET_TRIPLE ?? process.env.CARGO_BUILD_TARGET ?? rustHostTriple();
-const bunTarget = rustTripleToBunTarget.get(targetTriple);
+const bunTarget = rustTripleToBunTarget[targetTriple];
 
 if (bunTarget === undefined) {
   throw new Error(`Unsupported rust target triple for Bun standalone sidecar build: ${targetTriple}`);
 }
 
-const repoRoot = resolve(import.meta.dir, "../../..");
+const currentDirectory = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(currentDirectory, "../../..");
 const isWindows = targetTriple.includes("windows");
 const binaryFileName = `repo-memory-sidecar-${targetTriple}${isWindows ? ".exe" : ""}`;
-const outputPath = resolve(import.meta.dir, "../src-tauri/binaries", binaryFileName);
+const outputPath = resolve(currentDirectory, "../src-tauri/binaries", binaryFileName);
 
 mkdirSync(dirname(outputPath), { recursive: true });
 
-const result = Bun.spawnSync(
-  [
-    "bun",
-    "build",
-    "packages/runtime/server/src/main.ts",
-    "--compile",
-    `--target=${bunTarget}`,
-    `--outfile=${outputPath}`,
-  ],
+const result = spawnSync(
+  "bun",
+  ["build", "packages/runtime/server/src/main.ts", "--compile", `--target=${bunTarget}`, `--outfile=${outputPath}`],
   {
     cwd: repoRoot,
-    stdout: "inherit",
-    stderr: "inherit",
+    stdio: "inherit",
   }
 );
 
-if (result.exitCode !== 0) {
-  process.exit(result.exitCode);
+if (result.status !== 0) {
+  process.exit(result.status ?? 1);
 }

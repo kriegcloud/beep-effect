@@ -23,11 +23,11 @@ export type SessionEntryLayers = {
 /**
  * @since 0.0.0
  */
-export type SessionEntryOptions = {
+export type SessionEntryOptions = Readonly<{
   readonly prefix?: EntryPrefix;
   readonly history?: SessionHistoryOptions;
   readonly layers?: SessionEntryLayers;
-};
+}>;
 
 /**
  * @since 0.0.0
@@ -39,10 +39,10 @@ export type RuntimeEntryLayers = {
 /**
  * @since 0.0.0
  */
-export type RuntimeEntryOptions = {
+export type RuntimeEntryOptions = Readonly<{
   readonly prefix?: EntryPrefix;
   readonly layers?: RuntimeEntryLayers;
-};
+}>;
 
 /**
  * @since 0.0.0

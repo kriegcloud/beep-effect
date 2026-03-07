@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-03-06",
+  "generatedOn": "2026-03-07",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -19,14 +19,6 @@
   ],
   "entries": [
     {
-      "file": ".claude/hooks/skill-suggester/index.ts",
-      "symbol": "SkillMetadata",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/claude",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/AgentRuntime.ts",
       "symbol": "AgentRuntimeShape",
       "kind": "exported-interface",
@@ -43,44 +35,12 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/ai/sdk/src/core/AgentRuntime.ts",
-      "symbol": "PersistenceOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/AgentRuntimeConfig.ts",
-      "symbol": "AgentRuntimeConfigShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/AgentRuntimeConfig.ts",
-      "symbol": "AgentRuntimeSettings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/AgentSdk.ts",
       "symbol": "AgentSdkShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/AgentSdk.ts",
-      "symbol": "CreateSdkMcpServerOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/AgentSdkConfig.ts",
@@ -100,35 +60,11 @@
     },
     {
       "file": "packages/ai/sdk/src/core/EntryPoint.ts",
-      "symbol": "RuntimeEntryOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/EntryPoint.ts",
       "symbol": "SessionEntryLayers",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/EntryPoint.ts",
-      "symbol": "SessionEntryOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Hooks/Audit.ts",
-      "symbol": "AuditLoggingOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Hooks/Hook.ts",
@@ -137,38 +73,6 @@
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Hooks/Hook.ts",
-      "symbol": "HookMatcherOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Logging/Config.ts",
-      "symbol": "AgentLoggingConfigShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Logging/Config.ts",
-      "symbol": "AgentLoggingSettings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Logging/Types.ts",
-      "symbol": "AgentLogEvent",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Mcp/index.ts",
@@ -195,22 +99,6 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/ai/sdk/src/core/Mcp/index.ts",
-      "symbol": "ToolNameValidation",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Mcp/index.ts",
-      "symbol": "ToolkitMcpOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/Query.ts",
       "symbol": "QueryHandle",
       "kind": "exported-interface",
@@ -233,54 +121,6 @@
       "status": "candidate",
       "owner": "@beep/ai-sdk",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/QuerySupervisorConfig.ts",
-      "symbol": "QuerySupervisorConfigShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/QuerySupervisorConfig.ts",
-      "symbol": "QuerySupervisorSettings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/QuickConfig.ts",
-      "symbol": "QuickConfig",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sandbox/SandboxCloudflare.ts",
-      "symbol": "CloudflareSandboxEnv",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sandbox/SandboxCloudflare.ts",
-      "symbol": "CloudflareSandboxOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sandbox/SandboxService.ts",
-      "symbol": "ExecResult",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Sandbox/SandboxService.ts",
@@ -345,14 +185,6 @@
       "status": "candidate",
       "owner": "@beep/ai-sdk",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Schema/External.ts",
-      "symbol": "CallToolResult",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Schema/External.ts",
@@ -907,14 +739,6 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/ai/sdk/src/core/Schema/Runtime.ts",
-      "symbol": "AbortControllerLike",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/Schema/Sandbox.ts",
       "symbol": "SandboxFilesystemConfig",
       "kind": "object-struct-schema",
@@ -1195,36 +1019,12 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/ai/sdk/src/core/Session.ts",
-      "symbol": "SessionRuntimeOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/SessionConfig.ts",
-      "symbol": "SessionConfigSettings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/SessionConfig.ts",
       "symbol": "SessionConfigShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/SessionConfig.ts",
-      "symbol": "SessionRuntimeSettings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/SessionManager.ts",
@@ -1252,14 +1052,6 @@
     },
     {
       "file": "packages/ai/sdk/src/core/SessionService.ts",
-      "symbol": "SessionHistoryOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/SessionService.ts",
       "symbol": "SessionServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -1273,14 +1065,6 @@
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/ArtifactStore.ts",
-      "symbol": "ArtifactListOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Storage/ArtifactStore.ts",
@@ -1299,36 +1083,12 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/ai/sdk/src/core/Storage/ChatHistory.ts",
-      "symbol": "RecorderOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/ChatHistoryStore.ts",
-      "symbol": "ChatHistoryAppendOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/Storage/ChatHistoryStore.ts",
       "symbol": "ChatHistoryJournaledOptions",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/ChatHistoryStore.ts",
-      "symbol": "ChatHistoryListOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Storage/ChatHistoryStore.ts",
@@ -1380,22 +1140,6 @@
     },
     {
       "file": "packages/ai/sdk/src/core/Storage/StorageLayers.ts",
-      "symbol": "CloudflareStorageBindings",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/StorageLayers.ts",
-      "symbol": "StorageLayerOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/StorageLayers.ts",
       "symbol": "StorageLayers",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1409,14 +1153,6 @@
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Storage/StorageStatus.ts",
-      "symbol": "StorageStatus",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Sync/ConflictPolicy.ts",
@@ -1435,22 +1171,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/ai/sdk/src/core/Sync/EventLogRemoteServer.ts",
-      "symbol": "EventLogRemoteServerShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/RemoteSync.ts",
-      "symbol": "RemoteUrlOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/Sync/SyncAudit.ts",
       "symbol": "SyncAuditService",
       "kind": "exported-interface",
@@ -1460,43 +1180,11 @@
     },
     {
       "file": "packages/ai/sdk/src/core/Sync/SyncAudit.ts",
-      "symbol": "SyncCompactionAudit",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/SyncAudit.ts",
       "symbol": "SyncConflictAudit",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/SyncService.ts",
-      "symbol": "RemoteKey",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/SyncService.ts",
-      "symbol": "RemoteStatus",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/SyncService.ts",
-      "symbol": "SyncConfigOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Sync/SyncService.ts",
@@ -1513,14 +1201,6 @@
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Sync/SyncService.ts",
-      "symbol": "SyncServiceWebSocketOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/Tools/Tool.ts",
@@ -1588,14 +1268,6 @@
     },
     {
       "file": "packages/ai/sdk/src/core/Tools/Toolkit.ts",
-      "symbol": "Any",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/Tools/Toolkit.ts",
       "symbol": "Toolkit",
       "kind": "exported-interface",
       "status": "exception",
@@ -1660,14 +1332,6 @@
     },
     {
       "file": "packages/ai/sdk/src/core/experimental/EventLog.ts",
-      "symbol": "SyncCompactionPayload",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/experimental/EventLog.ts",
       "symbol": "SyncConflictPayloadAccept",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1715,60 +1379,12 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/ai/sdk/src/core/experimental/PersistedCache.ts",
-      "symbol": "QueryMetadataCache",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/experimental/PersistedCache.ts",
-      "symbol": "QueryMetadataCacheOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/experimental/PersistedQueue.ts",
       "symbol": "PersistedInputAdapter",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/experimental/RateLimiter.ts",
-      "symbol": "RateLimitWindowConfig",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/internal/lifecyclePolicy.ts",
-      "symbol": "CloudflareLifecyclePolicy",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/internal/lifecyclePolicy.ts",
-      "symbol": "SessionLifecyclePolicy",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/internal/ndjson.ts",
-      "symbol": "NdjsonDecodeErrorDetails",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/internal/sessionTurnDriver.ts",
@@ -1785,14 +1401,6 @@
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/internal/sessionTurnDriver.ts",
-      "symbol": "SessionTurnDriverTimeouts",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/internal/streaming.ts",
@@ -1883,28 +1491,12 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/ai/sdk/src/core/service/AgentHttpServer.ts",
-      "symbol": "AgentHttpServerOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/ai/sdk/src/core/service/AgentRpcClient.ts",
       "symbol": "AgentRpcClientOptions",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/ai-sdk",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/service/AgentRpcServer.ts",
-      "symbol": "AgentRpcServerOptions",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/ai-sdk",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
@@ -1955,14 +1547,6 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/messages/src/i18n.ts",
-      "symbol": "GetLogIssuesOptions",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/messages",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/common/schema/src/LiteralKit.ts",
       "symbol": "union",
       "kind": "object-struct-schema",
@@ -2003,12 +1587,36 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/utils/src/Struct.ts",
-      "symbol": "ReverseableStruct",
+      "file": "packages/common/utils/src/Glob.ts",
+      "symbol": "Glob",
       "kind": "exported-interface",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/utils",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/repo-memory/client/src/index.ts",
+      "symbol": "RepoMemoryClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-memory-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/repo-memory/client/src/index.ts",
+      "symbol": "RepoMemoryHttpClientOptions",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/repo-memory-client",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/repo-memory/client/src/index.ts",
+      "symbol": "RepoMemoryRpcClientOptions",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/repo-memory-client",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/repo-memory/runtime/src/indexing/TypeScriptIndexer.ts",
@@ -2161,14 +1769,6 @@
       "status": "exception",
       "owner": "@beep/repo-utils",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "tooling/repo-utils/src/JSDoc/models/TSCategory.model.ts",
-      "symbol": "ScoredCategoryCandidate",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/repo-utils",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "tooling/repo-utils/src/TSMorph/TSMorph.service.ts",

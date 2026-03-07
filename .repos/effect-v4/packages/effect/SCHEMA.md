@@ -6110,15 +6110,10 @@ import { Schema } from "effect"
 
 // Extend the Annotations interface with a custom `version` annotation
 declare module "effect/Schema" {
-<<<<<<< HEAD
+
   interface Annotations {
     readonly version?: readonly [major: number, minor: number, patch: number] | undefined
-=======
-  namespace Annotations {
-    interface Augment {
-      readonly version?: readonly [major: number, minor: number, patch: number] | undefined
-    }
->>>>>>> c9cd06b245ce87fc66f51cef56ff490ceb3c821b
+	
   }
 }
 

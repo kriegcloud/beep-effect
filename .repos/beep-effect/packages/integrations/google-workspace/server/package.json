@@ -21,21 +21,17 @@
     "lint:fix": "biome check . --write"
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/google-workspace-domain": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/google-workspace-client": "workspace:^",
-    "@effect/platform": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "effect": "catalog:"
+  },
+  "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/google-workspace-client": "workspace:^",
-    "@effect/platform": "catalog:",
-    "effect": "catalog:"
+    "@effect/platform": "catalog:"
   }
 }

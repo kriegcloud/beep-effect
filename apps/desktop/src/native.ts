@@ -14,7 +14,7 @@ export const ManagedSidecarStatus = LiteralKit(["stopped", "starting", "healthy"
   })
 );
 
-export const ManagedSidecarMode = LiteralKit(["managed-dev-bun", "managed-packaged"]).annotate(
+export const ManagedSidecarMode = LiteralKit(["managed-dev-portless", "managed-packaged"]).annotate(
   $DesktopId.annote("ManagedSidecarMode", {
     description: "Managed sidecar launch mode selected by the native Tauri desktop bridge.",
   })

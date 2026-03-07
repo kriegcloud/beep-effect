@@ -87,9 +87,9 @@ type SessionState = {
 /**
  * @since 0.0.0
  */
-export type SessionRuntimeOptions = {
+export type SessionRuntimeOptions = Readonly<{
   readonly closeDrainTimeout?: Duration.Input;
-};
+}>;
 
 const fromExit = <A, E>(exit: Exit.Exit<A, E>): Effect.Effect<A, E> =>
   Exit.match(exit, {

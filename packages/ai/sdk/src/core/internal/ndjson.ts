@@ -9,11 +9,11 @@ export type NdjsonDecodeStage = "parse" | "decode";
 /**
  * @since 0.0.0
  */
-export type NdjsonDecodeErrorDetails = {
+export type NdjsonDecodeErrorDetails = Readonly<{
   readonly stage: NdjsonDecodeStage;
   readonly line: string;
   readonly cause: unknown;
-};
+}>;
 
 /**
  * @since 0.0.0

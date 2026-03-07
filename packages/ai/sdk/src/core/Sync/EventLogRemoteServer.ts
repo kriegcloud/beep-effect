@@ -112,10 +112,10 @@ export const toWebSocketUrlEffect = (
 /**
  * @since 0.0.0
  */
-export interface EventLogRemoteServerShape {
+export type EventLogRemoteServerShape = Readonly<{
   readonly address: HttpServer.Address;
   readonly url: string;
-}
+}>;
 
 const basePort = 20000 + (process.pid % 10000);
 let nextPort = basePort;

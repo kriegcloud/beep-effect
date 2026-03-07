@@ -267,7 +267,7 @@ describe("filterPackages", () => {
       "@beep/utils": [],
     });
 
-    const result = filterPackages(context, "@beep/schema");
+    const result = filterPackages(context, { filter: "@beep/schema" });
 
     expect(A.length(result)).toBe(1);
     expect(result).toContain("@beep/schema");
@@ -279,7 +279,7 @@ describe("filterPackages", () => {
       "@beep/types": [],
     });
 
-    const result = filterPackages(context, "@beep/nonexistent");
+    const result = filterPackages(context, { filter: "@beep/nonexistent" });
 
     expect(A.length(result)).toBe(0);
   });

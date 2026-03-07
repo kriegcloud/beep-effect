@@ -58,7 +58,7 @@ const toolUsePayloadFields = {
 
 const ToolUsePayloadStart = S.Struct({
   ...toolUsePayloadFields,
-  status: S.Literal("start"),
+  status: S.tag("start"),
 }).annotate(
   $I.annote("ToolUsePayloadStart", {
     description: "Payload emitted when a tool use starts.",
@@ -67,7 +67,7 @@ const ToolUsePayloadStart = S.Struct({
 
 const ToolUsePayloadSuccess = S.Struct({
   ...toolUsePayloadFields,
-  status: S.Literal("success"),
+  status: S.tag("success"),
 }).annotate(
   $I.annote("ToolUsePayloadSuccess", {
     description: "Payload emitted when a tool use succeeds.",
@@ -76,7 +76,7 @@ const ToolUsePayloadSuccess = S.Struct({
 
 const ToolUsePayloadFailure = S.Struct({
   ...toolUsePayloadFields,
-  status: S.Literal("failure"),
+  status: S.tag("failure"),
 }).annotate(
   $I.annote("ToolUsePayloadFailure", {
     description: "Payload emitted when a tool use fails.",
@@ -100,7 +100,7 @@ const permissionDecisionPayloadFields = {
 
 const PermissionDecisionPayloadAllow = S.Struct({
   ...permissionDecisionPayloadFields,
-  decision: S.Literal("allow"),
+  decision: S.tag("allow"),
 }).annotate(
   $I.annote("PermissionDecisionPayloadAllow", {
     description: "Permission decision payload for allow outcomes.",
@@ -109,7 +109,7 @@ const PermissionDecisionPayloadAllow = S.Struct({
 
 const PermissionDecisionPayloadDeny = S.Struct({
   ...permissionDecisionPayloadFields,
-  decision: S.Literal("deny"),
+  decision: S.tag("deny"),
 }).annotate(
   $I.annote("PermissionDecisionPayloadDeny", {
     description: "Permission decision payload for deny outcomes.",
@@ -118,7 +118,7 @@ const PermissionDecisionPayloadDeny = S.Struct({
 
 const PermissionDecisionPayloadPrompt = S.Struct({
   ...permissionDecisionPayloadFields,
-  decision: S.Literal("prompt"),
+  decision: S.tag("prompt"),
 }).annotate(
   $I.annote("PermissionDecisionPayloadPrompt", {
     description: "Permission decision payload for prompt outcomes.",
@@ -146,7 +146,7 @@ const hookEventPayloadFields = {
 
 const HookEventPayloadSuccess = S.Struct({
   ...hookEventPayloadFields,
-  outcome: S.Literal("success"),
+  outcome: S.tag("success"),
 }).annotate(
   $I.annote("HookEventPayloadSuccess", {
     description: "Hook event payload with successful outcome.",
@@ -155,7 +155,7 @@ const HookEventPayloadSuccess = S.Struct({
 
 const HookEventPayloadFailure = S.Struct({
   ...hookEventPayloadFields,
-  outcome: S.Literal("failure"),
+  outcome: S.tag("failure"),
 }).annotate(
   $I.annote("HookEventPayloadFailure", {
     description: "Hook event payload with failure outcome.",
@@ -182,7 +182,7 @@ const syncConflictPayloadFields = {
 
 const SyncConflictPayloadAccept = S.Struct({
   ...syncConflictPayloadFields,
-  resolution: S.Literal("accept"),
+  resolution: S.tag("accept"),
 }).annotate(
   $I.annote("SyncConflictPayloadAccept", {
     description: "Conflict payload for accept resolution.",
@@ -191,18 +191,18 @@ const SyncConflictPayloadAccept = S.Struct({
 
 const SyncConflictPayloadMerge = S.Struct({
   ...syncConflictPayloadFields,
-  resolution: S.Literal("merge"),
-}).annotate(
-  $I.annote("SyncConflictPayloadMerge", {
+  resolution: S.tag("merge"),
+}).pipe(
+  $I.annoteSchema("SyncConflictPayloadMerge", {
     description: "Conflict payload for merge resolution.",
   })
 );
 
 const SyncConflictPayloadReject = S.Struct({
   ...syncConflictPayloadFields,
-  resolution: S.Literal("reject"),
-}).annotate(
-  $I.annote("SyncConflictPayloadReject", {
+  resolution: S.tag("reject"),
+}).pipe(
+  $I.annoteSchema("SyncConflictPayloadReject", {
     description: "Conflict payload for reject resolution.",
   })
 );
@@ -213,24 +213,23 @@ const SyncConflictPayload = S.Union([
   SyncConflictPayloadReject,
 ]).pipe(
   S.toTaggedUnion("resolution"),
-  S.annotate(
-    $I.annote("SyncConflictPayload", {
-      description: "Tagged union payload for sync_conflict records.",
-    })
-  )
+  $I.annoteSchema("SyncConflictPayload", {
+    description: "Tagged union payload for sync_conflict records.",
+  })
 );
 
-const SyncCompactionPayload = S.Struct({
-  remoteId: S.String,
-  before: S.Number,
-  after: S.Number,
-  events: S.optional(S.Array(S.String)),
-  timestamp: S.DateTimeUtcFromMillis,
-}).annotate(
+class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
+  {
+    remoteId: S.String,
+    before: S.Number,
+    after: S.Number,
+    events: S.optional(S.Array(S.String)),
+    timestamp: S.DateTimeUtcFromMillis,
+  },
   $I.annote("SyncCompactionPayload", {
     description: "Payload for sync compaction audit events.",
   })
-);
+) {}
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.

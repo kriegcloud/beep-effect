@@ -35,37 +35,17 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/errors": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/shared-env": "workspace:^",
-    "@beep/runtime-client": "workspace:^",
-    "@effect-atom/atom-react": "catalog:",
-    "@effect/platform-browser": "catalog:",
-    "@effect/rpc": "catalog:",
     "effect": "catalog:",
-    "warning": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
-    "@beep/errors": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/shared-env": "workspace:^",
-    "@beep/runtime-client": "workspace:^",
     "@babel/preset-react": "catalog:",
-    "@effect-atom/atom-react": "catalog:",
     "@effect/docgen": "catalog:",
-    "@effect/platform-browser": "catalog:",
-    "@effect/rpc": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "@types/warning": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "effect": "catalog:",
-    "warning": "catalog:"
+    "react": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -78,5 +58,18 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/errors": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-env": "workspace:^",
+    "@beep/runtime-client": "workspace:^",
+    "@effect-atom/atom-react": "catalog:",
+    "@effect/platform-browser": "catalog:",
+    "@effect/rpc": "catalog:",
+    "warning": "catalog:"
   }
 }

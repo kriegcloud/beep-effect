@@ -54,6 +54,8 @@
     "coverage": "bunx turbo run coverage",
     "docgen": "turbo run docgen",
     "repo-cli": "bun run tooling/cli/src/index.ts --",
+    "config-sync": "bun run repo-cli tsconfig-sync",
+    "config-sync:check": "bun run repo-cli tsconfig-sync --check",
     "docgen:init": "bun repo-cli docgen init",
     "docgen:analyze": "bun repo-cli docgen analyze",
     "docgen:generate": "bun repo-cli docgen generate",

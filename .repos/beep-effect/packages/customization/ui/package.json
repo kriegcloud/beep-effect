@@ -34,13 +34,9 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/customization-client": "workspace:^",
-    "@beep/customization-domain": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/customization-client": "workspace:^",
-    "@beep/customization-domain": "workspace:^",
     "@babel/preset-react": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
@@ -58,5 +54,9 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/customization-client": "workspace:^",
+    "@beep/customization-domain": "workspace:^"
   }
 }

@@ -25,11 +25,11 @@ export type SessionDefaults = Omit<SDKSessionOptions, "model">;
 /**
  * @since 0.0.0
  */
-export type SessionRuntimeSettings = {
+export type SessionRuntimeSettings = Readonly<{
   readonly closeDrainTimeout: Duration.Input;
   readonly turnSendTimeout?: Duration.Input;
   readonly turnResultTimeout?: Duration.Input;
-};
+}>;
 
 /**
  * @since 0.0.0
@@ -52,10 +52,10 @@ export const resolveTurnTimeouts = (
 /**
  * @since 0.0.0
  */
-export type SessionConfigSettings = {
+export type SessionConfigSettings = Readonly<{
   readonly defaults: SessionDefaults;
   readonly runtime: SessionRuntimeSettings;
-};
+}>;
 
 /**
  * @since 0.0.0

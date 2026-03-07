@@ -13,6 +13,7 @@
  *   --dry-run    Preview changes without writing files
  *   --filter     Scope to specific package (e.g., "@beep/iam-server")
  *   --no-hoist   Skip transitive dependency hoisting
+ *   --pre-commit Scope to staged relevant files when possible
  *   --verbose    Show detailed output
  *
  * Examples:
@@ -77,6 +78,15 @@ const filterOption = Options.text("filter").pipe(
 const noHoistOption = Options.boolean("no-hoist").pipe(
   Options.withDefault(false),
   Options.withDescription("Skip transitive dependency hoisting")
+);
+
+/**
+ * Pre-commit option.
+ * When enabled, scopes config sync to staged relevant files when possible.
+ */
+const preCommitOption = Options.boolean("pre-commit").pipe(
+  Options.withDefault(false),
+  Options.withDescription("Run in pre-commit mode (scope to staged relevant files when possible)")
 );
 
 /**
@@ -146,11 +156,12 @@ export const tsconfigSyncCommand = Command.make(
     dryRun: dryRunOption,
     filter: filterOption,
     noHoist: noHoistOption,
+    preCommit: preCommitOption,
     verbose: verboseOption,
     packagesOnly: packagesOnlyOption,
     appsOnly: appsOnlyOption,
   },
-  ({ check, dryRun, filter, noHoist, verbose, packagesOnly, appsOnly }) =>
+  ({ check, dryRun, filter, noHoist, preCommit, verbose, packagesOnly, appsOnly }) =>
     Effect.gen(function* () {
       // Convert Option<string> to string | undefined
       const filterValue = O.getOrUndefined(filter);
@@ -161,6 +172,7 @@ export const tsconfigSyncCommand = Command.make(
         dryRun,
         filter: filterValue,
         noHoist,
+        preCommit,
         verbose,
         packagesOnly,
         appsOnly,
@@ -191,13 +203,20 @@ export const tsconfigSyncCommand = Command.make(
         ),
         Effect.catchAll((err) =>
           Effect.gen(function* () {
-            yield* Console.log(color.red(`\nError: ${String(err)}`));
-            yield* Effect.die(new Error(String(err)));
+            const message =
+              typeof err === "object" &&
+              err !== null &&
+              "displayMessage" in err &&
+              typeof err.displayMessage === "string"
+                ? err.displayMessage
+                : String(err);
+            yield* Console.log(color.red(`\nError: ${message}`));
+            yield* Effect.die(new Error(message));
           })
         )
       );
     })
 ).pipe(
-  Command.withDescription("Sync tsconfig references based on package.json dependencies"),
+  Command.withDescription("Sync package dependency policy and tsconfig references from package.json"),
   Command.provide(TsconfigSyncServiceLayer)
 );

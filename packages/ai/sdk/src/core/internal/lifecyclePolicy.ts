@@ -4,18 +4,18 @@ import type { StreamBroadcastConfig, StreamShareConfig } from "../Query.js";
 /**
  * @since 0.0.0
  */
-export type SessionLifecyclePolicy = {
+export type SessionLifecyclePolicy = Readonly<{
   readonly closeDrainTimeout: Duration.Input;
-};
+}>;
 
 /**
  * @since 0.0.0
  */
-export type CloudflareLifecyclePolicy = {
+export type CloudflareLifecyclePolicy = Readonly<{
   readonly defaultExecTimeoutMs: number | undefined;
   readonly defaultShareConfig: StreamShareConfig;
   readonly defaultBroadcastLag: StreamBroadcastConfig;
-};
+}>;
 
 /**
  * @since 0.0.0

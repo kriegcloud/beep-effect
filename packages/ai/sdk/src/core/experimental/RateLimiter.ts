@@ -61,13 +61,13 @@ export const keyForSessionTool = (sessionId: string, toolName: string) => `${key
 /**
  * @since 0.0.0
  */
-export type RateLimitWindowConfig = {
+export type RateLimitWindowConfig = Readonly<{
   readonly algorithm?: "fixed-window" | "token-bucket";
   readonly onExceeded?: "delay" | "fail";
   readonly window: Duration.Input;
   readonly limit: number;
   readonly tokens?: number;
-};
+}>;
 
 /**
  * Per-handler rate limit configuration.
@@ -77,7 +77,7 @@ export type RateLimitWindowConfig = {
  */
 export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & {
   readonly key: string | ((input: A) => string);
-  readonly tokens?: number | ((input: A) => number);
+  readonly tokens?: undefined | number | ((input: A) => number);
 };
 
 /**
@@ -100,9 +100,9 @@ export const withRateLimit =
     readonly key: string;
     readonly window: Duration.Input;
     readonly limit: number;
-    readonly algorithm?: "fixed-window" | "token-bucket";
-    readonly onExceeded?: "delay" | "fail";
-    readonly tokens?: number;
+    readonly algorithm?: undefined | "fixed-window" | "token-bucket";
+    readonly onExceeded?: undefined | "delay" | "fail";
+    readonly tokens?: undefined | number;
   }) =>
   <A, E, R>(effect: Effect.Effect<A, E, R>) =>
     Effect.flatMap(RateLimiter.makeWithRateLimiter, (withLimiter) =>
@@ -167,7 +167,7 @@ type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
 export const rateLimitHandlers = <Handlers extends Record<string, HandlerLike>>(
   handlers: Handlers,
   config: RateLimitWindowConfig | ((name: keyof Handlers) => RateLimitWindowConfig),
-  options?: { readonly keyPrefix?: string }
+  options?: undefined | { readonly keyPrefix?: undefined | string }
 ): Handlers => {
   const prefix = options?.keyPrefix ? `${options.keyPrefix}:` : "";
   const output = {} as Handlers;

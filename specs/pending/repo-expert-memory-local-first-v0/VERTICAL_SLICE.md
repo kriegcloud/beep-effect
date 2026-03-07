@@ -23,8 +23,9 @@ The first runnable slice is:
 
 ## Current Implementation Snapshot
 - The native desktop shell already auto-launches the managed sidecar, registers repos through the control plane, starts runs through custom public RPCs, and renders run lists, run detail, citations, retrieval packets, and event history.
+- Desktop dev now runs through `portless` with a same-origin `https://desktop.localhost:1355` shell URL and `"/api"` proxying to the managed sidecar.
 - The sidecar already persists repo-memory artifacts and run projections in SQLite, and it already replays journaled run events after reconnect or restart.
-- Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, and replay against the real sidecar entrypoint.
+- Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, replay, and local-origin CORS/security headers against the real sidecar entrypoint.
 
 ## Scope In
 Lock these in for `v0`:
@@ -53,6 +54,7 @@ Lock these out for `v0`:
 ## User Flow
 ### 1. Register repo
 The native desktop app auto-starts the managed local sidecar and waits for a healthy bootstrap.
+In desktop dev, the React shell talks to the sidecar through same-origin `"/api"` while the sidecar still reports its direct bind address in bootstrap payloads.
 The user picks a local repo path from the desktop UI through the native folder picker.
 The shell forwards that request to the sidecar control plane.
 The sidecar returns a stable `RepoRegistration`.

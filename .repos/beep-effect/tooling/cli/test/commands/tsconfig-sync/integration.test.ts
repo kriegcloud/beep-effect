@@ -13,7 +13,13 @@
  * @since 0.1.0
  */
 
-import { filterPackages, findBuildConfig, getPackageCount } from "@beep/repo-cli/commands/tsconfig-sync/discover";
+import {
+  applyPackageJsonDependencyOverrides,
+  filterPackages,
+  findBuildConfig,
+  getPackageCount,
+  withEffectiveDepIndex,
+} from "@beep/repo-cli/commands/tsconfig-sync/discover";
 import {
   buildPkgToPathMap,
   computeRefsForConfigType,
@@ -154,7 +160,7 @@ describe("Package Filter Integration", () => {
   it("filters to single package", () => {
     const context = createRealisticContext();
 
-    const filtered = filterPackages(context, "@beep/iam-server");
+    const filtered = filterPackages(context, { filter: "@beep/iam-server" });
 
     strictEqual(A.length(filtered), 1);
     expect(filtered).toContain("@beep/iam-server");
@@ -287,6 +293,36 @@ describe("Package.json Sync Integration", () => {
     // Versions preserved
     strictEqual(result.effect, "^3.14.0");
     strictEqual(result["@beep/types"], "workspace:^");
+  });
+
+  it("applies manifest overrides to the effective dependency graph", () => {
+    const context = createRealisticContext();
+    const overriddenDepIndex = applyPackageJsonDependencyOverrides(
+      context.depIndex,
+      new Map([
+        [
+          "@beep/iam-server",
+          {
+            dependencies: {
+              "@beep/iam-domain": "workspace:^",
+            },
+            devDependencies: {},
+            peerDependencies: {
+              "@beep/iam-tables": "workspace:^",
+            },
+          },
+        ],
+      ])
+    );
+    const effectiveContext = withEffectiveDepIndex(context, overriddenDepIndex);
+    const deps = HashMap.get(effectiveContext.depIndex, "@beep/iam-server");
+    const adjacency = HashMap.get(effectiveContext.adjacencyList, "@beep/iam-server");
+
+    assertTrue(O.isSome(deps));
+    assertTrue(O.isSome(adjacency));
+    assertTrue(HashSet.has(deps.value.dependencies.workspace, "@beep/iam-domain"));
+    assertTrue(HashSet.has(deps.value.peerDependencies.workspace, "@beep/iam-tables"));
+    assertTrue(HashSet.has(adjacency.value, "@beep/iam-tables"));
   });
 });
 

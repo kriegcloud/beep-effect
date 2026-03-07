@@ -9,7 +9,7 @@ const $I = $AiSdkId.create("core/Schema/Runtime");
  */
 export type AbortControllerLike = {
   signal: unknown;
-};
+} & {};
 
 /**
  * @since 0.0.0

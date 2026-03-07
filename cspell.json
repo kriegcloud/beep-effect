@@ -72,6 +72,7 @@
 
     "effectful",
     "nodir",
+    "nosniff",
     "topo",
     "sccs",
     "unprepend",

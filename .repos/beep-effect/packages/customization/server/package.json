@@ -35,46 +35,12 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/customization-domain": "workspace:^",
-    "@beep/shared-server": "workspace:^",
-    "@beep/customization-tables": "workspace:^",
-    "@effect-aws/client-s3": "catalog:",
-    "@effect-aws/s3": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "@effect/workflow": "catalog:",
-    "@uswriting/exiftool": "catalog:",
-    "drizzle-orm": "catalog:",
-    "effect": "catalog:",
-    "pdf-lib": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/customization-domain": "workspace:^",
-    "@beep/shared-server": "workspace:^",
-    "@beep/customization-tables": "workspace:^",
-    "@effect-aws/client-s3": "catalog:",
-    "@effect-aws/s3": "catalog:",
-    "@effect/cluster": "catalog:",
     "@effect/docgen": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "@effect/workflow": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "@uswriting/exiftool": "catalog:",
-    "drizzle-orm": "catalog:",
-    "effect": "catalog:",
-    "pdf-lib": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -87,5 +53,24 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@beep/customization-domain": "workspace:^",
+    "@beep/shared-server": "workspace:^",
+    "@beep/customization-tables": "workspace:^",
+    "@effect-aws/client-s3": "catalog:",
+    "@effect-aws/s3": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@uswriting/exiftool": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pdf-lib": "catalog:"
   }
 }

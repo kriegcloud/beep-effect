@@ -1,4 +1,4 @@
-import { pipe, String as Str } from "effect";
+import { flow, String as Str } from "effect";
 import * as A from "effect/Array";
 
 /**
@@ -6,8 +6,7 @@ import * as A from "effect/Array";
  *
  * @since 0.0.0
  */
-export const splitCommaSeparatedTrimmed = (value: string): ReadonlyArray<string> =>
-  pipe(Str.split(",")(value), A.map(Str.trim), A.filter(Str.isNonEmpty));
+export const splitCommaSeparatedTrimmed = flow(Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
 /**
  * Render a named list row with optional aliases.

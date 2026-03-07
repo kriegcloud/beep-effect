@@ -14,11 +14,11 @@ export type SandboxProvider = "local" | "cloudflare";
 /**
  * @since 0.0.0
  */
-export type ExecResult = {
+export type ExecResult = Readonly<{
   readonly stdout: string;
   readonly stderr: string;
   readonly exitCode: number;
-};
+}>;
 
 /**
  * @since 0.0.0

@@ -27,12 +27,12 @@ export type AgentLoggingCategories = Record<AgentLogCategory, boolean>;
 /**
  * @since 0.0.0
  */
-export type AgentLoggingSettings = {
+export type AgentLoggingSettings = Readonly<{
   readonly format: LogFormat;
   readonly minLevel: LogLevel.LogLevel;
   readonly includeSpans: boolean;
   readonly categories: AgentLoggingCategories;
-};
+}>;
 
 const defaultSettings: AgentLoggingSettings = {
   format: "pretty",
@@ -81,9 +81,9 @@ const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigEr
 /**
  * @since 0.0.0
  */
-export interface AgentLoggingConfigShape {
+export type AgentLoggingConfigShape = Readonly<{
   readonly settings: AgentLoggingSettings;
-}
+}>;
 
 /**
  * @since 0.0.0

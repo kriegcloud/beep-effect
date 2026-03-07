@@ -35,37 +35,11 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/google-workspace-domain": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/google-workspace-client": "workspace:^",
-    "@beep/calendar-domain": "workspace:^",
-    "@beep/shared-server": "workspace:^",
-    "@beep/calendar-tables": "workspace:^",
-    "@effect/platform": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/google-workspace-domain": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/google-workspace-client": "workspace:^",
-    "@beep/calendar-domain": "workspace:^",
-    "@beep/shared-server": "workspace:^",
-    "@beep/calendar-tables": "workspace:^",
     "@effect/docgen": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
   "effect": {
@@ -79,5 +53,20 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
+    "@beep/calendar-domain": "workspace:^",
+    "@beep/shared-server": "workspace:^",
+    "@beep/calendar-tables": "workspace:^",
+    "@effect/platform": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

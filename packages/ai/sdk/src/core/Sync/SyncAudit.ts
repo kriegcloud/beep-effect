@@ -18,12 +18,12 @@ export type SyncConflictAudit = {
 /**
  * @since 0.0.0
  */
-export type SyncCompactionAudit = {
+export type SyncCompactionAudit = Readonly<{
   readonly remoteId: string;
   readonly before: number;
   readonly after: number;
   readonly events: ReadonlyArray<string>;
-};
+}>;
 
 /**
  * @since 0.0.0

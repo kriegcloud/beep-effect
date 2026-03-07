@@ -34,28 +34,11 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/iam-domain": "workspace:^",
-    "@beep/shared-tables": "workspace:^",
-    "@effect/experimental": "catalog:",
-    "@effect/sql": "catalog:",
-    "drizzle-orm": "catalog:",
-    "effect": "catalog:",
-    "mutative": "catalog:",
-    "uuid": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/iam-domain": "workspace:^",
-    "@beep/shared-tables": "workspace:^",
     "@effect/docgen": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/sql": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "drizzle-orm": "catalog:",
-    "effect": "catalog:",
-    "mutative": "catalog:",
-    "uuid": "catalog:"
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -68,5 +51,15 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "mutative": "catalog:",
+    "uuid": "catalog:"
   }
 }

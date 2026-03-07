@@ -59,10 +59,10 @@ export type HookTapHandler<R> = (input: HookInput, context: HookContext) => Effe
 /**
  * @since 0.0.0
  */
-export type HookMatcherOptions = {
+export type HookMatcherOptions = Readonly<{
   readonly matcher?: string | undefined;
   readonly timeout?: Duration.Input | undefined;
-};
+}>;
 
 /**
  * Convert an Effect hook handler into the SDK callback shape.

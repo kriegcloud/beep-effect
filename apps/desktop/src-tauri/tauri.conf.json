@@ -5,7 +5,7 @@
   "identifier": "com.beep.desktop",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://127.0.0.1:4173",
+    "devUrl": "https://desktop.localhost:1355",
     "beforeDevCommand": "bun run dev",
     "beforeBuildCommand": "bun run build && bun run build:sidecar"
   },

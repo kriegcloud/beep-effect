@@ -38,24 +38,12 @@
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "peerDependencies": {
-    "@beep/constants": "workspace:^",
-    "@effect/cluster": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/workflow": "catalog:",
-    "effect": "catalog:",
-    "picocolors": "catalog:",
-    "uuid": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/constants": "workspace:^",
-    "@effect/cluster": "catalog:",
     "@effect/docgen": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/workflow": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:",
-    "picocolors": "catalog:",
-    "uuid": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -68,5 +56,13 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/constants": "workspace:^",
+    "@effect/cluster": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/workflow": "catalog:",
+    "picocolors": "catalog:",
+    "uuid": "catalog:"
   }
 }

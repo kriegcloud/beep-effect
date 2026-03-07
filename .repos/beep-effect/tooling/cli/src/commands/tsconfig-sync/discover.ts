@@ -8,13 +8,20 @@
  * @since 0.1.0
  */
 
-import { buildRepoDependencyIndex, collectTsConfigPaths, detectCycles, findRepoRoot } from "@beep/tooling-utils";
+import {
+  buildRepoDependencyIndex,
+  collectTsConfigPaths,
+  detectCycles,
+  findRepoRoot,
+  type PackageJson,
+} from "@beep/tooling-utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as Predicate from "effect/Predicate";
 import * as Str from "effect/String";
 import type { RepoDepMapValueT, WorkspaceContext, WorkspacePkgKeyT } from "./types.js";
 
@@ -57,6 +64,39 @@ export const buildAdjacencyList = (
   }
 
   return adjacency;
+};
+
+const dependencyRecordToSets = (deps: undefined | Record<string, string>) => {
+  const names = Object.keys(deps ?? {});
+  return {
+    workspace: HashSet.fromIterable(F.pipe(names, A.filter(Str.startsWith("@beep/")))),
+    npm: HashSet.fromIterable(F.pipe(names, A.filter(Predicate.not(Str.startsWith("@beep/"))))),
+  };
+};
+
+export const buildRepoDepMapValueFromPackageSections = (
+  sections: Pick<PackageJson, "dependencies" | "devDependencies" | "peerDependencies">
+): RepoDepMapValueT => ({
+  dependencies: dependencyRecordToSets(sections.dependencies),
+  devDependencies: dependencyRecordToSets(sections.devDependencies),
+  peerDependencies: dependencyRecordToSets(sections.peerDependencies),
+});
+
+export const applyPackageJsonDependencyOverrides = (
+  depIndex: HashMap.HashMap<WorkspacePkgKeyT, RepoDepMapValueT>,
+  overrides: ReadonlyMap<string, Pick<PackageJson, "dependencies" | "devDependencies" | "peerDependencies">>
+): HashMap.HashMap<WorkspacePkgKeyT, RepoDepMapValueT> => {
+  let nextDepIndex = depIndex;
+
+  for (const [pkgName, sections] of overrides.entries()) {
+    nextDepIndex = HashMap.set(
+      nextDepIndex,
+      pkgName as WorkspacePkgKeyT,
+      buildRepoDepMapValueFromPackageSections(sections)
+    );
+  }
+
+  return nextDepIndex;
 };
 
 /**
@@ -128,6 +168,15 @@ export const discoverWorkspace = Effect.gen(function* () {
   };
 });
 
+export const withEffectiveDepIndex = (
+  context: WorkspaceContext,
+  depIndex: HashMap.HashMap<WorkspacePkgKeyT, RepoDepMapValueT>
+): WorkspaceContext => ({
+  ...context,
+  depIndex,
+  adjacencyList: buildAdjacencyList(depIndex),
+});
+
 /**
  * Detect cycles in the dependency graph.
  * Returns an array of cycle paths if cycles exist, empty array otherwise.
@@ -154,12 +203,16 @@ export const getPackageCount = (context: WorkspaceContext): number =>
  * @since 0.1.0
  * @category utils
  */
-export const filterPackages = (context: WorkspaceContext, filter?: string): readonly string[] => {
-  if (filter) {
+export const filterPackages = (
+  context: WorkspaceContext,
+  options?: { readonly filter?: string; readonly packageNames?: ReadonlySet<string> }
+): readonly string[] => {
+  if (options?.filter) {
     return F.pipe(
       HashMap.entries(context.depIndex),
       A.fromIterable,
-      A.filter(([pkg]) => pkg === filter),
+      A.filter(([pkg]) => pkg === options.filter),
+      A.filter(([pkg]) => (options?.packageNames ? options.packageNames.has(pkg) : true)),
       A.map(([pkg]) => pkg)
     );
   }
@@ -168,6 +221,7 @@ export const filterPackages = (context: WorkspaceContext, filter?: string): read
     HashMap.entries(context.depIndex),
     A.fromIterable,
     A.filter(([pkg]) => pkg !== "@beep/root"),
+    A.filter(([pkg]) => (options?.packageNames ? options.packageNames.has(pkg) : true)),
     A.map(([pkg]) => pkg)
   );
 };

@@ -1182,10 +1182,10 @@ export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): Readon
  * @since 0.0.0
  * @category DomainModel
  */
-export type ScoredCategoryCandidate = {
+export type ScoredCategoryCandidate = Readonly<{
   readonly category: TSCategory;
   readonly combinedConfidence: number;
-};
+}>;
 
 const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, right) => {
   if (left.combinedConfidence > right.combinedConfidence) {

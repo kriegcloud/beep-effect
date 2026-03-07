@@ -34,19 +34,10 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c ."
   },
-  "peerDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/comms-domain": "workspace:^",
-    "@beep/shared-tables": "workspace:^",
-    "drizzle-orm": "catalog:"
-  },
   "devDependencies": {
-    "@beep/shared-domain": "workspace:^",
-    "@beep/comms-domain": "workspace:^",
-    "@beep/shared-tables": "workspace:^",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "drizzle-orm": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -59,5 +50,14 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@beep/comms-domain": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "drizzle-orm": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
   }
 }

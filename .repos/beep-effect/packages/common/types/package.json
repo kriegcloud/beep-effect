@@ -39,15 +39,12 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "@effect/experimental": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/build-utils": "catalog:",
-    "@effect/experimental": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:",
-    "tagged-tag": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -60,5 +57,9 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@effect/experimental": "catalog:",
+    "tagged-tag": "catalog:"
   }
 }

@@ -42,6 +42,7 @@ import { docgenCommand } from "./commands/docgen.js";
 import { enronCommand } from "./commands/enron/index.js";
 import { envCommand } from "./commands/env.js";
 import { findMissingDocsCommand } from "./commands/find-missing-docs.js";
+import { peerDepsSyncCommand } from "./commands/peer-deps-sync/index.js";
 import { syncCommand } from "./commands/sync.js";
 import { syncCursorRulesCommand } from "./commands/sync-cursor-rules.js";
 import { topoSortCommand } from "./commands/topo-sort.js";
@@ -62,6 +63,7 @@ const repoCommand = CliCommand.make("beep").pipe(
     enronCommand,
     findMissingDocsCommand,
     envCommand,
+    peerDepsSyncCommand,
     syncCommand,
     syncCursorRulesCommand,
     topoSortCommand,

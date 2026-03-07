@@ -8,9 +8,9 @@ import { layer as AgentHttpHandlers } from "./AgentHttpHandlers.js";
 /**
  * @since 0.0.0
  */
-export type AgentHttpServerOptions = {
+export type AgentHttpServerOptions = Readonly<{
   readonly port?: number;
-};
+}>;
 
 /**
  * @since 0.0.0

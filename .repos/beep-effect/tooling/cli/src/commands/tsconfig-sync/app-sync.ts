@@ -50,6 +50,10 @@ export interface AppSyncCallbacks {
   readonly onChangeApplied: () => void;
 }
 
+export interface AppSyncOptions {
+  readonly appNames?: ReadonlySet<string>;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Internal Utilities
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,7 +185,8 @@ export const processNextJsApps = (
   input: TsconfigSyncInput,
   mode: SyncMode,
   context: WorkspaceContext,
-  callbacks: AppSyncCallbacks
+  callbacks: AppSyncCallbacks,
+  options?: AppSyncOptions
 ) =>
   Effect.gen(function* () {
     const filterValue = input.filter;
@@ -190,9 +195,15 @@ export const processNextJsApps = (
     const appsToProcess = filterValue
       ? F.pipe(
           NEXT_JS_APPS,
-          A.filter((app) => filterValue === `@beep/${app}`)
+          A.filter((app) => filterValue === `@beep/${app}`),
+          A.filter((app) => (options?.appNames ? options.appNames.has(app) : true))
         )
-      : [...NEXT_JS_APPS];
+      : options?.appNames
+        ? F.pipe(
+            NEXT_JS_APPS,
+            A.filter((app) => options.appNames?.has(app) ?? false)
+          )
+        : [...NEXT_JS_APPS];
 
     if (A.isEmptyArray(appsToProcess) && filterValue && Str.startsWith("@beep/")(filterValue)) {
       // Filter might be for a package, not an app - this is fine

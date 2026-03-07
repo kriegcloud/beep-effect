@@ -7,10 +7,10 @@ import { ConflictPolicy } from "./ConflictPolicy.js";
 /**
  * @since 0.0.0
  */
-export type RemoteUrlOptions = {
+export type RemoteUrlOptions = Readonly<{
   readonly tenant?: string;
   readonly authToken?: string;
-};
+}>;
 
 /**
  * @since 0.0.0

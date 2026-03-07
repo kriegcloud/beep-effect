@@ -30,6 +30,8 @@ export class TsconfigSyncInput extends S.Class<TsconfigSyncInput>("TsconfigSyncI
   packagesOnly: S.Boolean,
   /** When true, only sync apps (skip packages) */
   appsOnly: S.Boolean,
+  /** When true, scope work to staged relevant files when possible */
+  preCommit: S.Boolean,
 }) {}
 
 /**

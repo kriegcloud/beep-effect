@@ -5,10 +5,12 @@
  */
 
 import type { TString } from "@beep/types";
-import { Function as F, MutableHashSet, String as Str } from "effect";
+import { Function as Fn, flow, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type * as Multipart_ from "effect/unstable/http/Multipart";
+import type { Get, Paths } from "type-fest";
 
 const BEEP_NAMESPACE = "@beep" as const;
 const MODULE_CHARACTERS = /^[A-Za-z0-9_-]+$/;
@@ -112,6 +114,42 @@ type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 type PascalCaseWord<Word extends string> = Word extends "" ? "" : Capitalize<Lowercase<Word>>;
 
+type TitleWord<Word extends string> = Capitalize<Word>;
+
+type NormalizeTitleSeparators<Value extends string> = Value extends `${infer Head}_${infer Tail}`
+  ? `${NormalizeTitleSeparators<Head>} ${NormalizeTitleSeparators<Tail>}`
+  : Value extends `${infer Head}-${infer Tail}`
+    ? `${NormalizeTitleSeparators<Head>} ${NormalizeTitleSeparators<Tail>}`
+    : Value;
+
+type TrimTitleSpaces<Value extends string> = Value extends ` ${infer Rest}`
+  ? TrimTitleSpaces<Rest>
+  : Value extends `${infer Rest} `
+    ? TrimTitleSpaces<Rest>
+    : Value;
+
+type SplitTitleWords<Value extends string> = Value extends `${infer Head} ${infer Tail}`
+  ? Head extends ""
+    ? SplitTitleWords<Tail>
+    : readonly [Head, ...SplitTitleWords<Tail>]
+  : Value extends ""
+    ? readonly []
+    : readonly [Value];
+
+type JoinTitleWords<Words extends ReadonlyArray<string>> = Words extends readonly [infer Head extends string]
+  ? TitleWord<Head>
+  : Words extends readonly [infer Head extends string, ...infer Tail extends ReadonlyArray<string>]
+    ? `${TitleWord<Head>} ${JoinTitleWords<Tail>}`
+    : "";
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type TitleFromIdentifier<Identifier extends string> = JoinTitleWords<
+  SplitTitleWords<TrimTitleSpaces<NormalizeTitleSeparators<Identifier>>>
+>;
+
 type PascalCaseValue<Value extends string> = Value extends `${infer A}-${infer B}-${infer C}-${infer D}`
   ? `${PascalCaseWord<A>}${PascalCaseWord<B>}${PascalCaseWord<C>}${PascalCaseWord<D>}`
   : Value extends `${infer A}-${infer B}-${infer C}`
@@ -169,30 +207,89 @@ export type IdentitySymbol<Value extends string> = symbol & {
  * @since 0.0.0
  * @category DomainModel
  */
-export type SchemaAnnotationExtras<SchemaType> = S.Annotations.Documentation<SchemaType>;
+export type SchemaAnnotationExtras<
+  SchemaType,
+  TypeParameters extends ReadonlyArray<S.Top> = readonly [],
+> = S.Annotations.Bottom<SchemaType, TypeParameters>;
 
 /**
  * @since 0.0.0
  * @category DomainModel
  */
-export type IdentityAnnotation<
-  Value extends string,
-  Identifier extends string,
-> = S.Annotations.Documentation<unknown> & {
-  readonly identifier: Identifier;
-  readonly schemaId: IdentitySymbol<Value>;
-  readonly title: string;
+export type KeyAnnotationExtras<SchemaType> = S.Annotations.Key<SchemaType>;
+
+/**
+ * Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema.
+ *
+ * The installed `effect@4.0.0-beta.28` runtime supports `~httpApiEncoding`, but
+ * its published `.d.ts` does not currently export the upstream `Encoding` alias.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type HttpApiEncoding =
+  | {
+      readonly _tag: "Multipart";
+      readonly mode: "buffered" | "stream";
+      readonly contentType: string;
+      readonly limits?: Multipart_.withLimits.Options | undefined;
+    }
+  | {
+      readonly _tag: "Json" | "FormUrlEncoded" | "Uint8Array" | "Text";
+      readonly contentType: string;
+    };
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type HttpAnnotationExtras<
+  SchemaType,
+  TypeParameters extends ReadonlyArray<S.Top> = readonly [],
+> = SchemaAnnotationExtras<SchemaType, TypeParameters> & {
+  readonly httpApiStatus?: number | undefined;
+  readonly "~httpApiEncoding"?: HttpApiEncoding | undefined;
 };
 
 /**
  * @since 0.0.0
  * @category DomainModel
  */
-export type IdentityAnnotationResult<Value extends string, Identifier extends string, SchemaType> = IdentityAnnotation<
-  Value,
-  Identifier
-> &
-  SchemaAnnotationExtras<SchemaType>;
+export type IdentityAnyAnnotationExtras<
+  SchemaType,
+  TypeParameters extends ReadonlyArray<S.Top> = readonly [],
+> = KeyAnnotationExtras<SchemaType> & HttpAnnotationExtras<SchemaType, TypeParameters>;
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type IdentityAnnotation<Value extends string, Identifier extends string> = S.Annotations.Annotations & {
+  readonly identifier: Identifier;
+  readonly schemaId: IdentitySymbol<Value>;
+  readonly title: TitleFromIdentifier<Identifier>;
+};
+
+type IdentityAnnotationMetadataKeys = "identifier" | "schemaId" | "title";
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type IdentityAnnotationResult<
+  Value extends string,
+  Identifier extends string,
+  Extras extends object = {},
+> = IdentityAnnotation<Value, Identifier> & Omit<Extras, IdentityAnnotationMetadataKeys>;
+
+type SchemaPath<Struct extends object> = Extract<Paths<Struct>, string>;
+
+type KeyIdentifierPath<Identifier extends string> = Identifier extends `${string}.${infer Rest}` ? Rest : Identifier;
+
+type StrictKeyIdentifier<Struct extends object, Identifier extends TString.NonEmpty> =
+  KeyIdentifierPath<SegmentValue<Identifier>> extends SchemaPath<Struct> ? SegmentValue<Identifier> : never;
+
+type KeyIdentifierValue<Struct extends object, Identifier extends string> = Get<Struct, KeyIdentifierPath<Identifier>>;
 
 /**
  * @since 0.0.0
@@ -208,15 +305,64 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  */
 export interface IdentityComposer<Value extends string> {
   /**
-   * @template Next,SchemaType
+   * @template Next,Extras
    * @param {SegmentValue<Next>} identifier
-   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
-   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
+   * @param {IdentityAnyAnnotationExtras<unknown> | undefined} extras
+   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>}
    */
-  annote<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+  annote<
+    const Next extends TString.NonEmpty = TString.NonEmpty,
+    const Extras extends IdentityAnyAnnotationExtras<unknown> = {},
+  >(
     identifier: SegmentValue<Next>,
-    extras?: undefined | SchemaAnnotationExtras<SchemaType>
-  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+    extras?: undefined | Extras
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>;
+
+  /**
+   * @template Schema,Next
+   * @param {SegmentValue<Next>} identifier
+   * @param {HttpAnnotationExtras<Schema["Type"]> | undefined} extras
+   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   */
+  annoteHttp<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
+  ): (self: Schema) => Schema["~rebuild.out"];
+
+  /**
+   * @template Parent
+   * @returns {(identifier: TString.NonEmpty, extras?: KeyAnnotationExtras<unknown>) => (self: Schema) => Schema["~rebuild.out"]}
+   */
+  annoteKey<Parent extends object>(): <
+    const Next extends TString.NonEmpty = TString.NonEmpty,
+    Schema extends S.Top & { readonly Type: KeyIdentifierValue<Parent, SegmentValue<Next>> } = S.Top & {
+      readonly Type: KeyIdentifierValue<Parent, SegmentValue<Next>>;
+    },
+  >(
+    identifier: SegmentValue<Next> & StrictKeyIdentifier<Parent, Next>,
+    extras?: undefined | KeyAnnotationExtras<KeyIdentifierValue<Parent, SegmentValue<Next>>>
+  ) => (self: Schema) => Schema["~rebuild.out"];
+
+  /**
+   * @param {TString.NonEmpty} identifier
+   * @param {KeyAnnotationExtras<unknown> | undefined} extras
+   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   */
+  annoteKey(
+    identifier: TString.NonEmpty,
+    extras?: undefined | KeyAnnotationExtras<unknown>
+  ): <Schema extends S.Top>(self: Schema) => Schema["~rebuild.out"];
+
+  /**
+   * @template Schema,Next
+   * @param {SegmentValue<Next>} identifier
+   * @param {Schema["~annotate.in"] | undefined} extras
+   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   */
+  annoteSchema<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | Schema["~annotate.in"]
+  ): (self: Schema) => Schema["~rebuild.out"];
 
   /**
    *
@@ -236,7 +382,6 @@ export interface IdentityComposer<Value extends string> {
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
   readonly identifier: IdentityString<Value>;
-  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 
   /**
    * @template Next
@@ -286,11 +431,11 @@ const SegmentCheck = S.makeFilterGroup(
       identifier: "@beep/identity/check/non-empty-segment",
       message: "Identity segments cannot be empty.",
     }),
-    S.makeFilter((segment: string) => !F.pipe(segment, Str.startsWith("/")), {
+    S.makeFilter((segment: string) => !pipe(segment, Str.startsWith("/")), {
       identifier: "@beep/identity/check/no-leading-slash",
       message: 'Identity segments cannot start with "/".',
     }),
-    S.makeFilter((segment: string) => !F.pipe(segment, Str.endsWith("/")), {
+    S.makeFilter((segment: string) => !pipe(segment, Str.endsWith("/")), {
       identifier: "@beep/identity/check/no-trailing-slash",
       message: 'Identity segments cannot end with "/".',
     }),
@@ -355,22 +500,22 @@ const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Va
 /**
  *
  * @param {Identifier} identifier
- * @returns {string}
+ * @returns {TitleFromIdentifier<Identifier>}
  */
-const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifier): string =>
-  F.pipe(
+const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifier): TitleFromIdentifier<Identifier> =>
+  pipe(
     identifier,
     Str.replace(/[_-]+/g, " "),
     Str.trim,
     Str.split(" "),
     A.filter(Str.isNonEmpty),
     A.map((segment) => {
-      const head = F.pipe(segment, Str.slice(0, 1), Str.toUpperCase);
-      const tail = F.pipe(segment, Str.slice(1));
+      const head = pipe(segment, Str.slice(0, 1), Str.toUpperCase);
+      const tail = pipe(segment, Str.slice(1));
       return `${head}${tail}`;
     }),
     A.join(" ")
-  );
+  ) as TitleFromIdentifier<Identifier>;
 
 type ModulePascal<Segment extends TString.NonEmpty> =
   ModuleAccessor<Segment> extends `${infer Pascal}Id` ? Pascal : never;
@@ -381,7 +526,7 @@ type ModulePascal<Segment extends TString.NonEmpty> =
  * @returns {ModulePascal<Segment>}
  */
 const toPascalIdentifier = <const Segment extends TString.NonEmpty>(segment: Segment): ModulePascal<Segment> =>
-  F.pipe(segment, toTitle, Str.replace(/\s+/g, "")) as ModulePascal<Segment>;
+  pipe(segment, toTitle, Str.replace(/\s+/g, "")) as ModulePascal<Segment>;
 
 /**
  * @template Segment
@@ -418,21 +563,21 @@ const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: 
 const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): NormalizedBase<Base> => {
   const value = decodeString(base);
 
-  const withoutNamespace = F.pipe(value, (segment) => {
+  const withoutNamespace = pipe(value, (segment) => {
     if (segment === BEEP_NAMESPACE) {
       return "beep";
     }
-    if (F.pipe(segment, Str.startsWith(`${BEEP_NAMESPACE}/`))) {
-      return F.pipe(segment, Str.slice(Str.length(`${BEEP_NAMESPACE}/`)));
+    if (pipe(segment, Str.startsWith(`${BEEP_NAMESPACE}/`))) {
+      return pipe(segment, Str.slice(Str.length(`${BEEP_NAMESPACE}/`)));
     }
-    if (F.pipe(segment, Str.startsWith(BEEP_NAMESPACE))) {
-      return F.pipe(segment, Str.slice(Str.length(BEEP_NAMESPACE)));
+    if (pipe(segment, Str.startsWith(BEEP_NAMESPACE))) {
+      return pipe(segment, Str.slice(Str.length(BEEP_NAMESPACE)));
     }
     return segment;
   });
 
-  const withoutAtPrefix = F.pipe(withoutNamespace, (value) =>
-    F.pipe(value, Str.startsWith("@")) ? F.pipe(value, Str.slice(1)) : value
+  const withoutAtPrefix = pipe(withoutNamespace, (value) =>
+    pipe(value, Str.startsWith("@")) ? pipe(value, Str.slice(1)) : value
   );
 
   return decodeBaseSegment(withoutAtPrefix) as NormalizedBase<Base>;
@@ -446,27 +591,12 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
 const createBaseIdentity = <const Base extends TString.NonEmpty>(base: NormalizedBase<Base>): BaseIdentity<Base> =>
   base === "beep" ? (BEEP_NAMESPACE as BaseIdentity<Base>) : (`${BEEP_NAMESPACE}/${base}` as BaseIdentity<Base>);
 
-type Registry = MutableHashSet.MutableHashSet<string>;
-
-/**
- *
- * @param {Registry} registry
- * @param {string} identity
- * @returns void
- */
-const registerIdentity = (registry: Registry, identity: string): void => {
-  MutableHashSet.add(registry, identity);
-};
-
 /**
  *
  * @param {Value} value
- * @param {Registry} registry
  * @returns {IdentityComposer<Value>}
  */
-const createComposer = <const Value extends string>(value: Value, registry: Registry): IdentityComposer<Value> => {
-  registerIdentity(registry, value);
-
+const createComposer = <const Value extends string>(value: Value): IdentityComposer<Value> => {
   const identityValue = toIdentityString(value);
 
   /**
@@ -479,30 +609,43 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`> => {
     const next = validateSegment(segment);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
-    return createComposer(composed, registry);
+    return createComposer(composed);
   };
 
   /**
-   * @template Next,SchemaType
+   * @template Next
    * @param {SegmentValue<Next>} identifier
-   * @param {SchemaAnnotationExtras<SchemaType> | undefined} extras
-   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>}
+   * @returns {IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>}
    */
-  const annote = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
-    identifier: SegmentValue<Next>,
-    extras?: undefined | SchemaAnnotationExtras<SchemaType>
-  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType> => {
+  const identityAnnotation = <const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>
+  ): IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>> => {
     const next = validateSegment(identifier);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
-    registerIdentity(registry, `${composed}#annotation`);
-    const annotation = {
+
+    return {
       schemaId: toIdentitySymbol(composed),
       identifier: next,
       title: toTitle(next),
     } satisfies IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
+  };
 
+  /**
+   * @template Next,Extras
+   * @param {SegmentValue<Next>} identifier
+   * @param {IdentityAnyAnnotationExtras<unknown> | undefined} extras
+   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>}
+   */
+  const annote = <
+    const Next extends TString.NonEmpty = TString.NonEmpty,
+    const Extras extends IdentityAnyAnnotationExtras<unknown> = {},
+  >(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | Extras
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras> => {
+    const annotation = identityAnnotation(identifier);
     if (extras === undefined) {
-      return annotation;
+      return annotation as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>;
     }
 
     return {
@@ -511,6 +654,62 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       identifier: annotation.identifier,
       title: annotation.title,
     };
+  };
+
+  /**
+   * @template Schema,Next
+   * @param {SegmentValue<Next>} identifier
+   * @param {Schema["~annotate.in"] | undefined} extras
+   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   */
+  const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | Schema["~annotate.in"]
+  ) => {
+    const annotation = annote(identifier, extras);
+
+    return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);
+  };
+
+  function annoteKey<Parent extends object>(): <
+    const Next extends TString.NonEmpty = TString.NonEmpty,
+    Schema extends S.Top & { readonly Type: KeyIdentifierValue<Parent, SegmentValue<Next>> } = S.Top & {
+      readonly Type: KeyIdentifierValue<Parent, SegmentValue<Next>>;
+    },
+  >(
+    identifier: SegmentValue<Next> & StrictKeyIdentifier<Parent, Next>,
+    extras?: undefined | KeyAnnotationExtras<KeyIdentifierValue<Parent, SegmentValue<Next>>>
+  ) => (self: Schema) => Schema["~rebuild.out"];
+  function annoteKey(
+    identifier: TString.NonEmpty,
+    extras?: undefined | KeyAnnotationExtras<unknown>
+  ): <Schema extends S.Top>(self: Schema) => Schema["~rebuild.out"];
+  function annoteKey(identifier?: TString.NonEmpty, extras?: undefined | KeyAnnotationExtras<unknown>): unknown {
+    if (identifier === undefined) {
+      return <const StrictNext extends TString.NonEmpty = TString.NonEmpty>(
+        strictIdentifier: SegmentValue<StrictNext>,
+        strictExtras?: undefined | KeyAnnotationExtras<unknown>
+      ) => annoteKey(strictIdentifier, strictExtras);
+    }
+
+    const annotation = annote(identifier, extras);
+
+    return <Schema extends S.Top>(self: Schema): Schema["~rebuild.out"] => self.annotateKey(annotation);
+  }
+
+  /**
+   * @template Schema,Next
+   * @param {SegmentValue<Next>} identifier
+   * @param {HttpAnnotationExtras<Schema["Type"]> | undefined} extras
+   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   */
+  const annoteHttp = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
+  ) => {
+    const annotation = annote(identifier, extras);
+
+    return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);
   };
 
   return Object.defineProperties(
@@ -523,7 +722,6 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       }
       const segment = decodeModuleSegment(strings[0]);
       const composed = `${value}/${segment}` as `${Value}/${string}`;
-      registerIdentity(registry, composed);
       return toIdentityString(composed);
     },
     {
@@ -548,12 +746,12 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
         >(
           ...segments: Segments
         ) => {
-          const entries = F.pipe(
+          const entries = pipe(
             segments,
             A.map((segment) => {
               const ensured = validateModuleSegment(segment);
               const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
-              const nestedComposer = createComposer(composed, registry);
+              const nestedComposer = createComposer(composed);
               return [toTaggedKey(ensured), nestedComposer] as const;
             })
           );
@@ -573,7 +771,6 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
         value: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
           const next = validateSegment(segment);
           const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
-          registerIdentity(registry, composed);
           return toIdentityString(composed);
         },
         enumerable: true,
@@ -598,8 +795,20 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
         writable: true,
         configurable: true,
       },
-      identityRegistry: {
-        value: registry,
+      annoteSchema: {
+        value: annoteSchema,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      annoteKey: {
+        value: annoteKey,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+      annoteHttp: {
+        value: annoteHttp,
         enumerable: true,
         writable: true,
         configurable: true,
@@ -621,14 +830,13 @@ type MakeReturn<Base extends TString.NonEmpty> = {
  * @param {Base} base - The base identity string
  * @returns {{readonly [K in `$${PascalCaseValue<ModuleSegmentValue<NormalizedBase<Base>>>}Id`]: IdentityComposer<BaseIdentity<Base>>}}
  */
-export const make = <const Base extends TString.NonEmpty>(base: Base): MakeReturn<Base> => {
-  const registry = MutableHashSet.empty<string>();
+export const make = flow(<const Base extends TString.NonEmpty>(base: Base): MakeReturn<Base> => {
   const normalized = normalizeBase(base);
   const baseIdentity = createBaseIdentity(normalized);
-  const composer = createComposer(baseIdentity, registry);
+  const composer = createComposer(baseIdentity);
   const key = toTaggedKey(normalized);
 
-  return F.coerceUnsafe<
+  return Fn.coerceUnsafe<
     {
       [x: string]: IdentityComposer<BaseIdentity<Base>>;
     },
@@ -636,4 +844,4 @@ export const make = <const Base extends TString.NonEmpty>(base: Base): MakeRetur
   >({
     [key]: composer,
   });
-};
+});

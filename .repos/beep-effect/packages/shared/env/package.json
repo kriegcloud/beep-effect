@@ -35,6 +35,34 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/pg-cursor": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "effect": "catalog:",
+    "pg-cursor": "catalog:",
+    "tailwindcss": "catalog:",
+    "testcontainers": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "dependencies": {
     "@beep/schema": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
@@ -52,7 +80,6 @@
     "clsx": "catalog:",
     "drizzle-orm": "catalog:",
     "drizzle-zero": "catalog:",
-    "effect": "catalog:",
     "mutative": "catalog:",
     "pg-connection-string": "catalog:",
     "pg-types": "catalog:",
@@ -63,55 +90,5 @@
     "tailwind-merge": "catalog:",
     "tailwindcss-animate": "catalog:",
     "tw-animate-css": "catalog:"
-  },
-  "devDependencies": {
-    "@beep/schema": "workspace:^",
-    "@beep/constants": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@effect/docgen": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "@mui/material": "catalog:",
-    "@react-email/components": "catalog:",
-    "@react-email/render": "catalog:",
-    "@rocicorp/zero": "catalog:",
-    "@tailwindcss/postcss": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "@types/pg-cursor": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "clsx": "catalog:",
-    "drizzle-orm": "catalog:",
-    "drizzle-zero": "catalog:",
-    "effect": "catalog:",
-    "mutative": "catalog:",
-    "pg-connection-string": "catalog:",
-    "pg-cursor": "catalog:",
-    "pg-types": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "resend": "catalog:",
-    "sql-formatter": "catalog:",
-    "tailwind-merge": "catalog:",
-    "tailwindcss": "catalog:",
-    "tailwindcss-animate": "catalog:",
-    "testcontainers": "catalog:",
-    "tw-animate-css": "catalog:"
-  },
-  "effect": {
-    "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
-    },
-    "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
-    }
   }
 }

@@ -62,7 +62,6 @@
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "drizzle-zero": "catalog:",
-    "effect": "catalog:",
     "mutative": "catalog:",
     "picocolors": "catalog:",
     "randexp-ts": "catalog:",
@@ -71,7 +70,8 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -84,5 +84,8 @@
         "**/*.ts"
       ]
     }
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
   }
 }

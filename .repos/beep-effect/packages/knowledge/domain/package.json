@@ -35,22 +35,12 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@effect/experimental": "catalog:",
-    "@effect/sql": "catalog:",
-    "effect": "catalog:",
-    "effect-machine": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/schema": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
     "@effect/docgen": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/sql": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:",
-    "effect-machine": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -63,5 +53,12 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
+    "effect-machine": "catalog:"
   }
 }

@@ -178,7 +178,7 @@ const readInventoryDocument = Effect.fn(function* () {
     catch: () => undefined,
   }).pipe(
     Effect.match({
-      onFailure: () => O.none<SchemaFirstInventoryDocument>(),
+      onFailure: O.none,
       onSuccess: O.some,
     })
   );
@@ -436,13 +436,17 @@ const mergeInventory = (
 ): SchemaFirstInventoryDocument => {
   const existingByKey = pipe(
     existingDocument,
-    O.map((document) => new Map(document.entries.map((entry) => [makeEntryKey(entry), entry] as const))),
-    O.getOrElse(() => new Map<string, SchemaFirstInventoryEntry>())
+    O.map((document) =>
+      HashMap.fromIterable(
+        document.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+      )
+    ),
+    O.getOrElse(() => HashMap.empty<string, SchemaFirstInventoryEntry>())
   );
 
   const mergedEntries = pipe(
     liveDocument.entries,
-    A.map((entry) => existingByKey.get(makeEntryKey(entry)) ?? entry)
+    A.map((entry) => O.getOrElse(HashMap.get(existingByKey, makeEntryKey(entry)), () => entry))
   );
 
   return new SchemaFirstInventoryDocument({
@@ -465,16 +469,20 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   const existingDocument = yield* readInventoryDocument();
   const mergedDocument = mergeInventory(liveDocument, existingDocument);
 
-  const liveByKey = new Map(liveDocument.entries.map((entry) => [makeEntryKey(entry), entry] as const));
-  const trackedByKey = new Map(mergedDocument.entries.map((entry) => [makeEntryKey(entry), entry] as const));
+  const liveByKey = HashMap.fromIterable(
+    liveDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  );
+  const trackedByKey = HashMap.fromIterable(
+    mergedDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  );
 
   const missingEntries = pipe(
     liveDocument.entries,
-    A.filter((entry) => !trackedByKey.has(makeEntryKey(entry)))
+    A.filter((entry) => !HashMap.has(trackedByKey, makeEntryKey(entry)))
   );
   const staleEntries = pipe(
     existingDocument,
-    O.map((document) => A.filter(document.entries, (entry) => !liveByKey.has(makeEntryKey(entry)))),
+    O.map((document) => A.filter(document.entries, (entry) => !HashMap.has(liveByKey, makeEntryKey(entry)))),
     O.getOrElse(A.empty<SchemaFirstInventoryEntry>)
   );
   const enforcedCandidates = pipe(

@@ -9,14 +9,14 @@ import { ChatHistoryStore } from "./ChatHistoryStore.js";
 /**
  * @since 0.0.0
  */
-export type RecorderOptions = {
+export type RecorderOptions = Readonly<{
   readonly sessionId?: string;
   readonly source?: ChatEventSource;
   readonly inputSource?: ChatEventSource;
   readonly recordInput?: boolean;
   readonly recordOutput?: boolean;
   readonly strict?: boolean;
-};
+}>;
 
 const defaultOutputSource: ChatEventSource = "sdk";
 const defaultInputSource: ChatEventSource = "external";

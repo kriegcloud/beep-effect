@@ -31,30 +31,43 @@ The implementation rejects these as `v0` foundations:
 ## Process Model
 ### Shell startup sequence
 1. The native shell decides whether it is in:
-   - managed dev mode using raw `bun run packages/runtime/server/src/main.ts`
+   - managed dev mode using `portless repo-memory-sidecar bun run packages/runtime/server/src/main.ts`
    - managed packaged mode using the bundled `repo-memory-sidecar` external binary
-2. The shell chooses a concrete localhost port and generates a fresh `sessionId`.
+2. The shell generates a fresh `sessionId`.
 3. The shell passes startup configuration through environment variables:
    - `BEEP_REPO_MEMORY_HOST=127.0.0.1`
-   - `BEEP_REPO_MEMORY_PORT=<chosen local port>`
+   - `BEEP_REPO_MEMORY_PORT=<chosen local port>` in packaged mode
    - `BEEP_REPO_MEMORY_SESSION_ID=<uuid>`
    - `BEEP_REPO_MEMORY_APP_DATA_DIR=<absolute path>`
    - `BEEP_REPO_MEMORY_VERSION=<desktop version>`
    - `BEEP_REPO_MEMORY_OTLP_ENABLED=false`
    - `BEEP_REPO_MEMORY_DEVTOOLS_ENABLED=false`
-4. The sidecar boots the SQLite-backed cluster/runtime substrate.
-5. The sidecar writes one machine-readable bootstrap line to stdout as JSON.
-6. The shell parses that bootstrap line and begins health checks against `GET /api/v0/health`.
-7. The shell marks the sidecar usable only after the health payload decodes as `SidecarBootstrap`.
+4. In dev mode, `portless` assigns `PORT` and gives the sidecar a stable browser-facing hostname.
+5. The sidecar boots the SQLite-backed cluster/runtime substrate.
+6. The sidecar writes one machine-readable bootstrap line to stdout as JSON.
+7. The shell parses that bootstrap line and begins health checks against `GET /api/v0/health`.
+8. The shell marks the sidecar usable only after the health payload decodes as `SidecarBootstrap`.
 
 `v0` does not rely on `port: 0` for the real app flow.
-The shell chooses a concrete local port.
+Packaged mode chooses a concrete local port. Dev mode may let `portless` provide `PORT`.
 
 ## Current Shell Integration
 - `apps/desktop/src-tauri` now owns four native commands: `start_sidecar`, `stop_sidecar`, `get_sidecar_state`, and `pick_repo_directory`.
-- Dev mode launches `bun run packages/runtime/server/src/main.ts` from the repo root. Packaged mode launches the bundled `repo-memory-sidecar` external binary.
-- The React shell auto-starts the managed sidecar, waits for bootstrap plus `GET /api/v0/health`, and keeps manual base-URL connection only as a debug override.
+- Dev mode launches the sidecar through `portless` and uses `https://desktop.localhost:1355` as the Tauri/webview dev origin. Packaged mode launches the bundled `repo-memory-sidecar` external binary.
+- The React shell auto-starts the managed sidecar, waits for bootstrap plus `GET /api/v0/health`, uses same-origin `"/api"` in native-managed dev, and keeps manual base-URL connection only as a debug override.
 - The shared desktop-side client boundary already lives in `packages/repo-memory/client` and talks only through `ControlPlaneApi` plus `RepoRunRpcGroup`.
+
+## Local Browser Transport Rules
+- The sidecar serves local-origin CORS for:
+  - `tauri://localhost`
+  - loopback `http` / `https` origins
+  - `*.localhost` origins
+- The sidecar adds these security headers to all responses:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: no-referrer`
+- Desktop dev prefers same-origin requests through the Vite proxy, but direct browser-to-sidecar calls remain valid through local CORS.
+- Desktop dev runs the named `portless` services over HTTPS. The direct sidecar bind in `SidecarBootstrap` remains the internal local HTTP address.
 
 ### Bootstrap stdout line
 The first machine-readable stdout line should conceptually match `SidecarBootstrap`:

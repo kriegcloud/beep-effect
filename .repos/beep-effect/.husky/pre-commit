@@ -45,6 +45,19 @@ if git diff --cached --name-only | grep -qE '^\.claude/agents/.*\.md$|^\.claude/
   fi
 fi
 
+# Enforce config sync when relevant files are staged
+if git diff --cached --name-only | grep -qE '^packages/.+/(package\.json|tsconfig(\.[^/]+)?\.json)$|^tooling/.+/(package\.json|tsconfig(\.[^/]+)?\.json)$|^apps/[^/]+/(package\.json|tsconfig\.json)$|^tooling/cli/src/commands/tsconfig-sync/.*$|^tooling/cli/src/commands/peer-deps-sync/.*$|^tooling/cli/src/index\.ts$|^tooling/utils/src/schemas/PackageJson\.ts$|^tooling/utils/src/repo/.*$|^package\.json$|^syncpack\.config\.ts$'; then
+  echo ""
+  echo "Config sync files detected in commit, validating manifests and tsconfig refs..."
+  bun run repo-cli tsconfig-sync --check --pre-commit
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Config sync failed."
+    echo "Run 'bun run config-sync' to apply fixes."
+    exit 1
+  fi
+fi
+
 # Repo-law enforcement (scoped): only run when knowledge server/domain source files are staged.
 if git diff --cached --name-only | grep -qE '^packages/knowledge/server/src/.*\.ts$|^packages/knowledge/server/src/.*\.tsx$'; then
   echo ""

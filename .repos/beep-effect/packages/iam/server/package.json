@@ -34,6 +34,34 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/sdk-logs": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@opentelemetry/sdk-trace-web": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "effect": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -61,20 +89,14 @@
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/workflow": "catalog:",
-    "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-logs-otlp-http": "catalog:",
     "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-    "@opentelemetry/sdk-logs": "catalog:",
-    "@opentelemetry/sdk-metrics": "catalog:",
-    "@opentelemetry/sdk-trace-base": "catalog:",
-    "@opentelemetry/sdk-trace-web": "catalog:",
     "@simplewebauthn/server": "catalog:",
     "better-auth": "catalog:",
     "better-auth-localization": "catalog:",
     "drizzle-orm": "catalog:",
     "dub": "catalog:",
-    "effect": "catalog:",
     "jose": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -83,68 +105,21 @@
     "uuid": "catalog:",
     "zod": "catalog:"
   },
-  "devDependencies": {
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/constants": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/iam-domain": "workspace:^",
-    "@beep/shared-env": "workspace:^",
-    "@beep/shared-server": "workspace:^",
-    "@beep/iam-tables": "workspace:^",
-    "@babel/core": "catalog:",
-    "@better-auth/core": "catalog:",
-    "@better-auth/oauth-provider": "catalog:",
-    "@better-auth/passkey": "catalog:",
-    "@better-auth/scim": "catalog:",
-    "@better-auth/stripe": "catalog:",
-    "@better-auth/utils": "catalog:",
-    "@dub/better-auth": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@effect/docgen": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/opentelemetry": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/sql-drizzle": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "@effect/workflow": "catalog:",
-    "@opentelemetry/api": "catalog:",
-    "@opentelemetry/exporter-logs-otlp-http": "catalog:",
-    "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
-    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-    "@opentelemetry/sdk-logs": "catalog:",
-    "@opentelemetry/sdk-metrics": "catalog:",
-    "@opentelemetry/sdk-trace-base": "catalog:",
-    "@opentelemetry/sdk-trace-web": "catalog:",
-    "@simplewebauthn/server": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "better-auth": "catalog:",
-    "better-auth-localization": "catalog:",
-    "drizzle-orm": "catalog:",
-    "dub": "catalog:",
-    "effect": "catalog:",
-    "jose": "catalog:",
-    "next": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "stripe": "catalog:",
-    "uuid": "catalog:",
-    "zod": "catalog:"
-  },
-  "effect": {
-    "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
     },
-    "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
+    "@opentelemetry/sdk-logs": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-metrics": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-base": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-web": {
+      "optional": true
     }
   }
 }

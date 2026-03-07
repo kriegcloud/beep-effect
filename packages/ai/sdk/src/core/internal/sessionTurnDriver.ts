@@ -101,10 +101,10 @@ const makeOutputStream = (request: TurnRequest): Stream.Stream<SDKMessage, Sessi
 /**
  * @since 0.0.0
  */
-export type SessionTurnDriverTimeouts = {
+export type SessionTurnDriverTimeouts = Readonly<{
   readonly turnSendTimeout?: Duration.Input;
   readonly turnResultTimeout?: Duration.Input;
-};
+}>;
 
 /**
  * @since 0.0.0

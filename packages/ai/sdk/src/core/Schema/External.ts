@@ -26,11 +26,11 @@ export type JSONRPCMessage = unknown;
 /**
  * @since 0.0.0
  */
-export type CallToolResult = {
+export type CallToolResult = Readonly<{
   readonly content?: ReadonlyArray<unknown>;
   readonly structuredContent?: Record<string, unknown>;
   readonly isError?: boolean;
-};
+}>;
 /**
  * @since 0.0.0
  */

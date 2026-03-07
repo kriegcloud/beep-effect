@@ -36,16 +36,10 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/invariant": "workspace:^",
-    "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/invariant": "workspace:^",
     "@beep/types": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@effect/build-utils": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
@@ -62,5 +56,10 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/schema": "workspace:^"
   }
 }

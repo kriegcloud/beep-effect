@@ -6,14 +6,14 @@ import { StorageConfig, type StorageConfigData } from "./StorageConfig.js";
 /**
  * @since 0.0.0
  */
-export type StorageStatus = {
+export type StorageStatus = Readonly<{
   readonly config?: {
     readonly enabled: StorageConfigData["enabled"];
     readonly cleanup: StorageConfigData["cleanup"];
     readonly syncIntervalMs: number;
   };
   readonly sync?: ReadonlyArray<RemoteStatus>;
-};
+}>;
 
 /**
  * @since 0.0.0

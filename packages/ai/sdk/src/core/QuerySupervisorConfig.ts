@@ -19,7 +19,7 @@ export type PendingQueueStrategy = typeof PendingQueueStrategy.Type;
 /**
  * @since 0.0.0
  */
-export type QuerySupervisorSettings = {
+export type QuerySupervisorSettings = Readonly<{
   readonly concurrencyLimit: number;
   readonly pendingQueueCapacity: number;
   readonly pendingQueueStrategy: PendingQueueStrategy;
@@ -29,7 +29,7 @@ export type QuerySupervisorSettings = {
   readonly eventBufferStrategy: PendingQueueStrategy;
   readonly metricsEnabled: boolean;
   readonly tracingEnabled: boolean;
-};
+}>;
 
 const defaultSettings: QuerySupervisorSettings = {
   concurrencyLimit: 4,
@@ -94,9 +94,9 @@ const makeQuerySupervisorConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export interface QuerySupervisorConfigShape {
+export type QuerySupervisorConfigShape = Readonly<{
   readonly settings: QuerySupervisorSettings;
-}
+}>;
 
 /**
  * @since 0.0.0

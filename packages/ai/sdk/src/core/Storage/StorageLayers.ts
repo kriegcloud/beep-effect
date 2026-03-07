@@ -28,10 +28,10 @@ import { layerR2, type R2Bucket } from "./StorageR2.js";
 /**
  * @since 0.0.0
  */
-export type StorageLayerOptions = {
+export type StorageLayerOptions = Readonly<{
   readonly directory?: string;
   readonly tenant?: string;
-};
+}>;
 
 /**
  * @since 0.0.0
@@ -45,10 +45,10 @@ export type StorageMode = "standard" | "journaled";
 /**
  * @since 0.0.0
  */
-export type CloudflareStorageBindings = {
+export type CloudflareStorageBindings = Readonly<{
   readonly r2Bucket?: R2Bucket;
   readonly kvNamespace?: KVNamespace;
-};
+}>;
 
 /**
  * @since 0.0.0

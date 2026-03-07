@@ -10,13 +10,13 @@ const $I = $AiSdkId.create("core/AgentRuntimeConfig");
 /**
  * @since 0.0.0
  */
-export type AgentRuntimeSettings = {
+export type AgentRuntimeSettings = Readonly<{
   readonly defaultOptions: Options;
   readonly queryTimeout: Duration.Duration | undefined;
   readonly firstMessageTimeout: Duration.Duration | undefined;
   readonly retryMaxRetries: number;
   readonly retryBaseDelay: Duration.Duration;
-};
+}>;
 
 const emptyOptions: Options = {};
 
@@ -65,9 +65,9 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 /**
  * @since 0.0.0
  */
-export interface AgentRuntimeConfigShape {
+export type AgentRuntimeConfigShape = Readonly<{
   readonly settings: AgentRuntimeSettings;
-}
+}>;
 
 /**
  * @since 0.0.0

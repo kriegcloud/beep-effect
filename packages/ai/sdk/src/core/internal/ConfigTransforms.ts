@@ -1,6 +1,7 @@
 import { CommaSeparatedList } from "@beep/schema";
 import { Struct, Text } from "@beep/utils";
 import { Effect, Redacted, String as Str } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -24,11 +25,8 @@ export const parseOptionalCommaSeparatedList = (value: O.Option<string>) =>
   O.flatMap(value, (raw) => {
     const schemaDecoded = S.decodeUnknownOption(CommaSeparatedList)(raw);
     return O.match(schemaDecoded, {
-      onNone: () => {
-        const entries = Text.splitCommaSeparatedTrimmed(raw);
-        return entries.length > 0 ? O.some(entries) : O.none();
-      },
-      onSome: (entries) => (entries.length > 0 ? O.some(entries) : O.none()),
+      onNone: () => S.decodeUnknownOption(S.NonEmptyArray(S.String))(Text.splitCommaSeparatedTrimmed(raw)),
+      onSome: (entries) => S.decodeUnknownOption(S.NonEmptyArray(S.String))(entries),
     });
   });
 
@@ -50,7 +48,7 @@ export const buildAuthEnv = (
   apiKey: O.Option<Redacted.Redacted>,
   sessionAccessToken: O.Option<Redacted.Redacted>
 ): NodeJS.ProcessEnv | undefined => {
-  const authEnvEntries: Array<readonly [string, string]> = [];
+  const authEnvEntries = A.empty<readonly [string, string]>();
   if (O.isSome(apiKey)) {
     authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(apiKey.value)]);
   }

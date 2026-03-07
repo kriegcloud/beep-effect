@@ -8,10 +8,10 @@ import { AgentRpcs } from "./AgentRpcs.js";
 /**
  * @since 0.0.0
  */
-export type AgentRpcServerOptions = {
+export type AgentRpcServerOptions = Readonly<{
   readonly port?: number;
   readonly path?: string;
-};
+}>;
 
 /**
  * @since 0.0.0

@@ -50,9 +50,9 @@ export interface ToolkitWithHandlers<Tools extends Record<string, Tool.Any>> ext
 /**
  * @since 0.0.0
  */
-export interface Any {
+export type Any = Readonly<{
   readonly tools: Record<string, Tool.Any>;
-}
+}>;
 
 /**
  * @since 0.0.0

@@ -65,11 +65,11 @@ const accountInfoKey = new AccountInfoRequest();
 /**
  * @since 0.0.0
  */
-export type QueryMetadataCache = {
+export type QueryMetadataCache = Readonly<{
   readonly supportedCommands: PersistedCache.PersistedCache<SupportedCommandsRequest>;
   readonly supportedModels: PersistedCache.PersistedCache<SupportedModelsRequest>;
   readonly accountInfo: PersistedCache.PersistedCache<AccountInfoRequest>;
-};
+}>;
 
 /**
  * Options for metadata caching.
@@ -77,12 +77,12 @@ export type QueryMetadataCache = {
 /**
  * @since 0.0.0
  */
-export type QueryMetadataCacheOptions = {
+export type QueryMetadataCacheOptions = Readonly<{
   readonly storeIdPrefix?: string;
   readonly timeToLive?: Duration.Input;
   readonly inMemoryCapacity?: number;
   readonly inMemoryTTL?: Duration.Input;
-};
+}>;
 
 const cacheErrorTags = HashSet.fromIterable(["ConfigError", "DecodeError", "TransportError", "HookError", "McpError"]);
 
@@ -182,7 +182,7 @@ export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadata
  */
 export const makeCachedQueryHandle = Effect.fn("PersistedCache.makeCachedQueryHandle")(function* (
   handle: QueryHandle,
-  options?: QueryMetadataCacheOptions
+  options?: undefined | QueryMetadataCacheOptions
 ) {
   const cache = yield* makeQueryMetadataCache(handle, options);
   return withQueryMetadataCache(handle, cache);

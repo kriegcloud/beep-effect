@@ -34,7 +34,7 @@ type QuickConfigCloudflareSandbox = {
 /**
  * @since 0.0.0
  */
-export type QuickConfig = {
+export type QuickConfig = Readonly<{
   readonly apiKey?: string;
   readonly model?: string;
   readonly timeout?: Duration.Input;
@@ -48,7 +48,7 @@ export type QuickConfig = {
   readonly storageBindings?: CloudflareStorageBindings;
   readonly allowUnsafeKv?: boolean;
   readonly tenant?: string;
-};
+}>;
 
 type ResolvedQuickConfig = {
   readonly apiKey?: string;

@@ -6,7 +6,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bun run scripts/dev-with-portless.ts",
+    "dev:raw": "vite",
     "dev:native": "tauri dev",
     "build": "vite build",
     "build:native": "tauri build",

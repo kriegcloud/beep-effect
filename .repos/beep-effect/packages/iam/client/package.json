@@ -37,63 +37,38 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' tsx ./src/execute.ts"
   },
   "peerDependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/constants": "workspace:^",
-    "@beep/wrap": "workspace:^",
-    "@beep/errors": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/iam-domain": "workspace:^",
-    "@beep/shared-env": "workspace:^",
-    "@beep/ui": "workspace:^",
-    "@beep/iam-server": "workspace:^",
-    "@beep/shared-client": "workspace:^",
-    "@better-auth/core": "catalog:",
-    "@better-auth/oauth-provider": "catalog:",
-    "@better-auth/passkey": "catalog:",
-    "@better-auth/scim": "catalog:",
-    "@better-auth/sso": "catalog:",
-    "@better-auth/stripe": "catalog:",
-    "@better-auth/utils": "catalog:",
-    "@better-fetch/fetch": "catalog:",
-    "@dub/better-auth": "catalog:",
-    "@effect-atom/atom": "catalog:",
-    "@effect-atom/atom-react": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@effect/opentelemetry": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/workflow": "catalog:",
     "@opentelemetry/api": "catalog:",
-    "@opentelemetry/exporter-logs-otlp-http": "catalog:",
-    "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
-    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-logs": "catalog:",
     "@opentelemetry/sdk-metrics": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-web": "catalog:",
-    "@simplewebauthn/server": "catalog:",
-    "better-auth": "catalog:",
-    "better-auth-localization": "catalog:",
-    "drizzle-orm": "catalog:",
-    "dub": "catalog:",
     "effect": "catalog:",
-    "jose": "catalog:",
-    "mutative": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "sonner": "catalog:",
-    "stripe": "catalog:",
-    "uuid": "catalog:",
-    "zod": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@beep/testkit": "workspace:^",
-    "@beep/types": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/types": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/constants": "workspace:^",
@@ -118,47 +93,41 @@
     "@effect-atom/atom": "catalog:",
     "@effect-atom/atom-react": "catalog:",
     "@effect/cluster": "catalog:",
-    "@effect/docgen": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/opentelemetry": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/workflow": "catalog:",
-    "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-logs-otlp-http": "catalog:",
     "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-    "@opentelemetry/sdk-logs": "catalog:",
-    "@opentelemetry/sdk-metrics": "catalog:",
-    "@opentelemetry/sdk-trace-base": "catalog:",
-    "@opentelemetry/sdk-trace-web": "catalog:",
     "@simplewebauthn/server": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
     "better-auth": "catalog:",
     "better-auth-localization": "catalog:",
     "drizzle-orm": "catalog:",
     "dub": "catalog:",
-    "effect": "catalog:",
     "jose": "catalog:",
     "mutative": "catalog:",
-    "next": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "sonner": "catalog:",
     "stripe": "catalog:",
     "uuid": "catalog:",
     "zod": "catalog:"
   },
-  "effect": {
-    "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
     },
-    "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
+    "@opentelemetry/sdk-logs": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-metrics": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-base": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-web": {
+      "optional": true
     }
   }
 }

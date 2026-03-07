@@ -40,6 +40,8 @@ const desktopSessionId = "desktop-shell";
 const sidecarBaseUrlKey = "beep.repoMemory.sidecarBaseUrl";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunId = S.decodeUnknownSync(RunId);
+const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string =>
+  import.meta.env.DEV && typeof window !== "undefined" ? window.location.origin : bootstrap.baseUrl;
 
 type ConnectionState = "idle" | "connecting" | "connected" | "error";
 type ActionState = "idle" | "registering" | "indexing" | "querying" | "refreshing" | "streaming";
@@ -74,7 +76,7 @@ const formatDateTime = (value: DateTime.Utc): string =>
   new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(DateTime.toEpochMillis(value)));
+  }).format(DateTime.toEpochMillis(value));
 
 const formatOptionalDateTime = (value: O.Option<DateTime.Utc>): string =>
   O.match(value, {
@@ -401,7 +403,12 @@ export function RepoMemoryDesktop() {
     });
   };
 
-  const connectToBaseUrl = async (rawBaseUrl: string) => {
+  const connectToBaseUrl = async (
+    rawBaseUrl: string,
+    options?: {
+      readonly persistBaseUrl?: boolean;
+    }
+  ) => {
     const normalizedBaseUrl = normalizeSidecarBaseUrl(rawBaseUrl);
     const nextClient = await Effect.runPromise(
       makeRepoMemoryClient(
@@ -417,7 +424,9 @@ export function RepoMemoryDesktop() {
     await syncSnapshot(nextClient);
 
     startTransition(() => {
-      setBaseUrlInput(normalizedBaseUrl);
+      if (options?.persistBaseUrl !== false) {
+        setBaseUrlInput(normalizedBaseUrl);
+      }
       setClient(nextClient);
       setBootstrap(nextBootstrap);
       setConnectionState("connected");
@@ -479,7 +488,9 @@ export function RepoMemoryDesktop() {
         throw new Error("Managed sidecar did not report a bootstrap payload.");
       }
 
-      await connectToBaseUrl(nextBootstrap.baseUrl);
+      await connectToBaseUrl(managedDevClientBaseUrl(nextBootstrap), {
+        persistBaseUrl: false,
+      });
 
       if (nextManagedState !== null) {
         startTransition(() => {

@@ -35,6 +35,7 @@ import {
   Effect,
   Fiber,
   FileSystem,
+  flow,
   Layer,
   Path,
   pipe,
@@ -54,9 +55,12 @@ import * as ShardingConfig from "effect/unstable/cluster/ShardingConfig";
 import * as SqlMessageStorage from "effect/unstable/cluster/SqlMessageStorage";
 import * as SqlRunnerStorage from "effect/unstable/cluster/SqlRunnerStorage";
 import * as SqlEventLogJournal from "effect/unstable/eventlog/SqlEventLogJournal";
+import * as HttpEffect from "effect/unstable/http/HttpEffect";
+import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServer from "effect/unstable/http/HttpServer";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetrics";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
@@ -85,6 +89,53 @@ const internalRunnerHost = (host: string): string => {
 
 const makeRunnerAddress = (config: SidecarRuntimeConfig) =>
   RunnerAddress.make(internalRunnerHost(config.host), config.port);
+
+const sidecarCorsAllowedMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
+const sidecarCorsAllowedHeaders = ["Content-Type", "Authorization"];
+const sidecarSecurityHeaders = {
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "referrer-policy": "no-referrer",
+} as const;
+
+const isLoopbackHost = (hostname: string): boolean =>
+  hostname === "localhost" ||
+  hostname === "127.0.0.1" ||
+  hostname === "::1" ||
+  hostname === "[::1]" ||
+  hostname.endsWith(".localhost");
+
+const isAllowedSidecarOrigin = (origin: string): boolean => {
+  try {
+    const url = new URL(origin);
+
+    if (url.protocol === "tauri:") {
+      return url.hostname === "localhost";
+    }
+
+    return (url.protocol === "http:" || url.protocol === "https:") && isLoopbackHost(url.hostname);
+  } catch {
+    return false;
+  }
+};
+
+const setSidecarSecurityHeaders = (response: HttpServerResponse.HttpServerResponse) =>
+  HttpServerResponse.setHeaders(response, sidecarSecurityHeaders);
+
+const sidecarTransportMiddlewareLayer = HttpRouter.middleware(
+  flow(
+    HttpMiddleware.cors({
+      allowedOrigins: isAllowedSidecarOrigin,
+      allowedMethods: sidecarCorsAllowedMethods,
+      allowedHeaders: sidecarCorsAllowedHeaders,
+      maxAge: 86_400,
+    }),
+    HttpEffect.withPreResponseHandler((_request, response) => Effect.succeed(setSidecarSecurityHeaders(response)))
+  ),
+  {
+    global: true,
+  }
+);
 
 /**
  * Startup configuration for the local sidecar runtime.
@@ -604,7 +655,9 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         prometheusMetricsLayer
       ).pipe(Layer.provide(repoRunServiceLayer));
 
-      const routesLayer = Layer.mergeAll(applicationRoutesLayer, clusterHttpRouteLayer);
+      const routesLayer = Layer.mergeAll(applicationRoutesLayer, clusterHttpRouteLayer).pipe(
+        Layer.provide(sidecarTransportMiddlewareLayer)
+      );
       const httpServerLayer = Layer.fresh(
         BunHttpServer.layer({
           hostname: config.host,
@@ -706,7 +759,10 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
 export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(function* () {
   const path = yield* Path.Path;
   const host = yield* Config.string("BEEP_REPO_MEMORY_HOST").pipe(Config.withDefault("127.0.0.1"));
-  const port = yield* Config.number("BEEP_REPO_MEMORY_PORT").pipe(Config.withDefault(8788));
+  const port = yield* Config.number("BEEP_REPO_MEMORY_PORT").pipe(
+    Config.orElse(() => Config.number("PORT")),
+    Config.withDefault(8788)
+  );
   const appDataDirInput = yield* Config.string("BEEP_REPO_MEMORY_APP_DATA_DIR").pipe(
     Config.withDefault(".beep/repo-memory")
   );

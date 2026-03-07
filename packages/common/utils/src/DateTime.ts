@@ -16,3 +16,8 @@ import { DateTime } from "effect";
  */
 export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.makeUnsafe>[0]>(input: A): DateTime.Utc =>
   DateTime.toUtc(DateTime.makeUnsafe(input));
+
+/**
+ * @since 0.1.0
+ */
+export * from "effect/DateTime";

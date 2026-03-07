@@ -19,6 +19,21 @@ export * as Bool from "./Bool.ts";
  * @since 0.0.0
  * @category Configuration
  */
+export * as DateTime from "./DateTime.ts";
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export * as Thunk from "./internal/Thunk.ts";
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export * as O from "./Option.ts";
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
 export * as Str from "./Str.ts";
 /**
  * @since 0.0.0
@@ -35,8 +50,3 @@ export * as Text from "./Text.ts";
  * @category Configuration
  */
 export * from "./thunk.ts";
-/**
- * @since 0.0.0
- * @category Configuration
- */
-export * as Thunk from "./thunk.ts";

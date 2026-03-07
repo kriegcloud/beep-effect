@@ -25,6 +25,7 @@ At minimum, include questions like:
 
 ## Current Proven Coverage
 - Spawned Bun sidecar tests already prove bootstrap stdout discovery, control-plane health, same-port restart, and durable replay against the real sidecar entrypoint.
+- Spawned Bun sidecar tests already prove local-origin CORS preflight and security headers against the real sidecar entrypoint.
 - Grounded retrieval tests already prove source-backed answers, citation alignment, and retrieval-packet persistence for the current deterministic query classes.
 - The native Tauri wrapper already owns managed startup/shutdown and folder picking while the React shell stays thin over the public protocol.
 
@@ -63,6 +64,7 @@ At minimum, include questions like:
 ### 6. Local operational behavior
 - sidecar launches cleanly from the shell
 - managed native startup waits for a healthy bootstrap instead of assuming readiness
+- desktop dev same-origin requests through `https://desktop.localhost:1355/api/...` reach the sidecar successfully
 - sidecar shuts down cleanly on signal
 - no leaked long-lived resources after shutdown
 - SQLite-backed runtime comes back without corrupting run history

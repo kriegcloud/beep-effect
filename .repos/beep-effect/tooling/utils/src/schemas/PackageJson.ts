@@ -88,6 +88,18 @@ const DependencyMap = S.Record({
   value: S.String,
 });
 
+const PeerDependencyMetaEntry = S.Struct(
+  {
+    optional: S.optional(S.Boolean),
+  },
+  S.Record({ key: S.String, value: Json })
+);
+
+const PeerDependenciesMeta = S.Record({
+  key: S.String,
+  value: PeerDependencyMetaEntry,
+});
+
 /**
  * Package.json exports field condition value.
  * Can be a string path or nested conditions object.
@@ -183,6 +195,7 @@ export class PackageJson extends S.Struct(
     devDependencies: S.optional(DependencyMap),
     optionalDependencies: S.optional(DependencyMap),
     peerDependencies: S.optional(DependencyMap),
+    peerDependenciesMeta: S.optional(PeerDependenciesMeta),
     bundleDependencies: S.optional(S.Union(S.Array(S.String), S.Boolean)),
     bundledDependencies: S.optional(S.Union(S.Array(S.String), S.Boolean)),
     resolutions: S.optional(S.Record({ key: S.String, value: S.Any })),

@@ -29,20 +29,20 @@ const $I = $AiSdkId.create("core/Storage/ChatHistoryStore");
 /**
  * @since 0.0.0
  */
-export type ChatHistoryAppendOptions = {
+export type ChatHistoryAppendOptions = Readonly<{
   readonly timestamp?: number;
   readonly source?: ChatEventSource;
-};
+}>;
 
 /**
  * @since 0.0.0
  */
-export type ChatHistoryListOptions = {
+export type ChatHistoryListOptions = Readonly<{
   readonly startSequence?: number;
   readonly endSequence?: number;
   readonly limit?: number;
   readonly reverse?: boolean;
-};
+}>;
 
 /**
  * @since 0.0.0

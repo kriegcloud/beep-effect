@@ -10,13 +10,13 @@ import type { HookMap } from "./utils.js";
 /**
  * @since 0.0.0
  */
-export type AuditLoggingOptions = {
+export type AuditLoggingOptions = Readonly<{
   readonly strict?: undefined | boolean;
   readonly logHookOutcomes?: undefined | boolean;
   readonly logPermissionDecisions?: undefined | boolean;
   readonly matcher?: undefined | string;
   readonly timeout?: undefined | Duration.Input;
-};
+}>;
 
 const hookEvents: ReadonlyArray<HookEvent> = [
   "PreToolUse",

@@ -1,7 +1,8 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Layer, MutableHashMap, Option as O, Path, ServiceMap, String as Str } from "effect";
+import { Effect, FileSystem, Layer, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
   type ClassDeclaration,
@@ -18,6 +19,23 @@ import {
   type TypeAliasDeclaration,
 } from "ts-morph";
 import { findRepoRoot } from "../Root.js";
+import type {
+  ProjectCacheKey,
+  SymbolKind,
+  TsMorphDiagnosticsRequest,
+  TsMorphDiagnosticsResult,
+  TsMorphFileOutlineRequest,
+  TsMorphProjectScopeRequest,
+  TsMorphScopeEntrypoint,
+  TsMorphSourceTextRequest,
+  Symbol as TsMorphSymbol,
+  TsMorphSymbolLookupRequest,
+  TsMorphSymbolLookupResult,
+  TsMorphSymbolSearchRequest,
+  TsMorphSymbolSearchResult,
+  TsMorphSymbolSourceRequest,
+  TsMorphSymbolSourceResult,
+} from "./TSMorph.model.js";
 import {
   ByteLength,
   ByteOffset,
@@ -26,35 +44,20 @@ import {
   makeProjectCacheKey,
   makeProjectScopeId,
   makeSymbol,
-  type ProjectCacheKey,
   ProjectScopeId,
   ProjectScopeIdParts,
   RepoRootPath,
   SourceText,
   SymbolFilePath,
-  type SymbolKind,
   SymbolNameSegment,
   SymbolQualifiedName,
   symbolCategoryFromKind,
   TsConfigFilePath,
-  type TsMorphDiagnosticsRequest,
-  type TsMorphDiagnosticsResult,
   TsMorphFileOutline,
-  type TsMorphFileOutlineRequest,
   TsMorphProjectScope,
-  type TsMorphProjectScopeRequest,
   TsMorphReferencePolicy,
-  type TsMorphScopeEntrypoint,
   TsMorphScopeMode,
-  type TsMorphSourceTextRequest,
   TsMorphSourceTextResult,
-  type Symbol as TsMorphSymbol,
-  type TsMorphSymbolLookupRequest,
-  type TsMorphSymbolLookupResult,
-  type TsMorphSymbolSearchRequest,
-  type TsMorphSymbolSearchResult,
-  type TsMorphSymbolSourceRequest,
-  type TsMorphSymbolSourceResult,
   TypeScriptFilePath,
   TypeScriptImplementationFilePath,
   TypeScriptImplementationFilePathToSymbolFilePath,
@@ -157,7 +160,7 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
   "TsMorphSourceFileError",
   {
     scopeId: S.OptionFromNullOr(ProjectScopeId),
-    filePath: TypeScriptFilePath,
+    filePath: S.Option(TypeScriptFilePath),
     message: S.String,
   },
   $I.annote("TsMorphSourceFileError", {
@@ -502,7 +505,7 @@ const normalizeOutlineSymbol = (
         (error) =>
           new TsMorphSourceFileError({
             scopeId: O.none(),
-            filePath: decodeTypeScriptFilePath(symbolFilePath),
+            filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
             message: `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`,
           })
       )
@@ -714,7 +717,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           () =>
             new TsMorphSourceFileError({
               scopeId: O.none(),
-              filePath,
+              filePath: S.decodeOption(TypeScriptFilePath)(filePath),
               message: `No TypeScript file exists at "${absoluteFilePath}".`,
             })
         );
@@ -728,7 +731,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
             (message) =>
               new TsMorphSourceFileError({
                 scopeId: O.none(),
-                filePath,
+                filePath: S.decodeOption(TypeScriptFilePath)(filePath),
                 message: `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`,
               })
           ),
@@ -883,7 +886,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         ) {
           return yield* new TsMorphSourceFileError({
             scopeId: O.some(scope.scopeId),
-            filePath: normalizedFilePath,
+            filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
             message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
           });
         }
@@ -895,7 +898,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         if (sourceFile === undefined) {
           return yield* new TsMorphSourceFileError({
             scopeId: O.some(scope.scopeId),
-            filePath: normalizedFilePath,
+            filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
             message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
           });
         }
@@ -932,7 +935,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         (message) =>
           new TsMorphSourceFileError({
             scopeId: O.some(scope.scopeId),
-            filePath: loadedSourceFile.filePath,
+            filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
             message: `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
           })
       );
@@ -941,7 +944,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           (error) =>
             new TsMorphSourceFileError({
               scopeId: O.some(scope.scopeId),
-              filePath: loadedSourceFile.filePath,
+              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
               message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
             })
         )

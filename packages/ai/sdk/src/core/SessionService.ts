@@ -16,12 +16,12 @@ const $I = $AiSdkId.create("core/SessionService");
 /**
  * @since 0.0.0
  */
-export type SessionHistoryOptions = {
+export type SessionHistoryOptions = Readonly<{
   readonly source?: ChatEventSource;
   readonly inputSource?: ChatEventSource;
   readonly recordInput?: boolean;
   readonly recordOutput?: boolean;
-};
+}>;
 
 const defaultOutputSource: ChatEventSource = "sdk";
 const defaultInputSource: ChatEventSource = "external";

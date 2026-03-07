@@ -17,10 +17,10 @@ const $I = $AiSdkId.create("core/Storage/ArtifactStore");
 /**
  * @since 0.0.0
  */
-export type ArtifactListOptions = {
+export type ArtifactListOptions = Readonly<{
   readonly offset?: number;
   readonly limit?: number;
-};
+}>;
 
 /**
  * @since 0.0.0
