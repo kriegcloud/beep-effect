@@ -1,0 +1,10 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] prov:endedAtTime "2024-11-19T05:07:34.304708+00:00"^^xsd:dateTime ;
+    prov:generated <http://www.example.com/exampleEntity/output> ;
+    prov:startedAtTime "2024-11-19T05:07:22.927913+00:00"^^xsd:dateTime ;
+    prov:type "prov:Activity" ;
+    prov:used <http://www.example.com/exampleEntity/file>,
+        <http://www.example.com/exampleEntity/user_input> .
+

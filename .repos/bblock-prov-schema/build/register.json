@@ -1,0 +1,319 @@
+{
+  "name": "JSON schemas for W3C PROV model",
+  "abstract": "Defines a standardised JSON schema for PROV ontology elements - supporting a graph structure based on an array of objects implementing PROV defined classes with object cross references.",
+  "description": "Provenance defined using the [W3C PROV-O model](https://www.w3.org/TR/prov-o/) is a DAG (non-cyclic graph) based on three main object types: Entity, Activity and Agent.\n\nThis repository defines a JSON schema and matching JSON-LD context using the [OGC Building Blocks](https://ogcincubator.github.io/bblocks-docs/) methodology, \nfor W3C PROV-O model, using the canonical terminology used in the PROV ontology as element names.\n\nThis schema is made of mutually dependend sub schemas for the key elements of Prov - Entity, Activity and Agent.\n\nIt also defines a context for an optional schema property \"has_provenance\" that can be used to wrap a provenance graph as an array of such objects, to extend the property prov:wasGeneratedBy (whose range is one or more Entity objects) with an explicit schema.\n\n![](https://www.w3.org/TR/prov-o/diagrams/starting-points.svg)\n\nNote that the PROV working group originally defined a number of JSON serialisation options, however these have limited uptake and do no allow PROV-O to annotate other schemas. This implementation uses modern JSON schema and JSON-LD mechanisms to provide a complete mapping from JSON to PROV-O model.\n\nSince the development of this schema another proposal has been submitted as a W3C memberr submission: \n[https://www.w3.org/submissions/prov-jsonld/](https://www.w3.org/submissions/prov-jsonld/)\n\nThe rationale for this is consistent with the design principles:\n\n\" the family of PROV specifications lacks a serialization capable of simultaneously addressing all of the following requirements:\n\n  - **Lightweight** A serialization MUST support lightweight Web applications.\n  - **Natural** A serialization MUST look natural to its targeted community of users.\n  - **Semantic** A serialization MUST allow for semantic markup and integration with linked data applications.\n  - **Efficient** A serialization MUST be efficiently processable.\nIn our view, none of the existing PROV serializations supports all these requirements simultaneously.\"\n\nAn activity to reconcile these approaches and explore formalisation is proposed. \n",
+  "sparqlEndpoint": "https://defs-dev.opengis.net/fuseki/query",
+  "modified": "2026-02-12T14:54:50.275204",
+  "tooling": {
+    "bblocks-postprocess": {
+      "commitId": "\"da938c570c326dad590b43582182bcf06cc63198",
+      "shortCommitId": "\"da938c",
+      "date": "2026-01-19T11:49:34+00:00\""
+    }
+  },
+  "gitRepository": "https://github.com/ogcincubator/bblock-prov-schema",
+  "gitHubRepository": "https://github.com/ogcincubator/bblock-prov-schema/blob/master/",
+  "baseURL": "https://ogcincubator.github.io/bblock-prov-schema/",
+  "viewerURL": "https://ogcincubator.github.io/bblock-prov-schema/",
+  "validationReport": "https://ogcincubator.github.io/bblock-prov-schema/build/tests/report.html",
+  "validationReportJson": "https://ogcincubator.github.io/bblock-prov-schema/build/tests/report.json",
+  "imports": [
+    "https://opengeospatial.github.io/bblocks/register.json",
+    "https://ogcincubator.github.io/cross-domain-model/build/register.json"
+  ],
+  "bblocks": [
+    {
+      "itemIdentifier": "ogc.ogc-utils.prov-activity",
+      "name": "Prov Activity",
+      "highlighted": true,
+      "abstract": "Sub-schema for PROV Entities",
+      "status": "under-development",
+      "dateTimeAddition": "2023-07-10T00:00:00Z",
+      "itemClass": "schema",
+      "register": "ogc-utils",
+      "version": "0.1",
+      "dateOfLastChange": "2026-02-12",
+      "sources": [
+        {
+          "link": "https://www.w3.org/TR/prov-o/",
+          "title": "The PROV-O vocabulary"
+        }
+      ],
+      "ldContext": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-activity/context.jsonld",
+      "maturity": "development",
+      "scope": "unstable",
+      "tags": [
+        "prov",
+        "utils"
+      ],
+      "shaclShapes": {},
+      "dependsOn": [
+        "ogc.ogc-utils.prov"
+      ],
+      "schema": {
+        "application/yaml": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-activity/schema.yaml",
+        "application/json": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-activity/schema.json"
+      },
+      "sourceSchema": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-activity/schema.json",
+      "sourceLdContext": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/context.jsonld",
+      "sourceFiles": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-activity/",
+      "rdfData": [],
+      "validationPassed": true,
+      "testOutputs": "https://github.com/ogcincubator/bblock-prov-schema/blob/master/build/tests/ogc-utils/prov-activity/",
+      "documentation": {
+        "markdown": {
+          "mediatype": "text/markdown",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/markdown/ogc-utils/prov-activity/index.md"
+        },
+        "json-full": {
+          "mediatype": "application/json",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/json-full/ogc-utils/prov-activity/index.json"
+        },
+        "bblocks-viewer": {
+          "mediatype": "text/html",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/bblock/ogc.ogc-utils.prov-activity"
+        }
+      }
+    },
+    {
+      "itemIdentifier": "ogc.ogc-utils.prov-bundled",
+      "name": "Single Schema for PROV",
+      "highlighted": true,
+      "abstract": "The original version of a single Schema for a provenance chain based on PROV vocabulary semantics, Agents, Activities and Entities. This schema is designed as a mix-in that can be used to add properties to other objects in a polymorphic way.",
+      "status": "under-development",
+      "dateTimeAddition": "2023-07-10T00:00:00Z",
+      "itemClass": "schema",
+      "register": "ogc-utils",
+      "version": "0.1",
+      "dateOfLastChange": "2026-02-12",
+      "sources": [
+        {
+          "link": "https://www.w3.org/TR/prov-o/",
+          "title": "The PROV-O vocabulary"
+        }
+      ],
+      "maturity": "development",
+      "scope": "unstable",
+      "tags": [
+        "prov",
+        "utils"
+      ],
+      "shaclShapes": {},
+      "dependsOn": [
+        "ogc.ogc-utils.iri-or-curie",
+        "ogc.ogc-utils.json-link"
+      ],
+      "ldContext": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-bundled/context.jsonld",
+      "schema": {
+        "application/yaml": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-bundled/schema.yaml",
+        "application/json": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-bundled/schema.json"
+      },
+      "sourceSchema": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-bundled/schema.json",
+      "sourceLdContext": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-bundled/context.jsonld",
+      "sourceFiles": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-bundled/",
+      "rdfData": [],
+      "validationPassed": true,
+      "testOutputs": "https://github.com/ogcincubator/bblock-prov-schema/blob/master/build/tests/ogc-utils/prov-bundled/",
+      "documentation": {
+        "markdown": {
+          "mediatype": "text/markdown",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/markdown/ogc-utils/prov-bundled/index.md"
+        },
+        "json-full": {
+          "mediatype": "application/json",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/json-full/ogc-utils/prov-bundled/index.json"
+        },
+        "bblocks-viewer": {
+          "mediatype": "text/html",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/bblock/ogc.ogc-utils.prov-bundled"
+        }
+      }
+    },
+    {
+      "itemIdentifier": "ogc.ogc-utils.prov-entity",
+      "name": "Prov Entity",
+      "highlighted": true,
+      "abstract": "Provenance Entity",
+      "status": "under-development",
+      "dateTimeAddition": "2023-07-10T00:00:00Z",
+      "itemClass": "schema",
+      "register": "ogc-utils",
+      "version": "0.1",
+      "dateOfLastChange": "2026-02-12",
+      "sources": [
+        {
+          "link": "https://www.w3.org/TR/prov-o/",
+          "title": "The PROV-O vocabulary"
+        }
+      ],
+      "ldContext": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-entity/context.jsonld",
+      "maturity": "development",
+      "scope": "unstable",
+      "tags": [
+        "prov",
+        "utils"
+      ],
+      "shaclShapes": {},
+      "dependsOn": [
+        "ogc.ogc-utils.prov",
+        "ogc.ogc-utils.prov-activity"
+      ],
+      "schema": {
+        "application/yaml": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-entity/schema.yaml",
+        "application/json": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-entity/schema.json"
+      },
+      "sourceSchema": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-entity/schema.json",
+      "sourceLdContext": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/context.jsonld",
+      "sourceFiles": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-entity/",
+      "rdfData": [],
+      "validationPassed": true,
+      "testOutputs": "https://github.com/ogcincubator/bblock-prov-schema/blob/master/build/tests/ogc-utils/prov-entity/",
+      "documentation": {
+        "markdown": {
+          "mediatype": "text/markdown",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/markdown/ogc-utils/prov-entity/index.md"
+        },
+        "json-full": {
+          "mediatype": "application/json",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/json-full/ogc-utils/prov-entity/index.json"
+        },
+        "bblocks-viewer": {
+          "mediatype": "text/html",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/bblock/ogc.ogc-utils.prov-entity"
+        }
+      }
+    },
+    {
+      "itemIdentifier": "ogc.ogc-utils.prov",
+      "name": "Provenance Chain",
+      "highlighted": true,
+      "abstract": "Schema for a provenance chain based on PROV vocabulary semantics, Agents, Activities and Entities. This schema is designed as a mix-in that can be used to add properties to other objects in a polymorphic way.",
+      "status": "under-development",
+      "dateTimeAddition": "2023-07-10T00:00:00Z",
+      "itemClass": "schema",
+      "register": "ogc-utils",
+      "version": "0.1",
+      "dateOfLastChange": "2026-02-12",
+      "dependsOn": [
+        "ogc.model.cross-domain.prov",
+        "ogc.ogc-utils.iri-or-curie",
+        "ogc.ogc-utils.prov-agent",
+        "ogc.ogc-utils.prov-entity",
+        "ogc.ogc-utils.json-link",
+        "ogc.ogc-utils.prov-activity"
+      ],
+      "sources": [
+        {
+          "link": "https://www.w3.org/TR/prov-o/",
+          "title": "The PROV-O vocabulary"
+        }
+      ],
+      "maturity": "development",
+      "scope": "unstable",
+      "tags": [
+        "prov",
+        "utils"
+      ],
+      "shaclShapes": {},
+      "ldContext": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov/context.jsonld",
+      "schema": {
+        "application/yaml": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov/schema.yaml",
+        "application/json": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov/schema.json"
+      },
+      "sourceSchema": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/schema.json",
+      "sourceLdContext": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/context.jsonld",
+      "sourceFiles": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/",
+      "rdfData": [],
+      "validationPassed": true,
+      "testOutputs": "https://github.com/ogcincubator/bblock-prov-schema/blob/master/build/tests/ogc-utils/prov/",
+      "documentation": {
+        "markdown": {
+          "mediatype": "text/markdown",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/markdown/ogc-utils/prov/index.md"
+        },
+        "json-full": {
+          "mediatype": "application/json",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/json-full/ogc-utils/prov/index.json"
+        },
+        "bblocks-viewer": {
+          "mediatype": "text/html",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/bblock/ogc.ogc-utils.prov"
+        }
+      }
+    },
+    {
+      "itemIdentifier": "ogc.ogc-utils.prov-agent",
+      "name": "Prov Agent",
+      "highlighted": true,
+      "abstract": "Agent object in provenance model",
+      "status": "under-development",
+      "dateTimeAddition": "2023-07-10T00:00:00Z",
+      "itemClass": "schema",
+      "register": "ogc-utils",
+      "version": "0.1",
+      "dateOfLastChange": "2026-02-12",
+      "sources": [
+        {
+          "link": "https://www.w3.org/TR/prov-o/",
+          "title": "The PROV-O vocabulary"
+        }
+      ],
+      "ldContext": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-agent/context.jsonld",
+      "maturity": "development",
+      "scope": "unstable",
+      "tags": [
+        "prov",
+        "utils"
+      ],
+      "shaclShapes": {},
+      "dependsOn": [
+        "ogc.ogc-utils.prov",
+        "ogc.ogc-utils.prov-activity"
+      ],
+      "schema": {
+        "application/yaml": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-agent/schema.yaml",
+        "application/json": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-agent/schema.json"
+      },
+      "sourceSchema": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-agent/schema.json",
+      "sourceLdContext": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov/context.jsonld",
+      "sourceFiles": "https://ogcincubator.github.io/bblock-prov-schema/_sources/prov-agent/",
+      "rdfData": [],
+      "validationPassed": true,
+      "documentation": {
+        "markdown": {
+          "mediatype": "text/markdown",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/markdown/ogc-utils/prov-agent/index.md"
+        },
+        "json-full": {
+          "mediatype": "application/json",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/build/generateddocs/json-full/ogc-utils/prov-agent/index.json"
+        },
+        "bblocks-viewer": {
+          "mediatype": "text/html",
+          "url": "https://ogcincubator.github.io/bblock-prov-schema/bblock/ogc.ogc-utils.prov-agent"
+        }
+      }
+    }
+  ],
+  "remoteCacheDir": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/_cache",
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://ogcincubator.github.io/bblock-prov-schema/build/register.json",
+      "type": "application/json",
+      "title": "This Building Blocks Register in JSON format"
+    },
+    {
+      "rel": "self",
+      "href": "https://ogcincubator.github.io/bblock-prov-schema/build/bblocks.ttl",
+      "type": "text/turtle",
+      "title": "This Building Blocks Register in RDF Turtle format"
+    },
+    {
+      "rel": "self",
+      "href": "https://ogcincubator.github.io/bblock-prov-schema/build/bblocks.jsonld",
+      "type": "application/ld+json",
+      "title": "This Building Blocks Register in JSON-LD format"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+$schema: https://raw.githubusercontent.com/opengeospatial/bblocks-postprocess/refs/heads/master/ogc/bblocks/schemas/examples.schema.yaml
+prefixes:
+  iana: http://www.iana.org/assignments/
+examples:
+  - title: Activity
+    content: |-
+      this is a simple activity referencing some relevant document
+
+    snippets:
+      - language: json
+        # this is referenced from complete examples using a $ref pattern following JSON schema approach
+        ref: ../prov/examples/example-activity.json
+        base-uri: http://www.example.com/exampleActivity/
+        # how to reference a schema from a different bblock?
+        schema-ref: "#/$defs/Activity"
+
+  - title: Workflow (using LLM) Example
+    content: |-
+      A provenance chain for a workflow using a Large Language Model to interpret a query and and a geospatial data source.
+
+      This is a fairly trivial example not attempting to standardise descriptions of such workflows, which would be an obvious profile for this model.
+    snippets:
+      - language: json
+        ref: ../prov/examples/example-llm.json
+        base-uri: http://www.example.com/exampleEntity/

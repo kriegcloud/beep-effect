@@ -1,0 +1,7 @@
+{
+  "@context": "https://ogcincubator.github.io/bblock-prov-schema/build/annotated/ogc-utils/prov-activity/context.jsonld",
+  "id": "DP-2223",
+  "provType": "Entity",
+  "featureType": "Survey",
+  "wasGeneratedBy": "DP-1-S1"
+}

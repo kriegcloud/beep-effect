@@ -1,0 +1,595 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "PROV Activity object schema",
+  "$defs": {
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})?$"
+    },
+    "ActivityTypes": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "Activity",
+            "prov:Activity"
+          ]
+        },
+        {
+          "type": "array",
+          "contains": {
+            "type": "string",
+            "enum": [
+              "Activity",
+              "prov:Activity"
+            ]
+          },
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "Activity": {
+      "$anchor": "Activity",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "provType": {
+          "$ref": "#/$defs/ActivityTypes"
+        },
+        "prov:type": {
+          "$ref": "#/$defs/ActivityTypes"
+        },
+        "activityType": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreObjectref"
+        },
+        "endedAtTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "wasAssociatedWith": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreAgentsOrRefIds"
+        },
+        "wasInformedBy": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreActivitiesOrRefIds"
+        },
+        "used": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "wasStartedBy": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "wasEndedBy": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "invalidated": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "generated": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "atLocation": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "qualifiedUsage": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Usage"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Usage"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedCommunication": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Communication"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Generation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedStart": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Start"
+            }
+          ]
+        },
+        "qualifiedEnd": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/End"
+            }
+          ]
+        },
+        "qualifiedAssociation": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#Association"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#Association"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "bblocks://ogc.ogc-utils.prov#influenced"
+        }
+      ]
+    },
+    "Usage": {
+      "$anchor": "Usage",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "prov:Usage",
+                "Usage"
+              ]
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "enum": [
+                  "prov:Usage",
+                  "Usage"
+                ]
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "entity": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        }
+      },
+      "required": [
+        "entity"
+      ]
+    },
+    "ActivityInfluence": {
+      "$anchor": "ActivityInfluence",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "hadRole": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreObjectref"
+        },
+        "influencer": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreObjectref"
+        },
+        "hadActivity": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreActivitiesOrRefIds"
+        },
+        "activity": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreActivitiesOrRefIds"
+        }
+      }
+    },
+    "Generation": {
+      "$anchor": "Generation",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Generation"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Generation"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Invalidation": {
+      "$anchor": "Invalidation",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Invalidation"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Invalidation"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Communication": {
+      "$anchor": "Communication",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Communication"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Communication"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Derivation": {
+      "$anchor": "Derivation",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Derivation"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Derivation"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "hadGeneration": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Generation"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        },
+        "hadUsage": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Usage"
+            }
+          ]
+        },
+        "entity": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#Entity"
+            }
+          ]
+        }
+      },
+      "required": [
+        "atTime",
+        "entity"
+      ]
+    },
+    "Delegation": {
+      "$anchor": "Delegation",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Delegation"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Delegation"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "agent": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#Agent"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        }
+      }
+    },
+    "Attribution": {
+      "$anchor": "Attribution",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Attribution"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Attribution"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "agent": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#Agent"
+            }
+          ]
+        }
+      }
+    },
+    "StartOrEnd": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "entity": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#Entity"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        }
+      },
+      "required": [
+        "atTime"
+      ]
+    },
+    "Start": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/StartOrEnd"
+        },
+        {
+          "properties": {
+            "type": {
+              "anyOf": [
+                {
+                  "const": "Start"
+                },
+                {
+                  "contains": {
+                    "const": "Start"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "End": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/StartOrEnd"
+        },
+        {
+          "properties": {
+            "type": {
+              "anyOf": [
+                {
+                  "const": "End"
+                },
+                {
+                  "contains": {
+                    "const": "End"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/Activity"
+    }
+  ]
+}

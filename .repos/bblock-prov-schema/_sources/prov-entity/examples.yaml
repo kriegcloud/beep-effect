@@ -1,0 +1,25 @@
+$schema: https://raw.githubusercontent.com/opengeospatial/bblocks-postprocess/refs/heads/master/ogc/bblocks/schemas/examples.schema.yaml
+prefixes:
+  iana: http://www.iana.org/assignments/
+examples:
+  - title: Simple relationships
+    snippets:
+      - language: json
+        ref: ../prov/examples/simple-rel.json
+        base-uri: http://www.example.com/exampleEntities/
+
+  - title: Provenance Chain
+    content: |-
+      DAG defined by an object list.
+    snippets:
+      - language: json
+        ref: ../prov/examples/example.json
+        base-uri: http://www.example.com/exampleEntity/
+
+  - title: Qualified Generation
+    content: |-
+      A [qualified generation](https://www.w3.org/TR/prov-o/#qualifiedGeneration) example.
+    snippets:
+      - language: json
+        ref: ../prov/examples/example-activityinfluence.json
+        base-uri: http://www.example.com/exampleEntity/

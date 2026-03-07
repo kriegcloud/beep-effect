@@ -1,0 +1,23 @@
+{
+  "name": "Provenance Chain",
+  "highlighted": true ,
+  "abstract": "Schema for a provenance chain based on PROV vocabulary semantics, Agents, Activities and Entities. This schema is designed as a mix-in that can be used to add properties to other objects in a polymorphic way.",
+  "status": "under-development",
+  "dateTimeAddition": "2023-07-10T00:00:00Z",
+  "itemClass": "schema",
+  "register": "ogc-utils",
+  "version": "0.1",
+  "dateOfLastChange": "2023-07-10",
+  "dependsOn": [
+        "ogc.model.cross-domain.prov"
+      ],
+  "sources": [
+    {
+      "link": "https://www.w3.org/TR/prov-o/",
+      "title": "The PROV-O vocabulary"
+    }
+  ],
+  "maturity": "development",
+  "scope": "unstable",
+  "tags": ["prov", "utils"]
+}

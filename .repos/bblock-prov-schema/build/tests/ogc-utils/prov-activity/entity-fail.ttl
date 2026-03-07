@@ -1,0 +1,6 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<file:///github/workspace/DP-2223> a <file:///github/workspace/Survey>,
+        prov:Entity ;
+    prov:wasGeneratedBy <file:///github/workspace/DP-1-S1> .
+

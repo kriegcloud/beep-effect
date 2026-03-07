@@ -1,0 +1,1277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Provenance Chain using PROV-O core model supporting both an ID based object graph and nesting",
+  "$defs": {
+    "objectref": {
+      "$anchor": "objectref",
+      "$ref": "bblocks://ogc.ogc-utils.iri-or-curie"
+    },
+    "oneOrMoreObjectref": {
+      "$ref": "bblocks://ogc.ogc-utils.iri-or-curie#/$defs/MultipleOrObject"
+    },
+    "oneOrMoreActivitiesOrRefIds": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/objectref"
+        },
+        {
+          "$ref": "#/$defs/Activity"
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/objectref"
+              },
+              {
+                "$ref": "#/$defs/Activity"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "oneOrMoreEntitiesOrRefIds": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/objectref"
+        },
+        {
+          "$ref": "#/$defs/Entity"
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/objectref"
+              },
+              {
+                "$ref": "#/$defs/Entity"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "oneOrMoreAgentsOrRefIds": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/objectref"
+        },
+        {
+          "$ref": "#/$defs/externalLink"
+        },
+        {
+          "$ref": "#/$defs/Agent"
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/objectref"
+              },
+              {
+                "$ref": "#/$defs/Agent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "externalLink": {
+      "$ref": "bblocks://ogc.ogc-utils.json-link"
+    },
+    "influenced": {
+      "type": "object",
+      "properties": {
+        "wasInfluencedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+            },
+            {
+              "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+            },
+            {
+              "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+            }
+          ]
+        },
+        "qualifiedInfluence": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Influence"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Influence"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "EntityType": {
+      "type": "string",
+      "enum": [
+        "Entity",
+        "Bundle",
+        "Plan",
+        "prov:Entity",
+        "prov:Bundle",
+        "prov:Plan"
+      ]
+    },
+    "EntityTypes": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/EntityType"
+        },
+        {
+          "type": "array",
+          "contains": {
+            "$ref": "#/$defs/EntityType"
+          }
+        }
+      ]
+    },
+    "Entity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "featureType": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "entityType": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "has_provenance": {
+          "$ref": "#/$defs/Prov"
+        },
+        "wasGeneratedBy": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        },
+        "wasAttributedTo": {
+          "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+        },
+        "wasDerivedFrom": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "alternateOf": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "hadPrimarySource": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "specializationOf": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "wasInvalidatedBy": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        },
+        "wasQuotedFrom": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "wasRevisionOf": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "atLocation": {
+          "$ref": "#/$defs/objectref"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalLink"
+          }
+        },
+        "qualifiedGeneration": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Generation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Generation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedInvalidation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Invalidation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Invalidation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedDerivation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Derivation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Derivation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedAttribution": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Attribution"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Attribution"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "provType": {
+              "$ref": "#/$defs/EntityTypes"
+            }
+          },
+          "required": [
+            "provType"
+          ]
+        },
+        {
+          "properties": {
+            "prov:type": {
+              "$ref": "#/$defs/EntityTypes"
+            }
+          },
+          "required": [
+            "prov:type"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "$ref": "#/$defs/EntityTypes"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "required": [
+            "featureType"
+          ]
+        },
+        {
+          "required": [
+            "entityType"
+          ]
+        },
+        {
+          "required": [
+            "wasGeneratedBy"
+          ]
+        },
+        {
+          "required": [
+            "wasAttributedTo"
+          ]
+        },
+        {
+          "required": [
+            "wasDerivedFrom"
+          ]
+        },
+        {
+          "required": [
+            "has_provenance"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "Collection"
+            },
+            "hadMember": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Entity"
+              }
+            }
+          },
+          "required": [
+            "hadMember",
+            "type"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "EmptyCollection"
+            },
+            "hadMember": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "required": [
+            "hadMember",
+            "type"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "$ref": "#/$defs/influenced"
+        }
+      ]
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})?$"
+    },
+    "ActivityTypes": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "Activity",
+            "prov:Activity"
+          ]
+        },
+        {
+          "type": "array",
+          "contains": {
+            "type": "string",
+            "enum": [
+              "Activity",
+              "prov:Activity"
+            ]
+          },
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "Activity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "activityType": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "prov:type": {
+          "$ref": "#/$defs/ActivityTypes"
+        },
+        "endedAtTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "wasAssociatedWith": {
+          "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+        },
+        "wasInformedBy": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        },
+        "used": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "wasStartedBy": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "wasEndedBy": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "invalidated": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "generated": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "atLocation": {
+          "$ref": "#/$defs/objectref"
+        },
+        "qualifiedUsage": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Usage"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Usage"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedCommunication": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Communication"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Communication"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedStart": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Start"
+            }
+          ]
+        },
+        "qualifiedEnd": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/End"
+            }
+          ]
+        },
+        "qualifiedAssociation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Association"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Association"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "activityType"
+          ]
+        },
+        {
+          "required": [
+            "prov:type"
+          ]
+        },
+        {
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "required": [
+            "used"
+          ]
+        },
+        {
+          "required": [
+            "wasInformedBy"
+          ]
+        },
+        {
+          "required": [
+            "endedAtTime"
+          ]
+        },
+        {
+          "required": [
+            "startedAtTime"
+          ]
+        },
+        {
+          "required": [
+            "wasAssociatedWith"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "$ref": "#/$defs/influenced"
+        }
+      ]
+    },
+    "AgentTypes": {
+      "type": "string",
+      "enum": [
+        "Agent",
+        "Organization",
+        "Person",
+        "SoftwareAgent",
+        "SoftwareDescription",
+        "DirectQueryService",
+        "prov:Agent",
+        "prov:Organization",
+        "prov:Person",
+        "prov:SoftwareAgent",
+        "prov:SoftwareDescription",
+        "prov:DirectQueryService"
+      ]
+    },
+    "AgentType": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AgentTypes"
+        },
+        {
+          "type": "array",
+          "items": {
+            "contains": {
+              "$ref": "#/$defs/AgentTypes"
+            }
+          }
+        }
+      ]
+    },
+    "Agent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "actedOnBehalfOf": {
+          "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+        },
+        "atLocation": {
+          "$ref": "#/$defs/objectref"
+        },
+        "qualifiedDelegation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Delegation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/objectref"
+                  },
+                  {
+                    "$ref": "#/$defs/Delegation"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "id"
+          ]
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "provType": {
+              "$ref": "#/$defs/AgentType"
+            }
+          },
+          "required": [
+            "provType"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "$ref": "#/$defs/AgentType"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "properties": {
+            "agentType": {
+              "$ref": "#/$defs/AgentType"
+            }
+          },
+          "required": [
+            "agentType"
+          ]
+        },
+        {
+          "properties": {
+            "prov:type": {
+              "$ref": "#/$defs/AgentType"
+            }
+          },
+          "required": [
+            "prov:type"
+          ]
+        },
+        {
+          "required": [
+            "actedOnBehalfOf"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "$ref": "#/$defs/influenced"
+        }
+      ]
+    },
+    "Usage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "prov:Usage",
+                "Usage"
+              ]
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "enum": [
+                  "prov:Usage",
+                  "Usage"
+                ]
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "entity": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        }
+      },
+      "required": [
+        "entity"
+      ]
+    },
+    "ActivityInfluence": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "hadRole": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "influencer": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "hadActivity": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        },
+        "activity": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        }
+      }
+    },
+    "Generation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Generation"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Generation"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Invalidation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Invalidation"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Invalidation"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Communication": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ActivityInfluence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "const": "Communication"
+                },
+                {
+                  "type": "array",
+                  "contains": {
+                    "type": "string",
+                    "const": "Communication"
+                  },
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "StartOrEnd": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "atTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "entity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Entity"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        }
+      },
+      "required": [
+        "atTime"
+      ]
+    },
+    "Start": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/StartOrEnd"
+        },
+        {
+          "properties": {
+            "type": {
+              "anyOf": [
+                {
+                  "const": "Start"
+                },
+                {
+                  "contains": {
+                    "const": "Start"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "End": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/StartOrEnd"
+        },
+        {
+          "properties": {
+            "type": {
+              "anyOf": [
+                {
+                  "const": "End"
+                },
+                {
+                  "contains": {
+                    "const": "End"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Derivation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Derivation"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Derivation"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "hadGeneration": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Generation"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        },
+        "hadUsage": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Usage"
+            }
+          ]
+        },
+        "entity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Entity"
+            }
+          ]
+        }
+      },
+      "required": [
+        "atTime",
+        "entity"
+      ]
+    },
+    "Delegation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Delegation"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Delegation"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "agent": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Agent"
+            }
+          ]
+        },
+        "hadActivity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Activity"
+            }
+          ]
+        }
+      }
+    },
+    "Attribution": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Attribution"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Attribution"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "agent": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Agent"
+            }
+          ]
+        }
+      }
+    },
+    "Association": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "const": "Association"
+            },
+            {
+              "type": "array",
+              "contains": {
+                "type": "string",
+                "const": "Association"
+              },
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "agent": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/objectref"
+            },
+            {
+              "$ref": "#/$defs/Agent"
+            }
+          ]
+        },
+        "hadRole": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        },
+        "hadPlan": {
+          "$ref": "#/$defs/oneOrMoreObjectref"
+        }
+      }
+    },
+    "Influence": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/objectref"
+        },
+        "influencer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+            },
+            {
+              "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+            },
+            {
+              "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+            }
+          ]
+        },
+        "entity": {
+          "$ref": "#/$defs/oneOrMoreEntitiesOrRefIds"
+        },
+        "activity": {
+          "$ref": "#/$defs/oneOrMoreActivitiesOrRefIds"
+        },
+        "agent": {
+          "$ref": "#/$defs/oneOrMoreAgentsOrRefIds"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "influencer"
+          ]
+        },
+        {
+          "required": [
+            "entity"
+          ]
+        },
+        {
+          "required": [
+            "activity"
+          ]
+        },
+        {
+          "required": [
+            "agent"
+          ]
+        }
+      ]
+    },
+    "Prov": {
+      "description": "An list of provenance objects linked together to form a provenance chain for the current object. Objects may have nested objects as well, with or without referencable ids",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Entity"
+          },
+          {
+            "$ref": "#/$defs/Activity"
+          },
+          {
+            "$ref": "#/$defs/Agent"
+          }
+        ]
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/Prov"
+    },
+    {
+      "$ref": "#/$defs/Entity"
+    },
+    {
+      "$ref": "#/$defs/Activity"
+    }
+  ]
+}
