@@ -1,3 +1,0 @@
-{
-  "extends": "tsdoc-build-rig/profiles/node/config/jest.config.json"
-}

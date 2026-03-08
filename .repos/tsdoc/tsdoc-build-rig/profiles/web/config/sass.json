@@ -1,3 +1,0 @@
-{
-  "extends": "@rushstack/heft-web-rig/profiles/library/config/sass.json"
-}

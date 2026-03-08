@@ -22,7 +22,52 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'"],
+        "img-src": ["'self'", "data:", "blob:"],
+        "font-src": ["'self'", "data:"],
+        "connect-src": [
+          "'self'",
+          "ipc:",
+          "http://ipc.localhost",
+          "http://127.0.0.1:*",
+          "http://localhost:*",
+          "https://127.0.0.1:*",
+          "https://localhost:*"
+        ],
+        "object-src": ["'none'"],
+        "base-uri": ["'self'"],
+        "frame-ancestors": ["'none'"]
+      },
+      "devCsp": {
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:", "blob:"],
+        "font-src": ["'self'", "data:"],
+        "connect-src": [
+          "'self'",
+          "ipc:",
+          "http://ipc.localhost",
+          "https://desktop.localhost:1355",
+          "wss://desktop.localhost:1355",
+          "https://repo-memory-sidecar.localhost:1355",
+          "wss://repo-memory-sidecar.localhost:1355",
+          "http://127.0.0.1:*",
+          "http://localhost:*",
+          "https://127.0.0.1:*",
+          "https://localhost:*",
+          "ws://127.0.0.1:*",
+          "ws://localhost:*",
+          "wss://127.0.0.1:*",
+          "wss://localhost:*"
+        ],
+        "object-src": ["'none'"],
+        "base-uri": ["'self'"],
+        "frame-ancestors": ["'none'"]
+      }
     }
   },
   "bundle": {
