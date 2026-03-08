@@ -11,7 +11,7 @@ This prompt is for creating the formal spec package for `@beep/semantic-web` fro
 ```text
 Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
 
-Your task is to create the formal pending spec package for `@beep/semantic-web` from the exploratory material already captured in this repository.
+Your task is to turn the existing exploratory folder at `specs/pending/semantic-web` into the formal pending spec package for `@beep/semantic-web`.
 
 This is a spec-authoring session, not an implementation session.
 
@@ -34,6 +34,8 @@ You must follow this repo contract:
 6. Use `bun` for repo commands.
 7. Do not write production package code. This session is only for the formal spec artifact set.
 8. Do not reopen already-settled defaults unless stronger local evidence directly forces a change. If you override a settled default, cite the conflicting local evidence explicitly.
+9. Keep scope inside `specs/pending/semantic-web` unless a nearby reference document must be read for evidence.
+10. Do not discard exploratory artifacts silently. If you replace, merge, or supersede them, make the rationale explicit in the resulting docs.
 
 Spec request:
 
@@ -148,6 +150,7 @@ Spec-writing requirements:
    - lifecycle time semantics
 11. Keep the spec grounded in current local repo evidence rather than generic semantic-web architecture advice.
 12. If a point remains unresolved, record it as an explicit open question with the competing options and a recommended default instead of leaving it implicit.
+13. Prefer refining and formalizing the existing exploratory documents over creating parallel replacement docs unless a clean split materially improves clarity.
 
 Minimum artifact expectations:
 
@@ -168,6 +171,7 @@ Final response expectations:
 - list the spec artifacts created
 - summarize the local spec patterns reused
 - call out the major assumptions and defaults
+- identify which exploratory documents were preserved, refined, superseded, or split
 - identify any follow-on prompt or handoff artifacts that were added
 - identify any remaining open questions that still need a human decision
 ```
