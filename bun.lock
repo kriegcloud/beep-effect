@@ -188,6 +188,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/common/semantic-web": {
+      "name": "@beep/semantic-web",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/types": {
       "name": "@beep/types",
       "version": "0.0.0",
@@ -811,6 +822,8 @@
     "@beep/runtime-server": ["@beep/runtime-server@workspace:packages/runtime/server"],
 
     "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
+
+    "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/common/semantic-web"],
 
     "@beep/shared-client": ["@beep/shared-client@workspace:packages/shared/client"],
 
