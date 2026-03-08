@@ -1,0 +1,54 @@
+{
+  "name": "rdf-dataset-indexed",
+  "version": "0.4.0",
+  "description": "A fast, indexed RDFJS Dataset implementation",
+  "author": "Victor Felder <victor@draft.li> (https://draft.li)",
+  "keywords": [
+    "rdf",
+    "rdfjs",
+    "rdf-ext",
+    "dataset",
+    "indexed"
+  ],
+  "license": "MIT",
+  "main": "./index.js",
+  "engines": {
+    "node": ">=6.0"
+  },
+  "files": [
+    "dataset.js",
+    "index.js",
+    "lib"
+  ],
+  "devDependencies": {
+    "@rdfjs/dataset": "^1.0.0",
+    "@rdfjs/namespace": "^1.0.0",
+    "babel-eslint": "^10.0.1",
+    "commander": "^2.20.0",
+    "coveralls": "^3.0.3",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jest": "^22.5.1",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.7.1"
+  },
+  "scripts": {
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "lint": "eslint *.js lib perf test",
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rdf-ext/rdf-dataset-indexed.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rdf-ext/rdf-dataset-indexed/issues"
+  },
+  "dependencies": {
+    "@rdfjs/data-model": "^1.1.1",
+    "readable-stream": "^3.3.0"
+  }
+}
