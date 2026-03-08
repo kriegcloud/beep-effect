@@ -2,60 +2,67 @@
 
 ## Purpose
 
-Define a repo-consistent annotation pattern for `@beep/semantic-web` so that semantic-web schemas can carry typed metadata without inflating their runtime value shape.
+Define the formal annotation pattern for `@beep/semantic-web` so that important public semantic-web schemas can carry typed metadata without bloating their runtime value shape.
 
-This note adopts the same broad pattern used by the JSDoc model in:
+This document is normative for the pending spec package.
 
-- [JSDocTagDefinition.model.ts](/home/elpresidank/YeeBois/projects/beep-effect3/tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts#L24)
-- [JSDocTagDefinition.model.ts](/home/elpresidank/YeeBois/projects/beep-effect3/tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts#L139)
-- [JSDocTagAnnotation.model.ts](/home/elpresidank/YeeBois/projects/beep-effect3/tooling/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts#L12)
+## Normative Decision
 
-The pattern is:
+`@beep/semantic-web` adopts a typed custom `effect/Schema` annotation for important public semantic schema families.
 
-1. model a rich metadata payload as a typed schema
-2. validate that payload once at schema construction time
-3. store it in a custom `effect/Schema` annotation key
-4. return the minimal runtime schema surface
+This is:
 
-## Decision
+- a first-class package pattern
+- required for the right public schema families
+- intentionally avoided for trivial internal helpers
 
-`@beep/semantic-web` should use a typed custom schema annotation for formal semantic metadata on important public schemas.
+## Pattern
 
-This should be a first-class package pattern, but not a universal rule for every private helper schema.
+The pattern mirrors the repo’s existing JSDoc annotation approach:
 
-## Why This Fits
+1. model metadata as a typed schema
+2. validate that metadata at schema-construction time
+3. store the validated payload in a custom `effect/Schema` annotation key
+4. keep the runtime schema surface minimal
 
-This approach is a good fit for the semantic-web package because:
+## Annotation Surface
 
-- semantic-web concepts are specification-heavy and benefit from explicit provenance
-- agents can inspect annotations instead of reverse-engineering meaning from names alone
-- schema metadata becomes queryable and tooling-friendly
-- runtime shapes stay lean
-- it supports the package posture already captured in:
-  - [README.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/semantic-web/README.md)
-  - [2026-03-08-effect-v4-module-selection.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/semantic-web/research/2026-03-08-effect-v4-module-selection.md#L179)
-
-## Proposed Annotation Name
-
-Use a dedicated annotation key such as:
+### Annotation key
 
 - `semanticSchemaMetadata`
 
-The exact exported helper names can be finalized later, but the shape should mirror the JSDoc pattern:
+### Required helper surfaces
 
-- one payload model
-- one module augmentation for `effect/Schema`
-- one retrieval helper
-- one constructor helper for attaching validated metadata
+- a `SemanticSchemaMetadata` payload model
+- a module augmentation for the schema annotation key
+- a retrieval helper
+- a constructor helper that validates and attaches metadata
 
-## Proposed Metadata Shape
+## Required Metadata Fields
 
-The initial `SemanticSchemaMetadata` payload should stay focused on metadata that is stable, useful, and likely to pay off in tooling.
+These fields are required for public schema families that opt into the pattern in v1:
+
+- `kind`
+- `overview`
+- `status`
+- `specifications`
+- `equivalenceBasis`
+
+These fields are required when they are semantically applicable:
+
+- `canonicalIri`
+- `preferredPrefix`
+- `representations`
+- `canonicalizationRequired`
+- `provenanceProfile`
+- `evidenceAnchoring`
+- `timeSemantics`
+
+## Recommended Metadata Shape
 
 ### Core identity
 
 - `kind`
-  - examples: `vocabularyTerm`, `ontologyClass`, `ontologyProperty`, `rdfValue`, `jsonldConstruct`, `serviceContract`
 - `canonicalName`
 - `canonicalIri`
 - `preferredPrefix`
@@ -66,23 +73,21 @@ The initial `SemanticSchemaMetadata` payload should stay focused on metadata tha
 - `overview`
 - `description`
 - `status`
-  - examples: `stable`, `experimental`, `deprecated`
 - `deprecatedNote`
 
 ### Specification grounding
 
 - `specifications`
-  - spec name
-  - version or edition if known
-  - section or clause
-  - upstream URL if stable
+  - specification name
+  - version or edition when known
+  - section or clause when known
+  - stable URL when available
   - local reference path when available
-  - normative or informative classification
+  - `normative` or `informative`
 
 ### Semantic behavior
 
 - `equivalenceBasis`
-  - what counts as equal for this schema
 - `normalizationNotes`
 - `canonicalizationRequired`
 - `identityNotes`
@@ -112,70 +117,12 @@ The initial `SemanticSchemaMetadata` payload should stay focused on metadata tha
 ### Provenance and evidence support
 
 - `provenanceProfile`
-  - whether the schema participates in a PROV-facing surface
 - `evidenceAnchoring`
-  - whether the schema expects Web Annotation style evidence selectors, internal span references, or none
 - `timeSemantics`
-  - whether the schema needs explicit lifecycle timestamps beyond plain PROV activity time
-
-## Where The Pattern Should Be Required
-
-This pattern should be required for public schemas that represent formal semantic-web concepts.
-
-### Required
-
-- vocabulary term schemas
-- ontology class and property schemas
-- IRI / URI / CURIE related public schemas
-- RDF term, quad, dataset, prefix, and namespace public schemas
-- JSON-LD document, context, and framing-related public schemas
-- provenance-related public schemas
-- public semantic service contracts
-
-### Optional
-
-- adapter-local DTOs
-- testing-only schemas
-- transitional migration helpers
-
-### Avoid
-
-- tiny private helper schemas
-- trivial tuple or record fragments
-- internal scaffolding where metadata would add ceremony without real reuse
-
-## Interaction With Effect v4 Defaults
-
-This pattern should complement, not replace, the Effect v4 defaults captured in:
-
-- [2026-03-08-effect-v4-module-selection.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/semantic-web/research/2026-03-08-effect-v4-module-selection.md)
-
-Expected interaction:
-
-- `Schema.toEquivalence(...)` remains the default value-level equality surface
-- metadata can state the intended equivalence basis
-- `Schema.toJsonSchemaDocument(...)` remains JSON-facing only
-- metadata can record which representations are valid for a schema
-- `Hash` is still internal-only and only safe after canonicalization
-- metadata can state whether canonicalization is required before fingerprinting
-- metadata can state whether a schema is part of the bounded provenance projection layer
-
-## Non-Goals
-
-This annotation should not attempt to encode all ontology semantics directly.
-
-It is not intended to become:
-
-- a replacement for SHACL
-- a replacement for OWL reasoning
-- the main runtime execution model
-- an excuse to annotate every internal helper
 
 ## `kind` Domain Decision
 
-The first `SemanticSchemaMetadata.kind` domain should be closed in v1, but intentionally coarse.
-
-### Recommended v1 literal set
+The v1 `SemanticSchemaMetadata.kind` domain is closed and intentionally coarse:
 
 - `identifier`
 - `vocabularyTerm`
@@ -186,24 +133,60 @@ The first `SemanticSchemaMetadata.kind` domain should be closed in v1, but inten
 - `serviceContract`
 - `adapterBoundary`
 
-This is strict enough to be useful for agents and tooling, but small enough to avoid premature taxonomy sprawl.
+This is strict enough to help agents and tooling, while avoiding taxonomy sprawl.
 
-## Remaining Open Questions
+## Where Metadata Is Required
 
-- should `specifications` distinguish normative versus informative references
-- should `representations` be descriptive only or partially machine-enforced
-- should `agentNotes` live in the annotation or in adjacent docs only
-- how much provenance-profile detail belongs in annotations versus dedicated provenance docs
+Metadata annotations are required for:
 
-## Current Recommendation
+- public IRI, URI, and CURIE-related schemas
+- public RDF term, quad, dataset, prefix, and namespace schemas
+- public vocabulary term schemas
+- public JSON-LD document, context, and framing-related schemas
+- public provenance and evidence schemas
+- public service contracts
 
-Adopt this pattern in v1, but start with a small set of required metadata fields:
+## Where Metadata Is Optional
 
-- `kind`
-- `overview`
-- `specifications`
-- `canonicalIri`
-- `equivalenceBasis`
-- `status`
+Metadata annotations are optional for:
 
-Then expand only where the package gets real leverage from the extra structure.
+- adapter-local DTOs
+- test-only schemas
+- transition helpers used only during migration
+
+## Where Metadata Should Be Avoided
+
+Do not apply the pattern indiscriminately to:
+
+- tiny private helper schemas
+- trivial tuple or record fragments
+- internal scaffolding with no durable reuse
+
+## Interaction With Effect v4 Defaults
+
+This metadata pattern complements the local Effect v4 decisions rather than replacing them.
+
+- `Schema.toEquivalence(...)` remains the default equality surface.
+- metadata records the intended equivalence basis.
+- `Schema.toJsonSchemaDocument(...)` stays JSON-facing only.
+- metadata may record JSON-facing representations, but JSON Schema is not semantic truth.
+- `Hash` remains internal-only after canonicalization.
+- metadata may record whether canonicalization is required before fingerprinting.
+
+## Acceptance Criteria
+
+The metadata design is ready for implementation once:
+
+- the required schema families are explicit
+- the required v1 fields are explicit
+- the closed `kind` domain is explicit
+- the package docs clearly say where the pattern is required, optional, and avoided
+
+## Open Question
+
+Should `specifications` be enforced as a partially machine-checkable structure or remain descriptive-only in v1?
+
+Recommended default:
+
+- keep it strongly typed but descriptive in v1
+- avoid overfitting the initial design around machine-enforced citation mechanics

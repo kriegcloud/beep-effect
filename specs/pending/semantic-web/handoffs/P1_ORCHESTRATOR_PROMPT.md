@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P1.md`, the P0 output, `design/semantic-schema-metadata.md`, and the local `IRI` and `ProvO` seed modules. Define the public schema and value families, metadata coverage rules, and equality/canonicalization policy. Write the result to `outputs/p1-core-schema-and-value-design.md`.

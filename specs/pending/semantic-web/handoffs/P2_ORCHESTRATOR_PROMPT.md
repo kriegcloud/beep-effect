@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P2.md`, the P0 and P1 outputs, and `research/2026-03-08-effect-v4-module-selection.md`. Define the JSON-LD, RDF/JS, SHACL, query, and canonicalization seams with explicit representation boundaries. Write the result to `outputs/p2-adapter-and-representation-design.md`.

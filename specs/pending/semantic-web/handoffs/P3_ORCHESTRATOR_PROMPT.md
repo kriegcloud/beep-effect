@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P3.md`, the P1 and P2 outputs, `design/provenance-and-evidence.md`, and `design/semantic-schema-metadata.md`. Define the public service contracts and metadata policy without reopening the package defaults. Write the result to `outputs/p3-service-contract-and-metadata-design.md`.

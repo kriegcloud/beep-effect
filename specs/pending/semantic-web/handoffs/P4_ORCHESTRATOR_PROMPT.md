@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P4.md`, the P0-P3 outputs, and the files in `plans/`. Produce the rollout order, seed-asset migration plan, and verification matrix with `bun` command expectations. Write the result to `outputs/p4-implementation-plan-and-verification-strategy.md`.

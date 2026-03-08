@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P0.md`, `README.md`, and `design/module-topology-and-boundaries.md`. Finalize the v1 module families, the long-term `@beep/schema` boundary, the `IRI` and `ProvO` seed-asset posture, and the upstream library classification. Write the result to `outputs/p0-package-topology-and-boundaries.md`.

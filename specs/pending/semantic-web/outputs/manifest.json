@@ -1,37 +1,117 @@
 {
   "spec": "@beep/semantic-web",
-  "status": "exploratory",
-  "stage": "shape-discovery",
+  "status": "pending",
+  "stage": "formal-spec-package",
   "created": "2026-03-08",
   "updated": "2026-03-08",
   "currentSourceOfTruth": "README.md",
-  "completed": [
-    "initial local exploration",
-    "semantic-web reference subtree expansion",
-    "initial decisions capture",
-    "effect-v4 module selection capture",
-    "semantic schema metadata pattern capture",
-    "next-session formal spec prompt creation",
-    "prov-o assessment constraints capture",
-    "foundation decisions capture"
+  "structuralPatternsReused": [
+    "normative root README",
+    "short quick start",
+    "phase prompts",
+    "reflection log",
+    "design and plans split",
+    "phase handoffs plus orchestrator prompts",
+    "machine-readable manifest"
   ],
-  "nextArtifacts": [
-    "design/package-boundaries.md",
-    "plans/phase-roadmap.md",
-    "formal spec artifact set from next session prompt"
+  "preservedArtifacts": [
+    "research/2026-03-08-initial-exploration.md",
+    "research/2026-03-08-effect-v4-module-selection.md",
+    "design/foundation-decisions.md",
+    "handoffs/NEXT_SESSION_SPEC_PROMPT.md"
+  ],
+  "refinedArtifacts": [
+    "README.md",
+    "QUICK_START.md",
+    "design/semantic-schema-metadata.md",
+    "outputs/manifest.json"
+  ],
+  "supersededArtifacts": [
+    {
+      "path": "handoffs/NEXT_SESSION_SPEC_PROMPT.md",
+      "supersededBy": [
+        "handoffs/HANDOFF_P0.md",
+        "handoffs/HANDOFF_P1.md",
+        "handoffs/HANDOFF_P2.md",
+        "handoffs/HANDOFF_P3.md",
+        "handoffs/HANDOFF_P4.md"
+      ],
+      "rationale": "The single exploratory bootstrap prompt has been replaced by explicit per-phase handoffs and orchestrator prompts."
+    }
+  ],
+  "designDocs": [
+    "design/module-topology-and-boundaries.md",
+    "design/provenance-and-evidence.md",
+    "design/semantic-schema-metadata.md",
+    "design/foundation-decisions.md"
+  ],
+  "planDocs": [
+    "plans/phased-roadmap.md",
+    "plans/verification-strategy.md"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Package Topology and Boundaries",
+      "status": "pending",
+      "handoff": "handoffs/HANDOFF_P0.md",
+      "orchestratorPrompt": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p0-package-topology-and-boundaries.md"
+    },
+    {
+      "id": "P1",
+      "name": "Core Schema and Value Design",
+      "status": "pending",
+      "handoff": "handoffs/HANDOFF_P1.md",
+      "orchestratorPrompt": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p1-core-schema-and-value-design.md"
+    },
+    {
+      "id": "P2",
+      "name": "Adapter and Representation Design",
+      "status": "pending",
+      "handoff": "handoffs/HANDOFF_P2.md",
+      "orchestratorPrompt": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p2-adapter-and-representation-design.md"
+    },
+    {
+      "id": "P3",
+      "name": "Service Contract and Metadata Design",
+      "status": "pending",
+      "handoff": "handoffs/HANDOFF_P3.md",
+      "orchestratorPrompt": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p3-service-contract-and-metadata-design.md"
+    },
+    {
+      "id": "P4",
+      "name": "Implementation Plan and Verification Strategy",
+      "status": "pending",
+      "handoff": "handoffs/HANDOFF_P4.md",
+      "orchestratorPrompt": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p4-implementation-plan-and-verification-strategy.md"
+    }
   ],
   "keyDecisions": [
-    "@beep/semantic-web should be the canonical semantic-web foundation package",
-    "JSON-LD is first-class in the initial surface",
-    "foundation plus adapters is the primary package posture",
-    "IRI and ProvO are seed assets, not the full package design",
-    "ontology builder DSL work stays experimental unless later research justifies promotion",
+    "@beep/semantic-web is the canonical semantic-web foundation package",
+    "JSON-LD is first-class in the initial package surface",
+    "the package posture is foundation plus adapters",
+    "IRI and ProvO are seed assets, not the whole package design",
+    "ontology builder DSL work remains experimental",
     "Schema.toEquivalence is the default equality surface for schema-modeled domain values",
-    "Graph is projection-only and should not be the primary RDF semantic model",
-    "important public semantic-web schemas should carry typed semantic metadata annotations using a validated custom schema annotation pattern",
-    "PROV-O should be treated as the interoperable provenance backbone, paired with explicit evidence anchoring, lifecycle fields, and bounded projection strategies",
-    "IRI and URI remain separate first-class public concepts in v1 with IRI as the semantic default",
-    "Web Annotation is an adapter seam rather than a hard package-wide dependency in v1",
-    "SemanticSchemaMetadata.kind should be a closed intentionally coarse literal domain in v1"
-  ]
+    "Graph is projection-only and not the primary RDF semantic model",
+    "Hash and Equal are not RDF semantic identity",
+    "JsonPatch and JsonPointer are JSON-LD document-layer tools only",
+    "generic XML encoding is not RDF/XML",
+    "PROV-O is the interoperable provenance backbone, paired with explicit evidence anchoring and bounded projections",
+    "IRI and URI remain separate public concepts in v1, with IRI as the semantic default",
+    "Web Annotation is an adapter seam, not a hard package-wide dependency",
+    "SemanticSchemaMetadata.kind is a closed intentionally coarse literal domain in v1"
+  ],
+  "openQuestions": [
+    "Should idna/ remain internal to uri/ in v1 or be promoted to a first-class public submodule?",
+    "Should JSON-LD framing be part of the initial public surface or stay optional until a concrete caller exists?",
+    "Should Comunica remain a research-only reference in v1 or move into a later adapter-target role if stronger local evidence appears?",
+    "Will temporary @beep/schema re-exports be needed during seed-asset migration?"
+  ],
+  "nextAction": "Start with P0 using handoffs/HANDOFF_P0.md."
 }

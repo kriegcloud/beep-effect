@@ -1,5 +1,9 @@
 # Next Session Spec Prompt
 
+> Preserved exploratory bootstrap artifact. This prompt created the formal pending package and is now superseded by `HANDOFF_P0.md` through `HANDOFF_P4.md` plus the corresponding orchestrator prompts.
+
+> Superseded by the formal spec package artifacts in this directory and the root [README.md](../README.md). Retained as exploratory provenance for how this folder transitioned from shape discovery into a formal pending spec package.
+
 ## Usage
 
 Copy the `text` block below into a fresh Codex session.
