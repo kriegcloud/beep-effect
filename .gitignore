@@ -38,6 +38,7 @@ stats.html
 .turbo
 .vercel
 docs/
+**/docs
 !packages/common/schema/docs/
 packages/common/schema/docs/**
 !packages/common/schema/docs/index.md
