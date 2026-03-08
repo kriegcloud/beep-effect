@@ -12,8 +12,7 @@ Normative sources:
 Baseline inventory frozen before remediation:
 
 - Canonical schema module: [ProvO.ts](../../src/internal/ProvO/ProvO.ts)
-- Compatibility alias module: [Prov0.ts](../../src/internal/ProvO/Prov0.ts)
-- Existing transport regression tests: [Prov0.test.ts](../../test/Prov0.test.ts)
+- Canonical schema tests: [ProvO.test.ts](../../test/ProvO.test.ts)
 - Localized fixture corpus: [test/fixtures](../../test/fixtures)
 - Baseline verification before remediation:
   - `bun run check`
@@ -179,7 +178,7 @@ Each row records a non-green baseline term. All items below were resolved during
 | `prov:Delegation` | §3.3 | Missing `hadRole` support | Missing property on class | Medium | Add `Delegation.hadRole` | Resolved |
 | `prov:InstantaneousEvent` | §3.3 | Missing | Missing class | Medium | Add `InstantaneousEvent` export | Resolved |
 | `prov:Role` / `prov:hadRole` | §3.3 | No `Role` term surface; role-bearing properties used untyped object refs | Missing class / range too weak | High | Add `Role` export and typed role references | Resolved |
-| Canonical `ProvO` root surface | Package surface | Root schema excluded standalone agents and used `Prov0` naming in its internal identity | Export/module inconsistency | High | Make `ProvO` canonical, accept standalone agents, keep `Prov0` as compatibility alias | Resolved |
+| Canonical `ProvO` root surface | Package surface | Root schema excluded standalone agents and used typo-era `Prov0` naming in its internal identity and test/module surface | Export/module inconsistency | High | Make `ProvO` canonical, accept standalone agents, and remove the typo alias surface | Resolved |
 
 ## Remediation Checklist
 
@@ -188,7 +187,7 @@ Each row records a non-green baseline term. All items below were resolved during
 - [x] Add missing class surfaces: `Collection`, `EmptyCollection`, `Bundle`, `Person`, `SoftwareAgent`, `Organization`, `Location`, `EntityInfluence`, `AgentInfluence`, `PrimarySource`, `Quotation`, `Revision`, `Plan`, `InstantaneousEvent`, `Role`.
 - [x] Add missing property surfaces: `generatedAtTime`, `invalidatedAtTime`, `value`, `influenced`, `qualifiedPrimarySource`, `qualifiedQuotation`, `qualifiedRevision`.
 - [x] Tighten range helpers so `atLocation`, `hadPlan`, `hadRole`, and `hadMember` are not weaker than the ontology.
-- [x] Canonicalize the module surface around `ProvO` while retaining `Prov0` as a documented compatibility alias.
+- [x] Canonicalize the module surface around `ProvO` and remove the typo-era `Prov0` alias surface.
 - [x] Keep transport-specific helpers, but document them as non-normative compatibility extensions.
 - [x] Expand test coverage from fixture regression into spec-conformance coverage.
 - [x] Update package docs home to link to this review.
@@ -199,7 +198,6 @@ The canonical PROV schema surface now covers the official PROV-O term set from S
 
 Retained non-normative compatibility extensions:
 
-- `Prov0` compatibility alias module and value export
 - `JsonReference`
 - `ExternalLink`
 - `OneOrMoreObjectRef`
