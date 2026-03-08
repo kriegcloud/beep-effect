@@ -1,0 +1,4 @@
+<http://example.org/resourceA>
+  <http://example.org/propertyA> 1.2E3;
+  <http://example.org/propertyB> -1.2E3;
+  <http://example.org/propertyC> "1.2EE3"^^<http://www.w3.org/2001/XMLSchema#double>.

@@ -1,0 +1,17 @@
+<http://example.org/resourceA>
+  <http://example.org/propertyA>
+    "a"@de,
+    "a"@en,
+    "a"^^<http://example.org/datatypeA>,
+    "a"^^<http://example.org/datatypeB>,
+    <http://example.org/resourceB>,
+    <http://example.org/resourceC>,
+    _:b1, [
+      <http://example.org/propertyB> "b"
+    ], [
+      <http://example.org/propertyB> "c"
+    ];
+  <http://example.org/propertyC> _:b1.
+
+_:b1
+  <http://example.org/propertyB> "a".

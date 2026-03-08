@@ -1,0 +1,30 @@
+<http://example.org/resource1>
+  <http://example.org/propertyA>
+    "label",
+    <http://example.org/root>, [
+      <http://example.org/propertyG> "label"
+    ],
+    _:b1, [
+      <http://example.org/propertyG> "label"
+    ];
+  <http://example.org/propertyD> "0.3041688965946858".
+
+<http://example.org/root>
+  <http://example.org/list> ("1" "2" "3" "4");
+  <http://example.org/propertyA> [
+      <http://example.org/propertyB> "0.12935997808005784"
+    ], [
+      <http://example.org/propertyB> "0.8101975671791763"
+    ];
+  <http://example.org/propertyC> <http://example.org/resource1>;
+  <http://example.org/propertyE> _:b1;
+  <http://example.org/propertyF> _:b1;
+  <http://example.org/propertyH> [
+      <http://example.org/propertyG> "label"
+    ];
+  <http://example.org/propertyI>
+    "a",
+    "b".
+
+_:b1
+  <http://example.org/propertyG> "label".

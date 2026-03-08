@@ -1,0 +1,4 @@
+@base <http://example.com/>.
+
+<resourceA>
+  <propertyA> "Resource A".

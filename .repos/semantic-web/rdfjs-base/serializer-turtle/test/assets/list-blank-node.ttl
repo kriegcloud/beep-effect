@@ -1,0 +1,5 @@
+<http://example.org/resourceA>
+  <http://example.org/propertyA> ("1" _:b1).
+
+_:b1
+  <http://example.org/propertyB> "2".

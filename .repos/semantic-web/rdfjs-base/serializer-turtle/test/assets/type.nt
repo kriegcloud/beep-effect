@@ -1,0 +1,11 @@
+<http://example.org/resourceA> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/ClassA> .
+<http://example.org/resourceA> <http://example.org/propertyA> <http://example.org/resourceB> .
+
+<http://example.org/resourceB> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/ClassC> .
+<http://example.org/resourceB> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/ClassB> .
+<http://example.org/resourceB> <http://example.org/propertyA> <http://example.org/resourceC> .
+
+<http://example.org/resourceC> <http://example.org/propertyA> _:b1 .
+
+_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/ClassD> .
+_:b1 <http://example.org/propertyB> <http://example.org/resourceD> .

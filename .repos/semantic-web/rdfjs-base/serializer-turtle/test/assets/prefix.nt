@@ -1,0 +1,3 @@
+<http://schema.org/name> <http://schema.org/name> "Name" .
+<http://example.org/resourceA> <http://schema.org/name> "Resource A" .
+<http://example.org/resourceA> <http://schema.org/dateCreated> "2023-01-01"^^<http://www.w3.org/2001/XMLSchema#date> .
