@@ -25,7 +25,10 @@ export type NdjsonDecodeErrorDetails = Readonly<{
  * @param onError - Maps parse or decode failures into the stream error channel.
  * @example
  * ```ts
- * const decodeUsers = decodeNdjson(User, ({ stage, line, cause }) => ({ stage, line, cause }))
+ * import * as S from "effect/Schema"
+ * import { decodeNdjson } from "../../src/core/internal/ndjson.ts"
+ *
+ * const decodeStrings = decodeNdjson(S.String, (details) => details)
  * ```
  */
 export const decodeNdjson = <S extends S.Top, E>(schema: S, onError: (details: NdjsonDecodeErrorDetails) => E) => {
