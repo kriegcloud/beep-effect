@@ -32,6 +32,7 @@ const composers = $I.compose(
   "utils",
   "ui",
   "web",
+	"semantic-web",
   "beep-sync",
   "repo-cli",
   "codegraph",
@@ -301,3 +302,10 @@ export const $IamUiId: Identity.IdentityComposer<"@beep/iam-ui"> = composers.$Ia
  * @type {Identity.IdentityComposer<"@beep/codegraph">}
  */
 export const $CodegraphId: Identity.IdentityComposer<"@beep/codegraph"> = composers.$CodegraphId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/semantic-web">}
+ */
+export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = composers.$SemanticWebId;

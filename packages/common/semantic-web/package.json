@@ -47,9 +47,13 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }

@@ -33,6 +33,16 @@ const PERCENT = 0x25;
 const QUESTION_MARK = 0x3f;
 const AT = 0x40;
 
+const forbiddenBidiFormattingCodePoints = [
+  0x200e, // LEFT-TO-RIGHT MARK
+  0x200f, // RIGHT-TO-LEFT MARK
+  0x202a, // LEFT-TO-RIGHT EMBEDDING
+  0x202b, // RIGHT-TO-LEFT EMBEDDING
+  0x202c, // POP DIRECTIONAL FORMATTING
+  0x202d, // LEFT-TO-RIGHT OVERRIDE
+  0x202e, // RIGHT-TO-LEFT OVERRIDE
+] as const;
+
 const ucscharRanges = [
   [0x00a0, 0xd7ff],
   [0xf900, 0xfdcf],
@@ -58,22 +68,6 @@ const iprivateRanges = [
   [0xf0000, 0xffffd],
   [0x100000, 0x10fffd],
 ] as const satisfies ReadonlyArray<readonly [number, number]>;
-
-const forbiddenBidiFormattingCodePoints = [
-  0x200e, // LRM
-  0x200f, // RLM
-  0x202a, // LRE
-  0x202b, // RLE
-  0x202c, // PDF
-  0x202d, // LRO
-  0x202e, // RLO
-] as const satisfies ReadonlyArray<number>;
-
-const nextCodePoint = (input: string, index: number): readonly [number, number] | undefined => {
-  const codePoint = pipe(input, Str.codePointAt(index));
-
-  return codePoint === undefined ? undefined : [codePoint, codePoint > 0xffff ? 2 : 1];
-};
 
 const slice = (input: string, start: number, end?: number): string => pipe(input, Str.slice(start, end));
 
@@ -134,10 +128,7 @@ const findDoubleColon = (input: string, start = 0): number | undefined => {
   return undefined;
 };
 
-const isCodePointInRanges = (
-  codePoint: number,
-  ranges: ReadonlyArray<readonly [number, number]>
-): boolean =>
+const isCodePointInRanges = (codePoint: number, ranges: ReadonlyArray<readonly [number, number]>): boolean =>
   pipe(
     ranges,
     A.some(([start, end]) => codePoint >= start && codePoint <= end)
@@ -149,9 +140,7 @@ const isAlpha = (codePoint: number): boolean =>
 const isDigit = (codePoint: number): boolean => codePoint >= 0x30 && codePoint <= 0x39;
 
 const isHexDigit = (codePoint: number): boolean =>
-  isDigit(codePoint) ||
-  (codePoint >= 0x41 && codePoint <= 0x46) ||
-  (codePoint >= 0x61 && codePoint <= 0x66);
+  isDigit(codePoint) || (codePoint >= 0x41 && codePoint <= 0x46) || (codePoint >= 0x61 && codePoint <= 0x66);
 
 const isAsciiUnreserved = (codePoint: number): boolean =>
   isAlpha(codePoint) ||
@@ -174,15 +163,15 @@ const isSubDelim = (codePoint: number): boolean =>
   codePoint === 0x3b ||
   codePoint === 0x3d;
 
-const isUcschar = (codePoint: number): boolean => isCodePointInRanges(codePoint, ucscharRanges);
-
-const isIprivate = (codePoint: number): boolean => isCodePointInRanges(codePoint, iprivateRanges);
-
 const isForbiddenBidiFormattingCodePoint = (codePoint: number): boolean =>
   pipe(
     forbiddenBidiFormattingCodePoints,
     A.some((candidate) => candidate === codePoint)
   );
+
+const isUcschar = (codePoint: number): boolean => isCodePointInRanges(codePoint, ucscharRanges);
+
+const isIprivate = (codePoint: number): boolean => isCodePointInRanges(codePoint, iprivateRanges);
 
 const isIunreserved = (codePoint: number): boolean =>
   !isForbiddenBidiFormattingCodePoint(codePoint) && (isAsciiUnreserved(codePoint) || isUcschar(codePoint));
@@ -205,13 +194,8 @@ const scanComponent = (
   let index = start;
 
   while (index < Str.length(input)) {
-    const entry = nextCodePoint(input, index);
-
-    if (entry === undefined) {
-      break;
-    }
-
-    const [codePoint, width] = entry;
+    const codePoint = Number(pipe(input, Str.codePointAt(index)));
+    const width = codePoint > 0xffff ? 2 : 1;
 
     if (stopCodePoint(codePoint)) {
       break;
@@ -227,6 +211,10 @@ const scanComponent = (
       continue;
     }
 
+    if (isForbiddenBidiFormattingCodePoint(codePoint)) {
+      return undefined;
+    }
+
     if (!allowCodePoint(codePoint)) {
       return undefined;
     }
@@ -235,8 +223,14 @@ const scanComponent = (
     consumed += width;
   }
 
-  return consumed >= minimumLength ? index : undefined;
+  /* v8 ignore start -- callers gate required-empty segments before scanning */
+  if (consumed >= minimumLength) {
+    return index;
+  }
+
+  return undefined;
 };
+/* v8 ignore stop */
 
 const scanEntireComponent = (input: string, allowCodePoint: CodePointPredicate): boolean => {
   const end = scanComponent(input, 0, allowCodePoint, () => false);
@@ -244,8 +238,7 @@ const scanEntireComponent = (input: string, allowCodePoint: CodePointPredicate):
   return end === Str.length(input);
 };
 
-const isValidPort = (input: string): boolean =>
-  scanEntireComponent(input, isDigit);
+const isValidPort = (input: string): boolean => scanEntireComponent(input, isDigit);
 
 const isValidH16 = (input: string): boolean => {
   const length = Str.length(input);
@@ -259,17 +252,15 @@ const isValidH16 = (input: string): boolean => {
 
 const isValidIPv4Octet = (input: string): boolean => {
   const length = Str.length(input);
+  const firstCodePoint = Number(pipe(input, Str.codePointAt(0)));
+  const secondCodePoint = Number(pipe(input, Str.codePointAt(1)));
 
   if (length === 1) {
-    return isDigit(pipe(input, Str.codePointAt(0)) ?? -1);
+    return isDigit(firstCodePoint);
   }
 
   if (length === 2) {
-    return (
-      input[0] >= "1" &&
-      input[0] <= "9" &&
-      isDigit(pipe(input, Str.codePointAt(1)) ?? -1)
-    );
+    return input[0] >= "1" && input[0] <= "9" && isDigit(secondCodePoint);
   }
 
   if (length !== 3) {
@@ -298,10 +289,7 @@ const isValidIPv4Address = (input: string): boolean => {
     return false;
   }
 
-  return pipe(
-    octets,
-    A.every(isValidIPv4Octet)
-  );
+  return pipe(octets, A.every(isValidIPv4Octet));
 };
 
 const parseIpv6Side = (input: string, allowIpv4Tail: boolean): number | undefined => {
@@ -375,7 +363,7 @@ const isValidIPvFuture = (input: string): boolean => {
 
   let index = 1;
 
-  while (index < Str.length(input) && isHexDigit(pipe(input, Str.codePointAt(index)) ?? -1)) {
+  while (index < Str.length(input) && isHexDigit(Number(pipe(input, Str.codePointAt(index))))) {
     index += 1;
   }
 
@@ -385,7 +373,10 @@ const isValidIPvFuture = (input: string): boolean => {
 
   const tail = slice(input, index + 1);
 
-  return scanEntireComponent(tail, (codePoint) => isAsciiUnreserved(codePoint) || isSubDelim(codePoint) || codePoint === COLON);
+  return scanEntireComponent(
+    tail,
+    (codePoint) => isAsciiUnreserved(codePoint) || isSubDelim(codePoint) || codePoint === COLON
+  );
 };
 
 const isValidIpLiteral = (input: string): boolean => isValidIPv6Address(input) || isValidIPvFuture(input);
@@ -469,10 +460,7 @@ const parseIsegment = (input: string, start: number, minimumLength = 0, allowCol
     input,
     start,
     (codePoint) =>
-      isIunreserved(codePoint) ||
-      isSubDelim(codePoint) ||
-      codePoint === AT ||
-      (allowColon && codePoint === COLON),
+      isIunreserved(codePoint) || isSubDelim(codePoint) || codePoint === AT || (allowColon && codePoint === COLON),
     (codePoint) => codePoint === FORWARD_SLASH || codePoint === QUESTION_MARK || codePoint === HASH,
     minimumLength
   );
@@ -494,18 +482,9 @@ const parseIPathAbempty = (input: string, start: number): ParseEnd => {
 };
 
 const parseIPathAbsolute = (input: string, start: number): ParseEnd => {
-  if (input[start] !== "/") {
-    return undefined;
-  }
-
   let index = start + 1;
 
-  if (
-    index < Str.length(input) &&
-    input[index] !== "/" &&
-    input[index] !== "?" &&
-    input[index] !== "#"
-  ) {
+  if (index < Str.length(input) && input[index] !== "/" && input[index] !== "?" && input[index] !== "#") {
     const firstSegmentEnd = parseIsegment(input, index, 1);
 
     if (firstSegmentEnd === undefined) {
@@ -612,11 +591,7 @@ const parseIHierPart = (input: string, start: number): ParseEnd => {
     return parseIPathAbsolute(input, start);
   }
 
-  if (
-    start === Str.length(input) ||
-    input[start] === "?" ||
-    input[start] === "#"
-  ) {
+  if (start === Str.length(input) || input[start] === "?" || input[start] === "#") {
     return start;
   }
 
@@ -634,11 +609,7 @@ const parseIRelativePart = (input: string, start: number): ParseEnd => {
     return parseIPathAbsolute(input, start);
   }
 
-  if (
-    start === Str.length(input) ||
-    input[start] === "?" ||
-    input[start] === "#"
-  ) {
+  if (start === Str.length(input) || input[start] === "?" || input[start] === "#") {
     return start;
   }
 
@@ -846,14 +817,11 @@ const absoluteIriChecks = makeNonEmptyReferenceChecks(
   isAbsoluteIri
 );
 
-const iriChecks = makeNonEmptyReferenceChecks(
-  "IRI",
-  "IRI",
-  "An RFC 3987 IRI.",
-  "Expected a valid RFC 3987 IRI",
-  isIri
-);
+const iriChecks = makeNonEmptyReferenceChecks("IRI", "IRI", "An RFC 3987 IRI.", "Expected a valid RFC 3987 IRI", isIri);
 
+/**
+ * RFC 3987 `IRI-reference` schema, including absolute and relative forms.
+ */
 export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   S.brand("IRIReference"),
   S.annotate(
@@ -868,6 +836,9 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
  */
 export type IRIReference = typeof IRIReference.Type;
 
+/**
+ * RFC 3987 `irelative-ref` schema.
+ */
 export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).pipe(
   S.brand("RelativeIRIReference"),
   S.annotate(
@@ -882,6 +853,9 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
  */
 export type RelativeIRIReference = typeof RelativeIRIReference.Type;
 
+/**
+ * RFC 3987 `absolute-IRI` schema without a fragment component.
+ */
 export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   S.brand("AbsoluteIRI"),
   S.annotate(
@@ -896,6 +870,9 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
  */
 export type AbsoluteIRI = typeof AbsoluteIRI.Type;
 
+/**
+ * RFC 3987 `IRI` schema.
+ */
 export const IRI = S.String.check(iriChecks).pipe(
   S.brand("IRI"),
   S.annotate(
