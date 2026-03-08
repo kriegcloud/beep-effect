@@ -1,3 +1,4 @@
+import type * as Generated from "@effect/ai-openai/Generated"
 import * as Errors from "@effect/ai-openai/internal/errors"
 import * as OpenAiClient from "@effect/ai-openai/OpenAiClient"
 import { assert, describe, it } from "@effect/vitest"
@@ -29,6 +30,21 @@ const makeMockResponse = (options: {
   )
 }
 
+const makeMockStreamResponse = (options: {
+  readonly events: ReadonlyArray<unknown>
+  readonly request?: HttpClientRequest.HttpClientRequest
+}): HttpClientResponse.HttpClientResponse => {
+  const request = HttpClientRequest.get(options.request?.url ?? "/")
+  const body = options.events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("")
+  return HttpClientResponse.fromWeb(
+    request,
+    new Response(body, {
+      status: 200,
+      headers: { "content-type": "text/event-stream" }
+    })
+  )
+}
+
 const makeMockHttpClient = (
   handler: (
     request: HttpClientRequest.HttpClientRequest
@@ -43,6 +59,27 @@ const makeMockHttpClient = (
       >,
     Effect.succeed
   )
+
+const makeResponseBody = (
+  overrides: Partial<typeof Generated.Response.Encoded> = {}
+): typeof Generated.Response.Encoded => ({
+  id: "resp_test123",
+  object: "response",
+  created_at: 1,
+  model: "gpt-4o-mini",
+  status: "completed",
+  output: [],
+  metadata: null,
+  temperature: null,
+  top_p: null,
+  tools: [],
+  tool_choice: "auto",
+  error: null,
+  incomplete_details: null,
+  instructions: null,
+  parallel_tool_calls: false,
+  ...overrides
+})
 
 // =============================================================================
 // Tests
@@ -505,6 +542,65 @@ describe("OpenAiClient", () => {
   })
 
   describe("createResponseStream", () => {
+    it.effect("accepts keepalive stream events", () => {
+      const mockClient = makeMockHttpClient((request) =>
+        Effect.succeed(makeMockStreamResponse({
+          request,
+          events: [
+            {
+              type: "response.created",
+              sequence_number: 1,
+              response: makeResponseBody({
+                id: "resp_stream",
+                status: "in_progress"
+              })
+            },
+            {
+              type: "keepalive",
+              sequence_number: 2
+            },
+            {
+              type: "response.completed",
+              sequence_number: 3,
+              response: makeResponseBody({
+                id: "resp_stream"
+              })
+            }
+          ]
+        }))
+      )
+
+      const HttpClientLayer = Layer.succeed(HttpClient.HttpClient, mockClient)
+
+      const MainLayer = OpenAiClient.layer({
+        apiKey: Redacted.make("test-key")
+      }).pipe(Layer.provide(HttpClientLayer))
+
+      return Effect.gen(function*() {
+        const client = yield* OpenAiClient.OpenAiClient
+
+        const [_, stream] = yield* client.createResponseStream({
+          model: "gpt-4o",
+          input: "test"
+        })
+
+        const events = yield* Stream.runCollect(stream)
+        const parts = globalThis.Array.from(events)
+
+        assert.strictEqual(parts.length, 3)
+        const keepAlive = parts[1]
+        assert.strictEqual(keepAlive.type, "keepalive")
+        if (keepAlive.type === "keepalive") {
+          assert.strictEqual(keepAlive.sequence_number, 2)
+        }
+
+        assert.strictEqual(parts[2].type, "response.completed")
+        if (parts[2].type === "response.completed") {
+          assert.strictEqual(parts[2].response.id, "resp_stream")
+        }
+      }).pipe(Effect.provide(MainLayer))
+    })
+
     it.effect("maps HTTP error before stream starts", () => {
       const mockClient = makeMockHttpClient((request) =>
         Effect.succeed(makeMockResponse({
