@@ -1,0 +1,22 @@
+PREFIX ex: <http://ex.example/#>
+PREFIX foaf: <http://xmlns.com/foaf/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<http://a.example/Issue1>
+    ex:reportedBy   <http://a.example/User2> ;
+    ex:reproducedBy <http://a.example/Thompson.J> ;
+.
+
+<http://a.example/User2>
+    foaf:givenName "Bob" ;
+    foaf:familyName "Smith" ;
+    foaf:mbox <mail:bob@example.org> ;
+    ex:representative <http://a.example/Thompson.J>
+.
+
+<http://a.example/Thompson.J>
+    foaf:givenName "Joe", "Joseph" ;
+    foaf:familyName "Thompson" ;
+    foaf:phone <tel:+456> ;
+    foaf:mbox <mail:joe@example.org>
+.

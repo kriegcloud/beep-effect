@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>shex-simple has moved</title>
+  </head>
+  <body>
+    <p>
+      <a href="../packages/shex-webapp/doc/shex-simple.html">new shex-simple location</a><br/>
+      I can't do an HTTP redirect so you'll have to update your bookmarks.<br/>
+      The above href should now include your search parameters.<br/>
+      Javascript should redirect you in <span>5</span> seconds. <button></button>
+    </p>
+    <script>
+      debugger
+      let a = document.getElementsByTagName("a")[0]
+      let u = location
+      let r = a.getAttribute("href")
+      a.setAttribute("href", r + u.search + u.hash)
+      let s = document.getElementsByTagName("span")[0]
+      let timeout = parseInt(s.innerText)
+      let timer = null
+      let b = document.getElementsByTagName("button")[0]
+      resume()
+
+      function next () {
+        if (timeout === 0) {
+          location = a.getAttribute("href")
+        } else {
+          s.innerText = "" + timeout--
+          timer = setTimeout(next, 1000)
+        }
+      }
+
+      function resume () {
+        next()
+        b.innerText = "wait, i don't wanna go!"
+        b.onclick = pause
+      }
+
+      function pause () {
+        clearTimeout(timer)
+        b.innerText = "OK, I'm ready"
+        b.onclick = resume
+      }
+    </script>
+  </body>
+</html>

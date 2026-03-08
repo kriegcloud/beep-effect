@@ -1,0 +1,14 @@
+{
+  "type": "ShapeAndResults",
+  "solutions": [
+    { "type": "NodeConstraintTest",
+      "node": "http://a.example/s1",
+      "shape": "http://a.example/S1",
+      "shapeExpr": {
+        "type": "NodeConstraint",
+        "nodeKind": "iri" } },
+    { "type": "ShapeTest",
+      "node": "http://a.example/s1",
+      "shape": "http://a.example/S1" }
+  ]
+}

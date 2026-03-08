@@ -1,0 +1,12 @@
+[
+  {
+    "name": ":S1 {:p1 .|:p2 .,:p3 .} / { :s1 :p1 \"p1-0\" . }" ,
+    "options999": { "or": "someOf" } ,
+    "schemaLabel": "1dotOr2dot_pass_p1" ,
+    "schema": "PREFIX : <http://a.example/>\n\n:S1 { :p1 .| :p2 .; :p3 . }\n" ,
+    "dataLabel": "p1.ttl" ,
+    "data": "PREFIX : <http://a.example/>\n\n<x> :p1 \"p1-0\" .\n" ,
+    "queryMap": "<x>@<http://a.example/S1>" ,
+    "status": "conformant"
+  }
+]

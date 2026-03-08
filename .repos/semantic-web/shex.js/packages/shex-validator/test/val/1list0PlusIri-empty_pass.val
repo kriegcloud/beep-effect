@@ -1,0 +1,32 @@
+{
+  "type": "ShapeTest",
+  "node": "http://a.example/n1",
+  "shape": "http://a.example/S1",
+  "solution": {
+    "type": "TripleConstraintSolutions",
+    "predicate": "http://a.example/p1",
+    "valueExpr": "http://a.example/List0PlusIri",
+    "solutions": [
+      {
+        "type": "TestedTriple",
+        "subject": "http://a.example/n1",
+        "predicate": "http://a.example/p1",
+        "object": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+        "referenced": {
+          "type": "ShapeOrResults",
+          "solution": {
+            "type": "NodeConstraintTest",
+            "node": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+            "shape": "http://a.example/List0PlusIri",
+            "shapeExpr": {
+              "type": "NodeConstraint",
+              "values": [
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

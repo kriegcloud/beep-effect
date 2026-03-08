@@ -1,0 +1,23 @@
+if: tag IS blank
+language: node_js
+os: linux
+dist: xenial
+
+env:
+  - CLI_TIMEOUT=10000
+node_js:
+#  - "lts/*"
+  - "node"
+before_script:
+  - git clone --depth=1 --branch=main https://github.com/shexSpec/shexTest.git ../shexTest
+install: npm ci && lerna bootstrap
+cache: npm
+script:
+  - npm run test-all
+
+notifications:
+  email: false
+
+# branches:
+#   except:
+#     - /^v\d+\.\d+\.\d+$/

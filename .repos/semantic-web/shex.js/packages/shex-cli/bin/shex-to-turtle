@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+// shex-to-json http://tracker.example/schemas/Issue.shex
+
+const Path = require('path');
+const Fs = require('fs');
+const ShExUtil = require("@shexjs/util");
+const ShExRWriter = require('../../../TODO/ShExRWriter');
+const Jsonld = require("jsonld");
+const N3 = require("n3");
+const ShExNode = require("@shexjs/node")({rdfjs: N3, jsonld: Jsonld});
+const CLArgs = require("command-line-args");
+
+// Generate command line interface
+run(CLArgs([
+  { name: "help",  alias: "h", type: Boolean },
+  { name: "shex",  alias: "x", type: String, multiple:  true, defaultValue:   [], defaultOption:  true },
+  { name: "json",  alias: "j", type: String, multiple:    true, defaultValue:   [] },
+  { name: "schema-iri-append", type: String, multiple:    false, defaultValue: undefined },
+  { name: "schema-keep-imports", type: Boolean, multiple: false, defaultValue: false },
+  { name: "schema-base",       type: String, multiple:    false, defaultValue: undefined },
+  { name: "abbreviate", alias: "a", type: Boolean, multiple:  false, defaultValue:   false }
+]));
+
+async function run (cmds) {
+  // Extract user commands
+  if (cmds.help)
+    abort("");
+  if (cmds.shex.length === 0 && cmds.json.length === 0) abort("no shex specified");
+
+  let schemaOptions = {}
+  if (cmds['schema-iri-append']) {
+    schemaOptions.iriTransform = i => i + cmds['schema-iri-append']
+  }
+  if (cmds['schema-keep-imports']) {
+    schemaOptions.keepImports = cmds['schema-keep-imports']
+  }
+
+  try {
+    const {schema, schemaMeta, data, dataMeta} = await ShExNode.load({shexc: cmds.shex, json: cmds.json}, null, schemaOptions);
+    if (false) {
+      let w;
+      new ShExRWriter({ base: cmds['schema-base'] || schemaMeta[0].base }).
+        writeSchema(schema, function (error, text, prefixes) {
+          if (error) throw error;
+          else w = text;
+        });
+      console.log(w);
+    } else {
+      let struct = schema; // ShExUtil.AStoShExJ(schema, cmds.abbreviate);
+      let ctx = JSON.parse(Fs.readFileSync(Path.resolve(process.argv[1], '../../../../TODO/shex.jsonld')));
+      struct['@context'] = ctx // 'file://' + Path.resolve(process.argv[1], '../../../../doc/shex.jsonld');
+      try {
+        const nquads = await Jsonld.toRDF(struct, {format: "application/nquads"});
+        const p = new N3.Parser({ format: 'N-Triples' })
+        const w = new N3.Writer(null, {
+          base: schemaMeta[0].base,
+          prefixes: Object.assign({
+            rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            shex: 'http://www.w3.org/ns/shex#',
+          }, schemaMeta[0].prefixes)
+        })
+        p.parse(nquads, function (error, quad, prefixes) {
+          if (error)
+            throw error
+          else if (quad)
+            w.addQuad(quad)
+          else
+            w.end((error, result) => console.log(result))
+        });
+      } catch (lderr) {
+        throw Error("error parsing JSON-ld " + schemaMeta[0].url + ": " + lderr);
+      }
+    }
+  } catch (e) {
+    console.error("aborting:", e.stack || e);
+    process.exit(1);
+  }
+}
+
+function abort (msg) {
+  console.error(msg);
+  console.error(require('command-line-usage')([
+    {
+      header: "shex-to-json",
+      content: "load some number of schema files from web or filesystem and display as JSON (ShExJ), for example:\n    shex-to-json http://tracker.example/schemas/Issue.shex" },
+    {
+      header: 'Options',
+      optionList: CommandLineOptions
+    },
+    {
+      content: "Project home: " + require('chalk').underline("https://github.com/shexSpec/shex.js")
+    }
+  ]));
+  process.exit(1);
+}
+

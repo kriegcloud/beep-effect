@@ -1,0 +1,9 @@
+{
+  "type": "NodeConstraintTest",
+  "node": { "value": "ab", "type": "http://a.example/bloodType" },
+  "shape": "http://a.example/S1",
+  "shapeExpr": {
+    "type": "NodeConstraint",
+    "datatype": "http://a.example/bloodType"
+  }
+}

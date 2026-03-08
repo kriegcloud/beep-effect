@@ -1,0 +1,18 @@
+[
+  {
+    "schemaLabel": "clinical observation",
+    "schemaURL": "ClinObs.shex",
+    "dataLabel": "with birthdate",
+    "dataURL": "ClinObs-with-birthdate.ttl",
+    "queryMap": "{FOCUS :status _}@START,\n<Patient2>@<ObservationShape>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "GO-CAM example",
+    "schemaURL": "GO-CAM-schema.shex",
+    "dataLabel": "1 instance with parents",
+    "dataURL": "GO-CAM-instance.ttl",
+    "queryMap": "<http://model.geneontology.org/5b528b1100001416/5b528b1100001522>@<#S1>",
+    "status": "conformant"
+  }
+]

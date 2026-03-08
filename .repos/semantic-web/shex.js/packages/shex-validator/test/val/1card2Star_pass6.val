@@ -1,0 +1,17 @@
+{
+  "type": "ShapeTest",
+  "node": "http://a.example/s1",
+  "shape": "http://a.example/S1",
+  "solution": { 
+    "type":"TripleConstraintSolutions", "predicate":"http://a.example/p1",
+    "solutions":[
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "a" }},
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "b" }},
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "c" }},
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "d" }},
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "e" }},
+      {"type":"TestedTriple","subject":"http://a.example/s1","predicate":"http://a.example/p1","object":{ "value": "f" }}
+    ],
+    "min": 2, "max": -1
+  }
+}

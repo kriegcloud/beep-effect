@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>ShEx2 — Schema Explorer</title>
+    <meta name="description" content="simple ShEx2 demo" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <script src='svg.min.js'></script>
+    <script src="../../2015/01/DrawOver.js"></script>
+    <style>
+      #loadform { float: left; border: thin solid #f77; }
+      .result { float:left; }
+      .keyword { color: #818; }
+      .scalar { background-color: #eee; }
+      #sources { font-size: small }
+      .record { margin-right: .1em; margin-left: -.8em; font-size: .5em; color: blue; }
+      p { margin: 0; }
+      p, .comment { background-color: #eee; }
+    </style>
+    <style>
+      h1 { font-size: 1.3em; }
+      h1, p, ul { margin: 0; margin-left: .1em; }
+      .passes999 { margin-right: 1em; }
+      .passes, #results div .passes { padding-left: .1em; border-left: thick solid #bfb; }
+      .pair.passes { border-left: none; padding-left: none; }
+      .pair.passes { background-color: #bfb; }
+      .fails , #results div .fails  { padding-left: .1em; border-left: thick solid #fbb; }
+      .pair.fails { border-left: none; padding-left: none; }
+      .pair.fails { background-color: #fbb; }
+      .error , #results div .error  { padding-left: .1em; border-left: thick solid #b00; }
+      .running { background-color: #ddf; }
+
+#menuForm > fieldset {
+    box-shadow: -.3ex .3ex grey;
+    display: inline;
+}
+
+#controls {
+    position: absolute;
+    left: 0;
+    top: 0;
+    list-style: none;
+    margin: 0;
+    display: none;
+    background: white; opacity: 1;
+    border: thin solid buttontext;
+    /* box-shadow: -.3ex .3ex grey; */
+}
+#controls div {
+    border: 10px solid buttonface;
+}
+#controls h3 {
+    margin: 0;
+}
+#menu-button { margin-left: 1em; }
+#menu-button svg { width: 1em; height: 1.5ex; }
+#about {
+  margin: 3em;
+}
+#dismiss-about { text-align: center; }
+#controls ul { padding-left: 0; margin-left: 0; list-style-type: none; }
+#controls li { padding: 0 1em; }
+#controls li.menuitem:hover { background-color: buttonface; }
+
+      th { text-align: left; }
+      td { padding: 0; }
+      td:nth-child(2) { padding: 0 1em; }
+table {
+    border-collapse: collapse;
+    }
+    tr { border-top-width: 0; border-bottom-width: 0; }
+/*
+    .inc1 td { background-color: #fdd; border-left: thin solid #ecc; }
+    .inc2 td { background-color: #eed; border-left: thin solid #ddc; }
+    .inc3 td { background-color: #dfd; border-left: thin solid #cec; }
+    */
+
+    .inc1   { border-color: #fbb; border-width: 4px; background-color: #fff7f7; }
+    .inc2   { border-color: #ddf; border-width: 4px; background-color: #f7f7ff; }
+    .inc3   { border-color: #bfb; border-width: 4px; background-color: #f0fff0; }
+    .inc4   { border-color: #fdd; border-width: 4px; }
+    .inc5   { border-color: #bbf; border-width: 4px; }
+    .inc6   { border-color: #dfd; border-width: 4px; }
+    td:nth-child(1) .inc1  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(1) .inc2  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(1) .inc3  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(1) .inc4  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(1) .inc5  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(1) .inc6  { border-left-width: 4px; border-right-style: solid; }
+    td:nth-child(4) .inc1 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    td:nth-child(4) .inc2 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    td:nth-child(4) .inc3 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    td:nth-child(4) .inc4 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    td:nth-child(4) .inc5 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    td:nth-child(4) .inc6 { border-right-width: 4px; border-left-style: solid; text-align: right; }
+    .top { border-top-style   : solid; }
+    .bot { border-bottom-style: solid; }
+    .tag { border-bottom-style: solid; }
+    .inc1 .tag { border-color: #fbb; }
+    .inc2 .tag { border-color: #ddf; }
+    .inc3 .tag { border-color: #bfb; }
+    pre.schema.shexc999:before { content: "‣"; width: 9em; }
+    .bar:before {
+      color: #333;
+      font-size: .6em;
+      border: 1px solid #bbb;
+      background: white;
+      display: block;
+      font-family: sans-serif;
+      padding: 0.2em 1em;
+    }
+
+    /*
+border-left: 1px solid #fdd;
+    border-top:    1px solid  #ff0;
+    border-right:  2px dashed #f0F;
+    border-bottom: 3px dotted #f00;
+    border-left:   5px solid  #09f;
+    */
+    .row { display: flex; }
+    .row_cell { width: 70%; }
+    .clear { border-left:thick solid #ffffff; background-color: #ffffff; }
+    .in1 { border-left:thick solid #fcecec; background-color: #fff0f0; }
+    .in2 { border-left:thick solid #f0fff0; background-color: #f0fff0; }
+    .start1 { border:thick solid #fcecec; background-color: #fff0f0; border-bottom-style: none; }
+    .start2 { border:thick solid #ecfcec; background-color: #f0fff0; border-bottom-style: none; }
+    .start3 { border:thick solid #ececfc; background-color: #f0f0ff; border-bottom-style: none; }
+
+    .extends.up999:before {
+        content: "⇩"; display: inline-block;
+    }
+    .extends.dn999:before {
+        content: "⇧"; display: inline-block;
+    }
+    .extends {
+        color: #333;
+        border: 1px solid #bbb;
+        font-family: sans-serif;
+        cursor: pointer;
+    }
+    .what {
+        background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIwIiBoZWlnaHQ9IjAiIGRpc3BsYXk9Im5vbmUiPgogICAgICA8c3ltYm9sIGlkPSJkb3duLWFycm93IiB2aWV3Qm94PSIwIC0xMCAxMDcgNjMiID4KICAgICAgICA8cGF0aCBkPSJNIDU0LDQwIDkwLDMgQyA5OSwtNSAxMTIsOCAxMDQsMTYgTCA2MCw2MCBjIDAsMCAtOCw2IC0xNCwwIEwgMywxNiBDIC01LDggOCwtNCAxNSwyIFoiIC8+CiAgICAgIDwvc3ltYm9sPgogICAgICA8dXNlIGlkPSJ1cC1hcnJvdyIgeGxpbms6aHJlZj0iI2Rvd24tYXJyb3ciIHRyYW5zZm9ybT0ic2NhbGUoMSwgLTEpIiB5PSItMTIwJSIgLz4KICAgICAgPCEtLSBpZD0idXAtYXJyb3ciIHhsaW5rOmhyZWY9IiNkb3duLWFycm93IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwtMSwwLDEzKSIgLS0+CiAgICA8L3N2Zz4=");
+    }
+    .comment {
+        margin-left: 1em;
+        /* border-left: thin solid green; */
+        margin-bottom: 2ex;
+    }
+    .render section, .render div {
+        /* border: thin dashed #ddf; */
+        padding: 0em;
+        margin: .5em;
+    }
+    .prefix    { color: #228b22; }
+    .localname { color: #008b8b; }
+    .native:hover, .native:focus {
+        color: #2a6496;
+        text-decoration: underline;
+    }
+
+    .native:focus {
+        outline: thin dotted;
+    }
+    .native {
+        color: #428bca;
+        text-decoration: none;
+    }
+    .shapeExpr { border: thin dotted #777; padding: 1em; }
+    .shapeExpr td:first-child { padding-left: 1em; }
+    .shapeExpr td:last-child { padding-right: 1em; }
+    .annotation .lines { transform: scale(1,2); pointer-events: none; }
+    .shapeExpr tr td:first-child { white-space: nowrap }
+    div.comment h4:first-child { margin-top: 0; }
+    h4 { margin-bottom: 0; }
+    h4:after { content: ":"; }
+
+  dl {
+    border: 3px double #ccc;
+    padding: 0.5em;
+    display: inline-block;
+    margin: 0;
+  }
+  dt {
+    float: left;
+    clear: left;
+    text-align: right;
+    font-weight: bold;
+    color: green;
+  }
+  dt::after {
+    content: ":";
+  }
+  dd {
+    padding: 0 0 0.5em 0;
+  }
+
+  .arrows     {
+                display: inline-block,
+                width: .9em,
+                margin-left: -.05em,
+                text-align: left;
+                margin-right: .2em;
+              }
+
+    </style>
+
+    <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+    <script src="https://www.w3.org/scripts/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  </head>
+
+  <body xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- G10,108 35 44 64 65 88 91 A4,5,14,16 F16,30,32 SL6,18,20,26,30,32 PDF10,12,1,20,42,59,68,79,86,89 -->
+    <!-- FLASH16,30 -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" display="none">
+      <symbol id="down-arrow" viewBox="0 -10 107 63" >
+        <path d="M 54,40 90,3 C 99,-5 112,8 104,16 L 60,60 c 0,0 -8,6 -14,0 L 3,16 C -5,8 8,-4 15,2 Z" />
+      </symbol>
+      <use id="up-arrow" xlink:href="#down-arrow" transform="scale(1, -1)" y="-120%" />
+      <!-- id="up-arrow" xlink:href="#down-arrow" transform="matrix(1,0,0,-1,0,13)" -->
+    </svg>
+
+    <div id="title">
+      <img src="http://www.w3.org/2015/ShEx-bones-min.svg" style="float:left; height:1.3em; padding-left: .3em;" alt="ShEx Icon"/><h1 style="float:left;">ShEx2 — Schema Explorer</h1>
+      <button id="menu-button" title="click for menu" style="float:left">
+        <svg><use xlink:href="#down-arrow"/><use xlink:href="#up-arrow" style="display:none;"/></svg>
+      </button>
+      <!-- <ul id="navlist" style="float:left; padding-left: 1em;"> -->
+      <!--   <li>‣ <span class="heading">drag and drop to:</span> <input type="file" id="schema-upload" class="inputfile" data-target="#inputSchema textarea"/> <label for="schema-upload" class="schema">ShEx schema</label>, <input type="file" id="data-upload" class="inputfile" data-target="#inputData textarea"/> <label for="data-upload" class="data">RDF data</label></li> -->
+      <!-- </ul> -->
+      <form id="menuForm">
+        <div id="controls">
+          <div>
+            <ul>
+              <li class="        "><h3>user interface</h3></li>
+              <li class="menuitem"><label for="interface">style:</label><select id="interface"><option value="minimal">minimal</option><option value="human">human</option><option value="appinfo">appinfo</option></select></li>
+              <li class="menuitem"><a id="download-results-button">download <span class="results">results</span></a></li>
+              <li class="        "><hr/></li>
+              <li class="        "><h3>HTTP</h3></li>
+              <li class="menuitem" id="load-schema-button">load <span class="schema">schema</span></li>
+              <li class="menuitem" id="load-data-button">load <span class="data">data</span></li>
+              <li class="menuitem" id="load-manifest-button">load <span class="manifest">manifest</span></li>
+              <li class="        "><hr/></li>
+              <li class="        "><h3>drag and drop</h3></li>
+              <li class="menuitem"><input type="checkbox" id="append"/><label for="append">drop appends</label></li>
+              <li class="menuitem"><label for="duplicateShape">duplicate shape:</label><select id="duplicateShape"><option value="abort">abort</option><option value="replace">replace</option><option value="ignore">ignore</option></select></li>
+              <li class="        "><hr/></li>
+              <li class="        "><h3>performance</h3></li>
+              <li class="menuitem"><label for="regexpEngine">error reporting:</label><select id="regexpEngine"><option value="eval-threaded-nerr">thorough</option><option value="nfax-val-1err">fast</option></select></li>
+              <li class="        "><hr/></li>
+              <li class="menuitem" id="permalink"><a>Permalink</a></li>
+              <li class="menuitem" id="about-button">About</li>
+            </ul>
+          </div>
+        </div>
+      </form>
+      <div id="loadForm" style="cursor: default; text-align: left; ">
+        <h1>Load <span></span></h1>
+        <p class="menuitem"><label for="loadInput" style="float: left;">from </label><input id="loadInput" style="width: 80%;"/></p>
+        <p class="validateTips">Enter a URL.</p>
+      </div>
+      <div id="about">
+        <h1>About shex-simple</h1>
+        <p>
+          <b>shex-simple</b> is a simple RDF validator web application.
+          It accepts a ShEx <span class="schema">schema</span> on the left in three forms: Compact Syntax (ShExC), JSON (ShExJ) and RDF/Turtle (ShExR).
+          <span class="data">Data</span> can be provided on the right in Turtle.
+        </p>
+        <h2>Resources</h2>
+        <ul>
+          <li>Sources:
+          <ul>
+            <li><a href="https://github.com/shexSpec/shex.js/blob/main/doc/shex-simple.js">js</a>, <a href="https://github.com/shexSpec/shex.js/blob/main/doc/shex-simple.html">html</a> </li>
+            <li><a href="https://github.com/shexSpec/shex.js">project</a></li>
+            <li><a href="https://rawgit.com/shexSpec/shex.js/main/doc/shex-simple.html">rawgit</a></li>
+          </ul>
+          </li>
+          <li>ShEx:
+          <ul>
+            <li><a href="http://shex.io/shex-primer/">Primer</a> </li>
+            <li><a href="http://shex.io/shex-semantics/">Specification</a> </li>
+            <li>Issues:<ul>
+              <li><a href="https://github.com/shexSpec/shex/issues?utf8=%E2%9C%93&amp;q=is%3Aissue%20is%3Aopen%20milestone%3A2.0">2.0 release</a></li>
+              <li><a href="https://github.com/shexSpec/shex/issues?utf8=%E2%9C%93&amp;q=is%3Aissue%20is%3Aopen%20milestone%3A2.1">2.x features</a></li>
+            </ul>
+            </li>
+            <li><a href="https://rawgit.com/shexSpec/shex.js/main/doc/shex-simple.html">rawgit</a></li>
+          </ul>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both;"></div>
+    </div>
+
+    <div id="input">
+      <form id="loadform">
+        <p style="float:left; text-align: right;">
+          Load ShEx:<br/>
+          <span id="sources"><a href="../test/ddi-ConceptSystem.shex" title="flat example">s</a> <a href="../test/ddi-complete.shex" title="flat example">d</a> <!-- <a href="http://lion.ddialliance.org/xmi.xml" title="load live from lion (needs CORS headers)">l</a> --></span> URL:<br/>
+          <a href="http://ddi-alliance.org/ns/#" title="DDI prefix">ddi</a> NS:<br/>
+          switches:
+        </p>
+        <p style="float:left; margin-left: .5em;"><input id="load-file" name="files[]" multiple="multiple" type="file" /><br/><input size="35" id="load-url"/><br/>
+          <input id="namespace" size="35" value="http://ddi-alliance.org/ns/#"/><br/>
+          <label for="inventMissing">invent missing shapes</label><input id="inventMissing" type="checkbox" checked="checked"/>
+        </p>
+      </form>
+    </div>
+
+    <div style="clear:both">
+      <div class="render"></div>
+<!--       <h2>scribbling ideas</h2> -->
+<!--       <table style="position: relative"> -->
+<!--         <thead> -->
+<!--           <tr><th></th><th>type</th><th>count</th></tr> -->
+<!--         </thead> -->
+<!--         <tbody> -->
+<!-- <tr><td colspan="3">ConceptSystem EXTENDS AnnotatedIdentifiable</td></tr> -->
+<!-- <tr                  ><td>      ├▻type                                              </td><td>CollectionType                     </td><td>?</td></tr> -->
+<!-- <tr class="inc1 top" ><td colspan="3"><span class="inc1" ></span>│ <span class="tag">(AnnotatedIdentifiable)</span>                            </td></tr> -->
+<!-- <tr class="inc1    " ><td><span class="inc1"></span>├▻name                                       </td><td>ObjectName                         </td><td>*</td></tr> -->
+<!-- <tr class="inc1 bot" ><td><span class="inc1"></span>├▻purpose                                    </td><td>InternationalStructuredString      </td><td>?</td></tr> -->
+<!-- <tr                  ><td>      ├─contains                                          </td><td>                                   </td><td> </td></tr> -->
+<!-- <tr                  ><td>      │   ├▭index                                         </td><td>xsd:integer                        </td><td>?</td></tr> -->
+<!-- <tr                  ><td>      │   └▻member                                        </td><td>Concept                            </td><td>*</td></tr> -->
+<!-- <tr                  ><td>      ├▭isOrdered                                         </td><td>xsd:boolean                        </td><td>?</td></tr> -->
+<!-- <tr                  ><td>      ├─isStructuredBy                                    </td><td>                                   </td><td>*</td></tr> -->
+<!-- <tr class="inc3 dn " id="incl_Identifiable"><td>      │   │ <a href="#foo" class="bar up">Identifiable</a>                                  </td><td>                                   </td><td> </td></tr> -->
+<!-- <tr class="inc3 dn " ><td>      │   ├▻hasRelationSpecification                      </td><td>RelationSpecification              </td><td> </td></tr> -->
+<!-- <tr class="inc3 dn " ><td>      │   ├▻semantic                                      </td><td>ExternalControlledVocabularyEntry  </td><td>?</td></tr> -->
+<!-- <tr                  ><td>      │   ├▻totality                                      </td><td>TotalityType                       </td><td>?</td></tr> -->
+<!-- <tr                  ><td>      │   └─hasMemberRelation                             </td><td>                                   </td><td>*</td></tr> -->
+<!-- <tr                  ><td>      │       ├▻hasRelationSepcification                  </td><td>RelationSpecification              </td><td> </td></tr> -->
+<!-- <tr class="inc3 top" ><td colspan="3"><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span>│ <span class="tag">(nested class 1)</span>                            </td></tr> -->
+<!-- <tr class="inc3    " ><td><span class="inc2" ><span class="inc1" ></span></span>│       ├▻source                             </td><td>Concept                            </td><td>*</td></tr> -->
+<!-- <tr class="inc2 top" ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span>│       └▻target                             </td><td>Concept                            </td><td>*</td></tr> -->
+<!-- <tr class="inc1 top" ><td colspan="3"><span class="inc1" ></span>│ (nested class3)                            </td></tr> -->
+<!-- <tr class="inc1    " ><td><span class="inc1"></span>│       ├▻semantic                           </td><td>ExternalControlledVocabularyEntry  </td><td>?</td></tr> -->
+<!-- <tr class="inc1    " ><td><span class="inc1"></span>│       ├▻totality                           </td><td>TotalityType                       </td><td>?</td></tr> -->
+<!-- <tr class="inc1 bot" ><td><span class="inc1" ></span>└▻definingConcept                            </td><td>Concept                            </td><td>*</td></tr> -->
+<!--                          </tbody> -->
+<!--       </table> -->
+    <div>
+    <!-- <script type="text/javascript"> -->
+    <!--   $(document).ready(function () { -->
+    <!--     var tr = $("#incl_Identifiable"); -->
+    <!--     tr.css("margin", ".5em"); -->
+    <!--     var area = DrawOver.select(tr, "margin"); -->
+    <!--     area.canvas.css({'pointer-events': 'none'}); -->
+    <!--     area.boundingBox().fill("none").stroke({color: "#b33", width: ".1em"}); -->
+    <!--   }); -->
+    <!-- </script> -->
+    </div>
+
+    </div>
+    <div id="loaded">
+      <hr/>
+      <h1>loaded resources:</h1>
+    </div>
+
+<!--
+     <div>
+<div class="clear">
+<div class="clear">
+<div class="clear">
+<div class="row"><div class="row_cell">ConceptSystem EXTENDS AnnotatedIdentifiable</div></div>
+<div class="row"><div class="row_cell">├▻type</div><div class="row_cell">CollectionType</div><div class="row_cell">?</div></div>
+<div class="row"><div class="row_cell">├▻name</div><div class="row_cell">ObjectName</div><div class="row_cell">*</div></div>
+<div class="row"><div class="row_cell">├▻purpose</div><div class="row_cell">InternationalStructuredString</div><div class="row_cell">?</div></div>
+<div class="row"><div class="row_cell">├─contains</div><div class="row_cell"></div><div class="row_cell"></div></div>
+</div></div></div>
+<div class="start1">
+<div class="start2">
+<div class="start3">
+<div class="row"><div class="row_cell">│ ├▭index</div><div class="row_cell">xsd:integer</div><div class="row_cell">?</div></div>
+<div class="row"><div class="row_cell">│ └▻member</div><div class="row_cell">Concept</div><div class="row_cell">*</div></div>
+</div>
+<div class="in2">
+<div class="row"><div class="row_cell">│</div><div class="row_cell"></div><div class="row_cell"></div></div>
+<div class="row"><div class="row_cell">├▭isOrdered</div><div class="row_cell">xsd:boolean</div><div class="row_cell">?</div></div>
+<div class="row"><div class="row_cell">├─isStructuredBy</div><div class="row_cell"></div><div class="row_cell">*</div></div>
+</div>
+</div>
+<div class="in1">
+<div class="in1">
+<div class="row"><div class="row_cell">│ │ + Identifiable</div><div class="row_cell"></div><div class="row_cell"></div></div>
+<div class="row"><div class="row_cell">│ ├▻hasRelationSpecification</div><div class="row_cell">RelationSpecification</div><div class="row_cell"></div></div>
+<div class="row"><div class="row_cell">│ ├▻semantic</div><div class="row_cell">ExternalControlledVocabularyEntry</div><div class="row_cell">?</div></div>
+</div></div></div>
+     </div>
+      <table>
+        <thead>
+          <tr><th></th><th></th><th>type</th><th>count</th><th></th></tr>
+        </thead>
+        <tbody>
+<tr><td colspan="3">ConceptSystem EXTENDS AnnotatedIdentifiable</td></tr>
+<tr                  ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td>      ├▻type                                              </td><td>CollectionType                     </td><td>?</td><td></td></tr>
+<tr class="inc1 top" ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td colspan="3"><span class="inc1" ></span>│ <span class="tag">(AnnotatedIdentifiable)</span>                            </td><td></td></tr>
+<tr class="inc1    " ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td><span class="inc1"></span>├▻name                                       </td><td>ObjectName                         </td><td>*</td><td></td></tr>
+<tr class="inc1 bot" ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td><span class="inc1"></span>├▻purpose                                    </td><td>InternationalStructuredString      </td><td>?</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      ├─contains                                          </td><td>                                   </td><td> </td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   ├▭index                                         </td><td>xsd:integer                        </td><td>?</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   └▻member                                        </td><td>Concept                            </td><td>*</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      ├▭isOrdered                                         </td><td>xsd:boolean                        </td><td>?</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      ├─isStructuredBy                                    </td><td>                                   </td><td>*</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   + Identifiable                                  </td><td>                                   </td><td> </td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   ├▻hasRelationSpecification                      </td><td>RelationSpecification              </td><td> </td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   ├▻semantic                                      </td><td>ExternalControlledVocabularyEntry  </td><td>?</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   ├▻totality                                      </td><td>TotalityType                       </td><td>?</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │   └─hasMemberRelation                             </td><td>                                   </td><td>*</td><td></td></tr>
+<tr                  ><td><span class="    " ><span class="    " ><span class="    " ></span></span></span></td><td>      │       ├▻hasRelationSepcification                  </td><td>RelationSpecification              </td><td> </td><td></td></tr>
+<tr class="inc3 top" ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td colspan="3">│ <span class="tag">(nested class 1)</span>                            </td><td></td></tr>
+<tr class="inc3    " ><td><span class="inc3" ><span class="inc2" ><span class="inc1" ></span></span></span></td><td>│       ├▻source                             </td><td>Concept                            </td><td>*</td><td>x<span class="inc2" ><span class="inc2" ></span></span></td></tr>
+<tr class="inc2 top" ><td><span class="    " ><span class="inc2" ><span class="inc1" ></span></span></span></td><td colspan="3">│ <span class="tag">(nested class 2)</span>                            </td><td></td></tr>
+<tr class="inc2    " ><td><span class="    " ><span class="inc2" ><span class="inc1" ></span></span></span></td><td>│       └▻target                             </td><td>Concept                            </td><td>*</td><td>x<span class="inc3" ><span class="inc3" ><span class="inc3" ></span></span></span></td></tr>
+<tr class="inc1 top" ><td><span class="    " ><span class="    " ><span class="inc1" ></span></span></span></td><td colspan="3">│ (nested class3)                            </td><td></td></tr>
+<tr class="inc1    " ><td><span class="    " ><span class="    " ><span class="inc1" ></span></span></span></td><td>│       ├▻semantic                           </td><td>ExternalControlledVocabularyEntry  </td><td>?</td><td></td></tr>
+<tr class="inc1    " ><td><span class="    " ><span class="    " ><span class="inc1" ></span></span></span></td><td>│       ├▻totality                           </td><td>TotalityType                       </td><td>?</td><td></td></tr>
+<tr class="inc1 bot" ><td><span class="    " ><span class="    " ><span class="inc1" ></span></span></span></td><td>└▻definingConcept                            </td><td>Concept                            </td><td>*</td><td></td></tr>
+                         </tbody>
+      </table>
+-->
+    <script src="../doc/iri.js"></script>
+    <script src="https://rawgit.com/markedjs/marked/main/lib/marked.js"></script><script></script>
+    <script>
+      if (!("captureStackTrace" in Error)) {
+        Error.captureStackTrace = function () { };
+      }
+    </script>
+
+    <!-- #if browserify -->
+<!-- -->
+    <script src="../browser/shex-browserify.js"></script>
+<!-- -->
+
+    <!-- #else -->
+<!--
+    <script src="../doc/require.js"      ></script>
+    <script src="https://rawgit.com/RubenVerborgh/N3.js/main/lib/N3Util.js"></script><script>modules["n3"]["Util"] = modules["./N3Util"] = N3Util = module.exports;</script>
+    <script src="https://rawgit.com/RubenVerborgh/N3.js/main/lib/N3Lexer.js"></script><script>modules["n3"]["Lexer"] = modules["./N3Lexer"] = N3Lexer = module.exports;</script>
+    <script src="https://rawgit.com/RubenVerborgh/N3.js/main/lib/N3Parser.js"></script><script>modules["n3"]["Parser"] = N3Parser = module.exports;</script>
+    <script src="https://rawgit.com/RubenVerborgh/N3.js/main/lib/N3Store.js"></script><script>modules["n3"]["Store"] = N3Store = module.exports;</script>
+    <script src="https://rawgit.com/RubenVerborgh/N3.js/main/lib/N3Writer.js"></script><script>modules["n3"]["Writer"] = N3Writer = module.exports;</script>
+    <script src="../lib/ShExUtil.js"     ></script><script>modules["./ShExUtil"] = modules["../lib/ShExUtil"] = modules["./lib/ShExUtil"] = modules["../../lib/ShExUtil"] = ShExUtil;</script>
+    <script>module.exports = exports;</script><script src="../lib/ShExJison.js"    ></script><script>modules["./ShExJison"] = module.exports;</script>
+    <script src="../lib/ShExParser.js"   ></script><script>modules["../lib/ShExParser"] = modules["./lib/ShExParser"] = module.exports;</script>
+    <script>module.exports = exports;</script><script src="../lib/ShapeMapJison.js"    ></script><script>modules["./ShapeMapJison"] = module.exports;</script>
+    <script src="../lib/ShapeMapParser.js"   ></script><script>modules["../lib/ShapeMapParser"] = modules["./lib/ShapeMapParser"] = module.exports;</script>
+    <script src="../lib/ShapeMap.js"   ></script><script>modules["../lib/ShapeMap"] = modules["./lib/ShapeMap"] = module.exports;</script>
+    <script src="../lib/ShExWriter.js"   ></script><script>modules["./lib/ShExWriter"] = modules["../lib/ShExWriter"] = module.exports;</script>
+    <script src="../lib/regex/eval-threaded-nerr.js"></script><script>modules["@shexjs/eval-threaded-nerr"] = module.exports;</script>
+    <script src="../lib/regex/nfax-val-1err.js"></script><script>modules["@shexhs/nfax-val-1err"] = module.exports;</script>
+    <script src="../lib/ShExValidator.js"></script><script>modules["/lib/ShExValidator"] = modules["./lib/ShExValidator"] = ShExValidator = module.exports;</script>
+    <script src="../lib/ShExLoader.js"></script><script>modules["/lib/ShExLoader"] = modules["./lib/ShExLoader"] = module.exports;</script>
+    <script src="../shex.js"></script>
+ -->
+
+    <!-- #endif -->
+
+    <script src="../doc/ShExRSchema.js"></script>
+    <script src="./editor.js" type="text/javascript"></script>
+  </body>
+</html>

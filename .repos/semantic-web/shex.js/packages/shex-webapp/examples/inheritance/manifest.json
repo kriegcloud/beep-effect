@@ -1,0 +1,114 @@
+[
+  {
+    "schemaLabel": "Customer EXTENDS Person and Employee",
+    "schemaURL": "PersonEmployee.shex",
+    "dataLabel": "percust, empcust, xcust",
+    "dataURL": "PersonEmployee.ttl",
+    "queryMap": "<http://a.example/percust>@ <http://a.example/Person>,\n<http://a.example/percust>@!<http://a.example/Employee>,\n<http://a.example/percust>@ <http://a.example/Customer>,\n<http://a.example/empcust>@!<http://a.example/Person>,\n<http://a.example/empcust>@ <http://a.example/Employee>,\n<http://a.example/empcust>@ <http://a.example/Customer>,\n<http://a.example/xcust>  @!<http://a.example/Person>,\n<http://a.example/xcust>  @!<http://a.example/Employee>,\n<http://a.example/xcust>  @ <http://a.example/Customer>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "Issue with EXTENDS",
+    "schemaURL": "IssueShape-EXTENDS.shex",
+    "dataLabel": "Issue1",
+    "dataURL": "Issue1.ttl",
+    "queryMap": "<http://a.example/Issue1>@<http://a.example/IssueShape>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "vitals EXTENDS",
+    "schemaURL": "vitals-EXTENDS.shex",
+    "dataLabel": "data",
+    "dataURL": "vitals.ttl",
+    "queryMapURL": "vitals.smap",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "vitals emulated with labels",
+    "schemaURL": "vitals-compiled.shex",
+    "dataLabel": "data",
+    "dataURL": "vitals.ttl",
+    "queryMapURL": "vitals.smap",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "repeated property",
+    "schemaURL": "ExtendsRepeatedP.shex",
+    "dataLabel": "<s>@<#C>",
+    "dataURL": "sP123q3.ttl",
+    "queryMap": "<s>@<#C>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "repeated property",
+    "schemaURL": "ExtendsRepeatedP.shex",
+    "dataLabel": "<s>@!<#C>",
+    "dataURL": "sP123q99.ttl",
+    "queryMap": "<s>@<#C>",
+    "status": "nonconformant"
+  },
+  {
+    "schemaLabel": "4",
+    "schemaURL": "4.shex",
+    "dataLabel": "<sABCDEFGxxx>@<E>,<G>",
+    "data": "<sABCDEFGxxx> <p> 0, 2; <q> 4 .",
+    "queryMap": "<sABCDEFGxxx>@<E>,\n<sABCDEFGxxx>@<G>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "B - 1 restriction",
+    "schemaURL": "ANDAbstract.shex",
+    "dataLabel": "<sx>@<B>",
+    "dataURL": "sAB.ttl",
+    "queryMap": "<sABxxxxxxxxx>@<B>,\n<sAxxxxxxxxxx>@!<B>,\n<sxBxxxxxxxxx>@!<B>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "D - multiple, transitive restrictions",
+    "schemaURL": "AND3G.shex",
+    "dataLabel": "<sx>@<D>",
+    "dataURL": "sABCD.ttl",
+    "queryMap": "<sABCDxxxxxxx>@<D>,\n<sAxxxxxxxxxx>@!<D>,\n<sxxCxxxxxxxx>@!<D>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "E - 1 extension",
+    "schemaURL": "ExtendAND3G.shex",
+    "dataLabel": "<sx>@<E>",
+    "dataURL": "sABCDE.ttl",
+    "queryMap": "<sABCDExxxxxx>@<E>,\n<sABCDExxxxx1>@!<E>,\n<sABCDExxxxx3>@!<E>,\n<sxBCDExxxxxx>@!<E>,\n<sABxDExxxxxx>@!<E>,\n<sABCxExxxxxx>@!<E>,\n<sABCDxxxxxxx>@!<E>,\n",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "G - multiple, transitive extensions",
+    "schemaURL": "Extend3G.shex",
+    "dataLabel": "<sx>@<G>",
+    "dataURL": "sABCDEFG.ttl",
+    "queryMap": "<sABCDEFGxxxx>@<G>,\n<sABCDEFGxxx1>@!<G>,\n<sABCDEFGxxx3>@!<G>,\n<sxBCDEFGxxxx>@!<G>,\n<sABxDEFGxxxx>@!<G>,\n<sABCxEFGxxxx>@!<G>,\n<sABCDxFGxxxx>@!<G>,\n",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "J - all",
+    "schemaURL": "ExtendANDExtend3GAND3G.shex",
+    "dataLabel": "<s>@<J>",
+    "dataURL": "sABCDEFGHIJ.ttl",
+    "queryMap": "<sABCDEFGHIJx>@<J>,\n<sABCDEFGHIJx>@!<A>,\n<sxBCDEFGHIJx>@!<J>,\n<sABCDEFxHIJx>@!<J>,\n<sABCDEFGxIJx>@!<J>,\n<sABCDEFGHxJx>@!<J>,\n<sABCDEFGHIxx>@!<J>,\n<sABCDEFGHIJ0>@!<J>,\n<sABCDEFGHIJ1>@!<J>,\n<sABCDEFGHIJ2>@!<J>,\n<sABCDEFGHIJ3>@!<J>,\n<sABCDEFGHIJ5>@<J>,\n<sABCDEFGHIJ6>@!<J>,\n<sABCDEFGHIJ7>@!<J>,\n",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "vitals RESTRICTS",
+    "schemaURL": "vitals-RESTRICTS.shex",
+    "dataLabel": "data",
+    "dataURL": "vitals.ttl",
+    "queryMapURL": "vitals.smap",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "XX - vitals path",
+    "schemaURL": "vitals-path.shex",
+    "dataLabel": "data",
+    "dataURL": "vitals.ttl",
+    "queryMapURL": "vitals.smap",
+    "status": "conformant"
+  }
+]
