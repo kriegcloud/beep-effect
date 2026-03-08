@@ -6,6 +6,7 @@ import * as S from "effect/Schema";
 import {
   Citation,
   RepoId,
+  RunCommand,
   RepoRunKind,
   RepoRunStatus,
   RetrievalPacket,
@@ -374,6 +375,36 @@ export class StreamRunEventsRequest extends S.Class<StreamRunEventsRequest>($I`S
 }
 
 /**
+ * Request payload used to interrupt a durable workflow-backed run.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class InterruptRepoRunRequest extends S.Class<InterruptRepoRunRequest>($I`InterruptRepoRunRequest`)(
+  {
+    runId: RunId,
+  },
+  $I.annote("InterruptRepoRunRequest", {
+    description: "Request payload used to interrupt a durable workflow-backed run.",
+  })
+) {}
+
+/**
+ * Request payload used to resume a previously interrupted durable run.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class ResumeRepoRunRequest extends S.Class<ResumeRepoRunRequest>($I`ResumeRepoRunRequest`)(
+  {
+    runId: RunId,
+  },
+  $I.annote("ResumeRepoRunRequest", {
+    description: "Request payload used to resume a previously interrupted durable run.",
+  })
+) {}
+
+/**
  * Immediate acknowledgment returned when a workflow-backed run has been accepted.
  *
  * @since 0.0.0
@@ -387,5 +418,22 @@ export class RunAcceptedAck extends S.Class<RunAcceptedAck>($I`RunAcceptedAck`)(
   },
   $I.annote("RunAcceptedAck", {
     description: "Immediate acknowledgment returned when a repo-memory workflow execution is accepted.",
+  })
+) {}
+
+/**
+ * Immediate acknowledgment returned when a run-control command has been accepted.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RunCommandAck extends S.Class<RunCommandAck>($I`RunCommandAck`)(
+  {
+    runId: RunId,
+    command: RunCommand,
+    requestedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("RunCommandAck", {
+    description: "Immediate acknowledgment returned when a repo-memory run-control command has been accepted.",
   })
 ) {}

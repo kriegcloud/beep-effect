@@ -43,7 +43,7 @@ const makeRuntimeLayer = () => {
       );
     })
   ).pipe(Layer.provide(sqlLayer));
-  const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(Layer.provide(sqlLayer));
+  const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(Layer.provide([sqlLayer, storeLayer]));
   const groundedLayer = GroundedRetrievalService.layer.pipe(Layer.provide(storeLayer));
   const repoRunServiceLayer = RepoRunService.layer.pipe(
     Layer.provideMerge(storeLayer),

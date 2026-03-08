@@ -48,7 +48,10 @@ const rustHostTriple = (): string => {
 };
 
 const targetTriple = process.env.TAURI_ENV_TARGET_TRIPLE ?? process.env.CARGO_BUILD_TARGET ?? rustHostTriple();
-const bunTarget = rustTripleToBunTarget[targetTriple];
+const bunTarget =
+  targetTriple in rustTripleToBunTarget
+    ? rustTripleToBunTarget[targetTriple as keyof typeof rustTripleToBunTarget]
+    : undefined;
 
 if (bunTarget === undefined) {
   throw new Error(`Unsupported rust target triple for Bun standalone sidecar build: ${targetTriple}`);

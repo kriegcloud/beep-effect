@@ -1,11 +1,14 @@
 import { $RuntimeProtocolId } from "@beep/identity/packages";
 import {
+  InterruptRepoRunRequest,
   IndexRepoRunInput,
   QueryRepoRunInput,
   RepoRegistration,
   RepoRegistrationInput,
   RepoRun,
+  ResumeRepoRunRequest,
   RunAcceptedAck,
+  RunCommandAck,
   RunStreamEvent,
   RunStreamFailure,
   StreamRunEventsRequest,
@@ -216,4 +219,30 @@ export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
  * @since 0.0.0
  * @category Rpc
  */
-export class RepoRunRpcGroup extends RpcGroup.make(StartIndexRepoRun, StartQueryRepoRun, StreamRunEvents) {}
+export const InterruptRepoRun = Rpc.make("InterruptRepoRun", {
+  payload: InterruptRepoRunRequest,
+  success: RunCommandAck,
+  error: RunStreamFailure,
+});
+
+/**
+ * @since 0.0.0
+ * @category Rpc
+ */
+export const ResumeRepoRun = Rpc.make("ResumeRepoRun", {
+  payload: ResumeRepoRunRequest,
+  success: RunCommandAck,
+  error: RunStreamFailure,
+});
+
+/**
+ * @since 0.0.0
+ * @category Rpc
+ */
+export class RepoRunRpcGroup extends RpcGroup.make(
+  StartIndexRepoRun,
+  StartQueryRepoRun,
+  InterruptRepoRun,
+  ResumeRepoRun,
+  StreamRunEvents
+) {}

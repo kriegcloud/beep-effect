@@ -7,13 +7,16 @@ import {
 } from "@beep/repo-memory-client";
 import {
   type Citation,
+  InterruptRepoRunRequest,
   IndexRepoRunInput,
   QueryRepoRunInput,
   type QueryRun,
   type RepoRegistration,
   RepoRegistrationInput,
   type RepoRun,
+  ResumeRepoRunRequest,
   type RetrievalPacket,
+  RunCursor,
   RunId,
   type RunStreamEvent,
   type SidecarBootstrap,
@@ -39,12 +42,21 @@ const defaultBaseUrl = "http://127.0.0.1:8788";
 const desktopSessionId = "desktop-shell";
 const sidecarBaseUrlKey = "beep.repoMemory.sidecarBaseUrl";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
+const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string =>
   import.meta.env.DEV && typeof window !== "undefined" ? window.location.origin : bootstrap.baseUrl;
 
 type ConnectionState = "idle" | "connecting" | "connected" | "error";
-type ActionState = "idle" | "registering" | "indexing" | "querying" | "refreshing" | "streaming";
+type ActionState =
+  | "idle"
+  | "interrupting"
+  | "registering"
+  | "indexing"
+  | "querying"
+  | "refreshing"
+  | "resuming"
+  | "streaming";
 type ShellMode = "browser" | "native-managed" | "manual-override";
 
 const repoOrder = Order.mapInput(Order.flip(Order.Number), (repo: RepoRegistration) =>
@@ -239,6 +251,16 @@ const retrievalPacketFromRun = (run: QueryRun, events: ReadonlyArray<RunStreamEv
         O.map((event) => event.packet)
       )
     )
+  );
+
+const latestKnownRunCursor = (run: RepoRun, events: ReadonlyArray<RunStreamEvent>): O.Option<RunCursor> =>
+  pipe(
+    events,
+    A.last,
+    O.map((event) => event.sequence),
+    O.map((sequence) => Math.max(sequence, run.lastEventSequence)),
+    O.orElse(() => O.some(run.lastEventSequence)),
+    O.map(decodeRunCursor)
   );
 
 const formatCitationSpan = (citation: Citation): string => {
@@ -636,7 +658,11 @@ export function RepoMemoryDesktop() {
     }
   };
 
-  const streamRun = async (nextClient: RepoMemoryClientShape, runId: RepoRun["id"]) => {
+  const streamRun = async (
+    nextClient: RepoMemoryClientShape,
+    runId: RepoRun["id"],
+    cursor: O.Option<RunCursor> = O.none()
+  ) => {
     stopStreaming();
 
     startTransition(() => {
@@ -654,7 +680,7 @@ export function RepoMemoryDesktop() {
         nextClient.streamRunEvents(
           new StreamRunEventsRequest({
             runId,
-            cursor: O.none(),
+            cursor,
           })
         ),
         (event) => Effect.promise(() => handleRunEvent(nextClient, runId, event)).pipe(Effect.mapError(toClientError))
@@ -800,6 +826,61 @@ export function RepoMemoryDesktop() {
 
     try {
       await streamRun(client, selectedRun.id);
+    } catch (error) {
+      setActionState("idle");
+      setErrorMessage(errorToMessage(error));
+    }
+  };
+
+  const interruptSelectedRun = async () => {
+    if (client === null || selectedRun === null) {
+      return;
+    }
+
+    setActionState("interrupting");
+    setErrorMessage(null);
+    setStatusMessage(`Interrupting run ${selectedRun.id}.`);
+
+    try {
+      const latestCursor = latestKnownRunCursor(selectedRun, selectedRunEvents);
+
+      await Effect.runPromise(
+        client.interruptRun(
+          new InterruptRepoRunRequest({
+            runId: selectedRun.id,
+          })
+        )
+      );
+
+      if (activeStreamRunId !== selectedRun.id) {
+        await streamRun(client, selectedRun.id, latestCursor);
+      }
+    } catch (error) {
+      setActionState("idle");
+      setErrorMessage(errorToMessage(error));
+    }
+  };
+
+  const resumeSelectedRun = async () => {
+    if (client === null || selectedRun === null) {
+      return;
+    }
+
+    setActionState("resuming");
+    setErrorMessage(null);
+    setStatusMessage(`Resuming run ${selectedRun.id}.`);
+
+    try {
+      const latestCursor = latestKnownRunCursor(selectedRun, selectedRunEvents);
+      const ack = await Effect.runPromise(
+        client.resumeRun(
+          new ResumeRepoRunRequest({
+            runId: selectedRun.id,
+          })
+        )
+      );
+
+      await streamRun(client, ack.runId, latestCursor);
     } catch (error) {
       setActionState("idle");
       setErrorMessage(errorToMessage(error));
@@ -1180,14 +1261,34 @@ export function RepoMemoryDesktop() {
               <section className="detail-card">
                 <div className="detail-card-top">
                   <h3>{formatRunTitle(selectedRun)}</h3>
-                  <button
-                    type="button"
-                    className="button-secondary"
-                    disabled={client === null}
-                    onClick={() => void streamSelectedRun()}
-                  >
-                    Replay stream
-                  </button>
+                  <div className="button-row">
+                    {selectedRun.status === "accepted" || selectedRun.status === "running" ? (
+                      <button
+                        type="button"
+                        disabled={client === null || actionState !== "idle"}
+                        onClick={() => void interruptSelectedRun()}
+                      >
+                        Interrupt run
+                      </button>
+                    ) : null}
+                    {selectedRun.status === "interrupted" ? (
+                      <button
+                        type="button"
+                        disabled={client === null || actionState !== "idle"}
+                        onClick={() => void resumeSelectedRun()}
+                      >
+                        Resume run
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      disabled={client === null}
+                      onClick={() => void streamSelectedRun()}
+                    >
+                      Replay stream
+                    </button>
+                  </div>
                 </div>
                 <dl className="meta-grid">
                   <div>

@@ -128,6 +128,24 @@ export const RepoRunKind = LiteralKit(["index", "query"]).annotate(
 export type RepoRunKind = typeof RepoRunKind.Type;
 
 /**
+ * Canonical run control commands exposed through the execution plane.
+ *
+ * @since 0.0.0
+ * @category Status
+ */
+export const RunCommand = LiteralKit(["interrupt", "resume"]).annotate(
+  $I.annote("RunCommand", {
+    description: "Canonical run control commands exposed through the execution plane.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category Status
+ */
+export type RunCommand = typeof RunCommand.Type;
+
+/**
  * Canonical run status for repo-memory workflows.
  *
  * @since 0.0.0

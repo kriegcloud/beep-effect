@@ -20,8 +20,10 @@ import {
   RepoSymbolDocumentation,
   type RepoSymbolKind,
   RepoSymbolRecord,
+  RunId,
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
+import { RepoRunStore, type RepoStoreError } from "@beep/repo-memory-store";
 import {
   FilePath,
   makeStatusCauseError,
@@ -49,6 +51,8 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Workflow from "effect/unstable/workflow/Workflow";
+import * as WorkflowEngine from "effect/unstable/workflow/WorkflowEngine";
 import { Node, Project, type SourceFile, type Statement, VariableDeclarationKind } from "ts-morph";
 import { recordIndexedFileCount } from "../telemetry/RepoMemoryTelemetry.js";
 
@@ -121,6 +125,7 @@ export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`T
   {
     repoId: RepoId,
     repoPath: FilePath,
+    runId: RunId,
   },
   $I.annote("TypeScriptIndexRequest", {
     description: "Workflow-scoped request for deterministic TypeScript repo extraction.",
@@ -162,11 +167,12 @@ export interface TypeScriptIndexServiceShape {
 export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexService, TypeScriptIndexServiceShape>()(
   $I`TypeScriptIndexService`
 ) {
-  static readonly layer: Layer.Layer<TypeScriptIndexService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
+  static readonly layer: Layer.Layer<TypeScriptIndexService, never, FileSystem.FileSystem | Path.Path | RepoRunStore> = Layer.effect(
     TypeScriptIndexService,
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
+      const repoRunStore = yield* RepoRunStore;
 
       return TypeScriptIndexService.of({
         indexRepo: (options) =>
@@ -174,7 +180,8 @@ export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexSe
             Effect.withSpan("TypeScriptIndexer.indexRepo"),
             Effect.annotateLogs({ component: "repo-memory-typescript-indexer" }),
             Effect.provideService(FileSystem.FileSystem, fs),
-            Effect.provideService(Path.Path, path)
+            Effect.provideService(Path.Path, path),
+            Effect.provideService(RepoRunStore, repoRunStore)
           ),
       });
     })
@@ -954,10 +961,10 @@ const projectSourceFiles = (repoRootPath: string, project: Project): ReadonlyArr
     })
   );
 
-const withScopedProject = <A>(
+const withScopedProject = <A, R>(
   tsconfigPath: string,
-  use: (project: Project) => Effect.Effect<A, TypeScriptIndexError>
-): Effect.Effect<A, TypeScriptIndexError> =>
+  use: (project: Project) => Effect.Effect<A, TypeScriptIndexError, R>
+): Effect.Effect<A, TypeScriptIndexError, R> =>
   Effect.acquireUseRelease(
     Effect.try({
       try: () =>
@@ -994,6 +1001,30 @@ const snapshotIdFromFiles = Effect.fn("TypeScriptIndex.snapshotIdFromFiles")(fun
   return decodeSourceSnapshotId(`snapshot:${digest}`);
 });
 
+const mapRunStoreError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
+  effect.pipe(
+    Effect.mapError((cause) => toIndexError("Failed to load persisted run control state.", cause.status, cause.cause))
+  );
+
+const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupted")(function* (
+  runId: RunId
+): Effect.fn.Return<void, TypeScriptIndexError, RepoRunStore> {
+  const repoRunStore = yield* RepoRunStore;
+  const runOption = yield* mapRunStoreError(repoRunStore.getRun(runId));
+
+  if (O.isNone(runOption) || runOption.value.status !== "interrupted") {
+    return;
+  }
+
+  const instanceOption = yield* Effect.serviceOption(WorkflowEngine.WorkflowInstance);
+
+  if (O.isNone(instanceOption)) {
+    return;
+  }
+
+  return yield* Workflow.suspend(instanceOption.value);
+});
+
 /**
  * Deterministically index a TypeScript repository into repo-memory artifacts.
  *
@@ -1002,9 +1033,10 @@ const snapshotIdFromFiles = Effect.fn("TypeScriptIndex.snapshotIdFromFiles")(fun
  */
 export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRepo")(function* (
   options: TypeScriptIndexRequest
-): Effect.fn.Return<IndexedTypeScriptArtifacts, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<IndexedTypeScriptArtifacts, TypeScriptIndexError, FileSystem.FileSystem | Path.Path | RepoRunStore> {
   const scopes = yield* discoverProjectScopes(options.repoPath);
   let seenFiles = HashSet.empty<string>();
+  let processedFileCount = 0;
   const provisionalSnapshotId = decodeSourceSnapshotId("snapshot:pending");
   let extractedFiles = A.empty<RepoSourceFile>();
   let extractedSymbols = A.empty<RepoSymbolRecord>();
@@ -1014,6 +1046,11 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
     yield* withScopedProject(scope.tsconfigPath, (project) =>
       Effect.gen(function* () {
         for (const sourceFile of projectSourceFiles(options.repoPath, project)) {
+          if (processedFileCount % 25 === 0) {
+            // Turn persisted interrupt commands into durable suspension points during large repo walks.
+            yield* suspendIfRunInterrupted(options.runId);
+          }
+
           const filePath = sourceFile.getFilePath();
           if (HashSet.has(seenFiles, filePath)) {
             continue;
@@ -1052,6 +1089,8 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
               sourceFile,
             })
           );
+
+          processedFileCount += 1;
         }
       })
     );
