@@ -1093,6 +1093,7 @@ const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupt
   const instanceOption = yield* Effect.serviceOption(WorkflowEngine.WorkflowInstance);
 
   if (O.isNone(instanceOption)) {
+    yield* Effect.logWarning(`Run "${runId}" was interrupted without a workflow instance to suspend.`);
     return;
   }
 
