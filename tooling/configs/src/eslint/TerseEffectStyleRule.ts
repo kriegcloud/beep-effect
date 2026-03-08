@@ -16,6 +16,14 @@ class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierN
 }) {}
 
 const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
+const resolveImportSpecifierImportKind = (node: unknown, importDeclarationKind?: string): string | undefined => {
+  if (typeof node !== "object" || node === null || !("importKind" in node)) {
+    return importDeclarationKind;
+  }
+
+  const importKind = Reflect.get(node, "importKind");
+  return typeof importKind === "string" ? importKind : importDeclarationKind;
+};
 
 const THUNK_HELPER_NAMES = [
   "thunkUndefined",
@@ -230,9 +238,10 @@ export const terseEffectStyleRule: Rule.RuleModule = {
             onNone: () => undefined,
             onSome: (importDeclaration) => {
               for (const specifier of importDeclaration.specifiers) {
+                const importKind = resolveImportSpecifierImportKind(specifier, importDeclaration.importKind);
                 pipe(
-                  decodeImportSpecifierNode(specifier, importDeclaration.importKind),
-                  O.filter((importSpecifier) => importSpecifier.importKind !== "type"),
+                  decodeImportSpecifierNode(specifier),
+                  O.filter(() => importKind !== "type"),
                   O.filter((importSpecifier) =>
                     A.some(THUNK_HELPER_NAMES, (helperName) => helperName === importSpecifier.imported.name)
                   ),

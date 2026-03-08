@@ -8,6 +8,7 @@ import {
   decodeImportDeclarationNode,
   decodeImportNamespaceSpecifierNode,
   decodeImportSpecifierNode,
+  resolveImportSpecifierImportKind,
 } from "../internal/eslint/RuleAstSchemas.ts";
 import { resolveRelativeRuleFilePath } from "../internal/eslint/RulePathing.ts";
 import { createAllowlistViolationReporter, reportAllowlistDiagnostics } from "../internal/eslint/RuleReporting.ts";
@@ -155,15 +156,20 @@ const resolveRootImportAliasViolations = (node: unknown): ReadonlyArray<RuleViol
     O.map((importDeclaration) =>
       pipe(
         importDeclaration.specifiers,
-        A.map((specifier) => decodeImportSpecifierNode(specifier, importDeclaration.importKind)),
-        A.getSomes,
-        A.filter((specifier) => specifier.importKind !== "type"),
         A.map((specifier) => {
-          const moduleName = `effect/${specifier.imported.name}`;
+          const importKind = resolveImportSpecifierImportKind(specifier, importDeclaration.importKind);
           return pipe(
-            HashMap.get(effectImportAliasMap, moduleName),
-            O.filter((expectedAlias) => specifier.local.name === expectedAlias),
-            O.map((expectedAlias) => toRuleViolation(toAliasNamespaceRequiredViolation(moduleName, expectedAlias)))
+            decodeImportSpecifierNode(specifier),
+            O.filter(() => importKind !== "type"),
+            O.map((importSpecifier) => {
+              const moduleName = `effect/${importSpecifier.imported.name}`;
+              return pipe(
+                HashMap.get(effectImportAliasMap, moduleName),
+                O.filter((expectedAlias) => importSpecifier.local.name === expectedAlias),
+                O.map((expectedAlias) => toRuleViolation(toAliasNamespaceRequiredViolation(moduleName, expectedAlias)))
+              );
+            }),
+            O.flatten
           );
         }),
         A.getSomes
