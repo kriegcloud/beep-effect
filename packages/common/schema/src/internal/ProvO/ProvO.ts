@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "../../LiteralKit.ts";
 
 const $I = $SchemaId.create("internal/ProvO/ProvO");
-type SyncSchema = S.Top & { readonly DecodingServices: never };
+type SyncSchema = S.Top;
 
 const iriRegExp = /^\w+:\/*([^:<>{}|\\^`"\s/]+[^<>{}|\\^`"\s]*(?::[^:<>{}|\\^`"\s]+)?)?$/;
 const curieRegExp = /^[A-Za-z_][^\s:/]*:[^:<>{}|\\^`"\s]*(\?[^<>{}|\\^`" ]*)?(#[^<>{}|\\^`"\s]*)?$/;
@@ -348,12 +348,7 @@ const LocationFields = {
   type: OptionalTypeField,
 } as const;
 
-class LocationShape extends S.Class<LocationShape>($I`LocationShape`)(
-  LocationFields,
-  $I.annote("LocationShape", {
-    description: "Base location fields before PROV canonical location checks are applied.",
-  })
-) {}
+const LocationShape = S.Struct(LocationFields);
 
 /**
  * PROV location value used by `atLocation`.
@@ -382,17 +377,12 @@ export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`
 /**
  * PROV role value used by `hadRole`.
  */
-class RoleShape extends S.Class<RoleShape>($I`RoleShape`)(
-  {
-    id: S.OptionFromOptionalKey(ObjectRef),
-    provType: S.OptionFromOptionalKey(RoleClassType),
-    "prov:type": S.OptionFromOptionalKey(RoleClassType),
-    type: OptionalTypeField,
-  },
-  $I.annote("RoleShape", {
-    description: "Base role fields before PROV canonical role checks are applied.",
-  })
-) {}
+const RoleShape = S.Struct({
+  id: S.OptionFromOptionalKey(ObjectRef),
+  provType: S.OptionFromOptionalKey(RoleClassType),
+  "prov:type": S.OptionFromOptionalKey(RoleClassType),
+  type: OptionalTypeField,
+});
 
 /**
  * PROV role value used by `hadRole`.
@@ -689,46 +679,48 @@ const InfluenceFields = {
   hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
 } as const;
 
-class InfluenceShape extends S.Class<InfluenceShape>($I`InfluenceShape`)(
-  InfluenceFields,
-  $I.annote("InfluenceShape", {
-    description: "Base qualified influence fields before generic influence invariants are enforced.",
-  })
-) {}
+const InfluenceShape = S.Struct(InfluenceFields);
 
 /**
  * Qualified influence between provenance nodes.
  */
-export class Influence extends S.Class<Influence, Brand.Brand<"ProvInfluence">>($I`Influence`)(
-  InfluenceShape.check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(
-          ({ influenced, influencer, entity, activity, agent }) =>
-            hasSomeOption(influenced) ||
-            hasSomeOption(influencer) ||
-            hasSomeOption(entity) ||
-            hasSomeOption(activity) ||
-            hasSomeOption(agent),
-          {
-            identifier: $I`InfluenceTargetCheck`,
-            title: "Influence Target",
-            description: "An influence must identify an influenced target or an influencer.",
-            message: "Influence objects must define at least one of influenced, influencer, entity, activity, or agent",
-          }
-        ),
-      ],
-      {
-        identifier: $I`InfluenceChecks`,
-        title: "Influence",
-        description: "Checks for generic qualified influence objects.",
-      }
-    )
-  ),
-  $I.annote("Influence", {
-    description: "A generic qualified PROV influence used by the top-level influenced mixin.",
-  })
-) {}
+export const Influence = InfluenceShape.check(
+  S.makeFilterGroup(
+    [
+      S.makeFilter(
+        ({ influenced, influencer, entity, activity, agent }) =>
+          hasSomeOption(influenced) ||
+          hasSomeOption(influencer) ||
+          hasSomeOption(entity) ||
+          hasSomeOption(activity) ||
+          hasSomeOption(agent),
+        {
+          identifier: $I`InfluenceTargetCheck`,
+          title: "Influence Target",
+          description: "An influence must identify an influenced target or an influencer.",
+          message: "Influence objects must define at least one of influenced, influencer, entity, activity, or agent",
+        }
+      ),
+    ],
+    {
+      identifier: $I`InfluenceChecks`,
+      title: "Influence",
+      description: "Checks for generic qualified influence objects.",
+    }
+  )
+).pipe(
+  S.brand("ProvInfluence"),
+  S.annotate(
+    $I.annote("Influence", {
+      description: "A generic qualified PROV influence used by the top-level influenced mixin.",
+    })
+  )
+);
+
+/**
+ * Type for {@link Influence}.
+ */
+export type Influence = typeof Influence.Type;
 
 const InfluencedFields = {
   wasInfluencedBy: S.OptionFromOptionalKey(
@@ -1256,12 +1248,7 @@ const EntityFields = {
   qualifiedDelegation: S.optionalKey(S.Never),
 } as const;
 
-class EntityShape extends S.Class<EntityShape>($I`EntityShape`)(
-  EntityFields,
-  $I.annote("EntityShape", {
-    description: "Base PROV entity fields before entity invariants are applied.",
-  })
-) {}
+const EntityShape = S.Struct(EntityFields);
 type EntityValue = typeof EntityShape.Type;
 const hasEntityGeneration = (value: unknown): value is Pick<EntityValue, "wasGeneratedBy"> =>
   P.isObject(value) && "wasGeneratedBy" in value;
@@ -1393,12 +1380,7 @@ const ActivityFields = {
   qualifiedDelegation: S.optionalKey(S.Never),
 } as const;
 
-class ActivityShape extends S.Class<ActivityShape>($I`ActivityShape`)(
-  ActivityFields,
-  $I.annote("ActivityShape", {
-    description: "Base PROV activity fields before activity invariants are applied.",
-  })
-) {}
+const ActivityShape = S.Struct(ActivityFields);
 type ActivityValue = typeof ActivityShape.Type;
 const hasActivityEndTime = (value: unknown): value is Pick<ActivityValue, "endedAtTime"> =>
   P.isObject(value) && "endedAtTime" in value;
@@ -1557,12 +1539,7 @@ const AgentFields = {
   qualifiedAssociation: S.optionalKey(S.Never),
 } as const;
 
-class AgentShape extends S.Class<AgentShape>($I`AgentShape`)(
-  AgentFields,
-  $I.annote("AgentShape", {
-    description: "Base PROV agent fields before agent invariants are applied.",
-  })
-) {}
+const AgentShape = S.Struct(AgentFields);
 type AgentValue = typeof AgentShape.Type;
 
 const agentChecks = S.makeFilterGroup<AgentValue>(

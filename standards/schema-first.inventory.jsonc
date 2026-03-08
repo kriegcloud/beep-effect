@@ -483,6 +483,54 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "ActivityShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "AgentShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "EntityShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "InfluenceShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "LocationShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
+      "symbol": "RoleShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
       "file": "packages/common/utils/src/Glob.ts",
       "symbol": "Glob",
       "kind": "exported-interface",
