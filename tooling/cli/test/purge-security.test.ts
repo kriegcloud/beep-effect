@@ -61,4 +61,43 @@ describe("purge security", () => {
       ).pipe(Effect.provide(testLayer))
     );
   });
+
+  it("accepts a symlinked repo root when every purge target stays inside the canonical repository", async () => {
+    await Effect.runPromise(
+      withTempDirectories((tmpDir, externalDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const repoAlias = path.join(externalDir, "repo-alias");
+          const workspaceDir = path.join(tmpDir, "packages", "pkg-a");
+          const rootNodeModules = path.join(tmpDir, "node_modules");
+          const workspaceDist = path.join(workspaceDir, "dist");
+
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            '{ "name": "@beep/test-root", "workspaces": ["packages/*"] }\n'
+          );
+          yield* fs.makeDirectory(workspaceDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(workspaceDir, "package.json"),
+            '{ "name": "@beep/pkg-a", "version": "1.0.0" }\n'
+          );
+          yield* fs.makeDirectory(rootNodeModules, { recursive: true });
+          yield* fs.makeDirectory(workspaceDist, { recursive: true });
+          yield* fs.symlink(tmpDir, repoAlias);
+
+          const succeeded = yield* purgeAtRoot(repoAlias, false).pipe(
+            Effect.match({
+              onFailure: () => false,
+              onSuccess: () => true,
+            })
+          );
+
+          expect(succeeded).toBe(true);
+          expect(yield* fs.exists(rootNodeModules)).toBe(false);
+          expect(yield* fs.exists(workspaceDist)).toBe(false);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
 });

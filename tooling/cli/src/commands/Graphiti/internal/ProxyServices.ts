@@ -192,6 +192,9 @@ const normalizeEndpointPath = (value: string): string => {
   return Str.isNonEmpty(normalized) ? normalized : "/";
 };
 
+const isAllowedEndpointPath = (allowedPath: string, inboundPath: string): boolean =>
+  allowedPath === "/" || inboundPath === allowedPath || pipe(inboundPath, Str.startsWith(`${allowedPath}/`));
+
 const isAbsoluteRequestTarget = (value: string): boolean =>
   O.isSome(O.fromNullishOr(Str.match(absoluteRequestTargetPattern)(value)));
 
@@ -416,12 +419,12 @@ export const makeGraphitiProxyForwarderService = (
 
       const inboundUrl = new URL(request.url, "http://graphiti-proxy.local");
       const inboundPath = normalizeEndpointPath(inboundUrl.pathname);
-      if (inboundPath !== allowedEndpointPath) {
+      if (!isAllowedEndpointPath(allowedEndpointPath, inboundPath)) {
         return proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, 404);
       }
 
       const destination = new URL(upstreamBase.href);
-      destination.pathname = upstreamBase.pathname;
+      destination.pathname = inboundPath;
       destination.search = "";
       const urlParams = decodeUrlSearchParams(inboundUrl.searchParams);
       const headers = pipe(

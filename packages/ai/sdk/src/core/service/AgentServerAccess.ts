@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { $AiSdkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { Effect, pipe, ServiceMap } from "effect";
@@ -10,6 +11,7 @@ import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 const $I = $AiSdkId.create("core/service/AgentServerAccess");
 const authorizationHeader = "authorization";
 const fallbackTokenHeader = "x-agent-auth-token";
+const textEncoder = new TextEncoder();
 
 /**
  * Configuration for agent HTTP and RPC transport exposure.
@@ -69,9 +71,27 @@ const extractRequestToken = (request: HttpServerRequest.HttpServerRequest): O.Op
     O.orElse(() => normalizeOptionalValue(Headers.get(request.headers, fallbackTokenHeader)))
   );
 
+const normalizeHostname = (hostname: string): string => pipe(hostname, Str.trim, Str.toLowerCase);
+
+const formatHostnameLabel = (hostname: string): string => {
+  const normalized = Str.trim(hostname);
+  return Str.isNonEmpty(normalized) ? normalized : "<empty>";
+};
+
+const isBindAllHostname = (hostname: string): boolean => {
+  const normalized = normalizeHostname(hostname);
+  return normalized === "" || normalized === "0.0.0.0" || normalized === "::" || normalized === "[::]";
+};
+
 const isLoopbackHostname = (hostname: string): boolean => {
-  const normalized = pipe(hostname, Str.trim, Str.toLowerCase);
+  const normalized = normalizeHostname(hostname);
   return normalized === "127.0.0.1" || normalized === "::1" || normalized === "[::1]" || normalized === "localhost";
+};
+
+const timingSafeTokenEqual = (left: string, right: string): boolean => {
+  const leftBytes = textEncoder.encode(left);
+  const rightBytes = textEncoder.encode(right);
+  return leftBytes.byteLength === rightBytes.byteLength && timingSafeEqual(leftBytes, rightBytes);
 };
 
 /**
@@ -85,11 +105,19 @@ export const makeAgentServerAccess = (
 ): Effect.Effect<AgentServerAccess["Service"], AgentServerAccessError> =>
   Effect.gen(function* () {
     const hostname = options.hostname ?? "127.0.0.1";
+    const hostnameLabel = formatHostnameLabel(hostname);
     const authToken = normalizeOptionalValue(options.authToken);
+
+    if (isBindAllHostname(hostname)) {
+      return yield* AgentServerAccessError.make({
+        message: `Agent server hostname "${hostnameLabel}" binds all interfaces. Use a concrete hostname plus an authToken for non-loopback exposure.`,
+        hostname,
+      });
+    }
 
     if (!isLoopbackHostname(hostname) && O.isNone(authToken)) {
       return yield* AgentServerAccessError.make({
-        message: `Agent server hostname "${hostname}" requires an authToken when exposed beyond loopback.`,
+        message: `Agent server hostname "${hostnameLabel}" requires an authToken when exposed beyond loopback.`,
         hostname,
       });
     }
@@ -109,7 +137,7 @@ export const makeAgentServerAccess = (
             }
 
             const providedToken = extractRequestToken(requestOption.value);
-            if (O.isSome(providedToken) && providedToken.value === expectedToken) {
+            if (O.isSome(providedToken) && timingSafeTokenEqual(providedToken.value, expectedToken)) {
               return;
             }
 

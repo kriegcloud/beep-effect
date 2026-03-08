@@ -324,6 +324,34 @@ const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
     .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to create directory "${parentDir}"`, cause })));
 });
 
+const resolveExistingAncestor = Effect.fn(function* (absolutePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  let candidate = absolutePath;
+
+  while (true) {
+    const exists = yield* fs
+      .exists(candidate)
+      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to inspect path "${candidate}"`, cause })));
+
+    if (exists) {
+      const canonicalPath = yield* fs
+        .realPath(candidate)
+        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to resolve path "${candidate}"`, cause })));
+
+      return { canonicalPath, existingPath: candidate } as const;
+    }
+
+    const parent = path.dirname(candidate);
+    if (parent === candidate) {
+      return yield* new DomainError({
+        message: `Failed to find an existing ancestor for "${absolutePath}"`,
+      });
+    }
+    candidate = parent;
+  }
+});
+
 const resolveContainedPath = Effect.fn(function* (rootDir: string, relativePath: string) {
   const path = yield* Path.Path;
   const resolvedRoot = path.resolve(rootDir);
@@ -333,6 +361,20 @@ const resolveContainedPath = Effect.fn(function* (rootDir: string, relativePath:
   if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || pipe(relativeFromRoot, Str.startsWith("../"))) {
     return yield* new DomainError({
       message: `Generation action escapes output directory: "${relativePath}"`,
+    });
+  }
+
+  const rootAncestor = yield* resolveExistingAncestor(resolvedRoot);
+  if (rootAncestor.existingPath !== rootAncestor.canonicalPath) {
+    return yield* new DomainError({
+      message: `Generation output directory uses a symlinked ancestor: "${rootAncestor.existingPath}" -> "${rootAncestor.canonicalPath}"`,
+    });
+  }
+
+  const pathAncestor = yield* resolveExistingAncestor(resolvedPath);
+  if (pathAncestor.existingPath !== pathAncestor.canonicalPath) {
+    return yield* new DomainError({
+      message: `Generation action resolves through a symlinked ancestor: "${pathAncestor.existingPath}" -> "${pathAncestor.canonicalPath}"`,
     });
   }
 

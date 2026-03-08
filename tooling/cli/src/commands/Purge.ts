@@ -52,11 +52,44 @@ const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
  */
 const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
 
+const resolveCanonicalPurgePath = Effect.fn(function* (target: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const resolvedTarget = path.resolve(target);
+  let candidate = resolvedTarget;
+
+  while (true) {
+    const exists = yield* fs
+      .exists(candidate)
+      .pipe(
+        Effect.mapError((cause) => new DomainError({ message: `Failed to inspect purge path "${candidate}"`, cause }))
+      );
+
+    if (exists) {
+      const canonicalCandidate = yield* fs
+        .realPath(candidate)
+        .pipe(
+          Effect.mapError((cause) => new DomainError({ message: `Failed to resolve purge path "${candidate}"`, cause }))
+        );
+      const relativeSuffix = normalizePath(path.relative(candidate, resolvedTarget));
+      return relativeSuffix === "." ? canonicalCandidate : path.resolve(canonicalCandidate, relativeSuffix);
+    }
+
+    const parent = path.dirname(candidate);
+    if (parent === candidate) {
+      return yield* new DomainError({
+        message: `Failed to find an existing ancestor for purge path "${target}"`,
+      });
+    }
+    candidate = parent;
+  }
+});
+
 const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target: string) {
   const path = yield* Path.Path;
-  const resolvedRoot = path.resolve(rootDir);
-  const resolvedTarget = path.resolve(target);
-  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedTarget));
+  const canonicalRoot = yield* resolveCanonicalPurgePath(rootDir);
+  const canonicalTarget = yield* resolveCanonicalPurgePath(target);
+  const relativeFromRoot = normalizePath(path.relative(canonicalRoot, canonicalTarget));
 
   if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
     return yield* new DomainError({
@@ -64,7 +97,7 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
     });
   }
 
-  return resolvedTarget;
+  return canonicalTarget;
 });
 
 /**

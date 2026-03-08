@@ -123,6 +123,27 @@ layer(TestLayer)("Workspaces", (it) => {
     );
 
     it.effect(
+      "should fail closed for Windows absolute workspace globs",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+
+        yield* fs.writeFileString(
+          pathApi.join(tmpDir, "package.json"),
+          '{ "name": "root", "workspaces": ["C:/outside/*"] }'
+        );
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain('Unsafe workspace glob "C:/outside/*" escapes the repository root.');
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+
+    it.effect(
       "should reject symlinked workspace directories that resolve outside the repo root",
       Effect.fn(function* () {
         const fs = yield* Fs.FileSystem;

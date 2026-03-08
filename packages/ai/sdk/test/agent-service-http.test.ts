@@ -6,6 +6,7 @@ import { NodeHttpPlatform, NodeServices } from "@effect/platform-node";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
@@ -53,6 +54,16 @@ test("AgentHttpHandlers layer builds with AgentRuntime only", async () => {
   const layer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(makeAccessLayer()));
   await runEffect(Effect.scoped(Layer.build(layer).pipe(Effect.asVoid)));
   expect(true).toBe(true);
+});
+
+test("makeAgentServerAccess rejects bind-all hostnames with a clear error", async () => {
+  const result = await Effect.runPromise(
+    Effect.result(makeAgentServerAccess({ hostname: "0.0.0.0", authToken: "secret-token" }))
+  );
+  expect(Result.isFailure(result)).toBe(true);
+  if (Result.isFailure(result)) {
+    expect(result.failure.message).toContain('hostname "0.0.0.0" binds all interfaces');
+  }
 });
 
 test("AgentHttpHandlers layer builds with AgentRuntime and SessionPool", async () => {

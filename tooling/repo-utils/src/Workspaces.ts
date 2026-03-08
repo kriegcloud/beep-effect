@@ -27,6 +27,7 @@ import {
  * @category Configuration
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
+const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
 
 const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => Array.isArray(value);
 
@@ -45,14 +46,21 @@ const isSafeWorkspacePattern = (pattern: string): boolean => {
 
   return (
     Str.isNonEmpty(normalized) &&
-    !pipe(normalized, Str.startsWith("/")) &&
+    !absoluteWorkspacePattern.test(normalized) &&
     !A.some(segments, (segment) => segment === "..")
   );
 };
 
-const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolean =>
-  candidateDir === rootDir ||
-  pipe(rootDir, Str.endsWith("/"), (hasSuffix) => candidateDir.startsWith(hasSuffix ? rootDir : `${rootDir}/`));
+const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolean => {
+  const normalizedRootDir = normalizePath(rootDir);
+  const normalizedCandidateDir = normalizePath(candidateDir);
+  return (
+    normalizedCandidateDir === normalizedRootDir ||
+    pipe(normalizedRootDir, Str.endsWith("/"), (hasSuffix) =>
+      Str.startsWith(hasSuffix ? normalizedRootDir : `${normalizedRootDir}/`)(normalizedCandidateDir)
+    )
+  );
+};
 
 /**
  * Resolve all workspace directories declared in the root `package.json`.

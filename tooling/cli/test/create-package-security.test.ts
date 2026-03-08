@@ -92,4 +92,37 @@ describe("create-package security", () => {
       ).pipe(Effect.provide(testLayer))
     );
   });
+
+  it("executePlan rejects a symlinked output directory before writing outside the intended root", async () => {
+    const service = createFileGenerationPlanService();
+
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const outputDir = path.join(tmpDir, "pkg-link");
+          const externalRoot = path.join(tmpDir, "external-root");
+          const escapedPath = path.join(externalRoot, "README.md");
+
+          yield* fs.makeDirectory(externalRoot, { recursive: true });
+          yield* fs.symlink(externalRoot, outputDir);
+
+          const forgedPlan = {
+            outputDir,
+            actions: [{ kind: "write-file", relativePath: "README.md", content: "owned\n" }],
+          } as unknown as FileGenerationPlan;
+
+          const succeeded = yield* service.executePlan(forgedPlan).pipe(
+            Effect.match({
+              onFailure: () => false,
+              onSuccess: () => true,
+            })
+          );
+          expect(succeeded).toBe(false);
+          expect(yield* fs.exists(escapedPath)).toBe(false);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
 });

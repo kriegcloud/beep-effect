@@ -696,16 +696,6 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         return yield* toDriverError(`Repository path does not exist: "${resolvedRepoPath}".`, 404);
       }
 
-      const stat = yield* fs
-        .stat(resolvedRepoPath)
-        .pipe(
-          Effect.mapError((cause) => toDriverError(`Failed to stat repository path "${resolvedRepoPath}".`, 500, cause))
-        );
-
-      if (stat.type !== "Directory") {
-        return yield* toDriverError(`Repository path must be a directory: "${resolvedRepoPath}".`, 400);
-      }
-
       const canonicalRepoPath = yield* fs
         .realPath(resolvedRepoPath)
         .pipe(
@@ -713,6 +703,18 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
             toDriverError(`Failed to resolve canonical repository path "${resolvedRepoPath}".`, 500, cause)
           )
         );
+
+      const canonicalStat = yield* fs
+        .stat(canonicalRepoPath)
+        .pipe(
+          Effect.mapError((cause) =>
+            toDriverError(`Failed to stat canonical repository path "${canonicalRepoPath}".`, 500, cause)
+          )
+        );
+
+      if (canonicalStat.type !== "Directory") {
+        return yield* toDriverError(`Repository path must be a directory: "${canonicalRepoPath}".`, 400);
+      }
 
       yield* annotateDriverSpan({ repo_canonical_path: canonicalRepoPath });
 

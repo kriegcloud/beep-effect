@@ -42,7 +42,7 @@ const readResponseText = (response: HttpServerResponse.HttpServerResponse) =>
 
 layer(NodeServices.layer)("Graphiti proxy security", (it) => {
   it.effect(
-    "forwards only the configured /mcp endpoint and preserves query parameters",
+    "forwards the configured /mcp endpoint subtree and preserves query parameters",
     Effect.fn(function* () {
       let capturedUrl = "";
       const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
@@ -60,6 +60,55 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       expect(response.status).toBe(200);
       const responseText = yield* readResponseText(response);
       expect(responseText).toBe("ok");
+    })
+  );
+
+  it.effect(
+    "forwards nested MCP subpaths under the configured endpoint",
+    Effect.fn(function* () {
+      let capturedUrl = "";
+      const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
+      const response = yield* forwarder.forward(makeServerRequest("/mcp/resources?cursor=abc")).pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          makeWebHandlerClient(async (request) => {
+            capturedUrl = request.url;
+            return new Response("nested", { status: 200 });
+          })
+        )
+      );
+
+      expect(capturedUrl).toBe("http://127.0.0.1:8000/mcp/resources?cursor=abc");
+      expect(response.status).toBe(200);
+      const responseText = yield* readResponseText(response);
+      expect(responseText).toBe("nested");
+    })
+  );
+
+  it.effect(
+    "normalizes trailing slashes on the configured upstream endpoint before forwarding",
+    Effect.fn(function* () {
+      let capturedUrl = "";
+      const forwarder = makeGraphitiProxyForwarderService(
+        new GraphitiProxyConfig({
+          upstream: "http://127.0.0.1:8000/mcp/",
+          dependencyHealthEnabled: false,
+        })
+      );
+      const response = yield* forwarder.forward(makeServerRequest("/mcp/?cursor=abc")).pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          makeWebHandlerClient(async (request) => {
+            capturedUrl = request.url;
+            return new Response("normalized", { status: 200 });
+          })
+        )
+      );
+
+      expect(capturedUrl).toBe("http://127.0.0.1:8000/mcp?cursor=abc");
+      expect(response.status).toBe(200);
+      const responseText = yield* readResponseText(response);
+      expect(responseText).toBe("normalized");
     })
   );
 
