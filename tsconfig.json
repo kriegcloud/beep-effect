@@ -104,7 +104,15 @@
       "@beep/codegraph": ["./tooling/codegraph/src/index.ts"],
       "@beep/codegraph/*": ["./tooling/codegraph/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
-      "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"]
+      "@beep/db-admin/*": [
+        "./packages/_internal/db-admin/src/*"
+      ],
+      "@beep/semantic-web": [
+        "./packages/common/semantic-web/src/index.ts"
+      ],
+      "@beep/semantic-web/*": [
+        "./packages/common/semantic-web/src/*"
+      ]
     },
     "plugins": [
       {
