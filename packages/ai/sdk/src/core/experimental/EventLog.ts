@@ -35,6 +35,7 @@ export * as EventLogRemote from "effect/unstable/eventlog/EventLogRemote";
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerIdentityMemory = Layer.sync(EventLogModule.Identity, () => EventLogModule.makeIdentityUnsafe());
 
@@ -43,6 +44,7 @@ export const layerIdentityMemory = Layer.sync(EventLogModule.Identity, () => Eve
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerMemory = EventLogModule.layerEventLog.pipe(
   Layer.provide(EventJournalModule.layerMemory),
@@ -243,6 +245,7 @@ const SyncConflictPayload = SyncConflictPayloadBase.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
   {
@@ -329,6 +332,7 @@ type SyncConflictPayload = typeof SyncConflictPayload.Type;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AuditEventInput = AuditEventInputBase.pipe(
   S.annotate(
@@ -340,6 +344,7 @@ export const AuditEventInput = AuditEventInputBase.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AuditEventInput = typeof AuditEventInput.Type;
 
@@ -372,6 +377,7 @@ const normalizeSyncConflictPayload = (payload: SyncConflictPayload): SyncConflic
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const normalizeAuditEventInput: (input: AuditEventInput) => AuditEventInput = (input) =>
   AuditEventInputBase.match<AuditEventInput>(input, {
@@ -407,6 +413,7 @@ export const normalizeAuditEventInput: (input: AuditEventInput) => AuditEventInp
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const AuditEventGroup = EventGroupModule.empty
   .add({
@@ -440,6 +447,7 @@ export const AuditEventGroup = EventGroupModule.empty
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const AuditEventLog = EventLogModule.schema(AuditEventGroup);
 
@@ -467,6 +475,7 @@ export const AuditEventLog = EventLogModule.schema(AuditEventGroup);
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handlers) =>
   handlers
@@ -481,6 +490,7 @@ export const layerAuditHandlers = EventLogModule.group(AuditEventGroup, (handler
  * In-memory event log layer with default audit handlers registered.
  *
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerMemoryWithAudit = EventLogModule.layerEventLog.pipe(
   Layer.provide(EventJournalModule.layerMemory),

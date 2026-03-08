@@ -7,6 +7,7 @@ const $I = $AiSdkId.create("core/Sync/SyncAudit");
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export type SyncConflictAudit = {
   readonly remoteId: string;
@@ -17,6 +18,7 @@ export type SyncConflictAudit = {
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export type SyncCompactionAudit = Readonly<{
   readonly remoteId: string;
@@ -27,6 +29,7 @@ export type SyncCompactionAudit = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export interface SyncAuditService {
   readonly compaction: (input: SyncCompactionAudit) => Effect.Effect<void>;
@@ -40,6 +43,7 @@ const defaultSyncAudit: SyncAuditService = {
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export class SyncAudit extends ServiceMap.Service<SyncAudit, SyncAuditService>()($I`SyncAudit`, {
   make: Effect.succeed(defaultSyncAudit),

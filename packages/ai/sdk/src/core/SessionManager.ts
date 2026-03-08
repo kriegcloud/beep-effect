@@ -25,15 +25,18 @@ const $I = $AiSdkId.create("core/SessionManager");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const SessionManagerError = S.Union([SessionError, ConfigError]);
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionManagerError = typeof SessionManagerError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionManagerErrorEncoded = typeof SessionManagerError.Encoded;
 
@@ -71,6 +74,7 @@ type ManagedSession = {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SessionManagerShape {
   readonly create: (
@@ -115,6 +119,7 @@ const makeSessionServiceWithRuntime = (
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class SessionManager extends ServiceMap.Service<SessionManager, SessionManagerShape>()($I`SessionManager`) {
   static readonly layer = Layer.effect(

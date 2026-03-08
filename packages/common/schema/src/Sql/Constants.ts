@@ -1,5 +1,6 @@
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const CONSTANTS = {
   INT8_MIN: -128,

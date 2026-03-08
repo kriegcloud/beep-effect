@@ -76,6 +76,7 @@ const applyRetry = <A, E, R>(effect: Effect.Effect<A, E, R>, settings: AgentRunt
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type PersistenceLayers = {
   readonly runtime?: Layer.Layer<AgentRuntime, unknown, unknown>;
@@ -88,6 +89,7 @@ export type PersistenceLayers = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type PersistenceOptions = Readonly<{
   readonly layers?: PersistenceLayers;
@@ -97,6 +99,7 @@ export type PersistenceOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type RemoteSyncOptions = StorageSyncLayerOptions & {
   readonly url: string;
@@ -220,6 +223,7 @@ const makeAgentRuntime = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface AgentRuntimeShape extends Effect.Success<typeof makeAgentRuntime> {}
 
@@ -228,6 +232,7 @@ export interface AgentRuntimeShape extends Effect.Success<typeof makeAgentRuntim
  */
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeShape>()($I`AgentRuntime`) {
   /**

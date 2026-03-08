@@ -6,7 +6,17 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
+import { NonNegativeInt } from "@beep/schema";
+import { Match } from "effect";
 import * as S from "effect/Schema";
+import {
+  EvidenceAnchor,
+  type EvidenceSelector,
+  EvidenceTarget,
+  FragmentSelector,
+  TextPositionSelector,
+  TextQuoteSelector,
+} from "../evidence.ts";
 import { IRIReference } from "../iri.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
 
@@ -59,8 +69,8 @@ export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationText
 )(
   {
     type: S.Literal("TextPositionSelector"),
-    start: S.Number,
-    end: S.Number,
+    start: NonNegativeInt,
+    end: NonNegativeInt,
   },
   $I.annote("WebAnnotationTextPositionSelector", {
     description: "Web Annotation text-position selector DTO.",
@@ -142,6 +152,7 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
   {
     id: IRIReference,
     type: S.Literal("Annotation"),
+    bodyValue: S.OptionFromOptionalKey(S.String),
     target: WebAnnotationTarget,
   },
   $I.annote("WebAnnotation", {
@@ -149,3 +160,130 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
     semanticSchemaMetadata: adapterMetadata("WebAnnotation", "Web Annotation DTO."),
   })
 ) {}
+
+/**
+ * Map an evidence selector to a Web Annotation selector DTO.
+ *
+ * @param selector - Evidence selector.
+ * @returns Web Annotation selector DTO.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelector): WebAnnotationSelector =>
+  Match.value(selector).pipe(
+    Match.when({ kind: "text-quote" }, (value) =>
+      WebAnnotationTextQuoteSelector.makeUnsafe({
+        type: "TextQuoteSelector",
+        exact: value.exact,
+        prefix: value.prefix,
+        suffix: value.suffix,
+      })
+    ),
+    Match.when({ kind: "text-position" }, (value) =>
+      WebAnnotationTextPositionSelector.makeUnsafe({
+        type: "TextPositionSelector",
+        start: value.start,
+        end: value.end,
+      })
+    ),
+    Match.orElse((value) =>
+      WebAnnotationFragmentSelector.makeUnsafe({
+        type: "FragmentSelector",
+        value: value.value,
+        conformsTo: value.conformsTo,
+      })
+    )
+  );
+
+/**
+ * Map a Web Annotation selector DTO to an evidence selector.
+ *
+ * @param selector - Web Annotation selector DTO.
+ * @returns Evidence selector.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationSelector): EvidenceSelector =>
+  Match.value(selector).pipe(
+    Match.when({ type: "TextQuoteSelector" }, (value) =>
+      TextQuoteSelector.makeUnsafe({
+        kind: "text-quote",
+        exact: value.exact,
+        prefix: value.prefix,
+        suffix: value.suffix,
+      })
+    ),
+    Match.when({ type: "TextPositionSelector" }, (value) =>
+      TextPositionSelector.makeUnsafe({
+        kind: "text-position",
+        start: value.start,
+        end: value.end,
+      })
+    ),
+    Match.orElse((value) =>
+      FragmentSelector.makeUnsafe({
+        kind: "fragment",
+        value: value.value,
+        conformsTo: value.conformsTo,
+      })
+    )
+  );
+
+/**
+ * Map an evidence target to a Web Annotation target DTO.
+ *
+ * @param target - Evidence target.
+ * @returns Web Annotation target DTO.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): WebAnnotationTarget =>
+  WebAnnotationTarget.makeUnsafe({
+    source: target.source,
+    selector: evidenceSelectorToWebAnnotationSelector(target.selector),
+  });
+
+/**
+ * Map a Web Annotation target DTO to an evidence target.
+ *
+ * @param target - Web Annotation target DTO.
+ * @returns Evidence target.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget): EvidenceTarget =>
+  EvidenceTarget.makeUnsafe({
+    source: target.source,
+    selector: webAnnotationSelectorToEvidenceSelector(target.selector),
+  });
+
+/**
+ * Map an evidence anchor to a Web Annotation DTO.
+ *
+ * @param anchor - Evidence anchor.
+ * @returns Web Annotation DTO.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnotation =>
+  WebAnnotation.makeUnsafe({
+    id: anchor.id,
+    type: "Annotation",
+    bodyValue: anchor.note,
+    target: evidenceTargetToWebAnnotationTarget(anchor.target),
+  });
+
+/**
+ * Map a Web Annotation DTO to an evidence anchor.
+ *
+ * @param annotation - Web Annotation DTO.
+ * @returns Evidence anchor.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const webAnnotationToEvidenceAnchor = (annotation: WebAnnotation): EvidenceAnchor =>
+  EvidenceAnchor.makeUnsafe({
+    id: annotation.id,
+    target: webAnnotationTargetToEvidenceTarget(annotation.target),
+    note: annotation.bodyValue,
+  });

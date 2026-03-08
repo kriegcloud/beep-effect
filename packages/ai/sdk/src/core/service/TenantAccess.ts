@@ -10,6 +10,7 @@ const callerTenantHeader = "x-agent-tenant";
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionTenantAccessError extends TaggedErrorClass<SessionTenantAccessError>()("SessionTenantAccessError", {
   message: S.String,
@@ -39,6 +40,7 @@ const validateTenant = (tenant: string | undefined, source: "requested" | "calle
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const resolveRequestTenant = (requestedTenant?: string) =>
   Effect.gen(function* () {

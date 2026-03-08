@@ -26,6 +26,7 @@ import { type ExecResult, SandboxService } from "./SandboxService.js";
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type CloudflareSandboxEnv = Readonly<{
   // DurableObjectNamespace<Sandbox> from @cloudflare/sandbox
@@ -37,6 +38,7 @@ export type CloudflareSandboxEnv = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type CloudflareSandboxOptions = Readonly<{
   /** Cloudflare Worker env bindings. */
@@ -84,6 +86,7 @@ type CloudflareSandboxModule = {
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const cloudflareSandboxModuleOverrideKey = "__beepAiSdkCloudflareSandboxModule";
 
@@ -150,6 +153,7 @@ const isStaleResumeFailure = (error: unknown): boolean => {
 // The destroy method is still exposed on the service for early cleanup.
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<SandboxService, SandboxError> =>
   Layer.effect(

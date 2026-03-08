@@ -1,6 +1,7 @@
 import {
   RepoRegistryStore,
   RepoRunStore,
+  RepoSemanticStore,
   RepoSnapshotStore,
   RepoStoreError,
   RepoSymbolStore,
@@ -55,6 +56,14 @@ const repoRunLayer = Layer.succeed(RepoRunStore)(
   })
 );
 
+const repoSemanticLayer = Layer.succeed(RepoSemanticStore)(
+  RepoSemanticStore.of({
+    getSemanticArtifacts: () => Effect.succeed(O.none()),
+    latestSemanticArtifacts: () => Effect.succeed(O.none()),
+    saveSemanticArtifacts: () => Effect.fail(repoStoreError()),
+  })
+);
+
 describe("repo-memory store", () => {
   it.effect("provides the canonical store service tags", () =>
     Effect.gen(function* () {
@@ -62,12 +71,18 @@ describe("repo-memory store", () => {
       const snapshot = yield* RepoSnapshotStore;
       const symbol = yield* RepoSymbolStore;
       const run = yield* RepoRunStore;
+      const semantic = yield* RepoSemanticStore;
 
       expect(typeof registry.getRepo).toBe("function");
       expect(typeof snapshot.latestSourceSnapshot).toBe("function");
       expect(typeof symbol.searchSymbols).toBe("function");
       expect(typeof run.getRun).toBe("function");
-    }).pipe(Effect.provide(Layer.mergeAll(repoRegistryLayer, repoSnapshotLayer, repoSymbolLayer, repoRunLayer)))
+      expect(typeof semantic.latestSemanticArtifacts).toBe("function");
+    }).pipe(
+      Effect.provide(
+        Layer.mergeAll(repoRegistryLayer, repoSnapshotLayer, repoSymbolLayer, repoRunLayer, repoSemanticLayer)
+      )
+    )
   );
 
   it("constructs typed store errors", () => {

@@ -7,7 +7,12 @@ import {
   type RunStreamEvent,
   StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
-import { GroundedRetrievalService, RepoRunService, TypeScriptIndexService } from "@beep/repo-memory-runtime";
+import {
+  GroundedRetrievalService,
+  RepoRunService,
+  RepoSemanticEnrichmentService,
+  TypeScriptIndexService,
+} from "@beep/repo-memory-runtime";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
 import { FilePath } from "@beep/schema";
@@ -45,10 +50,12 @@ const makeRuntimeLayer = () => {
     })
   ).pipe(Layer.provide(sqlLayer));
   const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(Layer.provide([sqlLayer, storeLayer]));
+  const semanticEnrichmentLayer = RepoSemanticEnrichmentService.layer;
   const groundedLayer = GroundedRetrievalService.layer.pipe(Layer.provide(storeLayer));
   const repoRunServiceLayer = RepoRunService.layer.pipe(
     Layer.provideMerge(storeLayer),
     Layer.provideMerge(typeScriptIndexLayer),
+    Layer.provideMerge(semanticEnrichmentLayer),
     Layer.provideMerge(EventJournal.layerMemory),
     Layer.provideMerge(Reactivity.layer),
     Layer.provideMerge(groundedLayer)
@@ -58,6 +65,7 @@ const makeRuntimeLayer = () => {
     sqlLayer,
     storeLayer,
     typeScriptIndexLayer,
+    semanticEnrichmentLayer,
     EventJournal.layerMemory,
     Reactivity.layer,
     groundedLayer,
@@ -326,6 +334,7 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(O.isSome(packet.sourceSnapshotId)).toBe(true);
         expect(packet.summary).toContain("Listed import declarations");
         expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("sourceSnapshotId=")))).toBe(true);
+        expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("semanticDatasetQuads=")))).toBe(true);
         assertCitationAlignment({ events: result.events, run: result.run });
       })
     )

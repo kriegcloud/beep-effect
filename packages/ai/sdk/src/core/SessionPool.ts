@@ -26,11 +26,13 @@ const $I = $AiSdkId.create("core/SessionPool");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionPoolCloseReason = "manual" | "idle" | "shutdown";
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionPoolOptions = {
   readonly model: string;
@@ -47,6 +49,7 @@ export type SessionPoolOptions = {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionPoolFullError extends TaggedErrorClass<SessionPoolFullError>()("SessionPoolFullError", {
   message: S.String,
@@ -58,6 +61,7 @@ export class SessionPoolFullError extends TaggedErrorClass<SessionPoolFullError>
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionPoolNotFoundError extends TaggedErrorClass<SessionPoolNotFoundError>()("SessionPoolNotFoundError", {
   message: S.String,
@@ -69,6 +73,7 @@ export class SessionPoolNotFoundError extends TaggedErrorClass<SessionPoolNotFou
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionPoolInvalidTenantError extends TaggedErrorClass<SessionPoolInvalidTenantError>()(
   "SessionPoolInvalidTenantError",
@@ -83,6 +88,7 @@ export class SessionPoolInvalidTenantError extends TaggedErrorClass<SessionPoolI
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const SessionPoolError = S.Union([
   SessionPoolFullError,
@@ -92,15 +98,18 @@ export const SessionPoolError = S.Union([
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionPoolError = typeof SessionPoolError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionPoolErrorEncoded = typeof SessionPoolError.Encoded;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionInfo = SessionInfoSchema;
 
@@ -410,6 +419,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SessionPoolShape {
   readonly close: (sessionId: string, tenant?: string) => Effect.Effect<void, SessionError | SessionPoolError>;
@@ -435,6 +445,7 @@ export interface SessionPoolShape {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class SessionPool extends ServiceMap.Service<SessionPool, SessionPoolShape>()($I`SessionPool`) {
   static readonly layer = (options: SessionPoolOptions) =>

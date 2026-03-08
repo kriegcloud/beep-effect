@@ -191,7 +191,7 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
  * Typed runtime error emitted during sidecar bootstrap and request handling.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class SidecarRuntimeError extends TaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
   "SidecarRuntimeError",
@@ -504,7 +504,7 @@ const makeRpcHandlersLayer = () => {
  * Builds the live HTTP + RPC layer for the local sidecar runtime.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const sidecarLayer = (config: SidecarRuntimeConfig) =>
   Layer.unwrap(
@@ -709,7 +709,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
  * Launches the sidecar HTTP layer with runtime observability applied once at the boundary.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const launchSidecar = (config: SidecarRuntimeConfig) =>
   provideSidecarObservability(config, Layer.launch(Layer.fresh(sidecarLayer(config)))).pipe(
@@ -720,7 +720,7 @@ export const launchSidecar = (config: SidecarRuntimeConfig) =>
  * Runs the sidecar runtime until shutdown is requested.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (config: SidecarRuntimeConfig) {
   const runtimeAnnotations = {
@@ -787,7 +787,7 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
  * Loads sidecar runtime configuration from environment defaults.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category Configuration
  */
 export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(function* () {
   const path = yield* Path.Path;

@@ -9,19 +9,23 @@ const $I = $AiSdkId.create("core/Storage/StorageEventGroups");
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ChatEventTag = "chat_event" as const;
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ArtifactEventTag = "artifact_record" as const;
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ArtifactDeleteTag = "artifact_deleted" as const;
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class ArtifactDelete extends S.Class<ArtifactDelete>($I`ArtifactDelete`)(
   {
@@ -35,11 +39,13 @@ export class ArtifactDelete extends S.Class<ArtifactDelete>($I`ArtifactDelete`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ArtifactDeleteEncoded = typeof ArtifactDelete.Encoded;
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ChatEventGroup = EventGroup.empty.add({
   tag: ChatEventTag,
@@ -50,6 +56,7 @@ export const ChatEventGroup = EventGroup.empty.add({
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ArtifactEventGroup = EventGroup.empty
   .add({
@@ -67,9 +74,11 @@ export const ArtifactEventGroup = EventGroup.empty
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ChatEventLog = EventLog.schema(ChatEventGroup);
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ArtifactEventLog = EventLog.schema(ArtifactEventGroup);

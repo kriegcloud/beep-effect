@@ -6,7 +6,7 @@ import { DateTime } from "effect";
  * This helper normalizes zoned inputs to UTC while preserving the instant.
  *
  * @since 0.1.0
- * @category DomainModel
+ * @category Utility
  * @example
  * ```ts-morph
  * import { makeUnsafeUtc } from "@beep/utils/DateTime"

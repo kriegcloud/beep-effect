@@ -10,6 +10,7 @@ import type { SDKMessage, SDKUserMessage } from "./Schema/Message.js";
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StreamShareConfig =
   | {
@@ -29,6 +30,7 @@ export type StreamShareConfig =
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StreamBroadcastConfig =
   | number
@@ -47,6 +49,7 @@ export type StreamBroadcastConfig =
  */
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface QueryHandle {
   /**

@@ -9,6 +9,7 @@ const $I = $AiSdkId.create("core/QuerySupervisorError");
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class QueryQueueFullError extends TaggedErrorClass<QueryQueueFullError>($I`QueryQueueFullError`)(
   "QueryQueueFullError",
@@ -28,6 +29,7 @@ export class QueryQueueFullError extends TaggedErrorClass<QueryQueueFullError>($
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class QueryPendingTimeoutError extends TaggedErrorClass<QueryPendingTimeoutError>($I`QueryPendingTimeoutError`)(
   "QueryPendingTimeoutError",
@@ -49,6 +51,7 @@ export class QueryPendingTimeoutError extends TaggedErrorClass<QueryPendingTimeo
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class QueryPendingCanceledError extends TaggedErrorClass<QueryPendingCanceledError>(
   $I`QueryPendingCanceledError`
@@ -68,6 +71,7 @@ export class QueryPendingCanceledError extends TaggedErrorClass<QueryPendingCanc
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QuerySupervisorError = S.Union([
   QueryQueueFullError,
@@ -83,9 +87,11 @@ export const QuerySupervisorError = S.Union([
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QuerySupervisorError = typeof QuerySupervisorError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QuerySupervisorErrorEncoded = typeof QuerySupervisorError.Encoded;

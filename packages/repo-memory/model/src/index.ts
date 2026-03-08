@@ -16,6 +16,7 @@ export * from "./run/RunProjection.js";
 export * from "./run/RunStatus.js";
 export * from "./run/RunStreamFailure.js";
 export * from "./run/StreamRunEvents.js";
+export * from "./semantic/RepoSemanticArtifacts.js";
 export * from "./source/RepoIndexArtifact.js";
 export * from "./source/RepoSourceFile.js";
 export * from "./source/RepoSourceSnapshot.js";

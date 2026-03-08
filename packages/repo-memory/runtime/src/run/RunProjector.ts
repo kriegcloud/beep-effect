@@ -10,7 +10,7 @@ const $I = $RepoMemoryRuntimeId.create("run/RunProjector");
  * Typed projection error emitted while materializing run events.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class RunProjectorError extends TaggedErrorClass<RunProjectorError>($I`RunProjectorError`)(
   "RunProjectorError",
@@ -50,7 +50,7 @@ const requireCurrentQueryRun = (
  * Project one durable run event into the current run read model.
  *
  * @since 0.0.0
- * @category Projections
+ * @category DomainLogic
  */
 export const projectRunEvent = Effect.fn("RunProjector.projectRunEvent")(function* (
   currentRun: O.Option<RepoRun>,

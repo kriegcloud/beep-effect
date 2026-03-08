@@ -33,6 +33,7 @@ type QuickConfigCloudflareSandbox = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type QuickConfig = Readonly<{
   readonly apiKey?: string;
@@ -269,16 +270,19 @@ const buildRuntimeLayer = (resolved: ResolvedQuickConfig) => {
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function runtimeLayer(
   config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
 ): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, unknown, unknown>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function runtimeLayer(config?: QuickConfig): Layer.Layer<AgentRuntime | QuerySupervisor, unknown, unknown>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function runtimeLayer(config?: QuickConfig) {
   const resolved = resolveQuickConfig(config);
@@ -295,14 +299,17 @@ type RuntimeCreator = ReturnType<typeof runtimeLayer>;
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function managedRuntime(config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }): RuntimeCreator;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function managedRuntime(config?: QuickConfig): RuntimeCreator;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function managedRuntime(config?: QuickConfig): RuntimeCreator {
   return runtimeLayer(config);
@@ -310,5 +317,6 @@ export function managedRuntime(config?: QuickConfig): RuntimeCreator {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const makeManagedRuntime = (config?: QuickConfig) => runtimeLayer(config);

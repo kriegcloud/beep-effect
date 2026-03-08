@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/semantic-web": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

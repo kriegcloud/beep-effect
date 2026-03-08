@@ -1,6 +1,7 @@
 declare module "@cloudflare/sandbox" {
   /**
    * @since 0.0.0
+   * @category Integration
    */
   export class Sandbox<Env = unknown> {
     fetch(request: Request): Promise<Response>;
@@ -8,6 +9,7 @@ declare module "@cloudflare/sandbox" {
 
   /**
    * @since 0.0.0
+   * @category Integration
    */
   export type SandboxHandle = {
     exec(
@@ -58,6 +60,7 @@ declare module "@cloudflare/sandbox" {
 
   /**
    * @since 0.0.0
+   * @category Integration
    */
   export function getSandbox(
     binding: unknown,
@@ -67,6 +70,7 @@ declare module "@cloudflare/sandbox" {
 
   /**
    * @since 0.0.0
+   * @category Integration
    */
   export function parseSSEStream<T>(stream: ReadableStream): AsyncIterable<T>;
 }

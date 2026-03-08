@@ -37,15 +37,18 @@ const logIfEnabled = (event: AgentLogEvent) =>
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logSdkMessage = (message: SDKMessage) => logIfEnabled(matchSdkMessage(message));
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logQueryEvent = (event: QueryEvent) => logIfEnabled(matchQueryEvent(event));
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logHookInput = (input: HookInput) => logIfEnabled(matchHookInput(input));

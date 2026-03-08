@@ -15,6 +15,7 @@ const $I = $SharedDomainId.create("EntityId");
  * Maximum value for a PostgreSQL 4-byte serial column.
  *
  * @since 0.0.0
+ * @category Configuration
  */
 export const PG_SERIAL_MAX = CONSTANTS.INT32_MAX;
 
@@ -22,6 +23,7 @@ export const PG_SERIAL_MAX = CONSTANTS.INT32_MAX;
  * Range filter constraining a number to the PostgreSQL serial range (1 to 2,147,483,647).
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const isSerialRange = S.isBetween({ minimum: 1, maximum: PG_SERIAL_MAX });
 
@@ -34,6 +36,7 @@ export const isSerialRange = S.isBetween({ minimum: 1, maximum: PG_SERIAL_MAX })
  * - Maximum value of 2,147,483,647 (4-byte signed integer upper bound)
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const PgSerial = S.Int.check(isSerialRange).pipe(
   S.brand("PgSerial"),
@@ -48,6 +51,7 @@ export const PgSerial = S.Int.check(isSerialRange).pipe(
  * Type for {@link PgSerial}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PgSerial = typeof PgSerial.Type;
 
@@ -55,6 +59,7 @@ export type PgSerial = typeof PgSerial.Type;
  * Schema class describing an entity-id definition.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdDefinition`)(
   {
@@ -77,6 +82,7 @@ export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdD
  * Entity-id schema namespace and associated type helpers.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export declare namespace EntityId {
   /**
@@ -138,6 +144,7 @@ export declare namespace EntityId {
  * Builds a branded entity-id schema for a slice-specific identity composer.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const make =
   <
@@ -171,6 +178,7 @@ export const make =
  * Type alias for a decoded entity-id value.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type EntityId<
   TTag extends TString.NonEmpty,
@@ -182,6 +190,7 @@ export type EntityId<
  * Curried entity-id factory creator.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const factory = flow(
   <const TSlice extends TString.NonEmpty>(

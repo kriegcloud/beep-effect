@@ -126,7 +126,7 @@ const renderReport: ReportRendererServiceShape["renderReport"] = Effect.fn(funct
  * Live layer for report rendering.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const ReportRendererServiceLive = Layer.succeed(
   ReportRendererService,

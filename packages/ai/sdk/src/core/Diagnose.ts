@@ -22,6 +22,7 @@ const $I = $AiSdkId.create("core/Diagnose");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const DiagnosticStatus = LiteralKit(["ok", "missing", "invalid", "unknown"]).annotate(
   $I.annote("DiagnosticStatus", {
@@ -31,11 +32,13 @@ export const DiagnosticStatus = LiteralKit(["ok", "missing", "invalid", "unknown
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type DiagnosticStatus = typeof DiagnosticStatus.Type;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const DiagnosticSeverity = LiteralKit(["error", "warning"]).annotate(
   $I.annote("DiagnosticSeverity", {
@@ -45,11 +48,13 @@ export const DiagnosticSeverity = LiteralKit(["error", "warning"]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type DiagnosticSeverity = typeof DiagnosticSeverity.Type;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class DiagnosticCheck extends S.Class<DiagnosticCheck>($I`DiagnosticCheck`)(
   {
@@ -66,6 +71,7 @@ export class DiagnosticCheck extends S.Class<DiagnosticCheck>($I`DiagnosticCheck
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class DiagnosticIssue extends S.Class<DiagnosticIssue>($I`DiagnosticIssue`)(
   {
@@ -80,6 +86,7 @@ export class DiagnosticIssue extends S.Class<DiagnosticIssue>($I`DiagnosticIssue
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class DiagnosticResult extends S.Class<DiagnosticResult>($I`DiagnosticResult`)(
   {
@@ -280,6 +287,7 @@ const checkClaudeCodeCli = () =>
  * Validate the current environment and return actionable diagnostics.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
   Effect.gen(function* () {

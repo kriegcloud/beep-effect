@@ -8,16 +8,19 @@ const $I = $AiSdkId.create("core/QuerySupervisorConfig");
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const PendingQueueStrategy = LiteralKit(["suspend", "dropping", "sliding"]);
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type PendingQueueStrategy = typeof PendingQueueStrategy.Type;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type QuerySupervisorSettings = Readonly<{
   readonly concurrencyLimit: number;
@@ -93,6 +96,7 @@ const makeQuerySupervisorConfig = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type QuerySupervisorConfigShape = Readonly<{
   readonly settings: QuerySupervisorSettings;
@@ -100,6 +104,7 @@ export type QuerySupervisorConfigShape = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class QuerySupervisorConfig extends ServiceMap.Service<QuerySupervisorConfig, QuerySupervisorConfigShape>()(
   $I`QuerySupervisorConfig`

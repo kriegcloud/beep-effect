@@ -7,11 +7,13 @@ import { AgentRpcs } from "./AgentRpcs.js";
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentRpcClient = RpcClient.FromGroup<typeof AgentRpcs>;
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentRpcClientOptions = {
   readonly authToken?: string;
@@ -26,6 +28,7 @@ const withAuthToken =
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layer = (options: AgentRpcClientOptions) => {
   const transformClient = <E, R>(client: HttpClient.HttpClient.With<E, R>): HttpClient.HttpClient.With<E, R> => {
@@ -42,6 +45,7 @@ export const layer = (options: AgentRpcClientOptions) => {
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const makeRpcClient = (options: AgentRpcClientOptions) =>
   RpcClient.make(AgentRpcs).pipe(Effect.provide(layer(options)));

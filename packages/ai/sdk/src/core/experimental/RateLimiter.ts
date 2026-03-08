@@ -20,6 +20,7 @@ export * from "effect/unstable/persistence/RateLimiter";
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerMemory = RateLimiter.layer.pipe(Layer.provide(RateLimiter.layerStoreMemory));
 
@@ -28,6 +29,7 @@ export const layerMemory = RateLimiter.layer.pipe(Layer.provide(RateLimiter.laye
  */
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const keyForSession = (sessionId: string) => `session:${sessionId}`;
 
@@ -36,6 +38,7 @@ export const keyForSession = (sessionId: string) => `session:${sessionId}`;
  */
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const keyForTool = (toolName: string) => `tool:${toolName}`;
 
@@ -44,6 +47,7 @@ export const keyForTool = (toolName: string) => `tool:${toolName}`;
  */
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const keyForEndpoint = (endpoint: string) => `endpoint:${endpoint}`;
 
@@ -52,6 +56,7 @@ export const keyForEndpoint = (endpoint: string) => `endpoint:${endpoint}`;
  */
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const keyForSessionTool = (sessionId: string, toolName: string) => `${keyForSession(sessionId)}:${toolName}`;
 
@@ -60,6 +65,7 @@ export const keyForSessionTool = (sessionId: string, toolName: string) => `${key
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type RateLimitWindowConfig = Readonly<{
   readonly algorithm?: "fixed-window" | "token-bucket";
@@ -74,6 +80,7 @@ export type RateLimitWindowConfig = Readonly<{
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & {
   readonly key: string | ((input: A) => string);
@@ -94,6 +101,7 @@ export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & 
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const withRateLimit =
   (config: {
@@ -129,6 +137,7 @@ export const withRateLimit =
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const rateLimitHandler =
   <A, E, R, B>(handler: (input: A) => Effect.Effect<B, E, R>, config: RateLimitHandlerConfig<A>) =>
@@ -163,6 +172,7 @@ type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const rateLimitHandlers = <Handlers extends Record<string, HandlerLike>>(
   handlers: Handlers,

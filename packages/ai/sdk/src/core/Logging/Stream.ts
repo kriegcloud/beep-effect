@@ -6,6 +6,7 @@ import { logHookInput, logQueryEvent, logSdkMessage } from "./Events.js";
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const tapSdkLogs = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(
@@ -15,11 +16,13 @@ export const tapSdkLogs = <E>(stream: Stream.Stream<SDKMessage, E>) =>
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logSdkStream = <E>(stream: Stream.Stream<SDKMessage, E>) => Stream.runDrain(tapSdkLogs(stream));
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const tapQueryEvents = <E>(stream: Stream.Stream<QueryEvent, E>) =>
   stream.pipe(
@@ -29,11 +32,13 @@ export const tapQueryEvents = <E>(stream: Stream.Stream<QueryEvent, E>) =>
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logQueryEventStream = <E>(stream: Stream.Stream<QueryEvent, E>) => Stream.runDrain(tapQueryEvents(stream));
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const tapHookInputs = <E>(stream: Stream.Stream<HookInput, E>) =>
   stream.pipe(
@@ -43,5 +48,6 @@ export const tapHookInputs = <E>(stream: Stream.Stream<HookInput, E>) =>
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const logHookInputStream = <E>(stream: Stream.Stream<HookInput, E>) => Stream.runDrain(tapHookInputs(stream));

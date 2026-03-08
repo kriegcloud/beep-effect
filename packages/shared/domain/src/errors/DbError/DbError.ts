@@ -21,6 +21,7 @@ const hasKnownErrorCode = (error: RawPgErrorType): error is KnownRawPgError =>
  * Typed shared domain error for normalized PostgreSQL and wrapper failures.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
   type: S.OptionFromOptionalKey(ErrorCodeFromKey.From),
@@ -74,5 +75,6 @@ export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
  * PostgreSQL unique-violation error code.
  *
  * @since 0.0.0
+ * @category Configuration
  */
 export const uniqueViolation = ErrorCodeFromKey.Enum.UNIQUE_VIOLATION;

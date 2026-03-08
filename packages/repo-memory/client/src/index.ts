@@ -51,7 +51,7 @@ export class RepoMemoryClientConfig extends S.Class<RepoMemoryClientConfig>($I`R
  * Typed client error for repo-memory sidecar communication failures.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class RepoMemoryClientError extends TaggedErrorClass<RepoMemoryClientError>($I`RepoMemoryClientError`)(
   "RepoMemoryClientError",
@@ -65,7 +65,7 @@ export class RepoMemoryClientError extends TaggedErrorClass<RepoMemoryClientErro
  * Service contract for interacting with the local repo-memory sidecar.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category PortContract
  */
 export interface RepoMemoryClientShape {
   readonly bootstrap: Effect.Effect<SidecarBootstrap, RepoMemoryClientError>;
@@ -94,7 +94,7 @@ export class RepoMemoryClient extends ServiceMap.Service<RepoMemoryClient, RepoM
  * Browser-friendly RPC client type for the repo-memory run surface.
  *
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export type RepoMemoryRunRpcClient = Effect.Success<ReturnType<typeof makeRepoMemoryRpcClient>>;
 
@@ -102,7 +102,7 @@ export type RepoMemoryRunRpcClient = Effect.Success<ReturnType<typeof makeRepoMe
  * Browser-friendly HTTP client type for the repo-memory control-plane surface.
  *
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export type RepoMemoryControlPlaneClient = Effect.Success<ReturnType<typeof makeRepoMemoryHttpClientDefault>>;
 
@@ -117,7 +117,7 @@ type RuntimeBoundaryPayload = {
  * Accepts either the root URL or a control-plane URL ending in `/api/v0`.
  *
  * @since 0.0.0
- * @category Helpers
+ * @category Utility
  */
 export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
   const trimmed = `${baseUrl}`.trim().replace(/\/+$/, "");
@@ -133,7 +133,7 @@ export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
  * Build the public RPC URL for the sidecar run surface.
  *
  * @since 0.0.0
- * @category Helpers
+ * @category Utility
  */
 export const makeRepoMemoryRpcUrl = (baseUrl: string | URL): string =>
   `${normalizeSidecarBaseUrl(baseUrl)}${rpcSuffix}`;
@@ -142,7 +142,7 @@ export const makeRepoMemoryRpcUrl = (baseUrl: string | URL): string =>
  * Options for creating a repo-memory HTTP client.
  *
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export type RepoMemoryHttpClientOptions = {
   readonly baseUrl: string | URL;
@@ -156,7 +156,7 @@ export type RepoMemoryHttpClientOptions = {
  * Construct the control-plane HTTP client effect.
  *
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =>
   HttpApiClient.make(ControlPlaneApi, {
@@ -169,7 +169,7 @@ export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =
  * Construct the control-plane HTTP client with the default fetch implementation.
  *
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOptions) =>
   makeRepoMemoryHttpClient(options).pipe(Effect.provide(FetchHttpClient.layer));
@@ -178,7 +178,7 @@ export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOpt
  * Options for creating a repo-memory RPC client.
  *
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export type RepoMemoryRpcClientOptions = {
   readonly baseUrl: string | URL;
@@ -191,7 +191,7 @@ export type RepoMemoryRpcClientOptions = {
  * Layer providing the public repo-memory RPC protocol over HTTP.
  *
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
   RpcClient.layerProtocolHttp({
@@ -203,7 +203,7 @@ export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
  * Construct the public repo-memory RPC client effect.
  *
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const makeRepoMemoryRpcClient = (options: RepoMemoryRpcClientOptions) =>
   RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(repoMemoryRpcLayer(options)));
@@ -245,7 +245,7 @@ const mapStreamClientError = <A>(fallback: string, stream: Stream.Stream<A, unkn
  * Create the full repo-memory client boundary over the public sidecar protocol.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainLogic
  */
 export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: RepoMemoryClientConfig) =>
   Effect.succeed({
@@ -360,7 +360,7 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
  * Layer providing the repo-memory client service.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const RepoMemoryClientLive = (config: RepoMemoryClientConfig) =>
   Layer.effect(RepoMemoryClient, makeRepoMemoryClient(config).pipe(Effect.map(RepoMemoryClient.of)));

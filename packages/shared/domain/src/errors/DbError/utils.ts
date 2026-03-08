@@ -16,6 +16,7 @@ import { ErrorCodeFromKey } from "./ErrorEnum.js";
  * Unicode box-drawing characters used by the database error formatter.
  *
  * @since 0.0.0
+ * @category Configuration
  */
 export const BOX = {
   topLeft: "╭",
@@ -32,6 +33,7 @@ export const BOX = {
  * SQL keywords highlighted in formatted query output.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const SqlKeyword = LiteralKit([
   "select",
@@ -153,6 +155,7 @@ const makeQuotedIdentifierToken = (index: number): string => `${quotedIdentifier
  * Supported query categories for styled SQL error output.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const QueryType = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE", "BEGIN", "COMMIT", "ROLLBACK", "OTHER"]);
 
@@ -160,6 +163,7 @@ export const QueryType = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE", "BE
  * Pattern matcher that derives a query category from a lower-cased SQL prefix.
  *
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const matchQueryType = Match.type<string>().pipe(
   Match.when(Str.startsWith("select"), () => QueryType.Enum.SELECT),
@@ -176,6 +180,7 @@ export const matchQueryType = Match.type<string>().pipe(
  * Classifies an arbitrary SQL statement into a known query category.
  *
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLowerCase, matchQueryType);
 
@@ -183,6 +188,7 @@ export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLower
  * Maps a query category to terminal styling tokens used by the formatter.
  *
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const getQueryTypeStyle = QueryType.$match({
   SELECT: (t) => ({ badge: pc.bgBlue(pc.white(pc.bold(` ${t} `))), color: pc.blue }),
@@ -267,6 +273,7 @@ const truncateForPreview = (value: string, maxLength: number): string =>
  * Formats and colorizes SQL for terminal-friendly diagnostics.
  *
  * @since 0.0.0
+ * @category Utility
  *
  * @example
  * ```ts-morph
@@ -290,6 +297,7 @@ export const highlightSql = (sql: string): string => {
  * Renders a single SQL parameter preview for error output.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const formatParam = (value: unknown, index: number): string => {
   const paramLabel = pc.yellow(pc.bold(`$${index + 1}`));
@@ -331,6 +339,7 @@ export const formatParam = (value: unknown, index: number): string => {
  * Removes terminal ANSI color sequences from a string.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEscapeRegex, Str.empty));
 
@@ -338,6 +347,7 @@ export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEsca
  * Computes display width by stripping ANSI escapes before measuring length.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.length);
 
@@ -345,6 +355,7 @@ export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.le
  * Pads a string to a target visual width while preserving ANSI styling.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const padEnd = (str: string, targetLen: number): string => {
   const currentLen = visualLength(str);
@@ -360,6 +371,7 @@ export const padEnd = (str: string, targetLen: number): string => {
  * Formats query parameters as either a compact inline block or a 3-column grid.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string => {
   const formattedParams = pipe(
@@ -415,6 +427,7 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
  * Runtime schema for raw PostgreSQL protocol errors.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const RawPgError = S.instanceOf(PgDatabaseError);
 
@@ -523,6 +536,7 @@ const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
  * Recursively unwraps wrapped errors to locate the originating `pg` protocol error.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const extractPgError = (error: unknown): PgDatabaseError | null =>
   pipe(error, extractPgErrorOption, O.getOrNull);
@@ -531,6 +545,7 @@ export const extractPgError = (error: unknown): PgDatabaseError | null =>
  * Extracts the first non-internal filesystem location from an error stack.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const extractSourceLocation = (error: unknown): string | null =>
   pipe(
@@ -546,6 +561,7 @@ export const extractSourceLocation = (error: unknown): string | null =>
  * Pulls query text and params from Drizzle's "Failed query" wrapper error message.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtraction =>
   pipe(
@@ -559,6 +575,7 @@ export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtrac
  * Builds a rich, terminal-friendly database error report.
  *
  * @since 0.0.0
+ * @category Utility
  *
  * @example
  * ```ts-morph

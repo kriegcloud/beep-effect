@@ -39,6 +39,7 @@ const persistEntries = (
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const make = (options?: { readonly key?: string }) =>
   Effect.gen(function* () {
@@ -311,12 +312,14 @@ export const make = (options?: { readonly key?: string }) =>
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const layerKeyValueStore = (options?: { readonly key?: string }) =>
   Layer.effect(EventJournal.EventJournal, make(options));
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const withRemoteUncommitted = <A, E, R>(
   journal: ServiceMap.Service.Shape<typeof EventJournal.EventJournal>,

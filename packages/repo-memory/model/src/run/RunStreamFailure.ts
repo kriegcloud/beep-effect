@@ -3,7 +3,7 @@ export {
    * Stream failure model for run subscriptions.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RunStreamFailure,
 } from "../internal/domain.js";

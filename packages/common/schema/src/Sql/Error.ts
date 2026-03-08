@@ -22,6 +22,7 @@ export const ErrorSeverity: LiteralKit<readonly ["error", "warning"]> = LiteralK
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ErrorSeverity = typeof ErrorSeverity.Type;
 
@@ -304,11 +305,13 @@ export const DSLValidationError = S.Union([
   );
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type DSLValidationError = typeof DSLValidationError.Type;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export declare namespace DSLValidationError {
   /**

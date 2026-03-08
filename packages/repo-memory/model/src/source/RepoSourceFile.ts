@@ -3,7 +3,7 @@ export {
    * Repository source file model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoSourceFile,
 } from "../internal/domain.js";

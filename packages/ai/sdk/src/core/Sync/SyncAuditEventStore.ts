@@ -6,6 +6,7 @@ import { SyncAudit } from "./SyncAudit.js";
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerAuditEventStore = Layer.effect(
   SyncAudit,

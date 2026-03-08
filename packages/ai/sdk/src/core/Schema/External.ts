@@ -5,31 +5,38 @@ const $I = $AiSdkId.create("core/Schema/External");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type BetaMessage = unknown;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type BetaRawMessageStreamEvent = unknown;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type BetaUsage = unknown;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type MessageParam = unknown;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type JSONRPCMessage = unknown;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServer = unknown;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const BetaMessage = S.Json.pipe(
   S.annotate(
@@ -42,6 +49,7 @@ export const BetaMessage = S.Json.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const BetaRawMessageStreamEvent = S.Json.pipe(
   S.annotate(
@@ -54,6 +62,7 @@ export const BetaRawMessageStreamEvent = S.Json.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const BetaUsage = S.Json.pipe(
   S.annotate(
@@ -66,6 +75,7 @@ export const BetaUsage = S.Json.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const MessageParam = S.Json.pipe(
   S.annotate(
@@ -78,6 +88,7 @@ export const MessageParam = S.Json.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const JSONRPCMessage = S.Json.pipe(
   S.annotate(
@@ -90,6 +101,7 @@ export const JSONRPCMessage = S.Json.pipe(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class CallToolResult extends S.Class<CallToolResult>($I`CallToolResult`)(
   {
@@ -104,6 +116,7 @@ export class CallToolResult extends S.Class<CallToolResult>($I`CallToolResult`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const McpServer = S.Unknown.pipe(
   S.annotate(

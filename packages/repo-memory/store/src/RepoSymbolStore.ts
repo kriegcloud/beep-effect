@@ -10,7 +10,7 @@ const $I = $RepoMemoryStoreId.create("RepoSymbolStore");
  * Contract for symbol graph persistence and lookup.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export interface RepoSymbolStoreShape {
   readonly findSymbolsByExactName: (
@@ -43,6 +43,6 @@ export interface RepoSymbolStoreShape {
  * Symbol store service.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class RepoSymbolStore extends ServiceMap.Service<RepoSymbolStore, RepoSymbolStoreShape>()($I`RepoSymbolStore`) {}

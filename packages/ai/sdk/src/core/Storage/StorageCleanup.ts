@@ -36,6 +36,7 @@ const runCleanup = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export interface StorageCleanupShape {
   readonly run: Effect.Effect<void, StorageError>;
@@ -43,6 +44,7 @@ export interface StorageCleanupShape {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class StorageCleanup extends ServiceMap.Service<StorageCleanup, StorageCleanupShape>()($I`StorageCleanup`) {
   static readonly layer = Layer.effect(

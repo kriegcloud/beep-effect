@@ -12,6 +12,7 @@ import * as Tool from "./Tool.js";
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export interface Toolkit<Tools extends Record<string, Tool.Any>> {
   /**
@@ -42,6 +43,7 @@ export interface Toolkit<Tools extends Record<string, Tool.Any>> {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export interface ToolkitWithHandlers<Tools extends Record<string, Tool.Any>> extends Toolkit<Tools> {
   readonly handlers: HandlersFrom<Tools>;
@@ -49,6 +51,7 @@ export interface ToolkitWithHandlers<Tools extends Record<string, Tool.Any>> ext
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Any = Readonly<{
   readonly tools: Record<string, Tool.Any>;
@@ -56,11 +59,13 @@ export type Any = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Tools<T> = T extends Toolkit<infer Tools> ? Tools : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolsByName<Tools> =
   Tools extends Record<string, Tool.Any>
@@ -71,6 +76,7 @@ export type ToolsByName<Tools> =
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolsFromDefinitions<Defs extends Record<string, Tool.Definition>> = SimplifyRecord<{
   readonly [Name in keyof Defs]: Tool.ToolFromDefinition<Name & string, Defs[Name]>;
@@ -78,6 +84,7 @@ export type ToolsFromDefinitions<Defs extends Record<string, Tool.Definition>> =
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type HandlersFrom<Tools extends Record<string, Tool.Any>> = {
   readonly [Name in keyof Tools as Tool.RequiresHandler<Tools[Name]> extends true ? Name : never]: (
@@ -87,11 +94,13 @@ export type HandlersFrom<Tools extends Record<string, Tool.Any>> = {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type WithHandlerTools<T> = T extends WithHandler<infer Tools> ? Tools : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export interface WithHandler<Tools extends Record<string, Tool.Any>> {
   readonly handle: (
@@ -273,6 +282,7 @@ const resolveInput = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): R
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const empty: Toolkit<{}> = makeProto({});
 
@@ -281,17 +291,20 @@ export const empty: Toolkit<{}> = makeProto({});
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const make = <Tools extends ReadonlyArray<Tool.Any>>(...tools: Tools): Toolkit<Record<string, Tools[number]>> =>
   makeProto(resolveInput(...tools));
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SimplifyRecord<T> = { [K in keyof T]: T[K] } & {};
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type MergeRecords<U> = {
   readonly [K in Extract<U extends unknown ? keyof U : never, string>]: Extract<
@@ -302,6 +315,7 @@ export type MergeRecords<U> = {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type MergedTools<Toolkits extends ReadonlyArray<Any>> = SimplifyRecord<MergeRecords<Tools<Toolkits[number]>>>;
 
@@ -310,6 +324,7 @@ export type MergedTools<Toolkits extends ReadonlyArray<Any>> = SimplifyRecord<Me
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>(
   definitions: Defs
@@ -332,6 +347,7 @@ export const fromHandlers = <const Defs extends Record<string, Tool.Definition>>
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const merge = <const Toolkits extends ReadonlyArray<Any>>(
   ...toolkits: Toolkits

@@ -330,6 +330,7 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * ```
  *
  * @since 3.17.0
+ * @category Utility
  */
 export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
   Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
@@ -437,7 +438,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
  *
  * @since 0.1.0
- * @category DomainModel
+ * @category Utility
  */
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;

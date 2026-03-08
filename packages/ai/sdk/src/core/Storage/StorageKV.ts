@@ -46,6 +46,7 @@ type KeyMutationState = {
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type KVNamespace = {
   get(key: string, type?: "text"): Promise<string | null>;
@@ -100,6 +101,7 @@ type KVListResult =
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layerKV = (namespace: KVNamespace): Layer.Layer<KeyValueStore.KeyValueStore> =>
   Layer.succeed(

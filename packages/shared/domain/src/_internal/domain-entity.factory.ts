@@ -7,6 +7,7 @@ import type { EntityId } from "../entity-ids/internal/index.js";
  * Temporary domain-entity constructor helper.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const make = <
   const TTag extends TString.NonEmpty,

@@ -78,6 +78,7 @@ const authorizeRequest = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layer = AgentRpcs.toLayer(
   Effect.gen(function* () {

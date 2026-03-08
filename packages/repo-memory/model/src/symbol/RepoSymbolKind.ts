@@ -3,7 +3,7 @@ export {
    * Repository symbol kind model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoSymbolKind,
 } from "../internal/domain.js";

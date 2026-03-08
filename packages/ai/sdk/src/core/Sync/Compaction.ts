@@ -5,11 +5,13 @@ import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type CompactionBracket = [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>];
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type CompactionStrategy = (
   entries: ReadonlyArray<EventJournal.RemoteEntry>
@@ -32,6 +34,7 @@ const toRemoteEntries = (entries: ReadonlyArray<EventJournal.Entry>) =>
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const compactEntries = (strategy: CompactionStrategy, entries: ReadonlyArray<EventJournal.Entry>) =>
   strategy(toRemoteEntries(entries)).pipe(
@@ -46,6 +49,7 @@ const estimateEntrySize = (entry: EventJournal.Entry) =>
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const Compaction = {
   byAge: (maxAge: Duration.Input): CompactionStrategy =>

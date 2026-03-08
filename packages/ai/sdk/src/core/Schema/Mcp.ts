@@ -7,6 +7,7 @@ const $I = $AiSdkId.create("core/Schema/Mcp");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpStdioServerConfig extends S.Class<McpStdioServerConfig>($I`McpStdioServerConfig`)(
   {
@@ -21,11 +22,13 @@ export class McpStdioServerConfig extends S.Class<McpStdioServerConfig>($I`McpSt
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpStdioServerConfigEncoded = typeof McpStdioServerConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpSSEServerConfig extends S.Class<McpSSEServerConfig>($I`McpSSEServerConfig`)(
   {
@@ -39,11 +42,13 @@ export class McpSSEServerConfig extends S.Class<McpSSEServerConfig>($I`McpSSESer
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpSSEServerConfigEncoded = typeof McpSSEServerConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpHttpServerConfig extends S.Class<McpHttpServerConfig>($I`McpHttpServerConfig`)(
   {
@@ -57,11 +62,13 @@ export class McpHttpServerConfig extends S.Class<McpHttpServerConfig>($I`McpHttp
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpHttpServerConfigEncoded = typeof McpHttpServerConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpSdkServerConfig extends S.Class<McpSdkServerConfig>($I`McpSdkServerConfig`)(
   {
@@ -74,11 +81,13 @@ export class McpSdkServerConfig extends S.Class<McpSdkServerConfig>($I`McpSdkSer
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpSdkServerConfigEncoded = typeof McpSdkServerConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpSdkServerConfigWithInstance extends S.Class<McpSdkServerConfigWithInstance>(
   $I`McpSdkServerConfigWithInstance`
@@ -93,6 +102,7 @@ export class McpSdkServerConfigWithInstance extends S.Class<McpSdkServerConfigWi
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpSdkServerConfigWithInstanceEncoded = typeof McpSdkServerConfigWithInstance.Encoded;
 
@@ -120,6 +130,7 @@ const McpExplicitServerConfigWithInstance = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const McpServerConfig = S.Union([McpStdioServerConfig, McpExplicitServerConfigWithInstance]).annotate(
   $I.annote("McpServerConfig", {
@@ -129,15 +140,18 @@ export const McpServerConfig = S.Union([McpStdioServerConfig, McpExplicitServerC
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServerConfig = typeof McpServerConfig.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServerConfigEncoded = typeof McpServerConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const McpServerConfigForProcessTransport = S.Union([McpStdioServerConfig, McpExplicitServerConfig]).annotate(
   $I.annote("McpServerConfigForProcessTransport", {
@@ -157,15 +171,18 @@ class McpServerInfo extends S.Class<McpServerInfo>($I`McpServerInfo`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServerConfigForProcessTransport = typeof McpServerConfigForProcessTransport.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServerConfigForProcessTransportEncoded = typeof McpServerConfigForProcessTransport.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpServerStatus extends S.Class<McpServerStatus>($I`McpServerStatus`)(
   {
@@ -180,11 +197,13 @@ export class McpServerStatus extends S.Class<McpServerStatus>($I`McpServerStatus
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpServerStatusEncoded = typeof McpServerStatus.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class McpSetServersResult extends S.Class<McpSetServersResult>($I`McpSetServersResult`)(
   {
@@ -198,5 +217,6 @@ export class McpSetServersResult extends S.Class<McpSetServersResult>($I`McpSetS
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpSetServersResultEncoded = typeof McpSetServersResult.Encoded;

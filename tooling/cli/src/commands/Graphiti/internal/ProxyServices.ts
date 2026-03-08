@@ -218,7 +218,7 @@ const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): H
  * @param headers - Optional response headers.
  * @returns Http server response with JSON error body.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const proxyErrorResponse = (
   error: S.Schema.Type<typeof ProxyErrorKind>,
@@ -244,7 +244,7 @@ export const proxyErrorResponse = (
  * @param status - HTTP response status code.
  * @returns Http server response with JSON health body.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const proxyHealthResponse = (
   payload: ProxyHealthPayload,
@@ -349,7 +349,7 @@ const readContainerHealth = (
  * @param config - Runtime graphiti proxy config.
  * @returns Effect producing dependency health service.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const makeGraphitiDependencyHealthService = (
   config: GraphitiProxyConfig
@@ -401,7 +401,7 @@ export const makeGraphitiDependencyHealthService = (
  * @param config - Runtime graphiti proxy config.
  * @returns Forwarder service implementation.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const makeGraphitiProxyForwarderService = (
   config: GraphitiProxyConfig
@@ -502,7 +502,7 @@ export const makeGraphitiProxyForwarderService = (
  * @param forwarderService - Forwarder service implementation.
  * @returns Effect producing queue service implementation.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const makeGraphitiProxyQueueService = (
   config: GraphitiProxyConfig,

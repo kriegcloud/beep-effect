@@ -8,6 +8,7 @@ import {
   RepoJSDocReturnsTag,
   RepoJSDocSummaryTag,
   RepoRegistrationInput,
+  RepoSemanticArtifacts,
   RepoSourceFile,
   RepoSourceSnapshot,
   RepoSymbolDocumentation,
@@ -17,8 +18,20 @@ import {
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
-import { RepoRegistryStore, RepoRunStore, RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
+import {
+  RepoRegistryStore,
+  RepoRunStore,
+  RepoSemanticStore,
+  RepoSnapshotStore,
+  RepoSymbolStore,
+} from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt, Sha256Hex } from "@beep/schema";
+import { EvidenceAnchor, FragmentSelector } from "@beep/semantic-web/evidence";
+import { IRIReference } from "@beep/semantic-web/iri";
+import { Entity, ObjectRef, ProvBundle } from "@beep/semantic-web/prov";
+import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semantic-web/rdf";
+import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
+import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect, Layer, pipe } from "effect";
@@ -29,8 +42,10 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
+const decodeIriReference = S.decodeUnknownSync(IRIReference);
 const decodeRepoId = S.decodeUnknownSync(RepoId);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const decodeObjectRef = S.decodeUnknownSync(ObjectRef);
 const decodePosInt = S.decodeUnknownSync(PosInt);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const decodeSha256Hex = S.decodeUnknownSync(Sha256Hex);
@@ -64,6 +79,7 @@ const loadStores = Effect.gen(function* () {
   return {
     registry: yield* RepoRegistryStore,
     run: yield* RepoRunStore,
+    semantic: yield* RepoSemanticStore,
     snapshot: yield* RepoSnapshotStore,
     symbol: yield* RepoSymbolStore,
   };
@@ -225,6 +241,62 @@ const makePacket = (options: {
     notes: A.make(options.note),
   });
 
+const makeSemanticArtifacts = (options: { readonly registrationId: string; readonly snapshotId: string }) =>
+  new RepoSemanticArtifacts({
+    repoId: decodeRepoId(options.registrationId),
+    sourceSnapshotId: decodeSourceSnapshotId(options.snapshotId),
+    dataset: makeDataset([
+      makeQuad(
+        makeNamedNode(`urn:beep:repo-memory:file:${options.registrationId}:${options.snapshotId}:src%2Findex.ts`),
+        RDF_TYPE,
+        makeNamedNode("urn:beep:repo-memory:semantic#File")
+      ),
+      makeQuad(
+        makeNamedNode(`urn:beep:repo-memory:file:${options.registrationId}:${options.snapshotId}:src%2Findex.ts`),
+        makeNamedNode("urn:beep:repo-memory:semantic#filePath"),
+        makeLiteral("src/index.ts", XSD_STRING.value)
+      ),
+    ]),
+    provenance: new ProvBundle({
+      records: [
+        new Entity({
+          provType: "Entity",
+          id: O.some(
+            decodeObjectRef(`urn:beep:repo-memory:semantic-dataset:${options.registrationId}:${options.snapshotId}`)
+          ),
+          wasGeneratedBy: O.none(),
+          wasAttributedTo: O.none(),
+          hadPrimarySource: O.none(),
+          wasQuotedFrom: O.none(),
+          wasRevisionOf: O.none(),
+          wasDerivedFrom: O.none(),
+          generatedAtTime: O.none(),
+          invalidatedAtTime: O.none(),
+          value: O.none(),
+        }),
+      ],
+      lifecycle: O.none(),
+    }),
+    evidenceAnchors: [
+      new EvidenceAnchor({
+        id: decodeIriReference(
+          `urn:beep:repo-memory:evidence:symbol:${options.registrationId}:${options.snapshotId}:answer`
+        ),
+        target: {
+          source: decodeIriReference(
+            `urn:beep:repo-memory:source:${options.registrationId}:${options.snapshotId}:src%2Findex.ts`
+          ),
+          selector: new FragmentSelector({
+            kind: "fragment",
+            value: "line=1,1",
+            conformsTo: O.none(),
+          }),
+        },
+        note: O.some("citationId=src/index.ts::answer#const"),
+      }),
+    ],
+  });
+
 describe("RepoMemorySqlLive", () => {
   it.effect("registers a repository and reads it back from SQLite", () =>
     withSqlite(
@@ -353,6 +425,47 @@ describe("RepoMemorySqlLive", () => {
           expect(stored.value.query).toBe("How many files?");
           expect(stored.value.summary).toBe("A deterministic retrieval packet.");
           expect(stored.value.notes).toEqual(["local-driver test note"]);
+        }
+      })
+    )
+  );
+
+  it.effect("persists semantic artifacts per snapshot and returns the latest row per repo", () =>
+    withSqlite(
+      Effect.gen(function* () {
+        const { registry, semantic } = yield* loadStores;
+        const repoPath = yield* createRepoFixture;
+        const registration = yield* registry.registerRepo(
+          new RepoRegistrationInput({
+            repoPath,
+            displayName: O.some("Semantic Fixture"),
+          })
+        );
+        const firstArtifacts = makeSemanticArtifacts({
+          registrationId: registration.id,
+          snapshotId: "snapshot:semantic:one",
+        });
+        const secondArtifacts = makeSemanticArtifacts({
+          registrationId: registration.id,
+          snapshotId: "snapshot:semantic:two",
+        });
+
+        yield* semantic.saveSemanticArtifacts(firstArtifacts);
+        yield* semantic.saveSemanticArtifacts(secondArtifacts);
+
+        const firstStored = yield* semantic.getSemanticArtifacts(
+          registration.id,
+          decodeSourceSnapshotId("snapshot:semantic:one")
+        );
+        const latestStored = yield* semantic.latestSemanticArtifacts(registration.id);
+
+        expect(O.isSome(firstStored)).toBe(true);
+        expect(O.isSome(latestStored)).toBe(true);
+        if (O.isSome(firstStored) && O.isSome(latestStored)) {
+          expect(firstStored.value.sourceSnapshotId).toBe("snapshot:semantic:one");
+          expect(latestStored.value.sourceSnapshotId).toBe("snapshot:semantic:two");
+          expect(latestStored.value.dataset.quads).toHaveLength(2);
+          expect(latestStored.value.evidenceAnchors).toHaveLength(1);
         }
       })
     )

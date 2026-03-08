@@ -106,7 +106,7 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * Typed error retained for compatibility with older placeholder service wiring.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServiceUnavailableError>(
   $I`TsMorphServiceUnavailableError`
@@ -126,7 +126,7 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * Typed error returned when a scope or repository path cannot be resolved.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeResolutionError>(
   $I`TsMorphScopeResolutionError`
@@ -146,7 +146,7 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * Typed error returned when a scoped ts-morph project cannot be constructed.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
   "TsMorphProjectLoadError",
@@ -164,7 +164,7 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * Typed error returned when a TypeScript file cannot be loaded from a resolved scope.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
   "TsMorphSourceFileError",
@@ -183,7 +183,7 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * Typed error returned when a symbol id cannot be resolved within a scope.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNotFoundError>(
   $I`TsMorphSymbolNotFoundError`
@@ -206,7 +206,7 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsupportedFileError>(
   $I`TsMorphUnsupportedFileError`
@@ -226,7 +226,7 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * Tagged union of all recoverable service errors emitted by `TSMorphService`.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export type TSMorphServiceError =
   | TsMorphProjectLoadError
@@ -542,7 +542,7 @@ const collectOutlineEntries = (
  *
  * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
@@ -1105,7 +1105,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
  * Default live layer for the current TSMorphService contract.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   TSMorphService,

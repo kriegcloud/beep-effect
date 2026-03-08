@@ -5,6 +5,7 @@ import { StorageConfig, type StorageConfigData } from "./StorageConfig.js";
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type StorageStatus = Readonly<{
   readonly config?: {
@@ -17,6 +18,7 @@ export type StorageStatus = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const status = Effect.gen(function* () {
   const config = yield* Effect.serviceOption(StorageConfig);

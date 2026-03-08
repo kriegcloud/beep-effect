@@ -7,6 +7,7 @@ import { AgentHttpApi } from "./AgentHttpApi.js";
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentHttpClientOptions = {
   readonly authToken?: string;
@@ -24,6 +25,7 @@ const withAuthToken =
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const makeHttpClient = (options?: AgentHttpClientOptions) =>
   HttpApiClient.make(AgentHttpApi, {
@@ -36,6 +38,7 @@ export const makeHttpClient = (options?: AgentHttpClientOptions) =>
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const makeHttpClientDefault = (options?: AgentHttpClientOptions) =>
   makeHttpClient(options).pipe(Effect.provide(FetchHttpClient.layer));

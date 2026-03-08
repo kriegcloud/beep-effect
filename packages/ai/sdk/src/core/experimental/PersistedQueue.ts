@@ -17,6 +17,7 @@ export * from "effect/unstable/persistence/PersistedQueue";
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueue.layerStoreMemory));
 
@@ -33,6 +34,7 @@ export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueu
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const makeUserMessageQueue = (options?: undefined | { readonly name?: undefined | string }) =>
   PersistedQueue.make({
@@ -45,6 +47,7 @@ export const makeUserMessageQueue = (options?: undefined | { readonly name?: und
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PersistedInputAdapter = {
   readonly input: AsyncIterable<SDKUserMessage>;
@@ -60,6 +63,7 @@ const toTransportError = (message: string, cause: unknown) => TransportError.mak
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const makeInputAdapter = (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
@@ -94,6 +98,7 @@ export const makeInputAdapter = (
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedInputAdapter): QueryHandle => ({
   ...handle,
@@ -128,6 +133,7 @@ export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedI
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const queryWithPersistedInput = Effect.fn("PersistedQueue.queryWithPersistedInput")(function* (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,

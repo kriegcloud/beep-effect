@@ -11,21 +11,25 @@ const $I = $AiSdkId.create("core/Logging/Config");
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "string"]);
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type LogFormat = typeof LogFormat.Type;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type AgentLoggingCategories = Record<AgentLogCategory, boolean>;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type AgentLoggingSettings = Readonly<{
   readonly format: LogFormat;
@@ -80,6 +84,7 @@ const parseLogLevel = (value: string): Effect.Effect<LogLevel.LogLevel, ConfigEr
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type AgentLoggingConfigShape = Readonly<{
   readonly settings: AgentLoggingSettings;
@@ -87,6 +92,7 @@ export type AgentLoggingConfigShape = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class AgentLoggingConfig extends ServiceMap.Service<AgentLoggingConfig, AgentLoggingConfigShape>()(
   $I`AgentLoggingConfig`

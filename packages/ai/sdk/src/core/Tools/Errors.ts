@@ -6,6 +6,7 @@ import * as S from "effect/Schema";
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ToolNotFoundError extends TaggedErrorClass<ToolNotFoundError>()("ToolNotFoundError", {
   name: S.String,
@@ -19,6 +20,7 @@ export class ToolNotFoundError extends TaggedErrorClass<ToolNotFoundError>()("To
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ToolInputError extends TaggedErrorClass<ToolInputError>()("ToolInputError", {
   name: S.String,
@@ -35,6 +37,7 @@ export class ToolInputError extends TaggedErrorClass<ToolInputError>()("ToolInpu
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ToolOutputError extends TaggedErrorClass<ToolOutputError>()("ToolOutputError", {
   name: S.String,
@@ -51,14 +54,17 @@ export class ToolOutputError extends TaggedErrorClass<ToolOutputError>()("ToolOu
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const ToolError = S.Union([ToolNotFoundError, ToolInputError, ToolOutputError]);
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolError = typeof ToolError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolErrorEncoded = typeof ToolError.Encoded;

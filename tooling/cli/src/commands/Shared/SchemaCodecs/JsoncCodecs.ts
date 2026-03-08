@@ -83,7 +83,7 @@ const parseUnknown: JsoncCodecServiceShape["parseUnknown"] = Effect.fn(function*
  * Live JSONC codec service layer.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const JsoncCodecServiceLive = Layer.succeed(
   JsoncCodecService,

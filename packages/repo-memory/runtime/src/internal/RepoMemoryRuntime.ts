@@ -34,6 +34,8 @@ import {
   type RepoRegistryStoreShape,
   RepoRunStore,
   type RepoRunStoreShape,
+  RepoSemanticStore,
+  type RepoSemanticStoreShape,
   RepoSnapshotStore,
   type RepoSnapshotStoreShape,
   type RepoStoreError,
@@ -53,6 +55,7 @@ import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as Workflow from "effect/unstable/workflow/Workflow";
 import * as WorkflowEngine from "effect/unstable/workflow/WorkflowEngine";
 import {
+  type IndexedTypeScriptArtifacts,
   TypeScriptIndexRequest,
   TypeScriptIndexService as TypeScriptIndexServiceInternal,
 } from "../indexing/TypeScriptIndexer.js";
@@ -69,6 +72,10 @@ import {
   type RunExecutionTransition,
   type RunStateMachineError,
 } from "../run/RunStateMachine.js";
+import {
+  RepoSemanticEnrichmentRequest,
+  RepoSemanticEnrichmentService as RepoSemanticEnrichmentServiceInternal,
+} from "../semantic/RepoSemanticEnrichmentService.js";
 import { recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
 
 const $I = $RepoMemoryRuntimeId.create("internal/RepoMemoryRuntime");
@@ -80,7 +87,11 @@ const encodeRunEventPayload = S.encodeUnknownEffect(Msgpack.schema(RunStreamEven
 const workflowVersion = "cluster-first-v0";
 const workflowSuspensionPollInterval = Duration.millis(25);
 const workflowSuspensionPollMaxAttempts = 200;
-type RepoRuntimeStoreShape = RepoRegistryStoreShape & RepoRunStoreShape & RepoSnapshotStoreShape & RepoSymbolStoreShape;
+type RepoRuntimeStoreShape = RepoRegistryStoreShape &
+  RepoRunStoreShape &
+  RepoSnapshotStoreShape &
+  RepoSymbolStoreShape &
+  RepoSemanticStoreShape;
 
 class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`RunAcceptanceDecision`)(
   {
@@ -96,7 +107,7 @@ class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`RunAccepta
  * Typed orchestration error emitted by the repo run service.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class RepoRunServiceError extends TaggedErrorClass<RepoRunServiceError>($I`RepoRunServiceError`)(
   "RepoRunServiceError",
@@ -110,7 +121,7 @@ export class RepoRunServiceError extends TaggedErrorClass<RepoRunServiceError>($
  * Service contract for repo-memory orchestration and workflow entrypoints.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category PortContract
  */
 export interface RepoRunServiceShape {
   readonly acceptIndexRun: (
@@ -188,17 +199,20 @@ const isTerminalEvent = (event: RunStreamEvent): boolean =>
 const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const repoRegistryStore = yield* RepoRegistryStore;
   const repoRunStore = yield* RepoRunStore;
+  const repoSemanticStore = yield* RepoSemanticStore;
   const repoSnapshotStore = yield* RepoSnapshotStore;
   const repoSymbolStore = yield* RepoSymbolStore;
   const driver: RepoRuntimeStoreShape = {
     ...repoRegistryStore,
     ...repoRunStore,
+    ...repoSemanticStore,
     ...repoSnapshotStore,
     ...repoSymbolStore,
   };
   const journal = yield* EventJournal.EventJournal;
   const reactivity = yield* Reactivity.Reactivity;
   const typeScriptIndex = yield* TypeScriptIndexServiceInternal;
+  const semanticEnrichment = yield* RepoSemanticEnrichmentServiceInternal;
   const groundedRetrieval = yield* GroundedRetrievalServiceInternal;
   const runCommandSemaphore = yield* Semaphore.makePartitioned<RunId>({ permits: 1 });
 
@@ -285,6 +299,30 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   ) {
     yield* mapDriverError(driver.saveRetrievalPacket(runId, packet));
     yield* reactivity.invalidate(A.make(`run:${runId}`, `repo:${packet.repoId}`));
+  });
+
+  const persistSemanticArtifactsBestEffort = Effect.fn("RepoRunService.persistSemanticArtifactsBestEffort")(function* (
+    runId: RunId,
+    indexedArtifacts: IndexedTypeScriptArtifacts
+  ) {
+    const attempt = Effect.gen(function* () {
+      const semanticArtifacts = yield* semanticEnrichment
+        .deriveSemanticArtifacts(
+          new RepoSemanticEnrichmentRequest({
+            artifacts: indexedArtifacts,
+            runId,
+          })
+        )
+        .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+
+      yield* mapDriverError(driver.saveSemanticArtifacts(semanticArtifacts));
+    });
+
+    yield* attempt.pipe(
+      Effect.catchTag("RepoRunServiceError", (error) =>
+        Effect.logWarning(`Semantic enrichment skipped for run "${runId}": ${error.message}`)
+      )
+    );
   });
 
   const materializeRunEvent = Effect.fn("RepoRunService.materializeRunEvent")(function* (
@@ -749,6 +787,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             importEdges: indexedArtifacts.importEdges,
           })
         );
+        yield* persistSemanticArtifactsBestEffort(runId, indexedArtifacts);
 
         const completedRun = yield* mapStateMachineError(
           completeIndexRun(runningRun, completedAt, indexedArtifacts.snapshot.fileCount)
@@ -1045,9 +1084,11 @@ export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunSe
     RepoRunService,
     never,
     | GroundedRetrievalServiceInternal
+    | RepoSemanticEnrichmentServiceInternal
     | TypeScriptIndexServiceInternal
     | RepoRegistryStore
     | RepoRunStore
+    | RepoSemanticStore
     | RepoSnapshotStore
     | RepoSymbolStore
     | EventJournal.EventJournal
@@ -1071,7 +1112,7 @@ const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
  * Live workflow layers for repository index and query runs.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const RepoRunWorkflowsLayer = Layer.mergeAll(
   IndexRepoRunWorkflow.toLayer(
@@ -1096,7 +1137,7 @@ export const RepoRunWorkflowsLayer = Layer.mergeAll(
  * Deterministic grounded retrieval service export.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const GroundedRetrievalService = GroundedRetrievalServiceInternal;
 
@@ -1104,6 +1145,14 @@ export const GroundedRetrievalService = GroundedRetrievalServiceInternal;
  * Deterministic TypeScript index service export.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const TypeScriptIndexService = TypeScriptIndexServiceInternal;
+
+/**
+ * Deterministic semantic enrichment service export.
+ *
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const RepoSemanticEnrichmentService = RepoSemanticEnrichmentServiceInternal;
