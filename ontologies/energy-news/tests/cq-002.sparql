@@ -1,0 +1,11 @@
+# CQ-002: What subtopics exist under a given energy topic?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?child ?label WHERE {
+  ?child skos:broader enews:Renewable ;
+         rdfs:label ?label .
+}

@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-084: Which sandbox policy constrains a given agent?
+# Expected: non-empty result set
+SELECT ?agent ?policy ?label WHERE {
+  ?agent a pao:AIAgent ;
+         pao:enforcedBySandboxPolicy ?policy .
+  ?policy a pao:SandboxPolicy ;
+          rdfs:label ?label .
+}

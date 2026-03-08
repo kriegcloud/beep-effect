@@ -1,0 +1,8 @@
+# CQ-048: What sensitivity level is assigned to a memory item? (upgraded to controlled vocab)
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?item ?level WHERE {
+  ?item a pao:MemoryItem ;
+        pao:hasSensitivityLevel ?level .
+  ?level a pao:SensitivityLevel .
+}

@@ -1,0 +1,922 @@
+# Personal Agent Ontology -- Use Case Catalog
+# Each use case drives 3-10 competency questions.
+# Aligns with motivating scenarios in scope.md (S1-S7).
+
+use_cases:
+
+  # ── Module 1: Identity & Actors ──────────────────────────────────
+
+  - id: UC-001
+    name: "Identify agent capabilities and configuration"
+    actor: "Agent Developer"
+    goal: "Determine what tools, permissions, and persona an agent has"
+    preconditions:
+      - "Agent is registered in the system with configuration metadata"
+    main_flow:
+      - "Developer queries the ontology for an agent's tool set"
+      - "System returns tool definitions, permission policies, and persona description"
+    postconditions:
+      - "Developer has a complete picture of agent capabilities"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-001, CQ-002, CQ-004, CQ-057]
+    priority: must_have
+
+  - id: UC-002
+    name: "Model sub-agent delegation relationships"
+    actor: "System Architect"
+    goal: "Track parent-child agent relationships and delegated tasks"
+    preconditions:
+      - "Parent agent has spawned one or more sub-agents"
+    main_flow:
+      - "Architect queries which sub-agents were spawned by a given agent"
+      - "System returns sub-agent identifiers, delegated tasks, and results"
+    postconditions:
+      - "Full delegation chain is visible with task assignments and outcomes"
+    related_scenarios: [S7]
+    related_cqs: [CQ-003]
+    priority: should_have
+
+  # ── Module 2: Conversation & Interaction ─────────────────────────
+
+  - id: UC-003
+    name: "Resume interrupted conversation"
+    actor: "AI Agent"
+    goal: "Restore conversational context after session interruption"
+    preconditions:
+      - "A prior session exists with turns and active context"
+      - "Session was interrupted (timeout, error, or user departure)"
+    main_flow:
+      - "Agent identifies the most recent session for the user"
+      - "Agent loads session state: last N turns, active goals, tool results"
+      - "Agent resumes interaction with restored context"
+    postconditions:
+      - "User experiences continuity; no information is lost"
+    related_scenarios: [S1]
+    related_cqs: [CQ-005, CQ-009, CQ-038, CQ-059]
+    priority: must_have
+
+  - id: UC-004
+    name: "Trace complete conversation history"
+    actor: "Compliance/Governance"
+    goal: "Reconstruct the full sequence of turns in a conversation"
+    preconditions:
+      - "Conversation has occurred with multiple turns"
+    main_flow:
+      - "Reviewer queries all turns in a conversation ordered by time"
+      - "System returns turns with participants, timestamps, and content types"
+    postconditions:
+      - "Complete audit trail of the conversation is available"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-006]
+    priority: must_have
+
+  - id: UC-005
+    name: "Audit tool invocations in a session"
+    actor: "Compliance/Governance"
+    goal: "Examine all tool uses, their inputs, outputs, and policy compliance"
+    preconditions:
+      - "Agent has invoked one or more tools during a session"
+    main_flow:
+      - "Reviewer queries tool invocations for a given session"
+      - "System returns tool name, input parameters, output, timestamp, and permission status"
+      - "Reviewer checks each invocation against applicable policies"
+    postconditions:
+      - "All tool invocations are accounted for with compliance status"
+    related_scenarios: [S3]
+    related_cqs: [CQ-007, CQ-008, CQ-037]
+    priority: must_have
+
+  - id: UC-006
+    name: "Track context window and compaction events"
+    actor: "System Architect"
+    goal: "Monitor when and how context was compacted during long conversations"
+    preconditions:
+      - "A conversation exceeded the context window limit"
+    main_flow:
+      - "Architect queries compaction events for a conversation"
+      - "System returns when compaction occurred, what was summarized, what was preserved"
+    postconditions:
+      - "Architect understands information loss/preservation during compaction"
+    related_scenarios: [S1, S2]
+    related_cqs: [CQ-010, CQ-052, CQ-053]
+    priority: should_have
+
+  # ── Module 3: Memory ─────────────────────────────────────────────
+
+  - id: UC-007
+    name: "Store and retrieve episodic memories"
+    actor: "AI Agent"
+    goal: "Persist conversation episodes and retrieve relevant ones later"
+    preconditions:
+      - "Agent has completed a conversation that should be remembered"
+    main_flow:
+      - "Agent encodes key events from the conversation as an episode"
+      - "Episode is stored with temporal bounds, participants, and topic metadata"
+      - "In a future session, agent retrieves episodes relevant to current context"
+    postconditions:
+      - "Relevant past episodes are available for grounding current responses"
+    related_scenarios: [S2, S4]
+    related_cqs: [CQ-011, CQ-012, CQ-025]
+    priority: must_have
+
+  - id: UC-008
+    name: "Consolidate episodic memories into semantic knowledge"
+    actor: "AI Agent"
+    goal: "Extract stable facts from repeated experiences"
+    preconditions:
+      - "Multiple episodes contain consistent information about a topic"
+    main_flow:
+      - "Agent identifies recurring facts across episodes"
+      - "Agent creates semantic memory entries (claims) with provenance"
+      - "Claims link back to source episodes and confidence levels"
+    postconditions:
+      - "Semantic memory contains verified, provenance-tracked claims"
+    related_scenarios: [S2, S4]
+    related_cqs: [CQ-013, CQ-016]
+    priority: must_have
+
+  - id: UC-009
+    name: "Retrieve cross-session user preferences"
+    actor: "AI Agent"
+    goal: "Apply user preferences stated in prior sessions"
+    preconditions:
+      - "User has expressed a preference in a previous session"
+      - "Preference was extracted and stored as semantic memory"
+    main_flow:
+      - "Agent retrieves user preferences relevant to current task"
+      - "Agent applies preferences to current response or action"
+    postconditions:
+      - "User's preferences are respected without re-asking"
+    related_scenarios: [S4]
+    related_cqs: [CQ-015]
+    priority: must_have
+
+  - id: UC-010
+    name: "Track memory provenance chain"
+    actor: "Ontology Engineer"
+    goal: "Trace a memory item back to its originating conversation and participants"
+    preconditions:
+      - "A memory item exists in semantic or episodic memory"
+    main_flow:
+      - "Engineer queries the provenance chain of a memory item"
+      - "System returns: generating activity, source entities, contributing agents, timestamps"
+    postconditions:
+      - "Full derivation chain from raw interaction to stored memory is visible"
+    related_scenarios: [S2, S5]
+    related_cqs: [CQ-014, CQ-036, CQ-040]
+    priority: must_have
+
+  - id: UC-011
+    name: "Manage memory tiers and eviction"
+    actor: "System Architect"
+    goal: "Understand what memory resides in which tier and how eviction works"
+    preconditions:
+      - "Agent has memory distributed across working, episodic, and semantic stores"
+    main_flow:
+      - "Architect queries memory items by tier"
+      - "System returns items with their tier, last access time, and eviction eligibility"
+    postconditions:
+      - "Architect can optimize memory tier configuration"
+    related_scenarios: [S1, S2]
+    related_cqs: [CQ-018, CQ-019, CQ-054, CQ-055]
+    priority: should_have
+
+  - id: UC-012
+    name: "Update and version beliefs over time"
+    actor: "AI Agent"
+    goal: "Revise stored beliefs when new evidence contradicts them"
+    preconditions:
+      - "Agent holds a belief (claim) that is contradicted by new information"
+    main_flow:
+      - "Agent identifies the conflicting claim"
+      - "Agent creates a revised claim with updated confidence"
+      - "Old claim is marked as superseded with provenance linking to revision"
+    postconditions:
+      - "Belief history is preserved; current belief reflects latest evidence"
+    related_scenarios: [S2, S4]
+    related_cqs: [CQ-017]
+    priority: should_have
+
+  # ── Module 4: Actions, Events, and Time ──────────────────────────
+
+  - id: UC-013
+    name: "Reconstruct temporal sequence of events in a session"
+    actor: "Compliance/Governance"
+    goal: "Order all events (turns, tool calls, memory operations) by time"
+    preconditions:
+      - "A session has occurred with mixed event types"
+    main_flow:
+      - "Reviewer queries all events in a session"
+      - "System returns events ordered by timestamp with type and actor"
+    postconditions:
+      - "Complete temporal event log is available for audit"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-020, CQ-023, CQ-024]
+    priority: must_have
+
+  - id: UC-014
+    name: "Identify temporal relationships between events"
+    actor: "Ontology Engineer"
+    goal: "Determine how events relate temporally (before, during, overlaps)"
+    preconditions:
+      - "Two or more events have recorded time intervals"
+    main_flow:
+      - "Engineer queries temporal relations between events"
+      - "System returns Allen interval relations (before, during, overlaps, etc.)"
+    postconditions:
+      - "Temporal structure of agent behavior is queryable"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-021, CQ-022]
+    priority: should_have
+
+  # ── Module 5: Goals, Plans, and Tasks ────────────────────────────
+
+  - id: UC-015
+    name: "Decompose complex request into task plan"
+    actor: "AI Agent"
+    goal: "Break a user request into sub-tasks with dependencies"
+    preconditions:
+      - "User has made a complex, multi-step request"
+    main_flow:
+      - "Agent creates a goal from the user request"
+      - "Agent decomposes goal into sub-tasks with ordering constraints"
+      - "Agent executes tasks, tracking status and results"
+    postconditions:
+      - "Goal is achieved; task execution history is recorded"
+    related_scenarios: [S6]
+    related_cqs: [CQ-026, CQ-027, CQ-028]
+    priority: must_have
+
+  - id: UC-016
+    name: "Track goal and task status across sessions"
+    actor: "End User (implicit)"
+    goal: "Resume work on a multi-session goal"
+    preconditions:
+      - "A goal with incomplete tasks exists from a prior session"
+    main_flow:
+      - "Agent identifies pending goals and their task status"
+      - "Agent presents status and continues execution"
+    postconditions:
+      - "User sees progress and remaining work"
+    related_scenarios: [S1, S6]
+    related_cqs: [CQ-029, CQ-056, CQ-058, CQ-060]
+    priority: should_have
+
+  # ── Module 6: Governance & Safety ────────────────────────────────
+
+  - id: UC-017
+    name: "Enforce permission policies on tool use"
+    actor: "Compliance/Governance"
+    goal: "Verify that tool invocations comply with permission constraints"
+    preconditions:
+      - "Agent has permission policies defined"
+      - "Agent has invoked tools"
+    main_flow:
+      - "System checks each tool invocation against applicable permission policies"
+      - "Non-compliant invocations are flagged"
+    postconditions:
+      - "All tool uses are verified against policy"
+    related_scenarios: [S3]
+    related_cqs: [CQ-030, CQ-031, CQ-035, CQ-039]
+    priority: must_have
+
+  - id: UC-018
+    name: "Execute privacy-aware memory deletion"
+    actor: "End User (implicit)"
+    goal: "Delete personal information and all derived memory items"
+    preconditions:
+      - "User requests deletion of specific personal information"
+      - "Memory items derived from that information exist"
+    main_flow:
+      - "System identifies all memory items linked to the target via provenance"
+      - "System marks items for deletion following the provenance chain"
+      - "System records the erasure event for audit"
+    postconditions:
+      - "Target data and all derivatives are deleted; audit trail preserved"
+    related_scenarios: [S5]
+    related_cqs: [CQ-032, CQ-034]
+    priority: must_have
+
+  - id: UC-019
+    name: "Classify memory items by sensitivity level"
+    actor: "Compliance/Governance"
+    goal: "Apply privacy metadata to memory items for governance"
+    preconditions:
+      - "Memory items exist that may contain personal or sensitive data"
+    main_flow:
+      - "System classifies memory items by sensitivity level"
+      - "Reviewer queries items by sensitivity category"
+      - "Policies are enforced based on classification"
+    postconditions:
+      - "All memory items have privacy metadata; policies are enforceable"
+    related_scenarios: [S5]
+    related_cqs: [CQ-033]
+    priority: should_have
+
+  # ── Module 1: Identity & Actors (continued) ────────────────────────
+
+  - id: UC-020
+    name: "Identify organizational affiliation of agents"
+    actor: "Agent Developer"
+    goal: "Determine which organization an agent belongs to"
+    preconditions:
+      - "Agent is registered with an organizational affiliation"
+    main_flow:
+      - "Developer queries the ontology for an agent's organization"
+      - "System returns the organization and its member agents"
+    postconditions:
+      - "Developer understands the organizational context of agents"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-041]
+    priority: should_have
+
+  - id: UC-021
+    name: "Configure agent persona and system prompt"
+    actor: "Agent Developer"
+    goal: "Assign and query a persona (identity, behavior, system prompt) for an AI agent"
+    preconditions:
+      - "AI agent is registered in the system"
+    main_flow:
+      - "Developer assigns a persona to an AI agent"
+      - "System records the persona with its configuration content"
+      - "Developer queries which persona is assigned to a given agent"
+    postconditions:
+      - "Agent persona is queryable and linked to the agent"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-042]
+    priority: should_have
+
+  # ── Module 2: Conversation & Interaction (continued) ───────────────
+
+  - id: UC-022
+    name: "Record and query environmental observations"
+    actor: "AI Agent"
+    goal: "Record observations received during a session and query them later"
+    preconditions:
+      - "Agent is operating within an active session"
+      - "Agent receives environmental feedback (tool results, user signals)"
+    main_flow:
+      - "Agent records an observation event linked to the current session"
+      - "System stores the observation with its temporal context"
+      - "Agent or reviewer queries observations for a given session"
+    postconditions:
+      - "All observations are recorded and queryable by session"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-043]
+    priority: should_have
+
+  # ── Module 3: Memory (continued) ───────────────────────────────────
+
+  - id: UC-023
+    name: "Rehearse and strengthen memory items"
+    actor: "AI Agent"
+    goal: "Strengthen memory items through repeated access (rehearsal)"
+    preconditions:
+      - "Memory items exist in the agent's memory store"
+    main_flow:
+      - "Agent performs a rehearsal operation on a memory item"
+      - "System records the rehearsal event with timestamp"
+      - "Agent queries how many times a memory item has been rehearsed"
+    postconditions:
+      - "Rehearsal count is available for memory prioritization"
+    related_scenarios: [S2, S4]
+    related_cqs: [CQ-044]
+    priority: could_have
+
+  - id: UC-024
+    name: "Manage structured memory blocks"
+    actor: "System Architect"
+    goal: "Store and retrieve structured key-value data in memory blocks (Letta core memory pattern)"
+    preconditions:
+      - "Agent has a working memory or core memory area"
+    main_flow:
+      - "Architect creates a memory block with key-value pairs"
+      - "System stores the block as a MemoryItem with structured content"
+      - "Agent queries blocks by key or retrieves all key-value pairs"
+    postconditions:
+      - "Structured memory blocks are queryable by key"
+    related_scenarios: [S2, S4]
+    related_cqs: [CQ-045]
+    priority: should_have
+
+  # ── Module 5: Goals, Plans, and Tasks (continued) ──────────────────
+
+  - id: UC-025
+    name: "Track agent intentions (BDI)"
+    actor: "AI Agent"
+    goal: "Record and query agent intentions — commitments to execute plans derived from goals"
+    preconditions:
+      - "Agent has goals and has formed intentions to achieve them"
+    main_flow:
+      - "Agent creates an intention linked to a goal"
+      - "System records which agent holds the intention"
+      - "Reviewer queries intentions and their goal derivation"
+    postconditions:
+      - "Agent intentions are queryable with goal provenance"
+    related_scenarios: [S6]
+    related_cqs: [CQ-046, CQ-047]
+    priority: should_have
+
+  # ── Module 6: Governance & Safety (continued) ──────────────────────
+
+  - id: UC-026
+    name: "Enforce consent and retention governance"
+    actor: "Compliance/Governance"
+    goal: "Record consent, enforce retention policies, and classify data sensitivity"
+    preconditions:
+      - "Memory items exist that require governance metadata"
+      - "Consent and retention policies are defined"
+    main_flow:
+      - "System assigns sensitivity levels (controlled vocabulary) to memory items"
+      - "Consent records are created linking data subjects to purposes"
+      - "Retention policies specify how long items should be retained"
+      - "Reviewer queries items that have exceeded their retention period"
+    postconditions:
+      - "All governance metadata is queryable; expired items are identifiable"
+    related_scenarios: [S5]
+    related_cqs: [CQ-048, CQ-049, CQ-050, CQ-051]
+    priority: should_have
+
+  # ── v0.3.0 Use Cases (compaction, lifecycle, session continuity) ───
+
+  - id: UC-027
+    name: "Trace compaction preservation and loss"
+    actor: "System Architect / Memory Manager"
+    goal: "Track which memory items were preserved, dropped, summarized, or archived during compaction"
+    preconditions:
+      - "Compaction events have occurred with item fate dispositions"
+    main_flow:
+      - "System records CompactionDisposition for each item in a compaction"
+      - "Each disposition carries an ItemFate (Preserved, Dropped, Summarized, Archived)"
+      - "Reviewer queries dropped items and preservation rates"
+    postconditions:
+      - "All compacted items have traceable fate records"
+    related_scenarios: [S3]
+    related_cqs: [CQ-052, CQ-053]
+    priority: should_have
+
+  - id: UC-028
+    name: "Manage memory eviction eligibility"
+    actor: "Memory Manager"
+    goal: "Identify memory items eligible for eviction based on access recency and tier"
+    preconditions:
+      - "Memory items have last access timestamps and eviction flags"
+    main_flow:
+      - "System tracks last access time for memory items"
+      - "Items are flagged as eviction candidates based on policy"
+      - "Reviewer queries eviction-eligible items by tier"
+    postconditions:
+      - "Eviction candidates are identifiable for cleanup"
+    related_scenarios: [S3]
+    related_cqs: [CQ-054, CQ-055]
+    priority: should_have
+
+  - id: UC-029
+    name: "Track session continuity and lifecycle transitions"
+    actor: "AI Agent / Session Manager"
+    goal: "Record cross-session resume chains and status transitions with triggers"
+    preconditions:
+      - "Sessions have been continued from prior sessions"
+      - "Tasks and sessions have undergone status transitions"
+    main_flow:
+      - "System records continuedFrom/continuedBy links between sessions"
+      - "Status transitions are reified as events with from/to status and triggers"
+      - "Entities are identifiable by HasKey unique IDs"
+    postconditions:
+      - "Session chains and lifecycle histories are fully queryable"
+    related_scenarios: [S6]
+    related_cqs: [CQ-056, CQ-057, CQ-058, CQ-059, CQ-060]
+    priority: should_have
+
+  # ── v0.5.0 Use Cases (Communication Channels & Integrations) ──────
+
+  - id: UC-031
+    name: "Track session communication channel"
+    actor: "AI Agent / Session Manager"
+    goal: "Record and query which communication channel (CLI, WhatsApp, Discord, web chat, etc.) a session operates on"
+    preconditions:
+      - "Sessions exist with associated communication channels"
+      - "Channel types are defined as a controlled vocabulary"
+    main_flow:
+      - "System records a CommunicationChannel for each session via viaChannel"
+      - "Each channel has a ChannelType (CLI, Messaging, WebChat, API, Voice, Email)"
+      - "Agent or reviewer queries which channel a session used"
+    postconditions:
+      - "Every session's communication medium is queryable"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-066, CQ-067, CQ-068]
+    priority: should_have
+
+  - id: UC-032
+    name: "Query interactions across channel types"
+    actor: "Compliance/Governance"
+    goal: "Find and compare agent interactions across different communication channels"
+    preconditions:
+      - "Multiple sessions exist across different channel types"
+    main_flow:
+      - "Reviewer queries sessions by channel type"
+      - "Reviewer identifies which conversations span multiple channel types"
+      - "Reviewer traces messages to their originating channel"
+    postconditions:
+      - "Cross-channel interaction patterns are visible for audit"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-069, CQ-070]
+    priority: should_have
+
+  - id: UC-033
+    name: "Manage agent integrations with external services"
+    actor: "Agent Developer / System Architect"
+    goal: "Configure, query, and monitor an agent's connections to external services (MCP servers, APIs, etc.)"
+    preconditions:
+      - "Agent has configured integrations with external services"
+      - "Integration status values are defined as a controlled vocabulary"
+    main_flow:
+      - "Developer registers an integration for an agent (e.g., Gmail, Notion, GitHub)"
+      - "System records the integration with service name, endpoint, and status"
+      - "Developer queries which integrations an agent has and their connection status"
+    postconditions:
+      - "All agent integrations are queryable with status metadata"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-071, CQ-073, CQ-076, CQ-078]
+    priority: should_have
+
+  - id: UC-034
+    name: "Track tool provenance via integrations"
+    actor: "Agent Developer / Compliance"
+    goal: "Determine which external integration provides a given tool and trace tool invocations back to their integration source"
+    preconditions:
+      - "Tools are linked to integrations that provide them"
+    main_flow:
+      - "Developer queries which tools come from a specific integration"
+      - "Developer traces a tool invocation back to its providing integration"
+      - "Compliance reviews tool usage grouped by integration"
+    postconditions:
+      - "Tool-to-integration provenance chain is fully queryable"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-072, CQ-074, CQ-075, CQ-077]
+    priority: should_have
+
+  # ── v0.4.0 Use Cases ──────────────────────────────────────────────
+
+  - id: UC-030
+    name: "Monitor context window state and compaction triggers"
+    actor: "AI Agent / Memory Manager"
+    goal: "Track the token capacity, current usage, and available space of a session's context window to understand compaction triggers"
+    preconditions:
+      - "Sessions have associated context windows with capacity and usage data"
+    main_flow:
+      - "System records a ContextWindow for each session with token capacity and usage"
+      - "When usage exceeds a threshold, a compaction event is triggered"
+      - "Reviewer queries context window state and linked compaction events"
+    postconditions:
+      - "Context window metrics are queryable; compaction events trace back to their triggering context window"
+    related_scenarios: [S3]
+    related_cqs: [CQ-061, CQ-062, CQ-063, CQ-064, CQ-065]
+    priority: should_have
+
+  # ── v0.6.0 Use Cases (Phase A — P0) ────────────────────────────────
+
+  - id: UC-035
+    name: "Query external service capabilities and discovery"
+    actor: "Agent Developer / System Architect"
+    goal: "Discover what capabilities (tools, resources, prompts) each external service exposes and track capability discovery events"
+    preconditions:
+      - "Agent has connections to external services (MCP servers, APIs)"
+      - "Services expose typed capabilities (tool, resource, prompt)"
+    main_flow:
+      - "System registers an external service with transport and identifier metadata"
+      - "Agent connects to the service via a service connection"
+      - "A capability discovery event records what capabilities were found"
+      - "Developer queries capability surfaces per service and per type"
+    postconditions:
+      - "Service capability topology is queryable independently of integration"
+      - "Discovery events are traceable with timestamps and resulting capabilities"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-079, CQ-080, CQ-081, CQ-082]
+    priority: must_have
+
+  - id: UC-036
+    name: "Manage runtime safety controls and audit trail"
+    actor: "Agent Developer / Compliance / Security"
+    goal: "Configure permission modes, sandbox policies, and hooks for agents, and audit all authorization decisions"
+    preconditions:
+      - "Agent operates under a configured permission mode"
+      - "Tool invocations may be intercepted by hooks"
+    main_flow:
+      - "Developer configures an agent with a permission mode and sandbox policy"
+      - "Hooks are registered to intercept specific tool invocations"
+      - "Each tool invocation generates an audit entry with an authorization decision and reason"
+      - "Compliance queries the audit log for denied or escalated operations"
+    postconditions:
+      - "Every governed invocation is traceable to a decision and rationale"
+      - "Hook interception history is queryable"
+      - "Safety mode and sandbox posture are explicit ontology objects"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-083, CQ-084, CQ-085, CQ-086]
+    priority: must_have
+
+  - id: UC-037
+    name: "Track error recovery and resilience workflows"
+    actor: "AI Agent / System Architect / Operations"
+    goal: "Model and query recovery trajectories after failures, including retries, replanning, rollbacks, and human checkpoint decisions"
+    preconditions:
+      - "Tool invocations or integrations may fail"
+      - "Agent has recovery strategies (retry, replan, rollback)"
+    main_flow:
+      - "A failed tool invocation triggers an error recovery event"
+      - "The recovery event may spawn retry attempts, replan events, or rollback events"
+      - "For critical tasks, a checkpoint captures the decision point and outcome"
+      - "Operations queries the failure-to-recovery chain end-to-end"
+    postconditions:
+      - "Failure-to-recovery chains are queryable"
+      - "Retry and rollback semantics are visible in event history"
+      - "Checkpoint decisions are part of auditable task lifecycle"
+    related_scenarios: [S3, S7]
+    related_cqs: [CQ-087, CQ-088, CQ-089]
+    priority: must_have
+
+  # ── Phase B (P1) ──────────────────────────────────────────────────
+
+  - id: UC-038
+    name: "Trace tool invocation groups and typed results"
+    actor: "System Architect / Compliance"
+    goal: "Reconstruct parallel tool invocation groups, inspect typed result artifacts, and parse mixed-content messages into structured content blocks"
+    preconditions:
+      - "Agent has executed tool invocations, some in parallel"
+      - "Messages contain mixed content (text, tool-use blocks, images)"
+    main_flow:
+      - "Architect queries which tool invocations were grouped in a single turn"
+      - "System returns invocation groups with their member invocations"
+      - "Architect inspects the typed result artifact for each invocation"
+      - "Analyst queries content blocks of a message to distinguish text from tool-use"
+    postconditions:
+      - "Parallel tool use is reconstructable from ontology data"
+      - "Tool results are first-class entities with provenance"
+      - "Mixed-content messages are decomposed into typed blocks"
+    related_scenarios: [S1, S3]
+    related_cqs: [CQ-090, CQ-091, CQ-092]
+    priority: should_have
+
+  - id: UC-039
+    name: "Manage memory control plane and shared memory"
+    actor: "System Architect / AI Agent"
+    goal: "Track memory item provenance by source and scope, manage file-backed memory, and detect shared-memory write conflicts across agents"
+    preconditions:
+      - "Memory items exist with different sources (user, system, agent)"
+      - "Multiple agents may share memory artifacts"
+    main_flow:
+      - "Architect queries memory items filtered by source and scope"
+      - "System returns items with their backing file, source, and scope metadata"
+      - "Architect identifies shared memory artifacts and their owning agents"
+      - "System reports write conflicts on shared artifacts and resolution policies"
+    postconditions:
+      - "Memory items can be filtered by source and scope"
+      - "Shared memory and concurrent writes are traceable"
+      - "Memory governance integrates with existing policy model"
+    related_scenarios: [S2, S4, S5]
+    related_cqs: [CQ-093, CQ-094, CQ-095]
+    priority: should_have
+
+  - id: UC-040
+    name: "Classify dialog acts and track conversational grounding"
+    actor: "AI Agent / Ontology Engineer"
+    goal: "Classify turns by communicative function, track grounding evidence, and identify clarification exchanges before commitment"
+    preconditions:
+      - "Conversation has occurred with multiple turns"
+      - "Turns have pragmatic intent beyond raw content"
+    main_flow:
+      - "Agent or analyst classifies each turn's dialog act"
+      - "System records communicative function for each act"
+      - "Grounding acts contribute acceptance evidence to common ground"
+      - "Analyst queries which clarifications preceded commitments"
+    postconditions:
+      - "Dialog turns are classified beyond raw content"
+      - "Grounded versus ungrounded commitments are queryable"
+      - "Clarification and acceptance mechanics are model-visible"
+    related_scenarios: [S1, S4]
+    related_cqs: [CQ-096, CQ-097, CQ-098]
+    priority: should_have
+
+  # ── v0.7.0 Use Cases (Model Identity, Observability, Failure Taxonomy, BDI) ──
+
+  - id: UC-041
+    name: "Trace which model produced a conversation turn"
+    actor: "Compliance/Governance"
+    goal: "Determine the foundation model, provider, and deployment that generated each turn for audit and compliance"
+    preconditions:
+      - "Model invocations are recorded with deployment and provider metadata"
+      - "Turns are linked to their generating model invocation"
+    main_flow:
+      - "Reviewer queries which model invocation produced a given turn"
+      - "System returns the foundation model, provider, and deployment endpoint"
+      - "Reviewer verifies the model was authorized for that use case"
+    postconditions:
+      - "Every turn's model provenance is queryable end-to-end"
+    related_scenarios: [S3]
+    related_cqs: [CQ-099, CQ-100, CQ-101]
+    priority: must_have
+
+  - id: UC-042
+    name: "Compare generation parameters across invocations"
+    actor: "System Architect"
+    goal: "Inspect and compare generation configurations (temperature, top-p, max tokens) used across model invocations"
+    preconditions:
+      - "Model invocations have associated generation configurations"
+    main_flow:
+      - "Architect queries generation configs for a set of invocations"
+      - "System returns temperature, top-p, max tokens, and prompt version"
+      - "Architect compares parameter settings across invocations"
+    postconditions:
+      - "Generation parameter variations are visible and comparable"
+    related_scenarios: [S3]
+    related_cqs: [CQ-102, CQ-103]
+    priority: must_have
+
+  - id: UC-043
+    name: "Monitor operational metrics for agent components"
+    actor: "System Architect"
+    goal: "Record and query operational metrics (latency, throughput, error rates) for agent components"
+    preconditions:
+      - "Operational metrics are defined with named types"
+      - "Metric observations are recorded with timestamps"
+    main_flow:
+      - "System records metric observations for agent components"
+      - "Architect queries observations for a given entity and metric type"
+      - "Architect identifies performance trends or anomalies"
+    postconditions:
+      - "Operational metrics are queryable by entity and metric type"
+    related_scenarios: [S3]
+    related_cqs: [CQ-104, CQ-105]
+    priority: should_have
+
+  - id: UC-044
+    name: "Track reliability incidents and recovery linkage"
+    actor: "System Architect"
+    goal: "Record reliability incidents (outages, degradation) and link them to recovery events"
+    preconditions:
+      - "Reliability incidents are recorded as events"
+      - "Recovery events exist in the ontology"
+    main_flow:
+      - "System records a reliability incident for a service or component"
+      - "Incident is linked to any triggered recovery events"
+      - "Architect queries incidents and their recovery chains"
+    postconditions:
+      - "Incident-to-recovery linkage is queryable"
+    related_scenarios: [S3]
+    related_cqs: [CQ-106, CQ-107]
+    priority: should_have
+
+  - id: UC-045
+    name: "Classify error recovery events by failure type"
+    actor: "System Architect"
+    goal: "Categorize error recovery events using a controlled vocabulary of failure types for analysis"
+    preconditions:
+      - "Error recovery events exist in the ontology"
+      - "FailureType controlled vocabulary is defined"
+    main_flow:
+      - "System assigns a failure type to each error recovery event"
+      - "Architect queries recovery events grouped by failure type"
+      - "Architect identifies patterns in failure categories"
+    postconditions:
+      - "Error recovery events are classifiable by failure type"
+    related_scenarios: [S3]
+    related_cqs: [CQ-108, CQ-109]
+    priority: should_have
+
+  - id: UC-046
+    name: "Model agent beliefs and desires in deliberation"
+    actor: "AI Agent"
+    goal: "Record and query agent beliefs, desires, and their role in deliberation processes"
+    preconditions:
+      - "Agent has formed beliefs about the world"
+      - "Agent has desires (desired outcomes)"
+      - "Deliberation processes produce intentions"
+    main_flow:
+      - "Agent records beliefs and desires"
+      - "Deliberation process considers beliefs and desires"
+      - "Deliberation produces intentions"
+      - "Analyst queries which beliefs and desires influenced a deliberation"
+    postconditions:
+      - "BDI mental states are queryable with deliberation provenance"
+    related_scenarios: [S6]
+    related_cqs: [CQ-110, CQ-111, CQ-112]
+    priority: should_have
+
+  - id: UC-047
+    name: "Trace justification for agent intentions"
+    actor: "Compliance/Governance"
+    goal: "Examine the justification evidence supporting an agent's intention for audit"
+    preconditions:
+      - "Intentions have associated justifications"
+      - "Justifications link to supporting evidence"
+    main_flow:
+      - "Reviewer queries justifications for a given intention"
+      - "System returns the justification and its supporting evidence"
+      - "Reviewer assesses whether the intention was well-founded"
+    postconditions:
+      - "Intention justifications are auditable"
+    related_scenarios: [S3, S6]
+    related_cqs: [CQ-113]
+    priority: should_have
+
+  # ── Module 9: Scheduling & Automation ─────────────────────────────
+
+  - id: UC-048
+    name: "Define and manage agent schedules"
+    actor: "Agent Developer"
+    goal: "Create, query, and manage schedule definitions that specify when an agent should perform recurring or one-time actions"
+    preconditions:
+      - "Agent system supports scheduled execution"
+      - "Time-based triggers are available"
+    main_flow:
+      - "Developer defines a schedule with a recurrence pattern (cron, interval, or one-shot)"
+      - "Developer assigns an action specification to the schedule"
+      - "Developer queries all active schedules for an agent"
+      - "Developer pauses or disables a schedule"
+    postconditions:
+      - "Schedule definitions are queryable with recurrence, action, and lifecycle state"
+    related_scenarios: [S8]
+    related_cqs: [CQ-114, CQ-115, CQ-116, CQ-117]
+    priority: must_have
+
+  - id: UC-049
+    name: "Track execution history of scheduled tasks"
+    actor: "System Architect"
+    goal: "Query the execution history of a schedule to understand when it ran, what it produced, and whether executions succeeded or failed"
+    preconditions:
+      - "A schedule has been active and has executed at least once"
+    main_flow:
+      - "Architect queries all executions for a given schedule"
+      - "System returns execution instances with start time, end time, and outcome"
+      - "Architect filters executions by outcome (success, failure, skipped)"
+    postconditions:
+      - "Complete execution history is available with temporal and outcome data"
+    related_scenarios: [S8]
+    related_cqs: [CQ-118, CQ-119, CQ-120]
+    priority: must_have
+
+  - id: UC-050
+    name: "Handle schedule concurrency and overlap"
+    actor: "System Architect"
+    goal: "Define and query the concurrency policy for a schedule to control behavior when executions overlap"
+    preconditions:
+      - "A schedule fires while a prior execution is still running"
+    main_flow:
+      - "Architect queries the concurrency policy for a schedule"
+      - "System returns the policy (allow parallel, forbid/skip, replace running)"
+      - "Architect verifies that skipped executions are recorded"
+    postconditions:
+      - "Concurrency behavior is explicit and queryable per schedule"
+    related_scenarios: [S8]
+    related_cqs: [CQ-121, CQ-122]
+    priority: should_have
+
+  - id: UC-051
+    name: "Catch up missed scheduled executions"
+    actor: "AI Agent"
+    goal: "Detect and handle executions that were missed during agent downtime"
+    preconditions:
+      - "Agent was offline during one or more scheduled firing times"
+      - "Schedule has a catch-up policy defined"
+    main_flow:
+      - "Agent comes online and evaluates missed execution windows"
+      - "Agent applies catch-up policy (run all missed, run latest only, skip)"
+      - "Catch-up executions are recorded with provenance linking to original schedule time"
+    postconditions:
+      - "Missed executions are handled per policy and auditable"
+    related_scenarios: [S8]
+    related_cqs: [CQ-123]
+    priority: should_have
+
+  - id: UC-052
+    name: "Configure trigger-based agent activation"
+    actor: "Agent Developer"
+    goal: "Define triggers that activate agent actions in response to events, webhooks, or time conditions"
+    preconditions:
+      - "Trigger sources are available (cron, interval, event, webhook)"
+    main_flow:
+      - "Developer defines triggers of various types for a schedule"
+      - "Developer queries what trigger type activates a given schedule"
+      - "Developer lists all schedules activated by a specific trigger type"
+    postconditions:
+      - "Trigger types are classifiable and queryable per schedule"
+    related_scenarios: [S8]
+    related_cqs: [CQ-124, CQ-125]
+    priority: must_have
+
+  - id: UC-053
+    name: "Link scheduled executions to agent goals and plans"
+    actor: "System Architect"
+    goal: "Trace how scheduled executions connect to the agent's goal/plan hierarchy and conversation context"
+    preconditions:
+      - "Scheduled actions achieve or contribute to agent goals"
+      - "Executions may initiate conversations or sessions"
+    main_flow:
+      - "Architect queries which goal a schedule serves"
+      - "Architect traces from execution to the session it initiated"
+      - "Architect identifies schedules owned by a specific agent"
+    postconditions:
+      - "Schedule-to-goal and execution-to-session linkages are queryable"
+    related_scenarios: [S6, S8]
+    related_cqs: [CQ-126, CQ-127, CQ-128]
+    priority: should_have

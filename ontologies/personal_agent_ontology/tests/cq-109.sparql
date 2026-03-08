@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-109: How many recovery events of each failure type occurred?
+# Expected: non_empty
+SELECT ?failureType ?label (COUNT(?recovery) AS ?count) WHERE {
+  ?recovery a pao:ErrorRecoveryEvent ;
+            pao:hasFailureType ?failureType .
+  ?failureType a pao:FailureType ;
+               rdfs:label ?label .
+}
+GROUP BY ?failureType ?label

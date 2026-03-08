@@ -1,0 +1,239 @@
+term,synonyms,definition,category,source_cq,bfo_category,notes
+Agent,"actor, participant","An entity that bears responsibility for activities and can act on behalf of itself or others.",class,"CQ-001,CQ-002,CQ-003,CQ-004",prov:Agent (cross-cuts BFO),Umbrella class; subclasses are BFO-aligned. Aligns with prov:Agent.
+AIAgent,"software agent, AI assistant, LLM agent","An agent that is a software system capable of autonomous decision-making and tool use.",class,CQ-001,GDC (BFO:0000031),Aligns with prov:SoftwareAgent. Information content entity.
+HumanUser,"user, human participant, person","An agent that is a human person who interacts with AI systems.",class,"CQ-001,CQ-009",Object (BFO:0000030),Aligns with prov:Person and foaf:Person.
+SubAgent,"child agent, delegated agent, spawned agent","An AI agent that was spawned by another agent to perform delegated work.",class,CQ-003,GDC (BFO:0000031),Inherits GDC from AIAgent. Has spawnedBy link to parent.
+AgentRole,"conversational role, participant role","A role that an agent plays in the context of a conversation or activity.",class,CQ-004,Role (BFO:0000023),Aligns with prov:Role. Closed set of individuals via owl:oneOf.
+ToolDefinition,"tool schema, tool descriptor, tool specification","A generically dependent continuant that specifies the interface, capabilities, and constraints of an available tool.",class,"CQ-002,CQ-007",GDC (BFO:0000031),Describes tool name and JSON schema; does not model implementation.
+ToolInvocation,"tool call, tool use, tool execution","A process in which an agent requests execution of a tool by providing inputs and receiving outputs.",class,"CQ-007,CQ-008,CQ-031,CQ-037,CQ-039",Process (BFO:0000015),Subclass of Action. N-ary pattern with input/output/status.
+Conversation,"dialogue thread, chat thread","A process consisting of a coherent thread of dialogue between participants that may span multiple sessions.",class,"CQ-005,CQ-006,CQ-010",Process (BFO:0000015),Has temporal parts (sessions and turns).
+Session,"interaction session, chat session","A process that is a bounded period of agent-user interaction within a conversation.",class,"CQ-005,CQ-007,CQ-009,CQ-020,CQ-038",Process (BFO:0000015),Temporal part of a Conversation. Has status (Active/Ended/Interrupted).
+Turn,"dialogue turn, conversational turn","A process that is a single contribution by one participant in a conversation.",class,"CQ-006,CQ-020,CQ-025",Process (BFO:0000015),Temporal part of a Session. Has turn index for ordering.
+Message,"utterance, chat message","A generically dependent continuant that is the textual or structured content of a conversational turn.",class,CQ-006,GDC (BFO:0000031),Information content distinct from the Turn (process) that produced it.
+CompactionEvent,"context compression, summarization event","A process in which an agent's context window is compressed by summarizing prior turns.",class,CQ-010,Process (BFO:0000015),Subclass of Event. Produces a summary (MemoryItem).
+MemoryItem,"memory entry, stored artifact","A generically dependent continuant that is an information artifact persisted in an agent's memory system.",class,"CQ-011,CQ-014,CQ-018,CQ-032,CQ-033,CQ-036,CQ-040",GDC (BFO:0000031),Aligns with prov:Entity. Uses ODP-4 (Information Realization).
+MemoryTier,"memory layer, memory level, storage tier","A generically dependent continuant that defines a layer in the agent's memory architecture with specific storage and access characteristics.",class,"CQ-011,CQ-018",GDC (BFO:0000031),Disjoint covering: Working/Episodic/Semantic/Procedural.
+WorkingMemory,"context window, short-term memory, in-context memory","A memory tier that holds information currently active in the agent's context window.",class,CQ-011,GDC (BFO:0000031),Maps to LLM context window. Most volatile tier.
+EpisodicMemory,"experience memory, event log, recall memory","A memory tier that stores time-situated experiences and interaction histories.",class,"CQ-012,CQ-011",GDC (BFO:0000031),Letta: recall storage. Contains Episodes.
+SemanticMemory,"fact memory, knowledge base, long-term knowledge","A memory tier that stores generalized facts, knowledge, and beliefs extracted from experience.",class,"CQ-013,CQ-011",GDC (BFO:0000031),Contains Claims. Letta: archival storage for facts.
+ProceduralMemory,"skill memory, action policy memory","A memory tier that stores learned action policies, skills, and behavioral patterns.",class,CQ-011,GDC (BFO:0000031),System prompts and tool-use policies. Least volatile tier.
+Episode,"experience record, event cluster record","A memory item that records a temporally bounded cluster of related events.",class,"CQ-012,CQ-016,CQ-025",GDC (BFO:0000031),Subclass of MemoryItem only (not Event). See bfo-alignment.md for rationale.
+Claim,"belief, proposition, assertion, fact","A memory item that represents an agent-held proposition with associated confidence, evidence, and provenance metadata.",class,"CQ-013,CQ-015,CQ-016,CQ-017",GDC (BFO:0000031),N-ary pattern (ODP-1). Has confidence/evidence/provenance.
+ClaimType,"claim category, claim classifier","A status class whose individuals classify the type of a claim.",class,CQ-015,Value Partition,ODP-6 pattern. Enumerated: UserPreference.
+MemoryOperation,"memory process, memory action","A process that acts on memory items to encode, retrieve, consolidate, or remove them.",class,CQ-019,Process (BFO:0000015),Disjoint covering: Encoding/Retrieval/Consolidation/Forgetting.
+Encoding,"memory write, memorization","A memory operation that writes new information into a memory tier.",class,CQ-019,Process (BFO:0000015),Subclass of MemoryOperation.
+Retrieval,"memory read, recall, memory lookup","A memory operation that reads information from a memory tier.",class,CQ-019,Process (BFO:0000015),Subclass of MemoryOperation.
+Consolidation,"memory transfer, memory integration","A memory operation that transforms episodic memories into semantic memories.",class,CQ-019,Process (BFO:0000015),Moves/transforms items between tiers.
+Forgetting,"memory decay, memory deletion","A memory operation that removes or decays memory items from a memory tier.",class,CQ-019,Process (BFO:0000015),Includes passive decay and active deletion.
+Event,"occurrence, happening","A process that is an occurrence situated in time within the agent system.",class,"CQ-020,CQ-021,CQ-024,CQ-025",Process (BFO:0000015),Top-level for all occurrences. BFO:Process.
+Action,"intentional act, agent action","An event that is intentionally caused by an agent to affect the environment or internal state.",class,"CQ-023,CQ-024",Process (BFO:0000015),Subclass of Event. Has performedBy link to Agent.
+Goal,"objective, desired state, intention","A generically dependent continuant that specifies a desired state an agent works toward.",class,"CQ-026,CQ-028",GDC (BFO:0000031),BDI goal concept. Has status and pursuedBy agent.
+Plan,"action plan, strategy, procedure","A generically dependent continuant that specifies an ordered sequence of intended actions to achieve a goal.",class,"CQ-027,CQ-028,CQ-029",GDC (BFO:0000031),Aligns with prov:Plan. Has tasks as parts.
+Task,"work item, step, subtask","A generically dependent continuant that is a concrete actionable work item within a plan with status and dependencies.",class,"CQ-003,CQ-027,CQ-029",GDC (BFO:0000031),Component of a Plan. Has blockedBy dependencies.
+PermissionPolicy,"access policy, authorization rule","A generically dependent continuant that specifies rules governing what actions an agent is permitted or forbidden to perform.",class,"CQ-030,CQ-031,CQ-039",GDC (BFO:0000031),Aligns with odrl:Policy.
+SafetyConstraint,"safety rule, behavioral limit, guardrail","A generically dependent continuant that specifies a non-negotiable behavioral limit on an agent.",class,CQ-035,GDC (BFO:0000031),Stronger than PermissionPolicy; cannot be overridden.
+ErasureEvent,"deletion event, data removal event","A process in which memory items are identified and deleted to comply with privacy requirements.",class,CQ-034,Process (BFO:0000015),Subclass of Event. Records who requested and when.
+Status,"state, condition","A class whose individuals represent the current state of an entity.",class,"CQ-007,CQ-026,CQ-027,CQ-029,CQ-038",Value Partition (no BFO parent),ODP-6 pattern. Parent for SessionStatus/TaskStatus/ComplianceStatus.
+SessionStatus,,"A status applicable to sessions indicating whether the session is active, ended, or interrupted.",class,CQ-038,Value Partition,Closed set: Active/Ended/Interrupted.
+TaskStatus,,"A status applicable to tasks indicating progress from pending through completion.",class,CQ-029,Value Partition,Closed set: Pending/InProgress/Completed/Blocked.
+ComplianceStatus,,"A status indicating whether a tool invocation complied with applicable permission policies.",class,CQ-031,Value Partition,Closed set: Compliant/NonCompliant.
+Active,,"Status value: an entity is currently active.",individual,"CQ-026,CQ-038",SessionStatus instance,Named individual of SessionStatus.
+Ended,"completed (session context)","Status value: a session has ended normally.",individual,CQ-038,SessionStatus instance,Named individual of SessionStatus.
+Interrupted,"disconnected, aborted","Status value: a session ended abnormally.",individual,CQ-038,SessionStatus instance,Named individual of SessionStatus.
+Pending,"not started, queued","Status value: a task has not yet started.",individual,CQ-029,TaskStatus instance,Named individual of TaskStatus.
+InProgress,"in progress, running, active task","Status value: a task is currently being worked on.",individual,CQ-029,TaskStatus instance,Named individual of TaskStatus.
+Completed,"done, finished","Status value: a task or process has finished successfully.",individual,"CQ-007,CQ-029",TaskStatus instance,Named individual of TaskStatus.
+Blocked,"waiting, stuck","Status value: a task cannot proceed because of unresolved dependencies.",individual,CQ-027,TaskStatus instance,Named individual of TaskStatus.
+Compliant,"authorized, permitted","Compliance status: a tool invocation followed all applicable policies.",individual,CQ-031,ComplianceStatus instance,Named individual of ComplianceStatus.
+NonCompliant,"unauthorized, violated, forbidden","Compliance status: a tool invocation violated one or more policies.",individual,CQ-039,ComplianceStatus instance,Named individual of ComplianceStatus.
+AssistantRole,"AI role, assistant","The role of the AI assistant in a conversation.",individual,CQ-004,AgentRole instance,Named individual of AgentRole.
+UserRole,"human role, user","The role of the human user in a conversation.",individual,CQ-004,AgentRole instance,Named individual of AgentRole.
+UserPreference,"preference, user setting","A claim type indicating the claim records a user preference.",individual,CQ-015,Claim classifier,Used as a value for claimType property.
+PersonalData,"PII, sensitive data","DEPRECATED (v0.2.0): replaced by SensitivityLevel individuals (Public/Internal/Confidential/Restricted). Was a sensitivity classifier for hasSensitivityLevel.",individual (deprecated),CQ-033,Sensitivity classifier (deprecated),Replaced by SensitivityLevel value partition in v0.2.0. Maps approximately to Confidential.
+Organization,"org, formal body, group","An agent that is a formal body or group of people.",class,CQ-041,Object (BFO:0000030),Aligns with prov:Organization. Subclass of Agent.
+Persona,"system prompt, agent identity, configured persona","A GDC that specifies an agent's configured identity behavior and system prompt.",class,CQ-042,GDC (BFO:0000031),Linked to AIAgent via hasPersona.
+Observation,"environmental feedback, percept","An event in which an agent receives environmental feedback.",class,CQ-043,Process (BFO:0000015),Subclass of Event. Linked to Session via inSession.
+Rehearsal,"memory rehearsal, spaced repetition","A memory operation that strengthens a memory item via repeated access.",class,CQ-044,Process (BFO:0000015),Subclass of MemoryOperation. Added to DisjointUnion.
+MemoryBlock,"core memory block, key-value memory, Letta block","A memory item that stores structured key-value data (Letta core memory pattern).",class,CQ-045,GDC (BFO:0000031),Subclass of MemoryItem. Has hasBlockKey and hasBlockValue.
+Intention,"commitment, BDI intention","A GDC representing an agent's commitment to execute a plan (BDI model).",class,"CQ-046,CQ-047",GDC (BFO:0000031),Linked to Goal via derivedFromGoal and to Agent via intendedBy.
+SensitivityLevel,"privacy level, data classification","A status class whose individuals classify privacy sensitivity.",class,CQ-048,Value Partition,ODP-6 pattern. Replaces string-based hasSensitivityLevel.
+ConsentRecord,"consent, data consent, GDPR consent","A GDC that records a data subject's consent for a specific purpose.",class,CQ-049,GDC (BFO:0000031),Has consentSubject and consentPurpose.
+RetentionPolicy,"data retention, retention rule","A GDC specifying how long memory items should be retained before deletion.",class,"CQ-050,CQ-051",GDC (BFO:0000031),Has retentionPeriodDays. Linked via governedByRetention.
+Public,"unrestricted, open","Sensitivity level: unrestricted data.",individual,CQ-048,SensitivityLevel instance,Named individual of SensitivityLevel.
+Internal,"org-internal, internal-only","Sensitivity level: organization-internal data.",individual,CQ-048,SensitivityLevel instance,Named individual of SensitivityLevel.
+Confidential,"restricted, private","Sensitivity level: restricted personal data.",individual,CQ-048,SensitivityLevel instance,Named individual of SensitivityLevel.
+Restricted,"highly sensitive, classified","Sensitivity level: highly sensitive data requiring special controls.",individual,CQ-048,SensitivityLevel instance,Named individual of SensitivityLevel.
+StatusTransition,"state change, status change","A process in which an entity's status changes from one value to another.",class,CQ-058,Process (BFO:0000015),Subclass of Event. Reified transition with fromStatus/toStatus.
+SessionStatusTransition,"session state change","A status transition in which a session's status changes.",class,CQ-059,Process (BFO:0000015),Subclass of StatusTransition.
+TaskStatusTransition,"task state change","A status transition in which a task's status changes.",class,CQ-058,Process (BFO:0000015),Subclass of StatusTransition.
+CompactionDisposition,"compaction fate record, item disposition","An information artifact recording the fate of an individual item during a compaction event.",class,CQ-052,GDC (BFO:0000031),N-ary reification linking event to item and fate.
+ItemFate,"compaction outcome, item status","A status class whose individuals classify what happened to an item during compaction.",class,CQ-052,Value Partition,Closed set: Preserved/Dropped/Summarized/Archived.
+Preserved,"kept, retained","Item fate: content incorporated into summary.",individual,CQ-052,ItemFate instance,Named individual of ItemFate.
+Dropped,"excluded, removed","Item fate: excluded from summary.",individual,CQ-052,ItemFate instance,Named individual of ItemFate.
+Summarized,"condensed, abbreviated","Item fate: partially represented in summary.",individual,CQ-052,ItemFate instance,Named individual of ItemFate.
+Archived,"stored, cold-stored","Item fate: moved to long-term storage.",individual,CQ-052,ItemFate instance,Named individual of ItemFate.
+ContextWindow,"context buffer, attention window, token window","A GDC representing the finite attention resource of an AI agent session with token capacity and usage tracking.",class,"CQ-061,CQ-062,CQ-063,CQ-064,CQ-065",GDC (BFO:0000031),Linked to Session via hasContextWindow. Linked to CompactionEvent via compactedContextOf.
+CommunicationChannel,"channel, messaging channel, chat channel","A GDC that specifies a configured communication endpoint through which agent-user dialogue occurs.",class,"CQ-066,CQ-067,CQ-068,CQ-069,CQ-070",GDC (BFO:0000031),Linked to Session via viaChannel. Has a ChannelType classification.
+ChannelType,"channel kind, medium type","A status class whose individuals classify the type of communication channel.",class,"CQ-067,CQ-068",Value Partition,ODP-6 pattern. Closed set: CLI/Messaging/WebChat/API/Voice/Email.
+Integration,"connector, service connection, MCP server","A GDC that represents a configured connection to an external service that provides one or more tools.",class,"CQ-071,CQ-072,CQ-073,CQ-074,CQ-075,CQ-076,CQ-077",GDC (BFO:0000031),Linked to Agent via hasIntegration. Provides tools via providesTool.
+IntegrationStatus,"connection status, service status","A status class whose individuals classify the operational state of an integration.",class,"CQ-073,CQ-076",Value Partition,ODP-6 pattern. Closed set: Connected/Disconnected/Error/Initializing.
+CLI,"command line, terminal","Channel type: command-line interface interaction.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType.
+Messaging,"chat app, instant messaging, WhatsApp, Slack, Discord","Channel type: messaging platform interaction.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType.
+WebChat,"web interface, browser chat","Channel type: web-based chat interface.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType.
+APIChannel,"programmatic access, REST API, SDK","Channel type: programmatic API access.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType. Named APIChannel to avoid collision with generic API term.
+VoiceChannel,"voice assistant, speech","Channel type: voice-based interaction.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType. Named VoiceChannel for clarity.
+EmailChannel,"email, electronic mail","Channel type: email-based interaction.",individual,"CQ-067,CQ-068",ChannelType instance,Named individual of ChannelType. Named EmailChannel for clarity.
+hasServiceName,"service name, service label","The display name of the external service an integration connects to.",data_property,CQ-078,Integration metadata,Functional data property on Integration. Required (minCount 1 in SHACL).
+hasEndpoint,"endpoint, URL, URI","The endpoint URI of the external service an integration connects to.",data_property,CQ-078,Integration metadata,"Functional data property on Integration. Optional (some local integrations have no network endpoint). Range: xsd:anyURI."
+Connected,"online, active connection","Integration status: the integration is connected and operational.",individual,CQ-073,IntegrationStatus instance,Named individual of IntegrationStatus.
+Disconnected,"offline, inactive","Integration status: the integration is not currently connected.",individual,CQ-073,IntegrationStatus instance,Named individual of IntegrationStatus.
+Error,"failed, faulted","Integration status: the integration has encountered an error.",individual,"CQ-073,CQ-076",IntegrationStatus instance,Named individual of IntegrationStatus.
+Initializing,"starting, connecting","Integration status: the integration is being set up.",individual,CQ-073,IntegrationStatus instance,Named individual of IntegrationStatus.
+ExternalService,"service, MCP server, API service","A GDC that describes a configured external service with identity and transport metadata.",class,"CQ-079,CQ-080,CQ-082",GDC (BFO:0000031),Module: pao-services. Richer than Integration — models capability topology.
+ServiceConnection,"connection, link","A GDC representing the runtime connection between an agent and an external service.",class,"CQ-079",GDC (BFO:0000031),Module: pao-services. Carries ConnectionStatus.
+ServiceCapability,"capability","A GDC representing a capability that an external service exposes (abstract parent).",class,"CQ-080,CQ-082",GDC (BFO:0000031),Module: pao-services. DisjointUnion of tool/resource/prompt subtypes.
+ServiceToolCapability,"tool capability","A service capability that provides a tool for agent invocation.",class,"CQ-080,CQ-082",GDC (BFO:0000031),Module: pao-services. Subclass of ServiceCapability.
+ServiceResourceCapability,"resource capability","A service capability that provides a data resource for agent access.",class,"CQ-080,CQ-082",GDC (BFO:0000031),Module: pao-services. Subclass of ServiceCapability.
+ServicePromptCapability,"prompt capability, template","A service capability that provides a prompt template.",class,"CQ-080,CQ-082",GDC (BFO:0000031),Module: pao-services. Subclass of ServiceCapability.
+CapabilityDiscoveryEvent,"discovery event","An event in which an agent discovers what capabilities an external service exposes.",class,"CQ-081",Process (BFO:0000015),Module: pao-services. Subclass of Event.
+ConnectionStatus,"connection state","A status class whose individuals classify runtime connection state.",class,"CQ-079",Value Partition,Module: pao-services. Individuals: Open; Closed; Reconnecting; Failed.
+hasExternalService,,"Links an agent to an external service it is configured to use.",object_property,"CQ-079",,Domain: Agent. Range: ExternalService.
+hasServiceConnection,,"Links an agent to a runtime service connection.",object_property,"CQ-079",,Domain: Agent. Range: ServiceConnection.
+connectsToService,,"Links a service connection to the external service it connects to.",object_property,"CQ-079",,Domain: ServiceConnection. Range: ExternalService. Functional.
+exposesCapability,,"Links an external service to a capability it exposes.",object_property,"CQ-080,CQ-082",,Domain: ExternalService. Range: ServiceCapability.
+discoveredCapability,,"Links a discovery event to a capability that was discovered.",object_property,"CQ-081",,Domain: CapabilityDiscoveryEvent. Range: ServiceCapability.
+discoveryAgainstService,,"Links a discovery event to the service it discovered capabilities from.",object_property,"CQ-081",,Domain: CapabilityDiscoveryEvent. Range: ExternalService. Functional.
+hasConnectionStatus,,"Links a service connection to its runtime status.",object_property,"CQ-079",,Domain: ServiceConnection. Range: ConnectionStatus. Functional. SubPropertyOf: hasStatus.
+hasServiceTransport,,"The transport protocol of an external service (e.g. stdio; sse; http).",data_property,"CQ-079",,Domain: ExternalService. Range: xsd:string. Functional.
+hasServiceIdentifier,,"A unique identifier string for an external service.",data_property,"CQ-079",,Domain: ExternalService. Range: xsd:string. Functional.
+Open,"open, connected","Connection status: the connection is open and active.",individual,CQ-079,ConnectionStatus instance,Named individual of ConnectionStatus.
+Closed,"closed, terminated","Connection status: the connection is closed.",individual,CQ-079,ConnectionStatus instance,Named individual of ConnectionStatus.
+Reconnecting,"reconnecting, retrying","Connection status: the connection is attempting to reconnect.",individual,CQ-079,ConnectionStatus instance,Named individual of ConnectionStatus.
+Failed,"failed, broken","Connection status: the connection has failed.",individual,CQ-079,ConnectionStatus instance,Named individual of ConnectionStatus.
+PermissionMode,"operating mode, safety mode","A GDC specifying the permission enforcement level under which an agent operates.",class,"CQ-083",GDC (BFO:0000031),Module: pao-governance. Value partition with individuals.
+SandboxPolicy,"sandbox, containment policy","A GDC specifying filesystem and network restrictions imposed on an agent.",class,"CQ-084",GDC (BFO:0000031),Module: pao-governance.
+Hook,"hook, interceptor","A GDC representing a configured interceptor that can modify or block tool invocations.",class,"CQ-085",GDC (BFO:0000031),Module: pao-governance.
+HookExecution,"hook run, interception","An event in which a hook intercepts and processes a tool invocation.",class,"CQ-085",Process (BFO:0000015),Module: pao-governance. Subclass of Event.
+AuditLog,"log, audit trail","A GDC that serves as a container for audit entries.",class,"CQ-086",GDC (BFO:0000031),Module: pao-governance.
+AuditEntry,"audit record, decision record","A GDC recording an authorization decision for a tool invocation with rationale.",class,"CQ-086",GDC (BFO:0000031),Module: pao-governance.
+AuthorizationDecision,"auth decision, permission decision","A status class whose individuals classify authorization outcomes.",class,"CQ-086",Value Partition,Module: pao-governance. Individuals: Allow; Deny; RequireApproval.
+operatesInMode,,"Links an AI agent to its active permission mode.",object_property,"CQ-083",,Domain: AIAgent. Range: PermissionMode. Functional.
+enforcedBySandboxPolicy,,"Links an AI agent to the sandbox policy that constrains it.",object_property,"CQ-084",,Domain: AIAgent. Range: SandboxPolicy. Functional.
+hasHook,,"Links an agent to a configured hook.",object_property,"CQ-085",,Domain: Agent. Range: Hook.
+hookTriggeredExecution,,"Links a hook to an execution it triggered.",object_property,"CQ-085",,Domain: Hook. Range: HookExecution.
+interceptsInvocation,,"Links a hook execution to the tool invocation it intercepted.",object_property,"CQ-085",,Domain: HookExecution. Range: ToolInvocation. Functional.
+recordsDecision,,"Links an audit entry to the authorization decision recorded.",object_property,"CQ-086",,Domain: AuditEntry. Range: AuthorizationDecision. Functional.
+auditForInvocation,,"Links an audit entry to the tool invocation being audited.",object_property,"CQ-086",,Domain: AuditEntry. Range: ToolInvocation. Functional.
+writtenToAuditLog,,"Links an audit entry to the audit log it belongs to.",object_property,"CQ-086",,Domain: AuditEntry. Range: AuditLog. Functional.
+hasDecisionReason,,"The textual rationale for an authorization decision.",data_property,"CQ-086",,Domain: AuditEntry. Range: xsd:string.
+Permissive,"allow all, auto-approve","Permission mode: tools are approved automatically.",individual,CQ-083,PermissionMode instance,Named individual of PermissionMode.
+Standard,"default, ask first","Permission mode: tools require explicit approval.",individual,CQ-083,PermissionMode instance,Named individual of PermissionMode.
+Restrictive,"deny by default, locked down","Permission mode: tools are denied unless explicitly allowed.",individual,CQ-083,PermissionMode instance,Named individual of PermissionMode.
+Allow,"allowed, approved","Authorization decision: the operation was permitted.",individual,CQ-086,AuthorizationDecision instance,Named individual of AuthorizationDecision.
+Deny,"denied, blocked","Authorization decision: the operation was denied.",individual,CQ-086,AuthorizationDecision instance,Named individual of AuthorizationDecision.
+RequireApproval,"escalate, ask user","Authorization decision: the operation requires human approval.",individual,CQ-086,AuthorizationDecision instance,Named individual of AuthorizationDecision.
+ErrorRecoveryEvent,"recovery, error handling","An event in which an agent initiates recovery after a failure.",class,"CQ-087",Process (BFO:0000015),Module: pao-recovery. Subclass of Event.
+RetryAttempt,"retry, reattempt","An event representing a retry of a failed operation.",class,"CQ-088",Process (BFO:0000015),Module: pao-recovery. Subclass of Event.
+ReplanEvent,"replan, plan revision","An event in which an agent generates a new plan after a failure.",class,"CQ-087",Process (BFO:0000015),Module: pao-recovery. Subclass of Event.
+RollbackEvent,"rollback, undo","An event in which an agent reverts changes made by a failed operation.",class,"CQ-087",Process (BFO:0000015),Module: pao-recovery. Subclass of Event.
+Checkpoint,"checkpoint, decision point","A GDC marking a task decision point where human approval may be required.",class,"CQ-089",GDC (BFO:0000031),Module: pao-recovery.
+CheckpointDecision,"checkpoint outcome","A status class whose individuals classify checkpoint decision outcomes.",class,"CQ-089",Value Partition,Module: pao-recovery. Individuals: Approved; Rejected; Deferred.
+recoveringFrom,,"Links a recovery event to the entity (invocation; integration; session) it is recovering from.",object_property,"CQ-087",,Domain: ErrorRecoveryEvent. Range: prov:Entity.
+attemptedRetry,,"Links a recovery event to a retry attempt it spawned.",object_property,"CQ-088",,Domain: ErrorRecoveryEvent. Range: RetryAttempt.
+triggeredReplan,,"Links a recovery event to a replan event it triggered.",object_property,"CQ-087",,Domain: ErrorRecoveryEvent. Range: ReplanEvent.
+triggeredRollback,,"Links a recovery event to a rollback event it triggered.",object_property,"CQ-087",,Domain: ErrorRecoveryEvent. Range: RollbackEvent.
+checkpointForTask,,"Links a checkpoint to the task it gates.",object_property,"CQ-089",,Domain: Checkpoint. Range: Task. Functional.
+checkpointDecision,,"Links a checkpoint to its decision outcome.",object_property,"CQ-089",,Domain: Checkpoint. Range: CheckpointDecision. Functional.
+hasAttemptCount,,"The number of retry attempts made.",data_property,"CQ-088",,Domain: RetryAttempt. Range: xsd:nonNegativeInteger. Functional.
+hasRecoveryOutcome,,"A textual description of the recovery outcome.",data_property,"CQ-087",,Domain: ErrorRecoveryEvent. Range: xsd:string. Functional.
+Approved,"approved, accepted","Checkpoint decision: the task was approved to continue.",individual,CQ-089,CheckpointDecision instance,Named individual of CheckpointDecision.
+Rejected,"rejected, denied","Checkpoint decision: the task was rejected.",individual,CQ-089,CheckpointDecision instance,Named individual of CheckpointDecision.
+Deferred,"deferred, postponed","Checkpoint decision: the decision was deferred for later.",individual,CQ-089,CheckpointDecision instance,Named individual of CheckpointDecision.
+ToolResult,"tool output, invocation result","A prov:Entity that represents the typed output artifact produced by a tool invocation.",class,CQ-091,GDC (BFO:0000031),Information content entity carrying invocation output.
+ToolInvocationGroup,"parallel invocations, grouped tool calls","A prov:Entity that groups tool invocations executed in parallel within a single turn.",class,CQ-090,GDC (BFO:0000031),Organizational grouping entity.
+ContentBlock,"message segment, content part","A prov:Entity that represents a typed segment of a message's content.",class,CQ-092,GDC (BFO:0000031),Information content entity.
+ContentBlockType,"block type, content type","A status class whose individuals classify the type of a content block.",class,CQ-092,Value Partition,Enumerated: TextBlock; ToolUseBlock; ToolResultBlock; ImageBlock.
+MemorySource,"memory origin, source type","A status class whose individuals classify where a memory item originates.",class,CQ-093,Value Partition,Enumerated: UserSource; SystemSource; AgentSource.
+MemoryScope,"memory visibility, scope level","A status class whose individuals classify the visibility scope of a memory item.",class,CQ-093,Value Partition,Enumerated: SessionScope; ProjectScope; GlobalScope.
+SharedMemoryArtifact,"shared memory, collaborative memory","A prov:Entity that represents a memory artifact accessible to multiple agents for shared read/write.",class,CQ-094,GDC (BFO:0000031),Standalone GDC; links to agents via sharedAcrossAgents.
+MemoryWriteConflict,"write conflict, concurrent write","An event in which multiple agents attempt concurrent writes to the same shared memory artifact.",class,CQ-095,Process (BFO:0000015),Subclass of Event.
+DialogAct,"speech act, dialog move","A prov:Entity that represents the pragmatic classification of a turn's communicative intent.",class,CQ-096,GDC (BFO:0000031),Inspired by DIT++ and ISO 24617-2 dialog act taxonomy.
+CommunicativeFunction,"illocutionary force, dialog function","A status class whose individuals classify the communicative purpose of a dialog act.",class,CQ-096,Value Partition,Curated core subset: Inform; Request; Confirm; Clarify; Accept; Reject.
+CommonGround,"shared knowledge, mutual belief","A prov:Entity that represents the accumulated shared knowledge state between conversation participants.",class,CQ-097,GDC (BFO:0000031),Inspired by Clark & Schaefer (1989) grounding theory.
+GroundingAct,"grounding event, acceptance act","An event in which a participant contributes evidence to the common ground of a conversation.",class,CQ-097,Process (BFO:0000015),Subclass of Event.
+ClarificationRequest,"clarification, clarifying question","A prov:Entity that records a request for additional information to resolve ambiguity.",class,CQ-098,GDC (BFO:0000031),Links to the turn being clarified.
+AcceptanceEvidence,"acceptance signal, understanding evidence","A prov:Entity that records evidence that a participant has accepted or understood a proposition.",class,CQ-097,GDC (BFO:0000031),Produced by GroundingActs.
+partOfInvocationGroup,,"Links a tool invocation to the group it was executed within.",object_property,CQ-090,,Domain: ToolInvocation. Range: ToolInvocationGroup.
+groupedInTurn,,"Links a tool invocation group to the turn in which it was executed.",object_property,CQ-090,,Domain: ToolInvocationGroup. Range: Turn. Functional.
+producedToolResult,,"Links a tool invocation to the result artifact it produced.",object_property,CQ-091,,Domain: ToolInvocation. Range: ToolResult. Functional.
+hasContentBlock,,"Links a message to one of its typed content blocks.",object_property,CQ-092,,Domain: Message. Range: ContentBlock.
+hasContentBlockType,,"Links a content block to its type classification.",object_property,CQ-092,,Domain: ContentBlock. Range: ContentBlockType. Functional.
+hasMemorySource,,"Links a memory item to its originating source classification.",object_property,CQ-093,,Domain: MemoryItem. Range: MemorySource. Functional.
+hasMemoryScope,,"Links a memory item to its visibility scope classification.",object_property,CQ-093,,Domain: MemoryItem. Range: MemoryScope. Functional.
+sharedAcrossAgents,,"Links a shared memory artifact to an agent that has access to it.",object_property,CQ-094,,Domain: SharedMemoryArtifact. Range: Agent.
+writesByAgent,,"Links a memory write conflict to the agent that caused the conflicting write.",object_property,CQ-095,,Domain: MemoryWriteConflict. Range: Agent.
+conflictOnArtifact,,"Links a memory write conflict to the shared artifact where the conflict occurred.",object_property,CQ-095,,Domain: MemoryWriteConflict. Range: SharedMemoryArtifact. Functional.
+resolvedByPolicy,,"Links a memory write conflict to the policy used to resolve it.",object_property,CQ-095,,Domain: MemoryWriteConflict. Range: PermissionPolicy.
+hasDialogAct,,"Links a turn to its pragmatic dialog act classification.",object_property,CQ-096,,Domain: Turn. Range: DialogAct.
+hasCommunicativeFunction,,"Links a dialog act to its communicative function classification.",object_property,CQ-096,,Domain: DialogAct. Range: CommunicativeFunction. Functional.
+contributesToCommonGround,,"Links a grounding act to the common ground it updates.",object_property,CQ-097,,Domain: GroundingAct. Range: CommonGround. Functional.
+providesAcceptanceEvidence,,"Links a grounding act to the acceptance evidence it produces.",object_property,CQ-097,,Domain: GroundingAct. Range: AcceptanceEvidence.
+clarifiesTurn,,"Links a clarification request to the turn it is clarifying.",object_property,CQ-098,,Domain: ClarificationRequest. Range: Turn. Functional.
+blockSequenceIndex,,"The zero-based position of a content block within its parent message.",data_property,CQ-092,,Domain: ContentBlock. Range: xsd:nonNegativeInteger. Functional.
+TextBlock,,"Content block type: plain text content.",individual,CQ-092,ContentBlockType instance,Named individual of ContentBlockType.
+ToolUseBlock,"tool_use block","Content block type: a tool invocation request.",individual,CQ-092,ContentBlockType instance,Named individual of ContentBlockType.
+ToolResultBlock,"tool_result block","Content block type: tool invocation result output.",individual,CQ-092,ContentBlockType instance,Named individual of ContentBlockType.
+ImageBlock,"image block","Content block type: an image or visual content.",individual,CQ-092,ContentBlockType instance,Named individual of ContentBlockType.
+UserSource,"user-provided","Memory source: originated from user input.",individual,CQ-093,MemorySource instance,Named individual of MemorySource.
+SystemSource,"system-generated","Memory source: originated from system processes.",individual,CQ-093,MemorySource instance,Named individual of MemorySource.
+AgentSource,"agent-generated","Memory source: originated from agent reasoning.",individual,CQ-093,MemorySource instance,Named individual of MemorySource.
+SessionScope,"session-level","Memory scope: visible only within a single session.",individual,CQ-093,MemoryScope instance,Named individual of MemoryScope.
+ProjectScope,"project-level","Memory scope: visible across sessions within a project.",individual,CQ-093,MemoryScope instance,Named individual of MemoryScope.
+GlobalScope,"global-level","Memory scope: visible across all projects and sessions.",individual,CQ-093,MemoryScope instance,Named individual of MemoryScope.
+Inform,"informing, statement","Communicative function: conveying information.",individual,CQ-096,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+Request,"requesting, directive","Communicative function: requesting action or information.",individual,CQ-096,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+Confirm,"confirming, acknowledgement","Communicative function: confirming understanding or agreement.",individual,CQ-096,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+Clarify,"clarifying, questioning","Communicative function: seeking to resolve ambiguity.",individual,CQ-096,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+Accept,"accepting, endorsing","Communicative function: accepting a proposition into common ground.",individual,CQ-097,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+Reject,"rejecting, declining","Communicative function: rejecting a proposition.",individual,CQ-097,CommunicativeFunction instance,Named individual of CommunicativeFunction.
+# --- PAO v0.7.0 additions (13 classes + 6 individuals) ---
+ModelProvider,"model hosting entity, AI provider","A generically dependent continuant that identifies an organization or service that hosts and serves foundation models.",class,CQ-101,GDC (BFO:0000031),pao-model module. E.g. Anthropic, OpenAI.
+FoundationModel,"base model, LLM model, AI model","A generically dependent continuant that specifies a model family with a name and version.",class,"CQ-099,CQ-100,CQ-103",GDC (BFO:0000031),pao-model module. HasKey on hasModelId.
+ModelDeployment,"model endpoint, model instance, deployed model","A generically dependent continuant that is a configuration artifact for a running model endpoint.",class,"CQ-100,CQ-102",GDC (BFO:0000031),pao-model module. Represents a specific deployment of a foundation model.
+ModelInvocation,"model call, generation request, inference call","An event in which a foundation model is invoked to produce output for a turn.",class,"CQ-099,CQ-102",Process (BFO:0000015),pao-model module. Subclass of Event. Links to Turn via modelInvocationForTurn.
+GenerationConfiguration,"gen config, sampling parameters, inference config","A generically dependent continuant that specifies the parameter set for controlling model generation.",class,CQ-102,GDC (BFO:0000031),pao-model module. Includes temperature, top-p, max tokens, seed.
+OperationalMetric,"metric type, performance metric, system metric","A generically dependent continuant that defines a named metric type for operational monitoring.",class,"CQ-104,CQ-105",GDC (BFO:0000031),pao-observability module. E.g. latency_p99, error_rate.
+MetricObservation,"measurement, metric reading, data point","A generically dependent continuant that is a recorded measurement data point for an operational metric.",class,CQ-104,GDC (BFO:0000031),pao-observability module. Has observedOnEntity and hasMetricValue.
+ReliabilityIncident,"outage, degradation event, service failure","An event representing a failure or degradation occurrence for a service or component.",class,"CQ-106,CQ-107",Process (BFO:0000015),pao-observability module. Subclass of Event. Links to ErrorRecoveryEvent.
+FailureType,"error category, failure classification","A status class whose individuals classify the type of failure causing an error recovery event.",class,"CQ-108,CQ-109",Value Partition,pao-recovery module. Enumerated: Timeout, AuthenticationFailure, RateLimited, etc.
+Belief,"agent belief, held proposition","A generically dependent continuant that is a proposition an agent holds to be true about the world.",class,"CQ-110,CQ-112",GDC (BFO:0000031),pao-planning module. BDI component.
+Desire,"agent desire, desired outcome, wished state","A generically dependent continuant that represents a desired state or outcome an agent works toward.",class,"CQ-111,CQ-112",GDC (BFO:0000031),pao-planning module. BDI component.
+Justification,"evidence, rationale, supporting reason","A generically dependent continuant that provides evidence supporting an agent's intention.",class,CQ-113,GDC (BFO:0000031),pao-planning module. Links to Intention via justifiesIntention.
+Deliberation,"reasoning process, decision process","An event that is a reasoning process in which an agent considers beliefs and desires to produce intentions.",class,CQ-112,Process (BFO:0000015),pao-planning module. Subclass of Event. BDI deliberation.
+Timeout,"timeout error, request timeout","Failure type: the operation exceeded its allowed time limit.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+AuthenticationFailure,"auth failure, credential error","Failure type: authentication or authorization was rejected.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+RateLimited,"rate limit, throttled","Failure type: the request was rejected due to rate limiting.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+DependencyFailure,"upstream failure, dependency error","Failure type: a required upstream dependency was unavailable.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+ConfigurationError,"config error, misconfiguration","Failure type: the system was misconfigured.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+NetworkError,"network failure, connectivity error","Failure type: a network connectivity issue occurred.",individual,CQ-108,FailureType instance,Named individual of FailureType.
+# --- PAO v0.8.0 additions (scheduling module: 10 classes + 10 individuals) ---
+Schedule,"agent schedule, scheduled task","A named definition that binds a recurrence pattern and trigger to an action specification, governing when an agent should perform automated work.",class,"CQ-114,CQ-115,CQ-116,CQ-117",GDC (BFO:0000031),Core scheduling entity. Subclass of prov:Entity.
+RecurrencePattern,"recurrence rule, cron schedule, repetition pattern","A temporal specification defining when a schedule should fire, expressed as a cron expression, fixed interval, or calendar rule.",class,CQ-115,GDC (BFO:0000031),Inspired by iCal RRULE and Schema.org Schedule.
+Trigger,"activation trigger, schedule trigger","A condition that activates a schedule, such as a time-based cron expression, a fixed interval, or an external event.",class,"CQ-124,CQ-125",GDC (BFO:0000031),Abstract parent class for trigger types.
+CronTrigger,"cron trigger, time-based trigger","A trigger that activates on a cron schedule expression.",class,"CQ-124,CQ-125",GDC (BFO:0000031),Subclass of Trigger.
+IntervalTrigger,"periodic trigger, interval-based trigger","A trigger that activates at fixed time intervals.",class,CQ-124,GDC (BFO:0000031),Subclass of Trigger.
+EventTrigger,"event-based trigger, reactive trigger","A trigger that activates in response to an external event or webhook.",class,CQ-124,GDC (BFO:0000031),Subclass of Trigger. ECA pattern.
+ScheduledExecution,"execution instance, schedule run","An individual execution instance of a schedule, recording when it ran, what it produced, and whether it succeeded.",class,"CQ-118,CQ-119,CQ-120",Process (BFO:0000015),Subclass of Event. Temporal process with outcome.
+ScheduleStatus,"schedule state, schedule lifecycle status","A controlled vocabulary for the lifecycle state of a schedule.",class,CQ-117,VP (via Status),Value partition: Active; Paused; Expired; Disabled.
+ExecutionOutcome,"execution result, run outcome","A controlled vocabulary for the outcome of a scheduled execution.",class,"CQ-119,CQ-122",VP (via Status),Value partition: Succeeded; Failed; Skipped.
+ConcurrencyPolicy,"overlap policy, concurrency mode","A controlled vocabulary for how a schedule handles overlapping executions.",class,CQ-121,VP (via Status),Value partition: Allow; Forbid; Replace.
+ScheduleActive,"active schedule","Schedule status: the schedule is active and will fire on its next trigger.",individual,CQ-117,ScheduleStatus instance,Named individual of ScheduleStatus. Qualified name avoids collision with SessionStatus Active.
+SchedulePaused,"paused schedule, suspended","Schedule status: the schedule is temporarily paused.",individual,CQ-117,ScheduleStatus instance,Named individual of ScheduleStatus.
+ScheduleExpired,"expired schedule","Schedule status: the schedule has passed its end date.",individual,CQ-117,ScheduleStatus instance,Named individual of ScheduleStatus.
+ScheduleDisabled,"disabled schedule","Schedule status: the schedule is permanently disabled.",individual,CQ-117,ScheduleStatus instance,Named individual of ScheduleStatus.
+ExecutionSucceeded,"success, completed","Execution outcome: the scheduled execution completed successfully.",individual,CQ-119,ExecutionOutcome instance,Named individual of ExecutionOutcome.
+ExecutionFailed,"failure, error","Execution outcome: the scheduled execution failed.",individual,CQ-119,ExecutionOutcome instance,Named individual of ExecutionOutcome. Qualified name avoids collision with ConnectionStatus Failed.
+ExecutionSkipped,"skipped execution, dropped","Execution outcome: the scheduled execution was skipped due to concurrency policy.",individual,"CQ-119,CQ-122",ExecutionOutcome instance,Named individual of ExecutionOutcome.
+ConcurrencyAllow,"allow parallel","Concurrency policy: allow parallel executions.",individual,CQ-121,ConcurrencyPolicy instance,Named individual of ConcurrencyPolicy. Qualified name avoids collision with AuthorizationDecision Allow.
+ConcurrencyForbid,"forbid overlap, skip new","Concurrency policy: skip new execution if prior is still running.",individual,CQ-121,ConcurrencyPolicy instance,Named individual of ConcurrencyPolicy.
+ConcurrencyReplace,"replace running, cancel old","Concurrency policy: cancel running execution and start new one.",individual,CQ-121,ConcurrencyPolicy instance,Named individual of ConcurrencyPolicy.

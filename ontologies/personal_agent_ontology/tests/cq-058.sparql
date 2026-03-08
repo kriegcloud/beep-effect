@@ -1,0 +1,10 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-058: What status transitions has a task undergone?
+# Expected: non-empty result set
+SELECT ?task ?transition ?from ?to WHERE {
+  ?transition a pao:TaskStatusTransition ;
+              pao:transitionSubject ?task ;
+              pao:fromStatus ?from ;
+              pao:toStatus ?to .
+}

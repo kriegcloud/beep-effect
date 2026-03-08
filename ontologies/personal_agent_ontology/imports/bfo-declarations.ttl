@@ -1,0 +1,18 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+
+<https://purl.org/pao/bfo-declarations> a owl:Ontology ;
+    rdfs:label "BFO declarations for PAO"@en ;
+    dcterms:title "BFO Declarations for PAO"@en ;
+    dcterms:description "MIREOT-style stub declaring BFO categories used by PAO."@en ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    rdfs:comment "MIREOT-style stub declaring BFO categories used by PAO."@en .
+
+# BFO Categories referenced by PAO
+obo:BFO_0000015 a owl:Class ; rdfs:label "process"@en .
+obo:BFO_0000023 a owl:Class ; rdfs:label "role"@en .
+obo:BFO_0000030 a owl:Class ; rdfs:label "object"@en .
+obo:BFO_0000031 a owl:Class ; rdfs:label "generically dependent continuant"@en .

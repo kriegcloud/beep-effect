@@ -1,0 +1,25 @@
+#curie_map:
+#  enews: "http://example.org/ontology/energy-news#"
+#  ENVO: "http://purl.obolibrary.org/obo/ENVO_"
+#  schema: "https://schema.org/"
+#  dbo: "http://dbpedia.org/ontology/"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#mapping_set_id: "http://example.org/ontology/energy-news/mappings/enews-to-external"
+#mapping_set_description: "Mappings from Energy News Ontology v0.3.0 to ENVO, Schema.org, and DBpedia"
+#license: "https://creativecommons.org/licenses/by/4.0/"
+#subject_source: "http://example.org/ontology/energy-news"
+#subject_source_version: "0.3.0"
+#mapping_date: "2026-02-26"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+enews:PowerPlant	Power Plant	skos:closeMatch	ENVO:00002214	power plant	semapv:ManualMappingCuration	0.90	ENVO power plant is an environmental feature; enews is BFO:Object
+enews:PowerPlant	Power Plant	skos:closeMatch	dbo:PowerStation	power station	semapv:ManualMappingCuration	0.88	DBpedia PowerStation is subclass of Infrastructure
+enews:Organization	Organization	skos:closeMatch	schema:Organization	Organization	semapv:ManualMappingCuration	0.92	Both model generic organizations
+enews:Organization	Organization	skos:closeMatch	dbo:Organisation	organisation	semapv:ManualMappingCuration	0.92	DBpedia Organisation is equivalent
+enews:RegulatoryBody	Regulatory Body	skos:closeMatch	schema:GovernmentOrganization	GovernmentOrganization	semapv:ManualMappingCuration	0.75	schema:GovernmentOrganization is broader (any govt org, not just regulatory)
+enews:RegulatoryBody	Regulatory Body	skos:closeMatch	dbo:GovernmentAgency	government agency	semapv:ManualMappingCuration	0.80	DBpedia GovernmentAgency covers regulatory bodies
+enews:Article	Article	skos:closeMatch	schema:NewsArticle	NewsArticle	semapv:ManualMappingCuration	0.88	Both represent news articles; schema:NewsArticle is more specific (news vs generic article)
+enews:Post	Post	skos:closeMatch	schema:SocialMediaPosting	SocialMediaPosting	semapv:ManualMappingCuration	0.92	Both represent social media posts
+enews:GeographicEntity	Geographic Entity	skos:broadMatch	schema:Place	Place	semapv:ManualMappingCuration	0.75	schema:Place is broader (any location); enews restricts to energy-relevant regions
+enews:Publication	Publication	skos:closeMatch	schema:NewsMediaOrganization	NewsMediaOrganization	semapv:ManualMappingCuration	0.80	Both represent news media outlets
+enews:Feed	Feed	skos:closeMatch	schema:DataFeed	DataFeed	semapv:ManualMappingCuration	0.70	schema:DataFeed is broader (any structured data feed); enews is curated social media feed

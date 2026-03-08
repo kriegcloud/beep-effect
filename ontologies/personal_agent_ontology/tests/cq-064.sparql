@@ -1,0 +1,9 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-064: Which compaction events were triggered by a specific context window?
+# Expected: non-empty result set
+SELECT ?compaction ?contextWindow WHERE {
+  ?compaction a pao:CompactionEvent ;
+              pao:compactedContextOf ?contextWindow .
+  ?contextWindow a pao:ContextWindow .
+}

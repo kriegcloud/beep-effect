@@ -1,0 +1,9 @@
+# TBox-002: Article is declared as an OWL class
+# Expected: true
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  enews:Article a owl:Class .
+}

@@ -1,0 +1,8 @@
+# CQ-018: Which authors share energy news on a given platform?
+PREFIX enews: <http://example.org/ontology/energy-news#>
+
+SELECT ?author ?handle WHERE {
+    ?author a enews:AuthorAccount ;
+            enews:onPlatform enews:Twitter ;
+            enews:handle ?handle .
+}

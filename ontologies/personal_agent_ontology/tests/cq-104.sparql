@@ -1,0 +1,14 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-104: What metric observations were recorded for a given entity?
+# Expected: non_empty
+SELECT ?entity ?obs ?metric ?metricName ?value WHERE {
+  ?obs a pao:MetricObservation ;
+       pao:observedOnEntity ?entity ;
+       pao:observesMetric ?metric ;
+       pao:hasMetricValue ?value .
+  ?metric a pao:OperationalMetric ;
+          pao:hasMetricName ?metricName .
+}

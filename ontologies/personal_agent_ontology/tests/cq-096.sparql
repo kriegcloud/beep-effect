@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-096: What communicative function does each turn perform?
+# Expected: non_empty
+SELECT ?turn ?dialogAct ?function WHERE {
+  ?turn a pao:Turn ;
+        pao:hasDialogAct ?dialogAct .
+  ?dialogAct a pao:DialogAct ;
+             pao:hasCommunicativeFunction ?function .
+}

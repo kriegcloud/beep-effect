@@ -1,0 +1,13 @@
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# CQ-028: What are the subtopics of energy storage?
+# Expected: non_empty (BatteryRecycling, PumpedHydroStorage, LongDurationStorage)
+SELECT ?child ?label WHERE {
+  ?child skos:broader enews:EnergyStorage ;
+         rdfs:label ?label .
+}

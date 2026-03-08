@@ -1,0 +1,7 @@
+# CQ-046: What intentions has an agent committed to?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?agent ?intention WHERE {
+  ?intention a pao:Intention ;
+             pao:intendedBy ?agent .
+}

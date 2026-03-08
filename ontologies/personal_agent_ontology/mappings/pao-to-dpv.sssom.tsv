@@ -1,0 +1,24 @@
+#curie_map:
+#  pao: "https://purl.org/pao/"
+#  dpv: "https://w3id.org/dpv#"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#  owl: "http://www.w3.org/2002/07/owl#"
+#mapping_set_id: "https://purl.org/pao/mappings/pao-to-dpv"
+#mapping_set_title: "PAO to Data Privacy Vocabulary Mappings"
+#mapping_set_description: "Cross-ontology mappings between the Personal Agent Ontology governance module and the W3C Data Privacy Vocabulary (DPV) for privacy compliance interoperability."
+#license: "https://creativecommons.org/licenses/by/4.0/"
+#subject_source: "https://purl.org/pao/"
+#subject_source_version: "0.5.0"
+#object_source: "https://w3id.org/dpv#"
+#mapping_set_version: "0.1.0"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+pao:PermissionPolicy	permission policy	skos:closeMatch	dpv:Policy	Policy	semapv:SemanticSimilarityThresholdMatching	0.82	Both represent governance rules. PAO PermissionPolicy is agent-centric (tool permissions); DPV Policy covers broader data protection policies.
+pao:SafetyConstraint	safety constraint	skos:closeMatch	dpv:TechnicalOrganisationalMeasure	TechnicalOrganisationalMeasure	semapv:SemanticSimilarityThresholdMatching	0.70	PAO SafetyConstraint is a behavioral limit; DPV TOM is a broader category of safeguards. Structural parallel in governing agent behavior.
+pao:ErasureEvent	erasure event	skos:closeMatch	dpv:DataRemovalByErasure	DataRemovalByErasure	semapv:SemanticSimilarityThresholdMatching	0.85	Both represent deliberate data deletion for privacy compliance.
+pao:Agent	agent	skos:broadMatch	dpv:DataController	DataController	semapv:SemanticSimilarityThresholdMatching	0.55	An AI agent may act as data controller; PAO Agent is broader. Context-dependent mapping.
+pao:HumanUser	human user	skos:closeMatch	dpv:DataSubject	DataSubject	semapv:SemanticSimilarityThresholdMatching	0.75	In agent-user interactions, the human user is typically the data subject whose personal data is processed.
+pao:grantsPermission	grants permission	skos:closeMatch	dpv:hasLegalBasis	hasLegalBasis	semapv:SemanticSimilarityThresholdMatching	0.60	PAO grantsPermission links policies to allowed actions; DPV hasLegalBasis links processing to legal grounds. Functional parallel.
+pao:MemoryItem	memory item	skos:broadMatch	dpv:PersonalData	PersonalData	semapv:SemanticSimilarityThresholdMatching	0.55	PAO MemoryItem may contain personal data; DPV PersonalData is specifically data relating to an identified person. Not all MemoryItems are PersonalData.
+pao:hasSensitivityLevel	has sensitivity level	skos:closeMatch	dpv:hasDataSensitivity	hasDataSensitivity	semapv:SemanticSimilarityThresholdMatching	0.78	Both annotate data with sensitivity classification.
+pao:Integration	integration	skos:relatedMatch	dpv:DataProcessor	DataProcessor	semapv:SemanticSimilarityThresholdMatching	0.50	PAO Integration is a configured external service connection; DPV DataProcessor is an entity processing personal data. An integration may act as a data processor when handling user data via external APIs.

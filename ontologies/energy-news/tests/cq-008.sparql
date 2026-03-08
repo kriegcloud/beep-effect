@@ -1,0 +1,14 @@
+# CQ-008: What energy topics does a given author primarily share about?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?topic ?topicLabel (COUNT(?post) AS ?count) WHERE {
+  ?post enews:postedBy enews:author_torsolarfred ;
+        enews:sharesArticle ?article .
+  ?article enews:coversTopic ?topic .
+  ?topic rdfs:label ?topicLabel .
+}
+GROUP BY ?topic ?topicLabel
+ORDER BY DESC(?count)

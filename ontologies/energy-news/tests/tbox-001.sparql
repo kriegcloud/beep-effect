@@ -1,0 +1,9 @@
+# TBox-001: EnergyTopic is declared as an OWL class
+# Expected: true
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  enews:EnergyTopic a owl:Class .
+}

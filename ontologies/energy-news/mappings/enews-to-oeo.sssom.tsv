@@ -1,0 +1,22 @@
+#curie_map:
+#  enews: "http://example.org/ontology/energy-news#"
+#  oeo: "http://openenergy-platform.org/ontology/oeo/"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#  owl: "http://www.w3.org/2002/07/owl#"
+#mapping_set_id: "http://example.org/ontology/energy-news/mappings/enews-to-oeo"
+#mapping_set_description: "Mappings from Energy News Ontology v0.3.0 to Open Energy Ontology (OEO)"
+#license: "https://creativecommons.org/publicdomain/zero/1.0/"
+#subject_source: "http://example.org/ontology/energy-news"
+#subject_source_version: "0.3.0"
+#object_source: "http://openenergy-platform.org/ontology/oeo/"
+#object_source_version: "2.10.0"
+#mapping_date: "2026-02-26"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+enews:PowerPlant	Power Plant	skos:closeMatch	oeo:OEO_00000031	power plant	semapv:ManualMappingCuration	0.90	Both model power generation facilities as material entities under BFO; enews is broader (includes thermal-only plants)
+enews:RenewableInstallation	Renewable Installation	skos:closeMatch	oeo:OEO_00020102	energy transformation unit	semapv:ManualMappingCuration	0.80	Both are material entities for energy conversion; OEO class is broader (includes fossil units)
+enews:EnergyTechnology	Energy Technology	skos:closeMatch	oeo:OEO_00000407	technology	semapv:ManualMappingCuration	0.80	Both represent technology concepts; OEO models as IAO plan specification; enews as BFO:GDC
+enews:PolicyInstrument	Policy Instrument	skos:closeMatch	oeo:OEO_00140151	policy instrument	semapv:ManualMappingCuration	0.92	Strong semantic match; both represent government action specifications promoting energy transformation
+enews:RegulatoryBody	Regulatory Body	skos:broadMatch	oeo:OEO_00000238	institution	semapv:ManualMappingCuration	0.70	OEO institution is broader (any org serving social purpose); enews restricts to regulatory function
+enews:CapacityMeasurement	Capacity Measurement	skos:closeMatch	oeo:OEO_00010257	power capacity	semapv:ManualMappingCuration	0.85	Both model power generation capacity; OEO is more specific (rating of generator/power generating unit)
+enews:Organization	Organization	skos:closeMatch	oeo:OEO_00030022	organisation	semapv:ManualMappingCuration	0.90	Both model organizations in energy domain; OEO classifies as BFO immaterial entity

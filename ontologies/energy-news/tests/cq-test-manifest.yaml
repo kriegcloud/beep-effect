@@ -1,0 +1,349 @@
+# Energy News Ontology — CQ Test Manifest (TDOD-style)
+# Framework: Test-Driven Ontology Development (Keet & Lawrynowicz, 2016)
+# Runner: ROBOT verify (--queries flag) or custom SPARQL test harness
+
+ontology:
+  name: Energy News Ontology
+  prefix: enews
+  namespace: "http://example.org/ontology/energy-news#"
+
+prefixes_file: prefixes.sparql
+
+# --- Competency Question Tests ---
+
+cq_tests:
+  - id: cq-001
+    file: cq-001.sparql
+    cq: CQ-001
+    question: "What energy topics exist in the ontology?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-002
+    file: cq-002.sparql
+    cq: CQ-002
+    question: "What subtopics exist under a given energy topic?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-003
+    file: cq-003.sparql
+    cq: CQ-003
+    question: "Which articles cover a given energy topic?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-004
+    file: cq-004.sparql
+    cq: CQ-004
+    question: "Which publication published a given article?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-005
+    file: cq-005.sparql
+    cq: CQ-005
+    question: "What energy topics does a given publication cover?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-006
+    file: cq-006.sparql
+    cq: CQ-006
+    question: "How many articles has each publication contributed?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-007
+    file: cq-007.sparql
+    cq: CQ-007
+    question: "Who are the top authors sharing energy news?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-008
+    file: cq-008.sparql
+    cq: CQ-008
+    question: "What energy topics does a given author primarily share about?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-009
+    file: cq-009.sparql
+    cq: CQ-009
+    question: "Which feeds exist for energy content?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-010
+    file: cq-010.sparql
+    cq: CQ-010
+    question: "Is a given energy source classified as renewable or fossil?"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: cq-011
+    file: cq-011.sparql
+    cq: CQ-011
+    question: "Which organizations are mentioned in energy news?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-012
+    file: cq-012.sparql
+    cq: CQ-012
+    question: "Which energy topics is a given organization associated with?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-013
+    file: cq-013.sparql
+    cq: CQ-013
+    question: "Which countries or regions are covered in energy news?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-014
+    file: cq-014.sparql
+    cq: CQ-014
+    question: "What energy topics are covered in a given country?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-015
+    file: cq-015.sparql
+    cq: CQ-015
+    question: "What type or sector does a given organization belong to?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-016
+    file: cq-016.sparql
+    cq: CQ-016
+    question: "How does energy news coverage volume compare across geographic regions?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-017
+    file: cq-017.sparql
+    cq: CQ-017
+    question: "Which platforms have the most energy news posts?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-018
+    file: cq-018.sparql
+    cq: CQ-018
+    question: "Which authors share energy news on a given platform?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-019
+    file: cq-019.sparql
+    cq: CQ-019
+    question: "Which publication published an article based on its URL domain?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.3.0 Gap Analysis CQs ---
+
+  - id: cq-020
+    file: cq-020.sparql
+    cq: CQ-020
+    question: "What are the top-level energy topic categories?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-021
+    file: cq-021.sparql
+    cq: CQ-021
+    question: "Which subtopics exist under distributed energy and grid flexibility?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-022
+    file: cq-022.sparql
+    cq: CQ-022
+    question: "What organizations operate in a given energy sector?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-023
+    file: cq-023.sparql
+    cq: CQ-023
+    question: "Which regulatory bodies exist in the ontology?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-024
+    file: cq-024.sparql
+    cq: CQ-024
+    question: "What publications are registered with their site domains?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-025
+    file: cq-025.sparql
+    cq: CQ-025
+    question: "Which geographic entities are referenced in the ontology?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-026
+    file: cq-026.sparql
+    cq: CQ-026
+    question: "What energy topics relate to sectoral decarbonization?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-027
+    file: cq-027.sparql
+    cq: CQ-027
+    question: "Is offshore wind classified under renewable energy?"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: cq-028
+    file: cq-028.sparql
+    cq: CQ-028
+    question: "What are the subtopics of energy storage?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: false
+
+  - id: cq-029
+    file: cq-029.sparql
+    cq: CQ-029
+    question: "Which organizations are classified as regulatory bodies?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-030
+    file: cq-030.sparql
+    cq: CQ-030
+    question: "Is data center demand classified under AI and data center energy demand?"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+# --- TBox Structure Tests ---
+
+tbox_tests:
+  - id: tbox-001
+    file: tbox-001.sparql
+    description: "EnergyTopic is declared as an OWL class"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-002
+    file: tbox-002.sparql
+    description: "Article is declared as an OWL class"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-003
+    file: tbox-003.sparql
+    description: "AuthorAccount is declared as an OWL class"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  # --- v0.3.0 Gap Analysis TBox Tests ---
+
+  - id: tbox-004
+    file: tbox-004.sparql
+    description: "EnergyProject is declared under BFO:Process"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-005
+    file: tbox-005.sparql
+    description: "PowerPlant is correctly aligned under BFO:Object"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-006
+    file: tbox-006.sparql
+    description: "RenewableInstallation is correctly aligned under BFO:Object"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-007
+    file: tbox-007.sparql
+    description: "RegulatoryBody is subClassOf Organization"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+  - id: tbox-008
+    file: tbox-008.sparql
+    description: "GridZone is subClassOf GeographicEntity"
+    type: ASK
+    expected: true
+    requires_abox: false
+
+# --- Non-Entailment Tests ---
+
+non_entailment_tests:
+  - id: neg-001
+    file: neg-001.sparql
+    description: "Solar is NOT a broader concept of Fossil"
+    type: ASK
+    expected: false
+    requires_abox: false
+
+  - id: neg-002
+    file: neg-002.sparql
+    description: "Nuclear is NOT classified under Renewable"
+    type: ASK
+    expected: false
+    requires_abox: false
+
+  # --- v0.3.0 Gap Analysis Non-Entailment Tests ---
+
+  - id: neg-003
+    file: neg-003.sparql
+    description: "BiomassAndBioenergy is NOT classified under Fossil"
+    type: ASK
+    expected: false
+    requires_abox: false
+
+  - id: neg-004
+    file: neg-004.sparql
+    description: "PowerPlant is NOT a subclass of EnergyProject (BFO alignment fix)"
+    type: ASK
+    expected: false
+    requires_abox: false

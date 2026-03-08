@@ -1,0 +1,7 @@
+# CQ-043: What observations were recorded during a session?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?obs ?session WHERE {
+  ?obs a pao:Observation ;
+       pao:inSession ?session .
+}

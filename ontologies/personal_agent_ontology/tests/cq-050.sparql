@@ -1,0 +1,8 @@
+# CQ-050: What retention policy governs a memory item?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?item ?policy WHERE {
+  ?item a pao:MemoryItem ;
+        pao:governedByRetention ?policy .
+  ?policy a pao:RetentionPolicy .
+}

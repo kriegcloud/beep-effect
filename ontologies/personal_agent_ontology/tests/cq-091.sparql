@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-091: What result artifact was produced by each tool invocation?
+# Expected: non_empty
+SELECT ?invocation ?result WHERE {
+  ?invocation a pao:ToolInvocation ;
+              pao:producedToolResult ?result .
+  ?result a pao:ToolResult .
+}

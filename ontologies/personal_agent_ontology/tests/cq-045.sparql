@@ -1,0 +1,8 @@
+# CQ-045: What memory blocks exist and what key-value pairs do they contain?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?block ?key ?value WHERE {
+  ?block a pao:MemoryBlock ;
+         pao:hasBlockKey ?key ;
+         pao:hasBlockValue ?value .
+}

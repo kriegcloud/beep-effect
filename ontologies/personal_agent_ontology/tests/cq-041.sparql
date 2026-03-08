@@ -1,0 +1,8 @@
+# CQ-041: What organization does an agent belong to?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?agent ?org WHERE {
+  ?agent pao:belongsTo ?org .
+  ?org a pao:Organization .
+}

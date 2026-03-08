@@ -1,0 +1,12 @@
+# CQ-016: How does energy news coverage volume compare across geographic regions?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?geo ?label (COUNT(?article) AS ?articleCount) WHERE {
+  ?article enews:hasGeographicFocus ?geo .
+  ?geo rdfs:label ?label .
+}
+GROUP BY ?geo ?label
+ORDER BY DESC(?articleCount)

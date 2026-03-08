@@ -1,0 +1,10 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-063: Which context windows have usage exceeding a given threshold (80%)?
+# Expected: non-empty result set
+SELECT ?cw ?used ?capacity WHERE {
+  ?cw a pao:ContextWindow ;
+      pao:hasTokenCapacity ?capacity ;
+      pao:hasTokensUsed ?used .
+  FILTER(?used > ?capacity * 8 / 10)
+}

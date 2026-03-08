@@ -1,0 +1,776 @@
+# Energy News Ontology — Competency Questions
+# Updated: Codex review remediation — PREFIX declarations, new fields, SKOS SPARQL, CQ-015/016
+
+# --- Must Have ---
+
+- id: CQ-001
+  source_use_case: UC-001
+  natural_language: "What energy topics exist in the ontology?"
+  type: enumerative
+  priority: must_have
+  sample_answer:
+    - topic: enews:Solar
+      label: "Solar"
+    - topic: enews:NaturalGas
+      label: "Natural Gas"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?topic ?label WHERE {
+      ?topic a enews:EnergyTopic ;
+             rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Does not return hierarchy depth or broader/narrower structure"
+  required_axioms:
+    - "enews:Solar rdf:type enews:EnergyTopic"
+    - "enews:Solar rdfs:label 'Solar'@en"
+  requires_reasoning: false
+
+- id: CQ-002
+  source_use_case: UC-001
+  natural_language: "What subtopics exist under a given energy topic?"
+  type: enumerative
+  priority: must_have
+  sample_answer:
+    - parent: enews:Renewable
+      child: enews:Solar
+      label: "Solar"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?child ?label WHERE {
+      ?child skos:broader enews:Renewable ;
+             rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Returns only direct narrower topics, not transitive descendants"
+  required_axioms:
+    - "enews:Solar skos:broader enews:Renewable"
+    - "enews:Solar rdfs:label 'Solar'@en"
+  requires_reasoning: false
+
+- id: CQ-003
+  source_use_case: UC-001
+  natural_language: "Which articles cover a given energy topic?"
+  type: relational
+  priority: must_have
+  sample_answer:
+    - article: enews:article_001
+      title: "CATL signs multi-GWh storage agreements"
+      topic: enews:EnergyStorage
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    SELECT ?article ?title WHERE {
+      ?article a enews:Article ;
+               enews:coversTopic enews:EnergyStorage ;
+               enews:title ?title .
+    }
+  expected_result: non_empty
+  required_classes: [Article, EnergyTopic]
+  required_properties: [coversTopic, title]
+  out_of_scope: "Does not traverse topic hierarchy; only returns exact topic matches"
+  required_axioms:
+    - "Article SubClassOf coversTopic some EnergyTopic"
+  requires_reasoning: false
+
+- id: CQ-004
+  source_use_case: UC-002
+  natural_language: "Which publication published a given article?"
+  type: relational
+  priority: must_have
+  sample_answer:
+    - article: enews:article_001
+      publication: enews:pub_canary_media
+      label: "Canary Media"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?article ?pub ?pubLabel WHERE {
+      ?article a enews:Article ;
+               enews:publishedBy ?pub .
+      ?pub rdfs:label ?pubLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Article, Publication]
+  required_properties: [publishedBy]
+  out_of_scope: "Does not identify articles without a known publisher"
+  required_axioms:
+    - "publishedBy rdf:type owl:FunctionalProperty"
+  requires_reasoning: false
+
+- id: CQ-005
+  source_use_case: UC-002
+  natural_language: "What energy topics does a given publication cover?"
+  type: relational
+  priority: must_have
+  sample_answer:
+    - publication: enews:pub_bloomberg
+      topic: enews:Oil
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?topic ?topicLabel WHERE {
+      ?article enews:publishedBy enews:pub_bloomberg ;
+               enews:coversTopic ?topic .
+      ?topic rdfs:label ?topicLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Article, Publication, EnergyTopic]
+  required_properties: [publishedBy, coversTopic]
+  out_of_scope: "Does not rank topics by frequency or include hierarchy traversal"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-006
+  source_use_case: UC-002
+  natural_language: "How many articles has each publication contributed?"
+  type: quantitative
+  priority: must_have
+  sample_answer:
+    - publication: enews:pub_canary_media
+      count: 339
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?pub ?pubLabel (COUNT(?article) AS ?count) WHERE {
+      ?article a enews:Article ;
+               enews:publishedBy ?pub .
+      ?pub rdfs:label ?pubLabel .
+    }
+    GROUP BY ?pub ?pubLabel
+    ORDER BY DESC(?count)
+  expected_result: non_empty
+  required_classes: [Article, Publication]
+  required_properties: [publishedBy]
+  out_of_scope: "Does not filter by date range or topic"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-007
+  source_use_case: UC-003
+  natural_language: "Who are the top authors sharing energy news?"
+  type: quantitative
+  priority: must_have
+  sample_answer:
+    - author: enews:author_torsolarfred
+      handle: "torsolarfred.bsky.social"
+      postCount: 300
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    SELECT ?author ?handle (COUNT(?post) AS ?postCount) WHERE {
+      ?post a enews:Post ;
+            enews:postedBy ?author .
+      ?author enews:handle ?handle .
+    }
+    GROUP BY ?author ?handle
+    ORDER BY DESC(?postCount)
+  expected_result: non_empty
+  required_classes: [Post, AuthorAccount]
+  required_properties: [postedBy, handle]
+  out_of_scope: "Does not filter by topic or date range"
+  required_axioms:
+    - "Post SubClassOf postedBy some AuthorAccount"
+    - "postedBy rdf:type owl:FunctionalProperty"
+    - "HasKey(AuthorAccount, handle)"
+  requires_reasoning: false
+
+- id: CQ-008
+  source_use_case: UC-003
+  natural_language: "What energy topics does a given author primarily share about?"
+  type: relational
+  priority: must_have
+  sample_answer:
+    - author: enews:author_torsolarfred
+      topic: enews:Solar
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?topic ?topicLabel (COUNT(?post) AS ?count) WHERE {
+      ?post enews:postedBy enews:author_torsolarfred ;
+            enews:sharesArticle ?article .
+      ?article enews:coversTopic ?topic .
+      ?topic rdfs:label ?topicLabel .
+    }
+    GROUP BY ?topic ?topicLabel
+    ORDER BY DESC(?count)
+  expected_result: non_empty
+  required_classes: [Post, AuthorAccount, Article, EnergyTopic]
+  required_properties: [postedBy, sharesArticle, coversTopic]
+  out_of_scope: "Does not include posts without shared articles"
+  required_axioms:
+    - "sharesArticle rdf:type owl:FunctionalProperty"
+  requires_reasoning: false
+
+- id: CQ-009
+  source_use_case: UC-003
+  natural_language: "Which feeds exist for energy content?"
+  type: enumerative
+  priority: must_have
+  sample_answer:
+    - feed: enews:feed_energysky
+      label: "EnergySky"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?feed ?label WHERE {
+      ?feed a enews:Feed ;
+            rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [Feed]
+  out_of_scope: "Does not return feed metadata (creator, algorithm, post count)"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-010
+  source_use_case: UC-003
+  natural_language: "Is a given energy source classified as renewable or fossil?"
+  type: boolean
+  priority: must_have
+  sample_answer:
+    - source: enews:Solar
+      category: enews:Renewable
+  derivation_method: inference
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    ASK {
+      enews:Solar skos:broader* enews:Renewable .
+    }
+  expected_result: "true"
+  required_classes: [EnergyTopic]
+  out_of_scope: "Does not classify topics outside Renewable/Fossil (e.g., Nuclear, Hydrogen)"
+  required_axioms:
+    - "enews:Solar skos:broader enews:Renewable"
+  requires_reasoning: false
+
+# --- Should Have ---
+
+- id: CQ-011
+  source_use_case: UC-004
+  natural_language: "Which organizations are mentioned in energy news?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - org: enews:org_catl
+      label: "CATL"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?org ?label WHERE {
+      ?article enews:mentionsOrganization ?org .
+      ?org rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [Article, Organization]
+  required_properties: [mentionsOrganization]
+  out_of_scope: "Does not return organization type or sector; does not count mentions"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-012
+  source_use_case: UC-004
+  natural_language: "Which energy topics is a given organization associated with?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - org: enews:org_catl
+      topic: enews:EnergyStorage
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?topic ?topicLabel WHERE {
+      ?article enews:mentionsOrganization enews:org_catl ;
+               enews:coversTopic ?topic .
+      ?topic rdfs:label ?topicLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Article, Organization, EnergyTopic]
+  required_properties: [mentionsOrganization, coversTopic]
+  out_of_scope: "Does not rank topics by frequency of association"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-013
+  source_use_case: UC-005
+  natural_language: "Which countries or regions are covered in energy news?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - geo: enews:geo_us
+      label: "United States"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?geo ?label WHERE {
+      ?article enews:hasGeographicFocus ?geo .
+      ?geo rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [Article, GeographicEntity]
+  required_properties: [hasGeographicFocus]
+  out_of_scope: "Does not return geographic hierarchy (country > region > state)"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-014
+  source_use_case: UC-005
+  natural_language: "What energy topics are covered in a given country?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - geo: enews:geo_australia
+      topic: enews:Solar
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?topic ?topicLabel WHERE {
+      ?article enews:hasGeographicFocus enews:geo_australia ;
+               enews:coversTopic ?topic .
+      ?topic rdfs:label ?topicLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Article, GeographicEntity, EnergyTopic]
+  required_properties: [hasGeographicFocus, coversTopic]
+  out_of_scope: "Does not rank topics by frequency or compare across regions"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-015
+  source_use_case: UC-004
+  natural_language: "What type or sector does a given organization belong to?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - org: enews:org_catl
+      sector: enews:EnergyStorage
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?sector ?sectorLabel WHERE {
+      enews:org_catl a enews:Organization ;
+                     enews:hasSector ?sector .
+      ?sector rdfs:label ?sectorLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Organization, EnergyTopic]
+  required_properties: [hasSector]
+  out_of_scope: "Does not infer sectors from article co-mentions; relies on explicit organization sector assertions"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-016
+  source_use_case: UC-005
+  natural_language: "How does energy news coverage volume compare across geographic regions?"
+  type: quantitative
+  priority: should_have
+  sample_answer:
+    - geo: enews:geo_us
+      label: "United States"
+      articleCount: 1200
+    - geo: enews:geo_australia
+      label: "Australia"
+      articleCount: 340
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?geo ?label (COUNT(?article) AS ?articleCount) WHERE {
+      ?article enews:hasGeographicFocus ?geo .
+      ?geo rdfs:label ?label .
+    }
+    GROUP BY ?geo ?label
+    ORDER BY DESC(?articleCount)
+  expected_result: non_empty
+  required_classes: [Article, GeographicEntity]
+  required_properties: [hasGeographicFocus]
+  out_of_scope: "Does not break down by topic within each region"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-017
+  source_use_case: UC-003
+  natural_language: "Which platforms have the most energy news posts?"
+  type: quantitative
+  priority: should_have
+  sample_answer:
+    - platform: enews:Bluesky
+      label: "Bluesky"
+      postCount: 3
+    - platform: enews:Twitter
+      label: "Twitter"
+      postCount: 1
+  derivation_method: aggregation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?platform ?platformLabel (COUNT(?post) AS ?postCount) WHERE {
+      ?post a enews:Post ;
+            enews:postedBy ?author .
+      ?author enews:onPlatform ?platform .
+      ?platform rdfs:label ?platformLabel .
+    }
+    GROUP BY ?platform ?platformLabel
+    ORDER BY DESC(?postCount)
+  expected_result: non_empty
+  required_classes: [Post, AuthorAccount, SocialMediaPlatform]
+  required_properties: [postedBy, onPlatform]
+  out_of_scope: "Does not filter by date range or topic"
+  required_axioms:
+    - "AuthorAccount SubClassOf onPlatform some SocialMediaPlatform"
+  requires_reasoning: false
+
+- id: CQ-018
+  source_use_case: UC-003
+  natural_language: "Which authors share energy news on a given platform?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - author: enews:author_energytweets
+      handle: "@energytweets"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    SELECT ?author ?handle WHERE {
+      ?author a enews:AuthorAccount ;
+              enews:onPlatform enews:Twitter ;
+              enews:handle ?handle .
+    }
+  expected_result: non_empty
+  required_classes: [AuthorAccount, SocialMediaPlatform]
+  required_properties: [onPlatform, handle]
+  out_of_scope: "Does not return post counts or topic specializations"
+  required_axioms:
+    - "AuthorAccount SubClassOf onPlatform some SocialMediaPlatform"
+  requires_reasoning: false
+
+- id: CQ-019
+  source_use_case: UC-002
+  natural_language: "Which publication published an article based on its URL domain?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - article: enews:article_001
+      url: "https://bloomberg.com/example/storage"
+      domain: "bloomberg.com"
+      pub: enews:pub_bloomberg
+      pubLabel: "Bloomberg"
+  derivation_method: derivation
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?article ?url ?domain ?pub ?pubLabel WHERE {
+      ?article a enews:Article ; enews:url ?url .
+      BIND(REPLACE(STR(?url), "^https?://([^/]+).*$", "$1") AS ?urlDomainRaw)
+      BIND(IF(STRSTARTS(?urlDomainRaw, "www."),
+              SUBSTR(?urlDomainRaw, 5), ?urlDomainRaw) AS ?domain)
+      ?pub a enews:Publication ;
+           enews:siteDomain ?domain ;
+           rdfs:label ?pubLabel .
+    }
+  expected_result: non_empty
+  required_classes: [Article, Publication]
+  required_properties: [url, siteDomain]
+  out_of_scope: "Does not handle subdomain mismatches (e.g. news.bloomberg.com vs bloomberg.com)"
+  required_axioms: []
+  requires_reasoning: false
+
+# --- v0.3.0 Gap Analysis CQs (Should Have) ---
+
+- id: CQ-020
+  source_use_case: UC-001
+  natural_language: "What are the top-level energy topic categories?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - topic: enews:Renewable
+      label: "Renewable"
+    - topic: enews:AIAndDataCenterDemand
+      label: "AI and Data Center Demand"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?topic ?label WHERE {
+      ?topic skos:topConceptOf enews:EnergyTopicScheme ;
+             rdfs:label ?label .
+    }
+    ORDER BY ?label
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Does not return subtopics or hierarchy depth"
+  required_axioms:
+    - "enews:Renewable skos:topConceptOf enews:EnergyTopicScheme"
+  requires_reasoning: false
+
+- id: CQ-021
+  source_use_case: UC-001
+  natural_language: "Which subtopics exist under distributed energy and grid flexibility?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - child: enews:VirtualPowerPlant
+      label: "Virtual Power Plant"
+    - child: enews:DemandResponse
+      label: "Demand Response"
+    - child: enews:Microgrid
+      label: "Microgrid"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?child ?label WHERE {
+      ?child skos:broader enews:DistributedEnergyAndFlexibility ;
+             rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Only returns direct narrower concepts, not transitive descendants"
+  required_axioms:
+    - "enews:VirtualPowerPlant skos:broader enews:DistributedEnergyAndFlexibility"
+  requires_reasoning: false
+
+- id: CQ-022
+  source_use_case: UC-004
+  natural_language: "What organizations operate in a given energy sector?"
+  type: relational
+  priority: should_have
+  sample_answer:
+    - org: enews:org_catl
+      orgLabel: "CATL"
+      sector: enews:EnergyStorage
+      sectorLabel: "Energy Storage"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?org ?orgLabel ?sector ?sectorLabel WHERE {
+      ?org enews:hasSector ?sector ;
+           rdfs:label ?orgLabel .
+      ?sector rdfs:label ?sectorLabel .
+    }
+    ORDER BY ?sectorLabel ?orgLabel
+  expected_result: non_empty
+  required_classes: [Organization, EnergyTopic]
+  required_properties: [hasSector]
+  out_of_scope: "Does not infer sectors from article mentions"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-023
+  source_use_case: UC-004
+  natural_language: "Which regulatory bodies exist in the ontology?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - body: enews:org_doe
+      label: "U.S. Department of Energy"
+    - body: enews:org_cpuc
+      label: "California Public Utilities Commission"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?body ?label WHERE {
+      ?body a enews:RegulatoryBody ;
+            rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [RegulatoryBody]
+  out_of_scope: "Does not return jurisdiction or regulatory domain"
+  required_axioms:
+    - "RegulatoryBody rdfs:subClassOf Organization"
+  requires_reasoning: false
+
+- id: CQ-024
+  source_use_case: UC-002
+  natural_language: "What publications are registered with their site domains?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - pub: enews:pub_bloomberg
+      label: "Bloomberg"
+      domain: "bloomberg.com"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?pub ?label ?domain WHERE {
+      ?pub a enews:Publication ;
+           rdfs:label ?label ;
+           enews:siteDomain ?domain .
+    }
+    ORDER BY ?label
+  expected_result: non_empty
+  required_classes: [Publication]
+  required_properties: [siteDomain]
+  out_of_scope: "Does not match against article URLs; see CQ-019 for that"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-025
+  source_use_case: UC-005
+  natural_language: "Which geographic entities are referenced in the ontology?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - geo: enews:geo_us
+      label: "United States"
+    - geo: enews:geo_texas
+      label: "Texas"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?geo ?label WHERE {
+      ?geo a enews:GeographicEntity ;
+           rdfs:label ?label .
+    }
+    ORDER BY ?label
+  expected_result: non_empty
+  required_classes: [GeographicEntity]
+  out_of_scope: "Does not return geographic hierarchy or containment relationships"
+  required_axioms: []
+  requires_reasoning: false
+
+- id: CQ-026
+  source_use_case: UC-001
+  natural_language: "What energy topics relate to sectoral decarbonization?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - child: enews:IndustrialDecarbonization
+      label: "Industrial Decarbonization"
+    - child: enews:MaritimeDecarbonization
+      label: "Maritime Decarbonization"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?child ?label WHERE {
+      ?child skos:broader enews:SectoralDecarbonization ;
+             rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Only returns direct narrower concepts"
+  required_axioms:
+    - "enews:IndustrialDecarbonization skos:broader enews:SectoralDecarbonization"
+  requires_reasoning: false
+
+- id: CQ-027
+  source_use_case: UC-001
+  natural_language: "Is offshore wind classified under renewable energy?"
+  type: boolean
+  priority: should_have
+  sample_answer:
+    - source: enews:OffshoreWind
+      category: enews:Renewable
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    ASK {
+      enews:OffshoreWind skos:broader enews:Renewable .
+    }
+  expected_result: "true"
+  required_classes: [EnergyTopic]
+  out_of_scope: "Tests only direct broader, not transitive path"
+  required_axioms:
+    - "enews:OffshoreWind skos:broader enews:Renewable"
+  requires_reasoning: false
+
+- id: CQ-028
+  source_use_case: UC-001
+  natural_language: "What are the subtopics of energy storage?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - child: enews:BatteryRecycling
+      label: "Battery Recycling"
+    - child: enews:PumpedHydroStorage
+      label: "Pumped Hydro Storage"
+    - child: enews:LongDurationStorage
+      label: "Long-Duration Storage"
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?child ?label WHERE {
+      ?child skos:broader enews:EnergyStorage ;
+             rdfs:label ?label .
+    }
+  expected_result: non_empty
+  required_classes: [EnergyTopic]
+  out_of_scope: "Only returns direct narrower concepts"
+  required_axioms:
+    - "enews:BatteryRecycling skos:broader enews:EnergyStorage"
+  requires_reasoning: false
+
+- id: CQ-029
+  source_use_case: UC-004
+  natural_language: "Which organizations are classified as regulatory bodies?"
+  type: enumerative
+  priority: should_have
+  sample_answer:
+    - org: enews:org_doe
+      label: "U.S. Department of Energy"
+  derivation_method: inference
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?org ?label WHERE {
+      ?org a enews:Organization ;
+           rdfs:label ?label .
+      ?org a enews:RegulatoryBody .
+    }
+  expected_result: non_empty
+  required_classes: [Organization, RegulatoryBody]
+  out_of_scope: "Tests OWL subclass inference; RegulatoryBody rdfs:subClassOf Organization"
+  required_axioms:
+    - "RegulatoryBody rdfs:subClassOf Organization"
+  requires_reasoning: true
+
+- id: CQ-030
+  source_use_case: UC-001
+  natural_language: "Is data center demand classified under AI and data center energy demand?"
+  type: boolean
+  priority: should_have
+  sample_answer:
+    - source: enews:DataCenterDemand
+      category: enews:AIAndDataCenterDemand
+  derivation_method: direct_lookup
+  sparql: |
+    PREFIX enews: <http://example.org/ontology/energy-news#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    ASK {
+      enews:DataCenterDemand skos:broader enews:AIAndDataCenterDemand .
+    }
+  expected_result: "true"
+  required_classes: [EnergyTopic]
+  out_of_scope: "Tests reparenting from v0.2.0 where DataCenterDemand was top-level"
+  required_axioms:
+    - "enews:DataCenterDemand skos:broader enews:AIAndDataCenterDemand"
+  requires_reasoning: false

@@ -1,0 +1,9 @@
+# Neg-001: Solar is NOT a broader concept of Fossil (non-entailment)
+# Expected: false
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+ASK {
+  enews:Solar skos:broader* enews:Fossil .
+}

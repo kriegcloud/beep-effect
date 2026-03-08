@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-100: What model deployments exist for a foundation model?
+# Expected: non_empty
+SELECT ?model ?modelLabel ?deployment ?deploymentLabel WHERE {
+  ?model a pao:FoundationModel ;
+         rdfs:label ?modelLabel .
+  ?deployment a pao:ModelDeployment ;
+              rdfs:label ?deploymentLabel .
+  ?model pao:deployedAs ?deployment .
+}

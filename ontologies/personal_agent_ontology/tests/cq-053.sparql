@@ -1,0 +1,19 @@
+PREFIX pao: <https://purl.org/pao/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# CQ-053: What fraction of items were preserved during compaction?
+# Expected: non-empty result set
+SELECT ?compaction ?total ?droppedCount ((?total - ?droppedCount) AS ?preservedCount)
+       (IF(?total > 0, ((?total - ?droppedCount) / ?total), 0) AS ?fractionPreserved) WHERE {
+  {
+    SELECT ?compaction (COUNT(?item) AS ?total) (COUNT(?dropped) AS ?droppedCount) WHERE {
+      ?compaction a pao:CompactionEvent ;
+                  pao:compactedItem ?item .
+      OPTIONAL {
+        ?item prov:wasInvalidatedBy ?compaction .
+        BIND(?item AS ?dropped)
+      }
+    }
+    GROUP BY ?compaction
+  }
+}

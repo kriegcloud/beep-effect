@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-078: What service name and endpoint are configured for an agent's integrations?
+# Expected: non-empty result set
+SELECT ?integration ?serviceName ?endpoint WHERE {
+  ?integration a pao:Integration ;
+               pao:hasServiceName ?serviceName .
+  OPTIONAL { ?integration pao:hasEndpoint ?endpoint . }
+}

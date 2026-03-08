@@ -1,0 +1,11 @@
+# CQ-014: What energy topics are covered in a given country?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?topic ?topicLabel WHERE {
+  ?article enews:hasGeographicFocus enews:geo_australia ;
+           enews:coversTopic ?topic .
+  ?topic rdfs:label ?topicLabel .
+}

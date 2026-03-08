@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-097: Which turns updated common ground with acceptance evidence?
+# Expected: non_empty
+SELECT ?groundingAct ?commonGround ?evidence WHERE {
+  ?groundingAct a pao:GroundingAct ;
+                pao:contributesToCommonGround ?commonGround ;
+                pao:providesAcceptanceEvidence ?evidence .
+}

@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+
+# uv
+uv.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing / coverage
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+
+# Local tools (ROBOT CLI, etc.)
+.local/
+
+# Ontology build artifacts
+*.owx
+*.ofn
+
+# Triple store data
+*.db
+*.sqlite
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Large reference PDFs (copyrighted)
+docs/*.pdf
+ontologies/*/release/pao-docs.html

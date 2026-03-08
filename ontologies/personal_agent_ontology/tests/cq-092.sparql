@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-092: Which message content blocks are tool-use blocks versus text blocks?
+# Expected: non_empty
+SELECT ?message ?block ?blockType ?seqIndex WHERE {
+  ?message a pao:Message ;
+           pao:hasContentBlock ?block .
+  ?block a pao:ContentBlock ;
+         pao:hasContentBlockType ?blockType ;
+         pao:blockSequenceIndex ?seqIndex .
+}

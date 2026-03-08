@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-102: What generation config was used for a model invocation?
+# Expected: non_empty
+SELECT ?invocation ?config ?temp ?topP ?maxTokens WHERE {
+  ?invocation a pao:ModelInvocation ;
+              pao:hasGenerationConfig ?config .
+  ?config a pao:GenerationConfiguration .
+  OPTIONAL { ?config pao:hasTemperature ?temp . }
+  OPTIONAL { ?config pao:hasTopP ?topP . }
+  OPTIONAL { ?config pao:hasMaxOutputTokens ?maxTokens . }
+}

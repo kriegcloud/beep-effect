@@ -1,0 +1,9 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-065: What is the available (remaining) capacity of a context window?
+# Expected: non-empty result set
+SELECT ?cw ?capacity ?used (?capacity - ?used AS ?available) WHERE {
+  ?cw a pao:ContextWindow ;
+      pao:hasTokenCapacity ?capacity ;
+      pao:hasTokensUsed ?used .
+}

@@ -1,0 +1,10 @@
+# CQ-011: Which organizations are mentioned in energy news?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?org ?label WHERE {
+  ?article enews:mentionsOrganization ?org .
+  ?org rdfs:label ?label .
+}

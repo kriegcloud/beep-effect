@@ -1,0 +1,9 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-061: What context window is associated with a given session?
+# Expected: non-empty result set
+SELECT ?session ?contextWindow WHERE {
+  ?session a pao:Session ;
+           pao:hasContextWindow ?contextWindow .
+  ?contextWindow a pao:ContextWindow .
+}

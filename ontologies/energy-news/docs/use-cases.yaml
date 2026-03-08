@@ -1,0 +1,74 @@
+- id: UC-001
+  name: "Browse energy news by topic"
+  actor: "Energy analyst / researcher"
+  goal: "Find articles covering a specific energy topic or technology"
+  preconditions:
+    - "Articles are classified by energy topic in the ontology"
+  main_flow:
+    - "Actor selects an energy topic (e.g., Solar, Nuclear, LNG)"
+    - "System returns articles classified under that topic"
+    - "Actor can drill into subtopics (e.g., Solar > Agrivoltaics)"
+  postconditions:
+    - "Actor has a filtered list of articles for their topic of interest"
+  related_cqs: [CQ-001, CQ-002, CQ-003]
+  priority: must_have
+
+- id: UC-002
+  name: "Analyze publication coverage patterns"
+  actor: "Media researcher"
+  goal: "Understand which publications cover which energy sectors"
+  preconditions:
+    - "Articles are linked to publications and energy topics"
+  main_flow:
+    - "Actor queries for articles by publication"
+    - "System returns topic distribution for that publication"
+    - "Actor compares coverage across publications"
+  postconditions:
+    - "Actor understands publication focus areas"
+  related_cqs: [CQ-004, CQ-005, CQ-006]
+  priority: must_have
+
+- id: UC-003
+  name: "Map the energy news landscape"
+  actor: "Energy analyst"
+  goal: "Get an overview of who covers what in energy news on Bluesky"
+  preconditions:
+    - "Authors, publications, topics, and feeds are modeled"
+  main_flow:
+    - "Actor queries for all energy topics and their coverage volume"
+    - "Actor identifies top authors/publications per topic"
+    - "Actor explores geographic coverage patterns"
+  postconditions:
+    - "Actor has a landscape map of energy news coverage"
+  related_cqs: [CQ-007, CQ-008, CQ-009, CQ-010]
+  priority: must_have
+
+- id: UC-004
+  name: "Track organizations in energy news"
+  actor: "Industry analyst"
+  goal: "Find which organizations appear in energy news and in what context"
+  preconditions:
+    - "Organizations are linked to articles and energy topics"
+  main_flow:
+    - "Actor searches for an organization"
+    - "System returns articles mentioning that organization"
+    - "Actor sees which topics the organization appears under"
+  postconditions:
+    - "Actor understands an organization's news footprint"
+  related_cqs: [CQ-011, CQ-012, CQ-015]
+  priority: should_have
+
+- id: UC-005
+  name: "Explore geographic energy coverage"
+  actor: "Policy researcher"
+  goal: "Understand which regions get energy news coverage"
+  preconditions:
+    - "Articles are linked to geographic entities"
+  main_flow:
+    - "Actor queries by country or region"
+    - "System returns articles and topics for that geography"
+    - "Actor compares coverage volume across regions"
+  postconditions:
+    - "Actor sees coverage distribution by geography"
+  related_cqs: [CQ-013, CQ-014, CQ-016]
+  priority: should_have

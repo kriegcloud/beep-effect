@@ -1,0 +1,9 @@
+# Neg-002: Nuclear is NOT classified under Renewable (non-entailment)
+# Expected: false
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+ASK {
+  enews:Nuclear skos:broader* enews:Renewable .
+}

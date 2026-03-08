@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <!-- PAO TBox and modules -->
+  <uri id="pao-tbox" name="https://purl.org/pao/" uri="personal_agent_ontology.ttl"/>
+  <uri id="pao-ref" name="https://purl.org/pao/reference-individuals" uri="pao-reference-individuals.ttl"/>
+  <uri id="pao-data" name="https://purl.org/pao/data" uri="pao-data.ttl"/>
+
+  <!-- Import stubs (MIREOT-style declarations) -->
+  <uri id="pao-prov" name="https://purl.org/pao/prov-declarations" uri="imports/prov-declarations.ttl"/>
+  <uri id="pao-time" name="https://purl.org/pao/time-declarations" uri="imports/time-declarations.ttl"/>
+  <uri id="pao-foaf" name="https://purl.org/pao/foaf-declarations" uri="imports/foaf-declarations.ttl"/>
+  <uri id="pao-odrl" name="https://purl.org/pao/odrl-declarations" uri="imports/odrl-declarations.ttl"/>
+  <uri id="pao-bfo" name="https://purl.org/pao/bfo-declarations" uri="imports/bfo-declarations.ttl"/>
+</catalog>

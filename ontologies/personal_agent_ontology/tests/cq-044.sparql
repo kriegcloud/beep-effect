@@ -1,0 +1,8 @@
+# CQ-044: Which memory items have been rehearsed and how many times?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?item (COUNT(?r) AS ?count) WHERE {
+  ?r a pao:Rehearsal ;
+     pao:operatesOn ?item .
+}
+GROUP BY ?item

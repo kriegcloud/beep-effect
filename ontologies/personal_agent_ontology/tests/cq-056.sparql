@@ -1,0 +1,8 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-056: Which session continued from a given prior session?
+# Expected: non-empty result set
+SELECT ?session ?prior WHERE {
+  ?session a pao:Session ;
+           pao:continuedFrom ?prior .
+}

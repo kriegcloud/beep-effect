@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-089: Which tasks required human checkpoint decisions?
+# Expected: non-empty result set
+SELECT ?checkpoint ?task ?decision WHERE {
+  ?checkpoint a pao:Checkpoint ;
+              pao:checkpointForTask ?task ;
+              pao:checkpointDecision ?decision .
+}

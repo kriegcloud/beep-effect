@@ -1,0 +1,10 @@
+# CQ-001: What energy topics exist in the ontology?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?topic ?label WHERE {
+  ?topic a enews:EnergyTopic ;
+         rdfs:label ?label .
+}

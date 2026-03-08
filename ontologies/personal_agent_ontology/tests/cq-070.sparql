@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-070: Which communication channels are associated with a given conversation?
+# Expected: non-empty result set
+SELECT DISTINCT ?conversation ?channel ?channelType WHERE {
+  ?session pao:partOfConversation ?conversation ;
+           pao:viaChannel ?channel .
+  ?channel pao:hasChannelType ?channelType .
+}

@@ -1,0 +1,13 @@
+# CQ-006: How many articles has each publication contributed?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pub ?pubLabel (COUNT(?article) AS ?count) WHERE {
+  ?article a enews:Article ;
+           enews:publishedBy ?pub .
+  ?pub rdfs:label ?pubLabel .
+}
+GROUP BY ?pub ?pubLabel
+ORDER BY DESC(?count)

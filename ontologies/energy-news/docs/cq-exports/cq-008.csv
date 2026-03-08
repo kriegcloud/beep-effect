@@ -1,0 +1,5 @@
+topic,topicLabel,count
+http://example.org/ontology/energy-news#EnergyStorage,energy storage,1
+http://example.org/ontology/energy-news#Manufacturing,manufacturing,1
+http://example.org/ontology/energy-news#RooftopSolar,rooftop solar,1
+http://example.org/ontology/energy-news#Solar,solar,1

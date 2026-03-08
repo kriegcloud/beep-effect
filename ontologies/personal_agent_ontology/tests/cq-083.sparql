@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-083: What permission mode is active for each agent?
+# Expected: non-empty result set
+SELECT ?agent ?mode ?label WHERE {
+  ?agent a pao:AIAgent ;
+         pao:operatesInMode ?mode .
+  ?mode a pao:PermissionMode ;
+        rdfs:label ?label .
+}

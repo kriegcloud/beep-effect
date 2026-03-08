@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-095: What memory write conflicts occurred and how were they resolved?
+# Expected: non_empty
+SELECT ?conflict ?artifact ?agent ?policy WHERE {
+  ?conflict a pao:MemoryWriteConflict ;
+            pao:conflictOnArtifact ?artifact ;
+            pao:writesByAgent ?agent .
+  OPTIONAL { ?conflict pao:resolvedByPolicy ?policy . }
+}

@@ -1,0 +1,9 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-094: Which memory artifacts are shared across multiple agents?
+# Expected: non_empty
+SELECT ?artifact ?agent WHERE {
+  ?artifact a pao:SharedMemoryArtifact ;
+            pao:sharedAcrossAgents ?agent .
+}

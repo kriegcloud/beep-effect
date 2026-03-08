@@ -1,0 +1,25 @@
+#curie_map:
+#  enews: "http://example.org/ontology/energy-news#"
+#  wikidata: "http://www.wikidata.org/entity/"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#mapping_set_id: "http://example.org/ontology/energy-news/mappings/enews-to-wikidata"
+#mapping_set_description: "Mappings from Energy News Ontology v0.3.0 to Wikidata for entity linking"
+#license: "https://creativecommons.org/publicdomain/zero/1.0/"
+#subject_source: "http://example.org/ontology/energy-news"
+#subject_source_version: "0.3.0"
+#object_source: "http://www.wikidata.org/entity/"
+#mapping_date: "2026-02-26"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+enews:PowerPlant	Power Plant	skos:closeMatch	wikidata:Q159719	power station	semapv:ManualMappingCuration	0.90	Wikidata power station covers electricity and heat generation facilities
+enews:Solar	Solar	skos:closeMatch	wikidata:Q1003207	photovoltaic power station	semapv:ManualMappingCuration	0.75	enews:Solar is a SKOS topic; Wikidata is a facility type
+enews:Wind	Wind	skos:relatedMatch	wikidata:Q194356	wind farm	semapv:ManualMappingCuration	0.70	enews:Wind is a SKOS topic; Wikidata is a facility type
+enews:EnergyPolicy	Energy Policy	skos:closeMatch	wikidata:Q1805337	energy policy	semapv:ManualMappingCuration	0.85	Both represent government energy policy; enews is SKOS topic
+enews:EnergyMarkets	Energy Markets	skos:closeMatch	wikidata:Q1239166	energy market	semapv:ManualMappingCuration	0.85	Both represent energy commodity/electricity trading markets
+enews:WholesaleMarkets	Wholesale Markets	skos:closeMatch	wikidata:Q676081	electricity market	semapv:ManualMappingCuration	0.80	Both cover wholesale electricity trading
+enews:Hydrogen	Hydrogen	skos:closeMatch	wikidata:Q556	hydrogen	semapv:ManualMappingCuration	0.85	enews is SKOS topic for hydrogen as energy carrier; Wikidata is the chemical element
+enews:Nuclear	Nuclear	skos:closeMatch	wikidata:Q12739	nuclear power	semapv:ManualMappingCuration	0.85	Both represent nuclear fission/fusion energy
+enews:EnergyStorage	Energy Storage	skos:closeMatch	wikidata:Q900500	energy storage	semapv:ManualMappingCuration	0.90	Both represent battery and other energy storage technologies
+enews:CarbonCapture	Carbon Capture	skos:closeMatch	wikidata:Q592501	carbon capture and storage	semapv:ManualMappingCuration	0.85	Both represent CCS/CCUS technologies
+enews:Geothermal	Geothermal	skos:closeMatch	wikidata:Q80583	geothermal energy	semapv:ManualMappingCuration	0.90	Both represent geothermal energy
+enews:ElectricVehicles	Electric Vehicles	skos:closeMatch	wikidata:Q193692	electric vehicle	semapv:ManualMappingCuration	0.90	Both represent battery/plug-in electric cars and trucks

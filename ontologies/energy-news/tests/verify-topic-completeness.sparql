@@ -1,0 +1,19 @@
+# Constraint: every EnergyTopic individual must have label, definition, and scheme
+# Expected: zero results (ROBOT verify passes on zero rows)
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX enews: <http://example.org/ontology/energy-news#>
+
+SELECT ?topic ?issue WHERE {
+  ?topic a enews:EnergyTopic .
+  {
+    FILTER NOT EXISTS { ?topic rdfs:label ?label }
+    BIND("missing rdfs:label" AS ?issue)
+  } UNION {
+    FILTER NOT EXISTS { ?topic skos:definition ?def }
+    BIND("missing skos:definition" AS ?issue)
+  } UNION {
+    FILTER NOT EXISTS { ?topic skos:inScheme ?scheme }
+    BIND("missing skos:inScheme" AS ?issue)
+  }
+}
