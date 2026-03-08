@@ -21,6 +21,9 @@ At minimum, include questions like:
 - how many indexed symbols are in the latest snapshot?
 - what does `packages/runtime/server/src/index.ts` import?
 - what imports `./internal/GroundedRetrieval.js`?
+- what does `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts` depend on?
+- what depends on `packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts`?
+- what does `RunProjector.ts` depend on?
 - search `cluster workflow`
 
 ## Current Proven Coverage
@@ -28,6 +31,7 @@ At minimum, include questions like:
 - Spawned Bun sidecar tests already prove local-origin CORS preflight and security headers against the real sidecar entrypoint.
 - Spawned Bun sidecar tests already prove public-path interrupt/resume for durable index runs, including resume after sidecar restart.
 - Grounded retrieval tests already prove source-backed answers, citation alignment, and retrieval-packet persistence for the current deterministic query classes.
+- The current query interpreter already proves the stable typed boundary that retrieval-side NLP must preserve rather than replace.
 - The native Tauri wrapper already owns managed startup/shutdown and folder picking while the React shell stays thin over the public protocol.
 
 ## Acceptance Checks
@@ -48,6 +52,7 @@ At minimum, include questions like:
 - verify disconnect does not kill the underlying run
 - reconnect from cursor and receive missing events cleanly
 - verify final run detail remains inspectable after completion
+- verify replayed delta events project back into the same final run state visible through `GET /runs/:runId`
 
 ### 4. Grounded answer quality
 - final answer must correspond to the repo question
@@ -56,11 +61,15 @@ At minimum, include questions like:
 - unsupported confidence should not be presented as certainty
 - supported query classes must be source-grounded
 - unsupported query classes must fail safe instead of inventing answers
+- paraphrase, identifier-split, and relaxed file/module phrasings for supported queries should either collapse to the same grounded result or fail safe as unsupported
+- deterministic fallback behavior must remain available for the current exact-match query path
+- if retrieval-side NLP materially changes result selection, the explanation must remain inspectable through retrieval-packet notes and observability
 
 ### 5. Projection integrity
 - `GET /runs` and `GET /runs/:runId` must reflect durable run state
 - final retrieval packet and final answer must match the run event history
 - replay after restart must rebuild the same projection state
+- stream consumers must be able to rebuild equivalent run state from journal replay plus live events without relying on embedded run snapshots
 
 ### 6. Local operational behavior
 - sidecar launches cleanly from the shell
@@ -74,7 +83,8 @@ At minimum, include questions like:
 - supporting tests may use Node-backed harnesses, but those tests do not stand in for Bun lifecycle behavior
 
 ## Remaining P0 Closure Items
-- Extract `RunProjector` and `RunStateMachine` as explicit runtime seams without changing the public protocol boundary.
+- Land retrieval-side NLP enrichment only through the query-to-retrieval path; do not introduce durable NLP candidate state in repo `v0`.
+- Land the broader projection bootstrap/cursor pipeline and decider-style runtime split without changing the public protocol boundary.
 - Expand the canonical question set only when new query classes stay deterministic and source-grounded.
 
 ### 7. Type and spec discipline
@@ -83,6 +93,7 @@ At minimum, include questions like:
 - test fixtures and request/response bodies should use schema JSON codecs instead of native JSON helpers
 - the spec set must not still recommend the superseded `HTTP + SSE` run model
 - the spec set must not still recommend a custom local workflow engine
+- the spec set must keep NLP scoped to retrieval-side enrichment and must not imply freeform semantic repo chat or NLP-derived canonical state
 
 ## Prototype-Grade, Not SLA-Grade
 This is still a research prototype.
@@ -101,4 +112,4 @@ It does need:
 ## Questions Worth Keeping Open
 - How much broader interrupt/resume coverage is needed beyond the currently proved durable index-run path?
 - At what point should evaluation add latency targets instead of only correctness and inspectability?
-- When should evaluation add dependency-aware retrieval instead of declaration/export-only grounding?
+- When should evaluation promote projection-bootstrap and replay-equivalence checks from focused supporting tests into the default acceptance gate?

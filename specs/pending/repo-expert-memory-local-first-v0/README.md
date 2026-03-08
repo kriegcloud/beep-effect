@@ -59,12 +59,17 @@ Important reading posture:
 - local persistence of repo-memory artifacts and run artifacts
 - cluster-backed durable workflow lifecycle
 - journal-backed run projections
+- retrieval-side NLP enrichment limited to query hygiene, intent hints, bounded ranking/query expansion, and grounded summarization after citations are fixed
 - sidecar-managed runtime and protocol
 
 ## Current Implementation Snapshot
 - `packages/runtime/protocol` now exposes `ControlPlaneApi`, `SidecarBootstrap`, `RepoRunRpcGroup`, `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents` as the public sidecar boundary.
 - `packages/runtime/server` already mounts `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"` on one Bun server, emits a machine-readable bootstrap line on stdout, persists runtime state through `@effect/sql-sqlite-bun`, and serves local-origin CORS plus basic browser security headers.
 - `packages/repo-memory/runtime` already owns deterministic TypeScript indexing, workflow-backed run acceptance/execution, journal-backed stream replay, SQLite-backed run projections, and bounded grounded retrieval for the current supported query classes.
+- `packages/repo-memory/model` now defines a shared pure `RunProjector`, and lifecycle `RunStreamEvent` payloads are now durable deltas rather than embedded full `RepoRun` snapshots.
+- `packages/repo-memory/runtime` and `apps/desktop` now both project live run state from the same event stream instead of treating streamed lifecycle events as pre-materialized run snapshots.
+- grounded retrieval now includes repo-local resolved file dependency and dependent queries backed by persisted `resolvedTargetFilePath` import-edge state.
+- `packages/common/nlp` already exists as the intended shared home for retrieval-side query-hygiene and ranking helpers; repo `v0` still keeps those helpers on the candidate side of the boundary rather than writing durable claim or entity state.
 - `packages/repo-memory/client` is a real typed client, and `apps/desktop` is now a real Tauri v2 wrapper with Rust-managed sidecar lifecycle, native repo-directory picking, auto-connect on startup, same-origin `portless` desktop dev over HTTPS, and a manual base-URL debug override.
 - Testing already follows the intended split: `@effect/vitest` supporting tests plus spawned Bun subprocess tests for real sidecar lifecycle proof, including durable index-run interrupt/resume through the public RPC path.
 
@@ -79,7 +84,8 @@ Important reading posture:
 - resuming the paused `HttpApi` rewrite as a standalone branch of work
 
 ## Known Remaining P0 Gaps
-- `RunProjector` and `RunStateMachine` remain the intended runtime seams, but most projection/materialization and transition logic still lives inside `RepoRunService`.
+- `RunProjector` and `RunStateMachine` now exist as explicit seams, but the broader projection bootstrap/cursor pipeline and decider-style service split still live mostly inside `RepoRunService`.
+- Retrieval-side NLP enrichment is not yet integrated. It should land only as a bounded layer over query normalization, typed intent hints, ranking/query expansion, and grounded summarization after citations are fixed.
 - Grounded query expansion should continue only through deterministic source-backed additions, not freeform semantic repo chat.
 
 ## Relationship To Upstream Context
@@ -91,6 +97,7 @@ Use these documents as upstream context when the `why` behind a v0 decision matt
 - [Claims And Evidence](../expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md)
 - [Expert Memory Control Plane](../expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md)
 - [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md)
+- [NLP in the Expert-Memory Big Picture for beep-effect](../expert-memory-big-picture/research/NLP%20in%20the%20Expert-Memory%20Big%20Picture%20for%20beep-effect.md)
 
 ## Success Condition
 This spec succeeds if another engineer can implement a desktop research prototype without making new product-shape decisions about:

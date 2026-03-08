@@ -26,6 +26,7 @@ The first runnable slice is:
 - Desktop dev now runs through `portless` with a same-origin `https://desktop.localhost:1355` shell URL and `"/api"` proxying to the managed sidecar.
 - The sidecar already persists repo-memory artifacts and run projections in SQLite, and it already replays journaled run events after reconnect or restart.
 - Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, replay, public-path interrupt/resume for durable index runs, and local-origin CORS/security headers against the real sidecar entrypoint.
+- The current query path already compiles natural-language repo questions into bounded deterministic query interpretations; the next retrieval-side NLP phase should enrich that path rather than replace it.
 
 ## Scope In
 Lock these in for `v0`:
@@ -37,6 +38,7 @@ Lock these in for `v0`:
 - cluster-backed durable execution substrate
 - visible citations and evidence panel
 - retrieval packet visibility
+- retrieval-side NLP enrichment limited to query normalization, identifier-aware tokenization, bounded intent hints, bounded ranking/query expansion, and grounded summarization after citations are fixed
 - enough provenance and temporal identity to explain when a run happened and what it used
 - reconnectable streamed run events through `Rpc`
 
@@ -49,6 +51,7 @@ Lock these out for `v0`:
 - email / calendar / settings product surfaces
 - broad agent connector ecosystems
 - semantic-web maximalism
+- durable NLP-derived mention, entity, relation, or claim state
 - cloud deployment hardening
 
 ## User Flow
@@ -77,12 +80,15 @@ Progress is streamed through `Rpc`, not modeled as the long-term SSE contract.
 ### 4. Ask a query
 The user asks a question about the repo.
 The UI triggers `StartQueryRepoRun` and subscribes to `StreamRunEvents`.
+The front door may accept looser natural phrasing, but the runtime must still compile that phrasing into the existing bounded query classes or fail safe as unsupported.
+Retrieval-side NLP belongs here only as enrichment over query preparation and retrieval, not as a replacement for typed grounded plans.
 
 ### 5. Inspect grounded result
 The final query view must show:
 - final answer
 - citations
 - retrieval packet
+- any concise notes needed to explain materially important normalization or ranking behavior
 - run metadata
 - enough history to understand what happened
 
@@ -103,6 +109,7 @@ Supported query classes in the current grounded slice:
 Out of scope for this slice:
 - freeform semantic repo QA
 - model-synthesized answers without deterministic source backing
+- NLP-derived writes into canonical repo-memory state
 
 Testing posture for this slice:
 - `@effect/vitest` is the default supporting harness
@@ -112,6 +119,7 @@ Testing posture for this slice:
 
 ## Remaining Slice Gaps
 - `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
+- Retrieval-side NLP enrichment still needs to land as a bounded layer over query interpretation and packet assembly.
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.

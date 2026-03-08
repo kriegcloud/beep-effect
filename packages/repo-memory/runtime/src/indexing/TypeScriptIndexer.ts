@@ -812,6 +812,7 @@ const extractTopLevelSymbols = Effect.fn("TypeScriptIndex.extractTopLevelSymbols
 
 const extractImportEdges = (options: {
   readonly repoId: RepoId;
+  readonly repoRootPath: string;
   readonly sourceSnapshotId: SourceSnapshotId;
   readonly filePath: string;
   readonly sourceFile: SourceFile;
@@ -824,6 +825,21 @@ const extractImportEdges = (options: {
     const defaultImport = importDeclaration.getDefaultImport();
     const namespaceImport = importDeclaration.getNamespaceImport();
     const namedImports = importDeclaration.getNamedImports();
+    const resolvedTargetFilePath = pipe(
+      O.fromNullishOr(importDeclaration.getModuleSpecifierSourceFile()),
+      O.map((targetSourceFile) => targetSourceFile.getFilePath()),
+      O.filter((targetFilePath) => !isIgnoredPath(targetFilePath) && isTypeScriptSourceFile(targetFilePath)),
+      O.filter((targetFilePath) => {
+        const normalizedRepoRoot = normalizePath(options.repoRootPath);
+        const normalizedTargetFilePath = normalizePath(targetFilePath);
+
+        return (
+          normalizedTargetFilePath === normalizedRepoRoot ||
+          normalizedTargetFilePath.startsWith(`${normalizedRepoRoot}/`)
+        );
+      }),
+      O.map(decodeFilePath)
+    );
 
     if (defaultImport !== undefined) {
       results = A.append(
@@ -836,6 +852,7 @@ const extractImportEdges = (options: {
           endLine: decodePosInt(importDeclaration.getEndLineNumber()),
           moduleSpecifier,
           importedName: O.some(defaultImport.getText()),
+          resolvedTargetFilePath,
           typeOnly,
         })
       );
@@ -852,6 +869,7 @@ const extractImportEdges = (options: {
           endLine: decodePosInt(importDeclaration.getEndLineNumber()),
           moduleSpecifier,
           importedName: O.some(namespaceImport.getText()),
+          resolvedTargetFilePath,
           typeOnly,
         })
       );
@@ -868,6 +886,7 @@ const extractImportEdges = (options: {
           endLine: decodePosInt(importDeclaration.getEndLineNumber()),
           moduleSpecifier,
           importedName: O.some(namedImport.getName()),
+          resolvedTargetFilePath,
           typeOnly,
         })
       );
@@ -884,6 +903,7 @@ const extractImportEdges = (options: {
           endLine: decodePosInt(importDeclaration.getEndLineNumber()),
           moduleSpecifier,
           importedName: O.none(),
+          resolvedTargetFilePath,
           typeOnly,
         })
       );
@@ -1310,6 +1330,7 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
             extractedImportEdges,
             extractImportEdges({
               repoId: options.repoId,
+              repoRootPath: canonicalRepoPath,
               sourceSnapshotId: provisionalSnapshotId,
               filePath,
               sourceFile,

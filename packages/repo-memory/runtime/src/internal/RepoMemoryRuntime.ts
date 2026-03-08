@@ -439,7 +439,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             runId,
             sequence: transition.run.lastEventSequence,
             emittedAt,
-            run: transition.run,
           })
         )
       ),
@@ -449,7 +448,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             runId,
             sequence: transition.run.lastEventSequence,
             emittedAt,
-            run: transition.run,
           })
         )
       ),
@@ -523,7 +521,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           runId,
           sequence: interruptedRun.lastEventSequence,
           emittedAt: interruptedAt,
-          run: interruptedRun,
         })
       );
     });
@@ -546,7 +543,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           sequence: failedRun.lastEventSequence,
           emittedAt: failedAt,
           message,
-          run: failedRun,
         })
       );
     });
@@ -603,7 +599,9 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           runId,
           sequence: run.lastEventSequence,
           emittedAt: acceptedAt,
-          run,
+          runKind: "index",
+          repoId: payload.repoId,
+          question: O.none(),
         })
       );
       yield* annotateRunServiceSpan({
@@ -639,7 +637,9 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           runId,
           sequence: run.lastEventSequence,
           emittedAt: acceptedAt,
-          run,
+          runKind: "query",
+          repoId: payload.repoId,
+          question: O.some(payload.question),
         })
       );
       yield* annotateRunServiceSpan({
@@ -673,7 +673,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               runId: request.runId,
               sequence: interruptedRun.lastEventSequence,
               emittedAt: requestedAt,
-              run: interruptedRun,
             })
           );
           yield* recordRunFinished(
@@ -798,7 +797,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             runId,
             sequence: completedRun.lastEventSequence,
             emittedAt: completedAt,
-            run: completedRun,
+            indexedFileCount: O.some(indexedArtifacts.snapshot.fileCount),
           })
         );
         yield* recordRunFinished(
@@ -934,7 +933,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             runId,
             sequence: completedRun.lastEventSequence,
             emittedAt: completedAt,
-            run: completedRun,
+            indexedFileCount: O.none(),
           })
         );
         yield* recordRunFinished(

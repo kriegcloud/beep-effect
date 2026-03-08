@@ -148,6 +148,8 @@ Those do not replace the explicit desktop-facing run-control contract.
 - then continue live
 - not cancel the underlying workflow on client disconnect
 - terminate only after a terminal run event is emitted
+- stream durable delta events, not embedded full `RepoRun` snapshots
+- remain sufficient for clients to rebuild local run state through the shared run projector
 
 ## Run Lifecycle Identity
 - `runId === executionId`
@@ -179,6 +181,13 @@ These events drive:
 
 `RunInterrupted` and `RunResumed` remain part of the locked event vocabulary and are exercised by the current public interrupt/resume path.
 
+Lifecycle event payload rules:
+- lifecycle events are delta-shaped and do not embed a full `RepoRun`
+- `RunAccepted` carries the minimum facts needed to bootstrap projection such as `runKind`, `repoId`, and query-specific fields like `question` when applicable
+- `RunCompleted` carries terminal deltas such as `indexedFileCount` for index runs, not a fully materialized run snapshot
+- `RetrievalPacketMaterialized` and `AnswerDrafted` remain bounded result deltas
+- `GET /runs` and `GET /runs/:runId` remain the durable projected read surface; `StreamRunEvents` is the event history used to rebuild that state locally
+
 ## Retired Routes
 These HTTP routes are retired and should not be reintroduced:
 - `POST /api/v0/repos/:repoId/index-runs`
@@ -201,6 +210,10 @@ Rules:
 - it should be durable enough to inspect after the run completes
 - it should be visible from both `GET /runs/:runId` and streamed execution output
 - it should remain smaller and more inspectable than a raw unbounded subgraph dump
+- if retrieval-side NLP materially affects normalization or result selection, the packet may expose concise inspectable notes rather than inventing a new public event family
+
+Retrieval-side NLP enrichment remains an internal runtime concern in `v0`.
+It may improve query preparation, ranking, and grounded summarization, but it does not add new public `HttpApi` routes, `Rpc` methods, or run-event kinds, and it must preserve deterministic fallback behavior.
 
 ## Questions Worth Keeping Open
 - Should the custom RPC surface stay limited to `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents`?

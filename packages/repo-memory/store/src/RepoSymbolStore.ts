@@ -27,6 +27,16 @@ export interface RepoSymbolStoreShape {
     repoId: RepoId,
     sourceSnapshotId: SourceSnapshotId
   ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
+  readonly listImportEdgesForImporterFile: (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    importerFilePath: FilePath
+  ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
+  readonly listImportEdgesForResolvedTargetFile: (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    resolvedTargetFilePath: FilePath
+  ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
   readonly listSymbolRecords: (
     repoId: RepoId,
     sourceSnapshotId: SourceSnapshotId

@@ -151,6 +151,7 @@ class ImportEdgeRow extends S.Class<ImportEdgeRow>($I`ImportEdgeRow`)(
     end_line: PosInt,
     module_specifier: S.String,
     imported_name: S.OptionFromNullOr(S.String),
+    resolved_target_file_path: S.OptionFromNullOr(FilePath),
     type_only: NonNegativeInt,
   },
   $I.annote("ImportEdgeRow", {
@@ -231,6 +232,16 @@ export interface RepoMemorySqlShape {
   readonly listImportEdges: (
     repoId: RepoId,
     sourceSnapshotId: SourceSnapshotId
+  ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
+  readonly listImportEdgesForImporterFile: (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    importerFilePath: FilePath
+  ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
+  readonly listImportEdgesForResolvedTargetFile: (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    resolvedTargetFilePath: FilePath
   ) => Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError>;
   readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, RepoStoreError>;
   readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, RepoStoreError>;
@@ -389,6 +400,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         end_line INTEGER,
         module_specifier TEXT NOT NULL,
         imported_name TEXT,
+        resolved_target_file_path TEXT,
         type_only INTEGER NOT NULL,
         PRIMARY KEY (repo_id, source_snapshot_id, importer_file_path, module_specifier, imported_name)
       )
@@ -413,6 +425,26 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         Effect.mapError((cause) => toDriverError("Failed to migrate import edge end_line column.", 500, cause))
       );
     }
+
+    if (!pipe(importEdgeColumnNames, A.contains("resolved_target_file_path"))) {
+      yield* sql`ALTER TABLE ${importEdgesTable} ADD COLUMN resolved_target_file_path TEXT`.pipe(
+        Effect.mapError((cause) =>
+          toDriverError("Failed to migrate import edge resolved_target_file_path column.", 500, cause)
+        )
+      );
+    }
+
+    yield* sql`
+      CREATE INDEX IF NOT EXISTS repo_memory_import_edges_by_importer_file
+      ON ${importEdgesTable} (repo_id, source_snapshot_id, importer_file_path)
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create import edge importer index.", 500, cause)));
+
+    yield* sql`
+      CREATE INDEX IF NOT EXISTS repo_memory_import_edges_by_resolved_target
+      ON ${importEdgesTable} (repo_id, source_snapshot_id, resolved_target_file_path)
+    `.pipe(
+      Effect.mapError((cause) => toDriverError("Failed to create import edge resolved target index.", 500, cause))
+    );
 
     yield* sql`
       UPDATE ${importEdgesTable}
@@ -529,8 +561,20 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       endLine: row.end_line,
       moduleSpecifier: row.module_specifier,
       importedName: row.imported_name,
+      resolvedTargetFilePath: row.resolved_target_file_path,
       typeOnly: row.type_only === 1,
     });
+
+  const decodeImportEdges = (
+    rows: ReadonlyArray<ImportEdgeRow>,
+    repoId: RepoId
+  ): Effect.Effect<ReadonlyArray<RepoImportEdge>, RepoStoreError> =>
+    Effect.forEach(rows, (row) =>
+      decodeImportEdgeRow(row).pipe(
+        Effect.map(importEdgeRowToModel),
+        Effect.mapError((cause) => toDriverError(`Failed to decode import edge row for repo "${repoId}".`, 500, cause))
+      )
+    );
 
   const packetRowToModel = (row: PacketRow): Effect.Effect<RetrievalPacket, RepoStoreError> =>
     decodePacketJson(row.packet_json).pipe(
@@ -1148,7 +1192,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       yield* annotateDriverSpan({ repo_id: repoId, source_snapshot_id: sourceSnapshotId });
 
       const rows = yield* sql<ImportEdgeRow>`
-      SELECT repo_id, source_snapshot_id, importer_file_path, start_line, end_line, module_specifier, imported_name, type_only
+      SELECT repo_id, source_snapshot_id, importer_file_path, start_line, end_line, module_specifier, imported_name, resolved_target_file_path, type_only
       FROM ${importEdgesTable}
       WHERE repo_id = ${repoId} AND source_snapshot_id = ${sourceSnapshotId}
       ORDER BY importer_file_path ASC, module_specifier ASC
@@ -1158,16 +1202,73 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         )
       );
 
-      return yield* Effect.forEach(rows, (row) =>
-        decodeImportEdgeRow(row).pipe(
-          Effect.map(importEdgeRowToModel),
-          Effect.mapError((cause) =>
-            toDriverError(`Failed to decode import edge row for repo "${repoId}".`, 500, cause)
-          )
-        )
-      );
+      return yield* decodeImportEdges(rows, repoId);
     }
   );
+
+  const listImportEdgesForImporterFile: RepoMemorySqlShape["listImportEdgesForImporterFile"] = Effect.fn(
+    "RepoMemorySql.listImportEdgesForImporterFile"
+  )(function* (repoId, sourceSnapshotId, importerFilePath): Effect.fn.Return<
+    ReadonlyArray<RepoImportEdge>,
+    RepoStoreError
+  > {
+    yield* annotateDriverSpan({
+      repo_id: repoId,
+      source_snapshot_id: sourceSnapshotId,
+      importer_file_path: importerFilePath,
+    });
+
+    const rows = yield* sql<ImportEdgeRow>`
+      SELECT repo_id, source_snapshot_id, importer_file_path, start_line, end_line, module_specifier, imported_name, resolved_target_file_path, type_only
+      FROM ${importEdgesTable}
+      WHERE repo_id = ${repoId}
+        AND source_snapshot_id = ${sourceSnapshotId}
+        AND importer_file_path = ${importerFilePath}
+      ORDER BY module_specifier ASC
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(
+          `Failed to list import edges for importer file "${importerFilePath}" in repo "${repoId}".`,
+          500,
+          cause
+        )
+      )
+    );
+
+    return yield* decodeImportEdges(rows, repoId);
+  });
+
+  const listImportEdgesForResolvedTargetFile: RepoMemorySqlShape["listImportEdgesForResolvedTargetFile"] = Effect.fn(
+    "RepoMemorySql.listImportEdgesForResolvedTargetFile"
+  )(function* (repoId, sourceSnapshotId, resolvedTargetFilePath): Effect.fn.Return<
+    ReadonlyArray<RepoImportEdge>,
+    RepoStoreError
+  > {
+    yield* annotateDriverSpan({
+      repo_id: repoId,
+      source_snapshot_id: sourceSnapshotId,
+      resolved_target_file_path: resolvedTargetFilePath,
+    });
+
+    const rows = yield* sql<ImportEdgeRow>`
+      SELECT repo_id, source_snapshot_id, importer_file_path, start_line, end_line, module_specifier, imported_name, resolved_target_file_path, type_only
+      FROM ${importEdgesTable}
+      WHERE repo_id = ${repoId}
+        AND source_snapshot_id = ${sourceSnapshotId}
+        AND resolved_target_file_path = ${resolvedTargetFilePath}
+      ORDER BY importer_file_path ASC, module_specifier ASC
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(
+          `Failed to list import edges for resolved target file "${resolvedTargetFilePath}" in repo "${repoId}".`,
+          500,
+          cause
+        )
+      )
+    );
+
+    return yield* decodeImportEdges(rows, repoId);
+  });
 
   const saveIndexArtifact: RepoMemorySqlShape["saveIndexArtifact"] = Effect.fn("RepoMemorySql.saveIndexArtifact")(
     function* (artifact): Effect.fn.Return<RepoIndexArtifact, RepoStoreError> {
@@ -1315,6 +1416,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
           end_line,
           module_specifier,
           imported_name,
+          resolved_target_file_path,
           type_only
         ) VALUES (
           ${importEdge.repoId},
@@ -1324,6 +1426,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
           ${importEdge.endLine},
           ${importEdge.moduleSpecifier},
           ${pipe(importEdge.importedName, O.getOrNull)},
+          ${pipe(importEdge.resolvedTargetFilePath, O.getOrNull)},
           ${importEdge.typeOnly ? 1 : 0}
               )
             `;
@@ -1536,6 +1639,16 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       ),
     listImportEdges: (repoId, sourceSnapshotId) =>
       observeDriverOperation("listImportEdges", listImportEdges(repoId, sourceSnapshotId)),
+    listImportEdgesForImporterFile: (repoId, sourceSnapshotId, importerFilePath) =>
+      observeDriverOperation(
+        "listImportEdgesForImporterFile",
+        listImportEdgesForImporterFile(repoId, sourceSnapshotId, importerFilePath)
+      ),
+    listImportEdgesForResolvedTargetFile: (repoId, sourceSnapshotId, resolvedTargetFilePath) =>
+      observeDriverOperation(
+        "listImportEdgesForResolvedTargetFile",
+        listImportEdgesForResolvedTargetFile(repoId, sourceSnapshotId, resolvedTargetFilePath)
+      ),
     latestIndexArtifact: (repoId) => observeDriverOperation("latestIndexArtifact", latestIndexArtifact(repoId)),
     listSymbolRecords: (repoId, sourceSnapshotId) =>
       observeDriverOperation("listSymbolRecords", listSymbolRecords(repoId, sourceSnapshotId)),

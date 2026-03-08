@@ -41,6 +41,8 @@ const repoSymbolLayer = Layer.succeed(RepoSymbolStore)(
     findSymbolsByExactName: () => Effect.succeed([]),
     listExportedSymbolsForFile: () => Effect.succeed([]),
     listImportEdges: () => Effect.succeed([]),
+    listImportEdgesForImporterFile: () => Effect.succeed([]),
+    listImportEdgesForResolvedTargetFile: () => Effect.succeed([]),
     listSymbolRecords: () => Effect.succeed([]),
     searchSymbols: () => Effect.succeed([]),
   })
