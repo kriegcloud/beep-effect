@@ -1,22 +1,26 @@
-import type { SDKSession, SDKUserMessage as SdkSDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
+import type { SDKSession } from "@anthropic-ai/claude-agent-sdk";
 import {
   unstable_v2_createSession,
   unstable_v2_prompt,
   unstable_v2_resumeSession,
 } from "@anthropic-ai/claude-agent-sdk";
 import { TaggedErrorClass } from "@beep/schema";
-import { Deferred, Duration, Effect, Exit, Semaphore, Stream, SynchronizedRef } from "effect";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
-import * as S from "effect/Schema";
+import {
+  Deferred,
+  Duration,
+  Effect,
+  Exit,
+  Function,
+  Option,
+  Predicate,
+  Schema,
+  Semaphore,
+  Stream,
+  SynchronizedRef,
+} from "effect";
 import { TransportError } from "./Errors.js";
 import { defaultSessionLifecyclePolicy } from "./internal/lifecyclePolicy.js";
-import {
-  type SDKMessage,
-  SDKMessage as SDKMessageSchema,
-  type SDKResultMessage,
-  type SDKUserMessage,
-} from "./Schema/Message.js";
+import { SDKMessage, type SDKResultMessage, type SDKUserMessage } from "./Schema/Message.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 
 /**
@@ -26,7 +30,7 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
  * @since 0.0.0
  */
 export class SessionClosedError extends TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
-  message: S.String,
+  message: Schema.String,
 }) {
   static readonly make = (message: string) => new SessionClosedError({ message });
 }
@@ -34,7 +38,7 @@ export class SessionClosedError extends TaggedErrorClass<SessionClosedError>()("
 /**
  * @since 0.0.0
  */
-export const SessionError = S.Union([SessionClosedError, TransportError]);
+export const SessionError = Schema.Union([SessionClosedError, TransportError]);
 
 /**
  * @since 0.0.0
@@ -70,6 +74,11 @@ export interface SessionHandle {
   readonly stream: Stream.Stream<SDKMessage, SessionError>;
 }
 
+type ClaudeSdkUserMessage = Exclude<Parameters<SDKSession["send"]>[0], string>;
+type ClaudeSessionOptions = Parameters<typeof unstable_v2_createSession>[0] &
+  Parameters<typeof unstable_v2_resumeSession>[1] &
+  Parameters<typeof unstable_v2_prompt>[1];
+
 const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);
 
 const sessionClosed = (message: string) => SessionClosedError.make(message);
@@ -104,33 +113,37 @@ const signalIdleIfNeeded = (state: SessionState) =>
     ? Deferred.succeed(state.idleSignal, undefined).pipe(Effect.asVoid)
     : Effect.void;
 
-const normalizeOptions = (options: SDKSessionOptions): SDKSessionOptions => ({
-  model: options.model,
-  executable: options.executable ?? "bun",
-  ...(options.pathToClaudeCodeExecutable !== undefined
-    ? { pathToClaudeCodeExecutable: options.pathToClaudeCodeExecutable }
-    : {}),
-  ...(options.executableArgs !== undefined ? { executableArgs: [...options.executableArgs] } : {}),
-  ...(options.env !== undefined ? { env: options.env } : {}),
-  ...(options.canUseTool !== undefined ? { canUseTool: options.canUseTool } : {}),
-  ...(options.hooks !== undefined ? { hooks: options.hooks } : {}),
-  ...(options.allowedTools !== undefined ? { allowedTools: [...options.allowedTools] } : {}),
-  ...(options.disallowedTools !== undefined ? { disallowedTools: [...options.disallowedTools] } : {}),
-  ...(options.permissionMode !== undefined ? { permissionMode: options.permissionMode } : {}),
-});
+const normalizeOptions = (options: SDKSessionOptions): ClaudeSessionOptions =>
+  Function.cast({
+    model: options.model,
+    executable: options.executable ?? "bun",
+    ...(options.pathToClaudeCodeExecutable !== undefined
+      ? { pathToClaudeCodeExecutable: options.pathToClaudeCodeExecutable }
+      : {}),
+    ...(options.executableArgs !== undefined ? { executableArgs: [...options.executableArgs] } : {}),
+    ...(options.env !== undefined ? { env: options.env } : {}),
+    ...(options.canUseTool !== undefined ? { canUseTool: options.canUseTool } : {}),
+    ...(options.hooks !== undefined ? { hooks: options.hooks } : {}),
+    ...(options.allowedTools !== undefined ? { allowedTools: [...options.allowedTools] } : {}),
+    ...(options.disallowedTools !== undefined ? { disallowedTools: [...options.disallowedTools] } : {}),
+    ...(options.permissionMode !== undefined ? { permissionMode: options.permissionMode } : {}),
+  });
 
 const markSessionId = (deferred: Deferred.Deferred<string, SessionClosedError>, message: SDKMessage) =>
   message.type === "system" && message.subtype === "init"
     ? Deferred.succeed(deferred, message.session_id).pipe(Effect.asVoid)
     : Effect.void;
 
-const normalizeUserMessage = (message: SDKUserMessage): SdkSDKUserMessage => {
-  const result: Record<string, unknown> = { ...message };
-  if (result.isSynthetic === undefined) delete result.isSynthetic;
-  if (result.tool_use_result === undefined) delete result.tool_use_result;
-  if (result.uuid === undefined) delete result.uuid;
-  return result as SdkSDKUserMessage;
-};
+const normalizeUserMessage = (message: SDKUserMessage): ClaudeSdkUserMessage =>
+  Function.cast({
+    type: message.type,
+    message: message.message,
+    parent_tool_use_id: message.parent_tool_use_id,
+    session_id: message.session_id,
+    ...(message.isSynthetic !== undefined ? { isSynthetic: message.isSynthetic } : {}),
+    ...(message.tool_use_result !== undefined ? { tool_use_result: message.tool_use_result } : {}),
+    ...(message.uuid !== undefined ? { uuid: message.uuid } : {}),
+  });
 
 /**
  * Convert an SDK session into an Effect-managed SessionHandle.
@@ -142,7 +155,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
   sdkSession: SDKSession,
   runtimeOptions?: SessionRuntimeOptions
 ) {
-  const decodeSdkMessage = S.decodeUnknownEffect(SDKMessageSchema);
+  const decodeSdkMessage = Schema.decodeUnknownEffect(SDKMessage);
   const closeDrainTimeoutInput = runtimeOptions?.closeDrainTimeout ?? defaultSessionLifecyclePolicy.closeDrainTimeout;
   const closeDrainTimeout = Duration.fromInput(closeDrainTimeoutInput);
   if (closeDrainTimeout === undefined) {
@@ -209,7 +222,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
       () =>
         sendSemaphore.withPermits(1)(
           Effect.tryPromise({
-            try: () => sdkSession.send(P.isString(message) ? message : normalizeUserMessage(message)),
+            try: () => sdkSession.send(Predicate.isString(message) ? message : normalizeUserMessage(message)),
             catch: (cause) => toTransportError("Failed to send session message", cause),
           })
         ),
@@ -273,7 +286,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
             idleSignal,
             closeSignal,
           },
-        ] as const;
+        ] satisfies readonly [CloseAction, SessionState];
       });
     }
   );
@@ -297,7 +310,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
           yield* Deferred.succeed(action.idleSignal, undefined);
         }
         const idleResult = yield* Deferred.await(action.idleSignal).pipe(Effect.timeoutOption(closeDrainTimeout));
-        if (O.isNone(idleResult)) {
+        if (Option.isNone(idleResult)) {
           yield* Effect.logWarning("Session close timed out waiting for in-flight work. Forcing shutdown.");
         }
         yield* Effect.try({
@@ -336,7 +349,7 @@ const createSessionEffect = Effect.fn("Session.createSession")(function* (
 ) {
   const resolved = normalizeOptions(options);
   const sdkSession = yield* Effect.try({
-    try: () => unstable_v2_createSession(resolved as unknown as Parameters<typeof unstable_v2_createSession>[0]),
+    try: () => unstable_v2_createSession(resolved),
     catch: (cause) => toTransportError("Failed to create session", cause),
   });
   return yield* fromSdkSession(sdkSession, runtimeOptions);
@@ -349,8 +362,7 @@ const resumeSessionEffect = Effect.fn("Session.resumeSession")(function* (
 ) {
   const resolved = normalizeOptions(options);
   const sdkSession = yield* Effect.try({
-    try: () =>
-      unstable_v2_resumeSession(sessionId, resolved as unknown as Parameters<typeof unstable_v2_resumeSession>[1]),
+    try: () => unstable_v2_resumeSession(sessionId, resolved),
     catch: (cause) => toTransportError("Failed to resume session", cause),
   });
   return yield* fromSdkSession(sdkSession, runtimeOptions);
@@ -383,8 +395,7 @@ export const resumeSession = (sessionId: string, options: SDKSessionOptions, run
 export const prompt = Effect.fn("Session.prompt")(
   (message: string, options: SDKSessionOptions): Effect.Effect<SDKResultMessage, TransportError> =>
     Effect.tryPromise({
-      try: () =>
-        unstable_v2_prompt(message, normalizeOptions(options) as unknown as Parameters<typeof unstable_v2_prompt>[1]),
+      try: () => unstable_v2_prompt(message, normalizeOptions(options)),
       catch: (cause) => toTransportError("Failed to run session prompt", cause),
     })
 );

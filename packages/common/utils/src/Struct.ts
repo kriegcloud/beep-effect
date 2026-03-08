@@ -1,5 +1,4 @@
-import type { TUnsafe } from "@beep/types";
-import { Function as Fn } from "effect";
+import { Struct as EffectStruct, Function as Fn, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -25,8 +24,6 @@ const PathLookup = S.TaggedUnion({
  */
 export type PathLookup = typeof PathLookup.Type;
 
-const hasOwn = Object.prototype.hasOwnProperty;
-
 const normalizePath = (path: PathInput): ReadonlyArray<string> => (P.isString(path) ? Str.split(path, ".") : path);
 
 const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
@@ -50,7 +47,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
     }
 
     const record = Fn.cast<unknown, Record<string, unknown>>(current);
-    if (!hasOwn.call(record, part)) {
+    if (!R.has(record, part)) {
       return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
 
@@ -334,7 +331,13 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  *
  * @since 3.17.0
  */
-export const entries = <const R>(obj: R): StringKeyEntries<R> => Object.entries(obj as TUnsafe.Any) as TUnsafe.Any;
+export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
+  Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
+    pipe(
+      EffectStruct.keys(obj),
+      A.map((key): readonly [keyof R & string, R[keyof R & string]] => [key, obj[key]])
+    )
+  );
 
 /**
  * Returns the string keys of an object in a type-safe manner.
@@ -342,7 +345,7 @@ export const entries = <const R>(obj: R): StringKeyEntries<R> => Object.entries(
  * @since 0.2.0
  * @category Utility
  */
-export const keys = <const R extends object>(obj: R): Array<keyof R & string> => Object.keys(obj) as TUnsafe.Any;
+export const keys = <const R extends object>(obj: R): Array<keyof R & string> => EffectStruct.keys(obj);
 
 /**
  * Type-safe `Object.fromEntries` that preserves per-key value types.
@@ -355,7 +358,20 @@ export const keys = <const R extends object>(obj: R): Array<keyof R & string> =>
  */
 export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
   entries: Iterable<E>
-): Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }> => Object.fromEntries(entries) as TUnsafe.Any;
+): Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }> => {
+  const out: Record<PropertyKey, unknown> = {};
+
+  for (const [key, value] of entries) {
+    Reflect.defineProperty(out, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true,
+    });
+  }
+
+  return Fn.cast<Record<PropertyKey, unknown>, Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }>>(out);
+};
 
 /**
  * Re-exports all `Struct` helpers from Effect.
@@ -429,15 +445,16 @@ export const reverse: {
 } = Fn.dual(
   (args) => args.length === 1,
   <S extends ReverseableStruct>(self: S): ReverseStruct<S> => {
-    const out: Record<PropertyKey, PropertyKey> = {};
+    const stringEntries = pipe(
+      entries(self),
+      A.map(([key, value]) => [value, key] as const)
+    );
+    const symbolEntries = pipe(
+      Reflect.ownKeys(self),
+      A.filter(P.isSymbol),
+      A.map((key) => [self[key], key] as const)
+    );
 
-    for (const [key, value] of entries(self)) {
-      out[value] = key;
-    }
-    for (const key of Object.getOwnPropertySymbols(self)) {
-      out[self[key]] = key;
-    }
-
-    return Fn.cast(out);
+    return Fn.cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
   }
 );

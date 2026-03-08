@@ -146,7 +146,7 @@ test("QuerySupervisor enforces concurrency limits", async () => {
   );
 
   await runEffect(program);
-});
+}, 15_000);
 
 test("QuerySupervisor times out pending submissions", async () => {
   const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");

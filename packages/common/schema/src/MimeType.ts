@@ -1,7 +1,7 @@
 import { MimeTypesData } from "@beep/data";
 import { $SchemaId } from "@beep/identity/packages";
 import { Struct } from "@beep/utils";
-import { pipe } from "effect";
+import { Function as Fn, pipe } from "effect";
 import * as A from "effect/Array";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit.ts";
 
@@ -39,12 +39,13 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
 export const extractMimeExtensions = <const T extends MimeTypeProperty>(
   mime: T
 ): A.NonEmptyReadonlyArray<MimeTypeExtension<T>> =>
-  pipe(
-    mime,
-    Struct.entries,
-    A.flatMap(([_, { extensions }]) => extensions),
-    (extensions) =>
-      new Set(extensions).values() as unknown as readonly [MimeTypeExtension<T>, ...MimeTypeExtension<T>[]]
+  Fn.cast<Array<MimeTypeExtension<T>>, A.NonEmptyReadonlyArray<MimeTypeExtension<T>>>(
+    pipe(
+      mime,
+      Struct.entries,
+      A.flatMap(([_, { extensions }]) => extensions),
+      A.dedupe
+    )
   );
 
 /**
@@ -53,7 +54,7 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
  * @since 0.0.0
  */
 export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
-  pipe(mime, Struct.keys, (mimeTypes) => new Set(mimeTypes).values() as unknown as A.NonEmptyReadonlyArray<keyof T>);
+  Fn.cast<Array<keyof T>, A.NonEmptyReadonlyArray<keyof T>>(pipe(mime, Struct.keys, A.dedupe));
 
 /**
  * Schema kit that covers all supported mime types.
@@ -83,7 +84,8 @@ export const MimeType: MimeTypeSchema = pipe(
         description: "a mime type.",
       })
     );
-    return Object.assign(base, { kinds }) as MimeTypeSchema;
+    Reflect.set(base, "kinds", kinds);
+    return Fn.cast(base);
   }
 );
 

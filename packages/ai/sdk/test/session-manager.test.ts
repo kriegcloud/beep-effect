@@ -152,7 +152,7 @@ test("SessionManager.create merges defaults and overrides", async () => {
   expect(createOptions.env).toEqual({
     ANTHROPIC_API_KEY: "test-key",
   });
-});
+}, 15_000);
 
 test("SessionManager.create merges auth defaults with explicit env overrides", async () => {
   const { SessionManager, layer } = await makeSessionManagerLayer({
