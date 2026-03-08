@@ -1,0 +1,116 @@
+{
+  "name": "microdata-rdf-streaming-parser",
+  "version": "3.0.0",
+  "description": "A fast and lightweight streaming Microdata to RDF parser",
+  "keywords": [
+    "microdata",
+    "linked data",
+    "semantic web",
+    "rdf",
+    "rdfjs",
+    "streaming",
+    "asynchronous"
+  ],
+  "main": "index.js",
+  "typings": "index",
+  "repository": "git@github.com:rubensworks/microdata-rdf-streaming-parser.js.git",
+  "author": "Ruben Taelman <rubensworks@gmail.com>",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/rubensworks/"
+  },
+  "bugs": {
+    "url": "https://github.com/rubensworks/microdata-rdf-streaming-parser.js/issues"
+  },
+  "homepage": "https://github.com/rubensworks/microdata-rdf-streaming-parser.js#readme",
+  "license": "MIT",
+  "files": [
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.json",
+    "lib/**/*.js.map",
+    "index.d.ts",
+    "index.js.map",
+    "index.js"
+  ],
+  "dependencies": {
+    "htmlparser2": "^9.0.0",
+    "rdf-data-factory": "^2.0.0",
+    "readable-stream": "^4.1.0",
+    "relative-to-absolute-iri": "^1.0.2"
+  },
+  "pre-commit": [
+    "build",
+    "lint",
+    "test"
+  ],
+  "devDependencies": {
+    "@rubensworks/eslint-config": "^1.0.0",
+    "@types/jest": "^28.0.0",
+    "@types/jest-each": "^24.3.0",
+    "@types/readable-stream": "^4.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "arrayify-stream": "^2.0.0",
+    "coveralls": "^3.0.0",
+    "eslint": "^7.9.0",
+    "eslint-config-es": "^3.23.0",
+    "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^25.0.0",
+    "eslint-plugin-tsdoc": "^0.2.7",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "jest": "^28.0.0",
+    "jest-each": "^28.0.0",
+    "jest-rdf": "^2.0.0",
+    "manual-git-changelog": "^1.0.1",
+    "pre-commit": "^1.2.2",
+    "rdf-quad": "^2.0.0",
+    "rdf-test-suite": "^1.15.0",
+    "streamify-string": "^1.0.1",
+    "ts-jest": "^28.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
+    ],
+    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    }
+  },
+  "scripts": {
+    "test": "jest ${1}",
+    "test-watch": "jest ${1} --watch",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "lint": "eslint . --ext .ts --cache",
+    "build": "tsc",
+    "validate": "npm ls",
+    "prepare": "npm run build",
+    "version": "manual-git-changelog onversion",
+    "spec": "npm run spec-main",
+    "spec-earl": "npm run spec-main-earl",
+    "spec-main": "rdf-test-suite spec/parser.js https://w3c.github.io/microdata-rdf/tests/manifest.ttl -c .rdf-test-suite-cache/",
+    "spec-main-earl": "rdf-test-suite spec/parser.js https://w3c.github.io/microdata-rdf/tests/manifest.ttl -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-microdata.ttl",
+    "spec-clean": "rm -r .rdf-test-suite-cache/"
+  },
+  "sideEffects": false,
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
