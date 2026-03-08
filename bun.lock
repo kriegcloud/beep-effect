@@ -176,6 +176,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/common/nlp": {
+      "name": "@beep/nlp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/schema": {
       "name": "@beep/schema",
       "version": "0.0.0",
@@ -809,6 +824,8 @@
     "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
 
     "@beep/messages": ["@beep/messages@workspace:packages/common/messages"],
+
+    "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
 
     "@beep/repo-cli": ["@beep/repo-cli@workspace:tooling/cli"],
 

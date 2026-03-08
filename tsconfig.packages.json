@@ -28,6 +28,9 @@
       "path": "packages/common/messages"
     },
     {
+      "path": "packages/common/nlp"
+    },
+    {
       "path": "packages/common/schema"
     },
     {
@@ -98,9 +101,6 @@
     },
     {
       "path": "tooling/test-utils"
-    },
-    {
-      "path": "packages/common/nlp"
     }
   ]
 }

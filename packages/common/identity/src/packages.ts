@@ -42,6 +42,7 @@ const composers = $I.compose(
   "test-utils",
   "claude",
   "ai-sdk",
+	"nlp",
   // Shared Slice
   "shared-domain",
   "shared-tables",
@@ -309,3 +310,10 @@ export const $CodegraphId: Identity.IdentityComposer<"@beep/codegraph"> = compos
  * @type {Identity.IdentityComposer<"@beep/semantic-web">}
  */
 export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = composers.$SemanticWebId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/nlp">}
+ */
+export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
