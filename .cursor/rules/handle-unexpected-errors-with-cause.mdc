@@ -1,0 +1,13 @@
+---
+description: "Handle unexpected errors by inspecting the cause."
+globs:
+alwaysApply: false
+---
+
+- Title: Handle Unexpected Errors by Inspecting the Cause
+- Id: handle-unexpected-errors-with-cause
+- Skill Level: advanced
+- Use Cases: Error Management
+- Tags: error-handling, cause, exit, defect, die, unexpected-error, runtime
+
+@content/published/handle-unexpected-errors-with-cause.mdx

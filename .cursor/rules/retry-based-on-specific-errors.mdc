@@ -1,0 +1,13 @@
+---
+description: "Use predicate-based retry policies to retry an operation only for specific, recoverable errors."
+globs:
+alwaysApply: false
+---
+
+- Title: Retry Operations Based on Specific Errors
+- Id: retry-based-on-specific-errors
+- Skill Level: intermediate
+- Use Cases: Error Management
+- Tags: retry, error-handling, predicate, resilience, schedule
+
+@content/published/retry-based-on-specific-errors.mdx

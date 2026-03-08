@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+- Title: Trace Operations Across Services with Spans
+- Id: trace-operations-with-spans
+- Skill Level: intermediate
+- Use Cases: Observability
+- Tags: tracing, span, observability, opentelemetry, performance, debugging
+
+@content/published/trace-operations-with-spans.mdx

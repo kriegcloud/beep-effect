@@ -1,0 +1,13 @@
+---
+description: "Compose multiple scoped layers using `Layer.merge` or by providing one layer to another."
+globs:
+alwaysApply: false
+---
+
+- Title: Compose Resource Lifecycles with `Layer.merge`
+- Id: compose-scoped-layers
+- Skill Level: intermediate
+- Use Cases: Application Architecture, Resource Management, Dependency Injection
+- Tags: resource, layer, scope, compose, merge, dependency-graph, architecture
+
+@content/published/compose-scoped-layers.mdx

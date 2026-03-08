@@ -1,0 +1,13 @@
+---
+description: "Use Data.struct or implement the Equal interface for value-based comparison of objects and classes."
+globs:
+alwaysApply: false
+---
+
+- Title: Comparing Data by Value with Structural Equality
+- Id: comparing-data-by-value-with-structural-equality
+- Skill Level: beginner
+- Use Cases: Modeling Data
+- Tags: equality, equal, data, struct, value-equality, structural-equality
+
+@content/published/comparing-data-by-value-with-structural-equality.mdx

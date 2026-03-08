@@ -1,0 +1,13 @@
+---
+description: "Use Stream.grouped(n) to transform a stream of items into a stream of batched chunks."
+globs:
+alwaysApply: false
+---
+
+- Title: Process Items in Batches
+- Id: stream-process-in-batches
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, batch, chunk, performance, grouped
+
+@content/published/stream-process-in-batches.mdx

@@ -1,0 +1,13 @@
+---
+description: "Model dependencies as services."
+globs:
+alwaysApply: false
+---
+
+- Title: Model Dependencies as Services
+- Id: model-dependencies-as-services
+- Skill Level: intermediate
+- Use Cases: Making HTTP Requests, Testing
+- Tags: service, architecture, dependency-injection, layers, testing, decoupling
+
+@content/published/model-dependencies-as-services.mdx

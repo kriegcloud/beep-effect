@@ -1,0 +1,13 @@
+---
+description: "Parse and validate data with Schema.decode."
+globs:
+alwaysApply: false
+---
+
+- Title: Parse and Validate Data with Schema.decode
+- Id: parse-with-schema-decode
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: schema, validation, parsing, data
+
+@content/published/parse-with-schema-decode.mdx

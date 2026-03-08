@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+
+- Title: Use .pipe for Composition
+- Id: use-pipe-for-composition
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: pipe, composition, chaining, readability
+
+@content/published/use-pipe-for-composition.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use the Clock service for testable time-based logic and immutable primitives for timestamps."
+globs:
+alwaysApply: false
+---
+
+- Title: Beyond the Date Type - Real World Dates, Times, and Timezones
+- Id: beyond-the-date-type
+- Skill Level: intermediate
+- Use Cases: Modeling Time
+- Tags: time, date, clock, test-clock, testing, timezone
+
+@content/published/beyond-the-date-type.mdx

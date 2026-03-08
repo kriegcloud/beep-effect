@@ -1,0 +1,13 @@
+---
+description: "Use the Clock service to get the current time, enabling deterministic testing with TestClock."
+globs:
+alwaysApply: false
+---
+
+- Title: Accessing the Current Time with Clock
+- Id: accessing-current-time-with-clock
+- Skill Level: intermediate
+- Use Cases: Modeling Time, Testing
+- Tags: clock, test-clock, time, testing, dependency-injection
+
+@content/published/accessing-current-time-with-clock.mdx

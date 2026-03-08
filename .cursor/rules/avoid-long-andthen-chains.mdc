@@ -1,0 +1,13 @@
+---
+description: "Prefer generators over long chains of .andThen."
+globs:
+alwaysApply: false
+---
+
+- Title: Avoid Long Chains of .andThen; Use Generators Instead
+- Id: avoid-long-andthen-chains
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: andThen, generators, readability, composition, anti-pattern
+
+@content/published/avoid-long-andthen-chains.mdx

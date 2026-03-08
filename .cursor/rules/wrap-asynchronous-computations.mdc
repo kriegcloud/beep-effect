@@ -1,0 +1,13 @@
+---
+description: "Wrap asynchronous computations with tryPromise."
+globs:
+alwaysApply: false
+---
+
+- Title: Wrap Asynchronous Computations with tryPromise
+- Id: wrap-asynchronous-computations
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: promise, async, integration, creation, try
+
+@content/published/wrap-asynchronous-computations.mdx

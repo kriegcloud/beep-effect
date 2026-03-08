@@ -1,0 +1,13 @@
+---
+description: "Use the Duration data type to represent time intervals instead of raw numbers."
+globs:
+alwaysApply: false
+---
+
+- Title: Representing Time Spans with Duration
+- Id: representing-time-spans-with-duration
+- Skill Level: intermediate
+- Use Cases: Modeling Time
+- Tags: duration, time, schedule, timeout
+
+@content/published/representing-time-spans-with-duration.mdx

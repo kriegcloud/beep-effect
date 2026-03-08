@@ -1,0 +1,13 @@
+---
+description: "Write tests that adapt to application code."
+globs:
+alwaysApply: false
+---
+
+- Title: Write Tests That Adapt to Application Code
+- Id: write-tests-that-adapt-to-application-code
+- Skill Level: intermediate
+- Use Cases: Testing
+- Tags: testing, philosophy, best-practice, architecture
+
+@content/published/write-tests-that-adapt-to-application-code.mdx

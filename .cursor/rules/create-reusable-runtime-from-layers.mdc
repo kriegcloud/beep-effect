@@ -1,0 +1,13 @@
+---
+description: "Create a reusable runtime from layers."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Reusable Runtime from Layers
+- Id: create-reusable-runtime-from-layers
+- Skill Level: advanced
+- Use Cases: Project Setup & Execution
+- Tags: runtime, layers, execution, dependency-injection, performance
+
+@content/published/create-reusable-runtime-from-layers.mdx

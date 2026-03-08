@@ -1,0 +1,13 @@
+---
+description: "Leverage Stream to process collections effectfully with built-in concurrency control and resource safety."
+globs:
+alwaysApply: false
+---
+
+- Title: Process collections of data asynchronously
+- Id: process-a-collection-of-data-asynchronously
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, concurrency, asynchronous, performance, resource-management
+
+@content/published/process-a-collection-of-data-asynchronously.mdx

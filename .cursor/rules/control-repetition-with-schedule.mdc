@@ -1,0 +1,13 @@
+---
+description: "Use Schedule to create composable policies for controlling the repetition and retrying of effects."
+globs:
+alwaysApply: false
+---
+
+- Title: Control Repetition with Schedule
+- Id: control-repetition-with-schedule
+- Skill Level: intermediate
+- Use Cases: Core Concepts, Error Management, Concurrency
+- Tags: schedule, repeat, retry, polling, policy, recurs, exponential
+
+@content/published/control-repetition-with-schedule.mdx
