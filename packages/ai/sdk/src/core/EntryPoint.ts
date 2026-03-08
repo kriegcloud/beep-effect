@@ -8,11 +8,13 @@ import { ChatHistoryStore } from "./Storage/index.js";
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type EntryPrefix = string;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionEntryLayers = {
   readonly sessionConfig?: Layer.Layer<SessionConfig>;
@@ -22,6 +24,7 @@ export type SessionEntryLayers = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionEntryOptions = Readonly<{
   readonly prefix?: EntryPrefix;
@@ -31,6 +34,7 @@ export type SessionEntryOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type RuntimeEntryLayers = {
   readonly runtime?: Layer.Layer<AgentRuntime>;
@@ -38,6 +42,7 @@ export type RuntimeEntryLayers = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type RuntimeEntryOptions = Readonly<{
   readonly prefix?: EntryPrefix;
@@ -46,6 +51,7 @@ export type RuntimeEntryOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const sessionLayer = (options: SDKSessionOptions, entry?: SessionEntryOptions) => {
   const prefix = entry?.prefix ?? "AGENTSDK";
@@ -66,6 +72,7 @@ export const sessionLayer = (options: SDKSessionOptions, entry?: SessionEntryOpt
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const runtimeLayer = (entry?: RuntimeEntryOptions) => {
   if (entry?.layers?.runtime) return entry.layers.runtime;

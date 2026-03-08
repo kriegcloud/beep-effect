@@ -3,7 +3,7 @@ export {
    * Canonical repo-memory run kind model.
    *
    * @since 0.0.0
-   * @category Status
+   * @category DomainModel
    */
   RepoRunKind,
 } from "../internal/domain.js";

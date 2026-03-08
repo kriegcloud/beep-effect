@@ -235,7 +235,7 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
  * Live layer for update application.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const UpdateApplierServiceLive = Layer.succeed(
   UpdateApplierService,

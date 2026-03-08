@@ -15,6 +15,7 @@ const ClaudeCodeExecutable = LiteralKit(["node", "bun"]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SessionPermissionMode = LiteralKit(["default", "acceptEdits", "plan", "dontAsk"]).annotate(
   $I.annote("SessionPermissionMode", {
@@ -24,15 +25,18 @@ export const SessionPermissionMode = LiteralKit(["default", "acceptEdits", "plan
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionPermissionMode = typeof SessionPermissionMode.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionPermissionModeEncoded = typeof SessionPermissionMode.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SDKSessionOptions extends S.Class<SDKSessionOptions>($I`SDKSessionOptions`)(
   {
@@ -53,11 +57,13 @@ export class SDKSessionOptions extends S.Class<SDKSessionOptions>($I`SDKSessionO
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKSessionOptionsEncoded = typeof SDKSessionOptions.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKSession = S.declare((_: unknown): _ is unknown => true).annotate(
   $I.annote("SDKSession", {
@@ -68,9 +74,11 @@ export const SDKSession = S.declare((_: unknown): _ is unknown => true).annotate
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKSession = typeof SDKSession.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKSessionEncoded = typeof SDKSession.Encoded;

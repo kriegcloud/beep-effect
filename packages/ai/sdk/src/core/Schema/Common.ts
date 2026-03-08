@@ -5,6 +5,7 @@ import * as S from "effect/Schema";
 const $I = $AiSdkId.create("core/Schema/Common");
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const UUID = S.String.check(S.isUUID(4)).annotate(
   $I.annote("UUID", {
@@ -14,15 +15,18 @@ export const UUID = S.String.check(S.isUUID(4)).annotate(
 );
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type UUID = typeof UUID.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type UUIDEncoded = typeof UUID.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ApiKeySource = S.String.annotate(
   $I.annote("ApiKeySource", {
@@ -32,15 +36,18 @@ export const ApiKeySource = S.String.annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ApiKeySource = typeof ApiKeySource.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ApiKeySourceEncoded = typeof ApiKeySource.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SdkBeta = S.Literal("context-1m-2025-08-07").annotate(
   $I.annote("SdkBeta", {
@@ -50,15 +57,18 @@ export const SdkBeta = S.Literal("context-1m-2025-08-07").annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SdkBeta = typeof SdkBeta.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SdkBetaEncoded = typeof SdkBeta.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ExitReason = LiteralKit([
   "clear",
@@ -74,15 +84,18 @@ export const ExitReason = LiteralKit([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ExitReason = typeof ExitReason.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ExitReasonEncoded = typeof ExitReason.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SlashCommand extends S.Class<SlashCommand>($I`SlashCommand`)(
   {
@@ -96,11 +109,13 @@ export class SlashCommand extends S.Class<SlashCommand>($I`SlashCommand`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SlashCommandEncoded = typeof SlashCommand.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class ModelInfo extends S.Class<ModelInfo>($I`ModelInfo`)(
   {
@@ -114,11 +129,13 @@ export class ModelInfo extends S.Class<ModelInfo>($I`ModelInfo`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ModelInfoEncoded = typeof ModelInfo.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class ModelUsage extends S.Class<ModelUsage>($I`ModelUsage`)(
   {
@@ -137,11 +154,13 @@ export class ModelUsage extends S.Class<ModelUsage>($I`ModelUsage`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ModelUsageEncoded = typeof ModelUsage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const NonNullableUsage = S.Record(S.String, S.Unknown).annotate(
   $I.annote("NonNullableUsage", {
@@ -151,15 +170,18 @@ export const NonNullableUsage = S.Record(S.String, S.Unknown).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NonNullableUsage = typeof NonNullableUsage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NonNullableUsageEncoded = typeof NonNullableUsage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class AccountInfo extends S.Class<AccountInfo>($I`AccountInfo`)(
   {
@@ -175,11 +197,13 @@ export class AccountInfo extends S.Class<AccountInfo>($I`AccountInfo`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AccountInfoEncoded = typeof AccountInfo.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SDKPermissionDenial extends S.Class<SDKPermissionDenial>($I`SDKPermissionDenial`)(
   {
@@ -193,11 +217,13 @@ export class SDKPermissionDenial extends S.Class<SDKPermissionDenial>($I`SDKPerm
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKPermissionDenialEncoded = typeof SDKPermissionDenial.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class RewindFilesResult extends S.Class<RewindFilesResult>($I`RewindFilesResult`)(
   {
@@ -213,11 +239,13 @@ export class RewindFilesResult extends S.Class<RewindFilesResult>($I`RewindFiles
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type RewindFilesResultEncoded = typeof RewindFilesResult.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SdkPluginConfig extends S.Class<SdkPluginConfig>($I`SdkPluginConfig`)(
   {
@@ -230,5 +258,6 @@ export class SdkPluginConfig extends S.Class<SdkPluginConfig>($I`SdkPluginConfig
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SdkPluginConfigEncoded = typeof SdkPluginConfig.Encoded;

@@ -25,6 +25,7 @@ const encodeJson = S.encodeUnknownOption(S.UnknownFromJsonString);
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const consoleLogger = (options?: {
   readonly events?: ReadonlyArray<HookEvent>;
@@ -42,6 +43,7 @@ export const consoleLogger = (options?: {
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const autoApprove = (tools: ReadonlyArray<string>) =>
   onPermissionRequest((input: PermissionRequestHookInput) =>
@@ -57,6 +59,7 @@ export const autoApprove = (tools: ReadonlyArray<string>) =>
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const autoDeny = (options: {
   readonly tools: ReadonlyArray<string>;
@@ -88,6 +91,7 @@ export const autoDeny = (options: {
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const timing = <R>(onComplete: (toolName: string, durationMs: number) => Effect.Effect<void, never, R>) =>
   Effect.gen(function* () {

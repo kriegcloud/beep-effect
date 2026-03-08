@@ -8,6 +8,7 @@ const $I = $AiSdkId.create("core/Sync/ConflictPolicy");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ConflictResolutionAccept extends S.TaggedClass<ConflictResolutionAccept>($I`ConflictResolutionAccept`)(
   "accept",
@@ -20,6 +21,7 @@ export class ConflictResolutionAccept extends S.TaggedClass<ConflictResolutionAc
  * Reject conflict resolution outcome.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ConflictResolutionReject extends S.TaggedClass<ConflictResolutionReject>($I`ConflictResolutionReject`)(
   "reject",
@@ -32,6 +34,7 @@ export class ConflictResolutionReject extends S.TaggedClass<ConflictResolutionRe
  * Merge conflict resolution outcome.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ConflictResolutionMerge extends S.TaggedClass<ConflictResolutionMerge>($I`ConflictResolutionMerge`)(
   "merge",
@@ -44,6 +47,7 @@ export class ConflictResolutionMerge extends S.TaggedClass<ConflictResolutionMer
  * Union of supported conflict resolution outcomes.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const ConflictResolution = S.Union([
   ConflictResolutionAccept,
@@ -55,6 +59,7 @@ export const ConflictResolution = S.Union([
  * Runtime type for `ConflictResolution`.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ConflictResolution = typeof ConflictResolution.Type;
 
@@ -99,6 +104,7 @@ const pickEarliest = (entries: ReadonlyArray<EventJournal.Entry>) => {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface ConflictPolicyService {
   readonly resolve: (options: {
@@ -113,6 +119,7 @@ const defaultConflictPolicy: ConflictPolicyService = {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class ConflictPolicy extends ServiceMap.Service<ConflictPolicy, ConflictPolicyService>()($I`ConflictPolicy`, {
   make: Effect.succeed(defaultConflictPolicy),

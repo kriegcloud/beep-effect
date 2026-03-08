@@ -14,6 +14,7 @@ const toolInputAnnotation = (name: string, description: string) => ({
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class AgentInputData extends S.Class<AgentInputData>($I`AgentInput`)(
   {
@@ -30,15 +31,18 @@ class AgentInputData extends S.Class<AgentInputData>($I`AgentInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AgentInput = AgentInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentInput = typeof AgentInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentInputEncoded = typeof AgentInput.Encoded;
 
@@ -56,6 +60,7 @@ const SimulatedSedEdit = SimulatedSedEditData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class BashInputData extends S.Class<BashInputData>($I`BashInput`)(
   {
@@ -74,20 +79,24 @@ class BashInputData extends S.Class<BashInputData>($I`BashInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const BashInput = BashInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type BashInput = typeof BashInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type BashInputEncoded = typeof BashInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class TaskOutputInputData extends S.Class<TaskOutputInputData>($I`TaskOutputInput`)(
   {
@@ -100,15 +109,18 @@ class TaskOutputInputData extends S.Class<TaskOutputInputData>($I`TaskOutputInpu
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const TaskOutputInput = TaskOutputInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TaskOutputInput = typeof TaskOutputInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TaskOutputInputEncoded = typeof TaskOutputInput.Encoded;
 
@@ -140,6 +152,7 @@ const ExitPlanModeBase = ExitPlanModeBaseData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ExitPlanModeInput = withToolInput(
   S.StructWithRest(S.Struct(ExitPlanModeBase.fields), [S.Record(S.String, S.Unknown)]),
@@ -150,15 +163,18 @@ export const ExitPlanModeInput = withToolInput(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ExitPlanModeInput = typeof ExitPlanModeInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ExitPlanModeInputEncoded = typeof ExitPlanModeInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class FileEditInputData extends S.Class<FileEditInputData>($I`FileEditInput`)(
   {
@@ -172,20 +188,24 @@ class FileEditInputData extends S.Class<FileEditInputData>($I`FileEditInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const FileEditInput = FileEditInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileEditInput = typeof FileEditInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileEditInputEncoded = typeof FileEditInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class FileReadInputData extends S.Class<FileReadInputData>($I`FileReadInput`)(
   {
@@ -198,20 +218,24 @@ class FileReadInputData extends S.Class<FileReadInputData>($I`FileReadInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const FileReadInput = FileReadInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileReadInput = typeof FileReadInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileReadInputEncoded = typeof FileReadInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class FileWriteInputData extends S.Class<FileWriteInputData>($I`FileWriteInput`)(
   {
@@ -223,20 +247,24 @@ class FileWriteInputData extends S.Class<FileWriteInputData>($I`FileWriteInput`)
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const FileWriteInput = FileWriteInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileWriteInput = typeof FileWriteInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type FileWriteInputEncoded = typeof FileWriteInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class GlobInputData extends S.Class<GlobInputData>($I`GlobInput`)(
   {
@@ -248,15 +276,18 @@ class GlobInputData extends S.Class<GlobInputData>($I`GlobInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const GlobInput = GlobInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type GlobInput = typeof GlobInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type GlobInputEncoded = typeof GlobInput.Encoded;
 
@@ -264,6 +295,7 @@ const GrepOutputMode = LiteralKit(["content", "files_with_matches", "count"]);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class GrepInputData extends S.Class<GrepInputData>($I`GrepInput`)(
   {
@@ -286,20 +318,24 @@ class GrepInputData extends S.Class<GrepInputData>($I`GrepInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const GrepInput = GrepInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type GrepInput = typeof GrepInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type GrepInputEncoded = typeof GrepInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class KillShellInputData extends S.Class<KillShellInputData>($I`KillShellInput`)(
   {
@@ -310,20 +346,24 @@ class KillShellInputData extends S.Class<KillShellInputData>($I`KillShellInput`)
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const KillShellInput = KillShellInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type KillShellInput = typeof KillShellInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type KillShellInputEncoded = typeof KillShellInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class ListMcpResourcesInputData extends S.Class<ListMcpResourcesInputData>($I`ListMcpResourcesInput`)(
   {
@@ -334,20 +374,24 @@ class ListMcpResourcesInputData extends S.Class<ListMcpResourcesInputData>($I`Li
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ListMcpResourcesInput = ListMcpResourcesInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ListMcpResourcesInput = typeof ListMcpResourcesInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ListMcpResourcesInputEncoded = typeof ListMcpResourcesInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const McpInput = withToolInput(
   S.Record(S.String, S.Unknown),
@@ -358,10 +402,12 @@ export const McpInput = withToolInput(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpInput = typeof McpInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type McpInputEncoded = typeof McpInput.Encoded;
 
@@ -370,6 +416,7 @@ const NotebookEditMode = LiteralKit(["replace", "insert", "delete"]);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class NotebookEditInputData extends S.Class<NotebookEditInputData>($I`NotebookEditInput`)(
   {
@@ -384,20 +431,24 @@ class NotebookEditInputData extends S.Class<NotebookEditInputData>($I`NotebookEd
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const NotebookEditInput = NotebookEditInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NotebookEditInput = typeof NotebookEditInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NotebookEditInputEncoded = typeof NotebookEditInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class ReadMcpResourceInputData extends S.Class<ReadMcpResourceInputData>($I`ReadMcpResourceInput`)(
   {
@@ -409,15 +460,18 @@ class ReadMcpResourceInputData extends S.Class<ReadMcpResourceInputData>($I`Read
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ReadMcpResourceInput = ReadMcpResourceInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ReadMcpResourceInput = typeof ReadMcpResourceInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ReadMcpResourceInputEncoded = typeof ReadMcpResourceInput.Encoded;
 
@@ -438,6 +492,7 @@ const TodoItem = TodoItemData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class TodoWriteInputData extends S.Class<TodoWriteInputData>($I`TodoWriteInput`)(
   {
@@ -448,20 +503,24 @@ class TodoWriteInputData extends S.Class<TodoWriteInputData>($I`TodoWriteInput`)
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const TodoWriteInput = TodoWriteInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TodoWriteInput = typeof TodoWriteInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TodoWriteInputEncoded = typeof TodoWriteInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class WebFetchInputData extends S.Class<WebFetchInputData>($I`WebFetchInput`)(
   {
@@ -473,20 +532,24 @@ class WebFetchInputData extends S.Class<WebFetchInputData>($I`WebFetchInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const WebFetchInput = WebFetchInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type WebFetchInput = typeof WebFetchInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type WebFetchInputEncoded = typeof WebFetchInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class WebSearchInputData extends S.Class<WebSearchInputData>($I`WebSearchInput`)(
   {
@@ -499,15 +562,18 @@ class WebSearchInputData extends S.Class<WebSearchInputData>($I`WebSearchInput`)
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const WebSearchInput = WebSearchInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type WebSearchInput = typeof WebSearchInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type WebSearchInputEncoded = typeof WebSearchInput.Encoded;
 
@@ -550,6 +616,7 @@ const QuestionMetadata = QuestionMetadataData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class AskUserQuestionInputData extends S.Class<AskUserQuestionInputData>($I`AskUserQuestionInput`)(
   {
@@ -562,20 +629,24 @@ class AskUserQuestionInputData extends S.Class<AskUserQuestionInputData>($I`AskU
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AskUserQuestionInput = AskUserQuestionInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AskUserQuestionInput = typeof AskUserQuestionInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AskUserQuestionInputEncoded = typeof AskUserQuestionInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class ConfigInputData extends S.Class<ConfigInputData>($I`ConfigInput`)(
   {
@@ -587,20 +658,24 @@ class ConfigInputData extends S.Class<ConfigInputData>($I`ConfigInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ConfigInput = ConfigInputData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ConfigInput = typeof ConfigInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ConfigInputEncoded = typeof ConfigInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ToolInput = S.Union([
   AgentInput,
@@ -626,9 +701,11 @@ export const ToolInput = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ToolInput = typeof ToolInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ToolInputEncoded = typeof ToolInput.Encoded;

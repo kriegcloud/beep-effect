@@ -2,6 +2,7 @@ import * as S from "effect/Schema";
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const toolInputParseOptions = {
   onExcessProperty: "error" as const,
@@ -10,6 +11,7 @@ export const toolInputParseOptions = {
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const sdkMessageParseOptions = {
   onExcessProperty: "preserve" as const,
@@ -18,6 +20,7 @@ export const sdkMessageParseOptions = {
 // Strict tool input decode: reject unknown fields unless schema allows them.
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const withToolInput = <Schema extends S.Top>(
   schema: Schema,
@@ -32,6 +35,7 @@ export const withToolInput = <Schema extends S.Top>(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const withSdkMessage = <Schema extends S.Top>(
   schema: Schema,

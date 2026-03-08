@@ -8,6 +8,7 @@ import {
   type RepoDocumentedThrow,
   type RepoId,
   type RepoImportEdge,
+  type RepoSemanticArtifacts,
   type RepoSourceFile,
   type RepoSymbolDocumentation,
   type RepoSymbolRecord,
@@ -15,6 +16,8 @@ import {
   type SourceSnapshotId,
 } from "@beep/repo-memory-model";
 import {
+  RepoSemanticStore,
+  type RepoSemanticStoreShape,
   RepoSnapshotStore,
   type RepoSnapshotStoreShape,
   type RepoStoreError,
@@ -40,7 +43,7 @@ const citationOrder = Order.mapInput(
   Order.String,
   (citation: Citation) => `${citation.span.filePath}:${citation.span.startLine}:${citation.label}:${citation.id}`
 );
-type GroundedRetrievalStoreShape = RepoSnapshotStoreShape & RepoSymbolStoreShape;
+type GroundedRetrievalStoreShape = RepoSemanticStoreShape & RepoSnapshotStoreShape & RepoSymbolStoreShape;
 
 class CountFilesInterpretation extends S.Class<CountFilesInterpretation>($I`CountFilesInterpretation`)(
   {
@@ -253,7 +256,7 @@ export class GroundedQueryResult extends S.Class<GroundedQueryResult>($I`Grounde
  * Typed retrieval failure raised while resolving deterministic grounded queries.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class GroundedRetrievalError extends TaggedErrorClass<GroundedRetrievalError>($I`GroundedRetrievalError`)(
   "GroundedRetrievalError",
@@ -283,14 +286,17 @@ export class GroundedRetrievalService extends ServiceMap.Service<
   GroundedRetrievalService,
   GroundedRetrievalServiceShape
 >()($I`GroundedRetrievalService`) {
-  static readonly layer: Layer.Layer<GroundedRetrievalService, never, RepoSnapshotStore | RepoSymbolStore> =
-    Layer.effect(
-      GroundedRetrievalService,
-      Effect.suspend(() => makeGroundedRetrievalService()).pipe(
-        Effect.withSpan("GroundedRetrievalService.make"),
-        Effect.annotateLogs({ component: "grounded-retrieval" })
-      )
-    );
+  static readonly layer: Layer.Layer<
+    GroundedRetrievalService,
+    never,
+    RepoSemanticStore | RepoSnapshotStore | RepoSymbolStore
+  > = Layer.effect(
+    GroundedRetrievalService,
+    Effect.suspend(() => makeGroundedRetrievalService()).pipe(
+      Effect.withSpan("GroundedRetrievalService.make"),
+      Effect.annotateLogs({ component: "grounded-retrieval" })
+    )
+  );
 }
 
 const toRetrievalError = makeStatusCauseError(GroundedRetrievalError);
@@ -1240,14 +1246,86 @@ const queryResultOutcome = (
       ? "cited"
       : "notCited";
 
+const loadSemanticArtifacts = (store: GroundedRetrievalStoreShape) =>
+  Effect.fn("GroundedRetrieval.loadSemanticArtifacts")(function* (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ): Effect.fn.Return<O.Option<RepoSemanticArtifacts>> {
+    return yield* store
+      .getSemanticArtifacts(repoId, sourceSnapshotId)
+      .pipe(
+        Effect.catch((error) =>
+          Effect.logWarning(
+            `Semantic artifact lookup failed for repo "${repoId}" and snapshot "${sourceSnapshotId}": ${error.message}`
+          ).pipe(Effect.as(O.none<RepoSemanticArtifacts>()))
+        )
+      );
+  });
+
+const matchedSemanticAnchorCount = (
+  citations: ReadonlyArray<Citation>,
+  semanticArtifacts: O.Option<RepoSemanticArtifacts>
+): number => {
+  if (O.isNone(semanticArtifacts) || A.isReadonlyArrayEmpty(citations)) {
+    return 0;
+  }
+
+  const citationIds = new Set(
+    pipe(
+      citations,
+      A.map((citation) => citation.id)
+    )
+  );
+  return pipe(
+    semanticArtifacts.value.evidenceAnchors,
+    A.filter(
+      (anchor) =>
+        O.isSome(anchor.note) &&
+        pipe(anchor.note.value, Str.startsWith("citationId=")) &&
+        citationIds.has(pipe(anchor.note.value, Str.slice("citationId=".length)))
+    ),
+    A.length
+  );
+};
+
+const withSemanticOverlay = (
+  result: GroundedQueryResult,
+  semanticArtifacts: O.Option<RepoSemanticArtifacts>
+): GroundedQueryResult => {
+  if (O.isNone(semanticArtifacts)) {
+    return result;
+  }
+
+  const matchedAnchorCount = matchedSemanticAnchorCount(result.citations, semanticArtifacts);
+
+  return new GroundedQueryResult({
+    answer: result.answer,
+    citations: result.citations,
+    packet: new RetrievalPacket({
+      ...result.packet,
+      summary: `${result.packet.summary} Semantic overlay available for dependency, provenance, and evidence context.`,
+      notes: pipe(
+        result.packet.notes,
+        A.append(`semanticDatasetQuads=${semanticArtifacts.value.dataset.quads.length}`),
+        A.append(`semanticProvenanceRecords=${semanticArtifacts.value.provenance.records.length}`),
+        A.append(`semanticEvidenceAnchors=${semanticArtifacts.value.evidenceAnchors.length}`),
+        A.append(`semanticCitationAnchors=${matchedAnchorCount}/${A.length(result.packet.citations)}`)
+      ),
+    }),
+  });
+};
+
 const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(function* () {
+  const semanticStore = yield* RepoSemanticStore;
   const snapshotStore = yield* RepoSnapshotStore;
   const symbolStore = yield* RepoSymbolStore;
-  const store: GroundedRetrievalStoreShape = { ...snapshotStore, ...symbolStore };
+  const store: GroundedRetrievalStoreShape = { ...semanticStore, ...snapshotStore, ...symbolStore };
   const latestSnapshot = latestSnapshotForRepo(store);
+  const latestSemanticArtifacts = loadSemanticArtifacts(store);
 
   const resolve: GroundedRetrievalServiceShape["resolve"] = Effect.fn("GroundedRetrieval.resolve")(function* (payload) {
     const sourceSnapshotId = yield* latestSnapshot(payload.repoId);
+    const semanticArtifacts = yield* latestSemanticArtifacts(payload.repoId, sourceSnapshotId);
     const interpretation = interpretQuery(payload.question);
     const queryKind = toQueryKindMetric(interpretation);
     const questionNotes = nlpQuestionNotes(payload.question);
@@ -1902,18 +1980,19 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
           });
         }),
     });
+    const enrichedResult = withSemanticOverlay(result, semanticArtifacts);
 
-    const outcome = queryResultOutcome(interpretation, result);
+    const outcome = queryResultOutcome(interpretation, enrichedResult);
     yield* Effect.annotateCurrentSpan({
       query_kind: queryKind,
       query_outcome: outcome,
-      citation_count: A.length(result.citations),
-      retrieval_packet_citation_count: A.length(result.packet.citations),
-      retrieval_note_count: A.length(result.packet.notes),
+      citation_count: A.length(enrichedResult.citations),
+      retrieval_packet_citation_count: A.length(enrichedResult.packet.citations),
+      retrieval_note_count: A.length(enrichedResult.packet.notes),
     });
-    yield* recordQueryResult(queryKind, outcome, A.length(result.citations));
+    yield* recordQueryResult(queryKind, outcome, A.length(enrichedResult.citations));
 
-    return result;
+    return enrichedResult;
   });
 
   return GroundedRetrievalService.of({ resolve });

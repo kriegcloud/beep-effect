@@ -60,7 +60,7 @@ const updateRunStatus = (
  * Typed transition error emitted by the repo-run state machine.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class RunStateMachineError extends TaggedErrorClass<RunStateMachineError>($I`RunStateMachineError`)(
   "RunStateMachineError",
@@ -113,7 +113,7 @@ export class RunExecutionTransition extends S.Class<RunExecutionTransition>($I`R
  * Build the accepted index run projection for a new workflow execution.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainLogic
  */
 export const acceptedIndexRun = (options: {
   readonly acceptedAt: DateTime.Utc;
@@ -136,7 +136,7 @@ export const acceptedIndexRun = (options: {
  * Build the accepted query run projection for a new workflow execution.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainLogic
  */
 export const acceptedQueryRun = (options: {
   readonly acceptedAt: DateTime.Utc;
@@ -162,7 +162,7 @@ export const acceptedQueryRun = (options: {
  * Transition a run into active execution, emitting either `started` or `resumed`.
  *
  * @since 0.0.0
- * @category Transitions
+ * @category DomainLogic
  */
 export const beginRunExecution = Effect.fn("RunStateMachine.beginRunExecution")(function* (
   run: RepoRun,
@@ -208,7 +208,7 @@ export const beginRunExecution = Effect.fn("RunStateMachine.beginRunExecution")(
  * Transition a run into the interrupted terminal state.
  *
  * @since 0.0.0
- * @category Transitions
+ * @category DomainLogic
  */
 export const interruptRun = Effect.fn("RunStateMachine.interruptRun")(function* (
   run: RepoRun,
@@ -245,7 +245,7 @@ export const interruptRun = Effect.fn("RunStateMachine.interruptRun")(function* 
  * Transition a run into the failed terminal state.
  *
  * @since 0.0.0
- * @category Transitions
+ * @category DomainLogic
  */
 export const failRun = Effect.fn("RunStateMachine.failRun")(function* (
   run: RepoRun,
@@ -294,7 +294,7 @@ export const failRun = Effect.fn("RunStateMachine.failRun")(function* (
  * Transition an index run into the completed terminal state.
  *
  * @since 0.0.0
- * @category Transitions
+ * @category DomainLogic
  */
 export const completeIndexRun = Effect.fn("RunStateMachine.completeIndexRun")(function* (
   run: IndexRun,
@@ -322,7 +322,7 @@ export const completeIndexRun = Effect.fn("RunStateMachine.completeIndexRun")(fu
  * Transition a query run into the completed terminal state.
  *
  * @since 0.0.0
- * @category Transitions
+ * @category DomainLogic
  */
 export const completeQueryRun = Effect.fn("RunStateMachine.completeQueryRun")(function* (
   run: QueryRun,

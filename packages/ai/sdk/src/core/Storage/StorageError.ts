@@ -3,6 +3,7 @@ import * as S from "effect/Schema";
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class StorageError extends TaggedErrorClass<StorageError>()("StorageError", {
   store: S.String,
@@ -16,11 +17,13 @@ export class StorageError extends TaggedErrorClass<StorageError>()("StorageError
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type StorageErrorEncoded = typeof StorageError.Encoded;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const toStorageError = (store: string, operation: string, cause: unknown, message?: undefined | string) =>
   StorageError.make({

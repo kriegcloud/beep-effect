@@ -15,6 +15,7 @@ const sdkMessageAnnotation = (name: string, description: string) => ({
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKAssistantMessageError = LiteralKit([
   "authentication_failed",
@@ -32,15 +33,18 @@ export const SDKAssistantMessageError = LiteralKit([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAssistantMessageError = typeof SDKAssistantMessageError.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAssistantMessageErrorEncoded = typeof SDKAssistantMessageError.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKAssistantMessageData extends S.Class<SDKAssistantMessageData>($I`SDKAssistantMessage`)(
   {
@@ -56,20 +60,24 @@ class SDKAssistantMessageData extends S.Class<SDKAssistantMessageData>($I`SDKAss
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKAssistantMessage = SDKAssistantMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAssistantMessage = typeof SDKAssistantMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAssistantMessageEncoded = typeof SDKAssistantMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKAuthStatusMessageData extends S.Class<SDKAuthStatusMessageData>($I`SDKAuthStatusMessage`)(
   {
@@ -88,20 +96,24 @@ class SDKAuthStatusMessageData extends S.Class<SDKAuthStatusMessageData>($I`SDKA
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKAuthStatusMessage = SDKAuthStatusMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAuthStatusMessage = typeof SDKAuthStatusMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKAuthStatusMessageEncoded = typeof SDKAuthStatusMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKCompactBoundaryMetadata extends S.Class<SDKCompactBoundaryMetadata>($I`SDKCompactBoundaryMetadata`)(
   {
@@ -129,20 +141,24 @@ class SDKCompactBoundaryMessageData extends S.Class<SDKCompactBoundaryMessageDat
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKCompactBoundaryMessage = SDKCompactBoundaryMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKCompactBoundaryMessage = typeof SDKCompactBoundaryMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKCompactBoundaryMessageEncoded = typeof SDKCompactBoundaryMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKHookResponseMessageData extends S.Class<SDKHookResponseMessageData>($I`SDKHookResponseMessage`)(
   {
@@ -167,20 +183,24 @@ class SDKHookResponseMessageData extends S.Class<SDKHookResponseMessageData>($I`
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKHookResponseMessage = SDKHookResponseMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookResponseMessage = typeof SDKHookResponseMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookResponseMessageEncoded = typeof SDKHookResponseMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKHookStartedMessageData extends S.Class<SDKHookStartedMessageData>($I`SDKHookStartedMessage`)(
   {
@@ -197,20 +217,24 @@ class SDKHookStartedMessageData extends S.Class<SDKHookStartedMessageData>($I`SD
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKHookStartedMessage = SDKHookStartedMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookStartedMessage = typeof SDKHookStartedMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookStartedMessageEncoded = typeof SDKHookStartedMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKHookProgressMessageData extends S.Class<SDKHookProgressMessageData>($I`SDKHookProgressMessage`)(
   {
@@ -233,20 +257,24 @@ class SDKHookProgressMessageData extends S.Class<SDKHookProgressMessageData>($I`
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKHookProgressMessage = SDKHookProgressMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookProgressMessage = typeof SDKHookProgressMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKHookProgressMessageEncoded = typeof SDKHookProgressMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKPartialAssistantMessageData extends S.Class<SDKPartialAssistantMessageData>($I`SDKPartialAssistantMessage`)(
   {
@@ -264,20 +292,24 @@ class SDKPartialAssistantMessageData extends S.Class<SDKPartialAssistantMessageD
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKPartialAssistantMessage = SDKPartialAssistantMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKPartialAssistantMessage = typeof SDKPartialAssistantMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKPartialAssistantMessageEncoded = typeof SDKPartialAssistantMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKResultSuccessData extends S.Class<SDKResultSuccessData>($I`SDKResultSuccess`)(
   {
@@ -302,20 +334,24 @@ class SDKResultSuccessData extends S.Class<SDKResultSuccessData>($I`SDKResultSuc
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKResultSuccess = SDKResultSuccessData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultSuccess = typeof SDKResultSuccess.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultSuccessEncoded = typeof SDKResultSuccess.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 const sdkResultErrorFields = {
   type: S.Literal("result"),
@@ -391,6 +427,7 @@ const SDKResultErrorMaxStructuredOutputRetries = SDKResultErrorMaxStructuredOutp
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKResultError = S.Union([
   SDKResultErrorDuringExecution,
@@ -408,15 +445,18 @@ export const SDKResultError = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultError = typeof SDKResultError.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultErrorEncoded = typeof SDKResultError.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKResultMessage = S.Union([
   SDKResultSuccess,
@@ -435,15 +475,18 @@ export const SDKResultMessage = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultMessage = typeof SDKResultMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKResultMessageEncoded = typeof SDKResultMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKStatus = S.Union([S.Literal("compacting"), S.Null]).annotate(
   $I.annote("SDKStatus", {
@@ -453,15 +496,18 @@ export const SDKStatus = S.Union([S.Literal("compacting"), S.Null]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKStatus = typeof SDKStatus.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKStatusEncoded = typeof SDKStatus.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKStatusMessageData extends S.Class<SDKStatusMessageData>($I`SDKStatusMessage`)(
   {
@@ -477,20 +523,24 @@ class SDKStatusMessageData extends S.Class<SDKStatusMessageData>($I`SDKStatusMes
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKStatusMessage = SDKStatusMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKStatusMessage = typeof SDKStatusMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKStatusMessageEncoded = typeof SDKStatusMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKSystemMcpServer extends S.Class<SDKSystemMcpServer>($I`SDKSystemMcpServer`)(
   {
@@ -540,20 +590,24 @@ class SDKSystemMessageData extends S.Class<SDKSystemMessageData>($I`SDKSystemMes
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKSystemMessage = SDKSystemMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKSystemMessage = typeof SDKSystemMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKSystemMessageEncoded = typeof SDKSystemMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKTaskNotificationMessageData extends S.Class<SDKTaskNotificationMessageData>($I`SDKTaskNotificationMessage`)(
   {
@@ -574,20 +628,24 @@ class SDKTaskNotificationMessageData extends S.Class<SDKTaskNotificationMessageD
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKTaskNotificationMessage = SDKTaskNotificationMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKTaskNotificationMessage = typeof SDKTaskNotificationMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKTaskNotificationMessageEncoded = typeof SDKTaskNotificationMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKTaskStartedMessageData extends S.Class<SDKTaskStartedMessageData>($I`SDKTaskStartedMessage`)(
   {
@@ -605,20 +663,24 @@ class SDKTaskStartedMessageData extends S.Class<SDKTaskStartedMessageData>($I`SD
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKTaskStartedMessage = SDKTaskStartedMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKTaskStartedMessage = typeof SDKTaskStartedMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKTaskStartedMessageEncoded = typeof SDKTaskStartedMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKFilesPersistedFile extends S.Class<SDKFilesPersistedFile>($I`SDKFilesPersistedFile`)(
   {
@@ -658,20 +720,24 @@ class SDKFilesPersistedEventData extends S.Class<SDKFilesPersistedEventData>($I`
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKFilesPersistedEvent = SDKFilesPersistedEventData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKFilesPersistedEvent = typeof SDKFilesPersistedEvent.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKFilesPersistedEventEncoded = typeof SDKFilesPersistedEvent.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKToolProgressMessageData extends S.Class<SDKToolProgressMessageData>($I`SDKToolProgressMessage`)(
   {
@@ -691,20 +757,24 @@ class SDKToolProgressMessageData extends S.Class<SDKToolProgressMessageData>($I`
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKToolProgressMessage = SDKToolProgressMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKToolProgressMessage = typeof SDKToolProgressMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKToolProgressMessageEncoded = typeof SDKToolProgressMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKToolUseSummaryMessageData extends S.Class<SDKToolUseSummaryMessageData>($I`SDKToolUseSummaryMessage`)(
   {
@@ -719,20 +789,24 @@ class SDKToolUseSummaryMessageData extends S.Class<SDKToolUseSummaryMessageData>
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKToolUseSummaryMessage = SDKToolUseSummaryMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKToolUseSummaryMessage = typeof SDKToolUseSummaryMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKToolUseSummaryMessageEncoded = typeof SDKToolUseSummaryMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKUserMessageData extends S.Class<SDKUserMessageData>($I`SDKUserMessage`)(
   {
@@ -749,20 +823,24 @@ class SDKUserMessageData extends S.Class<SDKUserMessageData>($I`SDKUserMessage`)
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKUserMessage = SDKUserMessageData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKUserMessage = typeof SDKUserMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKUserMessageEncoded = typeof SDKUserMessage.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class SDKUserMessageReplayData extends S.Class<SDKUserMessageReplayData>($I`SDKUserMessageReplay`)(
   {
@@ -783,20 +861,24 @@ class SDKUserMessageReplayData extends S.Class<SDKUserMessageReplayData>($I`SDKU
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKUserMessageReplay = SDKUserMessageReplayData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKUserMessageReplay = typeof SDKUserMessageReplay.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKUserMessageReplayEncoded = typeof SDKUserMessageReplay.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SDKMessage = S.Union([
   SDKAssistantMessage,
@@ -824,10 +906,12 @@ export const SDKMessage = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKMessage = typeof SDKMessage.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SDKMessageEncoded = typeof SDKMessage.Encoded;
 
@@ -836,17 +920,20 @@ const decodeSDKUserMessageSync = S.decodeUnknownSync(SDKUserMessage);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const makeSDKMessage = (input: SDKMessage | SDKMessageEncoded): SDKMessage => decodeSDKMessageSync(input);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const makeSDKUserMessage = (input: SDKUserMessage | SDKUserMessageEncoded): SDKUserMessage =>
   decodeSDKUserMessageSync(input);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const makeUserMessage = (prompt: string): SDKUserMessage =>
   makeSDKUserMessage({

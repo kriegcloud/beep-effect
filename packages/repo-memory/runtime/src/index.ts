@@ -7,4 +7,5 @@ export * from "./retrieval/GroundedRetrieval.js";
 export * from "./retrieval/QueryInterpretation.js";
 export * from "./run/RepoRunService.js";
 export * from "./run/RepoRunWorkflows.js";
+export * from "./semantic/RepoSemanticEnrichmentService.js";
 export * from "./telemetry/RepoMemoryTelemetry.js";

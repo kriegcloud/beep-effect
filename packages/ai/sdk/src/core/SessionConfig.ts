@@ -18,11 +18,13 @@ const $I = $AiSdkId.create("core/SessionConfig");
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionDefaults = Omit<SDKSessionOptions, "model">;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionRuntimeSettings = Readonly<{
   readonly closeDrainTimeout: Duration.Input;
@@ -32,6 +34,7 @@ export type SessionRuntimeSettings = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const resolveTurnTimeouts = (
   runtime: SessionRuntimeSettings
@@ -50,6 +53,7 @@ export const resolveTurnTimeouts = (
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionConfigSettings = Readonly<{
   readonly defaults: SessionDefaults;
@@ -58,6 +62,7 @@ export type SessionConfigSettings = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export interface SessionConfigShape extends SessionConfigSettings {}
 
@@ -113,6 +118,7 @@ const makeSessionConfig = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class SessionConfig extends ServiceMap.Service<SessionConfig, SessionConfigShape>()($I`SessionConfig`) {
   static readonly layer = Layer.effect(SessionConfig, makeSessionConfig);

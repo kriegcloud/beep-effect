@@ -50,6 +50,7 @@ const makeSdkEvent = (
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   Match.when({ type: "assistant", error: Match.string }, (message) =>
@@ -385,6 +386,7 @@ const makeQueryEvent = (
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const matchQueryEvent = Match.type<QueryEvent>().pipe(
   Match.tag("QueryQueued", (event) =>
@@ -473,6 +475,7 @@ const makeHookEvent = (
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const matchHookInput = Match.type<HookInput>().pipe(
   Match.when({ hook_event_name: "PreToolUse" }, (input) =>

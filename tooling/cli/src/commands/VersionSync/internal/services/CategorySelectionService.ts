@@ -66,7 +66,7 @@ const selectedCategories: CategorySelectionServiceShape["selectedCategories"] = 
  * Live layer for category-selection logic.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const CategorySelectionServiceLive = Layer.succeed(
   CategorySelectionService,

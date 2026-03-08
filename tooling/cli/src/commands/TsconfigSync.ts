@@ -40,14 +40,14 @@ export {
    * Build canonical tsconfig alias targets from a package root export.
    *
    * @since 0.0.0
-   * @category Constructors
+   * @category DomainModel
    */
   buildCanonicalAliasTargets,
   /**
    * Resolve the canonical root export target from a package `exports` field.
    *
    * @since 0.0.0
-   * @category Constructors
+   * @category DomainModel
    */
   resolveRootExportTarget,
 } from "./Shared/TsconfigAliasTargets.js";

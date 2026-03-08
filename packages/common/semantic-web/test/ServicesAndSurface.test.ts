@@ -2,7 +2,7 @@ import * as SemanticWeb from "@beep/semantic-web";
 import { CanonicalizationServiceLive } from "@beep/semantic-web/adapters/canonicalization";
 import { ShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine";
 import { WebAnnotation } from "@beep/semantic-web/adapters/web-annotation";
-import { Dataset, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semantic-web/rdf";
+import { Dataset, makeBlankNode, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semantic-web/rdf";
 import {
   CanonicalizationService,
   CanonicalizeDatasetRequest,
@@ -59,7 +59,7 @@ describe("Services and Surface", () => {
         return yield* service.canonicalize(
           decodeUnknownSync(CanonicalizeDatasetRequest)({
             dataset: S.encodeSync(Dataset)(dataset),
-            algorithm: "lexical-v1",
+            algorithm: "rdfc-1.0",
           })
         );
       })
@@ -73,7 +73,7 @@ describe("Services and Surface", () => {
         return yield* service.fingerprint(
           decodeUnknownSync(FingerprintDatasetRequest)({
             dataset: S.encodeSync(Dataset)(dataset),
-            algorithm: "lexical-v1",
+            algorithm: "rdfc-1.0",
           })
         );
       })
@@ -83,7 +83,52 @@ describe("Services and Surface", () => {
     expect(fingerprint.canonicalText).toBe(canonicalized.canonicalText);
   });
 
-  it("validates bounded SHACL shapes and truncates when max results is reached", async () => {
+  it("produces the same semantic fingerprint for isomorphic blank-node datasets", async () => {
+    const knows = makeNamedNode("https://schema.org/knows");
+    const name = makeNamedNode("https://schema.org/name");
+
+    const left = makeDataset([
+      makeQuad(makeBlankNode("a"), knows, makeBlankNode("b")),
+      makeQuad(makeBlankNode("a"), name, makeLiteral("Alice", XSD_STRING.value)),
+      makeQuad(makeBlankNode("b"), name, makeLiteral("Bob", XSD_STRING.value)),
+    ]);
+
+    const right = makeDataset([
+      makeQuad(makeBlankNode("x"), knows, makeBlankNode("y")),
+      makeQuad(makeBlankNode("x"), name, makeLiteral("Alice", XSD_STRING.value)),
+      makeQuad(makeBlankNode("y"), name, makeLiteral("Bob", XSD_STRING.value)),
+    ]);
+
+    const [leftFingerprint, rightFingerprint] = await Promise.all([
+      runCanonicalization(
+        Effect.gen(function* () {
+          const service = yield* CanonicalizationService;
+          return yield* service.fingerprint(
+            decodeUnknownSync(FingerprintDatasetRequest)({
+              dataset: S.encodeSync(Dataset)(left),
+              algorithm: "rdfc-1.0",
+            })
+          );
+        })
+      ),
+      runCanonicalization(
+        Effect.gen(function* () {
+          const service = yield* CanonicalizationService;
+          return yield* service.fingerprint(
+            decodeUnknownSync(FingerprintDatasetRequest)({
+              dataset: S.encodeSync(Dataset)(right),
+              algorithm: "rdfc-1.0",
+            })
+          );
+        })
+      ),
+    ]);
+
+    expect(leftFingerprint.fingerprint).toBe(rightFingerprint.fingerprint);
+    expect(leftFingerprint.canonicalText).toBe(rightFingerprint.canonicalText);
+  });
+
+  it("validates bounded SHACL-inspired shapes and truncates when max results is reached", async () => {
     const result = await runShacl(
       Effect.gen(function* () {
         const service = yield* ShaclValidationService;

@@ -15,6 +15,7 @@ const $I = $AiSdkId.create("core/SessionService");
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionHistoryOptions = Readonly<{
   readonly source?: ChatEventSource;
@@ -36,6 +37,7 @@ const resolveRuntimeTimeouts = Effect.serviceOption(SessionConfig).pipe(
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SessionServiceShape {
   readonly close: Effect.Effect<void, SessionError>;
@@ -48,6 +50,7 @@ export interface SessionServiceShape {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class SessionService extends ServiceMap.Service<SessionService, SessionServiceShape>()($I`SessionService`) {
   static readonly layer = (options: SDKSessionOptions) =>

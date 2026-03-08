@@ -1,6 +1,9 @@
 import { JsonLdContextServiceLive } from "@beep/semantic-web/adapters/jsonld-context";
 import { JsonLdDocumentServiceLive } from "@beep/semantic-web/adapters/jsonld-document";
+import { JsonLdStreamParseServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-parse";
+import { JsonLdStreamSerializeServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-serialize";
 import { JsonLdContext, JsonLdDocument, JsonLdFrame, JsonLdLiteralValue } from "@beep/semantic-web/jsonld";
+import { Dataset } from "@beep/semantic-web/rdf";
 import {
   CompactJsonLdIriRequest,
   ExpandJsonLdTermRequest,
@@ -10,13 +13,20 @@ import {
 } from "@beep/semantic-web/services/jsonld-context";
 import {
   CompactJsonLdDocumentRequest,
+  ExpandJsonLdDocumentRequest,
   FrameJsonLdDocumentRequest,
   JsonLdDocumentService,
   JsonLdFromRdfRequest,
   JsonLdToRdfRequest,
+  NormalizeJsonLdDocumentRequest,
 } from "@beep/semantic-web/services/jsonld-document";
+import { JsonLdStreamParseRequest, JsonLdStreamParseService } from "@beep/semantic-web/services/jsonld-stream-parse";
+import {
+  JsonLdStreamSerializeRequest,
+  JsonLdStreamSerializeService,
+} from "@beep/semantic-web/services/jsonld-stream-serialize";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, pipe } from "effect";
+import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -110,6 +120,16 @@ const runContext = <A>(effect: Effect.Effect<A, unknown, JsonLdContextService>) 
 
 const runDocument = <A>(effect: Effect.Effect<A, unknown, JsonLdDocumentService>) =>
   Effect.runPromise(effect.pipe(Effect.provide(JsonLdDocumentServiceLive)));
+
+const runStreamParse = <A>(effect: Effect.Effect<A, unknown, JsonLdStreamParseService>) =>
+  Effect.runPromise(
+    effect.pipe(Effect.provide(JsonLdStreamParseServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))))
+  );
+
+const runStreamSerialize = <A>(effect: Effect.Effect<A, unknown, JsonLdStreamSerializeService>) =>
+  Effect.runPromise(
+    effect.pipe(Effect.provide(JsonLdStreamSerializeServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))))
+  );
 
 describe("JSON-LD", () => {
   it("normalizes, expands, compacts, and merges bounded contexts", async () => {
@@ -335,5 +355,120 @@ describe("JSON-LD", () => {
     if (O.isSome(maybeAnonymousNode)) {
       expect(O.isSome(maybeAnonymousNode.value["@id"])).toBe(true);
     }
+  });
+
+  it("expands compacted documents and normalizes bounded document structure", async () => {
+    const compacted = await runDocument(
+      Effect.gen(function* () {
+        const service = yield* JsonLdDocumentService;
+        return yield* service.compact(
+          decodeUnknownSync(CompactJsonLdDocumentRequest)({
+            document: rawDocument,
+            context: rawContext,
+          })
+        );
+      })
+    );
+
+    const expanded = await runDocument(
+      Effect.gen(function* () {
+        const service = yield* JsonLdDocumentService;
+        return yield* service.expand(
+          decodeUnknownSync(ExpandJsonLdDocumentRequest)({
+            document: S.encodeSync(JsonLdDocument)(compacted.document),
+            loaderPolicy: {
+              allowRemoteDocuments: false,
+            },
+          })
+        );
+      })
+    );
+
+    expect(O.isNone(expanded.document["@context"])).toBe(true);
+    expect(Object.keys(expanded.document["@graph"][0].properties)).toEqual([
+      "https://schema.org/name",
+      "https://schema.org/url",
+    ]);
+
+    const normalized = await runDocument(
+      Effect.gen(function* () {
+        const service = yield* JsonLdDocumentService;
+        return yield* service.normalize(
+          decodeUnknownSync(NormalizeJsonLdDocumentRequest)({
+            document: S.encodeSync(JsonLdDocument)(compacted.document),
+            profile: "bounded-v1",
+            safeMode: true,
+            loaderPolicy: {
+              allowRemoteDocuments: false,
+            },
+          })
+        );
+      })
+    );
+
+    expect(Object.keys(normalized.document["@graph"][0].properties)).toEqual(["homepage", "name"]);
+  });
+
+  it("rejects safe-mode normalization for anonymous JSON-LD nodes", async () => {
+    await expect(
+      runDocument(
+        Effect.gen(function* () {
+          const service = yield* JsonLdDocumentService;
+          return yield* service.normalize(
+            decodeUnknownSync(NormalizeJsonLdDocumentRequest)({
+              document: rawBlankNodeDocument,
+              profile: "bounded-v1",
+              safeMode: true,
+            })
+          );
+        })
+      )
+    ).rejects.toThrow("Safe-mode normalization requires explicit @id values for every JSON-LD node.");
+  });
+
+  it("round-trips bounded streaming parse and serialize seams through buffered fallback mode", async () => {
+    const bridged = await runDocument(
+      Effect.gen(function* () {
+        const service = yield* JsonLdDocumentService;
+        return yield* service.toRdf(decodeUnknownSync(JsonLdToRdfRequest)({ document: rawDocument }));
+      })
+    );
+
+    const serialized = await runStreamSerialize(
+      Effect.gen(function* () {
+        const service = yield* JsonLdStreamSerializeService;
+        return yield* service.serialize(
+          decodeUnknownSync(JsonLdStreamSerializeRequest)({
+            dataset: S.encodeSync(Dataset)(bridged.dataset),
+            context: rawContext,
+            maxChunkCharacters: 32,
+          })
+        );
+      })
+    );
+
+    expect(serialized.mode).toBe("buffered-fallback");
+    expect(serialized.chunkCount).toBeGreaterThan(1);
+
+    const reparsed = await runStreamParse(
+      Effect.gen(function* () {
+        const service = yield* JsonLdStreamParseService;
+        return yield* service.parse(
+          decodeUnknownSync(JsonLdStreamParseRequest)({
+            input: {
+              kind: "text",
+              encoding: "utf-8",
+              chunks: serialized.chunks,
+            },
+            loaderPolicy: {
+              allowRemoteDocuments: false,
+            },
+          })
+        );
+      })
+    );
+
+    expect(reparsed.mode).toBe("buffered-fallback");
+    expect(reparsed.dataset.quads).toHaveLength(3);
   });
 });

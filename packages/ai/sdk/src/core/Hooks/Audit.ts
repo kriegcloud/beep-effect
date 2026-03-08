@@ -9,6 +9,7 @@ import type { HookMap } from "./utils.js";
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export type AuditLoggingOptions = Readonly<{
   readonly strict?: undefined | boolean;
@@ -157,6 +158,7 @@ const wrapPermissionCallback =
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(function* (
   hooks: HookMap,
@@ -254,6 +256,7 @@ const resolveDuration = (startRef: Ref.Ref<HashMap.HashMap<string, number>>, too
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const withAuditLogging = Effect.fn("Hooks.withAuditLogging")(function* (
   sessionId: string,

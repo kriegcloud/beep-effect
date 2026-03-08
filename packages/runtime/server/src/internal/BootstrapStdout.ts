@@ -9,7 +9,7 @@ const $I = $RuntimeServerId.create("internal/BootstrapStdout");
  * Machine-readable bootstrap payload emitted on sidecar stdout for the native shell.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class SidecarBootstrapStdoutLine extends S.Class<SidecarBootstrapStdoutLine>($I`SidecarBootstrapStdoutLine`)(
   {
@@ -34,7 +34,7 @@ const BootstrapStdoutJson = S.fromJsonString(SidecarBootstrapStdoutLine);
  * Encode a bootstrap stdout line as JSON text.
  *
  * @since 0.0.0
- * @category Codecs
+ * @category Validation
  */
 export const encodeBootstrapStdoutLine = S.encodeUnknownEffect(BootstrapStdoutJson);
 
@@ -42,7 +42,7 @@ export const encodeBootstrapStdoutLine = S.encodeUnknownEffect(BootstrapStdoutJs
  * Decode a bootstrap stdout line from JSON text.
  *
  * @since 0.0.0
- * @category Codecs
+ * @category Validation
  */
 export const decodeBootstrapStdoutLine = S.decodeUnknownEffect(BootstrapStdoutJson);
 
@@ -50,7 +50,7 @@ export const decodeBootstrapStdoutLine = S.decodeUnknownEffect(BootstrapStdoutJs
  * Convert a typed sidecar bootstrap payload into the stdout line shape.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const toBootstrapStdoutLine = (bootstrap: SidecarBootstrap) =>
   new SidecarBootstrapStdoutLine({

@@ -10,6 +10,7 @@ const $I = $AiSdkId.create("core/Sync/EventLogRemoteServer");
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type EventLogRemoteServerOptions = {
   readonly port?: number;
@@ -21,6 +22,7 @@ export type EventLogRemoteServerOptions = {
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export class EventLogRemoteServerError extends TaggedErrorClass<EventLogRemoteServerError>(
   $I`EventLogRemoteServerError`
@@ -45,6 +47,7 @@ export class EventLogRemoteServerError extends TaggedErrorClass<EventLogRemoteSe
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const toWebSocketUrl = Effect.fn("EventLogRemoteServer.toWebSocketUrl")(function* (
   address: HttpServer.Address,
@@ -99,6 +102,7 @@ const toWebSocketUrlError = (cause: unknown) =>
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const toWebSocketUrlEffect = (
   address: HttpServer.Address,
@@ -111,6 +115,7 @@ export const toWebSocketUrlEffect = (
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type EventLogRemoteServerShape = Readonly<{
   readonly address: HttpServer.Address;
@@ -132,6 +137,7 @@ const findAvailablePort = () =>
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export class EventLogRemoteServer extends ServiceMap.Service<EventLogRemoteServer, EventLogRemoteServerShape>()(
   $I`EventLogRemoteServer`
@@ -176,12 +182,14 @@ const buildBunWebSocketLayer = (options: EventLogRemoteServerOptions, port: numb
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layerBunWebSocket = (options: EventLogRemoteServerOptions = {}) =>
   buildBunWebSocketLayer(options, options.port ?? 8787);
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {}) =>
   Layer.unwrap(

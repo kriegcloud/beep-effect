@@ -14,11 +14,13 @@ const toolIdentity = $I.create("Tool");
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type FailureMode = "error" | "return";
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AnySchema = S.Top & {
   readonly DecodingServices: unknown;
@@ -27,6 +29,7 @@ export type AnySchema = S.Top & {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AnyStructSchema = AnySchema;
 
@@ -35,6 +38,7 @@ export type AnyStructSchema = AnySchema;
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export interface Tool<
   Name extends string,
@@ -95,10 +99,12 @@ export interface Tool<
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export namespace Tool {
   /**
    * @since 0.0.0
+   * @category DomainModel
    */
   export interface Variance<Requirements> {
     readonly _R?: (_: Requirements) => void;
@@ -107,6 +113,7 @@ export namespace Tool {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Any = Tool<
   string,
@@ -120,81 +127,95 @@ export type Any = Tool<
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Name<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Parameters<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["parameters"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ParametersEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["parameters"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ParametersSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["parameters"] : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Success<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["success"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SuccessSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["success"] : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SuccessEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["success"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Failure<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["failure"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type FailureSchema<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["failure"] : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type FailureEncoded<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? S.Codec.Encoded<_Config["failure"]> : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type FailureModeOf<T> =
   T extends Tool<infer _Name, infer _Config, infer _Requirements> ? _Config["failureMode"] : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Handler<T> = (params: Parameters<T>) => Effect.Effect<Success<T>, Failure<T>, Requirements<T>>;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Requirements<T> = T extends Tool<infer _Name, infer _Config, infer Requirements> ? Requirements : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type HandlerResult<T> = {
   readonly result: Success<T> | Failure<T>;
@@ -204,11 +225,13 @@ export type HandlerResult<T> = {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type RequiresHandler<T> = T extends Tool<infer _Name, infer _Config, infer _Requirements> ? true : never;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type HandlerFor<T> =
   T extends Tool<infer _Name, infer _Config, infer Requirements>
@@ -217,6 +240,7 @@ export type HandlerFor<T> =
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type HandlersFor<Tools extends Record<string, Any>> = {
   readonly [Name in keyof Tools as RequiresHandler<Tools[Name]> extends true ? Name : never]: (
@@ -226,6 +250,7 @@ export type HandlersFor<Tools extends Record<string, Any>> = {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolWithHandler<
   Name extends string,
@@ -242,6 +267,7 @@ export type ToolWithHandler<
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type DefinitionFields<
   Parameters extends S.Struct.Fields = {},
@@ -262,6 +288,7 @@ export type DefinitionFields<
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type DefinitionSchema<
   Parameters extends AnyStructSchema,
@@ -282,6 +309,7 @@ export type DefinitionSchema<
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Definition = {
   readonly description?: string | undefined;
@@ -322,6 +350,7 @@ type DefinitionRequirements<D> = D extends {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ToolFromDefinition<Name extends string, Def> = ToolWithHandler<
   Name,
@@ -401,6 +430,7 @@ class EmptyToolParameters extends S.Class<EmptyToolParameters>($I`EmptyToolParam
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const make = <const Name extends string>(
   name: Name,
@@ -430,6 +460,7 @@ export const make = <const Name extends string>(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const fromSchema = <const Name extends string>(
   name: Name,
@@ -473,6 +504,7 @@ const attachHandler = (
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const define = (
   name: string,
@@ -512,6 +544,7 @@ export const define = (
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const fn = <const Name extends string>(
   name: Name,
@@ -533,6 +566,7 @@ export const fn = <const Name extends string>(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const getJsonSchema = <
   Name extends string,
@@ -559,6 +593,7 @@ const getJsonSchemaFromSchema = (schema: AnySchema): JsonSchema.JsonSchema => {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const getJsonSchemaFromSchemaAst = (ast: SchemaAST.AST): JsonSchema.JsonSchema =>
   getJsonSchemaFromSchema(S.make(ast));
@@ -568,6 +603,7 @@ export const getJsonSchemaFromSchemaAst = (ast: SchemaAST.AST): JsonSchema.JsonS
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const Title = ServiceMap.Service<string>($I`Title`);
 
@@ -576,6 +612,7 @@ export const Title = ServiceMap.Service<string>($I`Title`);
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const Readonly = ServiceMap.Reference<boolean>($I`Readonly`, {
   defaultValue: F.constFalse,
@@ -586,6 +623,7 @@ export const Readonly = ServiceMap.Reference<boolean>($I`Readonly`, {
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const Destructive = ServiceMap.Reference<boolean>($I`Destructive`, {
   defaultValue: F.constTrue,
@@ -596,6 +634,7 @@ export const Destructive = ServiceMap.Reference<boolean>($I`Destructive`, {
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const Idempotent = ServiceMap.Reference<boolean>($I`Idempotent`, {
   defaultValue: F.constFalse,
@@ -606,6 +645,7 @@ export const Idempotent = ServiceMap.Reference<boolean>($I`Idempotent`, {
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const OpenWorld = ServiceMap.Reference<boolean>($I`OpenWorld`, {
   defaultValue: F.constTrue,

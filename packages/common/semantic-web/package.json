@@ -49,7 +49,12 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "jsonld": "catalog:",
+    "jsonld-streaming-parser": "catalog:",
+    "jsonld-streaming-serializer": "catalog:",
+    "rdf-canonize": "catalog:",
+    "shacl-engine": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

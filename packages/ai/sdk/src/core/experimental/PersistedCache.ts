@@ -25,6 +25,7 @@ const SupportedModelsSchema = S.Array(ModelInfo);
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SupportedCommandsRequest extends Persistable.Class()("SupportedCommandsRequest", {
   success: SupportedCommandsSchema,
@@ -37,6 +38,7 @@ export class SupportedCommandsRequest extends Persistable.Class()("SupportedComm
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SupportedModelsRequest extends Persistable.Class()("SupportedModelsRequest", {
   success: SupportedModelsSchema,
@@ -49,6 +51,7 @@ export class SupportedModelsRequest extends Persistable.Class()("SupportedModels
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class AccountInfoRequest extends Persistable.Class()("AccountInfoRequest", {
   success: AccountInfo,
@@ -65,6 +68,7 @@ const accountInfoKey = new AccountInfoRequest();
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QueryMetadataCache = Readonly<{
   readonly supportedCommands: PersistedCache.PersistedCache<SupportedCommandsRequest>;
@@ -77,6 +81,7 @@ export type QueryMetadataCache = Readonly<{
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type QueryMetadataCacheOptions = Readonly<{
   readonly storeIdPrefix?: string;
@@ -105,6 +110,7 @@ const toCacheError = (message: string, cause: unknown): AgentSdkError => {
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadataCache")(function* (
   handle: QueryHandle,
@@ -150,6 +156,7 @@ export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadat
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadataCache): QueryHandle => ({
   ...handle,
@@ -181,6 +188,7 @@ export const withQueryMetadataCache = (handle: QueryHandle, cache: QueryMetadata
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const makeCachedQueryHandle = Effect.fn("PersistedCache.makeCachedQueryHandle")(function* (
   handle: QueryHandle,

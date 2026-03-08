@@ -13,6 +13,7 @@ const resolveLogger = (format: LogFormat) =>
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const layer = Layer.unwrap(
   Effect.gen(function* () {
@@ -25,11 +26,13 @@ export const layer = Layer.unwrap(
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const layerDefault = layer.pipe(Layer.provide(AgentLoggingConfig.layer));
 
 /**
  * @since 0.0.0
+ * @category CrossCutting
  */
 export const layerDefaultFromEnv = (prefix = "AGENTSDK") =>
   layer.pipe(Layer.provide(AgentLoggingConfig.layerFromEnv(prefix)));

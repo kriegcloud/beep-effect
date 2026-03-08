@@ -6,6 +6,7 @@ import { ConflictPolicy } from "./ConflictPolicy.js";
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type RemoteUrlOptions = Readonly<{
   readonly tenant?: string;
@@ -14,11 +15,13 @@ export type RemoteUrlOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type ConflictPolicyOption = "lastWriteWins" | "firstWriteWins" | "reject" | Layer.Layer<ConflictPolicy>;
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type RemoteSyncLayerOptions = Omit<RemoteSyncOptions, "url" | "conflictPolicy"> & {
   readonly conflictPolicy?: ConflictPolicyOption;
@@ -30,6 +33,7 @@ const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const buildRemoteUrl = Effect.fn("RemoteSync.buildRemoteUrl")(function* (
   baseUrl: string,
@@ -75,6 +79,7 @@ const resolveConflictPolicyLayer = (input?: ConflictPolicyOption) => {
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const withRemoteSync = (url: string, options?: RemoteSyncLayerOptions) => {
   const { conflictPolicy, tenant, authToken, ...rest } = options ?? {};

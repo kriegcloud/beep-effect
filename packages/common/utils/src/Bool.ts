@@ -17,7 +17,7 @@ import { Function as Fn } from "effect";
  * )
  * ```
  *
- * @category pattern matching
+ * @category DomainLogic
  * @since 2.0.0
  */
 export const thunkMatch: () => {

@@ -33,12 +33,12 @@ const makeViolation = (
   });
 
 /**
- * SHACL validation service live layer.
+ * Bounded SHACL-inspired validation service live layer.
  *
  * @since 0.0.0
  * @category Layers
  */
-export const ShaclValidationServiceLive = Layer.succeed(
+export const BoundedShaclValidationServiceLive = Layer.succeed(
   ShaclValidationService,
   ShaclValidationService.of({
     validate: Effect.fn((request) => {
@@ -149,3 +149,11 @@ export const ShaclValidationServiceLive = Layer.succeed(
     }),
   } satisfies ShaclValidationServiceShape)
 );
+
+/**
+ * Backward-compatible alias for the bounded v1 SHACL adapter.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const ShaclValidationServiceLive = BoundedShaclValidationServiceLive;

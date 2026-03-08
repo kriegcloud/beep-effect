@@ -9,12 +9,14 @@ const isResultSuccess = (message: SDKResultMessage): message is SDKResultSuccess
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const collectResultMessage = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(Stream.filter(isResultMessage), Stream.runLast);
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const collectResultSuccess = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   collectResultMessage(stream).pipe(

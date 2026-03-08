@@ -11,6 +11,7 @@ const ChatEventMessage: S.Codec<ChatEventMessage, ChatEventMessageEncoded> = SDK
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ChatEventSource = LiteralKit(["sdk", "replay", "external"]).annotate(
   $I.annote("ChatEventSource", {
@@ -19,15 +20,18 @@ export const ChatEventSource = LiteralKit(["sdk", "replay", "external"]).annotat
 );
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ChatEventSource = typeof ChatEventSource.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ChatEventSourceEncoded = typeof ChatEventSource.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class ChatEvent extends S.Class<ChatEvent>($I`ChatEvent`)(
   {
@@ -50,11 +54,13 @@ export class ChatEvent extends S.Class<ChatEvent>($I`ChatEvent`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ChatEventEncoded = typeof ChatEvent.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionMeta extends S.Class<SessionMeta>($I`SessionMeta`)(
   {
@@ -71,11 +77,13 @@ export class SessionMeta extends S.Class<SessionMeta>($I`SessionMeta`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionMetaEncoded = typeof SessionMeta.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ArtifactEncoding = LiteralKit(["utf8", "base64"]).annotate(
   $I.annote("ArtifactEncoding", {
@@ -84,15 +92,18 @@ export const ArtifactEncoding = LiteralKit(["utf8", "base64"]).annotate(
 );
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ArtifactEncoding = typeof ArtifactEncoding.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ArtifactEncodingEncoded = typeof ArtifactEncoding.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ArtifactKind = LiteralKit(["file", "tool_result", "summary", "image", "other"]).annotate(
   $I.annote("ArtifactKind", {
@@ -101,15 +112,18 @@ export const ArtifactKind = LiteralKit(["file", "tool_result", "summary", "image
 );
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ArtifactKind = typeof ArtifactKind.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ArtifactKindEncoded = typeof ArtifactKind.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class ArtifactRecord extends S.Class<ArtifactRecord>($I`ArtifactRecord`)(
   {
@@ -135,5 +149,6 @@ export class ArtifactRecord extends S.Class<ArtifactRecord>($I`ArtifactRecord`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ArtifactRecordEncoded = typeof ArtifactRecord.Encoded;

@@ -20,10 +20,14 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
     canonicalName,
     overview,
     status: "stable",
-    specifications: [{ name: "RDF Dataset Canonicalization", disposition: "informative" }],
+    specifications: [{ name: "RDF Dataset Canonicalization 1.0", disposition: "normative" }],
     equivalenceBasis: "Canonical text and fingerprint equality.",
     representations: [{ kind: "RDF/JS" }, { kind: "TriG" }],
     canonicalizationRequired: true,
+    implementationNotes: [
+      "rdfc-1.0 is the graph-safe canonicalization algorithm for semantic identity and fingerprinting.",
+      "lexical-sort-v1 remains a deterministic fallback for non-semantic ordering workflows only.",
+    ],
   });
 
 /**
@@ -32,9 +36,9 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * @since 0.0.0
  * @category DomainModel
  */
-export const CanonicalizationAlgorithm = LiteralKit(["lexical-v1"] as const).annotate(
+export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"] as const).annotate(
   $I.annote("CanonicalizationAlgorithm", {
-    description: "Canonicalization algorithm name.",
+    description: "Canonicalization algorithm name with an explicit graph-safe default and lexical fallback.",
   })
 );
 
@@ -47,7 +51,12 @@ export const CanonicalizationAlgorithm = LiteralKit(["lexical-v1"] as const).ann
 export class CanonicalizationError extends TaggedErrorClass<CanonicalizationError>($I`CanonicalizationError`)(
   "CanonicalizationError",
   {
-    reason: LiteralKit(["workLimitExceeded", "unsupportedAlgorithm", "fingerprintFailure"] as const),
+    reason: LiteralKit([
+      "workLimitExceeded",
+      "unsupportedAlgorithm",
+      "canonicalizationFailure",
+      "fingerprintFailure",
+    ] as const),
     message: S.String,
   },
   $I.annote("CanonicalizationError", {

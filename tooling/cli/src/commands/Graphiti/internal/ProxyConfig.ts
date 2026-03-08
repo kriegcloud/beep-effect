@@ -176,7 +176,7 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
  * Raised when graphiti proxy configuration cannot be loaded.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxyConfigLoadError>(
   $I`GraphitiProxyConfigLoadError`
@@ -197,7 +197,7 @@ const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
  * Load graphiti proxy config from Effect Config environment values.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const listenHost = yield* Config.option(Config.string("GRAPHITI_PROXY_HOST"));

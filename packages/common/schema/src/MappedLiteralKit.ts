@@ -61,7 +61,7 @@ type DirectionalKit<
 /**
  * Error thrown when `MappedLiteralKit` receives duplicate literals on either side.
  *
- * @category CrossCutting
+ * @category DomainModel
  * @since 0.0.0
  */
 export class MappedLiteralDuplicateError extends TaggedErrorClass<MappedLiteralDuplicateError>(

@@ -12,6 +12,7 @@ const { dual, cast } = Function;
  * Prepends `prefix` to a string.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const prefix: {
   <const Pre extends string>(prefix: Pre): <S extends string>(str: S) => `${Pre}${S}`;
@@ -25,6 +26,7 @@ export const prefix: {
  * Appends `postfix` to a string.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const postfix: {
   <const Post extends string>(postfix: Post): <S extends string>(str: S) => `${S}${Post}`;
@@ -39,6 +41,7 @@ export const postfix: {
  * Maps a non-empty string array by prepending each entry with `prefix`.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const mapPrefix: {
   <const Pre extends string>(
@@ -63,6 +66,7 @@ export const mapPrefix: {
  * Maps a non-empty string array by appending each entry with `postfix`.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const mapPostfix: {
   <const Post extends string>(
@@ -85,68 +89,80 @@ export const mapPostfix: {
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const camelCase = <TStr extends string>(str: TStr): TF.CamelCase<TStr> => cast(Str.camelCase(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const snakeCase = <const TStr extends string>(str: TStr): TF.SnakeCase<TStr> => cast(Str.snakeCase(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const kebabCase = <const TStr extends string>(str: TStr): TF.KebabCase<TStr> => cast(Str.kebabCase(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const screamingSnake = <const TStr extends string>(str: TStr): TF.ScreamingSnakeCase<TStr> =>
   cast(Str.constantCase(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<TStr> => cast(Str.pascalCase(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const pascalToSnake = <const TStr extends string>(str: TF.PascalCase<TStr>): TF.SnakeCase<TStr> =>
   cast(Str.pascalToSnake(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const snakeToCamel = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.CamelCase<TStr> =>
   cast(Str.snakeToCamel(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const snakeToKebab = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.KebabCase<TStr> =>
   cast(Str.snakeToKebab(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>): TF.SnakeCase<TStr> =>
   cast(Str.camelToSnake(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.PascalCase<TStr> =>
   cast(Str.snakeToPascal(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const kebabToSnake = <const TStr extends string>(str: TF.KebabCase<TStr>): TF.SnakeCase<TStr> =>
   cast(Str.kebabToSnake(str));
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const startsWith: {
   <const SearchString extends string>(
@@ -166,6 +182,7 @@ export const startsWith: {
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const endsWith: {
   <const SearchString extends string>(
@@ -185,6 +202,7 @@ export const endsWith: {
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const contains: {
   <const SearchString extends string>(
@@ -204,6 +222,7 @@ export const contains: {
 
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export const repeat: {
   <const Count extends number>(

@@ -26,6 +26,7 @@ const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Read
  * ```
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const destructiveTransform: {
   <Self extends S.Top, B>(transform: (input: Self["Type"]) => B): (self: Self) => DestructiveTransform<Self, B>;

@@ -7,6 +7,7 @@ const $I = $SchemaId.create("NumberChecks");
  * Refinement that accepts positive numbers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const isPositive = S.isGreaterThan(0);
 
@@ -14,6 +15,7 @@ export const isPositive = S.isGreaterThan(0);
  * Refinement that accepts non-negative numbers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const isNonNegative = S.isGreaterThanOrEqualTo(0);
 
@@ -21,6 +23,7 @@ export const isNonNegative = S.isGreaterThanOrEqualTo(0);
  * Refinement that accepts negative numbers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const isNegative = S.isLessThan(0);
 
@@ -28,6 +31,7 @@ export const isNegative = S.isLessThan(0);
  * Refinement that accepts non-positive numbers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const isNonPositive = S.isLessThanOrEqualTo(0);
 
@@ -35,6 +39,7 @@ export const isNonPositive = S.isLessThanOrEqualTo(0);
  * Branded schema for non-negative integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const NonNegativeInt = S.Int.check(isNonNegative).pipe(
   S.brand("NonNegativeInt"),
@@ -49,5 +54,6 @@ export const NonNegativeInt = S.Int.check(isNonNegative).pipe(
  * Type for {@link NonNegativeInt}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type NonNegativeInt = typeof NonNegativeInt.Type;

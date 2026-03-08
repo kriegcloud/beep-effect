@@ -34,30 +34,35 @@ import type {
 /** Narrows to `SDKAssistantMessage` (`type: "assistant"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isAssistant = (msg: SDKMessage): msg is SDKAssistantMessage => msg.type === "assistant";
 
 /** Narrows to `SDKPartialAssistantMessage` (`type: "stream_event"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isStreamEvent = (msg: SDKMessage): msg is SDKPartialAssistantMessage => msg.type === "stream_event";
 
 /** Narrows to `SDKUserMessage | SDKUserMessageReplay` (`type: "user"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isUser = (msg: SDKMessage): msg is SDKUserMessage | SDKUserMessageReplay => msg.type === "user";
 
 /** Narrows to `SDKResultMessage` (`type: "result"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isResult = (msg: SDKMessage): msg is SDKResultMessage => msg.type === "result";
 
 /** Narrows to `SDKResultSuccess` (`type: "result"`, `subtype: "success"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isResultSuccess = (msg: SDKMessage): msg is SDKResultSuccess =>
   msg.type === "result" && msg.subtype === "success";
@@ -65,6 +70,7 @@ export const isResultSuccess = (msg: SDKMessage): msg is SDKResultSuccess =>
 /** Narrows to `SDKResultError` (`type: "result"`, `subtype !== "success"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isResultError = (msg: SDKMessage): msg is SDKResultError =>
   msg.type === "result" && msg.subtype !== "success";
@@ -72,24 +78,28 @@ export const isResultError = (msg: SDKMessage): msg is SDKResultError =>
 /** Narrows to `SDKSystemMessage` (`type: "system"`, `subtype: "init"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isSystem = (msg: SDKMessage): msg is SDKSystemMessage => msg.type === "system" && msg.subtype === "init";
 
 /** Narrows to `SDKToolProgressMessage` (`type: "tool_progress"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isToolProgress = (msg: SDKMessage): msg is SDKToolProgressMessage => msg.type === "tool_progress";
 
 /** Narrows to `SDKToolUseSummaryMessage` (`type: "tool_use_summary"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isToolUseSummary = (msg: SDKMessage): msg is SDKToolUseSummaryMessage => msg.type === "tool_use_summary";
 
 /** Narrows to `SDKAuthStatusMessage` (`type: "auth_status"`). */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const isAuthStatus = (msg: SDKMessage): msg is SDKAuthStatusMessage => msg.type === "auth_status";
 
@@ -100,6 +110,7 @@ export const isAuthStatus = (msg: SDKMessage): msg is SDKAuthStatusMessage => ms
 /** Filter a stream to only `SDKAssistantMessage` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterAssistant = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =>
   stream.pipe(Stream.filter(isAssistant));
@@ -107,6 +118,7 @@ export const filterAssistant = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =
 /** Filter a stream to only `SDKPartialAssistantMessage` (stream_event) events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterStreamEvents = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =>
   stream.pipe(Stream.filter(isStreamEvent));
@@ -114,12 +126,14 @@ export const filterStreamEvents = <E, R>(stream: Stream.Stream<SDKMessage, E, R>
 /** Filter a stream to only `SDKResultMessage` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterResults = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) => stream.pipe(Stream.filter(isResult));
 
 /** Filter a stream to only `SDKResultSuccess` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterResultSuccess = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =>
   stream.pipe(Stream.filter(isResultSuccess));
@@ -127,6 +141,7 @@ export const filterResultSuccess = <E, R>(stream: Stream.Stream<SDKMessage, E, R
 /** Filter a stream to only `SDKResultError` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterResultError = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =>
   stream.pipe(Stream.filter(isResultError));
@@ -134,12 +149,14 @@ export const filterResultError = <E, R>(stream: Stream.Stream<SDKMessage, E, R>)
 /** Filter a stream to only `SDKUserMessage | SDKUserMessageReplay` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterUser = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) => stream.pipe(Stream.filter(isUser));
 
 /** Filter a stream to only `SDKToolProgressMessage` events. */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const filterToolProgress = <E, R>(stream: Stream.Stream<SDKMessage, E, R>) =>
   stream.pipe(Stream.filter(isToolProgress));
@@ -166,6 +183,7 @@ export const filterToolProgress = <E, R>(stream: Stream.Stream<SDKMessage, E, R>
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const match = Match.type<SDKMessage>();
 
@@ -190,6 +208,7 @@ type UserLikeMessage = SDKUserMessage | SDKUserMessageReplay;
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const fold =
   <R>(handlers: {
@@ -219,13 +238,16 @@ export const fold =
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const extractResultText = extractResultText_;
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const extractTextChunks = extractTextChunks_;
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const toTextStream = toTextStream_;

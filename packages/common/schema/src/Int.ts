@@ -8,6 +8,7 @@ const $I = $SchemaId.create("Int");
  * Branded schema for finite integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const Int = S.Int.pipe(S.brand("Int"))
   .check(
@@ -26,6 +27,7 @@ export const Int = S.Int.pipe(S.brand("Int"))
  * Type for {@link Int}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Int = typeof Int.Type;
 
@@ -33,6 +35,7 @@ export type Int = typeof Int.Type;
  * Branded schema for positive integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const PosInt = Int.pipe(S.brand("PosInt"))
   .check(
@@ -51,6 +54,7 @@ export const PosInt = Int.pipe(S.brand("PosInt"))
  * Type for {@link PosInt}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PosInt = typeof PosInt.Type;
 
@@ -58,6 +62,7 @@ export type PosInt = typeof PosInt.Type;
  * Branded schema for negative integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const NegInt = Int.pipe(S.brand("NegInt"))
   .check(
@@ -76,6 +81,7 @@ export const NegInt = Int.pipe(S.brand("NegInt"))
  * Type for {@link NegInt}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type NegInt = typeof NegInt.Type;
 
@@ -83,6 +89,7 @@ export type NegInt = typeof NegInt.Type;
  * Branded schema for non-positive integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
   .check(
@@ -101,6 +108,7 @@ export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
  * Type for {@link NonPositiveInt}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type NonPositiveInt = typeof NonPositiveInt.Type;
 
@@ -108,6 +116,7 @@ export type NonPositiveInt = typeof NonPositiveInt.Type;
  * Branded schema for non-negative integers.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const NonNegativeInt = Int.pipe(S.brand("NonNegativeInt"))
   .check(
@@ -126,5 +135,6 @@ export const NonNegativeInt = Int.pipe(S.brand("NonNegativeInt"))
  * Type for {@link NonNegativeInt}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type NonNegativeInt = typeof NonNegativeInt.Type;

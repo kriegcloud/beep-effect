@@ -29,6 +29,7 @@ const $I = $AiSdkId.create("core/Sync/SyncService");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type RemoteKind = "remoteId" | "url";
 
@@ -40,6 +41,7 @@ export type RemoteKind = "remoteId" | "url";
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type RemoteKey = Readonly<{
   readonly key: string;
@@ -48,6 +50,7 @@ export type RemoteKey = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type RemoteStatus = Readonly<{
   readonly key: string;
@@ -61,6 +64,7 @@ export type RemoteStatus = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SyncConfigOptions = Readonly<{
   readonly syncInterval?: Duration.Input;
@@ -68,11 +72,13 @@ export type SyncConfigOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export interface SyncConfigShape extends SyncConfigOptions {}
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SyncServiceWebSocketOptions = Readonly<{
   readonly disablePing?: boolean;
@@ -88,6 +94,7 @@ const defaultSyncConfig: SyncConfigOptions = {};
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigShape>()($I`SyncConfig`, {
   make: Effect.succeed(defaultSyncConfig),
@@ -97,6 +104,7 @@ export class SyncConfig extends ServiceMap.Service<SyncConfig, SyncConfigShape>(
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SyncServiceShape {
   readonly connect: (remote: EventLogRemoteService) => Effect.Effect<void>;
@@ -117,6 +125,7 @@ export interface SyncServiceShape {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class SyncService extends ServiceMap.Service<SyncService, SyncServiceShape>()($I`SyncService`) {
   static readonly layer = Layer.effect(SyncService, make());

@@ -1,5 +1,8 @@
 import { $RepoMemoryModelId } from "@beep/identity/packages";
 import { ArrayOfStrings, FilePath, LiteralKit, NonNegativeInt, PosInt, Sha256Hex } from "@beep/schema";
+import { EvidenceAnchor } from "@beep/semantic-web/evidence";
+import { ProvBundle } from "@beep/semantic-web/prov";
+import { Dataset } from "@beep/semantic-web/rdf";
 import * as S from "effect/Schema";
 
 const $I = $RepoMemoryModelId.create("internal/domain");
@@ -8,7 +11,7 @@ const $I = $RepoMemoryModelId.create("internal/domain");
  * Stable identifier for a tracked repository target.
  *
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export const RepoId = S.String.pipe(
   S.brand("RepoId"),
@@ -21,7 +24,7 @@ export const RepoId = S.String.pipe(
 
 /**
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export type RepoId = typeof RepoId.Type;
 
@@ -29,7 +32,7 @@ export type RepoId = typeof RepoId.Type;
  * Stable identifier for an index or query workflow execution.
  *
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export const RunId = S.String.pipe(
   S.brand("RunId"),
@@ -42,7 +45,7 @@ export const RunId = S.String.pipe(
 
 /**
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export type RunId = typeof RunId.Type;
 
@@ -50,7 +53,7 @@ export type RunId = typeof RunId.Type;
  * Monotonic event sequence for a run journal stream.
  *
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export const RunEventSequence = NonNegativeInt.pipe(
   S.brand("RunEventSequence"),
@@ -63,7 +66,7 @@ export const RunEventSequence = NonNegativeInt.pipe(
 
 /**
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export type RunEventSequence = typeof RunEventSequence.Type;
 
@@ -71,7 +74,7 @@ export type RunEventSequence = typeof RunEventSequence.Type;
  * Replay cursor for reconnecting a streamed run event subscription.
  *
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export const RunCursor = NonNegativeInt.pipe(
   S.brand("RunCursor"),
@@ -84,7 +87,7 @@ export const RunCursor = NonNegativeInt.pipe(
 
 /**
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export type RunCursor = typeof RunCursor.Type;
 
@@ -92,7 +95,7 @@ export type RunCursor = typeof RunCursor.Type;
  * Stable identifier for a persisted repository source snapshot.
  *
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export const SourceSnapshotId = S.String.pipe(
   S.brand("SourceSnapshotId"),
@@ -105,7 +108,7 @@ export const SourceSnapshotId = S.String.pipe(
 
 /**
  * @since 0.0.0
- * @category Identity
+ * @category DomainModel
  */
 export type SourceSnapshotId = typeof SourceSnapshotId.Type;
 
@@ -113,7 +116,7 @@ export type SourceSnapshotId = typeof SourceSnapshotId.Type;
  * Canonical run kind for repo-memory workflows.
  *
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export const RepoRunKind = LiteralKit(["index", "query"]).annotate(
   $I.annote("RepoRunKind", {
@@ -123,7 +126,7 @@ export const RepoRunKind = LiteralKit(["index", "query"]).annotate(
 
 /**
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export type RepoRunKind = typeof RepoRunKind.Type;
 
@@ -131,7 +134,7 @@ export type RepoRunKind = typeof RepoRunKind.Type;
  * Canonical run control commands exposed through the execution plane.
  *
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export const RunCommand = LiteralKit(["interrupt", "resume"]).annotate(
   $I.annote("RunCommand", {
@@ -141,7 +144,7 @@ export const RunCommand = LiteralKit(["interrupt", "resume"]).annotate(
 
 /**
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export type RunCommand = typeof RunCommand.Type;
 
@@ -149,7 +152,7 @@ export type RunCommand = typeof RunCommand.Type;
  * Canonical run status for repo-memory workflows.
  *
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export const RepoRunStatus = LiteralKit(["accepted", "running", "completed", "failed", "interrupted"]).annotate(
   $I.annote("RepoRunStatus", {
@@ -159,7 +162,7 @@ export const RepoRunStatus = LiteralKit(["accepted", "running", "completed", "fa
 
 /**
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export type RepoRunStatus = typeof RepoRunStatus.Type;
 
@@ -167,7 +170,7 @@ export type RepoRunStatus = typeof RepoRunStatus.Type;
  * Terminal run states exposed to the UI.
  *
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export const RunTerminalState = LiteralKit(["completed", "failed", "interrupted"]).annotate(
   $I.annote("RunTerminalState", {
@@ -177,7 +180,7 @@ export const RunTerminalState = LiteralKit(["completed", "failed", "interrupted"
 
 /**
  * @since 0.0.0
- * @category Status
+ * @category DomainModel
  */
 export type RunTerminalState = typeof RunTerminalState.Type;
 
@@ -185,7 +188,7 @@ export type RunTerminalState = typeof RunTerminalState.Type;
  * Source span for a grounded citation.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class CitationSpan extends S.Class<CitationSpan>($I`CitationSpan`)(
   {
@@ -205,7 +208,7 @@ export class CitationSpan extends S.Class<CitationSpan>($I`CitationSpan`)(
  * Grounding record attached to an answer.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class Citation extends S.Class<Citation>($I`Citation`)(
   {
@@ -224,7 +227,7 @@ export class Citation extends S.Class<Citation>($I`Citation`)(
  * Documented function or method parameter extracted from a JSDoc block.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoDocumentedParameter extends S.Class<RepoDocumentedParameter>($I`RepoDocumentedParameter`)(
   {
@@ -241,7 +244,7 @@ export class RepoDocumentedParameter extends S.Class<RepoDocumentedParameter>($I
  * Documented return contract extracted from a JSDoc block.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoDocumentedReturn extends S.Class<RepoDocumentedReturn>($I`RepoDocumentedReturn`)(
   {
@@ -257,7 +260,7 @@ export class RepoDocumentedReturn extends S.Class<RepoDocumentedReturn>($I`RepoD
  * Documented throw contract extracted from a JSDoc block.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoDocumentedThrow extends S.Class<RepoDocumentedThrow>($I`RepoDocumentedThrow`)(
   {
@@ -273,7 +276,7 @@ export class RepoDocumentedThrow extends S.Class<RepoDocumentedThrow>($I`RepoDoc
  * Normalized `@summary` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocSummaryTag extends S.TaggedClass<RepoJSDocSummaryTag>($I`RepoJSDocSummaryTag`)(
   "summary",
@@ -289,7 +292,7 @@ export class RepoJSDocSummaryTag extends S.TaggedClass<RepoJSDocSummaryTag>($I`R
  * Normalized `@description` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocDescriptionTag extends S.TaggedClass<RepoJSDocDescriptionTag>($I`RepoJSDocDescriptionTag`)(
   "description",
@@ -305,7 +308,7 @@ export class RepoJSDocDescriptionTag extends S.TaggedClass<RepoJSDocDescriptionT
  * Normalized `@remarks` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocRemarksTag extends S.TaggedClass<RepoJSDocRemarksTag>($I`RepoJSDocRemarksTag`)(
   "remarks",
@@ -321,7 +324,7 @@ export class RepoJSDocRemarksTag extends S.TaggedClass<RepoJSDocRemarksTag>($I`R
  * Normalized `@param` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocParamTag extends S.TaggedClass<RepoJSDocParamTag>($I`RepoJSDocParamTag`)(
   "param",
@@ -339,7 +342,7 @@ export class RepoJSDocParamTag extends S.TaggedClass<RepoJSDocParamTag>($I`RepoJ
  * Normalized `@returns` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocReturnsTag extends S.TaggedClass<RepoJSDocReturnsTag>($I`RepoJSDocReturnsTag`)(
   "returns",
@@ -356,7 +359,7 @@ export class RepoJSDocReturnsTag extends S.TaggedClass<RepoJSDocReturnsTag>($I`R
  * Normalized `@throws` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocThrowsTag extends S.TaggedClass<RepoJSDocThrowsTag>($I`RepoJSDocThrowsTag`)(
   "throws",
@@ -373,7 +376,7 @@ export class RepoJSDocThrowsTag extends S.TaggedClass<RepoJSDocThrowsTag>($I`Rep
  * Normalized `@deprecated` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocDeprecatedTag extends S.TaggedClass<RepoJSDocDeprecatedTag>($I`RepoJSDocDeprecatedTag`)(
   "deprecated",
@@ -389,7 +392,7 @@ export class RepoJSDocDeprecatedTag extends S.TaggedClass<RepoJSDocDeprecatedTag
  * Normalized `@see` occurrence attached to one symbol.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoJSDocSeeTag extends S.TaggedClass<RepoJSDocSeeTag>($I`RepoJSDocSeeTag`)(
   "see",
@@ -405,7 +408,7 @@ export class RepoJSDocSeeTag extends S.TaggedClass<RepoJSDocSeeTag>($I`RepoJSDoc
  * Bounded tagged-union of repo-facing JSDoc semantics preserved in repo-memory.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export const RepoJSDocCoreTag = S.Union([
   RepoJSDocSummaryTag,
@@ -427,7 +430,7 @@ export const RepoJSDocCoreTag = S.Union([
 
 /**
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export type RepoJSDocCoreTag = typeof RepoJSDocCoreTag.Type;
 
@@ -435,7 +438,7 @@ export type RepoJSDocCoreTag = typeof RepoJSDocCoreTag.Type;
  * Deterministic symbol-level documentation extracted from a JSDoc block.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoSymbolDocumentation extends S.Class<RepoSymbolDocumentation>($I`RepoSymbolDocumentation`)(
   {
@@ -460,7 +463,7 @@ export class RepoSymbolDocumentation extends S.Class<RepoSymbolDocumentation>($I
  * Bounded evidence packet returned alongside a grounded answer.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket`)(
   {
@@ -481,7 +484,7 @@ export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket
  * Persisted repository source snapshot metadata.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoSourceSnapshot extends S.Class<RepoSourceSnapshot>($I`RepoSourceSnapshot`)(
   {
@@ -499,7 +502,7 @@ export class RepoSourceSnapshot extends S.Class<RepoSourceSnapshot>($I`RepoSourc
  * Persisted repository source file metadata.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoSourceFile extends S.Class<RepoSourceFile>($I`RepoSourceFile`)(
   {
@@ -520,7 +523,7 @@ export class RepoSourceFile extends S.Class<RepoSourceFile>($I`RepoSourceFile`)(
  * Canonical TypeScript symbol kinds captured during deterministic indexing.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export const RepoSymbolKind = LiteralKit([
   "function",
@@ -538,7 +541,7 @@ export const RepoSymbolKind = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export type RepoSymbolKind = typeof RepoSymbolKind.Type;
 
@@ -546,7 +549,7 @@ export type RepoSymbolKind = typeof RepoSymbolKind.Type;
  * Persisted repository symbol metadata.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoSymbolRecord extends S.Class<RepoSymbolRecord>($I`RepoSymbolRecord`)(
   {
@@ -575,7 +578,7 @@ export class RepoSymbolRecord extends S.Class<RepoSymbolRecord>($I`RepoSymbolRec
  * Persisted import edge metadata for future dependency-aware retrieval.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoImportEdge extends S.Class<RepoImportEdge>($I`RepoImportEdge`)(
   {
@@ -598,7 +601,7 @@ export class RepoImportEdge extends S.Class<RepoImportEdge>($I`RepoImportEdge`)(
  * Persisted artifact for a completed repository index run.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RepoIndexArtifact extends S.Class<RepoIndexArtifact>($I`RepoIndexArtifact`)(
   {
@@ -614,10 +617,29 @@ export class RepoIndexArtifact extends S.Class<RepoIndexArtifact>($I`RepoIndexAr
 ) {}
 
 /**
+ * Snapshot-scoped semantic artifacts derived from deterministic repo indexing.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RepoSemanticArtifacts extends S.Class<RepoSemanticArtifacts>($I`RepoSemanticArtifacts`)(
+  {
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    dataset: Dataset,
+    provenance: ProvBundle,
+    evidenceAnchors: S.Array(EvidenceAnchor),
+  },
+  $I.annote("RepoSemanticArtifacts", {
+    description: "Snapshot-scoped semantic artifacts derived from deterministic repo indexing.",
+  })
+) {}
+
+/**
  * Atomic index-artifact replacement payload for one repository snapshot refresh.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class ReplaceSnapshotArtifactsInput extends S.Class<ReplaceSnapshotArtifactsInput>(
   $I`ReplaceSnapshotArtifactsInput`
@@ -638,7 +660,7 @@ export class ReplaceSnapshotArtifactsInput extends S.Class<ReplaceSnapshotArtifa
  * Deterministic payload used to start an index workflow.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class IndexRepoRunInput extends S.Class<IndexRepoRunInput>($I`IndexRepoRunInput`)(
   {
@@ -654,7 +676,7 @@ export class IndexRepoRunInput extends S.Class<IndexRepoRunInput>($I`IndexRepoRu
  * Deterministic payload used to start a query workflow.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class QueryRepoRunInput extends S.Class<QueryRepoRunInput>($I`QueryRepoRunInput`)(
   {
@@ -671,7 +693,7 @@ export class QueryRepoRunInput extends S.Class<QueryRepoRunInput>($I`QueryRepoRu
  * Summary view for a run projection.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RunSummary extends S.Class<RunSummary>($I`RunSummary`)(
   {
@@ -693,7 +715,7 @@ export class RunSummary extends S.Class<RunSummary>($I`RunSummary`)(
  * Typed public stream failure returned by the execution plane.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class RunStreamFailure extends S.Class<RunStreamFailure>($I`RunStreamFailure`)(
   {

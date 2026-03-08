@@ -88,6 +88,7 @@ const makeStore = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export interface AuditEventStoreShape {
   readonly cleanup?: () => Effect.Effect<void, StorageError>;
@@ -97,6 +98,7 @@ export interface AuditEventStoreShape {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class AuditEventStore extends ServiceMap.Service<AuditEventStore, AuditEventStoreShape>()($I`AuditEventStore`) {
   static readonly layerMemory = Layer.effect(AuditEventStore, makeStore).pipe(

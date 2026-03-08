@@ -26,6 +26,7 @@ const normalizeBooleanString = (value: string): boolean => {
  * Trimmed and non-empty text schema for shared runtime boundaries.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const TrimmedNonEmptyText = S.String.pipe(
   S.decodeTo(
@@ -46,6 +47,7 @@ export const TrimmedNonEmptyText = S.String.pipe(
  * Type for {@link TrimmedNonEmptyText}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type TrimmedNonEmptyText = typeof TrimmedNonEmptyText.Type;
 
@@ -53,6 +55,7 @@ export type TrimmedNonEmptyText = typeof TrimmedNonEmptyText.Type;
  * Shared comma-separated list schema that trims and removes empty entries.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const CommaSeparatedList = S.String.pipe(
   S.decodeTo(
@@ -73,6 +76,7 @@ export const CommaSeparatedList = S.String.pipe(
  * Type for {@link CommaSeparatedList}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type CommaSeparatedList = typeof CommaSeparatedList.Type;
 
@@ -81,6 +85,7 @@ export type CommaSeparatedList = typeof CommaSeparatedList.Type;
  * Accepts common boolean string spellings and normalizes to `boolean`.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const NormalizedBooleanString = S.String.pipe(
   S.decodeTo(
@@ -101,5 +106,6 @@ export const NormalizedBooleanString = S.String.pipe(
  * Type for {@link NormalizedBooleanString}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type NormalizedBooleanString = typeof NormalizedBooleanString.Type;

@@ -785,7 +785,7 @@ const copyDocsTree = (
  * @param relativePath - Workspace-relative package path.
  * @returns Current nested docs output path with the top-level workspace root trimmed.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const normalizeDocsOutputPath = (relativePath: string): string =>
   Str.replace(/^(packages|tooling|apps)\//, "")(normalizeSlashes(relativePath));
@@ -796,7 +796,7 @@ export const normalizeDocsOutputPath = (relativePath: string): string =>
  * @param absolutePackagePath - Absolute package path containing the `docgen.json` file to decode.
  * @returns Parsed current-schema docgen configuration.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const loadDocgenConfigDocument: (
   absolutePackagePath: string
@@ -819,7 +819,7 @@ export const loadDocgenConfigDocument: (
  * @param rootDir - Absolute repo root.
  * @returns Bootstrapped docgen config using current repo defaults plus dependency-aware paths.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const createDocgenConfigDocument: (
   targetPackage: DocgenWorkspacePackage,
@@ -867,7 +867,7 @@ export const createDocgenConfigDocument: (
  * @param rootDir - Optional repo root override.
  * @returns Sorted workspace package descriptors with current docgen status.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const discoverDocgenWorkspacePackages: (
   rootDir?: string
@@ -911,7 +911,7 @@ export const discoverDocgenWorkspacePackages: (
  * @param rootDir - Optional repo root override.
  * @returns Resolved workspace package descriptor.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const resolveDocgenWorkspacePackage: (
   selector: string,
@@ -948,7 +948,7 @@ export const resolveDocgenWorkspacePackage: (
  * @param targetPackage - Target workspace package.
  * @returns Package analysis document grounded in the current repo package layout.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const analyzePackageDocumentation: (
   targetPackage: DocgenWorkspacePackage
@@ -990,7 +990,7 @@ export const analyzePackageDocumentation: (
  * @param fixMode - Whether to emit checklist-focused output.
  * @returns Human-first markdown report content.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
   const issues = analysis.exports.filter((entry) => entry.missingTags.length > 0);
@@ -1101,7 +1101,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
  * @param analysis - Package analysis document.
  * @returns JSON representation suitable for writing to disk or stdout.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string => jsonText(analysis);
 
@@ -1113,7 +1113,7 @@ export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string =>
  * @param options.package - Optional workspace package selector that limits aggregation to one package.
  * @returns Per-package aggregation results using the current nested layout.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const aggregateGeneratedDocs = (options?: {
   readonly clean?: boolean | undefined;
@@ -1235,7 +1235,7 @@ export const aggregateGeneratedDocs = (options?: {
  * @param validateExamples - Whether to pass `--validate-examples`.
  * @returns Generation result including output and module count.
  * @since 0.0.0
- * @category Constructors
+ * @category DomainModel
  */
 export const runDocgenForPackage: (
   targetPackage: DocgenWorkspacePackage,

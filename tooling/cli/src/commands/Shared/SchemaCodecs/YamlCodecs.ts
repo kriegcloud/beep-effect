@@ -65,7 +65,7 @@ const parseUnknown: YamlCodecServiceShape["parseUnknown"] = Effect.fn(function* 
  * Live YAML codec service layer.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const YamlCodecServiceLive = Layer.succeed(
   YamlCodecService,
