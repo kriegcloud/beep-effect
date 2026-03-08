@@ -1,0 +1,39 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<from-validator>).
+
+<from-validator> a sht:Validate;
+  rdfs:label "Test of message from validator";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms false;
+      sh:result [ a sh:ValidationResult;
+          sh:focusNode ex:Alice;
+          sh:resultMessage "Predicate is not allowed (closed shape)";
+          sh:resultPath ex:name;
+          sh:resultSeverity sh:Violation;
+          sh:sourceConstraintComponent sh:ClosedConstraintComponent;
+          sh:sourceShape ex:ShapeWithMessage;
+          sh:value "Alice"
+        ]
+    ].
+
+ex:Alice a ex:Person;
+  ex:name "Alice".
+
+ex:ShapeWithMessage a sh:NodeShape;
+  sh:closed true;
+  sh:ignoredProperties (rdf:type);
+  sh:targetClass ex:Person.
+
+sh:ClosedConstraintComponent
+  sh:message "Message on constraint component".

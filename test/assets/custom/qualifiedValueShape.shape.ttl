@@ -1,0 +1,15 @@
+@prefix ex: <http://example.org/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+
+ex:citizenOwnsHouseShape a sh:NodeShape;
+  sh:property ex:ownsHouseShape;
+  sh:targetClass ex:Citizen.
+
+ex:isHouseShape
+  sh:class ex:House.
+
+ex:ownsHouseShape
+  sh:path ex:owns;
+  sh:qualifiedMinCount 1;
+  sh:qualifiedValueShape ex:isHouseShape.

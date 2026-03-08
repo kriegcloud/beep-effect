@@ -1,0 +1,9 @@
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+<> a mf:Manifest;
+  rdfs:label "Severity tests";
+  rdfs:comment "Tests are based on the severity tests from rdf-validate-shacl.";
+  mf:include
+    <default.ttl>,
+    <from-shape-property.ttl>.

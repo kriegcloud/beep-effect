@@ -1,0 +1,74 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+ex:InvalidRectangle1 a ex:Rectangle;
+  ex:height 3.
+
+ex:InvalidRectangle2 a ex:Rectangle;
+  ex:width 2.
+
+ex:Rectangle a rdfs:Class, sh:NodeShape;
+  rdfs:subClassOf rdfs:Resource;
+  sh:and (_:and1 _:and2).
+
+_:and1
+  sh:property [
+    sh:path ex:width;
+    sh:minCount 1
+  ].
+
+_:and2
+  sh:property [
+    sh:path ex:height;
+    sh:minCount 1
+  ].
+
+ex:ValidRectangle1 a ex:Rectangle;
+  ex:height 3;
+  ex:width 2.
+
+<> a mf:Manifest;
+  mf:entries (<and-details>).
+
+<and-details> a sht:Validate;
+  rdfs:label "Test of sh:and with details";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:InvalidRectangle1;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:AndConstraintComponent;
+      sh:sourceShape ex:Rectangle;
+      sh:value ex:InvalidRectangle1;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:and1
+      ]
+    ];
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:InvalidRectangle2;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:AndConstraintComponent;
+      sh:sourceShape ex:Rectangle;
+      sh:value ex:InvalidRectangle2;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:and2
+      ]
+    ]
+  ].

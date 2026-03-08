@@ -1,0 +1,9 @@
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+<> a mf:Manifest;
+  rdfs:label "SPARQL target tests";
+  mf:include
+    <target-select-001.ttl>,
+    <target-select-002.ttl>,
+    <target-select-no-match.ttl>.

@@ -1,0 +1,64 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+ex:InvalidResource1 a rdfs:Resource;
+  ex:property "some value".
+
+ex:TestShape a rdfs:Class, sh:NodeShape;
+  rdfs:label "Test shape";
+  rdfs:subClassOf rdfs:Resource;
+  sh:not _:not;
+  sh:targetNode ex:InvalidResource1;
+  sh:targetNode ex:ValidResource1.
+
+_:not a sh:NodeShape;
+  sh:property [
+    sh:path ex:property;
+    sh:minCount 1
+  ].
+
+ex:ValidResource1 a rdfs:Resource.
+
+<> a mf:Manifest;
+  mf:entries (<not-details>).
+
+<not-details> a sht:Validate;
+  rdfs:label "Test of sh:not with details";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:InvalidResource1;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:NotConstraintComponent;
+      sh:sourceShape ex:TestShape;
+      sh:value ex:InvalidResource1;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidResource1;
+        sh:resultPath ex:property;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:not
+      ]
+    ], [ a sh:ValidationResult;
+      sh:focusNode ex:ValidResource1;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:NotConstraintComponent;
+      sh:sourceShape ex:TestShape;
+      sh:value ex:ValidResource1;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:ValidResource1;
+        sh:resultPath ex:property;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:not
+      ]
+    ]
+  ].

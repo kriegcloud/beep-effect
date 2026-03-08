@@ -1,0 +1,13 @@
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+<> a mf:Manifest;
+  rdfs:label "Miscellaneous tests";
+  rdfs:comment "Tests are based on tests from rdf-validate-shacl.";
+  mf:include
+    <closed-false.ttl>,
+    <lessThan-more-types.ttl>,
+    <inheritance-multi-level.ttl>,
+    <inheritance-multi-level-implicit-target.ttl>,
+    <targetNode-non-existing.ttl>,
+    <uniqueLang-false.ttl>.

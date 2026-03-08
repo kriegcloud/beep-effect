@@ -1,0 +1,75 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<path>).
+
+ex:rootShape a sh:NodeShape;
+  sh:property ex:sparqlShape;
+  sh:targetNode ex:resource.
+
+ex:sparqlShape a sh:PropertyShape;
+  sh:path (
+    ex:property1
+    [ sh:inversePath ex:property1 ]
+    [ sh:alternativePath (ex:property2 ex:property3) ]
+    [ sh:oneOrMorePath ex:property4 ]
+    [ sh:zeroOrMorePath ex:property5 ]
+    [ sh:zeroOrOnePath ex:property6 ]
+    ex:property7
+  );
+  sh:sparql [
+  sh:select """
+    SELECT $this ?value WHERE {
+      $this $PATH ?value .
+    }
+	"""
+  ].
+
+ex:resource
+  ex:property1 1;
+  ex:property3 ex:resource1.
+
+ex:resource1
+  ex:property4 ex:resource2.
+
+ex:resource2
+  ex:property5 ex:resource3.
+
+ex:resource3
+  ex:property6 ex:resource4.
+
+ex:resource4
+  ex:property7 2.
+
+<path> a sht:Validate;
+  rdfs:label "Test $PATH substitution";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:resource;
+      sh:resultPath (
+        ex:property1
+        [ sh:inversePath ex:property1 ]
+        [ sh:alternativePath (ex:property2 ex:property3) ]
+        [ sh:oneOrMorePath ex:property4 ]
+        [ sh:zeroOrMorePath ex:property5 ]
+        [ sh:zeroOrOnePath ex:property6 ]
+        ex:property7
+      );
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraint [];
+      sh:sourceConstraintComponent sh:SPARQLConstraintComponent;
+      sh:sourceShape ex:sparqlShape;
+      sh:value 2
+    ]
+  ].
