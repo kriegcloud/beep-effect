@@ -277,17 +277,23 @@ export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`Doc
   })
 ) {}
 
-const RootTsconfigPathsDocument = S.Struct({
-  compilerOptions: S.optionalKey(
-    S.Struct({
-      paths: S.optionalKey(S.Record(S.String, S.Array(S.String))),
-    })
-  ),
-}).annotate(
+class RootTsconfigCompilerOptions extends S.Class<RootTsconfigCompilerOptions>($I`RootTsconfigCompilerOptions`)(
+  {
+    paths: S.optionalKey(S.Record(S.String, S.Array(S.String))),
+  },
+  $I.annote("RootTsconfigCompilerOptions", {
+    description: "Minimal compiler options shape containing tsconfig path aliases.",
+  })
+) {}
+
+class RootTsconfigPathsDocument extends S.Class<RootTsconfigPathsDocument>($I`RootTsconfigPathsDocument`)(
+  {
+    compilerOptions: S.optionalKey(RootTsconfigCompilerOptions),
+  },
   $I.annote("RootTsconfigPathsDocument", {
     description: "Minimal root tsconfig shape containing compilerOptions.paths.",
   })
-);
+) {}
 const decodeDocgenConfigDocument = S.decodeUnknownEffect(DocgenConfigDocument);
 const decodeRootTsconfigPathsDocument = S.decodeUnknownEffect(RootTsconfigPathsDocument);
 

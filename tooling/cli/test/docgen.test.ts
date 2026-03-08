@@ -1,4 +1,5 @@
 import { FsUtilsLive } from "@beep/repo-utils";
+import { NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, Exit, FileSystem, Layer, Path } from "effect";
@@ -21,7 +22,12 @@ import {
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));
-const CommandTestLayer = Layer.mergeAll(TestLayer, TestConsole.layer);
+const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
+const CommandTestLayer = Layer.mergeAll(
+  CommandPlatformLayer,
+  FsUtilsLive.pipe(Layer.provideMerge(CommandPlatformLayer)),
+  TestConsole.layer
+);
 const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 

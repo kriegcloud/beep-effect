@@ -1,11 +1,11 @@
+import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "@beep/repo-cli/commands/Laws/AllowlistCheck";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
-import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "../src/commands/Laws/AllowlistCheck.js";
 
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
-const withTempRepo = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
+const withTempRepo = <A, E>(use: (tmpDir: string) => Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>) =>
   Effect.acquireUseRelease(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -18,15 +18,21 @@ const withTempRepo = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) 
     ({ fs, tmpDir }) => fs.remove(tmpDir, { recursive: true })
   );
 
-const writeRepoFile = Effect.fn(function* (repoRoot: string, relativePath: string, content: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const absolutePath = path.join(repoRoot, relativePath);
-  const directoryPath = path.dirname(absolutePath);
+const writeRepoFile: (
+  repoRoot: string,
+  relativePath: string,
+  content: string
+) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  function* (repoRoot, relativePath, content) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const absolutePath = path.join(repoRoot, relativePath);
+    const directoryPath = path.dirname(absolutePath);
 
-  yield* fs.makeDirectory(directoryPath, { recursive: true });
-  yield* fs.writeFileString(absolutePath, content);
-});
+    yield* fs.makeDirectory(directoryPath, { recursive: true });
+    yield* fs.writeFileString(absolutePath, content);
+  }
+);
 
 describe("allowlist-check", () => {
   it("passes when all referenced files exist", async () => {

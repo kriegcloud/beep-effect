@@ -276,8 +276,7 @@ class OptionsData extends S.Class<OptionsData>($I`Options`)(
     spawnClaudeCodeProcess: S.optional(SpawnClaudeCodeProcess),
   },
   $I.annote("Options", {
-    description:
-      "Top-level SDK runtime options covering tools, model selection, hooks, sandboxing, and session behavior.",
+    description: "Top-level SDK runtime options covering tools, model selection, hooks, sandbox, and session behavior.",
   })
 ) {}
 
