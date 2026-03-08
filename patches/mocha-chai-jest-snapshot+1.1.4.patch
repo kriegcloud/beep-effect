@@ -1,0 +1,60 @@
+diff --git a/node_modules/mocha-chai-jest-snapshot/dist/index.d.ts b/node_modules/mocha-chai-jest-snapshot/dist/index.d.ts
+index da2efa6..463cb78 100644
+--- a/node_modules/mocha-chai-jest-snapshot/dist/index.d.ts
++++ b/node_modules/mocha-chai-jest-snapshot/dist/index.d.ts
+@@ -16,6 +16,7 @@ declare global {
+             /** Assert that the object matches the snapshot */
+             toMatchSnapshot(message?: string): Assertion;
+             matchSnapshot(message?: string): Assertion;
++            toMatchInlineSnapshot(snapshot: string, message?: string): void
+         }
+         interface ExpectStatic {
+             addSnapshotSerializer(serializer: SnapshotSerializerPlugin): void;
+diff --git a/node_modules/mocha-chai-jest-snapshot/dist/index.js b/node_modules/mocha-chai-jest-snapshot/dist/index.js
+index cfd7a26..eadb532 100644
+--- a/node_modules/mocha-chai-jest-snapshot/dist/index.js
++++ b/node_modules/mocha-chai-jest-snapshot/dist/index.js
+@@ -23,6 +23,10 @@ const constants_1 = require("./constants");
+ const jest_config_helper_1 = require("./utils/jest-config-helper");
+ const helper_1 = require("./helper");
+ const manager_1 = __importDefault(require("./manager"));
++
++const chai = require('chai');
++chai.use(require('chai-string'));
++
+ let _manager;
+ let _reporterAttached = false;
+ function _setReporterAttached() {
+@@ -67,6 +71,10 @@ const jestSnapshotPlugin = (optionalConfig) => {
+                 _manager.assert(expected, message);
+             });
+         }
++        utils.addMethod(chai.Assertion.prototype, 'toMatchInlineSnapshot', function (actual, message) {
++          const expected = utils.flag(this, "object");
++          _manager.assertInline(expected, actual, message);
++        });
+         chai.expect.addSnapshotSerializer = jest_snapshot_1.addSerializer;
+     };
+ };
+diff --git a/node_modules/mocha-chai-jest-snapshot/dist/manager.js b/node_modules/mocha-chai-jest-snapshot/dist/manager.js
+index 391e1c2..5568925 100644
+--- a/node_modules/mocha-chai-jest-snapshot/dist/manager.js
++++ b/node_modules/mocha-chai-jest-snapshot/dist/manager.js
+@@ -45,6 +45,17 @@ class SnapshotManager {
+             expect(actual.trim()).equals(expected ? expected.trim() : "", message || `Snapshot name: \`${key}\``);
+         }
+     }
++    assertInline(received, inlineSnapshot, message) {
++      const { actual, expected, key, pass } = this.snapshotState.match({
++        testName: this.context.fullTitle(),
++        received,
++        inlineSnapshot,
++        isInline: true,
++      });
++      if (!pass) {
++        expect(actual).to.equalIgnoreSpaces(expected ? expected : "", message || `Snapshot name: \`${key}\``);
++      }
++    }
+     saveSnap() {
+         if (!this.testFile || !this.snapshotState)
+             return;

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TypeCollection add does not modify the dataset when type already exists on resource 1`] = `
+"<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type> .
+"
+`;
+
+exports[`TypeCollection add modifies the dataset when adding named node 1`] = `
+"<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type> .
+"
+`;
+
+exports[`TypeCollection add modifies the dataset when adding resource 1`] = `
+"<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type> .
+"
+`;
+
+exports[`TypeCollection clear removes all resource's triples 1`] = `
+"<http://example.com/res2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type1> .
+"
+`;
+
+exports[`TypeCollection delete removes the correct triple 1`] = `
+"<http://example.com/res2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type1> .
+<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type1> .
+<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type3> .
+<http://example.com/res> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type4> .
+"
+`;

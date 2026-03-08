@@ -1,0 +1,76 @@
+<http://www.w3.org/ns/shacl#in> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#and> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+<http://www.w3.org/ns/shacl#and> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#or> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+<http://www.w3.org/ns/shacl#or> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#xone> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+<http://www.w3.org/ns/shacl#xone> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#equals> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+
+<http://www.w3.org/ns/shacl#languageIn> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#languageIn> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+
+<http://www.w3.org/ns/shacl#sh:ignoredProperties> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+
+<http://www.w3.org/ns/shacl#minCount> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#maxCount> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#minCount> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<http://www.w3.org/ns/shacl#maxCount> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+
+<http://www.w3.org/ns/shacl#minLength> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#maxLength> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#minLength> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<http://www.w3.org/ns/shacl#maxLength> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+
+<http://www.w3.org/ns/shacl#minExclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#minExclusive> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#decimal> .
+<http://www.w3.org/ns/shacl#maxExclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#maxExclusive> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#decimal> .
+<http://www.w3.org/ns/shacl#minInclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#minInclusive> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#decimal> .
+<http://www.w3.org/ns/shacl#maxInclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#maxInclusive> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#decimal> .
+
+<http://www.w3.org/ns/shacl#pattern> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#pattern> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+
+<http://www.w3.org/ns/shacl#flags> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#flags> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+
+<http://www.w3.org/ns/shacl#uniqueLang> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#uniqueLang> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#boolean> .
+
+<http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+
+<http://www.w3.org/ns/shacl#hasValue> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+
+<http://www.w3.org/ns/shacl#closed> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+<http://www.w3.org/ns/shacl#closed> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#boolean> .
+
+<http://www.w3.org/ns/shacl#name> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://www.w3.org/ns/shacl#description> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://www.w3.org/ns/shacl#resultMessage> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+
+<http://www.w3.org/ns/shacl#class> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#nodeKind> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#node> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#Shape> .
+
+<http://www.w3.org/ns/shacl#order> <http://schema.org/domainIncludes> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#order> <http://schema.org/domainIncludes> <http://www.w3.org/ns/shacl#PropertyGroup> .
+<http://www.w3.org/ns/shacl#order> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+
+<http://www.w3.org/ns/shacl#disjoint> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#lessThan> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://www.w3.org/ns/shacl#lessThanOrEquals> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#PropertyShape> .
+
+<http://www.w3.org/ns/shacl#labelTemplate> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+
+<http://www.w3.org/ns/shacl#ignoredProperties> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/ns/shacl#NodeShape> .
+
+<http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://schema.org/Enumeration> .

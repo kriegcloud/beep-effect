@@ -1,0 +1,3 @@
+<http://datashapes.org/dash#readOnly> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#boolean> .
+<http://datashapes.org/dash#defaultViewForRole> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/ns/shacl#Shape> .
+<http://datashapes.org/dash#shapeScript> <http://www.w3.org/2000/01/rdf-schema#range> <http://datashapes.org/dash#ShapeScript> .
