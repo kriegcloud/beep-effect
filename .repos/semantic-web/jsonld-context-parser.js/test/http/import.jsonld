@@ -1,0 +1,7 @@
+{
+  "@context":
+  {
+    "@import": "'http://example.org/simple.jsonld'",
+    "name": "http://xmlns.com/foaf/0.1/name"
+  }
+}

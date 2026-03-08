@@ -1,0 +1,8 @@
+{
+  "@context": {
+    "prop": {
+      "@id": "ex:prop",
+      "@context": "http://example.org/remote_cyclic_scoped_indirect_1.jsonld"
+    }
+  }
+}
