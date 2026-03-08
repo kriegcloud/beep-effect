@@ -57,7 +57,7 @@ test("AgentHttpHandlers layer builds with AgentRuntime only", async () => {
 });
 
 test("makeAgentServerAccess rejects bind-all hostnames with a clear error", async () => {
-  const result = await Effect.runPromise(
+  const result = await runEffect(
     Effect.result(makeAgentServerAccess({ hostname: "0.0.0.0", authToken: "secret-token" }))
   );
   expect(Result.isFailure(result)).toBe(true);
