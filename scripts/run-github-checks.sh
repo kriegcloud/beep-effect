@@ -162,6 +162,7 @@ run_sast_scan() {
     --config p/javascript \
     --config p/security-audit \
     --config p/secrets \
+    --timeout 20 \
     "${semgrep_files[@]}"
 }
 
@@ -169,10 +170,10 @@ run_nix_checks() {
   require_command nix
 
   log "nix: flake check"
-  nix flake check
+  nix --option warn-dirty false flake check --all-systems
 
   log "nix: dev shell"
-  nix develop --command echo "Dev shell OK"
+  nix --option warn-dirty false develop --command echo "Dev shell OK"
 }
 
 run_e2e_checks() {
