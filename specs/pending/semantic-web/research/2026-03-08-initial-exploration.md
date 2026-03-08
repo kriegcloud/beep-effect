@@ -60,6 +60,8 @@ The following repositories were added under `/.repos/semantic-web` using `git su
 | `.repos/semantic-web/jsonld-context-parser.js` | `rubensworks/jsonld-context-parser.js` | `master` | `fcd2cc03c2` | JSON-LD context parsing and resolution reference |
 | `.repos/semantic-web/jsonld-streaming-serializer.js` | `rubensworks/jsonld-streaming-serializer.js` | `master` | `0b4253e538` | JSON-LD streaming serializer reference |
 | `.repos/semantic-web/jsonld-streaming-parser.js` | `rubensworks/jsonld-streaming-parser.js` | `master` | `4f22c20a99` | JSON-LD streaming parser reference |
+| `.repos/semantic-web/rdfa-streaming-parser.js` | `rubensworks/rdfa-streaming-parser.js` | `master` | `18388de0d1` | RDFa ingestion reference for HTML-embedded semantic data |
+| `.repos/semantic-web/microdata-rdf-streaming-parser.js` | `rubensworks/microdata-rdf-streaming-parser.js` | `master` | `e1b151654c` | Microdata-to-RDF ingestion reference for HTML-embedded semantic data |
 
 ## Working Shape Hypothesis
 
@@ -133,14 +135,11 @@ Open questions:
 - whether context parsing is exposed directly or hidden behind service boundaries
 - whether framing is in scope for the first implementation pass
 
-## Optional Future Subtree Candidates
+## HTML-Embedded Semantics Coverage
 
-These were discussed as potentially useful later, but were not added in this pass:
+The local reference set now also includes RDFa and Microdata ingestion references.
 
-- `rubensworks/rdfa-streaming-parser.js`
-- `rubensworks/microdata-rdf-streaming-parser.js`
-
-They would be useful if HTML-embedded semantic data becomes part of the initial ingestion story.
+This matters because JSON-LD is not the only semantic-web surface encountered in the wild. Specs, documents, and web pages may expose structured data through HTML-embedded mechanisms, and these references give later research and implementation passes local source material for those ingestion seams.
 
 ## Recommended Next Artifact
 

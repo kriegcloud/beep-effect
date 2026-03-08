@@ -1,12 +1,13 @@
 # @beep/semantic-web Agent Guide
 
 ## Purpose & Fit
-- An library containing utilities, schemas & services for working with the semantic web
+- A library containing utilities, schemas, and services for working with the semantic web
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | VERSION, IRI, AbsoluteIRI, IRIReference, RelativeIRIReference | curated root surface only |
+| `iri` module | IRI, AbsoluteIRI, IRIReference, RelativeIRIReference | canonical public IRI family |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -16,13 +17,14 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/semantic-web"
+import { IRI } from "@beep/semantic-web/iri"
 ```
 
 ## Verifications
-- `bunx turbo run test --filter=@beep/semantic-web`
-- `bunx turbo run lint --filter=@beep/semantic-web`
-- `bunx turbo run check --filter=@beep/semantic-web`
+- `bun run --filter=@beep/semantic-web check`
+- `bun run --filter=@beep/semantic-web lint`
+- `bun run --filter=@beep/semantic-web test`
+- `bun run --filter=@beep/semantic-web build`
 
 ## Contributor Checklist
 - [ ] New exports include jsdoc metadata

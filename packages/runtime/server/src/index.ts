@@ -91,7 +91,19 @@ const makeRunnerAddress = (config: SidecarRuntimeConfig) =>
   RunnerAddress.make(internalRunnerHost(config.host), config.port);
 
 const sidecarCorsAllowedMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
-const sidecarCorsAllowedHeaders = ["Content-Type", "Authorization"];
+const sidecarCorsAllowedHeaders = [
+  "Content-Type",
+  "Authorization",
+  "traceparent",
+  "tracestate",
+  "baggage",
+  "b3",
+  "x-b3-traceid",
+  "x-b3-spanid",
+  "x-b3-parentspanid",
+  "x-b3-sampled",
+  "x-b3-flags",
+];
 const sidecarSecurityHeaders = {
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
@@ -661,6 +673,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const httpServerLayer = Layer.fresh(
         BunHttpServer.layer({
           hostname: config.host,
+          idleTimeout: 0,
           port: config.port,
         })
       );

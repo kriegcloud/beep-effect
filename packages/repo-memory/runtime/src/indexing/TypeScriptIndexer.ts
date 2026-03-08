@@ -37,6 +37,7 @@ import {
   Effect,
   FileSystem,
   flow,
+  HashMap,
   HashSet,
   Layer,
   Order,
@@ -865,6 +866,78 @@ const extractImportEdges = (options: {
   return results;
 };
 
+const dedupeArtifactsByKey = <A>(
+  values: ReadonlyArray<A>,
+  keyOf: (value: A) => string,
+  choose: (current: A, next: A) => A = (current) => current
+): ReadonlyArray<A> => {
+  let indexes = HashMap.empty<string, number>();
+  let deduped = A.empty<A>();
+
+  for (const value of values) {
+    const key = keyOf(value);
+    const existingIndex = HashMap.get(indexes, key);
+
+    if (O.isSome(existingIndex)) {
+      const current = deduped[existingIndex.value];
+
+      if (current !== undefined) {
+        pipe(
+          deduped,
+          A.replace(existingIndex.value, choose(current, value)),
+          O.fromNullishOr,
+          O.match({
+            onNone: () => {},
+            onSome: (d) => {
+              deduped = d;
+            },
+          })
+        );
+      }
+
+      continue;
+    }
+
+    indexes = HashMap.set(indexes, key, A.length(deduped));
+    deduped = A.append(deduped, value);
+  }
+
+  return deduped;
+};
+
+const hasSymbolDocumentation = (symbol: RepoSymbolRecord): boolean =>
+  O.isSome(symbol.documentation) || O.isSome(symbol.jsDocSummary);
+
+const preferSymbolRecord = (current: RepoSymbolRecord, next: RepoSymbolRecord): RepoSymbolRecord => {
+  const currentHasDocumentation = hasSymbolDocumentation(current);
+  const nextHasDocumentation = hasSymbolDocumentation(next);
+
+  if (currentHasDocumentation !== nextHasDocumentation) {
+    return currentHasDocumentation ? current : next;
+  }
+
+  const currentDeclarationLength = Str.length(current.declarationText);
+  const nextDeclarationLength = Str.length(next.declarationText);
+
+  if (currentDeclarationLength !== nextDeclarationLength) {
+    return currentDeclarationLength >= nextDeclarationLength ? current : next;
+  }
+
+  const currentSpanLength = current.endLine - current.startLine;
+  const nextSpanLength = next.endLine - next.startLine;
+
+  return currentSpanLength >= nextSpanLength ? current : next;
+};
+
+const symbolRecordStoreKey = (symbol: RepoSymbolRecord): string =>
+  `${symbol.repoId}::${symbol.sourceSnapshotId}::${symbol.symbolId}`;
+
+const importEdgeStoreKey = (importEdge: RepoImportEdge): string =>
+  `${importEdge.repoId}::${importEdge.sourceSnapshotId}::${importEdge.importerFilePath}::${importEdge.moduleSpecifier}::${pipe(
+    importEdge.importedName,
+    O.getOrElse(() => "<none>")
+  )}`;
+
 const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")(function* (
   repoRootPath: string
 ): Effect.fn.Return<ReadonlyArray<ProjectScope>, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
@@ -1078,7 +1151,8 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
           ...symbol,
           sourceSnapshotId,
         })
-    )
+    ),
+    (records) => dedupeArtifactsByKey(records, symbolRecordStoreKey, preferSymbolRecord)
   );
   const importEdges = pipe(
     extractedImportEdges,
@@ -1088,7 +1162,8 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
           ...importEdge,
           sourceSnapshotId,
         })
-    )
+    ),
+    (edges) => dedupeArtifactsByKey(edges, importEdgeStoreKey)
   );
   const indexedFileCount = decodeNonNegativeInt(A.length(files));
 

@@ -11,6 +11,8 @@ const rustTripleToBunTarget = {
   "x86_64-pc-windows-msvc": "bun-windows-x64-modern",
 } as const satisfies Record<string, string>;
 
+type SupportedRustTargetTriple = keyof typeof rustTripleToBunTarget;
+
 const decode = (buffer: Uint8Array | string | null | undefined): string => {
   if (buffer === undefined || buffer === null) {
     return "";
@@ -47,12 +49,16 @@ const rustHostTriple = (): string => {
   return hostLine.replace("host: ", "").trim();
 };
 
-const targetTriple = process.env.TAURI_ENV_TARGET_TRIPLE ?? process.env.CARGO_BUILD_TARGET ?? rustHostTriple();
-const bunTarget = rustTripleToBunTarget[targetTriple];
+const isSupportedRustTargetTriple = (triple: string): triple is SupportedRustTargetTriple =>
+  triple in rustTripleToBunTarget;
 
-if (bunTarget === undefined) {
-  throw new Error(`Unsupported rust target triple for Bun standalone sidecar build: ${targetTriple}`);
+const resolvedTargetTriple = process.env.TAURI_ENV_TARGET_TRIPLE ?? process.env.CARGO_BUILD_TARGET ?? rustHostTriple();
+if (!isSupportedRustTargetTriple(resolvedTargetTriple)) {
+  throw new Error(`Unsupported rust target triple for Bun standalone sidecar build: ${resolvedTargetTriple}`);
 }
+
+const targetTriple = resolvedTargetTriple;
+const bunTarget = rustTripleToBunTarget[targetTriple];
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(currentDirectory, "../../..");

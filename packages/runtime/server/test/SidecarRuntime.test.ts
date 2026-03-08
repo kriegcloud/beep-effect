@@ -378,6 +378,7 @@ describe("spawned Bun sidecar lifecycle", () => {
             headers: {
               Origin: "https://desktop.localhost:1355",
               "Access-Control-Request-Method": "GET",
+              "Access-Control-Request-Headers": "traceparent,tracestate,baggage,b3",
             },
             method: "OPTIONS",
           });
@@ -388,6 +389,10 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(preflightResponse.headers.get("access-control-allow-methods")).toContain("OPTIONS");
           expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("Content-Type");
           expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("Authorization");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("traceparent");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("tracestate");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("baggage");
+          expect(preflightResponse.headers.get("access-control-allow-headers")).toContain("b3");
           expect(preflightResponse.headers.get("access-control-max-age")).toBe("86400");
           expect(preflightResponse.headers.get("x-content-type-options")).toBe("nosniff");
           expect(preflightResponse.headers.get("x-frame-options")).toBe("DENY");
