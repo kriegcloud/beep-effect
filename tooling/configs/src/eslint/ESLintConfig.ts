@@ -44,6 +44,7 @@ export const ESLintConfig: ESLintConfigShape = [
       ".repos/**",
       ".sst/**",
       "coverage/**",
+      "**/coverage/**",
       "dist/**",
       "**/dist/**",
       "node_modules/**",

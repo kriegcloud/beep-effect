@@ -7,7 +7,7 @@ Replace every placeholder and delete any line that does not apply.
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Your task is to create a high-quality prompt artifact for this repo, not to implement the underlying feature itself unless the task explicitly requires both.
 
@@ -31,7 +31,7 @@ Prompt artifact request:
 - Title: `{{PROMPT_TITLE}}`
 - Goal: `{{PROMPT_GOAL}}`
 - Prompt type: `{{PROMPT_TYPE}}`
-- Intended agent or session: `{{TARGET_AGENT_OR_SESSION}}`
+- Target run or consumer: `{{TARGET_RUN_OR_CONSUMER}}`
 - Output path: `{{PROMPT_ARTIFACT_PATH}}`
 - Intended task class:
   - `{{INTENDED_TASKS}}`

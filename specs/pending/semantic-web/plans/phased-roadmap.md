@@ -56,4 +56,4 @@ Define the execution order for the formal `@beep/semantic-web` spec so that late
 
 ## Exit Condition
 
-The roadmap is complete when a future implementation session can start from P4 and build the package without first reopening the design.
+The roadmap is complete when future implementation work can start from P4 and build the package without first reopening the design.

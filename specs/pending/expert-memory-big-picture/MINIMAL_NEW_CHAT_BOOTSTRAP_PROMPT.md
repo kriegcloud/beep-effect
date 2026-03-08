@@ -1,7 +1,7 @@
-# Minimal New-Chat Bootstrap Prompt
+# Minimal Expert-Memory Bootstrap Prompt
 
 ## Usage
-Copy and paste the block below into a new chat session when you want a sibling instance to get oriented quickly without reading the full discussion history first.
+Reuse the block below when another agent run needs quick orientation without re-reading the full discussion history first.
 
 ## Copy/Paste Prompt
 ```text
@@ -10,27 +10,29 @@ Work from the expert-memory architecture already established in this repo. Do no
 Before making broad recommendations:
 
 1. Read these files in order:
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/README.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/README.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md
-   - /home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md
+   - specs/pending/expert-memory-big-picture/README.md
+   - specs/pending/expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md
+   - specs/pending/expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md
+   - specs/pending/expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md
+   - specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md
+   - specs/pending/repo-expert-memory-local-first-v0/README.md
+   - specs/pending/repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md
+   - specs/pending/repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md
 
 2. Query Graphiti memory with:
    mcp__graphiti-memory__get_status({})
 
+   If the MCP wrapper expects `group_ids` as a string, pass `"[\"beep-dev\"]"`. If it accepts arrays, pass `["beep-dev"]`.
+
    mcp__graphiti-memory__search_memory_facts({
      "query": "expert memory big picture knowledge slice claim evidence control plane epistemic runtime grounded answer verification",
-     "group_ids": ["beep-dev"],
+     "group_ids": "[\"beep-dev\"]",
      "max_facts": 10
    })
 
    mcp__graphiti-memory__search_memory_facts({
      "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot",
-     "group_ids": ["beep-dev"],
+     "group_ids": "[\"beep-dev\"]",
      "max_facts": 10
    })
 

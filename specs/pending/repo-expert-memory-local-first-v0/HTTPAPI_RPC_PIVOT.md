@@ -25,16 +25,16 @@ Do not use it as an implementation checklist for the current codebase.
 
 ### 1. Current transport and business seams are already split
 The current handwritten HTTP transport lives in:
-- [packages/runtime/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server/src/index.ts)
+- [packages/runtime/server/src/index.ts](../../../packages/runtime/server/src/index.ts)
 
 The repo-memory business logic lives in:
-- [packages/repo-memory/runtime/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/runtime/src/index.ts)
+- [packages/repo-memory/runtime/src/index.ts](../../../packages/repo-memory/runtime/src/index.ts)
 
 That means any transport rewrite would primarily churn the runtime composition root, not the repo-memory service layer.
 
 ### 2. `HttpApi` still serves through `HttpRouter`
 Source exploration of:
-- [HttpApiBuilder.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiBuilder.ts)
+- [HttpApiBuilder.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiBuilder.ts)
 
 established that `HttpApi` does not replace the listener edge.
 
@@ -50,7 +50,7 @@ This finding remains useful for the future shared-router design. It means `HttpA
 The same `HttpApiBuilder` source shows that handlers can return raw `HttpServerResponse` values.
 
 That means a route could technically stay inside an `HttpApi` contract and still return a raw stream or SSE response. The exploration also confirmed that `HttpApiSchema.asText(...)` can annotate non-JSON response content types in:
-- [HttpApiSchema.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiSchema.ts)
+- [HttpApiSchema.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiSchema.ts)
 
 This is a feasibility result, not a recommendation.
 
@@ -58,9 +58,9 @@ The new architectural direction is that long-lived runs should not be formalized
 
 ### 4. The repo already has a local `HttpApi` pattern
 The repo contains an internal example of the local `HttpApi` style in:
-- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpApi.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpServer.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/core/service/AgentHttpApi.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/core/service/AgentHttpServer.ts)
 
 That pattern is useful evidence for future control-plane design:
 - shared `*HttpApi` contract
@@ -71,8 +71,8 @@ That pattern is useful evidence for future control-plane design:
 Even after reducing scope to control-plane endpoints only, the paused plan still would have:
 - kept the current `SidecarRuntime` façade in place
 - preserved the current handwritten route ownership model as an intermediate architecture
-- mutated [packages/runtime/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server/src/index.ts)
-- mutated [packages/runtime/protocol/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/protocol/src/index.ts)
+- mutated [packages/runtime/server/src/index.ts](../../../packages/runtime/server/src/index.ts)
+- mutated [packages/runtime/protocol/src/index.ts](../../../packages/runtime/protocol/src/index.ts)
 
 Those are now exactly the seams most likely to be structurally replaced by the cluster/workflow redesign.
 
@@ -141,13 +141,13 @@ If more salvage work is needed before the redesign, keep it read-only and focus 
 
 ## Evidence
 Primary source files explored for this note:
-- [packages/runtime/server/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server/src/index.ts)
-- [packages/repo-memory/runtime/src/index.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/repo-memory/runtime/src/index.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpApi.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/ai/sdk/src/core/service/AgentHttpServer.ts)
-- [HttpApiBuilder.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiBuilder.ts)
-- [HttpApiSchema.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiSchema.ts)
+- [packages/runtime/server/src/index.ts](../../../packages/runtime/server/src/index.ts)
+- [packages/repo-memory/runtime/src/index.ts](../../../packages/repo-memory/runtime/src/index.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/core/service/AgentHttpApi.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/core/service/AgentHttpServer.ts)
+- [HttpApiBuilder.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiBuilder.ts)
+- [HttpApiSchema.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiSchema.ts)
 
 ## Bottom Line
 The earlier `HttpApi` rewrite investigation was useful because it answered three concrete questions:

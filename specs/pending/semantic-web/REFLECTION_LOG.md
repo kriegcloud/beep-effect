@@ -1,6 +1,6 @@
 # @beep/semantic-web — Reflection Log
 
-> Append learnings after each phase execution session completes. Use this log to capture corrections, surprises, and unresolved decisions without rewriting the normative docs. Only record remaining questions or risks that are not already locked defaults.
+> Append learnings after each phase pass completes. Use this log to capture corrections, surprises, and unresolved decisions without rewriting the normative docs. Only record remaining questions or risks that are not already locked defaults.
 
 ---
 

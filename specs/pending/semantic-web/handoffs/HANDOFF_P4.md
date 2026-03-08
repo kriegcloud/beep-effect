@@ -6,7 +6,7 @@ Produce an implementation-ready rollout plan and verification strategy for `@bee
 
 ## Mode Handling
 
-If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only in a non-Plan execution session should you write or refine the phase output artifact.
+If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only write or refine the phase output artifact when operating outside Plan Mode.
 
 ## Inputs
 
@@ -41,4 +41,4 @@ Write: `outputs/p4-implementation-plan-and-verification-strategy.md`
 
 ## Exit Gate
 
-P4 is complete when a later implementation session can start coding without redesigning the package first.
+P4 is complete when later implementation work can start coding without redesigning the package first.

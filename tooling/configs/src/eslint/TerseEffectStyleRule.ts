@@ -1,21 +1,16 @@
 import { HashMap, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import type { Rule, SourceCode } from "eslint";
 import type ESTree from "estree";
-import { decodeImportDeclarationNode, IdentifierNode } from "../internal/eslint/RuleAstSchemas.ts";
+import {
+  decodeImportDeclarationNode,
+  decodeImportSpecifierNode,
+  resolveImportSpecifierImportKind,
+} from "../internal/eslint/RuleAstSchemas.ts";
 import { resolveRelativeRuleFilePath } from "../internal/eslint/RulePathing.ts";
 import { createAllowlistViolationReporter, reportAllowlistDiagnostics } from "../internal/eslint/RuleReporting.ts";
 import { makeRuleViolation, type RuleViolation } from "../internal/eslint/RuleViolation.ts";
-
-class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierNode")({
-  type: S.tag("ImportSpecifier"),
-  imported: IdentifierNode,
-  local: IdentifierNode,
-}) {}
-
-const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
 
 const THUNK_HELPER_NAMES = [
   "thunkUndefined",
@@ -226,13 +221,14 @@ export const terseEffectStyleRule: Rule.RuleModule = {
         pipe(
           decodeImportDeclarationNode(node),
           O.filter((importDeclaration) => importDeclaration.source.value === "@beep/utils"),
-          O.map((importDeclaration) => importDeclaration.specifiers),
           O.match({
             onNone: () => undefined,
-            onSome: (specifiers) => {
-              for (const specifier of specifiers) {
+            onSome: (importDeclaration) => {
+              for (const specifier of importDeclaration.specifiers) {
+                const importKind = resolveImportSpecifierImportKind(specifier, importDeclaration.importKind);
                 pipe(
                   decodeImportSpecifierNode(specifier),
+                  O.filter(() => importKind !== "type"),
                   O.filter((importSpecifier) =>
                     A.some(THUNK_HELPER_NAMES, (helperName) => helperName === importSpecifier.imported.name)
                   ),

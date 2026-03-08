@@ -7,9 +7,9 @@ import {
   RepoId,
   RetrievalPacket,
   RetrievalPacketMaterializedEvent,
-  RunProgressUpdatedEvent,
   RunEventSequence,
   RunId,
+  RunProgressUpdatedEvent,
 } from "@beep/repo-memory-model";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";

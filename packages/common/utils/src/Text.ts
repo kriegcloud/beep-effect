@@ -1,5 +1,6 @@
-import { flow, String as Str } from "effect";
+import { flow } from "effect";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 /**
  * Split comma-separated text, trim each entry, and drop empty values.

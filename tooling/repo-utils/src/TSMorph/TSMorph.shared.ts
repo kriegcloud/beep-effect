@@ -1,7 +1,9 @@
 import { Text, thunkEmptyStr } from "@beep/utils";
-import { Array as A, flow, Match, Order, pipe, String as Str } from "effect";
+import { flow, Match, Order, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,

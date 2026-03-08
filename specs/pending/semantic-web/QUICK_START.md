@@ -7,7 +7,7 @@
 - the canonical module topology for `@beep/semantic-web`
 - the package boundary with `@beep/schema`
 - the v1 provenance, evidence, and semantic metadata posture
-- the phased outputs, handoffs, and verification contract for later implementation
+- the phased outputs, handoffs, and verification contract for subsequent implementation work
 
 ## Already Decided
 
@@ -37,7 +37,7 @@
 - Start phase execution with [HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) and [P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) unless [`outputs/manifest.json`](./outputs/manifest.json) sets a later `currentTargetPhase`.
 - Treat the existing `outputs/p0` through `outputs/p4` docs as pre-authored baselines to refine, not as proof that phase execution already happened.
 - In Plan Mode, produce a decision-complete phase plan before editing the current phase artifact.
-- In a non-Plan execution session, refine the current phase output instead of recreating it from scratch.
+- When operating outside Plan Mode, refine the current phase output instead of recreating it from scratch.
 
 ## Phase Entry Files
 

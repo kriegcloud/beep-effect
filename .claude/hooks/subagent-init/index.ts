@@ -16,9 +16,10 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
+import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");

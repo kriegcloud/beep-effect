@@ -7,7 +7,7 @@ Replace every placeholder before sending the prompt.
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Your task is to create a new spec artifact set for this repo. Treat this as spec authoring, not casual brainstorming.
 

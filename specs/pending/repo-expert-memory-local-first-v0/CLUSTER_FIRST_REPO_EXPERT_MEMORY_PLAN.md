@@ -229,7 +229,7 @@ Update:
 - `specs/pending/repo-expert-memory-local-first-v0/VERTICAL_SLICE.md`
 - `specs/pending/repo-expert-memory-local-first-v0/EVALUATION_AND_ACCEPTANCE.md`
 - `specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md`
-- `specs/pending/expert-memory-big-picture/GPT54_SIBLING_ONBOARDING.md`
+- `specs/pending/expert-memory-big-picture/EXPERT_MEMORY_ONBOARDING.md`
 - `specs/pending/expert-memory-big-picture/MINIMAL_NEW_CHAT_BOOTSTRAP_PROMPT.md`
 - `specs/pending/expert-memory-big-picture/GRAPHITI_MEMORY_BOOTSTRAP_AND_QUERY_CATALOG.md`
 

@@ -8,10 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
-import { Console, Effect, FileSystem, HashSet, MutableHashSet, Order, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, HashSet, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/DocsAggregate");

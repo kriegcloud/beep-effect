@@ -8,10 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
-import { Effect, Inspectable, MutableHashSet, Path, pipe, String as Str } from "effect";
+import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Project } from "ts-morph";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "../shared/TypeScriptSourceExclusions.ts";
 
@@ -71,20 +72,25 @@ class EffectImportRulesPersistenceError extends TaggedErrorClass<EffectImportRul
   })
 ) {}
 
-const ALIAS_RULES = {
+const ALIAS_RULES: Readonly<Record<string, string>> = {
   "effect/Array": "A",
   "effect/Option": "O",
   "effect/Predicate": "P",
   "effect/Record": "R",
   "effect/Schema": "S",
-} as const;
+  "effect/String": "Str",
+  "effect/Equal": "Eq",
+  "effect/Boolean": "Bool",
+};
 
 const INCLUDED_GLOBS = [
   "apps/**/*.{ts,tsx}",
   "packages/**/*.{ts,tsx}",
   "tooling/**/*.{ts,tsx}",
   "infra/**/*.ts",
+  ".claude/hooks/**/*.ts",
 ] as const;
+const toStableName = (moduleName: string): string => Str.slice("effect/".length)(moduleName);
 const isStableSubmodule = (moduleName: string): boolean =>
   Str.startsWith("effect/")(moduleName) && !Str.startsWith("effect/unstable/")(moduleName);
 
@@ -138,14 +144,82 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     const importDeclarations = [...sourceFile.getImportDeclarations()];
     let fileTouched = false;
 
+    const ensureNamespaceImport = (moduleName: string, alias: string): boolean => {
+      let renamed = false;
+
+      pipe(
+        sourceFile.getImportDeclarations(),
+        A.findFirst(
+          (importDeclaration) =>
+            importDeclaration.getModuleSpecifierValue() === moduleName && !importDeclaration.isTypeOnly()
+        ),
+        O.match({
+          onNone: () => {
+            sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias });
+          },
+          onSome: (importDeclaration) => {
+            const namespaceImport = importDeclaration.getNamespaceImport();
+
+            if (namespaceImport === undefined) {
+              if (importDeclaration.getNamedImports().length === 0) {
+                importDeclaration.setNamespaceImport(alias);
+              } else {
+                sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias });
+              }
+              return;
+            }
+
+            if (namespaceImport.getText() !== alias) {
+              namespaceImport.rename(alias);
+              renamed = true;
+            }
+          },
+        })
+      );
+
+      return renamed;
+    };
+
     for (const importDeclaration of importDeclarations) {
       const moduleName = importDeclaration.getModuleSpecifierValue();
+
+      if (moduleName === "effect" && !importDeclaration.isTypeOnly()) {
+        const namedImports = importDeclaration.getNamedImports().slice();
+
+        for (const namedImport of namedImports) {
+          const aliasedModuleName = `effect/${namedImport.getName()}`;
+          const expectedAlias = ALIAS_RULES[aliasedModuleName];
+          const currentAlias = namedImport.getAliasNode()?.getText();
+
+          if (expectedAlias === undefined || currentAlias !== expectedAlias) {
+            continue;
+          }
+
+          if (ensureNamespaceImport(aliasedModuleName, expectedAlias)) {
+            aliasRenamed += 1;
+          }
+          namedImport.remove();
+          stableConverted += 1;
+          fileTouched = true;
+        }
+
+        if (
+          importDeclaration.getNamedImports().length === 0 &&
+          importDeclaration.getDefaultImport() === undefined &&
+          importDeclaration.getNamespaceImport() === undefined
+        ) {
+          importDeclaration.remove();
+          fileTouched = true;
+        }
+
+        continue;
+      }
 
       if (!isStableSubmodule(moduleName)) {
         continue;
       }
 
-      const expectedAlias = ALIAS_RULES[moduleName as keyof typeof ALIAS_RULES];
+      const expectedAlias = ALIAS_RULES[moduleName];
 
       if (expectedAlias !== undefined) {
         const namespaceImport = importDeclaration.getNamespaceImport();
@@ -166,7 +240,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
         continue;
       }
 
-      const stableName = Str.slice("effect/".length)(moduleName);
+      const stableName = toStableName(moduleName);
       if (Str.isEmpty(stableName) || Str.includes("/")(stableName)) {
         continue;
       }

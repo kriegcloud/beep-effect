@@ -7,13 +7,13 @@ Replace the placeholders and keep it terse.
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Use `$effect-first-development`.
 
 Repo rules:
 
-- Treat `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4` as the source of truth for all Effect APIs.
+- Treat `.repos/effect-v4` as the source of truth for all Effect APIs.
 - Reuse existing repo patterns before inventing a new one.
 - Use `bun` for commands. Use `bun run --filter=@beep/{{PACKAGE_NAME}} <script>` when package-scoped work is appropriate.
 - Keep JSDoc/docgen expectations in mind for touched exports.

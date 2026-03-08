@@ -6,7 +6,7 @@ Define the public service contracts for provenance, validation, query, and repre
 
 ## Mode Handling
 
-If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only in a non-Plan execution session should you write or refine the phase output artifact.
+If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only write or refine the phase output artifact when operating outside Plan Mode.
 
 ## Inputs
 

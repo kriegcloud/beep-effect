@@ -21,7 +21,7 @@ The chosen defaults are now locked to:
 This remains a `greenfield, principle-driven` spec. The larger Claude-era tree is architectural guidance, not a package map to reproduce literally.
 
 ## Why This V0 Exists
-The expert-memory material in [Expert Memory Big Picture](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/README.md) and [Local-First V0 Architecture](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md) established the high-level thesis.
+The expert-memory material in [Expert Memory Big Picture](../expert-memory-big-picture/README.md) and [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md) established the high-level thesis.
 
 This folder turns that thesis into a concrete, implementable `v0` for one narrow proving ground:
 - a user installs a native desktop app
@@ -85,11 +85,11 @@ Important reading posture:
 This spec is downstream of the big-picture reading set, not a replacement for it.
 
 Use these documents as upstream context when the `why` behind a v0 decision matters:
-- [Expert Memory Big Picture](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/README.md)
-- [Expert Memory Kernel](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md)
-- [Claims And Evidence](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md)
-- [Expert Memory Control Plane](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md)
-- [Local-First V0 Architecture](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md)
+- [Expert Memory Big Picture](../expert-memory-big-picture/README.md)
+- [Expert Memory Kernel](../expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md)
+- [Claims And Evidence](../expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md)
+- [Expert Memory Control Plane](../expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md)
+- [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md)
 
 ## Success Condition
 This spec succeeds if another engineer can implement a desktop research prototype without making new product-shape decisions about:

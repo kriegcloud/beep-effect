@@ -5,7 +5,8 @@
  * @module
  */
 
-import { Array as A, String as Str } from "effect";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 
 /**
  * Path segments excluded from TypeScript source lint traversals.

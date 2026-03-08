@@ -1,9 +1,10 @@
 import type { TUnsafe } from "@beep/types";
-import { Function as Fn, String as Str } from "effect";
+import { Function as Fn } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
 

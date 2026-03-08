@@ -7,9 +7,9 @@ Replace every placeholder and delete any line that does not apply.
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
-This is a brainstorming session, but it must still be grounded in the actual repo and local constraints.
+This task is for brainstorming, but it must still be grounded in the actual repo and local constraints.
 
 Replace every `{{PLACEHOLDER}}` before starting.
 

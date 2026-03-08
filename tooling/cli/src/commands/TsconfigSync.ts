@@ -22,24 +22,14 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
-import {
-  Boolean as Bool,
-  Console,
-  Effect,
-  FileSystem,
-  HashMap,
-  HashSet,
-  Order,
-  Path,
-  pipe,
-  String as Str,
-  Tuple,
-} from "effect";
+import { Console, Effect, FileSystem, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "./Shared/SchemaCodecs/index.js";
