@@ -2,11 +2,10 @@ import {
   AnswerDraftedEvent,
   Citation,
   CitationSpan,
-  IndexRepoRunInput,
-  QueryRepoRunInput,
   RepoId,
   RetrievalPacket,
   RetrievalPacketMaterializedEvent,
+  RunAcceptedEvent,
   RunEventSequence,
   RunId,
   RunProgressUpdatedEvent,
@@ -17,7 +16,6 @@ import { DateTime, Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { projectRunEvent } from "../src/run/RunProjector.ts";
-import { acceptedIndexRun, acceptedQueryRun } from "../src/run/RunStateMachine.ts";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
@@ -60,16 +58,15 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
   });
 
 describe("repo-memory run projector", () => {
-  it.effect("projects progress packet and answer events onto a query run", () =>
+  it.effect("projects accepted progress packet and answer events onto a query run", () =>
     Effect.gen(function* () {
-      const accepted = acceptedQueryRun({
-        acceptedAt: makeUtc(1_706_300_000_000),
-        payload: new QueryRepoRunInput({
-          repoId,
-          question: "describe symbol `answer`",
-          questionFingerprint: O.none(),
-        }),
+      const acceptedEvent = new RunAcceptedEvent({
         runId: queryRunId,
+        sequence: decodeRunEventSequence(1),
+        emittedAt: makeUtc(1_706_300_000_000),
+        runKind: "query",
+        repoId,
+        question: O.some("describe symbol `answer`"),
       });
       const progress = new RunProgressUpdatedEvent({
         runId: queryRunId,
@@ -93,10 +90,14 @@ describe("repo-memory run projector", () => {
         citations: [makeCitation()],
       });
 
+      const accepted = yield* projectRunEvent(O.none(), acceptedEvent);
       const running = yield* projectRunEvent(O.some(accepted), progress);
       const withPacket = yield* projectRunEvent(O.some(running), retrievalPacket);
       const withAnswer = yield* projectRunEvent(O.some(withPacket), answer);
 
+      expect(accepted.kind).toBe("query");
+      expect(accepted.status).toBe("accepted");
+      expect(accepted.lastEventSequence).toBe(1);
       expect(running.status).toBe("running");
       expect(running.lastEventSequence).toBe(2);
       expect(withPacket.kind).toBe("query");
@@ -118,25 +119,25 @@ describe("repo-memory run projector", () => {
 
   it.effect("rejects projecting a retrieval packet onto an index run with a typed 409", () =>
     Effect.gen(function* () {
-      const accepted = acceptedIndexRun({
-        acceptedAt: makeUtc(1_706_400_000_000),
-        payload: new IndexRepoRunInput({
+      const accepted = yield* projectRunEvent(
+        O.none(),
+        new RunAcceptedEvent({
+          runId: indexRunId,
+          sequence: decodeRunEventSequence(1),
+          emittedAt: makeUtc(1_706_400_000_000),
+          runKind: "index",
           repoId,
-          sourceFingerprint: O.none(),
-        }),
-        runId: indexRunId,
-      });
-      const error = yield* Effect.flip(
-        projectRunEvent(
-          O.some(accepted),
-          new RetrievalPacketMaterializedEvent({
-            runId: indexRunId,
-            sequence: decodeRunEventSequence(2),
-            emittedAt: makeUtc(1_706_400_001_000),
-            packet: makePacket(makeUtc(1_706_400_001_000)),
-          })
-        )
+          question: O.none(),
+        })
       );
+
+      const retrievalPacket = new RetrievalPacketMaterializedEvent({
+        runId: indexRunId,
+        sequence: decodeRunEventSequence(2),
+        emittedAt: makeUtc(1_706_400_001_000),
+        packet: makePacket(makeUtc(1_706_400_001_000)),
+      });
+      const error = yield* Effect.flip(projectRunEvent(O.some(accepted), retrievalPacket));
 
       expect(error._tag).toBe("RunProjectorError");
       expect(error.status).toBe(409);

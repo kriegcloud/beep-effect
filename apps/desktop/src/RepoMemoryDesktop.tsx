@@ -5,6 +5,7 @@ import {
   RepoMemoryClientError,
   type RepoMemoryClientShape,
 } from "@beep/repo-memory-client";
+import { projectRunEvent } from "@beep/repo-memory-model";
 import {
   type Citation,
   IndexRepoRunInput,
@@ -27,6 +28,7 @@ import { DateTime, Effect, Fiber, Order, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { type FormEvent, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -236,6 +238,19 @@ const findRunById = (runs: ReadonlyArray<RepoRun>, runId: string): RepoRun | nul
     A.findFirst((run) => run.id === runId),
     O.getOrElse(() => null)
   );
+
+const projectRunForUi = (runs: ReadonlyArray<RepoRun>, event: RunStreamEvent): ReadonlyArray<RepoRun> => {
+  const currentRun = findRunById(runs, event.runId);
+
+  return pipe(
+    Effect.result(projectRunEvent(currentRun === null ? O.none() : O.some(currentRun), event)),
+    Effect.runSync,
+    Result.match({
+      onFailure: () => runs,
+      onSuccess: (run) => upsertRun(runs, run),
+    })
+  );
+};
 
 const findLatestAnswerEvent = (
   events: ReadonlyArray<RunStreamEvent>
@@ -718,20 +733,8 @@ export function RepoMemoryDesktop() {
         ...current,
         [runId]: appendRunEvent(current[runId] ?? [], event),
       }));
+      setRuns((current) => projectRunForUi(current, event));
     });
-
-    if (
-      event.kind === "accepted" ||
-      event.kind === "started" ||
-      event.kind === "completed" ||
-      event.kind === "failed" ||
-      event.kind === "interrupted" ||
-      event.kind === "resumed"
-    ) {
-      startTransition(() => {
-        setRuns((current) => upsertRun(current, event.run));
-      });
-    }
 
     if (event.kind === "answer" || event.kind === "retrieval-packet" || isTerminalEvent(event)) {
       await refreshRun(nextClient, runId);

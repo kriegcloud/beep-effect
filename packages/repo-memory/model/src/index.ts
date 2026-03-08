@@ -13,6 +13,7 @@ export * from "./run/RunEventSequence.js";
 export * from "./run/RunId.js";
 export * from "./run/RunKind.js";
 export * from "./run/RunProjection.js";
+export * from "./run/RunProjector.js";
 export * from "./run/RunStatus.js";
 export * from "./run/RunStreamFailure.js";
 export * from "./run/StreamRunEvents.js";

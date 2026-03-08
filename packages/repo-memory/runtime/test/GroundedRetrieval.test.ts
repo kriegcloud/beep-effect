@@ -118,8 +118,10 @@ const createCollisionFixtureRepo = Effect.gen(function* () {
   const path = yield* Path.Path;
   const repoPath = path.join(info.tempDir, "fixtures", "collision-repo");
   const sourceDir = path.join(repoPath, "src");
+  const featureDir = path.join(sourceDir, "feature");
 
   yield* fs.makeDirectory(sourceDir, { recursive: true });
+  yield* fs.makeDirectory(featureDir, { recursive: true });
   yield* fs.writeFileString(
     path.join(sourceDir, "dep.ts"),
     ["export class Foo {", "  constructor(readonly name: string) {}", "}", ""].join("\n")
@@ -142,6 +144,10 @@ const createCollisionFixtureRepo = Effect.gen(function* () {
       'export const singleFoo: Foo = makeFoo("fixture") as Foo;',
       "",
     ].join("\n")
+  );
+  yield* fs.writeFileString(
+    path.join(featureDir, "index.ts"),
+    ['import { Foo } from "../dep";', "", 'export const featureFoo = new Foo("feature");', ""].join("\n")
   );
   yield* fs.writeFileString(
     path.join(repoPath, "tsconfig.json"),
@@ -362,6 +368,45 @@ describe("repo-memory runtime grounded retrieval", () => {
     )
   );
 
+  it.effect("answers repo-local dependency and dependent queries with resolved file paths", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const { registration } = yield* indexFixtureRepo;
+        const dependencies = yield* runQuery({
+          repoId: registration.id,
+          question: "what does `src/index.ts` depend on?",
+          runLabel: "dependencies",
+        });
+        const dependents = yield* runQuery({
+          repoId: registration.id,
+          question: "what depends on `src/util.ts`?",
+          runLabel: "dependents",
+        });
+
+        if (dependencies.run.kind !== "query" || dependents.run.kind !== "query") {
+          return yield* Effect.die("Expected query run projections.");
+        }
+
+        const dependenciesPacket = O.getOrThrow(dependencies.run.retrievalPacket);
+        const dependentsPacket = O.getOrThrow(dependents.run.retrievalPacket);
+
+        expect(O.getOrThrow(dependencies.run.answer)).toContain("src/util.ts");
+        expect(O.getOrThrow(dependencies.run.answer)).toContain("src/types.ts");
+        expect(dependencies.run.citations.length).toBeGreaterThan(0);
+        expect(dependenciesPacket.summary).toContain("resolved file dependencies");
+        expect(dependenciesPacket.notes).toContain("dependencyCount=2");
+        expect(dependenciesPacket.notes).toContain("unresolvedImportCount=0");
+        assertCitationAlignment({ events: dependencies.events, run: dependencies.run });
+
+        expect(O.getOrThrow(dependents.run.answer)).toContain("src/index.ts");
+        expect(dependents.run.citations.length).toBeGreaterThan(0);
+        expect(dependentsPacket.summary).toContain("files depending on");
+        expect(dependentsPacket.notes).toContain("dependentCount=1");
+        assertCitationAlignment({ events: dependents.events, run: dependents.run });
+      })
+    )
+  );
+
   it.effect("deduplicates overloaded symbols and mixed value/type imports before snapshot persistence", () =>
     withRuntime(
       Effect.gen(function* () {
@@ -440,6 +485,31 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(O.getOrThrow(keyword.run.answer)).toContain("src/util.ts");
         expect(keyword.run.citations.length).toBeGreaterThan(0);
         assertCitationAlignment({ events: keyword.events, run: keyword.run });
+      })
+    )
+  );
+
+  it.effect("keeps ambiguous file dependency queries bounded instead of guessing", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const { registration } = yield* indexCollisionFixtureRepo;
+        const result = yield* runQuery({
+          repoId: registration.id,
+          question: "what does `index.ts` depend on?",
+          runLabel: "ambiguous-index",
+        });
+
+        if (result.run.kind !== "query") {
+          return yield* Effect.die("Expected a query run.");
+        }
+
+        const packet = O.getOrThrow(result.run.retrievalPacket);
+        expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index.ts"');
+        expect(O.getOrThrow(result.run.answer)).toContain("src/index.ts");
+        expect(O.getOrThrow(result.run.answer)).toContain("src/feature/index.ts");
+        expect(result.run.citations).toEqual([]);
+        expect(packet.summary).toContain("matched multiple indexed files");
+        expect(packet.notes).toContain("candidateCount=2");
       })
     )
   );

@@ -1,12 +1,20 @@
+import { $RepoMemoryRuntimeId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { DateTime, Duration, Effect, Metric } from "effect";
 
+const $I = $RepoMemoryRuntimeId.create("telemetry/RepoMemoryTelemetry");
 /**
  * Metric label for the two public repo-memory workflow families.
  *
  * @since 0.0.0
  * @category Observability
  */
-export type RepoRunKindMetric = "index" | "query";
+export const RepoRunKindMetric = LiteralKit(["index", "query"]).pipe(
+  $I.annoteSchema("RepoRunKindMetric", {
+    description: "Metric label for the two public repo-memory workflow families.",
+  })
+);
+export type RepoRunKindMetric = typeof RepoRunKindMetric.Type;
 
 /**
  * Metric label for deterministic grounded query interpretations.
@@ -14,20 +22,28 @@ export type RepoRunKindMetric = "index" | "query";
  * @since 0.0.0
  * @category Observability
  */
-export type QueryKindMetric =
-  | "countFiles"
-  | "countSymbols"
-  | "locateSymbol"
-  | "describeSymbol"
-  | "symbolParams"
-  | "symbolReturns"
-  | "symbolThrows"
-  | "symbolDeprecation"
-  | "listFileExports"
-  | "listFileImports"
-  | "listFileImporters"
-  | "keywordSearch"
-  | "unsupported";
+export const QueryKindMetric = LiteralKit([
+  "countFiles",
+  "countSymbols",
+  "locateSymbol",
+  "describeSymbol",
+  "symbolParams",
+  "symbolReturns",
+  "symbolThrows",
+  "symbolDeprecation",
+  "listFileExports",
+  "listFileImports",
+  "listFileImporters",
+  "listFileDependencies",
+  "listFileDependents",
+  "keywordSearch",
+  "unsupported",
+]).pipe(
+  $I.annoteSchema("QueryKindMetric", {
+    description: "Metric label for deterministic grounded query interpretations.",
+  })
+);
+export type QueryKindMetric = typeof QueryKindMetric.Type;
 
 /**
  * Metric label for terminal workflow outcomes.

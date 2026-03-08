@@ -586,6 +586,7 @@ export class RepoImportEdge extends S.Class<RepoImportEdge>($I`RepoImportEdge`)(
     endLine: PosInt,
     moduleSpecifier: S.String,
     importedName: S.OptionFromOptionalKey(S.String),
+    resolvedTargetFilePath: S.OptionFromOptionalKey(FilePath),
     typeOnly: S.Boolean,
   },
   $I.annote("RepoImportEdge", {

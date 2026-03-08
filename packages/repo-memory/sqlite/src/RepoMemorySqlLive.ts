@@ -34,6 +34,8 @@ const repoSymbolStoreLayer = Layer.effect(
       findSymbolsByExactName: sql.findSymbolsByExactName,
       listExportedSymbolsForFile: sql.listExportedSymbolsForFile,
       listImportEdges: sql.listImportEdges,
+      listImportEdgesForImporterFile: sql.listImportEdgesForImporterFile,
+      listImportEdgesForResolvedTargetFile: sql.listImportEdgesForResolvedTargetFile,
       listSymbolRecords: sql.listSymbolRecords,
       searchSymbols: sql.searchSymbols,
     })

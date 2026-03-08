@@ -7,6 +7,7 @@ import {
   type RepoDocumentedThrow,
   type RepoId,
   type RepoImportEdge,
+  type RepoSourceFile,
   type RepoSymbolDocumentation,
   type RepoSymbolRecord,
   RetrievalPacket,
@@ -152,6 +153,30 @@ class ListFileImportersInterpretation extends S.Class<ListFileImportersInterpret
   })
 ) {}
 
+class ListFileDependenciesInterpretation extends S.Class<ListFileDependenciesInterpretation>(
+  $I`ListFileDependenciesInterpretation`
+)(
+  {
+    kind: S.tag("listFileDependencies"),
+    fileQuery: S.String,
+  },
+  $I.annote("ListFileDependenciesInterpretation", {
+    description: "Deterministic query interpretation that lists repo-local resolved file dependencies for one file.",
+  })
+) {}
+
+class ListFileDependentsInterpretation extends S.Class<ListFileDependentsInterpretation>(
+  $I`ListFileDependentsInterpretation`
+)(
+  {
+    kind: S.tag("listFileDependents"),
+    fileQuery: S.String,
+  },
+  $I.annote("ListFileDependentsInterpretation", {
+    description: "Deterministic query interpretation that lists repo-local files depending on one file.",
+  })
+) {}
+
 class KeywordSearchInterpretation extends S.Class<KeywordSearchInterpretation>($I`KeywordSearchInterpretation`)(
   {
     kind: S.tag("keywordSearch"),
@@ -192,6 +217,8 @@ export const QueryInterpretation = S.Union([
   ListFileExportsInterpretation,
   ListFileImportsInterpretation,
   ListFileImportersInterpretation,
+  ListFileDependenciesInterpretation,
+  ListFileDependentsInterpretation,
   KeywordSearchInterpretation,
   UnsupportedQueryInterpretation,
 ]).pipe(S.toTaggedUnion("kind"));
@@ -306,6 +333,21 @@ const extractModuleQuery = (question: string): O.Option<string> =>
     O.filter(Str.isNonEmpty)
   );
 
+const preferExactFileMatches = (query: string, files: ReadonlyArray<RepoSourceFile>): ReadonlyArray<RepoSourceFile> => {
+  const normalizedQuery = normalizeQuestion(query);
+  const exactMatches = pipe(
+    files,
+    A.filter(
+      (file) =>
+        file.filePath === normalizedQuery ||
+        pipe(file.filePath, Str.endsWith(`/${normalizedQuery}`)) ||
+        pipe(file.filePath, Str.endsWith(normalizedQuery))
+    )
+  );
+
+  return A.isReadonlyArrayNonEmpty(exactMatches) ? exactMatches : files;
+};
+
 const interpretQuery = (question: string): QueryInterpretation => {
   const normalized = normalizeQuestion(question);
   const lower = Str.toLowerCase(normalized);
@@ -318,6 +360,34 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   if ((contains("how many") || contains("count")) && (contains("file") || contains("source"))) {
     return new CountFilesInterpretation({});
+  }
+
+  if (contains("what depends on") || contains("who depends on") || contains("dependents of")) {
+    return pipe(
+      extractFileQuery(normalized),
+      O.match({
+        onNone: () =>
+          new UnsupportedQueryInterpretation({
+            reason:
+              "Dependent queries currently require one concrete TypeScript file path, preferably enclosed in backticks.",
+          }),
+        onSome: (fileQuery) => new ListFileDependentsInterpretation({ fileQuery }),
+      })
+    );
+  }
+
+  if (contains("depend on") || contains("depends on") || contains("dependencies of") || contains("dependency of")) {
+    return pipe(
+      extractFileQuery(normalized),
+      O.match({
+        onNone: () =>
+          new UnsupportedQueryInterpretation({
+            reason:
+              "Dependency queries currently require one concrete TypeScript file path, preferably enclosed in backticks.",
+          }),
+        onSome: (fileQuery) => new ListFileDependenciesInterpretation({ fileQuery }),
+      })
+    );
   }
 
   if (contains("who imports") || contains("what imports") || contains("importers of")) {
@@ -451,7 +521,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   return new UnsupportedQueryInterpretation({
     reason:
-      "This v0 deterministic query path currently supports countFiles, countSymbols, locateSymbol, describeSymbol, symbolParams, symbolReturns, symbolThrows, symbolDeprecation, listFileExports, listFileImports, listFileImporters, and keywordSearch only.",
+      "This v0 deterministic query path currently supports countFiles, countSymbols, locateSymbol, describeSymbol, symbolParams, symbolReturns, symbolThrows, symbolDeprecation, listFileExports, listFileImports, listFileImporters, listFileDependencies, listFileDependents, and keywordSearch only.",
   });
 };
 
@@ -465,6 +535,16 @@ const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
       onNone: () => toRetrievalError(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
       onSome: (snapshot) => Effect.succeed(snapshot.id),
     });
+  });
+
+const resolveFileCandidates = (store: GroundedRetrievalStoreShape) =>
+  Effect.fn("GroundedRetrieval.resolveFileCandidates")(function* (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    fileQuery: string
+  ): Effect.fn.Return<ReadonlyArray<RepoSourceFile>, GroundedRetrievalError> {
+    const files = yield* mapStoreError(store.findSourceFiles(repoId, sourceSnapshotId, fileQuery, 5));
+    return preferExactFileMatches(fileQuery, files);
   });
 
 const symbolCitation = (
@@ -1122,12 +1202,9 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileExports: (value) =>
         Effect.gen(function* () {
-          const files = yield* mapStoreError(
-            store.findSourceFiles(payload.repoId, sourceSnapshotId, value.fileQuery, 5)
-          );
-          const maybeFile = A.head(files);
+          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
 
-          if (O.isNone(maybeFile)) {
+          if (!A.isReadonlyArrayNonEmpty(files)) {
             const packet = yield* makePacket({
               repoId: payload.repoId,
               sourceSnapshotId,
@@ -1143,7 +1220,27 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
               packet,
             });
           }
-          const file = maybeFile.value;
+          if (files.length > 1) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+              citations: A.empty(),
+              notes: A.make(`candidateCount=${files.length}`),
+            });
+
+            return new GroundedQueryResult({
+              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
+                files,
+                A.map((file) => file.filePath),
+                A.join(", ")
+              )}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+          const file = files[0];
 
           const symbols = yield* mapStoreError(
             store.listExportedSymbolsForFile(payload.repoId, sourceSnapshotId, file.filePath)
@@ -1174,12 +1271,9 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileImports: (value) =>
         Effect.gen(function* () {
-          const files = yield* mapStoreError(
-            store.findSourceFiles(payload.repoId, sourceSnapshotId, value.fileQuery, 5)
-          );
-          const maybeFile = A.head(files);
+          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
 
-          if (O.isNone(maybeFile)) {
+          if (!A.isReadonlyArrayNonEmpty(files)) {
             const packet = yield* makePacket({
               repoId: payload.repoId,
               sourceSnapshotId,
@@ -1195,12 +1289,30 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
               packet,
             });
           }
-          const file = maybeFile.value;
+          if (files.length > 1) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+              citations: A.empty(),
+              notes: A.make(`candidateCount=${files.length}`),
+            });
 
-          const importEdges = yield* mapStoreError(store.listImportEdges(payload.repoId, sourceSnapshotId));
-          const matchingEdges = pipe(
-            importEdges,
-            A.filter((edge) => edge.importerFilePath === file.filePath)
+            return new GroundedQueryResult({
+              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
+                files,
+                A.map((file) => file.filePath),
+                A.join(", ")
+              )}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+          const file = files[0];
+
+          const matchingEdges = yield* mapStoreError(
+            store.listImportEdgesForImporterFile(payload.repoId, sourceSnapshotId, file.filePath)
           );
           const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
           const importedModules = pipe(
@@ -1220,6 +1332,159 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
           const answer = !A.isReadonlyArrayNonEmpty(importedModules)
             ? `File ${file.filePath} has no indexed import declarations in snapshot ${sourceSnapshotId}.`
             : `File ${file.filePath} imports: ${A.join(importedModules, ", ")}.`;
+
+          return new GroundedQueryResult({
+            answer,
+            citations,
+            packet,
+          });
+        }),
+      listFileDependencies: (value) =>
+        Effect.gen(function* () {
+          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+
+          if (!A.isReadonlyArrayNonEmpty(files)) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+              citations: A.empty(),
+              notes: A.make("listFileDependencies=no-file-match"),
+            });
+
+            return new GroundedQueryResult({
+              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+
+          if (files.length > 1) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+              citations: A.empty(),
+              notes: A.make(`candidateCount=${files.length}`),
+            });
+
+            return new GroundedQueryResult({
+              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
+                files,
+                A.map((file) => file.filePath),
+                A.join(", ")
+              )}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+
+          const file = files[0];
+          const fileEdges = yield* mapStoreError(
+            store.listImportEdgesForImporterFile(payload.repoId, sourceSnapshotId, file.filePath)
+          );
+          const resolvedEdges = pipe(
+            fileEdges,
+            A.filter((edge) => O.isSome(edge.resolvedTargetFilePath))
+          );
+          const citations = normalizeCitations(pipe(resolvedEdges, A.map(importEdgeCitation)));
+          const dependencyFiles = pipe(
+            resolvedEdges,
+            A.map((edge) => edge.resolvedTargetFilePath),
+            A.getSomes,
+            A.sort(Order.String),
+            A.dedupe
+          );
+          const packet = yield* makePacket({
+            repoId: payload.repoId,
+            sourceSnapshotId,
+            query: payload.question,
+            summary: `Listed repo-local resolved file dependencies for ${file.filePath}.`,
+            citations,
+            notes: A.make(
+              `filePath=${file.filePath}`,
+              `dependencyCount=${A.length(dependencyFiles)}`,
+              `unresolvedImportCount=${A.length(fileEdges) - A.length(resolvedEdges)}`
+            ),
+          });
+
+          const answer = !A.isReadonlyArrayNonEmpty(dependencyFiles)
+            ? `File ${file.filePath} has no repo-local resolved file dependencies in snapshot ${sourceSnapshotId}.`
+            : `File ${file.filePath} depends on: ${A.join(dependencyFiles, ", ")}.`;
+
+          return new GroundedQueryResult({
+            answer,
+            citations,
+            packet,
+          });
+        }),
+      listFileDependents: (value) =>
+        Effect.gen(function* () {
+          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+
+          if (!A.isReadonlyArrayNonEmpty(files)) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+              citations: A.empty(),
+              notes: A.make("listFileDependents=no-file-match"),
+            });
+
+            return new GroundedQueryResult({
+              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+
+          if (files.length > 1) {
+            const packet = yield* makePacket({
+              repoId: payload.repoId,
+              sourceSnapshotId,
+              query: payload.question,
+              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+              citations: A.empty(),
+              notes: A.make(`candidateCount=${files.length}`),
+            });
+
+            return new GroundedQueryResult({
+              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
+                files,
+                A.map((file) => file.filePath),
+                A.join(", ")
+              )}.`,
+              citations: A.empty(),
+              packet,
+            });
+          }
+
+          const file = files[0];
+          const matchingEdges = yield* mapStoreError(
+            store.listImportEdgesForResolvedTargetFile(payload.repoId, sourceSnapshotId, file.filePath)
+          );
+          const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
+          const importerFiles = pipe(
+            matchingEdges,
+            A.map((edge) => edge.importerFilePath),
+            A.sort(Order.String),
+            A.dedupe
+          );
+          const packet = yield* makePacket({
+            repoId: payload.repoId,
+            sourceSnapshotId,
+            query: payload.question,
+            summary: `Listed repo-local files depending on ${file.filePath}.`,
+            citations,
+            notes: A.make(`filePath=${file.filePath}`, `dependentCount=${A.length(importerFiles)}`),
+          });
+
+          const answer = !A.isReadonlyArrayNonEmpty(importerFiles)
+            ? `No indexed repo-local files depend on ${file.filePath} in snapshot ${sourceSnapshotId}.`
+            : `Files depending on ${file.filePath}: ${A.join(importerFiles, ", ")}.`;
 
           return new GroundedQueryResult({
             answer,

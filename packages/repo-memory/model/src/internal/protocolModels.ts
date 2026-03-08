@@ -137,10 +137,12 @@ export class RunAcceptedEvent extends S.Class<RunAcceptedEvent>($I`RunAcceptedEv
     runId: RunId,
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
-    run: RepoRun,
+    runKind: RepoRunKind,
+    repoId: RepoId,
+    question: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("RunAcceptedEvent", {
-    description: "Event emitted when a workflow execution has been accepted and projected.",
+    description: "Event emitted when a workflow execution has been accepted.",
   })
 ) {}
 
@@ -156,7 +158,6 @@ export class RunStartedEvent extends S.Class<RunStartedEvent>($I`RunStartedEvent
     runId: RunId,
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
-    run: RepoRun,
   },
   $I.annote("RunStartedEvent", {
     description: "Event emitted when a workflow execution starts running.",
@@ -237,7 +238,7 @@ export class RunCompletedEvent extends S.Class<RunCompletedEvent>($I`RunComplete
     runId: RunId,
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
-    run: RepoRun,
+    indexedFileCount: S.OptionFromOptionalKey(NonNegativeInt),
   },
   $I.annote("RunCompletedEvent", {
     description: "Terminal event emitted when a run completes successfully.",
@@ -257,7 +258,6 @@ export class RunFailedEvent extends S.Class<RunFailedEvent>($I`RunFailedEvent`)(
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
     message: S.String,
-    run: RepoRun,
   },
   $I.annote("RunFailedEvent", {
     description: "Terminal event emitted when a run fails with a public error message.",
@@ -276,7 +276,6 @@ export class RunInterruptedEvent extends S.Class<RunInterruptedEvent>($I`RunInte
     runId: RunId,
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
-    run: RepoRun,
   },
   $I.annote("RunInterruptedEvent", {
     description: "Terminal event emitted when a run is interrupted before completion.",
@@ -295,7 +294,6 @@ export class RunResumedEvent extends S.Class<RunResumedEvent>($I`RunResumedEvent
     runId: RunId,
     sequence: RunEventSequence,
     emittedAt: S.DateTimeUtcFromMillis,
-    run: RepoRun,
   },
   $I.annote("RunResumedEvent", {
     description: "Event emitted when a durable run resumes after interruption or restart.",
