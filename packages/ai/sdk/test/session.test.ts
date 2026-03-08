@@ -175,6 +175,53 @@ test("Session.send serializes concurrent sends", async () => {
   expect(blocked).toBe(true);
 });
 
+test("Session.send strips undefined optional user-message fields", async () => {
+  let sentMessage: string | SDKUserMessage | undefined;
+
+  const sdkSession: SDKSession = {
+    get sessionId() {
+      return "session-1";
+    },
+    send: async (message: string | SDKUserMessage) => {
+      sentMessage = message;
+    },
+    stream: async function* () {},
+    close: () => {},
+    [Symbol.asyncDispose]: async () => {},
+  };
+
+  const program = Effect.gen(function* () {
+    const handle = yield* fromSdkSession(sdkSession);
+    const message: SDKUserMessage = {
+      type: "user",
+      message: { role: "user", content: "hello" },
+      parent_tool_use_id: null,
+      session_id: "session-1",
+    };
+    Reflect.set(message, "isSynthetic", undefined);
+    Reflect.set(message, "tool_use_result", undefined);
+    Reflect.set(message, "uuid", undefined);
+
+    yield* handle.send(message);
+  });
+
+  await runEffect(program);
+
+  expect(typeof sentMessage).toBe("object");
+  expect(sentMessage).not.toBeNull();
+  expect(sentMessage).toEqual({
+    type: "user",
+    message: { role: "user", content: "hello" },
+    parent_tool_use_id: null,
+    session_id: "session-1",
+  });
+  if (sentMessage !== null && sentMessage !== undefined && typeof sentMessage === "object") {
+    expect(Reflect.has(sentMessage, "isSynthetic")).toBe(false);
+    expect(Reflect.has(sentMessage, "tool_use_result")).toBe(false);
+    expect(Reflect.has(sentMessage, "uuid")).toBe(false);
+  }
+});
+
 test("Session.stream starts a new SDK stream for each run", async () => {
   let streamCalls = 0;
 

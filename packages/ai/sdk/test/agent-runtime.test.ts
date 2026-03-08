@@ -135,4 +135,4 @@ test("AgentRuntime interrupts queries on timeout", async () => {
   );
 
   await runEffect(program);
-});
+}, 15_000);

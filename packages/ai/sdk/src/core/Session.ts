@@ -136,10 +136,13 @@ const markSessionId = (deferred: Deferred.Deferred<string, SessionClosedError>, 
 
 const normalizeUserMessage = (message: SDKUserMessage): ClaudeSdkUserMessage =>
   Function.cast({
-    ...message,
-    ...(message.isSynthetic === undefined ? {} : { isSynthetic: message.isSynthetic }),
-    ...(message.tool_use_result === undefined ? {} : { tool_use_result: message.tool_use_result }),
-    ...(message.uuid === undefined ? {} : { uuid: message.uuid }),
+    type: message.type,
+    message: message.message,
+    parent_tool_use_id: message.parent_tool_use_id,
+    session_id: message.session_id,
+    ...(message.isSynthetic !== undefined ? { isSynthetic: message.isSynthetic } : {}),
+    ...(message.tool_use_result !== undefined ? { tool_use_result: message.tool_use_result } : {}),
+    ...(message.uuid !== undefined ? { uuid: message.uuid } : {}),
   });
 
 /**

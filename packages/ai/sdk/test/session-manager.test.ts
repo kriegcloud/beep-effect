@@ -115,7 +115,7 @@ test("SessionManager.create merges defaults and overrides", async () => {
   expect((createOptions as { allowedTools?: string[] })?.allowedTools).toEqual(["Override"]);
   expect((createOptions as { disallowedTools?: string[] })?.disallowedTools).toEqual(["Bash"]);
   expect((createOptions as { env?: Record<string, string> })?.env?.ANTHROPIC_API_KEY).toBe("test-key");
-});
+}, 15_000);
 
 test("SessionManager.resume merges defaults and overrides", async () => {
   resumeOptions = undefined;

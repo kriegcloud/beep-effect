@@ -5,7 +5,7 @@ import type * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { AuditEventSchema, layerAuditHandlers } from "../experimental/EventLog.js";
+import { AuditEventSchema, layerAuditHandlers, SyncCompactionPayload } from "../experimental/EventLog.js";
 import type { HookEvent } from "../Schema/Hooks.js";
 import type { CompactionStrategy } from "../Sync/index.js";
 import { Compaction, ConflictPolicy, compactEntries } from "../Sync/index.js";
@@ -117,6 +117,8 @@ const layerAuditJournalCompaction = Layer.effectDiscard(
 
 const makeStore = Effect.gen(function* () {
   const log = yield* EventLog.EventLog;
+  const resolvePayload = (input: AuditEventInput) =>
+    input.event === "sync_compaction" ? SyncCompactionPayload.make(input.payload) : input.payload;
 
   const write = Effect.fn("AuditEventStore.write")((input: AuditEventInput) =>
     Effect.gen(function* () {
@@ -126,7 +128,7 @@ const makeStore = Effect.gen(function* () {
         .write({
           schema: AuditEventSchema,
           event: input.event,
-          payload: input.payload,
+          payload: resolvePayload(input),
         })
         .pipe(Effect.mapError((cause) => mapError("write", cause)));
     })
