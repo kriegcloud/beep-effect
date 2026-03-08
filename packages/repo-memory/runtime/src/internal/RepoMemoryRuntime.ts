@@ -42,11 +42,22 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { DateTime, Duration, Effect, flow, Layer, Match, pipe, ServiceMap, String as Str, Stream } from "effect";
+import {
+  DateTime,
+  Duration,
+  Effect,
+  flow,
+  Layer,
+  Match,
+  pipe,
+  Semaphore,
+  ServiceMap,
+  String as Str,
+  Stream,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Semaphore from "effect/Semaphore";
 import * as Msgpack from "effect/unstable/encoding/Msgpack";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
