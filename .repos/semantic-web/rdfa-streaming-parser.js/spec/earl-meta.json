@@ -1,0 +1,23 @@
+{
+  "applicationBugsUrl": "https://github.com/rubensworks/rdfa-streaming-parser.js/issues",
+  "applicationDescription": "Streaming RDFa parser",
+  "applicationHomepageUrl": "https://github.com/rubensworks/rdfa-streaming-parser.js#readme",
+  "applicationNameFull": "rdfa-streaming-parser",
+  "applicationNameNpm": "rdfa-streaming-parser",
+  "applicationUri": "https://www.npmjs.com/package/rdfa-streaming-parser/",
+  "authors": [
+    {
+      "homepage": "https://www.rubensworks.net/",
+      "name": "Ruben Taelman <rubensworks@gmail.com>",
+      "uri": "https://www.rubensworks.net/#me"
+    }
+  ],
+  "licenseUri": "http://opensource.org/licenses/MIT",
+  "reportUri": null,
+  "specificationUris": [
+    "https://www.w3.org/TR/rdfa-core/",
+    "https://www.w3.org/TR/rdfa-in-html/",
+    "https://www.w3.org/TR/xhtml-rdfa/",
+    "https://www.w3.org/TR/2008/REC-SVGTiny12-20081222/metadata.html#MetadataAttributes"
+  ]
+}
