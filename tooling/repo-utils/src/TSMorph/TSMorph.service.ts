@@ -1,18 +1,8 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import {
-  Array as A,
-  Effect,
-  FileSystem,
-  Inspectable,
-  Layer,
-  MutableHashMap,
-  Order,
-  Path,
-  pipe,
-  ServiceMap,
-} from "effect";
+import { Effect, FileSystem, Inspectable, Layer, MutableHashMap, Order, Path, pipe, ServiceMap } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
