@@ -52,6 +52,7 @@ Define the execution order for the formal `@beep/semantic-web` spec so that late
 - Do not write production package code in the spec-authoring phase.
 - Do not reopen locked defaults without stronger local evidence.
 - Keep the package posture at `foundation + adapters`.
+- If a phase starts in Plan Mode, use the handoff and orchestrator docs to produce a decision-complete phase plan before editing the phase artifact.
 
 ## Exit Condition
 

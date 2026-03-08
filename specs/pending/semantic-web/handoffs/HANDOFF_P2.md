@@ -4,6 +4,10 @@
 
 Define the public representation seams and target-specific adapters for JSON-LD, RDF/JS, SHACL, SPARQL/query, and dataset canonicalization.
 
+## Mode Handling
+
+If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only in a non-Plan execution session should you write or refine the phase output artifact.
+
 ## Inputs
 
 - [README.md](../README.md)
@@ -19,9 +23,9 @@ Define the public representation seams and target-specific adapters for JSON-LD,
    - contexts
    - documents
    - streaming parse / serialize
-   - optional framing
+   - framing
 2. Define the RDF/JS interoperability baseline.
-3. Define SHACL, query, and canonicalization adapter posture.
+3. Define SHACL, query, and canonicalization adapter posture while keeping `traqula` and `comunica` research-only in v1.
 4. Keep representation boundaries explicit so:
    - JSON Schema is not treated as SHACL or OWL
    - generic XML encoding is not treated as RDF/XML
@@ -35,7 +39,7 @@ Write: `outputs/p2-adapter-and-representation-design.md`
 
 - [ ] every public adapter seam has a target or rationale
 - [ ] RDF/JS baseline is explicit
-- [ ] JSON-LD scope is explicit
+- [ ] JSON-LD scope is explicit, including framing in the public contract
 - [ ] representation traps are called out explicitly
 
 ## Exit Gate

@@ -19,6 +19,7 @@ Lock the initial public module topology for `@beep/semantic-web`, define the bou
 | generic schema tooling and repo-wide schema laws | `@beep/schema` | stays generic |
 | public semantic-web values, vocabularies, service contracts, metadata helpers, and adapters | `@beep/semantic-web` | canonical public owner |
 | current `IRI` and `ProvO` proof modules | migrate to `@beep/semantic-web` public ownership | keep proof modules only as migration inputs |
+| temporary compatibility re-exports | `@beep/schema` only if migration inventory proves they are needed | do not plan shims by default |
 | consumer discovery path | `@beep/semantic-web` | long-term canonical import path |
 
 ## Public Module Topology
@@ -26,7 +27,7 @@ Lock the initial public module topology for `@beep/semantic-web`, define the bou
 | Module Family | Public Path | v1 Role |
 |---|---|---|
 | IRI | `@beep/semantic-web/iri` | semantic-first identifier values and canonical strings |
-| URI | `@beep/semantic-web/uri` | transport and interoperability-oriented identifier helpers |
+| URI | `@beep/semantic-web/uri` | transport and interoperability-oriented identifier helpers with internal IDNA behavior in v1 |
 | RDF | `@beep/semantic-web/rdf` | RDF/JS-aligned terms, quads, datasets, prefixes, namespaces |
 | Vocabulary helpers | `@beep/semantic-web/vocab/*` | reusable vocabulary term modules |
 | JSON-LD | `@beep/semantic-web/jsonld` | document, context, framing, and projection-facing values |
@@ -59,15 +60,12 @@ Lock the initial public module topology for `@beep/semantic-web`, define the bou
 | `design/semantic-schema-metadata.md` | preserved and refined | promoted into formal metadata policy |
 | `handoffs/NEXT_SESSION_SPEC_PROMPT.md` | superseded but preserved | replaced operationally by the formal handoffs and prompts |
 
+## Locked Defaults Carried Forward
+
+- `idna/` stays internal to the `uri/` family in v1 and is not promoted to a first-class public submodule.
+- the stable root export surface is curated and minimal; family-specific paths remain canonical.
+- temporary `@beep/schema` compatibility re-exports are contingency-only and require migration-inventory evidence.
+
 ## Outcome
 
 P0 is complete. The package now has a stable public topology, a boundary with `@beep/schema`, explicit upstream-library classification, and explicit exploratory artifact lineage.
-
-## Remaining Open Question
-
-Should the root package export a small convenience surface in addition to family-specific paths?
-
-Recommended default:
-
-- yes for a minimal convenience surface
-- no for a wide “re-export everything” root

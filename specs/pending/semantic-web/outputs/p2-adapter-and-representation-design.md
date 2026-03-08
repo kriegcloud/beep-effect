@@ -10,7 +10,7 @@ Define the representation boundaries and adapter seams that let `@beep/semantic-
 |---|---|---|
 | semantic domain values | first-class | identifiers, RDF values, provenance, evidence |
 | RDF/JS interop | first-class | primary adapter alignment for terms, quads, datasets |
-| JSON-LD documents and contexts | first-class | document-layer and streaming seams both included |
+| JSON-LD documents and contexts | first-class | document-layer, framing, and streaming seams are all part of the public contract |
 | JSON-facing contract export | selective | JSON Schema allowed for documentation and JSON-facing DTOs only |
 | JSON-LD document patching | selective | `JsonPatch` and `JsonPointer` stay at the document layer |
 | RDF/XML | deferred | generic XML encoding is not RDF/XML support |
@@ -37,7 +37,13 @@ Define the representation boundaries and adapter seams that let `@beep/semantic-
 | Reference | Why Not v1 |
 |---|---|
 | `traqula` | useful for query AST work, but too query-tooling-specific for the v1 foundation package identity |
-| `comunica` | useful for future query runtime work, but too large and engine-specific for the v1 package boundary |
+| `comunica` | useful for future query runtime work, but must stay research-only in v1 because it is too large and engine-specific for the package boundary |
+
+## Locked Adapter Defaults
+
+- framing stays in the public `jsonld` contract even if the first implementation slice stages non-critical framing helpers later
+- `traqula` and `comunica` remain research-only in v1 and must not shape the stable adapter contract
+- the first public query seam stays minimal and engine-agnostic
 
 ## Hidden Pitfall Policy
 
@@ -50,12 +56,3 @@ Define the representation boundaries and adapter seams that let `@beep/semantic-
 ## Outcome
 
 P2 is complete. The representation boundaries and adapter seams are explicit enough for service-contract design and later implementation planning.
-
-## Remaining Open Question
-
-Should framing be part of the initial public JSON-LD document contract or a follow-on extension?
-
-Recommended default:
-
-- include framing in the public contract
-- allow the first implementation slice to defer non-critical framing helpers if needed

@@ -8,7 +8,7 @@ Convert the completed spec into a dependency-aware implementation sequence and a
 
 | Order | Workstream | Why It Comes Here |
 |---|---|---|
-| 1 | package exports, root docs, and shared internal conventions | establishes the stable package frame |
+| 1 | package exports, curated root docs, and shared internal conventions | establishes the stable package frame without widening the root surface too early |
 | 2 | `iri/` and `uri/` value families | identifier posture is foundational for later modules |
 | 3 | `rdf/` and `vocab/*` value families | RDF-aligned values underpin adapters and provenance |
 | 4 | `jsonld/` document and context value layer | JSON-LD is first-class and depends on identifier and RDF value posture |
@@ -20,8 +20,17 @@ Convert the completed spec into a dependency-aware implementation sequence and a
 ## Implementation Constraints
 
 - do not reopen locked defaults from the design docs without stronger local evidence
+- keep `idna` internal to `uri/` in v1
+- keep the stable root export surface curated and minimal
+- do not plan `@beep/schema` compatibility shims unless migration inventory proves they are required
 - keep experimental ontology-builder work outside the stable root surface
 - do not treat JSON Schema, `Graph`, or raw hashing as semantic substitutes for RDF, SHACL, or canonical identity
+
+## Migration Compatibility Posture
+
+- migrate `IRI` and `ProvO` into `@beep/semantic-web` as the canonical public owner
+- do not assume temporary `@beep/schema` re-exports are needed; add them only if migration inventory proves they are necessary to avoid unsafe cutovers
+- if compatibility shims are introduced, keep them short-lived, document the consumers they protect, and remove them after migration completes
 
 ## Verification Commands
 

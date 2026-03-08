@@ -4,6 +4,10 @@
 
 Finalize the package topology, the long-term boundary with `@beep/schema`, the seed-asset posture for `IRI` and `ProvO`, and the classification of local upstream semantic-web libraries.
 
+## Mode Handling
+
+If you are operating in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only in a non-Plan execution session should you write or refine the phase output artifact.
+
 ## Inputs
 
 - [README.md](../README.md)
@@ -22,7 +26,7 @@ Finalize the package topology, the long-term boundary with `@beep/schema`, the s
    - adapter target
    - implementation reference
    - research-only reference
-5. Record any remaining uncertainty as explicit open questions with recommended defaults.
+5. Carry forward only residual uncertainty that is not already locked. Do not reopen the settled defaults around internal `idna/`, curated root exports, or conditional-only `@beep/schema` compatibility shims.
 
 ## Deliverable
 
@@ -34,7 +38,7 @@ Write: `outputs/p0-package-topology-and-boundaries.md`
 - [ ] required module families are explicit
 - [ ] `IRI` and `ProvO` seed-asset posture is explicit
 - [ ] upstream reference classification table is complete
-- [ ] unresolved items are bounded and explicit
+- [ ] locked defaults remain closed and any residual uncertainty is bounded and explicit
 
 ## Exit Gate
 

@@ -23,7 +23,10 @@
   "refinedArtifacts": [
     "README.md",
     "QUICK_START.md",
+    "AGENT_PROMPTS.md",
     "design/semantic-schema-metadata.md",
+    "handoffs/HANDOFF_P0-P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md",
     "outputs/manifest.json"
   ],
   "supersededArtifacts": [
@@ -104,14 +107,19 @@
     "generic XML encoding is not RDF/XML",
     "PROV-O is the interoperable provenance backbone, paired with explicit evidence anchoring and bounded projections",
     "IRI and URI remain separate public concepts in v1, with IRI as the semantic default",
+    "IDNA remains internal to the uri family in v1 rather than becoming a first-class public submodule",
     "Web Annotation is an adapter seam, not a hard package-wide dependency",
-    "SemanticSchemaMetadata.kind is a closed intentionally coarse literal domain in v1"
+    "SemanticSchemaMetadata.kind is a closed intentionally coarse literal domain in v1",
+    "JSON-LD framing stays in the public jsonld contract, though the first implementation slice may defer non-critical framing helpers",
+    "Comunica remains a research-only reference in v1",
+    "Temporary @beep/schema compatibility re-exports are conditional migration shims only",
+    "The stable root export surface is curated and minimal, with family-specific paths remaining canonical",
+    "Phase handoffs and orchestrator prompts are plan-first compatible"
   ],
   "openQuestions": [
-    "Should idna/ remain internal to uri/ in v1 or be promoted to a first-class public submodule?",
-    "Should JSON-LD framing be part of the initial public surface or stay optional until a concrete caller exists?",
-    "Should Comunica remain a research-only reference in v1 or move into a later adapter-target role if stronger local evidence appears?",
-    "Will temporary @beep/schema re-exports be needed during seed-asset migration?"
+    "How broad should the stable v1 SPARQL service contract be beyond a minimal query seam?",
+    "Should the first adapter-focused implementation slice include a public Web Annotation adapter or stop at the seam plus core evidence-anchor values?",
+    "Should SemanticSchemaMetadata.specifications remain descriptive-only or gain machine-checkable enforcement in v1?"
   ],
-  "nextAction": "Start with P0 using handoffs/HANDOFF_P0.md."
+  "nextAction": "Start with P0 using handoffs/HANDOFF_P0.md in a plan-first session, then refine the phase artifact in a non-Plan execution session."
 }

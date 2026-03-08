@@ -192,14 +192,14 @@ The following defaults are preserved unless stronger local evidence explicitly c
 | Public semantic-web identifiers, RDF constructs, JSON-LD constructs, provenance profile values, evidence anchors, vocabulary values, semantic service contracts | `@beep/semantic-web` | These become the semantic-web package’s public identity |
 | Current `IRI` and `ProvO` proof modules under `@beep/schema` | migrate to `@beep/semantic-web` public ownership | Treat as seed assets and migration inputs, not the final package boundary |
 | Semantic schema metadata annotation helpers for semantic-web public families | `@beep/semantic-web` | The pattern is domain-specific even though it builds on generic `effect/Schema` facilities |
-| Re-export policy | `@beep/semantic-web` is canonical; `@beep/schema` may offer temporary compatibility shims only if explicitly justified | Do not make `@beep/schema` the long-term discovery path for semantic-web modules |
+| Re-export policy | `@beep/semantic-web` is canonical; `@beep/schema` compatibility shims are allowed only as short-lived migration aids proven by migration inventory | Do not make `@beep/schema` the long-term discovery path for semantic-web modules |
 
 ## Initial Public Module Topology
 
 | Module Family | Public Path | v1 Role | Notes |
 |---|---|---|---|
 | IRI values | `@beep/semantic-web/iri` | semantic identifier boundary, canonical strings, equivalence, normalization policy | IRI is the semantic default |
-| URI values | `@beep/semantic-web/uri` | transport and interoperability-oriented normalization, parsing, resolution, serialization | Separate public concept from IRI |
+| URI values | `@beep/semantic-web/uri` | transport and interoperability-oriented normalization, parsing, resolution, serialization | Separate public concept from IRI; IDNA stays internal to this family in v1 |
 | RDF values | `@beep/semantic-web/rdf` | RDF/JS-aligned terms, literals, quads, datasets, prefixes, namespace helpers | Primary semantic data model is RDF-aligned values, not Effect `Graph` |
 | Vocabulary helpers | `@beep/semantic-web/vocab/*` | stable vocabulary term values for `rdf`, `rdfs`, `owl`, `prov`, `xsd`, `oa`, and repo-relevant terms | Use metadata annotations on important public schema families |
 | JSON-LD values and docs | `@beep/semantic-web/jsonld` | document, context, framing, normalization, and projection-facing values plus service seams | JSON-LD is first-class, not a bolt-on export |
@@ -211,16 +211,30 @@ The following defaults are preserved unless stronger local evidence explicitly c
 
 ## Upstream Library Classification
 
-| Reference | Classification | Intended Role | Hidden Pitfall |
-|---|---|---|---|
-| [`.repos/semantic-web/jsonld-streaming-parser.js`](../../../.repos/semantic-web/jsonld-streaming-parser.js) | `adapter target` | streaming JSON-LD to RDF/JS adapter seam | Streaming guarantees depend on document profile and remote-context behavior |
-| [`.repos/semantic-web/jsonld-streaming-serializer.js`](../../../.repos/semantic-web/jsonld-streaming-serializer.js) | `adapter target` | RDF/JS to streaming JSON-LD adapter seam | No automatic RDF list reconstruction or deduplication; some non-streaming behaviors are intentionally unsupported |
-| [`.repos/semantic-web/shacl-engine`](../../../.repos/semantic-web/shacl-engine) | `adapter target` | SHACL validation service contract backend | SPARQL support is an optional plugin, not baseline behavior |
-| [`.repos/semantic-web/jsonld.js`](../../../.repos/semantic-web/jsonld.js) | `implementation reference` | document-oriented JSON-LD algorithms such as compact, expand, frame, and normalize | Remote document loading must stay bounded and policy-controlled |
-| [`.repos/semantic-web/jsonld-context-parser.js`](../../../.repos/semantic-web/jsonld-context-parser.js) | `implementation reference` | context normalization and term expansion / compaction behavior | Remote-context recursion and validation toggles must not leak into public defaults |
-| [`.repos/semantic-web/rdf-canonize`](../../../.repos/semantic-web/rdf-canonize) | `implementation reference` | bounded dataset canonicalization and fingerprinting backend | Poison-graph and blank-node complexity require explicit limits and abort controls |
-| [`.repos/semantic-web/traqula`](../../../.repos/semantic-web/traqula) | `research-only reference` | future SPARQL parser / generator / transformer research | Useful for AST work, but not a v1 foundation-package anchor |
-| [`.repos/semantic-web/comunica`](../../../.repos/semantic-web/comunica) | `research-only reference` | future SPARQL runtime and query-engine research | Monorepo scope is too large to shape the v1 public package boundary |
+Canonical priority order:
+
+- `core v1 stack`: `jsonld-streaming-parser.js`, `jsonld-streaming-serializer.js`, `shacl-engine`, `jsonld.js`, `jsonld-context-parser.js`, `rdf-canonize`
+- `important deferred query research`: `traqula`, `comunica`
+- `secondary comparison refs`: `rdf-validate-shacl`, `shex.js`, `clownface`, `rdfine`
+- `exploratory or later-ingestion refs`: `GraphQL-LD.js`, `rdfa-streaming-parser.js`, `microdata-rdf-streaming-parser.js`
+
+| Reference | Classification | Priority Tier | Intended Role | Hidden Pitfall |
+|---|---|---|---|---|
+| [`.repos/semantic-web/jsonld-streaming-parser.js`](../../../.repos/semantic-web/jsonld-streaming-parser.js) | `adapter target` | `core` | streaming JSON-LD to RDF/JS adapter seam | Streaming guarantees depend on document profile and remote-context behavior |
+| [`.repos/semantic-web/jsonld-streaming-serializer.js`](../../../.repos/semantic-web/jsonld-streaming-serializer.js) | `adapter target` | `core` | RDF/JS to streaming JSON-LD adapter seam | No automatic RDF list reconstruction or deduplication; some non-streaming behaviors are intentionally unsupported |
+| [`.repos/semantic-web/shacl-engine`](../../../.repos/semantic-web/shacl-engine) | `adapter target` | `core` | SHACL validation service contract backend | SPARQL support is an optional plugin, not baseline behavior |
+| [`.repos/semantic-web/jsonld.js`](../../../.repos/semantic-web/jsonld.js) | `implementation reference` | `core` | document-oriented JSON-LD algorithms such as compact, expand, frame, and normalize | Remote document loading must stay bounded and policy-controlled |
+| [`.repos/semantic-web/jsonld-context-parser.js`](../../../.repos/semantic-web/jsonld-context-parser.js) | `implementation reference` | `core` | context normalization and term expansion / compaction behavior | Remote-context recursion and validation toggles must not leak into public defaults |
+| [`.repos/semantic-web/rdf-canonize`](../../../.repos/semantic-web/rdf-canonize) | `implementation reference` | `core` | bounded dataset canonicalization and fingerprinting backend | Poison-graph and blank-node complexity require explicit limits and abort controls |
+| [`.repos/semantic-web/traqula`](../../../.repos/semantic-web/traqula) | `research-only reference` | `important deferred` | future SPARQL parser / generator / transformer research | Useful for AST work, but not a v1 foundation-package anchor |
+| [`.repos/semantic-web/comunica`](../../../.repos/semantic-web/comunica) | `research-only reference` | `important deferred` | future SPARQL runtime and query-engine research | Monorepo scope is too large to shape the v1 public package boundary |
+| [`.repos/semantic-web/rdf-validate-shacl`](../../../.repos/semantic-web/rdf-validate-shacl) | `research-only reference` | `secondary comparison` | alternate SHACL validation reference | Easy to mistake for the canonical backend decision when it is primarily a comparison point |
+| [`.repos/semantic-web/shex.js`](../../../.repos/semantic-web/shex.js) | `research-only reference` | `secondary comparison` | alternate shape-language reference so SHACL is not the only validation lens | Can pull the design toward ShEx-specific modeling too early |
+| [`.repos/semantic-web/clownface`](../../../.repos/semantic-web/clownface) | `research-only reference` | `secondary comparison` | graph traversal and node-navigation programming model reference | Its programming model is useful to study, but should not define the package’s schema-first identity |
+| [`.repos/semantic-web/rdfine`](../../../.repos/semantic-web/rdfine) | `research-only reference` | `secondary comparison` | ontology-wrapper and object-mapping reference | Easy to drift into object-wrapper-first design instead of values plus adapters |
+| [`.repos/semantic-web/GraphQL-LD.js`](../../../.repos/semantic-web/GraphQL-LD.js) | `research-only reference` | `exploratory` | linked-data query exploration for JSON-LD-facing consumers | Interesting, but too far from the current v1 foundation scope |
+| [`.repos/semantic-web/rdfa-streaming-parser.js`](../../../.repos/semantic-web/rdfa-streaming-parser.js) | `research-only reference` | `later-ingestion` | RDFa ingestion reference for HTML-embedded semantic data | Useful only if HTML-embedded semantics become part of the first ingestion story |
+| [`.repos/semantic-web/microdata-rdf-streaming-parser.js`](../../../.repos/semantic-web/microdata-rdf-streaming-parser.js) | `research-only reference` | `later-ingestion` | Microdata-to-RDF ingestion reference for HTML-embedded semantic data | Useful only if HTML-embedded semantics become part of the first ingestion story |
 
 ## Artifact Lineage
 
@@ -265,9 +279,16 @@ bun run --filter=@beep/semantic-web build
 
 Spec-doc maintenance for this folder should additionally keep Markdown and JSON artifacts valid.
 
+## Locked Execution Defaults
+
+- `idna/` remains internal to `uri/` in v1. IDNA behavior is part of the `uri/` family and is not a first-class stable public submodule.
+- JSON-LD framing remains part of the public `@beep/semantic-web/jsonld` contract, even if the first implementation slice defers non-critical framing helpers.
+- `comunica` remains a research-only reference in v1 and must not shape the public adapter contract.
+- `@beep/schema` compatibility re-exports are not planned by default. Use short-lived shims only if migration inventory later proves they are required.
+- The stable root export surface is curated and minimal. Family-specific module paths remain canonical, and root exports must not become a package-wide convenience dump.
+
 ## Remaining Open Questions
 
 | Question | Options | Recommended Default |
 |---|---|---|
-| Should `@beep/schema` re-export stable semantic-web primitives after migration? | `no re-export`, `temporary compatibility re-exports`, `permanent dual entry points` | `temporary compatibility re-exports` only if needed for migration; long-term discovery should stay in `@beep/semantic-web` |
 | How broad should the first public SPARQL contract be? | `no public SPARQL contract in v1`, `minimal query contract only`, `parser + runtime surfaces in v1` | `minimal query contract only`; keep Traqula and Comunica as research inputs until there is stronger local need |
