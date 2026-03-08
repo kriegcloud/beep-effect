@@ -144,7 +144,9 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     const importDeclarations = [...sourceFile.getImportDeclarations()];
     let fileTouched = false;
 
-    const ensureNamespaceImport = (moduleName: string, alias: string): void => {
+    const ensureNamespaceImport = (moduleName: string, alias: string): boolean => {
+      let renamed = false;
+
       pipe(
         sourceFile.getImportDeclarations(),
         A.findFirst(
@@ -159,17 +161,23 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
             const namespaceImport = importDeclaration.getNamespaceImport();
 
             if (namespaceImport === undefined) {
-              sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias });
+              if (importDeclaration.getNamedImports().length === 0) {
+                importDeclaration.setNamespaceImport(alias);
+              } else {
+                sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias });
+              }
               return;
             }
 
             if (namespaceImport.getText() !== alias) {
               namespaceImport.rename(alias);
-              aliasRenamed += 1;
+              renamed = true;
             }
           },
         })
       );
+
+      return renamed;
     };
 
     for (const importDeclaration of importDeclarations) {
@@ -187,7 +195,9 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
             continue;
           }
 
-          ensureNamespaceImport(aliasedModuleName, expectedAlias);
+          if (ensureNamespaceImport(aliasedModuleName, expectedAlias)) {
+            aliasRenamed += 1;
+          }
           namedImport.remove();
           stableConverted += 1;
           fileTouched = true;

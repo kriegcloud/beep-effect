@@ -16,7 +16,7 @@ This note is grounded in the current expert-memory and semantic-web material in 
 - [Repo Expert-Memory Local-First V0](../../repo-expert-memory-local-first-v0/README.md)
 - [@beep/semantic-web](../../semantic-web/README.md)
 - [IP Law Knowledge Graph](../../ip-law-knowledge-graph/README.md)
-- the legacy knowledge slice vendored under `.repos/beep-effect/packages/knowledge`
+- the vendored legacy knowledge slice package docs: [`server/README.md`](../../../../.repos/beep-effect/packages/knowledge/server/README.md), [`client/README.md`](../../../../.repos/beep-effect/packages/knowledge/client/README.md), and [`ui/README.md`](../../../../.repos/beep-effect/packages/knowledge/ui/README.md)
 
 ## Core Thesis
 

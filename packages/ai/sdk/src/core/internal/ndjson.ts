@@ -17,7 +17,16 @@ export type NdjsonDecodeErrorDetails = Readonly<{
 }>;
 
 /**
+ * Decode newline-delimited JSON text into typed values.
+ *
  * @since 0.0.0
+ * @category Transformation
+ * @param schema - Schema used to decode each parsed JSON line.
+ * @param onError - Maps parse or decode failures into the stream error channel.
+ * @example
+ * ```ts
+ * const decodeUsers = decodeNdjson(User, ({ stage, line, cause }) => ({ stage, line, cause }))
+ * ```
  */
 export const decodeNdjson = <S extends S.Top, E>(schema: S, onError: (details: NdjsonDecodeErrorDetails) => E) => {
   const parse = S.decodeUnknownEffect(S.UnknownFromJsonString);

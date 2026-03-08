@@ -17,6 +17,10 @@ export class ImportNamespaceSpecifierNode extends S.Class<ImportNamespaceSpecifi
   }
 ) {}
 
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierNode")({
   type: S.tag("ImportSpecifier"),
   importKind: S.optionalKey(ImportKindSchema),
@@ -61,7 +65,17 @@ export class BlockCommentNode extends S.Class<BlockCommentNode>("BlockCommentNod
 
 export const decodeImportDeclarationNode = S.decodeUnknownOption(ImportDeclarationNode);
 export const decodeImportNamespaceSpecifierNode = S.decodeUnknownOption(ImportNamespaceSpecifierNode);
+
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
+
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export const resolveImportSpecifierImportKind = (
   node: unknown,
   importDeclarationKind?: ImportKind

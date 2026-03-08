@@ -35,7 +35,7 @@ The examples below assume a wrapper that expects the string form. If your wrappe
 | `Nomik uses tree-sitter because it is polyglot and extraction-first` | Preserve why Nomik chose tree-sitter | `Nomik`, `tree-sitter`, `polyglot`, `extraction-oriented`, `Neo4j`, `ts-morph` | `different problem` |
 | `Graph store choice depends on product shape and needs a driver boundary` | Preserve FalkorDB vs Neo4j guidance | `FalkorDB`, `Neo4j`, `driver boundary`, `local-first`, `service-grade`, `Graphiti`, `not native temporal magic` | `—` |
 | `Code generalizes to law wealth and compliance through the expert-memory stack` | Preserve the domain-transfer thesis | `law`, `wealth`, `compliance`, `domain adapters`, `identity`, `normativity`, `contradiction`, `time` | `—` |
-| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal`, `runId` | `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite`, `custom start RPC` |
+| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal` | `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite`, `custom start RPC`, `runId` |
 
 ## Primary Queries
 ### Core expert-memory cluster
