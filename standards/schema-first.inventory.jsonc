@@ -587,6 +587,14 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/repo-memory/runtime/src/semantic/RepoSemanticEnrichmentService.ts",
+      "symbol": "RepoSemanticEnrichmentServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-memory-runtime",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/repo-memory/sqlite/src/internal/RepoMemorySql.ts",
       "symbol": "RepoMemorySqlShape",
       "kind": "exported-interface",
@@ -605,6 +613,14 @@
     {
       "file": "packages/repo-memory/store/src/RepoRunStore.ts",
       "symbol": "RepoRunStoreShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-memory-store",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/repo-memory/store/src/RepoSemanticStore.ts",
+      "symbol": "RepoSemanticStoreShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/repo-memory-store",
@@ -789,6 +805,22 @@
     {
       "file": "packages/common/semantic-web/src/services/jsonld-document.ts",
       "symbol": "JsonLdDocumentServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/jsonld-stream-parse.ts",
+      "symbol": "JsonLdStreamParseServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/jsonld-stream-serialize.ts",
+      "symbol": "JsonLdStreamSerializeServiceShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/semantic-web",
