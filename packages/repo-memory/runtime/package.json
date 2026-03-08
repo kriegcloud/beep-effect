@@ -20,8 +20,8 @@
     "@beep/nlp": "workspace:^",
     "@beep/repo-memory-model": "workspace:^",
     "@beep/repo-memory-store": "workspace:^",
-    "@beep/semantic-web": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/semantic-web": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:"
   },
