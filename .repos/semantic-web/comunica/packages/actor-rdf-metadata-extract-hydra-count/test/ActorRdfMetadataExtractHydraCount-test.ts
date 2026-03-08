@@ -1,0 +1,71 @@
+import type { Readable } from 'node:stream';
+import { ActorRdfMetadataExtract } from '@comunica/bus-rdf-metadata-extract';
+import { ActionContext, Bus } from '@comunica/core';
+import type { IActionContext } from '@comunica/types';
+import { streamifyArray } from 'streamify-array';
+import { ActorRdfMetadataExtractHydraCount } from '../lib/ActorRdfMetadataExtractHydraCount';
+import '@comunica/utils-jest';
+
+const quad = require('rdf-quad');
+
+describe('ActorRdfMetadataExtractHydraCount', () => {
+  let bus: any;
+
+  beforeEach(() => {
+    bus = new Bus({ name: 'bus' });
+  });
+
+  describe('The ActorRdfMetadataExtractHydraCount module', () => {
+    it('should be a function', () => {
+      expect(ActorRdfMetadataExtractHydraCount).toBeInstanceOf(Function);
+    });
+
+    it('should be a ActorRdfMetadataExtractHydraCount constructor', () => {
+      expect(new (<any> ActorRdfMetadataExtractHydraCount)({ name: 'actor', bus, predicates: []}))
+        .toBeInstanceOf(ActorRdfMetadataExtractHydraCount);
+      expect(new (<any> ActorRdfMetadataExtractHydraCount)({ name: 'actor', bus, predicates: []}))
+        .toBeInstanceOf(ActorRdfMetadataExtract);
+    });
+
+    it('should not be able to create new ActorRdfMetadataExtractHydraCount objects without \'new\'', () => {
+      expect(() => {
+        (<any> ActorRdfMetadataExtractHydraCount)();
+      }).toThrow(`Class constructor ActorRdfMetadataExtractHydraCount cannot be invoked without 'new'`);
+    });
+  });
+
+  describe('An ActorRdfMetadataExtractHydraCount instance', () => {
+    let actor: ActorRdfMetadataExtractHydraCount;
+    let input: Readable;
+    let inputNone: Readable;
+    let context: IActionContext;
+
+    beforeEach(() => {
+      actor = new ActorRdfMetadataExtractHydraCount({ name: 'actor', bus, predicates: [ 'px', 'py' ]});
+      input = streamifyArray([
+        quad('s1', 'p1', 'o1', ''),
+        quad('g1', 'py', '12345', ''),
+        quad('s2', 'px', '5678', ''),
+        quad('s3', 'p3', 'o3', ''),
+      ]);
+      inputNone = streamifyArray([
+        quad('s1', 'p1', 'o1', ''),
+      ]);
+      context = new ActionContext();
+    });
+
+    it('should test', async() => {
+      await expect(actor.test({ url: '', metadata: input, requestTime: 0, context })).resolves.toPassTestVoid();
+    });
+
+    it('should run on a stream where count is given', async() => {
+      await expect(actor.run({ url: '', metadata: input, requestTime: 0, context })).resolves
+        .toEqual({ metadata: { cardinality: { type: 'estimate', value: 12_345, dataset: 'g1' }}});
+    });
+
+    it('should run on a stream where count is not given', async() => {
+      await expect(actor.run({ url: '', metadata: inputNone, requestTime: 0, context })).resolves
+        .toEqual({ metadata: { cardinality: { type: 'estimate', value: 0 }}});
+    });
+  });
+});

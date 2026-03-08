@@ -1,0 +1,12 @@
+{
+  "@context": [
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/bus-query-operation/^5.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/mediator-number/^5.0.0/components/context.jsonld"
+  ],
+  "@id": "urn:comunica:default:query-operation/mediators#main",
+  "@type": "MediatorNumber",
+  "type": "min",
+  "field": "httpRequests",
+  "ignoreFailures": true,
+  "bus": { "@id": "ActorQueryOperation:_default_bus" }
+}

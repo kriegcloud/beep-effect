@@ -1,0 +1,34 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": [
+      "es2023",
+      "dom"
+    ],
+    "module": "commonjs",
+    "resolveJsonModule": true,
+
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitOverride": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "inlineSources": true,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "sourceMap": true
+  },
+  "include": [
+    "engines/*/bin/**/*",
+    "engines/*/lib/**/*",
+    "packages/*/bin/**/*",
+    "packages/*/lib/**/*",
+    "packages/*/benchmarks/**/*",
+    "performance/*/lib/**/*"
+  ],
+  "exclude": [
+    "**/node_modules"
+  ]
+}

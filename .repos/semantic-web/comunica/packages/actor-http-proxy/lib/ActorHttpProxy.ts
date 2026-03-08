@@ -1,0 +1,57 @@
+import type { IActionHttp, IActorHttpOutput, MediatorHttp, IActorHttpArgs } from '@comunica/bus-http';
+import { ActorHttp } from '@comunica/bus-http';
+import { KeysHttpProxy } from '@comunica/context-entries';
+import type { TestResult } from '@comunica/core';
+import { failTest, passTest } from '@comunica/core';
+import type { IMediatorTypeTime } from '@comunica/mediatortype-time';
+import type { IProxyHandler } from '@comunica/types';
+
+/**
+ * A comunica Proxy Http Actor.
+ */
+export class ActorHttpProxy extends ActorHttp {
+  public readonly mediatorHttp: MediatorHttp;
+
+  public constructor(args: IActorHttpProxyArgs) {
+    super(args);
+    this.mediatorHttp = args.mediatorHttp;
+  }
+
+  public async test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>> {
+    const proxyHandler: IProxyHandler | undefined = action.context.get(KeysHttpProxy.httpProxyHandler);
+    if (!proxyHandler) {
+      return failTest(`Actor ${this.name} could not find a proxy handler in the context.`);
+    }
+    if (!await proxyHandler.getProxy(action)) {
+      return failTest(`Actor ${this.name} could not determine a proxy for the given request.`);
+    }
+    return passTest({ time: Number.POSITIVE_INFINITY });
+  }
+
+  public async run(action: IActionHttp): Promise<IActorHttpOutput> {
+    const requestedUrl = typeof action.input === 'string' ? action.input : action.input.url;
+    const proxyHandler: IProxyHandler = action.context.get(KeysHttpProxy.httpProxyHandler)!;
+
+    // Send a request for the modified request
+    const output = await this.mediatorHttp.mediate({
+      ...await proxyHandler.getProxy(action),
+      context: action.context.delete(KeysHttpProxy.httpProxyHandler),
+    });
+
+    // Modify the response URL
+    // use defineProperty to allow modification of unmodifiable objects
+    Object.defineProperty(output, 'url', {
+      configurable: true,
+      enumerable: true,
+      get: () => output.headers.get('x-final-url') ?? requestedUrl,
+    });
+    return output;
+  }
+}
+
+export interface IActorHttpProxyArgs extends IActorHttpArgs {
+  /**
+   * The HTTP mediator
+   */
+  mediatorHttp: MediatorHttp;
+}
