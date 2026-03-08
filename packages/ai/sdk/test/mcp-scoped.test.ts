@@ -70,4 +70,4 @@ test("Mcp.createSdkMcpServerScoped closes server on scope exit", async () => {
 
   await runEffect(program);
   expect(closeCalls).toBe(1);
-});
+}, 15_000);

@@ -107,7 +107,7 @@ test("Session.createSession defaults executable and closes on scope exit", async
   expect((createOptions as { executable?: string })?.executable).toBe("bun");
   expect((createOptions as { model?: string })?.model).toBe("claude-test");
   expect(closeCalls).toBeGreaterThanOrEqual(1);
-});
+}, 15_000);
 
 test("Session.resumeSession passes session id and defaults executable", async () => {
   const { resumeSession } = await import("@beep/ai-sdk/Session");

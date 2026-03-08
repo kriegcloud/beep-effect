@@ -289,4 +289,15 @@ describe("@beep/utils Struct.fromEntries", () => {
     ] as const);
     expect(result).toEqual({ a: 2 });
   });
+
+  it("supports symbol keys", () => {
+    const sym = Symbol("sym");
+    const result = Struct.fromEntries([
+      ["a", "alpha"],
+      [sym, true],
+    ] as const);
+
+    expect(result.a).toBe("alpha");
+    expect(result[sym]).toBe(true);
+  });
 });

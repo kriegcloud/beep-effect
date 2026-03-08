@@ -213,4 +213,15 @@ describe("fromEntries", () => {
     const result = Struct.fromEntries(Struct.entries(source));
     expect(result).type.toBe<{ x: 10; y: 20 }>();
   });
+
+  it("supports symbol keys", () => {
+    const sym = Symbol("sym");
+    const result = Struct.fromEntries([
+      ["a", 1],
+      [sym, true],
+    ] as const);
+
+    expect(result.a).type.toBe<1>();
+    expect(result[sym]).type.toBe<true>();
+  });
 });

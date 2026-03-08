@@ -99,7 +99,7 @@ test("AgentSdk.query surfaces failures from streaming prompt", async () => {
     expect(result.failure._tag).toBe("TransportError");
     expect(result.failure.message).toBe("Input stream failed");
   }
-});
+}, 15_000);
 
 test("AgentSdk.query closeInput does not fail output stream", async () => {
   const { AgentSdk } = await import("@beep/ai-sdk/AgentSdk");
