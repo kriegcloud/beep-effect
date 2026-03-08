@@ -8,11 +8,12 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
-import { Effect, Inspectable, Order, Path, pipe, String as Str } from "effect";
+import { Effect, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { type ArrowFunction, type CallExpression, Node, Project, SyntaxKind } from "ts-morph";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "../shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 
@@ -75,10 +76,6 @@ const INCLUDED_GLOBS = [
   "tooling/**/*.{ts,tsx}",
   "infra/**/*.ts",
 ] as const;
-const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"] as const;
-const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
-
-const toPosix = (value: string): string => Str.replace(/\\/g, "/")(value);
 
 const getSimpleIdentifierParameterName = (arrowFunction: ArrowFunction): O.Option<string> => {
   const parameters = arrowFunction.getParameters();
@@ -180,10 +177,9 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   const path = yield* Path.Path;
 
   const isExcludedFile = (filePath: string): boolean => {
-    const normalized = toPosix(filePath);
-    if (A.some(options.excludePaths, (excludePath) => normalized === toPosix(excludePath))) return true;
-    if (A.some(EXCLUDED_SUFFIXES, (suffix) => Str.endsWith(suffix)(normalized))) return true;
-    return A.some(EXCLUDED_SEGMENTS, (segment) => Str.includes(segment)(normalized));
+    const normalized = toPosixPath(filePath);
+    if (A.some(options.excludePaths, (excludePath) => normalized === toPosixPath(excludePath))) return true;
+    return isExcludedTypeScriptSourcePath(normalized);
   };
 
   const project = new Project({
@@ -199,7 +195,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
 
   let helpersSimplified = 0;
   let touchedFiles = 0;
-  const changedFiles = A.empty<string>();
+  let changedFiles = A.empty<string>();
 
   for (const sourceFile of sourceFiles) {
     let fileTouched = false;
@@ -221,7 +217,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
 
     if (fileTouched) {
       touchedFiles += 1;
-      changedFiles.push(toPosix(path.relative(process.cwd(), sourceFile.getFilePath())));
+      changedFiles = A.append(changedFiles, toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath())));
     }
   }
 

@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
+import { isExcludedTypeScriptSourcePath } from "../shared/TypeScriptSourceExclusions.ts";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
 const $I = $RepoCliId.create("commands/Lint");
@@ -137,11 +138,14 @@ const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function
         .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to stat path")));
 
       if (stat.type === "Directory") {
+        if (isExcludedTypeScriptSourcePath(`${candidate}/`)) {
+          continue;
+        }
         results = A.appendAll(results, yield* walk(candidate));
         continue;
       }
 
-      if (Str.endsWith(".ts")(entry)) {
+      if (Str.endsWith(".ts")(entry) && !isExcludedTypeScriptSourcePath(candidate)) {
         results = A.append(results, candidate);
       }
     }
@@ -221,7 +225,7 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
     return;
   }
 
-  const violations = A.empty<string>();
+  let violations = A.empty<string>();
 
   for (const file of pipe(filesByRoot, A.flatten, A.sort(Order.String))) {
     const content = yield* fs
@@ -238,7 +242,7 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
     for (const match of content.matchAll(/\bnew Error\(/g)) {
       const line = lineNumberAt(content, match.index ?? 0);
       const lineText = pipe(Str.split("\n")(content), A.get(line - 1), O.getOrElse(thunkEmptyStr), Str.trim);
-      violations.push(`${file}:${line}:${lineText}`);
+      violations = A.append(violations, `${file}:${line}:${lineText}`);
     }
   }
 
@@ -272,7 +276,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 
   const files = pipe(filesByRoot, A.flatten, A.dedupe);
   const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
-  const violations = A.empty<LintViolation>();
+  let violations = A.empty<LintViolation>();
 
   for (const file of files) {
     const isToolingFile = Str.startsWith(`${TOOLING_ROOT}/`)(file);
@@ -285,7 +289,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(thunkEmptyStr));
 
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
-      violations.push(
+      violations = A.append(
+        violations,
         new LintViolation({
           file,
           line: lineNumberAt(content, offset),
@@ -399,7 +404,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
         schemaName === "GenerationAction" && /S\.Union\(/.test(snippet) && /\.pipe\(S\.toTaggedUnion\(/.test(snippet);
 
       if (usesLiteralKitPattern && !usesTaggedUnionFallback) {
-        violations.push(
+        violations = A.append(
+          violations,
           new LintViolation({
             file,
             line: lineNumberAt(content, match.index),
@@ -412,7 +418,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     }
 
     if (!found) {
-      violations.push(
+      violations = A.append(
+        violations,
         new LintViolation({
           file: TOOLING_ROOT,
           line: 1,

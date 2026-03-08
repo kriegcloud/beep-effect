@@ -82,7 +82,7 @@ const firstSignatureLine = (text: string): string =>
   pipe(
     Str.split("\n")(text),
     A.map(Str.trim),
-    A.findFirst((line) => Str.isNonEmpty(line) && !Str.startsWith("@")(line)),
+    A.findFirst(Str.isNonEmpty),
     O.getOrElse(() => Str.trim(text))
   );
 
@@ -130,7 +130,16 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  * @since 0.0.0
  * @category Internal
  */
-export const readSignature = (node: OutlineDeclaration): string => firstSignatureLine(node.getText());
+export const readSignature = (node: OutlineDeclaration): string => {
+  const signatureSourceText = pipe(
+    Node.isDecoratable(node) ? node.getDecorators() : A.empty(),
+    A.last,
+    O.map((decorator) => node.getSourceFile().getFullText().slice(decorator.getEnd(), node.getEnd())),
+    O.getOrElse(() => node.getText())
+  );
+
+  return firstSignatureLine(signatureSourceText);
+};
 
 /**
  * Derive the normalized summary text for a declaration.
