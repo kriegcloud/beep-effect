@@ -1,7 +1,8 @@
 import { $CodegraphId } from "@beep/identity";
 import { ArrayOfStrings, LiteralKit } from "@beep/schema";
-import { Option as O, Tuple } from "effect";
+import { Tuple } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $CodegraphId.create("Config/Config.models");

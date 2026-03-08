@@ -6,9 +6,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, type FileSystem, Layer, type Path, ServiceMap, String as Str } from "effect";
+import { Effect, type FileSystem, Layer, type Path, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { HttpClient } from "effect/unstable/http";
 import {
   type VersionCategoryReport,

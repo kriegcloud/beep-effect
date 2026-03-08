@@ -8,10 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkSomeFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Inspectable, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, Inspectable, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/Agents");

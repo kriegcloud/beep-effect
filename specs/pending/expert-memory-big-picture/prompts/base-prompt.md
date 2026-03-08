@@ -1,15 +1,15 @@
-# Base Codex Session Prompt Template
+# Base Codex Prompt Template
 
 ## Usage
-Copy the `text` block below into a fresh Codex session, then replace the placeholders and delete any sections that do not apply.
+Reuse the `text` block below for another agent run, then replace the placeholders and delete any sections that do not apply.
 
 This is the default medium-weight template in the local prompt library. Use it when you want more than a tiny bootstrap, but do not need the stricter implementation-only variant.
 
-If you are choosing between templates, start with [README.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/prompts/README.md).
+If you are choosing between templates, start with [README.md](./README.md).
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Delete any sections marked optional if they do not apply. Replace every `{{PLACEHOLDER}}` before starting.
 
@@ -17,11 +17,11 @@ You must follow this repo contract for the entire task:
 
 1. Use `$effect-first-development` for this task.
 2. This repository uses Effect v4. Do not trust training data for Effect APIs.
-3. The local Effect v4 subtree at `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4` is the source of truth for Effect syntax, module layout, and API shape.
+3. The local Effect v4 subtree at `.repos/effect-v4` is the source of truth for Effect syntax, module layout, and API shape.
 4. Before writing or changing Effect code, verify the exact APIs you plan to use against local Effect v4 source or docs in `.repos/effect-v4`. Do not rely on memory, `node_modules`, or web search.
 5. Always try to find existing patterns in this repo and reuse them before inventing a new shape.
 6. Keep scope tight. Do not do unrelated refactors.
-7. Add or update JSDoc for every touched export in a module. JSDoc must follow `/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md` and remain docgen-clean.
+7. Add or update JSDoc for every touched export in a module. JSDoc must follow `.patterns/jsdoc-documentation.md` and remain docgen-clean.
 8. Use `bun` for repo commands. For package-scoped work, prefer `bun run --filter=@beep/{{PACKAGE_NAME}} <script>`.
 9. Run narrow, relevant quality commands as soon as a file or module is ready instead of waiting until the very end.
 10. Do not finish with failing `check`, `lint`, `test`, or `docgen` commands unless you explicitly classify the failures as pre-existing and provide evidence.
@@ -89,7 +89,7 @@ Documentation contract:
 
 1. Every touched export in a module must have JSDoc.
 2. JSDoc examples must compile under docgen when examples are required by repo conventions.
-3. Follow `/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md`.
+3. Follow `.patterns/jsdoc-documentation.md`.
 4. Do not remove useful examples just to silence docgen failures. Fix the examples correctly.
 
 Verification workflow:

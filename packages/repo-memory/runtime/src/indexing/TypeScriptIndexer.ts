@@ -32,24 +32,12 @@ import {
   TaggedErrorClass,
 } from "@beep/schema";
 import { Text, thunkEmptyStr } from "@beep/utils";
-import {
-  DateTime,
-  Effect,
-  FileSystem,
-  flow,
-  HashMap,
-  HashSet,
-  Layer,
-  Order,
-  Path,
-  pipe,
-  ServiceMap,
-  String as Str,
-} from "effect";
+import { DateTime, Effect, FileSystem, flow, HashMap, HashSet, Layer, Order, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Node, Project, type SourceFile, type Statement, VariableDeclarationKind } from "ts-morph";
 import { recordIndexedFileCount } from "../telemetry/RepoMemoryTelemetry.js";
 

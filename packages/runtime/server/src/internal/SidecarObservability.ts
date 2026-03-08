@@ -1,8 +1,9 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
-import { DateTime, Duration, Effect, Layer, Metric, pipe, String as Str, Tracer } from "effect";
+import { DateTime, Duration, Effect, Layer, Metric, pipe, Tracer } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as DevToolsClient from "effect/unstable/devtools/DevToolsClient";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 import * as Otlp from "effect/unstable/observability/Otlp";

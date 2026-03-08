@@ -2,12 +2,13 @@ import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
-import { Config, Effect, pipe, String as Str } from "effect";
+import { Config, Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   Headers,
   HttpClient,

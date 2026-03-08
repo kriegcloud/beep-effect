@@ -8,10 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
-import { Effect, Inspectable, Order, Path, pipe, String as Str } from "effect";
+import { Effect, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { type ArrowFunction, type CallExpression, Node, Project, SyntaxKind } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");

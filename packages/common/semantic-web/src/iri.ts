@@ -1,7 +1,8 @@
 import { $SemanticWebId } from "@beep/identity/packages";
-import { pipe, String as Str } from "effect";
+import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // cspell:words ireg ucschar iprivate Ucschar Iprivate Iunreserved Isegment irelative Abempty Hier hier
 

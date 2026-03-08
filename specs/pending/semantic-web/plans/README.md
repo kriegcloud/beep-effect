@@ -12,4 +12,4 @@ These plans convert the normative design documents into phased execution work.
 - plans must preserve the locked defaults in `../design/foundation-decisions.md`
 - plans must not reopen package ownership or provenance posture without stronger local evidence
 - plans must use `bun` for repo commands
-- plans must keep the work inside `specs/pending/semantic-web` until a later implementation session is explicitly started
+- plans must keep the work inside `specs/pending/semantic-web` until later implementation work is explicitly started

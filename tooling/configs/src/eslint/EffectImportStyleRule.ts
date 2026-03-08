@@ -4,7 +4,11 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { Rule } from "eslint";
-import { decodeImportDeclarationNode, decodeImportNamespaceSpecifierNode } from "../internal/eslint/RuleAstSchemas.ts";
+import {
+  decodeImportDeclarationNode,
+  decodeImportNamespaceSpecifierNode,
+  decodeImportSpecifierNode,
+} from "../internal/eslint/RuleAstSchemas.ts";
 import { resolveRelativeRuleFilePath } from "../internal/eslint/RulePathing.ts";
 import { createAllowlistViolationReporter, reportAllowlistDiagnostics } from "../internal/eslint/RuleReporting.ts";
 import {
@@ -29,7 +33,10 @@ const effectImportAliasEntries = A.make(
   new EffectImportAlias({ moduleName: "effect/Option", alias: "O" }),
   new EffectImportAlias({ moduleName: "effect/Predicate", alias: "P" }),
   new EffectImportAlias({ moduleName: "effect/Record", alias: "R" }),
-  new EffectImportAlias({ moduleName: "effect/Schema", alias: "S" })
+  new EffectImportAlias({ moduleName: "effect/Schema", alias: "S" }),
+  new EffectImportAlias({ moduleName: "effect/String", alias: "Str" }),
+  new EffectImportAlias({ moduleName: "effect/Equal", alias: "Eq" }),
+  new EffectImportAlias({ moduleName: "effect/Boolean", alias: "Bool" })
 );
 
 const effectImportAliasMap = HashMap.fromIterable(
@@ -43,6 +50,7 @@ class EffectImportObservation extends S.Class<EffectImportObservation>("EffectIm
   moduleName: S.String,
   namespaceAlias: S.Option(S.String).pipe(S.withConstructorDefault(thunkSomeNone<string>)),
   hasOnlyNamespaceSpecifier: S.Boolean,
+  isTypeOnly: S.Boolean,
 }) {}
 
 const decodeImportObservation = (node: unknown): O.Option<EffectImportObservation> =>
@@ -60,6 +68,7 @@ const decodeImportObservation = (node: unknown): O.Option<EffectImportObservatio
         moduleName: importDeclaration.source.value,
         namespaceAlias,
         hasOnlyNamespaceSpecifier: A.length(namespaceSpecifiers) === 1 && A.length(importDeclaration.specifiers) === 1,
+        isTypeOnly: importDeclaration.importKind === "type",
       });
     })
   );
@@ -137,9 +146,34 @@ const decodeAliasObservationViolation = S.decodeUnknownOption(EffectImportAliasM
 const resolveViolation = (observation: EffectImportObservation): O.Option<RuleViolation> =>
   pipe(decodeAliasObservationViolation([effectImportAliasMap, observation]), O.flatten, O.map(toRuleViolation));
 
+const resolveRootImportAliasViolations = (node: unknown): ReadonlyArray<RuleViolation> =>
+  pipe(
+    decodeImportDeclarationNode(node),
+    O.filter(
+      (importDeclaration) => importDeclaration.source.value === "effect" && importDeclaration.importKind !== "type"
+    ),
+    O.map((importDeclaration) =>
+      pipe(
+        importDeclaration.specifiers,
+        A.map((specifier) => decodeImportSpecifierNode(specifier)),
+        A.getSomes,
+        A.map((specifier) => {
+          const moduleName = `effect/${specifier.imported.name}`;
+          return pipe(
+            HashMap.get(effectImportAliasMap, moduleName),
+            O.filter((expectedAlias) => specifier.local.name === expectedAlias),
+            O.map((expectedAlias) => toRuleViolation(toAliasNamespaceRequiredViolation(moduleName, expectedAlias)))
+          );
+        }),
+        A.getSomes
+      )
+    ),
+    O.getOrElse(A.empty<RuleViolation>)
+  );
+
 /**
  * Custom ESLint rule that enforces Effect import laws:
- * - canonical aliases for A/O/P/R/S submodule imports
+ * - canonical aliases for A/O/P/R/S and helper namespace submodule imports
  * - root `effect` imports for stable modules outside the alias map
  *
  * @since 0.0.0
@@ -149,7 +183,8 @@ export const effectImportStyleRule: Rule.RuleModule = {
   meta: {
     type: "suggestion",
     docs: {
-      description: "Enforce compact Effect import style (A/O/P/R/S aliases and root imports for other stable modules)",
+      description:
+        "Enforce compact Effect import style (canonical namespace aliases and root imports for other stable modules)",
       recommended: false,
     },
     schema: [],
@@ -177,13 +212,17 @@ export const effectImportStyleRule: Rule.RuleModule = {
       ImportDeclaration(node) {
         pipe(
           decodeImportObservation(node),
-          O.filter((observation) => isStableEffectSubmodule(observation.moduleName)),
+          O.filter((observation) => isStableEffectSubmodule(observation.moduleName) && !observation.isTypeOnly),
           O.flatMap(resolveViolation),
           O.match({
             onNone: thunkUndefined,
             onSome: reportViolationIfNeeded(node),
           })
         );
+
+        for (const violation of resolveRootImportAliasViolations(node)) {
+          reportViolationIfNeeded(violation, node);
+        }
       },
     };
   },

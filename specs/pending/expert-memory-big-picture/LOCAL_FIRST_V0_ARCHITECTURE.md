@@ -14,10 +14,10 @@ The important refinement is now explicit:
 
 ## Current Repo Reality
 The repo now has a dedicated local-first v0 spec folder:
-- [Repo Expert-Memory Local-First V0 README](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/README.md)
-- [Cluster-First Substrate Decision](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
-- [Cluster-First Plan](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
-- [HttpApi / Rpc Pivot Note](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md)
+- [Repo Expert-Memory Local-First V0 README](../repo-expert-memory-local-first-v0/README.md)
+- [Cluster-First Substrate Decision](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
+- [Cluster-First Plan](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
+- [HttpApi / Rpc Pivot Note](../repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md)
 
 That folder is now the concrete authority for the repo expert-memory `v0` runtime shape.
 

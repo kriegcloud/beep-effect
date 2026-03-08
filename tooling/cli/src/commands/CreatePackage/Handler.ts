@@ -14,11 +14,12 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, encodePackageJsonCanonicalPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, identity, Path, String as Str, Struct } from "effect";
+import { Console, DateTime, Effect, FileSystem, identity, Path, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 import {

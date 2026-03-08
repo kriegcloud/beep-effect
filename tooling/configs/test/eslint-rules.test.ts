@@ -166,9 +166,19 @@ describe("eslint rule migration", () => {
     expect(messages.some((message) => message.ruleId === "beep-laws/schema-first")).toBe(false);
   });
 
-  it("flags stable Effect submodule imports that should come from root effect", () => {
+  it("accepts helper namespace imports with canonical aliases", () => {
     const messages = verify(
       ['import * as Str from "effect/String";', "export const value = 1;"].join("\n"),
+      effectImportStyleConfig,
+      "tooling/configs/src/StringImport.ts"
+    );
+
+    expect(messages.some((message) => message.ruleId === "beep-laws/effect-import-style")).toBe(false);
+  });
+
+  it("flags canonical alias imports from root effect that should use namespaces", () => {
+    const messages = verify(
+      ['import { pipe, String as Str } from "effect";', "export const value = pipe('a', Str.toUpperCase);"].join("\n"),
       effectImportStyleConfig,
       "tooling/configs/src/RootImport.ts"
     );
@@ -177,7 +187,7 @@ describe("eslint rule migration", () => {
       messages.some(
         (message) =>
           message.ruleId === "beep-laws/effect-import-style" &&
-          message.message.includes('Prefer root imports from "effect"')
+          message.message.includes("Use namespace import with alias Str for effect/String")
       )
     ).toBe(true);
   });

@@ -25,7 +25,7 @@ Define the verification expectations that later implementation work for `@beep/s
 
 ## Package Command Expectations
 
-The default package-scoped verification commands for a later implementation session are:
+The default package-scoped verification commands for later implementation work are:
 
 ```bash
 bun run --filter=@beep/semantic-web check
@@ -38,7 +38,7 @@ These commands are supported by the existing [`packages/common/semantic-web/pack
 
 ## Failure Classification Rules
 
-Later execution sessions should classify failures as:
+Later implementation passes should classify failures as:
 
 - `pre-existing repo failure`
 - `new package-specific failure`

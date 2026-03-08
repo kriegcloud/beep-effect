@@ -7,8 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkTrue } from "@beep/utils";
-import { Boolean as Bool, Layer, Match, ServiceMap } from "effect";
+import { Layer, Match, ServiceMap } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import {
   VersionCategoryOptions,
   type VersionCategory as VersionCategoryValue,

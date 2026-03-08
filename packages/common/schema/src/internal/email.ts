@@ -1,5 +1,6 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { Schema as S, SchemaTransformation } from "effect";
+import { SchemaTransformation } from "effect";
+import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Email");
 

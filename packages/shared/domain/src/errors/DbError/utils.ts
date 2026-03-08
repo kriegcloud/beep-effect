@@ -1,10 +1,11 @@
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
-import { flow, Match, pipe, String as Str } from "effect";
+import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
 import pc from "picocolors";

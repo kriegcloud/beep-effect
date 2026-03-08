@@ -7,7 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
-import { Boolean as Bool, Config, Effect, Option as O, SchemaTransformation } from "effect";
+import { Config, Effect, SchemaTransformation } from "effect";
+import * as Bool from "effect/Boolean";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");

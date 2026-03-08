@@ -1,5 +1,6 @@
-import { Effect, String as Str, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 /**
  * @since 0.0.0

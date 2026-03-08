@@ -37,10 +37,11 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { DateTime, Effect, flow, Layer, Match, pipe, ServiceMap, String as Str, Stream } from "effect";
+import { DateTime, Effect, flow, Layer, Match, pipe, ServiceMap, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Msgpack from "effect/unstable/encoding/Msgpack";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";

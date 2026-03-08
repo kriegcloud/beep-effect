@@ -21,7 +21,7 @@
     "research/2026-03-08-initial-exploration.md",
     "research/2026-03-08-effect-v4-module-selection.md",
     "design/foundation-decisions.md",
-    "handoffs/NEXT_SESSION_SPEC_PROMPT.md"
+    "handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md"
   ],
   "refinedArtifacts": [
     "README.md",
@@ -34,7 +34,7 @@
   ],
   "supersededArtifacts": [
     {
-      "path": "handoffs/NEXT_SESSION_SPEC_PROMPT.md",
+      "path": "handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md",
       "supersededBy": [
         "handoffs/HANDOFF_P0.md",
         "handoffs/HANDOFF_P1.md",
@@ -124,5 +124,5 @@
     "Should the first adapter-focused implementation slice include a public Web Annotation adapter or stop at the seam plus core evidence-anchor values?",
     "Should SemanticSchemaMetadata.specifications remain descriptive-only or gain machine-checkable enforcement in v1?"
   ],
-  "nextAction": "Kick off with P0 using handoffs/HANDOFF_P0.md and handoffs/P0_ORCHESTRATOR_PROMPT.md. In Plan Mode, produce a decision-complete P0 plan first; in a non-Plan execution session, refine the existing P0 baseline."
+  "nextAction": "Kick off with P0 using handoffs/HANDOFF_P0.md and handoffs/P0_ORCHESTRATOR_PROMPT.md. In Plan Mode, produce a decision-complete P0 plan first; when operating outside Plan Mode, refine the existing P0 baseline."
 }

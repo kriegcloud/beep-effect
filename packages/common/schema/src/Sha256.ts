@@ -6,7 +6,8 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, Encoding, Option, Predicate as P, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, Encoding, Option, SchemaGetter, SchemaIssue } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Sha256");

@@ -48,7 +48,7 @@
 - [P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md)
 - [P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md)
 - [P4_ORCHESTRATOR_PROMPT.md](./handoffs/P4_ORCHESTRATOR_PROMPT.md)
-- [NEXT_SESSION_SPEC_PROMPT.md](./handoffs/NEXT_SESSION_SPEC_PROMPT.md) — preserved as superseded exploratory provenance
+- [SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md](./handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md) — preserved as superseded exploratory provenance
 
 ### Outputs
 
@@ -71,7 +71,7 @@
 
 ### Problem
 
-The monorepo already contains semantic-web proof assets, an empty `@beep/semantic-web` package stub, older `beep-effect` prior art, and locally vendored upstream semantic-web libraries. What is missing is a decision-complete package spec that says which semantic-web concerns belong in `@beep/semantic-web`, how they relate to `@beep/schema`, which adapter seams are first-class, and how provenance, JSON-LD, and metadata patterns fit together without reopening the same design questions every session.
+The monorepo already contains semantic-web proof assets, an empty `@beep/semantic-web` package stub, legacy local prior art under `.repos/beep-effect`, and locally vendored upstream semantic-web libraries. What is missing is a decision-complete package spec that says which semantic-web concerns belong in `@beep/semantic-web`, how they relate to `@beep/schema`, which adapter seams are first-class, and how provenance, JSON-LD, and metadata patterns fit together without reopening the same design questions on every phase pass.
 
 ### Solution
 
@@ -142,7 +142,7 @@ The exploratory semantic-web docs are preserved as evidence, then formalized thr
 ### Out Of Scope
 
 - production implementation of `@beep/semantic-web`
-- writing production package code in this session
+- writing production package code while maintaining this spec package
 - treating JSON Schema as a substitute for SHACL or OWL semantics
 - using Effect `Graph` as the primary RDF semantic model
 - inventing metadata-heavy annotations for every trivial helper schema
@@ -244,7 +244,7 @@ Canonical priority order:
 | [research/2026-03-08-effect-v4-module-selection.md](./research/2026-03-08-effect-v4-module-selection.md) | preserved | Remains the Effect v4 evidence summary for module-fit claims |
 | [design/foundation-decisions.md](./design/foundation-decisions.md) | preserved and elevated | Locked defaults stay in force for all later phases |
 | [design/semantic-schema-metadata.md](./design/semantic-schema-metadata.md) | refined into a formal design note | Promotes the exploratory annotation pattern into the normative metadata policy |
-| [handoffs/NEXT_SESSION_SPEC_PROMPT.md](./handoffs/NEXT_SESSION_SPEC_PROMPT.md) | superseded but retained | Replaced operationally by the formal handoff and orchestrator set, but preserved as provenance |
+| [handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md](./handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md) | superseded but retained | Replaced operationally by the formal handoff and orchestrator set, but preserved as provenance |
 
 ## Phase Breakdown
 
@@ -256,7 +256,7 @@ Canonical priority order:
 | P3 | Service Contract and Metadata Design | [p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md) | Service contracts, provenance posture, evidence anchors, and metadata pattern usage are explicit |
 | P4 | Implementation Plan and Verification Strategy | [p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md) | File/module rollout order, acceptance criteria, and `bun` verification commands are explicit |
 
-These output files are pre-authored, decision-complete baselines for future phase execution. Their presence does not mean a phase execution session already ran; the manifest phase statuses track execution readiness, not whether a baseline document exists.
+These output files are pre-authored, decision-complete baselines for future phase work. Their presence does not mean a phase execution pass already happened; the manifest phase statuses track execution readiness, not whether a baseline document exists.
 
 ## Success Criteria
 

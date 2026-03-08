@@ -1,9 +1,10 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Layer, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
+import { Effect, FileSystem, Layer, MutableHashMap, Path, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,

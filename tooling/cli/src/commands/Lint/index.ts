@@ -8,9 +8,10 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import madge from "madge";
