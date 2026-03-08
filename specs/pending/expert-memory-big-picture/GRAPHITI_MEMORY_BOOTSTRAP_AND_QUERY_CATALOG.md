@@ -21,19 +21,21 @@ The safest payload rule for this repo is:
 
 If a future wrapper behaves differently, document the exact transport quirk rather than silently changing the query catalog.
 
+The examples below assume a wrapper that expects the string form. If your wrapper accepts native arrays, replace `"[\"beep-dev\"]"` with `["beep-dev"]`.
+
 ## Memory Episodes To Preserve
-| Episode name | Purpose | Required terms |
-|---|---|---|
-| `Repo-codegraph as proving ground for expert memory` | Preserve the core thesis | `repo-codegraph`, `expert memory`, `proving ground`, `deterministic-first`, `code as first domain` |
-| `Expert-memory kernel centers on claims evidence provenance and time` | Preserve the semantic-kernel vocabulary | `claim`, `evidence`, `provenance`, `temporal lifecycle`, `retrieval packet`, `semantic kernel` |
-| `Old knowledge slice proved need for control plane and grounded answers` | Preserve the v3 knowledge-slice lesson | `knowledge slice`, `control plane`, `epistemic runtime`, `citation validation`, `reasoning traces`, `grounded answers` |
-| `ClaimRecord is the likely durable abstraction above raw edges` | Preserve claim-first modeling guidance | `ClaimRecord`, `mention record`, `relation evidence`, `supersession`, `conflict`, `evidence-of-record` |
-| `Time and contradiction are central not polish` | Preserve temporal/conflict modeling stance | `bitemporal`, `assertedAt`, `derivedAt`, `effectiveAt`, `supersededAt`, `what did we know when` |
-| `TSMorphService should use scoped project pools not one global Project` | Preserve ts-morph lifecycle guidance | `TSMorphService`, `ts-morph`, `Project lifecycle`, `memory footprint`, `project references`, `workspace scope`, `LRU`, `TTL` |
-| `Nomik uses tree-sitter because it is polyglot and extraction-first` | Preserve why Nomik chose tree-sitter | `Nomik`, `tree-sitter`, `polyglot`, `extraction-oriented`, `Neo4j`, `ts-morph`, `different problem` |
-| `Graph store choice depends on product shape and needs a driver boundary` | Preserve FalkorDB vs Neo4j guidance | `FalkorDB`, `Neo4j`, `driver boundary`, `local-first`, `service-grade`, `Graphiti`, `not native temporal magic` |
-| `Code generalizes to law wealth and compliance through the expert-memory stack` | Preserve the domain-transfer thesis | `law`, `wealth`, `compliance`, `domain adapters`, `identity`, `normativity`, `contradiction`, `time` |
-| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal`, `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite`, `custom start RPC`, `runId` |
+| Episode name | Purpose | Durable concepts | Optional aliases / historical terms |
+|---|---|---|---|
+| `Repo-codegraph as proving ground for expert memory` | Preserve the core thesis | `repo-codegraph`, `expert memory`, `proving ground`, `deterministic-first`, `code as first domain` | `-` |
+| `Expert-memory kernel centers on claims evidence provenance and time` | Preserve the semantic-kernel vocabulary | `claim`, `evidence`, `provenance`, `temporal lifecycle`, `retrieval packet`, `semantic kernel` | `-` |
+| `Old knowledge slice proved need for control plane and grounded answers` | Preserve the v3 knowledge-slice lesson | `control plane`, `epistemic runtime`, `citation validation`, `reasoning traces`, `grounded answers` | `knowledge slice` |
+| `ClaimRecord is the likely durable abstraction above raw edges` | Preserve claim-first modeling guidance | `ClaimRecord`, `mention record`, `relation evidence`, `supersession`, `conflict`, `evidence-of-record` | `-` |
+| `Time and contradiction are central not polish` | Preserve temporal/conflict modeling stance | `bitemporal`, `assertedAt`, `derivedAt`, `effectiveAt`, `supersededAt`, `what did we know when` | `-` |
+| `TSMorphService should use scoped project pools not one global Project` | Preserve ts-morph lifecycle guidance | `TSMorphService`, `ts-morph`, `Project lifecycle`, `memory footprint`, `project references`, `workspace scope`, `LRU`, `TTL` | `-` |
+| `Nomik uses tree-sitter because it is polyglot and extraction-first` | Preserve why Nomik chose tree-sitter | `Nomik`, `tree-sitter`, `polyglot`, `extraction-oriented`, `Neo4j`, `ts-morph`, `different problem` | `-` |
+| `Graph store choice depends on product shape and needs a driver boundary` | Preserve FalkorDB vs Neo4j guidance | `FalkorDB`, `Neo4j`, `driver boundary`, `local-first`, `service-grade`, `Graphiti`, `not native temporal magic` | `-` |
+| `Code generalizes to law wealth and compliance through the expert-memory stack` | Preserve the domain-transfer thesis | `law`, `wealth`, `compliance`, `domain adapters`, `identity`, `normativity`, `contradiction`, `time` | `-` |
+| `Cluster-first runtime substrate replaces custom local workflow engine for repo expert memory` | Preserve the current v0 runtime decision | `cluster-first`, `ClusterWorkflowEngine`, `HttpApi`, `Rpc`, `EventJournal`, `runId` | `sqlite-bun`, `HTTPAPI RPC pivot`, `paused HttpApi rewrite`, `custom start RPC` |
 
 ## Primary Queries
 ### Core expert-memory cluster

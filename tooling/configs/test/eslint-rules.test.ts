@@ -334,6 +334,24 @@ describe("eslint rule migration", () => {
     ).toBe(true);
   });
 
+  it("ignores type-only thunk helper imports from mixed @beep/utils imports", () => {
+    const messages = verify(
+      [
+        'import { type thunkUndefined, thunk0 } from "@beep/utils";',
+        "export const keep = thunk0;",
+        "export const value = { onNone: () => undefined };",
+      ].join("\n"),
+      terseEffectStyleConfig,
+      "tooling/configs/src/TerseMixedTypeThunk.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/terse-effect-style" && message.message.includes("thunkUndefined")
+      )
+    ).toBe(false);
+  });
+
   it("exports a root ESLintConfig array with beep-laws plugin registration", () => {
     expect(ESLintConfig.length).toBeGreaterThan(0);
     expect(ESLintConfig.some((entry) => entry.plugins !== undefined && "beep-laws" in entry.plugins)).toBe(true);

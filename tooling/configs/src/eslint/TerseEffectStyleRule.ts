@@ -1,29 +1,16 @@
 import { HashMap, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import type { Rule, SourceCode } from "eslint";
 import type ESTree from "estree";
-import { decodeImportDeclarationNode, IdentifierNode } from "../internal/eslint/RuleAstSchemas.ts";
+import {
+  decodeImportDeclarationNode,
+  decodeImportSpecifierNode,
+  resolveImportSpecifierImportKind,
+} from "../internal/eslint/RuleAstSchemas.ts";
 import { resolveRelativeRuleFilePath } from "../internal/eslint/RulePathing.ts";
 import { createAllowlistViolationReporter, reportAllowlistDiagnostics } from "../internal/eslint/RuleReporting.ts";
 import { makeRuleViolation, type RuleViolation } from "../internal/eslint/RuleViolation.ts";
-
-class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierNode")({
-  type: S.tag("ImportSpecifier"),
-  imported: IdentifierNode,
-  local: IdentifierNode,
-}) {}
-
-const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
-const resolveImportSpecifierImportKind = (node: unknown, importDeclarationKind?: string): string | undefined => {
-  if (typeof node !== "object" || node === null || !("importKind" in node)) {
-    return importDeclarationKind;
-  }
-
-  const importKind = Reflect.get(node, "importKind");
-  return typeof importKind === "string" ? importKind : importDeclarationKind;
-};
 
 const THUNK_HELPER_NAMES = [
   "thunkUndefined",
