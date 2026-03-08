@@ -8,12 +8,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, FileSystem, HashSet, Inspectable, Path, pipe, String as Str } from "effect";
+import { Console, Effect, FileSystem, HashSet, Inspectable, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
-import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import madge from "madge";
+import { isExcludedTypeScriptSourcePath } from "../shared/TypeScriptSourceExclusions.ts";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
 const $I = $RepoCliId.create("commands/Lint");
@@ -81,53 +82,175 @@ class LintCircularAnalysisError extends TaggedErrorClass<LintCircularAnalysisErr
   })
 ) {}
 
+class LintFileDiscoveryError extends TaggedErrorClass<LintFileDiscoveryError>($I`LintFileDiscoveryError`)(
+  "LintFileDiscoveryError",
+  {
+    message: S.String,
+    root: S.String,
+    path: S.String,
+  },
+  $I.annote("LintFileDiscoveryError", {
+    description: "TypeScript file discovery failed for a lint root.",
+  })
+) {}
+
 const lineNumberAt = (content: string, offset: number): number =>
   pipe(content, Str.slice(0, offset), Str.split("\n"), A.length);
 
-const runRgFiles = (
+const toLintFileDiscoveryError =
+  (root: string, currentPath: string, action: string) =>
+  (cause: unknown): LintFileDiscoveryError =>
+    new LintFileDiscoveryError({
+      message: `${action} "${currentPath}" while collecting TypeScript files under "${root}": ${Inspectable.toStringUnknown(
+        cause,
+        0
+      )}`,
+      root,
+      path: currentPath,
+    });
+
+const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function* (
   root: string
-): Effect.Effect<ReadonlyArray<string>, never, ChildProcessSpawner.ChildProcessSpawner> =>
-  Effect.gen(function* () {
-    const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-    const output = yield* spawner.string(ChildProcess.make("rg", ["--files", root], { cwd: process.cwd() })).pipe(
-      Effect.catch(() =>
-        Effect.gen(function* () {
-          process.exitCode = 2;
-          yield* Console.error("[lint] failed to enumerate files with ripgrep.");
-          return "";
-        })
-      )
-    );
-    return pipe(output, Str.split("\n"), A.map(Str.trim), A.filter(Str.endsWith(".ts")));
-  }).pipe(Effect.orElseSucceed(A.empty<string>));
+): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const exists = yield* fs
+    .exists(root)
+    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to check directory")));
+
+  if (!exists) {
+    return A.empty<string>();
+  }
+
+  const walk = Effect.fn("Lint.collectTypeScriptFiles.walk")(function* (
+    currentPath: string
+  ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
+    const entries = yield* fs
+      .readDirectory(currentPath)
+      .pipe(Effect.mapError(toLintFileDiscoveryError(root, currentPath, "Failed to read directory")));
+
+    let results = A.empty<string>();
+
+    for (const entry of entries) {
+      const candidate = path.join(currentPath, entry);
+      const stat = yield* fs
+        .stat(candidate)
+        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to stat path")));
+
+      if (stat.type === "Directory") {
+        if (isExcludedTypeScriptSourcePath(`${candidate}/`)) {
+          continue;
+        }
+        results = A.appendAll(results, yield* walk(candidate));
+        continue;
+      }
+
+      if (Str.endsWith(".ts")(entry) && !isExcludedTypeScriptSourcePath(candidate)) {
+        results = A.append(results, candidate);
+      }
+    }
+
+    return results;
+  });
+
+  return A.sort(yield* walk(root), Order.String);
+});
+
+const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(function* (): Effect.fn.Return<
+  ReadonlyArray<string>,
+  LintFileDiscoveryError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const toolingRoot = "tooling";
+  const exists = yield* fs
+    .exists(toolingRoot)
+    .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, toolingRoot, "Failed to check directory")));
+
+  if (!exists) {
+    return A.empty<string>();
+  }
+
+  const entries = yield* fs
+    .readDirectory(toolingRoot)
+    .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, toolingRoot, "Failed to read directory")));
+
+  let roots = A.empty<string>();
+
+  for (const entry of entries) {
+    const sourceRoot = path.join(toolingRoot, entry, "src");
+    const sourceRootExists = yield* fs
+      .exists(sourceRoot)
+      .pipe(Effect.mapError(toLintFileDiscoveryError(toolingRoot, sourceRoot, "Failed to check directory")));
+
+    if (sourceRootExists) {
+      roots = A.append(roots, sourceRoot);
+    }
+  }
+
+  return A.sort(roots, Order.String);
+});
+
+const recoverLintFileDiscovery =
+  <A>(checkName: string, fallback: A) =>
+  (error: LintFileDiscoveryError): Effect.Effect<A, never, never> =>
+    Effect.gen(function* () {
+      process.exitCode = 2;
+      yield* Console.error(`[${checkName}] ${error.message}`);
+      return fallback;
+    });
 
 const runLintToolingTaggedErrors = Effect.fn(function* () {
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-  const output = yield* spawner
-    .string(
-      ChildProcess.make(
-        "rg",
-        ["--line-number", "--glob", "tooling/*/src/**/*.ts", "\\bnew Error\\(|\\bthrow new Error\\(", "."],
-        {
-          cwd: process.cwd(),
-        }
-      )
+  const fs = yield* FileSystem.FileSystem;
+  const sourceRoots = yield* collectToolingSourceRoots().pipe(
+    Effect.catchTag(
+      "LintFileDiscoveryError",
+      recoverLintFileDiscovery("check-tooling-tagged-errors", A.empty<string>())
     )
-    .pipe(
-      Effect.catch(() =>
-        Effect.gen(function* () {
-          process.exitCode = 2;
-          yield* Console.error("[check-tooling-tagged-errors] failed to execute ripgrep.");
-          return "";
-        })
-      )
-    );
+  );
 
-  if (Str.isNonEmpty(Str.trim(output))) {
+  if (process.exitCode === 2) {
+    return;
+  }
+
+  const filesByRoot = yield* Effect.forEach(sourceRoots, collectTypeScriptFiles, { concurrency: "unbounded" }).pipe(
+    Effect.catchTag(
+      "LintFileDiscoveryError",
+      recoverLintFileDiscovery("check-tooling-tagged-errors", A.empty<ReadonlyArray<string>>())
+    )
+  );
+
+  if (process.exitCode === 2) {
+    return;
+  }
+
+  let violations = A.empty<string>();
+
+  for (const file of pipe(filesByRoot, A.flatten, A.sort(Order.String))) {
+    const content = yield* fs
+      .readFileString(file)
+      .pipe(
+        Effect.mapError(toLintFileDiscoveryError(file, file, "Failed to read file")),
+        Effect.catchTag("LintFileDiscoveryError", recoverLintFileDiscovery("check-tooling-tagged-errors", ""))
+      );
+
+    if (process.exitCode === 2) {
+      return;
+    }
+
+    for (const match of content.matchAll(/\bnew Error\(/g)) {
+      const line = lineNumberAt(content, match.index ?? 0);
+      const lineText = pipe(Str.split("\n")(content), A.get(line - 1), O.getOrElse(thunkEmptyStr), Str.trim);
+      violations = A.append(violations, `${file}:${line}:${lineText}`);
+    }
+  }
+
+  if (A.isReadonlyArrayNonEmpty(violations)) {
     yield* Console.error(
       "[check-tooling-tagged-errors] native Error usage detected in tooling/*/src. Use TaggedErrorClass from @beep/schema."
     );
-    yield* Console.error(Str.trim(output));
+    yield* Console.error(A.join(violations, "\n"));
     process.exitCode = 1;
     return;
   }
@@ -138,12 +261,22 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
 const runLintToolingSchemaFirst = Effect.fn(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const filesByRoot = yield* Effect.forEach(RUNTIME_SCHEMA_FIRST_ROOTS, (root) => runRgFiles(root), {
+  const filesByRoot = yield* Effect.forEach(RUNTIME_SCHEMA_FIRST_ROOTS, collectTypeScriptFiles, {
     concurrency: "unbounded",
-  });
+  }).pipe(
+    Effect.catchTag(
+      "LintFileDiscoveryError",
+      recoverLintFileDiscovery("check-tooling-schema-first", A.empty<ReadonlyArray<string>>())
+    )
+  );
+
+  if (process.exitCode === 2) {
+    return;
+  }
+
   const files = pipe(filesByRoot, A.flatten, A.dedupe);
   const toolingFiles = A.filter(files, (file) => Str.startsWith(`${TOOLING_ROOT}/`)(file));
-  const violations = A.empty<LintViolation>();
+  let violations = A.empty<LintViolation>();
 
   for (const file of files) {
     const isToolingFile = Str.startsWith(`${TOOLING_ROOT}/`)(file);
@@ -156,7 +289,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     const content = yield* fs.readFileString(absolute).pipe(Effect.orElseSucceed(thunkEmptyStr));
 
     const pushViolation = (kind: string, detail: string, offset = 0): void => {
-      violations.push(
+      violations = A.append(
+        violations,
         new LintViolation({
           file,
           line: lineNumberAt(content, offset),
@@ -270,7 +404,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
         schemaName === "GenerationAction" && /S\.Union\(/.test(snippet) && /\.pipe\(S\.toTaggedUnion\(/.test(snippet);
 
       if (usesLiteralKitPattern && !usesTaggedUnionFallback) {
-        violations.push(
+        violations = A.append(
+          violations,
           new LintViolation({
             file,
             line: lineNumberAt(content, match.index),
@@ -283,7 +418,8 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     }
 
     if (!found) {
-      violations.push(
+      violations = A.append(
+        violations,
         new LintViolation({
           file: TOOLING_ROOT,
           line: 1,

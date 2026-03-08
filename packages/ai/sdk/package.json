@@ -17,22 +17,22 @@
     "docgen": "bunx @effect/docgen"
   },
   "dependencies": {
-    "effect": "catalog:",
-    "@openai/codex-sdk": "catalog:",
     "@anthropic-ai/claude-agent-sdk": "catalog:",
-    "@effect/ai-openai": "catalog:",
-    "@effect/ai-anthropic": "catalog:",
-    "@beep/utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@cloudflare/sandbox": "catalog:",
-    "@beep/schema": "workspace:^",
     "@beep/data": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@cloudflare/sandbox": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@openai/codex-sdk": "catalog:",
+    "effect": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

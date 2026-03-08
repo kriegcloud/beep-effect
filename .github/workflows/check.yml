@@ -66,6 +66,11 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Install typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: typos-cli@1.44.0
+
       - name: Cache Bun dependencies
         uses: actions/cache@v4
         with:
@@ -83,8 +88,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build
-        run: bun run build
+      - name: Run quality checks
+        run: bash scripts/run-github-checks.sh quality
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
@@ -94,34 +99,6 @@ jobs:
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           SECURITY_TRUSTED_ORIGINS: ${{ secrets.SECURITY_TRUSTED_ORIGINS }}
           LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-
-      - name: Type check
-        run: bun run check
-
-      - name: Check migration drift
-        run: bun run check:migration-drift
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
-
-      - name: Lint
-        run: bun run lint
-
-      - name: Docgen
-        run: bun run docgen
-
-      - name: Test
-        run: bun run test
-
-      - name: Syncpack lint
-        run: bunx syncpack lint
-
-      - name: Vulnerability audit
-        run: bun run audit:high:ci
-
-      - name: Changeset status
-        if: github.event_name == 'pull_request'
-        run: bunx changeset status --since=origin/main
 
   secrets:
     name: Secret Scanning
@@ -149,13 +126,28 @@ jobs:
           fetch-depth: 0
 
       - name: OSV vulnerability scan
-        uses: google/osv-scanner-action/osv-scanner-action@v2
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.3
         with:
           scan-args: |-
             --lockfile=bun.lock
+            --config=osv-scanner.toml
+
+      - name: Detect dependency graph availability
+        if: github.event_name == 'pull_request'
+        id: dependency-graph
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const status = data.security_and_analysis?.dependency_graph?.status ?? "disabled";
+            core.info(`Dependency graph status: ${status}`);
+            core.setOutput("enabled", status === "enabled" ? "true" : "false");
 
       - name: Dependency review
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.dependency-graph.outputs.enabled == 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
@@ -186,20 +178,8 @@ jobs:
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
-      - name: Build
-        run: bun run build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
-          EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-          SECURITY_TRUSTED_ORIGINS: ${{ secrets.SECURITY_TRUSTED_ORIGINS }}
-          LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-
-      - name: Run E2E tests
-        run: bun run test:e2e
+      - name: Run E2E checks
+        run: bash scripts/run-github-checks.sh e2e
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
@@ -232,11 +212,8 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         continue-on-error: true
 
-      - name: Check flake
-        run: nix flake check
-
-      - name: Build dev shell
-        run: nix develop --command echo "Dev shell OK"
+      - name: Run Nix checks
+        run: bash scripts/run-github-checks.sh nix
 
   sast:
     name: SAST

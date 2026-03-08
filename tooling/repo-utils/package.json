@@ -48,15 +48,15 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
-    "effect": "catalog:",
-    "@effect/platform-node": "catalog:",
-    "glob": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:",
+    "glob": "catalog:",
     "ts-morph": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   }
 }

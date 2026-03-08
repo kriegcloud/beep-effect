@@ -26,10 +26,10 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "type-fest": "catalog:",
     "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "type-fest": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",
