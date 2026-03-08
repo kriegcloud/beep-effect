@@ -24,6 +24,7 @@ import type {
 import { SessionCreateOutput } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentRpcs } from "./AgentRpcs.js";
+import { AgentServerAccess } from "./AgentServerAccess.js";
 import { SessionPoolUnavailableError } from "./SessionErrors.js";
 import { resolveRequestTenant } from "./TenantAccess.js";
 
@@ -68,6 +69,13 @@ const withProbeHandle = <A>(
     )
   );
 
+const authorizeRequest = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  Effect.gen(function* () {
+    const access = yield* AgentServerAccess;
+    yield* access.authorizeRequest;
+    return yield* effect;
+  });
+
 /**
  * @since 0.0.0
  */
@@ -87,59 +95,76 @@ export const layer = AgentRpcs.toLayer(
             })
           );
 
-    const QueryStream = (input: QueryInputType) => toStream(runtime, input).pipe(Stream.mapEffect(normalizeSDKMessage));
+    const QueryStream = (input: QueryInputType) =>
+      Stream.unwrap(
+        authorizeRequest(Effect.succeed(toStream(runtime, input).pipe(Stream.mapEffect(normalizeSDKMessage))))
+      );
 
     const QueryResult = (input: QueryInputType) =>
-      collectResultSuccess(toStream(runtime, input)).pipe(
-        Effect.scoped,
-        Effect.flatMap((result) =>
-          normalizeQueryResultOutput({
-            result: result.result,
-            metadata: result,
-          })
+      authorizeRequest(
+        collectResultSuccess(toStream(runtime, input)).pipe(
+          Effect.scoped,
+          Effect.flatMap((result) =>
+            normalizeQueryResultOutput({
+              result: result.result,
+              metadata: result,
+            })
+          )
         )
       );
 
-    const Stats = () => runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats)));
-    const InterruptAll = () => runtime.interruptAll;
+    const Stats = () => authorizeRequest(runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats))));
+    const InterruptAll = () => authorizeRequest(runtime.interruptAll);
     const SupportedModels = () =>
-      withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList));
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList))
+      );
     const SupportedCommands = () =>
-      withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList));
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList))
+      );
     const AccountInfo = () =>
-      withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo));
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo))
+      );
 
     const CreateSession = (input: SessionCreateInputType) =>
-      requirePool((pool) =>
-        resolveRequestTenant(input.tenant).pipe(
-          Effect.flatMap((tenant) =>
-            pool.create(input.options, tenant).pipe(
-              Effect.flatMap((handle) => handle.sessionId),
-              Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
+      authorizeRequest(
+        requirePool((pool) =>
+          resolveRequestTenant(input.tenant).pipe(
+            Effect.flatMap((tenant) =>
+              pool.create(input.options, tenant).pipe(
+                Effect.flatMap((handle) => handle.sessionId),
+                Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
+              )
             )
           )
         )
       );
 
     const ResumeSession = (input: ResumeSessionInput) =>
-      requirePool((pool) =>
-        resolveRequestTenant(input.tenant).pipe(
-          Effect.flatMap((tenant) =>
-            pool.get(input.sessionId, input.options, tenant).pipe(
-              Effect.flatMap((handle) => handle.sessionId),
-              Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
+      authorizeRequest(
+        requirePool((pool) =>
+          resolveRequestTenant(input.tenant).pipe(
+            Effect.flatMap((tenant) =>
+              pool.get(input.sessionId, input.options, tenant).pipe(
+                Effect.flatMap((handle) => handle.sessionId),
+                Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
+              )
             )
           )
         )
       );
 
     const SendSession = (input: SendSessionInput) =>
-      requirePool((pool) =>
-        resolveRequestTenant(input.tenant).pipe(
-          Effect.flatMap((tenant) =>
-            pool.get(input.sessionId, undefined, tenant).pipe(
-              Effect.flatMap((handle) => handle.send(input.message)),
-              Effect.asVoid
+      authorizeRequest(
+        requirePool((pool) =>
+          resolveRequestTenant(input.tenant).pipe(
+            Effect.flatMap((tenant) =>
+              pool.get(input.sessionId, undefined, tenant).pipe(
+                Effect.flatMap((handle) => handle.send(input.message)),
+                Effect.asVoid
+              )
             )
           )
         )
@@ -147,27 +172,33 @@ export const layer = AgentRpcs.toLayer(
 
     const SessionStream = (input: SessionRefInput) =>
       Stream.unwrap(
-        requirePool((pool) =>
-          resolveRequestTenant(input.tenant).pipe(
-            Effect.flatMap((tenant) =>
-              pool.get(input.sessionId, undefined, tenant).pipe(Effect.map((handle) => handle.stream))
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(input.tenant).pipe(
+              Effect.flatMap((tenant) =>
+                pool.get(input.sessionId, undefined, tenant).pipe(Effect.map((handle) => handle.stream))
+              )
             )
           )
         )
       );
 
     const CloseSession = (input: SessionRefInput) =>
-      requirePool((pool) =>
-        resolveRequestTenant(input.tenant).pipe(
-          Effect.flatMap((tenant) => pool.close(input.sessionId, tenant).pipe(Effect.asVoid))
+      authorizeRequest(
+        requirePool((pool) =>
+          resolveRequestTenant(input.tenant).pipe(
+            Effect.flatMap((tenant) => pool.close(input.sessionId, tenant).pipe(Effect.asVoid))
+          )
         )
       );
 
-    const ListSessions = () => requirePool((pool) => pool.list);
+    const ListSessions = () => authorizeRequest(requirePool((pool) => pool.list));
 
     const ListSessionsByTenant = (input: TenantScopedInput) =>
-      requirePool((pool) =>
-        resolveRequestTenant(input.tenant).pipe(Effect.flatMap((tenant) => pool.listByTenant(tenant)))
+      authorizeRequest(
+        requirePool((pool) =>
+          resolveRequestTenant(input.tenant).pipe(Effect.flatMap((tenant) => pool.listByTenant(tenant)))
+        )
       );
 
     return {

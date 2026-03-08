@@ -185,6 +185,18 @@ const urlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
 const decodeUrlSearchParams = S.decodeUnknownSync(urlSearchParamsSchema);
 const decodeContainerHealthState = S.decodeUnknownOption(ContainerHealthState);
 const unknownContainerHealthState: S.Schema.Type<typeof ContainerHealthState> = "unknown";
+const absoluteRequestTargetPattern = /^(?:[a-zA-Z][a-zA-Z\d+.-]*:|\/\/)/;
+
+const normalizeEndpointPath = (value: string): string => {
+  const normalized = pipe(value, Str.replace(/\/+$/, ""));
+  return Str.isNonEmpty(normalized) ? normalized : "/";
+};
+
+const isAllowedEndpointPath = (allowedPath: string, inboundPath: string): boolean =>
+  allowedPath === "/" || inboundPath === allowedPath || pipe(inboundPath, Str.startsWith(`${allowedPath}/`));
+
+const isAbsoluteRequestTarget = (value: string): boolean =>
+  O.isSome(O.fromNullishOr(Str.match(absoluteRequestTargetPattern)(value)));
 
 const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): HttpServerResponse.HttpServerResponse =>
   Match.value(error.reason._tag).pipe(
@@ -395,13 +407,25 @@ export const makeGraphitiProxyForwarderService = (
   config: GraphitiProxyConfig
 ): GraphitiProxyForwarderService["Service"] => {
   const upstreamBase = new URL(config.upstream);
+  const allowedEndpointPath = normalizeEndpointPath(upstreamBase.pathname);
 
   const forward = (
     request: HttpServerRequest.HttpServerRequest
   ): Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient> =>
     Effect.gen(function* () {
+      if (isAbsoluteRequestTarget(request.url)) {
+        return proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", 400);
+      }
+
       const inboundUrl = new URL(request.url, "http://graphiti-proxy.local");
-      const destination = new URL(inboundUrl.pathname, upstreamBase);
+      const inboundPath = normalizeEndpointPath(inboundUrl.pathname);
+      if (!isAllowedEndpointPath(allowedEndpointPath, inboundPath)) {
+        return proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, 404);
+      }
+
+      const destination = new URL(upstreamBase.href);
+      destination.pathname = inboundPath;
+      destination.search = "";
       const urlParams = decodeUrlSearchParams(inboundUrl.searchParams);
       const headers = pipe(
         request.headers,

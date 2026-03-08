@@ -694,7 +694,6 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const httpServerLayer = Layer.fresh(
         BunHttpServer.layer({
           hostname: config.host,
-          idleTimeout: 0,
           port: config.port,
         })
       );

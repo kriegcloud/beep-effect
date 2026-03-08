@@ -103,6 +103,74 @@ layer(TestLayer)("Workspaces", (it) => {
         yield* fs.remove(tmpDir, { recursive: true });
       })
     );
+
+    it.effect(
+      "should fail closed for workspace globs that traverse outside the repo root",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+
+        yield* fs.writeFileString(pathApi.join(tmpDir, "package.json"), '{ "name": "root", "workspaces": ["../*"] }');
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain('Unsafe workspace glob "../*" escapes the repository root.');
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+
+    it.effect(
+      "should fail closed for Windows absolute workspace globs",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+
+        yield* fs.writeFileString(
+          pathApi.join(tmpDir, "package.json"),
+          '{ "name": "root", "workspaces": ["C:/outside/*"] }'
+        );
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain('Unsafe workspace glob "C:/outside/*" escapes the repository root.');
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+
+    it.effect(
+      "should reject symlinked workspace directories that resolve outside the repo root",
+      Effect.fn(function* () {
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const externalDir = yield* fs.makeTempDirectory();
+        const packagesDir = pathApi.join(tmpDir, "packages");
+        const symlinkDir = pathApi.join(packagesDir, "pkg-outside");
+        const rootPackageJsonPath = pathApi.join(tmpDir, "package.json");
+
+        yield* fs.makeDirectory(packagesDir, { recursive: true });
+        yield* fs.writeFileString(rootPackageJsonPath, '{ "name": "root", "workspaces": ["packages/*"] }');
+        yield* fs.writeFileString(
+          pathApi.join(externalDir, "package.json"),
+          '{ "name": "@mock/pkg-outside", "version": "1.0.0" }'
+        );
+        yield* fs.symlink(externalDir, symlinkDir);
+
+        const result = yield* resolveWorkspaceDirs(tmpDir).pipe(
+          Effect.catchTag("DomainError", (error) => Effect.succeed(error.message))
+        );
+
+        expect(result).toContain(`Workspace path escapes repository root: "${symlinkDir}" -> "${externalDir}"`);
+
+        yield* fs.remove(tmpDir, { recursive: true });
+        yield* fs.remove(externalDir, { recursive: true });
+      })
+    );
   });
 
   describe("getWorkspaceDir", () => {

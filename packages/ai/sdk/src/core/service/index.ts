@@ -20,6 +20,10 @@ export * from "./AgentHttpApi.js";
 /**
  * @since 0.0.0
  */
+export * from "./AgentServerAccess.js";
+/**
+ * @since 0.0.0
+ */
 export type AgentHttpClientOptions = AgentHttpClientOptions_;
 /**
  * @since 0.0.0

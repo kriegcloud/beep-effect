@@ -426,6 +426,16 @@ const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string
   return score;
 };
 
+const escapeXmlAttribute = (value: string): string =>
+  pipe(
+    value,
+    Str.replaceAll("&", "&amp;"),
+    Str.replaceAll('"', "&quot;"),
+    Str.replaceAll("'", "&apos;"),
+    Str.replaceAll("<", "&lt;"),
+    Str.replaceAll(">", "&gt;")
+  );
+
 const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -505,7 +515,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
       symbols,
       A.map(
         (symbol) =>
-          `<symbol id="${symbol.id}" kind="${symbol.kind}" score="${symbol.score.toFixed(2)}" provenance="${symbol.provenance}" />`
+          `<symbol id="${escapeXmlAttribute(symbol.id)}" kind="${escapeXmlAttribute(symbol.kind)}" score="${symbol.score.toFixed(2)}" provenance="${escapeXmlAttribute(symbol.provenance)}" />`
       ),
       A.join("\n")
     );
@@ -516,7 +526,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
       A.take(14),
       A.map(
         (relationship) =>
-          `<relationship type="${relationship.type}" from="${relationship.from}" to="${relationship.to}" score="${relationship.score.toFixed(2)}" provenance="${relationship.provenance}" />`
+          `<relationship type="${escapeXmlAttribute(relationship.type)}" from="${escapeXmlAttribute(relationship.from)}" to="${escapeXmlAttribute(relationship.to)}" score="${relationship.score.toFixed(2)}" provenance="${escapeXmlAttribute(relationship.provenance)}" />`
       ),
       A.join("\n")
     );

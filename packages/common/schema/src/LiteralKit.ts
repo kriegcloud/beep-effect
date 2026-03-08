@@ -8,8 +8,9 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
-import { HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
+import { HashMap, HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
@@ -196,6 +197,47 @@ export class LiteralNotInSetError extends TaggedErrorClass<LiteralNotInSetError>
   })
 ) {}
 
+/**
+ * Error thrown when different literals encode to the same helper key.
+ *
+ * @category CrossCutting
+ * @since 0.0.0
+ */
+export class LiteralKitKeyCollisionError extends TaggedErrorClass<LiteralKitKeyCollisionError>(
+  $I`LiteralKitKeyCollisionError`
+)(
+  "LiteralKitKeyCollisionError",
+  {
+    key: S.String,
+    existing: LiteralValueSchema,
+    incoming: LiteralValueSchema,
+  },
+  $I.annote("LiteralKitKeyCollisionError", {
+    title: "LiteralKit Key Collision Error",
+    description: "Different literals encoded to the same LiteralKit helper key.",
+  })
+) {}
+
+type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
+
+const validateLiteralKeys = <L extends Literals>(literals: L): void => {
+  pipe(
+    literals,
+    A.reduce(HashMap.empty<string, SchemaAST.LiteralValue>(), (seen, literal): SeenLiteralKeys => {
+      const key = matchLiteral(literal);
+      const existing = HashMap.get(seen, key);
+      if (O.isSome(existing) && existing.value !== literal) {
+        throw new LiteralKitKeyCollisionError({
+          key,
+          existing: existing.value,
+          incoming: literal,
+        });
+      }
+      return HashMap.set(seen, key, literal);
+    })
+  );
+};
+
 const makeOptionsFns = <L extends Literals>(
   literals: L
 ): {
@@ -310,6 +352,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * @since 0.0.0
  */
 export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L> {
+  validateLiteralKeys(literals);
   const base = S.Literals(literals);
 
   const is = makeGuards(literals);

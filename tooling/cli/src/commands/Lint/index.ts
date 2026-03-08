@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+import { normalizePath, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -110,7 +110,25 @@ const toLintFileDiscoveryError =
       path: currentPath,
     });
 
-const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function* (
+const isContainedLintPath = (path: Path.Path, root: string, candidate: string): boolean => {
+  const relativeFromRoot = normalizePath(path.relative(root, candidate));
+
+  return (
+    relativeFromRoot === "" ||
+    relativeFromRoot === "." ||
+    (!path.isAbsolute(relativeFromRoot) && relativeFromRoot !== ".." && !Str.startsWith("../")(relativeFromRoot))
+  );
+};
+
+/**
+ * Collect TypeScript source files under a lint root without following symlink escapes.
+ *
+ * @param root - Root directory to scan for TypeScript sources.
+ * @returns Sorted list of TypeScript source files under the lint root.
+ * @since 0.0.0
+ * @category Utility
+ */
+export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function* (
   root: string
 ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
@@ -124,27 +142,37 @@ const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function
   }
 
   const rootResolvedPath = path.resolve(root);
-  const rootRealPath = yield* fs
+  const canonicalRoot = yield* fs
     .realPath(root)
-    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to resolve root path")));
+    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to resolve canonical root path")));
 
-  if (rootResolvedPath !== rootRealPath) {
+  if (rootResolvedPath !== canonicalRoot) {
     return A.empty<string>();
   }
 
-  const isWithinRoot = (candidateRealPath: string): boolean => {
-    const relativePath = path.relative(rootRealPath, candidateRealPath);
-    return (
-      relativePath === "" ||
-      (!path.isAbsolute(relativePath) && relativePath !== ".." && !Str.startsWith(`..${path.sep}`)(relativePath))
-    );
-  };
-
-  const visitedDirectories = MutableHashSet.make(rootRealPath);
+  const visitedCanonicalDirs = MutableHashSet.empty<string>();
 
   const walk = Effect.fn("Lint.collectTypeScriptFiles.walk")(function* (
     currentPath: string
   ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
+    const canonicalCurrentPath = yield* fs
+      .realPath(currentPath)
+      .pipe(Effect.mapError(toLintFileDiscoveryError(root, currentPath, "Failed to resolve canonical path")));
+
+    if (!isContainedLintPath(path, canonicalRoot, canonicalCurrentPath)) {
+      return A.empty<string>();
+    }
+
+    if (currentPath !== root && path.resolve(currentPath) !== canonicalCurrentPath) {
+      return A.empty<string>();
+    }
+
+    if (MutableHashSet.has(visitedCanonicalDirs, canonicalCurrentPath)) {
+      return A.empty<string>();
+    }
+
+    MutableHashSet.add(visitedCanonicalDirs, canonicalCurrentPath);
+
     const entries = yield* fs
       .readDirectory(currentPath)
       .pipe(Effect.mapError(toLintFileDiscoveryError(root, currentPath, "Failed to read directory")));
@@ -153,33 +181,31 @@ const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function
 
     for (const entry of entries) {
       const candidate = path.join(currentPath, entry);
-      const candidateResolvedPath = path.resolve(candidate);
-      const candidateRealPath = yield* fs
+      const canonicalCandidate = yield* fs
         .realPath(candidate)
-        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to resolve path")));
-
-      // Skip symlinked paths so discovery cannot escape the declared root or loop back into it.
-      if (candidateResolvedPath !== candidateRealPath || !isWithinRoot(candidateRealPath)) {
-        continue;
-      }
-
+        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to resolve canonical path")));
       const stat = yield* fs
         .stat(candidate)
         .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to stat path")));
 
+      if (!isContainedLintPath(path, canonicalRoot, canonicalCandidate)) {
+        continue;
+      }
+
+      const isSymlinkPath = path.resolve(candidate) !== canonicalCandidate;
+
       if (stat.type === "Directory") {
-        if (MutableHashSet.has(visitedDirectories, candidateRealPath)) {
+        if (isSymlinkPath) {
           continue;
         }
         if (isExcludedTypeScriptSourcePath(`${candidate}/`)) {
           continue;
         }
-        MutableHashSet.add(visitedDirectories, candidateRealPath);
         results = A.appendAll(results, yield* walk(candidate));
         continue;
       }
 
-      if (Str.endsWith(".ts")(entry) && !isExcludedTypeScriptSourcePath(candidate)) {
+      if (!isSymlinkPath && Str.endsWith(".ts")(entry) && !isExcludedTypeScriptSourcePath(candidate)) {
         results = A.append(results, candidate);
       }
     }

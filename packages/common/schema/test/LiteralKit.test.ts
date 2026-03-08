@@ -1,4 +1,4 @@
-import { LiteralKit, LiteralNotInSetError } from "@beep/schema/LiteralKit";
+import { LiteralKit, LiteralKitKeyCollisionError, LiteralNotInSetError } from "@beep/schema/LiteralKit";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -54,6 +54,12 @@ describe("LiteralKit", () => {
 
   it("throws LiteralNotInSetError when omitOptions removes every literal", () => {
     expect(() => Status.omitOptions([1, 20n, true, false, "hello"] as const)).toThrow(LiteralNotInSetError);
+  });
+
+  it("throws LiteralKitKeyCollisionError when different literals encode to the same helper key", () => {
+    expect(() => LiteralKit([true, "true"] as const)).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([1, "number1"] as const)).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([1n, "bigint1n"] as const)).toThrow(LiteralKitKeyCollisionError);
   });
 
   it("matches literals in uncurried form", () => {

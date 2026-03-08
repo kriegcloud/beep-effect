@@ -7,8 +7,11 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, HashMap } from "effect";
+import { normalizePath } from "@beep/schema";
+import { Effect, HashMap, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
 import {
@@ -24,6 +27,7 @@ import {
  * @category Configuration
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
+const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
 
 const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => Array.isArray(value);
 
@@ -34,6 +38,28 @@ const workspaceGlobsFrom = (workspaces: PackageJson["workspaces"]): ReadonlyArra
 
   const presentWorkspaces = workspaces.value;
   return isWorkspacePatternArray(presentWorkspaces) ? presentWorkspaces : (presentWorkspaces.packages ?? []);
+};
+
+const isSafeWorkspacePattern = (pattern: string): boolean => {
+  const normalized = normalizePath(pattern);
+  const segments = pipe(normalized, Str.split("/"), A.filter(Str.isNonEmpty));
+
+  return (
+    Str.isNonEmpty(normalized) &&
+    !absoluteWorkspacePattern.test(normalized) &&
+    !A.some(segments, (segment) => segment === "..")
+  );
+};
+
+const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolean => {
+  const normalizedRootDir = normalizePath(rootDir);
+  const normalizedCandidateDir = normalizePath(candidateDir);
+  return (
+    normalizedCandidateDir === normalizedRootDir ||
+    pipe(normalizedRootDir, Str.endsWith("/"), (hasSuffix) =>
+      Str.startsWith(hasSuffix ? normalizedRootDir : `${normalizedRootDir}/`)(normalizedCandidateDir)
+    )
+  );
 };
 
 /**
@@ -87,6 +113,24 @@ export const resolveWorkspaceDirs: (
       return HashMap.empty<string, string>();
     }
 
+    for (const workspaceGlob of workspaceGlobs) {
+      if (!isSafeWorkspacePattern(workspaceGlob)) {
+        return yield* new DomainError({
+          message: `Unsafe workspace glob "${workspaceGlob}" escapes the repository root.`,
+        });
+      }
+    }
+
+    const canonicalRootDir = yield* fsUtils.realPath(rootDir).pipe(
+      Effect.mapError(
+        (error) =>
+          new DomainError({
+            message: `Failed to resolve repository root "${rootDir}"`,
+            cause: error,
+          })
+      )
+    );
+
     // Expand all workspace globs
     const dirs = yield* fsUtils.glob(workspaceGlobs, {
       cwd: rootDir,
@@ -98,6 +142,22 @@ export const resolveWorkspaceDirs: (
     let result = HashMap.empty<string, string>();
 
     for (const dir of dirs) {
+      const canonicalDir = yield* fsUtils.realPath(dir).pipe(
+        Effect.mapError(
+          (error) =>
+            new DomainError({
+              message: `Failed to resolve workspace path "${dir}"`,
+              cause: error,
+            })
+        )
+      );
+
+      if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
+        return yield* new DomainError({
+          message: `Workspace path escapes repository root: "${dir}" -> "${canonicalDir}"`,
+        });
+      }
+
       const pkgJsonPath = `${dir}/package.json`;
       const rawChildPkg = yield* fsUtils
         .readJson(pkgJsonPath)
@@ -121,7 +181,7 @@ export const resolveWorkspaceDirs: (
         )
       );
 
-      result = HashMap.set(result, childPkg.name, dir);
+      result = HashMap.set(result, childPkg.name, canonicalDir);
     }
 
     return result;

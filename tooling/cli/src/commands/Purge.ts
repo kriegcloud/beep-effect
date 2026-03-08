@@ -7,9 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { normalizePath } from "@beep/schema";
 import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("purge");
@@ -49,6 +51,54 @@ const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
  * @category Configuration
  */
 const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
+
+const resolveCanonicalPurgePath = Effect.fn(function* (target: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const resolvedTarget = path.resolve(target);
+  let candidate = resolvedTarget;
+
+  while (true) {
+    const exists = yield* fs
+      .exists(candidate)
+      .pipe(
+        Effect.mapError((cause) => new DomainError({ message: `Failed to inspect purge path "${candidate}"`, cause }))
+      );
+
+    if (exists) {
+      const canonicalCandidate = yield* fs
+        .realPath(candidate)
+        .pipe(
+          Effect.mapError((cause) => new DomainError({ message: `Failed to resolve purge path "${candidate}"`, cause }))
+        );
+      const relativeSuffix = normalizePath(path.relative(candidate, resolvedTarget));
+      return relativeSuffix === "." ? canonicalCandidate : path.resolve(canonicalCandidate, relativeSuffix);
+    }
+
+    const parent = path.dirname(candidate);
+    if (parent === candidate) {
+      return yield* new DomainError({
+        message: `Failed to find an existing ancestor for purge path "${target}"`,
+      });
+    }
+    candidate = parent;
+  }
+});
+
+const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target: string) {
+  const path = yield* Path.Path;
+  const canonicalRoot = yield* resolveCanonicalPurgePath(rootDir);
+  const canonicalTarget = yield* resolveCanonicalPurgePath(target);
+  const relativeFromRoot = normalizePath(path.relative(canonicalRoot, canonicalTarget));
+
+  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
+    return yield* new DomainError({
+      message: `Refusing to purge path outside repository root: "${target}"`,
+    });
+  }
+
+  return canonicalTarget;
+});
 
 /**
  * Summary statistics returned after a purge run.
@@ -117,11 +167,14 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
   const fs = yield* FileSystem.FileSystem;
 
   const { targets, workspaceCount } = yield* buildPurgeTargets(rootDir, removeLock);
+  const safeTargets = yield* Effect.forEach(targets, (target) => ensureContainedPurgeTarget(rootDir, target), {
+    concurrency: "unbounded",
+  });
 
-  yield* Console.log(`Purging ${targets.length} path(s) across ${workspaceCount} workspace(s)...`);
+  yield* Console.log(`Purging ${safeTargets.length} path(s) across ${workspaceCount} workspace(s)...`);
 
   const existedBefore = yield* Effect.forEach(
-    targets,
+    safeTargets,
     (target) =>
       fs
         .exists(target)
@@ -132,7 +185,7 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
   );
 
   yield* Effect.forEach(
-    targets,
+    safeTargets,
     (target) =>
       fs
         .remove(target, { recursive: true, force: true })
@@ -142,10 +195,12 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
 
   const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? count + 1 : count));
 
-  yield* Console.log(`Purge complete: targeted ${targets.length} path(s), removed ${removedCount} existing path(s).`);
+  yield* Console.log(
+    `Purge complete: targeted ${safeTargets.length} path(s), removed ${removedCount} existing path(s).`
+  );
 
   return {
-    targetedCount: targets.length,
+    targetedCount: safeTargets.length,
     removedCount,
     workspaceCount,
   } as const satisfies PurgeSummary;

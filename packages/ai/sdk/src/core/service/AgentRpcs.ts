@@ -14,12 +14,15 @@ import {
   SessionSendRequest,
   SessionTenantScope,
 } from "../Schema/Service.js";
+import { AgentServerAccessError } from "./AgentServerAccess.js";
 import { SessionServiceError } from "./SessionErrors.js";
 
 /**
  * @since 0.0.0
  */
-export const AgentServiceError = AgentSdkError.pipe(S.annotate({ identifier: "AgentServiceError" }));
+export const AgentServiceError = S.Union([AgentSdkError, AgentServerAccessError]).pipe(
+  S.annotate({ identifier: "AgentServiceError" })
+);
 
 /**
  * @since 0.0.0

@@ -1,3 +1,4 @@
+import { BunVersionState, buildBunReport } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/BunResolver";
 import {
   buildEffectReport,
   resolveEffectCatalog,
@@ -89,5 +90,37 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
         yield* fs.remove(tmpDir, { recursive: true });
       })
     );
+  });
+
+  describe("buildBunReport", () => {
+    it("uses semver precedence instead of lexicographic string ordering for local Bun pins", () => {
+      const report = buildBunReport(
+        new BunVersionState({
+          bunVersionFile: "1.10.0",
+          packageManagerField: "1.9.0",
+          latest: O.none(),
+        })
+      );
+
+      expect(report.status).toBe("drift");
+      expect(report.items).toHaveLength(1);
+      expect(report.items[0]?.file).toBe("package.json");
+      expect(report.items[0]?.expected).toBe("bun@1.10.0");
+    });
+
+    it("treats stable releases as newer than prereleases with the same core version", () => {
+      const report = buildBunReport(
+        new BunVersionState({
+          bunVersionFile: "1.10.0-beta.1",
+          packageManagerField: "1.10.0",
+          latest: O.none(),
+        })
+      );
+
+      expect(report.status).toBe("drift");
+      expect(report.items).toHaveLength(1);
+      expect(report.items[0]?.file).toBe(".bun-version");
+      expect(report.items[0]?.expected).toBe("1.10.0");
+    });
   });
 });

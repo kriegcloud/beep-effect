@@ -3,6 +3,7 @@ import type { QueryHandle } from "@beep/ai-sdk/Query";
 import type { SDKMessage } from "@beep/ai-sdk/Schema/Message";
 import { layer as AgentRpcHandlers } from "@beep/ai-sdk/service/AgentRpcHandlers";
 import { AgentRpcs } from "@beep/ai-sdk/service/AgentRpcs";
+import { AgentServerAccess, makeAgentServerAccess } from "@beep/ai-sdk/service/AgentServerAccess";
 import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -10,7 +11,7 @@ import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
-import type * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -149,6 +150,35 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
     })
   );
 
+const makeAccessLayer = (options?: { readonly authToken?: string; readonly hostname?: string }) =>
+  Layer.effect(AgentServerAccess, makeAgentServerAccess(options));
+
+const makeRpcClientLayer = (
+  handler: (request: Request) => Promise<Response>,
+  options?: {
+    readonly authToken?: string;
+    readonly headers?: Record<string, string>;
+  }
+) =>
+  RpcClient.layerProtocolHttp({
+    url: "http://localhost/rpc",
+    ...(options?.authToken === undefined && options?.headers === undefined
+      ? {}
+      : {
+          transformClient: <E, R>(client: HttpClient.HttpClient.With<E, R>) =>
+            HttpClient.mapRequest(client, (request) => {
+              const withHeaders =
+                options?.headers === undefined ? request : HttpClientRequest.setHeaders(request, options.headers);
+              return options?.authToken === undefined
+                ? withHeaders
+                : HttpClientRequest.bearerToken(withHeaders, options.authToken);
+            }),
+        }),
+  }).pipe(
+    Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
+    Layer.provide(RpcSerialization.layerNdjson)
+  );
+
 test("agent RPC API serves query and metadata", async () => {
   const runtime = AgentRuntime.of({
     query: () => Effect.succeed(makeMetadataHandle()),
@@ -166,7 +196,7 @@ test("agent RPC API serves query and metadata", async () => {
   });
 
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
-  const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer));
+  const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(makeAccessLayer()));
   const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
   const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
   const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
@@ -178,12 +208,7 @@ test("agent RPC API serves query and metadata", async () => {
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const clientLayer = RpcClient.layerProtocolHttp({
-        url: "http://localhost/rpc",
-      }).pipe(
-        Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
-        Layer.provide(RpcSerialization.layerNdjson)
-      );
+      const clientLayer = makeRpcClientLayer(handler);
 
       const client = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(clientLayer));
 
@@ -232,7 +257,7 @@ test("agent RPC metadata uses queryRaw", async () => {
   });
 
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
-  const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer));
+  const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(makeAccessLayer()));
   const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
   const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
   const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
@@ -244,12 +269,7 @@ test("agent RPC metadata uses queryRaw", async () => {
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const clientLayer = RpcClient.layerProtocolHttp({
-        url: "http://localhost/rpc",
-      }).pipe(
-        Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
-        Layer.provide(RpcSerialization.layerNdjson)
-      );
+      const clientLayer = makeRpcClientLayer(handler);
 
       const client = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(clientLayer));
 
@@ -332,7 +352,11 @@ test("agent RPC session routes enforce tenant scoping", async () => {
 
   const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
   const poolLayer = Layer.succeed(SessionPool, pool);
-  const handlersLayer = AgentRpcHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(poolLayer));
+  const handlersLayer = AgentRpcHandlers.pipe(
+    Layer.provide(runtimeLayer),
+    Layer.provide(poolLayer),
+    Layer.provide(makeAccessLayer())
+  );
   const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
   const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
   const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
@@ -344,14 +368,9 @@ test("agent RPC session routes enforce tenant scoping", async () => {
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const clientLayer = RpcClient.layerProtocolHttp({
-        url: "http://localhost/rpc",
-      }).pipe(
-        Layer.provide(Layer.succeed(HttpClient.HttpClient, makeWebHandlerClient(handler))),
-        Layer.provide(RpcSerialization.layerNdjson)
+      const client = yield* RpcClient.make(AgentRpcs).pipe(
+        Effect.provide(makeRpcClientLayer(handler, { headers: { "x-agent-tenant": "team-a" } }))
       );
-
-      const client = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(clientLayer));
 
       const created = yield* client.CreateSession({ options: { model: "claude-test" }, tenant: "team-a" });
       expect(created.sessionId).toBe("session-tenant");
@@ -369,8 +388,60 @@ test("agent RPC session routes enforce tenant scoping", async () => {
         })
       );
       expect(mismatch._tag).toBe("Failure");
-      expect(captured[2]).toBe("team-b");
-      expect(captured.length).toBe(3);
+      expect(captured).toEqual(["team-a", "team-a"]);
+
+      const unauthorizedClient = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(makeRpcClientLayer(handler)));
+      const missingHeader = yield* Effect.result(
+        unauthorizedClient.CreateSession({ options: { model: "claude-test" }, tenant: "team-a" })
+      );
+      expect(missingHeader._tag).toBe("Failure");
+      expect(captured).toEqual(["team-a", "team-a"]);
+    })
+  );
+
+  await runEffect(program);
+});
+
+test("agent RPC requires the configured auth token", async () => {
+  const runtime = AgentRuntime.of({
+    query: () => Effect.succeed(makeMetadataHandle()),
+    queryRaw: () => Effect.succeed(makeMetadataHandle()),
+    stream: () => Stream.fromIterable([makeSuccessMessage("ok")]),
+    stats: Effect.succeed({
+      active: 1,
+      pending: 0,
+      concurrencyLimit: 1,
+      pendingQueueCapacity: 0,
+      pendingQueueStrategy: "disabled",
+    }),
+    interruptAll: Effect.void,
+    events: Stream.empty,
+  });
+  const runtimeLayer = Layer.succeed(AgentRuntime, runtime);
+  const handlersLayer = AgentRpcHandlers.pipe(
+    Layer.provide(runtimeLayer),
+    Layer.provide(makeAccessLayer({ authToken: "secret-token" }))
+  );
+  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(handlersLayer));
+  const protocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(Layer.provide(RpcSerialization.layerNdjson));
+  const serverLayer = Layer.empty.pipe(Layer.provide(rpcLayer), Layer.provide(protocolLayer));
+
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      const { handler } = yield* Effect.acquireRelease(
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
+        ({ dispose }) => Effect.promise(dispose)
+      );
+
+      const unauthorizedClient = yield* RpcClient.make(AgentRpcs).pipe(Effect.provide(makeRpcClientLayer(handler)));
+      const unauthorizedStats = yield* Effect.result(unauthorizedClient.Stats());
+      expect(unauthorizedStats._tag).toBe("Failure");
+
+      const authorizedClient = yield* RpcClient.make(AgentRpcs).pipe(
+        Effect.provide(makeRpcClientLayer(handler, { authToken: "secret-token" }))
+      );
+      const stats = yield* authorizedClient.Stats();
+      expect(stats.active).toBe(1);
     })
   );
 
