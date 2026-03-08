@@ -148,6 +148,37 @@ test("AgentSdkConfig fails fast when credentials are missing", async () => {
   }
 });
 
+test("AgentSdkConfig preserves inherited process env while overlaying auth env", async () => {
+  const inheritedKey = "BEEP_AGENTSDK_TEST_INHERITED_ENV";
+  const previousValue = process.env[inheritedKey];
+  process.env[inheritedKey] = "inherited-value";
+
+  try {
+    const layer = AgentSdkConfig.layer.pipe(
+      Layer.provide(
+        configLayer({
+          ANTHROPIC_API_KEY: "test-key",
+        })
+      )
+    );
+
+    const program = Effect.gen(function* () {
+      const config = yield* AgentSdkConfig;
+      return config.options;
+    }).pipe(Effect.provide(layer));
+
+    const options = await runEffect(program);
+    expect(options.env?.[inheritedKey]).toBe("inherited-value");
+    expect(options.env?.ANTHROPIC_API_KEY).toBe("test-key");
+  } finally {
+    if (previousValue === undefined) {
+      delete process.env[inheritedKey];
+    } else {
+      process.env[inheritedKey] = previousValue;
+    }
+  }
+});
+
 test("AgentRuntimeConfig bounds retry settings and parses durations", async () => {
   const layer = AgentRuntimeConfig.layer.pipe(
     Layer.provide(

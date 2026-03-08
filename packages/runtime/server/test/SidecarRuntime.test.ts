@@ -3,13 +3,7 @@ import net from "node:net";
 import { fileURLToPath } from "node:url";
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { RunCursor, RunEventSequence, type RunId } from "@beep/repo-memory-model";
-import {
-  RepoRegistration,
-  RepoRun,
-  RepoRunRpcGroup,
-  SidecarBootstrap,
-  SidecarBootstrapStdoutEvent,
-} from "@beep/runtime-protocol";
+import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { Text } from "@beep/utils";
 import * as NodeHttpClient from "@effect/platform-node/NodeHttpClient";
@@ -23,6 +17,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
+import { decodeBootstrapStdoutLine } from "../src/internal/BootstrapStdout.js";
 
 const $I = $RuntimeServerId.create("test/SidecarRuntime.test");
 const decodeFilePath = S.decodeUnknownSync(FilePath);
@@ -365,8 +360,7 @@ const readBootstrapStdoutLine = (sidecar: SpawnedSidecar) =>
       return yield* toTestError("Expected a machine-readable bootstrap line on sidecar stdout.");
     }
 
-    const decoded = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bootstrapLine).pipe(
-      Effect.flatMap(S.decodeUnknownEffect(SidecarBootstrapStdoutEvent)),
+    const decoded = yield* decodeBootstrapStdoutLine(bootstrapLine).pipe(
       Effect.mapError((cause) => toTestError(`Failed to decode bootstrap stdout line: ${bootstrapLine}`, cause))
     );
 

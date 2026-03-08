@@ -45,6 +45,7 @@ import {
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as ClusterWorkflowEngine from "effect/unstable/cluster/ClusterWorkflowEngine";
@@ -69,7 +70,9 @@ import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import * as WorkflowProxy from "effect/unstable/workflow/WorkflowProxy";
 import * as WorkflowProxyServer from "effect/unstable/workflow/WorkflowProxyServer";
+import { encodeBootstrapStdoutLine, toBootstrapStdoutLine } from "./internal/BootstrapStdout.js";
 import { observeHttpRequest, provideSidecarObservability } from "./internal/SidecarObservability.js";
+import { loadSidecarOtlpConfig } from "./internal/SidecarRuntimeConfig.js";
 
 const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
@@ -176,6 +179,9 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
     version: S.String,
     otlpEnabled: S.Boolean,
     otlpBaseUrl: S.String,
+    otlpResourceAttributes: S.Record(S.String, S.String),
+    otlpServiceName: S.String,
+    otlpServiceVersion: S.String,
     devtoolsEnabled: S.Boolean,
     devtoolsUrl: S.String,
   },
@@ -421,20 +427,22 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
   config: SidecarRuntimeConfig,
   startedAt: DateTime.Utc
 ) {
-  const bootstrap = new SidecarBootstrapStdoutEvent({
-    type: "bootstrap",
+  const bootstrap = new SidecarBootstrap({
     sessionId: config.sessionId,
     version: config.version,
     host: config.host,
-    port: decodeNonNegativeInt(config.port),
+    port: config.port,
     baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
     pid: decodeNonNegativeInt(process.pid),
     status: "healthy",
-    startedAt: DateTime.toEpochMillis(startedAt),
+    startedAt,
   });
+  const encoded = yield* encodeBootstrapStdoutLine(toBootstrapStdoutLine(bootstrap)).pipe(
+    Effect.mapError((cause) => toRuntimeError("Failed to encode sidecar bootstrap stdout line.", 500, cause))
+  );
 
   yield* Effect.sync(() => {
-    process.stdout.write(`${encodeJson(encodeSidecarBootstrapStdoutEvent(bootstrap))}\n`);
+    process.stdout.write(`${encoded}\n`);
   });
 });
 
@@ -810,6 +818,7 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
     Config.withDefault("ws://127.0.0.1:34437")
   );
   const appDataDir = path.resolve(appDataDirInput);
+  const { otlpServiceName, otlpServiceVersion, otlpResourceAttributes } = yield* loadSidecarOtlpConfig(version);
 
   const config = new SidecarRuntimeConfig({
     host,
@@ -819,9 +828,13 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
     version,
     otlpEnabled,
     otlpBaseUrl,
+    otlpResourceAttributes,
+    otlpServiceName,
+    otlpServiceVersion,
     devtoolsEnabled,
     devtoolsUrl,
   });
+  const otlpResourceAttributesCount = A.length(R.toEntries(config.otlpResourceAttributes));
 
   yield* Effect.annotateCurrentSpan({
     session_id: config.sessionId,
@@ -829,6 +842,9 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
     port: config.port,
     otlp_enabled: config.otlpEnabled,
     otlp_base_url: config.otlpBaseUrl,
+    otlp_service_name: config.otlpServiceName,
+    otlp_service_version: config.otlpServiceVersion,
+    otlp_resource_attributes_count: otlpResourceAttributesCount,
     devtools_enabled: config.devtoolsEnabled,
     devtools_url: config.devtoolsUrl,
   });
@@ -841,6 +857,9 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
     app_data_dir: config.appDataDir,
     otlp_enabled: config.otlpEnabled,
     otlp_base_url: config.otlpBaseUrl,
+    otlp_service_name: config.otlpServiceName,
+    otlp_service_version: config.otlpServiceVersion,
+    otlp_resource_attributes: config.otlpResourceAttributes,
     devtools_enabled: config.devtoolsEnabled,
     devtools_url: config.devtoolsUrl,
   }).pipe(Effect.annotateLogs({ component: "sidecar-config" }));

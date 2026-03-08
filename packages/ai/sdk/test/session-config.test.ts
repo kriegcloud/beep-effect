@@ -99,6 +99,33 @@ test("SessionConfig uses session access token for env injection", async () => {
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
 
+test("SessionConfig does not pass through ambient process env", async () => {
+  const inheritedKey = "BEEP_SESSIONCONFIG_TEST_INHERITED_ENV";
+  const previousValue = process.env[inheritedKey];
+  process.env[inheritedKey] = "ambient-value";
+
+  try {
+    const layer = sessionConfigLayer({
+      ANTHROPIC_API_KEY: "test-key",
+    });
+
+    const program = Effect.gen(function* () {
+      const config = yield* SessionConfig;
+      return config;
+    }).pipe(Effect.provide(layer));
+
+    const config = await runEffect(program);
+    expect(config.defaults.env?.[inheritedKey]).toBeUndefined();
+    expect(config.defaults.env).toEqual({ ANTHROPIC_API_KEY: "test-key" });
+  } finally {
+    if (previousValue === undefined) {
+      delete process.env[inheritedKey];
+    } else {
+      process.env[inheritedKey] = previousValue;
+    }
+  }
+});
+
 test("SessionConfig reads CLOSE_DRAIN_TIMEOUT override", async () => {
   const layer = sessionConfigLayer({
     ANTHROPIC_API_KEY: "test-key",
