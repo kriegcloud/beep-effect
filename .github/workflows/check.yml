@@ -153,6 +153,7 @@ jobs:
         with:
           scan-args: |-
             --lockfile=bun.lock
+            --config=osv-scanner.toml
 
       - name: Dependency review
         if: github.event_name == 'pull_request'

@@ -81,7 +81,7 @@
     "agents:check:strict": "bun run beep agents check --strict",
     "agents:pathless:check": "bun run beep agents pathless-check",
     "audit:high:strict": "bun audit --audit-level=high",
-    "audit:high": "bun audit --audit-level=high --ignore=GHSA-35jh-r3h4-6jhm --ignore=GHSA-3ppc-4f35-3m26 --ignore=GHSA-8r9q-7v3j-jr4g --ignore=GHSA-w48q-cv73-mx4w --ignore=GHSA-3vhc-576x-3qv4 --ignore=GHSA-f67f-6cw9-8mq4 --ignore=GHSA-m732-5p4w-x69g",
+    "audit:high": "bash scripts/run-bun-audit.sh",
     "audit:high:ci": "bun run audit:high",
     "release": "bun run build && bun run test && bun run lint && changeset publish",
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
