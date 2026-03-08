@@ -348,11 +348,18 @@ const LocationFields = {
   type: OptionalTypeField,
 } as const;
 
+class LocationShape extends S.Class<LocationShape>($I`LocationShape`)(
+  LocationFields,
+  $I.annote("LocationShape", {
+    description: "Base location fields before PROV canonical location checks are applied.",
+  })
+) {}
+
 /**
  * PROV location value used by `atLocation`.
  */
 export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`Location`)(
-  S.Struct(LocationFields).check(
+  LocationShape.check(
     S.makeFilterGroup([
       makeRequiredTypeCheck<{
         readonly provType: TypeFieldValue;
@@ -375,13 +382,23 @@ export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`
 /**
  * PROV role value used by `hadRole`.
  */
-export class Role extends S.Class<Role, Brand.Brand<"ProvRole">>($I`Role`)(
-  S.Struct({
+class RoleShape extends S.Class<RoleShape>($I`RoleShape`)(
+  {
     id: S.OptionFromOptionalKey(ObjectRef),
     provType: S.OptionFromOptionalKey(RoleClassType),
     "prov:type": S.OptionFromOptionalKey(RoleClassType),
     type: OptionalTypeField,
-  }).check(
+  },
+  $I.annote("RoleShape", {
+    description: "Base role fields before PROV canonical role checks are applied.",
+  })
+) {}
+
+/**
+ * PROV role value used by `hadRole`.
+ */
+export class Role extends S.Class<Role, Brand.Brand<"ProvRole">>($I`Role`)(
+  RoleShape.check(
     S.makeFilterGroup([
       makeRequiredTypeCheck<{
         readonly provType: TypeFieldValue;
@@ -649,29 +666,41 @@ export type OneOrMoreRolesOrRefIds = typeof OneOrMoreRolesOrRefIds.Type;
 /**
  * Qualified influence between provenance nodes.
  */
+const InfluenceFields = {
+  id: S.OptionFromOptionalKey(ObjectRef),
+  influenced: S.OptionFromOptionalKey(
+    S.Union([
+      S.suspend(() => OneOrMoreActivitiesOrRefIds),
+      S.suspend(() => OneOrMoreEntitiesOrRefIds),
+      S.suspend(() => OneOrMoreAgentsOrRefIds),
+    ])
+  ),
+  influencer: S.OptionFromOptionalKey(
+    S.Union([
+      S.suspend(() => OneOrMoreActivitiesOrRefIds),
+      S.suspend(() => OneOrMoreEntitiesOrRefIds),
+      S.suspend(() => OneOrMoreAgentsOrRefIds),
+    ])
+  ),
+  entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
+  activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+  agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
+  hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+  hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+} as const;
+
+class InfluenceShape extends S.Class<InfluenceShape>($I`InfluenceShape`)(
+  InfluenceFields,
+  $I.annote("InfluenceShape", {
+    description: "Base qualified influence fields before generic influence invariants are enforced.",
+  })
+) {}
+
+/**
+ * Qualified influence between provenance nodes.
+ */
 export class Influence extends S.Class<Influence, Brand.Brand<"ProvInfluence">>($I`Influence`)(
-  S.Struct({
-    id: S.OptionFromOptionalKey(ObjectRef),
-    influenced: S.OptionFromOptionalKey(
-      S.Union([
-        S.suspend(() => OneOrMoreActivitiesOrRefIds),
-        S.suspend(() => OneOrMoreEntitiesOrRefIds),
-        S.suspend(() => OneOrMoreAgentsOrRefIds),
-      ])
-    ),
-    influencer: S.OptionFromOptionalKey(
-      S.Union([
-        S.suspend(() => OneOrMoreActivitiesOrRefIds),
-        S.suspend(() => OneOrMoreEntitiesOrRefIds),
-        S.suspend(() => OneOrMoreAgentsOrRefIds),
-      ])
-    ),
-    entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
-    activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
-    agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
-    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
-    hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
-  }).check(
+  InfluenceShape.check(
     S.makeFilterGroup(
       [
         S.makeFilter(
@@ -1227,7 +1256,12 @@ const EntityFields = {
   qualifiedDelegation: S.optionalKey(S.Never),
 } as const;
 
-const EntityShape = S.Struct(EntityFields);
+class EntityShape extends S.Class<EntityShape>($I`EntityShape`)(
+  EntityFields,
+  $I.annote("EntityShape", {
+    description: "Base PROV entity fields before entity invariants are applied.",
+  })
+) {}
 type EntityValue = typeof EntityShape.Type;
 const hasEntityGeneration = (value: unknown): value is Pick<EntityValue, "wasGeneratedBy"> =>
   P.isObject(value) && "wasGeneratedBy" in value;
@@ -1359,7 +1393,12 @@ const ActivityFields = {
   qualifiedDelegation: S.optionalKey(S.Never),
 } as const;
 
-const ActivityShape = S.Struct(ActivityFields);
+class ActivityShape extends S.Class<ActivityShape>($I`ActivityShape`)(
+  ActivityFields,
+  $I.annote("ActivityShape", {
+    description: "Base PROV activity fields before activity invariants are applied.",
+  })
+) {}
 type ActivityValue = typeof ActivityShape.Type;
 const hasActivityEndTime = (value: unknown): value is Pick<ActivityValue, "endedAtTime"> =>
   P.isObject(value) && "endedAtTime" in value;
@@ -1518,7 +1557,12 @@ const AgentFields = {
   qualifiedAssociation: S.optionalKey(S.Never),
 } as const;
 
-const AgentShape = S.Struct(AgentFields);
+class AgentShape extends S.Class<AgentShape>($I`AgentShape`)(
+  AgentFields,
+  $I.annote("AgentShape", {
+    description: "Base PROV agent fields before agent invariants are applied.",
+  })
+) {}
 type AgentValue = typeof AgentShape.Type;
 
 const agentChecks = S.makeFilterGroup<AgentValue>(

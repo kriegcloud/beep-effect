@@ -20,7 +20,11 @@ const $I = $RepoCliId.create("commands/Laws");
 const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 
 const NonEmptyString = S.String.check(
-  S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")
+  S.makeFilter((value) => value.length > 0 || "Expected non-empty string.", {
+    identifier: $I`NonEmptyStringCheck`,
+    title: "Non-Empty String",
+    description: "Ensures effect-law allowlist fields are populated with at least one character.",
+  })
 ).annotate(
   $I.annote("NonEmptyString", {
     description: "Non-empty string value used for effect-laws allowlist fields.",
@@ -28,7 +32,11 @@ const NonEmptyString = S.String.check(
 );
 
 const DateYmdString = S.String.check(
-  S.makeFilter((value) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) || "Expected YYYY-MM-DD date string format.")
+  S.makeFilter((value) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) || "Expected YYYY-MM-DD date string format.", {
+    identifier: $I`DateYmdStringCheck`,
+    title: "YYYY-MM-DD Date",
+    description: "Ensures allowlist expiration dates use the canonical calendar date format.",
+  })
 ).annotate(
   $I.annote("DateYmdString", {
     description: "Calendar date string in YYYY-MM-DD format for allowlist expiration.",

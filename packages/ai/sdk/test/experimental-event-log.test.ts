@@ -7,7 +7,7 @@ test("EventLog audit schema writes entries", async () => {
     Effect.gen(function* () {
       const log = yield* EventLog.EventLog;
       yield* log.write({
-        schema: EventLog.AuditEventSchema,
+        schema: EventLog.AuditEventLog,
         event: "tool_use",
         payload: {
           sessionId: "session-1",

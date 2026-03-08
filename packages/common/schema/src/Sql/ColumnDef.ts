@@ -60,7 +60,7 @@ export type AutoIncrement = typeof AutoIncrement.Type;
  */
 export const UniqueName = S.NonEmptyString.pipe(S.brand("UniqueName")).annotate(
   $I.annote(`UniqueName`, {
-    description: "Schema for unique column name.",
+    description: "Branded SQL column name used when uniqueness metadata needs a stable identifier.",
   })
 );
 

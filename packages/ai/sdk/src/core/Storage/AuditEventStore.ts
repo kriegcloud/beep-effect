@@ -5,7 +5,7 @@ import type * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { AuditEventSchema, layerAuditHandlers } from "../experimental/EventLog.js";
+import { AuditEventLog, layerAuditHandlers } from "../experimental/EventLog.js";
 import type { HookEvent } from "../Schema/Hooks.js";
 import type { CompactionStrategy } from "../Sync/index.js";
 import { Compaction, ConflictPolicy, compactEntries } from "../Sync/index.js";
@@ -124,7 +124,7 @@ const makeStore = Effect.gen(function* () {
       if (!enabled) return;
       yield* log
         .write({
-          schema: AuditEventSchema,
+          schema: AuditEventLog,
           event: input.event,
           payload: input.payload,
         })

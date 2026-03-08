@@ -114,22 +114,23 @@ export type QueryEventEncoded = typeof QueryEvent.Encoded;
 /**
  * @since 0.0.0
  */
-export const QuerySupervisorStatsSchema = S.Struct({
-  active: S.Number,
-  pending: S.Number,
-  concurrencyLimit: S.Number,
-  pendingQueueCapacity: S.Number,
-  pendingQueueStrategy: LiteralKit(["disabled", "suspend", "dropping", "sliding"]),
-}).pipe(S.annotate({ identifier: "QuerySupervisorStats" }));
+export class QuerySupervisorStats extends S.Class<QuerySupervisorStats>($I`QuerySupervisorStats`)(
+  {
+    active: S.Number,
+    pending: S.Number,
+    concurrencyLimit: S.Number,
+    pendingQueueCapacity: S.Number,
+    pendingQueueStrategy: LiteralKit(["disabled", "suspend", "dropping", "sliding"]),
+  },
+  {
+    identifier: "QuerySupervisorStats",
+  }
+) {}
 
 /**
  * @since 0.0.0
  */
-export type QuerySupervisorStats = typeof QuerySupervisorStatsSchema.Type;
-/**
- * @since 0.0.0
- */
-export type QuerySupervisorStatsEncoded = typeof QuerySupervisorStatsSchema.Encoded;
+export type QuerySupervisorStatsEncoded = typeof QuerySupervisorStats.Encoded;
 
 type PendingRequest = {
   readonly queryId: string;

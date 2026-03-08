@@ -22,7 +22,7 @@ import { layerKeyValueStore as layerEventJournalKeyValueStore } from "./EventJou
 import { SessionIndexStore } from "./SessionIndexStore.js";
 import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
-import { ChatEventGroup, ChatEventSchema, ChatEventTag } from "./StorageEventGroups.js";
+import { ChatEventGroup, ChatEventLog, ChatEventTag } from "./StorageEventGroups.js";
 
 const $I = $AiSdkId.create("core/Storage/ChatHistoryStore");
 
@@ -65,12 +65,15 @@ export type ChatHistorySyncOptions<R = never> = ChatHistoryJournaledOptions<R> &
 
 const defaultSource: ChatEventSource = "sdk";
 
-const ChatMeta = S.Struct({
-  lastSequence: S.Number,
-  updatedAt: S.DateTimeUtcFromMillis,
-});
-
-type ChatMeta = typeof ChatMeta.Type;
+class ChatMeta extends S.Class<ChatMeta>($I`ChatMeta`)(
+  {
+    lastSequence: S.Number,
+    updatedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("ChatMeta", {
+    description: "Stored chat session metadata tracking the last persisted sequence and update time.",
+  })
+) {}
 
 type SessionState = {
   readonly lastSequence: number;
@@ -460,7 +463,7 @@ const makeJournaledStore = (options?: {
       const event = makeEvent(sessionId, sequence, timestamp, source, message);
       yield* log
         .write({
-          schema: ChatEventSchema,
+          schema: ChatEventLog,
           event: ChatEventTag,
           payload: event,
         })
@@ -490,7 +493,7 @@ const makeJournaledStore = (options?: {
         (event) =>
           log
             .write({
-              schema: ChatEventSchema,
+              schema: ChatEventLog,
               event: ChatEventTag,
               payload: event,
             })

@@ -74,6 +74,8 @@ const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const encodeSidecarBootstrap = S.encodeSync(SidecarBootstrap);
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 const internalRunnerHost = (host: string): string => {
   if (host === "0.0.0.0") {
@@ -409,20 +411,19 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
   config: SidecarRuntimeConfig,
   startedAt: DateTime.Utc
 ) {
-  const bootstrap = {
-    type: "bootstrap" as const,
+  const bootstrap = new SidecarBootstrap({
     sessionId: config.sessionId,
     version: config.version,
     host: config.host,
     port: config.port,
     baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
     pid: process.pid,
-    status: "healthy" as const,
-    startedAt: DateTime.toEpochMillis(startedAt),
-  };
+    status: "healthy",
+    startedAt,
+  });
 
   yield* Effect.sync(() => {
-    process.stdout.write(`${JSON.stringify(bootstrap)}\n`);
+    process.stdout.write(`${encodeJson(encodeSidecarBootstrap(bootstrap))}\n`);
   });
 });
 

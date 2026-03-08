@@ -56,32 +56,35 @@ const toolUsePayloadFields = {
   durationMs: S.optionalKey(S.Number),
 } as const;
 
-const ToolUsePayloadStart = S.Struct({
-  ...toolUsePayloadFields,
-  status: S.tag("start"),
-}).annotate(
+class ToolUsePayloadStart extends S.Class<ToolUsePayloadStart>($I`ToolUsePayloadStart`)(
+  {
+    ...toolUsePayloadFields,
+    status: S.tag("start"),
+  },
   $I.annote("ToolUsePayloadStart", {
     description: "Payload emitted when a tool use starts.",
   })
-);
+) {}
 
-const ToolUsePayloadSuccess = S.Struct({
-  ...toolUsePayloadFields,
-  status: S.tag("success"),
-}).annotate(
+class ToolUsePayloadSuccess extends S.Class<ToolUsePayloadSuccess>($I`ToolUsePayloadSuccess`)(
+  {
+    ...toolUsePayloadFields,
+    status: S.tag("success"),
+  },
   $I.annote("ToolUsePayloadSuccess", {
     description: "Payload emitted when a tool use succeeds.",
   })
-);
+) {}
 
-const ToolUsePayloadFailure = S.Struct({
-  ...toolUsePayloadFields,
-  status: S.tag("failure"),
-}).annotate(
+class ToolUsePayloadFailure extends S.Class<ToolUsePayloadFailure>($I`ToolUsePayloadFailure`)(
+  {
+    ...toolUsePayloadFields,
+    status: S.tag("failure"),
+  },
   $I.annote("ToolUsePayloadFailure", {
     description: "Payload emitted when a tool use fails.",
   })
-);
+) {}
 
 const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
   S.toTaggedUnion("status"),
@@ -98,32 +101,39 @@ const permissionDecisionPayloadFields = {
   reason: S.optional(S.String),
 } as const;
 
-const PermissionDecisionPayloadAllow = S.Struct({
-  ...permissionDecisionPayloadFields,
-  decision: S.tag("allow"),
-}).annotate(
+class PermissionDecisionPayloadAllow extends S.Class<PermissionDecisionPayloadAllow>(
+  $I`PermissionDecisionPayloadAllow`
+)(
+  {
+    ...permissionDecisionPayloadFields,
+    decision: S.tag("allow"),
+  },
   $I.annote("PermissionDecisionPayloadAllow", {
     description: "Permission decision payload for allow outcomes.",
   })
-);
+) {}
 
-const PermissionDecisionPayloadDeny = S.Struct({
-  ...permissionDecisionPayloadFields,
-  decision: S.tag("deny"),
-}).annotate(
+class PermissionDecisionPayloadDeny extends S.Class<PermissionDecisionPayloadDeny>($I`PermissionDecisionPayloadDeny`)(
+  {
+    ...permissionDecisionPayloadFields,
+    decision: S.tag("deny"),
+  },
   $I.annote("PermissionDecisionPayloadDeny", {
     description: "Permission decision payload for deny outcomes.",
   })
-);
+) {}
 
-const PermissionDecisionPayloadPrompt = S.Struct({
-  ...permissionDecisionPayloadFields,
-  decision: S.tag("prompt"),
-}).annotate(
+class PermissionDecisionPayloadPrompt extends S.Class<PermissionDecisionPayloadPrompt>(
+  $I`PermissionDecisionPayloadPrompt`
+)(
+  {
+    ...permissionDecisionPayloadFields,
+    decision: S.tag("prompt"),
+  },
   $I.annote("PermissionDecisionPayloadPrompt", {
     description: "Permission decision payload for prompt outcomes.",
   })
-);
+) {}
 
 const PermissionDecisionPayload = S.Union([
   PermissionDecisionPayloadAllow,
@@ -144,23 +154,25 @@ const hookEventPayloadFields = {
   toolUseId: S.optional(S.String),
 } as const;
 
-const HookEventPayloadSuccess = S.Struct({
-  ...hookEventPayloadFields,
-  outcome: S.tag("success"),
-}).annotate(
+class HookEventPayloadSuccess extends S.Class<HookEventPayloadSuccess>($I`HookEventPayloadSuccess`)(
+  {
+    ...hookEventPayloadFields,
+    outcome: S.tag("success"),
+  },
   $I.annote("HookEventPayloadSuccess", {
     description: "Hook event payload with successful outcome.",
   })
-);
+) {}
 
-const HookEventPayloadFailure = S.Struct({
-  ...hookEventPayloadFields,
-  outcome: S.tag("failure"),
-}).annotate(
+class HookEventPayloadFailure extends S.Class<HookEventPayloadFailure>($I`HookEventPayloadFailure`)(
+  {
+    ...hookEventPayloadFields,
+    outcome: S.tag("failure"),
+  },
   $I.annote("HookEventPayloadFailure", {
     description: "Hook event payload with failure outcome.",
   })
-);
+) {}
 
 const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
   S.toTaggedUnion("outcome"),
@@ -180,32 +192,35 @@ const syncConflictPayloadFields = {
   resolvedEntryId: S.optional(S.String),
 } as const;
 
-const SyncConflictPayloadAccept = S.Struct({
-  ...syncConflictPayloadFields,
-  resolution: S.tag("accept"),
-}).annotate(
+class SyncConflictPayloadAccept extends S.Class<SyncConflictPayloadAccept>($I`SyncConflictPayloadAccept`)(
+  {
+    ...syncConflictPayloadFields,
+    resolution: S.tag("accept"),
+  },
   $I.annote("SyncConflictPayloadAccept", {
     description: "Conflict payload for accept resolution.",
   })
-);
+) {}
 
-const SyncConflictPayloadMerge = S.Struct({
-  ...syncConflictPayloadFields,
-  resolution: S.tag("merge"),
-}).pipe(
-  $I.annoteSchema("SyncConflictPayloadMerge", {
+class SyncConflictPayloadMerge extends S.Class<SyncConflictPayloadMerge>($I`SyncConflictPayloadMerge`)(
+  {
+    ...syncConflictPayloadFields,
+    resolution: S.tag("merge"),
+  },
+  $I.annote("SyncConflictPayloadMerge", {
     description: "Conflict payload for merge resolution.",
   })
-);
+) {}
 
-const SyncConflictPayloadReject = S.Struct({
-  ...syncConflictPayloadFields,
-  resolution: S.tag("reject"),
-}).pipe(
-  $I.annoteSchema("SyncConflictPayloadReject", {
+class SyncConflictPayloadReject extends S.Class<SyncConflictPayloadReject>($I`SyncConflictPayloadReject`)(
+  {
+    ...syncConflictPayloadFields,
+    resolution: S.tag("reject"),
+  },
+  $I.annote("SyncConflictPayloadReject", {
     description: "Conflict payload for reject resolution.",
   })
-);
+) {}
 
 const SyncConflictPayload = S.Union([
   SyncConflictPayloadAccept,
@@ -270,7 +285,7 @@ export const AuditEventGroup = EventGroupModule.empty
 /**
  * @since 0.0.0
  */
-export const AuditEventSchema = EventLogModule.schema(AuditEventGroup);
+export const AuditEventLog = EventLogModule.schema(AuditEventGroup);
 
 /**
  * Default no-op handlers for audit events.
@@ -280,7 +295,7 @@ export const AuditEventSchema = EventLogModule.schema(AuditEventGroup);
  * const program = Effect.gen(function*() {
  *   const log = yield* EventLog
  *   yield* log.write({
- *     schema: AuditEventSchema,
+ *     schema: AuditEventLog,
  *     event: "tool_use",
  *     payload: {
  *       sessionId: "session-1",

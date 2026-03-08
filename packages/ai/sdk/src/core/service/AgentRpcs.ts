@@ -1,15 +1,18 @@
 import * as S from "effect/Schema";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { AgentSdkError } from "../Errors.js";
-import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js";
+import { QuerySupervisorStats } from "../QuerySupervisor.js";
 import * as SdkSchema from "../Schema/index.js";
 import {
   QueryInput,
   QueryResultOutput,
+  ResumeSessionInput,
   SessionCreateInput,
   SessionCreateOutput,
   SessionInfo,
-  Tenant,
+  SessionSelection,
+  SessionSendRequest,
+  SessionTenantScope,
 } from "../Schema/Service.js";
 import { SessionServiceError } from "./SessionErrors.js";
 
@@ -43,7 +46,7 @@ export class AgentRpcs extends RpcGroup.make(
     error: AgentServiceError,
   }),
   Rpc.make("Stats", {
-    success: QuerySupervisorStatsSchema,
+    success: QuerySupervisorStats,
   }),
   Rpc.make("InterruptAll", {
     success: S.Void,
@@ -67,44 +70,28 @@ export class AgentRpcs extends RpcGroup.make(
     error: SessionServiceError,
   }),
   Rpc.make("ResumeSession", {
-    payload: S.Struct({
-      sessionId: S.String,
-      options: SdkSchema.SDKSessionOptions,
-      tenant: S.optional(Tenant),
-    }),
+    payload: ResumeSessionInput,
     success: SessionCreateOutput,
     error: SessionServiceError,
   }),
   Rpc.make("SendSession", {
-    payload: S.Struct({
-      sessionId: S.String,
-      message: S.Union([S.String, SdkSchema.SDKUserMessage]),
-      tenant: S.optional(Tenant),
-    }),
+    payload: SessionSendRequest,
     success: S.Void,
     error: SessionServiceError,
   }),
   Rpc.make("SessionStream", {
-    payload: S.Struct({
-      sessionId: S.String,
-      tenant: S.optional(Tenant),
-    }),
+    payload: SessionSelection,
     success: SdkSchema.SDKMessage,
     error: SessionServiceError,
     stream: true,
   }),
   Rpc.make("CloseSession", {
-    payload: S.Struct({
-      sessionId: S.String,
-      tenant: S.optional(Tenant),
-    }),
+    payload: SessionSelection,
     success: S.Void,
     error: SessionServiceError,
   }),
   Rpc.make("ListSessionsByTenant", {
-    payload: S.Struct({
-      tenant: S.optional(Tenant),
-    }),
+    payload: SessionTenantScope,
     success: S.Array(SessionInfo),
     error: SessionServiceError,
   }),

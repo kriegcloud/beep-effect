@@ -16,7 +16,7 @@ export const PermissionMode = LiteralKit([
   "dontAsk",
 ]).annotate(
   $I.annote("PermissionMode", {
-    description: "Schema for PermissionMode.",
+    description: "Supported SDK permission handling modes.",
   })
 );
 
@@ -34,7 +34,7 @@ export type PermissionModeEncoded = typeof PermissionMode.Encoded;
  */
 export const PermissionBehavior = LiteralKit(["allow", "deny", "ask"]).annotate(
   $I.annote("PermissionBehavior", {
-    description: "Schema for PermissionBehavior.",
+    description: "Allowed outcomes for tool permission evaluation.",
   })
 );
 
@@ -58,7 +58,7 @@ export const PermissionUpdateDestination = LiteralKit([
   "cliArg",
 ]).annotate(
   $I.annote("PermissionUpdateDestination", {
-    description: "Schema for PermissionUpdateDestination.",
+    description: "Configuration scopes that permission updates can target.",
   })
 );
 
@@ -74,61 +74,108 @@ export type PermissionUpdateDestinationEncoded = typeof PermissionUpdateDestinat
 /**
  * @since 0.0.0
  */
-export const PermissionRuleValue = S.Struct({
-  toolName: S.String,
-  ruleContent: S.optional(S.String),
-}).annotate(
+export class PermissionRuleValue extends S.Class<PermissionRuleValue>($I`PermissionRuleValue`)(
+  {
+    toolName: S.String,
+    ruleContent: S.optional(S.String),
+  },
   $I.annote("PermissionRuleValue", {
-    description: "Schema for PermissionRuleValue.",
+    description: "Single permission rule entry keyed by tool name and optional rule content.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PermissionRuleValue = typeof PermissionRuleValue.Type;
+) {}
 /**
  * @since 0.0.0
  */
 export type PermissionRuleValueEncoded = typeof PermissionRuleValue.Encoded;
 
-const RulesPayload = S.Struct({
-  rules: S.Array(PermissionRuleValue),
-  behavior: PermissionBehavior,
-  destination: PermissionUpdateDestination,
-});
+class RulesPayload extends S.Class<RulesPayload>($I`RulesPayload`)(
+  {
+    rules: S.Array(PermissionRuleValue),
+    behavior: PermissionBehavior,
+    destination: PermissionUpdateDestination,
+  },
+  $I.annote("RulesPayload", {
+    description: "Shared rule update payload for permission configuration mutations.",
+  })
+) {}
+
+class PermissionUpdateAddRules extends S.Class<PermissionUpdateAddRules>($I`PermissionUpdateAddRules`)(
+  {
+    type: S.Literal("addRules"),
+    ...RulesPayload.fields,
+  },
+  $I.annote("PermissionUpdateAddRules", {
+    description: "Permission update that appends new rules.",
+  })
+) {}
+
+class PermissionUpdateReplaceRules extends S.Class<PermissionUpdateReplaceRules>($I`PermissionUpdateReplaceRules`)(
+  {
+    type: S.Literal("replaceRules"),
+    ...RulesPayload.fields,
+  },
+  $I.annote("PermissionUpdateReplaceRules", {
+    description: "Permission update that replaces the current rule set.",
+  })
+) {}
+
+class PermissionUpdateRemoveRules extends S.Class<PermissionUpdateRemoveRules>($I`PermissionUpdateRemoveRules`)(
+  {
+    type: S.Literal("removeRules"),
+    ...RulesPayload.fields,
+  },
+  $I.annote("PermissionUpdateRemoveRules", {
+    description: "Permission update that removes matching rules.",
+  })
+) {}
+
+class PermissionUpdateSetMode extends S.Class<PermissionUpdateSetMode>($I`PermissionUpdateSetMode`)(
+  {
+    type: S.Literal("setMode"),
+    mode: PermissionMode,
+    destination: PermissionUpdateDestination,
+  },
+  $I.annote("PermissionUpdateSetMode", {
+    description: "Permission update that changes the effective permission mode.",
+  })
+) {}
+
+class PermissionUpdateAddDirectories extends S.Class<PermissionUpdateAddDirectories>(
+  $I`PermissionUpdateAddDirectories`
+)(
+  {
+    type: S.Literal("addDirectories"),
+    directories: S.Array(S.String),
+    destination: PermissionUpdateDestination,
+  },
+  $I.annote("PermissionUpdateAddDirectories", {
+    description: "Permission update that adds allowed directories.",
+  })
+) {}
+
+class PermissionUpdateRemoveDirectories extends S.Class<PermissionUpdateRemoveDirectories>(
+  $I`PermissionUpdateRemoveDirectories`
+)(
+  {
+    type: S.Literal("removeDirectories"),
+    directories: S.Array(S.String),
+    destination: PermissionUpdateDestination,
+  },
+  $I.annote("PermissionUpdateRemoveDirectories", {
+    description: "Permission update that removes previously configured directories.",
+  })
+) {}
 
 /**
  * @since 0.0.0
  */
 export const PermissionUpdate = S.Union([
-  S.Struct({
-    type: S.Literal("addRules"),
-    ...RulesPayload.fields,
-  }),
-  S.Struct({
-    type: S.Literal("replaceRules"),
-    ...RulesPayload.fields,
-  }),
-  S.Struct({
-    type: S.Literal("removeRules"),
-    ...RulesPayload.fields,
-  }),
-  S.Struct({
-    type: S.Literal("setMode"),
-    mode: PermissionMode,
-    destination: PermissionUpdateDestination,
-  }),
-  S.Struct({
-    type: S.Literal("addDirectories"),
-    directories: S.Array(S.String),
-    destination: PermissionUpdateDestination,
-  }),
-  S.Struct({
-    type: S.Literal("removeDirectories"),
-    directories: S.Array(S.String),
-    destination: PermissionUpdateDestination,
-  }),
+  PermissionUpdateAddRules,
+  PermissionUpdateReplaceRules,
+  PermissionUpdateRemoveRules,
+  PermissionUpdateSetMode,
+  PermissionUpdateAddDirectories,
+  PermissionUpdateRemoveDirectories,
 ]).pipe(
   S.toTaggedUnion("type"),
   S.annotate(
@@ -150,20 +197,31 @@ export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded;
 /**
  * @since 0.0.0
  */
-export const PermissionResult = S.Union([
-  S.Struct({
+class PermissionResultAllow extends S.Class<PermissionResultAllow>($I`PermissionResultAllow`)(
+  {
     behavior: S.Literal("allow"),
     updatedInput: S.optional(S.Record(S.String, S.Unknown)),
     updatedPermissions: S.optional(S.Array(PermissionUpdate)),
     toolUseID: S.optional(S.String),
-  }),
-  S.Struct({
+  },
+  $I.annote("PermissionResultAllow", {
+    description: "Permission request outcome that allows tool execution.",
+  })
+) {}
+
+class PermissionResultDeny extends S.Class<PermissionResultDeny>($I`PermissionResultDeny`)(
+  {
     behavior: S.Literal("deny"),
     message: S.String,
     interrupt: S.optional(S.Boolean),
     toolUseID: S.optional(S.String),
-  }),
-]).pipe(
+  },
+  $I.annote("PermissionResultDeny", {
+    description: "Permission request outcome that denies tool execution.",
+  })
+) {}
+
+export const PermissionResult = S.Union([PermissionResultAllow, PermissionResultDeny]).pipe(
   S.toTaggedUnion("behavior"),
   S.annotate(
     $I.annote("PermissionResult", {
@@ -181,33 +239,46 @@ export type PermissionResult = typeof PermissionResult.Type;
  */
 export type PermissionResultEncoded = typeof PermissionResult.Encoded;
 
-/**
- * @since 0.0.0
- */
-export const PermissionRequestHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("PermissionRequest"),
-  decision: S.Union([
-    S.Struct({
-      behavior: S.Literal("allow"),
-      updatedInput: S.optional(S.Record(S.String, S.Unknown)),
-      updatedPermissions: S.optional(S.Array(PermissionUpdate)),
-    }),
-    S.Struct({
-      behavior: S.Literal("deny"),
-      message: S.optional(S.String),
-      interrupt: S.optional(S.Boolean),
-    }),
-  ]),
-}).annotate(
-  $I.annote("PermissionRequestHookSpecificOutput", {
-    description: "Schema for PermissionRequestHookSpecificOutput.",
+class PermissionRequestHookDecisionAllow extends S.Class<PermissionRequestHookDecisionAllow>(
+  $I`PermissionRequestHookDecisionAllow`
+)(
+  {
+    behavior: S.Literal("allow"),
+    updatedInput: S.optional(S.Record(S.String, S.Unknown)),
+    updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+  },
+  $I.annote("PermissionRequestHookDecisionAllow", {
+    description: "Permission-request hook decision that allows execution and may rewrite input or permissions.",
   })
-);
+) {}
+
+class PermissionRequestHookDecisionDeny extends S.Class<PermissionRequestHookDecisionDeny>(
+  $I`PermissionRequestHookDecisionDeny`
+)(
+  {
+    behavior: S.Literal("deny"),
+    message: S.optional(S.String),
+    interrupt: S.optional(S.Boolean),
+  },
+  $I.annote("PermissionRequestHookDecisionDeny", {
+    description: "Permission-request hook decision that denies execution and may include a message or interrupt hint.",
+  })
+) {}
 
 /**
  * @since 0.0.0
  */
-export type PermissionRequestHookSpecificOutput = typeof PermissionRequestHookSpecificOutput.Type;
+export class PermissionRequestHookSpecificOutput extends S.Class<PermissionRequestHookSpecificOutput>(
+  $I`PermissionRequestHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("PermissionRequest"),
+    decision: S.Union([PermissionRequestHookDecisionAllow, PermissionRequestHookDecisionDeny]),
+  },
+  $I.annote("PermissionRequestHookSpecificOutput", {
+    description: "Hook-specific response payload for PermissionRequest hooks.",
+  })
+) {}
 /**
  * @since 0.0.0
  */
@@ -233,7 +304,7 @@ export const CanUseTool = S.declare(
   ) => Promise<PermissionResult> => true
 ).annotate(
   $I.annote("CanUseTool", {
-    description: "Schema for CanUseTool.",
+    description: "Permission callback function that decides whether a tool invocation may proceed.",
     jsonSchema: {},
   })
 );

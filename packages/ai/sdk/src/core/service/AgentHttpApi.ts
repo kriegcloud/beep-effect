@@ -1,15 +1,17 @@
 import * as S from "effect/Schema";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
-import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js";
+import { QuerySupervisorStats } from "../QuerySupervisor.js";
 import * as SdkSchema from "../Schema/index.js";
 import {
   QueryInput,
   QueryResultOutput,
+  QueryStreamQuery,
   SessionCreateInput,
   SessionCreateOutput,
   SessionInfo,
+  SessionPathParams,
   SessionSendInput,
-  Tenant,
+  SessionTenantScope,
 } from "../Schema/Service.js";
 import { AgentServiceError } from "./AgentRpcs.js";
 import { SessionServiceError } from "./SessionErrors.js";
@@ -24,7 +26,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   )
   .add(
     HttpApiEndpoint.get("stats", "/stats", {
-      success: QuerySupervisorStatsSchema,
+      success: QuerySupervisorStats,
     })
   )
   .add(
@@ -53,7 +55,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   )
   .add(
     HttpApiEndpoint.get("stream", "/stream", {
-      query: S.Struct({ prompt: S.String }),
+      query: QueryStreamQuery,
       success: S.String,
       error: AgentServiceError,
     })
@@ -74,22 +76,22 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   )
   .add(
     HttpApiEndpoint.get("listSessions", "/sessions", {
-      query: S.Struct({ tenant: S.optional(Tenant) }),
+      query: SessionTenantScope,
       success: S.Array(SessionInfo),
       error: SessionServiceError,
     })
   )
   .add(
     HttpApiEndpoint.get("getSession", "/sessions/:id", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
+      params: SessionPathParams,
+      query: SessionTenantScope,
       success: SessionInfo,
       error: SessionServiceError,
     })
   )
   .add(
     HttpApiEndpoint.post("sendSession", "/sessions/:id/send", {
-      params: S.Struct({ id: S.String }),
+      params: SessionPathParams,
       payload: SessionSendInput,
       success: HttpApiSchema.NoContent,
       error: SessionServiceError,
@@ -97,16 +99,16 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   )
   .add(
     HttpApiEndpoint.get("streamSession", "/sessions/:id/stream", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
+      params: SessionPathParams,
+      query: SessionTenantScope,
       success: S.String,
       error: SessionServiceError,
     })
   )
   .add(
     HttpApiEndpoint.delete("closeSession", "/sessions/:id", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
+      params: SessionPathParams,
+      query: SessionTenantScope,
       success: HttpApiSchema.NoContent,
       error: SessionServiceError,
     })

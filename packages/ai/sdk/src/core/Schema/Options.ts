@@ -15,7 +15,7 @@ const $I = $AiSdkId.create("core/Schema/Options");
  */
 export const SettingSource = LiteralKit(["user", "project", "local"]).annotate(
   $I.annote("SettingSource", {
-    description: "Schema for SettingSource.",
+    description: "Origin marker indicating whether a setting came from user, project, or local configuration.",
   })
 );
 
@@ -28,18 +28,25 @@ export type SettingSource = typeof SettingSource.Type;
  */
 export type SettingSourceEncoded = typeof SettingSource.Encoded;
 
-const SystemPromptPreset = S.Struct({
-  type: S.Literal("preset"),
-  preset: S.Literal("claude_code"),
-  append: S.optional(S.String),
-});
+class SystemPromptPresetData extends S.Class<SystemPromptPresetData>($I`SystemPromptPreset`)(
+  {
+    type: S.Literal("preset"),
+    preset: S.Literal("claude_code"),
+    append: S.optional(S.String),
+  },
+  $I.annote("SystemPromptPreset", {
+    description: "Named system prompt preset configuration with optional appended instructions.",
+  })
+) {}
+
+const SystemPromptPreset = SystemPromptPresetData;
 
 /**
  * @since 0.0.0
  */
 export const SystemPrompt = S.Union([S.String, SystemPromptPreset]).annotate(
   $I.annote("SystemPrompt", {
-    description: "Schema for SystemPrompt.",
+    description: "System prompt configuration supplied as raw text or a named preset with appended instructions.",
   })
 );
 
@@ -52,17 +59,24 @@ export type SystemPrompt = typeof SystemPrompt.Type;
  */
 export type SystemPromptEncoded = typeof SystemPrompt.Encoded;
 
-const ToolsPreset = S.Struct({
-  type: S.Literal("preset"),
-  preset: S.Literal("claude_code"),
-});
+class ToolsPresetData extends S.Class<ToolsPresetData>($I`ToolsPreset`)(
+  {
+    type: S.Literal("preset"),
+    preset: S.Literal("claude_code"),
+  },
+  $I.annote("ToolsPreset", {
+    description: "Named tool preset configuration selecting the built-in Claude Code tool bundle.",
+  })
+) {}
+
+const ToolsPreset = ToolsPresetData;
 
 /**
  * @since 0.0.0
  */
 export const ToolsConfig = S.Union([S.Array(S.String), ToolsPreset]).annotate(
   $I.annote("ToolsConfig", {
-    description: "Schema for ToolsConfig.",
+    description: "Tool selection configuration supplied as explicit tool names or a built-in preset.",
   })
 );
 
@@ -78,14 +92,17 @@ export type ToolsConfigEncoded = typeof ToolsConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const JsonSchemaOutputFormat = S.Struct({
-  type: S.Literal("json_schema"),
-  schema: S.Record(S.String, S.Unknown),
-}).annotate(
+class JsonSchemaOutputFormatData extends S.Class<JsonSchemaOutputFormatData>($I`JsonSchemaOutputFormat`)(
+  {
+    type: S.Literal("json_schema"),
+    schema: S.Record(S.String, S.Unknown),
+  },
   $I.annote("JsonSchemaOutputFormat", {
-    description: "Schema for JsonSchemaOutputFormat.",
+    description: "Output format requesting responses constrained by a caller-provided JSON schema.",
   })
-);
+) {}
+
+export const JsonSchemaOutputFormat = JsonSchemaOutputFormatData;
 
 /**
  * @since 0.0.0
@@ -101,7 +118,7 @@ export type JsonSchemaOutputFormatEncoded = typeof JsonSchemaOutputFormat.Encode
  */
 export const OutputFormat = JsonSchemaOutputFormat.annotate(
   $I.annote("OutputFormat", {
-    description: "Schema for OutputFormat.",
+    description: "Requested response format for SDK output, currently backed by JSON-schema constraints.",
   })
 );
 
@@ -117,21 +134,24 @@ export type OutputFormatEncoded = typeof OutputFormat.Encoded;
 /**
  * @since 0.0.0
  */
-export const AgentDefinition = S.Struct({
-  description: S.String,
-  tools: S.optional(S.Array(S.String)),
-  disallowedTools: S.optional(S.Array(S.String)),
-  prompt: S.String,
-  model: S.optional(LiteralKit(["sonnet", "opus", "haiku", "inherit"])),
-  mcpServers: S.optional(S.Union([S.Array(S.String), S.Record(S.String, McpServerConfigForProcessTransport)])),
-  criticalSystemReminder_EXPERIMENTAL: S.optional(S.String),
-  skills: S.optional(S.Array(S.String)),
-  maxTurns: S.optional(S.Number),
-}).annotate(
+class AgentDefinitionData extends S.Class<AgentDefinitionData>($I`AgentDefinition`)(
+  {
+    description: S.String,
+    tools: S.optional(S.Array(S.String)),
+    disallowedTools: S.optional(S.Array(S.String)),
+    prompt: S.String,
+    model: S.optional(LiteralKit(["sonnet", "opus", "haiku", "inherit"])),
+    mcpServers: S.optional(S.Union([S.Array(S.String), S.Record(S.String, McpServerConfigForProcessTransport)])),
+    criticalSystemReminder_EXPERIMENTAL: S.optional(S.String),
+    skills: S.optional(S.Array(S.String)),
+    maxTurns: S.optional(S.Number),
+  },
   $I.annote("AgentDefinition", {
-    description: "Schema for AgentDefinition.",
+    description: "Named agent configuration including prompt, tool policy, model selection, and MCP servers.",
   })
-);
+) {}
+
+export const AgentDefinition = AgentDefinitionData;
 
 /**
  * @since 0.0.0
@@ -147,7 +167,7 @@ export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded;
  */
 export const AgentMcpServerSpec = S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]).annotate(
   $I.annote("AgentMcpServerSpec", {
-    description: "Schema for AgentMcpServerSpec.",
+    description: "Agent-local MCP server selection expressed as names or inline process transport definitions.",
   })
 );
 
@@ -162,9 +182,39 @@ export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded;
 
 const HookMap = S.Record(S.optionalKey(HookEvent), S.UndefinedOr(S.Array(HookCallbackMatcher)));
 
-const ThinkingConfigAdaptive = S.Struct({ type: S.Literal("adaptive") });
-const ThinkingConfigEnabled = S.Struct({ type: S.Literal("enabled"), budgetTokens: S.Number });
-const ThinkingConfigDisabled = S.Struct({ type: S.Literal("disabled") });
+class ThinkingConfigAdaptiveData extends S.Class<ThinkingConfigAdaptiveData>($I`ThinkingConfigAdaptive`)(
+  {
+    type: S.Literal("adaptive"),
+  },
+  $I.annote("ThinkingConfigAdaptive", {
+    description: "Thinking configuration that lets the SDK choose the reasoning budget adaptively.",
+  })
+) {}
+
+const ThinkingConfigAdaptive = ThinkingConfigAdaptiveData;
+
+class ThinkingConfigEnabledData extends S.Class<ThinkingConfigEnabledData>($I`ThinkingConfigEnabled`)(
+  {
+    type: S.Literal("enabled"),
+    budgetTokens: S.Number,
+  },
+  $I.annote("ThinkingConfigEnabled", {
+    description: "Thinking configuration with an explicit reasoning token budget.",
+  })
+) {}
+
+const ThinkingConfigEnabled = ThinkingConfigEnabledData;
+
+class ThinkingConfigDisabledData extends S.Class<ThinkingConfigDisabledData>($I`ThinkingConfigDisabled`)(
+  {
+    type: S.Literal("disabled"),
+  },
+  $I.annote("ThinkingConfigDisabled", {
+    description: "Thinking configuration that disables extra reasoning effort.",
+  })
+) {}
+
+const ThinkingConfigDisabled = ThinkingConfigDisabledData;
 
 const ThinkingConfig = S.Union([ThinkingConfigAdaptive, ThinkingConfigEnabled, ThinkingConfigDisabled]).pipe(
   S.toTaggedUnion("type"),
@@ -178,56 +228,60 @@ const ThinkingConfig = S.Union([ThinkingConfigAdaptive, ThinkingConfigEnabled, T
 /**
  * @since 0.0.0
  */
-export const Options = S.Struct({
-  abortController: S.optional(AbortController),
-  additionalDirectories: S.optional(S.Array(S.String)),
-  agent: S.optional(S.String),
-  agents: S.optional(S.Record(S.String, AgentDefinition)),
-  allowDangerouslySkipPermissions: S.optional(S.Boolean),
-  allowedTools: S.optional(S.Array(S.String)),
-  betas: S.optional(S.Array(SdkBeta)),
-  canUseTool: S.optional(CanUseTool),
-  continue: S.optional(S.Boolean),
-  cwd: S.optional(S.String),
-  debug: S.optional(S.Boolean),
-  debugFile: S.optional(FilePath),
-  disallowedTools: S.optional(S.Array(S.String)),
-  effort: S.optional(LiteralKit(["low", "medium", "high", "max"])),
-  enableFileCheckpointing: S.optional(S.Boolean),
-  env: S.optional(S.Record(S.String, S.Union([S.String, S.Undefined]))),
-  executable: S.optional(LiteralKit(["bun", "deno", "node"])),
-  executableArgs: S.optional(S.Array(S.String)),
-  extraArgs: S.optional(S.Record(S.String, S.Union([S.String, S.Null]))),
-  fallbackModel: S.optional(S.String),
-  forkSession: S.optional(S.Boolean),
-  hooks: S.optional(HookMap),
-  includePartialMessages: S.optional(S.Boolean),
-  maxBudgetUsd: S.optional(S.Number),
-  maxTurns: S.optional(S.Number),
-  mcpServers: S.optional(S.Record(S.String, McpServerConfig)),
-  model: S.optional(S.String),
-  outputFormat: S.optional(OutputFormat),
-  pathToClaudeCodeExecutable: S.optional(FilePath),
-  permissionMode: S.optional(PermissionMode),
-  permissionPromptToolName: S.optional(S.String),
-  persistSession: S.optional(S.Boolean),
-  plugins: S.optional(S.Array(SdkPluginConfig)),
-  resume: S.optional(S.String),
-  resumeSessionAt: S.optional(S.String),
-  sandbox: S.optional(SandboxSettings),
-  sessionId: S.optional(S.String),
-  settingSources: S.optional(S.Array(SettingSource)),
-  stderr: S.optional(StderrCallback),
-  strictMcpConfig: S.optional(S.Boolean),
-  systemPrompt: S.optional(SystemPrompt),
-  thinking: S.optional(ThinkingConfig),
-  tools: S.optional(ToolsConfig),
-  spawnClaudeCodeProcess: S.optional(SpawnClaudeCodeProcess),
-}).annotate(
+class OptionsData extends S.Class<OptionsData>($I`Options`)(
+  {
+    abortController: S.optional(AbortController),
+    additionalDirectories: S.optional(S.Array(S.String)),
+    agent: S.optional(S.String),
+    agents: S.optional(S.Record(S.String, AgentDefinition)),
+    allowDangerouslySkipPermissions: S.optional(S.Boolean),
+    allowedTools: S.optional(S.Array(S.String)),
+    betas: S.optional(S.Array(SdkBeta)),
+    canUseTool: S.optional(CanUseTool),
+    continue: S.optional(S.Boolean),
+    cwd: S.optional(S.String),
+    debug: S.optional(S.Boolean),
+    debugFile: S.optional(FilePath),
+    disallowedTools: S.optional(S.Array(S.String)),
+    effort: S.optional(LiteralKit(["low", "medium", "high", "max"])),
+    enableFileCheckpointing: S.optional(S.Boolean),
+    env: S.optional(S.Record(S.String, S.Union([S.String, S.Undefined]))),
+    executable: S.optional(LiteralKit(["bun", "deno", "node"])),
+    executableArgs: S.optional(S.Array(S.String)),
+    extraArgs: S.optional(S.Record(S.String, S.Union([S.String, S.Null]))),
+    fallbackModel: S.optional(S.String),
+    forkSession: S.optional(S.Boolean),
+    hooks: S.optional(HookMap),
+    includePartialMessages: S.optional(S.Boolean),
+    maxBudgetUsd: S.optional(S.Number),
+    maxTurns: S.optional(S.Number),
+    mcpServers: S.optional(S.Record(S.String, McpServerConfig)),
+    model: S.optional(S.String),
+    outputFormat: S.optional(OutputFormat),
+    pathToClaudeCodeExecutable: S.optional(FilePath),
+    permissionMode: S.optional(PermissionMode),
+    permissionPromptToolName: S.optional(S.String),
+    persistSession: S.optional(S.Boolean),
+    plugins: S.optional(S.Array(SdkPluginConfig)),
+    resume: S.optional(S.String),
+    resumeSessionAt: S.optional(S.String),
+    sandbox: S.optional(SandboxSettings),
+    sessionId: S.optional(S.String),
+    settingSources: S.optional(S.Array(SettingSource)),
+    stderr: S.optional(StderrCallback),
+    strictMcpConfig: S.optional(S.Boolean),
+    systemPrompt: S.optional(SystemPrompt),
+    thinking: S.optional(ThinkingConfig),
+    tools: S.optional(ToolsConfig),
+    spawnClaudeCodeProcess: S.optional(SpawnClaudeCodeProcess),
+  },
   $I.annote("Options", {
-    description: "Schema for Options.",
+    description:
+      "Top-level SDK runtime options covering tools, model selection, hooks, sandboxing, and session behavior.",
   })
-);
+) {}
+
+export const Options = OptionsData;
 
 /**
  * @since 0.0.0
