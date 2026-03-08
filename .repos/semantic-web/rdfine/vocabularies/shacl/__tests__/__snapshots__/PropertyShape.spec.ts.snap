@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PropertyShape initializer initializes a single element array as an RDF List 1`] = `
+Object {
+  "@context": Object {
+    "id": "@id",
+    "path": Object {
+      "@container": "@list",
+      "@id": "http://www.w3.org/ns/shacl#path",
+    },
+    "type": "@type",
+  },
+  "id": "http://example.com/shape",
+  "path": Array [
+    Object {
+      "id": "http://www.w3.org/2000/01/rdf-schema#label",
+    },
+  ],
+  "type": Array [
+    "http://www.w3.org/ns/shacl#PropertyShape",
+  ],
+}
+`;
+
+exports[`PropertyShape initializer initializes a single path property without an RDF List 1`] = `
+Object {
+  "@context": Object {
+    "id": "@id",
+    "path": "http://www.w3.org/ns/shacl#path",
+    "type": "@type",
+  },
+  "id": "http://example.com/shape",
+  "path": Object {
+    "id": "http://www.w3.org/2000/01/rdf-schema#label",
+  },
+  "type": Array [
+    "http://www.w3.org/ns/shacl#PropertyShape",
+  ],
+}
+`;
+
+exports[`PropertyShape initializer lets initializing path with named node 1`] = `
+"<http://example.com/shape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://example.com/shape> <http://www.w3.org/ns/shacl#path> <http://www.w3.org/2000/01/rdf-schema#label> .
+"
+`;
+
+exports[`PropertyShape initializer lets initializing path with named node array 1`] = `
+"<http://example.com/shape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#PropertyShape> .
+<http://example.com/shape> <http://www.w3.org/ns/shacl#path> _:c14n1 .
+_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.w3.org/2000/01/rdf-schema#label> .
+_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:c14n1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.w3.org/2004/02/skos/core#broader> .
+_:c14n1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:c14n0 .
+"
+`;

@@ -1,0 +1,64 @@
+{
+  "name": "@rdfine/rdf",
+  "version": "0.7.6",
+  "type": "module",
+  "main": "index.js",
+  "module": "index.js",
+  "browser": "index.js",
+  "sideEffects": false,
+  "exports": {
+    ".": "./index.js",
+    "./Factory": "./Factory.js",
+    "./bundles": "./bundles/index.js",
+    "./lib/*": "./lib/*.js",
+    "./extensions/*": "./extensions/*.js"
+  },
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "prepack": "npm run build",
+    "clean": "rimraf lib bundles",
+    "build": "tsc",
+    "generate": "rdf-vocab prefix rdf | tsx ../../packages/generator/bin/rdfine-gen.ts --format application/n-quads "
+  },
+  "rdfine": {
+    "prefix": "rdf",
+    "types": {
+      "rdfs:Resource": "NamedNode"
+    },
+    "exclude": [
+      "rdfs:Container",
+      "rdfs:Resource"
+    ]
+  },
+  "dependencies": {
+    "@rdfjs/data-model": "^2",
+    "@tpluscode/rdf-ns-builders": "^5",
+    "@tpluscode/rdfine": ">=0.7.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tpluscode/rdfine.git",
+    "directory": "vocabularies/rdf"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "rdf",
+    "rdfjs",
+    "entity",
+    "decorator",
+    "clownface",
+    "graph"
+  ],
+  "author": "tpluscode",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tpluscode/rdfine/issues"
+  },
+  "homepage": "https://github.com/tpluscode/rdfine/tree/master/vocabularies/csvw#readme"
+}

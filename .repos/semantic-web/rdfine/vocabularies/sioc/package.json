@@ -1,0 +1,59 @@
+{
+  "name": "@rdfine/sioc",
+  "version": "0.3.6",
+  "main": "index.js",
+  "module": "index.js",
+  "browser": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": "./index.js",
+    "./Factory": "./Factory.js",
+    "./bundles": "./bundles/index.js",
+    "./lib/*": "./lib/*.js",
+    "./extensions/*": "./extensions/*.js"
+  },
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "prepack": "npm run build",
+    "clean": "rimraf lib bundles",
+    "build": "tsc",
+    "generate": "{ rdf-vocab prefix sioc ; cat ./overrides.nq ; } | tsx ../../packages/generator/bin/rdfine-gen.ts --format application/n-quads "
+  },
+  "rdfine": {
+    "prefix": "sioc"
+  },
+  "dependencies": {
+    "@rdfjs/data-model": "^2",
+    "@rdfine/foaf": "^2.0.6",
+    "@tpluscode/rdf-ns-builders": "^5",
+    "@tpluscode/rdfine": ">=0.7.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tpluscode/rdfine.git",
+    "directory": "vocabularies/sioc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "rdf",
+    "rdfjs",
+    "entity",
+    "decorator",
+    "clownface",
+    "graph"
+  ],
+  "author": "tpluscode",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tpluscode/rdfine/issues"
+  },
+  "homepage": "https://github.com/tpluscode/rdfine/tree/master/vocabularies/sioc#readme"
+}

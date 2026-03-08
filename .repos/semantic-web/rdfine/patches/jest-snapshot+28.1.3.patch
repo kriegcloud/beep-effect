@@ -1,0 +1,19 @@
+diff --git a/node_modules/jest-snapshot/build/State.js b/node_modules/jest-snapshot/build/State.js
+index 1ee5df3..68ee45f 100644
+--- a/node_modules/jest-snapshot/build/State.js
++++ b/node_modules/jest-snapshot/build/State.js
+@@ -161,10 +161,10 @@ class SnapshotState {
+       }
+ 
+       if (hasInlineSnapshots) {
+-        (0, _InlineSnapshots.saveInlineSnapshots)(
+-          this._inlineSnapshots,
+-          this._prettierPath
+-        );
++        //(0, _InlineSnapshots.saveInlineSnapshots)(
++        //  this._inlineSnapshots,
++        //  this._prettierPath
++        //);
+       }
+ 
+       status.saved = true;

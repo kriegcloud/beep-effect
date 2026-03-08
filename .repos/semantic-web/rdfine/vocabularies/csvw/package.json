@@ -1,0 +1,70 @@
+{
+  "name": "@rdfine/csvw",
+  "version": "0.8.6",
+  "main": "index.js",
+  "module": "index.js",
+  "browser": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": "./index.js",
+    "./Factory": "./Factory.js",
+    "./bundles": "./bundles/index.js",
+    "./lib/*": "./lib/*.js",
+    "./extensions/*": "./extensions/*.js"
+  },
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "prepack": "npm run build",
+    "clean": "rimraf lib bundles",
+    "build": "tsc",
+    "generate": "rdf-vocab prefix csvw | tsx ../../packages/generator/bin/rdfine-gen.ts --format application/n-quads"
+  },
+  "rdfine": {
+    "prefix": "csvw",
+    "types": {
+      "uriTemplate": "string"
+    },
+    "properties": {
+      "column": {
+        "values": "list"
+      },
+      "transformations": {
+        "values": "array"
+      }
+    }
+  },
+  "dependencies": {
+    "@rdfjs/data-model": "^2",
+    "@tpluscode/rdf-ns-builders": "^5",
+    "@tpluscode/rdfine": ">=0.7.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tpluscode/rdfine.git",
+    "directory": "vocabularies/csvw"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "rdf",
+    "rdfjs",
+    "entity",
+    "decorator",
+    "clownface",
+    "graph"
+  ],
+  "author": "tpluscode",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tpluscode/rdfine/issues"
+  },
+  "homepage": "https://github.com/tpluscode/rdfine/tree/master/vocabularies/csvw#readme",
+  "gitHead": "b5e454d19800773d6ed81cd40f336819ef955f1b"
+}

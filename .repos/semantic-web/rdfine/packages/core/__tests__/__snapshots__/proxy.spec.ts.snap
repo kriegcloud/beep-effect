@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`proxy set does not proxy declared properties 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+<http://example.com/Proxied> <http://example.com/multi> \\"a\\" .
+<http://example.com/Proxied> <http://example.com/multi> \\"z\\" .
+<http://example.com/Proxied> <http://example.com/number> \\"10\\"^^<http://www.w3.org/2001/XMLSchema#integer> .
+"
+`;
+
+exports[`proxy set empty array removes triples 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+"
+`;
+
+exports[`proxy set multiple literals 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+<http://example.com/Proxied> <http://example.com/multi> \\"a\\" .
+<http://example.com/Proxied> <http://example.com/multi> \\"z\\" .
+<http://example.com/Proxied> <http://example.com/set> \\"bar\\" .
+<http://example.com/Proxied> <http://example.com/set> \\"foo\\" .
+"
+`;
+
+exports[`proxy set multiple resources 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+<http://example.com/Proxied> <http://example.com/multi> \\"a\\" .
+<http://example.com/Proxied> <http://example.com/multi> \\"z\\" .
+<http://example.com/Proxied> <http://example.com/set> <http://example.com/one> .
+<http://example.com/Proxied> <http://example.com/set> <http://example.com/two> .
+"
+`;
+
+exports[`proxy set null removes triples 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+"
+`;
+
+exports[`proxy set single literal 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+<http://example.com/Proxied> <http://example.com/multi> \\"a\\" .
+<http://example.com/Proxied> <http://example.com/multi> \\"z\\" .
+<http://example.com/Proxied> <http://example.com/set> \\"foo\\" .
+"
+`;
+
+exports[`proxy set single resource 1`] = `
+"<http://example.com/Proxied2> <http://example.com/Prop2> \\"foo\\"@bar .
+<http://example.com/Proxied> <http://example.com/Prop1> <http://example.com/Proxied2> .
+<http://example.com/Proxied> <http://example.com/multi> \\"a\\" .
+<http://example.com/Proxied> <http://example.com/multi> \\"z\\" .
+<http://example.com/Proxied> <http://example.com/set> <http://example.com/other> .
+"
+`;
