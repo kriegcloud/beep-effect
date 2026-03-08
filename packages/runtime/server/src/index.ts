@@ -17,7 +17,6 @@ import {
   RepoRunRpcGroup,
   SidecarBadRequestPayload,
   SidecarBootstrap,
-  SidecarBootstrapStdoutEvent,
   SidecarInternalErrorPayload,
   SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
@@ -78,8 +77,6 @@ const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-const encodeSidecarBootstrapStdoutEvent = S.encodeSync(SidecarBootstrapStdoutEvent);
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const SidecarPort = NonNegativeInt.pipe(
   S.check(S.isGreaterThan(0)),
   S.annotate(
