@@ -1,13 +1,18 @@
 import {
+  makeSymbolId,
+  SymbolQualifiedName,
   TSMorphService,
   TSMorphServiceLive,
   TsMorphDiagnosticsRequest,
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
+  TsMorphSourceFileError,
   TsMorphSourceTextRequest,
   TsMorphSymbolLookupRequest,
+  TsMorphSymbolNotFoundError,
   TsMorphSymbolSearchRequest,
   TsMorphSymbolSourceRequest,
+  TsMorphUnsupportedFileError,
 } from "@beep/repo-utils/TSMorph/index";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -30,14 +35,18 @@ const TSCONFIG_PATH = "tooling/repo-utils/tsconfig.json";
 const MODEL_FILE_PATH = "tooling/repo-utils/src/TSMorph/TSMorph.model.ts";
 const FIXTURE_TSCONFIG_PATH = "tooling/repo-utils/test/fixtures/tsmorph-diagnostics/tsconfig.json";
 const FIXTURE_BROKEN_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-diagnostics/src/broken.ts";
+const DECLARATION_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-declaration/ambient.d.ts";
 const LATE_FILE_TSCONFIG_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/tsconfig.json";
 const LATE_FILE_INCLUDED_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/src/included.ts";
 const LATE_FILE_EXTRA_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/src/extra.ts";
+const OUTLINE_ORDER_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-outline-order/source.ts";
+const OUTSIDE_WORKSPACE_FILE_PATH = "packages/ai/sdk/src/core/types/cloudflare-sandbox.d.ts";
 
 const decodeDiagnosticsRequest = S.decodeUnknownSync(TsMorphDiagnosticsRequest);
 const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
 const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
 const decodeSourceTextRequest = S.decodeUnknownSync(TsMorphSourceTextRequest);
+const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
 const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
 const decodeSymbolSearchRequest = S.decodeUnknownSync(TsMorphSymbolSearchRequest);
 const decodeSymbolSourceRequest = S.decodeUnknownSync(TsMorphSymbolSourceRequest);
@@ -133,6 +142,27 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
       }),
       20_000
     );
+
+    it.effect(
+      "preserves source declaration order within a file outline",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+        const scope = yield* service.resolveProjectScope(repoUtilsScopeRequest("syntax"));
+        const outline = yield* service.getFileOutline(
+          decodeFileOutlineRequest({
+            scopeId: scope.scopeId,
+            filePath: OUTLINE_ORDER_FILE_PATH,
+          })
+        );
+        const names = pipe(
+          outline.symbols,
+          A.map((symbol) => symbol.name)
+        );
+
+        expect(names).toEqual(["ZebraThing", "AlphaThing"]);
+      }),
+      20_000
+    );
   });
 
   describe("getSymbolById / readSymbolSource", () => {
@@ -169,12 +199,83 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
             symbolId: targetSymbol.value.id,
           })
         );
+        const sourceFile = yield* service.readSourceText(
+          decodeSourceTextRequest({
+            filePath: MODEL_FILE_PATH,
+          })
+        );
+        const sourceFileBytes = new TextEncoder().encode(sourceFile.sourceText);
+        const symbolSlice = sourceFileBytes.slice(
+          lookup.symbol.byteOffset,
+          lookup.symbol.byteOffset + lookup.symbol.byteLength
+        );
 
         expect(lookup.symbol.id).toBe(targetSymbol.value.id);
         expect(lookup.symbol.qualifiedName).toBe("TsMorphProjectScope");
         expect(source.symbol.id).toBe(targetSymbol.value.id);
         expect(source.sourceText).toContain("export class TsMorphProjectScope");
         expect(source.contentHash).toBe(targetSymbol.value.contentHash);
+        expect(new TextDecoder().decode(symbolSlice)).toBe(source.sourceText);
+      }),
+      20_000
+    );
+
+    it.effect(
+      "fails with a typed error for missing symbol ids",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+        const scope = yield* service.resolveProjectScope(repoUtilsScopeRequest("syntax"));
+        const outline = yield* service.getFileOutline(
+          decodeFileOutlineRequest({
+            scopeId: scope.scopeId,
+            filePath: MODEL_FILE_PATH,
+          })
+        );
+        const filePath = pipe(
+          outline.symbols,
+          A.head,
+          O.map((symbol) => symbol.filePath)
+        );
+
+        expect(O.isSome(filePath)).toBe(true);
+        if (O.isNone(filePath)) {
+          return;
+        }
+
+        const missingSymbolId = makeSymbolId({
+          filePath: filePath.value,
+          qualifiedName: decodeSymbolQualifiedName("DefinitelyMissingSymbol"),
+          kind: "ClassDeclaration",
+        });
+        const lookupError = yield* service
+          .getSymbolById(
+            decodeSymbolLookupRequest({
+              scopeId: scope.scopeId,
+              symbolId: missingSymbolId,
+            })
+          )
+          .pipe(Effect.flip);
+        const sourceError = yield* service
+          .readSymbolSource(
+            decodeSymbolSourceRequest({
+              scopeId: scope.scopeId,
+              symbolId: missingSymbolId,
+            })
+          )
+          .pipe(Effect.flip);
+
+        expect(lookupError).toBeInstanceOf(TsMorphSymbolNotFoundError);
+        expect(lookupError._tag).toBe("TsMorphSymbolNotFoundError");
+        if (lookupError._tag !== "TsMorphSymbolNotFoundError") {
+          return;
+        }
+        expect(lookupError.symbolId).toBe(missingSymbolId);
+        expect(sourceError).toBeInstanceOf(TsMorphSymbolNotFoundError);
+        expect(sourceError._tag).toBe("TsMorphSymbolNotFoundError");
+        if (sourceError._tag !== "TsMorphSymbolNotFoundError") {
+          return;
+        }
+        expect(sourceError.symbolId).toBe(missingSymbolId);
       }),
       20_000
     );
@@ -338,6 +439,57 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(firstDiagnostic.value.startLine).toBe(1);
         expect(firstDiagnostic.value.startColumn).toBeGreaterThan(0);
         expect(firstDiagnostic.value.endColumn).toBeGreaterThanOrEqual(firstDiagnostic.value.startColumn);
+      }),
+      20_000
+    );
+  });
+
+  describe("typed error coverage", () => {
+    it.effect(
+      "rejects files outside the workspace boundary with a source file error",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+        const scope = yield* service.resolveProjectScope(repoUtilsScopeRequest("semantic"));
+        const error = yield* service
+          .getDiagnostics(
+            decodeDiagnosticsRequest({
+              scopeId: scope.scopeId,
+              filePath: OUTSIDE_WORKSPACE_FILE_PATH,
+            })
+          )
+          .pipe(Effect.flip);
+
+        expect(error).toBeInstanceOf(TsMorphSourceFileError);
+        expect(error._tag).toBe("TsMorphSourceFileError");
+        if (error._tag !== "TsMorphSourceFileError") {
+          return;
+        }
+        expect(O.getOrNull(error.scopeId)).toBe(scope.scopeId);
+        expect(O.getOrNull(error.filePath)).toBe(OUTSIDE_WORKSPACE_FILE_PATH);
+      }),
+      20_000
+    );
+
+    it.effect(
+      "rejects declaration files for outline extraction with an unsupported file error",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+        const scope = yield* service.resolveProjectScope(repoUtilsScopeRequest("syntax"));
+        const error = yield* service
+          .getFileOutline(
+            decodeFileOutlineRequest({
+              scopeId: scope.scopeId,
+              filePath: DECLARATION_FILE_PATH,
+            })
+          )
+          .pipe(Effect.flip);
+
+        expect(error).toBeInstanceOf(TsMorphUnsupportedFileError);
+        expect(error._tag).toBe("TsMorphUnsupportedFileError");
+        if (error._tag !== "TsMorphUnsupportedFileError") {
+          return;
+        }
+        expect(error.filePath).toBe(DECLARATION_FILE_PATH);
       }),
       20_000
     );

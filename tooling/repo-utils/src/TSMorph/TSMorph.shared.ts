@@ -82,7 +82,7 @@ const firstSignatureLine = (text: string): string =>
   pipe(
     Str.split("\n")(text),
     A.map(Str.trim),
-    A.findFirst(Str.isNonEmpty),
+    A.findFirst((line) => Str.isNonEmpty(line) && !Str.startsWith("@")(line)),
     O.getOrElse(() => Str.trim(text))
   );
 
@@ -180,6 +180,21 @@ export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: Sou
     Str.toLowerCase
   );
 
+const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessageChain>().pipe(
+  Match.when(P.isString, (text) => text),
+  Match.orElse((messageChain) =>
+    pipe(
+      messageChain.getNext() ?? A.empty<DiagnosticMessageChain>(),
+      A.reduce(A.make(messageChain.getMessageText()), (lines, next) => {
+        const nextText = flattenDiagnosticMessageText(next);
+        return Str.isNonEmpty(nextText) ? A.append(lines, nextText) : lines;
+      }),
+      A.filter(Str.isNonEmpty),
+      Text.joinLines
+    )
+  )
+);
+
 /**
  * Flatten a TypeScript diagnostic message chain into normalized text.
  *
@@ -189,20 +204,19 @@ export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: Sou
  * @category Internal
  */
 export const flattenDiagnosticMessageText = (message: string | DiagnosticMessageChain): string =>
-  Match.type<string | DiagnosticMessageChain>().pipe(
-    Match.when(P.isString, (text) => text),
-    Match.orElse((messageChain) =>
-      pipe(
-        messageChain.getNext() ?? A.empty<DiagnosticMessageChain>(),
-        A.reduce(A.make(messageChain.getMessageText()), (lines, next) => {
-          const nextText = flattenDiagnosticMessageText(next);
-          return Str.isNonEmpty(nextText) ? A.append(lines, nextText) : lines;
-        }),
-        A.filter(Str.isNonEmpty),
-        Text.joinLines
-      )
-    )
-  )(message);
+  flattenDiagnosticMessageTextMatcher(message);
+
+const errorDiagnosticCategory: TsMorphDiagnostic["category"] = "error";
+const warningDiagnosticCategory: TsMorphDiagnostic["category"] = "warning";
+const suggestionDiagnosticCategory: TsMorphDiagnostic["category"] = "suggestion";
+const messageDiagnosticCategory: TsMorphDiagnostic["category"] = "message";
+
+const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe(
+  Match.when(DiagnosticCategory.Error, () => errorDiagnosticCategory),
+  Match.when(DiagnosticCategory.Warning, () => warningDiagnosticCategory),
+  Match.when(DiagnosticCategory.Suggestion, () => suggestionDiagnosticCategory),
+  Match.orElse(() => messageDiagnosticCategory)
+);
 
 /**
  * Normalize TypeScript diagnostic categories into the public service literal domain.
@@ -213,12 +227,7 @@ export const flattenDiagnosticMessageText = (message: string | DiagnosticMessage
  * @category Internal
  */
 export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMorphDiagnostic["category"] =>
-  Match.type<DiagnosticCategory>().pipe(
-    Match.when(DiagnosticCategory.Error, () => "error" as const),
-    Match.when(DiagnosticCategory.Warning, () => "warning" as const),
-    Match.when(DiagnosticCategory.Suggestion, () => "suggestion" as const),
-    Match.orElse(() => "message" as const)
-  )(category);
+  normalizeDiagnosticCategoryMatcher(category);
 
 /**
  * Read the normalized name and kind for a supported declaration node.
@@ -234,80 +243,59 @@ export const getDeclarationName = (
   readonly name: string;
   readonly kind: SymbolKind;
 }> => {
-  if (Node.isConstructorDeclaration(declaration)) {
-    return O.some({
-      name: "constructor",
-      kind: "Constructor",
+  const makeNamedDeclaration = (name: string, kind: SymbolKind) =>
+    O.some({
+      name,
+      kind,
     });
+
+  if (Node.isConstructorDeclaration(declaration)) {
+    return makeNamedDeclaration("constructor", "Constructor");
   }
 
   if (Node.isFunctionDeclaration(declaration)) {
     return pipe(
       O.fromUndefinedOr(declaration.getName()),
-      O.map((name) => ({
-        name,
-        kind: "FunctionDeclaration" as const,
-      }))
+      O.flatMap((name) => makeNamedDeclaration(name, "FunctionDeclaration"))
     );
   }
 
   if (Node.isClassDeclaration(declaration)) {
     return pipe(
       O.fromUndefinedOr(declaration.getName()),
-      O.map((name) => ({
-        name,
-        kind: "ClassDeclaration" as const,
-      }))
+      O.flatMap((name) => makeNamedDeclaration(name, "ClassDeclaration"))
     );
   }
 
   if (Node.isMethodDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "MethodDeclaration",
-    });
+    return makeNamedDeclaration(declaration.getName(), "MethodDeclaration");
   }
 
   if (Node.isGetAccessorDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "GetAccessor",
-    });
+    return makeNamedDeclaration(declaration.getName(), "GetAccessor");
   }
 
   if (Node.isSetAccessorDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "SetAccessor",
-    });
+    return makeNamedDeclaration(declaration.getName(), "SetAccessor");
   }
 
   if (Node.isInterfaceDeclaration(declaration)) {
     return pipe(
       O.fromUndefinedOr(declaration.getName()),
-      O.map((name) => ({
-        name,
-        kind: "InterfaceDeclaration" as const,
-      }))
+      O.flatMap((name) => makeNamedDeclaration(name, "InterfaceDeclaration"))
     );
   }
 
   if (Node.isTypeAliasDeclaration(declaration)) {
     return pipe(
       O.fromUndefinedOr(declaration.getName()),
-      O.map((name) => ({
-        name,
-        kind: "TypeAliasDeclaration" as const,
-      }))
+      O.flatMap((name) => makeNamedDeclaration(name, "TypeAliasDeclaration"))
     );
   }
 
   return pipe(
     O.fromUndefinedOr(declaration.getName()),
-    O.map((name) => ({
-      name,
-      kind: "EnumDeclaration" as const,
-    }))
+    O.flatMap((name) => makeNamedDeclaration(name, "EnumDeclaration"))
   );
 };
 

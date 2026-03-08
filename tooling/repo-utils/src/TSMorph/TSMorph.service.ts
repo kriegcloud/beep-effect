@@ -206,6 +206,9 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
   },
   $I.annote("TsMorphSymbolNotFoundError", {
     description: "Typed error indicating that a stable symbol id could not be resolved inside a ts-morph scope.",
+    reason: "Raised when a requested stable symbol id is absent from the scope-local symbol index.",
+    owner: "repo-utils",
+    issueContext: "ts-morph-read-only-v1",
   })
 ) {}
 
@@ -406,9 +409,11 @@ const normalizeOutlineSymbol = (
       return O.none<ScopeSymbolEntry>();
     }
 
+    const startOffset = declaration.getStart(true);
+    const endOffset = declaration.getEnd();
     const symbolText = yield* decodeOrFail(
       decodeSourceText,
-      declaration.getFullText(),
+      sourceFileText.slice(startOffset, endOffset),
       (message) =>
         new TsMorphSourceFileError({
           scopeId: O.none(),
@@ -427,7 +432,6 @@ const normalizeOutlineSymbol = (
       )
     );
 
-    const startOffset = declaration.getStart(true);
     const bytePrefix = utf8Encoder.encode(sourceFileText.slice(0, startOffset));
     const byteSpan = utf8Encoder.encode(symbolText);
     const docstring = readDocstring(declaration);
@@ -879,13 +883,16 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
         const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
 
-        for (const entry of sortedEntries) {
-          MutableHashMap.set(entriesById, entry.symbol.id, entry);
+        for (const entry of entries) {
           const fileEntries = O.getOrElse(
             MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
             A.empty<ScopeSymbolEntry>
           );
           MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
+        }
+
+        for (const entry of sortedEntries) {
+          MutableHashMap.set(entriesById, entry.symbol.id, entry);
         }
 
         return {
@@ -1058,7 +1065,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         Effect.forEach((diagnostic) => {
           const start = diagnostic.getStart() ?? 0;
           const length = diagnostic.getLength() ?? 0;
-          const end = start + Math.max(length, 0);
+          const end = start + length;
           const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
           const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
           const source = diagnostic.getSource();
