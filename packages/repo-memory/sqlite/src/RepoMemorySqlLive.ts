@@ -1,4 +1,10 @@
-import { RepoRegistryStore, RepoRunStore, RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
+import {
+  RepoRegistryStore,
+  RepoRunStore,
+  RepoSemanticStore,
+  RepoSnapshotStore,
+  RepoSymbolStore,
+} from "@beep/repo-memory-store";
 import { Layer } from "effect";
 import { RepoMemorySql, type RepoMemorySqlConfig } from "./internal/RepoMemorySql.js";
 
@@ -55,13 +61,28 @@ const repoRunStoreLayer = Layer.effect(
   )
 );
 
+const repoSemanticStoreLayer = Layer.effect(
+  RepoSemanticStore,
+  RepoMemorySql.useSync((sql) =>
+    RepoSemanticStore.of({
+      getSemanticArtifacts: sql.getSemanticArtifacts,
+      latestSemanticArtifacts: sql.latestSemanticArtifacts,
+      saveSemanticArtifacts: sql.saveSemanticArtifacts,
+    })
+  )
+);
+
 /**
  * Live sqlite-backed repo-memory store layers.
  *
  * @since 0.0.0
- * @category Services
+ * @category Configuration
  */
 export const RepoMemorySqlLive = (config: RepoMemorySqlConfig) =>
-  Layer.mergeAll(repoRegistryStoreLayer, repoSnapshotStoreLayer, repoSymbolStoreLayer, repoRunStoreLayer).pipe(
-    Layer.provide(RepoMemorySql.layer(config))
-  );
+  Layer.mergeAll(
+    repoRegistryStoreLayer,
+    repoSnapshotStoreLayer,
+    repoSymbolStoreLayer,
+    repoRunStoreLayer,
+    repoSemanticStoreLayer
+  ).pipe(Layer.provide(RepoMemorySql.layer(config)));

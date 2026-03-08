@@ -17,7 +17,7 @@ const textEncoder = new TextEncoder();
  * Configuration for agent HTTP and RPC transport exposure.
  *
  * @since 0.0.0
- * @category Models
+ * @category Configuration
  */
 export type AgentServerAccessOptions = Readonly<{
   readonly authToken?: string;
@@ -28,7 +28,7 @@ export type AgentServerAccessOptions = Readonly<{
  * Typed access-control failure for agent HTTP and RPC transports.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class AgentServerAccessError extends TaggedErrorClass<AgentServerAccessError>()("AgentServerAccessError", {
   message: S.String,
@@ -48,7 +48,7 @@ type AgentServerAccessShape = {
  * Access-control service for agent HTTP and RPC transports.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class AgentServerAccess extends ServiceMap.Service<AgentServerAccess, AgentServerAccessShape>()(
   $I`AgentServerAccess`
@@ -98,7 +98,7 @@ const timingSafeTokenEqual = (left: string, right: string): boolean => {
  * Build access-control state for agent HTTP and RPC transports.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainLogic
  */
 export const makeAgentServerAccess = (
   options: AgentServerAccessOptions = {}

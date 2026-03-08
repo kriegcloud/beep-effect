@@ -6,9 +6,10 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { type Effect, ServiceMap } from "effect";
 import * as S from "effect/Schema";
+import { AbsoluteIRI } from "../iri.ts";
 import { JsonLdContext, JsonLdDocument, JsonLdFrame } from "../jsonld.ts";
 import { Dataset } from "../rdf.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
@@ -38,6 +39,8 @@ export const JsonLdDocumentErrorReason = LiteralKit([
   "unknownPredicate",
   "bridgingFailure",
   "framingFailure",
+  "loaderPolicyViolation",
+  "normalizationFailure",
 ] as const).annotate(
   $I.annote("JsonLdDocumentErrorReason", {
     description: "JSON-LD document error reason.",
@@ -127,6 +130,91 @@ export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentReque
 ) {}
 
 /**
+ * Bounded JSON-LD document loader policy.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPolicy>($I`JsonLdDocumentLoaderPolicy`)(
+  {
+    allowRemoteDocuments: S.Boolean,
+    maxRemoteDocuments: S.OptionFromOptionalKey(NonNegativeInt),
+    baseIri: S.OptionFromOptionalKey(AbsoluteIRI),
+  },
+  $I.annote("JsonLdDocumentLoaderPolicy", {
+    description: "Bounded JSON-LD document loader policy.",
+    semanticSchemaMetadata: serviceContractMetadata(
+      "JsonLdDocumentLoaderPolicy",
+      "Bounded loader policy for JSON-LD document workflows."
+    ),
+  })
+) {}
+
+/**
+ * JSON-LD document normalization profile.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "expanded-v1"] as const).annotate(
+  $I.annote("JsonLdDocumentNormalizationProfile", {
+    description: "JSON-LD document normalization profile.",
+  })
+);
+
+/**
+ * Type for {@link JsonLdDocumentNormalizationProfile}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type JsonLdDocumentNormalizationProfile = typeof JsonLdDocumentNormalizationProfile.Type;
+
+/**
+ * Expand JSON-LD document request.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentRequest>($I`ExpandJsonLdDocumentRequest`)(
+  {
+    document: JsonLdDocument,
+    loaderPolicy: S.OptionFromOptionalKey(JsonLdDocumentLoaderPolicy),
+  },
+  $I.annote("ExpandJsonLdDocumentRequest", {
+    description: "Expand JSON-LD document request.",
+    semanticSchemaMetadata: serviceContractMetadata(
+      "ExpandJsonLdDocumentRequest",
+      "Request to expand a bounded JSON-LD document with explicit loader policy."
+    ),
+  })
+) {}
+
+/**
+ * Normalize JSON-LD document request.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocumentRequest>(
+  $I`NormalizeJsonLdDocumentRequest`
+)(
+  {
+    document: JsonLdDocument,
+    profile: JsonLdDocumentNormalizationProfile,
+    loaderPolicy: S.OptionFromOptionalKey(JsonLdDocumentLoaderPolicy),
+    safeMode: S.OptionFromOptionalKey(S.Boolean),
+  },
+  $I.annote("NormalizeJsonLdDocumentRequest", {
+    description: "Normalize JSON-LD document request.",
+    semanticSchemaMetadata: serviceContractMetadata(
+      "NormalizeJsonLdDocumentRequest",
+      "Request to normalize a bounded JSON-LD document under an explicit output profile."
+    ),
+  })
+) {}
+
+/**
  * JSON-LD to RDF request.
  *
  * @since 0.0.0
@@ -205,9 +293,13 @@ export class JsonLdToRdfResult extends S.Class<JsonLdToRdfResult>($I`JsonLdToRdf
  */
 export interface JsonLdDocumentServiceShape {
   readonly compact: (request: CompactJsonLdDocumentRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
+  readonly expand: (request: ExpandJsonLdDocumentRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
   readonly flatten: (request: FlattenJsonLdDocumentRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
   readonly frame: (request: FrameJsonLdDocumentRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
   readonly fromRdf: (request: JsonLdFromRdfRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
+  readonly normalize: (
+    request: NormalizeJsonLdDocumentRequest
+  ) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
   readonly toRdf: (request: JsonLdToRdfRequest) => Effect.Effect<JsonLdToRdfResult, JsonLdDocumentError>;
 }
 

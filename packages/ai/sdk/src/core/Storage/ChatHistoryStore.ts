@@ -28,6 +28,7 @@ const $I = $AiSdkId.create("core/Storage/ChatHistoryStore");
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ChatHistoryAppendOptions = Readonly<{
   readonly timestamp?: number;
@@ -36,6 +37,7 @@ export type ChatHistoryAppendOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ChatHistoryListOptions = Readonly<{
   readonly startSequence?: number;
@@ -46,6 +48,7 @@ export type ChatHistoryListOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ChatHistoryJournaledOptions<R = never> = {
   readonly prefix?: string;
@@ -56,6 +59,7 @@ export type ChatHistoryJournaledOptions<R = never> = {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ChatHistorySyncOptions<R = never> = ChatHistoryJournaledOptions<R> & {
   readonly disablePing?: boolean;
@@ -636,6 +640,7 @@ const makeJournaledStore = (options?: {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export interface ChatHistoryStoreShape {
   readonly appendMessage: (
@@ -659,6 +664,7 @@ export interface ChatHistoryStoreShape {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatHistoryStoreShape>()(
   $I`ChatHistoryStore`

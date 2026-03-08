@@ -36,7 +36,7 @@ const recordDriverOperationDuration = Effect.fn("RepoMemorySql.recordOperationDu
  * Observe one public repo-memory sqlite operation with success/failure timing.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const observeDriverOperation = <A, E, R>(
   operation: string,

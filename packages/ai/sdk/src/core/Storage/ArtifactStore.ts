@@ -16,6 +16,7 @@ const $I = $AiSdkId.create("core/Storage/ArtifactStore");
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ArtifactListOptions = Readonly<{
   readonly offset?: number;
@@ -24,6 +25,7 @@ export type ArtifactListOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ArtifactJournaledOptions<R = never> = {
   readonly prefix?: string;
@@ -34,6 +36,7 @@ export type ArtifactJournaledOptions<R = never> = {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type ArtifactSyncOptions<R = never> = ArtifactJournaledOptions<R> & {
   readonly disablePing?: boolean;
@@ -54,6 +57,7 @@ type ArtifactState = {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export interface ArtifactStoreService {
   readonly cleanup?: () => Effect.Effect<void, StorageError>;
@@ -284,6 +288,7 @@ const makeMemoryStore = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class ArtifactStore extends ServiceMap.Service<ArtifactStore, ArtifactStoreService>()($I`ArtifactStore`) {
   static readonly layerMemory = Layer.effect(ArtifactStore, makeMemoryStore);

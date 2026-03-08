@@ -13,6 +13,7 @@ const StorageDuration = S.DurationFromMillis.annotate(
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 class StorageEnabledConfig extends S.Class<StorageEnabledConfig>($I`StorageEnabledConfig`)(
   {
@@ -108,6 +109,7 @@ class StorageSyncConfig extends S.Class<StorageSyncConfig>($I`StorageSyncConfig`
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class StorageConfigData extends S.Class<StorageConfigData>($I`StorageConfigData`)(
   {
@@ -125,6 +127,7 @@ export class StorageConfigData extends S.Class<StorageConfigData>($I`StorageConf
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class StorageConfigSettings extends S.Class<StorageConfigSettings>($I`StorageConfigSettings`)(
   {
@@ -137,6 +140,7 @@ export class StorageConfigSettings extends S.Class<StorageConfigSettings>($I`Sto
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageConfigShape = StorageConfigSettings;
 
@@ -257,6 +261,7 @@ const makeStorageConfig = Effect.gen(function* () {
 //  Effect.Effect<, Config.ConfigError, never>
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class StorageConfig extends ServiceMap.Service<StorageConfig, StorageConfigShape>()($I`StorageConfig`) {
   /**

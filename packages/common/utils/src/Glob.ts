@@ -8,26 +8,31 @@ const $I = $UtilsId.create("Glob");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const Pattern = S.Union([S.String, S.Array(S.String)]);
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type Pattern = typeof Pattern.Type;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export declare namespace GlobError {
   /**
    * @since 0.0.0
+   * @category DomainModel
    */
   export type Encoded = typeof GlobError.Encoded;
 }
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   "GlobError",
@@ -47,7 +52,7 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
 
 /**
  * @since 1.0.0
- * @category models
+ * @category PortContract
  */
 export interface Glob {
   readonly glob: (
@@ -58,13 +63,13 @@ export interface Glob {
 
 /**
  * @since 1.0.0
- * @category tags
+ * @category PortContract
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
 /**
  * @since 1.0.0
- * @category layers
+ * @category Configuration
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
   glob: (pattern, options) =>

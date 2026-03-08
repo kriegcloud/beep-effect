@@ -7,7 +7,7 @@ const $I = $RepoMemoryStoreId.create("RepoStoreError");
  * Typed persistence error emitted by repo-memory store algebras.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class RepoStoreError extends TaggedErrorClass<RepoStoreError>($I`RepoStoreError`)("RepoStoreError", {
   ...StatusCauseFields,

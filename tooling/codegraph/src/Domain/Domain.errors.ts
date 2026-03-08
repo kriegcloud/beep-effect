@@ -78,7 +78,7 @@ class McpErrorContext extends S.Class<McpErrorContext>($I`McpErrorContext`)(
  * Severity assigned to a codegraph domain error.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export const ErrorSeverity = SeverityLevel.annotate(
   $I.annote("ErrorSeverity", {
@@ -90,7 +90,7 @@ export const ErrorSeverity = SeverityLevel.annotate(
  * Severity assigned to a codegraph domain error.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export type ErrorSeverity = typeof ErrorSeverity.Type;
 
@@ -98,7 +98,7 @@ export type ErrorSeverity = typeof ErrorSeverity.Type;
  * Broad base error for codegraph domain failures.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class CodegraphError extends TaggedErrorClass<CodegraphError>($I`CodegraphError`)(
   "CodegraphError",
@@ -133,7 +133,7 @@ export class CodegraphError extends TaggedErrorClass<CodegraphError>($I`Codegrap
  * Parsing failure while extracting graph information from source input.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class ParseError extends TaggedErrorClass<ParseError>($I`ParseError`)(
   "ParseError",
@@ -165,7 +165,7 @@ export class ParseError extends TaggedErrorClass<ParseError>($I`ParseError`)(
  * Failure while connecting to the backing graph database.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class GraphConnectionError extends TaggedErrorClass<GraphConnectionError>($I`GraphConnectionError`)(
   "GraphConnectionError",
@@ -196,7 +196,7 @@ export class GraphConnectionError extends TaggedErrorClass<GraphConnectionError>
  * Failure while executing or interpreting a graph query.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class GraphQueryError extends TaggedErrorClass<GraphQueryError>($I`GraphQueryError`)(
   "GraphQueryError",
@@ -227,7 +227,7 @@ export class GraphQueryError extends TaggedErrorClass<GraphQueryError>($I`GraphQ
  * Failure while loading or validating codegraph configuration.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class ConfigError extends TaggedErrorClass<ConfigError>($I`ConfigError`)(
   "ConfigError",
@@ -258,7 +258,7 @@ export class ConfigError extends TaggedErrorClass<ConfigError>($I`ConfigError`)(
  * Filesystem failure encountered while reading or writing project sources.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class FileSystemError extends TaggedErrorClass<FileSystemError>($I`FileSystemError`)(
   "FileSystemError",
@@ -289,7 +289,7 @@ export class FileSystemError extends TaggedErrorClass<FileSystemError>($I`FileSy
  * Watcher failure encountered while monitoring project changes.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class WatcherError extends TaggedErrorClass<WatcherError>($I`WatcherError`)(
   "WatcherError",
@@ -320,7 +320,7 @@ export class WatcherError extends TaggedErrorClass<WatcherError>($I`WatcherError
  * Failure encountered while calling or orchestrating MCP tooling.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class McpError extends TaggedErrorClass<McpError>($I`McpError`)(
   "McpError",
@@ -351,7 +351,7 @@ export class McpError extends TaggedErrorClass<McpError>($I`McpError`)(
  * Union of public codegraph domain errors.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export const CodegraphDomainError = S.Union([
   ParseError,
@@ -371,7 +371,7 @@ export const CodegraphDomainError = S.Union([
  * Union of public codegraph domain errors.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export type CodegraphDomainError = typeof CodegraphDomainError.Type;
 
@@ -379,6 +379,6 @@ export type CodegraphDomainError = typeof CodegraphDomainError.Type;
  * Encoded union of public codegraph domain errors.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export type CodegraphDomainErrorEncoded = typeof CodegraphDomainError.Encoded;

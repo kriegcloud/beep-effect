@@ -15,6 +15,7 @@ const $I = $AiSdkId.create("core/Storage/SessionIndexStore");
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const SessionIndexOrderBy = LiteralKit(["updatedAt", "createdAt"] as const).annotate(
   $I.annote("SessionIndexOrderBy", {
@@ -24,11 +25,13 @@ export const SessionIndexOrderBy = LiteralKit(["updatedAt", "createdAt"] as cons
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type SessionIndexOrderBy = typeof SessionIndexOrderBy.Type;
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const SessionIndexDirection = LiteralKit(["asc", "desc"] as const).annotate(
   $I.annote("SessionIndexDirection", {
@@ -38,11 +41,13 @@ export const SessionIndexDirection = LiteralKit(["asc", "desc"] as const).annota
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type SessionIndexDirection = typeof SessionIndexDirection.Type;
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class SessionIndexCursor extends S.Class<SessionIndexCursor>($I`SessionIndexCursor`)(
   {
@@ -56,6 +61,7 @@ export class SessionIndexCursor extends S.Class<SessionIndexCursor>($I`SessionIn
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class SessionIndexListOptions extends S.Class<SessionIndexListOptions>($I`SessionIndexListOptions`)(
   {
@@ -72,6 +78,7 @@ export class SessionIndexListOptions extends S.Class<SessionIndexListOptions>($I
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class SessionIndexTouchOptions extends S.Class<SessionIndexTouchOptions>($I`SessionIndexTouchOptions`)(
   {
@@ -85,6 +92,7 @@ export class SessionIndexTouchOptions extends S.Class<SessionIndexTouchOptions>(
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class SessionIndexPage extends S.Class<SessionIndexPage>($I`SessionIndexPage`)(
   {
@@ -165,6 +173,7 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const makeCursor = (meta: SessionMeta, orderBy: SessionIndexOrderBy = defaultOrderBy): SessionIndexCursor =>
   new SessionIndexCursor({
@@ -184,6 +193,7 @@ const emptyState: SessionIndexState = {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export interface SessionIndexStoreService {
   readonly get: (sessionId: string) => Effect.Effect<O.Option<SessionMeta>, StorageError>;
@@ -196,6 +206,7 @@ export interface SessionIndexStoreService {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const defaultSessionIndexStore: SessionIndexStoreService = {
   touch: (sessionId, options) =>
@@ -215,6 +226,7 @@ export const defaultSessionIndexStore: SessionIndexStoreService = {
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, SessionIndexStoreService>()(
   $I`SessionIndexStore`,

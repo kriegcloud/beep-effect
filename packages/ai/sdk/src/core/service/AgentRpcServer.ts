@@ -8,6 +8,7 @@ import { AgentServerAccess, type AgentServerAccessOptions, makeAgentServerAccess
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentRpcServerOptions = AgentServerAccessOptions &
   Readonly<{
@@ -17,6 +18,7 @@ export type AgentRpcServerOptions = AgentServerAccessOptions &
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layer = (options: AgentRpcServerOptions = {}) => {
   const port = options.port ?? 3000;

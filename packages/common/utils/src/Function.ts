@@ -20,7 +20,7 @@ export * from "effect/Function";
  * assert.deepStrictEqual(cast, identity)
  * ```
  *
- * @category type utils
+ * @category Utility
  * @since 2.0.0
  */
 export const cast: <A, B>(a: A) => B = identity as TUnsafe.Any;

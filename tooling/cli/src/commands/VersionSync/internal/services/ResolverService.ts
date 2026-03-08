@@ -148,7 +148,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
  * Live layer for resolver orchestration.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const ResolverServiceLive = Layer.succeed(
   ResolverService,

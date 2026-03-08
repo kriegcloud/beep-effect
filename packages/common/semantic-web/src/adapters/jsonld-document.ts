@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { IRIReference } from "../iri.ts";
 import {
-  type JsonLdContext,
+  JsonLdContext,
   JsonLdDocument,
   JsonLdLiteralValue,
   JsonLdNodeIdentifier,
@@ -34,10 +34,12 @@ import {
 } from "../rdf.ts";
 import {
   JsonLdDocumentError,
+  type JsonLdDocumentLoaderPolicy,
   JsonLdDocumentResult,
   JsonLdDocumentService,
   type JsonLdDocumentServiceShape,
   JsonLdToRdfResult,
+  type NormalizeJsonLdDocumentRequest,
 } from "../services/jsonld-document.ts";
 import { RDF_TYPE } from "../vocab/rdf.ts";
 import { XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_STRING } from "../vocab/xsd.ts";
@@ -254,6 +256,209 @@ const compactNode = (node: JsonLdNodeObject, context: JsonLdContext): JsonLdNode
     ),
   });
 
+const byStringAscending: Order.Order<string> = Order.String;
+const byRecordEntryKeyAscending = <Value>(): Order.Order<readonly [string, Value]> =>
+  Order.mapInput(byStringAscending, (entry) => entry[0]);
+
+const byJsonLdPropertyValueAscending: Order.Order<JsonLdPropertyValue> = Order.mapInput(Order.String, (value) =>
+  isReferenceValue(value)
+    ? `ref:${value["@id"]}`
+    : `lit:${pipe(
+        value["@type"],
+        O.getOrElse(() => "")
+      )}:${pipe(
+        value["@language"],
+        O.getOrElse(() => "")
+      )}:${literalLexicalForm(value["@value"])}`
+);
+
+const normalizeJsonLdContext = (context: JsonLdContext): JsonLdContext =>
+  JsonLdContext.makeUnsafe({
+    "@base": context["@base"],
+    "@vocab": context["@vocab"],
+    terms: R.fromEntries(pipe(context.terms, R.toEntries, A.sort(byRecordEntryKeyAscending()))),
+  });
+
+const normalizeJsonLdLiteralValue = (value: JsonLdLiteralValue): JsonLdLiteralValue =>
+  JsonLdLiteralValue.makeUnsafe({
+    "@value": value["@value"],
+    "@type": value["@type"],
+    "@language": pipe(
+      value["@language"],
+      O.map((language) => language.toLowerCase())
+    ),
+  });
+
+const sortJsonLdPropertyValues = (values: ReadonlyArray<JsonLdPropertyValue>): ReadonlyArray<JsonLdPropertyValue> =>
+  A.sort(
+    pipe(
+      values,
+      A.map((value) => (isReferenceValue(value) ? value : normalizeJsonLdLiteralValue(value)))
+    ),
+    byJsonLdPropertyValueAscending
+  );
+
+const normalizeJsonLdProperties = (
+  properties: Record<string, ReadonlyArray<JsonLdPropertyValue>>
+): Record<string, ReadonlyArray<JsonLdPropertyValue>> =>
+  R.fromEntries(
+    pipe(
+      properties,
+      R.toEntries,
+      A.sort(byRecordEntryKeyAscending()),
+      A.map(([key, values]) => [key, sortJsonLdPropertyValues(values)] as const)
+    )
+  );
+
+const normalizeJsonLdNode = (node: JsonLdNodeObject): JsonLdNodeObject =>
+  JsonLdNodeObject.makeUnsafe({
+    "@id": node["@id"],
+    "@type": pipe(
+      node["@type"],
+      O.map((values) => A.sort(values, byStringAscending))
+    ),
+    properties: normalizeJsonLdProperties(node.properties),
+  });
+
+const normalizeJsonLdDocumentStructure = (document: JsonLdDocument): JsonLdDocument =>
+  JsonLdDocument.makeUnsafe({
+    "@context": pipe(document["@context"], O.map(normalizeJsonLdContext)),
+    "@graph": pipe(document["@graph"], A.map(normalizeJsonLdNode), A.sort(byNodeIdentifierAscending)),
+  });
+
+const resolveDocumentBase = (
+  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>,
+  context: ContextOption
+): O.Option<string> =>
+  pipe(
+    loaderPolicy,
+    O.flatMap((policy) => policy.baseIri),
+    O.orElse(() => (O.isSome(context) ? context.value["@base"] : O.none<string>()))
+  );
+
+const validateLoaderPolicy = (
+  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
+): Effect.Effect<O.Option<typeof JsonLdDocumentLoaderPolicy.Type>, JsonLdDocumentError> =>
+  O.isSome(loaderPolicy) && loaderPolicy.value.allowRemoteDocuments
+    ? Effect.fail(
+        makeDocumentError(
+          "loaderPolicyViolation",
+          "Remote JSON-LD document loading is outside the bounded v1 document adapter surface."
+        )
+      )
+    : Effect.succeed(loaderPolicy);
+
+const expandLiteralValue = (
+  value: JsonLdLiteralValue,
+  context: ContextOption,
+  base: O.Option<string>
+): JsonLdLiteralValue =>
+  JsonLdLiteralValue.makeUnsafe({
+    "@value": value["@value"],
+    "@type": pipe(
+      value["@type"],
+      O.map((identifier) => decodeIriReference(resolveJsonLdIdentifier(identifier, context, base)))
+    ),
+    "@language": value["@language"],
+  });
+
+const expandJsonLdPropertyValue = (
+  value: JsonLdPropertyValue,
+  context: ContextOption,
+  base: O.Option<string>
+): JsonLdPropertyValue =>
+  isReferenceValue(value)
+    ? JsonLdReferenceValue.makeUnsafe({
+        "@id": decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(value["@id"], context, base)),
+      })
+    : expandLiteralValue(value, context, base);
+
+const expandJsonLdNode = (
+  node: JsonLdNodeObject,
+  context: ContextOption,
+  base: O.Option<string>
+): Effect.Effect<JsonLdNodeObject, JsonLdDocumentError> =>
+  Effect.gen(function* () {
+    const propertyEntries = pipe(node.properties, R.toEntries, A.sort(byRecordEntryKeyAscending()));
+    const expandedProperties = yield* Effect.forEach(propertyEntries, ([key, values]) => {
+      const predicateIri = resolveJsonLdIdentifier(key, context, base);
+      if (!schemePrefix.test(predicateIri)) {
+        return Effect.fail(makeDocumentError("unknownPredicate", `Unable to expand JSON-LD property key: ${key}`, key));
+      }
+
+      return Effect.succeed([
+        predicateIri,
+        pipe(
+          values,
+          A.map((value) => expandJsonLdPropertyValue(value, context, base))
+        ),
+      ] as const);
+    });
+
+    return JsonLdNodeObject.makeUnsafe({
+      "@id": pipe(
+        node["@id"],
+        O.map((identifier) => decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(identifier, context, base)))
+      ),
+      "@type": pipe(
+        node["@type"],
+        O.map((values) =>
+          pipe(
+            values,
+            A.map((value) => decodeIriReference(resolveJsonLdIdentifier(value, context, base)))
+          )
+        )
+      ),
+      properties: R.fromEntries(expandedProperties),
+    });
+  });
+
+const expandJsonLdDocument = (
+  document: JsonLdDocument,
+  loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
+): Effect.Effect<JsonLdDocument, JsonLdDocumentError> =>
+  Effect.gen(function* () {
+    yield* validateLoaderPolicy(loaderPolicy);
+    const context = document["@context"];
+    const base = resolveDocumentBase(loaderPolicy, context);
+    const graph = yield* Effect.forEach(document["@graph"], (node) => expandJsonLdNode(node, context, base));
+    return normalizeJsonLdDocumentStructure(
+      JsonLdDocument.makeUnsafe({
+        "@context": O.none(),
+        "@graph": graph,
+      })
+    );
+  });
+
+const hasAnonymousJsonLdNode = (document: JsonLdDocument): boolean =>
+  pipe(
+    document["@graph"],
+    A.some((node) => O.isNone(node["@id"]))
+  );
+
+const normalizeJsonLdDocument = (
+  request: NormalizeJsonLdDocumentRequest
+): Effect.Effect<JsonLdDocument, JsonLdDocumentError> =>
+  Effect.gen(function* () {
+    const safeMode = pipe(
+      request.safeMode,
+      O.getOrElse(() => false)
+    );
+    if (safeMode && hasAnonymousJsonLdNode(request.document)) {
+      return yield* makeDocumentError(
+        "normalizationFailure",
+        "Safe-mode normalization requires explicit @id values for every JSON-LD node."
+      );
+    }
+
+    if (request.profile === "expanded-v1") {
+      return yield* expandJsonLdDocument(request.document, request.loaderPolicy);
+    }
+
+    yield* validateLoaderPolicy(request.loaderPolicy);
+    return normalizeJsonLdDocumentStructure(request.document);
+  });
+
 const matchesFrameType = (node: JsonLdNodeObject, frameType: string, context: ContextOption): boolean =>
   pipe(
     node["@type"],
@@ -375,6 +580,13 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
         })
       )
     ),
+    expand: Effect.fn((request) =>
+      Effect.map(expandJsonLdDocument(request.document, request.loaderPolicy), (document) =>
+        JsonLdDocumentResult.makeUnsafe({
+          document,
+        })
+      )
+    ),
     flatten: Effect.fn((request) =>
       Effect.succeed(
         JsonLdDocumentResult.makeUnsafe({
@@ -382,6 +594,13 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
             "@context": request.document["@context"],
             "@graph": A.sort(request.document["@graph"], byNodeIdentifierAscending),
           }),
+        })
+      )
+    ),
+    normalize: Effect.fn((request) =>
+      Effect.map(normalizeJsonLdDocument(request), (document) =>
+        JsonLdDocumentResult.makeUnsafe({
+          document,
         })
       )
     ),

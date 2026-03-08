@@ -68,7 +68,7 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * digest transform is not invertible.
  *
  * @since 0.0.0
- * @category Transformation
+ * @category Validation
  */
 export const Sha256HexFromBytes = S.Uint8Array.pipe(
   S.decodeTo(Sha256Hex, {
@@ -98,7 +98,7 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * the boundary, then composes it with {@link Sha256HexFromBytes}.
  *
  * @since 0.0.0
- * @category Transformation
+ * @category Validation
  */
 export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
   S.decodeTo(Sha256HexFromBytes),

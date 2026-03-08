@@ -128,22 +128,22 @@ export class SidecarInternalErrorPayload extends S.Class<SidecarInternalErrorPay
 
 /**
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const SidecarBadRequest = SidecarBadRequestPayload.pipe(HttpApiSchema.status(400));
 /**
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const SidecarNotFound = SidecarNotFoundPayload.pipe(HttpApiSchema.status(404));
 /**
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const SidecarInternalError = SidecarInternalErrorPayload.pipe(HttpApiSchema.status(500));
 /**
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export const RepoRegistrationCreated = RepoRegistration.pipe(HttpApiSchema.status(201));
 
@@ -199,7 +199,7 @@ class RunsGroup extends HttpApiGroup.make("runs", { topLevel: true })
 
 /**
  * @since 0.0.0
- * @category HttpApi
+ * @category Integration
  */
 export class ControlPlaneApi extends HttpApi.make("repo-memory-control-plane")
   .add(SystemGroup, ReposGroup, RunsGroup)
@@ -207,7 +207,7 @@ export class ControlPlaneApi extends HttpApi.make("repo-memory-control-plane")
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const StreamRunEvents = Rpc.make("StreamRunEvents", {
   payload: StreamRunEventsRequest,
@@ -218,7 +218,7 @@ export const StreamRunEvents = Rpc.make("StreamRunEvents", {
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const StartIndexRepoRun = Rpc.make("StartIndexRepoRun", {
   payload: IndexRepoRunInput,
@@ -228,7 +228,7 @@ export const StartIndexRepoRun = Rpc.make("StartIndexRepoRun", {
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
   payload: QueryRepoRunInput,
@@ -238,7 +238,7 @@ export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const InterruptRepoRun = Rpc.make("InterruptRepoRun", {
   payload: InterruptRepoRunRequest,
@@ -248,7 +248,7 @@ export const InterruptRepoRun = Rpc.make("InterruptRepoRun", {
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export const ResumeRepoRun = Rpc.make("ResumeRepoRun", {
   payload: ResumeRepoRunRequest,
@@ -258,7 +258,7 @@ export const ResumeRepoRun = Rpc.make("ResumeRepoRun", {
 
 /**
  * @since 0.0.0
- * @category Rpc
+ * @category Integration
  */
 export class RepoRunRpcGroup extends RpcGroup.make(
   StartIndexRepoRun,

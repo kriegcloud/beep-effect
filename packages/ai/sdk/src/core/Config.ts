@@ -10,13 +10,16 @@ import {
  */
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const defaultSettingSources = defaultSettingSources_;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerConfigFromEnv = layerConfigFromEnv_;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const projectSettingSources = projectSettingSources_;

@@ -3,6 +3,7 @@ import type { Options } from "../Schema/Options.js";
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookMap = NonNullable<Options["hooks"]>;
 
@@ -49,6 +50,7 @@ const hasHooks = (hooks: HookMap | undefined): boolean =>
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): HookMap => {
   const merged = emptyHookMap();
@@ -66,6 +68,7 @@ export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): Hook
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const withHook = (event: HookEvent, matcher: HookCallbackMatcher): HookMap => {
   const hooks = emptyHookMap();
@@ -75,6 +78,7 @@ export const withHook = (event: HookEvent, matcher: HookCallbackMatcher): HookMa
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const withHooks = (options: Options, hooks: HookMap): Options => {
   if (!hasHooks(options.hooks) && !hasHooks(hooks)) return options;

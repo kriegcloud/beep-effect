@@ -182,7 +182,7 @@ const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
 /**
  * Error thrown when `omitOptions` removes every literal and cannot return a non-empty result.
  *
- * @category CrossCutting
+ * @category DomainModel
  * @since 0.0.0
  */
 export class LiteralNotInSetError extends TaggedErrorClass<LiteralNotInSetError>($I`LiteralNotInSetError`)(
@@ -200,7 +200,7 @@ export class LiteralNotInSetError extends TaggedErrorClass<LiteralNotInSetError>
 /**
  * Error thrown when different literals encode to the same helper key.
  *
- * @category CrossCutting
+ * @category DomainModel
  * @since 0.0.0
  */
 export class LiteralKitKeyCollisionError extends TaggedErrorClass<LiteralKitKeyCollisionError>(

@@ -10,7 +10,7 @@ const $I = $RepoMemoryStoreId.create("RepoRunStore");
  * Contract for run projections and retrieval packet persistence.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export interface RepoRunStoreShape {
   readonly getRetrievalPacket: (runId: RunId) => Effect.Effect<O.Option<RetrievalPacket>, RepoStoreError>;
@@ -27,6 +27,6 @@ export interface RepoRunStoreShape {
  * Run store service.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class RepoRunStore extends ServiceMap.Service<RepoRunStore, RepoRunStoreShape>()($I`RepoRunStore`) {}

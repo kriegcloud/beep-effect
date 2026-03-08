@@ -15,7 +15,7 @@ import type * as O from "effect/Option";
  * stream. The runtime package keeps this adapter as its stable local seam.
  *
  * @since 0.0.0
- * @category Projections
+ * @category DomainLogic
  */
 export const projectRunEvent = Effect.fn("RepoMemoryRuntime.RunProjector.projectRunEvent")(function* (
   currentRun: O.Option<RepoRun>,

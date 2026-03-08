@@ -128,5 +128,6 @@ const AgentHttpApiValue: HttpApi.HttpApi<"agent", typeof AgentHttpGroupValue> =
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const AgentHttpApi: typeof AgentHttpApiValue = AgentHttpApiValue;

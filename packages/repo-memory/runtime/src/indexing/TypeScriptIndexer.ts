@@ -140,7 +140,7 @@ export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`T
  * Typed failure emitted by deterministic TypeScript indexing.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class TypeScriptIndexError extends TaggedErrorClass<TypeScriptIndexError>($I`TypeScriptIndexError`)(
   "TypeScriptIndexError",
@@ -1263,7 +1263,7 @@ const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupt
  * Deterministically index a TypeScript repository into repo-memory artifacts.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category DomainLogic
  */
 export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRepo")(function* (
   options: TypeScriptIndexRequest

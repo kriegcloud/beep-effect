@@ -8,11 +8,13 @@ const $I = $AiSdkId.create("core/Sandbox/SandboxService");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SandboxProvider = "local" | "cloudflare";
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ExecResult = Readonly<{
   readonly stdout: string;
@@ -22,6 +24,7 @@ export type ExecResult = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SandboxServiceShape {
   /** Tear down the sandbox instance. Noop for local. */
@@ -53,5 +56,6 @@ export interface SandboxServiceShape {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class SandboxService extends ServiceMap.Service<SandboxService, SandboxServiceShape>()($I`SandboxService`) {}

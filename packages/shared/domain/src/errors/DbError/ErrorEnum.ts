@@ -10,6 +10,7 @@ const $I = $SharedDomainId.create("errors/DbError/ErrorEnum");
  * Canonical PostgreSQL SQLSTATE code catalog.
  *
  * @since 0.0.0
+ * @category Configuration
  */
 export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
@@ -549,6 +550,7 @@ export const PostgresErrorEnum = {
  * Single key/value tuple extracted from `PostgresErrorEnum`.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type Pair = {
   readonly [K in keyof typeof PostgresErrorEnum]: readonly [key: K, value: (typeof PostgresErrorEnum)[K]];
@@ -558,6 +560,7 @@ export type Pair = {
  * Non-empty tuple collection used to derive the mapped literal schema.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type PairArray = A.NonEmptyReadonlyArray<Pair>;
 
@@ -567,6 +570,7 @@ const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries) => entr
  * Reverse lookup map from SQLSTATE code to symbolic key.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const ReversePgErrorEnum = Struct.reverse(PostgresErrorEnum);
 
@@ -574,6 +578,7 @@ export const ReversePgErrorEnum = Struct.reverse(PostgresErrorEnum);
  * Literal schema representing the SQLSTATE codes from `PostgresErrorEnum`.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
   $I.annote("ErrorCodeFromKey", {
@@ -585,6 +590,7 @@ export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
  * Runtime-derived type aliases for `ErrorCodeFromKey`.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export declare namespace ErrorCodeFromKey {
   /**

@@ -9,7 +9,7 @@ const $I = $RepoMemoryStoreId.create("RepoRegistryStore");
  * Contract for repository registration persistence.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export interface RepoRegistryStoreShape {
   readonly getRepo: (repoId: RepoId) => Effect.Effect<RepoRegistration, RepoStoreError>;
@@ -21,7 +21,7 @@ export interface RepoRegistryStoreShape {
  * Repository registration store service.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class RepoRegistryStore extends ServiceMap.Service<RepoRegistryStore, RepoRegistryStoreShape>()(
   $I`RepoRegistryStore`

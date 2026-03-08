@@ -56,7 +56,7 @@ class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalo
  * Resolved Effect catalog state derived from the root `package.json` catalog entries.
  *
  * @since 0.0.0
- * @category Model
+ * @category DomainModel
  */
 export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCatalogState`)(
   {

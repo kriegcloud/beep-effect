@@ -29,6 +29,7 @@ import { type HookMap, mergeHookMaps } from "./utils.js";
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookContext = {
   readonly toolUseID: string | undefined;
@@ -40,11 +41,13 @@ export type HookContext = {
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookHandler<R> = (input: HookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>;
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookHandlerFor<E extends HookEvent, R> = (
   input: Extract<HookInput, { hook_event_name: E }>,
@@ -53,11 +56,13 @@ export type HookHandlerFor<E extends HookEvent, R> = (
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookTapHandler<R> = (input: HookInput, context: HookContext) => Effect.Effect<void, HookError, R>;
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export type HookMatcherOptions = Readonly<{
   readonly matcher?: string | undefined;
@@ -69,6 +74,7 @@ export type HookMatcherOptions = Readonly<{
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const callback = <R>(handler: HookHandler<R>) =>
   Effect.gen(function* () {
@@ -94,6 +100,7 @@ export const callback = <R>(handler: HookHandler<R>) =>
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const matcher = (options: {
   readonly matcher?: string | undefined;
@@ -132,6 +139,7 @@ const toMatcherEffect = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const hook = <E extends HookEvent, R>(
   event: E,
@@ -144,6 +152,7 @@ export const hook = <E extends HookEvent, R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const tap = <R>(
   events: HookEvent | ReadonlyArray<HookEvent>,
@@ -156,6 +165,7 @@ export const tap = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onPreToolUse = <R>(
   handler: (input: PreToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -164,6 +174,7 @@ export const onPreToolUse = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onPostToolUse = <R>(
   handler: (input: PostToolUseHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -172,6 +183,7 @@ export const onPostToolUse = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onPostToolUseFailure = <R>(
   handler: (input: PostToolUseFailureHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -180,6 +192,7 @@ export const onPostToolUseFailure = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onNotification = <R>(
   handler: (input: NotificationHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -188,6 +201,7 @@ export const onNotification = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onUserPromptSubmit = <R>(
   handler: (input: UserPromptSubmitHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -196,6 +210,7 @@ export const onUserPromptSubmit = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onSessionStart = <R>(
   handler: (input: SessionStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -204,6 +219,7 @@ export const onSessionStart = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onSessionEnd = <R>(
   handler: (input: SessionEndHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -212,6 +228,7 @@ export const onSessionEnd = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onStop = <R>(
   handler: (input: StopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -220,6 +237,7 @@ export const onStop = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onSubagentStart = <R>(
   handler: (input: SubagentStartHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -228,6 +246,7 @@ export const onSubagentStart = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onSubagentStop = <R>(
   handler: (input: SubagentStopHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -236,6 +255,7 @@ export const onSubagentStop = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onPreCompact = <R>(
   handler: (input: PreCompactHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -244,6 +264,7 @@ export const onPreCompact = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onPermissionRequest = <R>(
   handler: (input: PermissionRequestHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -252,6 +273,7 @@ export const onPermissionRequest = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const onSetup = <R>(
   handler: (input: SetupHookInput, context: HookContext) => Effect.Effect<HookJSONOutput, HookError, R>,
@@ -260,6 +282,7 @@ export const onSetup = <R>(
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export class HookBuilder<R = never> {
   private readonly entries: ReadonlyArray<Effect.Effect<HookMap, HookError, R>>;
@@ -389,5 +412,6 @@ export class HookBuilder<R = never> {
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const builder = () => new HookBuilder();

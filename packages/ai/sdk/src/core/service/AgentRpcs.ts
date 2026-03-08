@@ -19,6 +19,7 @@ import { SessionServiceError } from "./SessionErrors.js";
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const AgentServiceError = S.Union([AgentSdkError, AgentServerAccessError]).pipe(
   S.annotate({ identifier: "AgentServiceError" })
@@ -26,10 +27,12 @@ export const AgentServiceError = S.Union([AgentSdkError, AgentServerAccessError]
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentServiceError = typeof AgentServiceError.Type;
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type AgentServiceErrorEncoded = typeof AgentServiceError.Encoded;
 
@@ -157,5 +160,6 @@ const AgentRpcsValue: RpcGroup.RpcGroup<(typeof AgentRpcMembers)[number]> = RpcG
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const AgentRpcs: typeof AgentRpcsValue = AgentRpcsValue;

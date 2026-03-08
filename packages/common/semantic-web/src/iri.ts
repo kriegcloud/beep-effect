@@ -825,6 +825,7 @@ const iriChecks = makeNonEmptyReferenceChecks("IRI", "IRI", "An RFC 3987 IRI.", 
  * RFC 3987 `IRI-reference` schema, including absolute and relative forms.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   S.brand("IRIReference"),
@@ -839,6 +840,7 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
  * RFC 3987 `IRI-reference` syntax, including absolute and relative forms.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type IRIReference = typeof IRIReference.Type;
 
@@ -846,6 +848,7 @@ export type IRIReference = typeof IRIReference.Type;
  * RFC 3987 `irelative-ref` schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).pipe(
   S.brand("RelativeIRIReference"),
@@ -860,6 +863,7 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
  * RFC 3987 `irelative-ref` syntax.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type RelativeIRIReference = typeof RelativeIRIReference.Type;
 
@@ -867,6 +871,7 @@ export type RelativeIRIReference = typeof RelativeIRIReference.Type;
  * RFC 3987 `absolute-IRI` schema without a fragment component.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   S.brand("AbsoluteIRI"),
@@ -881,6 +886,7 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
  * RFC 3987 `absolute-IRI` syntax without a fragment component.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AbsoluteIRI = typeof AbsoluteIRI.Type;
 
@@ -888,6 +894,7 @@ export type AbsoluteIRI = typeof AbsoluteIRI.Type;
  * RFC 3987 `IRI` schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const IRI = S.String.check(iriChecks).pipe(
   S.brand("IRI"),
@@ -902,5 +909,6 @@ export const IRI = S.String.check(iriChecks).pipe(
  * RFC 3987 `IRI` syntax.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type IRI = typeof IRI.Type;

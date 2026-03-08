@@ -206,11 +206,13 @@ const makeAgentSdkConfig = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export interface AgentSdkConfigShape extends Effect.Success<typeof makeAgentSdkConfig> {}
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, AgentSdkConfigShape>()($I`AgentSdkConfig`) {
   /**

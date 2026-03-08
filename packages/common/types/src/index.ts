@@ -6,12 +6,12 @@
 
 /**
  * @since 0.0.0
- * @category Uncategorized
+ * @category DomainModel
  */
 export type * as TString from "./TString.types.js";
 
 /**
  * @since 0.0.0
- * @category Uncategorized
+ * @category CrossCutting
  */
 export type * as TUnsafe from "./TUnsafe.types.js";

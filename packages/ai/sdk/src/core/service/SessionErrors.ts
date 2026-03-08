@@ -7,6 +7,7 @@ import { SessionTenantAccessError } from "./TenantAccess.js";
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionPoolUnavailableError extends TaggedErrorClass<SessionPoolUnavailableError>()(
   "SessionPoolUnavailableError",
@@ -20,6 +21,7 @@ export class SessionPoolUnavailableError extends TaggedErrorClass<SessionPoolUna
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const SessionServiceError = S.Union([
   SessionManagerError,
@@ -31,9 +33,11 @@ export const SessionServiceError = S.Union([
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionServiceError = typeof SessionServiceError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionServiceErrorEncoded = typeof SessionServiceError.Encoded;

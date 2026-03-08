@@ -13,6 +13,7 @@ import type * as Toolkit from "../Tools/Toolkit.js";
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type ToolNameValidation = Readonly<{
   readonly isValid: boolean;
@@ -26,6 +27,7 @@ const TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const validateToolName = (name: string): ToolNameValidation => {
   const warnings: Array<string> = [];
@@ -78,6 +80,7 @@ export const validateToolName = (name: string): ToolNameValidation => {
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const warnOnInvalidToolName = (name: string) => {
   const result = validateToolName(name);
@@ -97,6 +100,7 @@ export const warnOnInvalidToolName = (name: string) => {
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type McpToolContext = {
   readonly signal: AbortSignal | undefined;
@@ -111,6 +115,7 @@ type SdkToolInputSchema = Parameters<typeof sdkTool>[2];
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type McpToolHandler<Parameters, R, E> = (
   params: Parameters,
@@ -119,6 +124,7 @@ export type McpToolHandler<Parameters, R, E> = (
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type McpToolInputSchema = ZodRawShape | z.ZodTypeAny;
 
@@ -127,6 +133,7 @@ export type McpToolInputSchema = ZodRawShape | z.ZodTypeAny;
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type McpToolOptions<ParametersSchema extends S.Top & { readonly DecodingServices: never }, R, E> = {
   readonly name: string;
@@ -138,11 +145,13 @@ export type McpToolOptions<ParametersSchema extends S.Top & { readonly DecodingS
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type ToolResultRenderer = (tool: Tool.Any, result: Tool.HandlerResult<Tool.Any>) => SdkCallToolResult;
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type ToolErrorRenderer = (tool: Tool.Any, error: unknown) => SdkCallToolResult;
 
@@ -151,6 +160,7 @@ export type ToolErrorRenderer = (tool: Tool.Any, error: unknown) => SdkCallToolR
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type ToolkitMcpOptions = Readonly<{
   readonly inputSchema?: Record<string, McpToolInputSchema>;
@@ -273,6 +283,7 @@ const toStructuredContent = (value: unknown): Record<string, unknown> | undefine
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const makeCallToolResult = (value: unknown, isError = false): SdkCallToolResult => {
   const structuredContent = toStructuredContent(value);
@@ -298,6 +309,7 @@ const defaultRenderError: ToolErrorRenderer = (_tool, error) => makeCallToolResu
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const tool = <ParametersSchema extends S.Top & { readonly DecodingServices: never }, R, E>(
   options: McpToolOptions<ParametersSchema, R, E>
@@ -349,6 +361,7 @@ export const tool = <ParametersSchema extends S.Top & { readonly DecodingService
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = never, RX = never>(
   toolkit: Toolkit.Toolkit<Tools>,
@@ -397,6 +410,7 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type CreateSdkMcpServerOptions<R = never> = {
   readonly name: string;
@@ -409,6 +423,7 @@ export type CreateSdkMcpServerOptions<R = never> = {
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const createSdkMcpServer: <R = never>(
   options: CreateSdkMcpServerOptions<R>
@@ -452,6 +467,7 @@ const closeSdkMcpServer = (server: { readonly instance?: { close?: () => Promise
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const createSdkMcpServerScoped: <R = never>(
   options: CreateSdkMcpServerOptions<R>

@@ -20,7 +20,7 @@ const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
 
 /**
  * @since 0.0.0
- * @category CrossCutting
+ * @category DomainModel
  */
 export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInterpolationError>(
   "@beep/identity/errors/IdentityInterpolationError"
@@ -39,7 +39,7 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
 
 /**
  * @since 0.0.0
- * @category CrossCutting
+ * @category DomainModel
  */
 export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmentCountError>(
   "@beep/identity/errors/IdentitySegmentCountError"

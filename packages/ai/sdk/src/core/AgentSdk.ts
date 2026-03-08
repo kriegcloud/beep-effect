@@ -21,6 +21,7 @@ const $I = $AiSdkId.create("core/AgentSdk");
 
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type CreateSdkMcpServerOptions = Readonly<{
   readonly name: string;
@@ -536,6 +537,7 @@ const makeAgentSdk = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface AgentSdkShape extends Effect.Success<typeof makeAgentSdk> {}
 
@@ -556,6 +558,7 @@ export interface AgentSdkShape extends Effect.Success<typeof makeAgentSdk> {}
  */
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class AgentSdk extends ServiceMap.Service<AgentSdk, AgentSdkShape>()($I`AgentSdk`) {
   /**

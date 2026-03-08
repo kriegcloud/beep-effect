@@ -27,6 +27,7 @@ import { layerR2, type R2Bucket } from "./StorageR2.js";
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageLayerOptions = Readonly<{
   readonly directory?: string;
@@ -35,15 +36,18 @@ export type StorageLayerOptions = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageBackend = "filesystem" | "bun" | "r2" | "kv";
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageMode = "standard" | "journaled";
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type CloudflareStorageBindings = Readonly<{
   readonly r2Bucket?: R2Bucket;
@@ -52,6 +56,7 @@ export type CloudflareStorageBindings = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageLayers<E = unknown, R = unknown> = {
   readonly chatHistory: Layer.Layer<ChatHistoryStore, E, R>;
@@ -62,6 +67,7 @@ export type StorageLayers<E = unknown, R = unknown> = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageLayersWithSync<E = unknown, R = unknown> = StorageLayers<E, R> & {
   readonly sync?: Layer.Layer<SyncService, E, R>;
@@ -69,6 +75,7 @@ export type StorageLayersWithSync<E = unknown, R = unknown> = StorageLayers<E, R
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
   readonly syncInterval?: Duration.Input;
@@ -82,6 +89,7 @@ export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageSyncOptions<R = never> = Omit<StorageSyncLayerOptions<R>, "directory"> & {
   readonly url: string;
@@ -89,6 +97,7 @@ export type StorageSyncOptions<R = never> = Omit<StorageSyncLayerOptions<R>, "di
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type StorageLayerBundleOptions<R = never> = StorageLayerOptions & {
   readonly backend?: StorageBackend;
@@ -264,6 +273,7 @@ const provideBunLayers = <E, R>(layers: StorageLayers<E, R>): StorageLayers<E, E
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layersFileSystem = (options?: StorageLayerOptions): StorageLayers => {
   const tenantError = validateTenant(options?.tenant);
@@ -275,6 +285,7 @@ export const layersFileSystem = (options?: StorageLayerOptions): StorageLayers =
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layersFileSystemJournaled = (options?: StorageLayerOptions): StorageLayers => {
   const tenantError = validateTenant(options?.tenant);
@@ -289,6 +300,7 @@ const bunPathLayer = BunPath.layer;
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layersFileSystemBun = (options?: StorageLayerOptions): StorageLayers => {
   const tenantError = validateTenant(options?.tenant);
@@ -301,6 +313,7 @@ export const layersFileSystemBun = (options?: StorageLayerOptions): StorageLayer
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): StorageLayers => {
   const tenantError = validateTenant(options?.tenant);
@@ -313,6 +326,7 @@ export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): Sto
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerFileSystem = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
@@ -325,6 +339,7 @@ export const layerFileSystem = (options?: StorageLayerOptions) => {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerFileSystemBun = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
@@ -337,6 +352,7 @@ export const layerFileSystemBun = (options?: StorageLayerOptions) => {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerFileSystemJournaled = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
@@ -349,6 +365,7 @@ export const layerFileSystemJournaled = (options?: StorageLayerOptions) => {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerFileSystemBunJournaled = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
@@ -463,6 +480,7 @@ const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
@@ -485,6 +503,7 @@ export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
@@ -497,36 +516,42 @@ export const layerFileSystemBunJournaledWithSyncWebSocket = <R = never>(
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options?: StorageLayerBundleOptions & { readonly backend?: "bun" }
 ): StorageLayersWithSync<unknown, never>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "filesystem" }
 ): StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "r2" }
 ): StorageLayersWithSync<unknown, never>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "kv" }
 ): StorageLayersWithSync<unknown, never>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options?: StorageLayerBundleOptions
 ): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions = {}
