@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, FileSystem, HashSet, Inspectable, Order, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -123,6 +123,25 @@ const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function
     return A.empty<string>();
   }
 
+  const rootResolvedPath = path.resolve(root);
+  const rootRealPath = yield* fs
+    .realPath(root)
+    .pipe(Effect.mapError(toLintFileDiscoveryError(root, root, "Failed to resolve root path")));
+
+  if (rootResolvedPath !== rootRealPath) {
+    return A.empty<string>();
+  }
+
+  const isWithinRoot = (candidateRealPath: string): boolean => {
+    const relativePath = path.relative(rootRealPath, candidateRealPath);
+    return (
+      relativePath === "" ||
+      (!path.isAbsolute(relativePath) && relativePath !== ".." && !Str.startsWith(`..${path.sep}`)(relativePath))
+    );
+  };
+
+  const visitedDirectories = MutableHashSet.make(rootRealPath);
+
   const walk = Effect.fn("Lint.collectTypeScriptFiles.walk")(function* (
     currentPath: string
   ): Effect.fn.Return<ReadonlyArray<string>, LintFileDiscoveryError, FileSystem.FileSystem | Path.Path> {
@@ -134,14 +153,28 @@ const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function
 
     for (const entry of entries) {
       const candidate = path.join(currentPath, entry);
+      const candidateResolvedPath = path.resolve(candidate);
+      const candidateRealPath = yield* fs
+        .realPath(candidate)
+        .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to resolve path")));
+
+      // Skip symlinked paths so discovery cannot escape the declared root or loop back into it.
+      if (candidateResolvedPath !== candidateRealPath || !isWithinRoot(candidateRealPath)) {
+        continue;
+      }
+
       const stat = yield* fs
         .stat(candidate)
         .pipe(Effect.mapError(toLintFileDiscoveryError(root, candidate, "Failed to stat path")));
 
       if (stat.type === "Directory") {
+        if (MutableHashSet.has(visitedDirectories, candidateRealPath)) {
+          continue;
+        }
         if (isExcludedTypeScriptSourcePath(`${candidate}/`)) {
           continue;
         }
+        MutableHashSet.add(visitedDirectories, candidateRealPath);
         results = A.appendAll(results, yield* walk(candidate));
         continue;
       }

@@ -1,4 +1,0 @@
-timestamp=20260228T105739Z
-sha=b2b0202da5ea768eb9da09687b43b92d562b91d8
-spool=tooling/ast-kg/.cache/graphiti-spool/b2b0202da5ea768eb9da09687b43b92d562b91d8.jsonl
-group=beep-ast-kg-p7-replay-20260228T105739Z

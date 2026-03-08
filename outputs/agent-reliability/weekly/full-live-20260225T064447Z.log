@@ -1,1 +1,0 @@
-$ bun run tooling/agent-eval/src/bin.ts bench --live true --output outputs/agent-reliability/runs/latest-live.json --report-output outputs/agent-reliability/weekly/latest-live-report.md

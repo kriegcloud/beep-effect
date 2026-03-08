@@ -1,11 +1,11 @@
+import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "@beep/repo-cli/commands/Laws/AllowlistCheck";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
-import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "../src/commands/Laws/AllowlistCheck.js";
 
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
-const withTempRepo = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
+const withTempRepo = <A, E>(use: (tmpDir: string) => Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>) =>
   Effect.acquireUseRelease(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

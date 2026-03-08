@@ -1,3 +1,0 @@
-Palantir for Developers 
-
- /sitemap.xml

@@ -7,7 +7,6 @@ import {
   normalizeRedactedOption,
   parseOptionalCommaSeparatedList,
   preferFirstOption,
-  readProcessEnv,
 } from "./internal/ConfigTransforms.js";
 import { layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
@@ -84,9 +83,8 @@ const makeSessionConfig = Effect.gen(function* () {
   const allowedTools = parseOptionalCommaSeparatedList(allowedToolsValue);
   const disallowedTools = parseOptionalCommaSeparatedList(disallowedToolsValue);
 
-  const processEnv = yield* readProcessEnv;
   const resolvedApiKey = preferFirstOption(apiKey, apiKeyFallback);
-  const env = buildAuthEnv(processEnv, resolvedApiKey, sessionAccessToken);
+  const env = buildAuthEnv({}, resolvedApiKey, sessionAccessToken);
 
   if (!O.isSome(resolvedApiKey) && !O.isSome(sessionAccessToken)) {
     return yield* missingCredentialsError();

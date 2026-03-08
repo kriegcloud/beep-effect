@@ -1,6 +1,0 @@
-URL: https://blog.palantir.com/ontology-oriented-software-development-68d7353fdb12
-Title: Ontology-Oriented Software Development | Palantir | Palantir Blog
-Category: ontology-core
-Status: Successfully fetched via Chrome browser automation
-Content Length: ~12000 words
-Key Concepts Found: Ontology, OSDK, Object Types, enterprise architecture, data/logic/action elements, GUI/API/NLI interfaces, low-code/pro-code, AIP

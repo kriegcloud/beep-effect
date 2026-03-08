@@ -1,3 +1,0 @@
-Palantir Apollo 
-
- /sitemap.xml

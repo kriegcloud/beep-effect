@@ -1,3 +1,0 @@
-timestamp=20260228T110010Z
-sha=b2b0202da5ea768eb9da09687b43b92d562b91d8
-group=beep-ast-kg-p7-drill-20260228T110010Z
