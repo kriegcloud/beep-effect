@@ -1,4 +1,0 @@
-{"type":"suite.started","atEpochMs":1772301906188,"plannedRunCount":1,"strictTaskCount":1,"maxWallMinutes":10}
-{"type":"run.started","atEpochMs":1772301906189,"runId":"apps_web_p4_token_01:adaptive_kg:claude:1","runIndex":1,"totalRuns":1,"taskId":"apps_web_p4_token_01","condition":"adaptive_kg","agent":"claude","trial":1}
-{"type":"run.completed","atEpochMs":1772301938106,"runId":"apps_web_p4_token_01:adaptive_kg:claude:1","runIndex":1,"totalRuns":1,"success":true,"failureType":null,"wallMs":25588.13162}
-{"type":"suite.completed","atEpochMs":1772301938106,"status":"completed","completedRunCount":1,"plannedRunCount":1}

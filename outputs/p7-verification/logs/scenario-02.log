@@ -1,6 +1,0 @@
-Error: No test files were selected using current configuration.
-
-Root directory:  /home/elpresidank/YeeBois/projects/beep-effect
-Test file match: packages/*/dtslint/**/*.tst.*, packages/common/schema/dtslint/**/*.tst.*, packages/common/data/dtslint/**/*.tst.*, tooling/*/dtslint/**/*.tst.*, apps/*/dtslint/**/*.tst.*, packages/shared/domain/dtslint/**/*.tst.*, packages/shared/env/dtslint/**/*.tst.*, packages/ui/ui/dtslint/**/*.tst.*, packages/ai/sdk/dtslint/**/*.tst.*
-Path match:      packages/common/ontology/test/types/object-specifier.tst.ts
-
