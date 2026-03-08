@@ -8,6 +8,7 @@ import {
   RepoRunServiceError,
   RepoRunWorkflows,
   RepoRunWorkflowsLayer,
+  RepoSemanticEnrichmentService,
   TypeScriptIndexService,
 } from "@beep/repo-memory-runtime";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
@@ -654,11 +655,13 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         Layer.provide([fileSystemLayer, repoMemorySqlLayer])
       );
       const groundedRetrievalLayer = GroundedRetrievalService.layer.pipe(Layer.provide(repoMemorySqlLayer));
+      const semanticEnrichmentLayer = RepoSemanticEnrichmentService.layer;
       const repoRunServiceLayer = RepoRunService.layer.pipe(
         Layer.provide([
           repoMemorySqlLayer,
           eventJournalLayer,
           groundedRetrievalLayer,
+          semanticEnrichmentLayer,
           typeScriptIndexLayer,
           Reactivity.layer,
         ])
