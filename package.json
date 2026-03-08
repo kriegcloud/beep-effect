@@ -1,0 +1,57 @@
+{
+  "name": "clownface",
+  "version": "2.0.3",
+  "description": "Simple but powerful graph traversing library",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "docs:build": "jsdoc2md --no-gfm -f index.js lib/* > docs/api.md; git add docs/api.md",
+    "docs:serve": "docsify serve docs",
+    "lint": "eslint . --quiet --ignore-path .gitignore",
+    "test": "c8 --all --reporter=lcovonly mocha --recursive test",
+    "release": "changeset publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zazuko/clownface.git"
+  },
+  "keywords": [
+    "rdf",
+    "graph",
+    "traversing"
+  ],
+  "author": "Thomas Bergwinkl <bergi@axolotlfarm.org> (https://www.bergnet.org/people/bergi/card#me)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zazuko/clownface/issues"
+  },
+  "homepage": "https://zazuko.github.io/clownface/#/",
+  "dependencies": {
+    "@rdfjs/data-model": "^2.0.1",
+    "@rdfjs/environment": "0 - 1",
+    "@rdfjs/namespace": "^2.0.0"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.1",
+    "@rdfjs/dataset": "^2.0.1",
+    "@rdfjs/parser-n3": "^2.0.0",
+    "@tpluscode/eslint-config": "^0.4.4",
+    "c8": "^7.14.0",
+    "chai": "^4.3.7",
+    "docsify-cli": "^4.4.0",
+    "husky": "^4.2.5",
+    "jsdoc-to-markdown": "^5.0.3",
+    "mocha": "^10.2.0",
+    "rdf-dataset-ext": "^1.0.0",
+    "rdf-ext": "^2.2.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^9.0.2",
+    "string-to-stream": "^3.0.1",
+    "tbbt-ld": "^1.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run docs:build"
+    }
+  }
+}
