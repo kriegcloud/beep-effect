@@ -55,4 +55,4 @@ Define the representation boundaries and adapter seams that let `@beep/semantic-
 
 ## Outcome
 
-P2 is complete. The representation boundaries and adapter seams are explicit enough for service-contract design and later implementation planning.
+This P2 baseline is ready for execution. The representation boundaries and adapter seams are explicit enough for service-contract design and later implementation planning without implying that a separate P2 execution session already ran.

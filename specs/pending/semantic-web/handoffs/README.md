@@ -2,6 +2,17 @@
 
 This directory now contains the formal phase handoffs and orchestrator prompts for the pending `@beep/semantic-web` spec package.
 
+## Kickoff Guidance
+
+- Start with [HANDOFF_P0.md](./HANDOFF_P0.md) and [P0_ORCHESTRATOR_PROMPT.md](./P0_ORCHESTRATOR_PROMPT.md) unless [`../outputs/manifest.json`](../outputs/manifest.json) sets a later `currentTargetPhase`.
+- In Plan Mode, produce a decision-complete phase plan before editing the current phase artifact.
+- In a non-Plan execution session, refine the existing phase output instead of recreating it.
+
+## Combined Overview
+
+- [HANDOFF_P0-P4.md](./HANDOFF_P0-P4.md) - cross-phase overview handoff
+- [P0-P4_ORCHESTRATOR_PROMPT.md](./P0-P4_ORCHESTRATOR_PROMPT.md) - combined orchestration prompt
+
 ## Phase Handoffs
 
 - [HANDOFF_P0.md](./HANDOFF_P0.md) - Package Topology and Boundaries
@@ -20,4 +31,4 @@ This directory now contains the formal phase handoffs and orchestrator prompts f
 
 ## Preserved Exploratory Artifact
 
-- [NEXT_SESSION_SPEC_PROMPT.md](./NEXT_SESSION_SPEC_PROMPT.md) - retained as the exploratory bootstrap prompt that created this formal package, but superseded by the P0-P4 handoff set
+- [NEXT_SESSION_SPEC_PROMPT.md](./NEXT_SESSION_SPEC_PROMPT.md) - retained as historical provenance for the bootstrap formalization step only; do not use it for current phase execution

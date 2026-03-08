@@ -1,6 +1,6 @@
 # @beep/semantic-web — Reflection Log
 
-> Append learnings after each phase completes. Use this log to capture corrections, surprises, and unresolved decisions without rewriting the normative docs.
+> Append learnings after each phase execution session completes. Use this log to capture corrections, surprises, and unresolved decisions without rewriting the normative docs. Only record remaining questions or risks that are not already locked defaults.
 
 ---
 
@@ -20,7 +20,7 @@
 
 **Corrections to initial assumptions:**
 
-**Open questions carried to P1:**
+**Remaining questions or risks carried to P1:**
 
 ---
 
@@ -40,7 +40,7 @@
 
 **Corrections to P0 findings:**
 
-**Open questions carried to P2:**
+**Remaining questions or risks carried to P2:**
 
 ---
 
@@ -60,7 +60,7 @@
 
 **Corrections to P1 design:**
 
-**Open questions carried to P3:**
+**Remaining questions or risks carried to P3:**
 
 ---
 
@@ -80,7 +80,7 @@
 
 **Metadata policy corrections:**
 
-**Open questions carried to P4:**
+**Remaining questions or risks carried to P4:**
 
 ---
 

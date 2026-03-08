@@ -5,6 +5,9 @@
   "created": "2026-03-08",
   "updated": "2026-03-08",
   "currentSourceOfTruth": "README.md",
+  "currentTargetPhase": "P0",
+  "executionReadiness": "ready-to-kick-off",
+  "phaseStatusMeaning": "A phase status of pending means phase execution has not started yet. The corresponding output file already exists as a pre-authored decision-complete baseline to refine during execution.",
   "structuralPatternsReused": [
     "normative root README",
     "short quick start",
@@ -121,5 +124,5 @@
     "Should the first adapter-focused implementation slice include a public Web Annotation adapter or stop at the seam plus core evidence-anchor values?",
     "Should SemanticSchemaMetadata.specifications remain descriptive-only or gain machine-checkable enforcement in v1?"
   ],
-  "nextAction": "Start with P0 using handoffs/HANDOFF_P0.md in a plan-first session, then refine the phase artifact in a non-Plan execution session."
+  "nextAction": "Kick off with P0 using handoffs/HANDOFF_P0.md and handoffs/P0_ORCHESTRATOR_PROMPT.md. In Plan Mode, produce a decision-complete P0 plan first; in a non-Plan execution session, refine the existing P0 baseline."
 }

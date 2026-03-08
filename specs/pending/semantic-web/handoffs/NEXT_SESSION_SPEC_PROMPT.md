@@ -6,7 +6,9 @@
 
 ## Usage
 
-Copy the `text` block below into a fresh Codex session.
+Historical provenance only. Do not use this prompt for current phase execution.
+
+If you need to reconstruct the original formalization step, copy the `text` block below into a fresh Codex session.
 
 This prompt is for creating the formal spec package for `@beep/semantic-web` from the exploratory material already captured in this repo.
 

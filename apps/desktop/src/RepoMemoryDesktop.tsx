@@ -40,8 +40,9 @@ const desktopSessionId = "desktop-shell";
 const sidecarBaseUrlKey = "beep.repoMemory.sidecarBaseUrl";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunId = S.decodeUnknownSync(RunId);
-const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string =>
-  import.meta.env.DEV && typeof window !== "undefined" ? window.location.origin : bootstrap.baseUrl;
+const browserDevClientBaseUrl = (): string | null =>
+  import.meta.env.DEV && typeof window !== "undefined" ? window.location.origin : null;
+const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string => browserDevClientBaseUrl() ?? bootstrap.baseUrl;
 
 type ConnectionState = "idle" | "connecting" | "connected" | "error";
 type ActionState = "idle" | "registering" | "indexing" | "querying" | "refreshing" | "streaming";
@@ -128,6 +129,9 @@ const runStatusTone = (status: RepoRun["status"]): string => {
 
 const isTerminalEvent = (event: RunStreamEvent): boolean =>
   event.kind === "completed" || event.kind === "failed" || event.kind === "interrupted";
+
+const isTerminalRunStatus = (status: RepoRun["status"]): boolean =>
+  status === "completed" || status === "failed" || status === "interrupted";
 
 const eventLabel = (event: RunStreamEvent): string => {
   if (event.kind === "progress") {
@@ -448,6 +452,27 @@ export function RepoMemoryDesktop() {
     );
 
     try {
+      const browserBaseUrl = browserDevClientBaseUrl();
+      const normalizedBrowserBaseUrl = browserBaseUrl === null ? null : normalizeSidecarBaseUrl(browserBaseUrl);
+      const normalizedInputBaseUrl = normalizeSidecarBaseUrl(baseUrlInput);
+
+      if (
+        shellMode === "browser" &&
+        normalizedBrowserBaseUrl !== null &&
+        normalizedBrowserBaseUrl !== normalizedInputBaseUrl
+      ) {
+        setStatusMessage("Connecting to the repo-memory sidecar through the desktop proxy.");
+
+        try {
+          await connectToBaseUrl(normalizedBrowserBaseUrl, {
+            persistBaseUrl: false,
+          });
+          return;
+        } catch {
+          setStatusMessage("Desktop proxy unavailable. Falling back to the direct sidecar URL.");
+        }
+      }
+
       await connectToBaseUrl(baseUrlInput);
     } catch (error) {
       clearClientState("The shell could not reach the repo-memory sidecar.", "error", errorToMessage(error));
@@ -570,6 +595,44 @@ export function RepoMemoryDesktop() {
       void connectManaged();
     }
   }, [nativeAvailable, shellMode]);
+
+  useEffect(() => {
+    if (
+      client === null ||
+      selectedRun === null ||
+      isTerminalRunStatus(selectedRun.status) ||
+      typeof window === "undefined"
+    ) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshRun(client, selectedRun.id).catch((error) => {
+        startTransition(() => {
+          setErrorMessage(errorToMessage(error));
+        });
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [client, selectedRun?.id, selectedRun?.status]);
+
+  useEffect(() => {
+    if (selectedRun === null || !isTerminalRunStatus(selectedRun.status)) {
+      return;
+    }
+
+    if (activeStreamRunId === selectedRun.id) {
+      stopStreaming();
+    }
+
+    if (actionState !== "idle") {
+      startTransition(() => {
+        setActionState("idle");
+        setStatusMessage(`Run ${selectedRun.id} reached terminal state: ${selectedRun.status}.`);
+      });
+    }
+  }, [selectedRun?.id, selectedRun?.status, activeStreamRunId, actionState]);
 
   const refresh = async () => {
     if (client === null) {
@@ -893,7 +956,7 @@ export function RepoMemoryDesktop() {
                 </div>
               </details>
             </div>
-          ) : (
+          ) : shellMode === "manual-override" ? (
             <form
               className="stack"
               onSubmit={(event) => {
@@ -937,9 +1000,53 @@ export function RepoMemoryDesktop() {
                   >
                     Resume managed sidecar
                   </button>
-                ) : null}
+                ) : (
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    disabled={connectionState === "connecting"}
+                    onClick={() => setShellMode("browser")}
+                  >
+                    Use desktop proxy
+                  </button>
+                )}
               </div>
             </form>
+          ) : (
+            <div className="stack">
+              <p className="field-note">
+                Browser dev prefers the desktop proxy first and falls back to the saved direct sidecar URL if the proxy
+                is unavailable.
+              </p>
+              <div className="button-row">
+                <button type="button" disabled={connectionState === "connecting"} onClick={() => void connect()}>
+                  {connectionState === "connecting" ? "Connecting..." : "Connect"}
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={client === null}
+                  onClick={() => void refresh()}
+                >
+                  Refresh
+                </button>
+                <button type="button" className="button-secondary" disabled={client === null} onClick={disconnect}>
+                  Disconnect
+                </button>
+              </div>
+              <details className="debug-panel">
+                <summary>Debug override</summary>
+                <div className="stack">
+                  <p className="field-note">
+                    Use a direct sidecar URL only when you need to inspect a different runtime or bypass the desktop
+                    proxy.
+                  </p>
+                  <button type="button" className="button-secondary" onClick={() => setShellMode("manual-override")}>
+                    Use manual URL override
+                  </button>
+                </div>
+              </details>
+            </div>
           )}
           <p className="status-line">{statusMessage}</p>
           {errorMessage === null ? null : <p className="notice notice-error">{errorMessage}</p>}

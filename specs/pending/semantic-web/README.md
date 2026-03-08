@@ -256,19 +256,21 @@ Canonical priority order:
 | P3 | Service Contract and Metadata Design | [p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md) | Service contracts, provenance posture, evidence anchors, and metadata pattern usage are explicit |
 | P4 | Implementation Plan and Verification Strategy | [p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md) | File/module rollout order, acceptance criteria, and `bun` verification commands are explicit |
 
+These output files are pre-authored, decision-complete baselines for future phase execution. Their presence does not mean a phase execution session already ran; the manifest phase statuses track execution readiness, not whether a baseline document exists.
+
 ## Success Criteria
 
-- [ ] The exploratory semantic-web folder has been formalized into a pending spec package with normative root docs.
-- [ ] The initial package topology is clear enough that implementation can follow it without redesigning the boundary.
-- [ ] The boundary with `@beep/schema` is explicit.
-- [ ] JSON-LD, provenance, evidence anchoring, and semantic metadata policy are decision-complete for v1.
-- [ ] Upstream libraries are explicitly classified as adapter targets, implementation references, or research-only references.
-- [ ] The phased workstream, handoffs, prompts, and outputs are present and internally consistent.
-- [ ] Verification expectations use `bun` and reflect actual repo and package scripts.
+- [x] The exploratory semantic-web folder has been formalized into a pending spec package with normative root docs.
+- [x] The initial package topology is clear enough that implementation can follow it without redesigning the boundary.
+- [x] The boundary with `@beep/schema` is explicit.
+- [x] JSON-LD, provenance, evidence anchoring, and semantic metadata policy are decision-complete for v1.
+- [x] Upstream libraries are explicitly classified as adapter targets, implementation references, or research-only references.
+- [x] The phased workstream, handoffs, prompts, and outputs are present and internally consistent.
+- [x] Verification expectations use `bun` and reflect actual repo and package scripts.
 
 ## Verification Expectations
 
-Spec maintenance and later implementation work should use the package-scoped `bun` commands already exposed by the repo:
+Later implementation work should use the package-scoped `bun` commands already exposed by the repo:
 
 ```bash
 bun run --filter=@beep/semantic-web check
@@ -292,3 +294,5 @@ Spec-doc maintenance for this folder should additionally keep Markdown and JSON 
 | Question | Options | Recommended Default |
 |---|---|---|
 | How broad should the first public SPARQL contract be? | `no public SPARQL contract in v1`, `minimal query contract only`, `parser + runtime surfaces in v1` | `minimal query contract only`; keep Traqula and Comunica as research inputs until there is stronger local need |
+| Should the first adapter-focused implementation slice include a public Web Annotation adapter? | `core seam plus anchor values only`, `core seam plus public Web Annotation adapter in the first adapter slice` | `ship the seam and core evidence-anchor values first`; add the public adapter in the first adapter-focused slice only if it does not slow core value delivery |
+| Should `SemanticSchemaMetadata.specifications` stay descriptive-only or become machine-checkable in v1? | `typed but descriptive`, `partially machine-checkable in v1` | `typed but descriptive in v1`; avoid overfitting the first release around citation-enforcement mechanics |

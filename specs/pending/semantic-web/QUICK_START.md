@@ -32,6 +32,13 @@
 8. [outputs/p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md)
 9. [outputs/p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md)
 
+## Kickoff Posture
+
+- Start phase execution with [HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) and [P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) unless [`outputs/manifest.json`](./outputs/manifest.json) sets a later `currentTargetPhase`.
+- Treat the existing `outputs/p0` through `outputs/p4` docs as pre-authored baselines to refine, not as proof that phase execution already happened.
+- In Plan Mode, produce a decision-complete phase plan before editing the current phase artifact.
+- In a non-Plan execution session, refine the current phase output instead of recreating it from scratch.
+
 ## Phase Entry Files
 
 | Phase | Handoff | Orchestrator | Output |
@@ -42,7 +49,7 @@
 | P3 | [HANDOFF_P3.md](./handoffs/HANDOFF_P3.md) | [P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md) | [p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md) |
 | P4 | [HANDOFF_P4.md](./handoffs/HANDOFF_P4.md) | [P4_ORCHESTRATOR_PROMPT.md](./handoffs/P4_ORCHESTRATOR_PROMPT.md) | [p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md) |
 
-## Verification Commands
+## Later Implementation Verification
 
 ```bash
 bun run --filter=@beep/semantic-web check
@@ -50,3 +57,5 @@ bun run --filter=@beep/semantic-web lint
 bun run --filter=@beep/semantic-web test
 bun run --filter=@beep/semantic-web build
 ```
+
+For spec-only maintenance in this folder, keep Markdown and JSON artifacts valid in addition to preserving the package-level verification contract above.

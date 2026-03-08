@@ -61,9 +61,11 @@ The metadata pattern must record:
 
 ## Outcome
 
-P3 is complete. The package now has a clear contract layer, a bounded provenance posture, and an explicit metadata policy that later implementation can follow without reopening foundational design choices.
+This P3 baseline is ready for execution. The package now has a clear contract layer, a bounded provenance posture, and an explicit metadata policy that later implementation can follow without implying that a separate P3 execution session already ran.
 
-## Remaining Open Question
+## Remaining Open Questions
+
+### SPARQL Contract Breadth
 
 Should the initial `services/sparql-query` contract support only query execution inputs and outputs, or also expose parsed or generated query artifacts?
 
@@ -71,3 +73,12 @@ Recommended default:
 
 - keep the stable v1 contract at execution inputs and outputs only
 - treat parsed or generated query artifacts as extension-tier work
+
+### Metadata Citation Enforcement
+
+Should `SemanticSchemaMetadata.specifications` stay strongly typed but descriptive in v1, or become partially machine-checkable immediately?
+
+Recommended default:
+
+- keep `specifications` strongly typed but descriptive in v1
+- defer machine-checkable citation enforcement until there is stronger local evidence that it improves real package workflows
