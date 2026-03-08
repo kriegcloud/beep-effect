@@ -41,7 +41,7 @@ services:
     volumes:
       - ./docker/grafana/otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
   dozzle:
-    image: amir20/dozzle:v10.0.7
+    image: amir20/dozzle:v10.1.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
