@@ -6,14 +6,17 @@ test("EventLog audit schema writes entries", async () => {
   const program = Effect.scoped(
     Effect.gen(function* () {
       const log = yield* EventLog.EventLog;
-      yield* log.write({
-        schema: EventLog.AuditEventSchema,
+      const event = EventLog.normalizeAuditEventInput({
         event: "tool_use",
         payload: {
           sessionId: "session-1",
           toolName: "tool",
           status: "start",
         },
+      });
+      yield* log.write({
+        schema: EventLog.AuditEventLog,
+        ...event,
       });
       return yield* log.entries;
     }).pipe(Effect.provide(EventLog.layerMemoryWithAudit))

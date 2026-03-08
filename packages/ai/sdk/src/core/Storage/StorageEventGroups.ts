@@ -1,8 +1,11 @@
+import { $AiSdkId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as EventGroup from "effect/unstable/eventlog/EventGroup";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { ArtifactRecord, ChatEvent } from "../Schema/Storage.js";
 import { StorageError } from "./StorageError.js";
+
+const $I = $AiSdkId.create("core/Storage/StorageEventGroups");
 
 /**
  * @since 0.0.0
@@ -20,15 +23,16 @@ export const ArtifactDeleteTag = "artifact_deleted" as const;
 /**
  * @since 0.0.0
  */
-export const ArtifactDelete = S.Struct({
-  id: S.String,
-  sessionId: S.String,
-  deletedAt: S.DateTimeUtcFromMillis,
-});
-/**
- * @since 0.0.0
- */
-export type ArtifactDelete = typeof ArtifactDelete.Type;
+export class ArtifactDelete extends S.Class<ArtifactDelete>($I`ArtifactDelete`)(
+  {
+    id: S.String,
+    sessionId: S.String,
+    deletedAt: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("ArtifactDelete", {
+    description: "Tombstone payload emitted when an artifact is removed from session storage.",
+  })
+) {}
 /**
  * @since 0.0.0
  */
@@ -64,8 +68,8 @@ export const ArtifactEventGroup = EventGroup.empty
 /**
  * @since 0.0.0
  */
-export const ChatEventSchema = EventLog.schema(ChatEventGroup);
+export const ChatEventLog = EventLog.schema(ChatEventGroup);
 /**
  * @since 0.0.0
  */
-export const ArtifactEventSchema = EventLog.schema(ArtifactEventGroup);
+export const ArtifactEventLog = EventLog.schema(ArtifactEventGroup);

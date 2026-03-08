@@ -8,21 +8,17 @@ const $I = $AiSdkId.create("core/Schema/Mcp");
 /**
  * @since 0.0.0
  */
-export const McpStdioServerConfig = S.Struct({
-  type: S.optional(S.Literal("stdio")),
-  command: S.String,
-  args: S.optional(S.Array(S.String)),
-  env: S.optional(S.Record(S.String, S.String)),
-}).annotate(
+export class McpStdioServerConfig extends S.Class<McpStdioServerConfig>($I`McpStdioServerConfig`)(
+  {
+    type: S.optional(S.Literal("stdio")),
+    command: S.String,
+    args: S.optional(S.Array(S.String)),
+    env: S.optional(S.Record(S.String, S.String)),
+  },
   $I.annote("McpStdioServerConfig", {
-    description: "Schema for McpStdioServerConfig.",
+    description: "Configuration for launching an MCP server over stdio.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpStdioServerConfig = typeof McpStdioServerConfig.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -31,20 +27,16 @@ export type McpStdioServerConfigEncoded = typeof McpStdioServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSSEServerConfig = S.Struct({
-  type: S.Literal("sse"),
-  url: S.String,
-  headers: S.optional(S.Record(S.String, S.String)),
-}).annotate(
+export class McpSSEServerConfig extends S.Class<McpSSEServerConfig>($I`McpSSEServerConfig`)(
+  {
+    type: S.Literal("sse"),
+    url: S.String,
+    headers: S.optional(S.Record(S.String, S.String)),
+  },
   $I.annote("McpSSEServerConfig", {
-    description: "Schema for McpSSEServerConfig.",
+    description: "Configuration for connecting to an MCP server over Server-Sent Events.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpSSEServerConfig = typeof McpSSEServerConfig.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -53,20 +45,16 @@ export type McpSSEServerConfigEncoded = typeof McpSSEServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpHttpServerConfig = S.Struct({
-  type: S.Literal("http"),
-  url: S.String,
-  headers: S.optional(S.Record(S.String, S.String)),
-}).annotate(
+export class McpHttpServerConfig extends S.Class<McpHttpServerConfig>($I`McpHttpServerConfig`)(
+  {
+    type: S.Literal("http"),
+    url: S.String,
+    headers: S.optional(S.Record(S.String, S.String)),
+  },
   $I.annote("McpHttpServerConfig", {
-    description: "Schema for McpHttpServerConfig.",
+    description: "Configuration for connecting to an MCP server over HTTP.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpHttpServerConfig = typeof McpHttpServerConfig.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -75,19 +63,15 @@ export type McpHttpServerConfigEncoded = typeof McpHttpServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSdkServerConfig = S.Struct({
-  type: S.Literal("sdk"),
-  name: S.String,
-}).annotate(
+export class McpSdkServerConfig extends S.Class<McpSdkServerConfig>($I`McpSdkServerConfig`)(
+  {
+    type: S.Literal("sdk"),
+    name: S.String,
+  },
   $I.annote("McpSdkServerConfig", {
-    description: "Schema for McpSdkServerConfig.",
+    description: "Configuration for referencing an in-process SDK-managed MCP server by name.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpSdkServerConfig = typeof McpSdkServerConfig.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -96,19 +80,17 @@ export type McpSdkServerConfigEncoded = typeof McpSdkServerConfig.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSdkServerConfigWithInstance = S.Struct({
-  ...McpSdkServerConfig.fields,
-  instance: McpServer,
-}).annotate(
+export class McpSdkServerConfigWithInstance extends S.Class<McpSdkServerConfigWithInstance>(
+  $I`McpSdkServerConfigWithInstance`
+)(
+  {
+    ...McpSdkServerConfig.fields,
+    instance: McpServer,
+  },
   $I.annote("McpSdkServerConfigWithInstance", {
-    description: "Schema for McpSdkServerConfigWithInstance.",
+    description: "SDK MCP server configuration paired with a live in-process server instance.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpSdkServerConfigWithInstance = typeof McpSdkServerConfigWithInstance.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -141,7 +123,7 @@ const McpExplicitServerConfigWithInstance = S.Union([
  */
 export const McpServerConfig = S.Union([McpStdioServerConfig, McpExplicitServerConfigWithInstance]).annotate(
   $I.annote("McpServerConfig", {
-    description: "Schema for McpServerConfig.",
+    description: "MCP server configuration accepted by the SDK, including in-process instances.",
   })
 );
 
@@ -159,9 +141,19 @@ export type McpServerConfigEncoded = typeof McpServerConfig.Encoded;
  */
 export const McpServerConfigForProcessTransport = S.Union([McpStdioServerConfig, McpExplicitServerConfig]).annotate(
   $I.annote("McpServerConfigForProcessTransport", {
-    description: "Schema for McpServerConfigForProcessTransport.",
+    description: "MCP server configuration that can be serialized across process boundaries.",
   })
 );
+
+class McpServerInfo extends S.Class<McpServerInfo>($I`McpServerInfo`)(
+  {
+    name: S.String,
+    version: S.String,
+  },
+  $I.annote("McpServerInfo", {
+    description: "Versioned identity reported by a connected MCP server.",
+  })
+) {}
 
 /**
  * @since 0.0.0
@@ -175,26 +167,17 @@ export type McpServerConfigForProcessTransportEncoded = typeof McpServerConfigFo
 /**
  * @since 0.0.0
  */
-export const McpServerStatus = S.Struct({
-  name: S.String,
-  status: LiteralKit(["connected", "failed", "needs-auth", "pending", "disabled"]),
-  serverInfo: S.optional(
-    S.Struct({
-      name: S.String,
-      version: S.String,
-    })
-  ),
-  error: S.optional(S.String),
-}).annotate(
+export class McpServerStatus extends S.Class<McpServerStatus>($I`McpServerStatus`)(
+  {
+    name: S.String,
+    status: LiteralKit(["connected", "failed", "needs-auth", "pending", "disabled"]),
+    serverInfo: S.optional(McpServerInfo),
+    error: S.optional(S.String),
+  },
   $I.annote("McpServerStatus", {
-    description: "Schema for McpServerStatus.",
+    description: "Connection status snapshot for a configured MCP server.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpServerStatus = typeof McpServerStatus.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -203,20 +186,16 @@ export type McpServerStatusEncoded = typeof McpServerStatus.Encoded;
 /**
  * @since 0.0.0
  */
-export const McpSetServersResult = S.Struct({
-  added: S.Array(S.String),
-  removed: S.Array(S.String),
-  errors: S.Record(S.String, S.String),
-}).annotate(
+export class McpSetServersResult extends S.Class<McpSetServersResult>($I`McpSetServersResult`)(
+  {
+    added: S.Array(S.String),
+    removed: S.Array(S.String),
+    errors: S.Record(S.String, S.String),
+  },
   $I.annote("McpSetServersResult", {
-    description: "Schema for McpSetServersResult.",
+    description: "Summary of MCP server registrations added, removed, or failed during an update.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type McpSetServersResult = typeof McpSetServersResult.Type;
+) {}
 /**
  * @since 0.0.0
  */

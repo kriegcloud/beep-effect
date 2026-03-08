@@ -1,118 +1,132 @@
 import * as S from "effect/Schema";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
-import { QuerySupervisorStatsSchema } from "../QuerySupervisor.js";
+import { QuerySupervisorStats } from "../QuerySupervisor.js";
 import * as SdkSchema from "../Schema/index.js";
 import {
   QueryInput,
   QueryResultOutput,
+  QueryStreamQuery,
   SessionCreateInput,
   SessionCreateOutput,
   SessionInfo,
+  SessionPathParams,
   SessionSendInput,
-  Tenant,
+  SessionTenantScope,
 } from "../Schema/Service.js";
 import { AgentServiceError } from "./AgentRpcs.js";
 import { SessionServiceError } from "./SessionErrors.js";
 
-class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
-  .add(
-    HttpApiEndpoint.post("query", "/query", {
-      payload: HttpApiSchema.asJson({ contentType: "application/json" })(QueryInput),
-      success: QueryResultOutput,
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("stats", "/stats", {
-      success: QuerySupervisorStatsSchema,
-    })
-  )
-  .add(
-    HttpApiEndpoint.post("interruptAll", "/interrupt-all", {
-      success: HttpApiSchema.NoContent,
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("models", "/models", {
-      success: S.Array(SdkSchema.ModelInfo),
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("commands", "/commands", {
-      success: S.Array(SdkSchema.SlashCommand),
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("account", "/account", {
-      success: SdkSchema.AccountInfo,
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("stream", "/stream", {
-      query: S.Struct({ prompt: S.String }),
-      success: S.String,
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.post("streamPost", "/stream", {
-      payload: QueryInput,
-      success: S.String,
-      error: AgentServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.post("createSession", "/sessions", {
-      payload: SessionCreateInput,
-      success: SessionCreateOutput,
-      error: SessionServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("listSessions", "/sessions", {
-      query: S.Struct({ tenant: S.optional(Tenant) }),
-      success: S.Array(SessionInfo),
-      error: SessionServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("getSession", "/sessions/:id", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
-      success: SessionInfo,
-      error: SessionServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.post("sendSession", "/sessions/:id/send", {
-      params: S.Struct({ id: S.String }),
-      payload: SessionSendInput,
-      success: HttpApiSchema.NoContent,
-      error: SessionServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.get("streamSession", "/sessions/:id/stream", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
-      success: S.String,
-      error: SessionServiceError,
-    })
-  )
-  .add(
-    HttpApiEndpoint.delete("closeSession", "/sessions/:id", {
-      params: S.Struct({ id: S.String }),
-      query: S.Struct({ tenant: S.optional(Tenant) }),
-      success: HttpApiSchema.NoContent,
-      error: SessionServiceError,
-    })
-  ) {}
+const QueryPayload = HttpApiSchema.asJson({ contentType: "application/json" })(QueryInput);
+const ModelInfoList = S.Array(SdkSchema.ModelInfo);
+const SlashCommandList = S.Array(SdkSchema.SlashCommand);
+const SessionInfoList = S.Array(SessionInfo);
+
+const QueryEndpoint = HttpApiEndpoint.post("query", "/query", {
+  payload: QueryPayload,
+  success: QueryResultOutput,
+  error: AgentServiceError,
+});
+
+const StatsEndpoint = HttpApiEndpoint.get("stats", "/stats", {
+  success: QuerySupervisorStats,
+  error: AgentServiceError,
+});
+
+const InterruptAllEndpoint = HttpApiEndpoint.post("interruptAll", "/interrupt-all", {
+  success: HttpApiSchema.NoContent,
+  error: AgentServiceError,
+});
+
+const ModelsEndpoint = HttpApiEndpoint.get("models", "/models", {
+  success: ModelInfoList,
+  error: AgentServiceError,
+});
+
+const CommandsEndpoint = HttpApiEndpoint.get("commands", "/commands", {
+  success: SlashCommandList,
+  error: AgentServiceError,
+});
+
+const AccountEndpoint = HttpApiEndpoint.get("account", "/account", {
+  success: SdkSchema.AccountInfo,
+  error: AgentServiceError,
+});
+
+const StreamEndpoint = HttpApiEndpoint.get("stream", "/stream", {
+  query: QueryStreamQuery,
+  success: S.String,
+  error: AgentServiceError,
+});
+
+const StreamPostEndpoint = HttpApiEndpoint.post("streamPost", "/stream", {
+  payload: QueryInput,
+  success: S.String,
+  error: AgentServiceError,
+});
+
+const CreateSessionEndpoint = HttpApiEndpoint.post("createSession", "/sessions", {
+  payload: SessionCreateInput,
+  success: SessionCreateOutput,
+  error: SessionServiceError,
+});
+
+const ListSessionsEndpoint = HttpApiEndpoint.get("listSessions", "/sessions", {
+  query: SessionTenantScope,
+  success: SessionInfoList,
+  error: SessionServiceError,
+});
+
+const GetSessionEndpoint = HttpApiEndpoint.get("getSession", "/sessions/:id", {
+  params: SessionPathParams,
+  query: SessionTenantScope,
+  success: SessionInfo,
+  error: SessionServiceError,
+});
+
+const SendSessionEndpoint = HttpApiEndpoint.post("sendSession", "/sessions/:id/send", {
+  params: SessionPathParams,
+  payload: SessionSendInput,
+  success: HttpApiSchema.NoContent,
+  error: SessionServiceError,
+});
+
+const StreamSessionEndpoint = HttpApiEndpoint.get("streamSession", "/sessions/:id/stream", {
+  params: SessionPathParams,
+  query: SessionTenantScope,
+  success: S.String,
+  error: SessionServiceError,
+});
+
+const CloseSessionEndpoint = HttpApiEndpoint.delete("closeSession", "/sessions/:id", {
+  params: SessionPathParams,
+  query: SessionTenantScope,
+  success: HttpApiSchema.NoContent,
+  error: SessionServiceError,
+});
+
+const AgentHttpGroupValue = HttpApiGroup.make("agent", {
+  topLevel: true,
+}).add(
+  QueryEndpoint,
+  StatsEndpoint,
+  InterruptAllEndpoint,
+  ModelsEndpoint,
+  CommandsEndpoint,
+  AccountEndpoint,
+  StreamEndpoint,
+  StreamPostEndpoint,
+  CreateSessionEndpoint,
+  ListSessionsEndpoint,
+  GetSessionEndpoint,
+  SendSessionEndpoint,
+  StreamSessionEndpoint,
+  CloseSessionEndpoint
+);
+
+const AgentHttpApiValue: HttpApi.HttpApi<"agent", typeof AgentHttpGroupValue> =
+  HttpApi.make("agent").add(AgentHttpGroupValue);
 
 /**
  * @since 0.0.0
  */
-export class AgentHttpApi extends HttpApi.make("agent").add(AgentHttpGroup) {}
+export const AgentHttpApi: typeof AgentHttpApiValue = AgentHttpApiValue;

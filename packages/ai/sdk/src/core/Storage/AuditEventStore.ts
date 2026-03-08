@@ -1,12 +1,15 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Effect, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
-import type * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import { KeyValueStore } from "effect/unstable/persistence";
-import { AuditEventSchema, layerAuditHandlers, SyncCompactionPayload } from "../experimental/EventLog.js";
-import type { HookEvent } from "../Schema/Hooks.js";
+import {
+  type AuditEventInput,
+  AuditEventLog,
+  layerAuditHandlers,
+  normalizeAuditEventInput,
+} from "../experimental/EventLog.js";
 import type { CompactionStrategy } from "../Sync/index.js";
 import { Compaction, ConflictPolicy, compactEntries } from "../Sync/index.js";
 import { defaultAuditEventJournalKey, defaultAuditIdentityKey, defaultStorageDirectory } from "./defaults.js";
@@ -15,63 +18,6 @@ import { StorageConfig } from "./StorageConfig.js";
 import { type StorageError, toStorageError } from "./StorageError.js";
 
 const $I = $AiSdkId.create("core/Storage/AuditEventStore");
-
-type Utc = typeof S.DateTimeUtcFromMillis.Type;
-
-/**
- * @since 0.0.0
- */
-export type AuditEventInput =
-  | {
-      readonly event: "tool_use";
-      readonly payload: {
-        readonly sessionId: string;
-        readonly toolName: string;
-        readonly toolUseId?: string;
-        readonly status: "start" | "success" | "failure";
-        readonly durationMs?: number;
-      };
-    }
-  | {
-      readonly event: "permission_decision";
-      readonly payload: {
-        readonly sessionId: string;
-        readonly toolName: string;
-        readonly decision: "allow" | "deny" | "prompt";
-        readonly reason?: string;
-      };
-    }
-  | {
-      readonly event: "hook_event";
-      readonly payload: {
-        readonly sessionId?: string;
-        readonly hook: HookEvent;
-        readonly toolUseId?: string;
-        readonly outcome: "success" | "failure";
-      };
-    }
-  | {
-      readonly event: "sync_conflict";
-      readonly payload: {
-        readonly remoteId: string;
-        readonly event: string;
-        readonly primaryKey: string;
-        readonly entryId: string;
-        readonly conflictCount: number;
-        readonly resolution: "accept" | "merge" | "reject";
-        readonly resolvedEntryId?: string;
-      };
-    }
-  | {
-      readonly event: "sync_compaction";
-      readonly payload: {
-        readonly remoteId: string;
-        readonly before: number;
-        readonly after: number;
-        readonly events?: ReadonlyArray<string>;
-        readonly timestamp: Utc;
-      };
-    };
 
 const storeName = "AuditEventStore";
 
@@ -117,18 +63,19 @@ const layerAuditJournalCompaction = Layer.effectDiscard(
 
 const makeStore = Effect.gen(function* () {
   const log = yield* EventLog.EventLog;
-  const resolvePayload = (input: AuditEventInput) =>
-    input.event === "sync_compaction" ? SyncCompactionPayload.make(input.payload) : input.payload;
 
   const write = Effect.fn("AuditEventStore.write")((input: AuditEventInput) =>
     Effect.gen(function* () {
       const enabled = yield* resolveEnabled;
       if (!enabled) return;
+      const normalized = yield* Effect.try({
+        try: () => normalizeAuditEventInput(input),
+        catch: (cause) => mapError("normalize", cause),
+      });
       yield* log
         .write({
-          schema: AuditEventSchema,
-          event: input.event,
-          payload: resolvePayload(input),
+          schema: AuditEventLog,
+          ...normalized,
         })
         .pipe(Effect.mapError((cause) => mapError("write", cause)));
     })

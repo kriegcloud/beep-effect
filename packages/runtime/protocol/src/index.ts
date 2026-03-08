@@ -67,6 +67,27 @@ export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootst
  * @since 0.0.0
  * @category DomainModel
  */
+export class SidecarBootstrapStdoutEvent extends S.Class<SidecarBootstrapStdoutEvent>($I`SidecarBootstrapStdoutEvent`)(
+  {
+    type: S.Literal("bootstrap"),
+    sessionId: S.String,
+    host: S.String,
+    port: NonNegativeInt,
+    baseUrl: S.String,
+    pid: NonNegativeInt,
+    version: S.String,
+    status: SidecarHealthStatus,
+    startedAt: S.Number,
+  },
+  $I.annote("SidecarBootstrapStdoutEvent", {
+    description: "Machine-readable bootstrap event written to stdout by the sidecar process.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class SidecarBadRequestPayload extends S.Class<SidecarBadRequestPayload>($I`SidecarBadRequestPayload`)(
   {
     message: S.String,

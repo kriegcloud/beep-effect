@@ -18,7 +18,7 @@ const ClaudeCodeExecutable = LiteralKit(["node", "bun"]).annotate(
  */
 export const SessionPermissionMode = LiteralKit(["default", "acceptEdits", "plan", "dontAsk"]).annotate(
   $I.annote("SessionPermissionMode", {
-    description: "Schema for SessionPermissionMode.",
+    description: "Session-scoped permission modes accepted by SDK session options.",
   })
 );
 
@@ -61,7 +61,7 @@ export type SDKSessionOptionsEncoded = typeof SDKSessionOptions.Encoded;
  */
 export const SDKSession = S.declare((_: unknown): _ is unknown => true).annotate(
   $I.annote("SDKSession", {
-    description: "Schema for SDKSession.",
+    description: "Opaque handle for an active SDK session.",
     jsonSchema: {},
   })
 );

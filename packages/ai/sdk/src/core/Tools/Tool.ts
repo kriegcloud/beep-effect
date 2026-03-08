@@ -297,8 +297,8 @@ type DefinitionParametersSchema<D> = D extends { parameters: infer P }
     ? P
     : P extends S.Struct.Fields
       ? S.Struct<P>
-      : typeof constEmptyStruct
-  : typeof constEmptyStruct;
+      : typeof EmptyToolParameters
+  : typeof EmptyToolParameters;
 
 type DefinitionSuccessSchema<D> = D extends { success: infer S }
   ? S extends AnySchema
@@ -389,7 +389,12 @@ const makeTool = <Name extends string>(options: {
   };
 };
 
-const constEmptyStruct = S.Struct({});
+class EmptyToolParameters extends S.Class<EmptyToolParameters>($I`EmptyToolParameters`)(
+  {},
+  $I.annote("EmptyToolParameters", {
+    description: "Empty parameter payload used for tools that do not accept structured inputs.",
+  })
+) {}
 
 /**
  * Create a tool with optional parameter, success, and failure schemas.
@@ -412,7 +417,7 @@ export const make = <const Name extends string>(
   return makeTool({
     name,
     description: options?.description,
-    parametersSchema: options?.parameters ? S.Struct(options.parameters) : constEmptyStruct,
+    parametersSchema: options?.parameters ? S.Struct(options.parameters) : EmptyToolParameters,
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? "error",

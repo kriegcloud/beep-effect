@@ -2,9 +2,12 @@ import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { HookEvent } from "./Hooks.js";
-import { SDKMessage } from "./Message.js";
+import { makeSDKMessage, SDKMessage, type SDKMessageEncoded, type SDKMessage as SDKMessageType } from "./Message.js";
 
 const $I = $AiSdkId.create("core/Schema/Storage");
+type ChatEventMessage = SDKMessageType;
+type ChatEventMessageEncoded = SDKMessageEncoded;
+const ChatEventMessage: S.Codec<ChatEventMessage, ChatEventMessageEncoded> = SDKMessage;
 
 /**
  * @since 0.0.0
@@ -32,13 +35,17 @@ export class ChatEvent extends S.Class<ChatEvent>($I`ChatEvent`)(
     sequence: S.Number,
     timestamp: S.DateTimeUtcFromMillis,
     source: ChatEventSource,
-    message: SDKMessage,
+    message: ChatEventMessage,
   },
   $I.annote("ChatEvent", {
     description: "A persisted chat message event for a session timeline.",
   })
 ) {
-  static readonly make = (params: ChatEvent) => new ChatEvent(params);
+  static readonly make = (params: ChatEvent) =>
+    new ChatEvent({
+      ...params,
+      message: makeSDKMessage(params.message),
+    });
 }
 
 /**

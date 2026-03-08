@@ -7,11 +7,21 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
 import type { AgentSdkError } from "../Errors.js";
+import {
+  normalizeAccountInfo,
+  normalizeModelInfoList,
+  normalizeQueryResultOutput,
+  normalizeSlashCommandList,
+} from "../internal/normalize.js";
 import type { QueryHandle } from "../Query.js";
 import { collectResultSuccess } from "../QueryResult.js";
-import type { QuerySupervisorError } from "../QuerySupervisor.js";
+import { type QuerySupervisorError, QuerySupervisorStats } from "../QuerySupervisor.js";
 import type { SDKUserMessage } from "../Schema/Message.js";
-import type { QueryInput as QueryInputType } from "../Schema/Service.js";
+import type {
+  QueryInput as QueryInputType,
+  SessionCreateOutput as SessionCreateOutputType,
+} from "../Schema/Service.js";
+import { SessionCreateOutput } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentHttpApi } from "./AgentHttpApi.js";
 import { SessionPoolUnavailableError } from "./SessionErrors.js";
@@ -88,10 +98,12 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
       .handle("query", ({ payload }) =>
         collectResultSuccess(runtime.stream(toPrompt(payload), payload.options)).pipe(
           Effect.scoped,
-          Effect.map((result) => ({
-            result: result.result,
-            metadata: result,
-          }))
+          Effect.flatMap((result) =>
+            normalizeQueryResultOutput({
+              result: result.result,
+              metadata: result,
+            })
+          )
         )
       )
       .handle("stream", ({ query }) =>
@@ -104,18 +116,24 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
           })
         )
       )
-      .handle("stats", () => runtime.stats)
+      .handle("stats", () => runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats))))
       .handle("interruptAll", () => runtime.interruptAll)
-      .handle("models", () => withProbeHandle(runtime, (handle) => handle.supportedModels))
-      .handle("commands", () => withProbeHandle(runtime, (handle) => handle.supportedCommands))
-      .handle("account", () => withProbeHandle(runtime, (handle) => handle.accountInfo))
+      .handle("models", () =>
+        withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList))
+      )
+      .handle("commands", () =>
+        withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList))
+      )
+      .handle("account", () =>
+        withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo))
+      )
       .handle("createSession", ({ payload }) =>
         requirePool((pool) =>
           resolveRequestTenant(payload.tenant).pipe(
             Effect.flatMap((tenant) =>
               pool.create(payload.options, tenant).pipe(
                 Effect.flatMap((handle) => handle.sessionId),
-                Effect.map((sessionId) => ({ sessionId }))
+                Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
               )
             )
           )

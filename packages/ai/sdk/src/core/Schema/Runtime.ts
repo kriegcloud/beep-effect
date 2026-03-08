@@ -17,7 +17,7 @@ export type AbortControllerLike = {
 export const AbortController = S.declare((_: unknown): _ is AbortControllerLike => P.isObject(_) && "signal" in _).pipe(
   S.annotate(
     $I.annote("AbortController", {
-      description: "Schema for AbortController.",
+      description: "Runtime abort controller handle exposed to SDK process integrations.",
       jsonSchema: {},
     })
   )
@@ -38,7 +38,7 @@ export type AbortControllerEncoded = typeof AbortController.Encoded;
 export const StderrCallback = S.declare((_: unknown): _ is (data: string) => void => true).pipe(
   S.annotate(
     $I.annote("StderrCallback", {
-      description: "Schema for StderrCallback.",
+      description: "Callback invoked with stderr chunks from a spawned Claude Code process.",
       jsonSchema: {},
     })
   )
@@ -59,7 +59,7 @@ export type StderrCallbackEncoded = typeof StderrCallback.Encoded;
 export const SpawnedProcess = S.declare((_: unknown): _ is unknown => true).pipe(
   S.annotate(
     $I.annote("SpawnedProcess", {
-      description: "Schema for SpawnedProcess.",
+      description: "Opaque runtime handle for a spawned Claude Code process.",
       jsonSchema: {},
     })
   )
@@ -80,7 +80,7 @@ export type SpawnedProcessEncoded = typeof SpawnedProcess.Encoded;
 export const SpawnClaudeCodeProcess = S.declare((_: unknown): _ is (options: unknown) => SpawnedProcess => true).pipe(
   S.annotate(
     $I.annote("SpawnClaudeCodeProcess", {
-      description: "Schema for SpawnClaudeCodeProcess.",
+      description: "Function capable of spawning a Claude Code child process from runtime-specific options.",
       jsonSchema: {},
     })
   )
