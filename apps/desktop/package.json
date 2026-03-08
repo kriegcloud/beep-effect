@@ -17,20 +17,20 @@
     "lint:fix": "biome check src/ --write"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.8.0",
     "@beep/repo-memory-client": "workspace:^",
     "@beep/runtime-protocol": "workspace:^",
     "@beep/schema": "workspace:^",
     "@tanstack/react-router": "catalog:",
+    "@tauri-apps/api": "^2.8.0",
     "effect": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "@tauri-apps/cli": "^2.10.1",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

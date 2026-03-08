@@ -67,7 +67,7 @@
     "lint:typos": "typos",
     "lint:spell": "cspell lint --no-progress '**/*.{ts,tsx,md}'",
     "lint:markdown": "markdownlint-cli2 '**/*.md' '#node_modules' '#.repos' '#.next' '#.sst' '#outputs'",
-    "lint:repo": "bunx sherif -r non-existent-packages",
+    "lint:repo": "bunx sherif@1.10.0 -r non-existent-packages",
     "lint:ox": "bunx oxlint --ignore-pattern '.repos/**' --ignore-pattern 'specs/**' --ignore-pattern '**/storybook-static/**' .",
     "storybook": "bunx turbo run storybook --filter=@beep/ui",
     "build-storybook": "bunx turbo run build-storybook --filter=@beep/ui",
@@ -153,8 +153,8 @@
     "tstyche": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "vite-tsconfig-paths": "catalog:"
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "catalog:"
   },
   "overrides": {
     "@hono/node-server": "^1.19.11",

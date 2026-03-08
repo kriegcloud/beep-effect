@@ -17,20 +17,20 @@
     "docgen": "bunx @effect/docgen"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@effect/platform-node": "catalog:",
     "@typescript-eslint/parser": "catalog:",
+    "effect": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-jsdoc": "catalog:",
-    "jsonc-parser": "catalog:",
-    "effect": "catalog:",
-    "@effect/platform-node": "catalog:",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^"
+    "jsonc-parser": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/node": "catalog:",
     "@effect/vitest": "catalog:",
-    "@types/estree": "catalog:"
+    "@types/estree": "catalog:",
+    "@types/node": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

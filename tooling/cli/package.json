@@ -62,14 +62,14 @@
     "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
-    "effect": "catalog:",
     "@effect/platform-node": "catalog:",
+    "effect": "catalog:",
     "handlebars": "catalog:",
     "jsonc-parser": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   }
 }
