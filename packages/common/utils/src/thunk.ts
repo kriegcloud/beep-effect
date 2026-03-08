@@ -75,7 +75,7 @@ export const thunk0 = thunk(0);
  *
  * @since 0.0.0
  */
-export const thunk1 = thunk(0);
+export const thunk1 = thunk(1);
 
 /**
  * Returns a thunk that yields a fresh empty mutable array.

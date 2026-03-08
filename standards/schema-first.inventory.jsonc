@@ -1937,6 +1937,54 @@
       "status": "exception",
       "owner": "@beep/test-utils",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/canonicalization.ts",
+      "symbol": "CanonicalizationServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/jsonld-context.ts",
+      "symbol": "JsonLdContextServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/jsonld-document.ts",
+      "symbol": "JsonLdDocumentServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/provenance.ts",
+      "symbol": "ProvenanceServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/shacl-validation.ts",
+      "symbol": "ShaclValidationServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/semantic-web/src/services/sparql-query.ts",
+      "symbol": "SparqlQueryServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/semantic-web",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     }
   ]
 }
