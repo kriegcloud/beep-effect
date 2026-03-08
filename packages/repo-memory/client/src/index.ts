@@ -182,7 +182,7 @@ export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOpt
  */
 export type RepoMemoryRpcClientOptions = {
   readonly baseUrl: string | URL;
-  readonly transformClient?: <E, R>(client: HttpClient.HttpClient.With<E, R>) => HttpClient.HttpClient.With<E, R>;
+  readonly transformClient?: undefined | (<E, R>(client: HttpClient.HttpClient.With<E, R>) => HttpClient.HttpClient.With<E, R>);
 };
 
 /**
