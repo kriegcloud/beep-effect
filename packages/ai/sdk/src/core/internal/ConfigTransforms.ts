@@ -50,11 +50,11 @@ export const buildAuthEnv = (
   sessionAccessToken: O.Option<Redacted.Redacted>
 ): NodeJS.ProcessEnv | undefined => {
   const apiKeyEntries = O.match(apiKey, {
-    onNone: () => A.empty<readonly [string, string]>(),
+    onNone: A.empty<readonly [string, string]>,
     onSome: (redacted) => A.make(["ANTHROPIC_API_KEY", Redacted.value(redacted)] as const),
   });
   const sessionAccessTokenEntries = O.match(sessionAccessToken, {
-    onNone: () => A.empty<readonly [string, string]>(),
+    onNone: A.empty<readonly [string, string]>,
     onSome: (redacted) => A.make(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(redacted)] as const),
   });
   const authEnvEntries = A.appendAll(apiKeyEntries, sessionAccessTokenEntries);
