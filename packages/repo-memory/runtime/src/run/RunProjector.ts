@@ -1,14 +1,8 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
-import {
-  IndexRun,
-  QueryRun,
-  type RepoRun,
-  RunStreamEvent,
-} from "@beep/repo-memory-model";
+import { IndexRun, QueryRun, type RepoRun, type RunStreamEvent } from "@beep/repo-memory-model";
 import { makeStatusCauseError, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { Effect } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 
 const $I = $RepoMemoryRuntimeId.create("run/RunProjector");
 
@@ -28,12 +22,13 @@ export class RunProjectorError extends TaggedErrorClass<RunProjectorError>($I`Ru
 
 const toRunProjectorError = makeStatusCauseError(RunProjectorError);
 
-const requireCurrentRun = (currentRun: O.Option<RepoRun>, event: RunStreamEvent): Effect.Effect<RepoRun, RunProjectorError> =>
+const requireCurrentRun = (
+  currentRun: O.Option<RepoRun>,
+  event: RunStreamEvent
+): Effect.Effect<RepoRun, RunProjectorError> =>
   O.match(currentRun, {
     onNone: () =>
-      Effect.fail(
-        toRunProjectorError(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404)
-      ),
+      Effect.fail(toRunProjectorError(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404)),
     onSome: Effect.succeed,
   });
 

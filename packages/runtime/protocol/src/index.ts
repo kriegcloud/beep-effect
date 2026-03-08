@@ -1,7 +1,7 @@
 import { $RuntimeProtocolId } from "@beep/identity/packages";
 import {
-  InterruptRepoRunRequest,
   IndexRepoRunInput,
+  InterruptRepoRunRequest,
   QueryRepoRunInput,
   RepoRegistration,
   RepoRegistrationInput,

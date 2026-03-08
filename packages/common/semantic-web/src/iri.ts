@@ -1,12 +1,11 @@
-import { $SchemaId } from "@beep/identity/packages";
-import { pipe } from "effect";
+import { $SemanticWebId } from "@beep/identity/packages";
+import { pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 // cspell:words ireg ucschar iprivate Ucschar Iprivate Iunreserved Isegment irelative Abempty Hier hier
 
-const $I = $SchemaId.create("internal/IRI/IRI");
+const $I = $SemanticWebId.create("iri");
 
 /**
  * RFC 3987 coverage notes:
@@ -823,6 +822,8 @@ const iriChecks = makeNonEmptyReferenceChecks("IRI", "IRI", "An RFC 3987 IRI.", 
 
 /**
  * RFC 3987 `IRI-reference` schema, including absolute and relative forms.
+ *
+ * @since 0.0.0
  */
 export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   S.brand("IRIReference"),
@@ -835,11 +836,15 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
 
 /**
  * RFC 3987 `IRI-reference` syntax, including absolute and relative forms.
+ *
+ * @since 0.0.0
  */
 export type IRIReference = typeof IRIReference.Type;
 
 /**
  * RFC 3987 `irelative-ref` schema.
+ *
+ * @since 0.0.0
  */
 export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).pipe(
   S.brand("RelativeIRIReference"),
@@ -852,11 +857,15 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
 
 /**
  * RFC 3987 `irelative-ref` syntax.
+ *
+ * @since 0.0.0
  */
 export type RelativeIRIReference = typeof RelativeIRIReference.Type;
 
 /**
  * RFC 3987 `absolute-IRI` schema without a fragment component.
+ *
+ * @since 0.0.0
  */
 export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   S.brand("AbsoluteIRI"),
@@ -869,11 +878,15 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
 
 /**
  * RFC 3987 `absolute-IRI` syntax without a fragment component.
+ *
+ * @since 0.0.0
  */
 export type AbsoluteIRI = typeof AbsoluteIRI.Type;
 
 /**
  * RFC 3987 `IRI` schema.
+ *
+ * @since 0.0.0
  */
 export const IRI = S.String.check(iriChecks).pipe(
   S.brand("IRI"),
@@ -886,5 +899,7 @@ export const IRI = S.String.check(iriChecks).pipe(
 
 /**
  * RFC 3987 `IRI` syntax.
+ *
+ * @since 0.0.0
  */
 export type IRI = typeof IRI.Type;

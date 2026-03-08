@@ -2,56 +2,130 @@
 
 ## Purpose
 
-Capture the remaining foundation-level decisions that should be treated as fixed defaults for the formal `@beep/semantic-web` spec unless stronger local evidence appears later.
+Capture the defaults that are now treated as locked for the formal `@beep/semantic-web` spec unless stronger local evidence explicitly contradicts them.
 
-These decisions are intended to remove unnecessary ambiguity before the next spec-authoring session.
+## Package-Level Defaults
 
-## Decision 1: `IRI` and `URI` stay separate first-class public concepts in v1
+### Decision 1: `@beep/semantic-web` is the canonical semantic-web foundation package
 
-### Decision
+`@beep/semantic-web` is the canonical public owner of reusable semantic-web values, adapters, service contracts, and metadata patterns in this monorepo.
 
-Keep both `IRI` and `URI` as first-class public concepts in v1.
+Implication:
 
-### Default posture
+- do not keep long-term public ownership split across `@beep/schema` and ad-hoc proof modules
+- current proof modules and the empty package stub are migration inputs, not the final state
+
+### Decision 2: the package posture is `foundation + adapters`
+
+The initial package should optimize for:
+
+- reusable semantic-web values and schemas
+- explicit adapter seams
+- stable service contracts
+
+It should not optimize for:
+
+- semantic-web maximalism
+- adopting every upstream runtime as a first-class public surface
+
+### Decision 3: JSON-LD is first-class in v1
+
+JSON-LD must be part of the initial public surface at both the document layer and the adapter layer.
+
+Implication:
+
+- JSON-LD should not be deferred behind a later “optional add-on” plan
+- document, context, and streaming concerns all need explicit design space
+
+### Decision 4: `IRI` and `URI` stay separate first-class public concepts in v1
+
+#### Default posture
 
 - `IRI` is the semantic-web-first identifier surface
-- `URI` is the transport, normalization, and interoperability companion surface
+- `URI` is the transport and interoperability companion surface
 - the package should not collapse them into one public concept
-- the package should share internals where practical so the split does not create duplicate logic everywhere
+- shared internals are allowed, but shared internals must not erase the conceptual split
 
-### Why
+#### Why
 
-Local evidence shows the current proof `IRI` module is a strong RFC 3987 syntax boundary:
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) is a strong RFC 3987 syntax boundary
+- [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) provides richer URI / IRI normalization, resolution, and canonical string prior art
 
-- [IRI.ts](/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/src/internal/IRI/IRI.ts#L822)
+### Decision 5: `IRI` and `ProvO` are seed assets, not the whole package design
 
-Older prior art shows a richer `URI` / `IRI` package surface with parsing, normalization, serialization, equality, and branded canonical strings:
+These modules are valid migration inputs and strong local evidence, but they are not by themselves the full package boundary.
 
-- [semantic-web README](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/beep-effect/packages/common/semantic-web/README.md)
-- [uri.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts#L845)
-- [uri.ts](/home/elpresidank/YeeBois/projects/beep-effect3/.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts#L923)
+Implication:
 
-This means the two concepts solve different problems:
+- v1 still needs RDF, JSON-LD, evidence, adapter, and service-contract surfaces
+- do not treat “move `IRI` and `ProvO`” as a complete package plan
 
-- `IRI` matters for semantic-web identifiers and Unicode-aware modeling
-- `URI` matters for canonical transport-safe normalization and interoperability with systems that still require RFC 3986-oriented surfaces
+### Decision 6: ontology builder DSL work stays experimental
 
-### Consequence
+Ontology builders and ontology-driven schema combinators may exist, but they remain in `experimental/*` unless stronger local evidence later justifies promotion.
 
-The v1 package should likely expose:
+### Decision 7: `Schema.toEquivalence(...)` is the default equality surface
 
-- an `iri/` module family
-- a `uri/` module family
+For schema-modeled semantic-web values:
 
-But `IRI` should be the default semantic identifier language in documentation and examples.
+- prefer `Schema.toEquivalence(...)`
+- use explicit `Equivalence` where normalization rules need non-structural comparison
 
-## Decision 2: the initial PROV profile should be intentionally small
+Do not treat:
 
-### Decision
+- `Hash`
+- `Equal`
+- Effect `Graph`
 
-Adopt a minimal stable PROV profile in v1 and push richer provenance semantics into an extension tier.
+as substitutes for RDF semantic identity.
 
-### Required core profile
+### Decision 8: Effect `Graph` is projection-only
+
+Effect `Graph` may be used for:
+
+- derived worklists
+- dependency DAGs
+- visualization projections
+
+It must not be used as the primary RDF semantic model.
+
+### Decision 9: `Hash` and `Equal` are internal-only semantic-web tools
+
+`Hash` and `Equal` are only safe after canonicalization or on explicit fingerprint results.
+
+Implication:
+
+- raw structural hashing is not RDF identity
+- graph-level identity requires canonicalization before hashing
+
+### Decision 10: `JsonPatch` and `JsonPointer` are JSON-LD document-layer tools only
+
+Use them only for:
+
+- editing JSON-LD source documents
+- document-layer diffs
+- form or source-blob versioning
+
+Do not use them as the semantic diff story for RDF terms, quads, or datasets.
+
+### Decision 11: generic XML encoding is not RDF/XML
+
+`Schema.toEncoderXml(...)` is not evidence of RDF/XML support.
+
+Implication:
+
+- RDF/XML must remain a separate adapter concern
+- do not write docs that blur generic XML encoding into RDF serialization
+
+## Provenance Defaults
+
+### Decision 12: PROV-O is the interoperable provenance backbone, not the whole expert-memory provenance solution
+
+PROV-O is the semantic interchange backbone for provenance, but it must be paired with explicit evidence anchoring, lifecycle fields, and bounded projections.
+
+### Decision 13: the initial PROV profile should be intentionally small
+
+#### Required core profile
 
 - `prov:Entity`
 - `prov:Activity`
@@ -63,9 +137,7 @@ Adopt a minimal stable PROV profile in v1 and push richer provenance semantics i
 - `prov:startedAtTime`
 - `prov:endedAtTime`
 
-### Early extension tier
-
-Support these early where they add real value, but do not require them everywhere:
+#### Early extension tier
 
 - `prov:hadPrimarySource`
 - `prov:wasQuotedFrom`
@@ -73,67 +145,37 @@ Support these early where they add real value, but do not require them everywher
 - `prov:wasDerivedFrom`
 - `prov:Plan`
 
-### Why
+### Decision 14: provenance must be paired with explicit evidence anchoring and bounded projections
 
-The PROV-O assessment already recommends this exact posture:
+Default posture:
 
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md#L273)
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md#L275)
+- define a core evidence-anchor model
+- allow a Web Annotation-compatible adapter seam
+- emit bounded provenance bundles or projections instead of one unbounded global provenance graph
 
-It also makes clear that:
+### Decision 15: lifecycle time semantics stay explicit
 
-- PROV-O is the lineage backbone, not the whole domain model
-- lifecycle time semantics should remain explicit domain fields where needed
-- provenance should stay bounded and projection-friendly
+Do not force domain lifecycle fields such as:
 
-### Consequence
+- `observedAt`
+- `publishedAt`
+- `ingestedAt`
+- `assertedAt`
+- `derivedAt`
+- `effectiveAt`
+- `supersededAt`
 
-The spec should not make qualified PROV relations or the full PROV family mandatory in v1.
+into plain PROV activity time fields.
 
-## Decision 3: Web Annotation is an adapter seam, not a hard dependency
+### Decision 16: Web Annotation is an adapter seam, not a hard dependency
 
-### Decision
+Web Annotation is a strong standard fit for evidence anchoring, but not all evidence needs to be modeled directly as Web Annotation objects.
 
-Treat W3C Web Annotation as a first-class adapter target and evidence-anchoring reference, but not as a hard package-wide dependency in v1.
+## Metadata Defaults
 
-### Default posture
+### Decision 17: `SemanticSchemaMetadata.kind` is a closed, intentionally coarse literal domain
 
-- define a package-level evidence anchoring abstraction
-- provide a Web Annotation compatible adapter or mapping seam
-- do not require every provenance or evidence consumer to speak Web Annotation directly
-
-### Why
-
-The PROV-O assessment is clear that evidence anchoring is necessary for click-through and highlight, and that Web Annotation is a strong standard fit:
-
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md#L129)
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md#L143)
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md#L265)
-
-But making it a hard dependency too early would overcouple the package:
-
-- not all evidence is text-position evidence
-- some systems will want internal span models or SQL-backed anchors
-- the package posture is still `foundation + adapters`
-
-### Consequence
-
-The v1 package should likely include:
-
-- a core evidence anchor model
-- a Web Annotation adapter or submodule
-
-Not:
-
-- a requirement that all provenance surfaces are expressed directly as Web Annotation objects
-
-## Decision 4: `SemanticSchemaMetadata.kind` should be closed, but intentionally coarse
-
-### Decision
-
-Make `SemanticSchemaMetadata.kind` a closed literal domain in v1, but keep it intentionally small and coarse-grained.
-
-### Recommended v1 domain
+Recommended v1 domain:
 
 - `identifier`
 - `vocabularyTerm`
@@ -144,36 +186,39 @@ Make `SemanticSchemaMetadata.kind` a closed literal domain in v1, but keep it in
 - `serviceContract`
 - `adapterBoundary`
 
-### Why
+### Decision 18: the semantic schema metadata pattern applies selectively
 
-An open string field would weaken the whole point of the metadata pattern.
+Required for:
 
-A closed but modest domain:
+- important public semantic-web schema families
+- vocabulary terms
+- RDF, JSON-LD, provenance, evidence, and public service-contract schemas
 
-- improves agent readability
-- improves consistency across modules
-- avoids collapsing into dozens of overly specific one-off categories
-- leaves room for later secondary fields or future refinement
+Avoid for:
 
-This is a better v1 posture than trying to encode every distinction directly into `kind`.
-
-### Consequence
-
-The first metadata design should keep `kind` closed and use other fields for finer meaning:
-
-- `canonicalIri`
-- `specifications`
-- `equivalenceBasis`
-- `representations`
-- `agentNotes`
-
-If the package later needs finer distinctions, it can add a second dimension such as `semanticRole` or expand the closed literal set deliberately.
+- tiny private helper schemas
+- trivial tuple or record fragments
+- internal scaffolding where metadata adds ceremony without durable value
 
 ## Summary
 
-These four defaults should be treated as settled for the next spec-authoring session:
+These defaults are now locked for the formal pending spec:
 
-1. `IRI` and `URI` remain separate first-class public concepts, with `IRI` as the semantic default
-2. the initial PROV profile stays minimal, with a clearly bounded extension tier
-3. Web Annotation is a first-class adapter seam, not a hard dependency
-4. `SemanticSchemaMetadata.kind` is a closed, intentionally coarse literal domain
+1. `@beep/semantic-web` is canonical
+2. the package posture is `foundation + adapters`
+3. JSON-LD is first-class
+4. `IRI` and `URI` remain separate public concepts
+5. `IRI` and `ProvO` are seed assets, not the full design
+6. ontology-builder work stays experimental
+7. `Schema.toEquivalence(...)` is the default equality surface
+8. Effect `Graph` is projection-only
+9. `Hash` and `Equal` are not RDF semantic identity
+10. `JsonPatch` and `JsonPointer` stay at the JSON-LD document layer
+11. generic XML encoding is not RDF/XML
+12. PROV-O is the provenance backbone, not the whole solution
+13. the initial PROV profile is minimal with an extension tier
+14. provenance is paired with evidence anchors and bounded projections
+15. lifecycle time fields stay explicit
+16. Web Annotation is an adapter seam, not a hard dependency
+17. `SemanticSchemaMetadata.kind` is closed and coarse in v1
+18. semantic metadata annotations are selective, not universal

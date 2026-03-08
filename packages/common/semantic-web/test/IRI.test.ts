@@ -1,4 +1,4 @@
-import { AbsoluteIRI, IRI, IRIReference, RelativeIRIReference } from "@beep/schema/internal/IRI/IRI.ts";
+import { AbsoluteIRI, IRI, IRIReference, RelativeIRIReference } from "@beep/semantic-web/iri";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
 import * as A from "effect/Array";

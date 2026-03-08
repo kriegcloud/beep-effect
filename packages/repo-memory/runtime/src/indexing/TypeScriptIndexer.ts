@@ -39,6 +39,7 @@ import {
   Effect,
   FileSystem,
   flow,
+  HashMap,
   HashSet,
   Layer,
   Order,
@@ -167,25 +168,26 @@ export interface TypeScriptIndexServiceShape {
 export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexService, TypeScriptIndexServiceShape>()(
   $I`TypeScriptIndexService`
 ) {
-  static readonly layer: Layer.Layer<TypeScriptIndexService, never, FileSystem.FileSystem | Path.Path | RepoRunStore> = Layer.effect(
-    TypeScriptIndexService,
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const repoRunStore = yield* RepoRunStore;
+  static readonly layer: Layer.Layer<TypeScriptIndexService, never, FileSystem.FileSystem | Path.Path | RepoRunStore> =
+    Layer.effect(
+      TypeScriptIndexService,
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoRunStore = yield* RepoRunStore;
 
-      return TypeScriptIndexService.of({
-        indexRepo: (options) =>
-          indexTypeScriptRepo(options).pipe(
-            Effect.withSpan("TypeScriptIndexer.indexRepo"),
-            Effect.annotateLogs({ component: "repo-memory-typescript-indexer" }),
-            Effect.provideService(FileSystem.FileSystem, fs),
-            Effect.provideService(Path.Path, path),
-            Effect.provideService(RepoRunStore, repoRunStore)
-          ),
-      });
-    })
-  );
+        return TypeScriptIndexService.of({
+          indexRepo: (options) =>
+            indexTypeScriptRepo(options).pipe(
+              Effect.withSpan("TypeScriptIndexer.indexRepo"),
+              Effect.annotateLogs({ component: "repo-memory-typescript-indexer" }),
+              Effect.provideService(FileSystem.FileSystem, fs),
+              Effect.provideService(Path.Path, path),
+              Effect.provideService(RepoRunStore, repoRunStore)
+            ),
+        });
+      })
+    );
 }
 
 const toIndexError = makeStatusCauseError(TypeScriptIndexError);
@@ -872,6 +874,78 @@ const extractImportEdges = (options: {
   return results;
 };
 
+const dedupeArtifactsByKey = <A>(
+  values: ReadonlyArray<A>,
+  keyOf: (value: A) => string,
+  choose: (current: A, next: A) => A = (current) => current
+): ReadonlyArray<A> => {
+  let indexes = HashMap.empty<string, number>();
+  let deduped = A.empty<A>();
+
+  for (const value of values) {
+    const key = keyOf(value);
+    const existingIndex = HashMap.get(indexes, key);
+
+    if (O.isSome(existingIndex)) {
+      const current = deduped[existingIndex.value];
+
+      if (current !== undefined) {
+        pipe(
+          deduped,
+          A.replace(existingIndex.value, choose(current, value)),
+          O.fromNullishOr,
+          O.match({
+            onNone: () => {},
+            onSome: (d) => {
+              deduped = d;
+            },
+          })
+        );
+      }
+
+      continue;
+    }
+
+    indexes = HashMap.set(indexes, key, A.length(deduped));
+    deduped = A.append(deduped, value);
+  }
+
+  return deduped;
+};
+
+const hasSymbolDocumentation = (symbol: RepoSymbolRecord): boolean =>
+  O.isSome(symbol.documentation) || O.isSome(symbol.jsDocSummary);
+
+const preferSymbolRecord = (current: RepoSymbolRecord, next: RepoSymbolRecord): RepoSymbolRecord => {
+  const currentHasDocumentation = hasSymbolDocumentation(current);
+  const nextHasDocumentation = hasSymbolDocumentation(next);
+
+  if (currentHasDocumentation !== nextHasDocumentation) {
+    return currentHasDocumentation ? current : next;
+  }
+
+  const currentDeclarationLength = Str.length(current.declarationText);
+  const nextDeclarationLength = Str.length(next.declarationText);
+
+  if (currentDeclarationLength !== nextDeclarationLength) {
+    return currentDeclarationLength >= nextDeclarationLength ? current : next;
+  }
+
+  const currentSpanLength = current.endLine - current.startLine;
+  const nextSpanLength = next.endLine - next.startLine;
+
+  return currentSpanLength >= nextSpanLength ? current : next;
+};
+
+const symbolRecordStoreKey = (symbol: RepoSymbolRecord): string =>
+  `${symbol.repoId}::${symbol.sourceSnapshotId}::${symbol.symbolId}`;
+
+const importEdgeStoreKey = (importEdge: RepoImportEdge): string =>
+  `${importEdge.repoId}::${importEdge.sourceSnapshotId}::${importEdge.importerFilePath}::${importEdge.moduleSpecifier}::${pipe(
+    importEdge.importedName,
+    O.getOrElse(() => "<none>")
+  )}`;
+
 const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")(function* (
   repoRootPath: string
 ): Effect.fn.Return<ReadonlyArray<ProjectScope>, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
@@ -1033,7 +1107,11 @@ const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupt
  */
 export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRepo")(function* (
   options: TypeScriptIndexRequest
-): Effect.fn.Return<IndexedTypeScriptArtifacts, TypeScriptIndexError, FileSystem.FileSystem | Path.Path | RepoRunStore> {
+): Effect.fn.Return<
+  IndexedTypeScriptArtifacts,
+  TypeScriptIndexError,
+  FileSystem.FileSystem | Path.Path | RepoRunStore
+> {
   const scopes = yield* discoverProjectScopes(options.repoPath);
   let seenFiles = HashSet.empty<string>();
   let processedFileCount = 0;
@@ -1117,7 +1195,8 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
           ...symbol,
           sourceSnapshotId,
         })
-    )
+    ),
+    (records) => dedupeArtifactsByKey(records, symbolRecordStoreKey, preferSymbolRecord)
   );
   const importEdges = pipe(
     extractedImportEdges,
@@ -1127,7 +1206,8 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
           ...importEdge,
           sourceSnapshotId,
         })
-    )
+    ),
+    (edges) => dedupeArtifactsByKey(edges, importEdgeStoreKey)
   );
   const indexedFileCount = decodeNonNegativeInt(A.length(files));
 

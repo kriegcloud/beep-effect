@@ -9,6 +9,7 @@ import {
 } from "@beep/repo-memory-model";
 import { GroundedRetrievalService, RepoRunService, TypeScriptIndexService } from "@beep/repo-memory-runtime";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
+import { RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
 import { FilePath } from "@beep/schema";
 import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -111,6 +112,51 @@ const createFixtureRepo = Effect.gen(function* () {
   return decodeFilePath(repoPath);
 });
 
+const createCollisionFixtureRepo = Effect.gen(function* () {
+  const info = yield* TestDatabaseInfo;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoPath = path.join(info.tempDir, "fixtures", "collision-repo");
+  const sourceDir = path.join(repoPath, "src");
+
+  yield* fs.makeDirectory(sourceDir, { recursive: true });
+  yield* fs.writeFileString(
+    path.join(sourceDir, "dep.ts"),
+    ["export class Foo {", "  constructor(readonly name: string) {}", "}", ""].join("\n")
+  );
+  yield* fs.writeFileString(
+    path.join(sourceDir, "index.ts"),
+    [
+      'import { Foo, type Foo } from "./dep";',
+      "",
+      "export function makeFoo(name: string): Foo;",
+      "export function makeFoo(name: string, count: number): ReadonlyArray<Foo>;",
+      "export function makeFoo(name: string, count = 1): Foo | ReadonlyArray<Foo> {",
+      "  if (count === 1) {",
+      "    return new Foo(name);",
+      "  }",
+      "",
+      "  return Array.from({ length: count }, (_, index) => new Foo(`${name}-${index}`));",
+      "}",
+      "",
+      'export const singleFoo: Foo = makeFoo("fixture") as Foo;',
+      "",
+    ].join("\n")
+  );
+  yield* fs.writeFileString(
+    path.join(repoPath, "tsconfig.json"),
+    encodeJson({
+      compilerOptions: {
+        module: "ESNext",
+        target: "ES2022",
+      },
+      include: ["src/**/*.ts"],
+    })
+  );
+
+  return decodeFilePath(repoPath);
+});
+
 const indexFixtureRepo = Effect.gen(function* () {
   const server = yield* RepoRunService;
   const repoPath = yield* createFixtureRepo;
@@ -121,6 +167,40 @@ const indexFixtureRepo = Effect.gen(function* () {
     })
   );
   const runId = decodeRunId(`run:index:${registration.id}:fixture`);
+  const acceptance = yield* server.acceptIndexRun(
+    {
+      repoId: registration.id,
+      sourceFingerprint: O.none(),
+    },
+    runId
+  );
+
+  if (acceptance.dispatch) {
+    yield* server.executeIndexRun(
+      {
+        repoId: registration.id,
+        sourceFingerprint: O.none(),
+      },
+      runId
+    );
+  }
+
+  return {
+    registration,
+    runId,
+  };
+});
+
+const indexCollisionFixtureRepo = Effect.gen(function* () {
+  const server = yield* RepoRunService;
+  const repoPath = yield* createCollisionFixtureRepo;
+  const registration = yield* server.registerRepo(
+    new RepoRegistrationInput({
+      repoPath,
+      displayName: O.some("Collision Fixture"),
+    })
+  );
+  const runId = decodeRunId(`run:index:${registration.id}:collision`);
   const acceptance = yield* server.acceptIndexRun(
     {
       repoId: registration.id,
@@ -278,6 +358,32 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(countSymbols.run.citations).toEqual([]);
         expect(countPacket.summary).toContain("Counted indexed TypeScript symbols");
         expect(countPacket.notes).toContain("countSymbols=4");
+      })
+    )
+  );
+
+  it.effect("deduplicates overloaded symbols and mixed value/type imports before snapshot persistence", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const snapshotStore = yield* RepoSnapshotStore;
+        const symbolStore = yield* RepoSymbolStore;
+        const { registration } = yield* indexCollisionFixtureRepo;
+        const latestSnapshot = yield* snapshotStore.latestSourceSnapshot(registration.id);
+        const snapshotId = O.getOrThrow(latestSnapshot).id;
+        const symbols = yield* symbolStore.listSymbolRecords(registration.id, snapshotId);
+        const importEdges = yield* symbolStore.listImportEdges(registration.id, snapshotId);
+        const makeFooSymbols = pipe(
+          symbols,
+          A.filter((symbol) => symbol.symbolName === "makeFoo")
+        );
+        const fooImportEdges = pipe(
+          importEdges,
+          A.filter((edge) => edge.moduleSpecifier === "./dep" && pipe(edge.importedName, O.getOrUndefined) === "Foo")
+        );
+
+        expect(makeFooSymbols).toHaveLength(1);
+        expect(makeFooSymbols[0]?.declarationText).toContain("count = 1");
+        expect(fooImportEdges).toHaveLength(1);
       })
     )
   );

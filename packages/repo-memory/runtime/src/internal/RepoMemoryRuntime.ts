@@ -1,16 +1,16 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   AnswerDraftedEvent,
-  InterruptRepoRunRequest,
   IndexRepoRunInput,
   IndexRun,
+  type InterruptRepoRunRequest,
   QueryRepoRunInput,
   QueryRun,
   RepoIndexArtifact,
   type RepoRegistration,
   type RepoRegistrationInput,
   type RepoRun,
-  ResumeRepoRunRequest,
+  type ResumeRepoRunRequest,
   type RetrievalPacket,
   RetrievalPacketMaterializedEvent,
   RunAcceptedAck,
@@ -56,7 +56,7 @@ import {
   TypeScriptIndexService as TypeScriptIndexServiceInternal,
 } from "../indexing/TypeScriptIndexer.js";
 import { GroundedRetrievalService as GroundedRetrievalServiceInternal } from "../retrieval/GroundedRetrieval.js";
-import { projectRunEvent, RunProjectorError } from "../run/RunProjector.js";
+import { projectRunEvent, type RunProjectorError } from "../run/RunProjector.js";
 import {
   acceptedIndexRun,
   acceptedQueryRun,
@@ -65,8 +65,8 @@ import {
   completeQueryRun,
   failRun,
   interruptRun,
-  RunExecutionTransition,
-  RunStateMachineError,
+  type RunExecutionTransition,
+  type RunStateMachineError,
 } from "../run/RunStateMachine.js";
 import { recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
 
@@ -461,7 +461,10 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
       yield* Effect.sleep(Duration.millis(25));
     }
 
-    return yield* toRunServiceError(`Run "${run.id}" did not reach a suspended workflow state after interruption.`, 409);
+    return yield* toRunServiceError(
+      `Run "${run.id}" did not reach a suspended workflow state after interruption.`,
+      409
+    );
   });
 
   const emitInterruptedRun = Effect.fn("RepoRunService.emitInterruptedRun")(function* (
@@ -597,44 +600,42 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     }
   );
 
-  const interruptRunCommand: RepoRunServiceShape["interruptRun"] = Effect.fn("RepoRunService.interruptRun")(function* (
-    request
-  ) {
-    const run = yield* requireRun(request.runId);
-    const requestedAt = yield* DateTime.now;
-    const interruptedRun = yield* mapStateMachineError(interruptRun(run, requestedAt));
+  const interruptRunCommand: RepoRunServiceShape["interruptRun"] = Effect.fn("RepoRunService.interruptRun")(
+    function* (request) {
+      const run = yield* requireRun(request.runId);
+      const requestedAt = yield* DateTime.now;
+      const interruptedRun = yield* mapStateMachineError(interruptRun(run, requestedAt));
 
-    yield* annotateRunServiceSpan({
-      run_id: request.runId,
-      run_kind: run.kind,
-      run_status: run.status,
-      command: "interrupt",
-    });
-    yield* appendRunEvent(
-      new RunInterruptedEvent({
-        runId: request.runId,
-        sequence: interruptedRun.lastEventSequence,
-        emittedAt: requestedAt,
-        run: interruptedRun,
-      })
-    );
-    yield* recordRunFinished(
-      run.kind,
-      "interrupted",
-      pipe(
-        run.startedAt,
-        O.map((startedAt) => DateTime.toEpochMillis(requestedAt) - DateTime.toEpochMillis(startedAt)),
-        O.getOrUndefined
-      )
-    );
-    yield* waitForWorkflowSuspended(interruptedRun);
+      yield* annotateRunServiceSpan({
+        run_id: request.runId,
+        run_kind: run.kind,
+        run_status: run.status,
+        command: "interrupt",
+      });
+      yield* appendRunEvent(
+        new RunInterruptedEvent({
+          runId: request.runId,
+          sequence: interruptedRun.lastEventSequence,
+          emittedAt: requestedAt,
+          run: interruptedRun,
+        })
+      );
+      yield* recordRunFinished(
+        run.kind,
+        "interrupted",
+        pipe(
+          run.startedAt,
+          O.map((startedAt) => DateTime.toEpochMillis(requestedAt) - DateTime.toEpochMillis(startedAt)),
+          O.getOrUndefined
+        )
+      );
+      yield* waitForWorkflowSuspended(interruptedRun);
 
-    return toRunCommandAck(request.runId, "interrupt", requestedAt);
-  });
+      return toRunCommandAck(request.runId, "interrupt", requestedAt);
+    }
+  );
 
-  const resumeRunCommand: RepoRunServiceShape["resumeRun"] = Effect.fn("RepoRunService.resumeRun")(function* (
-    request
-  ) {
+  const resumeRunCommand: RepoRunServiceShape["resumeRun"] = Effect.fn("RepoRunService.resumeRun")(function* (request) {
     const run = yield* requireRun(request.runId);
     const requestedAt = yield* DateTime.now;
 

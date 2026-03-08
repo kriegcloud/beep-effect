@@ -42,7 +42,7 @@ const composers = $I.compose(
   "test-utils",
   "claude",
   "ai-sdk",
-	"nlp",
+  "nlp",
   // Shared Slice
   "shared-domain",
   "shared-tables",

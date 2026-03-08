@@ -6,10 +6,10 @@ import * as S from "effect/Schema";
 import {
   Citation,
   RepoId,
-  RunCommand,
   RepoRunKind,
   RepoRunStatus,
   RetrievalPacket,
+  RunCommand,
   RunCursor,
   RunEventSequence,
   RunId,

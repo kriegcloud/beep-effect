@@ -5,13 +5,13 @@ import {
   type QueryRepoRunInput,
   QueryRun,
   type RepoRun,
-  RepoRunStatus,
+  type RepoRunStatus,
   type RetrievalPacket,
   RunEventSequence,
   type RunId,
 } from "@beep/repo-memory-model";
 import { LiteralKit, makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
-import { DateTime, Effect, Match, pipe } from "effect";
+import { type DateTime, Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -73,9 +73,7 @@ export class RunStateMachineError extends TaggedErrorClass<RunStateMachineError>
 const toRunStateMachineError = makeStatusCauseError(RunStateMachineError);
 
 const invalidTransition = (runId: RunId, status: RepoRunStatus, command: string) =>
-  Effect.fail(
-    toRunStateMachineError(`Run "${runId}" cannot ${command} while it is "${status}".`, 409)
-  );
+  Effect.fail(toRunStateMachineError(`Run "${runId}" cannot ${command} while it is "${status}".`, 409));
 
 /**
  * Execution lifecycle event kinds emitted when a run starts or resumes.
@@ -306,15 +304,15 @@ export const completeIndexRun = Effect.fn("RunStateMachine.completeIndexRun")(fu
   return yield* Match.value(run.status).pipe(
     Match.when("running", () =>
       Effect.succeed(
-                new IndexRun({
-                  ...run,
-                  status: "completed",
-                  completedAt: O.some(completedAt),
-                  lastEventSequence: nextRunEventSequence(run),
-                  indexedFileCount: O.some(decodeNonNegativeInt(indexedFileCount)),
-                  errorMessage: noErrorMessage,
-                })
-              )
+        new IndexRun({
+          ...run,
+          status: "completed",
+          completedAt: O.some(completedAt),
+          lastEventSequence: nextRunEventSequence(run),
+          indexedFileCount: O.some(decodeNonNegativeInt(indexedFileCount)),
+          errorMessage: noErrorMessage,
+        })
+      )
     ),
     Match.orElse((status) => invalidTransition(run.id, status, "complete"))
   );

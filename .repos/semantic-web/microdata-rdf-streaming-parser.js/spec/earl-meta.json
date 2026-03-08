@@ -1,0 +1,20 @@
+{
+  "applicationBugsUrl": "https://github.com/rubensworks/microdata-rdf-streaming-parser.js/issues",
+  "applicationDescription": "Streaming Microdata to RDF parser",
+  "applicationHomepageUrl": "https://github.com/rubensworks/microdata-rdf-streaming-parser.js#readme",
+  "applicationNameFull": "microdata-rdf-streaming-parser",
+  "applicationNameNpm": "microdata-rdf-streaming-parser",
+  "applicationUri": "https://www.npmjs.com/package/microdata-rdf-streaming-parser/",
+  "authors": [
+    {
+      "homepage": "https://www.rubensworks.net/",
+      "name": "Ruben Taelman <rubensworks@gmail.com>",
+      "uri": "https://www.rubensworks.net/#me"
+    }
+  ],
+  "licenseUri": "http://opensource.org/licenses/MIT",
+  "reportUri": null,
+  "specificationUris": [
+    "https://w3c.github.io/microdata-rdf/"
+  ]
+}

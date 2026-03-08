@@ -1,0 +1,137 @@
+{
+  "name": "rdfa-streaming-parser",
+  "version": "3.0.2",
+  "description": "A fast and lightweight streaming RDFa parser",
+  "keywords": [
+    "rdfa",
+    "linked data",
+    "semantic web",
+    "rdf",
+    "rdfjs",
+    "streaming",
+    "asynchronous"
+  ],
+  "main": "index.js",
+  "typings": "index",
+  "repository": "git@github.com:rubensworks/rdfa-streaming-parser.js.git",
+  "author": "Ruben Taelman <rubensworks@gmail.com>",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/rubensworks/"
+  },
+  "bugs": {
+    "url": "https://github.com/rubensworks/rdfa-streaming-parser.js/issues"
+  },
+  "homepage": "https://github.com/rubensworks/rdfa-streaming-parser.js#readme",
+  "license": "MIT",
+  "files": [
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.json",
+    "lib/**/*.js.map",
+    "index.d.ts",
+    "index.js.map",
+    "index.js"
+  ],
+  "dependencies": {
+    "htmlparser2": "^10.0.0",
+    "rdf-data-factory": "^2.0.0",
+    "relative-to-absolute-iri": "^1.0.2",
+    "readable-stream": "^4.0.0"
+  },
+  "pre-commit": [
+    "build",
+    "lint",
+    "test"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "@types/jest-each": "^24.3.0",
+    "@types/readable-stream": "^4.0.0",
+    "arrayify-stream": "^2.0.0",
+    "coveralls": "^3.0.0",
+    "jest": "^29.0.0",
+    "jest-each": "^29.0.0",
+    "jest-rdf": "^2.0.0",
+    "manual-git-changelog": "^1.0.1",
+    "pre-commit": "^1.2.2",
+    "rdf-quad": "^2.0.0",
+    "rdf-test-suite": "^2.0.0",
+    "streamify-string": "^1.0.1",
+    "ts-jest": "^29.0.0",
+    "ts-loader": "^9.3.1",
+    "tslint": "^6.0.0",
+    "tslint-eslint-rules": "^5.3.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^6.0.0"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "test/tsconfig.json"
+      }
+    },
+    "setupFilesAfterEnv": [
+      "jest-rdf"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
+    ],
+    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "collectCoverage": true,
+    "testEnvironment": "node"
+  },
+  "scripts": {
+    "test": "jest ${1}",
+    "test-watch": "jest ${1} --watch",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "lint": "tslint index.ts lib/**/*.ts test/**/*.ts --exclude '**/*.d.ts'",
+    "build": "tsc",
+    "validate": "npm ls",
+    "prepare": "npm run build",
+    "version": "manual-git-changelog onversion",
+    "spec": "npm run spec-html4 && npm run spec-html5 && npm run spec-xhtml5 && npm run spec-svg && npm run spec-xhtml1 && npm run spec-xml",
+    "spec-earl": "npm run spec-html4-earl && npm run spec-html5-earl && npm run spec-xhtml5-earl && npm run spec-svg-earl && npm run spec-xhtml1-earl && npm run spec-xml-earl",
+    "spec-role": "npm run spec-role-html5 && npm run spec-role-xhtml5 && npm run spec-role-xhtml1 && npm run spec-role-xml",
+    "spec-role-earl": "npm run spec-role-html5-earl && npm run spec-role-xhtml5-earl && npm run spec-role-xhtml1-earl && npm run spec-role-xml-earl",
+    "spec-html4": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/html4/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/",
+    "spec-html4-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/html4/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-html4.ttl",
+    "spec-html5": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/",
+    "spec-html5-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-html5.ttl",
+    "spec-xhtml5": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml5/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/",
+    "spec-xhtml5-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml5/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-xhtml5.ttl",
+    "spec-svg": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-svg-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-svg.ttl",
+    "spec-xhtml1": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/",
+    "spec-xhtml1-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-xhtml1.ttl",
+    "spec-xml": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-xml-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-xml.ttl",
+    "spec-role-html5": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/html5/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/",
+    "spec-role-html5-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/html5/manifest.ttl -i '{ \"profile\": \"html\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-role-html5.ttl",
+    "spec-role-xhtml5": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xhtml5/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/",
+    "spec-role-xhtml5-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xhtml5/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-role-xhtml5.ttl",
+    "spec-role-svg": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-role-svg-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-role-svg.ttl",
+    "spec-role-xhtml1": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/",
+    "spec-role-xhtml1-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-role-xhtml1.ttl",
+    "spec-role-xml": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-role-xml-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.1-role/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-role-xml.ttl",
+    "spec-1-svg": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-1-svg-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/svg/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-1-svg.ttl",
+    "spec-1-xhtml1": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/",
+    "spec-1-xhtml1-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/xhtml1/manifest.ttl -i '{ \"profile\": \"xhtml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-rdfastreamingparser-1-xhtml1.ttl",
+    "spec-1-xml": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/",
+    "spec-1-xml-earl": "rdf-test-suite spec/parser.js http://rdfa.info/test-suite/test-cases/rdfa1.0/xml/manifest.ttl -i '{ \"profile\": \"xml\" }' -c .rdf-test-suite-cache/ -o earl -p spec/earl-meta.json > spec/earl-1-rdfastreamingparser-xml.ttl",
+    "spec-clean": "rm -r .rdf-test-suite-cache/"
+  },
+  "sideEffects": false,
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
