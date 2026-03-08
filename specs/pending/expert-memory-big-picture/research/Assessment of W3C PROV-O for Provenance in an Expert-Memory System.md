@@ -13,9 +13,9 @@ This assessment is grounded in the current expert-memory and semantic-web materi
 - [Claims And Evidence](../CLAIMS_AND_EVIDENCE.md)
 - [Representation Layers](../REPRESENTATION_LAYERS.md)
 - [Trust, Time, And Conflict](../TRUST_TIME_AND_CONFLICT.md)
-- [@beep/semantic-web provenance and evidence design](../../semantic-web/design/provenance-and-evidence.md)
-- the legacy knowledge slice under `.repos/beep-effect/packages/knowledge`
-- the legacy provenance emitter and related RDF store implementation under `.repos/beep-effect/packages/knowledge/server/src/Rdf`
+- [`provenance-and-evidence.md`](../../semantic-web/design/provenance-and-evidence.md)
+- the legacy knowledge slice package docs: [`server/README.md`](../../../.repos/beep-effect/packages/knowledge/server/README.md), [`client/README.md`](../../../.repos/beep-effect/packages/knowledge/client/README.md), and [`ui/README.md`](../../../.repos/beep-effect/packages/knowledge/ui/README.md)
+- the legacy provenance emitter and RDF store implementation: [`ProvenanceEmitter.ts`](../../../.repos/beep-effect/packages/knowledge/server/src/Rdf/ProvenanceEmitter.ts), [`RdfStoreService.ts`](../../../.repos/beep-effect/packages/knowledge/server/src/Rdf/RdfStoreService.ts), and [`ProvOConstants.ts`](../../../.repos/beep-effect/packages/knowledge/server/src/Rdf/ProvOConstants.ts)
 
 ## Executive Position
 

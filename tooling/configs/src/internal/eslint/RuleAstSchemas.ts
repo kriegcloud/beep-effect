@@ -1,5 +1,7 @@
 import { thunkSomeEmptyArray } from "@beep/utils";
+import { pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 export class IdentifierNode extends S.Class<IdentifierNode>("IdentifierNode")({
@@ -15,6 +17,7 @@ export class ImportNamespaceSpecifierNode extends S.Class<ImportNamespaceSpecifi
 
 export class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierNode")({
   type: S.tag("ImportSpecifier"),
+  importKind: S.optionalKey(S.String),
   imported: IdentifierNode,
   local: IdentifierNode,
 }) {}
@@ -56,7 +59,24 @@ export class BlockCommentNode extends S.Class<BlockCommentNode>("BlockCommentNod
 
 export const decodeImportDeclarationNode = S.decodeUnknownOption(ImportDeclarationNode);
 export const decodeImportNamespaceSpecifierNode = S.decodeUnknownOption(ImportNamespaceSpecifierNode);
-export const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
+const decodeImportSpecifierNodeRaw = S.decodeUnknownOption(ImportSpecifierNode);
+export const decodeImportSpecifierNode = (
+  node: unknown,
+  importDeclarationKind?: string
+): O.Option<ImportSpecifierNode> =>
+  pipe(
+    decodeImportSpecifierNodeRaw(node),
+    O.map((specifier) =>
+      specifier.importKind === undefined && importDeclarationKind !== undefined
+        ? new ImportSpecifierNode({
+            type: specifier.type,
+            importKind: importDeclarationKind,
+            imported: specifier.imported,
+            local: specifier.local,
+          })
+        : specifier
+    )
+  );
 export const decodeNamedDeclarationNode = S.decodeUnknownOption(NamedDeclarationNode);
 export const decodeVariableDeclarationNode = S.decodeUnknownOption(VariableDeclarationNode);
 export const decodeBlockCommentNode = S.decodeUnknownOption(BlockCommentNode);

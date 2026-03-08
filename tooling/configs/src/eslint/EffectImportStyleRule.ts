@@ -155,8 +155,9 @@ const resolveRootImportAliasViolations = (node: unknown): ReadonlyArray<RuleViol
     O.map((importDeclaration) =>
       pipe(
         importDeclaration.specifiers,
-        A.map((specifier) => decodeImportSpecifierNode(specifier)),
+        A.map((specifier) => decodeImportSpecifierNode(specifier, importDeclaration.importKind)),
         A.getSomes,
+        A.filter((specifier) => specifier.importKind !== "type"),
         A.map((specifier) => {
           const moduleName = `effect/${specifier.imported.name}`;
           return pipe(

@@ -473,8 +473,14 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   const liveByKey = HashMap.fromIterable(
     liveDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
   );
-  const trackedByKey = HashMap.fromIterable(
-    mergedDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  const trackedByKey = pipe(
+    existingDocument,
+    O.map((document) =>
+      HashMap.fromIterable(
+        document.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+      )
+    ),
+    O.getOrElse(HashMap.empty<string, SchemaFirstInventoryEntry>)
   );
 
   const missingEntries = pipe(

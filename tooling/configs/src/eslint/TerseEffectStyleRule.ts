@@ -226,13 +226,13 @@ export const terseEffectStyleRule: Rule.RuleModule = {
         pipe(
           decodeImportDeclarationNode(node),
           O.filter((importDeclaration) => importDeclaration.source.value === "@beep/utils"),
-          O.map((importDeclaration) => importDeclaration.specifiers),
           O.match({
             onNone: () => undefined,
-            onSome: (specifiers) => {
-              for (const specifier of specifiers) {
+            onSome: (importDeclaration) => {
+              for (const specifier of importDeclaration.specifiers) {
                 pipe(
-                  decodeImportSpecifierNode(specifier),
+                  decodeImportSpecifierNode(specifier, importDeclaration.importKind),
+                  O.filter((importSpecifier) => importSpecifier.importKind !== "type"),
                   O.filter((importSpecifier) =>
                     A.some(THUNK_HELPER_NAMES, (helperName) => helperName === importSpecifier.imported.name)
                   ),

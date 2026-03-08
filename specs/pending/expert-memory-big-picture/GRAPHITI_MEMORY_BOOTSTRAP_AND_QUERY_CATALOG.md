@@ -85,7 +85,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "expert memory domain transfer law wealth compliance claim evidence contradiction temporal lifecycle",
-  "group_ids": ["beep-dev"],
+  "group_ids": "[\"beep-dev\"]",
   "max_facts": 10
 })
 ```
@@ -94,7 +94,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot custom start RPC runId WorkflowProxy discard",
-  "group_ids": ["beep-dev"],
+  "group_ids": "[\"beep-dev\"]",
   "max_facts": 10
 })
 ```

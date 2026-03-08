@@ -192,6 +192,24 @@ describe("eslint rule migration", () => {
     ).toBe(true);
   });
 
+  it("ignores type-only canonical alias imports from mixed root effect imports", () => {
+    const messages = verify(
+      ['import { type String as Str, pipe } from "effect";', 'export const value = pipe("a", (value) => value);'].join(
+        "\n"
+      ),
+      effectImportStyleConfig,
+      "tooling/configs/src/MixedTypeRootImport.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) =>
+          message.ruleId === "beep-laws/effect-import-style" &&
+          message.message.includes("Use namespace import with alias Str for effect/String")
+      )
+    ).toBe(false);
+  });
+
   it("flags new Date in non-allowlisted files", () => {
     const messages = verify(
       "export const value = new Date();",

@@ -2,7 +2,7 @@
 
 ## Phase Start Rule
 
-If a phase starts in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only edit or refine the phase output artifact when operating outside Plan Mode.
+If a phase starts in Plan Mode, do not edit spec artifacts yet. First read the required inputs, confirm which defaults are already locked, resolve remaining ambiguities through non-mutating exploration and targeted user questions, and produce a decision-complete phase plan. Only write or refine the phase output artifact when operating outside Plan Mode.
 
 ## Prompt: P0 Orchestrator (Package Topology and Boundaries)
 
