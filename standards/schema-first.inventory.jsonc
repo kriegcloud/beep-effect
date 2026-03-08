@@ -1612,7 +1612,7 @@
     },
     {
       "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
-      "symbol": "anonymous@356",
+      "symbol": "anonymous@355",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/schema",
@@ -1620,7 +1620,7 @@
     },
     {
       "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
-      "symbol": "anonymous@380",
+      "symbol": "anonymous@379",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/schema",
@@ -1628,7 +1628,7 @@
     },
     {
       "file": "packages/common/schema/src/internal/ProvO/ProvO.ts",
-      "symbol": "anonymous@654",
+      "symbol": "anonymous@653",
       "kind": "object-struct-schema",
       "status": "candidate",
       "owner": "@beep/schema",

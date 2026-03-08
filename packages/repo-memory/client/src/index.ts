@@ -2,12 +2,15 @@ import { $RepoMemoryClientId } from "@beep/identity/packages";
 import {
   ControlPlaneApi,
   type IndexRepoRunInput,
+  type InterruptRepoRunRequest,
   type QueryRepoRunInput,
   type RepoRegistration,
   type RepoRegistrationInput,
   type RepoRun,
   RepoRunRpcGroup,
+  type ResumeRepoRunRequest,
   type RunAcceptedAck,
+  type RunCommandAck,
   type RunId,
   type RunStreamEvent,
   type SidecarBootstrap,
@@ -67,9 +70,11 @@ export class RepoMemoryClientError extends TaggedErrorClass<RepoMemoryClientErro
 export interface RepoMemoryClientShape {
   readonly bootstrap: Effect.Effect<SidecarBootstrap, RepoMemoryClientError>;
   readonly getRun: (runId: RunId) => Effect.Effect<RepoRun, RepoMemoryClientError>;
+  readonly interruptRun: (request: InterruptRepoRunRequest) => Effect.Effect<RunCommandAck, RepoMemoryClientError>;
   readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, RepoMemoryClientError>;
   readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, RepoMemoryClientError>;
   readonly registerRepo: (input: RepoRegistrationInput) => Effect.Effect<RepoRegistration, RepoMemoryClientError>;
+  readonly resumeRun: (request: ResumeRepoRunRequest) => Effect.Effect<RunCommandAck, RepoMemoryClientError>;
   readonly startIndexRun: (payload: IndexRepoRunInput) => Effect.Effect<RunAcceptedAck, RepoMemoryClientError>;
   readonly startQueryRun: (payload: QueryRepoRunInput) => Effect.Effect<RunAcceptedAck, RepoMemoryClientError>;
   readonly streamRunEvents: (request: StreamRunEventsRequest) => Stream.Stream<RunStreamEvent, RepoMemoryClientError>;
@@ -267,6 +272,15 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
           )
         )
       ),
+    interruptRun: (request) =>
+      mapClientError(
+        `Failed to interrupt run "${request.runId}".`,
+        Effect.scoped(
+          makeRepoMemoryRpcClient({
+            baseUrl: config.baseUrl,
+          }).pipe(Effect.flatMap((rpc) => rpc.InterruptRepoRun(request)))
+        )
+      ),
     listRepos: mapClientError(
       "Failed to list repos.",
       Effect.scoped(
@@ -296,6 +310,15 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
               })
             )
           )
+        )
+      ),
+    resumeRun: (request) =>
+      mapClientError(
+        `Failed to resume run "${request.runId}".`,
+        Effect.scoped(
+          makeRepoMemoryRpcClient({
+            baseUrl: config.baseUrl,
+          }).pipe(Effect.flatMap((rpc) => rpc.ResumeRepoRun(request)))
         )
       ),
     startIndexRun: (payload) =>

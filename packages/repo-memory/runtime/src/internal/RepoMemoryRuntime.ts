@@ -3,22 +3,27 @@ import {
   AnswerDraftedEvent,
   IndexRepoRunInput,
   IndexRun,
+  type InterruptRepoRunRequest,
   QueryRepoRunInput,
   QueryRun,
   RepoIndexArtifact,
   type RepoRegistration,
   type RepoRegistrationInput,
   type RepoRun,
+  type ResumeRepoRunRequest,
   type RetrievalPacket,
   RetrievalPacketMaterializedEvent,
   RunAcceptedAck,
   RunAcceptedEvent,
+  RunCommandAck,
   RunCompletedEvent,
   RunCursor,
   RunEventSequence,
   RunFailedEvent,
   RunId,
+  RunInterruptedEvent,
   RunProgressUpdatedEvent,
+  RunResumedEvent,
   RunStartedEvent,
   RunStreamEvent,
   RunStreamFailure,
@@ -37,7 +42,7 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { DateTime, Effect, flow, Layer, Match, pipe, ServiceMap, Stream } from "effect";
+import { DateTime, Duration, Effect, flow, Layer, Match, pipe, Semaphore, ServiceMap, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -46,11 +51,24 @@ import * as Msgpack from "effect/unstable/encoding/Msgpack";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as Workflow from "effect/unstable/workflow/Workflow";
+import * as WorkflowEngine from "effect/unstable/workflow/WorkflowEngine";
 import {
   TypeScriptIndexRequest,
   TypeScriptIndexService as TypeScriptIndexServiceInternal,
 } from "../indexing/TypeScriptIndexer.js";
 import { GroundedRetrievalService as GroundedRetrievalServiceInternal } from "../retrieval/GroundedRetrieval.js";
+import { projectRunEvent, type RunProjectorError } from "../run/RunProjector.js";
+import {
+  acceptedIndexRun,
+  acceptedQueryRun,
+  beginRunExecution,
+  completeIndexRun,
+  completeQueryRun,
+  failRun,
+  interruptRun,
+  type RunExecutionTransition,
+  type RunStateMachineError,
+} from "../run/RunStateMachine.js";
 import { recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
 
 const $I = $RepoMemoryRuntimeId.create("internal/RepoMemoryRuntime");
@@ -60,6 +78,8 @@ const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
 const decodeRunEventPayload = S.decodeUnknownEffect(Msgpack.schema(RunStreamEvent));
 const encodeRunEventPayload = S.encodeUnknownEffect(Msgpack.schema(RunStreamEvent));
 const workflowVersion = "cluster-first-v0";
+const workflowSuspensionPollInterval = Duration.millis(25);
+const workflowSuspensionPollMaxAttempts = 200;
 type RepoRuntimeStoreShape = RepoRegistryStoreShape & RepoRunStoreShape & RepoSnapshotStoreShape & RepoSymbolStoreShape;
 
 class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`RunAcceptanceDecision`)(
@@ -104,9 +124,15 @@ export interface RepoRunServiceShape {
   readonly executeIndexRun: (payload: IndexRepoRunInput, runId: RunId) => Effect.Effect<IndexRun, RepoRunServiceError>;
   readonly executeQueryRun: (payload: QueryRepoRunInput, runId: RunId) => Effect.Effect<QueryRun, RepoRunServiceError>;
   readonly getRun: (runId: RunId) => Effect.Effect<RepoRun, RepoRunServiceError>;
+  readonly interruptRun: (
+    request: InterruptRepoRunRequest
+  ) => Effect.Effect<RunCommandAck, RepoRunServiceError, WorkflowEngine.WorkflowEngine>;
   readonly listRepos: Effect.Effect<ReadonlyArray<RepoRegistration>, RepoRunServiceError>;
   readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, RepoRunServiceError>;
   readonly registerRepo: (input: RepoRegistrationInput) => Effect.Effect<RepoRegistration, RepoRunServiceError>;
+  readonly resumeRun: (
+    request: ResumeRepoRunRequest
+  ) => Effect.Effect<RunCommandAck, RepoRunServiceError, WorkflowEngine.WorkflowEngine>;
   readonly streamRunEvents: (request: StreamRunEventsRequest) => Stream.Stream<RunStreamEvent, RunStreamFailure>;
 }
 
@@ -174,6 +200,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const reactivity = yield* Reactivity.Reactivity;
   const typeScriptIndex = yield* TypeScriptIndexServiceInternal;
   const groundedRetrieval = yield* GroundedRetrievalServiceInternal;
+  const runCommandSemaphore = yield* Semaphore.makePartitioned<RunId>({ permits: 1 });
 
   const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
 
@@ -186,6 +213,12 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         S.is(RepoRunServiceError)(error) ? error : toRunServiceError(`Failed to ${method}.`, 500, error)
       )
     );
+
+  const mapProjectorError = <A>(effect: Effect.Effect<A, RunProjectorError>) =>
+    effect.pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+
+  const mapStateMachineError = <A>(effect: Effect.Effect<A, RunStateMachineError>) =>
+    effect.pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
 
   const annotateRunServiceSpan = Effect.fn("RepoRunService.annotateSpan")(function* (
     annotations: Record<string, unknown>
@@ -258,57 +291,15 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     event: RunStreamEvent
   ): Effect.fn.Return<void, RepoRunServiceError> {
     return yield* reactivity.withBatch(
-      RunStreamEvent.match(event, {
-        accepted: (acceptedEvent) => persistRunSnapshot(acceptedEvent.run),
-        started: (startedEvent) => persistRunSnapshot(startedEvent.run),
-        completed: (completedEvent) => persistRunSnapshot(completedEvent.run),
-        failed: (failedEvent) => persistRunSnapshot(failedEvent.run),
-        interrupted: (interruptedEvent) => persistRunSnapshot(interruptedEvent.run),
-        resumed: (resumedEvent) => persistRunSnapshot(resumedEvent.run),
-        progress: Effect.fn("RepoRunService.materializeProgress")(function* (progressEvent) {
-          const run = yield* requireRun(progressEvent.runId);
+      Effect.gen(function* () {
+        const currentRun = yield* mapDriverError(driver.getRun(event.runId));
+        const projectedRun = yield* mapProjectorError(projectRunEvent(currentRun, event));
 
-          const updatedRun = Match.value(run).pipe(
-            Match.discriminatorsExhaustive("kind")({
-              index: (indexRun) =>
-                new IndexRun({
-                  ...indexRun,
-                  status: "running",
-                  lastEventSequence: progressEvent.sequence,
-                }),
-              query: (queryRun) =>
-                new QueryRun({
-                  ...queryRun,
-                  status: "running",
-                  lastEventSequence: progressEvent.sequence,
-                }),
-            })
-          );
+        if (event.kind === "retrieval-packet") {
+          yield* persistRetrievalPacket(event.runId, event.packet);
+        }
 
-          yield* persistRunSnapshot(updatedRun);
-        }),
-        "retrieval-packet": Effect.fn("RepoRunService.materializeRetrievalPacket")(function* (retrievalEvent) {
-          const run = yield* requireQueryRun(retrievalEvent.runId);
-          const updatedRun = new QueryRun({
-            ...run,
-            retrievalPacket: O.some(retrievalEvent.packet),
-            lastEventSequence: retrievalEvent.sequence,
-          });
-
-          yield* persistRetrievalPacket(retrievalEvent.runId, retrievalEvent.packet);
-          yield* persistRunSnapshot(updatedRun);
-        }),
-        answer: Effect.fn("RepoRunService.materializeAnswer")(function* (answerEvent) {
-          const run = yield* requireQueryRun(answerEvent.runId);
-          const updatedRun = new QueryRun({
-            ...run,
-            answer: O.some(answerEvent.answer),
-            citations: answerEvent.citations,
-            lastEventSequence: answerEvent.sequence,
-          });
-
-          yield* persistRunSnapshot(updatedRun);
-        }),
+        yield* persistRunSnapshot(projectedRun);
       })
     );
   });
@@ -376,50 +367,131 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     });
   });
 
-  const acceptedIndexRun = (runId: RunId, payload: IndexRepoRunInput, acceptedAt: DateTime.Utc): IndexRun =>
-    new IndexRun({
-      id: runId,
-      repoId: payload.repoId,
-      status: "accepted",
-      acceptedAt,
-      startedAt: O.none(),
-      completedAt: O.none(),
-      lastEventSequence: decodeRunEventSequence(1),
-      indexedFileCount: O.none(),
-      errorMessage: O.none(),
+  const ensureProjectedIndexRun = Effect.fn("RepoRunService.ensureProjectedIndexRun")(function* (
+    run: RepoRun
+  ): Effect.fn.Return<IndexRun, RepoRunServiceError> {
+    if (run.kind !== "index") {
+      return yield* toRunServiceError(`Expected an index run projection for "${run.id}".`, 500);
+    }
+
+    return run;
+  });
+
+  const ensureProjectedQueryRun = Effect.fn("RepoRunService.ensureProjectedQueryRun")(function* (
+    run: RepoRun
+  ): Effect.fn.Return<QueryRun, RepoRunServiceError> {
+    if (run.kind !== "query") {
+      return yield* toRunServiceError(`Expected a query run projection for "${run.id}".`, 500);
+    }
+
+    return run;
+  });
+
+  const nextSequenceForRun = (run: RepoRun): RunEventSequence => decodeRunEventSequence(run.lastEventSequence + 1);
+
+  const appendExecutionTransitionEvent = Effect.fn("RepoRunService.appendExecutionTransitionEvent")(function* (
+    runId: RunId,
+    emittedAt: DateTime.Utc,
+    transition: RunExecutionTransition
+  ): Effect.fn.Return<RepoRun, RepoRunServiceError> {
+    yield* Match.value(transition.eventKind).pipe(
+      Match.when("started", () =>
+        appendRunEvent(
+          new RunStartedEvent({
+            runId,
+            sequence: transition.run.lastEventSequence,
+            emittedAt,
+            run: transition.run,
+          })
+        )
+      ),
+      Match.when("resumed", () =>
+        appendRunEvent(
+          new RunResumedEvent({
+            runId,
+            sequence: transition.run.lastEventSequence,
+            emittedAt,
+            run: transition.run,
+          })
+        )
+      ),
+      Match.exhaustive
+    );
+
+    return transition.run;
+  });
+
+  const appendProjectedEvent = Effect.fn("RepoRunService.appendProjectedEvent")(function* (
+    currentRun: RepoRun,
+    event: Extract<RunStreamEvent, { readonly kind: "progress" | "retrieval-packet" | "answer" }>
+  ): Effect.fn.Return<RepoRun, RepoRunServiceError> {
+    yield* appendRunEvent(event);
+    return yield* mapProjectorError(projectRunEvent(O.some(currentRun), event));
+  });
+
+  const suspendIfRunInterrupted = Effect.fn("RepoRunService.suspendIfRunInterrupted")(function* (
+    runId: RunId
+  ): Effect.fn.Return<void, RepoRunServiceError> {
+    const runOption = yield* mapDriverError(driver.getRun(runId));
+
+    if (O.isNone(runOption) || runOption.value.status !== "interrupted") {
+      return;
+    }
+
+    const instanceOption = yield* Effect.serviceOption(WorkflowEngine.WorkflowInstance);
+
+    if (O.isNone(instanceOption)) {
+      yield* Effect.logWarning(`Run "${runId}" was interrupted without a workflow instance to suspend.`);
+      return;
+    }
+
+    return yield* Workflow.suspend(instanceOption.value);
+  });
+
+  const waitForWorkflowSuspended = Effect.fn("RepoRunService.waitForWorkflowSuspended")(function* (
+    run: RepoRun
+  ): Effect.fn.Return<void, RepoRunServiceError, WorkflowEngine.WorkflowEngine> {
+    for (let attempt = 0; attempt < workflowSuspensionPollMaxAttempts; attempt += 1) {
+      const result = yield* Match.value(run).pipe(
+        Match.discriminatorsExhaustive("kind")({
+          index: () => IndexRepoRunWorkflow.poll(run.id),
+          query: () => QueryRepoRunWorkflow.poll(run.id),
+        })
+      );
+
+      if (result !== undefined && result._tag === "Suspended") {
+        return;
+      }
+
+      yield* Effect.sleep(workflowSuspensionPollInterval);
+    }
+
+    return yield* toRunServiceError(
+      `Run "${run.id}" did not reach a suspended workflow state after interruption.`,
+      409
+    );
+  });
+
+  const emitInterruptedRun = Effect.fn("RepoRunService.emitInterruptedRun")(function* (
+    runId: RunId,
+    interruptedAt: DateTime.Utc
+  ): Effect.fn.Return<void> {
+    const attempt = Effect.gen(function* () {
+      const run = yield* requireRun(runId);
+      const interruptedRun = yield* mapStateMachineError(interruptRun(run, interruptedAt));
+
+      yield* appendRunEvent(
+        new RunInterruptedEvent({
+          runId,
+          sequence: interruptedRun.lastEventSequence,
+          emittedAt: interruptedAt,
+          run: interruptedRun,
+        })
+      );
     });
 
-  const acceptedQueryRun = (runId: RunId, payload: QueryRepoRunInput, acceptedAt: DateTime.Utc): QueryRun =>
-    new QueryRun({
-      id: runId,
-      repoId: payload.repoId,
-      question: payload.question,
-      status: "accepted",
-      acceptedAt,
-      startedAt: O.none(),
-      completedAt: O.none(),
-      lastEventSequence: decodeRunEventSequence(1),
-      answer: O.none(),
-      citations: A.empty(),
-      retrievalPacket: O.none(),
-      errorMessage: O.none(),
-    });
-
-  const toRunningIndexRun = (run: IndexRun, startedAt: DateTime.Utc): IndexRun =>
-    new IndexRun({
-      ...run,
-      status: "running",
-      startedAt: O.some(startedAt),
-      lastEventSequence: decodeRunEventSequence(2),
-    });
-
-  const toRunningQueryRun = (run: QueryRun, startedAt: DateTime.Utc): QueryRun =>
-    new QueryRun({
-      ...run,
-      status: "running",
-      startedAt: O.some(startedAt),
-      lastEventSequence: decodeRunEventSequence(2),
-    });
+    yield* attempt.pipe(Effect.catch(thunkEffectVoid));
+  });
 
   const emitFailedRun = Effect.fn("RepoRunService.emitFailedRun")(function* (
     runId: RunId,
@@ -427,34 +499,14 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   ): Effect.fn.Return<void> {
     const attempt = Effect.gen(function* () {
       const run = yield* requireRun(runId);
-      const completedAt = yield* DateTime.now;
-
-      const failedRun = Match.value(run).pipe(
-        Match.discriminatorsExhaustive("kind")({
-          index: (indexRun) =>
-            new IndexRun({
-              ...indexRun,
-              status: "failed",
-              completedAt: O.some(completedAt),
-              lastEventSequence: decodeRunEventSequence(indexRun.lastEventSequence + 1),
-              errorMessage: O.some(message),
-            }),
-          query: (queryRun) =>
-            new QueryRun({
-              ...queryRun,
-              status: "failed",
-              completedAt: O.some(completedAt),
-              lastEventSequence: decodeRunEventSequence(queryRun.lastEventSequence + 1),
-              errorMessage: O.some(message),
-            }),
-        })
-      );
+      const failedAt = yield* DateTime.now;
+      const failedRun = yield* mapStateMachineError(failRun(run, failedAt, message));
 
       yield* appendRunEvent(
         new RunFailedEvent({
           runId,
           sequence: failedRun.lastEventSequence,
-          emittedAt: completedAt,
+          emittedAt: failedAt,
           message,
           run: failedRun,
         })
@@ -463,6 +515,13 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
 
     yield* attempt.pipe(Effect.catch(thunkEffectVoid));
   });
+
+  const toRunCommandAck = (runId: RunId, command: "interrupt" | "resume", requestedAt: DateTime.Utc): RunCommandAck =>
+    new RunCommandAck({
+      runId,
+      command,
+      requestedAt,
+    });
 
   const toAcceptanceDecision = (run: RepoRun, dispatch: boolean): RunAcceptanceDecision =>
     new RunAcceptanceDecision({
@@ -473,6 +532,14 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
       }),
       dispatch,
     });
+
+  const validateRunCanBeginExecution = Effect.fn("RepoRunService.validateRunCanBeginExecution")(function* (
+    run: RepoRun,
+    at: DateTime.Utc
+  ): Effect.fn.Return<void, RepoRunServiceError> {
+    // Guard only. The durable started/resumed transition is appended by the workflow execution path.
+    yield* mapStateMachineError(beginRunExecution(run, at));
+  });
 
   const acceptIndexRun: RepoRunServiceShape["acceptIndexRun"] = Effect.fn("RepoRunService.acceptIndexRun")(
     function* (payload, runId) {
@@ -488,11 +555,15 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
       }
 
       const acceptedAt = yield* DateTime.now;
-      const run = acceptedIndexRun(runId, payload, acceptedAt);
+      const run = acceptedIndexRun({
+        runId,
+        payload,
+        acceptedAt,
+      });
       yield* appendRunEvent(
         new RunAcceptedEvent({
           runId,
-          sequence: decodeRunEventSequence(1),
+          sequence: run.lastEventSequence,
           emittedAt: acceptedAt,
           run,
         })
@@ -520,11 +591,15 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
       }
 
       const acceptedAt = yield* DateTime.now;
-      const run = acceptedQueryRun(runId, payload, acceptedAt);
+      const run = acceptedQueryRun({
+        runId,
+        payload,
+        acceptedAt,
+      });
       yield* appendRunEvent(
         new RunAcceptedEvent({
           runId,
-          sequence: decodeRunEventSequence(1),
+          sequence: run.lastEventSequence,
           emittedAt: acceptedAt,
           run,
         })
@@ -538,44 +613,120 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     }
   );
 
+  const interruptRunCommand: RepoRunServiceShape["interruptRun"] = Effect.fn("RepoRunService.interruptRun")(
+    function* (request) {
+      return yield* runCommandSemaphore.withPermits(
+        request.runId,
+        1
+      )(
+        Effect.gen(function* () {
+          const run = yield* requireRun(request.runId);
+          const requestedAt = yield* DateTime.now;
+          const interruptedRun = yield* mapStateMachineError(interruptRun(run, requestedAt));
+
+          yield* annotateRunServiceSpan({
+            run_id: request.runId,
+            run_kind: run.kind,
+            run_status: run.status,
+            command: "interrupt",
+          });
+          yield* appendRunEvent(
+            new RunInterruptedEvent({
+              runId: request.runId,
+              sequence: interruptedRun.lastEventSequence,
+              emittedAt: requestedAt,
+              run: interruptedRun,
+            })
+          );
+          yield* recordRunFinished(
+            run.kind,
+            "interrupted",
+            pipe(
+              run.startedAt,
+              O.map((startedAt) => DateTime.toEpochMillis(requestedAt) - DateTime.toEpochMillis(startedAt)),
+              O.getOrUndefined
+            )
+          );
+          yield* waitForWorkflowSuspended(interruptedRun);
+
+          return toRunCommandAck(request.runId, "interrupt", requestedAt);
+        })
+      );
+    }
+  );
+
+  const resumeRunCommand: RepoRunServiceShape["resumeRun"] = Effect.fn("RepoRunService.resumeRun")(function* (request) {
+    return yield* runCommandSemaphore.withPermits(
+      request.runId,
+      1
+    )(
+      Effect.gen(function* () {
+        const run = yield* requireRun(request.runId);
+        const requestedAt = yield* DateTime.now;
+
+        yield* annotateRunServiceSpan({
+          run_id: request.runId,
+          run_kind: run.kind,
+          run_status: run.status,
+          command: "resume",
+        });
+        yield* validateRunCanBeginExecution(run, requestedAt);
+        yield* waitForWorkflowSuspended(run);
+
+        const currentRun = yield* requireRun(request.runId);
+        yield* validateRunCanBeginExecution(currentRun, requestedAt);
+        yield* Match.value(currentRun).pipe(
+          Match.discriminatorsExhaustive("kind")({
+            index: () => IndexRepoRunWorkflow.resume(request.runId),
+            query: () => QueryRepoRunWorkflow.resume(request.runId),
+          })
+        );
+
+        return toRunCommandAck(request.runId, "resume", requestedAt);
+      })
+    );
+  });
+
   const executeIndexRun: RepoRunServiceShape["executeIndexRun"] = Effect.fn("RepoRunService.executeIndexRun")(
     function* (payload, runId) {
       yield* annotateRunServiceSpan({ repo_id: payload.repoId, run_id: runId, run_kind: "index" });
-      let startedAt: O.Option<DateTime.Utc> = O.none();
+      let executionStartedAt: O.Option<DateTime.Utc> = O.none();
 
       const effect: Effect.Effect<IndexRun, RepoRunServiceError> = Effect.gen(function* () {
         const repo = yield* mapDriverError(driver.getRepo(payload.repoId));
-        const acceptedRun = yield* requireIndexRun(runId);
-        const runStartedAt = yield* DateTime.now;
-        startedAt = O.some(runStartedAt);
-        const runningRun = toRunningIndexRun(acceptedRun, runStartedAt);
-
-        yield* appendRunEvent(
-          new RunStartedEvent({
-            runId,
-            sequence: decodeRunEventSequence(2),
-            emittedAt: runStartedAt,
-            run: runningRun,
-          })
+        const currentRun = yield* requireIndexRun(runId);
+        const lifecycleAt = yield* DateTime.now;
+        executionStartedAt = O.some(lifecycleAt);
+        const transition = yield* mapStateMachineError(beginRunExecution(currentRun, lifecycleAt));
+        let runningRun = yield* ensureProjectedIndexRun(
+          yield* appendExecutionTransitionEvent(runId, lifecycleAt, transition)
         );
-        yield* recordRunStarted("index");
 
-        yield* appendRunEvent(
-          new RunProgressUpdatedEvent({
-            runId,
-            sequence: decodeRunEventSequence(3),
-            emittedAt: yield* DateTime.now,
-            phase: "indexing",
-            message: "Extracting deterministic TypeScript artifacts from workspace-scoped tsconfig projects.",
-            percent: O.some(decodeNonNegativeInt(50)),
-          })
+        if (transition.eventKind === "started") {
+          yield* recordRunStarted("index");
+        }
+
+        runningRun = yield* ensureProjectedIndexRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RunProgressUpdatedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              phase: "indexing",
+              message: "Extracting deterministic TypeScript artifacts from workspace-scoped tsconfig projects.",
+              percent: O.some(decodeNonNegativeInt(50)),
+            })
+          )
         );
+        yield* suspendIfRunInterrupted(runId);
 
         const indexedArtifacts = yield* typeScriptIndex
           .indexRepo(
             new TypeScriptIndexRequest({
               repoId: payload.repoId,
               repoPath: repo.repoPath,
+              runId,
             })
           )
           .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
@@ -599,18 +750,14 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           })
         );
 
-        const completedRun = new IndexRun({
-          ...runningRun,
-          status: "completed",
-          completedAt: O.some(completedAt),
-          lastEventSequence: decodeRunEventSequence(4),
-          indexedFileCount: O.some(indexedArtifacts.snapshot.fileCount),
-        });
+        const completedRun = yield* mapStateMachineError(
+          completeIndexRun(runningRun, completedAt, indexedArtifacts.snapshot.fileCount)
+        );
 
         yield* appendRunEvent(
           new RunCompletedEvent({
             runId,
-            sequence: decodeRunEventSequence(4),
+            sequence: completedRun.lastEventSequence,
             emittedAt: completedAt,
             run: completedRun,
           })
@@ -618,13 +765,29 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* recordRunFinished(
           "index",
           "completed",
-          DateTime.toEpochMillis(completedAt) - DateTime.toEpochMillis(runStartedAt)
+          DateTime.toEpochMillis(completedAt) - DateTime.toEpochMillis(lifecycleAt)
         );
 
         return completedRun;
       });
 
       return yield* effect.pipe(
+        Effect.onInterrupt(() =>
+          Effect.gen(function* () {
+            const interruptedAt = yield* DateTime.now;
+
+            yield* recordRunFinished(
+              "index",
+              "interrupted",
+              pipe(
+                executionStartedAt,
+                O.map((startedAt) => DateTime.toEpochMillis(interruptedAt) - DateTime.toEpochMillis(startedAt)),
+                O.getOrUndefined
+              )
+            );
+            yield* emitInterruptedRun(runId, interruptedAt);
+          })
+        ),
         Effect.catchTag("RepoRunServiceError", (error) =>
           Effect.gen(function* () {
             const failedAt = yield* DateTime.now;
@@ -633,8 +796,8 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               "index",
               "failed",
               pipe(
-                startedAt,
-                O.map((runStartedAt) => DateTime.toEpochMillis(failedAt) - DateTime.toEpochMillis(runStartedAt)),
+                executionStartedAt,
+                O.map((startedAt) => DateTime.toEpochMillis(failedAt) - DateTime.toEpochMillis(startedAt)),
                 O.getOrUndefined
               )
             );
@@ -649,84 +812,88 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const executeQueryRun: RepoRunServiceShape["executeQueryRun"] = Effect.fn("RepoRunService.executeQueryRun")(
     function* (payload, runId) {
       yield* annotateRunServiceSpan({ repo_id: payload.repoId, run_id: runId, run_kind: "query" });
-      let startedAt: O.Option<DateTime.Utc> = O.none();
+      let executionStartedAt: O.Option<DateTime.Utc> = O.none();
 
       const effect: Effect.Effect<QueryRun, RepoRunServiceError> = Effect.gen(function* () {
-        const acceptedRun = yield* requireQueryRun(runId);
-        const runStartedAt = yield* DateTime.now;
-        startedAt = O.some(runStartedAt);
-        const runningRun = toRunningQueryRun(acceptedRun, runStartedAt);
-
-        yield* appendRunEvent(
-          new RunStartedEvent({
-            runId,
-            sequence: decodeRunEventSequence(2),
-            emittedAt: runStartedAt,
-            run: runningRun,
-          })
-        );
-        yield* recordRunStarted("query");
-
-        yield* appendRunEvent(
-          new RunProgressUpdatedEvent({
-            runId,
-            sequence: decodeRunEventSequence(3),
-            emittedAt: yield* DateTime.now,
-            phase: "interpret",
-            message: "Normalizing the question into one supported deterministic query shape.",
-            percent: O.some(decodeNonNegativeInt(25)),
-          })
+        const currentRun = yield* requireQueryRun(runId);
+        const lifecycleAt = yield* DateTime.now;
+        executionStartedAt = O.some(lifecycleAt);
+        const transition = yield* mapStateMachineError(beginRunExecution(currentRun, lifecycleAt));
+        let runningRun = yield* ensureProjectedQueryRun(
+          yield* appendExecutionTransitionEvent(runId, lifecycleAt, transition)
         );
 
-        yield* appendRunEvent(
-          new RunProgressUpdatedEvent({
-            runId,
-            sequence: decodeRunEventSequence(4),
-            emittedAt: yield* DateTime.now,
-            phase: "retrieve",
-            message: "Retrieving bounded source-grounded artifacts from the latest persisted snapshot.",
-            percent: O.some(decodeNonNegativeInt(60)),
-          })
+        if (transition.eventKind === "started") {
+          yield* recordRunStarted("query");
+        }
+
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RunProgressUpdatedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              phase: "interpret",
+              message: "Normalizing the question into one supported deterministic query shape.",
+              percent: O.some(decodeNonNegativeInt(25)),
+            })
+          )
         );
+
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RunProgressUpdatedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              phase: "retrieve",
+              message: "Retrieving bounded source-grounded artifacts from the latest persisted snapshot.",
+              percent: O.some(decodeNonNegativeInt(60)),
+            })
+          )
+        );
+        yield* suspendIfRunInterrupted(runId);
 
         const groundedQuery = yield* groundedRetrieval
           .resolve(payload)
           .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
 
-        yield* appendRunEvent(
-          new RetrievalPacketMaterializedEvent({
-            runId,
-            sequence: decodeRunEventSequence(5),
-            emittedAt: yield* DateTime.now,
-            packet: groundedQuery.packet,
-          })
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RetrievalPacketMaterializedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              packet: groundedQuery.packet,
+            })
+          )
         );
 
-        yield* appendRunEvent(
-          new AnswerDraftedEvent({
-            runId,
-            sequence: decodeRunEventSequence(6),
-            emittedAt: yield* DateTime.now,
-            answer: groundedQuery.answer,
-            citations: groundedQuery.citations,
-          })
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new AnswerDraftedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              answer: groundedQuery.answer,
+              citations: groundedQuery.citations,
+            })
+          )
         );
 
         const completedAt = yield* DateTime.now;
-        const completedRun = new QueryRun({
-          ...runningRun,
-          status: "completed",
-          completedAt: O.some(completedAt),
-          lastEventSequence: decodeRunEventSequence(7),
-          answer: O.some(groundedQuery.answer),
-          citations: groundedQuery.citations,
-          retrievalPacket: O.some(groundedQuery.packet),
-        });
+        const completedRun = yield* mapStateMachineError(
+          completeQueryRun(runningRun, completedAt, groundedQuery.answer, groundedQuery.citations, groundedQuery.packet)
+        );
 
         yield* appendRunEvent(
           new RunCompletedEvent({
             runId,
-            sequence: decodeRunEventSequence(7),
+            sequence: completedRun.lastEventSequence,
             emittedAt: completedAt,
             run: completedRun,
           })
@@ -734,13 +901,29 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* recordRunFinished(
           "query",
           "completed",
-          DateTime.toEpochMillis(completedAt) - DateTime.toEpochMillis(runStartedAt)
+          DateTime.toEpochMillis(completedAt) - DateTime.toEpochMillis(lifecycleAt)
         );
 
         return completedRun;
       });
 
       return yield* effect.pipe(
+        Effect.onInterrupt(() =>
+          Effect.gen(function* () {
+            const interruptedAt = yield* DateTime.now;
+
+            yield* recordRunFinished(
+              "query",
+              "interrupted",
+              pipe(
+                executionStartedAt,
+                O.map((startedAt) => DateTime.toEpochMillis(interruptedAt) - DateTime.toEpochMillis(startedAt)),
+                O.getOrUndefined
+              )
+            );
+            yield* emitInterruptedRun(runId, interruptedAt);
+          })
+        ),
         Effect.catchTag("RepoRunServiceError", (error) =>
           Effect.gen(function* () {
             const failedAt = yield* DateTime.now;
@@ -749,8 +932,8 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               "query",
               "failed",
               pipe(
-                startedAt,
-                O.map((runStartedAt) => DateTime.toEpochMillis(failedAt) - DateTime.toEpochMillis(runStartedAt)),
+                executionStartedAt,
+                O.map((startedAt) => DateTime.toEpochMillis(failedAt) - DateTime.toEpochMillis(startedAt)),
                 O.getOrUndefined
               )
             );
@@ -842,9 +1025,11 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     executeIndexRun,
     executeQueryRun,
     getRun,
+    interruptRun: interruptRunCommand,
     listRepos,
     listRuns,
     registerRepo,
+    resumeRun: resumeRunCommand,
     streamRunEvents,
   } satisfies RepoRunServiceShape;
 });

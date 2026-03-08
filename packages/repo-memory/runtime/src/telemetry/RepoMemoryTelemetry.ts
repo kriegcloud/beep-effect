@@ -35,7 +35,7 @@ export type QueryKindMetric =
  * @since 0.0.0
  * @category Observability
  */
-export type RunOutcomeMetric = "completed" | "failed";
+export type RunOutcomeMetric = "completed" | "failed" | "interrupted";
 
 /**
  * Metric label for grounded query result quality.
@@ -57,6 +57,11 @@ const runsCompletedTotal = Metric.counter("beep_repo_memory_runs_completed_total
 
 const runsFailedTotal = Metric.counter("beep_repo_memory_runs_failed_total", {
   description: "Total repo-memory runs that failed during execution.",
+  incremental: true,
+});
+
+const runsInterruptedTotal = Metric.counter("beep_repo_memory_runs_interrupted_total", {
+  description: "Total repo-memory runs that were interrupted during execution.",
   incremental: true,
 });
 
@@ -125,7 +130,10 @@ export const recordRunFinished = Effect.fn("RepoMemoryMetrics.recordRunFinished"
   });
 
   yield* Metric.update(
-    Metric.withAttributes(outcome === "completed" ? runsCompletedTotal : runsFailedTotal, attributes),
+    Metric.withAttributes(
+      outcome === "completed" ? runsCompletedTotal : outcome === "failed" ? runsFailedTotal : runsInterruptedTotal,
+      attributes
+    ),
     1
   );
 
