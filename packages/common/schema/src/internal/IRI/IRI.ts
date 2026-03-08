@@ -10,13 +10,16 @@ const $I = $SchemaId.create("internal/IRI/IRI");
  * RFC 3987 coverage notes:
  *
  * - The schemas below encode the generic RFC 3987 section 2.2 syntax directly.
+ * - RFC 3987 section 4.1's bidi-formatting prohibition is also enforced because
+ *   those characters are directly checkable at the code-point level.
  * - Section 3 IRI-to-URI mapping is intentionally not performed here because it
  *   depends on source encoding, UTF-8 percent-encoding, and scheme-specific
  *   `ireg-name` handling.
- * - Sections 4, 5, 6, and 8 describe bidi handling, normalization/comparison,
- *   transport/runtime constraints, and security guidance. Those are normative
- *   for callers but are not pure syntax checks, so they remain documented
- *   rather than being silently baked into schema decoding.
+ * - The remaining guidance in sections 4, 5, 6, and 8 covers bidi presentation,
+ *   normalization/comparison, transport/runtime constraints, and security
+ *   behavior. Those requirements are caller-visible but are not pure syntax
+ *   checks, so they remain documented rather than being silently baked into
+ *   schema decoding.
  */
 
 type ParseEnd = number | undefined;
@@ -55,6 +58,16 @@ const iprivateRanges = [
   [0xf0000, 0xffffd],
   [0x100000, 0x10fffd],
 ] as const satisfies ReadonlyArray<readonly [number, number]>;
+
+const forbiddenBidiFormattingCodePoints = [
+  0x200e, // LRM
+  0x200f, // RLM
+  0x202a, // LRE
+  0x202b, // RLE
+  0x202c, // PDF
+  0x202d, // LRO
+  0x202e, // RLO
+] as const satisfies ReadonlyArray<number>;
 
 const nextCodePoint = (input: string, index: number): readonly [number, number] | undefined => {
   const codePoint = pipe(input, Str.codePointAt(index));
@@ -165,7 +178,14 @@ const isUcschar = (codePoint: number): boolean => isCodePointInRanges(codePoint,
 
 const isIprivate = (codePoint: number): boolean => isCodePointInRanges(codePoint, iprivateRanges);
 
-const isIunreserved = (codePoint: number): boolean => isAsciiUnreserved(codePoint) || isUcschar(codePoint);
+const isForbiddenBidiFormattingCodePoint = (codePoint: number): boolean =>
+  pipe(
+    forbiddenBidiFormattingCodePoints,
+    A.some((candidate) => candidate === codePoint)
+  );
+
+const isIunreserved = (codePoint: number): boolean =>
+  !isForbiddenBidiFormattingCodePoint(codePoint) && (isAsciiUnreserved(codePoint) || isUcschar(codePoint));
 
 const isPctEncodedAt = (input: string, index: number): boolean => {
   const first = pipe(input, Str.codePointAt(index + 1));
@@ -843,6 +863,9 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   )
 );
 
+/**
+ * RFC 3987 `IRI-reference` syntax, including absolute and relative forms.
+ */
 export type IRIReference = typeof IRIReference.Type;
 
 export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).pipe(
@@ -854,6 +877,9 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
   )
 );
 
+/**
+ * RFC 3987 `irelative-ref` syntax.
+ */
 export type RelativeIRIReference = typeof RelativeIRIReference.Type;
 
 export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
@@ -865,6 +891,9 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   )
 );
 
+/**
+ * RFC 3987 `absolute-IRI` syntax without a fragment component.
+ */
 export type AbsoluteIRI = typeof AbsoluteIRI.Type;
 
 export const IRI = S.String.check(iriChecks).pipe(
@@ -876,4 +905,7 @@ export const IRI = S.String.check(iriChecks).pipe(
   )
 );
 
+/**
+ * RFC 3987 `IRI` syntax.
+ */
 export type IRI = typeof IRI.Type;
