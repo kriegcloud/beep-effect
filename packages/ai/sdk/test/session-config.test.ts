@@ -8,25 +8,23 @@ import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
 const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
+const sessionConfigLayer = (entries: Record<string, string>) =>
+  Layer.fresh(SessionConfig.layer.pipe(Layer.provide(configLayer(entries))));
 const toMillis = (input: Duration.Input) => {
   const duration = Duration.fromInput(input);
   return duration === undefined ? undefined : Duration.toMillis(duration);
 };
 
 test("SessionConfig reads defaults from config provider", async () => {
-  const layer = SessionConfig.layer.pipe(
-    Layer.provide(
-      configLayer({
-        ANTHROPIC_API_KEY: "test-key",
-        EXECUTABLE: "node",
-        PATH_TO_CLAUDE_CODE_EXECUTABLE: "/tmp/claude",
-        EXECUTABLE_ARGS: "--inspect, --no-warnings",
-        PERMISSION_MODE: "plan",
-        ALLOWED_TOOLS: "Read,Edit",
-        DISALLOWED_TOOLS: "Bash",
-      })
-    )
-  );
+  const layer = sessionConfigLayer({
+    ANTHROPIC_API_KEY: "test-key",
+    EXECUTABLE: "node",
+    PATH_TO_CLAUDE_CODE_EXECUTABLE: "/tmp/claude",
+    EXECUTABLE_ARGS: "--inspect, --no-warnings",
+    PERMISSION_MODE: "plan",
+    ALLOWED_TOOLS: "Read,Edit",
+    DISALLOWED_TOOLS: "Bash",
+  });
 
   const program = Effect.gen(function* () {
     const config = yield* SessionConfig;
@@ -41,19 +39,16 @@ test("SessionConfig reads defaults from config provider", async () => {
   expect(config.defaults.allowedTools).toEqual(["Read", "Edit"]);
   expect(config.defaults.disallowedTools).toEqual(["Bash"]);
   expect(config.defaults.env?.ANTHROPIC_API_KEY).toBe("test-key");
+  expect(config.defaults.env).toEqual({ ANTHROPIC_API_KEY: "test-key" });
   expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
 
 test("SessionConfig defaults executable to bun", async () => {
-  const layer = SessionConfig.layer.pipe(
-    Layer.provide(
-      configLayer({
-        ANTHROPIC_API_KEY: "test-key",
-      })
-    )
-  );
+  const layer = sessionConfigLayer({
+    ANTHROPIC_API_KEY: "test-key",
+  });
 
   const program = Effect.gen(function* () {
     const config = yield* SessionConfig;
@@ -68,13 +63,9 @@ test("SessionConfig defaults executable to bun", async () => {
 });
 
 test("SessionConfig uses API_KEY fallback for env injection", async () => {
-  const layer = SessionConfig.layer.pipe(
-    Layer.provide(
-      configLayer({
-        API_KEY: "fallback-key",
-      })
-    )
-  );
+  const layer = sessionConfigLayer({
+    API_KEY: "fallback-key",
+  });
 
   const program = Effect.gen(function* () {
     const config = yield* SessionConfig;
@@ -83,20 +74,36 @@ test("SessionConfig uses API_KEY fallback for env injection", async () => {
 
   const config = await runEffect(program);
   expect(config.defaults.env?.ANTHROPIC_API_KEY).toBe("fallback-key");
+  expect(config.defaults.env).toEqual({ ANTHROPIC_API_KEY: "fallback-key" });
+  expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
+  expect(config.runtime.turnSendTimeout).toBeUndefined();
+  expect(config.runtime.turnResultTimeout).toBeUndefined();
+});
+
+test("SessionConfig uses session access token for env injection", async () => {
+  const layer = sessionConfigLayer({
+    CLAUDE_CODE_SESSION_ACCESS_TOKEN: "session-token",
+  });
+
+  const program = Effect.gen(function* () {
+    const config = yield* SessionConfig;
+    return config;
+  }).pipe(Effect.provide(layer));
+
+  const config = await runEffect(program);
+  expect(config.defaults.env).toEqual({
+    CLAUDE_CODE_SESSION_ACCESS_TOKEN: "session-token",
+  });
   expect(toMillis(config.runtime.closeDrainTimeout)).toBe(15_000);
   expect(config.runtime.turnSendTimeout).toBeUndefined();
   expect(config.runtime.turnResultTimeout).toBeUndefined();
 });
 
 test("SessionConfig reads CLOSE_DRAIN_TIMEOUT override", async () => {
-  const layer = SessionConfig.layer.pipe(
-    Layer.provide(
-      configLayer({
-        ANTHROPIC_API_KEY: "test-key",
-        CLOSE_DRAIN_TIMEOUT: "45 seconds",
-      })
-    )
-  );
+  const layer = sessionConfigLayer({
+    ANTHROPIC_API_KEY: "test-key",
+    CLOSE_DRAIN_TIMEOUT: "45 seconds",
+  });
 
   const program = Effect.gen(function* () {
     const config = yield* SessionConfig;
@@ -110,15 +117,11 @@ test("SessionConfig reads CLOSE_DRAIN_TIMEOUT override", async () => {
 });
 
 test("SessionConfig reads turn timeout overrides", async () => {
-  const layer = SessionConfig.layer.pipe(
-    Layer.provide(
-      configLayer({
-        ANTHROPIC_API_KEY: "test-key",
-        TURN_SEND_TIMEOUT: "12 seconds",
-        TURN_RESULT_TIMEOUT: "90 seconds",
-      })
-    )
-  );
+  const layer = sessionConfigLayer({
+    ANTHROPIC_API_KEY: "test-key",
+    TURN_SEND_TIMEOUT: "12 seconds",
+    TURN_RESULT_TIMEOUT: "90 seconds",
+  });
 
   const program = Effect.gen(function* () {
     const config = yield* SessionConfig;
@@ -137,7 +140,7 @@ test("SessionConfig reads turn timeout overrides", async () => {
 });
 
 test("SessionConfig fails fast when credentials are missing", async () => {
-  const layer = SessionConfig.layer.pipe(Layer.provide(configLayer({})));
+  const layer = sessionConfigLayer({});
 
   const program = Effect.service(SessionConfig).pipe(Effect.provide(layer));
 
