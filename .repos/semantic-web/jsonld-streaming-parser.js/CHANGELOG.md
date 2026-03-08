@@ -1,0 +1,265 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+<a name="v5.0.1"></a>
+## [v5.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v5.0.0...v5.0.1) - 2026-01-27
+
+### Added
+* [Allow rdfDirection to be set to 'disabled'](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/ba5179e381634dd2eebc63409bf96d17674d9eb8)
+
+### Changed
+* [Update to jsonld-context-parser v3.1.0](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/fc9cb246d2e2ad26153ad1bba07b70b66a3a4e36)
+
+### Fixed
+* [Fix @value validation incorrectly considering non-@ keys](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/5f05dff013ee4f54392e9f29ea90bbef0116c96b)
+* [Fix redefinition of `@context` not throwing](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3911d0a8efc93f1c554ab24e45539ae382e6a845)
+
+<a name="v5.0.0"></a>
+## [v5.0.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v4.0.1...v5.0.0) - 2025-01-08
+
+### BREAKING CHANGES
+* [Make @direction output RDF 1.2 literals with base direction](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/bd5094ff91db46129958bc7b2d986f9ec5dd9c35)
+* [Update to rdf-data-factory v2](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/011dc1ea5778603e11465f01f0a817d0128b6573)
+    This includes a bump to @rdfjs/types@2.0.0, which requires TypeScript 5 and Node 14+
+
+<a name="v4.0.1"></a>
+## [v4.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v4.0.0...v4.0.1) - 2024-09-27
+
+### Changed
+* [Update dependency @types/readable-stream to v4](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/7d0c9238255205f6960766fff9feaed9642a1a80)
+
+<a name="v4.0.0"></a>
+## [v4.0.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.4.0...v4.0.0) - 2024-09-27
+
+### BREAKING CHANGE
+* [Update to jsonld-context-parser v3](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/e2c9e1a1bf6b7429df7f6b870029ae39ac3295ce). This is not a breaking change for users of Node 18+
+
+<a name="v3.4.0"></a>
+## [v3.4.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.3.0...v3.4.0) - 2024-03-15
+
+### Added
+* [Add wellKnownMediaTypes configuration option](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/5eb098d6ed1303199258117e69c94ba9a42c3630)
+
+<a name="v3.3.0"></a>
+## [v3.3.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.2.1...v3.3.0) - 2023-11-08
+
+### Changed
+* [Remove deep cloning of contexts during parsing](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/dc18d7f4c91329c09f781ee257d6b9a74014d64f)
+
+<a name="v3.2.1"></a>
+## [v3.2.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.2.0...v3.2.1) - 2023-09-19
+
+### Fixed
+* [Fix type-scoped contexts breaking when aliasing `@type`](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3249687aad62bc48a4e617b49abe6acfa9d01efe)
+
+<a name="v3.2.0"></a>
+## [v3.2.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.1.0...v3.2.0) - 2023-01-27
+
+### Added
+* Add support for JSON-LD star:
+    * [Handle annotations as RDF-star statements](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/0f451a621863e866a040abb5defa5256f2631697)
+    * [Handle embedded nodes as RDF-star statements](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/0f54ecd6e7dc73fff16054e7bcc19aed2c8ef5ce)
+    * [Add rdfstar option](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/79a5118fc3788b61a14e8c5b4b7f280b5caa029e)
+
+Support for JSON-LD star (or RDF-star) is enabled by default, as does not introduce breaking changes.
+This functionality is however experimental, and may change at any point in time.
+Opting out of JSON-LD star support can be done by setting `rdfstar` to `false` in the parser's constructor.
+
+<a name="v3.1.0"></a>
+## [v3.1.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.0.1...v3.1.0) - 2023-01-03
+
+### Changed
+* [Use @bergos/jsonparse instead of jsonparse](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/448c8fe47fcd8d7f2f9124edbf2631913eb9b460)
+
+<a name="v3.0.1"></a>
+## [v3.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v3.0.0...v3.0.1) - 2022-11-09
+
+### Fixed
+* [Include source map files in packed files](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/a7802f842522aa67241c227b8803fcd08b6ccff9)
+
+### Changed
+* [Use .push instead of .emit('data') where possible](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/7233b16fc316943f399a88607e5079ac236491af)
+* [Use .pipe in .import if available](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/df0af6d8493b53aea2fcb6d8fa2fa9f1b64b2db9)
+
+<a name="v3.0.0"></a>
+## [v3.0.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.4.3...v3.0.0) - 2022-07-14
+
+This release has been marked as a major change due to the transition from Node's internal `stream` API to `readable-stream`.
+Most users should experience not breakages with this change.
+
+### Changed
+* [Move away from Node.js built-ins](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/334339a800fff7feb6ce90f73b93c04bf5ac1c74)
+* [Enable tree shaking in package.json](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/a3461c4fe1d1f0983d2b6734bf94dc9132ccbcc6)
+
+<a name="v2.4.3"></a>
+## [v2.4.3](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.4.2...v2.4.3) - 2022-02-23
+
+### Fixed
+* [Emit error when JSON is not closed properly, Closes #83](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/ab7582ad2d5b2102517b8c9df4d0a5171c778c42)
+
+<a name="v2.4.2"></a>
+## [v2.4.2](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.4.1...v2.4.2) - 2021-11-19
+
+### Fixed
+* [Allow @context in @reverse nodes](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3757e005c5b9611ec67df68c65d0631aeb5de882)
+
+<a name="v2.4.1"></a>
+## [v2.4.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.4.0...v2.4.1) - 2021-11-15
+
+### Fixed
+* [Fix @value-based @json nodes failing with strictValues](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/741eda02bf6365b2b752083a1f4b0342056e2500)
+
+<a name="v2.4.0"></a>
+## [v2.4.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.3.3...v2.4.0) - 2021-08-11
+
+### Changed
+* [Migrate to @rdfjs/types](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/683e40593f9976dc777d731b3d22cd2947f7f6e5)
+
+<a name="v2.3.3"></a>
+## [v2.3.3](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.3.2...v2.3.3) - 2021-07-29
+
+### Fixed
+* [Add test case for solid/community-server#865](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3650b5faeca2ca117b283789d9dae302d50a1506)
+
+<a name="v2.3.2"></a>
+## [v2.3.2](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.3.1...v2.3.2) - 2021-06-10
+
+### Fixed
+* [Fix predicate validity incorrectly being checked within @json values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/5a0750b46d003e1db5a380c123671df7c32f3238)
+
+<a name="v2.3.1"></a>
+## [v2.3.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.3.0...v2.3.1) - 2021-06-09
+
+### Fixed
+* [Fix link to anonymous reverse properties being ignored](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/45e9a83eec863f96b0c0c29b1b2004abe610f0ed)
+
+<a name="v2.3.0"></a>
+## [v2.3.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.2.1...v2.3.0) - 2021-04-16
+
+### Added
+* [Add option to skip context validation: skipContextValidation](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/d7261cab68367c3b15c4f35860550d492e486fec)
+
+<a name="v2.2.1"></a>
+## [v2.2.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.2.0...v2.2.1) - 2021-02-16
+
+### Fixed
+* [Bump jsonld-context-parser with schema.org workaround](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/f3b1b62113cd45adcf0a5df4d6da42c17a9b3733)
+
+<a name="v2.2.0"></a>
+## [v2.2.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.1.1...v2.2.0) - 2020-11-10
+
+### Added
+* [Add option to ignore missing context link headers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/2a097c6da0bb8e66dbb0ad4945fa2e29edde1448)
+
+<a name="v2.1.1"></a>
+## [v2.1.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.1.0...v2.1.1) - 2020-10-14
+
+### Fixed
+* [Fix anonymous bnodes in nested predicate inside graph being voided](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/2302014dba538a590e6d1f5ad7e9b9d09cb37690)
+* [Fix missing bnode generation for empty nodes](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/dd8022e2a465ffdab638fcc4a50e12913411be45)
+* [Fix some bnodes being skipped inside list containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/830da2189f764959059cb3666956a92907d8a9d8)
+
+<a name="v2.1.0"></a>
+## [v2.1.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.0.2...v2.1.0) - 2020-09-15
+
+### Changed
+* [Update to @types/rdf-js 4.x](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/c2293ecce10502eef0cc746eb248562790ab8977)
+
+### Fixed
+* [Fix import method sometimes failing on large streams](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/4d4ca956a4695a0f36e363d4e11011d014c04aa2)
+* [Fix incompatibility with WhatWG streams](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/f7318415a100d4de29f40d8216dd12a80d0f96f6)
+
+<a name="v2.0.2"></a>
+## [v2.0.2](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.0.1...v2.0.2) - 2020-06-03
+
+### Fixed
+* [Fix rdf:first not being omitted on invalid values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/035bff554823ac721afc99f212478c22b6ff536c)
+* [Fix incorrect error code on invalid @type value](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/151e463ce376fcf1488586e29bfe5f91743d4276)
+
+### Changed
+* [Update dependency @types/rdf-js to v3, Closes #61](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/eff162fd98c163a0cd803e9eeb869c3224451def)
+* [Bump jsonld-context-parser to 2.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/a98e5665b78cb666de63199a49c35652fb3bd703)
+
+<a name="v2.0.1"></a>
+## [v2.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v2.0.0...v2.0.1) - 2020-04-27
+
+### Fixed
+* [Fix multiple aliased type entries causing a stream key order error](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/bab4d7de1a1d6fc4e40308191929eff158ec019f)
+
+<a name="v2.0.0"></a>
+## [v2.0.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v1.1.2...v2.0.0) - 2020-04-03
+
+### Added
+* Add [JSON-LD 1.1](https://www.w3.org/TR/json-ld11/) support:
+    * [Refactor list handling to allow nested lists in 1.1](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/b5eee80d666bec1bf83d52411eeec6fef90fa91f)
+    * [Handle property-scoped contexts in raw property values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/b580a75a9a8ac881298ee56e4e2dccfc780d1d93)
+    * [Handle property-based indexing with graph containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/494d1cf6bbb3c1ddc84910e95b42d1781bbfd953)
+    * [Handle @type: @id in property-based index containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/462d790713338aee7f9a195542cc5b99153dff48)
+    * [Handle property-based indexing](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/107341e430dbb021b1995b69e678081e31acd381)
+    * [Allow context nullification in scoped ctx to clear protections](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/20c6834502fa4f57aceeb827ae328b0f2d8b8ed0)
+    * [Allow protected term overrides in property-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/90de7244f6da54708b039194cf0032415694eeaa)
+    * [Handle out-of-order type-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3cab29ed4a2db89aac34145de0eaf515cd3ea59d)
+    * [Handle propagation on type-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/20d2ef2ce255276206f36c03b9f19f611090737c)
+    * [Handle embedded contexts with disabled propagation](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/0e6a33d5feb0e160353106aba18be07b6e7aa471)
+    * [Handle (in-order) type-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/d2fce0e4dcbee2c30b4a67714b40379aedbd9b37)
+    * [Handle @propagate in prop-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/03b377fddcc21e4cf27d7ade5e0e8bf9fb78ac0b)
+    * [Handle property-scoped contexts](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/3128a1d54d664bc8e92634e360cbf52e360523b8)
+    * [Handle @graph-@id and @graph-@index containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/20e73d5d7e35797f0c3fef627220a9b055a6547a)
+    * [Handle @type on type maps with string values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/d9bd662c65327ce990509df9e7ba2d1da41af1aa)
+    * [Handle type maps with string values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/40cfe5086f46c8065a5cc6ac94dd270d74cf1c56)
+    * [Handle @type: @none](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/c2836a3342d213b1cfacfed529a67bf4d7aea0ca)
+    * [Handle @none in containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/c9837c4138484104e8ebfb0ec3e757f43a8ded35)
+    * [Ignore @nest properties in the stack](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/5e011659ac0b5120881c3df631c4c69cd6375fbe)
+    * [Handle graph containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/5a8bc072142bf60e38ae1e6094dc9efb0678cccf)
+    * [Handle type containers](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/d4783104011708aa0d9750e5479488ff6bf28d65)
+    * [Parse @type: @json as JSON string literals](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/fcf87500e013277b3a175503b0b517165cdb7e22)
+    * [Add option to normalize language tags in 1.1](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/1b1e95fd34e1a92bea778b5085548536c162e59c)
+    * [Handle @direction under the different rdfDirection modes](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/0b7ae17870cd00c2739d2e6f96b03bdc76a90020)
+    * [Add support for @prefix terms](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/e74b755905f7981e8cc78f1f3f36e64ca3654d00)
+* Handle [JSON-LD 1.1 Streaming Profile](https://w3c.github.io/json-ld-streaming/):
+    * [Detect and handle streaming profile in content type header](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/8132bd647af4bb0354c07c01299d3eebd151e944)
+* [Expose fromHttpResponse helper function](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/7b1efa1b2cd650a0598eb3876f9d25c473ef1577)
+* [Implement RDF.Sink interface, Closes #50](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/815459a05ecdd9eb26cf0df3d679e019db84fe94)
+
+### Changed
+* [Add streamingProfile flag that is disabled by default](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/410a8b661e5c1e450480df49b342fbc8fc8a0234)
+* [Align params on validation with strictValues](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/521e887d2ea44e8e4a3b4d377331fa067b1937b4)
+* [Simplify array handling of type keywords](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/ba018c724fd8e31236c0fbb74f162ebeae8c823c)
+* [Refactor architecture to support multiple objects from values](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/7f3610ce3602c6aa0099a2f1835ef5088d45dff4)
+* [Only apply language tag lowercasing in 1.0](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/044bd3318c7ce427781351646afa4039ffaf0686)
+* [Interpret ints >=1e21 as doubles](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/dc50fdcd3b54f4466c0e5ba418305fb5260e39d2)
+* [Validate language tags](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/318e3e623541d17b815bfbc44e890574c96c6fb9)
+* [Ignore instead of error on invalid compact IRIs](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/8bc5c15b6eb8c70cf970c34e56d4eb285f198df2)
+
+<a name="v1.1.2"></a>
+## [v1.1.2](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v1.1.1...v1.1.2) - 2019-10-22
+
+### Changed
+* [Ensure lowercased language tags](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/1214db9e0f4f3614d54bc7e5bd15f797fddd4202)
+
+### Fixed
+* [Fix inner contexts sometimes overriding each other, Closes #33](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/c4716bef5583dec880e20439260548bbdc563b25)
+
+<a name="v1.1.1"></a>
+## [v1.1.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v1.1.0...v1.1.1) - 2019-09-18
+
+### Fixed
+* [Bump to jsonld-context-parser to fix spec failures](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/2ddcf7122f6ac806050c1fc07fc5ea066eae3d9b)
+* [Fix @id and @type on terms incorrectly converting native values to URIs](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/6a086253882d557fc232e8383a25d7979357a545)
+
+<a name="v1.1.0"></a>
+## [v1.1.0](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v1.0.1...v1.1.0) - 2019-04-02
+
+### Added
+* [Emit detected contexts via 'context' event](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/a56c1e433072020a999a5595949b89681c378d76)
+
+<a name="v1.0.1"></a>
+## [v1.0.1](https://github.com/rubensworks/streaming-jsonld-parser.js/compare/v1.0.0...v1.0.1) - 2019-02-13
+
+### Fixed
+* [Fix validity of @type's not being checked](https://github.com/rubensworks/streaming-jsonld-parser.js/commit/1b119258c642befdd5b0907fb7d757551332c0ce)
+
+<a name="v1.0.0"></a>
+## [v1.0.0] - 2019-02-07
+
+Initial release
