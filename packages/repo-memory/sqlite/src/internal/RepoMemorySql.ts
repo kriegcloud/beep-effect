@@ -681,42 +681,50 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
 
   const registerRepo: RepoMemorySqlShape["registerRepo"] = Effect.fn("RepoMemorySql.registerRepo")(
     function* (input): Effect.fn.Return<RepoRegistration, RepoStoreError> {
-      const normalizedRepoPath = path.resolve(input.repoPath);
-      yield* annotateDriverSpan({ repo_path: normalizedRepoPath });
+      const resolvedRepoPath = path.resolve(input.repoPath);
+      yield* annotateDriverSpan({ repo_path: resolvedRepoPath });
 
       const exists = yield* fs
-        .exists(normalizedRepoPath)
+        .exists(resolvedRepoPath)
         .pipe(
           Effect.mapError((cause) =>
-            toDriverError(`Failed to check repository path "${normalizedRepoPath}".`, 500, cause)
+            toDriverError(`Failed to check repository path "${resolvedRepoPath}".`, 500, cause)
           )
         );
 
       if (!exists) {
-        return yield* toDriverError(`Repository path does not exist: "${normalizedRepoPath}".`, 404);
+        return yield* toDriverError(`Repository path does not exist: "${resolvedRepoPath}".`, 404);
       }
 
       const stat = yield* fs
-        .stat(normalizedRepoPath)
+        .stat(resolvedRepoPath)
         .pipe(
-          Effect.mapError((cause) =>
-            toDriverError(`Failed to stat repository path "${normalizedRepoPath}".`, 500, cause)
-          )
+          Effect.mapError((cause) => toDriverError(`Failed to stat repository path "${resolvedRepoPath}".`, 500, cause))
         );
 
       if (stat.type !== "Directory") {
-        return yield* toDriverError(`Repository path must be a directory: "${normalizedRepoPath}".`, 400);
+        return yield* toDriverError(`Repository path must be a directory: "${resolvedRepoPath}".`, 400);
       }
+
+      const canonicalRepoPath = yield* fs
+        .realPath(resolvedRepoPath)
+        .pipe(
+          Effect.mapError((cause) =>
+            toDriverError(`Failed to resolve canonical repository path "${resolvedRepoPath}".`, 500, cause)
+          )
+        );
+
+      yield* annotateDriverSpan({ repo_canonical_path: canonicalRepoPath });
 
       const existingRows = yield* sql<RepoRow>`
         SELECT id, repo_path, display_name, language, registered_at
         FROM ${reposTable}
-        WHERE repo_path = ${normalizedRepoPath}
+        WHERE repo_path = ${canonicalRepoPath}
         LIMIT 1
       `.pipe(
         Effect.mapError((cause) =>
           toDriverError(
-            `Failed to check for an existing repository registration at "${normalizedRepoPath}".`,
+            `Failed to check for an existing repository registration at "${canonicalRepoPath}".`,
             500,
             cause
           )
@@ -728,7 +736,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         return yield* decodeRepoRow(existing.value).pipe(
           Effect.map(repoRowToRegistration),
           Effect.mapError((cause) =>
-            toDriverError(`Failed to decode existing repository registration at "${normalizedRepoPath}".`, 500, cause)
+            toDriverError(`Failed to decode existing repository registration at "${canonicalRepoPath}".`, 500, cause)
           )
         );
       }
@@ -736,11 +744,11 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       const displayName = pipe(
         input.displayName,
         O.filter(Str.isNonEmpty),
-        O.getOrElse(() => path.basename(normalizedRepoPath))
+        O.getOrElse(() => path.basename(canonicalRepoPath))
       );
       const registration = new RepoRegistration({
-        id: yield* repoIdFromPath(normalizedRepoPath),
-        repoPath: decodeFilePath(normalizedRepoPath),
+        id: yield* repoIdFromPath(canonicalRepoPath),
+        repoPath: decodeFilePath(canonicalRepoPath),
         displayName,
         language: "typescript",
         registeredAt: yield* DateTime.now,

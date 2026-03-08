@@ -416,5 +416,32 @@ describe("skill-suggester", () => {
 
       await fs.rm(cwd, { recursive: true, force: true });
     });
+
+    it("escapes XML-like content from snapshot filenames", async () => {
+      const cwd = nodePath.join(process.cwd(), `.claude/_test-kg-hook-escape-${Date.now()}`);
+      const snapshotRoot = nodePath.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
+      await fs.mkdir(snapshotRoot, { recursive: true });
+      await fs.writeFile(
+        nodePath.join(snapshotRoot, "escape-commit.jsonl"),
+        JSON.stringify({
+          file: 'packages/<evil>"module"&.ts',
+          nodeCount: 1,
+          edgeCount: 0,
+        }),
+        "utf8"
+      );
+
+      const context = buildKgContextBlock(cwd, 'update evil "module"');
+      expect(context._tag).toBe("Some");
+      if (context._tag === "Some") {
+        expect(context.value).toContain("&lt;evil&gt;");
+        expect(context.value).toContain("&quot;module&quot;");
+        expect(context.value).toContain("&amp;");
+        expect(context.value).not.toContain('id="beep-effect3::packages/<evil>"module"&.ts');
+        expect(context.value).not.toContain('to="packages/<evil>"module"&.ts#nodes:1#edges:0"');
+      }
+
+      await fs.rm(cwd, { recursive: true, force: true });
+    });
   });
 });

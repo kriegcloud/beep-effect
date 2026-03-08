@@ -51,7 +51,18 @@ export const resolveRequestTenant = (requestedTenant?: string) =>
     yield* validateTenant(requested, "requested");
     yield* validateTenant(caller, "caller");
 
-    if (caller === undefined) return requested;
+    if (caller === undefined) {
+      if (requested === undefined) {
+        return undefined;
+      }
+
+      return yield* SessionTenantAccessError.make({
+        message: "Caller tenant header is required when requesting a tenant.",
+        requestedTenant: requested,
+        callerTenant: caller,
+      });
+    }
+
     if (requested === undefined || requested === caller) return caller;
 
     return yield* SessionTenantAccessError.make({

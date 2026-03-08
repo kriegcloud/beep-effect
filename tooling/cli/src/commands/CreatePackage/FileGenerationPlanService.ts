@@ -9,13 +9,72 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, Order, Path, ServiceMap, Struct } from "effect";
+import { Effect, FileSystem, flow, identity, Order, Path, pipe, ServiceMap, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
+const relativePlanPathSegments = (value: string): ReadonlyArray<string> =>
+  pipe(normalizePath(value), Str.split("/"), A.filter(Str.isNonEmpty));
+
+const isSafeRelativePlanPath = (value: string): boolean => {
+  const normalized = normalizePath(value);
+  const segments = relativePlanPathSegments(value);
+
+  return (
+    Str.isNonEmpty(normalized) &&
+    !pipe(normalized, Str.startsWith("/")) &&
+    A.isReadonlyArrayNonEmpty(segments) &&
+    !A.some(segments, (segment) => segment === "." || segment === "..")
+  );
+};
+
+const RelativePlanPathChecks = S.makeFilterGroup(
+  [
+    S.isNonEmpty({
+      identifier: $I`RelativePlanPathNonEmptyCheck`,
+      title: "Relative plan path non-empty",
+      description: "Create-package plan paths must not be empty.",
+      message: "Create-package plan paths must not be empty.",
+    }),
+    S.makeFilter(P.not(Str.startsWith("/")), {
+      identifier: $I`RelativePlanPathNotAbsoluteCheck`,
+      title: "Relative plan path not absolute",
+      description: "Create-package plan paths must stay relative to the output directory.",
+      message: "Create-package plan paths must stay relative to the output directory.",
+    }),
+    S.makeFilter(isSafeRelativePlanPath, {
+      identifier: $I`RelativePlanPathTraversalCheck`,
+      title: "Relative plan path traversal-safe",
+      description: "Create-package plan paths must not contain traversal segments.",
+      message: "Create-package plan paths must not contain '.' or '..' segments.",
+    }),
+  ],
+  {
+    identifier: $I`RelativePlanPathChecks`,
+    title: "Relative plan path",
+    description: "Validated relative path used by create-package plan entries.",
+  }
+);
+
+const RelativePlanPath = S.String.check(RelativePlanPathChecks).pipe(
+  S.annotate(
+    $I.annote("RelativePlanPath", {
+      description: "Validated output-relative path used by create-package plan entries.",
+    })
+  )
+);
+
+const SymlinkTargetPath = RelativePlanPath.pipe(
+  S.annotate(
+    $I.annote("SymlinkTargetPath", {
+      description: "Validated relative symlink target path used by create-package plan entries.",
+    })
+  )
+);
 /**
  * A file write operation.
  *
@@ -24,7 +83,7 @@ const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService")
  */
 export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
   {
-    relativePath: S.String,
+    relativePath: RelativePlanPath,
     content: S.String,
   },
   $I.annote("PlannedFile", {
@@ -40,8 +99,8 @@ export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
  */
 export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
   {
-    relativePath: S.String,
-    target: S.String,
+    relativePath: RelativePlanPath,
+    target: SymlinkTargetPath,
   },
   $I.annote("PlannedSymlink", {
     description: "A symlink operation.",
@@ -57,7 +116,7 @@ export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
 export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I`FileGenerationPlanInput`)(
   {
     outputDir: S.String,
-    directories: S.Array(S.String),
+    directories: S.Array(RelativePlanPath),
     files: S.Array(PlannedFile),
     symlinks: S.Array(PlannedSymlink).pipe(
       S.withConstructorDefault(thunkSomeEmptyArray<PlannedSymlink>),
@@ -91,7 +150,7 @@ export type GenerationActionKind = typeof GenerationActionKind.Type;
 class GenerationActionMkdir extends S.Class<GenerationActionMkdir>($I`GenerationActionMkdir`)(
   {
     kind: S.tag("mkdir"),
-    relativePath: S.String,
+    relativePath: RelativePlanPath,
   },
   $I.annote("GenerationActionMkdir", {
     description: "Directory creation action.",
@@ -101,7 +160,7 @@ class GenerationActionMkdir extends S.Class<GenerationActionMkdir>($I`Generation
 class GenerationActionWriteFile extends S.Class<GenerationActionWriteFile>($I`GenerationActionWriteFile`)(
   {
     kind: S.tag("write-file"),
-    relativePath: S.String,
+    relativePath: RelativePlanPath,
     content: S.String,
   },
   $I.annote("GenerationActionWriteFile", {
@@ -112,8 +171,8 @@ class GenerationActionWriteFile extends S.Class<GenerationActionWriteFile>($I`Ge
 class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`GenerationActionSymlink`)(
   {
     kind: S.tag("symlink"),
-    relativePath: S.String,
-    target: S.String,
+    relativePath: RelativePlanPath,
+    target: SymlinkTargetPath,
   },
   $I.annote("GenerationActionSymlink", {
     description: "Symlink creation action.",
@@ -265,6 +324,21 @@ const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
     .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to create directory "${parentDir}"`, cause })));
 });
 
+const resolveContainedPath = Effect.fn(function* (rootDir: string, relativePath: string) {
+  const path = yield* Path.Path;
+  const resolvedRoot = path.resolve(rootDir);
+  const resolvedPath = path.resolve(resolvedRoot, relativePath);
+  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
+
+  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || pipe(relativeFromRoot, Str.startsWith("../"))) {
+    return yield* new DomainError({
+      message: `Generation action escapes output directory: "${relativePath}"`,
+    });
+  }
+
+  return resolvedPath;
+});
+
 /**
  * Construct the default generation plan service implementation.
  *
@@ -306,7 +380,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     const symlinkActions = A.map(sortedByRelativePath(symlinks), (link) =>
       GenerationAction.cases.symlink.makeUnsafe({
         relativePath: toPosixPath(link.relativePath),
-        target: link.target,
+        target: toPosixPath(link.target),
       })
     );
 
@@ -421,7 +495,20 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       });
 
     for (const action of plan.actions) {
-      const absolutePath = path.join(plan.outputDir, action.relativePath);
+      const absolutePath = yield* resolveContainedPath(plan.outputDir, action.relativePath);
+      if (action.kind === "symlink") {
+        const resolvedTarget = yield* resolveContainedPath(path.dirname(absolutePath), action.target);
+        const relativeToOutputDir = normalizePath(path.relative(path.resolve(plan.outputDir), resolvedTarget));
+        if (
+          path.isAbsolute(relativeToOutputDir) ||
+          relativeToOutputDir === ".." ||
+          pipe(relativeToOutputDir, Str.startsWith("../"))
+        ) {
+          return yield* new DomainError({
+            message: `Symlink target escapes output directory: "${action.target}"`,
+          });
+        }
+      }
       yield* runAction(action, absolutePath);
     }
 

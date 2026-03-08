@@ -112,6 +112,13 @@ export interface FsUtilsShape {
   readonly readJson: (filePath: string) => Effect.Effect<O.Option<S.Json>, NoSuchFileError>;
 
   /**
+   * Resolve a path to its canonical absolute form.
+   *
+   * @since 0.0.0
+   */
+  readonly realPath: (filePath: string) => Effect.Effect<string, NoSuchFileError>;
+
+  /**
    * Write a value as JSON to a file with 2-space indentation and trailing newline.
    *
    * @since 0.0.0
@@ -223,6 +230,18 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       return true;
     });
 
+    const realPath: FsUtilsShape["realPath"] = Effect.fn(function* (filePath) {
+      return yield* fs.realPath(filePath).pipe(
+        Effect.mapError(
+          (e) =>
+            new NoSuchFileError({
+              path: filePath,
+              message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
+            })
+        )
+      );
+    });
+
     const existsOrThrow: FsUtilsShape["existsOrThrow"] = Effect.fn(function* (filePath) {
       const exists = yield* fs.exists(filePath).pipe(
         Effect.mapError(
@@ -276,6 +295,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       readJson,
       writeJson,
       modifyFile,
+      realPath,
       existsOrThrow,
       isDirectory,
       isFile,

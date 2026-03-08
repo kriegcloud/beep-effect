@@ -10,6 +10,7 @@
  * @module
  */
 
+import { fileURLToPath } from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, encodePackageJsonCanonicalPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
@@ -70,7 +71,9 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  * @since 0.0.0
  * @category DomainModel
  */
-export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: string = import.meta.dirname) {
+export const resolveCreatePackageTemplateDir = Effect.fn(function* (
+  baseDir: string = fileURLToPath(new URL(".", import.meta.url))
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const candidates = templateDirCandidates(baseDir, path);

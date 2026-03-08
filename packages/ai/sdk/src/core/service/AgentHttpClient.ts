@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import type * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import { HttpApiClient } from "effect/unstable/httpapi";
 import { AgentHttpApi } from "./AgentHttpApi.js";
 
@@ -8,6 +9,7 @@ import { AgentHttpApi } from "./AgentHttpApi.js";
  * @since 0.0.0
  */
 export type AgentHttpClientOptions = {
+  readonly authToken?: string;
   readonly baseUrl?: string | URL;
   readonly transformClient?: (client: HttpClient.HttpClient) => HttpClient.HttpClient;
   readonly transformResponse?:
@@ -15,10 +17,22 @@ export type AgentHttpClientOptions = {
     | undefined;
 };
 
+const withAuthToken =
+  (authToken?: string) =>
+  (client: HttpClient.HttpClient): HttpClient.HttpClient =>
+    authToken === undefined ? client : HttpClient.mapRequest(client, HttpClientRequest.bearerToken(authToken));
+
 /**
  * @since 0.0.0
  */
-export const makeHttpClient = (options?: AgentHttpClientOptions) => HttpApiClient.make(AgentHttpApi, options);
+export const makeHttpClient = (options?: AgentHttpClientOptions) =>
+  HttpApiClient.make(AgentHttpApi, {
+    ...options,
+    transformClient: (client) => {
+      const authedClient = withAuthToken(options?.authToken)(client);
+      return options?.transformClient === undefined ? authedClient : options.transformClient(authedClient);
+    },
+  });
 
 /**
  * @since 0.0.0

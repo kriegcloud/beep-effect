@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-03-07",
+  "generatedOn": "2026-03-08",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -1412,14 +1412,6 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@100",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/ai-sdk",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
       "symbol": "anonymous@101",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1428,7 +1420,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@108",
+      "symbol": "anonymous@102",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1444,7 +1436,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@56",
+      "symbol": "anonymous@110",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1452,7 +1444,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@77",
+      "symbol": "anonymous@57",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1460,7 +1452,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@84",
+      "symbol": "anonymous@78",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1476,7 +1468,15 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
-      "symbol": "anonymous@92",
+      "symbol": "anonymous@86",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ai-sdk",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/ai/sdk/src/core/service/AgentHttpApi.ts",
+      "symbol": "anonymous@93",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1500,7 +1500,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
-      "symbol": "anonymous@105",
+      "symbol": "anonymous@101",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1508,7 +1508,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
-      "symbol": "anonymous@70",
+      "symbol": "anonymous@109",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1516,7 +1516,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
-      "symbol": "anonymous@79",
+      "symbol": "anonymous@74",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1524,7 +1524,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
-      "symbol": "anonymous@88",
+      "symbol": "anonymous@83",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",
@@ -1532,7 +1532,7 @@
     },
     {
       "file": "packages/ai/sdk/src/core/service/AgentRpcs.ts",
-      "symbol": "anonymous@97",
+      "symbol": "anonymous@92",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/ai-sdk",

@@ -4,23 +4,33 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { layer as AgentRpcHandlers } from "./AgentRpcHandlers.js";
 import { AgentRpcs } from "./AgentRpcs.js";
+import { AgentServerAccess, type AgentServerAccessOptions, makeAgentServerAccess } from "./AgentServerAccess.js";
 
 /**
  * @since 0.0.0
  */
-export type AgentRpcServerOptions = Readonly<{
-  readonly port?: number;
-  readonly path?: string;
-}>;
+export type AgentRpcServerOptions = AgentServerAccessOptions &
+  Readonly<{
+    readonly port?: number;
+    readonly path?: string;
+  }>;
 
 /**
  * @since 0.0.0
  */
 export const layer = (options: AgentRpcServerOptions = {}) => {
   const port = options.port ?? 3000;
+  const hostname = options.hostname ?? "127.0.0.1";
   const path = (options.path ?? "/rpc") as HttpRouter.PathInput;
+  const accessLayer = Layer.effect(
+    AgentServerAccess,
+    makeAgentServerAccess({
+      hostname,
+      ...(options.authToken === undefined ? {} : { authToken: options.authToken }),
+    })
+  );
 
-  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(AgentRpcHandlers));
+  const rpcLayer = RpcServer.layer(AgentRpcs).pipe(Layer.provide(AgentRpcHandlers), Layer.provide(accessLayer));
 
   const protocolLayer = RpcServer.layerProtocolHttp({ path }).pipe(Layer.provide(RpcSerialization.layerNdjson));
 
@@ -28,7 +38,7 @@ export const layer = (options: AgentRpcServerOptions = {}) => {
     Layer.empty.pipe(
       Layer.provide(rpcLayer),
       Layer.provide(protocolLayer),
-      Layer.provide(BunHttpServer.layer({ port }))
+      Layer.provide(BunHttpServer.layer({ hostname, port }))
     )
   );
 };

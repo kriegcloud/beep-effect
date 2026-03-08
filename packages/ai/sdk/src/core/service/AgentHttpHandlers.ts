@@ -14,6 +14,7 @@ import type { SDKUserMessage } from "../Schema/Message.js";
 import type { QueryInput as QueryInputType } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentHttpApi } from "./AgentHttpApi.js";
+import { AgentServerAccess } from "./AgentServerAccess.js";
 import { SessionPoolUnavailableError } from "./SessionErrors.js";
 import { resolveRequestTenant } from "./TenantAccess.js";
 
@@ -65,6 +66,13 @@ const sseHeaders = {
   connection: "keep-alive",
 };
 
+const authorizeRequest = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  Effect.gen(function* () {
+    const access = yield* AgentServerAccess;
+    yield* access.authorizeRequest;
+    return yield* effect;
+  });
+
 /**
  * @since 0.0.0
  */
@@ -86,84 +94,104 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
 
     return handlers
       .handle("query", ({ payload }) =>
-        collectResultSuccess(runtime.stream(toPrompt(payload), payload.options)).pipe(
-          Effect.scoped,
-          Effect.map((result) => ({
-            result: result.result,
-            metadata: result,
-          }))
+        authorizeRequest(
+          collectResultSuccess(runtime.stream(toPrompt(payload), payload.options)).pipe(
+            Effect.scoped,
+            Effect.map((result) => ({
+              result: result.result,
+              metadata: result,
+            }))
+          )
         )
       )
       .handle("stream", ({ query }) =>
-        Effect.succeed(HttpServerResponse.stream(toSseStream(runtime.stream(query.prompt)), { headers: sseHeaders }))
-      )
-      .handle("streamPost", ({ payload }) =>
-        Effect.succeed(
-          HttpServerResponse.stream(toSseStream(runtime.stream(toPrompt(payload), payload.options)), {
-            headers: sseHeaders,
-          })
+        authorizeRequest(
+          Effect.succeed(HttpServerResponse.stream(toSseStream(runtime.stream(query.prompt)), { headers: sseHeaders }))
         )
       )
-      .handle("stats", () => runtime.stats)
-      .handle("interruptAll", () => runtime.interruptAll)
-      .handle("models", () => withProbeHandle(runtime, (handle) => handle.supportedModels))
-      .handle("commands", () => withProbeHandle(runtime, (handle) => handle.supportedCommands))
-      .handle("account", () => withProbeHandle(runtime, (handle) => handle.accountInfo))
+      .handle("streamPost", ({ payload }) =>
+        authorizeRequest(
+          Effect.succeed(
+            HttpServerResponse.stream(toSseStream(runtime.stream(toPrompt(payload), payload.options)), {
+              headers: sseHeaders,
+            })
+          )
+        )
+      )
+      .handle("stats", () => authorizeRequest(runtime.stats))
+      .handle("interruptAll", () => authorizeRequest(runtime.interruptAll))
+      .handle("models", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedModels)))
+      .handle("commands", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedCommands)))
+      .handle("account", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.accountInfo)))
       .handle("createSession", ({ payload }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(payload.tenant).pipe(
-            Effect.flatMap((tenant) =>
-              pool.create(payload.options, tenant).pipe(
-                Effect.flatMap((handle) => handle.sessionId),
-                Effect.map((sessionId) => ({ sessionId }))
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(payload.tenant).pipe(
+              Effect.flatMap((tenant) =>
+                pool.create(payload.options, tenant).pipe(
+                  Effect.flatMap((handle) => handle.sessionId),
+                  Effect.map((sessionId) => ({ sessionId }))
+                )
               )
             )
           )
         )
       )
       .handle("listSessions", ({ query }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(query.tenant).pipe(Effect.flatMap((tenant) => pool.listByTenant(tenant)))
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(query.tenant).pipe(Effect.flatMap((tenant) => pool.listByTenant(tenant)))
+          )
         )
       )
       .handle("getSession", ({ params, query }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(query.tenant).pipe(
-            Effect.flatMap((tenant) =>
-              pool.get(params.id, undefined, tenant).pipe(Effect.andThen(pool.info(params.id, tenant)))
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(query.tenant).pipe(
+              Effect.flatMap((tenant) =>
+                pool.get(params.id, undefined, tenant).pipe(Effect.andThen(pool.info(params.id, tenant)))
+              )
             )
           )
         )
       )
       .handle("sendSession", ({ params, payload }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(payload.tenant).pipe(
-            Effect.flatMap((tenant) =>
-              pool.get(params.id, undefined, tenant).pipe(
-                Effect.flatMap((handle) => handle.send(payload.message)),
-                Effect.asVoid
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(payload.tenant).pipe(
+              Effect.flatMap((tenant) =>
+                pool.get(params.id, undefined, tenant).pipe(
+                  Effect.flatMap((handle) => handle.send(payload.message)),
+                  Effect.asVoid
+                )
               )
             )
           )
         )
       )
       .handle("streamSession", ({ params, query }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(query.tenant).pipe(
-            Effect.flatMap((tenant) =>
-              pool
-                .get(params.id, undefined, tenant)
-                .pipe(
-                  Effect.map((handle) => HttpServerResponse.stream(toSseStream(handle.stream), { headers: sseHeaders }))
-                )
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(query.tenant).pipe(
+              Effect.flatMap((tenant) =>
+                pool
+                  .get(params.id, undefined, tenant)
+                  .pipe(
+                    Effect.map((handle) =>
+                      HttpServerResponse.stream(toSseStream(handle.stream), { headers: sseHeaders })
+                    )
+                  )
+              )
             )
           )
         )
       )
       .handle("closeSession", ({ params, query }) =>
-        requirePool((pool) =>
-          resolveRequestTenant(query.tenant).pipe(
-            Effect.flatMap((tenant) => pool.close(params.id, tenant).pipe(Effect.asVoid))
+        authorizeRequest(
+          requirePool((pool) =>
+            resolveRequestTenant(query.tenant).pipe(
+              Effect.flatMap((tenant) => pool.close(params.id, tenant).pipe(Effect.asVoid))
+            )
           )
         )
       );

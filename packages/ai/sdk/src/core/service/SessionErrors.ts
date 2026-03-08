@@ -2,6 +2,7 @@ import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 import { SessionManagerError } from "../SessionManager.js";
 import { SessionPoolError } from "../SessionPool.js";
+import { AgentServerAccessError } from "./AgentServerAccess.js";
 import { SessionTenantAccessError } from "./TenantAccess.js";
 
 /**
@@ -23,6 +24,7 @@ export class SessionPoolUnavailableError extends TaggedErrorClass<SessionPoolUna
 export const SessionServiceError = S.Union([
   SessionManagerError,
   SessionPoolError,
+  AgentServerAccessError,
   SessionTenantAccessError,
   SessionPoolUnavailableError,
 ]).pipe(S.annotate({ identifier: "SessionServiceError" }));

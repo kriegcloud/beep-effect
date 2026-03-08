@@ -84,6 +84,151 @@ const extractBunVersion = Str.replace(/^bun-v/, "");
  * @returns The bare version string.
  */
 const extractPackageManagerVersion = Str.replace(/^bun@/, "");
+const BUN_SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
+const NUMERIC_PRERELEASE_IDENTIFIER = /^\d+$/;
+
+type BunSemverIdentifier = number | string;
+
+type BunSemver = Readonly<{
+  readonly core: readonly [number, number, number];
+  readonly prerelease: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>;
+}>;
+
+const parseBunVersionPart = (value: string): O.Option<number> => {
+  const parsed = globalThis.Number(value);
+  return globalThis.Number.isInteger(parsed) && parsed >= 0 ? O.some(parsed) : O.none();
+};
+
+const parsePrereleaseIdentifier = (value: string): O.Option<BunSemverIdentifier> =>
+  O.isSome(O.fromNullishOr(Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value)))
+    ? parseBunVersionPart(value)
+    : Str.isNonEmpty(value)
+      ? O.some(value)
+      : O.none();
+
+const parsePrerelease = (value: string): O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>> => {
+  const identifiers = A.filter(Str.split(".")(value), Str.isNonEmpty);
+  if (A.isReadonlyArrayEmpty(identifiers)) {
+    return O.none();
+  }
+
+  let parsed = A.empty<BunSemverIdentifier>();
+  for (const identifier of identifiers) {
+    const next = parsePrereleaseIdentifier(identifier);
+    if (O.isNone(next)) {
+      return O.none();
+    }
+    parsed = A.append(parsed, next.value);
+  }
+
+  return A.isReadonlyArrayNonEmpty(parsed) ? O.some(parsed) : O.none();
+};
+
+const parseBunSemver = (value: string): O.Option<BunSemver> => {
+  const match = BUN_SEMVER_PATTERN.exec(value);
+  if (match === null) {
+    return O.none();
+  }
+
+  const major = parseBunVersionPart(match[1]);
+  const minor = parseBunVersionPart(match[2]);
+  const patch = parseBunVersionPart(match[3]);
+
+  if (O.isNone(major) || O.isNone(minor) || O.isNone(patch)) {
+    return O.none();
+  }
+
+  const prerelease = O.flatMap(O.fromNullishOr(match[4]), (identifier) =>
+    Str.isNonEmpty(identifier) ? parsePrerelease(identifier) : O.none()
+  );
+
+  return O.some({
+    core: [major.value, minor.value, patch.value] as const,
+    prerelease,
+  });
+};
+
+const compareBunSemverIdentifier = (left: BunSemverIdentifier, right: BunSemverIdentifier): number => {
+  if (typeof left === "number" && typeof right === "number") {
+    return left - right;
+  }
+  if (typeof left === "number") {
+    return -1;
+  }
+  if (typeof right === "number") {
+    return 1;
+  }
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
+};
+
+const comparePrerelease = (
+  left: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>,
+  right: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>
+): number => {
+  if (O.isNone(left) && O.isNone(right)) {
+    return 0;
+  }
+  if (O.isNone(left)) {
+    return 1;
+  }
+  if (O.isNone(right)) {
+    return -1;
+  }
+
+  const length = Math.min(left.value.length, right.value.length);
+  for (let index = 0; index < length; index += 1) {
+    const result = compareBunSemverIdentifier(left.value[index], right.value[index]);
+    if (result !== 0) {
+      return result;
+    }
+  }
+
+  if (left.value.length < right.value.length) {
+    return -1;
+  }
+  if (left.value.length > right.value.length) {
+    return 1;
+  }
+  return 0;
+};
+
+const compareBunSemver = (left: BunSemver, right: BunSemver): number => {
+  if (left.core[0] !== right.core[0]) {
+    return left.core[0] - right.core[0];
+  }
+  if (left.core[1] !== right.core[1]) {
+    return left.core[1] - right.core[1];
+  }
+  if (left.core[2] !== right.core[2]) {
+    return left.core[2] - right.core[2];
+  }
+  return comparePrerelease(left.prerelease, right.prerelease);
+};
+
+const selectLatestLocalBunVersion = (state: BunVersionState): string => {
+  const bunVersionFile = parseBunSemver(state.bunVersionFile);
+  const packageManagerField = parseBunSemver(state.packageManagerField);
+
+  if (O.isSome(bunVersionFile) && O.isSome(packageManagerField)) {
+    return compareBunSemver(bunVersionFile.value, packageManagerField.value) >= 0
+      ? state.bunVersionFile
+      : state.packageManagerField;
+  }
+  if (O.isSome(bunVersionFile)) {
+    return state.bunVersionFile;
+  }
+  if (O.isSome(packageManagerField)) {
+    return state.packageManagerField;
+  }
+
+  return Str.isNonEmpty(state.bunVersionFile) ? state.bunVersionFile : state.packageManagerField;
+};
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -211,11 +356,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
 
   const target = O.match(state.latest, {
     onSome: identity,
-    onNone: () =>
-      Bool.match(state.bunVersionFile >= state.packageManagerField, {
-        onTrue: () => state.bunVersionFile,
-        onFalse: () => state.packageManagerField,
-      }),
+    onNone: () => selectLatestLocalBunVersion(state),
   });
 
   if (state.bunVersionFile !== target) {

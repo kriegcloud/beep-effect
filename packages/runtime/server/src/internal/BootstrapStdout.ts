@@ -1,5 +1,5 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { SidecarBootstrap, SidecarHealthStatus } from "@beep/runtime-protocol";
+import { type SidecarBootstrap, SidecarHealthStatus } from "@beep/runtime-protocol";
 import { NonNegativeInt } from "@beep/schema";
 import * as S from "effect/Schema";
 

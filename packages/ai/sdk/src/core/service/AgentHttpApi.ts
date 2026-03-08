@@ -25,6 +25,7 @@ class AgentHttpGroup extends HttpApiGroup.make("agent", { topLevel: true })
   .add(
     HttpApiEndpoint.get("stats", "/stats", {
       success: QuerySupervisorStatsSchema,
+      error: AgentServiceError,
     })
   )
   .add(

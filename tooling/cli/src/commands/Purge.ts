@@ -7,9 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { normalizePath } from "@beep/schema";
 import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("purge");
@@ -49,6 +51,21 @@ const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
  * @category Configuration
  */
 const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
+
+const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target: string) {
+  const path = yield* Path.Path;
+  const resolvedRoot = path.resolve(rootDir);
+  const resolvedTarget = path.resolve(target);
+  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedTarget));
+
+  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
+    return yield* new DomainError({
+      message: `Refusing to purge path outside repository root: "${target}"`,
+    });
+  }
+
+  return resolvedTarget;
+});
 
 /**
  * Summary statistics returned after a purge run.
@@ -117,11 +134,14 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
   const fs = yield* FileSystem.FileSystem;
 
   const { targets, workspaceCount } = yield* buildPurgeTargets(rootDir, removeLock);
+  const safeTargets = yield* Effect.forEach(targets, (target) => ensureContainedPurgeTarget(rootDir, target), {
+    concurrency: "unbounded",
+  });
 
-  yield* Console.log(`Purging ${targets.length} path(s) across ${workspaceCount} workspace(s)...`);
+  yield* Console.log(`Purging ${safeTargets.length} path(s) across ${workspaceCount} workspace(s)...`);
 
   const existedBefore = yield* Effect.forEach(
-    targets,
+    safeTargets,
     (target) =>
       fs
         .exists(target)
@@ -132,7 +152,7 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
   );
 
   yield* Effect.forEach(
-    targets,
+    safeTargets,
     (target) =>
       fs
         .remove(target, { recursive: true, force: true })
@@ -142,10 +162,12 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
 
   const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? count + 1 : count));
 
-  yield* Console.log(`Purge complete: targeted ${targets.length} path(s), removed ${removedCount} existing path(s).`);
+  yield* Console.log(
+    `Purge complete: targeted ${safeTargets.length} path(s), removed ${removedCount} existing path(s).`
+  );
 
   return {
-    targetedCount: targets.length,
+    targetedCount: safeTargets.length,
     removedCount,
     workspaceCount,
   } as const satisfies PurgeSummary;

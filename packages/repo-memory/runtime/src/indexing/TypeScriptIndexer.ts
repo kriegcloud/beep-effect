@@ -28,13 +28,28 @@ import {
   FilePath,
   makeStatusCauseError,
   NonNegativeInt,
+  normalizePath,
   PosInt,
   Sha256HexFromBytes,
   StatusCauseFields,
   TaggedErrorClass,
 } from "@beep/schema";
 import { Text, thunkEmptyStr } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, HashMap, HashSet, Layer, Order, Path, pipe, ServiceMap } from "effect";
+import {
+  DateTime,
+  Effect,
+  FileSystem,
+  flow,
+  HashMap,
+  HashSet,
+  Inspectable,
+  Layer,
+  MutableHashSet,
+  Order,
+  Path,
+  pipe,
+  ServiceMap,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -193,6 +208,22 @@ const isIgnoredPath = (absolutePath: string): boolean =>
     Str.split("/")(absolutePath),
     A.some((segment) => HashSet.has(ignoredDirectoryNames, segment))
   );
+
+const isContainedRepoPath = (path: Path.Path, repoRootPath: string, candidatePath: string): boolean => {
+  const relativeFromRoot = normalizePath(path.relative(repoRootPath, candidatePath));
+
+  return (
+    relativeFromRoot === "" ||
+    relativeFromRoot === "." ||
+    (!path.isAbsolute(relativeFromRoot) && relativeFromRoot !== ".." && !Str.startsWith("../")(relativeFromRoot))
+  );
+};
+
+const isSymlinkedPath = (path: Path.Path, originalPath: string, canonicalPath: string): boolean =>
+  path.resolve(originalPath) !== canonicalPath;
+
+const isSymlinkLoopCause = (cause: unknown): boolean =>
+  pipe(Inspectable.toStringUnknown(cause, 0), Str.includes("ELOOP"));
 
 const boundedDeclarationText = (text: string): string => {
   const normalized = pipe(text, Str.trim);
@@ -939,10 +970,57 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
 ): Effect.fn.Return<ReadonlyArray<ProjectScope>, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const canonicalRepoRoot = yield* fs
+    .realPath(repoRootPath)
+    .pipe(
+      Effect.mapError((cause) =>
+        toIndexError(
+          `Failed to resolve canonical repository root "${repoRootPath}" while discovering scopes.`,
+          500,
+          cause
+        )
+      )
+    );
+  const visitedCanonicalDirs = MutableHashSet.empty<string>();
 
   const walk = Effect.fn("TypeScriptIndex.walkTsConfigs")(function* (
     currentPath: string
   ): Effect.fn.Return<ReadonlyArray<string>, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
+    const canonicalCurrentPathOption = yield* fs.realPath(currentPath).pipe(
+      Effect.map(O.some),
+      Effect.catch((cause) =>
+        isSymlinkLoopCause(cause)
+          ? Effect.succeed(O.none<string>())
+          : Effect.fail(
+              toIndexError(
+                `Failed to resolve canonical path "${currentPath}" while discovering tsconfig scopes.`,
+                500,
+                cause
+              )
+            )
+      )
+    );
+
+    if (O.isNone(canonicalCurrentPathOption)) {
+      return A.empty<string>();
+    }
+
+    const canonicalCurrentPath = canonicalCurrentPathOption.value;
+
+    if (!isContainedRepoPath(path, canonicalRepoRoot, canonicalCurrentPath)) {
+      return A.empty<string>();
+    }
+
+    if (currentPath !== repoRootPath && isSymlinkedPath(path, currentPath, canonicalCurrentPath)) {
+      return A.empty<string>();
+    }
+
+    if (MutableHashSet.has(visitedCanonicalDirs, canonicalCurrentPath)) {
+      return A.empty<string>();
+    }
+
+    MutableHashSet.add(visitedCanonicalDirs, canonicalCurrentPath);
+
     const entries = yield* fs
       .readDirectory(currentPath)
       .pipe(
@@ -959,19 +1037,57 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
 
     for (const entry of entries) {
       const absolutePath = path.join(currentPath, entry);
-      const stat = yield* fs
-        .stat(absolutePath)
-        .pipe(
-          Effect.mapError((cause) =>
-            toIndexError(
-              `Failed to stat repository entry "${absolutePath}" while discovering tsconfig scopes.`,
-              500,
-              cause
-            )
-          )
-        );
+      const canonicalAbsolutePathOption = yield* fs.realPath(absolutePath).pipe(
+        Effect.map(O.some),
+        Effect.catch((cause) =>
+          isSymlinkLoopCause(cause)
+            ? Effect.succeed(O.none<string>())
+            : Effect.fail(
+                toIndexError(
+                  `Failed to resolve canonical repository entry "${absolutePath}" while discovering tsconfig scopes.`,
+                  500,
+                  cause
+                )
+              )
+        )
+      );
+
+      if (O.isNone(canonicalAbsolutePathOption)) {
+        continue;
+      }
+
+      const canonicalAbsolutePath = canonicalAbsolutePathOption.value;
+      const statOption = yield* fs.stat(absolutePath).pipe(
+        Effect.map(O.some),
+        Effect.catch((cause) =>
+          isSymlinkLoopCause(cause)
+            ? Effect.succeed(O.none<FileSystem.File.Info>())
+            : Effect.fail(
+                toIndexError(
+                  `Failed to stat repository entry "${absolutePath}" while discovering tsconfig scopes.`,
+                  500,
+                  cause
+                )
+              )
+        )
+      );
+
+      if (O.isNone(statOption)) {
+        continue;
+      }
+
+      const stat = statOption.value;
+
+      if (!isContainedRepoPath(path, canonicalRepoRoot, canonicalAbsolutePath)) {
+        continue;
+      }
+
+      const symlinkedPath = isSymlinkedPath(path, absolutePath, canonicalAbsolutePath);
 
       if (stat.type === "Directory") {
+        if (symlinkedPath) {
+          continue;
+        }
         if (HashSet.has(ignoredDirectoryNames, entry)) {
           continue;
         }
@@ -980,7 +1096,7 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
         continue;
       }
 
-      if (entry === "tsconfig.json") {
+      if (!symlinkedPath && entry === "tsconfig.json") {
         results = A.append(results, absolutePath);
       }
     }
@@ -1009,19 +1125,54 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
   );
 });
 
-const projectSourceFiles = (repoRootPath: string, project: Project): ReadonlyArray<SourceFile> =>
-  pipe(
-    project.getSourceFiles(),
-    A.filter((sourceFile) => {
-      const filePath = sourceFile.getFilePath();
-      return (
-        !sourceFile.isFromExternalLibrary() &&
-        pipe(filePath, Str.startsWith(repoRootPath)) &&
-        !isIgnoredPath(filePath) &&
-        isTypeScriptSourceFile(filePath)
+const projectSourceFiles = Effect.fn("TypeScriptIndex.projectSourceFiles")(function* (
+  repoRootPath: string,
+  project: Project
+): Effect.fn.Return<ReadonlyArray<SourceFile>, TypeScriptIndexError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const canonicalRepoRoot = yield* fs
+    .realPath(repoRootPath)
+    .pipe(
+      Effect.mapError((cause) =>
+        toIndexError(
+          `Failed to resolve canonical repository root "${repoRootPath}" while filtering source files.`,
+          500,
+          cause
+        )
+      )
+    );
+
+  let sourceFiles = A.empty<SourceFile>();
+
+  for (const sourceFile of project.getSourceFiles()) {
+    const filePath = sourceFile.getFilePath();
+
+    if (sourceFile.isFromExternalLibrary() || isIgnoredPath(filePath) || !isTypeScriptSourceFile(filePath)) {
+      continue;
+    }
+
+    const canonicalFilePath = yield* fs
+      .realPath(filePath)
+      .pipe(
+        Effect.mapError((cause) =>
+          toIndexError(`Failed to resolve canonical source file "${filePath}" while indexing.`, 500, cause)
+        )
       );
-    })
-  );
+
+    if (!isContainedRepoPath(path, canonicalRepoRoot, canonicalFilePath)) {
+      continue;
+    }
+
+    if (isSymlinkedPath(path, filePath, canonicalFilePath)) {
+      continue;
+    }
+
+    sourceFiles = A.append(sourceFiles, sourceFile);
+  }
+
+  return sourceFiles;
+});
 
 const withScopedProject = <A, R>(
   tsconfigPath: string,
@@ -1101,7 +1252,15 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
   TypeScriptIndexError,
   FileSystem.FileSystem | Path.Path | RepoRunStore
 > {
-  const scopes = yield* discoverProjectScopes(options.repoPath);
+  const fs = yield* FileSystem.FileSystem;
+  const canonicalRepoPath = yield* fs
+    .realPath(options.repoPath)
+    .pipe(
+      Effect.mapError((cause) =>
+        toIndexError(`Failed to resolve canonical repository root "${options.repoPath}" before indexing.`, 500, cause)
+      )
+    );
+  const scopes = yield* discoverProjectScopes(canonicalRepoPath);
   let seenFiles = HashSet.empty<string>();
   let processedFileCount = 0;
   const provisionalSnapshotId = decodeSourceSnapshotId("snapshot:pending");
@@ -1112,7 +1271,7 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
   for (const scope of scopes) {
     yield* withScopedProject(scope.tsconfigPath, (project) =>
       Effect.gen(function* () {
-        for (const sourceFile of projectSourceFiles(options.repoPath, project)) {
+        for (const sourceFile of yield* projectSourceFiles(canonicalRepoPath, project)) {
           if (processedFileCount % 25 === 0) {
             // Turn persisted interrupt commands into durable suspension points during large repo walks.
             yield* suspendIfRunInterrupted(options.runId);

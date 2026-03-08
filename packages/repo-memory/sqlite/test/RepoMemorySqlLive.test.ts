@@ -256,6 +256,40 @@ describe("RepoMemorySqlLive", () => {
     )
   );
 
+  it.effect("canonicalizes repo paths so symlink aliases reuse the same registration", () =>
+    withSqlite(
+      Effect.gen(function* () {
+        const { registry } = yield* loadStores;
+        const info = yield* TestDatabaseInfo;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoPath = yield* createRepoFixture;
+        const repoAliasPath = path.join(info.tempDir, "fixtures", "repo-alias");
+
+        yield* fs.symlink(repoPath, repoAliasPath);
+
+        const viaAlias = yield* registry.registerRepo(
+          new RepoRegistrationInput({
+            repoPath: decodeFilePath(repoAliasPath),
+            displayName: O.some("Alias Registration"),
+          })
+        );
+        const viaCanonical = yield* registry.registerRepo(
+          new RepoRegistrationInput({
+            repoPath,
+            displayName: O.some("Canonical Registration"),
+          })
+        );
+        const repos = yield* registry.listRepos;
+
+        expect(viaAlias.id).toBe(viaCanonical.id);
+        expect(viaAlias.repoPath).toBe(repoPath);
+        expect(viaCanonical.repoPath).toBe(repoPath);
+        expect(repos).toHaveLength(1);
+      })
+    )
+  );
+
   it.effect("persists and reloads the latest index artifact", () =>
     withSqlite(
       Effect.gen(function* () {
