@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "../shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/EffectImports");
 
@@ -89,10 +90,6 @@ const INCLUDED_GLOBS = [
   "infra/**/*.ts",
   ".claude/hooks/**/*.ts",
 ] as const;
-const EXCLUDED_SEGMENTS = ["/test/", "/tests/", "/dtslint/", "/dist/", "/.next/", "/.turbo/"] as const;
-const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
-
-const toPosix = (value: string): string => Str.replace(/\\/g, "/")(value);
 const toStableName = (moduleName: string): string => Str.slice("effect/".length)(moduleName);
 const isStableSubmodule = (moduleName: string): boolean =>
   Str.startsWith("effect/")(moduleName) && !Str.startsWith("effect/unstable/")(moduleName);
@@ -108,14 +105,13 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
 
   const excludePaths = MutableHashSet.empty<string>();
   for (const excludePath of options.excludePaths) {
-    MutableHashSet.add(excludePaths, toPosix(excludePath));
+    MutableHashSet.add(excludePaths, toPosixPath(excludePath));
   }
 
   const isExcludedFile = (filePath: string): boolean => {
-    const normalized = toPosix(filePath);
+    const normalized = toPosixPath(filePath);
     if (MutableHashSet.has(excludePaths, normalized)) return true;
-    if (EXCLUDED_SUFFIXES.some((suffix) => Str.endsWith(suffix)(normalized))) return true;
-    return EXCLUDED_SEGMENTS.some((segment) => Str.includes(segment)(normalized));
+    return isExcludedTypeScriptSourcePath(normalized);
   };
 
   const project = new Project({
@@ -132,7 +128,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
   let aliasRenamed = 0;
   let stableConverted = 0;
   let touchedFiles = 0;
-  const changedFiles = A.empty<string>();
+  let changedFiles = A.empty<string>();
 
   const ensureRootImport = (sourceFile: (typeof sourceFiles)[number]) =>
     pipe(
@@ -275,7 +271,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     if (fileTouched) {
       sourceFile.organizeImports();
       touchedFiles += 1;
-      changedFiles.push(toPosix(path.relative(process.cwd(), sourceFile.getFilePath())));
+      changedFiles = A.append(changedFiles, toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath())));
     }
   }
 

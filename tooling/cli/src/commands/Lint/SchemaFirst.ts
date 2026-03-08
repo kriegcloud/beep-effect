@@ -17,6 +17,7 @@ import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "../shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";
@@ -27,21 +28,6 @@ const INCLUDED_GLOBS = [
   "infra/**/*.ts",
   ".claude/hooks/**/*.ts",
 ] as const;
-const EXCLUDED_SEGMENTS = [
-  "/.repos/",
-  "/node_modules/",
-  "/dist/",
-  "/build/",
-  "/coverage/",
-  "/storybook-static/",
-  "/.next/",
-  "/.turbo/",
-  "/specs/",
-  "/test/",
-  "/tests/",
-  "/dtslint/",
-] as const;
-const EXCLUDED_SUFFIXES = [".d.ts", ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", ".stories.tsx"] as const;
 const ENFORCED_ROOTS = [
   "tooling/cli/src",
   "tooling/repo-utils/src/FsUtils.ts",
@@ -56,7 +42,6 @@ const FUNCTION_LIKE_TEXT_PATTERN = /=>|\bEffect\.Effect</;
 const NON_SCHEMA_SIGNAL_PATTERN =
   /\bEffect\.Success<|\bLayer\.Layer<|\bAbortSignal\b|\bAbortController\b|\bUint8Array\b|\bEventJournal\.Entry\b|\bZod\b|\bz\./;
 
-const toPosix = (value: string): string => Str.replace(/\\/g, "/")(value);
 const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
 
 const SchemaFirstEntryKind = LiteralKit([
@@ -137,9 +122,7 @@ class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`SchemaFi
 const decodeInventoryDocument = S.decodeUnknownSync(SchemaFirstInventoryDocument);
 const encodeInventoryDocument = S.encodeUnknownSync(SchemaFirstInventoryDocument);
 
-const isExcludedFile = (filePath: string): boolean =>
-  EXCLUDED_SUFFIXES.some((suffix) => Str.endsWith(suffix)(filePath)) ||
-  EXCLUDED_SEGMENTS.some((segment) => Str.includes(segment)(filePath));
+const isExcludedFile = isExcludedTypeScriptSourcePath;
 
 const makeEntryKey = (entry: SchemaFirstInventoryEntry): string => `${entry.file}::${entry.symbol}::${entry.kind}`;
 
@@ -199,14 +182,14 @@ const makeOwnerResolver = Effect.fn(function* () {
   const workspaces = yield* resolveWorkspaceDirs(process.cwd());
   const workspaceEntries = pipe(
     HashMap.toEntries(workspaces),
-    A.map(([packageName, absolutePath]) => [packageName, toPosix(absolutePath)] as const),
+    A.map(([packageName, absolutePath]) => [packageName, toPosixPath(absolutePath)] as const),
     A.sort(byWorkspacePathLengthDescending)
   );
-  const cwd = toPosix(process.cwd());
+  const cwd = toPosixPath(process.cwd());
 
   return (absoluteFilePath: string): string => {
-    const normalized = toPosix(absoluteFilePath);
-    const relativePath = toPosix(normalized.replace(`${cwd}/`, ""));
+    const normalized = toPosixPath(absoluteFilePath);
+    const relativePath = toPosixPath(normalized.replace(`${cwd}/`, ""));
     const workspaceMatch = A.findFirst(
       workspaceEntries,
       ([, workspacePath]) => normalized === workspacePath || Str.startsWith(`${workspacePath}/`)(normalized)
@@ -351,7 +334,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
   };
 
   for (const sourceFile of project.getSourceFiles()) {
-    const filePath = toPosix(path.relative(process.cwd(), sourceFile.getFilePath()));
+    const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
     if (isExcludedFile(filePath)) {
       continue;
     }

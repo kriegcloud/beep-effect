@@ -23,10 +23,10 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
     "@beep/repo-memory-sqlite": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   },
   "exports": {
