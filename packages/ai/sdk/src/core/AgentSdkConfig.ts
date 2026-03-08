@@ -10,8 +10,6 @@ import {
   normalizeRedactedOption,
   parseOptionalCommaSeparatedList,
   preferFirstOption,
-  readProcessCwd,
-  readProcessEnv,
 } from "./internal/ConfigTransforms.js";
 import { defaultSettingSources, layerConfigFromEnv } from "./internal/config.js";
 import { missingCredentialsError } from "./internal/credentials.js";
@@ -47,6 +45,9 @@ const parseSandboxIgnoreViolations = (value: string) =>
       })
     )
   );
+
+const readProcessEnv = Effect.sync(() => process.env);
+const readProcessCwd = Effect.sync(() => process.cwd());
 
 const makeAgentSdkConfig = Effect.gen(function* () {
   const apiKey = normalizeRedactedOption(yield* Config.option(Config.redacted("ANTHROPIC_API_KEY")));

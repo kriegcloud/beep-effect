@@ -23,6 +23,9 @@ export class SidecarObservabilityConfig extends S.Class<SidecarObservabilityConf
     devtoolsUrl: S.String,
     otlpBaseUrl: S.String,
     otlpEnabled: S.Boolean,
+    otlpResourceAttributes: S.Record(S.String, S.String),
+    otlpServiceName: S.String,
+    otlpServiceVersion: S.String,
     version: S.String,
   },
   $I.annote("SidecarObservabilityConfig", {
@@ -39,7 +42,6 @@ const httpRequestDuration = Metric.timer("beep_repo_memory_http_request_duration
   description: "Control-plane HTTP request duration for the repo-memory sidecar.",
 });
 
-const defaultServiceName = "beep-repo-memory-sidecar";
 const defaultEnvironment = "local";
 const defaultSlice = "repo-memory-v0";
 const devtoolsSpanPrefixes = [
@@ -54,53 +56,13 @@ const currentTimeMillis = DateTime.now.pipe(Effect.map(DateTime.toEpochMillis));
 
 const metricAttributes = (attributes: Record<string, string>) => attributes;
 
-const otelEnv = (name: string): string | undefined => {
-  const value = process.env[name];
-  if (value === undefined) {
-    return undefined;
-  }
-
-  const normalized = pipe(value, Str.trim);
-  return Str.isNonEmpty(normalized) ? normalized : undefined;
-};
-
-const parseResourceAttributes = (): Record<string, string> => {
-  const encoded = otelEnv("OTEL_RESOURCE_ATTRIBUTES");
-  if (encoded === undefined) {
-    return {};
-  }
-
-  return pipe(
-    encoded,
-    Str.split(","),
-    A.reduce({} as Record<string, string>, (attributes, pair) => {
-      const separatorIndex = pipe(pair, Str.indexOf("="), (value) => value ?? -1);
-      if (separatorIndex <= 0) {
-        return attributes;
-      }
-
-      const key = pipe(pair, Str.slice(0, separatorIndex), Str.trim);
-      const value = pipe(pair, Str.slice(separatorIndex + 1), Str.trim);
-
-      if (!Str.isNonEmpty(key) || !Str.isNonEmpty(value)) {
-        return attributes;
-      }
-
-      return {
-        ...attributes,
-        [key]: value,
-      };
-    })
-  );
-};
-
 const makeOtlpResource = (config: SidecarObservabilityConfig) => ({
-  serviceName: otelEnv("OTEL_SERVICE_NAME") ?? defaultServiceName,
-  serviceVersion: otelEnv("OTEL_SERVICE_VERSION") ?? config.version,
+  serviceName: config.otlpServiceName,
+  serviceVersion: config.otlpServiceVersion,
   attributes: {
     deployment_environment: defaultEnvironment,
     beep_slice: defaultSlice,
-    ...parseResourceAttributes(),
+    ...config.otlpResourceAttributes,
   },
 });
 

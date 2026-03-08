@@ -1,6 +1,6 @@
 import { CommaSeparatedList } from "@beep/schema";
 import { Struct, Text } from "@beep/utils";
-import { Effect, Redacted } from "effect";
+import { pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -49,31 +49,27 @@ export const buildAuthEnv = (
   apiKey: O.Option<Redacted.Redacted>,
   sessionAccessToken: O.Option<Redacted.Redacted>
 ): NodeJS.ProcessEnv | undefined => {
-  const authEnvEntries = A.empty<readonly [string, string]>();
-  if (O.isSome(apiKey)) {
-    authEnvEntries.push(["ANTHROPIC_API_KEY", Redacted.value(apiKey.value)]);
-  }
-  if (O.isSome(sessionAccessToken)) {
-    authEnvEntries.push(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(sessionAccessToken.value)]);
-  }
-  return authEnvEntries.length > 0
-    ? {
+  const apiKeyEntries = O.match(apiKey, {
+    onNone: () => A.empty<readonly [string, string]>(),
+    onSome: (redacted) => A.make(["ANTHROPIC_API_KEY", Redacted.value(redacted)] as const),
+  });
+  const sessionAccessTokenEntries = O.match(sessionAccessToken, {
+    onNone: () => A.empty<readonly [string, string]>(),
+    onSome: (redacted) => A.make(["CLAUDE_CODE_SESSION_ACCESS_TOKEN", Redacted.value(redacted)] as const),
+  });
+  const authEnvEntries = A.appendAll(
+    apiKeyEntries,
+    sessionAccessTokenEntries
+  );
+
+  return pipe(
+    authEnvEntries,
+    A.match({
+      onEmpty: () => undefined,
+      onNonEmpty: () => ({
         ...processEnv,
         ...Struct.fromEntries(authEnvEntries),
-      }
-    : undefined;
+      }),
+    })
+  );
 };
-
-/**
- * Read process environment at runtime boundary.
- *
- * @since 0.0.0
- */
-export const readProcessEnv = Effect.sync(() => process.env);
-
-/**
- * Read current working directory at runtime boundary.
- *
- * @since 0.0.0
- */
-export const readProcessCwd = Effect.sync(() => process.cwd());

@@ -41,11 +41,44 @@ import {
 const defaultBaseUrl = "http://127.0.0.1:8788";
 const desktopSessionId = "desktop-shell";
 const sidecarBaseUrlKey = "beep.repoMemory.sidecarBaseUrl";
+const desktopDevHost = "desktop.localhost";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunId = S.decodeUnknownSync(RunId);
-const browserDevClientBaseUrl = (): string | null =>
-  import.meta.env.DEV && typeof window !== "undefined" ? window.location.origin : null;
+
+const readPersistedSidecarBaseUrl = (): string | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    return window.localStorage.getItem(sidecarBaseUrlKey);
+  } catch {
+    return null;
+  }
+};
+
+const persistSidecarBaseUrl = (baseUrl: string): void => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(sidecarBaseUrlKey, normalizeSidecarBaseUrl(baseUrl));
+  } catch {
+    return;
+  }
+};
+
+const browserDevClientBaseUrl = (): string | null => {
+  if (!import.meta.env.DEV || typeof window === "undefined") {
+    return null;
+  }
+
+  // Raw Vite origins such as 127.0.0.1:* do not provide the desktop /api proxy.
+  return window.location.hostname === desktopDevHost ? window.location.origin : null;
+};
+
 const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string => browserDevClientBaseUrl() ?? bootstrap.baseUrl;
 
 type ConnectionState = "idle" | "connecting" | "connected" | "error";
@@ -291,9 +324,7 @@ const optionToNullable = <A,>(option: O.Option<A>): A | null => O.getOrNull(opti
 export function RepoMemoryDesktop() {
   const [nativeAvailable] = useState(() => isNativeDesktop());
   const [shellMode, setShellMode] = useState<ShellMode>(() => (isNativeDesktop() ? "native-managed" : "browser"));
-  const [baseUrlInput, setBaseUrlInput] = useState(() =>
-    typeof window === "undefined" ? defaultBaseUrl : (window.localStorage.getItem(sidecarBaseUrlKey) ?? defaultBaseUrl)
-  );
+  const [baseUrlInput, setBaseUrlInput] = useState(() => readPersistedSidecarBaseUrl() ?? defaultBaseUrl);
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
   const [actionState, setActionState] = useState<ActionState>("idle");
   const [statusMessage, setStatusMessage] = useState(
@@ -326,9 +357,7 @@ export function RepoMemoryDesktop() {
     queryRun === null ? O.none<RetrievalPacket>() : retrievalPacketFromRun(queryRun, selectedRunEvents);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(sidecarBaseUrlKey, normalizeSidecarBaseUrl(baseUrlInput));
-    }
+    persistSidecarBaseUrl(baseUrlInput);
   }, [baseUrlInput]);
 
   useEffect(
