@@ -24,9 +24,8 @@ commit-msg:
 
 pre-push:
   commands:
-
-    quality:
-      run: op run --env-file=.env -- sh -c 'bun run build && bun run check && bun run test'
+    github-checks:
+      run: bash scripts/run-github-checks.sh pre-push
 
 post-merge:
   commands:

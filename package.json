@@ -42,6 +42,7 @@
     "dev": "bunx turbo run dev",
     "build": "bun run op turbo run build",
     "build:ci": "bunx turbo run build",
+    "check:github": "bash scripts/run-github-checks.sh pre-push",
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "changeset:version": "changeset version",
