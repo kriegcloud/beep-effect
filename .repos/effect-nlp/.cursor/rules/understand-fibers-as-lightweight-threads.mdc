@@ -1,0 +1,13 @@
+---
+description: "Understand that a Fiber is a lightweight, virtual thread managed by the Effect runtime for massive concurrency."
+globs:
+alwaysApply: false
+---
+
+- Title: Understand Fibers as Lightweight Threads
+- Id: understand-fibers-as-lightweight-threads
+- Skill Level: advanced
+- Use Cases: Concurrency, Core Concepts
+- Tags: fiber, concurrency, virtual-thread, lightweight-thread, performance, runtime
+
+@content/published/understand-fibers-as-lightweight-threads.mdx

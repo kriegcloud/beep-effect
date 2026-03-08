@@ -1,0 +1,13 @@
+---
+description: "Use Effect.forEach with the `concurrency` option to process a collection in parallel with a fixed limit."
+globs:
+alwaysApply: false
+---
+
+- Title: Process a Collection in Parallel with Effect.forEach
+- Id: process-collection-in-parallel-with-foreach
+- Skill Level: intermediate
+- Use Cases: Concurrency
+- Tags: concurrency, parallel, foreach, performance, batching, rate-limiting
+
+@content/published/process-collection-in-parallel-with-foreach.mdx

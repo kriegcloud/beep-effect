@@ -1,0 +1,13 @@
+---
+description: "Recognize that Effect solves the core limitations of Promises: untyped errors, no dependency injection, and no cancellation."
+globs:
+alwaysApply: false
+---
+
+- Title: Solve Promise Problems with Effect
+- Id: solve-promise-problems-with-effect
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: promise, motivation, error-handling, dependency-injection, cancellation, core-concept
+
+@content/published/solve-promise-problems-with-effect.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use Stream.runCollect to execute a stream and collect all its emitted values into a Chunk."
+globs:
+alwaysApply: false
+---
+
+- Title: Collect All Results into a List
+- Id: stream-collect-results
+- Skill Level: beginner
+- Use Cases: Building Data Pipelines
+- Tags: stream, run, collect, sink, array, chunk
+
+@content/published/stream-collect-results.mdx

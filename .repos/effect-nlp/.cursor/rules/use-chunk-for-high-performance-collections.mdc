@@ -1,0 +1,13 @@
+---
+description: "Prefer Chunk over Array for immutable collection operations within data processing pipelines for better performance."
+globs:
+alwaysApply: false
+---
+
+- Title: Use Chunk for High-Performance Collections
+- Id: use-chunk-for-high-performance-collections
+- Skill Level: intermediate
+- Use Cases: Core Concepts
+- Tags: chunk, collections, performance, immutable, data
+
+@content/published/use-chunk-for-high-performance-collections.mdx

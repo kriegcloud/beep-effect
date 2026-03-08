@@ -1,0 +1,13 @@
+---
+description: "Use Stream.paginateEffect to model a paginated data source as a single, continuous stream."
+globs:
+alwaysApply: false
+---
+
+- Title: Turn a Paginated API into a Single Stream
+- Id: stream-from-paginated-api
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, api, pagination, http, client
+
+@content/published/stream-from-paginated-api.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use predicate-based operators like Effect.filter and Effect.if to declaratively control workflow branching."
+globs:
+alwaysApply: false
+---
+
+- Title: Conditionally Branching Workflows
+- Id: conditionally-branching-workflows
+- Skill Level: intermediate
+- Use Cases: Core Concepts, Error Management
+- Tags: predicate, filter, if, validation, control-flow, conditional
+
+@content/published/conditionally-branching-workflows.mdx

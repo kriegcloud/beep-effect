@@ -1,0 +1,13 @@
+---
+description: "Use Ref to manage shared, mutable state concurrently, ensuring atomicity."
+globs:
+alwaysApply: false
+---
+
+- Title: Manage Shared State Safely with Ref
+- Id: manage-shared-state-with-ref
+- Skill Level: intermediate
+- Use Cases: Core Concepts, Concurrency
+- Tags: ref, state-management, concurrency, atomic, mutable-state
+
+@content/published/manage-shared-state-with-ref.mdx

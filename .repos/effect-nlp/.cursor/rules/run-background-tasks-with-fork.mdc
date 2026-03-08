@@ -1,0 +1,13 @@
+---
+description: "Use Effect.fork to start a non-blocking background process and manage its lifecycle via its Fiber."
+globs:
+alwaysApply: false
+---
+
+- Title: Run Background Tasks with Effect.fork
+- Id: run-background-tasks-with-fork
+- Skill Level: advanced
+- Use Cases: Concurrency
+- Tags: concurrency, fork, fiber, background-process, asynchronous
+
+@content/published/run-background-tasks-with-fork.mdx

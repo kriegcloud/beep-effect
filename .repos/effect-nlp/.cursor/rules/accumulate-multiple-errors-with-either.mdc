@@ -1,0 +1,13 @@
+---
+description: "Use Either to accumulate multiple validation errors instead of failing on the first one."
+globs:
+alwaysApply: false
+---
+
+- Title: Accumulate Multiple Errors with Either
+- Id: accumulate-multiple-errors-with-either
+- Skill Level: intermediate
+- Use Cases: Error Management, Domain Modeling
+- Tags: either, validation, error-accumulation, schema, data
+
+@content/published/accumulate-multiple-errors-with-either.mdx

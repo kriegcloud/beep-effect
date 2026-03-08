@@ -1,0 +1,13 @@
+---
+description: "Use the Http.client module to make outgoing requests to keep the entire operation within the Effect ecosystem."
+globs:
+alwaysApply: false
+---
+
+- Title: Make an Outgoing HTTP Client Request
+- Id: make-http-client-request
+- Skill Level: intermediate
+- Use Cases: Building APIs
+- Tags: http, client, api, fetch, request
+
+@content/published/make-http-client-request.mdx

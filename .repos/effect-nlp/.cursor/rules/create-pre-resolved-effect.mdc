@@ -1,0 +1,13 @@
+---
+description: "Create pre-resolved effects with succeed and fail."
+globs:
+alwaysApply: false
+---
+
+- Title: Create Pre-resolved Effects with succeed and fail
+- Id: create-pre-resolved-effect
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: creation, succeed, fail, sync
+
+@content/published/create-pre-resolved-effect.mdx

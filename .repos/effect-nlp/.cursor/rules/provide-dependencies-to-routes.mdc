@@ -1,0 +1,13 @@
+---
+description: "Define dependencies with Effect.Service and provide them to your HTTP server using a Layer."
+globs:
+alwaysApply: false
+---
+
+- Title: Provide Dependencies to Routes
+- Id: provide-dependencies-to-routes
+- Skill Level: intermediate
+- Use Cases: Building APIs
+- Tags: http, server, dependency-injection, layer, service, context
+
+@content/published/provide-dependencies-to-routes.mdx

@@ -1,0 +1,13 @@
+---
+description: "Understand that effects are lazy blueprints."
+globs:
+alwaysApply: false
+---
+
+- Title: Understand that Effects are Lazy Blueprints
+- Id: effects-are-lazy
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: laziness, immutability, blueprint, execution, runtime, core-concept
+
+@content/published/effects-are-lazy.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use Schema.transform to safely convert data types during the validation and parsing process."
+globs:
+alwaysApply: false
+---
+
+- Title: Transform Data During Validation with Schema
+- Id: transform-data-with-schema
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: schema, transform, validation, parsing, data-modeling, coercion
+
+@content/published/transform-data-with-schema.mdx

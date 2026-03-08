@@ -1,0 +1,13 @@
+---
+description: "Use Http.response.json to automatically serialize data structures into a JSON response."
+globs:
+alwaysApply: false
+---
+
+- Title: Send a JSON Response
+- Id: send-json-response
+- Skill Level: beginner
+- Use Cases: Building APIs
+- Tags: http, server, response, json, api
+
+@content/published/send-json-response.mdx
