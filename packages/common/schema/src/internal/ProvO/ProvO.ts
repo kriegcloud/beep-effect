@@ -7,7 +7,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "../../LiteralKit.ts";
 
-const $I = $SchemaId.create("internal/ProvO/Prov0");
+const $I = $SchemaId.create("internal/ProvO/ProvO");
 type SyncSchema = S.Top & { readonly DecodingServices: never };
 
 const iriRegExp =
@@ -41,6 +41,39 @@ const typeFieldHasAnyLiteral = (
   );
 
 const hasSomeOption = <A>(value: O.Option<A>): boolean => O.isSome(value);
+type TypeFieldValue = O.Option<string | ReadonlyArray<string>>;
+
+const hasCanonicalTypeMarker = (
+  value: {
+    readonly provType: TypeFieldValue;
+    readonly "prov:type": TypeFieldValue;
+    readonly type: TypeFieldValue;
+  },
+  literals: ReadonlyArray<string>
+): boolean =>
+  typeFieldHasAnyLiteral(value.provType, literals) ||
+  typeFieldHasAnyLiteral(value["prov:type"], literals) ||
+  typeFieldHasAnyLiteral(value.type, literals);
+
+const makeRequiredTypeCheck = <
+  A extends {
+    readonly provType: TypeFieldValue;
+    readonly "prov:type": TypeFieldValue;
+    readonly type: TypeFieldValue;
+  },
+>(
+  identifier: string,
+  title: string,
+  description: string,
+  literals: ReadonlyArray<string>,
+  message: string
+) =>
+  S.makeFilter<A>((value) => hasCanonicalTypeMarker(value, literals), {
+    identifier: $I.create(identifier).make("RequiredTypeCheck"),
+    title,
+    description,
+    message,
+  });
 
 const toInlineValues = <B>(value: unknown, isInline: (value: unknown) => value is B): ReadonlyArray<B> => {
   if (P.isString(value)) {
@@ -302,6 +335,70 @@ const OptionalTypeField = S.OptionFromOptionalKey(S.Union([S.String, S.Array(S.S
   })
 );
 
+const LocationClassType = literalOrArrayContaining(
+  "LocationClassType",
+  "A canonical PROV location class literal or an array containing one.",
+  LiteralKit(["Location", "prov:Location"] as const)
+);
+
+const RoleClassType = literalOrArrayContaining(
+  "RoleClassType",
+  "A canonical PROV role class literal or an array containing one.",
+  LiteralKit(["Role", "prov:Role"] as const)
+);
+
+const LocationFields = {
+  id: S.OptionFromOptionalKey(ObjectRef),
+  provType: S.OptionFromOptionalKey(LocationClassType),
+  "prov:type": S.OptionFromOptionalKey(LocationClassType),
+  type: OptionalTypeField,
+} as const;
+
+/**
+ * PROV location value used by `atLocation`.
+ */
+export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`Location`)(
+  S.Struct(LocationFields).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<{ readonly provType: TypeFieldValue; readonly "prov:type": TypeFieldValue; readonly type: TypeFieldValue }>(
+        "Location",
+        "Location Type",
+        "Inline PROV locations must carry a canonical location class marker.",
+        ["Location", "prov:Location"],
+        "Location values must carry a canonical Location type marker"
+      ),
+    ])
+  ),
+  $I.annote("Location", {
+    description: "A PROV location value used by entity, activity, agent, and instantaneous event location properties.",
+  })
+) {}
+
+/**
+ * PROV role value used by `hadRole`.
+ */
+export class Role extends S.Class<Role, Brand.Brand<"ProvRole">>($I`Role`)(
+  S.Struct({
+    id: S.OptionFromOptionalKey(ObjectRef),
+    provType: S.OptionFromOptionalKey(RoleClassType),
+    "prov:type": S.OptionFromOptionalKey(RoleClassType),
+    type: OptionalTypeField,
+  }).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<{ readonly provType: TypeFieldValue; readonly "prov:type": TypeFieldValue; readonly type: TypeFieldValue }>(
+        "Role",
+        "Role Type",
+        "Inline PROV roles must carry a canonical role class marker.",
+        ["Role", "prov:Role"],
+        "Role values must carry a canonical Role type marker"
+      ),
+    ])
+  ),
+  $I.annote("Role", {
+    description: "A PROV role value used to qualify usage, generation, attribution, association, and delegation.",
+  })
+) {}
+
 /**
  * JSON link structure referenced by entity `links`.
  */
@@ -320,13 +417,31 @@ export class ExternalLink extends S.Class<ExternalLink, Brand.Brand<"ProvExterna
   })
 ) {}
 
+/**
+ * PROV literal value carried by `prov:value`.
+ */
+export const ProvValue = S.Union([S.String, S.Number, S.Boolean, S.Null]).annotate(
+  $I.annote("ProvValue", {
+    description: "A JSON scalar value used to represent `prov:value` literals.",
+  })
+);
+
+/**
+ * Type for {@link ProvValue}.
+ */
+export type ProvValue = typeof ProvValue.Type;
+
 const EntityTypeLiteral = LiteralKit([
   "Entity",
   "Bundle",
   "Plan",
+  "Collection",
+  "EmptyCollection",
   "prov:Entity",
   "prov:Bundle",
   "prov:Plan",
+  "prov:Collection",
+  "prov:EmptyCollection",
 ] as const);
 
 /**
@@ -388,7 +503,30 @@ export const AgentTypes = literalOrArrayContaining(
  */
 export type AgentTypes = typeof AgentTypes.Type;
 
-const CollectionTypeLiteral = LiteralKit(["Collection", "EmptyCollection"] as const);
+const CollectionTypeLiteral = LiteralKit([
+  "Collection",
+  "EmptyCollection",
+  "prov:Collection",
+  "prov:EmptyCollection",
+] as const);
+
+const InstantaneousEventType = literalOrArrayContaining(
+  "InstantaneousEventType",
+  "A canonical PROV instantaneous event class literal or an array containing one.",
+  LiteralKit(["InstantaneousEvent", "prov:InstantaneousEvent"] as const)
+);
+
+const EntityInfluenceType = literalOrArrayContaining(
+  "EntityInfluenceType",
+  "A canonical PROV entity influence class literal or an array containing one.",
+  LiteralKit(["EntityInfluence", "prov:EntityInfluence"] as const)
+);
+
+const AgentInfluenceType = literalOrArrayContaining(
+  "AgentInfluenceType",
+  "A canonical PROV agent influence class literal or an array containing one.",
+  LiteralKit(["AgentInfluence", "prov:AgentInfluence"] as const)
+);
 
 const UsageType = literalOrArrayContaining(
   "UsageType",
@@ -399,55 +537,73 @@ const UsageType = literalOrArrayContaining(
 const GenerationType = literalOrArrayContaining(
   "GenerationType",
   "A qualified generation type literal or array containing one.",
-  LiteralKit(["Generation"] as const)
+  LiteralKit(["Generation", "prov:Generation"] as const)
 );
 
 const InvalidationType = literalOrArrayContaining(
   "InvalidationType",
   "A qualified invalidation type literal or array containing one.",
-  LiteralKit(["Invalidation"] as const)
+  LiteralKit(["Invalidation", "prov:Invalidation"] as const)
 );
 
 const CommunicationType = literalOrArrayContaining(
   "CommunicationType",
   "A qualified communication type literal or array containing one.",
-  LiteralKit(["Communication"] as const)
+  LiteralKit(["Communication", "prov:Communication"] as const)
 );
 
 const DerivationType = literalOrArrayContaining(
   "DerivationType",
   "A qualified derivation type literal or array containing one.",
-  LiteralKit(["Derivation"] as const)
+  LiteralKit(["Derivation", "prov:Derivation"] as const)
+);
+
+const PrimarySourceType = literalOrArrayContaining(
+  "PrimarySourceType",
+  "A qualified primary source type literal or array containing one.",
+  LiteralKit(["PrimarySource", "prov:PrimarySource"] as const)
+);
+
+const QuotationType = literalOrArrayContaining(
+  "QuotationType",
+  "A qualified quotation type literal or array containing one.",
+  LiteralKit(["Quotation", "prov:Quotation"] as const)
+);
+
+const RevisionType = literalOrArrayContaining(
+  "RevisionType",
+  "A qualified revision type literal or array containing one.",
+  LiteralKit(["Revision", "prov:Revision"] as const)
 );
 
 const DelegationType = literalOrArrayContaining(
   "DelegationType",
   "A qualified delegation type literal or array containing one.",
-  LiteralKit(["Delegation"] as const)
+  LiteralKit(["Delegation", "prov:Delegation"] as const)
 );
 
 const AttributionType = literalOrArrayContaining(
   "AttributionType",
   "A qualified attribution type literal or array containing one.",
-  LiteralKit(["Attribution"] as const)
+  LiteralKit(["Attribution", "prov:Attribution"] as const)
 );
 
 const AssociationType = literalOrArrayContaining(
   "AssociationType",
   "A qualified association type literal or array containing one.",
-  LiteralKit(["Association"] as const)
+  LiteralKit(["Association", "prov:Association"] as const)
 );
 
 const StartType = literalOrArrayContaining(
   "StartType",
   "A qualified start type literal or array containing one.",
-  LiteralKit(["Start"] as const)
+  LiteralKit(["Start", "prov:Start"] as const)
 );
 
 const EndType = literalOrArrayContaining(
   "EndType",
   "A qualified end type literal or array containing one.",
-  LiteralKit(["End"] as const)
+  LiteralKit(["End", "prov:End"] as const)
 );
 
 /**
@@ -465,11 +621,41 @@ export const OneOrMoreObjectRef = S.Union([ObjectRef, S.Array(ObjectRef), OpenOb
 export type OneOrMoreObjectRef = typeof OneOrMoreObjectRef.Type;
 
 /**
+ * Location or reference used by `atLocation`.
+ */
+export const LocationReference = objectRefOrInline(
+  "LocationReference",
+  "A PROV location value or location reference.",
+  (): SyncSchema => Location
+);
+
+/**
+ * Role or reference or array of either.
+ */
+export const OneOrMoreRolesOrRefIds = objectRefOrInlineOrMany(
+  "OneOrMoreRolesOrRefIds",
+  "A single role reference, a nested role, or an array mixing both.",
+  (): SyncSchema => Role
+);
+
+/**
+ * Type for {@link OneOrMoreRolesOrRefIds}.
+ */
+export type OneOrMoreRolesOrRefIds = typeof OneOrMoreRolesOrRefIds.Type;
+
+/**
  * Qualified influence between provenance nodes.
  */
 export class Influence extends S.Class<Influence, Brand.Brand<"ProvInfluence">>($I`Influence`)(
   S.Struct({
     id: S.OptionFromOptionalKey(ObjectRef),
+    influenced: S.OptionFromOptionalKey(
+      S.Union([
+        S.suspend(() => OneOrMoreActivitiesOrRefIds),
+        S.suspend(() => OneOrMoreEntitiesOrRefIds),
+        S.suspend(() => OneOrMoreAgentsOrRefIds),
+      ])
+    ),
     influencer: S.OptionFromOptionalKey(
       S.Union([
         S.suspend(() => OneOrMoreActivitiesOrRefIds),
@@ -480,17 +666,23 @@ export class Influence extends S.Class<Influence, Brand.Brand<"ProvInfluence">>(
     entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
     activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
     agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+    hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
   }).check(
     S.makeFilterGroup(
       [
         S.makeFilter(
-          ({ influencer, entity, activity, agent }) =>
-            hasSomeOption(influencer) || hasSomeOption(entity) || hasSomeOption(activity) || hasSomeOption(agent),
+          ({ influenced, influencer, entity, activity, agent }) =>
+            hasSomeOption(influenced) ||
+            hasSomeOption(influencer) ||
+            hasSomeOption(entity) ||
+            hasSomeOption(activity) ||
+            hasSomeOption(agent),
           {
             identifier: $I`InfluenceTargetCheck`,
             title: "Influence Target",
-            description: "An influence must identify at least one influencer target.",
-            message: "Influence objects must define at least one of influencer, entity, activity, or agent",
+            description: "An influence must identify an influenced target or an influencer.",
+            message: "Influence objects must define at least one of influenced, influencer, entity, activity, or agent",
           }
         ),
       ],
@@ -525,8 +717,7 @@ const InfluencedFields = {
 
 const ActivityInfluenceFields = {
   id: S.OptionFromOptionalKey(ObjectRef),
-  atTime: S.OptionFromOptionalKey(ProvDateTime),
-  hadRole: S.OptionFromOptionalKey(OneOrMoreObjectRef),
+  hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   influencer: S.OptionFromOptionalKey(OneOrMoreObjectRef),
   hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
   activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
@@ -547,6 +738,57 @@ export class ActivityInfluence extends S.Class<ActivityInfluence, Brand.Brand<"P
 ) {}
 
 /**
+ * Qualified entity influence base structure.
+ */
+export class EntityInfluence extends S.Class<EntityInfluence, Brand.Brand<"ProvEntityInfluence">>($I`EntityInfluence`)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(EntityInfluenceType),
+    entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
+    influencer: S.OptionFromOptionalKey(OneOrMoreObjectRef),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+    hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+  },
+  $I.annote("EntityInfluence", {
+    description: "A qualified entity influence record used by entity-derived qualified relations.",
+  })
+) {}
+
+/**
+ * Qualified agent influence base structure.
+ */
+export class AgentInfluence extends S.Class<AgentInfluence, Brand.Brand<"ProvAgentInfluence">>($I`AgentInfluence`)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(AgentInfluenceType),
+    agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
+    influencer: S.OptionFromOptionalKey(OneOrMoreObjectRef),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+    hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+  },
+  $I.annote("AgentInfluence", {
+    description: "A qualified agent influence record used by attribution, association, and delegation.",
+  })
+) {}
+
+/**
+ * Qualified instantaneous event base structure.
+ */
+export class InstantaneousEvent extends S.Class<InstantaneousEvent, Brand.Brand<"ProvInstantaneousEvent">>(
+  $I`InstantaneousEvent`
+)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(InstantaneousEventType),
+    atTime: S.OptionFromOptionalKey(ProvDateTime),
+    atLocation: S.OptionFromOptionalKey(LocationReference),
+  },
+  $I.annote("InstantaneousEvent", {
+    description: "A PROV instantaneous event that may be used to qualify generation, invalidation, start, or end.",
+  })
+) {}
+
+/**
  * Qualified usage relation.
  */
 export class Usage extends S.Class<Usage, Brand.Brand<"ProvUsage">>($I`Usage`)(
@@ -555,6 +797,7 @@ export class Usage extends S.Class<Usage, Brand.Brand<"ProvUsage">>($I`Usage`)(
     type: S.OptionFromOptionalKey(UsageType),
     atTime: S.OptionFromOptionalKey(ProvDateTime),
     entity: S.suspend(() => OneOrMoreEntitiesOrRefIds),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   },
   $I.annote("Usage", {
     description: "A qualified usage relation between an activity and one or more entities.",
@@ -567,6 +810,8 @@ export class Usage extends S.Class<Usage, Brand.Brand<"ProvUsage">>($I`Usage`)(
 export class Generation extends S.Class<Generation, Brand.Brand<"ProvGeneration">>($I`Generation`)(
   {
     ...ActivityInfluenceFields,
+    atTime: S.OptionFromOptionalKey(ProvDateTime),
+    atLocation: S.OptionFromOptionalKey(LocationReference),
     type: GenerationType,
   },
   $I.annote("Generation", {
@@ -580,6 +825,8 @@ export class Generation extends S.Class<Generation, Brand.Brand<"ProvGeneration"
 export class Invalidation extends S.Class<Invalidation, Brand.Brand<"ProvInvalidation">>($I`Invalidation`)(
   {
     ...ActivityInfluenceFields,
+    atTime: S.OptionFromOptionalKey(ProvDateTime),
+    atLocation: S.OptionFromOptionalKey(LocationReference),
     type: InvalidationType,
   },
   $I.annote("Invalidation", {
@@ -624,6 +871,75 @@ export class Derivation extends S.Class<Derivation, Brand.Brand<"ProvDerivation"
 ) {}
 
 /**
+ * Qualified primary source relation.
+ */
+export class PrimarySource extends S.Class<PrimarySource, Brand.Brand<"ProvPrimarySource">>($I`PrimarySource`)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(PrimarySourceType),
+    hadGeneration: S.OptionFromOptionalKey(
+      objectRefOrInline("PrimarySourceGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+    ),
+    hadActivity: S.OptionFromOptionalKey(
+      objectRefOrInline("PrimarySourceActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
+    ),
+    hadUsage: S.OptionFromOptionalKey(
+      objectRefOrInline("PrimarySourceUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
+    ),
+    entity: objectRefOrInline("PrimarySourceEntityReference", "A primary source entity or entity reference.", (): SyncSchema => Entity),
+  },
+  $I.annote("PrimarySource", {
+    description: "A qualified primary source relation represented as a typed derivation.",
+  })
+) {}
+
+/**
+ * Qualified quotation relation.
+ */
+export class Quotation extends S.Class<Quotation, Brand.Brand<"ProvQuotation">>($I`Quotation`)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(QuotationType),
+    hadGeneration: S.OptionFromOptionalKey(
+      objectRefOrInline("QuotationGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+    ),
+    hadActivity: S.OptionFromOptionalKey(
+      objectRefOrInline("QuotationActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
+    ),
+    hadUsage: S.OptionFromOptionalKey(
+      objectRefOrInline("QuotationUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
+    ),
+    entity: objectRefOrInline("QuotationEntityReference", "A quoted entity or entity reference.", (): SyncSchema => Entity),
+  },
+  $I.annote("Quotation", {
+    description: "A qualified quotation relation represented as a typed derivation.",
+  })
+) {}
+
+/**
+ * Qualified revision relation.
+ */
+export class Revision extends S.Class<Revision, Brand.Brand<"ProvRevision">>($I`Revision`)(
+  {
+    id: S.OptionFromOptionalKey(ObjectRef),
+    type: S.OptionFromOptionalKey(RevisionType),
+    hadGeneration: S.OptionFromOptionalKey(
+      objectRefOrInline("RevisionGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+    ),
+    hadActivity: S.OptionFromOptionalKey(
+      objectRefOrInline("RevisionActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
+    ),
+    hadUsage: S.OptionFromOptionalKey(
+      objectRefOrInline("RevisionUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
+    ),
+    entity: objectRefOrInline("RevisionEntityReference", "A revised entity or entity reference.", (): SyncSchema => Entity),
+  },
+  $I.annote("Revision", {
+    description: "A qualified revision relation represented as a typed derivation.",
+  })
+) {}
+
+/**
  * Qualified delegation relation.
  */
 export class Delegation extends S.Class<Delegation, Brand.Brand<"ProvDelegation">>($I`Delegation`)(
@@ -636,6 +952,7 @@ export class Delegation extends S.Class<Delegation, Brand.Brand<"ProvDelegation"
     hadActivity: S.OptionFromOptionalKey(
       objectRefOrInline("DelegationActivityReference", "A delegated activity or activity reference.", (): SyncSchema => Activity)
     ),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   },
   $I.annote("Delegation", {
     description: "A qualified delegation relation.",
@@ -652,6 +969,7 @@ export class Attribution extends S.Class<Attribution, Brand.Brand<"ProvAttributi
     agent: S.OptionFromOptionalKey(
       objectRefOrInline("AttributionAgentReference", "An attributing agent or agent reference.", (): SyncSchema => Agent)
     ),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   },
   $I.annote("Attribution", {
     description: "A qualified attribution relation.",
@@ -660,7 +978,8 @@ export class Attribution extends S.Class<Attribution, Brand.Brand<"ProvAttributi
 
 const StartOrEndFields = {
   id: S.OptionFromOptionalKey(ObjectRef),
-  atTime: ProvDateTime,
+  atTime: S.OptionFromOptionalKey(ProvDateTime),
+  atLocation: S.OptionFromOptionalKey(LocationReference),
   entity: S.OptionFromOptionalKey(
     objectRefOrInline("StartOrEndEntityReference", "An entity or entity reference.", (): SyncSchema => Entity)
   ),
@@ -705,8 +1024,8 @@ export class Association extends S.Class<Association, Brand.Brand<"ProvAssociati
     agent: S.OptionFromOptionalKey(
       objectRefOrInline("AssociationAgentReference", "An associated agent or agent reference.", (): SyncSchema => Agent)
     ),
-    hadRole: S.OptionFromOptionalKey(OneOrMoreObjectRef),
-    hadPlan: S.OptionFromOptionalKey(OneOrMoreObjectRef),
+    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+    hadPlan: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMorePlansOrRefIds)),
   },
   $I.annote("Association", {
     description: "A qualified association relation.",
@@ -780,12 +1099,15 @@ const EntityFields = {
   wasAttributedTo: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreAgentsOrRefIds)),
   wasDerivedFrom: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   alternateOf: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
+  generatedAtTime: S.OptionFromOptionalKey(ProvDateTime),
   hadPrimarySource: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
+  value: S.OptionFromOptionalKey(ProvValue),
   specializationOf: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
+  invalidatedAtTime: S.OptionFromOptionalKey(ProvDateTime),
   wasInvalidatedBy: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreActivitiesOrRefIds)),
   wasQuotedFrom: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   wasRevisionOf: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
-  atLocation: S.OptionFromOptionalKey(ObjectRef),
+  atLocation: S.OptionFromOptionalKey(LocationReference),
   links: S.OptionFromOptionalKey(S.Array(ExternalLink)),
   qualifiedGeneration: S.OptionFromOptionalKey(
     objectRefOrInlineOrMany(
@@ -808,6 +1130,27 @@ const EntityFields = {
       (): SyncSchema => Derivation
     )
   ),
+  qualifiedPrimarySource: S.OptionFromOptionalKey(
+    objectRefOrInlineOrMany(
+      "QualifiedPrimarySourceReference",
+      "A qualified primary source relation or reference.",
+      (): SyncSchema => PrimarySource
+    )
+  ),
+  qualifiedQuotation: S.OptionFromOptionalKey(
+    objectRefOrInlineOrMany(
+      "QualifiedQuotationReference",
+      "A qualified quotation relation or reference.",
+      (): SyncSchema => Quotation
+    )
+  ),
+  qualifiedRevision: S.OptionFromOptionalKey(
+    objectRefOrInlineOrMany(
+      "QualifiedRevisionReference",
+      "A qualified revision relation or reference.",
+      (): SyncSchema => Revision
+    )
+  ),
   qualifiedAttribution: S.OptionFromOptionalKey(
     objectRefOrInlineOrMany(
       "QualifiedAttributionReference",
@@ -815,7 +1158,11 @@ const EntityFields = {
       (): SyncSchema => Attribution
     )
   ),
-  hadMember: S.OptionFromOptionalKey(S.Array(S.suspend((): SyncSchema => Entity))),
+  hadMember: S.OptionFromOptionalKey(
+    S.Array(
+      objectRefOrInline("CollectionMemberEntityReference", "A collection member entity or entity reference.", (): SyncSchema => Entity)
+    )
+  ),
   ...InfluencedFields,
   activityType: S.optionalKey(S.Never),
   endedAtTime: S.optionalKey(S.Never),
@@ -858,10 +1205,11 @@ const entityChecks = S.makeFilterGroup<EntityValue>(
         pipe(
           value.hadMember,
           O.match({
-            onNone: () => !typeFieldHasAnyLiteral(value.type, CollectionTypeLiteral.Options),
+            onNone: () =>
+              !hasCanonicalTypeMarker(value, ["Collection", "prov:Collection", "EmptyCollection", "prov:EmptyCollection"]),
             onSome: (members) => {
-              const isCollection = typeFieldHasAnyLiteral(value.type, ["Collection"]);
-              const isEmptyCollection = typeFieldHasAnyLiteral(value.type, ["EmptyCollection"]);
+              const isCollection = hasCanonicalTypeMarker(value, ["Collection", "prov:Collection"]);
+              const isEmptyCollection = hasCanonicalTypeMarker(value, ["EmptyCollection", "prov:EmptyCollection"]);
               return (isCollection && A.isReadonlyArrayNonEmpty(members)) || (isEmptyCollection && A.isReadonlyArrayEmpty(members));
             },
           })
@@ -906,7 +1254,7 @@ const ActivityFields = {
   wasEndedBy: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   invalidated: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   generated: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
-  atLocation: S.OptionFromOptionalKey(ObjectRef),
+  atLocation: S.OptionFromOptionalKey(LocationReference),
   qualifiedUsage: S.OptionFromOptionalKey(
     objectRefOrInlineOrMany("QualifiedUsageReference", "A qualified usage relation or reference.", (): SyncSchema => Usage)
   ),
@@ -939,13 +1287,19 @@ const ActivityFields = {
   wasDerivedFrom: S.optionalKey(S.Never),
   alternateOf: S.optionalKey(S.Never),
   hadPrimarySource: S.optionalKey(S.Never),
+  generatedAtTime: S.optionalKey(S.Never),
+  value: S.optionalKey(S.Never),
   specializationOf: S.optionalKey(S.Never),
+  invalidatedAtTime: S.optionalKey(S.Never),
   wasInvalidatedBy: S.optionalKey(S.Never),
   wasQuotedFrom: S.optionalKey(S.Never),
   wasRevisionOf: S.optionalKey(S.Never),
   qualifiedGeneration: S.optionalKey(S.Never),
   qualifiedInvalidation: S.optionalKey(S.Never),
   qualifiedDerivation: S.optionalKey(S.Never),
+  qualifiedPrimarySource: S.optionalKey(S.Never),
+  qualifiedQuotation: S.optionalKey(S.Never),
+  qualifiedRevision: S.optionalKey(S.Never),
   qualifiedAttribution: S.optionalKey(S.Never),
   hadMember: S.optionalKey(S.Never),
   agentType: S.optionalKey(S.Never),
@@ -1066,7 +1420,7 @@ const AgentFields = {
   name: S.OptionFromOptionalKey(S.String),
   id: S.OptionFromOptionalKey(ObjectRef),
   actedOnBehalfOf: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreAgentsOrRefIds)),
-  atLocation: S.OptionFromOptionalKey(ObjectRef),
+  atLocation: S.OptionFromOptionalKey(LocationReference),
   qualifiedDelegation: S.OptionFromOptionalKey(
     objectRefOrInlineOrMany(
       "QualifiedDelegationReference",
@@ -1083,13 +1437,19 @@ const AgentFields = {
   wasDerivedFrom: S.optionalKey(S.Never),
   alternateOf: S.optionalKey(S.Never),
   hadPrimarySource: S.optionalKey(S.Never),
+  generatedAtTime: S.optionalKey(S.Never),
+  value: S.optionalKey(S.Never),
   specializationOf: S.optionalKey(S.Never),
+  invalidatedAtTime: S.optionalKey(S.Never),
   wasInvalidatedBy: S.optionalKey(S.Never),
   wasQuotedFrom: S.optionalKey(S.Never),
   wasRevisionOf: S.optionalKey(S.Never),
   qualifiedGeneration: S.optionalKey(S.Never),
   qualifiedInvalidation: S.optionalKey(S.Never),
   qualifiedDerivation: S.optionalKey(S.Never),
+  qualifiedPrimarySource: S.optionalKey(S.Never),
+  qualifiedQuotation: S.optionalKey(S.Never),
+  qualifiedRevision: S.optionalKey(S.Never),
   qualifiedAttribution: S.optionalKey(S.Never),
   hadMember: S.optionalKey(S.Never),
   activityType: S.optionalKey(S.Never),
@@ -1150,6 +1510,160 @@ export class Agent extends S.Class<Agent, Brand.Brand<"ProvAgent">>($I`Agent`)(
   })
 ) {}
 
+/**
+ * PROV bundle entity.
+ */
+export class Bundle extends S.Class<Bundle, Brand.Brand<"ProvBundle">>($I`Bundle`)(
+  EntityShape.check(entityChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<EntityValue>(
+        "Bundle",
+        "Bundle Type",
+        "Bundle entities must carry a canonical bundle class marker.",
+        ["Bundle", "prov:Bundle"],
+        "Bundle values must carry a canonical Bundle type marker"
+      ),
+    ])
+  ),
+  $I.annote("Bundle", {
+    description: "A PROV bundle represented as a typed entity.",
+  })
+) {}
+
+/**
+ * PROV plan entity.
+ */
+export class Plan extends S.Class<Plan, Brand.Brand<"ProvPlan">>($I`Plan`)(
+  EntityShape.check(entityChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<EntityValue>(
+        "Plan",
+        "Plan Type",
+        "Plan entities must carry a canonical plan class marker.",
+        ["Plan", "prov:Plan"],
+        "Plan values must carry a canonical Plan type marker"
+      ),
+    ])
+  ),
+  $I.annote("Plan", {
+    description: "A PROV plan represented as a typed entity.",
+  })
+) {}
+
+/**
+ * Plan or reference or array of either.
+ */
+export const OneOrMorePlansOrRefIds = objectRefOrInlineOrMany(
+  "OneOrMorePlansOrRefIds",
+  "A single plan reference, a nested plan, or an array mixing both.",
+  (): SyncSchema => Plan
+);
+
+/**
+ * Type for {@link OneOrMorePlansOrRefIds}.
+ */
+export type OneOrMorePlansOrRefIds = typeof OneOrMorePlansOrRefIds.Type;
+
+/**
+ * PROV collection entity.
+ */
+export class Collection extends S.Class<Collection, Brand.Brand<"ProvCollection">>($I`Collection`)(
+  EntityShape.check(entityChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<EntityValue>(
+        "Collection",
+        "Collection Type",
+        "Collection entities must carry a canonical collection class marker.",
+        ["Collection", "prov:Collection"],
+        "Collection values must carry a canonical Collection type marker"
+      ),
+    ])
+  ),
+  $I.annote("Collection", {
+    description: "A PROV collection represented as a typed entity with non-empty members.",
+  })
+) {}
+
+/**
+ * PROV empty collection entity.
+ */
+export class EmptyCollection extends S.Class<EmptyCollection, Brand.Brand<"ProvEmptyCollection">>($I`EmptyCollection`)(
+  EntityShape.check(entityChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<EntityValue>(
+        "EmptyCollection",
+        "Empty Collection Type",
+        "Empty collection entities must carry a canonical empty collection class marker.",
+        ["EmptyCollection", "prov:EmptyCollection"],
+        "Empty collection values must carry a canonical EmptyCollection type marker"
+      ),
+    ])
+  ),
+  $I.annote("EmptyCollection", {
+    description: "A PROV empty collection represented as a typed entity with no members.",
+  })
+) {}
+
+/**
+ * PROV person agent.
+ */
+export class Person extends S.Class<Person, Brand.Brand<"ProvPerson">>($I`Person`)(
+  AgentShape.check(agentChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<AgentValue>(
+        "Person",
+        "Person Type",
+        "Person agents must carry a canonical person class marker.",
+        ["Person", "prov:Person"],
+        "Person values must carry a canonical Person type marker"
+      ),
+    ])
+  ),
+  $I.annote("Person", {
+    description: "A PROV person represented as a typed agent.",
+  })
+) {}
+
+/**
+ * PROV organization agent.
+ */
+export class Organization extends S.Class<Organization, Brand.Brand<"ProvOrganization">>($I`Organization`)(
+  AgentShape.check(agentChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<AgentValue>(
+        "Organization",
+        "Organization Type",
+        "Organization agents must carry a canonical organization class marker.",
+        ["Organization", "prov:Organization"],
+        "Organization values must carry a canonical Organization type marker"
+      ),
+    ])
+  ),
+  $I.annote("Organization", {
+    description: "A PROV organization represented as a typed agent.",
+  })
+) {}
+
+/**
+ * PROV software agent.
+ */
+export class SoftwareAgent extends S.Class<SoftwareAgent, Brand.Brand<"ProvSoftwareAgent">>($I`SoftwareAgent`)(
+  AgentShape.check(agentChecks).check(
+    S.makeFilterGroup([
+      makeRequiredTypeCheck<AgentValue>(
+        "SoftwareAgent",
+        "Software Agent Type",
+        "Software agents must carry a canonical software agent class marker.",
+        ["SoftwareAgent", "prov:SoftwareAgent"],
+        "Software agent values must carry a canonical SoftwareAgent type marker"
+      ),
+    ])
+  ),
+  $I.annote("SoftwareAgent", {
+    description: "A PROV software agent represented as a typed agent.",
+  })
+) {}
+
 const entityRequirementChecks = S.makeFilterGroup<EntityValue>(
   [
     S.makeFilter<EntityValue>(
@@ -1159,6 +1673,9 @@ const entityRequirementChecks = S.makeFilterGroup<EntityValue>(
         hasSomeOption(value.type) ||
         hasSomeOption(value.featureType) ||
         hasSomeOption(value.entityType) ||
+        hasSomeOption(value.generatedAtTime) ||
+        hasSomeOption(value.invalidatedAtTime) ||
+        hasSomeOption(value.value) ||
         hasSomeOption(value.wasGeneratedBy) ||
         hasSomeOption(value.wasAttributedTo) ||
         hasSomeOption(value.wasDerivedFrom) ||
@@ -1310,16 +1827,26 @@ export type Prov = typeof Prov.Type;
 /**
  * Top-level schema mirrored from the cloned PROV building block.
  *
- * The upstream root intentionally accepts standalone entities and activities,
- * plus provenance graph arrays, but not standalone agents.
+ * The spec-first root accepts standalone entities, activities, agents,
+ * and provenance graph arrays.
  */
-export const ProvO = S.Union([Prov, EntityWithRequirements, ActivityWithRequirements]).annotate(
-  $I.annote("Prov0", {
-    description: "The top-level PROV-O schema mirrored from the upstream building block.",
+export const ProvO = S.Union([Prov, EntityWithRequirements, ActivityWithRequirements, AgentWithRequirements]).annotate(
+  $I.annote("ProvO", {
+    description: "The top-level PROV-O schema accepting standalone PROV roots and provenance graph arrays.",
   })
 );
 
 /**
  * Type for {@link ProvO}.
  */
-export type Prov0 = typeof ProvO.Type;
+export type ProvO = typeof ProvO.Type;
+
+/**
+ * Compatibility alias retained for the historical `Prov0` import path.
+ */
+export const Prov0 = ProvO;
+
+/**
+ * Type for {@link Prov0}.
+ */
+export type Prov0 = typeof Prov0.Type;

@@ -177,8 +177,8 @@ describe("Prov0 invariants", () => {
     ).toThrow("Entity collection fields must align with Collection or EmptyCollection semantics");
   });
 
-  it("rejects standalone agents at the root but accepts them inside Prov arrays", () => {
-    expect(() => decodeProv0({ id: "agent-1", provType: "Agent" })).toThrow();
+  it("accepts standalone agents at the root and inside Prov arrays", () => {
+    expect(decodeProv0({ id: "agent-1", provType: "Agent" })).toBeDefined();
     expect(decodeProv([{ id: "agent-1", provType: "Agent" }])).toHaveLength(1);
   });
 
