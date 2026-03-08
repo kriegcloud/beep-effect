@@ -1,0 +1,52 @@
+{
+  "name": "@template/server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The server template",
+  "repository": {
+    "type": "git",
+    "url": "<PLACEHOLDER>",
+    "directory": "packages/server"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v2",
+    "build": "pnpm build-esm && pnpm build-annotate && pnpm build-cjs && build-utils pack-v2",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest",
+    "test:ws": "bun test ./test/WebChatRoutes.ws.bun-test.ts",
+    "coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "@effect/ai-anthropic": "4.0.0-beta.11",
+    "@effect/ai-openai": "4.0.0-beta.11",
+    "@effect/platform-bun": "4.0.0-beta.11",
+    "@effect/sql-sqlite-bun": "4.0.0-beta.11",
+    "@effect/sql-sqlite-node": "4.0.0-beta.11",
+    "@template/domain": "workspace:^",
+    "effect": "4.0.0-beta.11"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "4.0.0-beta.11",
+    "bun-types": "^1.3.8"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}
