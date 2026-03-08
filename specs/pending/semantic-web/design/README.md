@@ -8,3 +8,4 @@ The first expected design artifact should define:
 - the boundary between pure schemas, adapters, and service contracts
 - the ownership and migration plan for `IRI` and `ProvO`
 - the minimum first-class JSON-LD surface
+- the semantic schema metadata annotation pattern
