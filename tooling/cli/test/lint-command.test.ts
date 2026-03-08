@@ -1,4 +1,5 @@
 import { lintCommand } from "@beep/repo-cli";
+import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -7,7 +8,11 @@ import { describe, expect, it } from "vitest";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 
-const testLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
+const testLayer = Layer.mergeAll(
+  NodeServices.layer,
+  TestConsole.layer,
+  FsUtilsLive.pipe(Layer.provide(NodeServices.layer))
+);
 
 const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
