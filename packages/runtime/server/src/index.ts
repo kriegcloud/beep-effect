@@ -69,12 +69,9 @@ import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 import * as WorkflowProxy from "effect/unstable/workflow/WorkflowProxy";
 import * as WorkflowProxyServer from "effect/unstable/workflow/WorkflowProxyServer";
-import {
-  encodeBootstrapStdoutLine,
-  toBootstrapStdoutLine,
-} from "./internal/BootstrapStdout.js";
-import { loadSidecarOtlpConfig } from "./internal/SidecarRuntimeConfig.js";
+import { encodeBootstrapStdoutLine, toBootstrapStdoutLine } from "./internal/BootstrapStdout.js";
 import { observeHttpRequest, provideSidecarObservability } from "./internal/SidecarObservability.js";
+import { loadSidecarOtlpConfig } from "./internal/SidecarRuntimeConfig.js";
 
 const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
