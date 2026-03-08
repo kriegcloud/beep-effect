@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    // Build performance
+    "incremental": true,
+    "composite": true,
+
+    // Module system (CLI/Node.js app)
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleDetection": "force",
+
+    // Import handling
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
+
+    // Type safety
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Development
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+
+    // Output
+    "outDir": "dist",
+
+    // Effect Language Service
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  },
+  "include": ["src"]
+}

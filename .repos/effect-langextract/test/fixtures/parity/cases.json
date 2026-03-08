@@ -1,0 +1,40 @@
+[
+  {
+    "id": "single-entity-event",
+    "text": "Alice visited Paris.",
+    "promptDescription": "Extract simple event phrases.",
+    "examples": [
+      {
+        "text": "Bob visited London.",
+        "extractions": [
+          {
+            "extractionClass": "event",
+            "extractionText": "Bob visited London"
+          }
+        ]
+      }
+    ],
+    "modelOutput": "[{\"extractionClass\":\"event\",\"extractionText\":\"Alice visited Paris\"}]"
+  },
+  {
+    "id": "multi-entity-person-location",
+    "text": "Bob stayed in London. Alice visited Paris.",
+    "promptDescription": "Extract people and locations.",
+    "examples": [
+      {
+        "text": "Carol moved to Berlin.",
+        "extractions": [
+          {
+            "extractionClass": "person",
+            "extractionText": "Carol"
+          },
+          {
+            "extractionClass": "location",
+            "extractionText": "Berlin"
+          }
+        ]
+      }
+    ],
+    "modelOutput": "[{\"extractionClass\":\"person\",\"extractionText\":\"Bob\"},{\"extractionClass\":\"location\",\"extractionText\":\"Paris\"}]"
+  }
+]
