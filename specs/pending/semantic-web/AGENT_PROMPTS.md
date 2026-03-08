@@ -6,7 +6,7 @@ If a phase starts in Plan Mode, do not edit spec artifacts yet. First read the r
 
 ## Prompt: P0 Orchestrator (Package Topology and Boundaries)
 
-You are formalizing the package topology for `@beep/semantic-web`. Read the README, `design/foundation-decisions.md`, the exploratory research notes, `packages/common/schema/src/internal/IRI/IRI.ts`, `packages/common/schema/src/internal/ProvO/ProvO.ts`, `packages/common/semantic-web/README.md`, `packages/common/semantic-web/src/index.ts`, and the local prior art under `.repos/beep-effect/packages/common/semantic-web`. Produce or refine `outputs/p0-package-topology-and-boundaries.md`.
+You are formalizing the package topology for `@beep/semantic-web`. Read the README, `design/foundation-decisions.md`, the exploratory research notes, `packages/common/semantic-web/src/iri.ts`, `packages/common/schema/src/internal/ProvO/ProvO.ts`, `packages/common/semantic-web/README.md`, `packages/common/semantic-web/src/index.ts`, and the local prior art under `.repos/beep-effect/packages/common/semantic-web`. Produce or refine `outputs/p0-package-topology-and-boundaries.md`.
 
 You must verify:
 

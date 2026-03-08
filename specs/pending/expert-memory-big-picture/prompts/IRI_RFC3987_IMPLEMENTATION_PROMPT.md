@@ -7,9 +7,9 @@ Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
 
 Your task is to implement a spec-first, Effect v4, effect/Schema-based RFC 3987 IRI module centered on:
 
-- `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/src/internal/IRI/IRI.ts`
+- `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/semantic-web/src/iri.ts`
 
-This file currently exists but is empty. Treat this as a fresh internal implementation, not a public API expansion.
+This file is the canonical public IRI implementation. Treat the work as semantic-web package implementation, not a schema-internal experiment.
 
 You must follow the repo’s local instructions and patterns. In particular:
 
@@ -36,7 +36,7 @@ Before coding, do this exploration first and use it as evidence:
 
 Primary objective:
 
-- Implement RFC 3987 syntax support in `IRI.ts` in an idiomatic Effect v4 style.
+- Implement RFC 3987 syntax support in `iri.ts` in an idiomatic Effect v4 style.
 - Produce an internal module surface that is explicit and justified by the RFC, not one opaque regex check.
 - At minimum, expose a primary branded `IRI` schema, and add supporting schemas such as `IRIReference` and `AbsoluteIRI` if needed for correctness and RFC alignment.
 - Export matching runtime type aliases for non-class schemas using the repo’s naming convention.

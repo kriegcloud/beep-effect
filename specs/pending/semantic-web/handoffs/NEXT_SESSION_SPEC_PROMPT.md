@@ -64,7 +64,7 @@ Spec request:
   - `specs/pending/expert-memory-big-picture/research/Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md`
   - `specs/pending/semantic-web/design/semantic-schema-metadata.md`
   - `specs/pending/semantic-web/design/foundation-decisions.md`
-  - `packages/common/schema/src/internal/IRI/IRI.ts`
+  - `packages/common/semantic-web/src/iri.ts`
   - `packages/common/schema/src/internal/ProvO/ProvO.ts`
   - `packages/common/semantic-web/README.md`
   - `packages/common/semantic-web/src/index.ts`

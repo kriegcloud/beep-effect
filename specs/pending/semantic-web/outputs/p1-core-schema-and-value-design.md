@@ -8,7 +8,7 @@ normalization, and canonicalization rules that P2 and P3 must treat as settled.
 
 ## Source-Grounded Inputs
 
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts)
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts)
   proves the current repo has a strict RFC 3987 syntax boundary and that
   syntax validation must not silently absorb normalization, comparison, or
   transport policy.

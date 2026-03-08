@@ -1,7 +1,7 @@
 {
   "name": "@beep/semantic-web",
   "version": "0.0.0",
-  "description": "An library containing utilities, schemas & services for working with the semantic web",
+  "description": "A library containing utilities, schemas, and services for working with the semantic web",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -40,7 +40,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
@@ -48,8 +48,6 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
