@@ -1,0 +1,20 @@
+{
+  "applicationBugsUrl": "https://github.com/rdfjs/rdfxml-streaming-parser.js/issues",
+  "applicationDescription": "Streaming RDF/XML parser",
+  "applicationHomepageUrl": "https://github.com/rdfjs/rdfxml-streaming-parser.js#readme",
+  "applicationNameFull": "rdfxml-streaming-parser",
+  "applicationNameNpm": "rdfxml-streaming-parser",
+  "applicationUri": "https://www.npmjs.com/package/rdfxml-streaming-parser/",
+  "authors": [
+    {
+      "homepage": "https://www.rubensworks.net/",
+      "name": "Ruben Taelman <rubensworks@gmail.com>",
+      "uri": "https://www.rubensworks.net/#me"
+    }
+  ],
+  "licenseUri": "http://opensource.org/licenses/MIT",
+  "reportUri": null,
+  "specificationUris": [
+    "https://www.w3.org/TR/rdf-syntax-grammar/"
+  ]
+}
