@@ -1,0 +1,59 @@
+#!/bin/sh -e
+
+# platform: node only
+# test: async vs sync vs webcrypto
+
+DIRNAME="$(dirname "$0")"
+ROOT="$(cd "$DIRNAME" && pwd)"
+
+TIMESTAMP=$(date +%Y%m%dT%H%M%S)
+NAME="async-v-sync-v-webcrypto"
+
+COMPAREJS=${COMPAREJS:-"$ROOT/../../jsonld.js/benchmarks/compare/compare.js"}
+RESULTS_DIR=${RESULTS_DIR:-"$ROOT/results/$TIMESTAMP-$NAME"}
+
+setup() {
+   mkdir -p "${RESULTS_DIR}"
+}
+
+bench_mode() {
+   n=$1
+   mode=$2
+   jobs=$3
+
+   echo "BENCH: n=$n mode=$mode jobs=$jobs"
+
+   TESTS="$ROOT" \
+   BENCHMARK="jobs=$jobs" \
+   EARL="${RESULTS_DIR}/$n-$mode-$jobs.earl" \
+   TEST_ENV="auto,label='$mode',comment='jobs=$jobs'" \
+   npm run test-node
+}
+
+bench() {
+   jobs=1
+   ASYNC=1 SYNC=0 WEBCRYPTO=0 bench_mode 001 async "$jobs"
+   ASYNC=0 SYNC=1 WEBCRYPTO=0 bench_mode 002 sync "$jobs"
+   ASYNC=0 SYNC=0 WEBCRYPTO=1 bench_mode 003 webcrypto "$jobs"
+}
+
+report() {
+   dir=${1:-$RESULTS_DIR}
+
+   echo "# async vs sync vs webcrypto"
+   echo
+   node "$COMPAREJS" -r -e combined "$dir"/*.earl
+}
+
+if [ "$1" = "report" ]; then
+   if [ "$2" = "" ]; then
+      echo "Error: report dir required."
+      exit 1
+   fi
+   report "$2"
+   exit 0
+fi
+
+setup
+bench
+report

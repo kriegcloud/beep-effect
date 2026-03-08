@@ -1,0 +1,71 @@
+#!/bin/sh -e
+
+# manual simple benchmark tool
+#
+# env options:
+# TESTS - tests to run, defaults to benchmark manifest
+# RESULTS_DIR - base results dir, defaults to ./benchmarks/results/NAME
+# COMPAREJS - location of jsonld.js compare tool
+# ASYNC/SYNC/WEBCRYPTO - default to only ASYNC
+#
+# Usage:
+# $ ./benchmark/b bench NAME SEQ LABEL
+# $ ./benchmark/b report NAME
+#
+# Example from top dir to run 3 tests, store in my-test dir, and report:
+# $ ./benchmark/b bench my-test 001 'base'
+# $ ./benchmark/b bench my-test 002 'new feature'
+# $ ./benchmark/b bench my-test 003 'optimized feature'
+# $ ./benchmark/b report my-test
+#
+# Above will run 3 tests, store in 'my-test' dir, and run a report.
+
+DIRNAME="$(dirname "$0")"
+ROOT="$(cd "$DIRNAME" && pwd)"
+
+CMD="$1"
+NAME="$2"
+SEQ="$3"
+LABEL="$4"
+
+TESTS=${TESTS:-$ROOT}
+RESULTS_DIR=${RESULTS_DIR:-"$ROOT/results/$NAME"}
+COMPAREJS=${COMPAREJS:-"$ROOT/../../jsonld.js/benchmarks/compare/compare.js"}
+
+ASYNC=${ASYNC:-true}
+export ASYNC
+SYNC=${SYNC:-false}
+export SYNC
+WEBCRYPTO=${WEBCRYPTO:-false}
+export WEBCRYPTO
+
+setup() {
+   mkdir -p "${RESULTS_DIR}"
+}
+
+bench() {
+   TESTS="$ROOT" \
+   BENCHMARK="true" \
+   EARL="${RESULTS_DIR}/$SEQ.earl" \
+   TEST_ENV="auto,label='$LABEL',comment='$NAME'" \
+   npm run test-node
+}
+
+report() {
+   echo "# $NAME"
+   echo
+   node "$COMPAREJS" -r -e combined "$RESULTS_DIR"/*.earl
+}
+
+case $CMD in
+   bench)
+      setup
+      bench
+      ;;
+   report)
+      report
+      ;;
+   *) echo "ERROR: Unknown command $CMD"
+      exit 1
+      ;;
+esac

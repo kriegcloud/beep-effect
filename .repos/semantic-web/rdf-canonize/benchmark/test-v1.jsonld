@@ -1,0 +1,26 @@
+{
+  "@context": {
+    "id": "@id",
+    "type": "@type",
+
+    "cred": "https://w3id.org/credentials#",
+    "dhs": "https://w3id.org/dhs#",
+    "schema": "http://schema.org/",
+    "@vocab": "https://w3id.org/dhs#",
+
+    "Concert": "schema:Concert",
+    "Offer": "schema:Offer",
+    "Credential": "cred:Credential",
+    "EmergencyResponseCredential": "dhs:EmergencyResponseCredential",
+
+    "claim": {"@id": "cred:claim", "@type": "@id"},
+    "emsLicense": {"@id": "dhs:emsLicense", "@type": "@id"},
+    "location": "schema:location",
+    "name": "schema:name",
+    "offers": "schema:offers",
+    "price": "schema:price",
+    "priceCurrency": "schema:priceCurrency",
+    "startDate": "schema:startDate",
+    "url": "schema:url"
+  }
+}
