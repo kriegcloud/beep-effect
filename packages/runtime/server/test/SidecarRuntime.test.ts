@@ -1,7 +1,8 @@
 import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import net from "node:net";
+import { fileURLToPath } from "node:url";
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { RunCursor, RunEventSequence } from "@beep/repo-memory-model";
+import { type RunId, RunCursor, RunEventSequence } from "@beep/repo-memory-model";
 import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { Text } from "@beep/utils";
@@ -128,13 +129,24 @@ const makeRepoRunRpcClient = (baseUrl: string) =>
     return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
   });
 
-const writeFixtureRepo = (repoPath: FilePath) =>
+type RepoRunRpcClient = Effect.Success<ReturnType<typeof makeRepoRunRpcClient>>;
+const largeFixtureGeneratedFileCount = 800;
+
+const writeFixtureRepo = (
+  repoPath: FilePath,
+  options?: {
+    readonly generatedFileCount?: number;
+  }
+) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoSourceDir = path.join(repoPath, "src");
+    const generatedSourceDir = path.join(repoSourceDir, "generated");
+    const generatedFileCount = options?.generatedFileCount ?? 0;
 
     yield* fs.makeDirectory(repoSourceDir, { recursive: true });
+    yield* fs.makeDirectory(generatedSourceDir, { recursive: true });
     yield* fs.writeFileString(
       path.join(repoSourceDir, "index.ts"),
       Text.joinLines([
@@ -167,6 +179,30 @@ const writeFixtureRepo = (repoPath: FilePath) =>
         include: ["src/**/*.ts"],
       })
     );
+
+    for (let index = 0; index < generatedFileCount; index += 1) {
+      const moduleName = `module-${String(index).padStart(4, "0")}`;
+      const previousModuleName = index === 0 ? null : `./module-${String(index - 1).padStart(4, "0")}`;
+
+      yield* fs.writeFileString(
+        path.join(generatedSourceDir, `${moduleName}.ts`),
+        Text.joinLines([
+          previousModuleName === null ? "" : `import { value${index - 1} } from "${previousModuleName}";`,
+          `export interface GeneratedThing${index} {`,
+          "  readonly name: string;",
+          "  readonly ordinal: number;",
+          "}",
+          "",
+          `export const value${index} = ${index}${previousModuleName === null ? "" : ` + value${index - 1}`};`,
+          `export const label${index} = "generated:${index}";`,
+          "",
+          `export function compute${index}(input: number): number {`,
+          `  return input + value${index};`,
+          "}",
+          "",
+        ])
+      );
+    }
   });
 
 interface SpawnedSidecar {
@@ -178,7 +214,7 @@ interface SpawnedSidecar {
   readonly stdout: Ref.Ref<string>;
 }
 
-const runtimeServerCwd = "/home/elpresidank/YeeBois/projects/beep-effect3/packages/runtime/server";
+const runtimeServerCwd = fileURLToPath(new URL("..", import.meta.url));
 
 const appendOutput = (ref: Ref.Ref<string>, chunk: Buffer) =>
   Ref.update(ref, (current) => `${current}${chunk.toString("utf8")}`);
@@ -352,6 +388,32 @@ const expectQueryRun = (run: RepoRun) => {
 
   return run;
 };
+
+const expectTerminalEvent = (events: ReadonlyArray<{ readonly kind: string; readonly sequence: number }>) => {
+  const terminalEvent = pipe(events, A.last, O.getOrUndefined);
+
+  if (terminalEvent === undefined) {
+    throw toTestError("Expected at least one streamed event.");
+  }
+
+  return terminalEvent;
+};
+
+const interruptIndexRun = (rpcClient: RepoRunRpcClient, runId: RunId) =>
+  Effect.gen(function* () {
+    const interruptAck = yield* rpcClient.InterruptRepoRun({ runId });
+    const events = yield* Stream.runCollect(
+      rpcClient.StreamRunEvents({
+        runId,
+        cursor: O.none(),
+      })
+    );
+
+    return {
+      events,
+      interruptAck,
+    } as const;
+  });
 
 describe("spawned Bun sidecar lifecycle", () => {
   it.live(
@@ -652,6 +714,239 @@ describe("spawned Bun sidecar lifecycle", () => {
           const restoredRuns = yield* requestJson(S.Array(RepoRun), `${secondSidecar.baseUrl}/runs`);
           expect(restoredRuns.status).toBe(200);
           expect(restoredRuns.body.length).toBeGreaterThanOrEqual(3);
+        })
+      ).pipe(Effect.provide(NodeServices.layer, { local: true })),
+    60_000
+  );
+
+  it.live(
+    "interrupts and resumes a durable index run without replaying from zero",
+    () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempRoot = yield* fs.makeTempDirectoryScoped({ prefix: "spawned-sidecar-interrupt-test-" });
+          const appDataDir = decodeFilePath(path.join(tempRoot, "app-data"));
+          const repoPath = decodeFilePath(path.join(tempRoot, "fixture-repo"));
+          const port = yield* allocatePort;
+
+          yield* writeFixtureRepo(repoPath, { generatedFileCount: largeFixtureGeneratedFileCount });
+
+          const sidecar = yield* spawnSidecar({
+            appDataDir,
+            port,
+            sessionId: "spawned-runtime-interrupt-test",
+            version: "0.0.0-test",
+            otlpEnabled: false,
+          });
+          yield* waitForHealthyBootstrap(sidecar);
+
+          const registrationResponse = yield* requestJson(RepoRegistration, `${sidecar.baseUrl}/repos`, {
+            body: encodeJson({
+              displayName: "Interrupt Fixture Repo",
+              repoPath,
+            }),
+            headers: {
+              "content-type": "application/json",
+            },
+            method: "POST",
+          });
+          expect(registrationResponse.status).toBe(201);
+
+          const rpcClient = yield* makeRepoRunRpcClient(sidecar.baseUrl);
+          const repoId = registrationResponse.body.id;
+
+          const accepted = yield* rpcClient.StartIndexRepoRun({
+            repoId,
+            sourceFingerprint: O.none(),
+          });
+          expect(accepted.kind).toBe("index");
+
+          const interrupted = yield* interruptIndexRun(rpcClient, accepted.runId);
+          const interruptedKinds = pipe(
+            interrupted.events,
+            A.map((event) => event.kind)
+          );
+          expect(interrupted.interruptAck.command).toBe("interrupt");
+          expect(interruptedKinds).toContain("accepted");
+          expect(interruptedKinds).toContain("interrupted");
+          expect(interruptedKinds).not.toContain("completed");
+          expect(interruptedKinds).not.toContain("failed");
+
+          const interruptedEvent = expectTerminalEvent(interrupted.events);
+          expect(interruptedEvent.kind).toBe("interrupted");
+          const interruptedCursor = decodeRunCursor(interruptedEvent.sequence);
+
+          const interruptedRunResponse = yield* requestJson(
+            RepoRun,
+            `${sidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
+          );
+          expect(interruptedRunResponse.status).toBe(200);
+          expect(interruptedRunResponse.body.status).toBe("interrupted");
+
+          const resumeAck = yield* rpcClient.ResumeRepoRun({
+            runId: accepted.runId,
+          });
+          expect(resumeAck.command).toBe("resume");
+
+          const resumedEvents = yield* Stream.runCollect(
+            rpcClient.StreamRunEvents({
+              runId: accepted.runId,
+              cursor: O.some(interruptedCursor),
+            })
+          );
+          expect(
+            pipe(
+              resumedEvents,
+              A.map((event) => event.kind)
+            )
+          ).toEqual(["resumed", "progress", "completed"]);
+          expect(
+            pipe(
+              resumedEvents,
+              A.map((event) => event.sequence)
+            )
+          ).toEqual([
+            decodeRunEventSequence(interruptedEvent.sequence + 1),
+            decodeRunEventSequence(interruptedEvent.sequence + 2),
+            decodeRunEventSequence(interruptedEvent.sequence + 3),
+          ]);
+
+          const completedRunResponse = yield* requestJson(
+            RepoRun,
+            `${sidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
+          );
+          expect(completedRunResponse.status).toBe(200);
+          expect(completedRunResponse.body.status).toBe("completed");
+        })
+      ).pipe(Effect.provide(NodeServices.layer, { local: true })),
+    60_000
+  );
+
+  it.live(
+    "restarts after interruption and resumes the same durable index run",
+    () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempRoot = yield* fs.makeTempDirectoryScoped({ prefix: "spawned-sidecar-resume-test-" });
+          const appDataDir = decodeFilePath(path.join(tempRoot, "app-data"));
+          const repoPath = decodeFilePath(path.join(tempRoot, "fixture-repo"));
+          const port = yield* allocatePort;
+
+          yield* writeFixtureRepo(repoPath, { generatedFileCount: largeFixtureGeneratedFileCount });
+
+          const firstSidecar = yield* spawnSidecar({
+            appDataDir,
+            port,
+            sessionId: "spawned-runtime-resume-test",
+            version: "0.0.0-test",
+            otlpEnabled: false,
+          });
+          yield* waitForHealthyBootstrap(firstSidecar);
+
+          const registrationResponse = yield* requestJson(RepoRegistration, `${firstSidecar.baseUrl}/repos`, {
+            body: encodeJson({
+              displayName: "Resume Fixture Repo",
+              repoPath,
+            }),
+            headers: {
+              "content-type": "application/json",
+            },
+            method: "POST",
+          });
+          expect(registrationResponse.status).toBe(201);
+
+          const repoId = registrationResponse.body.id;
+          const firstRpcClient = yield* makeRepoRunRpcClient(firstSidecar.baseUrl);
+          const accepted = yield* firstRpcClient.StartIndexRepoRun({
+            repoId,
+            sourceFingerprint: O.none(),
+          });
+
+          const interrupted = yield* interruptIndexRun(firstRpcClient, accepted.runId);
+          const interruptedKinds = pipe(
+            interrupted.events,
+            A.map((event) => event.kind)
+          );
+          expect(interrupted.interruptAck.command).toBe("interrupt");
+          expect(interruptedKinds).toContain("accepted");
+          expect(interruptedKinds).toContain("interrupted");
+          expect(interruptedKinds).not.toContain("completed");
+          expect(interruptedKinds).not.toContain("failed");
+
+          const interruptedEvent = expectTerminalEvent(interrupted.events);
+          expect(interruptedEvent.kind).toBe("interrupted");
+          const interruptedCursor = decodeRunCursor(interruptedEvent.sequence);
+
+          yield* firstSidecar.shutdown;
+
+          const secondSidecar = yield* spawnSidecar({
+            appDataDir,
+            port,
+            sessionId: "spawned-runtime-resume-test",
+            version: "0.0.0-test",
+            otlpEnabled: false,
+          });
+          yield* waitForHealthyBootstrap(secondSidecar);
+
+          const restoredRunResponse = yield* requestJson(
+            RepoRun,
+            `${secondSidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
+          );
+          expect(restoredRunResponse.status).toBe(200);
+          expect(restoredRunResponse.body.status).toBe("interrupted");
+
+          const secondRpcClient = yield* makeRepoRunRpcClient(secondSidecar.baseUrl);
+          const resumeAck = yield* secondRpcClient.ResumeRepoRun({
+            runId: accepted.runId,
+          });
+          expect(resumeAck.command).toBe("resume");
+
+          const resumedEvents = yield* Stream.runCollect(
+            secondRpcClient.StreamRunEvents({
+              runId: accepted.runId,
+              cursor: O.some(interruptedCursor),
+            })
+          ).pipe(
+            Effect.catch((error) =>
+              renderChildOutput(secondSidecar).pipe(
+                Effect.flatMap((output) =>
+                  Effect.fail(
+                    toTestError(
+                      `Failed to stream resumed events from restarted sidecar for run "${accepted.runId}".\n\n${output}`,
+                      error
+                    )
+                  )
+                )
+              )
+            )
+          );
+          expect(
+            pipe(
+              resumedEvents,
+              A.map((event) => event.kind)
+            )
+          ).toEqual(["resumed", "progress", "completed"]);
+          expect(
+            pipe(
+              resumedEvents,
+              A.map((event) => event.sequence)
+            )
+          ).toEqual([
+            decodeRunEventSequence(interruptedEvent.sequence + 1),
+            decodeRunEventSequence(interruptedEvent.sequence + 2),
+            decodeRunEventSequence(interruptedEvent.sequence + 3),
+          ]);
+
+          const completedRunResponse = yield* requestJson(
+            RepoRun,
+            `${secondSidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
+          );
+          expect(completedRunResponse.status).toBe(200);
+          expect(completedRunResponse.body.status).toBe("completed");
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
     60_000

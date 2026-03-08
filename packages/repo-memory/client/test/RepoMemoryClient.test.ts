@@ -1,7 +1,9 @@
 import {
+  InterruptRepoRunRequest,
   type QueryRepoRunInput,
   type RepoRegistrationInput,
   RunId,
+  ResumeRepoRunRequest,
   SidecarBootstrap,
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
@@ -67,7 +69,9 @@ describe("repo-memory client", () => {
       expect(runs).toEqual([]);
       expect(bootstrap._tag).toBe("RepoMemoryClientError");
       expect(typeof client.getRun).toBe("function");
+      expect(typeof client.interruptRun).toBe("function");
       expect(typeof client.registerRepo).toBe("function");
+      expect(typeof client.resumeRun).toBe("function");
       expect(typeof client.startIndexRun).toBe("function");
       expect(typeof client.startQueryRun).toBe("function");
       expect(typeof client.streamRunEvents).toBe("function");
@@ -77,9 +81,11 @@ describe("repo-memory client", () => {
           RepoMemoryClient.of({
             bootstrap: Effect.fail(clientError()),
             getRun: () => Effect.fail(clientError()),
+            interruptRun: (_request: InterruptRepoRunRequest) => Effect.fail(clientError()),
             listRepos: Effect.succeed([]),
             listRuns: Effect.succeed([]),
             registerRepo: (_input: RepoRegistrationInput) => Effect.fail(clientError()),
+            resumeRun: (_request: ResumeRepoRunRequest) => Effect.fail(clientError()),
             startIndexRun: () => Effect.fail(clientError()),
             startQueryRun: (_input: QueryRepoRunInput) => Effect.fail(clientError()),
             streamRunEvents: () => Stream.fail(clientError()),
@@ -111,9 +117,13 @@ describe("repo-memory client", () => {
       expect(typeof controlPlane.getRun).toBe("function");
       expect(typeof rpc.StartIndexRepoRun).toBe("function");
       expect(typeof rpc.StartQueryRepoRun).toBe("function");
+      expect(typeof rpc.InterruptRepoRun).toBe("function");
+      expect(typeof rpc.ResumeRepoRun).toBe("function");
       expect(typeof rpc.StreamRunEvents).toBe("function");
       expect(typeof client.bootstrap).toBe("object");
+      expect(typeof client.interruptRun).toBe("function");
       expect(typeof client.registerRepo).toBe("function");
+      expect(typeof client.resumeRun).toBe("function");
       expect(typeof client.streamRunEvents).toBe("function");
     }).pipe(Effect.scoped)
   );
