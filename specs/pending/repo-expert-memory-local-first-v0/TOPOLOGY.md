@@ -28,6 +28,7 @@ This document is a logical ownership map, not a literal full repo tree.
     │
     └── common/
         ├── identity/
+        ├── nlp/                     # shared retrieval-side NLP helpers for query hygiene and bounded enrichment
         └── schema/
 ```
 
@@ -93,10 +94,12 @@ Current debt to keep explicit:
 - `packages/repo-memory/store` defines repo-memory storage contracts only
 - `packages/repo-memory/sqlite` stays below semantic/runtime layers and only knows local persistence concerns
 - `packages/repo-memory/runtime` depends on model/store contracts and owns repo-specific execution semantics
+- `packages/repo-memory/runtime` may compose shared helpers from `packages/common/nlp`, but it still owns repo-specific interpretation, grounding, and acceptance behavior
 - `packages/repo-memory/client` depends on protocol/model contracts, not runtime internals
 
 ### Common packages
 - `packages/common/*` remain domain-agnostic support packages
+- `packages/common/nlp` is the shared home for retrieval-side NLP primitives such as normalization and tokenization; it must not own canonical repo-memory state
 - common packages must not grow sidecar-specific runtime logic
 
 ## Future Direction Only

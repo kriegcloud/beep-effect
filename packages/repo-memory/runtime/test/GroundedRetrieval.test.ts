@@ -12,6 +12,7 @@ import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite
 import { RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
 import { FilePath } from "@beep/schema";
 import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
+import * as Str from "@beep/utils/Str";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
@@ -19,7 +20,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 
@@ -92,7 +92,12 @@ const createFixtureRepo = Effect.gen(function* () {
   );
   yield* fs.writeFileString(
     path.join(sourceDir, "util.ts"),
-    ["export const helper = (value: number): number => value + 1;", ""].join("\n")
+    [
+      "export const helper = (value: number): number => value + 1;",
+      "",
+      "export const repoMemoryAnswerHelper = (value: number): number => helper(value);",
+      "",
+    ].join("\n")
   );
   yield* fs.writeFileString(
     path.join(sourceDir, "types.ts"),
@@ -304,6 +309,18 @@ const assertCitationAlignment = (input: { readonly events: ReadonlyArray<RunStre
   }
 };
 
+const packetNlpNotes = (run: QueryRun): ReadonlyArray<string> =>
+  pipe(
+    O.getOrThrow(run.retrievalPacket).notes,
+    A.filter((note) => pipe(note, Str.startsWith("nlp:")))
+  );
+
+const citationIds = (run: QueryRun): ReadonlyArray<string> =>
+  pipe(
+    run.citations,
+    A.map((citation) => citation.id)
+  );
+
 describe("repo-memory runtime grounded retrieval", () => {
   it.effect("answers file import questions with grounded citations", () =>
     withRuntime(
@@ -360,12 +377,102 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(importers.run.citations.length).toBeGreaterThan(0);
 
         const countPacket = O.getOrThrow(countSymbols.run.retrievalPacket);
-        expect(O.getOrThrow(countSymbols.run.answer)).toContain("4 captured TypeScript symbols");
+        expect(O.getOrThrow(countSymbols.run.answer)).toContain("5 captured TypeScript symbols");
         expect(countSymbols.run.citations).toEqual([]);
         expect(countPacket.summary).toContain("Counted indexed TypeScript symbols");
-        expect(countPacket.notes).toContain("countSymbols=4");
+        expect(countPacket.notes).toContain("countSymbols=5");
       })
     )
+  );
+
+  it.effect("supports bounded NLP enrichment for symbol, file, importer, and dependent queries", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const { registration } = yield* indexFixtureRepo;
+        const spacedSymbol = yield* runQuery({
+          repoId: registration.id,
+          question: "where is repo memory answer helper?",
+          runLabel: "locate-spaced-helper",
+        });
+        const relaxedImports = yield* runQuery({
+          repoId: registration.id,
+          question: "what does src/index import?",
+          runLabel: "imports-relaxed",
+        });
+        const relaxedImporters = yield* runQuery({
+          repoId: registration.id,
+          question: "who imports util?",
+          runLabel: "importers-relaxed",
+        });
+        const relaxedDependents = yield* runQuery({
+          repoId: registration.id,
+          question: "dependents of util",
+          runLabel: "dependents-relaxed",
+        });
+
+        if (
+          spacedSymbol.run.kind !== "query" ||
+          relaxedImports.run.kind !== "query" ||
+          relaxedImporters.run.kind !== "query" ||
+          relaxedDependents.run.kind !== "query"
+        ) {
+          return yield* Effect.die("Expected query run projections.");
+        }
+
+        expect(O.getOrThrow(spacedSymbol.run.answer)).toContain("src/util.ts");
+        expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:match-strategy=symbol-exact-variant");
+        expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
+        assertCitationAlignment({ events: spacedSymbol.events, run: spacedSymbol.run });
+
+        expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./util");
+        expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./types");
+        expect(packetNlpNotes(relaxedImports.run)).toContain("nlp:match-strategy=file-suffix");
+        assertCitationAlignment({ events: relaxedImports.events, run: relaxedImports.run });
+
+        expect(O.getOrThrow(relaxedImporters.run.answer)).toContain("src/index.ts");
+        expect(packetNlpNotes(relaxedImporters.run)).toContain("nlp:match-strategy=module-suffix");
+        assertCitationAlignment({ events: relaxedImporters.events, run: relaxedImporters.run });
+
+        expect(O.getOrThrow(relaxedDependents.run.answer)).toContain("src/index.ts");
+        expect(packetNlpNotes(relaxedDependents.run)).toContain("nlp:match-strategy=file-suffix");
+        assertCitationAlignment({ events: relaxedDependents.events, run: relaxedDependents.run });
+      })
+    )
+  );
+
+  it.effect(
+    "keeps exact and relaxed symbol queries aligned while surfacing normalization notes only for relaxed phrasing",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const exact = yield* runQuery({
+            repoId: registration.id,
+            question: "where is `repoMemoryAnswerHelper`?",
+            runLabel: "locate-helper-exact",
+          });
+          const relaxed = yield* runQuery({
+            repoId: registration.id,
+            question: "  where   is repo memory answer helper?  ",
+            runLabel: "locate-helper-relaxed",
+          });
+
+          if (exact.run.kind !== "query" || relaxed.run.kind !== "query") {
+            return yield* Effect.die("Expected query run projections.");
+          }
+
+          expect(O.getOrThrow(relaxed.run.answer)).toEqual(O.getOrThrow(exact.run.answer));
+          expect(citationIds(relaxed.run)).toEqual(citationIds(exact.run));
+          expect(O.getOrThrow(relaxed.run.retrievalPacket).summary).toEqual(
+            O.getOrThrow(exact.run.retrievalPacket).summary
+          );
+          expect(packetNlpNotes(exact.run)).toEqual([]);
+          expect(packetNlpNotes(relaxed.run)).toContain("nlp:normalized-question=where is repo memory answer helper?");
+          expect(packetNlpNotes(relaxed.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
+          assertCitationAlignment({ events: exact.events, run: exact.run });
+          assertCitationAlignment({ events: relaxed.events, run: relaxed.run });
+        })
+      )
   );
 
   it.effect("answers repo-local dependency and dependent queries with resolved file paths", () =>
@@ -469,6 +576,7 @@ describe("repo-memory runtime grounded retrieval", () => {
 
         expect(O.getOrThrow(locate.run.answer)).toContain("src/index.ts");
         expect(locate.run.citations.length).toBeGreaterThan(0);
+        expect(packetNlpNotes(locate.run)).toEqual([]);
         assertCitationAlignment({ events: locate.events, run: locate.run });
 
         expect(O.getOrThrow(describeAnswer.run.answer)).toContain("Signature:");
@@ -495,7 +603,7 @@ describe("repo-memory runtime grounded retrieval", () => {
         const { registration } = yield* indexCollisionFixtureRepo;
         const result = yield* runQuery({
           repoId: registration.id,
-          question: "what does `index.ts` depend on?",
+          question: "dependencies of index",
           runLabel: "ambiguous-index",
         });
 
@@ -504,12 +612,13 @@ describe("repo-memory runtime grounded retrieval", () => {
         }
 
         const packet = O.getOrThrow(result.run.retrievalPacket);
-        expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index.ts"');
+        expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index"');
         expect(O.getOrThrow(result.run.answer)).toContain("src/index.ts");
         expect(O.getOrThrow(result.run.answer)).toContain("src/feature/index.ts");
         expect(result.run.citations).toEqual([]);
         expect(packet.summary).toContain("matched multiple indexed files");
         expect(packet.notes).toContain("candidateCount=2");
+        expect(packetNlpNotes(result.run)).toContain("nlp:match-strategy=file-suffix");
       })
     )
   );

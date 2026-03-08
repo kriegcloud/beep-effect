@@ -24,11 +24,10 @@ import {
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { FilePath } from "@beep/schema";
-import { DateTime, Effect, Fiber, Order, pipe, Stream } from "effect";
+import { DateTime, Effect, Fiber, Order, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { type FormEvent, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {

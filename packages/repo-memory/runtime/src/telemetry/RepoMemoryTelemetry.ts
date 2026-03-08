@@ -14,6 +14,12 @@ export const RepoRunKindMetric = LiteralKit(["index", "query"]).pipe(
     description: "Metric label for the two public repo-memory workflow families.",
   })
 );
+/**
+ * Runtime type for the repo-memory workflow metric label schema.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export type RepoRunKindMetric = typeof RepoRunKindMetric.Type;
 
 /**
@@ -43,6 +49,12 @@ export const QueryKindMetric = LiteralKit([
     description: "Metric label for deterministic grounded query interpretations.",
   })
 );
+/**
+ * Runtime type for the grounded query kind metric label schema.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export type QueryKindMetric = typeof QueryKindMetric.Type;
 
 /**

@@ -1,4 +1,5 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
+import { IdentifierText, PathText, QueryText, VariantText } from "@beep/nlp";
 import {
   Citation,
   type QueryRepoRunInput,
@@ -22,11 +23,11 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, PosInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
+import * as Str from "@beep/utils/Str";
 import { DateTime, Effect, Layer, Order, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   type QueryKindMetric,
   recordQueryInterpretation,
@@ -297,7 +298,7 @@ const toRetrievalError = makeStatusCauseError(GroundedRetrievalError);
 const mapStoreError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
   effect.pipe(Effect.mapError((error) => toRetrievalError(error.message, error.status, error.cause)));
 
-const normalizeQuestion = (question: string): string => pipe(question, Str.trim, Str.replace(/\s+/g, " "));
+const normalizeQuestion = QueryText.normalizeQuestion;
 
 const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
   (() => {
@@ -305,48 +306,83 @@ const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
     return match === null ? O.none() : pipe(match, A.get(1), O.map(Str.trim));
   })();
 
-const extractBacktickValue = (question: string): O.Option<string> => firstCapture(/`([^`]+)`/, question);
+const firstCaptureFrom = (patterns: ReadonlyArray<RegExp>, input: string): O.Option<string> => {
+  for (const pattern of patterns) {
+    const captured = firstCapture(pattern, input);
+
+    if (O.isSome(captured)) {
+      return captured;
+    }
+  }
+
+  return O.none();
+};
+
+const importFilePatterns = A.make(
+  /(?:what does|list)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)\s+import/i,
+  /(?:imports of|list imports)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)/i
+);
+const exportFilePatterns = A.make(
+  /(?:what does|list)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)\s+export/i,
+  /(?:exports of|list exports)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)/i
+);
+const dependencyFilePatterns = A.make(
+  /(?:what does|list)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)\s+depend on/i,
+  /(?:depend on|depends on|dependencies of|dependency of)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)/i
+);
+const dependentFilePatterns = A.make(
+  /(?:what depends on|who depends on|dependents of)\s+(?:the\s+)?(?:file\s+)?([A-Za-z0-9_./-]+)/i
+);
+const moduleQueryPatterns = A.make(
+  /(?:who|what)\s+imports?\s+([A-Za-z0-9_./@-]+)/i,
+  /(?:importers of)\s+([A-Za-z0-9_./@-]+)/i
+);
+
+const extractNormalizedPathQuery = (question: string, patterns: ReadonlyArray<RegExp>): O.Option<string> =>
+  pipe(
+    QueryText.extractBacktickValue(question),
+    O.orElse(() => firstCaptureFrom(patterns, question)),
+    O.map(PathText.normalizePathPhrase),
+    O.filter(PathText.isPathLike)
+  );
+
+const extractImportFileQuery = (question: string): O.Option<string> =>
+  extractNormalizedPathQuery(question, importFilePatterns);
+
+const extractExportFileQuery = (question: string): O.Option<string> =>
+  extractNormalizedPathQuery(question, exportFilePatterns);
+
+const extractDependencyFileQuery = (question: string): O.Option<string> =>
+  extractNormalizedPathQuery(question, dependencyFilePatterns);
+
+const extractDependentFileQuery = (question: string): O.Option<string> =>
+  extractNormalizedPathQuery(question, dependentFilePatterns);
+
+const extractBacktickValue = QueryText.extractBacktickValue;
 
 const extractSymbolName = (question: string): O.Option<string> =>
   pipe(
     extractBacktickValue(question),
     O.orElse(() => {
       return firstCapture(
-        /(?:locate|find|where is|where's|describe|what is|docs for|documentation for|params of|parameters of|returns of|throws of|deprecated)\s+(?:the\s+)?(?:symbol\s+)?([A-Za-z_$][A-Za-z0-9_$]*)/i,
+        /(?:locate|find|where is|where's|describe|what is|docs for|documentation for|params of|parameters of|returns of|throws of|deprecated)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i,
         question
       );
     }),
-    O.filter(Str.isNonEmpty)
-  );
-
-const extractFileQuery = (question: string): O.Option<string> =>
-  pipe(
-    extractBacktickValue(question),
-    O.filter((value) => /\.[cm]?tsx?$/.test(value)),
-    O.orElse(() => firstCapture(/([A-Za-z0-9_./-]+\.[cm]?tsx?)/i, question))
+    O.map(QueryText.normalizePhrase),
+    O.filter((phrase) => {
+      const tokenized = IdentifierText.tokens(phrase);
+      return A.isReadonlyArrayNonEmpty(tokenized) && tokenized.length <= 6 && !/[/.\\]/.test(phrase);
+    })
   );
 
 const extractModuleQuery = (question: string): O.Option<string> =>
   pipe(
     extractBacktickValue(question),
-    O.orElse(() => firstCapture(/(?:who|what)\s+imports?\s+([A-Za-z0-9_./@-]+)/i, question)),
-    O.filter(Str.isNonEmpty)
+    O.orElse(() => firstCaptureFrom(moduleQueryPatterns, question)),
+    O.map(PathText.normalizePathPhrase),
+    O.filter(PathText.isPathLike)
   );
-
-const preferExactFileMatches = (query: string, files: ReadonlyArray<RepoSourceFile>): ReadonlyArray<RepoSourceFile> => {
-  const normalizedQuery = normalizeQuestion(query);
-  const exactMatches = pipe(
-    files,
-    A.filter(
-      (file) =>
-        file.filePath === normalizedQuery ||
-        pipe(file.filePath, Str.endsWith(`/${normalizedQuery}`)) ||
-        pipe(file.filePath, Str.endsWith(normalizedQuery))
-    )
-  );
-
-  return A.isReadonlyArrayNonEmpty(exactMatches) ? exactMatches : files;
-};
 
 const interpretQuery = (question: string): QueryInterpretation => {
   const normalized = normalizeQuestion(question);
@@ -364,7 +400,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   if (contains("what depends on") || contains("who depends on") || contains("dependents of")) {
     return pipe(
-      extractFileQuery(normalized),
+      extractDependentFileQuery(normalized),
       O.match({
         onNone: () =>
           new UnsupportedQueryInterpretation({
@@ -378,7 +414,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   if (contains("depend on") || contains("depends on") || contains("dependencies of") || contains("dependency of")) {
     return pipe(
-      extractFileQuery(normalized),
+      extractDependencyFileQuery(normalized),
       O.match({
         onNone: () =>
           new UnsupportedQueryInterpretation({
@@ -406,7 +442,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   if ((contains("what does") && contains(" import")) || contains("imports of") || contains("list imports")) {
     return pipe(
-      extractFileQuery(normalized),
+      extractImportFileQuery(normalized),
       O.match({
         onNone: () =>
           new UnsupportedQueryInterpretation({
@@ -420,7 +456,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   if (contains("export")) {
     return pipe(
-      extractFileQuery(normalized),
+      extractExportFileQuery(normalized),
       O.match({
         onNone: () =>
           new UnsupportedQueryInterpretation({
@@ -535,16 +571,6 @@ const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
       onNone: () => toRetrievalError(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
       onSome: (snapshot) => Effect.succeed(snapshot.id),
     });
-  });
-
-const resolveFileCandidates = (store: GroundedRetrievalStoreShape) =>
-  Effect.fn("GroundedRetrieval.resolveFileCandidates")(function* (
-    repoId: RepoId,
-    sourceSnapshotId: SourceSnapshotId,
-    fileQuery: string
-  ): Effect.fn.Return<ReadonlyArray<RepoSourceFile>, GroundedRetrievalError> {
-    const files = yield* mapStoreError(store.findSourceFiles(repoId, sourceSnapshotId, fileQuery, 5));
-    return preferExactFileMatches(fileQuery, files);
   });
 
 const symbolCitation = (
@@ -729,49 +755,478 @@ const makePacket = (options: {
         retrievedAt,
         summary: options.summary,
         citations: options.citations,
-        notes: A.append(options.notes, `sourceSnapshotId=${options.sourceSnapshotId}`),
+        notes: VariantText.orderedDedupe(A.append(options.notes, `sourceSnapshotId=${options.sourceSnapshotId}`)),
       })
   );
 
-const exactOrSearchMatches = (store: GroundedRetrievalStoreShape, repoId: RepoId, sourceSnapshotId: SourceSnapshotId) =>
-  Effect.fn("GroundedRetrieval.exactOrSearchMatches")(function* (symbolName: string) {
-    const exactMatches = yield* mapStoreError(store.findSymbolsByExactName(repoId, sourceSnapshotId, symbolName));
-    return A.isReadonlyArrayNonEmpty(exactMatches)
-      ? exactMatches
-      : yield* mapStoreError(store.searchSymbols(repoId, sourceSnapshotId, symbolName, 5));
+type MatchSelection<A> = {
+  readonly matches: ReadonlyArray<A>;
+  readonly nlpNotes: ReadonlyArray<string>;
+};
+
+type SingleMatchSelection<A> =
+  | {
+      readonly kind: "none";
+      readonly nlpNotes: ReadonlyArray<string>;
+    }
+  | {
+      readonly kind: "single";
+      readonly match: A;
+      readonly nlpNotes: ReadonlyArray<string>;
+    }
+  | {
+      readonly kind: "ambiguous";
+      readonly matches: ReadonlyArray<A>;
+      readonly nlpNotes: ReadonlyArray<string>;
+    };
+
+type RankedSymbolHit = {
+  readonly exportedRank: number;
+  readonly symbol: RepoSymbolRecord;
+  readonly variant: string;
+  readonly variantIndex: number;
+};
+
+type RankedFileHit = {
+  readonly file: RepoSourceFile;
+  readonly strategy: "file-exact" | "file-suffix" | "file-basename" | "file-contains";
+  readonly variant: string;
+  readonly variantIndex: number;
+};
+
+type RankedImporterHit = {
+  readonly edge: RepoImportEdge;
+  readonly strategy: "module-exact" | "module-suffix";
+  readonly variant: string;
+  readonly variantIndex: number;
+};
+
+const stripTypeScriptExtension = (input: string): string => pipe(input, Str.replace(/\.[cm]?tsx?$/i, ""));
+
+const pathBasename = (input: string): string =>
+  pipe(
+    input,
+    Str.split("/"),
+    A.last,
+    O.getOrElse(() => input)
+  );
+
+const rankedSymbolHitOrder = Order.mapInput(Order.String, (hit: RankedSymbolHit) => {
+  const startLine = `${hit.symbol.startLine}`.padStart(6, "0");
+  return `${`${hit.variantIndex}`.padStart(2, "0")}:${hit.exportedRank}:${hit.symbol.filePath}:${startLine}:${hit.symbol.symbolId}`;
+});
+
+const fileStrategyRanks = {
+  "file-basename": 2,
+  "file-contains": 3,
+  "file-exact": 0,
+  "file-suffix": 1,
+} satisfies Record<RankedFileHit["strategy"], number>;
+
+const moduleStrategyRanks = {
+  "module-exact": 0,
+  "module-suffix": 1,
+} satisfies Record<RankedImporterHit["strategy"], number>;
+
+const fileStrategyRank = (strategy: RankedFileHit["strategy"]): number => fileStrategyRanks[strategy];
+const moduleStrategyRank = (strategy: RankedImporterHit["strategy"]): number => moduleStrategyRanks[strategy];
+
+const rankedFileHitOrder = Order.mapInput(
+  Order.String,
+  (hit: RankedFileHit) =>
+    `${fileStrategyRank(hit.strategy)}:${`${hit.variantIndex}`.padStart(2, "0")}:${hit.file.filePath}`
+);
+
+const rankedImporterHitOrder = Order.mapInput(Order.String, (hit: RankedImporterHit) => {
+  const importedName = pipe(
+    hit.edge.importedName,
+    O.getOrElse(() => "*")
+  );
+
+  return `${moduleStrategyRank(hit.strategy)}:${`${hit.variantIndex}`.padStart(2, "0")}:${hit.edge.importerFilePath}:${`${hit.edge.startLine}`.padStart(6, "0")}:${hit.edge.moduleSpecifier}:${importedName}`;
+});
+
+const importEdgeIdentity = (edge: RepoImportEdge): string =>
+  `${edge.importerFilePath}:${edge.moduleSpecifier}:${edge.startLine}:${edge.endLine}:${pipe(
+    edge.importedName,
+    O.getOrElse(() => "*")
+  )}`;
+
+const makeSelectionNotes = (options: {
+  readonly raw: string;
+  readonly selected: string;
+  readonly strategy: string;
+}): ReadonlyArray<string> =>
+  VariantText.orderedDedupe(
+    A.make(
+      `nlp:match-strategy=${options.strategy}`,
+      options.selected === QueryText.normalizePhrase(options.raw) ? "" : `nlp:matched-variant=${options.selected}`
+    )
+  );
+
+const nlpQuestionNotes = (question: string): ReadonlyArray<string> => {
+  const normalized = normalizeQuestion(question);
+
+  return normalized === question ? A.empty() : A.make(`nlp:normalized-question=${normalized}`);
+};
+
+const selectSingleMatch = <A>(selection: MatchSelection<A>): SingleMatchSelection<A> => {
+  if (!A.isReadonlyArrayNonEmpty(selection.matches)) {
+    return {
+      kind: "none",
+      nlpNotes: selection.nlpNotes,
+    };
+  }
+
+  if (selection.matches.length > 1) {
+    return {
+      kind: "ambiguous",
+      matches: selection.matches,
+      nlpNotes: selection.nlpNotes,
+    };
+  }
+
+  return {
+    kind: "single",
+    match: pipe(selection.matches, A.head, O.getOrThrow),
+    nlpNotes: selection.nlpNotes,
+  };
+};
+
+const formatFileCandidates = (files: ReadonlyArray<RepoSourceFile>): string =>
+  pipe(
+    files,
+    A.map((file) => file.filePath),
+    A.join(", ")
+  );
+
+const formatSymbolCandidates = (symbols: ReadonlyArray<RepoSymbolRecord>): string =>
+  pipe(
+    symbols,
+    A.map((symbol) => `${symbol.symbolName} in ${symbol.filePath}:${symbol.startLine}`),
+    A.join(", ")
+  );
+
+const rankFileMatch = (
+  filePath: string,
+  variant: string
+): "file-exact" | "file-suffix" | "file-basename" | "file-contains" => {
+  const normalizedFilePath = Str.toLowerCase(PathText.normalizePathPhrase(filePath));
+  const normalizedVariant = Str.toLowerCase(PathText.normalizePathPhrase(variant));
+  const filePathWithoutExtension = stripTypeScriptExtension(normalizedFilePath);
+  const fileBasename = pathBasename(normalizedFilePath);
+  const basenameWithoutExtension = stripTypeScriptExtension(fileBasename);
+
+  if (normalizedFilePath === normalizedVariant) {
+    return "file-exact";
+  }
+
+  if (
+    filePathWithoutExtension === normalizedVariant ||
+    pipe(normalizedFilePath, Str.endsWith(`/${normalizedVariant}`)) ||
+    pipe(filePathWithoutExtension, Str.endsWith(`/${normalizedVariant}`))
+  ) {
+    return "file-suffix";
+  }
+
+  if (fileBasename === normalizedVariant || basenameWithoutExtension === normalizedVariant) {
+    return "file-basename";
+  }
+
+  return "file-contains";
+};
+
+const findSymbolMatches = (store: GroundedRetrievalStoreShape, repoId: RepoId, sourceSnapshotId: SourceSnapshotId) =>
+  Effect.fn("GroundedRetrieval.findSymbolMatches")(function* (
+    symbolName: string
+  ): Effect.fn.Return<MatchSelection<RepoSymbolRecord>, GroundedRetrievalError> {
+    const variants = IdentifierText.variants(symbolName);
+    const rawVariant = QueryText.normalizePhrase(symbolName);
+
+    for (const [variantIndex, variant] of variants.entries()) {
+      const exactMatches = yield* mapStoreError(store.findSymbolsByExactName(repoId, sourceSnapshotId, variant));
+
+      if (A.isReadonlyArrayNonEmpty(exactMatches)) {
+        const rankedExactMatches = pipe(
+          exactMatches,
+          A.map((symbol) => ({
+            exportedRank: symbol.exported ? 0 : 1,
+            symbol,
+            variant,
+            variantIndex,
+          })),
+          A.sort(rankedSymbolHitOrder)
+        );
+        const bestExactMatch = pipe(rankedExactMatches, A.head, O.getOrThrow);
+
+        return {
+          matches: pipe(
+            rankedExactMatches,
+            A.filter((match) => match.exportedRank === bestExactMatch.exportedRank),
+            A.map((match) => match.symbol)
+          ),
+          nlpNotes:
+            variantIndex === 0 && variant === rawVariant
+              ? A.empty()
+              : makeSelectionNotes({
+                  raw: symbolName,
+                  selected: variant,
+                  strategy: "symbol-exact-variant",
+                }),
+        };
+      }
+    }
+
+    let rankedHits = A.empty<RankedSymbolHit>();
+
+    for (const [variantIndex, variant] of variants.entries()) {
+      const matches = yield* mapStoreError(store.searchSymbols(repoId, sourceSnapshotId, variant, 5));
+      rankedHits = A.appendAll(
+        rankedHits,
+        pipe(
+          matches,
+          A.map((symbol) => ({
+            exportedRank: symbol.exported ? 0 : 1,
+            symbol,
+            variant,
+            variantIndex,
+          }))
+        )
+      );
+    }
+
+    const rankedMatches = pipe(
+      rankedHits,
+      A.sort(rankedSymbolHitOrder),
+      A.dedupeWith((left, right) => left.symbol.symbolId === right.symbol.symbolId)
+    );
+
+    if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
+      return {
+        matches: A.empty(),
+        nlpNotes: A.empty(),
+      };
+    }
+
+    const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
+    const selectedMatches = pipe(
+      rankedMatches,
+      A.filter(
+        (match) => match.variantIndex === bestMatch.variantIndex && match.exportedRank === bestMatch.exportedRank
+      ),
+      A.map((match) => match.symbol)
+    );
+
+    return {
+      matches: selectedMatches,
+      nlpNotes:
+        bestMatch.variantIndex === 0 && bestMatch.variant === rawVariant
+          ? A.empty()
+          : makeSelectionNotes({
+              raw: symbolName,
+              selected: bestMatch.variant,
+              strategy: "symbol-search-variant",
+            }),
+    };
   });
 
-const normalizeModuleSpecifierQuery = (query: string): ReadonlyArray<string> => {
-  const normalized = Str.toLowerCase(Str.trim(query));
-  const withoutExtension = pipe(normalized, Str.replace(/\.[cm]?tsx?$/i, ""));
-  const basename = pipe(
-    normalized,
-    Str.split("/"),
-    A.last,
-    O.getOrElse(() => normalized)
-  );
-  const basenameWithoutExtension = pipe(
-    withoutExtension,
-    Str.split("/"),
-    A.last,
-    O.getOrElse(() => withoutExtension)
-  );
+const resolveFileCandidates = (store: GroundedRetrievalStoreShape) =>
+  Effect.fn("GroundedRetrieval.resolveFileCandidates")(function* (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId,
+    fileQuery: string
+  ): Effect.fn.Return<MatchSelection<RepoSourceFile>, GroundedRetrievalError> {
+    const variants = PathText.filePathVariants(fileQuery);
+    const rawVariant = PathText.normalizePathPhrase(fileQuery);
+    let rankedHits = A.empty<RankedFileHit>();
 
-  return pipe(
-    A.make(normalized, withoutExtension, basename, basenameWithoutExtension),
-    A.filter(Str.isNonEmpty),
-    A.dedupe
-  );
+    for (const [variantIndex, variant] of variants.entries()) {
+      const files = yield* mapStoreError(store.findSourceFiles(repoId, sourceSnapshotId, variant, 5));
+      rankedHits = A.appendAll(
+        rankedHits,
+        pipe(
+          files,
+          A.map((file) => ({
+            file,
+            strategy: rankFileMatch(file.filePath, variant),
+            variant,
+            variantIndex,
+          }))
+        )
+      );
+    }
+
+    const rankedMatches = pipe(
+      rankedHits,
+      A.sort(rankedFileHitOrder),
+      A.dedupeWith((left, right) => left.file.filePath === right.file.filePath)
+    );
+
+    if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
+      return {
+        matches: A.empty(),
+        nlpNotes: A.empty(),
+      };
+    }
+
+    const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
+    const bestStrategyRank = fileStrategyRank(bestMatch.strategy);
+    const selectedMatches = pipe(
+      rankedMatches,
+      A.filter(
+        (match) =>
+          match.variantIndex === bestMatch.variantIndex && fileStrategyRank(match.strategy) === bestStrategyRank
+      ),
+      A.map((match) => match.file)
+    );
+
+    return {
+      matches: selectedMatches,
+      nlpNotes:
+        bestMatch.variantIndex === 0 && bestMatch.variant === rawVariant && bestMatch.strategy === "file-exact"
+          ? A.empty()
+          : makeSelectionNotes({
+              raw: fileQuery,
+              selected: bestMatch.variant,
+              strategy: bestMatch.strategy,
+            }),
+    };
+  });
+
+const rankImporterMatch = (moduleSpecifier: string, variant: string): O.Option<RankedImporterHit["strategy"]> => {
+  const normalizedSpecifier = Str.toLowerCase(PathText.normalizePathPhrase(moduleSpecifier));
+  const normalizedVariant = Str.toLowerCase(PathText.normalizePathPhrase(variant));
+
+  if (normalizedSpecifier === normalizedVariant) {
+    return O.some("module-exact");
+  }
+
+  return pipe(normalizedSpecifier, Str.endsWith(`/${normalizedVariant}`)) ? O.some("module-suffix") : O.none();
 };
 
-const matchesModuleSpecifier = (query: string, edge: RepoImportEdge): boolean => {
-  const normalizedSpecifier = Str.toLowerCase(edge.moduleSpecifier);
+const selectImporterEdges = (
+  moduleQuery: string,
+  importEdges: ReadonlyArray<RepoImportEdge>
+): MatchSelection<RepoImportEdge> => {
+  const variants = PathText.moduleSpecifierVariants(moduleQuery);
+  const rawVariant = PathText.normalizePathPhrase(moduleQuery);
+  let rankedHits = A.empty<RankedImporterHit>();
 
-  return A.some(
-    normalizeModuleSpecifierQuery(query),
-    (candidate) => normalizedSpecifier === candidate || pipe(normalizedSpecifier, Str.endsWith(`/${candidate}`))
+  for (const [variantIndex, variant] of variants.entries()) {
+    rankedHits = A.appendAll(
+      rankedHits,
+      pipe(
+        importEdges,
+        A.map((edge) =>
+          pipe(
+            rankImporterMatch(edge.moduleSpecifier, variant),
+            O.map((strategy) => ({
+              edge,
+              strategy,
+              variant,
+              variantIndex,
+            }))
+          )
+        ),
+        A.getSomes
+      )
+    );
+  }
+
+  const rankedMatches = pipe(
+    rankedHits,
+    A.sort(rankedImporterHitOrder),
+    A.dedupeWith((left, right) => importEdgeIdentity(left.edge) === importEdgeIdentity(right.edge))
   );
+
+  if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
+    return {
+      matches: A.empty(),
+      nlpNotes: A.empty(),
+    };
+  }
+
+  const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
+
+  return {
+    matches: pipe(
+      rankedMatches,
+      A.filter(
+        (match) =>
+          match.variantIndex === bestMatch.variantIndex &&
+          moduleStrategyRank(match.strategy) === moduleStrategyRank(bestMatch.strategy)
+      ),
+      A.map((match) => match.edge)
+    ),
+    nlpNotes:
+      bestMatch.variantIndex === 0 && bestMatch.variant === rawVariant && bestMatch.strategy === "module-exact"
+        ? A.empty()
+        : makeSelectionNotes({
+            raw: moduleQuery,
+            selected: bestMatch.variant,
+            strategy: bestMatch.strategy,
+          }),
+  };
 };
+
+const searchKeywordMatches = (store: GroundedRetrievalStoreShape, repoId: RepoId, sourceSnapshotId: SourceSnapshotId) =>
+  Effect.fn("GroundedRetrieval.searchKeywordMatches")(function* (
+    query: string
+  ): Effect.fn.Return<MatchSelection<RepoSymbolRecord>, GroundedRetrievalError> {
+    const variants = IdentifierText.variants(query);
+    const rawVariant = QueryText.normalizePhrase(query);
+    let rankedHits = A.empty<RankedSymbolHit>();
+
+    for (const [variantIndex, variant] of variants.entries()) {
+      const matches = yield* mapStoreError(store.searchSymbols(repoId, sourceSnapshotId, variant, 5));
+      rankedHits = A.appendAll(
+        rankedHits,
+        pipe(
+          matches,
+          A.map((symbol) => ({
+            exportedRank: symbol.exported ? 0 : 1,
+            symbol,
+            variant,
+            variantIndex,
+          }))
+        )
+      );
+    }
+
+    const rankedMatches = pipe(
+      rankedHits,
+      A.sort(rankedSymbolHitOrder),
+      A.dedupeWith((left, right) => left.symbol.symbolId === right.symbol.symbolId)
+    );
+
+    if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
+      return {
+        matches: A.empty(),
+        nlpNotes: A.empty(),
+      };
+    }
+
+    const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
+    const selectedMatches = pipe(
+      rankedMatches,
+      A.filter(
+        (match) => match.variantIndex === bestMatch.variantIndex && match.exportedRank === bestMatch.exportedRank
+      ),
+      A.map((match) => match.symbol)
+    );
+
+    return {
+      matches: selectedMatches,
+      nlpNotes:
+        bestMatch.variantIndex === 0 && bestMatch.variant === rawVariant
+          ? A.empty()
+          : makeSelectionNotes({
+              raw: query,
+              selected: bestMatch.variant,
+              strategy: "keyword-variant",
+            }),
+    };
+  });
 
 const toQueryKindMetric = (interpretation: QueryInterpretation): QueryKindMetric => interpretation.kind;
 
@@ -795,7 +1250,96 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
     const sourceSnapshotId = yield* latestSnapshot(payload.repoId);
     const interpretation = interpretQuery(payload.question);
     const queryKind = toQueryKindMetric(interpretation);
-    const findMatches = exactOrSearchMatches(store, payload.repoId, sourceSnapshotId);
+    const questionNotes = nlpQuestionNotes(payload.question);
+    const findMatches = findSymbolMatches(store, payload.repoId, sourceSnapshotId);
+    const findFiles = resolveFileCandidates(store);
+    const findKeywordMatches = searchKeywordMatches(store, payload.repoId, sourceSnapshotId);
+
+    const makeQueryPacket = (options: {
+      readonly summary: string;
+      readonly citations: ReadonlyArray<Citation>;
+      readonly notes: ReadonlyArray<string>;
+    }) =>
+      makePacket({
+        repoId: payload.repoId,
+        sourceSnapshotId,
+        query: payload.question,
+        summary: options.summary,
+        citations: options.citations,
+        notes: VariantText.orderedDedupe(A.appendAll(questionNotes, options.notes)),
+      });
+
+    const noSymbolMatchResult = Effect.fn("GroundedRetrieval.noSymbolMatchResult")(function* (
+      symbolName: string,
+      note: string,
+      nlpNotes: ReadonlyArray<string>
+    ) {
+      const packet = yield* makeQueryPacket({
+        summary: `No indexed symbol matched "${symbolName}" in snapshot ${sourceSnapshotId}.`,
+        citations: A.empty(),
+        notes: A.appendAll(A.make(note), nlpNotes),
+      });
+
+      return new GroundedQueryResult({
+        answer: `No indexed symbol named "${symbolName}" was found in snapshot ${sourceSnapshotId}.`,
+        citations: A.empty(),
+        packet,
+      });
+    });
+
+    const ambiguousSymbolMatchResult = Effect.fn("GroundedRetrieval.ambiguousSymbolMatchResult")(function* (
+      symbolName: string,
+      matches: ReadonlyArray<RepoSymbolRecord>,
+      nlpNotes: ReadonlyArray<string>
+    ) {
+      const packet = yield* makeQueryPacket({
+        summary: `Symbol query "${symbolName}" matched multiple indexed symbols.`,
+        citations: A.empty(),
+        notes: A.appendAll(A.make(`candidateCount=${matches.length}`), nlpNotes),
+      });
+
+      return new GroundedQueryResult({
+        answer: `Ambiguous symbol query "${symbolName}". Matching symbols: ${formatSymbolCandidates(matches)}.`,
+        citations: A.empty(),
+        packet,
+      });
+    });
+
+    const noFileMatchResult = Effect.fn("GroundedRetrieval.noFileMatchResult")(function* (
+      fileQuery: string,
+      note: string,
+      nlpNotes: ReadonlyArray<string>
+    ) {
+      const packet = yield* makeQueryPacket({
+        summary: `No indexed file matched "${fileQuery}" in snapshot ${sourceSnapshotId}.`,
+        citations: A.empty(),
+        notes: A.appendAll(A.make(note), nlpNotes),
+      });
+
+      return new GroundedQueryResult({
+        answer: `No indexed TypeScript file matching "${fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
+        citations: A.empty(),
+        packet,
+      });
+    });
+
+    const ambiguousFileMatchResult = Effect.fn("GroundedRetrieval.ambiguousFileMatchResult")(function* (
+      fileQuery: string,
+      matches: ReadonlyArray<RepoSourceFile>,
+      nlpNotes: ReadonlyArray<string>
+    ) {
+      const packet = yield* makeQueryPacket({
+        summary: `File query "${fileQuery}" matched multiple indexed files.`,
+        citations: A.empty(),
+        notes: A.appendAll(A.make(`candidateCount=${matches.length}`), nlpNotes),
+      });
+
+      return new GroundedQueryResult({
+        answer: `Ambiguous file query "${fileQuery}". Matching files: ${formatFileCandidates(matches)}.`,
+        citations: A.empty(),
+        packet,
+      });
+    });
 
     yield* Effect.annotateCurrentSpan({
       repo_id: payload.repoId,
@@ -808,10 +1352,7 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
       countFiles: () =>
         Effect.gen(function* () {
           const fileCount = yield* mapStoreError(store.countSourceFiles(payload.repoId, sourceSnapshotId));
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Counted indexed TypeScript source files for snapshot ${sourceSnapshotId}.`,
             citations: A.empty(),
             notes: A.make(`countFiles=${fileCount}`),
@@ -828,10 +1369,7 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
           const symbolCount = yield* mapStoreError(store.listSymbolRecords(payload.repoId, sourceSnapshotId)).pipe(
             Effect.map(A.length)
           );
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Counted indexed TypeScript symbols for snapshot ${sourceSnapshotId}.`,
             citations: A.empty(),
             notes: A.make(`countSymbols=${symbolCount}`),
@@ -845,34 +1383,23 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       locateSymbol: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("locateSymbol=no-match"),
-            });
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "locateSymbol=no-match", selection.nlpNotes);
           }
-          const symbol = maybeSymbol.value;
+
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           const citations = normalizeCitations(A.make(symbolCitation(symbol)));
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Located symbol "${symbol.symbolName}" from indexed symbol records.`,
             citations,
-            notes: A.make(`symbolId=${symbol.symbolId}`),
+            notes: A.appendAll(A.make(`symbolId=${symbol.symbolId}`), selection.nlpNotes),
           });
 
           return new GroundedQueryResult({
@@ -883,25 +1410,17 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       describeSymbol: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("describeSymbol=no-match"),
-            });
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "describeSymbol=no-match", selection.nlpNotes);
           }
-          const symbol = maybeSymbol.value;
+
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           const documentationText = pipe(
             symbol.documentation,
@@ -920,15 +1439,15 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
           const citations = O.isSome(symbol.documentation)
             ? documentationCitations(symbol, { includeDeclaration: true })
             : normalizeCitations(A.make(symbolCitation(symbol)));
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: O.isSome(symbol.documentation)
               ? `Described symbol "${symbol.symbolName}" from its indexed declaration and JSDoc semantics.`
               : `Described symbol "${symbol.symbolName}" from its indexed declaration because no JSDoc semantics were captured.`,
             citations,
-            notes: A.make(`signature=${symbol.signature}`, `documentation=${O.isSome(symbol.documentation)}`),
+            notes: A.appendAll(
+              A.make(`signature=${symbol.signature}`, `documentation=${O.isSome(symbol.documentation)}`),
+              selection.nlpNotes
+            ),
           });
 
           return new GroundedQueryResult({
@@ -939,36 +1458,23 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       symbolParams: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("symbolParams=no-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "symbolParams=no-match", selection.nlpNotes);
           }
 
-          const symbol = maybeSymbol.value;
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           if (O.isNone(symbol.documentation)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
+            const packet = yield* makeQueryPacket({
               summary: `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
               citations: A.empty(),
-              notes: A.make("symbolParams=no-documentation"),
+              notes: A.appendAll(A.make("symbolParams=no-documentation"), selection.nlpNotes),
             });
 
             return new GroundedQueryResult({
@@ -980,13 +1486,10 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
 
           const documentation = symbol.documentation.value;
           const citations = documentationCitations(symbol);
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Returned documented parameters for symbol "${symbol.symbolName}".`,
             citations,
-            notes: A.make(`paramCount=${A.length(documentation.params)}`),
+            notes: A.appendAll(A.make(`paramCount=${A.length(documentation.params)}`), selection.nlpNotes),
           });
 
           return new GroundedQueryResult({
@@ -1005,36 +1508,23 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       symbolReturns: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("symbolReturns=no-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "symbolReturns=no-match", selection.nlpNotes);
           }
 
-          const symbol = maybeSymbol.value;
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           if (O.isNone(symbol.documentation)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
+            const packet = yield* makeQueryPacket({
               summary: `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
               citations: A.empty(),
-              notes: A.make("symbolReturns=no-documentation"),
+              notes: A.appendAll(A.make("symbolReturns=no-documentation"), selection.nlpNotes),
             });
 
             return new GroundedQueryResult({
@@ -1046,13 +1536,10 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
 
           const documentation = symbol.documentation.value;
           const citations = documentationCitations(symbol);
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Returned documented return semantics for symbol "${symbol.symbolName}".`,
             citations,
-            notes: A.make(`hasReturns=${O.isSome(documentation.returns)}`),
+            notes: A.appendAll(A.make(`hasReturns=${O.isSome(documentation.returns)}`), selection.nlpNotes),
           });
 
           return new GroundedQueryResult({
@@ -1070,36 +1557,23 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       symbolThrows: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("symbolThrows=no-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "symbolThrows=no-match", selection.nlpNotes);
           }
 
-          const symbol = maybeSymbol.value;
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           if (O.isNone(symbol.documentation)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
+            const packet = yield* makeQueryPacket({
               summary: `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
               citations: A.empty(),
-              notes: A.make("symbolThrows=no-documentation"),
+              notes: A.appendAll(A.make("symbolThrows=no-documentation"), selection.nlpNotes),
             });
 
             return new GroundedQueryResult({
@@ -1111,13 +1585,10 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
 
           const documentation = symbol.documentation.value;
           const citations = documentationCitations(symbol);
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Returned documented throw semantics for symbol "${symbol.symbolName}".`,
             citations,
-            notes: A.make(`throwCount=${A.length(documentation.throws)}`),
+            notes: A.appendAll(A.make(`throwCount=${A.length(documentation.throws)}`), selection.nlpNotes),
           });
 
           return new GroundedQueryResult({
@@ -1136,36 +1607,23 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       symbolDeprecation: (value) =>
         Effect.gen(function* () {
-          const matches = yield* findMatches(value.symbolName);
-          const maybeSymbol = A.head(matches);
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
 
-          if (O.isNone(maybeSymbol)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("symbolDeprecation=no-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed symbol named "${value.symbolName}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "symbolDeprecation=no-match", selection.nlpNotes);
           }
 
-          const symbol = maybeSymbol.value;
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
 
           if (O.isNone(symbol.documentation)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
+            const packet = yield* makeQueryPacket({
               summary: `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
               citations: A.empty(),
-              notes: A.make("symbolDeprecation=no-documentation"),
+              notes: A.appendAll(A.make("symbolDeprecation=no-documentation"), selection.nlpNotes),
             });
 
             return new GroundedQueryResult({
@@ -1177,13 +1635,10 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
 
           const documentation = symbol.documentation.value;
           const citations = documentationCitations(symbol);
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Returned deprecation documentation for symbol "${symbol.symbolName}".`,
             citations,
-            notes: A.make(`deprecated=${documentation.isDeprecated}`),
+            notes: A.appendAll(A.make(`deprecated=${documentation.isDeprecated}`), selection.nlpNotes),
           });
 
           return new GroundedQueryResult({
@@ -1202,57 +1657,29 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileExports: (value) =>
         Effect.gen(function* () {
-          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+          const selection = selectSingleMatch(yield* findFiles(payload.repoId, sourceSnapshotId, value.fileQuery));
 
-          if (!A.isReadonlyArrayNonEmpty(files)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("listFileExports=no-file-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noFileMatchResult(value.fileQuery, "listFileExports=no-file-match", selection.nlpNotes);
           }
-          if (files.length > 1) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-              citations: A.empty(),
-              notes: A.make(`candidateCount=${files.length}`),
-            });
 
-            return new GroundedQueryResult({
-              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
-                files,
-                A.map((file) => file.filePath),
-                A.join(", ")
-              )}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousFileMatchResult(value.fileQuery, selection.matches, selection.nlpNotes);
           }
-          const file = files[0];
+
+          const file = selection.match;
 
           const symbols = yield* mapStoreError(
             store.listExportedSymbolsForFile(payload.repoId, sourceSnapshotId, file.filePath)
           );
           const citations = normalizeCitations(pipe(symbols, A.map(symbolCitation)));
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Listed exported symbols for ${file.filePath}.`,
             citations,
-            notes: A.make(`filePath=${file.filePath}`, `exportCount=${A.length(symbols)}`),
+            notes: A.appendAll(
+              A.make(`filePath=${file.filePath}`, `exportCount=${A.length(symbols)}`),
+              selection.nlpNotes
+            ),
           });
 
           const answer = !A.isReadonlyArrayNonEmpty(symbols)
@@ -1271,45 +1698,17 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileImports: (value) =>
         Effect.gen(function* () {
-          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+          const selection = selectSingleMatch(yield* findFiles(payload.repoId, sourceSnapshotId, value.fileQuery));
 
-          if (!A.isReadonlyArrayNonEmpty(files)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("listFileImports=no-file-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noFileMatchResult(value.fileQuery, "listFileImports=no-file-match", selection.nlpNotes);
           }
-          if (files.length > 1) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-              citations: A.empty(),
-              notes: A.make(`candidateCount=${files.length}`),
-            });
 
-            return new GroundedQueryResult({
-              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
-                files,
-                A.map((file) => file.filePath),
-                A.join(", ")
-              )}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousFileMatchResult(value.fileQuery, selection.matches, selection.nlpNotes);
           }
-          const file = files[0];
+
+          const file = selection.match;
 
           const matchingEdges = yield* mapStoreError(
             store.listImportEdgesForImporterFile(payload.repoId, sourceSnapshotId, file.filePath)
@@ -1320,13 +1719,13 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
             A.map((edge) => edge.moduleSpecifier),
             A.dedupe
           );
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Listed import declarations captured for ${file.filePath}.`,
             citations,
-            notes: A.make(`filePath=${file.filePath}`, `importCount=${A.length(matchingEdges)}`),
+            notes: A.appendAll(
+              A.make(`filePath=${file.filePath}`, `importCount=${A.length(matchingEdges)}`),
+              selection.nlpNotes
+            ),
           });
 
           const answer = !A.isReadonlyArrayNonEmpty(importedModules)
@@ -1341,47 +1740,17 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileDependencies: (value) =>
         Effect.gen(function* () {
-          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+          const selection = selectSingleMatch(yield* findFiles(payload.repoId, sourceSnapshotId, value.fileQuery));
 
-          if (!A.isReadonlyArrayNonEmpty(files)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("listFileDependencies=no-file-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noFileMatchResult(value.fileQuery, "listFileDependencies=no-file-match", selection.nlpNotes);
           }
 
-          if (files.length > 1) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-              citations: A.empty(),
-              notes: A.make(`candidateCount=${files.length}`),
-            });
-
-            return new GroundedQueryResult({
-              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
-                files,
-                A.map((file) => file.filePath),
-                A.join(", ")
-              )}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousFileMatchResult(value.fileQuery, selection.matches, selection.nlpNotes);
           }
 
-          const file = files[0];
+          const file = selection.match;
           const fileEdges = yield* mapStoreError(
             store.listImportEdgesForImporterFile(payload.repoId, sourceSnapshotId, file.filePath)
           );
@@ -1397,16 +1766,16 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
             A.sort(Order.String),
             A.dedupe
           );
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Listed repo-local resolved file dependencies for ${file.filePath}.`,
             citations,
-            notes: A.make(
-              `filePath=${file.filePath}`,
-              `dependencyCount=${A.length(dependencyFiles)}`,
-              `unresolvedImportCount=${A.length(fileEdges) - A.length(resolvedEdges)}`
+            notes: A.appendAll(
+              A.make(
+                `filePath=${file.filePath}`,
+                `dependencyCount=${A.length(dependencyFiles)}`,
+                `unresolvedImportCount=${A.length(fileEdges) - A.length(resolvedEdges)}`
+              ),
+              selection.nlpNotes
             ),
           });
 
@@ -1422,47 +1791,17 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       listFileDependents: (value) =>
         Effect.gen(function* () {
-          const files = yield* resolveFileCandidates(store)(payload.repoId, sourceSnapshotId, value.fileQuery);
+          const selection = selectSingleMatch(yield* findFiles(payload.repoId, sourceSnapshotId, value.fileQuery));
 
-          if (!A.isReadonlyArrayNonEmpty(files)) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: A.make("listFileDependents=no-file-match"),
-            });
-
-            return new GroundedQueryResult({
-              answer: `No indexed TypeScript file matching "${value.fileQuery}" was found in snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "none") {
+            return yield* noFileMatchResult(value.fileQuery, "listFileDependents=no-file-match", selection.nlpNotes);
           }
 
-          if (files.length > 1) {
-            const packet = yield* makePacket({
-              repoId: payload.repoId,
-              sourceSnapshotId,
-              query: payload.question,
-              summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-              citations: A.empty(),
-              notes: A.make(`candidateCount=${files.length}`),
-            });
-
-            return new GroundedQueryResult({
-              answer: `Ambiguous file query "${value.fileQuery}". Matching files: ${pipe(
-                files,
-                A.map((file) => file.filePath),
-                A.join(", ")
-              )}.`,
-              citations: A.empty(),
-              packet,
-            });
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousFileMatchResult(value.fileQuery, selection.matches, selection.nlpNotes);
           }
 
-          const file = files[0];
+          const file = selection.match;
           const matchingEdges = yield* mapStoreError(
             store.listImportEdgesForResolvedTargetFile(payload.repoId, sourceSnapshotId, file.filePath)
           );
@@ -1473,13 +1812,13 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
             A.sort(Order.String),
             A.dedupe
           );
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Listed repo-local files depending on ${file.filePath}.`,
             citations,
-            notes: A.make(`filePath=${file.filePath}`, `dependentCount=${A.length(importerFiles)}`),
+            notes: A.appendAll(
+              A.make(`filePath=${file.filePath}`, `dependentCount=${A.length(importerFiles)}`),
+              selection.nlpNotes
+            ),
           });
 
           const answer = !A.isReadonlyArrayNonEmpty(importerFiles)
@@ -1495,10 +1834,8 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
       listFileImporters: (value) =>
         Effect.gen(function* () {
           const importEdges = yield* mapStoreError(store.listImportEdges(payload.repoId, sourceSnapshotId));
-          const matchingEdges = pipe(
-            importEdges,
-            A.filter((edge) => matchesModuleSpecifier(value.moduleQuery, edge))
-          );
+          const selection = selectImporterEdges(value.moduleQuery, importEdges);
+          const matchingEdges = selection.matches;
           const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
           const importerFiles = pipe(
             matchingEdges,
@@ -1506,13 +1843,13 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
             A.sort(Order.String),
             A.dedupe
           );
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Listed files importing "${value.moduleQuery}" from captured import edges.`,
             citations,
-            notes: A.make(`moduleQuery=${value.moduleQuery}`, `importerCount=${A.length(importerFiles)}`),
+            notes: A.appendAll(
+              A.make(`moduleQuery=${value.moduleQuery}`, `importerCount=${A.length(importerFiles)}`),
+              selection.nlpNotes
+            ),
           });
 
           const answer = !A.isReadonlyArrayNonEmpty(importerFiles)
@@ -1527,15 +1864,13 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       keywordSearch: (value) =>
         Effect.gen(function* () {
-          const matches = yield* mapStoreError(store.searchSymbols(payload.repoId, sourceSnapshotId, value.query, 5));
+          const selection = yield* findKeywordMatches(value.query);
+          const matches = selection.matches;
           const citations = normalizeCitations(pipe(matches, A.map(symbolCitation)));
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: `Keyword search over indexed symbols using "${value.query}".`,
             citations,
-            notes: A.make(`matchCount=${A.length(matches)}`),
+            notes: A.appendAll(A.make(`matchCount=${A.length(matches)}`), selection.nlpNotes),
           });
 
           const answer = !A.isReadonlyArrayNonEmpty(matches)
@@ -1554,10 +1889,7 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         }),
       unsupported: (value) =>
         Effect.gen(function* () {
-          const packet = yield* makePacket({
-            repoId: payload.repoId,
-            sourceSnapshotId,
-            query: payload.question,
+          const packet = yield* makeQueryPacket({
             summary: "The question did not match one of the supported deterministic query shapes.",
             citations: A.empty(),
             notes: A.make(value.reason),

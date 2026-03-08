@@ -10,12 +10,13 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Local SQL substrate: landed on `@effect/sql-sqlite-bun` in `packages/repo-memory/sqlite`.
 - Durable runtime substrate: landed in `packages/runtime/server` with one Bun server hosting `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`.
 - Workflow-backed repo runs: landed with deterministic execution ids, custom public run-start and run-command RPCs, and internal workflow-proxy handler registration.
-- Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, interruption, resume, and replay; extraction into explicit projector/state-machine seams remains open.
+- Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, interruption, resume, and replay; lifecycle events are now durable deltas, and a shared pure `RunProjector` is now part of the contract used by both runtime and desktop.
 - Desktop shell integration: landed with a real Tauri wrapper, Rust-managed sidecar lifecycle, native repo-folder picking, same-origin `portless` desktop dev over HTTPS, and a debug-only manual URL override.
 - Compatibility cleanup: landed; the old HTTP run-mutation and SSE routes are no longer the active integration target.
-- Grounded retrieval: landed with bounded deterministic query interpretation and durable citations/retrieval packets.
+- Grounded retrieval: landed with bounded deterministic query interpretation, durable citations/retrieval packets, and repo-local resolved file dependency/dependent retrieval over persisted import-edge targets.
+- Retrieval-side NLP enrichment: not yet landed; it is the next bounded phase over the existing query-to-retrieval path and must preserve deterministic fallback plus citation-first grounding.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
-- Remaining `v0` closure: extract the spec-named runtime seams (`RunProjector`, `RunStateMachine`) without regressing the already-landed lifecycle behavior.
+- Remaining `v0` closure: land retrieval-side NLP enrichment, then finish the broader projection bootstrap/cursor pipeline and decider-style runtime split without regressing the already-landed lifecycle behavior.
 
 ## Workstream 1: Contracts
 Lock the public contracts first.
@@ -101,6 +102,11 @@ Journal product events such as:
 
 Use journal events to build run summaries and final answer detail views.
 
+Current reality:
+- lifecycle events are delta-shaped, not embedded full-run snapshots
+- the shared `RunProjector` in `packages/repo-memory/model` is already the canonical projection function for runtime and desktop consumers
+- the remaining architecture gap is not projector existence but durable projection bootstrap/cursor ownership and the broader decider split around `RepoRunService`
+
 ## Workstream 6: Shared router assembly
 Host one shared router with:
 - `"/__cluster"`
@@ -154,6 +160,8 @@ Current supported query classes:
 - `listFileExports`
 - `listFileImports`
 - `listFileImporters`
+- `listFileDependencies`
+- `listFileDependents`
 - `keywordSearch`
 
 Current non-goals:
@@ -161,7 +169,39 @@ Current non-goals:
 - model-generated answers without deterministic grounding
 - long-lived `ts-morph` projects outside workflow-scoped indexing
 
-## Workstream 10: Test split and lifecycle proof
+This workstream establishes the accepted typed boundary for repo questions.
+Any later NLP work must sit on top of this path as bounded enrichment rather than replacing the source-grounded contract.
+
+## Workstream 10: Retrieval-side NLP enrichment
+The next `v0` phase should improve query ergonomics and recall without changing the truth boundary.
+
+This work belongs between raw user question text and the existing `QueryInterpretation` plus `RetrievalPacket` path.
+
+Use `packages/common/nlp` for shared helpers such as:
+- query cleanup and normalization
+- identifier-aware tokenization and splitting
+- file, module, and symbol phrase normalization
+- optional versioned heuristic or provider adapters when the runtime truly needs them
+
+Use `packages/repo-memory/runtime` to compose those helpers into:
+- bounded intent hints for the existing deterministic query kinds
+- bounded ranking and query expansion over already-indexed source-backed artifacts
+- grounded summarization only after citations and retrieval packet contents are fixed
+
+Rules:
+- `QueryInterpretation` remains the accepted typed boundary for supported repo queries.
+- `RetrievalPacket` remains the bounded evidence-bearing output.
+- deterministic fallback behavior must remain available for critical retrieval flows.
+- materially important normalization or ranking decisions should stay inspectable through retrieval-packet notes, structured logs, spans, and metrics.
+
+Non-goals:
+- freeform semantic repo chat
+- opaque ranking disconnected from files, symbols, import edges, or citations
+- direct writes of NLP-derived output into canonical repo-memory state
+- durable mention, entity, relation, or claim candidate records in repo `v0`
+- mandatory embeddings or model dependency for repo `v0`
+
+## Workstream 11: Test split and lifecycle proof
 Testing is now intentionally split by runtime concern.
 
 Supporting tests:
@@ -170,6 +210,8 @@ Supporting tests:
 - use `sqlite-node` for local SQL integration in supporting tests
 - keep `FileSystem`, `Path`, and `SqlClient` requirements inside layers and shared harnesses rather than leaking them through helper method signatures
 - use schema JSON codecs in tests and fixtures; do not reintroduce native `JSON.parse` / `JSON.stringify`
+- when workstream 10 lands, prove that paraphrase, identifier-split, and relaxed file/module phrasings either collapse to the same grounded result or fail safe as unsupported
+- when workstream 10 lands, prove that disabling enrichment preserves the current deterministic interpreter behavior
 
 Authoritative lifecycle test:
 - spawn the real Bun sidecar through `packages/runtime/server/src/main.ts`
@@ -185,3 +227,4 @@ Use [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) as evidence and guardrail onl
 ## Questions Worth Keeping Open
 - Which temporary compatibility code should stay just long enough to land cluster/workflow without breaking the dev loop?
 - When should `workers` enter the design for CPU-bound parsing, if at all?
+- When, if ever, should optional embeddings become a real dependency rather than a bounded retrieval-side helper?

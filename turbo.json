@@ -108,7 +108,14 @@
     },
     "//#lint:jsdoc": {
       "cache": true,
-      "inputs": ["tooling/*/src/**/*.ts", "eslint.config.mjs"]
+      "inputs": [
+        "apps/**/*.{ts,tsx}",
+        "packages/**/*.{ts,tsx}",
+        "tooling/**/*.{ts,tsx}",
+        "infra/**/*.ts",
+        ".claude/hooks/**/*.ts",
+        "eslint.config.mjs"
+      ]
     },
     "//#lint:typos": {
       "cache": false

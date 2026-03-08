@@ -185,6 +185,7 @@ const makeSnapshotArtifacts = (options: {
                   endLine: decodePosInt(index + 1),
                   moduleSpecifier: importEdge.moduleSpecifier,
                   importedName: importEdge.importedName === undefined ? O.none() : O.some(importEdge.importedName),
+                  resolvedTargetFilePath: O.none(),
                   typeOnly: importEdge.typeOnly ?? false,
                 })
             )
