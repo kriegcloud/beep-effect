@@ -10,6 +10,7 @@ import {
   Duration,
   Effect,
   Exit,
+  Function,
   Option,
   Predicate,
   Schema,
@@ -112,34 +113,34 @@ const signalIdleIfNeeded = (state: SessionState) =>
     ? Deferred.succeed(state.idleSignal, undefined).pipe(Effect.asVoid)
     : Effect.void;
 
-const normalizeOptions = (options: SDKSessionOptions): ClaudeSessionOptions => ({
-  model: options.model,
-  executable: options.executable ?? "bun",
-  ...(options.pathToClaudeCodeExecutable !== undefined
-    ? { pathToClaudeCodeExecutable: options.pathToClaudeCodeExecutable }
-    : {}),
-  ...(options.executableArgs !== undefined ? { executableArgs: [...options.executableArgs] } : {}),
-  ...(options.env !== undefined ? { env: options.env } : {}),
-  ...(options.canUseTool !== undefined ? { canUseTool: options.canUseTool } : {}),
-  ...(options.hooks !== undefined ? { hooks: options.hooks } : {}),
-  ...(options.allowedTools !== undefined ? { allowedTools: [...options.allowedTools] } : {}),
-  ...(options.disallowedTools !== undefined ? { disallowedTools: [...options.disallowedTools] } : {}),
-  ...(options.permissionMode !== undefined ? { permissionMode: options.permissionMode } : {}),
-});
+const normalizeOptions = (options: SDKSessionOptions): ClaudeSessionOptions =>
+  Function.cast({
+    model: options.model,
+    executable: options.executable ?? "bun",
+    ...(options.pathToClaudeCodeExecutable !== undefined
+      ? { pathToClaudeCodeExecutable: options.pathToClaudeCodeExecutable }
+      : {}),
+    ...(options.executableArgs !== undefined ? { executableArgs: [...options.executableArgs] } : {}),
+    ...(options.env !== undefined ? { env: options.env } : {}),
+    ...(options.canUseTool !== undefined ? { canUseTool: options.canUseTool } : {}),
+    ...(options.hooks !== undefined ? { hooks: options.hooks } : {}),
+    ...(options.allowedTools !== undefined ? { allowedTools: [...options.allowedTools] } : {}),
+    ...(options.disallowedTools !== undefined ? { disallowedTools: [...options.disallowedTools] } : {}),
+    ...(options.permissionMode !== undefined ? { permissionMode: options.permissionMode } : {}),
+  });
 
 const markSessionId = (deferred: Deferred.Deferred<string, SessionClosedError>, message: SDKMessage) =>
   message.type === "system" && message.subtype === "init"
     ? Deferred.succeed(deferred, message.session_id).pipe(Effect.asVoid)
     : Effect.void;
 
-const normalizeUserMessage = (message: SDKUserMessage): ClaudeSdkUserMessage => {
-  return {
+const normalizeUserMessage = (message: SDKUserMessage): ClaudeSdkUserMessage =>
+  Function.cast({
     ...message,
     ...(message.isSynthetic === undefined ? {} : { isSynthetic: message.isSynthetic }),
     ...(message.tool_use_result === undefined ? {} : { tool_use_result: message.tool_use_result }),
     ...(message.uuid === undefined ? {} : { uuid: message.uuid }),
-  };
-};
+  });
 
 /**
  * Convert an SDK session into an Effect-managed SessionHandle.
