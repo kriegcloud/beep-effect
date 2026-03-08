@@ -415,9 +415,9 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
     sessionId: config.sessionId,
     version: config.version,
     host: config.host,
-    port: config.port,
+    port: decodeNonNegativeInt(config.port),
     baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
-    pid: process.pid,
+    pid: decodeNonNegativeInt(process.pid),
     status: "healthy",
     startedAt,
   });
