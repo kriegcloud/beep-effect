@@ -836,7 +836,7 @@ export const make = flow(<const Base extends TString.NonEmpty>(base: Base): Make
   const composer = createComposer(baseIdentity);
   const key = toTaggedKey(normalized);
 
-  return Fn.coerceUnsafe<
+  return Fn.cast<
     {
       [x: string]: IdentityComposer<BaseIdentity<Base>>;
     },

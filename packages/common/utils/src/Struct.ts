@@ -48,7 +48,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
       return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
 
-    const record = Fn.coerceUnsafe<unknown, Record<string, unknown>>(current);
+    const record = Fn.cast<unknown, Record<string, unknown>>(current);
     if (!hasOwn.call(record, part)) {
       return PathLookup.cases.notFound.makeUnsafe({ found: false });
     }
@@ -287,7 +287,7 @@ export const pathsOf = <const S extends Record<string, unknown>>(
     }
   };
   walk(obj, "");
-  return Fn.coerceUnsafe(result);
+  return Fn.cast(result);
 };
 
 /**
@@ -437,6 +437,6 @@ export const reverse: {
       out[self[key]] = key;
     }
 
-    return Fn.coerceUnsafe(out);
+    return Fn.cast(out);
   }
 );

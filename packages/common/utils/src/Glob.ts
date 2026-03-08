@@ -69,7 +69,7 @@ export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
   glob: (pattern, options) =>
     Effect.tryPromise({
-      try: (): Promise<string[]> => Fn.coerceUnsafe(GlobLib.glob(pattern as string | Array<string>, options ?? {})),
+      try: (): Promise<string[]> => Fn.cast(GlobLib.glob(pattern as string | Array<string>, options ?? {})),
       catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.ErrorWithStack)(cause) }),
     }),
 });
