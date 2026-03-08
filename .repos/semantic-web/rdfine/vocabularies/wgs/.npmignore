@@ -1,8 +1,0 @@
-__tests__/
-example/
-*.ts
-!*.d.ts
-*.json
-*.config.js
-.babelrc
-coverage/

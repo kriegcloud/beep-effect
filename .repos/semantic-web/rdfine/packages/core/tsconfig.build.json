@@ -1,5 +1,0 @@
-{
-  "extends": "../../tsconfig",
-  "files": ["index.ts", "factory.ts", "initializer.ts"],
-  "include": []
-}

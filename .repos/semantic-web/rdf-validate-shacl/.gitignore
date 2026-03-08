@@ -1,8 +1,0 @@
-node_modules
-coverage
-.nyc_output
-benchmark.json
-*.d.ts
-*.js
-!packages/shacl/test/*.js
-!mocha-setup.js

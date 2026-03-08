@@ -1,6 +1,0 @@
-SELECT * WHERE {
-  ?s ?p ?o .
-}
-VALUES( ){
-  ( )
-}

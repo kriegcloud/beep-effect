@@ -1,4 +1,0 @@
-PREFIX : <http://example/>
-SELECT ( SUM( ?x ) AS ?total ) WHERE {
-  :order (:item/:price) ?x .
-}

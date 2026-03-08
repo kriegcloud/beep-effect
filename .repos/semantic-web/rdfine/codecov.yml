@@ -1,4 +1,0 @@
-ignore:
-  - vocabularies
-  - packages/test-support
-  - /__tests__

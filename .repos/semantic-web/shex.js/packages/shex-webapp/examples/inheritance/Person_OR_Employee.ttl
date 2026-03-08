@@ -1,8 +1,0 @@
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX : <http://a.example/ns#>
-BASE <http://a.example/>
-
-                                               # <Empty> <Person> <Employee> <Customer>
-<percust> foaf:name "Alice" ; :customerId 1 . # fail    pass     fail       pass
-<empcust> :employeeId 1 ;     :customerId 2 . # fail    fail     pass       passa
-<xcust>                       :customerId 3 . # pass    fail     fail       pass

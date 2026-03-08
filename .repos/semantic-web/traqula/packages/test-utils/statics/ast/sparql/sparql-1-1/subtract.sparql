@@ -1,3 +1,0 @@
-SELECT * WHERE {
-  BIND (?a-1 AS ?b)
-}

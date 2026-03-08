@@ -1,5 +1,0 @@
-select  ?x ?p where {
-graph ?g {
-{select * where {?x ?p ?g}}
-}
-}

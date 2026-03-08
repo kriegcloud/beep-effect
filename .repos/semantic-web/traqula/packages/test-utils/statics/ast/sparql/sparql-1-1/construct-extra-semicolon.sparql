@@ -1,6 +1,0 @@
-CONSTRUCT { 
-  ?s a <http://example.org/ExampleThing>;
-     <http://example.org/hasvalue> "value";
-     ?p ?o;
-  .
-} WHERE { ?s ?p ?o }

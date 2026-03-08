@@ -1,3 +1,0 @@
-@prefix ex: <http://datashapes.org/sh/tests/custom-dash.test#> .
-
-ex:Instance a ex:Type ; ex:property "This is a single line string." .

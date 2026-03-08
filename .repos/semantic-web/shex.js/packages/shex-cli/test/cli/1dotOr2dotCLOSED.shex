@@ -1,3 +1,0 @@
-PREFIX : <http://a.example/>
-
-:S1 CLOSED { :p1 .| :p2 .; :p3 . }

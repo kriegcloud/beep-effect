@@ -1,7 +1,0 @@
-prefix : <https://ex.com/>
-select * {
-:a :a :a ;
-  :a [
-    :a/:a :a
-  ] .
-}

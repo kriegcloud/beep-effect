@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ExtensionIndexModule generates exports for extended terms 1`] = `
-export { ClassMixinEx } from "./rdfs/Class.js";
-export { PropertyMixinEx } from "./rdfs/Property.js";
-
-`;
