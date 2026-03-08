@@ -8,6 +8,7 @@ import {
   Inspectable,
   Layer,
   MutableHashMap,
+  Order,
   Path,
   pipe,
   ServiceMap,
@@ -65,7 +66,7 @@ import {
 } from "./TSMorph.model.js";
 import {
   byNormalizedDiagnosticAscending,
-  byScopeSymbolEntryAscending,
+  byTsMorphSymbolAscending,
   flattenDiagnosticMessageText,
   getDeclarationName,
   makeKeywords,
@@ -77,7 +78,6 @@ import {
   readDecorators,
   readDocstring,
   readSignature,
-  type ScopeSymbolEntry,
 } from "./TSMorph.shared.js";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.service");
@@ -290,6 +290,18 @@ type ScopeSymbolIndex = {
   readonly entriesById: MutableHashMap.MutableHashMap<string, ScopeSymbolEntry>;
   readonly entriesByFilePath: MutableHashMap.MutableHashMap<string, ReadonlyArray<ScopeSymbolEntry>>;
 };
+
+interface ScopeSymbolEntry {
+  readonly contentHash: TsMorphSymbol["contentHash"];
+  readonly searchText: string;
+  readonly sourceText: SourceText;
+  readonly symbol: TsMorphSymbol;
+}
+
+const byScopeSymbolEntryAscending: Order.Order<ScopeSymbolEntry> = Order.mapInput(
+  byTsMorphSymbolAscending,
+  (entry: ScopeSymbolEntry) => entry.symbol
+);
 
 const schemaMessage = (cause: unknown): string =>
   P.isError(cause) ? cause.message : Inspectable.toStringUnknown(cause, 0);
@@ -869,8 +881,9 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
 
         for (const entry of sortedEntries) {
           MutableHashMap.set(entriesById, entry.symbol.id, entry);
-          const fileEntries = O.getOrElse(MutableHashMap.get(entriesByFilePath, entry.symbol.filePath), () =>
-            A.empty<ScopeSymbolEntry>()
+          const fileEntries = O.getOrElse(
+            MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
+            A.empty<ScopeSymbolEntry>
           );
           MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
         }
@@ -970,7 +983,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       const symbols = pipe(
         MutableHashMap.get(symbolIndex.entriesByFilePath, symbolFilePath),
         O.map((entries) => A.map(entries, (entry) => entry.symbol)),
-        O.getOrElse(() => A.empty<TsMorphSymbol>())
+        O.getOrElse(A.empty<TsMorphSymbol>)
       );
 
       return new TsMorphFileOutline({

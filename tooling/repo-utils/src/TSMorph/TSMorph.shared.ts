@@ -36,19 +36,6 @@ export type OutlineDeclaration =
   | SetAccessorDeclaration
   | TypeAliasDeclaration;
 
-/**
- * Cached normalized symbol entry used by the TSMorph live service.
- *
- * @since 0.0.0
- * @category Internal
- */
-export type ScopeSymbolEntry = {
-  readonly symbol: TsMorphSymbol;
-  readonly sourceText: SourceText;
-  readonly contentHash: TsMorphSymbol["contentHash"];
-  readonly searchText: string;
-};
-
 const bySymbolNameAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.String, (symbol) => symbol.name);
 const bySymbolFilePathAscending: Order.Order<TsMorphSymbol> = Order.mapInput(Order.String, (symbol) => symbol.filePath);
 const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
@@ -57,14 +44,14 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
 );
 
 /**
- * Deterministic symbol ordering used by the scoped symbol index.
+ * Deterministic symbol ordering used by normalized TSMorph symbol collections.
  *
  * @since 0.0.0
  * @category Internal
  */
-export const byScopeSymbolEntryAscending: Order.Order<ScopeSymbolEntry> = Order.mapInput(
-  Order.combine(bySymbolNameAscending, Order.combine(bySymbolFilePathAscending, bySymbolStartLineAscending)),
-  (entry: ScopeSymbolEntry) => entry.symbol
+export const byTsMorphSymbolAscending: Order.Order<TsMorphSymbol> = Order.combine(
+  bySymbolNameAscending,
+  Order.combine(bySymbolFilePathAscending, bySymbolStartLineAscending)
 );
 
 const byDiagnosticStartLineAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput(
@@ -102,6 +89,8 @@ const firstSignatureLine = (text: string): string =>
 /**
  * Read the normalized JSDoc description text attached to a declaration.
  *
+ * @param node - Declaration node that may carry JSDoc metadata.
+ * @returns Normalized declaration description text when present.
  * @since 0.0.0
  * @category Internal
  */
@@ -123,6 +112,8 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
 /**
  * Read normalized decorator text attached to a declaration.
  *
+ * @param node - Declaration node that may carry decorators.
+ * @returns Normalized decorator source text in declaration order.
  * @since 0.0.0
  * @category Internal
  */
@@ -134,6 +125,8 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
 /**
  * Read the first non-empty signature line for a declaration.
  *
+ * @param node - Declaration node to read.
+ * @returns First non-empty line from the declaration source text.
  * @since 0.0.0
  * @category Internal
  */
@@ -142,6 +135,8 @@ export const readSignature = (node: OutlineDeclaration): string => firstSignatur
 /**
  * Derive the normalized summary text for a declaration.
  *
+ * @param docstring - Optional normalized JSDoc description text.
+ * @returns Stable summary text used by the public symbol model.
  * @since 0.0.0
  * @category Internal
  */
@@ -150,6 +145,10 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
 /**
  * Build stable symbol keywords from normalized declaration metadata.
  *
+ * @param name - Symbol display name.
+ * @param qualifiedName - Fully qualified symbol path.
+ * @param kind - Public symbol kind literal.
+ * @returns Stable keyword set used by the public symbol model.
  * @since 0.0.0
  * @category Internal
  */
@@ -159,6 +158,9 @@ export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKi
 /**
  * Build deterministic lowercased search text for a normalized symbol entry.
  *
+ * @param symbol - Public normalized symbol metadata.
+ * @param sourceText - Extracted declaration source text.
+ * @returns Lowercased search corpus for symbol lookup and filtering.
  * @since 0.0.0
  * @category Internal
  */
@@ -181,6 +183,8 @@ export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: Sou
 /**
  * Flatten a TypeScript diagnostic message chain into normalized text.
  *
+ * @param message - Diagnostic string or nested TypeScript message chain.
+ * @returns Normalized multi-line diagnostic text.
  * @since 0.0.0
  * @category Internal
  */
@@ -203,6 +207,8 @@ export const flattenDiagnosticMessageText = (message: string | DiagnosticMessage
 /**
  * Normalize TypeScript diagnostic categories into the public service literal domain.
  *
+ * @param category - Raw TypeScript diagnostic category.
+ * @returns Public service diagnostic category literal.
  * @since 0.0.0
  * @category Internal
  */
@@ -217,6 +223,8 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
 /**
  * Read the normalized name and kind for a supported declaration node.
  *
+ * @param declaration - Supported declaration node to inspect.
+ * @returns Normalized declaration name and public kind when available.
  * @since 0.0.0
  * @category Internal
  */
@@ -306,6 +314,9 @@ export const getDeclarationName = (
 /**
  * Extend a parent symbol qualified name with one child declaration segment.
  *
+ * @param parentSymbol - Parent symbol, when the declaration is nested.
+ * @param name - Child declaration name segment.
+ * @returns Qualified symbol name anchored to the nearest parent symbol.
  * @since 0.0.0
  * @category Internal
  */
