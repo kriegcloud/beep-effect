@@ -1840,13 +1840,3 @@ export const ProvO = S.Union([Prov, EntityWithRequirements, ActivityWithRequirem
  * Type for {@link ProvO}.
  */
 export type ProvO = typeof ProvO.Type;
-
-/**
- * Compatibility alias retained for the historical `Prov0` import path.
- */
-export const Prov0 = ProvO;
-
-/**
- * Type for {@link Prov0}.
- */
-export type Prov0 = typeof Prov0.Type;
