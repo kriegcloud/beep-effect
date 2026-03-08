@@ -73,7 +73,9 @@ class ChatMeta extends S.Class<ChatMeta>($I`ChatMeta`)(
   $I.annote("ChatMeta", {
     description: "Stored chat session metadata tracking the last persisted sequence and update time.",
   })
-) {}
+) {
+  static readonly make = (params: ChatMeta) => new ChatMeta(params);
+}
 
 type SessionState = {
   readonly lastSequence: number;
@@ -242,19 +244,14 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
           metaStore.get(metaKey(sessionId)).pipe(
             Effect.mapError((cause) => mapError("loadMeta", cause)),
             Effect.map((maybe) =>
-              O.getOrElse(
-                maybe,
-                () =>
-                  ({
-                    lastSequence: 0,
-                    updatedAt: utcFromMillis(0),
-                  }) satisfies ChatMeta
-              )
+              O.getOrElse(maybe, () => ChatMeta.make({ lastSequence: 0, updatedAt: utcFromMillis(0) }))
             )
           );
 
         const saveMeta = (sessionId: string, meta: ChatMeta) =>
-          metaStore.set(metaKey(sessionId), meta).pipe(Effect.mapError((cause) => mapError("saveMeta", cause)));
+          metaStore
+            .set(metaKey(sessionId), ChatMeta.make(meta))
+            .pipe(Effect.mapError((cause) => mapError("saveMeta", cause)));
 
         const applyRetentionKv = (
           sessionId: string,
@@ -322,7 +319,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
         yield* eventStore
           .set(eventKey(event.sessionId, event.sequence), event)
           .pipe(Effect.mapError((cause) => mapError("appendMessage", cause)));
-        yield* saveMeta(event.sessionId, { lastSequence, updatedAt }).pipe(
+        yield* saveMeta(event.sessionId, ChatMeta.make({ lastSequence, updatedAt })).pipe(
           Effect.catch((error) =>
             eventStore.remove(eventKey(event.sessionId, event.sequence)).pipe(
               Effect.catch((cleanupCause) =>
@@ -404,21 +401,12 @@ const makeJournaledStore = (options?: {
     const loadMeta = (sessionId: string) =>
       metaStore.get(metaKey(sessionId)).pipe(
         Effect.mapError((cause) => toStorageError(storeName, "loadMeta", cause)),
-        Effect.map((maybe) =>
-          O.getOrElse(
-            maybe,
-            () =>
-              ({
-                lastSequence: 0,
-                updatedAt: utcFromMillis(0),
-              }) satisfies ChatMeta
-          )
-        )
+        Effect.map((maybe) => O.getOrElse(maybe, () => ChatMeta.make({ lastSequence: 0, updatedAt: utcFromMillis(0) })))
       );
 
     const saveMeta = (sessionId: string, meta: ChatMeta) =>
       metaStore
-        .set(metaKey(sessionId), meta)
+        .set(metaKey(sessionId), ChatMeta.make(meta))
         .pipe(Effect.mapError((cause) => toStorageError(storeName, "saveMeta", cause)));
 
     const repairTrailingMetaGap = (sessionId: string, meta: ChatMeta) =>
@@ -434,10 +422,10 @@ const makeJournaledStore = (options?: {
           nextLastSequence -= 1;
         }
         if (nextLastSequence !== meta.lastSequence) {
-          const repaired: ChatMeta = {
+          const repaired = ChatMeta.make({
             lastSequence: nextLastSequence,
             updatedAt: meta.updatedAt,
-          };
+          });
           yield* saveMeta(sessionId, repaired);
           yield* Effect.logWarning(
             `[ChatHistoryStore] repaired trailing meta gap for session=${sessionId} from sequence=${meta.lastSequence} to sequence=${nextLastSequence}`
@@ -811,20 +799,13 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           metaStore.get(metaKey(sessionId)).pipe(
             Effect.mapError((cause) => toStorageError(storeName, "loadMeta", cause)),
             Effect.map((maybe) =>
-              O.getOrElse(
-                maybe,
-                () =>
-                  ({
-                    lastSequence: 0,
-                    updatedAt: utcFromMillis(0),
-                  }) satisfies ChatMeta
-              )
+              O.getOrElse(maybe, () => ChatMeta.make({ lastSequence: 0, updatedAt: utcFromMillis(0) }))
             )
           );
 
         const saveMeta = (sessionId: string, meta: ChatMeta) =>
           metaStore
-            .set(metaKey(sessionId), meta)
+            .set(metaKey(sessionId), ChatMeta.make(meta))
             .pipe(Effect.mapError((cause) => toStorageError(storeName, "saveMeta", cause)));
 
         const repairTrailingMetaGap = (sessionId: string, meta: ChatMeta) =>
@@ -840,10 +821,10 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
               nextLastSequence -= 1;
             }
             if (nextLastSequence !== meta.lastSequence) {
-              const repaired: ChatMeta = {
+              const repaired = ChatMeta.make({
                 lastSequence: nextLastSequence,
                 updatedAt: meta.updatedAt,
-              };
+              });
               yield* saveMeta(sessionId, repaired);
               yield* Effect.logWarning(
                 `[ChatHistoryStore] repaired trailing meta gap for session=${sessionId} from sequence=${meta.lastSequence} to sequence=${nextLastSequence}`
@@ -929,7 +910,10 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           yield* eventStore
             .set(eventKey(sessionId, sequence), event)
             .pipe(Effect.mapError((cause) => toStorageError(storeName, "appendMessage", cause)));
-          yield* saveMeta(sessionId, { lastSequence: sequence, updatedAt: utcFromMillis(timestamp) }).pipe(
+          yield* saveMeta(
+            sessionId,
+            ChatMeta.make({ lastSequence: sequence, updatedAt: utcFromMillis(timestamp) })
+          ).pipe(
             Effect.catch((error) =>
               eventStore.remove(eventKey(sessionId, sequence)).pipe(
                 Effect.catch((cleanupCause) =>
@@ -981,10 +965,13 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           );
 
           const writtenSequences = events.map((event) => event.sequence);
-          yield* saveMeta(sessionId, {
-            lastSequence: meta.lastSequence + events.length,
-            updatedAt: utcFromMillis(timestamp),
-          }).pipe(
+          yield* saveMeta(
+            sessionId,
+            ChatMeta.make({
+              lastSequence: meta.lastSequence + events.length,
+              updatedAt: utcFromMillis(timestamp),
+            })
+          ).pipe(
             Effect.catch((error) =>
               Effect.forEach(
                 writtenSequences,

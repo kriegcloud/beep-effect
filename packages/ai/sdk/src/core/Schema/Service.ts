@@ -16,9 +16,9 @@ type QueryPromptEncoded = string | ReadonlyArray<SDKUserMessageEncoded>;
 type SessionMessage = string | SDKUserMessageType;
 type SessionMessageEncoded = string | SDKUserMessageEncoded;
 
-const QueryPromptSchema = S.Union([S.String, S.Array(SDKUserMessage)]) as S.Codec<QueryPrompt, QueryPromptEncoded>;
-const SessionMessageSchema = S.Union([S.String, SDKUserMessage]) as S.Codec<SessionMessage, SessionMessageEncoded>;
-const QueryInputOptionsSchema = Options as S.Codec<OptionsType, OptionsEncoded>;
+const QueryPromptSchema: S.Codec<QueryPrompt, QueryPromptEncoded> = S.Union([S.String, S.Array(SDKUserMessage)]);
+const SessionMessageSchema: S.Codec<SessionMessage, SessionMessageEncoded> = S.Union([S.String, SDKUserMessage]);
+const QueryInputOptionsSchema: S.Codec<OptionsType, OptionsEncoded> = Options;
 
 /**
  * @since 0.0.0
@@ -37,6 +37,23 @@ export type Tenant = typeof Tenant.Type;
  * @since 0.0.0
  */
 export type TenantEncoded = typeof Tenant.Encoded;
+
+/**
+ * @since 0.0.0
+ */
+export const SessionId = S.String.annotate(
+  $I.annote("SessionId", {
+    description: "Session identifier allocated and returned by the SDK session service.",
+  })
+);
+/**
+ * @since 0.0.0
+ */
+export type SessionId = typeof SessionId.Type;
+/**
+ * @since 0.0.0
+ */
+export type SessionIdEncoded = typeof SessionId.Encoded;
 
 class QueryInputData extends S.Class<QueryInputData>($I`QueryInput`)(
   {
@@ -100,7 +117,7 @@ export type SessionCreateInputEncoded = typeof SessionCreateInput.Encoded;
  */
 export class SessionCreateOutput extends S.Class<SessionCreateOutput>($I`SessionCreateOutput`)(
   {
-    sessionId: S.String,
+    sessionId: SessionId,
   },
   $I.annote("SessionCreateOutput", {
     description: "Session creation response containing the allocated session identifier.",
@@ -133,7 +150,7 @@ export type SessionSendInputEncoded = typeof SessionSendInput.Encoded;
  */
 export class SessionInfo extends S.Class<SessionInfo>($I`SessionInfo`)(
   {
-    sessionId: S.String,
+    sessionId: SessionId,
     tenant: S.optional(Tenant),
     createdAt: S.DateTimeUtcFromMillis,
     lastUsedAt: S.DateTimeUtcFromMillis,
@@ -184,7 +201,7 @@ export type SessionTenantScopeEncoded = typeof SessionTenantScope.Encoded;
  */
 export class SessionPathParams extends S.Class<SessionPathParams>($I`SessionPathParams`)(
   {
-    id: S.String,
+    id: SessionId,
   },
   $I.annote("SessionPathParams", {
     description: "Route params selecting a session by its public session identifier.",
@@ -200,7 +217,7 @@ export type SessionPathParamsEncoded = typeof SessionPathParams.Encoded;
  */
 export class SessionSelection extends S.Class<SessionSelection>($I`SessionSelection`)(
   {
-    sessionId: S.String,
+    sessionId: SessionId,
     tenant: S.optional(Tenant),
   },
   $I.annote("SessionSelection", {
@@ -217,7 +234,7 @@ export type SessionSelectionEncoded = typeof SessionSelection.Encoded;
  */
 export class ResumeSessionInput extends S.Class<ResumeSessionInput>($I`ResumeSessionInput`)(
   {
-    sessionId: S.String,
+    sessionId: SessionId,
     options: SDKSessionOptions,
     tenant: S.optional(Tenant),
   },
@@ -235,7 +252,7 @@ export type ResumeSessionInputEncoded = typeof ResumeSessionInput.Encoded;
  */
 export class SessionSendRequest extends S.Class<SessionSendRequest>($I`SessionSendRequest`)(
   {
-    sessionId: S.String,
+    sessionId: SessionId,
     message: SessionMessageSchema,
     tenant: S.optional(Tenant),
   },

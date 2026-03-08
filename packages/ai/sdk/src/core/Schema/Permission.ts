@@ -221,6 +221,9 @@ class PermissionResultDeny extends S.Class<PermissionResultDeny>($I`PermissionRe
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionResult = S.Union([PermissionResultAllow, PermissionResultDeny]).pipe(
   S.toTaggedUnion("behavior"),
   S.annotate(

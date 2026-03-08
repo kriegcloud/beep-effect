@@ -659,15 +659,10 @@ const sourceFileMatchesExclude = (
   const srcRelative = packageRelative.startsWith(`${srcDir}/`)
     ? packageRelative.slice(srcDir.length + 1)
     : packageRelative;
-  const fragments = normalizedPattern.split("*").filter((fragment) => fragment.length > 0);
+  const escapedPattern = Str.replace(/[.+?^${}()|[\]\\]/g, "\\$&")(normalizedPattern);
+  const patternRegex = new RegExp(`^${Str.replace(/\*/g, ".*")(escapedPattern)}$`);
 
-  if (fragments.length === 0) {
-    return false;
-  }
-
-  return [packageRelative, srcRelative].some((candidate) =>
-    fragments.every((fragment) => candidate.includes(fragment))
-  );
+  return [packageRelative, srcRelative].some((candidate) => patternRegex.test(candidate));
 };
 
 const getSourceFiles = (
@@ -847,6 +842,8 @@ export const createDocgenConfigDocument: (
 
     return new DocgenConfigDocument({
       $schema: `${rootRelativePrefix}node_modules/@effect/docgen/schema.json`,
+      srcDir: "src",
+      outDir: "docs",
       exclude: ["src/internal/**/*.ts"],
       srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${targetPackage.relativePath}/src/`,
       examplesCompilerOptions: {
@@ -1131,9 +1128,20 @@ export const aggregateGeneratedDocs = (options?: {
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
     const docsRoot = path.join(repoRoot, "docs");
-    const packages = options?.package
-      ? [yield* resolveDocgenWorkspacePackage(options.package, repoRoot)]
+    const selectedPackage = options?.package
+      ? yield* resolveDocgenWorkspacePackage(options.package, repoRoot)
+      : undefined;
+    const packages = selectedPackage
+      ? selectedPackage.hasGeneratedDocs
+        ? [selectedPackage]
+        : []
       : (yield* discoverDocgenWorkspacePackages(repoRoot)).filter((pkg) => pkg.hasGeneratedDocs);
+
+    if (selectedPackage !== undefined && packages.length === 0) {
+      return yield* new DomainError({
+        message: `Package "${selectedPackage.name}" does not have generated docs. Run "bun run beep docgen generate -p ${selectedPackage.relativePath}" first.`,
+      });
+    }
 
     if (packages.length === 0) {
       return [];
@@ -1159,9 +1167,18 @@ export const aggregateGeneratedDocs = (options?: {
     }
 
     if (options?.clean === true) {
-      yield* fs
-        .remove(docsRoot, { recursive: true, force: true })
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to remove "${docsRoot}"`, cause })));
+      if (selectedPackage !== undefined) {
+        const destinationDir = path.join(docsRoot, selectedPackage.docsOutputPath);
+        yield* fs
+          .remove(destinationDir, { recursive: true, force: true })
+          .pipe(
+            Effect.mapError((cause) => new DomainError({ message: `Failed to remove "${destinationDir}"`, cause }))
+          );
+      } else {
+        yield* fs
+          .remove(docsRoot, { recursive: true, force: true })
+          .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to remove "${docsRoot}"`, cause })));
+      }
     }
 
     yield* fs

@@ -1,5 +1,5 @@
 import { Storage, Sync } from "@beep/ai-sdk";
-import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

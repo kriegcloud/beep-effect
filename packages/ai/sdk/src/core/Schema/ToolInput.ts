@@ -28,6 +28,9 @@ class AgentInputData extends S.Class<AgentInputData>($I`AgentInput`)(
   toolInputAnnotation("AgentInput", "Tool input for launching a subagent with prompt, model, and turn limits.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const AgentInput = AgentInputData;
 
 /**
@@ -69,6 +72,9 @@ class BashInputData extends S.Class<BashInputData>($I`BashInput`)(
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const BashInput = BashInputData;
 
 /**
@@ -92,6 +98,9 @@ class TaskOutputInputData extends S.Class<TaskOutputInputData>($I`TaskOutputInpu
   toolInputAnnotation("TaskOutputInput", "Tool input for reading buffered output from a background task.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const TaskOutputInput = TaskOutputInputData;
 
 /**
@@ -161,6 +170,9 @@ class FileEditInputData extends S.Class<FileEditInputData>($I`FileEditInput`)(
   toolInputAnnotation("FileEditInput", "Tool input for in-place string replacement edits within a file.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const FileEditInput = FileEditInputData;
 
 /**
@@ -184,6 +196,9 @@ class FileReadInputData extends S.Class<FileReadInputData>($I`FileReadInput`)(
   toolInputAnnotation("FileReadInput", "Tool input for reading a slice of a file from disk.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const FileReadInput = FileReadInputData;
 
 /**
@@ -206,6 +221,9 @@ class FileWriteInputData extends S.Class<FileWriteInputData>($I`FileWriteInput`)
   toolInputAnnotation("FileWriteInput", "Tool input for overwriting file contents.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const FileWriteInput = FileWriteInputData;
 
 /**
@@ -228,6 +246,9 @@ class GlobInputData extends S.Class<GlobInputData>($I`GlobInput`)(
   toolInputAnnotation("GlobInput", "Tool input for glob-based file discovery.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const GlobInput = GlobInputData;
 
 /**
@@ -263,6 +284,9 @@ class GrepInputData extends S.Class<GrepInputData>($I`GrepInput`)(
   toolInputAnnotation("GrepInput", "Tool input for repository grep with rg-compatible flags and output controls.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const GrepInput = GrepInputData;
 
 /**
@@ -284,6 +308,9 @@ class KillShellInputData extends S.Class<KillShellInputData>($I`KillShellInput`)
   toolInputAnnotation("KillShellInput", "Tool input for terminating a running shell session.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const KillShellInput = KillShellInputData;
 
 /**
@@ -305,6 +332,9 @@ class ListMcpResourcesInputData extends S.Class<ListMcpResourcesInputData>($I`Li
   toolInputAnnotation("ListMcpResourcesInput", "Tool input for listing resources from an MCP server.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ListMcpResourcesInput = ListMcpResourcesInputData;
 
 /**
@@ -352,6 +382,9 @@ class NotebookEditInputData extends S.Class<NotebookEditInputData>($I`NotebookEd
   toolInputAnnotation("NotebookEditInput", "Tool input for editing notebook cells by id or position.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const NotebookEditInput = NotebookEditInputData;
 
 /**
@@ -374,6 +407,9 @@ class ReadMcpResourceInputData extends S.Class<ReadMcpResourceInputData>($I`Read
   toolInputAnnotation("ReadMcpResourceInput", "Tool input for reading a specific MCP resource by server and URI.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ReadMcpResourceInput = ReadMcpResourceInputData;
 
 /**
@@ -410,6 +446,9 @@ class TodoWriteInputData extends S.Class<TodoWriteInputData>($I`TodoWriteInput`)
   toolInputAnnotation("TodoWriteInput", "Tool input for replacing the tracked todo list.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const TodoWriteInput = TodoWriteInputData;
 
 /**
@@ -432,6 +471,9 @@ class WebFetchInputData extends S.Class<WebFetchInputData>($I`WebFetchInput`)(
   toolInputAnnotation("WebFetchInput", "Tool input for fetching a URL and answering a prompt against its contents.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const WebFetchInput = WebFetchInputData;
 
 /**
@@ -455,6 +497,9 @@ class WebSearchInputData extends S.Class<WebSearchInputData>($I`WebSearchInput`)
   toolInputAnnotation("WebSearchInput", "Tool input for running a web search with optional domain filters.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const WebSearchInput = WebSearchInputData;
 
 /**
@@ -515,6 +560,9 @@ class AskUserQuestionInputData extends S.Class<AskUserQuestionInputData>($I`AskU
   toolInputAnnotation("AskUserQuestionInput", "Tool input for asking one or more structured questions of the user.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const AskUserQuestionInput = AskUserQuestionInputData;
 
 /**
@@ -537,6 +585,9 @@ class ConfigInputData extends S.Class<ConfigInputData>($I`ConfigInput`)(
   toolInputAnnotation("ConfigInput", "Tool input for reading or updating a named SDK setting.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ConfigInput = ConfigInputData;
 
 /**

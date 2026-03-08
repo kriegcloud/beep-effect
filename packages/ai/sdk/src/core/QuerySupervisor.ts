@@ -587,13 +587,13 @@ const makeQuerySupervisor = Effect.gen(function* () {
   const stats = Effect.gen(function* () {
     const active = yield* SynchronizedRef.get(activeRef).pipe(Effect.map((current) => HashMap.size(current)));
     const pending = pendingQueue ? Math.max(0, yield* Queue.size(pendingQueue)) : 0;
-    return {
+    return new QuerySupervisorStats({
       active,
       pending,
       concurrencyLimit: settings.concurrencyLimit,
       pendingQueueCapacity: pendingQueue ? settings.pendingQueueCapacity : 0,
       pendingQueueStrategy: pendingQueue ? settings.pendingQueueStrategy : "disabled",
-    } satisfies QuerySupervisorStats;
+    });
   });
 
   const interruptAll = Effect.gen(function* () {

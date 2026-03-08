@@ -1,5 +1,5 @@
 import { Schema, Storage } from "@beep/ai-sdk";
-import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";

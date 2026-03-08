@@ -24,7 +24,6 @@ import {
   generateAnalysisJson,
   generateAnalysisReport,
   loadDocgenConfigDocument,
-  normalizeDocsOutputPath,
   resolveDocgenWorkspacePackage,
   runDocgenForPackage,
 } from "./internal/Operations.js";
@@ -97,9 +96,7 @@ const logAggregateResults = Effect.fn(function* (results: ReadonlyArray<DocgenAg
   }
 
   for (const result of results) {
-    yield* Console.log(
-      `docgen: aggregated ${result.packagePath} -> docs/${normalizeDocsOutputPath(result.packagePath)}`
-    );
+    yield* Console.log(`docgen: aggregated ${result.packagePath} -> docs/${result.docsOutputPath}`);
   }
 });
 
@@ -360,7 +357,7 @@ const docgenAnalyzeCommand = Command.make(
       }
 
       const analyses = yield* Effect.forEach(targets, analyzePackageDocumentation, {
-        concurrency: "unbounded",
+        concurrency: 4,
       });
 
       if (json) {
@@ -418,12 +415,7 @@ const docgenAnalyzeCommand = Command.make(
 ).pipe(Command.withDescription("Analyze JSDoc coverage and write a human-first report"));
 
 const printDocgenIndex = Effect.fn(function* () {
-  yield* Console.log("Docgen commands:");
-  yield* Console.log("- bun run beep docgen status");
-  yield* Console.log("- bun run beep docgen init -p packages/common/schema");
-  yield* Console.log("- bun run beep docgen generate");
-  yield* Console.log("- bun run beep docgen aggregate");
-  yield* Console.log("- bun run beep docgen analyze -p packages/common/schema");
+  yield* Console.log('Run "bun run beep docgen --help" to see the available docgen commands and flags.');
 });
 
 /**

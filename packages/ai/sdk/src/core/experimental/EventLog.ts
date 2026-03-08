@@ -54,7 +54,7 @@ const toolUsePayloadFields = {
   toolName: S.String,
   toolUseId: S.optionalKey(S.String),
   durationMs: S.optionalKey(S.Number),
-} as const;
+};
 
 class ToolUsePayloadStart extends S.Class<ToolUsePayloadStart>($I`ToolUsePayloadStart`)(
   {
@@ -86,8 +86,11 @@ class ToolUsePayloadFailure extends S.Class<ToolUsePayloadFailure>($I`ToolUsePay
   })
 ) {}
 
-const ToolUsePayload = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
-  S.toTaggedUnion("status"),
+const ToolUsePayloadBase = S.Union([ToolUsePayloadStart, ToolUsePayloadSuccess, ToolUsePayloadFailure]).pipe(
+  S.toTaggedUnion("status")
+);
+
+const ToolUsePayload = ToolUsePayloadBase.pipe(
   S.annotate(
     $I.annote("ToolUsePayload", {
       description: "Tagged union payload for tool_use events.",
@@ -99,7 +102,7 @@ const permissionDecisionPayloadFields = {
   sessionId: S.String,
   toolName: S.String,
   reason: S.optional(S.String),
-} as const;
+};
 
 class PermissionDecisionPayloadAllow extends S.Class<PermissionDecisionPayloadAllow>(
   $I`PermissionDecisionPayloadAllow`
@@ -135,12 +138,13 @@ class PermissionDecisionPayloadPrompt extends S.Class<PermissionDecisionPayloadP
   })
 ) {}
 
-const PermissionDecisionPayload = S.Union([
+const PermissionDecisionPayloadBase = S.Union([
   PermissionDecisionPayloadAllow,
   PermissionDecisionPayloadDeny,
   PermissionDecisionPayloadPrompt,
-]).pipe(
-  S.toTaggedUnion("decision"),
+]).pipe(S.toTaggedUnion("decision"));
+
+const PermissionDecisionPayload = PermissionDecisionPayloadBase.pipe(
   S.annotate(
     $I.annote("PermissionDecisionPayload", {
       description: "Tagged union payload for permission_decision events.",
@@ -152,7 +156,7 @@ const hookEventPayloadFields = {
   sessionId: S.optional(S.String),
   hook: HookEvent,
   toolUseId: S.optional(S.String),
-} as const;
+};
 
 class HookEventPayloadSuccess extends S.Class<HookEventPayloadSuccess>($I`HookEventPayloadSuccess`)(
   {
@@ -174,8 +178,11 @@ class HookEventPayloadFailure extends S.Class<HookEventPayloadFailure>($I`HookEv
   })
 ) {}
 
-const HookEventPayload = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
-  S.toTaggedUnion("outcome"),
+const HookEventPayloadBase = S.Union([HookEventPayloadSuccess, HookEventPayloadFailure]).pipe(
+  S.toTaggedUnion("outcome")
+);
+
+const HookEventPayload = HookEventPayloadBase.pipe(
   S.annotate(
     $I.annote("HookEventPayload", {
       description: "Tagged union payload for hook_event records.",
@@ -190,7 +197,7 @@ const syncConflictPayloadFields = {
   entryId: S.String,
   conflictCount: S.Number,
   resolvedEntryId: S.optional(S.String),
-} as const;
+};
 
 class SyncConflictPayloadAccept extends S.Class<SyncConflictPayloadAccept>($I`SyncConflictPayloadAccept`)(
   {
@@ -222,12 +229,13 @@ class SyncConflictPayloadReject extends S.Class<SyncConflictPayloadReject>($I`Sy
   })
 ) {}
 
-const SyncConflictPayload = S.Union([
+const SyncConflictPayloadBase = S.Union([
   SyncConflictPayloadAccept,
   SyncConflictPayloadMerge,
   SyncConflictPayloadReject,
-]).pipe(
-  S.toTaggedUnion("resolution"),
+]).pipe(S.toTaggedUnion("resolution"));
+
+const SyncConflictPayload = SyncConflictPayloadBase.pipe(
   $I.annoteSchema("SyncConflictPayload", {
     description: "Tagged union payload for sync_conflict records.",
   })
@@ -250,6 +258,149 @@ export class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`Syn
 ) {
   static readonly make = (params: SyncCompactionPayload) => new SyncCompactionPayload(params);
 }
+
+/**
+ * @since 0.0.0
+ */
+class AuditEventInputToolUse extends S.Class<AuditEventInputToolUse>($I`AuditEventInputToolUse`)(
+  {
+    event: S.tag("tool_use"),
+    payload: ToolUsePayload,
+  },
+  $I.annote("AuditEventInputToolUse", {
+    description: "Audit event input for tool use records.",
+  })
+) {}
+
+class AuditEventInputPermissionDecision extends S.Class<AuditEventInputPermissionDecision>(
+  $I`AuditEventInputPermissionDecision`
+)(
+  {
+    event: S.tag("permission_decision"),
+    payload: PermissionDecisionPayload,
+  },
+  $I.annote("AuditEventInputPermissionDecision", {
+    description: "Audit event input for permission decision records.",
+  })
+) {}
+
+class AuditEventInputHookEvent extends S.Class<AuditEventInputHookEvent>($I`AuditEventInputHookEvent`)(
+  {
+    event: S.tag("hook_event"),
+    payload: HookEventPayload,
+  },
+  $I.annote("AuditEventInputHookEvent", {
+    description: "Audit event input for hook event records.",
+  })
+) {}
+
+class AuditEventInputSyncConflict extends S.Class<AuditEventInputSyncConflict>($I`AuditEventInputSyncConflict`)(
+  {
+    event: S.tag("sync_conflict"),
+    payload: SyncConflictPayload,
+  },
+  $I.annote("AuditEventInputSyncConflict", {
+    description: "Audit event input for sync conflict records.",
+  })
+) {}
+
+class AuditEventInputSyncCompaction extends S.Class<AuditEventInputSyncCompaction>($I`AuditEventInputSyncCompaction`)(
+  {
+    event: S.tag("sync_compaction"),
+    payload: SyncCompactionPayload,
+  },
+  $I.annote("AuditEventInputSyncCompaction", {
+    description: "Audit event input for sync compaction records.",
+  })
+) {}
+
+const AuditEventInputBase = S.Union([
+  AuditEventInputToolUse,
+  AuditEventInputPermissionDecision,
+  AuditEventInputHookEvent,
+  AuditEventInputSyncConflict,
+  AuditEventInputSyncCompaction,
+]).pipe(S.toTaggedUnion("event"));
+
+type ToolUsePayload = typeof ToolUsePayload.Type;
+type PermissionDecisionPayload = typeof PermissionDecisionPayload.Type;
+type HookEventPayload = typeof HookEventPayload.Type;
+type SyncConflictPayload = typeof SyncConflictPayload.Type;
+
+/**
+ * @since 0.0.0
+ */
+export const AuditEventInput = AuditEventInputBase.pipe(
+  S.annotate(
+    $I.annote("AuditEventInput", {
+      description: "Tagged union of audit-log writes keyed by event name and normalized payload shape.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ */
+export type AuditEventInput = typeof AuditEventInput.Type;
+
+const normalizeToolUsePayload = (payload: ToolUsePayload): ToolUsePayload =>
+  ToolUsePayloadBase.match<ToolUsePayload>(payload, {
+    start: (value) => new ToolUsePayloadStart(value),
+    success: (value) => new ToolUsePayloadSuccess(value),
+    failure: (value) => new ToolUsePayloadFailure(value),
+  });
+
+const normalizePermissionDecisionPayload = (payload: PermissionDecisionPayload): PermissionDecisionPayload =>
+  PermissionDecisionPayloadBase.match<PermissionDecisionPayload>(payload, {
+    allow: (value) => new PermissionDecisionPayloadAllow(value),
+    deny: (value) => new PermissionDecisionPayloadDeny(value),
+    prompt: (value) => new PermissionDecisionPayloadPrompt(value),
+  });
+
+const normalizeHookEventPayload = (payload: HookEventPayload): HookEventPayload =>
+  HookEventPayloadBase.match<HookEventPayload>(payload, {
+    success: (value) => new HookEventPayloadSuccess(value),
+    failure: (value) => new HookEventPayloadFailure(value),
+  });
+
+const normalizeSyncConflictPayload = (payload: SyncConflictPayload): SyncConflictPayload =>
+  SyncConflictPayloadBase.match<SyncConflictPayload>(payload, {
+    accept: (value) => new SyncConflictPayloadAccept(value),
+    merge: (value) => new SyncConflictPayloadMerge(value),
+    reject: (value) => new SyncConflictPayloadReject(value),
+  });
+
+/**
+ * @since 0.0.0
+ */
+export const normalizeAuditEventInput: (input: AuditEventInput) => AuditEventInput = (input) =>
+  AuditEventInputBase.match<AuditEventInput>(input, {
+    tool_use: ({ payload }) =>
+      new AuditEventInputToolUse({
+        event: "tool_use",
+        payload: normalizeToolUsePayload(payload),
+      }),
+    permission_decision: ({ payload }) =>
+      new AuditEventInputPermissionDecision({
+        event: "permission_decision",
+        payload: normalizePermissionDecisionPayload(payload),
+      }),
+    hook_event: ({ payload }) =>
+      new AuditEventInputHookEvent({
+        event: "hook_event",
+        payload: normalizeHookEventPayload(payload),
+      }),
+    sync_conflict: ({ payload }) =>
+      new AuditEventInputSyncConflict({
+        event: "sync_conflict",
+        payload: normalizeSyncConflictPayload(payload),
+      }),
+    sync_compaction: ({ payload }) =>
+      new AuditEventInputSyncCompaction({
+        event: "sync_compaction",
+        payload: SyncCompactionPayload.make(payload),
+      }),
+  });
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.

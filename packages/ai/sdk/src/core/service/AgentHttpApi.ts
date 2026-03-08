@@ -29,6 +29,7 @@ const QueryEndpoint = HttpApiEndpoint.post("query", "/query", {
 
 const StatsEndpoint = HttpApiEndpoint.get("stats", "/stats", {
   success: QuerySupervisorStats,
+  error: AgentServiceError,
 });
 
 const InterruptAllEndpoint = HttpApiEndpoint.post("interruptAll", "/interrupt-all", {
@@ -122,8 +123,8 @@ const AgentHttpGroupValue = HttpApiGroup.make("agent", {
   CloseSessionEndpoint
 );
 
-const AgentHttpGroup: typeof AgentHttpGroupValue = AgentHttpGroupValue;
-const AgentHttpApiValue = HttpApi.make("agent").add(AgentHttpGroup);
+const AgentHttpApiValue: HttpApi.HttpApi<"agent", typeof AgentHttpGroupValue> =
+  HttpApi.make("agent").add(AgentHttpGroupValue);
 
 /**
  * @since 0.0.0

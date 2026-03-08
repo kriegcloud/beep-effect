@@ -377,12 +377,17 @@ export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`
 /**
  * PROV role value used by `hadRole`.
  */
-const RoleShape = S.Struct({
+const RoleFields = {
   id: S.OptionFromOptionalKey(ObjectRef),
   provType: S.OptionFromOptionalKey(RoleClassType),
   "prov:type": S.OptionFromOptionalKey(RoleClassType),
   type: OptionalTypeField,
-});
+};
+
+/**
+ * PROV role value used by `hadRole`.
+ */
+const RoleShape = S.Struct(RoleFields);
 
 /**
  * PROV role value used by `hadRole`.

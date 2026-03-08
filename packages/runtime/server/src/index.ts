@@ -17,6 +17,7 @@ import {
   RepoRunRpcGroup,
   SidecarBadRequestPayload,
   SidecarBootstrap,
+  SidecarBootstrapStdoutEvent,
   SidecarInternalErrorPayload,
   SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
@@ -74,8 +75,17 @@ const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-const encodeSidecarBootstrap = S.encodeSync(SidecarBootstrap);
+const encodeSidecarBootstrapStdoutEvent = S.encodeSync(SidecarBootstrapStdoutEvent);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const SidecarPort = NonNegativeInt.pipe(
+  S.check(S.isGreaterThan(0)),
+  S.annotate(
+    $I.annote("SidecarPort", {
+      description: "Configured TCP port for the sidecar runtime; must be greater than zero.",
+    })
+  )
+);
+const decodeSidecarPort = S.decodeUnknownSync(SidecarPort);
 
 const internalRunnerHost = (host: string): string => {
   if (host === "0.0.0.0") {
@@ -160,7 +170,7 @@ const sidecarTransportMiddlewareLayer = HttpRouter.middleware(
 export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`SidecarRuntimeConfig`)(
   {
     host: S.String,
-    port: NonNegativeInt,
+    port: SidecarPort,
     appDataDir: FilePath,
     sessionId: S.String,
     version: S.String,
@@ -411,7 +421,8 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
   config: SidecarRuntimeConfig,
   startedAt: DateTime.Utc
 ) {
-  const bootstrap = new SidecarBootstrap({
+  const bootstrap = new SidecarBootstrapStdoutEvent({
+    type: "bootstrap",
     sessionId: config.sessionId,
     version: config.version,
     host: config.host,
@@ -419,11 +430,11 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
     baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
     pid: decodeNonNegativeInt(process.pid),
     status: "healthy",
-    startedAt,
+    startedAt: DateTime.toEpochMillis(startedAt),
   });
 
   yield* Effect.sync(() => {
-    process.stdout.write(`${encodeJson(encodeSidecarBootstrap(bootstrap))}\n`);
+    process.stdout.write(`${encodeJson(encodeSidecarBootstrapStdoutEvent(bootstrap))}\n`);
   });
 });
 
@@ -802,7 +813,7 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
 
   const config = new SidecarRuntimeConfig({
     host,
-    port: decodeNonNegativeInt(port),
+    port: decodeSidecarPort(port),
     appDataDir: decodeFilePath(appDataDir),
     sessionId,
     version,

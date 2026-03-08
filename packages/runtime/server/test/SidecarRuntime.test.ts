@@ -3,7 +3,13 @@ import net from "node:net";
 import { fileURLToPath } from "node:url";
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { RunCursor, RunEventSequence, type RunId } from "@beep/repo-memory-model";
-import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
+import {
+  RepoRegistration,
+  RepoRun,
+  RepoRunRpcGroup,
+  SidecarBootstrap,
+  SidecarBootstrapStdoutEvent,
+} from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { Text } from "@beep/utils";
 import * as NodeHttpClient from "@effect/platform-node/NodeHttpClient";
@@ -360,21 +366,7 @@ const readBootstrapStdoutLine = (sidecar: SpawnedSidecar) =>
     }
 
     const decoded = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bootstrapLine).pipe(
-      Effect.flatMap(
-        S.decodeUnknownEffect(
-          S.Struct({
-            type: S.Literal("bootstrap"),
-            sessionId: S.String,
-            version: S.String,
-            host: S.String,
-            port: S.Number,
-            baseUrl: S.String,
-            pid: S.Number,
-            status: S.Literal("healthy"),
-            startedAt: S.Number,
-          })
-        )
-      ),
+      Effect.flatMap(S.decodeUnknownEffect(SidecarBootstrapStdoutEvent)),
       Effect.mapError((cause) => toTestError(`Failed to decode bootstrap stdout line: ${bootstrapLine}`, cause))
     );
 

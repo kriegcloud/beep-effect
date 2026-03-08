@@ -30,17 +30,17 @@ export type AgentServiceError = typeof AgentServiceError.Type;
  */
 export type AgentServiceErrorEncoded = typeof AgentServiceError.Encoded;
 
-/**
- * @since 0.0.0
- */
+type SdkMessage = typeof SdkSchema.SDKMessage.Type;
+type SdkMessageEncoded = typeof SdkSchema.SDKMessage.Encoded;
+
 const ModelInfoList = S.Array(SdkSchema.ModelInfo);
 const SlashCommandList = S.Array(SdkSchema.SlashCommand);
 const SessionInfoList = S.Array(SessionInfo);
-const SdkMessageSchema = SdkSchema.SDKMessage as S.Codec<SdkSchema.SDKMessage, SdkSchema.SDKMessageEncoded>;
+const SdkMessage: S.Codec<SdkMessage, SdkMessageEncoded> = SdkSchema.SDKMessage;
 
 const QueryStreamRpc = Rpc.make("QueryStream", {
   payload: QueryInput,
-  success: SdkMessageSchema,
+  success: SdkMessage,
   error: AgentServiceError,
   stream: true,
 });
@@ -53,11 +53,12 @@ const QueryResultRpc = Rpc.make("QueryResult", {
 
 const StatsRpc = Rpc.make("Stats", {
   success: QuerySupervisorStats,
+  error: AgentServiceError,
 });
 
 const InterruptAllRpc = Rpc.make("InterruptAll", {
   success: S.Void,
-  error: AgentSdkError,
+  error: AgentServiceError,
 });
 
 const SupportedModelsRpc = Rpc.make("SupportedModels", {
@@ -95,7 +96,7 @@ const SendSessionRpc = Rpc.make("SendSession", {
 
 const SessionStreamRpc = Rpc.make("SessionStream", {
   payload: SessionSelection,
-  success: SdkMessageSchema,
+  success: SdkMessage,
   error: SessionServiceError,
   stream: true,
 });
@@ -117,7 +118,22 @@ const ListSessionsRpc = Rpc.make("ListSessions", {
   error: SessionServiceError,
 });
 
-const AgentRpcsValue = RpcGroup.make(
+const AgentRpcMembers: readonly [
+  typeof QueryStreamRpc,
+  typeof QueryResultRpc,
+  typeof StatsRpc,
+  typeof InterruptAllRpc,
+  typeof SupportedModelsRpc,
+  typeof SupportedCommandsRpc,
+  typeof AccountInfoRpc,
+  typeof CreateSessionRpc,
+  typeof ResumeSessionRpc,
+  typeof SendSessionRpc,
+  typeof SessionStreamRpc,
+  typeof CloseSessionRpc,
+  typeof ListSessionsByTenantRpc,
+  typeof ListSessionsRpc,
+] = [
   QueryStreamRpc,
   QueryResultRpc,
   StatsRpc,
@@ -131,7 +147,12 @@ const AgentRpcsValue = RpcGroup.make(
   SessionStreamRpc,
   CloseSessionRpc,
   ListSessionsByTenantRpc,
-  ListSessionsRpc
-);
+  ListSessionsRpc,
+];
 
+const AgentRpcsValue: RpcGroup.RpcGroup<(typeof AgentRpcMembers)[number]> = RpcGroup.make(...AgentRpcMembers);
+
+/**
+ * @since 0.0.0
+ */
 export const AgentRpcs: typeof AgentRpcsValue = AgentRpcsValue;

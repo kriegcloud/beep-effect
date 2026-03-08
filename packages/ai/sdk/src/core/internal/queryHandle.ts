@@ -8,6 +8,12 @@ import type { QueryHandle, StreamBroadcastConfig, StreamShareConfig } from "../Q
 import type { PermissionMode } from "../Schema/index.js";
 import type { McpServerConfig } from "../Schema/Mcp.js";
 import { SDKMessage as SDKMessageSchema, type SDKUserMessage } from "../Schema/Message.js";
+import {
+  normalizeAccountInfo,
+  normalizeModelInfoList,
+  normalizeRewindFilesResult,
+  normalizeSlashCommandList,
+} from "./normalize.js";
 import type { InputQueue } from "./streaming.js";
 
 /**
@@ -105,18 +111,26 @@ export const makeQueryHandle = (
   const rewindFiles = Effect.fn("QueryHandle.rewindFiles")(
     (userMessageUuid: string, options?: { readonly dryRun?: undefined | boolean }) => {
       const sdkOptions = options?.dryRun === undefined ? undefined : { dryRun: options.dryRun };
-      return sdkPromise("Failed to rewind files", () => sdkQueryInstance.rewindFiles(userMessageUuid, sdkOptions));
+      return sdkPromise("Failed to rewind files", () => sdkQueryInstance.rewindFiles(userMessageUuid, sdkOptions)).pipe(
+        Effect.flatMap(normalizeRewindFilesResult)
+      );
     }
   );
-  const supportedCommands = sdkPromise("Failed to load supported commands", () => sdkQueryInstance.supportedCommands());
-  const supportedModels = sdkPromise("Failed to load supported models", () => sdkQueryInstance.supportedModels());
+  const supportedCommands = sdkPromise("Failed to load supported commands", () =>
+    sdkQueryInstance.supportedCommands()
+  ).pipe(Effect.flatMap(normalizeSlashCommandList));
+  const supportedModels = sdkPromise("Failed to load supported models", () => sdkQueryInstance.supportedModels()).pipe(
+    Effect.flatMap(normalizeModelInfoList)
+  );
   const mcpServerStatus = sdkPromise("Failed to load MCP server status", () => sdkQueryInstance.mcpServerStatus());
   const setMcpServers = Effect.fn("QueryHandle.setMcpServers")((servers: Record<string, McpServerConfig>) =>
     sdkPromise("Failed to set MCP servers", () =>
       sdkQueryInstance.setMcpServers(servers as Record<string, SdkMcpServerConfig>)
     )
   );
-  const accountInfo = sdkPromise("Failed to load account info", () => sdkQueryInstance.accountInfo());
+  const accountInfo = sdkPromise("Failed to load account info", () => sdkQueryInstance.accountInfo()).pipe(
+    Effect.flatMap(normalizeAccountInfo)
+  );
   const initializationResult = sdkPromise("Failed to load initialization result", () =>
     sdkQueryInstance.initializationResult()
   );

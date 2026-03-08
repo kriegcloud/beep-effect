@@ -54,6 +54,9 @@ class SDKAssistantMessageData extends S.Class<SDKAssistantMessageData>($I`SDKAss
   sdkMessageAnnotation("SDKAssistantMessage", "Assistant turn payload emitted after the model completes a response.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKAssistantMessage = SDKAssistantMessageData;
 
 /**
@@ -83,6 +86,9 @@ class SDKAuthStatusMessageData extends S.Class<SDKAuthStatusMessageData>($I`SDKA
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKAuthStatusMessage = SDKAuthStatusMessageData;
 
 /**
@@ -121,6 +127,9 @@ class SDKCompactBoundaryMessageData extends S.Class<SDKCompactBoundaryMessageDat
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKCompactBoundaryMessage = SDKCompactBoundaryMessageData;
 
 /**
@@ -156,6 +165,9 @@ class SDKHookResponseMessageData extends S.Class<SDKHookResponseMessageData>($I`
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookResponseMessage = SDKHookResponseMessageData;
 
 /**
@@ -183,6 +195,9 @@ class SDKHookStartedMessageData extends S.Class<SDKHookStartedMessageData>($I`SD
   sdkMessageAnnotation("SDKHookStartedMessage", "Hook lifecycle event emitted when a hook starts running.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookStartedMessage = SDKHookStartedMessageData;
 
 /**
@@ -216,6 +231,9 @@ class SDKHookProgressMessageData extends S.Class<SDKHookProgressMessageData>($I`
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKHookProgressMessage = SDKHookProgressMessageData;
 
 /**
@@ -244,6 +262,9 @@ class SDKPartialAssistantMessageData extends S.Class<SDKPartialAssistantMessageD
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKPartialAssistantMessage = SDKPartialAssistantMessageData;
 
 /**
@@ -279,6 +300,9 @@ class SDKResultSuccessData extends S.Class<SDKResultSuccessData>($I`SDKResultSuc
   sdkMessageAnnotation("SDKResultSuccess", "Successful result payload summarizing an SDK run and its usage.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKResultSuccess = SDKResultSuccessData;
 
 /**
@@ -451,6 +475,9 @@ class SDKStatusMessageData extends S.Class<SDKStatusMessageData>($I`SDKStatusMes
   sdkMessageAnnotation("SDKStatusMessage", "System message reporting transient SDK status changes such as compaction.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKStatusMessage = SDKStatusMessageData;
 
 /**
@@ -511,6 +538,9 @@ class SDKSystemMessageData extends S.Class<SDKSystemMessageData>($I`SDKSystemMes
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKSystemMessage = SDKSystemMessageData;
 
 /**
@@ -542,6 +572,9 @@ class SDKTaskNotificationMessageData extends S.Class<SDKTaskNotificationMessageD
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKTaskNotificationMessage = SDKTaskNotificationMessageData;
 
 /**
@@ -570,6 +603,9 @@ class SDKTaskStartedMessageData extends S.Class<SDKTaskStartedMessageData>($I`SD
   sdkMessageAnnotation("SDKTaskStartedMessage", "Task lifecycle message emitted when delegated work begins.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKTaskStartedMessage = SDKTaskStartedMessageData;
 
 /**
@@ -620,6 +656,9 @@ class SDKFilesPersistedEventData extends S.Class<SDKFilesPersistedEventData>($I`
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKFilesPersistedEvent = SDKFilesPersistedEventData;
 
 /**
@@ -650,6 +689,9 @@ class SDKToolProgressMessageData extends S.Class<SDKToolProgressMessageData>($I`
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKToolProgressMessage = SDKToolProgressMessageData;
 
 /**
@@ -675,6 +717,9 @@ class SDKToolUseSummaryMessageData extends S.Class<SDKToolUseSummaryMessageData>
   sdkMessageAnnotation("SDKToolUseSummaryMessage", "Tool summary message aggregating related tool use identifiers.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKToolUseSummaryMessage = SDKToolUseSummaryMessageData;
 
 /**
@@ -702,6 +747,9 @@ class SDKUserMessageData extends S.Class<SDKUserMessageData>($I`SDKUserMessage`)
   sdkMessageAnnotation("SDKUserMessage", "User-authored message payload submitted to the SDK session.")
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKUserMessage = SDKUserMessageData;
 
 /**
@@ -733,6 +781,9 @@ class SDKUserMessageReplayData extends S.Class<SDKUserMessageReplayData>($I`SDKU
   )
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SDKUserMessageReplay = SDKUserMessageReplayData;
 
 /**
@@ -779,3 +830,31 @@ export type SDKMessage = typeof SDKMessage.Type;
  * @since 0.0.0
  */
 export type SDKMessageEncoded = typeof SDKMessage.Encoded;
+
+const decodeSDKMessageSync = S.decodeUnknownSync(SDKMessage);
+const decodeSDKUserMessageSync = S.decodeUnknownSync(SDKUserMessage);
+
+/**
+ * @since 0.0.0
+ */
+export const makeSDKMessage = (input: SDKMessage | SDKMessageEncoded): SDKMessage => decodeSDKMessageSync(input);
+
+/**
+ * @since 0.0.0
+ */
+export const makeSDKUserMessage = (input: SDKUserMessage | SDKUserMessageEncoded): SDKUserMessage =>
+  decodeSDKUserMessageSync(input);
+
+/**
+ * @since 0.0.0
+ */
+export const makeUserMessage = (prompt: string): SDKUserMessage =>
+  makeSDKUserMessage({
+    type: "user",
+    session_id: "",
+    message: {
+      role: "user",
+      content: [{ type: "text", text: prompt }],
+    },
+    parent_tool_use_id: null,
+  });

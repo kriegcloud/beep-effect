@@ -4,15 +4,24 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { AgentRuntime } from "../AgentRuntime.js";
 import type { AgentSdkError } from "../Errors.js";
+import {
+  normalizeAccountInfo,
+  normalizeModelInfoList,
+  normalizeQueryResultOutput,
+  normalizeSDKMessage,
+  normalizeSlashCommandList,
+} from "../internal/normalize.js";
 import type { QueryHandle } from "../Query.js";
 import { collectResultSuccess } from "../QueryResult.js";
-import type { QuerySupervisorError } from "../QuerySupervisor.js";
+import { type QuerySupervisorError, QuerySupervisorStats } from "../QuerySupervisor.js";
 import type { SDKUserMessage } from "../Schema/Message.js";
 import type {
   QueryInput as QueryInputType,
   SessionCreateInput as SessionCreateInputType,
+  SessionCreateOutput as SessionCreateOutputType,
   SessionSendInput as SessionSendInputType,
 } from "../Schema/Service.js";
+import { SessionCreateOutput } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentRpcs } from "./AgentRpcs.js";
 import { SessionPoolUnavailableError } from "./SessionErrors.js";
@@ -78,22 +87,27 @@ export const layer = AgentRpcs.toLayer(
             })
           );
 
-    const QueryStream = (input: QueryInputType) => toStream(runtime, input);
+    const QueryStream = (input: QueryInputType) => toStream(runtime, input).pipe(Stream.mapEffect(normalizeSDKMessage));
 
     const QueryResult = (input: QueryInputType) =>
       collectResultSuccess(toStream(runtime, input)).pipe(
         Effect.scoped,
-        Effect.map((result) => ({
-          result: result.result,
-          metadata: result,
-        }))
+        Effect.flatMap((result) =>
+          normalizeQueryResultOutput({
+            result: result.result,
+            metadata: result,
+          })
+        )
       );
 
-    const Stats = () => runtime.stats;
+    const Stats = () => runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats)));
     const InterruptAll = () => runtime.interruptAll;
-    const SupportedModels = () => withProbeHandle(runtime, (handle) => handle.supportedModels);
-    const SupportedCommands = () => withProbeHandle(runtime, (handle) => handle.supportedCommands);
-    const AccountInfo = () => withProbeHandle(runtime, (handle) => handle.accountInfo);
+    const SupportedModels = () =>
+      withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList));
+    const SupportedCommands = () =>
+      withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList));
+    const AccountInfo = () =>
+      withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo));
 
     const CreateSession = (input: SessionCreateInputType) =>
       requirePool((pool) =>
@@ -101,7 +115,7 @@ export const layer = AgentRpcs.toLayer(
           Effect.flatMap((tenant) =>
             pool.create(input.options, tenant).pipe(
               Effect.flatMap((handle) => handle.sessionId),
-              Effect.map((sessionId) => ({ sessionId }))
+              Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
             )
           )
         )
@@ -113,7 +127,7 @@ export const layer = AgentRpcs.toLayer(
           Effect.flatMap((tenant) =>
             pool.get(input.sessionId, input.options, tenant).pipe(
               Effect.flatMap((handle) => handle.sessionId),
-              Effect.map((sessionId) => ({ sessionId }))
+              Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
             )
           )
         )

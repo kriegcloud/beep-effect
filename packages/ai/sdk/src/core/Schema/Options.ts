@@ -102,6 +102,9 @@ class JsonSchemaOutputFormatData extends S.Class<JsonSchemaOutputFormatData>($I`
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const JsonSchemaOutputFormat = JsonSchemaOutputFormatData;
 
 /**
@@ -151,6 +154,9 @@ class AgentDefinitionData extends S.Class<AgentDefinitionData>($I`AgentDefinitio
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const AgentDefinition = AgentDefinitionData;
 
 /**
@@ -280,6 +286,9 @@ class OptionsData extends S.Class<OptionsData>($I`Options`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const Options = OptionsData;
 
 /**
