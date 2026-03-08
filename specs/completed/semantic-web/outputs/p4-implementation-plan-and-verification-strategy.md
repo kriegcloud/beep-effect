@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Convert the completed spec into a dependency-aware implementation sequence and a concrete verification contract for later implementation work.
+Record the dependency-aware implementation sequence that closed the spec and preserve the concrete verification contract for implementation and maintenance work.
 
 ## Implementation Sequence
 
@@ -26,15 +26,27 @@ Convert the completed spec into a dependency-aware implementation sequence and a
 - keep experimental ontology-builder work outside the stable root surface
 - do not treat JSON Schema, `Graph`, or raw hashing as semantic substitutes for RDF, SHACL, or canonical identity
 
-## Migration Compatibility Posture
+## Seed-Asset Migration And Compatibility Posture
 
-- migrate `IRI` and `ProvO` into `@beep/semantic-web` as the canonical public owner
+- keep `IRI` canonical at `@beep/semantic-web/iri`; no compatibility shim is required
+- treat `ProvO` as the seed-asset migration that established `@beep/semantic-web/prov` as the canonical public owner
 - do not assume temporary `@beep/schema` re-exports are needed; add them only if migration inventory proves they are necessary to avoid unsafe cutovers
 - if compatibility shims are introduced, keep them short-lived, document the consumers they protect, and remove them after migration completes
 
+## Verification Matrix
+
+| Area | Required Verification | Command Gate |
+|---|---|---|
+| identifiers | valid and invalid `IRI` and `URI` fixtures plus normalization and equivalence coverage where applicable | semantic-web package gates |
+| RDF and vocab | term, quad, dataset, prefix, namespace, and vocabulary identity coverage | semantic-web package gates |
+| JSON-LD | context normalization, document boundary fixtures, framing, RDF bridging, and streaming behavior | semantic-web package gates |
+| provenance and evidence | minimal PROV core, extension-tier cases, lifecycle-field preservation, evidence anchors, and bounded projection behavior | semantic-web package gates |
+| services and adapters | request, result, and error schema coverage plus fake-backed or adapter-backed contract tests | semantic-web package gates |
+| exports and docs | curated root surface preserved and docs aligned with the stable API | build gate plus docs maintenance checks |
+
 ## Verification Commands
 
-Later implementation work should use:
+Implementation and maintenance work should use:
 
 ```bash
 bun run --filter=@beep/semantic-web check
@@ -45,7 +57,7 @@ bun run --filter=@beep/semantic-web build
 
 ## Failure Classification
 
-Later implementation verification must classify failures as:
+Implementation and maintenance verification must classify failures as:
 
 - `new failure`
 - `pre-existing failure`
@@ -61,13 +73,10 @@ Later implementation verification must classify failures as:
 
 ## Outcome
 
-This P4 baseline is ready for execution. Later implementation work can now follow this plan without first redesigning the package, but the baseline itself should still be refined during phase execution rather than treated as evidence that P4 already ran.
+P4 is closed. The implementation order, seed-asset posture, compatibility-shim stance, and verification contract are explicit enough that future work can extend the package without redesigning it first.
 
-## Remaining Open Question
+## Resolved Closeout Decisions
 
-Should the first implementation slice include the Web Annotation adapter, or stop at the adapter seam plus core evidence-anchor values?
-
-Recommended default:
-
-- implement the seam and core values first
-- add the adapter in the first adapter-focused slice if schedule allows
+- the stable v1 SPARQL contract remains minimal and engine-agnostic
+- the first adapter wave stops at the Web Annotation seam plus core evidence-anchor values
+- `SemanticSchemaMetadata.specifications` remains typed but descriptive in v1

@@ -101,3 +101,29 @@
 **Risks still open before implementation:**
 
 **Final readiness assessment:**
+
+---
+
+## Completion Closeout
+
+**Date:** 2026-03-08
+
+**What was finalized:**
+
+- The spec package status was closed from pending to completed.
+- The three residual design questions were resolved explicitly:
+  - the v1 SPARQL service contract stays minimal and engine-agnostic
+  - the first adapter wave stops at the Web Annotation seam plus core evidence-anchor values
+  - `SemanticSchemaMetadata.specifications` stays typed but descriptive in v1
+- The manifest, root README, quick start, plans, and P4 output were aligned to the completed posture.
+
+**Why the package can move to completed:**
+
+- The design surface is decision-complete across P0 through P4.
+- The completed package implementation now exists under `packages/common/semantic-web`.
+- The remaining review discussion is implementation-compliance work, not a spec-boundary gap.
+
+**What remains outside the completed spec:**
+
+- future implementation maintenance and effect-first/schema-first cleanup
+- any later public-contract expansion that would intentionally reopen the completed design

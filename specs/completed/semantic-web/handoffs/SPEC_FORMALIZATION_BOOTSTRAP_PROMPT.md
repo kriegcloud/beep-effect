@@ -1,8 +1,8 @@
 # Spec Formalization Bootstrap Prompt
 
-> Preserved exploratory bootstrap artifact. This prompt created the formal pending package and is now superseded by `HANDOFF_P0.md` through `HANDOFF_P4.md` plus the corresponding orchestrator prompts.
+> Preserved exploratory bootstrap artifact. This prompt created the formal spec package and is now superseded by `HANDOFF_P0.md` through `HANDOFF_P4.md` plus the corresponding orchestrator prompts.
 
-> Superseded by the formal spec package artifacts in this directory and the root [README.md](../README.md). Retained as exploratory provenance for how this folder transitioned from shape discovery into a formal pending spec package.
+> Superseded by the completed spec package artifacts in this directory and the root [README.md](../README.md). Retained as exploratory provenance for how this folder transitioned from shape discovery into a completed spec package.
 
 ## Usage
 
@@ -17,7 +17,7 @@ This prompt is for creating the formal spec package for `@beep/semantic-web` fro
 ```text
 Work from the repository root of the current workspace.
 
-Your task is to turn the existing exploratory folder at `specs/pending/semantic-web` into the formal pending spec package for `@beep/semantic-web`.
+Your task is to turn the exploratory semantic-web folder that ultimately became `specs/completed/semantic-web` into the formal spec package for `@beep/semantic-web`.
 
 This task is for spec authoring, not implementation.
 
@@ -40,14 +40,14 @@ You must follow this repo contract:
 6. Use `bun` for repo commands.
 7. Do not write production package code. This prompt only covers the formal spec artifact set.
 8. Do not reopen already-settled defaults unless stronger local evidence directly forces a change. If you override a settled default, cite the conflicting local evidence explicitly.
-9. Keep scope inside `specs/pending/semantic-web` unless a nearby reference document must be read for evidence.
+9. Keep scope inside `specs/completed/semantic-web` unless a nearby reference document must be read for evidence.
 10. Do not discard exploratory artifacts silently. If you replace, merge, or supersede them, make the rationale explicit in the resulting docs.
 
 Spec request:
 
 - Spec title: `@beep/semantic-web`
 - Spec slug or directory name: `semantic-web`
-- Target location: `specs/pending/semantic-web`
+- Target location: `specs/completed/semantic-web`
 - Objective: `Create a decision-complete formal spec package for a schema-first semantic-web foundation package that will own reusable semantic-web values, adapters, service contracts, and metadata patterns in this monorepo.`
 - Success criteria: `The exploratory semantic-web folder is turned into a formal spec package with a normative README, quick start, design docs, implementation plans, handoff prompts, and outputs that clearly define the initial package topology, boundaries, phased work, and verification expectations for @beep/semantic-web.`
 - Non-goals:
@@ -57,13 +57,13 @@ Spec request:
   - `Do not use Effect Graph as the primary RDF semantic model.`
   - `Do not invent a metadata-heavy pattern for every trivial helper schema.`
 - Required local references:
-  - `specs/pending/semantic-web/README.md`
-  - `specs/pending/semantic-web/QUICK_START.md`
-  - `specs/pending/semantic-web/research/2026-03-08-initial-exploration.md`
-  - `specs/pending/semantic-web/research/2026-03-08-effect-v4-module-selection.md`
+  - `specs/completed/semantic-web/README.md`
+  - `specs/completed/semantic-web/QUICK_START.md`
+  - `specs/completed/semantic-web/research/2026-03-08-initial-exploration.md`
+  - `specs/completed/semantic-web/research/2026-03-08-effect-v4-module-selection.md`
   - `specs/pending/expert-memory-big-picture/research/Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md`
-  - `specs/pending/semantic-web/design/semantic-schema-metadata.md`
-  - `specs/pending/semantic-web/design/foundation-decisions.md`
+  - `specs/completed/semantic-web/design/semantic-schema-metadata.md`
+  - `specs/completed/semantic-web/design/foundation-decisions.md`
   - `packages/common/semantic-web/src/iri.ts`
   - `packages/common/schema/src/internal/ProvO/ProvO.ts`
   - `packages/common/semantic-web/README.md`
@@ -120,17 +120,17 @@ Spec request:
   - `Use a minimal stable PROV profile in v1 with an extension tier instead of full-profile maximalism.`
   - `Treat Web Annotation as an adapter seam for evidence anchoring, not a hard package-wide dependency.`
   - `Make SemanticSchemaMetadata.kind a closed, intentionally coarse literal domain in v1.`
-  - `Adopt the semantic schema metadata annotation pattern from specs/pending/semantic-web/design/semantic-schema-metadata.md for the right public schema families, but do not apply it indiscriminately to trivial internal helper schemas.`
+  - `Adopt the semantic schema metadata annotation pattern from specs/completed/semantic-web/design/semantic-schema-metadata.md for the right public schema families, but do not apply it indiscriminately to trivial internal helper schemas.`
 
 Execution order:
 
 1. Read the semantic-web exploratory entrypoints first:
-   - `specs/pending/semantic-web/README.md`
-   - `specs/pending/semantic-web/QUICK_START.md`
-   - `specs/pending/semantic-web/research/2026-03-08-initial-exploration.md`
-   - `specs/pending/semantic-web/research/2026-03-08-effect-v4-module-selection.md`
-   - `specs/pending/semantic-web/design/semantic-schema-metadata.md`
-   - `specs/pending/semantic-web/design/foundation-decisions.md`
+   - `specs/completed/semantic-web/README.md`
+   - `specs/completed/semantic-web/QUICK_START.md`
+   - `specs/completed/semantic-web/research/2026-03-08-initial-exploration.md`
+   - `specs/completed/semantic-web/research/2026-03-08-effect-v4-module-selection.md`
+   - `specs/completed/semantic-web/design/semantic-schema-metadata.md`
+   - `specs/completed/semantic-web/design/foundation-decisions.md`
 2. Read the PROV-O assessment before finalizing provenance and evidence-anchoring design.
 3. Read the nearby spec exemplars and explicitly mirror their structure where it improves execution clarity.
 4. Only then draft the formal semantic-web spec artifact set.
@@ -142,7 +142,7 @@ Spec-writing requirements:
 3. Make assumptions explicit instead of burying them.
 4. Include concrete acceptance criteria and verification expectations.
 5. Make the package boundary with `@beep/schema` explicit.
-6. Treat the decisions in `specs/pending/semantic-web/design/foundation-decisions.md` as defaults to preserve unless stronger local evidence forces a change.
+6. Treat the decisions in `specs/completed/semantic-web/design/foundation-decisions.md` as defaults to preserve unless stronger local evidence forces a change.
 7. Decide the public module topology clearly enough that later implementation work can follow it without redoing the design.
 8. Explicitly classify which upstream libraries are:
    - `adapter targets`

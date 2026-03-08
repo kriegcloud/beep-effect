@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the verification expectations that later implementation work for `@beep/semantic-web` must satisfy without inventing ad-hoc checks during execution.
+Define the verification expectations that implementation and maintenance work for `@beep/semantic-web` must satisfy without inventing ad-hoc checks during execution.
 
 ## Verification Matrix
 
@@ -25,7 +25,7 @@ Define the verification expectations that later implementation work for `@beep/s
 
 ## Package Command Expectations
 
-The default package-scoped verification commands for later implementation work are:
+The default package-scoped verification commands for implementation and maintenance work are:
 
 ```bash
 bun run --filter=@beep/semantic-web check

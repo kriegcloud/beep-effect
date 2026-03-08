@@ -1,6 +1,6 @@
 # @beep/semantic-web — Quick Start
 
-> Formal pending spec for the schema-first semantic-web foundation package in this monorepo.
+> Completed spec for the schema-first semantic-web foundation package in this monorepo.
 
 ## What This Package Defines
 
@@ -32,14 +32,14 @@
 8. [outputs/p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md)
 9. [outputs/p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md)
 
-## Kickoff Posture
+## Completion Posture
 
-- Start phase execution with [HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) and [P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) unless [`outputs/manifest.json`](./outputs/manifest.json) sets a later `currentTargetPhase`.
-- Treat the existing `outputs/p0` through `outputs/p4` docs as pre-authored baselines to refine, not as proof that phase execution already happened.
-- In Plan Mode, produce a decision-complete phase plan before editing the current phase artifact.
-- When operating outside Plan Mode, refine the current phase output instead of recreating it from scratch.
+- Use [README.md](./README.md) and [`outputs/manifest.json`](./outputs/manifest.json) as the authoritative status view for the completed spec package.
+- Treat `outputs/p0` through `outputs/p4` as the closed design record, not as queued phase work.
+- Treat `handoffs/` and `AGENT_PROMPTS.md` as preserved execution artifacts that explain how the spec was closed.
+- Update the completed spec only when the public semantic-web contract changes materially.
 
-## Phase Entry Files
+## Phase Archive
 
 | Phase | Handoff | Orchestrator | Output |
 |---|---|---|---|

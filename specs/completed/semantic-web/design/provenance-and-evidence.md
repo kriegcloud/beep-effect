@@ -9,7 +9,7 @@ Define the provenance backbone, evidence-anchoring policy, bounded projection st
 ### Source-grounded facts
 
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) already models `Entity`, `Activity`, `Agent`, `SoftwareAgent`, `Plan`, `PrimarySource`, `Quotation`, and `Revision`.
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../../expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md) explicitly recommends a small stable PROV profile, Web Annotation-compatible evidence anchoring, bounded provenance projections, and explicit lifecycle time fields.
+- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../../../pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md) explicitly recommends a small stable PROV profile, Web Annotation-compatible evidence anchoring, bounded provenance projections, and explicit lifecycle time fields.
 
 ### Assumptions
 

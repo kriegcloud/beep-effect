@@ -2,7 +2,7 @@
 
 ## Status
 
-**PENDING**
+**COMPLETED**
 
 ## Owner
 
@@ -17,9 +17,9 @@
 
 ### Root
 
-- [README.md](./README.md) — normative source of truth for the pending spec package
+- [README.md](./README.md) — normative source of truth for the completed spec package
 - [QUICK_START.md](./QUICK_START.md) — 5-minute orientation
-- [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) — per-phase execution prompts
+- [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) — preserved per-phase execution prompts
 - [REFLECTION_LOG.md](./REFLECTION_LOG.md) — phase-by-phase learnings template
 
 ### Design
@@ -36,8 +36,8 @@
 
 ### Handoffs
 
-- [HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md) — cross-phase overview handoff
-- [P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md) — combined orchestration prompt
+- [HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md) — preserved cross-phase overview handoff
+- [P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md) — preserved combined orchestration prompt
 - [HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) — P0 Package Topology and Boundaries
 - [HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) — P1 Core Schema and Value Design
 - [HANDOFF_P2.md](./handoffs/HANDOFF_P2.md) — P2 Adapter and Representation Design
@@ -63,7 +63,7 @@
 
 - [2026-03-08-initial-exploration.md](./research/2026-03-08-initial-exploration.md)
 - [2026-03-08-effect-v4-module-selection.md](./research/2026-03-08-effect-v4-module-selection.md)
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md)
+- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../../pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md)
 
 ---
 
@@ -71,27 +71,27 @@
 
 ### Problem
 
-The monorepo already contains semantic-web proof assets, an empty `@beep/semantic-web` package stub, legacy local prior art under `.repos/beep-effect`, and locally vendored upstream semantic-web libraries. What is missing is a decision-complete package spec that says which semantic-web concerns belong in `@beep/semantic-web`, how they relate to `@beep/schema`, which adapter seams are first-class, and how provenance, JSON-LD, and metadata patterns fit together without reopening the same design questions on every phase pass.
+The monorepo now contains both an implemented `@beep/semantic-web` package and the design history that shaped it. What still needs a stable home is a closed spec record that says which semantic-web concerns belong in `@beep/semantic-web`, how they relate to `@beep/schema`, which adapter seams are first-class, and which decisions remain stable for future maintenance work.
 
 ### Solution
 
-This spec package turns the exploratory `specs/pending/semantic-web` folder into a formal pending package spec for `@beep/semantic-web`. It defines:
+This completed spec package closes the exploratory semantic-web work that began under `specs/pending/semantic-web` and now lives at `specs/completed/semantic-web`. It records:
 
 1. the initial public module topology
 2. the package boundary with `@beep/schema`
 3. the v1 provenance and evidence posture
 4. the semantic schema metadata policy
-5. the phased work, handoffs, and verification expectations needed for later implementation
+5. the phased work, handoffs, and verification expectations that shaped implementation and still govern future changes
 
 ### Why It Matters
 
 - The repo needs one canonical semantic-web foundation package instead of split proof modules and prior art.
 - JSON-LD, RDF/JS-aligned values, provenance, and semantic metadata are cross-cutting concerns for expert-memory and semantic knowledge work in this monorepo.
-- Later implementation work should be able to follow a closed design instead of redoing topology, boundary, and provenance decisions.
+- Future maintenance and expansion work should be able to follow a closed design record instead of reopening topology, boundary, and provenance decisions.
 
 ## Structural Pattern Reused
 
-This package intentionally mirrors the nearby pending spec pattern used in [ip-law-knowledge-graph](../ip-law-knowledge-graph/README.md):
+This package intentionally mirrors the nearby pending spec pattern used in [ip-law-knowledge-graph](../../pending/ip-law-knowledge-graph/README.md):
 
 - a normative root README
 - a short quick start
@@ -116,8 +116,8 @@ The exploratory semantic-web docs are preserved as evidence, then formalized thr
 ### Assumptions used by this spec
 
 - `@beep/semantic-web` will continue to live at `packages/common/semantic-web`.
-- Generic schema helpers such as `LiteralKit` and non-semantic repo-wide schema building blocks remain owned by `@beep/schema` unless later implementation work proves they are semantic-web-specific.
-- Later implementation work may introduce adapter-specific dependencies behind service boundaries, but the public package identity should stay stable even if particular libraries change.
+- Generic schema helpers such as `LiteralKit` and non-semantic repo-wide schema building blocks remain owned by `@beep/schema` unless later package evolution proves they are semantic-web-specific.
+- Future package evolution may introduce adapter-specific dependencies behind service boundaries, but the public package identity should stay stable even if particular libraries change.
 
 ### Proposed design adopted by this spec
 
@@ -256,11 +256,11 @@ Canonical priority order:
 | P3 | Service Contract and Metadata Design | [p3-service-contract-and-metadata-design.md](./outputs/p3-service-contract-and-metadata-design.md) | Service contracts, provenance posture, evidence anchors, and metadata pattern usage are explicit |
 | P4 | Implementation Plan and Verification Strategy | [p4-implementation-plan-and-verification-strategy.md](./outputs/p4-implementation-plan-and-verification-strategy.md) | File/module rollout order, acceptance criteria, and `bun` verification commands are explicit |
 
-These output files are pre-authored, decision-complete baselines for future phase work. Their presence does not mean a phase execution pass already happened; the manifest phase statuses track execution readiness, not whether a baseline document exists.
+These output files now serve as the closed design record for the completed spec package. Revise them only when the public semantic-web design changes materially.
 
 ## Success Criteria
 
-- [x] The exploratory semantic-web folder has been formalized into a pending spec package with normative root docs.
+- [x] The semantic-web spec package is complete and moved under `specs/completed/semantic-web`.
 - [x] The initial package topology is clear enough that implementation can follow it without redesigning the boundary.
 - [x] The boundary with `@beep/schema` is explicit.
 - [x] JSON-LD, provenance, evidence anchoring, and semantic metadata policy are decision-complete for v1.
@@ -270,7 +270,7 @@ These output files are pre-authored, decision-complete baselines for future phas
 
 ## Verification Expectations
 
-Later implementation work should use the package-scoped `bun` commands already exposed by the repo:
+Implementation and maintenance work should use the package-scoped `bun` commands already exposed by the repo:
 
 ```bash
 bun run --filter=@beep/semantic-web check
@@ -289,10 +289,10 @@ Spec-doc maintenance for this folder should additionally keep Markdown and JSON 
 - `@beep/schema` compatibility re-exports are not planned by default. Use short-lived shims only if migration inventory later proves they are required.
 - The stable root export surface is curated and minimal. Family-specific module paths remain canonical, and root exports must not become a package-wide convenience dump.
 
-## Remaining Open Questions
+## Resolved Closeout Decisions
 
-| Question | Options | Recommended Default |
-|---|---|---|
-| How broad should the first public SPARQL contract be? | `no public SPARQL contract in v1`, `minimal query contract only`, `parser + runtime surfaces in v1` | `minimal query contract only`; keep Traqula and Comunica as research inputs until there is stronger local need |
-| Should the first adapter-focused implementation slice include a public Web Annotation adapter? | `core seam plus anchor values only`, `core seam plus public Web Annotation adapter in the first adapter slice` | `ship the seam and core evidence-anchor values first`; add the public adapter in the first adapter-focused slice only if it does not slow core value delivery |
-| Should `SemanticSchemaMetadata.specifications` stay descriptive-only or become machine-checkable in v1? | `typed but descriptive`, `partially machine-checkable in v1` | `typed but descriptive in v1`; avoid overfitting the first release around citation-enforcement mechanics |
+| Decision Surface | Closed Position |
+|---|---|
+| SPARQL contract breadth | keep the stable v1 SPARQL surface minimal and engine-agnostic |
+| Web Annotation first-wave scope | ship the seam plus core evidence-anchor values first; defer a concrete adapter from the first implementation wave |
+| `SemanticSchemaMetadata.specifications` posture | keep it typed but descriptive in v1 rather than machine-enforced |

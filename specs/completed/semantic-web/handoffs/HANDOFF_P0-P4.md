@@ -29,7 +29,7 @@ If you are operating in Plan Mode, do not edit spec artifacts yet. First read th
 ## Constraints
 
 - Use `bun` for repo and package commands.
-- Stay inside `specs/pending/semantic-web` unless a nearby evidence document must be read.
+- Stay inside `specs/completed/semantic-web` unless a nearby evidence document must be read.
 - Do not write production package code while working only on the spec artifacts.
 - Preserve exploratory artifacts explicitly; do not delete them silently.
 

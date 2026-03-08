@@ -202,7 +202,7 @@ Avoid for:
 
 ## Summary
 
-These defaults are now locked for the formal pending spec:
+These defaults are now locked for the formal completed spec:
 
 1. `@beep/semantic-web` is canonical
 2. the package posture is `foundation + adapters`

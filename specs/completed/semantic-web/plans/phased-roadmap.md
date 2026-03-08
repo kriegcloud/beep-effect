@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the execution order for the formal `@beep/semantic-web` spec so that later implementation work can follow the phase outputs without redoing design discovery.
+Record the execution order that closed the formal `@beep/semantic-web` spec so future major revisions can follow the same dependency structure without redoing design discovery.
 
 ## Phase Sequence
 
@@ -44,7 +44,7 @@ Define the execution order for the formal `@beep/semantic-web` spec so that late
 
 - convert the design into a dependency-aware implementation sequence
 - define acceptance criteria and verification commands
-- keep the work at planning level rather than implementation level
+- keep the document at the design-record level rather than turning it into implementation detail drift
 
 ## Constraints
 
@@ -56,4 +56,4 @@ Define the execution order for the formal `@beep/semantic-web` spec so that late
 
 ## Exit Condition
 
-The roadmap is complete when future implementation work can start from P4 and build the package without first reopening the design.
+The roadmap is complete. Future major changes should either follow this dependency order or record why they intentionally deviate from it.

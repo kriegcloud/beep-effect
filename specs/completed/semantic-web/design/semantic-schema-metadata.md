@@ -4,7 +4,7 @@
 
 Define the formal annotation pattern for `@beep/semantic-web` so that important public semantic-web schemas can carry typed metadata without bloating their runtime value shape.
 
-This document is normative for the pending spec package.
+This document is normative for the completed spec package.
 
 ## Normative Decision
 

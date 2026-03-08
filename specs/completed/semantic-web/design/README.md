@@ -1,6 +1,6 @@
 # Design Notes
 
-These documents are normative for the pending `@beep/semantic-web` spec package.
+These documents are normative for the completed `@beep/semantic-web` spec package.
 
 ## Current Design Set
 

@@ -1,12 +1,12 @@
 # Handoffs
 
-This directory now contains the formal phase handoffs and orchestrator prompts for the pending `@beep/semantic-web` spec package.
+This directory preserves the formal phase handoffs and orchestrator prompts that were used to close the `@beep/semantic-web` spec package.
 
-## Kickoff Guidance
+## Usage Guidance
 
-- Start with [HANDOFF_P0.md](./HANDOFF_P0.md) and [P0_ORCHESTRATOR_PROMPT.md](./P0_ORCHESTRATOR_PROMPT.md) unless [`../outputs/manifest.json`](../outputs/manifest.json) sets a later `currentTargetPhase`.
-- In Plan Mode, produce a decision-complete phase plan before editing the current phase artifact.
-- When operating outside Plan Mode, refine the existing phase output instead of recreating it.
+- Use these files as historical execution artifacts and provenance for how the completed spec was closed.
+- For current semantic-web contract maintenance, start with [README.md](../README.md) and [`../outputs/manifest.json`](../outputs/manifest.json).
+- If a future redesign reopens phased execution, update the prompts before using them as active instructions.
 
 ## Combined Overview
 

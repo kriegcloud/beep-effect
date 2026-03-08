@@ -20,7 +20,7 @@ bounded policy already established in P1 and the design notes.
 - [`design/semantic-schema-metadata.md`](../design/semantic-schema-metadata.md)
   already closes the annotation key, helper pattern, required fields, and
   required-versus-optional-versus-avoided usage policy.
-- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../../expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md)
+- [Assessment of W3C PROV-O for Provenance in an Expert-Memory System.md](../../../pending/expert-memory-big-picture/research/Assessment%20of%20W3C%20PROV-O%20for%20Provenance%20in%20an%20Expert-Memory%20System.md)
   reinforces that PROV-O is the interoperable lineage backbone, not the whole
   operational provenance system.
 
