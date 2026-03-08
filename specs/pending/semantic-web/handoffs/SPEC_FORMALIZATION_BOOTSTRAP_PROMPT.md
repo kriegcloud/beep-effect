@@ -1,4 +1,4 @@
-# Next Session Spec Prompt
+# Spec Formalization Bootstrap Prompt
 
 > Preserved exploratory bootstrap artifact. This prompt created the formal pending package and is now superseded by `HANDOFF_P0.md` through `HANDOFF_P4.md` plus the corresponding orchestrator prompts.
 
@@ -8,18 +8,18 @@
 
 Historical provenance only. Do not use this prompt for current phase execution.
 
-If you need to reconstruct the original formalization step, copy the `text` block below into a fresh Codex session.
+If you need to reconstruct the original formalization step, reuse the `text` block below.
 
 This prompt is for creating the formal spec package for `@beep/semantic-web` from the exploratory material already captured in this repo.
 
 ## Copy/Paste Prompt
 
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Your task is to turn the existing exploratory folder at `specs/pending/semantic-web` into the formal pending spec package for `@beep/semantic-web`.
 
-This is a spec-authoring session, not an implementation session.
+This task is for spec authoring, not implementation.
 
 You are not starting from a blank slate. The exploratory semantic-web folder already contains:
 
@@ -38,7 +38,7 @@ You must follow this repo contract:
 4. If the spec touches Effect work, treat `.repos/effect-v4` as the source of truth for API claims.
 5. Distinguish clearly between source-grounded facts, assumptions, and proposed design.
 6. Use `bun` for repo commands.
-7. Do not write production package code. This session is only for the formal spec artifact set.
+7. Do not write production package code. This prompt only covers the formal spec artifact set.
 8. Do not reopen already-settled defaults unless stronger local evidence directly forces a change. If you override a settled default, cite the conflicting local evidence explicitly.
 9. Keep scope inside `specs/pending/semantic-web` unless a nearby reference document must be read for evidence.
 10. Do not discard exploratory artifacts silently. If you replace, merge, or supersede them, make the rationale explicit in the resulting docs.
@@ -143,7 +143,7 @@ Spec-writing requirements:
 4. Include concrete acceptance criteria and verification expectations.
 5. Make the package boundary with `@beep/schema` explicit.
 6. Treat the decisions in `specs/pending/semantic-web/design/foundation-decisions.md` as defaults to preserve unless stronger local evidence forces a change.
-7. Decide the public module topology clearly enough that a later implementation session can follow it without redoing the design.
+7. Decide the public module topology clearly enough that later implementation work can follow it without redoing the design.
 8. Explicitly classify which upstream libraries are:
    - `adapter targets`
    - `implementation references`

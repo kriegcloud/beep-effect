@@ -7,7 +7,8 @@
 
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
-import { Boolean as Bool, Console, Deferred, Effect, Fiber, Layer, Ref } from "effect";
+import { Console, Deferred, Effect, Fiber, Layer, Ref } from "effect";
+import * as Bool from "effect/Boolean";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { loadGraphitiProxyConfig } from "./ProxyConfig.js";
 import {

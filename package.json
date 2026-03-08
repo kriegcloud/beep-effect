@@ -270,7 +270,7 @@
     "react-dom": "19.2.4",
     "react-force-graph-2d": "^1.29.1",
     "resend": "^6.9.3",
-    "shadcn": "^4.0.0",
+    "shadcn": "^4.0.1",
     "syncpack": "14.0.0-alpha.41",
     "tsx": "^4.21.0",
     "tailwind-merge": "^3.5.0",

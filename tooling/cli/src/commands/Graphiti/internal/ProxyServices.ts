@@ -8,14 +8,12 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import {
-  Array as A,
   Clock,
   Deferred,
   Duration,
   Effect,
   Inspectable,
   Match,
-  Option as O,
   pipe,
   Queue,
   Ref,
@@ -23,9 +21,11 @@ import {
   SchemaTransformation,
   type Scope,
   ServiceMap,
-  String as Str,
 } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   Headers,
   HttpBody,

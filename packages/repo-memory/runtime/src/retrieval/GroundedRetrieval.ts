@@ -21,10 +21,11 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, PosInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Effect, Layer, Order, pipe, ServiceMap, String as Str } from "effect";
+import { DateTime, Effect, Layer, Order, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   type QueryKindMetric,
   recordQueryInterpretation,

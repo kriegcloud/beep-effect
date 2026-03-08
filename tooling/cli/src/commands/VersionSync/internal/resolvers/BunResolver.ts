@@ -10,10 +10,12 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A as CommonArray, thunkEmptyStr } from "@beep/utils";
-import { Boolean as Bool, Effect, FileSystem, Inspectable, identity, Path, String as Str } from "effect";
+import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {

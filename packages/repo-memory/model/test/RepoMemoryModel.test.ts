@@ -2,10 +2,10 @@ import {
   InterruptRepoRunRequest,
   RepoId,
   RepoRun,
+  ResumeRepoRunRequest,
   RunCommandAck,
   RunCursor,
   RunId,
-  ResumeRepoRunRequest,
   StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
 import { describe, expect, it } from "@effect/vitest";

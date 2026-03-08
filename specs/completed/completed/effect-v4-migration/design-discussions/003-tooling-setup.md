@@ -74,7 +74,6 @@ All foundational tooling is now configured and ready for package creation. The @
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect": ["../../packages/effect/src/index.ts"],
       "@beep/*": ["../../<workspace>/**/src/index.ts"]
     }
   }

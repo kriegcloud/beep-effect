@@ -1,10 +1,11 @@
 import { $ClaudeId } from "@beep/identity/packages";
-import { Config, Effect, FileSystem, flow, Path, pipe, String as Str } from "effect";
+import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import picomatch from "picomatch";
 import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
 

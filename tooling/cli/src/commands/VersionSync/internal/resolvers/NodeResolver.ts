@@ -11,12 +11,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
-import { Effect, FileSystem, identity, Path, SchemaTransformation, String as Str } from "effect";
+import { Effect, FileSystem, identity, Path, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import { VersionCategoryReport, VersionCategoryStatusThunk, VersionDriftItem, VersionSyncError } from "../Models.js";
 

@@ -75,6 +75,7 @@ const INCLUDED_GLOBS = [
   "packages/**/*.{ts,tsx}",
   "tooling/**/*.{ts,tsx}",
   "infra/**/*.ts",
+  ".claude/hooks/**/*.ts",
 ] as const;
 
 const getSimpleIdentifierParameterName = (arrowFunction: ArrowFunction): O.Option<string> => {

@@ -40,12 +40,12 @@ import {
   Path,
   pipe,
   Ref,
-  String as Str,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as ClusterWorkflowEngine from "effect/unstable/cluster/ClusterWorkflowEngine";
 import * as HttpRunner from "effect/unstable/cluster/HttpRunner";
 import * as RunnerAddress from "effect/unstable/cluster/RunnerAddress";

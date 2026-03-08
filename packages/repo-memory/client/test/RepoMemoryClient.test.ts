@@ -1,9 +1,9 @@
 import {
-  InterruptRepoRunRequest,
+  type InterruptRepoRunRequest,
   type QueryRepoRunInput,
   type RepoRegistrationInput,
+  type ResumeRepoRunRequest,
   RunId,
-  ResumeRepoRunRequest,
   SidecarBootstrap,
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";

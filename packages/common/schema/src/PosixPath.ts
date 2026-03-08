@@ -6,8 +6,9 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { identity, SchemaTransformation, String as Str } from "effect";
+import { identity, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $SchemaId.create("PosixPath");
 const POSIX_PATH_PATTERN = /^[^\\]*$/;

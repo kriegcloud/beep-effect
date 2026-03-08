@@ -1,9 +1,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
-import { String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
 

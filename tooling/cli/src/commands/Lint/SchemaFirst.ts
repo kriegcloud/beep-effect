@@ -9,10 +9,11 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter, String as Str } from "effect";
+import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
@@ -455,8 +456,14 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   const liveByKey = HashMap.fromIterable(
     liveDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
   );
-  const trackedByKey = HashMap.fromIterable(
-    mergedDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  const trackedByKey = pipe(
+    existingDocument,
+    O.map((document) =>
+      HashMap.fromIterable(
+        document.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+      )
+    ),
+    O.getOrElse(HashMap.empty<string, SchemaFirstInventoryEntry>)
   );
 
   const missingEntries = pipe(

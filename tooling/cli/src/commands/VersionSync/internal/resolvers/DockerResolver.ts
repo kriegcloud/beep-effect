@@ -11,7 +11,6 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
 import {
-  Boolean as Bool,
   Effect,
   FileSystem,
   Inspectable,
@@ -21,12 +20,13 @@ import {
   Order,
   Path,
   SchemaTransformation,
-  String as Str,
 } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
 import {

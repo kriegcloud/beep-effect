@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Convert the completed spec into a dependency-aware implementation sequence and a concrete verification contract for later implementation sessions.
+Convert the completed spec into a dependency-aware implementation sequence and a concrete verification contract for later implementation work.
 
 ## Implementation Sequence
 
@@ -61,7 +61,7 @@ Later implementation verification must classify failures as:
 
 ## Outcome
 
-This P4 baseline is ready for execution. A later implementation session can now follow this plan without first redesigning the package, but the baseline itself should still be refined during phase execution rather than treated as evidence that P4 already ran.
+This P4 baseline is ready for execution. Later implementation work can now follow this plan without first redesigning the package, but the baseline itself should still be refined during phase execution rather than treated as evidence that P4 already ran.
 
 ## Remaining Open Question
 

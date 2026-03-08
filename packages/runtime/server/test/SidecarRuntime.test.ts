@@ -2,7 +2,7 @@ import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import net from "node:net";
 import { fileURLToPath } from "node:url";
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { type RunId, RunCursor, RunEventSequence } from "@beep/repo-memory-model";
+import { RunCursor, RunEventSequence, type RunId } from "@beep/repo-memory-model";
 import { RepoRegistration, RepoRun, RepoRunRpcGroup, SidecarBootstrap } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { Text } from "@beep/utils";

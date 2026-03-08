@@ -1,10 +1,11 @@
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
-import { flow, Match, pipe, String as Str } from "effect";
+import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
 import pc from "picocolors";
@@ -445,16 +446,17 @@ const extractPgErrorOption = (error: unknown): O.Option<PgDatabaseError> =>
   pipe(
     error,
     Match.value,
-    // eslint-disable-next-line beep-laws/terse-effect-style -- Match.when does not preserve the narrowed predicate type for direct helper refs here.
-    Match.when(S.is(RawPgError), (pgError): O.Option<PgDatabaseError> => O.some(pgError)),
+    Match.when(
+      S.is(RawPgError),
+      flow((pgError: PgDatabaseError) => pgError, O.some)
+    ),
     Match.when(
       S.is(RawSqlError),
-      (sqlError): O.Option<PgDatabaseError> => pipe(sqlError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
+      flow((sqlError: SqlError.SqlError) => sqlError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
     ),
     Match.when(
       S.is(RawError),
-      (typedError): O.Option<PgDatabaseError> =>
-        pipe(typedError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
+      flow((typedError: Error) => typedError.cause, O.fromNullishOr, O.flatMap(extractPgErrorOption))
     ),
     Match.orElse(O.none<PgDatabaseError>)
   );

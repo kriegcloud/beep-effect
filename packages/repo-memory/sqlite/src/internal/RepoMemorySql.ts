@@ -19,10 +19,11 @@ import {
 import { RepoStoreError } from "@beep/repo-memory-store";
 import { FilePath, makeStatusCauseError, NonNegativeInt, PosInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { thunk0, thunkEffectSucceedNone, thunkEffectSucceedNull } from "@beep/utils";
-import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap, String as Str } from "effect";
+import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import { observeDriverOperation } from "./Telemetry.js";
 

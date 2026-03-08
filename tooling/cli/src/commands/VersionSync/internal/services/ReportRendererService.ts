@@ -7,8 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkEmptyStr } from "@beep/utils";
-import { Boolean as Bool, Console, Effect, Layer, ServiceMap } from "effect";
+import { Console, Effect, Layer, ServiceMap } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {

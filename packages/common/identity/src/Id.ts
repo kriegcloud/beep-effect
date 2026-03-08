@@ -5,10 +5,11 @@
  */
 
 import type { TString } from "@beep/types";
-import { Function as Fn, flow, pipe, String as Str } from "effect";
+import { Function as Fn, flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as Multipart_ from "effect/unstable/http/Multipart";
 import type { Get, Paths } from "type-fest";
 

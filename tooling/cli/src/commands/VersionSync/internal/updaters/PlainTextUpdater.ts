@@ -5,7 +5,8 @@
  * @module
  */
 
-import { Effect, FileSystem, Inspectable, String as Str } from "effect";
+import { Effect, FileSystem, Inspectable } from "effect";
+import * as Str from "effect/String";
 import { VersionSyncError } from "../Models.js";
 
 /**
