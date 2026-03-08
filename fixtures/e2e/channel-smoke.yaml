@@ -1,0 +1,71 @@
+version: 1
+name: channel-smoke
+description: Basic channel initialize + send + history flow over HTTP/SSE.
+steps:
+  - kind: set
+    name: seed-vars
+    values:
+      channelId: "channel:fixture:{{uuid}}"
+
+  - kind: request
+    name: initialize-channel
+    method: POST
+    path: "/channels/{{channelId}}/initialize"
+    body:
+      channelType: CLI
+      agentId: agent:bootstrap
+    expect:
+      status: 200
+      jsonEquals:
+        ok: true
+
+  - kind: request
+    name: send-message
+    method: POST
+    path: "/channels/{{channelId}}/messages"
+    body:
+      content: "fixture smoke message {{now_iso}}"
+    responseType: sse
+    expect:
+      status: 200
+      sseEventTypesInclude:
+        - turn.started
+        - assistant.delta
+        - turn.completed
+      textIncludes:
+        - turn.completed
+
+  - kind: request
+    name: get-status
+    method: GET
+    path: "/channels/{{channelId}}/status"
+    expect:
+      status: 200
+      jsonExists:
+        - activeSessionId
+        - activeConversationId
+    capture:
+      sessionId: activeSessionId
+
+  - kind: request
+    name: get-history
+    method: GET
+    path: "/channels/{{channelId}}/history"
+    expect:
+      status: 200
+      jsonLengthAtLeast:
+        "$": 2
+
+  - kind: file_exists
+    name: transcript-exists
+    path: "{{state_root}}/sessions/{{sessionId}}/transcript.md"
+    retry:
+      timeoutMs: 15000
+      intervalMs: 500
+
+  - kind: file_exists
+    name: events-log-exists
+    path: "{{state_root}}/sessions/{{sessionId}}/events/events.jsonl"
+    retry:
+      timeoutMs: 15000
+      intervalMs: 500
