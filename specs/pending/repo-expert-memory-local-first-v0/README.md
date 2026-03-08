@@ -18,7 +18,7 @@ The chosen defaults are now locked to:
 - Rust posture: `minimal and contained`
 - `apps/server`, `apps/web`, and `apps/mobile` are future direction only, not v0 deliverables
 
-This remains a `greenfield, principle-driven` spec. The larger Claude-era tree is architectural guidance, not a package map to reproduce literally.
+This started as a `greenfield, principle-driven` spec set. It now serves as the `current-state v0` spec set for the live repo shape, with historical decision notes kept nearby but clearly marked.
 
 ## Why This V0 Exists
 The expert-memory material in [Expert Memory Big Picture](../expert-memory-big-picture/README.md) and [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md) established the high-level thesis.
@@ -33,19 +33,21 @@ This folder turns that thesis into a concrete, implementable `v0` for one narrow
 This v0 is intentionally a `research prototype`, not a product-complete application.
 
 ## Current Architectural Authority
-Read these documents in order:
+Use these documents as the normative current-state set:
 1. [CLUSTER_FIRST_SUBSTRATE_DECISION.md](./CLUSTER_FIRST_SUBSTRATE_DECISION.md)
-2. [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md)
-3. [TOPOLOGY.md](./TOPOLOGY.md)
-4. [SIDECAR_PROTOCOL.md](./SIDECAR_PROTOCOL.md)
-5. [VERTICAL_SLICE.md](./VERTICAL_SLICE.md)
-6. [EVALUATION_AND_ACCEPTANCE.md](./EVALUATION_AND_ACCEPTANCE.md)
-7. [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md)
-8. [CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md](./CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
+2. [TOPOLOGY.md](./TOPOLOGY.md)
+3. [SIDECAR_PROTOCOL.md](./SIDECAR_PROTOCOL.md)
+4. [VERTICAL_SLICE.md](./VERTICAL_SLICE.md)
+5. [EVALUATION_AND_ACCEPTANCE.md](./EVALUATION_AND_ACCEPTANCE.md)
+6. [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md)
+
+Historical and supporting context:
+- [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) is transport evidence and guardrail, not the implementation checklist
+- [CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md](./CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md) is the historical sequencing note and remaining-work context, not the primary current-state checklist
 
 Important reading posture:
-- [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) is transport evidence and guardrail, not the implementation checklist
-- the public execution contract is now `StartIndexRepoRun`, `StartQueryRepoRun`, and `StreamRunEvents`
+- when the normative docs above and the historical notes drift, the normative docs above win
+- the public execution contract is now `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents`
 - generated `WorkflowProxy` discard RPCs remain useful internally, but they do not replace the public run-start contract because they do not return `runId`
 
 ## In Scope For V0
@@ -60,11 +62,11 @@ Important reading posture:
 - sidecar-managed runtime and protocol
 
 ## Current Implementation Snapshot
-- `packages/runtime/protocol` now exposes `ControlPlaneApi`, `SidecarBootstrap`, `RepoRunRpcGroup`, `StartIndexRepoRun`, `StartQueryRepoRun`, and `StreamRunEvents` as the public sidecar boundary.
+- `packages/runtime/protocol` now exposes `ControlPlaneApi`, `SidecarBootstrap`, `RepoRunRpcGroup`, `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents` as the public sidecar boundary.
 - `packages/runtime/server` already mounts `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"` on one Bun server, emits a machine-readable bootstrap line on stdout, persists runtime state through `@effect/sql-sqlite-bun`, and serves local-origin CORS plus basic browser security headers.
 - `packages/repo-memory/runtime` already owns deterministic TypeScript indexing, workflow-backed run acceptance/execution, journal-backed stream replay, SQLite-backed run projections, and bounded grounded retrieval for the current supported query classes.
 - `packages/repo-memory/client` is a real typed client, and `apps/desktop` is now a real Tauri v2 wrapper with Rust-managed sidecar lifecycle, native repo-directory picking, auto-connect on startup, same-origin `portless` desktop dev over HTTPS, and a manual base-URL debug override.
-- Testing already follows the intended split: `@effect/vitest` supporting tests plus spawned Bun subprocess tests for real sidecar lifecycle proof.
+- Testing already follows the intended split: `@effect/vitest` supporting tests plus spawned Bun subprocess tests for real sidecar lifecycle proof, including durable index-run interrupt/resume through the public RPC path.
 
 ## Out Of Scope For V0
 - auth / IAM
@@ -77,7 +79,6 @@ Important reading posture:
 - resuming the paused `HttpApi` rewrite as a standalone branch of work
 
 ## Known Remaining P0 Gaps
-- End-to-end interrupt/resume behavior is modeled in schemas and event vocabulary, but it is not yet implemented and proven through public runtime operations.
 - `RunProjector` and `RunStateMachine` remain the intended runtime seams, but most projection/materialization and transition logic still lives inside `RepoRunService`.
 - Grounded query expansion should continue only through deterministic source-backed additions, not freeform semantic repo chat.
 

@@ -26,6 +26,7 @@ At minimum, include questions like:
 ## Current Proven Coverage
 - Spawned Bun sidecar tests already prove bootstrap stdout discovery, control-plane health, same-port restart, and durable replay against the real sidecar entrypoint.
 - Spawned Bun sidecar tests already prove local-origin CORS preflight and security headers against the real sidecar entrypoint.
+- Spawned Bun sidecar tests already prove public-path interrupt/resume for durable index runs, including resume after sidecar restart.
 - Grounded retrieval tests already prove source-backed answers, citation alignment, and retrieval-packet persistence for the current deterministic query classes.
 - The native Tauri wrapper already owns managed startup/shutdown and folder picking while the React shell stays thin over the public protocol.
 
@@ -39,7 +40,7 @@ At minimum, include questions like:
 - start an index workflow and receive a deterministic `runId`
 - observe accepted, running, and terminal state
 - verify the final run detail is durable after restart
-- verify interruption/resume behavior without corrupting run state; this remains an open `v0` closure item rather than a behavior already proved today
+- verify interruption/resume behavior without corrupting run state; this is already proved for durable index runs and should remain covered as the runtime changes
 
 ### 3. Query workflow lifecycle
 - start a query workflow and receive a deterministic `runId`
@@ -73,7 +74,6 @@ At minimum, include questions like:
 - supporting tests may use Node-backed harnesses, but those tests do not stand in for Bun lifecycle behavior
 
 ## Remaining P0 Closure Items
-- Implement and prove real interrupt/resume behavior through the public runtime path.
 - Extract `RunProjector` and `RunStateMachine` as explicit runtime seams without changing the public protocol boundary.
 - Expand the canonical question set only when new query classes stay deterministic and source-grounded.
 
@@ -99,6 +99,6 @@ It does need:
 - inspectability in the answer model
 
 ## Questions Worth Keeping Open
-- What is the smallest restart/resume test that proves the cluster/workflow substrate is really earning its place?
+- How much broader interrupt/resume coverage is needed beyond the currently proved durable index-run path?
 - At what point should evaluation add latency targets instead of only correctness and inspectability?
 - When should evaluation add dependency-aware retrieval instead of declaration/export-only grounding?

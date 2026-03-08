@@ -25,7 +25,7 @@ The first runnable slice is:
 - The native desktop shell already auto-launches the managed sidecar, registers repos through the control plane, starts runs through custom public RPCs, and renders run lists, run detail, citations, retrieval packets, and event history.
 - Desktop dev now runs through `portless` with a same-origin `https://desktop.localhost:1355` shell URL and `"/api"` proxying to the managed sidecar.
 - The sidecar already persists repo-memory artifacts and run projections in SQLite, and it already replays journaled run events after reconnect or restart.
-- Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, replay, and local-origin CORS/security headers against the real sidecar entrypoint.
+- Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, replay, public-path interrupt/resume for durable index runs, and local-origin CORS/security headers against the real sidecar entrypoint.
 
 ## Scope In
 Lock these in for `v0`:
@@ -111,7 +111,6 @@ Testing posture for this slice:
 - lifecycle tests should continue to prove machine-readable bootstrap, same-port restart, and replay of only missing events against the real sidecar entrypoint
 
 ## Remaining Slice Gaps
-- End-to-end interrupt/resume behavior is not yet implemented even though the event model and projection schema reserve it.
 - `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
 
 ## Minimal Data Shown In The UI

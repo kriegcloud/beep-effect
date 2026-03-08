@@ -4,6 +4,7 @@
 The repo-codegraph work in this repository is best understood as a proving ground for a broader `expert-memory` architecture. Code is the easiest domain to start with because it offers syntax, references, and feedback loops, but the more durable asset is the trust stack behind the graph: deterministic extraction, claims, evidence, ontology, validation, provenance, temporal lifecycle, bounded retrieval, and the control plane that keeps the whole system reliable.
 
 This folder is a reading set, not a phased implementation spec. Its purpose is to make the larger shape legible before any new package or domain commitment is made.
+When repo-specific `v0` runtime, protocol, package, or deliverable details are needed, [Repo Expert-Memory Local-First V0](../repo-expert-memory-local-first-v0/README.md) is the downstream authority and this folder should be treated as rationale only.
 
 ## Current Repo Reality
 The strongest current anchors live in three places:
@@ -81,7 +82,7 @@ Read the diagram from left to right:
 6. [DOMAIN_TRANSFER_MAP.md](./DOMAIN_TRANSFER_MAP.md) for how the model generalizes from code to law and wealth
 7. [ONTOLOGY_REASONING_PRAGMATICS.md](./ONTOLOGY_REASONING_PRAGMATICS.md) for the semantic discipline
 8. [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md) for store and runtime implications
-9. [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) for the preferred native application shape
+9. [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) for the local-first rationale and hand-off to the downstream `v0` authority
 10. [RESEARCH_LANES_AND_OPEN_QUESTIONS.md](./RESEARCH_LANES_AND_OPEN_QUESTIONS.md) for practical forward paths
 
 ## Folder Guide
@@ -95,7 +96,7 @@ Read the diagram from left to right:
 | [ONTOLOGY_REASONING_PRAGMATICS.md](./ONTOLOGY_REASONING_PRAGMATICS.md) | Explains a pragmatic semantic-web posture for engineering use |
 | [TRUST_TIME_AND_CONFLICT.md](./TRUST_TIME_AND_CONFLICT.md) | Frames time, revision, and contradiction as central system concerns |
 | [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md) | Compares graph store and runtime choices without conflating them with modeling |
-| [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) | Captures the preferred Tauri + Bun sidecar + Vite/TanStack Router v0 architecture |
+| [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) | Explains why local-first native remains the preferred `v0` product shape and points to the downstream repo-specific authority |
 | [RESEARCH_LANES_AND_OPEN_QUESTIONS.md](./RESEARCH_LANES_AND_OPEN_QUESTIONS.md) | Organizes the most credible directions for future exploration |
 
 ## Working Vocabulary
@@ -136,6 +137,7 @@ Instead it sits above them as a synthesis layer:
 - IP-law proves that ontology-backed domain transfer is already a live direction
 - the older `knowledge` slice shows that execution control, validation, and provenance were already converging into a broader architecture
 - this folder explains why those efforts are really parts of the same larger system
+- `repo-expert-memory-local-first-v0` owns the concrete repo-specific `v0` runtime and protocol truth, and this folder should not re-lock those details
 
 ## Questions Worth Keeping Open
 - How much of the future system should be centered on `ClaimRecord` rather than plain node and edge records?

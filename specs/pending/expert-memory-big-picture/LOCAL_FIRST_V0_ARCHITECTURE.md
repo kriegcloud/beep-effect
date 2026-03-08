@@ -2,6 +2,7 @@
 
 ## Thesis
 The best `v0` product shape for this work remains a `local-first native application` built as a `thin Tauri shell` around a `Bun + Effect sidecar runtime`.
+This document preserves the rationale for that shape. Normative repo-specific `v0` runtime, protocol, package, and deliverable details live in [Repo Expert-Memory Local-First V0](../repo-expert-memory-local-first-v0/README.md).
 
 The important refinement is now explicit:
 - the sidecar runtime should be `cluster-first`
@@ -22,7 +23,7 @@ The repo now has a dedicated local-first v0 spec folder:
 That folder is now the concrete authority for the repo expert-memory `v0` runtime shape.
 
 ## Strongly Supported Pattern
-The preferred `v0` stack is:
+The current `v0` stack, summarized from the downstream authority, is:
 - `Tauri v2` for the native shell
 - `Bun` for the local sidecar executable
 - `Effect` for the runtime, orchestration, and service boundaries
@@ -35,8 +36,9 @@ The preferred `v0` stack is:
 - `@effect/sql-sqlite-bun` for local SQL persistence
 - driver boundaries around graph/search/vector/artifact infrastructure
 
-Public execution should stay explicit:
+Current public execution summary:
 - custom start RPCs return `runId` immediately
+- explicit run-command RPCs handle interrupt/resume on the stable `runId`
 - generated workflow discard RPCs remain internal/supporting because they do not return `runId`
 
 ## Why This Is The Right Shape

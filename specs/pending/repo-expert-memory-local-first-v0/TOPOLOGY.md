@@ -4,8 +4,9 @@
 The `v0` topology should stay small and explicit.
 
 The sidecar is the runtime center of gravity, and the topology should reflect that. This is not the place to reproduce the full long-term bounded-context tree.
+This document is a logical ownership map, not a literal full repo tree.
 
-## V0 Topology
+## V0 Logical Ownership Map
 ```text
 .
 ├── apps/
@@ -72,7 +73,7 @@ It should not own:
 
 Current debt to keep explicit:
 - `RunProjector.ts` and `RunStateMachine.ts` exist as named seams in the package, but projection and transition logic still lives inside `RepoRunService`.
-- `RunInterrupted` and `RunResumed` are modeled in `packages/repo-memory/model`, but the runtime does not yet expose real interruption/resume behavior.
+- Public interruption/resume behavior now exists through the runtime, typed client, desktop UI, and spawned sidecar tests; any remaining question is about how much broader coverage is worth keeping in `v0`, not whether the basic path exists.
 
 ## Dependency Rules
 ### UI and shell
@@ -99,7 +100,7 @@ Current debt to keep explicit:
 - common packages must not grow sidecar-specific runtime logic
 
 ## Future Direction Only
-These remain intentionally out of the `v0` topology:
+These remain intentionally outside the supported `v0` deliverable topology, even if placeholder directories already exist in the repo:
 - `apps/server`
 - `apps/web`
 - `apps/mobile`
@@ -115,4 +116,4 @@ The remaining work is about finishing runtime seams and lifecycle honesty, not p
 
 ## Questions Worth Keeping Open
 - When should `RepoRunService` hand projection materialization and transition rules to real `RunProjector` and `RunStateMachine` modules?
-- What is the thinnest correct interruption/resume implementation that proves the cluster/workflow substrate is earning its place?
+- How much interruption/resume coverage should stay in `v0` beyond the currently proved durable index-run path?

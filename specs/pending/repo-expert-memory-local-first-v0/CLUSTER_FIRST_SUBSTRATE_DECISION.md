@@ -122,15 +122,15 @@ The first safe implementation slice under this decision is:
 The current implemented slice now goes further:
 - durable run projections are stored in SQLite
 - the control plane is `HttpApi`
-- run execution moved to custom public `Rpc` start handlers plus `StreamRunEvents`
+- run execution moved to custom public `Rpc` start handlers, run-command handlers, and `StreamRunEvents`
 - the old HTTP run mutation and SSE routes are no longer the active integration target
 - one shared Bun router already hosts `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`
 - the desktop shell is now a real Tauri wrapper with Rust-managed sidecar lifecycle and a typed client over the public protocol
-- restart/replay is already proved through spawned Bun lifecycle tests against the real sidecar entrypoint
+- restart/replay and durable index-run interrupt/resume are already proved through spawned Bun lifecycle tests against the real sidecar entrypoint
 
-What remains incomplete is not the transport split itself but the last runtime seams:
+What remains incomplete is not the transport split or the basic public interrupt/resume path itself but the last runtime seams:
 - explicit `RunProjector` and `RunStateMachine` extraction
-- end-to-end interrupt/resume behavior and proof
+- deciding how much broader interruption/resume coverage beyond the current durable index-run proof is worth keeping in `v0`
 
 ## What This Supersedes
 This decision supersedes:
@@ -141,5 +141,5 @@ This decision supersedes:
 
 ## Questions Worth Keeping Open
 - How much of the current handwritten runtime can be deleted immediately versus phased out behind a stable compatibility layer?
-- Should `StreamRunEvents` remain the only streamed custom RPC beyond the two public start RPCs?
+- Should the custom RPC surface stay limited to `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents`?
 - When should projections move from temporary in-memory shape to journal-derived materialized state?

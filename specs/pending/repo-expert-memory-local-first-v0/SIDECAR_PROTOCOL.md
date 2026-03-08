@@ -128,6 +128,9 @@ The live public execution surface is:
 - custom start RPCs for:
   - `StartIndexRepoRun`
   - `StartQueryRepoRun`
+- custom run-command RPCs for:
+  - `InterruptRepoRun`
+  - `ResumeRepoRun`
 - one custom streamed RPC:
   - `StreamRunEvents`
 
@@ -136,7 +139,7 @@ The runtime may still register workflow-proxy generated handlers internally for:
 - workflow poll/inspection paths
 - intra-runtime workflow integration
 
-Those are not the primary desktop-facing run-start contract.
+Those do not replace the explicit desktop-facing run-control contract.
 
 ### `StreamRunEvents`
 `StreamRunEvents` must:
@@ -150,6 +153,7 @@ Those are not the primary desktop-facing run-start contract.
 - `runId === executionId`
 - workflow execution IDs are deterministic from normalized payload + version stamp
 - custom start RPCs compute `workflow.executionId(payload)` before dispatch, append `RunAccepted`, and return `runId` immediately
+- `InterruptRepoRun` and `ResumeRepoRun` operate on the stable existing `runId` and return explicit command acknowledgements
 - generated `WorkflowProxy` discard RPCs do not return `runId`; they are not sufficient as the public run-start surface
 - resume RPCs may still come from workflow proxy generation or internal workflow plumbing, but they are not the only execution-plane primitive
 
@@ -173,7 +177,7 @@ These events drive:
 - final answer detail views
 - replay after reconnect/restart
 
-`RunInterrupted` and `RunResumed` remain part of the locked event vocabulary even though end-to-end interruption/resume commands are still an open `v0` gap.
+`RunInterrupted` and `RunResumed` remain part of the locked event vocabulary and are exercised by the current public interrupt/resume path.
 
 ## Retired Routes
 These HTTP routes are retired and should not be reintroduced:
@@ -199,5 +203,5 @@ Rules:
 - it should remain smaller and more inspectable than a raw unbounded subgraph dump
 
 ## Questions Worth Keeping Open
-- Should `StreamRunEvents` remain the only custom RPC beyond the two public start RPCs?
+- Should the custom RPC surface stay limited to `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents`?
 - What is the smallest native-sidecar diagnostic surface that still makes startup failures inspectable without pulling repo-memory semantics into Rust?

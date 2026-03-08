@@ -4,6 +4,7 @@
 Replace the current ad hoc sidecar runtime with a `cluster-first`, `workflow-backed`, `local-first` architecture and record that decision in the spec set so there is no conflicting guidance left in the repo.
 
 Large parts of this plan are now implemented. Use [README.md](./README.md) plus [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md) for the current-state view, and use this file as the historical sequencing and remaining-work reference.
+Later implementation also added explicit public `InterruptRepoRun` and `ResumeRepoRun` RPCs, so the transport bullets below should be read as the origin of the run-control split rather than the exhaustive final protocol list.
 
 Lock these decisions:
 - `effect/unstable/cluster` is the v0 runtime substrate.
@@ -80,7 +81,7 @@ Rules:
 - execution ids are deterministic from normalized payload + version stamp
 - public start RPCs compute `workflow.executionId(payload)` and return `runId` explicitly
 - generated workflow discard RPCs do not return `runId`
-- resume RPCs can still come from workflow proxy generation
+- workflow proxy generation can still support internal resume/poll plumbing, but product-visible run commands may be explicit RPCs
 - no custom local `WorkflowEngine`
 - no ad hoc run fibers as the authoritative lifecycle
 
@@ -98,9 +99,12 @@ Refactor `packages/runtime/protocol` into two explicit surfaces.
 - custom public start RPCs for:
   - `StartIndexRepoRun`
   - `StartQueryRepoRun`
+- custom public run-command RPCs for:
+  - `InterruptRepoRun`
+  - `ResumeRepoRun`
 - one custom streamed RPC:
   - `StreamRunEvents`
-- workflow-generated RPC handlers may still exist internally for resume/poll semantics
+- workflow-generated RPC handlers may still exist internally for poll or workflow-internal resume plumbing
 
 `StreamRunEvents` rules:
 - input: `runId` plus optional replay cursor
@@ -262,6 +266,7 @@ Also write a final Graphiti memory episode summarizing:
   - all five `HttpApi` endpoints return deterministic public payloads
 - execution plane:
   - `StartIndexRepoRun` and `StartQueryRepoRun` return deterministic `runId`
+  - `InterruptRepoRun` and `ResumeRepoRun` acknowledge against stable `runId`
   - `StreamRunEvents` replays from cursor and continues live
   - disconnect does not kill underlying workflow
 - journal/projection:
@@ -275,5 +280,5 @@ Also write a final Graphiti memory episode summarizing:
 ## Assumptions
 - single local runner only for v0, but implemented through real cluster services
 - `RpcSerialization.layerNdjson` is used globally for v0
-- `WorkflowProxy` remains useful for internal workflow handler generation, but public run-start remains custom RPCs that return `runId`
+- `WorkflowProxy` remains useful for internal workflow handler generation, but public run control stays explicit RPCs over stable `runId`
 - the paused reduced `HttpApi` rewrite is abandoned rather than merged incrementally

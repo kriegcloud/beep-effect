@@ -9,13 +9,13 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Contracts: landed in `packages/repo-memory/model`, `packages/repo-memory/store`, and `packages/runtime/protocol`.
 - Local SQL substrate: landed on `@effect/sql-sqlite-bun` in `packages/repo-memory/sqlite`.
 - Durable runtime substrate: landed in `packages/runtime/server` with one Bun server hosting `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"`.
-- Workflow-backed repo runs: landed with deterministic execution ids, custom public run-start RPCs that return `runId`, and internal workflow-proxy handler registration.
-- Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, and replay; extraction into explicit projector/state-machine seams remains open.
+- Workflow-backed repo runs: landed with deterministic execution ids, custom public run-start and run-command RPCs, and internal workflow-proxy handler registration.
+- Product-level run journal and projections: landed for acceptance, progress, retrieval packet, answer, completion, failure, interruption, resume, and replay; extraction into explicit projector/state-machine seams remains open.
 - Desktop shell integration: landed with a real Tauri wrapper, Rust-managed sidecar lifecycle, native repo-folder picking, same-origin `portless` desktop dev over HTTPS, and a debug-only manual URL override.
 - Compatibility cleanup: landed; the old HTTP run-mutation and SSE routes are no longer the active integration target.
 - Grounded retrieval: landed with bounded deterministic query interpretation and durable citations/retrieval packets.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
-- Remaining `v0` closure: implement real interrupt/resume behavior and extract the spec-named runtime seams (`RunProjector`, `RunStateMachine`).
+- Remaining `v0` closure: extract the spec-named runtime seams (`RunProjector`, `RunStateMachine`) without regressing the already-landed lifecycle behavior.
 
 ## Workstream 1: Contracts
 Lock the public contracts first.
@@ -79,8 +79,9 @@ Rules:
 - `runId === executionId`
 - execution IDs are deterministic from normalized payload + version stamp
 - custom public start RPCs compute `workflow.executionId(payload)` and return `runId`
-- generated workflow discard RPCs do not return `runId`
-- resume RPCs can still come from workflow proxy generation
+- explicit public run-command RPCs acknowledge interrupt/resume against an existing `runId`
+- generated workflow discard RPCs do not return `runId` and do not replace the public run-control surface
+- workflow proxy generation can still support internal resume/poll plumbing
 
 ## Workstream 5: Product-level run journal and projections
 Add:
@@ -173,10 +174,7 @@ Supporting tests:
 Authoritative lifecycle test:
 - spawn the real Bun sidecar through `packages/runtime/server/src/main.ts`
 - keep `sqlite-bun`
-- prove same-port shutdown/restart and replay against the real runtime
-
-Add once the runtime behavior exists:
-- equally honest public-path interruption/resume proof against the real sidecar
+- prove same-port shutdown/restart, replay, and public-path interruption/resume against the real runtime
 
 ## Immediate Guardrail
 The paused reduced `HttpApi` rewrite is not a prerequisite step.
