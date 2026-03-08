@@ -1,0 +1,10 @@
+<http://example.org/resourceA> a <http://example.org/ClassA>;
+  <http://example.org/propertyA> <http://example.org/resourceB>.
+
+<http://example.org/resourceB> a <http://example.org/ClassB>, <http://example.org/ClassC>;
+  <http://example.org/propertyA> <http://example.org/resourceC>.
+
+<http://example.org/resourceC>
+  <http://example.org/propertyA> [ a <http://example.org/ClassD>;
+      <http://example.org/propertyB> <http://example.org/resourceD>
+    ].

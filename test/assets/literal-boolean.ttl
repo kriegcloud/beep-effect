@@ -1,0 +1,4 @@
+<http://example.org/resourceA>
+  <http://example.org/propertyA> true;
+  <http://example.org/propertyB> false;
+  <http://example.org/propertyC> "test"^^<http://www.w3.org/2001/XMLSchema#boolean>.

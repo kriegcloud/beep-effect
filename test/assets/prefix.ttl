@@ -1,0 +1,9 @@
+@prefix schema: <http://schema.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<http://example.org/resourceA>
+  schema:dateCreated "2023-01-01"^^xsd:date;
+  schema:name "Resource A".
+
+schema:name
+  schema:name "Name".

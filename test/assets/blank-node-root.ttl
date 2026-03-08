@@ -1,0 +1,7 @@
+[
+  <http://example.org/propertyA> "a"
+].
+
+[
+  <http://example.org/propertyB> "b"
+].

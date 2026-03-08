@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/>.
+
+ex:resourceA
+  ex:propertyA "a\"b\\c\nd\r"^^ex:datatypeA.

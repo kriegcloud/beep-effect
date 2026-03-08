@@ -1,0 +1,2 @@
+<http://example.org/resourceA>
+  <http://example.org/propertyA> <http://example.org/resourceB>.
