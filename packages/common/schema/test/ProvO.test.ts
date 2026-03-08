@@ -1,3 +1,4 @@
+import { Prov0 as Prov0Compat } from "@beep/schema/internal/ProvO/Prov0.ts";
 import {
   AgentInfluence,
   Association,
@@ -22,7 +23,6 @@ import {
   SoftwareAgent,
   Usage,
 } from "@beep/schema/internal/ProvO/ProvO.ts";
-import { Prov0 as Prov0Compat } from "@beep/schema/internal/ProvO/Prov0.ts";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime } from "effect";
 import * as O from "effect/Option";
