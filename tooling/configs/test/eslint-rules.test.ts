@@ -220,10 +220,10 @@ describe("eslint rule migration", () => {
     expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(true);
   });
 
-  it("suppresses allowlisted violations for exact file and kind matches", () => {
+  it("does not suppress violations after the allowlist entry is removed", () => {
     const messages = verify("export const value = new Date();", noNativeRuntimeConfig, "apps/web/src/lib/db/schema.ts");
 
-    expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(false);
+    expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(true);
   });
 
   it("does not flag literal equality when typeof is absent", () => {

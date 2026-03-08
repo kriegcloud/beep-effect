@@ -218,7 +218,10 @@ const SyncConflictPayload = S.Union([
   })
 );
 
-class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
+/**
+ * @since 0.0.0
+ */
+export class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
   {
     remoteId: S.String,
     before: S.Number,
@@ -229,7 +232,9 @@ class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompac
   $I.annote("SyncCompactionPayload", {
     description: "Payload for sync compaction audit events.",
   })
-) {}
+) {
+  static readonly make = (params: SyncCompactionPayload) => new SyncCompactionPayload(params);
+}
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.
