@@ -1,0 +1,104 @@
+name: CI
+on: [push, pull_request]
+jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-lint-modules-${{ hashFiles('**/yarn.lock') }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+      - run: yarn install
+      - run: yarn run lint
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version:
+          - 20.x
+          - 22.x
+          - 24.x
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-test-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Build project
+        run: yarn run build
+      - name: Run tests
+        run: yarn run test
+      - name: Submit coverage results
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: run-${{ matrix.node-version }}
+          parallel: true
+
+  coveralls:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consolidate test coverage from different jobs
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+
+  spec:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version:
+          - 20.x
+          - 22.x
+          - 24.x
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: |
+            **/node_modules
+            .rdf-test-suite-cache
+          key: ${{ runner.os }}-spec-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Build project
+        run: yarn run build
+      - run: yarn run spec
+
+  webpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-webpack-modules-${{ hashFiles('**/yarn.lock') }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+      - run: yarn install
+      - run: npx webpack
