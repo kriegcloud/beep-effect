@@ -84,7 +84,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: bun run build:ci
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
@@ -149,7 +149,7 @@ jobs:
           fetch-depth: 0
 
       - name: OSV vulnerability scan
-        uses: google/osv-scanner-action/osv-scanner-action@v2
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.3
         with:
           scan-args: |-
             --lockfile=bun.lock
@@ -187,7 +187,7 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Build
-        run: bun run build
+        run: bun run build:ci
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
