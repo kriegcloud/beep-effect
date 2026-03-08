@@ -32,7 +32,7 @@ const composers = $I.compose(
   "utils",
   "ui",
   "web",
-	"semantic-web",
+  "semantic-web",
   "beep-sync",
   "repo-cli",
   "codegraph",

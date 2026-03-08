@@ -33,6 +33,7 @@
     "@tailwindcss/postcss": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
     "shadcn": "catalog:",
     "@storybook/addon-vitest": "catalog:",
     "@vitest/browser": "catalog:",

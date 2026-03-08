@@ -1,5 +1,7 @@
-{ "@context": {
-    "@base": "https://example.org/"},
+{
+  "@context": {
+    "@base": "https://example.org/"
+  },
   "id": "DP-1",
   "type": "Entity",
 
@@ -9,8 +11,7 @@
       "$ref": "examples/example-activity.json"
     }
   ],
-  "provenance":
-  [
+  "provenance": [
     {
       "id": "DP-2223",
       "type": "Entity",

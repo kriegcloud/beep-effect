@@ -7,11 +7,13 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      coverage: isIriFocusedRun
+      ...(isIriFocusedRun
         ? {
-            include: ["src/internal/IRI/IRI.ts"],
+            coverage: {
+              include: ["src/internal/IRI/IRI.ts"],
+            },
           }
-        : undefined,
+        : {}),
     },
   })
 );

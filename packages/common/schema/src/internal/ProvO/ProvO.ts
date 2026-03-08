@@ -10,8 +10,7 @@ import { LiteralKit, type LiteralKit as LiteralKitSchema } from "../../LiteralKi
 const $I = $SchemaId.create("internal/ProvO/ProvO");
 type SyncSchema = S.Top & { readonly DecodingServices: never };
 
-const iriRegExp =
-  /^\w+:\/*([^:<>{}|\\^`"\s/]+[^<>{}|\\^`"\s]*(?::[^:<>{}|\\^`"\s]+)?)?$/;
+const iriRegExp = /^\w+:\/*([^:<>{}|\\^`"\s/]+[^<>{}|\\^`"\s]*(?::[^:<>{}|\\^`"\s]+)?)?$/;
 const curieRegExp = /^[A-Za-z_][^\s:/]*:[^:<>{}|\\^`"\s]*(\?[^<>{}|\\^`" ]*)?(#[^<>{}|\\^`"\s]*)?$/;
 const localPartRegExp = /^[^:<>{}|\\^`"\s]*(\?[^<>{}|\\^`"\s]*)?(#[^<>{}|\\^`"\s]*)?$/;
 const dateTimeRegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/;
@@ -81,10 +80,7 @@ const toInlineValues = <B>(value: unknown, isInline: (value: unknown) => value i
   }
 
   if (globalThis.Array.isArray(value)) {
-    return pipe(
-      value,
-      A.filter(isInline)
-    );
+    return pipe(value, A.filter(isInline));
   }
 
   return isInline(value) ? [value] : [];
@@ -114,10 +110,7 @@ const literalOrArrayContaining = <L extends A.NonEmptyReadonlyArray<string>>(
   description: string,
   literalKit: LiteralKitSchema<L>
 ) =>
-  S.Union([
-    literalKit,
-    S.Array(S.String).check(arrayContainsCanonicalLiteral(name, description, literalKit)),
-  ]).annotate(
+  S.Union([literalKit, S.Array(S.String).check(arrayContainsCanonicalLiteral(name, description, literalKit))]).annotate(
     $I.annote(name, {
       description,
     })
@@ -193,11 +186,13 @@ const openObjectChecks = S.makeFilterGroup(
   }
 );
 
-const OpenObject = S.Record(S.String, S.Unknown).check(openObjectChecks).annotate(
-  $I.annote("OpenObject", {
-    description: "A permissive object branch used by the upstream OGC helper schemas.",
-  })
-);
+const OpenObject = S.Record(S.String, S.Unknown)
+  .check(openObjectChecks)
+  .annotate(
+    $I.annote("OpenObject", {
+      description: "A permissive object branch used by the upstream OGC helper schemas.",
+    })
+  );
 
 const uriReferenceChecks = S.makeFilterGroup(
   [
@@ -360,7 +355,11 @@ const LocationFields = {
 export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`Location`)(
   S.Struct(LocationFields).check(
     S.makeFilterGroup([
-      makeRequiredTypeCheck<{ readonly provType: TypeFieldValue; readonly "prov:type": TypeFieldValue; readonly type: TypeFieldValue }>(
+      makeRequiredTypeCheck<{
+        readonly provType: TypeFieldValue;
+        readonly "prov:type": TypeFieldValue;
+        readonly type: TypeFieldValue;
+      }>(
         "Location",
         "Location Type",
         "Inline PROV locations must carry a canonical location class marker.",
@@ -385,7 +384,11 @@ export class Role extends S.Class<Role, Brand.Brand<"ProvRole">>($I`Role`)(
     type: OptionalTypeField,
   }).check(
     S.makeFilterGroup([
-      makeRequiredTypeCheck<{ readonly provType: TypeFieldValue; readonly "prov:type": TypeFieldValue; readonly type: TypeFieldValue }>(
+      makeRequiredTypeCheck<{
+        readonly provType: TypeFieldValue;
+        readonly "prov:type": TypeFieldValue;
+        readonly type: TypeFieldValue;
+      }>(
         "Role",
         "Role Type",
         "Inline PROV roles must carry a canonical role class marker.",
@@ -611,7 +614,8 @@ const EndType = literalOrArrayContaining(
  */
 export const OneOrMoreObjectRef = S.Union([ObjectRef, S.Array(ObjectRef), OpenObject]).annotate(
   $I.annote("OneOrMoreObjectRef", {
-    description: "An OGC helper value that may be a single object reference, an array of references, or an open object.",
+    description:
+      "An OGC helper value that may be a single object reference, an array of references, or an open object.",
   })
 );
 
@@ -707,11 +711,7 @@ const InfluencedFields = {
     ])
   ),
   qualifiedInfluence: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedInfluenceReference",
-      "A qualified influence value or reference.",
-      () => Influence
-    )
+    objectRefOrInlineOrMany("QualifiedInfluenceReference", "A qualified influence value or reference.", () => Influence)
   ),
 } as const;
 
@@ -863,7 +863,11 @@ export class Derivation extends S.Class<Derivation, Brand.Brand<"ProvDerivation"
     hadUsage: S.OptionFromOptionalKey(
       objectRefOrInline("HadUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
     ),
-    entity: objectRefOrInline("DerivedEntityReference", "A derived entity or entity reference.", (): SyncSchema => Entity),
+    entity: objectRefOrInline(
+      "DerivedEntityReference",
+      "A derived entity or entity reference.",
+      (): SyncSchema => Entity
+    ),
   },
   $I.annote("Derivation", {
     description: "A qualified derivation relation.",
@@ -878,15 +882,27 @@ export class PrimarySource extends S.Class<PrimarySource, Brand.Brand<"ProvPrima
     id: S.OptionFromOptionalKey(ObjectRef),
     type: S.OptionFromOptionalKey(PrimarySourceType),
     hadGeneration: S.OptionFromOptionalKey(
-      objectRefOrInline("PrimarySourceGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+      objectRefOrInline(
+        "PrimarySourceGenerationReference",
+        "A qualified generation reference.",
+        (): SyncSchema => Generation
+      )
     ),
     hadActivity: S.OptionFromOptionalKey(
-      objectRefOrInline("PrimarySourceActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
+      objectRefOrInline(
+        "PrimarySourceActivityReference",
+        "A generating activity reference.",
+        (): SyncSchema => Activity
+      )
     ),
     hadUsage: S.OptionFromOptionalKey(
       objectRefOrInline("PrimarySourceUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
     ),
-    entity: objectRefOrInline("PrimarySourceEntityReference", "A primary source entity or entity reference.", (): SyncSchema => Entity),
+    entity: objectRefOrInline(
+      "PrimarySourceEntityReference",
+      "A primary source entity or entity reference.",
+      (): SyncSchema => Entity
+    ),
   },
   $I.annote("PrimarySource", {
     description: "A qualified primary source relation represented as a typed derivation.",
@@ -901,7 +917,11 @@ export class Quotation extends S.Class<Quotation, Brand.Brand<"ProvQuotation">>(
     id: S.OptionFromOptionalKey(ObjectRef),
     type: S.OptionFromOptionalKey(QuotationType),
     hadGeneration: S.OptionFromOptionalKey(
-      objectRefOrInline("QuotationGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+      objectRefOrInline(
+        "QuotationGenerationReference",
+        "A qualified generation reference.",
+        (): SyncSchema => Generation
+      )
     ),
     hadActivity: S.OptionFromOptionalKey(
       objectRefOrInline("QuotationActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
@@ -909,7 +929,11 @@ export class Quotation extends S.Class<Quotation, Brand.Brand<"ProvQuotation">>(
     hadUsage: S.OptionFromOptionalKey(
       objectRefOrInline("QuotationUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
     ),
-    entity: objectRefOrInline("QuotationEntityReference", "A quoted entity or entity reference.", (): SyncSchema => Entity),
+    entity: objectRefOrInline(
+      "QuotationEntityReference",
+      "A quoted entity or entity reference.",
+      (): SyncSchema => Entity
+    ),
   },
   $I.annote("Quotation", {
     description: "A qualified quotation relation represented as a typed derivation.",
@@ -924,7 +948,11 @@ export class Revision extends S.Class<Revision, Brand.Brand<"ProvRevision">>($I`
     id: S.OptionFromOptionalKey(ObjectRef),
     type: S.OptionFromOptionalKey(RevisionType),
     hadGeneration: S.OptionFromOptionalKey(
-      objectRefOrInline("RevisionGenerationReference", "A qualified generation reference.", (): SyncSchema => Generation)
+      objectRefOrInline(
+        "RevisionGenerationReference",
+        "A qualified generation reference.",
+        (): SyncSchema => Generation
+      )
     ),
     hadActivity: S.OptionFromOptionalKey(
       objectRefOrInline("RevisionActivityReference", "A generating activity reference.", (): SyncSchema => Activity)
@@ -932,7 +960,11 @@ export class Revision extends S.Class<Revision, Brand.Brand<"ProvRevision">>($I`
     hadUsage: S.OptionFromOptionalKey(
       objectRefOrInline("RevisionUsageReference", "A qualified usage reference.", (): SyncSchema => Usage)
     ),
-    entity: objectRefOrInline("RevisionEntityReference", "A revised entity or entity reference.", (): SyncSchema => Entity),
+    entity: objectRefOrInline(
+      "RevisionEntityReference",
+      "A revised entity or entity reference.",
+      (): SyncSchema => Entity
+    ),
   },
   $I.annote("Revision", {
     description: "A qualified revision relation represented as a typed derivation.",
@@ -950,7 +982,11 @@ export class Delegation extends S.Class<Delegation, Brand.Brand<"ProvDelegation"
       objectRefOrInline("DelegationAgentReference", "An agent or agent reference.", (): SyncSchema => Agent)
     ),
     hadActivity: S.OptionFromOptionalKey(
-      objectRefOrInline("DelegationActivityReference", "A delegated activity or activity reference.", (): SyncSchema => Activity)
+      objectRefOrInline(
+        "DelegationActivityReference",
+        "A delegated activity or activity reference.",
+        (): SyncSchema => Activity
+      )
     ),
     hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   },
@@ -967,7 +1003,11 @@ export class Attribution extends S.Class<Attribution, Brand.Brand<"ProvAttributi
     id: S.OptionFromOptionalKey(ObjectRef),
     type: S.OptionFromOptionalKey(AttributionType),
     agent: S.OptionFromOptionalKey(
-      objectRefOrInline("AttributionAgentReference", "An attributing agent or agent reference.", (): SyncSchema => Agent)
+      objectRefOrInline(
+        "AttributionAgentReference",
+        "An attributing agent or agent reference.",
+        (): SyncSchema => Agent
+      )
     ),
     hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
   },
@@ -1160,7 +1200,11 @@ const EntityFields = {
   ),
   hadMember: S.OptionFromOptionalKey(
     S.Array(
-      objectRefOrInline("CollectionMemberEntityReference", "A collection member entity or entity reference.", (): SyncSchema => Entity)
+      objectRefOrInline(
+        "CollectionMemberEntityReference",
+        "A collection member entity or entity reference.",
+        (): SyncSchema => Entity
+      )
     )
   ),
   ...InfluencedFields,
@@ -1191,26 +1235,31 @@ const hasEntityGeneration = (value: unknown): value is Pick<EntityValue, "wasGen
 
 const entityChecks = S.makeFilterGroup<EntityValue>(
   [
-    S.makeFilter<EntityValue>(
-      (value) => !typeFieldHasAnyLiteral(value.type, entityTypeDisallowedLiterals),
-      {
-        identifier: $I`EntityForeignTypeCheck`,
-        title: "Entity Foreign Type",
-        description: "Entity objects must not declare explicit activity or agent type literals.",
-        message: "Entity objects must not carry explicit activity or agent type markers",
-      }
-    ),
+    S.makeFilter<EntityValue>((value) => !typeFieldHasAnyLiteral(value.type, entityTypeDisallowedLiterals), {
+      identifier: $I`EntityForeignTypeCheck`,
+      title: "Entity Foreign Type",
+      description: "Entity objects must not declare explicit activity or agent type literals.",
+      message: "Entity objects must not carry explicit activity or agent type markers",
+    }),
     S.makeFilter<EntityValue>(
       (value) =>
         pipe(
           value.hadMember,
           O.match({
             onNone: () =>
-              !hasCanonicalTypeMarker(value, ["Collection", "prov:Collection", "EmptyCollection", "prov:EmptyCollection"]),
+              !hasCanonicalTypeMarker(value, [
+                "Collection",
+                "prov:Collection",
+                "EmptyCollection",
+                "prov:EmptyCollection",
+              ]),
             onSome: (members) => {
               const isCollection = hasCanonicalTypeMarker(value, ["Collection", "prov:Collection"]);
               const isEmptyCollection = hasCanonicalTypeMarker(value, ["EmptyCollection", "prov:EmptyCollection"]);
-              return (isCollection && A.isReadonlyArrayNonEmpty(members)) || (isEmptyCollection && A.isReadonlyArrayEmpty(members));
+              return (
+                (isCollection && A.isReadonlyArrayNonEmpty(members)) ||
+                (isEmptyCollection && A.isReadonlyArrayEmpty(members))
+              );
             },
           })
         ),
@@ -1256,7 +1305,11 @@ const ActivityFields = {
   generated: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   atLocation: S.OptionFromOptionalKey(LocationReference),
   qualifiedUsage: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany("QualifiedUsageReference", "A qualified usage relation or reference.", (): SyncSchema => Usage)
+    objectRefOrInlineOrMany(
+      "QualifiedUsageReference",
+      "A qualified usage relation or reference.",
+      (): SyncSchema => Usage
+    )
   ),
   qualifiedCommunication: S.OptionFromOptionalKey(
     objectRefOrInlineOrMany(
@@ -1314,15 +1367,12 @@ const hasActivityEndTime = (value: unknown): value is Pick<ActivityValue, "ended
 
 const activityChecks = S.makeFilterGroup<ActivityValue>(
   [
-    S.makeFilter<ActivityValue>(
-      (value) => !typeFieldHasAnyLiteral(value.type, activityTypeDisallowedLiterals),
-      {
-        identifier: $I`ActivityForeignTypeCheck`,
-        title: "Activity Foreign Type",
-        description: "Activity objects must not declare explicit entity or agent type literals.",
-        message: "Activity objects must not carry explicit entity or agent type markers",
-      }
-    ),
+    S.makeFilter<ActivityValue>((value) => !typeFieldHasAnyLiteral(value.type, activityTypeDisallowedLiterals), {
+      identifier: $I`ActivityForeignTypeCheck`,
+      title: "Activity Foreign Type",
+      description: "Activity objects must not declare explicit entity or agent type literals.",
+      message: "Activity objects must not carry explicit entity or agent type markers",
+    }),
     S.makeFilter<ActivityValue>(
       (value) =>
         pipe(
@@ -1474,24 +1524,18 @@ type AgentValue = typeof AgentShape.Type;
 
 const agentChecks = S.makeFilterGroup<AgentValue>(
   [
-    S.makeFilter<AgentValue>(
-      (value) => !typeFieldHasAnyLiteral(value.type, agentTypeDisallowedLiterals),
-      {
-        identifier: $I`AgentForeignTypeCheck`,
-        title: "Agent Foreign Type",
-        description: "Agent objects must not declare explicit entity or activity type literals.",
-        message: "Agent objects must not carry explicit entity or activity type markers",
-      }
-    ),
-    S.makeFilter<AgentValue>(
-      (value) => hasSomeOption(value.id) || hasSomeOption(value.name),
-      {
-        identifier: $I`AgentIdentityCheck`,
-        title: "Agent Identity",
-        description: "Agents must provide at least an id or a name.",
-        message: "Agents must define at least one of id or name",
-      }
-    ),
+    S.makeFilter<AgentValue>((value) => !typeFieldHasAnyLiteral(value.type, agentTypeDisallowedLiterals), {
+      identifier: $I`AgentForeignTypeCheck`,
+      title: "Agent Foreign Type",
+      description: "Agent objects must not declare explicit entity or activity type literals.",
+      message: "Agent objects must not carry explicit entity or activity type markers",
+    }),
+    S.makeFilter<AgentValue>((value) => hasSomeOption(value.id) || hasSomeOption(value.name), {
+      identifier: $I`AgentIdentityCheck`,
+      title: "Agent Identity",
+      description: "Agents must provide at least an id or a name.",
+      message: "Agents must define at least one of id or name",
+    }),
   ],
   {
     identifier: $I`AgentChecks`,

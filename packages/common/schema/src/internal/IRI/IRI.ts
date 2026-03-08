@@ -4,6 +4,8 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+// cspell:words ireg ucschar iprivate Ucschar Iprivate Iunreserved Isegment irelative Abempty Hier hier
+
 const $I = $SchemaId.create("internal/IRI/IRI");
 
 /**

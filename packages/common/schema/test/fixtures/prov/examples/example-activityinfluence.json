@@ -27,10 +27,7 @@
       "type": "Generation",
       "activity": {
         "id": "uuid:d7e8b17e-2d80-4c42-a797-bc3628f52c44",
-        "type": [
-          "wfprov:ProcessRun",
-          "Activity"
-        ],
+        "type": ["wfprov:ProcessRun", "Activity"],
         "name": "Run of workflow/packed.cwl#main/sorted"
       },
       "atTime": "2018-10-25T15:46:38.058365",

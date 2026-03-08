@@ -106,8 +106,7 @@ export const screamingSnake = <const TStr extends string>(str: TStr): TF.Screami
 /**
  * @since 0.0.0
  */
-export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<TStr> =>
-  cast(Str.pascalCase(str));
+export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<TStr> => cast(Str.pascalCase(str));
 
 /**
  * @since 0.0.0

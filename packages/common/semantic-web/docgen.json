@@ -14,7 +14,9 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "effect": ["../../../packages/effect/src/index.ts"],
-      "@beep/semantic-web": ["../../../packages/common/semantic-web/src/index.ts"]
+      "@beep/semantic-web": [
+        "../../../packages/common/semantic-web/src/index.ts"
+      ]
     }
   }
 }

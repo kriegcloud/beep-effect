@@ -21,10 +21,10 @@ import {
   Organization,
   Person,
   Plan,
-  Prov,
   PrimarySource,
-  ProvO,
+  Prov,
   ProvDateTime,
+  ProvO,
   Quotation,
   Revision,
   Role,
@@ -66,7 +66,8 @@ const decodeRevision = decodeUnknownSync(Revision);
 const decodeInfluence = decodeUnknownSync(Influence);
 const decodeInstantaneousEvent = decodeUnknownSync(InstantaneousEvent);
 
-const readFixture = (relativePath: string): unknown => decodeJson(readFileSync(resolve(fixtureRoot, relativePath), "utf8"));
+const readFixture = (relativePath: string): unknown =>
+  decodeJson(readFileSync(resolve(fixtureRoot, relativePath), "utf8"));
 
 const exampleFixtures = [
   "prov/examples/example-activity.json",
@@ -203,11 +204,7 @@ describe("ProvO expanded terms", () => {
     expect(O.isSome(decoded.value)).toBe(true);
     expect(O.isSome(decoded.atLocation)).toBe(true);
 
-    if (
-      O.isSome(decoded.generatedAtTime) &&
-      O.isSome(decoded.invalidatedAtTime) &&
-      O.isSome(decoded.value)
-    ) {
+    if (O.isSome(decoded.generatedAtTime) && O.isSome(decoded.invalidatedAtTime) && O.isSome(decoded.value)) {
       expect(DateTime.formatIso(decoded.generatedAtTime.value)).toBe("2024-01-01T00:00:00.000Z");
       expect(DateTime.formatIso(decoded.invalidatedAtTime.value)).toBe("2024-01-02T00:00:00.000Z");
       expect(decoded.value.value).toBe("snapshot");
@@ -250,7 +247,9 @@ describe("ProvO expanded terms", () => {
 
   it("accepts inline Location values and rejects untyped inline locations", () => {
     expect(decodeLocation({ provType: "Location" })).toBeDefined();
-    expect(() => decodeLocation({ id: "location-1" })).toThrow("Location values must carry a canonical Location type marker");
+    expect(() => decodeLocation({ id: "location-1" })).toThrow(
+      "Location values must carry a canonical Location type marker"
+    );
   });
 });
 

@@ -3,7 +3,9 @@
 ## Usage
 Copy the `text` block below into a fresh Codex session, then replace the placeholders and delete any sections that do not apply.
 
-This template is meant to be the default repo-aware starting point for implementation, review, research, and planning work in this monorepo.
+This is the default medium-weight template in the local prompt library. Use it when you want more than a tiny bootstrap, but do not need the stricter implementation-only variant.
+
+If you are choosing between templates, start with [README.md](/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/prompts/README.md).
 
 ## Copy/Paste Prompt
 ```text
