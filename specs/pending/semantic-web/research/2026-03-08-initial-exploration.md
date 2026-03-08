@@ -17,14 +17,14 @@ Working research snapshot capturing what has already been explored, what was clo
 
 ### Current repo assets
 
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts)
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts)
   - strong RFC 3987 syntax and boundary validation
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts)
   - schema-first PROV-O modeling with richer literal and inline-object handling
 - [`packages/common/semantic-web/README.md`](../../../packages/common/semantic-web/README.md)
-  - current package stub exists but is not a meaningful design source yet
+  - current package docs now establish the canonical IRI surface and the curated root exports
 - [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts)
-  - effectively only exports `VERSION`
+  - currently exports `VERSION` plus the IRI family
 
 ### Older semantic-web prior art
 

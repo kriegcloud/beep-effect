@@ -107,8 +107,8 @@ The exploratory semantic-web docs are preserved as evidence, then formalized thr
 
 ### Source-grounded facts
 
-- [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) currently exports only `VERSION`, so the package exists but does not yet define the intended public semantic-web surface.
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) is a strong RFC 3987 syntax boundary and explicitly does not silently absorb normalization, comparison, transport, or mapping policy.
+- [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) now exports `VERSION` plus the IRI family, so the package already has a small curated public surface.
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) is a strong RFC 3987 syntax boundary and explicitly does not silently absorb normalization, comparison, transport, or mapping policy.
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) already models `Entity`, `Activity`, `Agent`, `SoftwareAgent`, `Plan`, and derivation-oriented constructs such as `PrimarySource`, `Quotation`, and `Revision`.
 - [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) proves prior local appetite for separate `URI` and `IRI` value models, canonical branded strings, and parse / normalize / resolve / equal helpers.
 - [`.repos/effect-v4/packages/effect/src/Schema.ts`](../../../.repos/effect-v4/packages/effect/src/Schema.ts) confirms `Schema.toArbitrary(...)`, `Schema.toFormatter(...)`, `Schema.toEquivalence(...)`, `Schema.toRepresentation(...)`, `Schema.toJsonSchemaDocument(...)`, `Schema.toCodecJson(...)`, `Schema.toCodecIso(...)`, `Schema.toCodecStringTree(...)`, and `Schema.toEncoderXml(...)` exist, while the exploratory Effect note classifies which of those belong in v1.

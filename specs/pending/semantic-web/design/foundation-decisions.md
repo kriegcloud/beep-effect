@@ -48,7 +48,7 @@ Implication:
 
 #### Why
 
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) is a strong RFC 3987 syntax boundary
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) is a strong RFC 3987 syntax boundary
 - [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) provides richer URI / IRI normalization, resolution, and canonical string prior art
 
 ### Decision 5: `IRI` and `ProvO` are seed assets, not the whole package design

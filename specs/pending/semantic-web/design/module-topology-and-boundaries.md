@@ -8,8 +8,8 @@ Define the initial public module topology for `@beep/semantic-web`, make the bou
 
 ### Source-grounded facts
 
-- [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) is effectively empty.
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) provides a strong RFC 3987 syntax boundary but intentionally leaves normalization, comparison, and mapping policy to callers.
+- [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) now exports `VERSION` plus the IRI family as a small curated root surface.
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) provides a strong RFC 3987 syntax boundary but intentionally leaves normalization, comparison, and mapping policy to callers.
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) already models a broad PROV-O surface with core and extension-oriented constructs.
 - [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) provides local prior art for parse / normalize / resolve / equal helpers plus separate `URI` and `IRI` value models.
 - The semantic-web subtree set under [`.repos/semantic-web`](../../../.repos/semantic-web) now provides concrete JSON-LD, SHACL, canonicalization, query, and streaming references.
@@ -49,7 +49,7 @@ Define the initial public module topology for `@beep/semantic-web`, make the bou
 
 | Current Asset | v1 Package Role | Migration Stance |
 |---|---|---|
-| [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) | syntax boundary and validation seed | promote public semantic ownership into `@beep/semantic-web/iri`; preserve generic helpers in `@beep/schema` where still generic |
+| [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) | syntax boundary and validation seed | keep public semantic ownership in `@beep/semantic-web/iri`; preserve generic helpers in `@beep/schema` where still generic |
 | [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) | provenance seed asset | promote public provenance ownership into `@beep/semantic-web/prov`; retain only generic helper dependencies in `@beep/schema` |
 | [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) | package stub | replace with the module map defined here during implementation |
 | [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) | local prior art | mine for semantics and helper shape, including internal IDNA handling, but do not copy mutable global scheme registration or Effect v3-era assumptions blindly |

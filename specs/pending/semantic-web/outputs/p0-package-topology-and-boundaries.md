@@ -8,10 +8,10 @@ Lock the initial public module topology for `@beep/semantic-web`, define the lon
 
 - [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) now exports `VERSION` plus the IRI family, so the package already has a small curated convenience surface.
 - [`packages/common/semantic-web/package.json`](../../../packages/common/semantic-web/package.json) still exposes a broad wildcard subpath export, which is wider than the intended long-term curated public surface and should not be treated as normative package policy.
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) is a strong syntax boundary but not the whole identifier policy.
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) is a strong syntax boundary but not the whole identifier policy.
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) proves local PROV modeling depth.
 - [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) proves local prior art for separate `URI` and `IRI` surfaces.
-- [`packages/common/schema/test/IRI.test.ts`](../../../packages/common/schema/test/IRI.test.ts) and [`packages/common/schema/test/ProvO.test.ts`](../../../packages/common/schema/test/ProvO.test.ts) show the remaining repo-visible uses of the old internal proof modules are test-only, not stable consumer-facing imports.
+- [`packages/common/semantic-web/test/IRI.test.ts`](../../../packages/common/semantic-web/test/IRI.test.ts) and [`packages/common/schema/test/ProvO.test.ts`](../../../packages/common/schema/test/ProvO.test.ts) show that IRI validation now lives under semantic-web while ProvO remains a schema-internal seed asset.
 - The vendored semantic-web subtree set provides concrete JSON-LD, SHACL, canonicalization, query, and streaming references.
 
 ## Boundary Decision
@@ -28,7 +28,7 @@ Lock the initial public module topology for `@beep/semantic-web`, define the lon
 
 | Current Asset | v1 Package Role | Migration Stance |
 |---|---|---|
-| [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts) | syntax-boundary seed for semantic identifiers | promote public ownership into `@beep/semantic-web/iri`; preserve only genuinely generic helper dependencies in `@beep/schema` |
+| [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts) | syntax-boundary seed for semantic identifiers | keep public ownership in `@beep/semantic-web/iri`; preserve only genuinely generic helper dependencies in `@beep/schema` |
 | [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts) | provenance seed asset | promote public ownership into `@beep/semantic-web/prov`; retain only generic helper dependencies in `@beep/schema` |
 | [`packages/common/semantic-web/src/index.ts`](../../../packages/common/semantic-web/src/index.ts) | current thin package entry surface | keep the root surface curated; do not let the entry module become a convenience dump as more families land |
 | [`.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts`](../../../.repos/beep-effect/packages/common/semantic-web/src/uri/uri.ts) | local prior art for `uri/` | mine semantics and helper shape, including internal IDNA handling, but do not copy Effect v3 assumptions or mutable global registration patterns blindly |

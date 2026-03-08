@@ -15,7 +15,7 @@ If you are operating in Plan Mode, do not edit spec artifacts yet. First read th
 - [design/semantic-schema-metadata.md](../design/semantic-schema-metadata.md)
 - [design/foundation-decisions.md](../design/foundation-decisions.md)
 - `outputs/p0-package-topology-and-boundaries.md`
-- [`packages/common/schema/src/internal/IRI/IRI.ts`](../../../packages/common/schema/src/internal/IRI/IRI.ts)
+- [`packages/common/semantic-web/src/iri.ts`](../../../packages/common/semantic-web/src/iri.ts)
 - [`packages/common/schema/src/internal/ProvO/ProvO.ts`](../../../packages/common/schema/src/internal/ProvO/ProvO.ts)
 
 ## Required Work
