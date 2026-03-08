@@ -1,0 +1,8 @@
+@prefix ex: <http://example.org/>.
+
+ex:resource
+  ex:propertyA "";
+  ex:propertyB [];
+  ex:propertyC ();
+  ex:propertyD ("a" "b");
+  ex:propertyE ("c" [ex:propertyF "d"]).
