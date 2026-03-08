@@ -155,8 +155,22 @@ jobs:
             --lockfile=bun.lock
             --config=osv-scanner.toml
 
-      - name: Dependency review
+      - name: Detect dependency graph availability
         if: github.event_name == 'pull_request'
+        id: dependency-graph
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const status = data.security_and_analysis?.dependency_graph?.status ?? "disabled";
+            core.info(`Dependency graph status: ${status}`);
+            core.setOutput("enabled", status === "enabled" ? "true" : "false");
+
+      - name: Dependency review
+        if: github.event_name == 'pull_request' && steps.dependency-graph.outputs.enabled == 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
