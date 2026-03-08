@@ -1,0 +1,77 @@
+[Constructor]
+interface JsonLdProcessor {
+    static Promise<JsonLdDictionary> compact(JsonLdInput input, JsonLdContext context, optional JsonLdOptions? options);
+    static Promise<sequence<JsonLdDictionary>> expand(JsonLdInput input, optional JsonLdOptions? options);
+    static Promise<JsonLdDictionary> flatten(JsonLdInput input, optional JsonLdContext? context, optional JsonLdOptions? options);
+};
+
+dictionary JsonLdDictionary {
+};
+
+typedef (JsonLdDictionary or sequence<JsonLdDictionary> or USVString) JsonLdInput;
+
+typedef (JsonLdDictionary or USVString or sequence<(JsonLdDictionary or USVString)>) JsonLdContext;
+
+dictionary JsonLdOptions {
+    USVString? base;
+    boolean compactArrays = true;
+    LoadDocumentCallback? documentLoader = null;
+    (JsonLdDictionary? or USVString) expandContext = null;
+    boolean produceGeneralizedRdf = true;
+    USVString? processingMode = null;
+    boolean compactToRelative = true;
+};
+
+callback LoadDocumentCallback = Promise (USVString url);
+
+dictionary RemoteDocument {
+    USVString contextUrl = null;
+    USVString documentUrl;
+    any document;
+};
+
+dictionary JsonLdError {
+    JsonLdErrorCode code;
+    USVString? message = null;
+};
+
+enum JsonLdErrorCode {
+    "colliding keywords",
+    "conflicting indexes",
+    "cyclic IRI mapping",
+    "invalid @id value",
+    "invalid @index value",
+    "invalid @nest value",
+    "invalid @prefix value",
+    "invalid @reverse value",
+    "invalid @version value",
+    "invalid base IRI",
+    "invalid container mapping",
+    "invalid default language",
+    "invalid IRI mapping",
+    "invalid keyword alias",
+    "invalid language map value",
+    "invalid language mapping",
+    "invalid language-tagged string",
+    "invalid language-tagged value",
+    "invalid local context",
+    "invalid remote context",
+    "invalid reverse property",
+    "invalid reverse property map",
+    "invalid reverse property value",
+    "invalid scoped context",
+    "invalid set or list object",
+    "invalid term definition",
+    "invalid type mapping",
+    "invalid type value",
+    "invalid typed value",
+    "invalid value object",
+    "invalid value object value",
+    "invalid vocab mapping",
+    "keyword redefinition",
+    "loading document failed",
+    "loading remote context failed",
+    "multiple context link headers",
+    "processing mode conflict",
+    "recursive context inclusion"
+};
