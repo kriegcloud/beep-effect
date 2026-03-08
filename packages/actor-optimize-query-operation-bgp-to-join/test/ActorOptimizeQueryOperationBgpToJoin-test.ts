@@ -1,0 +1,63 @@
+import { KeysInitQuery } from '@comunica/context-entries';
+import { ActionContext, Bus } from '@comunica/core';
+import type { IActionContext } from '@comunica/types';
+import { AlgebraFactory } from '@comunica/utils-algebra';
+import { DataFactory } from 'rdf-data-factory';
+import { ActorOptimizeQueryOperationBgpToJoin } from '../lib/ActorOptimizeQueryOperationBgpToJoin';
+import '@comunica/utils-jest';
+
+const DF = new DataFactory();
+
+describe('ActorOptimizeQueryOperationBgpToJoin', () => {
+  let bus: any;
+  let factory: AlgebraFactory;
+
+  beforeEach(() => {
+    bus = new Bus({ name: 'bus' });
+    factory = new AlgebraFactory();
+  });
+
+  describe('An ActorOptimizeQueryOperationBgpToJoin instance', () => {
+    let actor: ActorOptimizeQueryOperationBgpToJoin;
+    let context: IActionContext;
+
+    beforeEach(() => {
+      actor = new ActorOptimizeQueryOperationBgpToJoin({ name: 'actor', bus });
+      context = new ActionContext({ [KeysInitQuery.dataFactory.name]: DF });
+    });
+
+    it('should test', async() => {
+      await expect(actor.test({ operation: <any> undefined, context })).resolves.toPassTestVoid();
+    });
+
+    it('should run for a bgp', async() => {
+      const operation = factory.createBgp([
+        factory.createPattern(DF.namedNode('s1'), DF.namedNode('p1'), DF.namedNode('o1')),
+        factory.createPattern(DF.namedNode('s2'), DF.namedNode('p2'), DF.namedNode('o2')),
+      ]);
+      const operationOut = factory.createJoin([
+        factory.createPattern(DF.namedNode('s1'), DF.namedNode('p1'), DF.namedNode('o1')),
+        factory.createPattern(DF.namedNode('s2'), DF.namedNode('p2'), DF.namedNode('o2')),
+      ]);
+      await expect(actor.run({ operation, context })).resolves.toMatchObject({ operation: operationOut });
+    });
+
+    it('should run for an inner bgp', async() => {
+      const operation = factory.createProject(
+        factory.createBgp([
+          factory.createPattern(DF.namedNode('s1'), DF.namedNode('p1'), DF.namedNode('o1')),
+          factory.createPattern(DF.namedNode('s2'), DF.namedNode('p2'), DF.namedNode('o2')),
+        ]),
+        [],
+      );
+      const operationOut = factory.createProject(
+        factory.createJoin([
+          factory.createPattern(DF.namedNode('s1'), DF.namedNode('p1'), DF.namedNode('o1')),
+          factory.createPattern(DF.namedNode('s2'), DF.namedNode('p2'), DF.namedNode('o2')),
+        ]),
+        [],
+      );
+      await expect(actor.run({ operation, context })).resolves.toMatchObject({ operation: operationOut });
+    });
+  });
+});
