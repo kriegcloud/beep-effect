@@ -1,0 +1,5 @@
+{
+  "entryPoints": ["./src/index.ts", "./test/fixtures/Fixture.ts"],
+  "out": "docs",
+  "readme": "none"
+}

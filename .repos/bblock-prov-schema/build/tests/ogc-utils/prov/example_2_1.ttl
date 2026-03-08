@@ -1,0 +1,16 @@
+@prefix iana: <http://www.iana.org/assignments/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.example.com/exampleActivity/someActivity_1> a prov:Activity ;
+    prov:endedAtTime "2029-01-01T22:05:19+02:00"^^xsd:dateTime ;
+    prov:used <http://www.example.com/exampleActivity/Act3> ;
+    prov:wasAssociatedWith <http://www.example.com/exampleActivity/eg_agents:bc-3> .
+
+<http://www.example.com/exampleActivity/Act3> a prov:Entity ;
+    rdfs:seeAlso [ iana:relation <http://www.iana.org/assignments/relation/related> ;
+            oa:hasTarget <https://some.gov/linktoact/> ] ;
+    prov:wasAttributedTo <http://www.example.com/exampleActivity/eg_agents:Gov1> .
+

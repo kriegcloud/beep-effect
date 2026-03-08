@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "PROV Activity object schema",
+  "$defs": {
+    "EntityType": {
+      "type": "string",
+      "enum": [
+        "Entity",
+        "Bundle",
+        "Plan",
+        "prov:Entity",
+        "prov:Bundle",
+        "prov:Plan"
+      ]
+    },
+    "EntityTypes": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/EntityType"
+        },
+        {
+          "type": "array",
+          "contains": {
+            "$ref": "#/$defs/EntityType"
+          }
+        }
+      ]
+    },
+    "Entity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "provType": {
+          "$ref": "#/$defs/EntityTypes"
+        },
+        "prov:type": {
+          "$ref": "#/$defs/EntityTypes"
+        },
+        "featureType": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreObjectref"
+        },
+        "entityType": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreObjectref"
+        },
+        "has_provenance": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#Prov"
+        },
+        "wasGeneratedBy": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreActivitiesOrRefIds"
+        },
+        "wasAttributedTo": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreAgentsOrRefIds"
+        },
+        "wasDerivedFrom": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "alternateOf": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "hadPrimarySource": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "specializationOf": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "wasInvalidatedBy": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreActivitiesOrRefIds"
+        },
+        "wasQuotedFrom": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "wasRevisionOf": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#oneOrMoreEntitiesOrRefIds"
+        },
+        "atLocation": {
+          "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "bblocks://ogc.ogc-utils.prov#externalLink"
+          }
+        },
+        "qualifiedGeneration": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov-activity#Generation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov-activity#Generation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedInvalidation": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov-activity#Invalidation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov-activity#Invalidation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedDerivation": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov-activity#Derivation"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov-activity#Derivation"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "qualifiedAttribution": {
+          "oneOf": [
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+            },
+            {
+              "$ref": "bblocks://ogc.ogc-utils.prov-activity#Attribution"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov#objectref"
+                  },
+                  {
+                    "$ref": "bblocks://ogc.ogc-utils.prov-activity#Attribution"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "Collection"
+            },
+            "hadMember": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Entity"
+              }
+            }
+          },
+          "required": [
+            "hadMember",
+            "type"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "EmptyCollection"
+            },
+            "hadMember": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "required": [
+            "hadMember",
+            "type"
+          ]
+        },
+        {
+          "not": {
+            "required": [
+              "hadMember", "type"
+            ]
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "$ref": "bblocks://ogc.ogc-utils.prov#influenced"
+        }
+      ]
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/Entity"
+    }
+  ]
+}

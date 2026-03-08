@@ -1,0 +1,61 @@
+pool:
+  vmImage: 'ubuntu-latest'
+resources:
+  repositories:
+    - repository: pagesBranch
+      endpoint: 'GitHub (Rushbot)'
+      type: github
+      name: microsoft/tsdoc
+      ref: refs/heads/gh-pages
+      trigger: none
+jobs:
+  - job: build
+    displayName: Build
+    steps:
+      - checkout: self
+        path: tsdoc
+
+      - template: /common/config/azure-pipelines/templates/install-node.yaml@self
+
+      - template: /common/config/azure-pipelines/templates/build.yaml@self
+
+      - publish: playground/dist
+        artifact: 'playground'
+        displayName: 'Publish Playground Artifacts'
+
+  - job: publish
+    displayName: Publish
+    dependsOn: build
+    steps:
+      - checkout: pagesBranch
+        persistCredentials: true
+        path: tsdoc
+
+      - script: git checkout gh-pages
+        displayName: 'Checkout gh-pages Branch'
+        workingDirectory: '$(Agent.BuildDirectory)/tsdoc'
+
+      - script: rm -r $(Build.SourcesDirectory)/*
+        displayName: 'Clean Pages Branch'
+        workingDirectory: '$(Agent.BuildDirectory)/tsdoc'
+
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Playground Artifacts'
+        inputs:
+          artifact: playground
+          targetPath: $(Agent.BuildDirectory)/tsdoc
+
+      - template: /common/config/azure-pipelines/templates/configure-git.yaml@self
+
+      - script: |
+          git add -A
+          if [ -n "$(git diff --name-only --staged HEAD --)" ]
+          then
+            echo "Committing changes"
+            git commit -m "Update playground artifacts"
+            git push
+          else
+            echo "No changes"
+          fi
+        displayName: 'Commit and push playground artifacts'
+        workingDirectory: '$(Agent.BuildDirectory)/tsdoc'

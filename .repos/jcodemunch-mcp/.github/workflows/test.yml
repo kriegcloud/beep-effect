@@ -1,0 +1,45 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" 2>/dev/null || pip install -e .
+          pip install pytest pytest-asyncio pytest-cov
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short --cov=src --cov-report=term-missing
+
+      - name: Verify sdist contains no sensitive paths
+        run: |
+          pip install build
+          python -m build --sdist
+          SDIST=$(ls dist/*.tar.gz | head -1)
+          echo "Checking $SDIST for sensitive paths..."
+          FOUND=$(tar -tzf "$SDIST" | grep -E '(\.claude|\.env|\.pypirc|\.aws|\.ssh|id_rsa|id_ed25519|\.pem|\.key|credentials)' || true)
+          if [ -n "$FOUND" ]; then
+            echo "ERROR: Sensitive paths found in sdist:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: No sensitive paths found in sdist."
