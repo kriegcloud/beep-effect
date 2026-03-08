@@ -1,0 +1,28 @@
+[
+  {
+    "text": "Tammy Abraham flying to UK as we speak ahead of completing permanent transfer from Besiktas to Aston Villa. 28yo striker set for medical on Saturday before joining on 4.5yr contract for €21m + Yasin Ozcan.",
+    "extractions": [
+      { "extractionClass": "player", "extractionText": "Tammy Abraham" },
+      { "extractionClass": "selling_club", "extractionText": "Besiktas" },
+      { "extractionClass": "buying_club", "extractionText": "Aston Villa" },
+      { "extractionClass": "transfer_fee", "extractionText": "€21m" },
+      { "extractionClass": "deal_type", "extractionText": "permanent transfer" },
+      { "extractionClass": "contract_length", "extractionText": "4.5yr" },
+      { "extractionClass": "player_age", "extractionText": "28yo" },
+      { "extractionClass": "player_included", "extractionText": "Yasin Ozcan" }
+    ]
+  },
+  {
+    "text": "Ethan Nwaneri travelling to France after Arsenal authorised 18yo to complete Marseille move. Attacking midfielder will undergo medical & seal loan until end of season (no buy option) + development fee decided by minutes played.",
+    "extractions": [
+      { "extractionClass": "player", "extractionText": "Ethan Nwaneri" },
+      { "extractionClass": "selling_club", "extractionText": "Arsenal" },
+      { "extractionClass": "buying_club", "extractionText": "Marseille" },
+      { "extractionClass": "deal_type", "extractionText": "loan" },
+      { "extractionClass": "player_age", "extractionText": "18yo" },
+      { "extractionClass": "position", "extractionText": "Attacking midfielder" },
+      { "extractionClass": "deal_detail", "extractionText": "no buy option" },
+      { "extractionClass": "deal_detail", "extractionText": "development fee decided by minutes played" }
+    ]
+  }
+]
