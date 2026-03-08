@@ -1,0 +1,46 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<> a mf:Manifest;
+  mf:entries (<from-shape-property-multiple>).
+
+<from-shape-property-multiple> a sht:Validate;
+  rdfs:label "Test of multiple messages from shape property";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms false;
+      sh:result [ a sh:ValidationResult;
+          sh:focusNode ex:Alice;
+          sh:resultMessage
+            "My custom validation message"@en,
+            "Mon message de validation"@fr;
+          sh:resultPath ex:name;
+          sh:resultSeverity sh:Violation;
+          sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+          sh:sourceShape ex:ShapeWithMessageProperty
+        ]
+    ].
+
+ex:Alice a ex:Person.
+
+ex:ShapeWithMessage a sh:NodeShape;
+  sh:property ex:ShapeWithMessageProperty;
+  sh:targetClass ex:Person.
+
+ex:ShapeWithMessageProperty
+  sh:datatype xsd:string;
+  sh:message
+    "My custom validation message"@en,
+    "Mon message de validation"@fr;
+  sh:minCount 1;
+  sh:path ex:name.
+
+sh:MinCountConstraintComponent
+  sh:message "Message on constraint component".

@@ -1,0 +1,50 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<message>).
+
+ex:shape a sh:NodeShape;
+  sh:targetNode ex:resource;
+  sh:sparql [
+    sh:message
+      "A ist {?a}, B ist {$b}"@de,
+      "A is {?a}, B is {$b}"@en;
+    sh:select """
+      SELECT $this ?a ?b WHERE {
+        $this
+          <http://example.org/propertyA> ?a;
+          <http://example.org/propertyB> ?b.
+      }
+	  """
+  ].
+
+ex:resource
+  ex:propertyA "1";
+  ex:propertyB "2".
+
+<message> a sht:Validate;
+  rdfs:label "Test message variable substitution";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:resource;
+      sh:resultMessage
+        "A ist \"1\", B ist \"2\""@de,
+        "A is \"1\", B is \"2\""@en;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraint [];
+      sh:sourceConstraintComponent sh:SPARQLConstraintComponent;
+      sh:sourceShape ex:shape;
+      sh:value ex:resource
+    ]
+  ].

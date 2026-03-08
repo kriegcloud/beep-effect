@@ -1,0 +1,204 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+ex:InvalidRectangle1 a ex:RectangleWithArea;
+  ex:height 3.
+
+ex:InvalidRectangle2 a ex:RectangleWithArea.
+
+ex:RectangleWithArea a rdfs:Class, sh:NodeShape;
+  rdfs:subClassOf rdfs:Resource;
+  sh:or (
+    _:minCountHeight
+    _:minCountWidth
+    _:minCountArea
+  ).
+
+_:minCountHeight
+  sh:property [
+    sh:path ex:height;
+    sh:minCount 1
+  ].
+
+_:minCountWidth
+  sh:property [
+    sh:path ex:width;
+    sh:minCount 1
+  ].
+
+_:minCountArea
+  sh:property [
+    sh:path ex:area;
+    sh:minCount 1
+  ].
+
+ex:ValidRectangle1 a ex:RectangleWithArea;
+  ex:height 3;
+  ex:width 2.
+
+ex:ValidRectangle2 a ex:RectangleWithArea;
+  ex:area 6;
+  ex:height 3;
+  ex:width 2.
+
+ex:ValidRectangle3 a ex:RectangleWithArea;
+  ex:area 6;
+  ex:height 3.
+
+<> a mf:Manifest;
+  mf:entries (<or-details>).
+
+<or-details> a sht:Validate;
+  rdfs:label "Test of sh:or with details";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:area;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountArea
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountWidth
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountHeight
+      ];
+      sh:focusNode ex:ValidRectangle1;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:OrConstraintComponent;
+      sh:sourceShape ex:RectangleWithArea;
+      sh:value ex:ValidRectangle1
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountHeight
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountWidth
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:area;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountArea
+      ];
+      sh:focusNode ex:InvalidRectangle2;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:OrConstraintComponent;
+      sh:sourceShape ex:RectangleWithArea;
+      sh:value ex:InvalidRectangle2
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:area;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountArea
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountWidth
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidRectangle1;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountHeight
+      ];
+      sh:focusNode ex:InvalidRectangle1;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:OrConstraintComponent;
+      sh:sourceShape ex:RectangleWithArea;
+      sh:value ex:InvalidRectangle1
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountHeight
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountWidth
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle2;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:area;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountArea
+      ];
+      sh:focusNode ex:ValidRectangle2;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:OrConstraintComponent;
+      sh:sourceShape ex:RectangleWithArea;
+      sh:value ex:ValidRectangle2
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle3;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:height;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountHeight
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle3;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:width;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountWidth
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:ValidRectangle3;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:area;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:minCountArea
+      ];
+      sh:focusNode ex:ValidRectangle3;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:OrConstraintComponent;
+      sh:sourceShape ex:RectangleWithArea;
+      sh:value ex:ValidRectangle3
+    ]
+  ].

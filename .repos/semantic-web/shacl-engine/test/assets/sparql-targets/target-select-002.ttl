@@ -1,0 +1,51 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+# Data - all valid
+ex:Person1
+  a ex:Person;
+  ex:age 25 .
+
+ex:Person2
+  a ex:Person;
+  ex:age 30 .
+
+ex:Thing1
+  ex:value "not a person" .
+
+# Shape with SPARQL target that filters by type
+ex:PersonAgeShape a sh:NodeShape;
+  sh:target [
+    a sh:SPARQLTarget;
+    sh:select """
+      SELECT ?this
+      WHERE {
+        ?this a <http://example.org/Person> .
+      }
+    """
+  ];
+  sh:property [
+    sh:path ex:age;
+    sh:datatype xsd:integer;
+    sh:minCount 1
+  ].
+
+# Manifest
+<> a mf:Manifest;
+  mf:entries (<target-select-002>).
+
+<target-select-002> a sht:Validate;
+  rdfs:label "Test of sh:target with sh:select 002 - conforms";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>
+  ];
+  mf:result [
+    a sh:ValidationReport;
+    sh:conforms true
+  ].

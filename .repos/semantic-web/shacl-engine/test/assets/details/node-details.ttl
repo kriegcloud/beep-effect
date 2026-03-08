@@ -1,0 +1,46 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+ex:InvalidInstance a ex:TestClass;
+  rdfs:label "Invalid instance".
+
+ex:TestClass a rdfs:Class, sh:NodeShape;
+  rdfs:label "Test class";
+  rdfs:subClassOf rdfs:Resource;
+  sh:node _:node.
+
+_:node
+  sh:class ex:OtherClass.
+
+ex:ValidInstance a ex:OtherClass, ex:TestClass;
+  rdfs:label "Valid instance".
+
+<> a mf:Manifest;
+  mf:entries (<node-details>).
+
+<node-details> a sht:Validate;
+  rdfs:label "Test of sh:node with details";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:InvalidInstance;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:NodeConstraintComponent;
+      sh:sourceShape ex:TestClass;
+      sh:value ex:InvalidInstance;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:InvalidInstance;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent;
+        sh:sourceShape _:node;
+        sh:value ex:InvalidInstance;
+      ]
+    ]
+  ].

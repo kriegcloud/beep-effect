@@ -1,0 +1,132 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<and-multi-list>).
+
+<and-multi-list> a sht:Validate;
+  rdfs:label "Test of sh:and with multiple lists";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms false;
+      sh:result [ a sh:ValidationResult;
+          sh:detail [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle2;
+              sh:resultPath ex:height;
+              sh:resultSeverity sh:Violation;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b1
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle2;
+              sh:resultPath ex:width;
+              sh:resultSeverity shn:Debug;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b2
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle2;
+              sh:resultPath ex:width;
+              sh:resultSeverity shn:Trace;
+              sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+              sh:sourceShape _:b2;
+              sh:value 2
+            ];
+          sh:focusNode ex:InvalidRectangle2;
+          sh:resultSeverity sh:Violation;
+          sh:sourceConstraintComponent sh:AndConstraintComponent;
+          sh:sourceShape ex:Rectangle;
+          sh:value ex:InvalidRectangle2
+        ], [ a sh:ValidationResult;
+          sh:detail [ a sh:ValidationResult;
+              sh:focusNode ex:ValidRectangle1;
+              sh:resultPath ex:height;
+              sh:resultSeverity shn:Debug;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b1
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:ValidRectangle1;
+              sh:resultPath ex:height;
+              sh:resultSeverity shn:Trace;
+              sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+              sh:sourceShape _:b1;
+              sh:value 3
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:ValidRectangle1;
+              sh:resultPath ex:width;
+              sh:resultSeverity shn:Debug;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b2
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:ValidRectangle1;
+              sh:resultPath ex:width;
+              sh:resultSeverity shn:Trace;
+              sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+              sh:sourceShape _:b2;
+              sh:value 2
+            ];
+          sh:focusNode ex:ValidRectangle1;
+          sh:resultSeverity shn:Debug;
+          sh:sourceConstraintComponent sh:AndConstraintComponent;
+          sh:sourceShape ex:Rectangle;
+          sh:value ex:ValidRectangle1
+        ], [ a sh:ValidationResult;
+          sh:detail [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle1;
+              sh:resultPath ex:width;
+              sh:resultSeverity sh:Violation;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b2
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle1;
+              sh:resultPath ex:height;
+              sh:resultSeverity shn:Trace;
+              sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+              sh:sourceShape _:b1;
+              sh:value 3
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:InvalidRectangle1;
+              sh:resultPath ex:height;
+              sh:resultSeverity shn:Debug;
+              sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+              sh:sourceShape _:b1
+            ];
+          sh:focusNode ex:InvalidRectangle1;
+          sh:resultSeverity sh:Violation;
+          sh:sourceConstraintComponent sh:AndConstraintComponent;
+          sh:sourceShape ex:Rectangle;
+          sh:value ex:InvalidRectangle1
+        ]
+    ].
+
+ex:InvalidRectangle1 a ex:Rectangle;
+  ex:height 3.
+
+ex:InvalidRectangle2 a ex:Rectangle;
+  ex:width 2.
+
+ex:Rectangle a rdfs:Class, sh:NodeShape;
+  rdfs:subClassOf rdfs:Resource;
+  sh:and (ex:RectangleWidth),(ex:RectangleHeight).
+
+ex:RectangleHeight
+  sh:property [
+      sh:minCount 1;
+      sh:path ex:height
+    ].
+
+ex:RectangleWidth
+  sh:property [
+      sh:minCount 1;
+      sh:path ex:width
+    ].
+
+ex:ValidRectangle1 a ex:Rectangle;
+  ex:height 3;
+  ex:width 2.

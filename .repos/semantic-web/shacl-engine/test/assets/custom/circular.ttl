@@ -1,0 +1,86 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<circular>).
+
+<circular> a sht:Validate;
+  rdfs:label "Test of circular references";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms true;
+      sh:result [ a sh:ValidationResult;
+          sh:detail [ a sh:ValidationResult;
+              sh:detail [ a sh:ValidationResult;
+                  sh:focusNode ex:thing;
+                  sh:resultPath ex:hasPart;
+                  sh:resultSeverity shn:Trace;
+                  sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+                  sh:sourceShape ex:HasPartShape;
+                  sh:value ex:part
+                ], [ a sh:ValidationResult;
+                  sh:focusNode ex:thing;
+                  sh:resultPath ex:hasPart;
+                  sh:resultSeverity shn:Debug;
+                  sh:sourceConstraintComponent sh:NodeConstraintComponent;
+                  sh:sourceShape ex:HasPartShape;
+                  sh:value ex:part
+                ];
+              sh:focusNode ex:part;
+              sh:resultPath ex:isPartOf;
+              sh:resultSeverity shn:Debug;
+              sh:sourceConstraintComponent sh:OrConstraintComponent;
+              sh:sourceShape ex:IsPartOfShape;
+              sh:value ex:thing
+            ], [ a sh:ValidationResult;
+              sh:focusNode ex:part;
+              sh:resultPath ex:isPartOf;
+              sh:resultSeverity shn:Trace;
+              sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+              sh:sourceShape ex:IsPartOfShape;
+              sh:value ex:thing
+            ];
+          sh:focusNode ex:thing;
+          sh:resultPath ex:hasPart;
+          sh:resultSeverity shn:Debug;
+          sh:sourceConstraintComponent sh:NodeConstraintComponent;
+          sh:sourceShape ex:HasPartShape;
+          sh:value ex:part
+        ], [ a sh:ValidationResult;
+          sh:focusNode ex:thing;
+          sh:resultPath ex:hasPart;
+          sh:resultSeverity shn:Trace;
+          sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+          sh:sourceShape ex:HasPartShape;
+          sh:value ex:part
+        ]
+    ].
+
+ex:part
+  ex:isPartOf ex:thing.
+
+ex:thing a ex:Thing;
+  ex:hasPart ex:part.
+
+ex:ThingShape a sh:NodeShape;
+  sh:targetClass ex:Thing;
+  sh:property ex:HasPartShape.
+
+ex:ThingPartShape a sh:NodeShape;
+  sh:property ex:IsPartOfShape.
+
+ex:IsPartOfShape
+  sh:or (ex:ThingShape);
+  sh:path ex:isPartOf.
+
+ex:HasPartShape
+  sh:node ex:ThingPartShape;
+  sh:path ex:hasPart.

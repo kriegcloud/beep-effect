@@ -1,0 +1,48 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<subClassOf-self-ref>).
+
+ex:Object
+  rdfs:subClassOf ex:Object.
+
+ex:propertyShape a sh:PropertyShape;
+  sh:minCount 1;
+  sh:path ex:child.
+
+ex:Resource1 a ex:Object;
+  ex:child ex:Resource2.
+
+ex:shape a sh:NodeShape;
+  sh:property ex:propertyShape;
+  sh:targetClass ex:Object.
+
+<subClassOf-self-ref> a sht:Validate;
+  rdfs:label "Test rdfs:subClassOf circular reference";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms true;
+      sh:result [ a sh:ValidationResult;
+          sh:focusNode ex:Resource1;
+          sh:resultPath ex:child;
+          sh:resultSeverity shn:Trace;
+          sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+          sh:sourceShape ex:propertyShape;
+          sh:value ex:Resource2
+        ], [ a sh:ValidationResult;
+          sh:focusNode ex:Resource1;
+          sh:resultPath ex:child;
+          sh:resultSeverity shn:Debug;
+          sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+          sh:sourceShape ex:propertyShape
+        ]
+    ].

@@ -1,0 +1,42 @@
+@prefix ckg: <http://ckg.de/default#>.
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<example1>).
+
+<example1> a sht:Validate;
+  rdfs:label "qualifiedValueShape without qualifiedValueShapesDisjoint";
+  mf:action [
+    sht:dataGraph <qualifiedValueShape.data.ttl>;
+    sht:shapesGraph <qualifiedValueShape.shape.ttl>
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms true;
+    sh:result [ a sh:ValidationResult;
+      sh:focusNode ex:citizen-a;
+      sh:resultPath ex:owns;
+      sh:resultSeverity shn:Trace;
+      sh:sourceConstraintComponent shn:TraversalConstraintComponent;
+      sh:sourceShape ex:ownsHouseShape;
+      sh:value ex:HouseA
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:HouseA;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent;
+        sh:sourceShape ex:isHouseShape;
+        sh:value ex:HouseA
+      ];
+      sh:focusNode ex:citizen-a;
+      sh:resultPath ex:owns;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:QualifiedMinCountConstraintComponent;
+      sh:sourceShape ex:ownsHouseShape
+    ]
+  ].

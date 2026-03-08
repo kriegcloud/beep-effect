@@ -1,0 +1,142 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix shn: <https://schemas.link/shacl-next#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+ex:Bob a ex:Person;
+  ex:firstName "Robert";
+  ex:lastName "Coin".
+
+ex:Carla a ex:Person;
+  ex:fullName "Carla Miller".
+
+ex:Dory a ex:Person;
+  ex:firstName "Dory";
+  ex:fullName "Dory Dunce";
+  ex:lastName "Dunce".
+
+ex:XoneConstraintExampleShape a sh:NodeShape;
+  sh:targetClass ex:Person;
+  sh:xone (
+    _:fullName
+    _:firstName
+    _:lastName
+  ).
+
+_:fullName
+  sh:property [
+    sh:path ex:fullName;
+    sh:minCount 1
+  ].
+
+_:firstName
+  sh:property [
+    sh:path ex:firstName;
+    sh:minCount 1
+  ].
+
+_:lastName
+  sh:property [
+    sh:path ex:lastName;
+    sh:minCount 1;
+  ].
+
+<> a mf:Manifest;
+  mf:entries (<xone-details>).
+
+<xone-details> a sht:Validate;
+  rdfs:label "Test of sh:xone with details";
+  mf:action [
+    sht:dataGraph <>;
+    sht:shapesGraph <>;
+  ];
+  mf:result [ a sh:ValidationReport;
+    sh:conforms false;
+    sh:result [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:Dory;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:firstName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:firstName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Dory;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:fullName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:fullName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Dory;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:lastName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:lastName
+      ];
+      sh:focusNode ex:Dory;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:XoneConstraintComponent;
+      sh:sourceShape ex:XoneConstraintExampleShape;
+      sh:value ex:Dory
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:Bob;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:lastName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:lastName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Bob;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:firstName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:firstName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Bob;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:fullName;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:fullName
+      ];
+      sh:focusNode ex:Bob;
+      sh:resultSeverity sh:Violation;
+      sh:sourceConstraintComponent sh:XoneConstraintComponent;
+      sh:sourceShape ex:XoneConstraintExampleShape;
+      sh:value ex:Bob
+    ], [ a sh:ValidationResult;
+      sh:detail [ a sh:ValidationResult;
+        sh:focusNode ex:Carla;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:fullName;
+        sh:resultSeverity shn:Debug;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:fullName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Carla;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:lastName;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:lastName
+      ], [ a sh:ValidationResult;
+        sh:focusNode ex:Carla;
+        sh:resultMessage "Less than 1 values";
+        sh:resultPath ex:firstName;
+        sh:resultSeverity sh:Violation;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+        sh:sourceShape _:firstName
+      ];
+      sh:focusNode ex:Carla;
+      sh:resultSeverity shn:Debug;
+      sh:sourceConstraintComponent sh:XoneConstraintComponent;
+      sh:sourceShape ex:XoneConstraintExampleShape;
+      sh:value ex:Carla
+    ]
+  ].

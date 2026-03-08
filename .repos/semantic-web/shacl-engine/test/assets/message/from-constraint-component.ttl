@@ -1,0 +1,41 @@
+@prefix ex: <http://example.org/>.
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix sht: <http://www.w3.org/ns/shacl-test#>.
+
+<> a mf:Manifest;
+  mf:entries (<from-constraint-component>).
+
+<from-constraint-component> a sht:Validate;
+  rdfs:label "Test of message from constraint component";
+  mf:action [
+      sht:dataGraph <>;
+      sht:shapesGraph <>
+    ];
+  mf:result [ a sh:ValidationReport;
+      sh:conforms false;
+      sh:result [ a sh:ValidationResult;
+          sh:focusNode ex:Alice;
+          sh:resultMessage "Message on constraint component";
+          sh:resultPath ex:friend;
+          sh:resultSeverity sh:Violation;
+          sh:sourceConstraintComponent sh:ClassConstraintComponent;
+          sh:sourceShape ex:ShapeWithMessageProperty;
+          sh:value ex:Bob
+        ]
+    ].
+
+ex:Alice a ex:Person;
+  ex:friend ex:Bob.
+
+ex:ShapeWithMessage a sh:NodeShape;
+  sh:property ex:ShapeWithMessageProperty;
+  sh:targetClass ex:Person.
+
+ex:ShapeWithMessageProperty
+  sh:class ex:Person;
+  sh:path ex:friend.
+
+sh:ClassConstraintComponent
+  sh:message "Message on constraint component".
