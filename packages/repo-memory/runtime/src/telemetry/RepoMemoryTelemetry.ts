@@ -63,7 +63,18 @@ export type QueryKindMetric = typeof QueryKindMetric.Type;
  * @since 0.0.0
  * @category CrossCutting
  */
-export type RunOutcomeMetric = "completed" | "failed" | "interrupted";
+export const RunOutcomeMetric = LiteralKit(
+  [
+    "completed",
+    "failed",
+    "interrupted"
+  ]
+).pipe(
+  $I.annoteSchema("RunOutcomeMetric", {
+    description: "Metric label for terminal workflow outcomes.",
+  })
+)
+export type RunOutcomeMetric = typeof RunOutcomeMetric.Type;
 
 /**
  * Metric label for grounded query result quality.
@@ -71,7 +82,12 @@ export type RunOutcomeMetric = "completed" | "failed" | "interrupted";
  * @since 0.0.0
  * @category CrossCutting
  */
-export type QueryOutcomeMetric = "cited" | "notCited" | "unsupported";
+export const QueryOutcomeMetric = LiteralKit(["cited", "notCited", "unsupported"]).pipe(
+  $I.annoteSchema("QueryOutcomeMetric", {
+    description: "Metric label for grounded query result quality.",
+  })
+);
+export type QueryOutcomeMetric = typeof QueryOutcomeMetric.Type;
 
 const runsStartedTotal = Metric.counter("beep_repo_memory_runs_started_total", {
   description: "Total repo-memory runs that started execution.",
