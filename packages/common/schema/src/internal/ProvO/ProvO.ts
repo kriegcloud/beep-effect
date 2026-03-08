@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "../../LiteralKit.ts";
 
 const $I = $SchemaId.create("internal/ProvO/ProvO");
-type SyncSchema = S.Top & { readonly DecodingServices: never };
+type SyncSchema = S.Top;
 
 const iriRegExp = /^\w+:\/*([^:<>{}|\\^`"\s/]+[^<>{}|\\^`"\s]*(?::[^:<>{}|\\^`"\s]+)?)?$/;
 const curieRegExp = /^[A-Za-z_][^\s:/]*:[^:<>{}|\\^`"\s]*(\?[^<>{}|\\^`" ]*)?(#[^<>{}|\\^`"\s]*)?$/;
@@ -348,11 +348,13 @@ const LocationFields = {
   type: OptionalTypeField,
 } as const;
 
+const LocationShape = S.Struct(LocationFields);
+
 /**
  * PROV location value used by `atLocation`.
  */
 export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`Location`)(
-  S.Struct(LocationFields).check(
+  LocationShape.check(
     S.makeFilterGroup([
       makeRequiredTypeCheck<{
         readonly provType: TypeFieldValue;
@@ -375,13 +377,23 @@ export class Location extends S.Class<Location, Brand.Brand<"ProvLocation">>($I`
 /**
  * PROV role value used by `hadRole`.
  */
+const RoleFields = {
+  id: S.OptionFromOptionalKey(ObjectRef),
+  provType: S.OptionFromOptionalKey(RoleClassType),
+  "prov:type": S.OptionFromOptionalKey(RoleClassType),
+  type: OptionalTypeField,
+};
+
+/**
+ * PROV role value used by `hadRole`.
+ */
+const RoleShape = S.Struct(RoleFields);
+
+/**
+ * PROV role value used by `hadRole`.
+ */
 export class Role extends S.Class<Role, Brand.Brand<"ProvRole">>($I`Role`)(
-  S.Struct({
-    id: S.OptionFromOptionalKey(ObjectRef),
-    provType: S.OptionFromOptionalKey(RoleClassType),
-    "prov:type": S.OptionFromOptionalKey(RoleClassType),
-    type: OptionalTypeField,
-  }).check(
+  RoleShape.check(
     S.makeFilterGroup([
       makeRequiredTypeCheck<{
         readonly provType: TypeFieldValue;
@@ -649,57 +661,71 @@ export type OneOrMoreRolesOrRefIds = typeof OneOrMoreRolesOrRefIds.Type;
 /**
  * Qualified influence between provenance nodes.
  */
-export class Influence extends S.Class<Influence, Brand.Brand<"ProvInfluence">>($I`Influence`)(
-  S.Struct({
-    id: S.OptionFromOptionalKey(ObjectRef),
-    influenced: S.OptionFromOptionalKey(
-      S.Union([
-        S.suspend(() => OneOrMoreActivitiesOrRefIds),
-        S.suspend(() => OneOrMoreEntitiesOrRefIds),
-        S.suspend(() => OneOrMoreAgentsOrRefIds),
-      ])
-    ),
-    influencer: S.OptionFromOptionalKey(
-      S.Union([
-        S.suspend(() => OneOrMoreActivitiesOrRefIds),
-        S.suspend(() => OneOrMoreEntitiesOrRefIds),
-        S.suspend(() => OneOrMoreAgentsOrRefIds),
-      ])
-    ),
-    entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
-    activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
-    agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
-    hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
-    hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
-  }).check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(
-          ({ influenced, influencer, entity, activity, agent }) =>
-            hasSomeOption(influenced) ||
-            hasSomeOption(influencer) ||
-            hasSomeOption(entity) ||
-            hasSomeOption(activity) ||
-            hasSomeOption(agent),
-          {
-            identifier: $I`InfluenceTargetCheck`,
-            title: "Influence Target",
-            description: "An influence must identify an influenced target or an influencer.",
-            message: "Influence objects must define at least one of influenced, influencer, entity, activity, or agent",
-          }
-        ),
-      ],
-      {
-        identifier: $I`InfluenceChecks`,
-        title: "Influence",
-        description: "Checks for generic qualified influence objects.",
-      }
-    )
+const InfluenceFields = {
+  id: S.OptionFromOptionalKey(ObjectRef),
+  influenced: S.OptionFromOptionalKey(
+    S.Union([
+      S.suspend(() => OneOrMoreActivitiesOrRefIds),
+      S.suspend(() => OneOrMoreEntitiesOrRefIds),
+      S.suspend(() => OneOrMoreAgentsOrRefIds),
+    ])
   ),
-  $I.annote("Influence", {
-    description: "A generic qualified PROV influence used by the top-level influenced mixin.",
-  })
-) {}
+  influencer: S.OptionFromOptionalKey(
+    S.Union([
+      S.suspend(() => OneOrMoreActivitiesOrRefIds),
+      S.suspend(() => OneOrMoreEntitiesOrRefIds),
+      S.suspend(() => OneOrMoreAgentsOrRefIds),
+    ])
+  ),
+  entity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreEntitiesOrRefIds)),
+  activity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+  agent: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreAgentsOrRefIds)),
+  hadRole: S.OptionFromOptionalKey(OneOrMoreRolesOrRefIds),
+  hadActivity: S.OptionFromOptionalKey(S.suspend(() => OneOrMoreActivitiesOrRefIds)),
+} as const;
+
+const InfluenceShape = S.Struct(InfluenceFields);
+
+/**
+ * Qualified influence between provenance nodes.
+ */
+export const Influence = InfluenceShape.check(
+  S.makeFilterGroup(
+    [
+      S.makeFilter(
+        ({ influenced, influencer, entity, activity, agent }) =>
+          hasSomeOption(influenced) ||
+          hasSomeOption(influencer) ||
+          hasSomeOption(entity) ||
+          hasSomeOption(activity) ||
+          hasSomeOption(agent),
+        {
+          identifier: $I`InfluenceTargetCheck`,
+          title: "Influence Target",
+          description: "An influence must identify an influenced target or an influencer.",
+          message: "Influence objects must define at least one of influenced, influencer, entity, activity, or agent",
+        }
+      ),
+    ],
+    {
+      identifier: $I`InfluenceChecks`,
+      title: "Influence",
+      description: "Checks for generic qualified influence objects.",
+    }
+  )
+).pipe(
+  S.brand("ProvInfluence"),
+  S.annotate(
+    $I.annote("Influence", {
+      description: "A generic qualified PROV influence used by the top-level influenced mixin.",
+    })
+  )
+);
+
+/**
+ * Type for {@link Influence}.
+ */
+export type Influence = typeof Influence.Type;
 
 const InfluencedFields = {
   wasInfluencedBy: S.OptionFromOptionalKey(

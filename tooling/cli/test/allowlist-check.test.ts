@@ -18,15 +18,21 @@ const withTempRepo = <A, E>(use: (tmpDir: string) => Effect.Effect<A, E, FileSys
     ({ fs, tmpDir }) => fs.remove(tmpDir, { recursive: true })
   );
 
-const writeRepoFile = Effect.fn(function* (repoRoot: string, relativePath: string, content: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const absolutePath = path.join(repoRoot, relativePath);
-  const directoryPath = path.dirname(absolutePath);
+const writeRepoFile: (
+  repoRoot: string,
+  relativePath: string,
+  content: string
+) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  function* (repoRoot, relativePath, content) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const absolutePath = path.join(repoRoot, relativePath);
+    const directoryPath = path.dirname(absolutePath);
 
-  yield* fs.makeDirectory(directoryPath, { recursive: true });
-  yield* fs.writeFileString(absolutePath, content);
-});
+    yield* fs.makeDirectory(directoryPath, { recursive: true });
+    yield* fs.writeFileString(absolutePath, content);
+  }
+);
 
 describe("allowlist-check", () => {
   it("passes when all referenced files exist", async () => {

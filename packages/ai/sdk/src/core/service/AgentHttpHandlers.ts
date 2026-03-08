@@ -7,11 +7,21 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { AgentRuntime } from "../AgentRuntime.js";
 import type { AgentSdkError } from "../Errors.js";
+import {
+  normalizeAccountInfo,
+  normalizeModelInfoList,
+  normalizeQueryResultOutput,
+  normalizeSlashCommandList,
+} from "../internal/normalize.js";
 import type { QueryHandle } from "../Query.js";
 import { collectResultSuccess } from "../QueryResult.js";
-import type { QuerySupervisorError } from "../QuerySupervisor.js";
+import { type QuerySupervisorError, QuerySupervisorStats } from "../QuerySupervisor.js";
 import type { SDKUserMessage } from "../Schema/Message.js";
-import type { QueryInput as QueryInputType } from "../Schema/Service.js";
+import type {
+  QueryInput as QueryInputType,
+  SessionCreateOutput as SessionCreateOutputType,
+} from "../Schema/Service.js";
+import { SessionCreateOutput } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentHttpApi } from "./AgentHttpApi.js";
 import { AgentServerAccess } from "./AgentServerAccess.js";
@@ -97,10 +107,12 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
         authorizeRequest(
           collectResultSuccess(runtime.stream(toPrompt(payload), payload.options)).pipe(
             Effect.scoped,
-            Effect.map((result) => ({
-              result: result.result,
-              metadata: result,
-            }))
+            Effect.flatMap((result) =>
+              normalizeQueryResultOutput({
+                result: result.result,
+                metadata: result,
+              })
+            )
           )
         )
       )
@@ -118,11 +130,25 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
           )
         )
       )
-      .handle("stats", () => authorizeRequest(runtime.stats))
+      .handle("stats", () =>
+        authorizeRequest(runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats))))
+      )
       .handle("interruptAll", () => authorizeRequest(runtime.interruptAll))
-      .handle("models", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedModels)))
-      .handle("commands", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedCommands)))
-      .handle("account", () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.accountInfo)))
+      .handle("models", () =>
+        authorizeRequest(
+          withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList))
+        )
+      )
+      .handle("commands", () =>
+        authorizeRequest(
+          withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList))
+        )
+      )
+      .handle("account", () =>
+        authorizeRequest(
+          withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo))
+        )
+      )
       .handle("createSession", ({ payload }) =>
         authorizeRequest(
           requirePool((pool) =>
@@ -130,7 +156,7 @@ export const layer = HttpApiBuilder.group(AgentHttpApi, "agent", (handlers) =>
               Effect.flatMap((tenant) =>
                 pool.create(payload.options, tenant).pipe(
                   Effect.flatMap((handle) => handle.sessionId),
-                  Effect.map((sessionId) => ({ sessionId }))
+                  Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
                 )
               )
             )

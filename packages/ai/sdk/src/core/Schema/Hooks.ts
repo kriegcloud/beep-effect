@@ -6,12 +6,17 @@ import { PermissionRequestHookSpecificOutput, PermissionUpdate } from "./Permiss
 
 const $I = $AiSdkId.create("core/Schema/Hooks");
 
-const BaseHookInput = S.Struct({
-  session_id: S.String,
-  transcript_path: S.String,
-  cwd: S.String,
-  permission_mode: S.optional(S.String),
-});
+class BaseHookInput extends S.Class<BaseHookInput>($I`BaseHookInput`)(
+  {
+    session_id: S.String,
+    transcript_path: S.String,
+    cwd: S.String,
+    permission_mode: S.optional(S.String),
+  },
+  $I.annote("BaseHookInput", {
+    description: "Shared transport fields present on all hook input payloads.",
+  })
+) {}
 
 /**
  * @since 0.0.0
@@ -34,7 +39,7 @@ export const HookEvent = LiteralKit([
   "TaskCompleted",
 ]).annotate(
   $I.annote("HookEvent", {
-    description: "Schema for HookEvent.",
+    description: "Supported Claude Code hook event names emitted by the SDK.",
   })
 );
 
@@ -50,22 +55,18 @@ export type HookEventEncoded = typeof HookEvent.Encoded;
 /**
  * @since 0.0.0
  */
-export const NotificationHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("Notification"),
-  message: S.String,
-  title: S.optional(S.String),
-  notification_type: S.String,
-}).annotate(
+export class NotificationHookInput extends S.Class<NotificationHookInput>($I`NotificationHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("Notification"),
+    message: S.String,
+    title: S.optional(S.String),
+    notification_type: S.String,
+  },
   $I.annote("NotificationHookInput", {
-    description: "Schema for NotificationHookInput.",
+    description: "Incoming Notification hook payload delivered to hook callbacks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type NotificationHookInput = typeof NotificationHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -74,20 +75,16 @@ export type NotificationHookInputEncoded = typeof NotificationHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const UserPromptSubmitHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("UserPromptSubmit"),
-  prompt: S.String,
-}).annotate(
+export class UserPromptSubmitHookInput extends S.Class<UserPromptSubmitHookInput>($I`UserPromptSubmitHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("UserPromptSubmit"),
+    prompt: S.String,
+  },
   $I.annote("UserPromptSubmitHookInput", {
-    description: "Schema for UserPromptSubmitHookInput.",
+    description: "Incoming UserPromptSubmit hook payload containing the submitted prompt text.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type UserPromptSubmitHookInput = typeof UserPromptSubmitHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -96,22 +93,18 @@ export type UserPromptSubmitHookInputEncoded = typeof UserPromptSubmitHookInput.
 /**
  * @since 0.0.0
  */
-export const SessionStartHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("SessionStart"),
-  source: LiteralKit(["startup", "resume", "clear", "compact"]),
-  agent_type: S.optional(S.String),
-  model: S.optional(S.String),
-}).annotate(
+export class SessionStartHookInput extends S.Class<SessionStartHookInput>($I`SessionStartHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("SessionStart"),
+    source: LiteralKit(["startup", "resume", "clear", "compact"]),
+    agent_type: S.optional(S.String),
+    model: S.optional(S.String),
+  },
   $I.annote("SessionStartHookInput", {
-    description: "Schema for SessionStartHookInput.",
+    description: "Incoming SessionStart hook payload describing how a session began.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SessionStartHookInput = typeof SessionStartHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -120,20 +113,16 @@ export type SessionStartHookInputEncoded = typeof SessionStartHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const SessionEndHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("SessionEnd"),
-  reason: ExitReason,
-}).annotate(
+export class SessionEndHookInput extends S.Class<SessionEndHookInput>($I`SessionEndHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("SessionEnd"),
+    reason: ExitReason,
+  },
   $I.annote("SessionEndHookInput", {
-    description: "Schema for SessionEndHookInput.",
+    description: "Incoming SessionEnd hook payload describing why a session ended.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SessionEndHookInput = typeof SessionEndHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -142,20 +131,16 @@ export type SessionEndHookInputEncoded = typeof SessionEndHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const StopHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("Stop"),
-  stop_hook_active: S.Boolean,
-}).annotate(
+export class StopHookInput extends S.Class<StopHookInput>($I`StopHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("Stop"),
+    stop_hook_active: S.Boolean,
+  },
   $I.annote("StopHookInput", {
-    description: "Schema for StopHookInput.",
+    description: "Incoming Stop hook payload indicating whether stop handling is currently active.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type StopHookInput = typeof StopHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -164,21 +149,17 @@ export type StopHookInputEncoded = typeof StopHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const SubagentStartHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("SubagentStart"),
-  agent_id: S.String,
-  agent_type: S.String,
-}).annotate(
+export class SubagentStartHookInput extends S.Class<SubagentStartHookInput>($I`SubagentStartHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("SubagentStart"),
+    agent_id: S.String,
+    agent_type: S.String,
+  },
   $I.annote("SubagentStartHookInput", {
-    description: "Schema for SubagentStartHookInput.",
+    description: "Incoming SubagentStart hook payload for a newly launched subagent.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SubagentStartHookInput = typeof SubagentStartHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -187,23 +168,19 @@ export type SubagentStartHookInputEncoded = typeof SubagentStartHookInput.Encode
 /**
  * @since 0.0.0
  */
-export const SubagentStopHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("SubagentStop"),
-  stop_hook_active: S.Boolean,
-  agent_id: S.String,
-  agent_transcript_path: S.String,
-  agent_type: S.String,
-}).annotate(
+export class SubagentStopHookInput extends S.Class<SubagentStopHookInput>($I`SubagentStopHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("SubagentStop"),
+    stop_hook_active: S.Boolean,
+    agent_id: S.String,
+    agent_transcript_path: S.String,
+    agent_type: S.String,
+  },
   $I.annote("SubagentStopHookInput", {
-    description: "Schema for SubagentStopHookInput.",
+    description: "Incoming SubagentStop hook payload for a finished subagent run.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SubagentStopHookInput = typeof SubagentStopHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -212,21 +189,17 @@ export type SubagentStopHookInputEncoded = typeof SubagentStopHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const PreCompactHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("PreCompact"),
-  trigger: LiteralKit(["manual", "auto"]),
-  custom_instructions: S.Union([S.String, S.Null]),
-}).annotate(
+export class PreCompactHookInput extends S.Class<PreCompactHookInput>($I`PreCompactHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("PreCompact"),
+    trigger: LiteralKit(["manual", "auto"]),
+    custom_instructions: S.Union([S.String, S.Null]),
+  },
   $I.annote("PreCompactHookInput", {
-    description: "Schema for PreCompactHookInput.",
+    description: "Incoming PreCompact hook payload emitted before transcript compaction.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PreCompactHookInput = typeof PreCompactHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -235,22 +208,18 @@ export type PreCompactHookInputEncoded = typeof PreCompactHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const PreToolUseHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("PreToolUse"),
-  tool_name: S.String,
-  tool_input: S.Unknown,
-  tool_use_id: S.String,
-}).annotate(
+export class PreToolUseHookInput extends S.Class<PreToolUseHookInput>($I`PreToolUseHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("PreToolUse"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_use_id: S.String,
+  },
   $I.annote("PreToolUseHookInput", {
-    description: "Schema for PreToolUseHookInput.",
+    description: "Incoming PreToolUse hook payload emitted before a tool invocation runs.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PreToolUseHookInput = typeof PreToolUseHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -259,23 +228,19 @@ export type PreToolUseHookInputEncoded = typeof PreToolUseHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const PostToolUseHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("PostToolUse"),
-  tool_name: S.String,
-  tool_input: S.Unknown,
-  tool_response: S.Unknown,
-  tool_use_id: S.String,
-}).annotate(
+export class PostToolUseHookInput extends S.Class<PostToolUseHookInput>($I`PostToolUseHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("PostToolUse"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_response: S.Unknown,
+    tool_use_id: S.String,
+  },
   $I.annote("PostToolUseHookInput", {
-    description: "Schema for PostToolUseHookInput.",
+    description: "Incoming PostToolUse hook payload emitted after a tool invocation completes.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PostToolUseHookInput = typeof PostToolUseHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -284,24 +249,20 @@ export type PostToolUseHookInputEncoded = typeof PostToolUseHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const PostToolUseFailureHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("PostToolUseFailure"),
-  tool_name: S.String,
-  tool_input: S.Unknown,
-  tool_use_id: S.String,
-  error: S.String,
-  is_interrupt: S.optional(S.Boolean),
-}).annotate(
+export class PostToolUseFailureHookInput extends S.Class<PostToolUseFailureHookInput>($I`PostToolUseFailureHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("PostToolUseFailure"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    tool_use_id: S.String,
+    error: S.String,
+    is_interrupt: S.optional(S.Boolean),
+  },
   $I.annote("PostToolUseFailureHookInput", {
-    description: "Schema for PostToolUseFailureHookInput.",
+    description: "Incoming PostToolUseFailure hook payload emitted when a tool invocation fails.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PostToolUseFailureHookInput = typeof PostToolUseFailureHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -310,22 +271,18 @@ export type PostToolUseFailureHookInputEncoded = typeof PostToolUseFailureHookIn
 /**
  * @since 0.0.0
  */
-export const PermissionRequestHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("PermissionRequest"),
-  tool_name: S.String,
-  tool_input: S.Unknown,
-  permission_suggestions: S.optional(S.Array(PermissionUpdate)),
-}).annotate(
+export class PermissionRequestHookInput extends S.Class<PermissionRequestHookInput>($I`PermissionRequestHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("PermissionRequest"),
+    tool_name: S.String,
+    tool_input: S.Unknown,
+    permission_suggestions: S.optional(S.Array(PermissionUpdate)),
+  },
   $I.annote("PermissionRequestHookInput", {
-    description: "Schema for PermissionRequestHookInput.",
+    description: "Incoming PermissionRequest hook payload describing a tool permission decision request.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PermissionRequestHookInput = typeof PermissionRequestHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -334,20 +291,16 @@ export type PermissionRequestHookInputEncoded = typeof PermissionRequestHookInpu
 /**
  * @since 0.0.0
  */
-export const SetupHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("Setup"),
-  trigger: LiteralKit(["init", "maintenance"]),
-}).annotate(
+export class SetupHookInput extends S.Class<SetupHookInput>($I`SetupHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("Setup"),
+    trigger: LiteralKit(["init", "maintenance"]),
+  },
   $I.annote("SetupHookInput", {
-    description: "Schema for SetupHookInput.",
+    description: "Incoming Setup hook payload for repository initialization or maintenance work.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SetupHookInput = typeof SetupHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -356,21 +309,17 @@ export type SetupHookInputEncoded = typeof SetupHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const TeammateIdleHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("TeammateIdle"),
-  teammate_name: S.String,
-  team_name: S.String,
-}).annotate(
+export class TeammateIdleHookInput extends S.Class<TeammateIdleHookInput>($I`TeammateIdleHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("TeammateIdle"),
+    teammate_name: S.String,
+    team_name: S.String,
+  },
   $I.annote("TeammateIdleHookInput", {
-    description: "Schema for TeammateIdleHookInput.",
+    description: "Incoming TeammateIdle hook payload emitted when a teammate becomes idle.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type TeammateIdleHookInput = typeof TeammateIdleHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -379,24 +328,20 @@ export type TeammateIdleHookInputEncoded = typeof TeammateIdleHookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const TaskCompletedHookInput = S.Struct({
-  ...BaseHookInput.fields,
-  hook_event_name: S.Literal("TaskCompleted"),
-  task_id: S.String,
-  task_subject: S.String,
-  task_description: S.optional(S.String),
-  teammate_name: S.optional(S.String),
-  team_name: S.optional(S.String),
-}).annotate(
+export class TaskCompletedHookInput extends S.Class<TaskCompletedHookInput>($I`TaskCompletedHookInput`)(
+  {
+    ...BaseHookInput.fields,
+    hook_event_name: S.Literal("TaskCompleted"),
+    task_id: S.String,
+    task_subject: S.String,
+    task_description: S.optional(S.String),
+    teammate_name: S.optional(S.String),
+    team_name: S.optional(S.String),
+  },
   $I.annote("TaskCompletedHookInput", {
-    description: "Schema for TaskCompletedHookInput.",
+    description: "Incoming TaskCompleted hook payload emitted when delegated work finishes.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type TaskCompletedHookInput = typeof TaskCompletedHookInput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -442,22 +387,20 @@ export type HookInputEncoded = typeof HookInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const PreToolUseHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("PreToolUse"),
-  permissionDecision: S.optionalKey(LiteralKit(["allow", "deny", "ask"])),
-  permissionDecisionReason: S.optionalKey(S.String),
-  updatedInput: S.optionalKey(S.Record(S.String, S.Unknown)),
-  additionalContext: S.optionalKey(S.String),
-}).annotate(
+export class PreToolUseHookSpecificOutput extends S.Class<PreToolUseHookSpecificOutput>(
+  $I`PreToolUseHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("PreToolUse"),
+    permissionDecision: S.optionalKey(LiteralKit(["allow", "deny", "ask"])),
+    permissionDecisionReason: S.optionalKey(S.String),
+    updatedInput: S.optionalKey(S.Record(S.String, S.Unknown)),
+    additionalContext: S.optionalKey(S.String),
+  },
   $I.annote("PreToolUseHookSpecificOutput", {
-    description: "Schema for PreToolUseHookSpecificOutput.",
+    description: "Hook-specific response payload for PreToolUse hooks, including permission overrides.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PreToolUseHookSpecificOutput = typeof PreToolUseHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -466,19 +409,17 @@ export type PreToolUseHookSpecificOutputEncoded = typeof PreToolUseHookSpecificO
 /**
  * @since 0.0.0
  */
-export const UserPromptSubmitHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("UserPromptSubmit"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class UserPromptSubmitHookSpecificOutput extends S.Class<UserPromptSubmitHookSpecificOutput>(
+  $I`UserPromptSubmitHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("UserPromptSubmit"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("UserPromptSubmitHookSpecificOutput", {
-    description: "Schema for UserPromptSubmitHookSpecificOutput.",
+    description: "Hook-specific response payload for UserPromptSubmit hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type UserPromptSubmitHookSpecificOutput = typeof UserPromptSubmitHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -487,19 +428,17 @@ export type UserPromptSubmitHookSpecificOutputEncoded = typeof UserPromptSubmitH
 /**
  * @since 0.0.0
  */
-export const SessionStartHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("SessionStart"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpecificOutput>(
+  $I`SessionStartHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("SessionStart"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("SessionStartHookSpecificOutput", {
-    description: "Schema for SessionStartHookSpecificOutput.",
+    description: "Hook-specific response payload for SessionStart hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SessionStartHookSpecificOutput = typeof SessionStartHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -508,19 +447,15 @@ export type SessionStartHookSpecificOutputEncoded = typeof SessionStartHookSpeci
 /**
  * @since 0.0.0
  */
-export const SetupHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("Setup"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class SetupHookSpecificOutput extends S.Class<SetupHookSpecificOutput>($I`SetupHookSpecificOutput`)(
+  {
+    hookEventName: S.Literal("Setup"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("SetupHookSpecificOutput", {
-    description: "Schema for SetupHookSpecificOutput.",
+    description: "Hook-specific response payload for Setup hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SetupHookSpecificOutput = typeof SetupHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -529,19 +464,17 @@ export type SetupHookSpecificOutputEncoded = typeof SetupHookSpecificOutput.Enco
 /**
  * @since 0.0.0
  */
-export const SubagentStartHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("SubagentStart"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class SubagentStartHookSpecificOutput extends S.Class<SubagentStartHookSpecificOutput>(
+  $I`SubagentStartHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("SubagentStart"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("SubagentStartHookSpecificOutput", {
-    description: "Schema for SubagentStartHookSpecificOutput.",
+    description: "Hook-specific response payload for SubagentStart hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SubagentStartHookSpecificOutput = typeof SubagentStartHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -550,20 +483,18 @@ export type SubagentStartHookSpecificOutputEncoded = typeof SubagentStartHookSpe
 /**
  * @since 0.0.0
  */
-export const PostToolUseHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("PostToolUse"),
-  additionalContext: S.optional(S.String),
-  updatedMCPToolOutput: S.optional(S.Unknown),
-}).annotate(
+export class PostToolUseHookSpecificOutput extends S.Class<PostToolUseHookSpecificOutput>(
+  $I`PostToolUseHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("PostToolUse"),
+    additionalContext: S.optional(S.String),
+    updatedMCPToolOutput: S.optional(S.Unknown),
+  },
   $I.annote("PostToolUseHookSpecificOutput", {
-    description: "Schema for PostToolUseHookSpecificOutput.",
+    description: "Hook-specific response payload for PostToolUse hooks, including MCP output overrides.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PostToolUseHookSpecificOutput = typeof PostToolUseHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -572,19 +503,17 @@ export type PostToolUseHookSpecificOutputEncoded = typeof PostToolUseHookSpecifi
 /**
  * @since 0.0.0
  */
-export const PostToolUseFailureHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("PostToolUseFailure"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class PostToolUseFailureHookSpecificOutput extends S.Class<PostToolUseFailureHookSpecificOutput>(
+  $I`PostToolUseFailureHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("PostToolUseFailure"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("PostToolUseFailureHookSpecificOutput", {
-    description: "Schema for PostToolUseFailureHookSpecificOutput.",
+    description: "Hook-specific response payload for PostToolUseFailure hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type PostToolUseFailureHookSpecificOutput = typeof PostToolUseFailureHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -593,19 +522,17 @@ export type PostToolUseFailureHookSpecificOutputEncoded = typeof PostToolUseFail
 /**
  * @since 0.0.0
  */
-export const NotificationHookSpecificOutput = S.Struct({
-  hookEventName: S.Literal("Notification"),
-  additionalContext: S.optional(S.String),
-}).annotate(
+export class NotificationHookSpecificOutput extends S.Class<NotificationHookSpecificOutput>(
+  $I`NotificationHookSpecificOutput`
+)(
+  {
+    hookEventName: S.Literal("Notification"),
+    additionalContext: S.optional(S.String),
+  },
   $I.annote("NotificationHookSpecificOutput", {
-    description: "Schema for NotificationHookSpecificOutput.",
+    description: "Hook-specific response payload for Notification hooks.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type NotificationHookSpecificOutput = typeof NotificationHookSpecificOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -645,24 +572,20 @@ export type HookSpecificOutputEncoded = typeof HookSpecificOutput.Encoded;
 /**
  * @since 0.0.0
  */
-export const SyncHookJSONOutput = S.Struct({
-  continue: S.optional(S.Boolean),
-  suppressOutput: S.optional(S.Boolean),
-  stopReason: S.optional(S.String),
-  decision: S.optional(LiteralKit(["approve", "block"])),
-  systemMessage: S.optional(S.String),
-  reason: S.optional(S.String),
-  hookSpecificOutput: S.optional(HookSpecificOutput),
-}).annotate(
+export class SyncHookJSONOutput extends S.Class<SyncHookJSONOutput>($I`SyncHookJSONOutput`)(
+  {
+    continue: S.optional(S.Boolean),
+    suppressOutput: S.optional(S.Boolean),
+    stopReason: S.optional(S.String),
+    decision: S.optional(LiteralKit(["approve", "block"])),
+    systemMessage: S.optional(S.String),
+    reason: S.optional(S.String),
+    hookSpecificOutput: S.optional(HookSpecificOutput),
+  },
   $I.annote("SyncHookJSONOutput", {
-    description: "Schema for SyncHookJSONOutput.",
+    description: "Synchronous hook runner response payload returned directly to Claude Code.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type SyncHookJSONOutput = typeof SyncHookJSONOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -671,19 +594,15 @@ export type SyncHookJSONOutputEncoded = typeof SyncHookJSONOutput.Encoded;
 /**
  * @since 0.0.0
  */
-export const AsyncHookJSONOutput = S.Struct({
-  async: S.Literal(true),
-  asyncTimeout: S.optional(S.Number),
-}).annotate(
+export class AsyncHookJSONOutput extends S.Class<AsyncHookJSONOutput>($I`AsyncHookJSONOutput`)(
+  {
+    async: S.Literal(true),
+    asyncTimeout: S.optional(S.Number),
+  },
   $I.annote("AsyncHookJSONOutput", {
-    description: "Schema for AsyncHookJSONOutput.",
+    description: "Asynchronous hook runner response payload requesting deferred completion.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type AsyncHookJSONOutput = typeof AsyncHookJSONOutput.Type;
+) {}
 /**
  * @since 0.0.0
  */
@@ -694,7 +613,7 @@ export type AsyncHookJSONOutputEncoded = typeof AsyncHookJSONOutput.Encoded;
  */
 export const HookJSONOutput = S.Union([AsyncHookJSONOutput, SyncHookJSONOutput]).annotate(
   $I.annote("HookJSONOutput", {
-    description: "Schema for HookJSONOutput.",
+    description: "Union schema for synchronous and asynchronous hook callback results.",
   })
 );
 
@@ -721,7 +640,7 @@ export const HookCallback = S.declare(
 ).pipe(
   S.annotate(
     $I.annote("HookCallback", {
-      description: "Schema for HookCallback.",
+      description: "Hook callback function that evaluates hook input and returns JSON output.",
       jsonSchema: {},
     })
   )
@@ -739,20 +658,16 @@ export type HookCallbackEncoded = typeof HookCallback.Encoded;
 /**
  * @since 0.0.0
  */
-export const HookCallbackMatcher = S.Struct({
-  matcher: S.optional(S.String),
-  hooks: S.Array(HookCallback),
-  timeout: S.optional(S.Number),
-}).annotate(
+export class HookCallbackMatcher extends S.Class<HookCallbackMatcher>($I`HookCallbackMatcher`)(
+  {
+    matcher: S.optional(S.String),
+    hooks: S.Array(HookCallback),
+    timeout: S.optional(S.Number),
+  },
   $I.annote("HookCallbackMatcher", {
-    description: "Schema for HookCallbackMatcher.",
+    description: "Matcher entry that binds hook callbacks to an optional filter and timeout.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type HookCallbackMatcher = typeof HookCallbackMatcher.Type;
+) {}
 /**
  * @since 0.0.0
  */

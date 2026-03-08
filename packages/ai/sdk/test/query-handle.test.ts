@@ -5,9 +5,9 @@ import type {
   McpSetServersResult,
   PermissionMode,
 } from "@anthropic-ai/claude-agent-sdk";
-import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
 import { makeQueryHandle, type SdkQueryLike } from "@beep/ai-sdk/internal/queryHandle";
 import { createInputQueue } from "@beep/ai-sdk/internal/streaming";
+import { makeUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";

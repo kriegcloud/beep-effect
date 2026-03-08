@@ -1,17 +1,22 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { FilePath, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
-import { withToolInput } from "./Annotations.js";
+import { toolInputParseOptions, withToolInput } from "./Annotations.js";
 
 const $I = $AiSdkId.create("core/Schema/ToolInput");
 
 const AgentModel = LiteralKit(["sonnet", "opus", "haiku"]);
 
+const toolInputAnnotation = (name: string, description: string) => ({
+  ...$I.annote(name, { description }),
+  parseOptions: toolInputParseOptions,
+});
+
 /**
  * @since 0.0.0
  */
-export const AgentInput = withToolInput(
-  S.Struct({
+class AgentInputData extends S.Class<AgentInputData>($I`AgentInput`)(
+  {
     description: S.String,
     prompt: S.String,
     subagent_type: S.String,
@@ -19,11 +24,14 @@ export const AgentInput = withToolInput(
     resume: S.optional(S.String),
     run_in_background: S.optional(S.Boolean),
     max_turns: S.optional(S.Number),
-  }),
-  $I.annote("AgentInput", {
-    description: "Schema for AgentInput.",
-  })
-);
+  },
+  toolInputAnnotation("AgentInput", "Tool input for launching a subagent with prompt, model, and turn limits.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const AgentInput = AgentInputData;
 
 /**
  * @since 0.0.0
@@ -34,27 +42,40 @@ export type AgentInput = typeof AgentInput.Type;
  */
 export type AgentInputEncoded = typeof AgentInput.Encoded;
 
-const SimulatedSedEdit = S.Struct({
-  filePath: FilePath,
-  newContent: S.String,
-});
+class SimulatedSedEditData extends S.Class<SimulatedSedEditData>($I`SimulatedSedEdit`)(
+  {
+    filePath: FilePath,
+    newContent: S.String,
+  },
+  $I.annote("SimulatedSedEdit", {
+    description: "Synthetic edit payload attached to bash tool requests for simulated sed rewrites.",
+  })
+) {}
+
+const SimulatedSedEdit = SimulatedSedEditData;
 
 /**
  * @since 0.0.0
  */
-export const BashInput = withToolInput(
-  S.Struct({
+class BashInputData extends S.Class<BashInputData>($I`BashInput`)(
+  {
     command: S.String,
     timeout: S.optional(S.Number),
     description: S.optional(S.String),
     run_in_background: S.optional(S.Boolean),
     dangerouslyDisableSandbox: S.optional(S.Boolean),
     _simulatedSedEdit: S.optional(SimulatedSedEdit),
-  }),
-  $I.annote("BashInput", {
-    description: "Schema for BashInput.",
-  })
-);
+  },
+  toolInputAnnotation(
+    "BashInput",
+    "Tool input for shell command execution with optional timeout and sandbox overrides."
+  )
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const BashInput = BashInputData;
 
 /**
  * @since 0.0.0
@@ -68,16 +89,19 @@ export type BashInputEncoded = typeof BashInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const TaskOutputInput = withToolInput(
-  S.Struct({
+class TaskOutputInputData extends S.Class<TaskOutputInputData>($I`TaskOutputInput`)(
+  {
     task_id: S.String,
     block: S.Boolean,
     timeout: S.Number,
-  }),
-  $I.annote("TaskOutputInput", {
-    description: "Schema for TaskOutputInput.",
-  })
-);
+  },
+  toolInputAnnotation("TaskOutputInput", "Tool input for reading buffered output from a background task.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const TaskOutputInput = TaskOutputInputData;
 
 /**
  * @since 0.0.0
@@ -88,25 +112,39 @@ export type TaskOutputInput = typeof TaskOutputInput.Type;
  */
 export type TaskOutputInputEncoded = typeof TaskOutputInput.Encoded;
 
-const ExitPlanModePrompt = S.Struct({
-  tool: S.Literal("Bash"),
-  prompt: S.String,
-});
+class ExitPlanModePromptData extends S.Class<ExitPlanModePromptData>($I`ExitPlanModePrompt`)(
+  {
+    tool: S.Literal("Bash"),
+    prompt: S.String,
+  },
+  $I.annote("ExitPlanModePrompt", {
+    description: "Allowed plan-exit prompt paired with the tool that may issue it.",
+  })
+) {}
 
-const ExitPlanModeBase = S.Struct({
-  allowedPrompts: S.optional(S.Array(ExitPlanModePrompt)),
-  pushToRemote: S.optional(S.Boolean),
-  remoteSessionId: S.optional(S.String),
-  remoteSessionUrl: S.optional(S.String),
-});
+const ExitPlanModePrompt = ExitPlanModePromptData;
+
+class ExitPlanModeBaseData extends S.Class<ExitPlanModeBaseData>($I`ExitPlanModeBase`)(
+  {
+    allowedPrompts: S.optional(S.Array(ExitPlanModePrompt)),
+    pushToRemote: S.optional(S.Boolean),
+    remoteSessionId: S.optional(S.String),
+    remoteSessionUrl: S.optional(S.String),
+  },
+  $I.annote("ExitPlanModeBase", {
+    description: "Base plan-exit payload shared by plan mode exit requests with arbitrary extra keys.",
+  })
+) {}
+
+const ExitPlanModeBase = ExitPlanModeBaseData;
 
 /**
  * @since 0.0.0
  */
 export const ExitPlanModeInput = withToolInput(
-  S.StructWithRest(ExitPlanModeBase, [S.Record(S.String, S.Unknown)]),
+  S.StructWithRest(S.Struct(ExitPlanModeBase.fields), [S.Record(S.String, S.Unknown)]),
   $I.annote("ExitPlanModeInput", {
-    description: "Schema for ExitPlanModeInput.",
+    description: "Tool input for exiting plan mode while preserving allowed prompts and remote session metadata.",
   })
 );
 
@@ -122,17 +160,20 @@ export type ExitPlanModeInputEncoded = typeof ExitPlanModeInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const FileEditInput = withToolInput(
-  S.Struct({
+class FileEditInputData extends S.Class<FileEditInputData>($I`FileEditInput`)(
+  {
     file_path: FilePath,
     old_string: S.String,
     new_string: S.String,
     replace_all: S.optional(S.Boolean),
-  }),
-  $I.annote("FileEditInput", {
-    description: "Schema for FileEditInput.",
-  })
-);
+  },
+  toolInputAnnotation("FileEditInput", "Tool input for in-place string replacement edits within a file.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const FileEditInput = FileEditInputData;
 
 /**
  * @since 0.0.0
@@ -146,16 +187,19 @@ export type FileEditInputEncoded = typeof FileEditInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const FileReadInput = withToolInput(
-  S.Struct({
+class FileReadInputData extends S.Class<FileReadInputData>($I`FileReadInput`)(
+  {
     file_path: FilePath,
     offset: S.optional(S.Number),
     limit: S.optional(S.Number),
-  }),
-  $I.annote("FileReadInput", {
-    description: "Schema for FileReadInput.",
-  })
-);
+  },
+  toolInputAnnotation("FileReadInput", "Tool input for reading a slice of a file from disk.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const FileReadInput = FileReadInputData;
 
 /**
  * @since 0.0.0
@@ -169,15 +213,18 @@ export type FileReadInputEncoded = typeof FileReadInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const FileWriteInput = withToolInput(
-  S.Struct({
+class FileWriteInputData extends S.Class<FileWriteInputData>($I`FileWriteInput`)(
+  {
     file_path: FilePath,
     content: S.String,
-  }),
-  $I.annote("FileWriteInput", {
-    description: "Schema for FileWriteInput.",
-  })
-);
+  },
+  toolInputAnnotation("FileWriteInput", "Tool input for overwriting file contents.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const FileWriteInput = FileWriteInputData;
 
 /**
  * @since 0.0.0
@@ -191,15 +238,18 @@ export type FileWriteInputEncoded = typeof FileWriteInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const GlobInput = withToolInput(
-  S.Struct({
+class GlobInputData extends S.Class<GlobInputData>($I`GlobInput`)(
+  {
     pattern: S.String,
     path: S.optional(S.String),
-  }),
-  $I.annote("GlobInput", {
-    description: "Schema for GlobInput.",
-  })
-);
+  },
+  toolInputAnnotation("GlobInput", "Tool input for glob-based file discovery.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const GlobInput = GlobInputData;
 
 /**
  * @since 0.0.0
@@ -215,8 +265,8 @@ const GrepOutputMode = LiteralKit(["content", "files_with_matches", "count"]);
 /**
  * @since 0.0.0
  */
-export const GrepInput = withToolInput(
-  S.Struct({
+class GrepInputData extends S.Class<GrepInputData>($I`GrepInput`)(
+  {
     pattern: S.String,
     path: S.optional(S.String),
     glob: S.optional(S.String),
@@ -230,11 +280,14 @@ export const GrepInput = withToolInput(
     head_limit: S.optional(S.Number),
     offset: S.optional(S.Number),
     multiline: S.optional(S.Boolean),
-  }),
-  $I.annote("GrepInput", {
-    description: "Schema for GrepInput.",
-  })
-);
+  },
+  toolInputAnnotation("GrepInput", "Tool input for repository grep with rg-compatible flags and output controls.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const GrepInput = GrepInputData;
 
 /**
  * @since 0.0.0
@@ -248,14 +301,17 @@ export type GrepInputEncoded = typeof GrepInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const KillShellInput = withToolInput(
-  S.Struct({
+class KillShellInputData extends S.Class<KillShellInputData>($I`KillShellInput`)(
+  {
     shell_id: S.String,
-  }),
-  $I.annote("KillShellInput", {
-    description: "Schema for KillShellInput.",
-  })
-);
+  },
+  toolInputAnnotation("KillShellInput", "Tool input for terminating a running shell session.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const KillShellInput = KillShellInputData;
 
 /**
  * @since 0.0.0
@@ -269,14 +325,17 @@ export type KillShellInputEncoded = typeof KillShellInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const ListMcpResourcesInput = withToolInput(
-  S.Struct({
+class ListMcpResourcesInputData extends S.Class<ListMcpResourcesInputData>($I`ListMcpResourcesInput`)(
+  {
     server: S.optional(S.String),
-  }),
-  $I.annote("ListMcpResourcesInput", {
-    description: "Schema for ListMcpResourcesInput.",
-  })
-);
+  },
+  toolInputAnnotation("ListMcpResourcesInput", "Tool input for listing resources from an MCP server.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const ListMcpResourcesInput = ListMcpResourcesInputData;
 
 /**
  * @since 0.0.0
@@ -293,7 +352,7 @@ export type ListMcpResourcesInputEncoded = typeof ListMcpResourcesInput.Encoded;
 export const McpInput = withToolInput(
   S.Record(S.String, S.Unknown),
   $I.annote("McpInput", {
-    description: "Schema for McpInput.",
+    description: "Opaque tool input forwarded directly to an MCP tool invocation.",
   })
 );
 
@@ -312,18 +371,21 @@ const NotebookEditMode = LiteralKit(["replace", "insert", "delete"]);
 /**
  * @since 0.0.0
  */
-export const NotebookEditInput = withToolInput(
-  S.Struct({
+class NotebookEditInputData extends S.Class<NotebookEditInputData>($I`NotebookEditInput`)(
+  {
     notebook_path: FilePath,
     cell_id: S.optional(S.String),
     new_source: S.String,
     cell_type: S.optional(NotebookCellType),
     edit_mode: S.optional(NotebookEditMode),
-  }),
-  $I.annote("NotebookEditInput", {
-    description: "Schema for NotebookEditInput.",
-  })
-);
+  },
+  toolInputAnnotation("NotebookEditInput", "Tool input for editing notebook cells by id or position.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const NotebookEditInput = NotebookEditInputData;
 
 /**
  * @since 0.0.0
@@ -337,15 +399,18 @@ export type NotebookEditInputEncoded = typeof NotebookEditInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const ReadMcpResourceInput = withToolInput(
-  S.Struct({
+class ReadMcpResourceInputData extends S.Class<ReadMcpResourceInputData>($I`ReadMcpResourceInput`)(
+  {
     server: S.String,
     uri: S.String,
-  }),
-  $I.annote("ReadMcpResourceInput", {
-    description: "Schema for ReadMcpResourceInput.",
-  })
-);
+  },
+  toolInputAnnotation("ReadMcpResourceInput", "Tool input for reading a specific MCP resource by server and URI.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const ReadMcpResourceInput = ReadMcpResourceInputData;
 
 /**
  * @since 0.0.0
@@ -358,23 +423,33 @@ export type ReadMcpResourceInputEncoded = typeof ReadMcpResourceInput.Encoded;
 
 const TodoStatus = LiteralKit(["pending", "in_progress", "completed"]);
 
-const TodoItem = S.Struct({
-  content: S.String,
-  status: TodoStatus,
-  activeForm: S.String,
-});
+class TodoItemData extends S.Class<TodoItemData>($I`TodoItem`)(
+  {
+    content: S.String,
+    status: TodoStatus,
+    activeForm: S.String,
+  },
+  $I.annote("TodoItem", {
+    description: "Single todo item emitted through the todo write tool.",
+  })
+) {}
+
+const TodoItem = TodoItemData;
 
 /**
  * @since 0.0.0
  */
-export const TodoWriteInput = withToolInput(
-  S.Struct({
+class TodoWriteInputData extends S.Class<TodoWriteInputData>($I`TodoWriteInput`)(
+  {
     todos: S.Array(TodoItem),
-  }),
-  $I.annote("TodoWriteInput", {
-    description: "Schema for TodoWriteInput.",
-  })
-);
+  },
+  toolInputAnnotation("TodoWriteInput", "Tool input for replacing the tracked todo list.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const TodoWriteInput = TodoWriteInputData;
 
 /**
  * @since 0.0.0
@@ -388,15 +463,18 @@ export type TodoWriteInputEncoded = typeof TodoWriteInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const WebFetchInput = withToolInput(
-  S.Struct({
+class WebFetchInputData extends S.Class<WebFetchInputData>($I`WebFetchInput`)(
+  {
     url: S.String,
     prompt: S.String,
-  }),
-  $I.annote("WebFetchInput", {
-    description: "Schema for WebFetchInput.",
-  })
-);
+  },
+  toolInputAnnotation("WebFetchInput", "Tool input for fetching a URL and answering a prompt against its contents.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const WebFetchInput = WebFetchInputData;
 
 /**
  * @since 0.0.0
@@ -410,16 +488,19 @@ export type WebFetchInputEncoded = typeof WebFetchInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const WebSearchInput = withToolInput(
-  S.Struct({
+class WebSearchInputData extends S.Class<WebSearchInputData>($I`WebSearchInput`)(
+  {
     query: S.String,
     allowed_domains: S.optional(S.Array(S.String)),
     blocked_domains: S.optional(S.Array(S.String)),
-  }),
-  $I.annote("WebSearchInput", {
-    description: "Schema for WebSearchInput.",
-  })
-);
+  },
+  toolInputAnnotation("WebSearchInput", "Tool input for running a web search with optional domain filters.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const WebSearchInput = WebSearchInputData;
 
 /**
  * @since 0.0.0
@@ -430,35 +511,59 @@ export type WebSearchInput = typeof WebSearchInput.Type;
  */
 export type WebSearchInputEncoded = typeof WebSearchInput.Encoded;
 
-const QuestionOption = S.Struct({
-  label: S.String,
-  description: S.String,
-});
+class QuestionOptionData extends S.Class<QuestionOptionData>($I`QuestionOption`)(
+  {
+    label: S.String,
+    description: S.String,
+  },
+  $I.annote("QuestionOption", {
+    description: "Selectable answer option presented to the user.",
+  })
+) {}
 
-const Question = S.Struct({
-  question: S.String,
-  header: S.String,
-  options: S.Array(QuestionOption).check(S.makeFilterGroup([S.isMinLength(2), S.isMaxLength(4)])),
-  multiSelect: S.Boolean,
-});
+const QuestionOption = QuestionOptionData;
 
-const QuestionMetadata = S.Struct({
-  source: S.optional(S.String),
-});
+class QuestionData extends S.Class<QuestionData>($I`Question`)(
+  {
+    question: S.String,
+    header: S.String,
+    options: S.Array(QuestionOption).check(S.makeFilterGroup([S.isMinLength(2), S.isMaxLength(4)])),
+    multiSelect: S.Boolean,
+  },
+  $I.annote("Question", {
+    description: "Interactive question payload containing answer options and selection mode.",
+  })
+) {}
+
+const Question = QuestionData;
+
+class QuestionMetadataData extends S.Class<QuestionMetadataData>($I`QuestionMetadata`)(
+  {
+    source: S.optional(S.String),
+  },
+  $I.annote("QuestionMetadata", {
+    description: "Supplemental metadata passed alongside interactive questions.",
+  })
+) {}
+
+const QuestionMetadata = QuestionMetadataData;
 
 /**
  * @since 0.0.0
  */
-export const AskUserQuestionInput = withToolInput(
-  S.Struct({
+class AskUserQuestionInputData extends S.Class<AskUserQuestionInputData>($I`AskUserQuestionInput`)(
+  {
     questions: S.Array(Question).check(S.makeFilterGroup([S.isMinLength(1), S.isMaxLength(4)])),
     answers: S.optional(S.Record(S.String, S.String)),
     metadata: S.optional(QuestionMetadata),
-  }),
-  $I.annote("AskUserQuestionInput", {
-    description: "Schema for AskUserQuestionInput.",
-  })
-);
+  },
+  toolInputAnnotation("AskUserQuestionInput", "Tool input for asking one or more structured questions of the user.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const AskUserQuestionInput = AskUserQuestionInputData;
 
 /**
  * @since 0.0.0
@@ -472,15 +577,18 @@ export type AskUserQuestionInputEncoded = typeof AskUserQuestionInput.Encoded;
 /**
  * @since 0.0.0
  */
-export const ConfigInput = withToolInput(
-  S.Struct({
+class ConfigInputData extends S.Class<ConfigInputData>($I`ConfigInput`)(
+  {
     setting: S.String,
     value: S.optional(S.Union([S.String, S.Boolean, S.Number])),
-  }),
-  $I.annote("ConfigInput", {
-    description: "Schema for ConfigInput.",
-  })
-);
+  },
+  toolInputAnnotation("ConfigInput", "Tool input for reading or updating a named SDK setting.")
+) {}
+
+/**
+ * @since 0.0.0
+ */
+export const ConfigInput = ConfigInputData;
 
 /**
  * @since 0.0.0

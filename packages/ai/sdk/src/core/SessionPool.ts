@@ -17,7 +17,7 @@ import {
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { utcFromMillis } from "./internal/dateTime.js";
-import type { SessionInfo as SessionInfoSchema } from "./Schema/Service.js";
+import { SessionInfo as SessionInfoData, type SessionInfo as SessionInfoSchema } from "./Schema/Service.js";
 import type { SDKSessionOptions } from "./Schema/Session.js";
 import type { SessionError, SessionHandle } from "./Session.js";
 import { SessionManager, type SessionManagerError } from "./SessionManager.js";
@@ -129,12 +129,13 @@ const resolveTenant = (tenant: string | undefined): Effect.Effect<string | undef
 const sessionKey = (sessionId: string, tenant: string | undefined) =>
   `${tenant ?? defaultTenantScope}\u0000${sessionId}`;
 
-const toInfo = (entry: SessionEntry): SessionInfo => ({
-  sessionId: entry.sessionId,
-  ...(entry.tenant !== undefined ? { tenant: entry.tenant } : {}),
-  createdAt: utcFromMillis(entry.createdAt),
-  lastUsedAt: utcFromMillis(entry.lastUsedAt),
-});
+const toInfo = (entry: SessionEntry): SessionInfo =>
+  new SessionInfoData({
+    sessionId: entry.sessionId,
+    ...(entry.tenant !== undefined ? { tenant: entry.tenant } : {}),
+    createdAt: utcFromMillis(entry.createdAt),
+    lastUsedAt: utcFromMillis(entry.lastUsedAt),
+  });
 
 const resolveOptions = (options: SessionPoolOptions, overrides?: Partial<SDKSessionOptions>): SDKSessionOptions => ({
   model: options.model,

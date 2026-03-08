@@ -26,14 +26,6 @@ export type JSONRPCMessage = unknown;
 /**
  * @since 0.0.0
  */
-export type CallToolResult = Readonly<{
-  readonly content?: ReadonlyArray<unknown>;
-  readonly structuredContent?: Record<string, unknown>;
-  readonly isError?: boolean;
-}>;
-/**
- * @since 0.0.0
- */
 export type McpServer = unknown;
 
 /**
@@ -42,7 +34,7 @@ export type McpServer = unknown;
 export const BetaMessage = S.Json.pipe(
   S.annotate(
     $I.annote("BetaMessage", {
-      description: "Schema for BetaMessage.",
+      description: "JSON-shaped Anthropic beta message payload bridged through the SDK boundary.",
       jsonSchema: {},
     })
   )
@@ -54,7 +46,7 @@ export const BetaMessage = S.Json.pipe(
 export const BetaRawMessageStreamEvent = S.Json.pipe(
   S.annotate(
     $I.annote("BetaRawMessageStreamEvent", {
-      description: "Schema for BetaRawMessageStreamEvent.",
+      description: "JSON-shaped Anthropic beta raw stream event payload at the SDK boundary.",
       jsonSchema: {},
     })
   )
@@ -66,7 +58,7 @@ export const BetaRawMessageStreamEvent = S.Json.pipe(
 export const BetaUsage = S.Json.pipe(
   S.annotate(
     $I.annote("BetaUsage", {
-      description: "Schema for BetaUsage.",
+      description: "JSON-shaped Anthropic beta usage payload carried through the SDK boundary.",
       jsonSchema: {},
     })
   )
@@ -78,7 +70,7 @@ export const BetaUsage = S.Json.pipe(
 export const MessageParam = S.Json.pipe(
   S.annotate(
     $I.annote("MessageParam", {
-      description: "Schema for MessageParam.",
+      description: "JSON-shaped upstream message parameter payload accepted by external clients.",
       jsonSchema: {},
     })
   )
@@ -90,7 +82,7 @@ export const MessageParam = S.Json.pipe(
 export const JSONRPCMessage = S.Json.pipe(
   S.annotate(
     $I.annote("JSONRPCMessage", {
-      description: "Schema for JSONRPCMessage.",
+      description: "JSON-RPC message payload passed through external MCP boundaries.",
       jsonSchema: {},
     })
   )
@@ -99,17 +91,16 @@ export const JSONRPCMessage = S.Json.pipe(
 /**
  * @since 0.0.0
  */
-export const CallToolResult = S.Struct({
-  content: S.optional(S.Array(S.Unknown)),
-  structuredContent: S.optional(S.Record(S.String, S.Unknown)),
-  isError: S.optional(S.Boolean),
-}).pipe(
-  S.annotate(
-    $I.annote("CallToolResult", {
-      description: "Schema for CallToolResult.",
-    })
-  )
-);
+export class CallToolResult extends S.Class<CallToolResult>($I`CallToolResult`)(
+  {
+    content: S.optional(S.Array(S.Unknown)),
+    structuredContent: S.optional(S.Record(S.String, S.Unknown)),
+    isError: S.optional(S.Boolean),
+  },
+  $I.annote("CallToolResult", {
+    description: "Normalized MCP call-tool result payload returned by external tool handlers.",
+  })
+) {}
 
 /**
  * @since 0.0.0
@@ -117,7 +108,7 @@ export const CallToolResult = S.Struct({
 export const McpServer = S.Unknown.pipe(
   S.annotate(
     $I.annote("McpServer", {
-      description: "Schema for McpServer.",
+      description: "Opaque external MCP server instance handle.",
     })
   )
 );

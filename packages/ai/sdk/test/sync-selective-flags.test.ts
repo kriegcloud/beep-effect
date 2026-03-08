@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { Storage, Sync } from "@beep/ai-sdk";
-import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { ArtifactRecord } from "@beep/ai-sdk/Schema/Storage";
 import { makeUnsafeUtc } from "@beep/utils/DateTime";
 import { expect, test } from "@effect/vitest";

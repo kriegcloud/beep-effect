@@ -4,15 +4,24 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { AgentRuntime } from "../AgentRuntime.js";
 import type { AgentSdkError } from "../Errors.js";
+import {
+  normalizeAccountInfo,
+  normalizeModelInfoList,
+  normalizeQueryResultOutput,
+  normalizeSDKMessage,
+  normalizeSlashCommandList,
+} from "../internal/normalize.js";
 import type { QueryHandle } from "../Query.js";
 import { collectResultSuccess } from "../QueryResult.js";
-import type { QuerySupervisorError } from "../QuerySupervisor.js";
+import { type QuerySupervisorError, QuerySupervisorStats } from "../QuerySupervisor.js";
 import type { SDKUserMessage } from "../Schema/Message.js";
 import type {
   QueryInput as QueryInputType,
   SessionCreateInput as SessionCreateInputType,
+  SessionCreateOutput as SessionCreateOutputType,
   SessionSendInput as SessionSendInputType,
 } from "../Schema/Service.js";
+import { SessionCreateOutput } from "../Schema/Service.js";
 import { SessionPool } from "../SessionPool.js";
 import { AgentRpcs } from "./AgentRpcs.js";
 import { AgentServerAccess } from "./AgentServerAccess.js";
@@ -87,24 +96,37 @@ export const layer = AgentRpcs.toLayer(
           );
 
     const QueryStream = (input: QueryInputType) =>
-      Stream.unwrap(authorizeRequest(Effect.succeed(toStream(runtime, input))));
+      Stream.unwrap(
+        authorizeRequest(Effect.succeed(toStream(runtime, input).pipe(Stream.mapEffect(normalizeSDKMessage))))
+      );
 
     const QueryResult = (input: QueryInputType) =>
       authorizeRequest(
         collectResultSuccess(toStream(runtime, input)).pipe(
           Effect.scoped,
-          Effect.map((result) => ({
-            result: result.result,
-            metadata: result,
-          }))
+          Effect.flatMap((result) =>
+            normalizeQueryResultOutput({
+              result: result.result,
+              metadata: result,
+            })
+          )
         )
       );
 
-    const Stats = () => authorizeRequest(runtime.stats);
+    const Stats = () => authorizeRequest(runtime.stats.pipe(Effect.map((stats) => new QuerySupervisorStats(stats))));
     const InterruptAll = () => authorizeRequest(runtime.interruptAll);
-    const SupportedModels = () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedModels));
-    const SupportedCommands = () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.supportedCommands));
-    const AccountInfo = () => authorizeRequest(withProbeHandle(runtime, (handle) => handle.accountInfo));
+    const SupportedModels = () =>
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.supportedModels).pipe(Effect.flatMap(normalizeModelInfoList))
+      );
+    const SupportedCommands = () =>
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.supportedCommands).pipe(Effect.flatMap(normalizeSlashCommandList))
+      );
+    const AccountInfo = () =>
+      authorizeRequest(
+        withProbeHandle(runtime, (handle) => handle.accountInfo).pipe(Effect.flatMap(normalizeAccountInfo))
+      );
 
     const CreateSession = (input: SessionCreateInputType) =>
       authorizeRequest(
@@ -113,7 +135,7 @@ export const layer = AgentRpcs.toLayer(
             Effect.flatMap((tenant) =>
               pool.create(input.options, tenant).pipe(
                 Effect.flatMap((handle) => handle.sessionId),
-                Effect.map((sessionId) => ({ sessionId }))
+                Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
               )
             )
           )
@@ -127,7 +149,7 @@ export const layer = AgentRpcs.toLayer(
             Effect.flatMap((tenant) =>
               pool.get(input.sessionId, input.options, tenant).pipe(
                 Effect.flatMap((handle) => handle.sessionId),
-                Effect.map((sessionId) => ({ sessionId }))
+                Effect.map((sessionId): SessionCreateOutputType => new SessionCreateOutput({ sessionId }))
               )
             )
           )

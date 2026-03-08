@@ -133,20 +133,59 @@ const BrowserReplacement = S.Union([S.String, S.Literal(false)]).annotate(
   })
 );
 
+class PersonObject extends S.Class<PersonObject>($I`PersonObject`)(
+  {
+    name: S.String,
+    email: S.optionalKey(S.String),
+    url: S.optionalKey(S.String),
+  },
+  $I.annote("PersonObject", {
+    title: "Person Object",
+    description: "Structured package person metadata with a required name and optional contact fields.",
+  })
+) {}
+
+class RepositoryObject extends S.Class<RepositoryObject>($I`RepositoryObject`)(
+  {
+    type: S.String,
+    url: S.String,
+    directory: S.optionalKey(S.String),
+  },
+  $I.annote("RepositoryObject", {
+    title: "Repository Object",
+    description: "Structured repository metadata with required type and url fields and an optional directory.",
+  })
+) {}
+
+class BugsObject extends S.Class<BugsObject>($I`BugsObject`)(
+  {
+    url: S.optionalKey(S.String),
+    email: S.optionalKey(S.String),
+  },
+  $I.annote("BugsObject", {
+    title: "Bugs Object",
+    description: "Structured bug tracker metadata with optional URL and contact email fields.",
+  })
+) {}
+
+class FundingEntry extends S.Class<FundingEntry>($I`FundingEntry`)(
+  {
+    url: S.String,
+    type: S.optionalKey(S.String),
+  },
+  $I.annote("FundingEntry", {
+    title: "Funding Entry",
+    description: "Structured funding metadata with a required URL and an optional funding type label.",
+  })
+) {}
+
 /**
  * A person involved with the package, represented as a string or structured object.
  *
  * @since 0.0.0
  * @category Validation
  */
-export const Person = S.Union([
-  S.String,
-  S.Struct({
-    name: S.String,
-    email: S.optionalKey(S.String),
-    url: S.optionalKey(S.String),
-  }),
-]).annotate(
+export const Person = S.Union([S.String, PersonObject]).annotate(
   $I.annote("Person", {
     title: "Person",
     description:
@@ -199,14 +238,7 @@ export const Maintainers = S.Array(Person).annotate(
  * @since 0.0.0
  * @category Validation
  */
-export const Repository = S.Union([
-  S.String,
-  S.Struct({
-    type: S.String,
-    url: S.String,
-    directory: S.optionalKey(S.String),
-  }),
-]).annotate(
+export const Repository = S.Union([S.String, RepositoryObject]).annotate(
   $I.annote("Repository", {
     title: "Repository",
     description:
@@ -220,13 +252,7 @@ export const Repository = S.Union([
  * @since 0.0.0
  * @category Validation
  */
-export const Bugs = S.Union([
-  S.String,
-  S.Struct({
-    url: S.optionalKey(S.String),
-    email: S.optionalKey(S.String),
-  }),
-]).annotate(
+export const Bugs = S.Union([S.String, BugsObject]).annotate(
   $I.annote("Bugs", {
     title: "Bugs",
     description:
@@ -240,22 +266,7 @@ export const Bugs = S.Union([
  * @since 0.0.0
  * @category Validation
  */
-export const Funding = S.Union([
-  S.String,
-  S.Struct({
-    url: S.String,
-    type: S.optionalKey(S.String),
-  }),
-  S.NonEmptyArray(
-    S.Union([
-      S.String,
-      S.Struct({
-        url: S.String,
-        type: S.optionalKey(S.String),
-      }),
-    ])
-  ),
-]).annotate(
+export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).annotate(
   $I.annote("Funding", {
     title: "Funding",
     description:
@@ -296,17 +307,37 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
  * @since 0.0.0
  * @category Validation
  */
-export const Directories = S.Struct({
-  bin: S.optionalKey(S.String),
-  doc: S.optionalKey(S.String),
-  example: S.optionalKey(S.String),
-  lib: S.optionalKey(S.String),
-  man: S.optionalKey(S.String),
-  test: S.optionalKey(S.String),
-}).annotate(
+class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
+  {
+    bin: S.optionalKey(S.String),
+    doc: S.optionalKey(S.String),
+    example: S.optionalKey(S.String),
+    lib: S.optionalKey(S.String),
+    man: S.optionalKey(S.String),
+    test: S.optionalKey(S.String),
+  },
   $I.annote("Directories", {
     title: "Directories",
     description: "Directory metadata describing where package resources such as binaries, docs, and tests live.",
+  })
+) {}
+
+/**
+ * Schema for the `directories` field.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const Directories = DirectoriesShape;
+
+const peerDependencyMetaEntryFields = {
+  optional: S.optionalKey(S.Boolean),
+} as const;
+
+const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).annotate(
+  $I.annote("PeerDependencyMetaEntry", {
+    title: "Peer Dependency Meta Entry",
+    description: "Structured metadata for a peer dependency, including whether it is optional.",
   })
 );
 
@@ -357,12 +388,7 @@ export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
  */
 export const PeerDependenciesMeta = S.Record(
   S.String,
-  S.StructWithRest(
-    S.Struct({
-      optional: S.optionalKey(S.Boolean),
-    }),
-    [S.Record(S.String, Json)]
-  )
+  S.StructWithRest(PeerDependencyMetaEntry, [S.Record(S.String, Json)])
 ).annotate(
   $I.annote("PeerDependenciesMeta", {
     title: "Peer Dependencies Meta",
@@ -389,17 +415,26 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
  * @since 0.0.0
  * @category Validation
  */
-export const DevEngineDependency = S.Struct({
-  name: S.String,
-  version: S.optionalKey(S.String),
-  onFail: S.optionalKey(S.Literals(["ignore", "warn", "error", "download"] as const)),
-}).annotate(
+class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevEngineDependency`)(
+  {
+    name: S.String,
+    version: S.optionalKey(S.String),
+    onFail: S.optionalKey(S.Literals(["ignore", "warn", "error", "download"] as const)),
+  },
   $I.annote("DevEngineDependency", {
     title: "Dev Engine Dependency",
     description:
       "A development environment requirement such as a runtime, package manager, CPU, OS, or libc constraint.",
   })
-);
+) {}
+
+/**
+ * Schema for a development environment requirement entry.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const DevEngineDependency = DevEngineDependencyShape;
 
 const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDependency)]).annotate(
   $I.annote("DevEngineRequirement", {
@@ -415,18 +450,27 @@ const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDepe
  * @since 0.0.0
  * @category Validation
  */
-export const DevEngines = S.Struct({
-  os: S.optionalKey(DevEngineRequirement),
-  cpu: S.optionalKey(DevEngineRequirement),
-  libc: S.optionalKey(DevEngineRequirement),
-  runtime: S.optionalKey(DevEngineRequirement),
-  packageManager: S.optionalKey(DevEngineRequirement),
-}).annotate(
+class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
+  {
+    os: S.optionalKey(DevEngineRequirement),
+    cpu: S.optionalKey(DevEngineRequirement),
+    libc: S.optionalKey(DevEngineRequirement),
+    runtime: S.optionalKey(DevEngineRequirement),
+    packageManager: S.optionalKey(DevEngineRequirement),
+  },
   $I.annote("DevEngines", {
     title: "Dev Engines",
     description: "Development environment constraints for OS, CPU, libc, runtime, and package manager.",
   })
-);
+) {}
+
+/**
+ * Schema for the `devEngines` field.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const DevEngines = DevEnginesShape;
 
 type PackageExportsEntry = string | null | { readonly [key: string]: PackageExportsEntryOrFallback };
 
@@ -572,13 +616,31 @@ const OverrideValue: S.Codec<OverrideValue, OverrideValue> = S.suspend(() =>
   })
 );
 
-const WorkspacesObject = S.Struct({
-  packages: S.optionalKey(StringArray),
-  nohoist: S.optionalKey(StringArray),
-}).annotate(
+class WorkspacesObject extends S.Class<WorkspacesObject>($I`WorkspacesObject`)(
+  {
+    packages: S.optionalKey(StringArray),
+    nohoist: S.optionalKey(StringArray),
+  },
   $I.annote("WorkspacesObject", {
     title: "Workspaces Object",
     description: "A Yarn-style workspaces object with package globs and optional nohoist rules.",
+  })
+) {}
+
+const publishConfigBaseFields = {
+  access: S.optionalKey(S.Literals(["public", "restricted"] as const)),
+  tag: S.optionalKey(S.String),
+  registry: S.optionalKey(S.String),
+  provenance: S.optionalKey(S.Boolean),
+  bin: S.optionalKey(Bin),
+  exports: S.optionalKey(PackageExports),
+} as const;
+
+const PublishConfigBase = S.Struct(publishConfigBaseFields).annotate(
+  $I.annote("PublishConfigBase", {
+    title: "Publish Config Base",
+    description:
+      "Structured npm publish configuration fields modeled explicitly before allowing additional JSON-valued keys.",
   })
 );
 
@@ -602,17 +664,7 @@ export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
  * @since 0.0.0
  * @category Validation
  */
-export const PublishConfig = S.StructWithRest(
-  S.Struct({
-    access: S.optionalKey(S.Literals(["public", "restricted"] as const)),
-    tag: S.optionalKey(S.String),
-    registry: S.optionalKey(S.String),
-    provenance: S.optionalKey(S.Boolean),
-    bin: S.optionalKey(Bin),
-    exports: S.optionalKey(PackageExports),
-  }),
-  [S.Record(S.String, Json)]
-).annotate(
+export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.String, Json)]).annotate(
   $I.annote("PublishConfig", {
     title: "Publish Config",
     description:

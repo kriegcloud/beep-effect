@@ -47,12 +47,12 @@ const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, st
  */
 export class SidecarOtlpConfig extends S.Class<SidecarOtlpConfig>($I`SidecarOtlpConfig`)(
   {
-    otlpResourceAttributes: S.Record(S.String, S.String),
     otlpServiceName: S.String,
     otlpServiceVersion: S.String,
+    otlpResourceAttributes: S.Record(S.String, S.String),
   },
   $I.annote("SidecarOtlpConfig", {
-    description: "Typed OTEL configuration resolved for the sidecar runtime boundary.",
+    description: "Resolved OTEL service naming and resource attributes for the sidecar runtime boundary.",
   })
 ) {}
 
@@ -68,8 +68,8 @@ export const loadSidecarOtlpConfig = Effect.fn("SidecarRuntime.loadOtlpConfig")(
   const otlpResourceAttributesValue = yield* Config.option(Config.string("OTEL_RESOURCE_ATTRIBUTES"));
 
   return new SidecarOtlpConfig({
-    otlpResourceAttributes: parseOtlpResourceAttributes(otlpResourceAttributesValue),
     otlpServiceName: O.getOrElse(normalizeOptionalText(otlpServiceNameValue), () => defaultOtlpServiceName),
     otlpServiceVersion: O.getOrElse(normalizeOptionalText(otlpServiceVersionValue), () => version),
+    otlpResourceAttributes: parseOtlpResourceAttributes(otlpResourceAttributesValue),
   });
 });

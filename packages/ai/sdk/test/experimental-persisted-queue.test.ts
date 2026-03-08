@@ -1,5 +1,5 @@
 import * as PersistedQueue from "@beep/ai-sdk/experimental/PersistedQueue";
-import { makeUserMessage } from "@beep/ai-sdk/internal/messages";
+import { makeUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

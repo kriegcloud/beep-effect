@@ -11,6 +11,7 @@ import { agentsCommand } from "./Agents/index.js";
 import { claudeCommand } from "./Claude/index.js";
 import { codegenCommand } from "./Codegen.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
+import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs.js";
 import { graphitiCommand } from "./Graphiti/index.js";
 import { lawsCommand } from "./Laws/index.js";
@@ -33,6 +34,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withDescription("CLI tool for managing beep-effect monorepo packages"),
   Command.withSubcommands([
     topoSortCommand,
+    docgenCommand,
     docsCommand,
     agentsCommand,
     lintCommand,
