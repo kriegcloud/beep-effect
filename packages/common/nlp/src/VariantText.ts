@@ -5,9 +5,8 @@
  * @module @beep/nlp/VariantText
  */
 import * as Str from "@beep/utils/Str";
-import { pipe } from "effect";
+import { Order, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Order from "effect/Order";
 
 const stringEquals = (left: string, right: string): boolean => Order.String(left, right) === 0;
 
