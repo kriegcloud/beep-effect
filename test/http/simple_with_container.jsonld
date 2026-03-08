@@ -1,0 +1,10 @@
+{
+  "@context": 
+  {
+    "rdfs": "https://www.w3.org/2000/01/rdf-schema#",
+    "label": {
+      "@id": "rdfs:label",
+      "@container": "@language"
+    }
+  }
+}

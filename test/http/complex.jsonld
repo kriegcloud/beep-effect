@@ -1,0 +1,15 @@
+{
+  "@context": [
+    "http://example.org/components.jsonld",
+    {
+      "npmd": "https://linkedsoftwaredependencies.org/bundles/npm/",
+      "cais": "npmd:@comunica/actor-init-sparql/",
+      "ActorInitSparql": "cais:Actor/Init/Sparql",
+      "mediatorQueryOperation": "cais:mediatorQueryOperation",
+      "mediatorSparqlParse": "cais:mediatorSparqlParse",
+      "mediatorSparqlSerialize": "cais:mediatorSparqlSerialize",
+      "mediatorSparqlSerializeMediaTypeCombiner": "cais:mediatorSparqlSerializeMediaTypeCombiner",
+      "mediatorContextPreprocess": "cais:mediatorContextPreprocess"
+    }
+  ]
+}

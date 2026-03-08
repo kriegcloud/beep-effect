@@ -1,0 +1,96 @@
+{
+  "name": "jsonld-context-parser",
+  "version": "3.1.0",
+  "description": "Parses JSON-LD contexts",
+  "keywords": [
+    "json",
+    "linked data",
+    "semantic web",
+    "json-ld",
+    "jsonld",
+    "rdf"
+  ],
+  "main": "index.js",
+  "typings": "index",
+  "repository": "git@github.com:rubensworks/jsonld-context-parser.js.git",
+  "author": "Ruben Taelman <rubensworks@gmail.com>",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/rubensworks/"
+  },
+  "bugs": {
+    "url": "https://github.com/rubensworks/jsonld-context-parser.js/issues"
+  },
+  "homepage": "https://github.com/rubensworks/jsonld-context-parser.js#readme",
+  "license": "MIT",
+  "files": [
+    "bin/**/*.d.ts",
+    "bin/**/*.js",
+    "bin/**/*.js.map",
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "index.d.ts",
+    "index.js.map",
+    "index.js"
+  ],
+  "pre-commit": [
+    "build",
+    "lint",
+    "test"
+  ],
+  "bin": {
+    "jsonld-context-parse": "bin/jsonld-context-parse.js"
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "coveralls": "^3.0.0",
+    "jest": "^30.0.0",
+    "manual-git-changelog": "^1.0.0",
+    "pre-commit": "^1.2.2",
+    "ts-jest": "^29.0.0",
+    "ts-loader": "^9.3.1",
+    "tslint": "^6.0.0",
+    "tslint-eslint-rules": "^5.3.1",
+    "typescript": "^5.0.0",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^6.0.0"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "test/tsconfig.json"
+      }
+    },
+    "setupFiles": [
+      "./setupJest.js"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "collectCoverage": true
+  },
+  "scripts": {
+    "test": "jest ${1}",
+    "test-watch": "jest ${1} --watch",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "lint": "tslint index.ts lib/**/*.ts test/**/*.ts test/*.ts --exclude '**/*.d.ts'",
+    "build": "tsc",
+    "build-watch": "tsc --watch",
+    "validate": "npm ls",
+    "prepare": "npm run build",
+    "version": "manual-git-changelog onversion"
+  },
+  "dependencies": {
+    "@types/http-link-header": "^1.0.1",
+    "@types/node": "^18.0.0",
+    "http-link-header": "^1.0.2",
+    "relative-to-absolute-iri": "^1.0.5"
+  }
+}

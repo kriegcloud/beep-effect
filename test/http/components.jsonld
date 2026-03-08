@@ -1,0 +1,130 @@
+{
+  "@context": {
+    "@vocab": "unknown://",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "oo": "https://linkedsoftwaredependencies.org/vocabularies/object-oriented#",
+    "Module": {
+      "@id": "oo:Module"
+    },
+    "Class": {
+      "@id": "oo:Class"
+    },
+    "AbstractClass": {
+      "@id": "oo:AbstractClass"
+    },
+    "Instance": {
+      "@id": "oo:ComponentInstance"
+    },
+    "components": {
+      "@id": "oo:component"
+    },
+    "parameters": {
+      "@id": "oo:parameter"
+    },
+    "constructorArguments": {
+      "@id": "oo:constructorArguments",
+      "@container": "@list"
+    },
+    "unique": {
+      "@id": "oo:uniqueValue"
+    },
+    "required": {
+      "@id": "oo:required"
+    },
+    "default": {
+      "@id": "oo:defaultValue"
+    },
+    "defaultScoped": {
+      "@id": "oo:defaultScoped"
+    },
+    "defaultScope": {
+      "@id": "oo:defaultScope",
+      "@type": "@id"
+    },
+    "defaultScopedValue": {
+      "@id": "oo:defaultScopedValue"
+    },
+    "arguments": {
+      "@id": "oo:arguments",
+      "@container": "@list"
+    },
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "comment": {
+      "@id": "rdfs:comment",
+      "@type": "@id"
+    },
+    "extends": {
+      "@id": "rdfs:subClassOf",
+      "@type": "@id"
+    },
+    "range": {
+      "@id": "rdfs:range",
+      "@type": "@id"
+    },
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "import": {
+      "@id": "owl:imports"
+    },
+    "InheritanceValue": {
+      "@id": "owl:Restriction"
+    },
+    "inheritValues": {
+      "@id": "rdfs:subClassOf",
+      "@type": "@id"
+    },
+    "onParameter": {
+      "@id": "owl:onProperty",
+      "@type": "@id"
+    },
+    "from": {
+      "@id": "owl:allValuesFrom",
+      "@type": "@id"
+    },
+    "doap": "http://usefulinc.com/ns/doap#",
+    "requireName": {
+      "@id": "doap:name"
+    },
+    "requireElement": {
+      "@id": "oo:componentPath"
+    },
+    "om": "https://linkedsoftwaredependencies.org/vocabularies/object-mapping#",
+    "ObjectMapping": {
+      "@id": "om:ObjectMapping"
+    },
+    "ArrayMapping": {
+      "@id": "om:ArrayMapping"
+    },
+    "fields": {
+      "@id": "om:field",
+      "@type": "om:ObjectMapEntry"
+    },
+    "elements": {
+      "@id": "om:elements",
+      "@type": "@id",
+      "@container": "@list"
+    },
+    "collectEntries": {
+      "@id": "om:collectsEntriesFrom",
+      "@type": "@id"
+    },
+    "keyRaw": {
+      "@id": "om:fieldName"
+    },
+    "key": {
+      "@id": "om:fieldName",
+      "@type": "@id"
+    },
+    "value": {
+      "@id": "om:fieldValue",
+      "@type": "@id"
+    },
+    "valueRaw": {
+      "@id": "om:fieldValue"
+    },
+    "valueRawReference": {
+      "@id": "om:fieldValueRaw",
+      "@type": "@id"
+    }
+  }
+}

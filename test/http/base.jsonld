@@ -1,0 +1,7 @@
+{
+  "@context":
+  {
+    "@base": "http://example.org/",
+    "nickname": "http://xmlns.com/foaf/0.1/nick"
+  }
+}
