@@ -1,0 +1,239 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.com/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 9,
+          "end": 30
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 30
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 56,
+                "end": 58
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 59,
+                "end": 61
+              },
+              "prefix": ""
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "n",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 62,
+                "end": 64
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 56,
+              "end": 64
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 56,
+          "end": 64
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "patternOperation",
+          "operator": "notexists",
+          "args": {
+            "type": "pattern",
+            "subType": "group",
+            "patterns": [
+              {
+                "type": "pattern",
+                "subType": "bgp",
+                "triples": [
+                  {
+                    "type": "triple",
+                    "subject": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "x",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 109,
+                        "end": 111
+                      }
+                    },
+                    "predicate": {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "q",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 112,
+                        "end": 114
+                      },
+                      "prefix": ""
+                    },
+                    "object": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "m",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 115,
+                        "end": 117
+                      }
+                    },
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 109,
+                      "end": 117
+                    }
+                  }
+                ],
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 109,
+                  "end": 119
+                }
+              },
+              {
+                "type": "pattern",
+                "subType": "filter",
+                "expression": {
+                  "type": "expression",
+                  "subType": "operation",
+                  "operator": "=",
+                  "args": [
+                    {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "n",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 143,
+                        "end": 145
+                      }
+                    },
+                    {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "m",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 148,
+                        "end": 150
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 142,
+                    "end": 151
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 136,
+                  "end": 151
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 91,
+              "end": 161
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 80,
+            "end": 161
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 73,
+          "end": 161
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 46,
+      "end": 163
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 38,
+        "end": 39
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX : <http://example.com/>\nSELECT * WHERE {\n        ?x :p ?n\n        FILTER NOT EXISTS {\n                ?x :q ?m .\n                FILTER(?n = ?m)\n        }\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 163
+    },
+    "startOnNew": 0,
+    "endOnNew": 163
+  },
+  "type": "query"
+}

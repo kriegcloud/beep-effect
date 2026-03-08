@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT * WHERE { << ?s :p1 :o1 ~ _:g_0 >> . _:g_0 ?p ?o ~ :iri {| :r ?Z |} . }

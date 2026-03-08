@@ -1,0 +1,59 @@
+{
+  "type": "update",
+  "updates": [
+    {
+      "context": [],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "add",
+        "silent": false,
+        "source": {
+          "type": "graphRef",
+          "subType": "default",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 4,
+            "end": 11
+          }
+        },
+        "destination": {
+          "type": "graphRef",
+          "subType": "specific",
+          "graph": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "http://example.org/named",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 15,
+              "end": 41
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 15,
+            "end": 41
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 0,
+          "end": 41
+        }
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "ADD DEFAULT TO <http://example.org/named>\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 41
+    },
+    "startOnNew": 0,
+    "endOnNew": 41
+  }
+}

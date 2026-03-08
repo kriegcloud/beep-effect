@@ -1,0 +1,161 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 16,
+          "end": 44
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 44
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 70,
+                "end": 72
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 73,
+                "end": 82
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 83,
+                "end": 88
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 70,
+              "end": 88
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 70,
+          "end": 88
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 68,
+      "end": 90
+    }
+  },
+  "solutionModifiers": {
+    "limitOffset": {
+      "type": "solutionModifier",
+      "subType": "limitOffset",
+      "limit": 5,
+      "offset": 10,
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 106,
+        "end": 126
+      }
+    },
+    "order": {
+      "type": "solutionModifier",
+      "subType": "order",
+      "orderDefs": [
+        {
+          "expression": {
+            "type": "term",
+            "subType": "variable",
+            "value": "name",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 100,
+              "end": 105
+            }
+          },
+          "descending": false,
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 100,
+            "end": 105
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 91,
+        "end": 105
+      }
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "name",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 54,
+        "end": 59
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:    <http://xmlns.com/foaf/0.1/>\n\nSELECT  ?name\nWHERE   { ?x foaf:name ?name }\nORDER BY ?name\nLIMIT   5\nOFFSET  10\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 126
+    },
+    "startOnNew": 0,
+    "endOnNew": 126
+  },
+  "type": "query"
+}

@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.base.json",
+  "references": [
+    { "path": "packages/algebra-transformations-1-1/tsconfig.cjs.json" },
+    { "path": "packages/algebra-transformations-1-2/tsconfig.cjs.json" },
+    { "path": "packages/core/tsconfig.cjs.json" },
+    { "path": "packages/rules-sparql-1-1/tsconfig.cjs.json" },
+    { "path": "packages/rules-sparql-1-1-adjust/tsconfig.cjs.json" },
+    { "path": "packages/rules-sparql-1-2/tsconfig.cjs.json" },
+    { "path": "packages/test-utils/tsconfig.cjs.json" },
+
+    { "path": "engines/algebra-sparql-1-1/tsconfig.cjs.json" },
+    { "path": "engines/algebra-sparql-1-2/tsconfig.cjs.json" },
+    { "path": "engines/generator-sparql-1-1/tsconfig.cjs.json" },
+    { "path": "engines/generator-sparql-1-2/tsconfig.cjs.json" },
+    { "path": "engines/parser-sparql-1-1/tsconfig.cjs.json" },
+    { "path": "engines/parser-sparql-1-1-adjust/tsconfig.cjs.json" },
+    { "path": "engines/parser-sparql-1-2/tsconfig.cjs.json" }
+  ],
+  "files": [],
+  "include": [],
+  "exclude": [
+    "node_modules"
+  ]
+}

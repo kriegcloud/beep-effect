@@ -1,0 +1,202 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 15,
+          "end": 43
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 43
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 61,
+                "end": 63
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 64,
+                "end": 65
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "Person",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 66,
+                "end": 77
+              },
+              "prefix": "foaf"
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 61,
+              "end": 77
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 61,
+          "end": 77
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "service",
+        "silent": false,
+        "name": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "http://example.org/sparql",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 88,
+            "end": 115
+          }
+        },
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "s",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 117,
+                    "end": 119
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "knows",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 120,
+                    "end": 130
+                  },
+                  "prefix": "foaf"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "o",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 131,
+                    "end": 133
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 117,
+                  "end": 133
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 117,
+              "end": 133
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 80,
+          "end": 135
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 57,
+      "end": 137
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "s",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 51,
+        "end": 53
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "o",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 54,
+        "end": 56
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:   <http://xmlns.com/foaf/0.1/>\nSELECT ?s ?o\n{\n  ?s a foaf:Person\n  SERVICE <http://example.org/sparql> {?s foaf:knows ?o }\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 137
+    },
+    "startOnNew": 0,
+    "endOnNew": 137
+  },
+  "type": "query"
+}

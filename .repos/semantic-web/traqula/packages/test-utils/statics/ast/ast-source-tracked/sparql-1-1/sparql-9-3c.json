@@ -1,0 +1,175 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 30
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 2,
+        "end": 30
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "order",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 69,
+                "end": 75
+              },
+              "prefix": ""
+            },
+            "predicate": {
+              "type": "path",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 76,
+                "end": 88
+              },
+              "items": [
+                {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "item",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 76,
+                    "end": 81
+                  },
+                  "prefix": ""
+                },
+                {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "price",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 82,
+                    "end": 88
+                  },
+                  "prefix": ""
+                }
+              ],
+              "subType": "/"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 89,
+                "end": 91
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 69,
+              "end": 91
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 69,
+          "end": 91
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 62,
+      "end": 95
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "pattern",
+      "subType": "bind",
+      "expression": {
+        "type": "expression",
+        "subType": "aggregate",
+        "aggregation": "sum",
+        "distinct": false,
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 41,
+          "end": 48
+        },
+        "expression": [
+          {
+            "type": "term",
+            "subType": "variable",
+            "value": "x",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 45,
+              "end": 47
+            }
+          }
+        ]
+      },
+      "variable": {
+        "type": "term",
+        "subType": "variable",
+        "value": "total",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 52,
+          "end": 58
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 40,
+        "end": 59
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "  PREFIX :   <http://example/>\n  SELECT (sum(?x) AS ?total)\n  { \n    :order :item/:price ?x\n  }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 2,
+      "end": 95
+    },
+    "startOnNew": 2,
+    "endOnNew": 95
+  },
+  "type": "query"
+}

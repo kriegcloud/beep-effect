@@ -1,0 +1,261 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 41
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 41
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 70,
+                "end": 72
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "mbox",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 74,
+                "end": 83
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "mailto:alice@example",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 84,
+                "end": 106
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 70,
+              "end": 106
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 114,
+                "end": 116
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "knows",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 118,
+                "end": 128
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "tripleCollection",
+              "subType": "blankNodeProperties",
+              "identifier": {
+                "type": "term",
+                "subType": "blankNode",
+                "loc": {
+                  "sourceLocationType": "noMaterialize"
+                },
+                "label": "g_0"
+              },
+              "triples": [
+                {
+                  "type": "triple",
+                  "subject": {
+                    "type": "term",
+                    "subType": "blankNode",
+                    "loc": {
+                      "sourceLocationType": "noMaterialize"
+                    },
+                    "label": "g_0"
+                  },
+                  "predicate": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "knows",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 131,
+                      "end": 141
+                    },
+                    "prefix": "foaf"
+                  },
+                  "object": {
+                    "type": "tripleCollection",
+                    "subType": "blankNodeProperties",
+                    "identifier": {
+                      "type": "term",
+                      "subType": "blankNode",
+                      "loc": {
+                        "sourceLocationType": "noMaterialize"
+                      },
+                      "label": "g_1"
+                    },
+                    "triples": [
+                      {
+                        "type": "triple",
+                        "subject": {
+                          "type": "term",
+                          "subType": "blankNode",
+                          "loc": {
+                            "sourceLocationType": "noMaterialize"
+                          },
+                          "label": "g_1"
+                        },
+                        "predicate": {
+                          "type": "term",
+                          "subType": "namedNode",
+                          "value": "name",
+                          "loc": {
+                            "sourceLocationType": "source",
+                            "start": 144,
+                            "end": 153
+                          },
+                          "prefix": "foaf"
+                        },
+                        "object": {
+                          "type": "term",
+                          "subType": "variable",
+                          "value": "name",
+                          "loc": {
+                            "sourceLocationType": "source",
+                            "start": 154,
+                            "end": 159
+                          }
+                        },
+                        "loc": {
+                          "sourceLocationType": "source",
+                          "start": 144,
+                          "end": 159
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 142,
+                      "end": 161
+                    }
+                  },
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 131,
+                    "end": 161
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 129,
+                "end": 162
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 114,
+              "end": 162
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 70,
+          "end": 163
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 63,
+      "end": 168
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "x",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 51,
+        "end": 53
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "name",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 54,
+        "end": 59
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\n  SELECT ?x ?name \n  {\n     ?x  foaf:mbox <mailto:alice@example> .\n     ?x  foaf:knows [ foaf:knows [ foaf:name ?name ]]. \n  }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 168
+    },
+    "startOnNew": 0,
+    "endOnNew": 168
+  },
+  "type": "query"
+}

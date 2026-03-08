@@ -1,0 +1,109 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "NamedNode",
+              "value": "http://example/a"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://example/b"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "x"
+            },
+            "graph": {
+              "termType": "Variable",
+              "value": "g"
+            }
+          }
+        ]
+      },
+      {
+        "type": "path",
+        "subject": {
+          "termType": "NamedNode",
+          "value": "http://example/a"
+        },
+        "predicate": {
+          "type": "ZeroOrOnePath",
+          "path": {
+            "type": "seq",
+            "input": [
+              {
+                "type": "link",
+                "iri": {
+                  "termType": "NamedNode",
+                  "value": "http://example/p"
+                }
+              },
+              {
+                "type": "link",
+                "iri": {
+                  "termType": "NamedNode",
+                  "value": "http://example/p"
+                }
+              }
+            ]
+          }
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "t"
+        },
+        "graph": {
+          "termType": "Variable",
+          "value": "g"
+        }
+      },
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "x"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://example/c"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "t"
+            },
+            "graph": {
+              "termType": "Variable",
+              "value": "g"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "g"
+    },
+    {
+      "termType": "Variable",
+      "value": "t"
+    },
+    {
+      "termType": "Variable",
+      "value": "x"
+    }
+  ]
+}

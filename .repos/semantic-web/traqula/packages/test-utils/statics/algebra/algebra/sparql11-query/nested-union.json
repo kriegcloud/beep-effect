@@ -1,0 +1,196 @@
+{
+  "type": "project",
+  "input": {
+    "type": "union",
+    "input": [
+      {
+        "type": "join",
+        "input": [
+          {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "s"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xlabelA"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "pLabel"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "type": "union",
+            "input": [
+              {
+                "type": "bgp",
+                "patterns": [
+                  {
+                    "type": "pattern",
+                    "termType": "Quad",
+                    "subject": {
+                      "termType": "Variable",
+                      "value": "s"
+                    },
+                    "predicate": {
+                      "termType": "NamedNode",
+                      "value": "http://xlabelC"
+                    },
+                    "object": {
+                      "termType": "Variable",
+                      "value": "Label"
+                    },
+                    "graph": {
+                      "termType": "DefaultGraph",
+                      "value": ""
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "bgp",
+                "patterns": [
+                  {
+                    "type": "pattern",
+                    "termType": "Quad",
+                    "subject": {
+                      "termType": "Variable",
+                      "value": "s"
+                    },
+                    "predicate": {
+                      "termType": "NamedNode",
+                      "value": "http://xlabelD"
+                    },
+                    "object": {
+                      "termType": "Variable",
+                      "value": "label"
+                    },
+                    "graph": {
+                      "termType": "DefaultGraph",
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "join",
+        "input": [
+          {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "s"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xlabelB"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "pLabel"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "type": "union",
+            "input": [
+              {
+                "type": "bgp",
+                "patterns": [
+                  {
+                    "type": "pattern",
+                    "termType": "Quad",
+                    "subject": {
+                      "termType": "Variable",
+                      "value": "s"
+                    },
+                    "predicate": {
+                      "termType": "NamedNode",
+                      "value": "http://xlabelC"
+                    },
+                    "object": {
+                      "termType": "Variable",
+                      "value": "Label"
+                    },
+                    "graph": {
+                      "termType": "DefaultGraph",
+                      "value": ""
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "bgp",
+                "patterns": [
+                  {
+                    "type": "pattern",
+                    "termType": "Quad",
+                    "subject": {
+                      "termType": "Variable",
+                      "value": "s"
+                    },
+                    "predicate": {
+                      "termType": "NamedNode",
+                      "value": "http://xlabelD"
+                    },
+                    "object": {
+                      "termType": "Variable",
+                      "value": "label"
+                    },
+                    "graph": {
+                      "termType": "DefaultGraph",
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "label"
+    },
+    {
+      "termType": "Variable",
+      "value": "Label"
+    },
+    {
+      "termType": "Variable",
+      "value": "pLabel"
+    },
+    {
+      "termType": "Variable",
+      "value": "s"
+    }
+  ]
+}

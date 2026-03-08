@@ -1,0 +1,260 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 47
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 47
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "ns",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 61,
+          "end": 85
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 48,
+        "end": 85
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 118,
+                "end": 120
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 121,
+                "end": 129
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 130,
+                "end": 136
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 118,
+              "end": 136
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 118,
+          "end": 138
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "x",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 160,
+                    "end": 162
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "price",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 163,
+                    "end": 171
+                  },
+                  "prefix": "ns"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "price",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 172,
+                    "end": 178
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 160,
+                  "end": 178
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 160,
+              "end": 180
+            }
+          },
+          {
+            "type": "pattern",
+            "subType": "filter",
+            "expression": {
+              "type": "expression",
+              "subType": "operation",
+              "operator": "<",
+              "args": [
+                {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "price",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 189,
+                    "end": 195
+                  }
+                },
+                {
+                  "type": "term",
+                  "subType": "literal",
+                  "value": "30",
+                  "langOrIri": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "http://www.w3.org/2001/XMLSchema#integer",
+                    "loc": {
+                      "sourceLocationType": "noMaterialize"
+                    }
+                  },
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 198,
+                    "end": 200
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 188,
+                "end": 201
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 181,
+              "end": 201
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 149,
+          "end": 203
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 116,
+      "end": 213
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "title",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 94,
+        "end": 100
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "price",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 101,
+        "end": 107
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX  dc:  <http://purl.org/dc/elements/1.1/>\nPREFIX  ns:  <http://example.org/ns#>\nSELECT  ?title ?price\nWHERE   { ?x dc:title ?title .\n          OPTIONAL { ?x ns:price ?price . FILTER (?price < 30) }\n        }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 213
+    },
+    "startOnNew": 0,
+    "endOnNew": 213
+  },
+  "type": "query"
+}

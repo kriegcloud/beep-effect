@@ -1,0 +1,171 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 58
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 58
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdfs",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 72,
+          "end": 111
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 59,
+        "end": 111
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 127,
+                "end": 129
+              }
+            },
+            "predicate": {
+              "type": "path",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 130,
+                "end": 155
+              },
+              "items": [
+                {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "type",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 130,
+                    "end": 138
+                  },
+                  "prefix": "rdf"
+                },
+                {
+                  "type": "path",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 139,
+                    "end": 155
+                  },
+                  "items": [
+                    {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "subClassOf",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 139,
+                        "end": 154
+                      },
+                      "prefix": "rdfs"
+                    }
+                  ],
+                  "subType": "*"
+                }
+              ],
+              "subType": "/"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "type",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 156,
+                "end": 161
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 127,
+              "end": 161
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 127,
+          "end": 161
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 125,
+      "end": 163
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 121,
+        "end": 122
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n  SELECT *\n  { ?x rdf:type/rdfs:subClassOf* ?type }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 163
+    },
+    "startOnNew": 0,
+    "endOnNew": 163
+  },
+  "type": "query"
+}

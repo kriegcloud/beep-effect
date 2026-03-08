@@ -1,0 +1,96 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "graph",
+        "input": {
+          "type": "filter",
+          "input": {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "s"
+                },
+                "predicate": {
+                  "termType": "Variable",
+                  "value": "p"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "o"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          "expression": {
+            "type": "expression",
+            "subType": "operator",
+            "operator": "uri",
+            "args": [
+              {
+                "type": "expression",
+                "subType": "term",
+                "term": {
+                  "termType": "Variable",
+                  "value": "s"
+                }
+              }
+            ]
+          }
+        },
+        "name": {
+          "termType": "NamedNode",
+          "value": "http://graph.example.com/"
+        }
+      },
+      {
+        "type": "graph",
+        "input": {
+          "type": "bgp",
+          "patterns": [
+            {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "Variable",
+                "value": "s"
+              },
+              "predicate": {
+                "termType": "Variable",
+                "value": "p"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          ]
+        },
+        "name": {
+          "termType": "NamedNode",
+          "value": "http://other.example.com/"
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "s"
+    }
+  ]
+}

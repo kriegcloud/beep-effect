@@ -1,0 +1,97 @@
+{
+  "type": "project",
+  "input": {
+    "type": "filter",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "x"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://example.com/p"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "n"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "existence",
+      "not": true,
+      "input": {
+        "type": "filter",
+        "input": {
+          "type": "bgp",
+          "patterns": [
+            {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "Variable",
+                "value": "x"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://example.com/q"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "m"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          ]
+        },
+        "expression": {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "=",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Variable",
+                "value": "n"
+              }
+            },
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Variable",
+                "value": "m"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "n"
+    },
+    {
+      "termType": "Variable",
+      "value": "x"
+    }
+  ]
+}

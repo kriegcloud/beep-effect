@@ -1,0 +1,63 @@
+{
+  "type": "compositeupdate",
+  "updates": [
+    {
+      "type": "deleteinsert",
+      "delete": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "NamedNode",
+            "value": "http://example/book1"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://purl.org/dc/elements/1.1/title"
+          },
+          "object": {
+            "termType": "Literal",
+            "value": "Fundamentals of Compiler Desing",
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          },
+          "graph": {
+            "termType": "NamedNode",
+            "value": "http://example/bookStore"
+          }
+        }
+      ]
+    },
+    {
+      "type": "deleteinsert",
+      "insert": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "NamedNode",
+            "value": "http://example/book1"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://purl.org/dc/elements/1.1/title"
+          },
+          "object": {
+            "termType": "Literal",
+            "value": "Fundamentals of Compiler Design",
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          },
+          "graph": {
+            "termType": "NamedNode",
+            "value": "http://example/bookStore"
+          }
+        }
+      ]
+    }
+  ]
+}

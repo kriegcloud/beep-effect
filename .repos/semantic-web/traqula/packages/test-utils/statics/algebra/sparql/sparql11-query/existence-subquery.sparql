@@ -1,0 +1,11 @@
+SELECT ?s ?p ?o WHERE {
+  ?a <https://mydom2#predB> ?b.
+  FILTER EXISTS {
+    ?var0 <https://mydom2#predN> ?q. 
+    { 
+      SELECT (?_s AS ?q2) (?_o AS ?var0) WHERE {
+        ?_s ?p ?_o.
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+SELECT * WHERE { ?a ?b ?c . FILTER ( ( ?a IN ( "1"^^<http://www.w3.org/2001/XMLSchema#integer> , "2"^^<http://www.w3.org/2001/XMLSchema#integer> , "3"^^<http://www.w3.org/2001/XMLSchema#integer> ) ) ) FILTER ( ( ?c NOT IN ( "1"^^<http://www.w3.org/2001/XMLSchema#integer> , "2"^^<http://www.w3.org/2001/XMLSchema#integer> , "3"^^<http://www.w3.org/2001/XMLSchema#integer> ) ) ) }

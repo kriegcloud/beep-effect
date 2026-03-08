@@ -1,0 +1,6 @@
+PREFIX : <http://example.com/ns#>
+SELECT * WHERE {
+  [
+    ?Q << :s ?P :o ~ :iri >> ;
+  ] :b :c .
+}

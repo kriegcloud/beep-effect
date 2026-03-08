@@ -1,0 +1,205 @@
+{
+  "type": "project",
+  "input": {
+    "type": "orderby",
+    "input": {
+      "type": "minus",
+      "input": [
+        {
+          "type": "leftjoin",
+          "input": [
+            {
+              "type": "leftjoin",
+              "input": [
+                {
+                  "type": "bgp",
+                  "patterns": [
+                    {
+                      "type": "pattern",
+                      "termType": "Quad",
+                      "subject": {
+                        "termType": "Variable",
+                        "value": "a"
+                      },
+                      "predicate": {
+                        "termType": "NamedNode",
+                        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                      },
+                      "object": {
+                        "termType": "NamedNode",
+                        "value": "http://example/Min"
+                      },
+                      "graph": {
+                        "termType": "DefaultGraph",
+                        "value": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "bgp",
+                  "patterns": [
+                    {
+                      "type": "pattern",
+                      "termType": "Quad",
+                      "subject": {
+                        "termType": "Variable",
+                        "value": "a"
+                      },
+                      "predicate": {
+                        "termType": "NamedNode",
+                        "value": "http://example/p1"
+                      },
+                      "object": {
+                        "termType": "Variable",
+                        "value": "b"
+                      },
+                      "graph": {
+                        "termType": "DefaultGraph",
+                        "value": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "bgp",
+              "patterns": [
+                {
+                  "type": "pattern",
+                  "termType": "Quad",
+                  "subject": {
+                    "termType": "Variable",
+                    "value": "a"
+                  },
+                  "predicate": {
+                    "termType": "NamedNode",
+                    "value": "http://example/p2"
+                  },
+                  "object": {
+                    "termType": "Variable",
+                    "value": "c"
+                  },
+                  "graph": {
+                    "termType": "DefaultGraph",
+                    "value": ""
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "leftjoin",
+          "input": [
+            {
+              "type": "leftjoin",
+              "input": [
+                {
+                  "type": "bgp",
+                  "patterns": [
+                    {
+                      "type": "pattern",
+                      "termType": "Quad",
+                      "subject": {
+                        "termType": "Variable",
+                        "value": "d"
+                      },
+                      "predicate": {
+                        "termType": "NamedNode",
+                        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                      },
+                      "object": {
+                        "termType": "NamedNode",
+                        "value": "http://example/Sub"
+                      },
+                      "graph": {
+                        "termType": "DefaultGraph",
+                        "value": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "bgp",
+                  "patterns": [
+                    {
+                      "type": "pattern",
+                      "termType": "Quad",
+                      "subject": {
+                        "termType": "Variable",
+                        "value": "d"
+                      },
+                      "predicate": {
+                        "termType": "NamedNode",
+                        "value": "http://example/q1"
+                      },
+                      "object": {
+                        "termType": "Variable",
+                        "value": "b"
+                      },
+                      "graph": {
+                        "termType": "DefaultGraph",
+                        "value": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "bgp",
+              "patterns": [
+                {
+                  "type": "pattern",
+                  "termType": "Quad",
+                  "subject": {
+                    "termType": "Variable",
+                    "value": "d"
+                  },
+                  "predicate": {
+                    "termType": "NamedNode",
+                    "value": "http://example/q2"
+                  },
+                  "object": {
+                    "termType": "Variable",
+                    "value": "c"
+                  },
+                  "graph": {
+                    "termType": "DefaultGraph",
+                    "value": ""
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expressions": [
+      {
+        "type": "expression",
+        "subType": "term",
+        "term": {
+          "termType": "Variable",
+          "value": "a"
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "a"
+    },
+    {
+      "termType": "Variable",
+      "value": "b"
+    },
+    {
+      "termType": "Variable",
+      "value": "c"
+    }
+  ]
+}

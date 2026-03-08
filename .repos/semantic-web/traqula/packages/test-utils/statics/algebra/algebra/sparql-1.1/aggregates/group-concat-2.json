@@ -1,0 +1,458 @@
+{
+  "type": "project",
+  "input": {
+    "type": "extend",
+    "input": {
+      "type": "group",
+      "input": {
+        "type": "filter",
+        "input": {
+          "type": "project",
+          "input": {
+            "type": "extend",
+            "input": {
+              "type": "group",
+              "input": {
+                "type": "bgp",
+                "patterns": [
+                  {
+                    "type": "pattern",
+                    "termType": "Quad",
+                    "subject": {
+                      "termType": "BlankNode",
+                      "value": "g_0"
+                    },
+                    "predicate": {
+                      "termType": "Variable",
+                      "value": "p"
+                    },
+                    "object": {
+                      "termType": "Variable",
+                      "value": "o"
+                    },
+                    "graph": {
+                      "termType": "DefaultGraph",
+                      "value": ""
+                    }
+                  }
+                ]
+              },
+              "variables": [
+                {
+                  "termType": "Variable",
+                  "value": "p"
+                }
+              ],
+              "aggregates": [
+                {
+                  "type": "expression",
+                  "subType": "aggregate",
+                  "aggregator": "group_concat",
+                  "expression": {
+                    "type": "expression",
+                    "subType": "term",
+                    "term": {
+                      "termType": "Variable",
+                      "value": "o"
+                    }
+                  },
+                  "separator": " ",
+                  "distinct": false,
+                  "variable": {
+                    "termType": "Variable",
+                    "value": "var0"
+                  }
+                }
+              ]
+            },
+            "variable": {
+              "termType": "Variable",
+              "value": "g"
+            },
+            "expression": {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Variable",
+                "value": "var0"
+              }
+            }
+          },
+          "variables": [
+            {
+              "termType": "Variable",
+              "value": "p"
+            },
+            {
+              "termType": "Variable",
+              "value": "g"
+            }
+          ]
+        },
+        "expression": {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "||",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "operator",
+              "operator": "&&",
+              "args": [
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "=",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "Variable",
+                        "value": "p"
+                      }
+                    },
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "NamedNode",
+                        "value": "http://www.example.org/p1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "||",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "operator",
+                      "operator": "=",
+                      "args": [
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Variable",
+                            "value": "g"
+                          }
+                        },
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Literal",
+                            "value": "1 22",
+                            "datatype": {
+                              "termType": "NamedNode",
+                              "value": "http://www.w3.org/2001/XMLSchema#string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "expression",
+                      "subType": "operator",
+                      "operator": "=",
+                      "args": [
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Variable",
+                            "value": "g"
+                          }
+                        },
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Literal",
+                            "value": "22 1",
+                            "datatype": {
+                              "termType": "NamedNode",
+                              "value": "http://www.w3.org/2001/XMLSchema#string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "expression",
+              "subType": "operator",
+              "operator": "&&",
+              "args": [
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "=",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "Variable",
+                        "value": "p"
+                      }
+                    },
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "NamedNode",
+                        "value": "http://www.example.org/p2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "||",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "operator",
+                      "operator": "||",
+                      "args": [
+                        {
+                          "type": "expression",
+                          "subType": "operator",
+                          "operator": "||",
+                          "args": [
+                            {
+                              "type": "expression",
+                              "subType": "operator",
+                              "operator": "||",
+                              "args": [
+                                {
+                                  "type": "expression",
+                                  "subType": "operator",
+                                  "operator": "||",
+                                  "args": [
+                                    {
+                                      "type": "expression",
+                                      "subType": "operator",
+                                      "operator": "=",
+                                      "args": [
+                                        {
+                                          "type": "expression",
+                                          "subType": "term",
+                                          "term": {
+                                            "termType": "Variable",
+                                            "value": "g"
+                                          }
+                                        },
+                                        {
+                                          "type": "expression",
+                                          "subType": "term",
+                                          "term": {
+                                            "termType": "Literal",
+                                            "value": "aaa bb c",
+                                            "datatype": {
+                                              "termType": "NamedNode",
+                                              "value": "http://www.w3.org/2001/XMLSchema#string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "expression",
+                                      "subType": "operator",
+                                      "operator": "=",
+                                      "args": [
+                                        {
+                                          "type": "expression",
+                                          "subType": "term",
+                                          "term": {
+                                            "termType": "Variable",
+                                            "value": "g"
+                                          }
+                                        },
+                                        {
+                                          "type": "expression",
+                                          "subType": "term",
+                                          "term": {
+                                            "termType": "Literal",
+                                            "value": "aaa c bb",
+                                            "datatype": {
+                                              "termType": "NamedNode",
+                                              "value": "http://www.w3.org/2001/XMLSchema#string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "expression",
+                                  "subType": "operator",
+                                  "operator": "=",
+                                  "args": [
+                                    {
+                                      "type": "expression",
+                                      "subType": "term",
+                                      "term": {
+                                        "termType": "Variable",
+                                        "value": "g"
+                                      }
+                                    },
+                                    {
+                                      "type": "expression",
+                                      "subType": "term",
+                                      "term": {
+                                        "termType": "Literal",
+                                        "value": "bb aaa c",
+                                        "datatype": {
+                                          "termType": "NamedNode",
+                                          "value": "http://www.w3.org/2001/XMLSchema#string"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "expression",
+                              "subType": "operator",
+                              "operator": "=",
+                              "args": [
+                                {
+                                  "type": "expression",
+                                  "subType": "term",
+                                  "term": {
+                                    "termType": "Variable",
+                                    "value": "g"
+                                  }
+                                },
+                                {
+                                  "type": "expression",
+                                  "subType": "term",
+                                  "term": {
+                                    "termType": "Literal",
+                                    "value": "bb c aaa",
+                                    "datatype": {
+                                      "termType": "NamedNode",
+                                      "value": "http://www.w3.org/2001/XMLSchema#string"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "expression",
+                          "subType": "operator",
+                          "operator": "=",
+                          "args": [
+                            {
+                              "type": "expression",
+                              "subType": "term",
+                              "term": {
+                                "termType": "Variable",
+                                "value": "g"
+                              }
+                            },
+                            {
+                              "type": "expression",
+                              "subType": "term",
+                              "term": {
+                                "termType": "Literal",
+                                "value": "c aaa bb",
+                                "datatype": {
+                                  "termType": "NamedNode",
+                                  "value": "http://www.w3.org/2001/XMLSchema#string"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "expression",
+                      "subType": "operator",
+                      "operator": "=",
+                      "args": [
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Variable",
+                            "value": "g"
+                          }
+                        },
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Literal",
+                            "value": "c bb aaa",
+                            "datatype": {
+                              "termType": "NamedNode",
+                              "value": "http://www.w3.org/2001/XMLSchema#string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "variables": [],
+      "aggregates": [
+        {
+          "type": "expression",
+          "subType": "aggregate",
+          "aggregator": "count",
+          "expression": {
+            "type": "expression",
+            "subType": "wildcard",
+            "wildcard": {
+              "type": "wildcard"
+            }
+          },
+          "distinct": false,
+          "variable": {
+            "termType": "Variable",
+            "value": "var1"
+          }
+        }
+      ]
+    },
+    "variable": {
+      "termType": "Variable",
+      "value": "c"
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "term",
+      "term": {
+        "termType": "Variable",
+        "value": "var1"
+      }
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "c"
+    }
+  ]
+}

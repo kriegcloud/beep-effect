@@ -1,0 +1,168 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.com/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 9,
+          "end": 33
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 33
+      }
+    }
+  ],
+  "subType": "construct",
+  "template": {
+    "type": "pattern",
+    "subType": "bgp",
+    "triples": [
+      {
+        "type": "tripleCollection",
+        "subType": "reifiedTriple",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 49,
+                "end": 51
+              },
+              "prefix": ""
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 52,
+                "end": 54
+              },
+              "prefix": ""
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 55,
+                "end": 57
+              },
+              "prefix": ""
+            },
+            "annotations": [],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 49,
+              "end": 57
+            }
+          }
+        ],
+        "identifier": {
+          "type": "term",
+          "subType": "blankNode",
+          "loc": {
+            "sourceLocationType": "noMaterialize"
+          },
+          "label": "g_0"
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 47,
+          "end": 60
+        }
+      },
+      {
+        "type": "triple",
+        "subject": {
+          "type": "term",
+          "subType": "blankNode",
+          "loc": {
+            "sourceLocationType": "noMaterialize"
+          },
+          "label": "g_0"
+        },
+        "predicate": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "q",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 61,
+            "end": 63
+          },
+          "prefix": ""
+        },
+        "object": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "z",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 64,
+            "end": 66
+          },
+          "prefix": ""
+        },
+        "annotations": [],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 61,
+          "end": 66
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 47,
+      "end": 66
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 75,
+      "end": 77
+    }
+  },
+  "solutionModifiers": {},
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX : <http://example.com/ns#>\n\nCONSTRUCT { <<:s :p :o >> :q :z }\nWHERE {}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 77
+    },
+    "startOnNew": 0,
+    "endOnNew": 77
+  },
+  "type": "query"
+}

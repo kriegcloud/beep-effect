@@ -1,0 +1,44 @@
+{
+  "type": "from",
+  "input": {
+    "type": "project",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "x"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://xmlns.com/foaf/0.1/name"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "name"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "variables": [
+      {
+        "termType": "Variable",
+        "value": "name"
+      }
+    ]
+  },
+  "default": [
+    {
+      "termType": "NamedNode",
+      "value": "http://example.org/foaf/aliceFoaf"
+    }
+  ],
+  "named": []
+}

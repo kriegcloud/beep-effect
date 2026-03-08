@@ -1,0 +1,156 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "group",
+        "patterns": [],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 11,
+          "end": 13
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "query",
+            "subType": "select",
+            "where": {
+              "type": "pattern",
+              "subType": "group",
+              "patterns": [
+                {
+                  "type": "pattern",
+                  "subType": "bgp",
+                  "triples": [
+                    {
+                      "type": "triple",
+                      "subject": {
+                        "type": "term",
+                        "subType": "variable",
+                        "value": "s",
+                        "loc": {
+                          "sourceLocationType": "source",
+                          "start": 35,
+                          "end": 37
+                        }
+                      },
+                      "predicate": {
+                        "type": "term",
+                        "subType": "variable",
+                        "value": "p",
+                        "loc": {
+                          "sourceLocationType": "source",
+                          "start": 38,
+                          "end": 40
+                        }
+                      },
+                      "object": {
+                        "type": "term",
+                        "subType": "variable",
+                        "value": "o",
+                        "loc": {
+                          "sourceLocationType": "source",
+                          "start": 41,
+                          "end": 43
+                        }
+                      },
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 35,
+                        "end": 43
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 35,
+                    "end": 43
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 33,
+                "end": 45
+              }
+            },
+            "datasets": {
+              "type": "datasetClauses",
+              "clauses": [],
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "context": [],
+            "solutionModifiers": {},
+            "variables": [
+              {
+                "type": "wildcard",
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 31,
+                  "end": 32
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 24,
+              "end": 45
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 14,
+          "end": 46
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 9,
+      "end": 48
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 7,
+        "end": 8
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECT * { {} OPTIONAL {SELECT * { ?s ?p ?o }} }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 48
+    },
+    "startOnNew": 0,
+    "endOnNew": 48
+  },
+  "type": "query"
+}

@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> SELECT * WHERE { ( << ?S1 :p :o1 ~ :iri >> << ?S2 :p :o2 ~ _:bnode >> ) :q "123"^^<http://www.w3.org/2001/XMLSchema#integer> . }

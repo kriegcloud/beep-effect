@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> CONSTRUCT { << ?s ?p ?o ~ _:g_0 >> . _:g_0 ?q ?z . ?a ?b << ?s ?p ?o ~ _:g_1 >> . } WHERE { << ?s ?p ?o ~ _:g_0 >> . _:g_0 ?q ?z . ?a ?b << ?s ?p ?o ~ _:g_1 >> . }

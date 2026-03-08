@@ -1,0 +1,109 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 19,
+                "end": 21
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 22,
+                "end": 24
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 25,
+                "end": 27
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 19,
+              "end": 27
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 19,
+          "end": 28
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 15,
+      "end": 30
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 7,
+        "end": 8
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECT *\nWHERE {\n  ?s ?p ?o.\n}\nVALUES () { () }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 47
+    },
+    "startOnNew": 0,
+    "endOnNew": 47
+  },
+  "type": "query",
+  "values": {
+    "type": "pattern",
+    "subType": "values",
+    "variables": [],
+    "values": [
+      {}
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 31,
+      "end": 47
+    }
+  }
+}

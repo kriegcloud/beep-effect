@@ -1,0 +1,45 @@
+{
+  "type": "construct",
+  "input": {
+    "type": "bgp",
+    "patterns": []
+  },
+  "template": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "NamedNode",
+        "value": "http://example.com/ns#s"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://example.com/ns#q"
+      },
+      "object": {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#s"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#p"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#o"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    }
+  ]
+}

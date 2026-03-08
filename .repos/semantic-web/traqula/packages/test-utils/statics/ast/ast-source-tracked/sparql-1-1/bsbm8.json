@@ -1,0 +1,803 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "bsbm",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 73
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 73
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 85,
+          "end": 119
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 74,
+        "end": 119
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rev",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/stuff/rev#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 132,
+          "end": 160
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 120,
+        "end": 160
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 174,
+          "end": 202
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 161,
+        "end": 202
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "review",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 307,
+                "end": 314
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "reviewFor",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 315,
+                "end": 329
+              },
+              "prefix": "bsbm"
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromProducer16/Product783",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 330,
+                "end": 418
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 307,
+              "end": 418
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "review",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 422,
+                "end": 429
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 430,
+                "end": 438
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 439,
+                "end": 445
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 422,
+              "end": 445
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "review",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 449,
+                "end": 456
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "text",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 457,
+                "end": 465
+              },
+              "prefix": "rev"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "text",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 466,
+                "end": 471
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 449,
+              "end": 471
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 307,
+          "end": 473
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "langmatches",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "operation",
+              "operator": "lang",
+              "args": [
+                {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "text",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 500,
+                    "end": 505
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 495,
+                "end": 506
+              }
+            },
+            {
+              "type": "term",
+              "subType": "literal",
+              "value": "EN",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 508,
+                "end": 512
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 482,
+            "end": 514
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 475,
+          "end": 514
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "review",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 517,
+                "end": 524
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "reviewDate",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 525,
+                "end": 540
+              },
+              "prefix": "bsbm"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "reviewDate",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 541,
+                "end": 552
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 517,
+              "end": 552
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "review",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 556,
+                "end": 563
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "reviewer",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 564,
+                "end": 576
+              },
+              "prefix": "rev"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "reviewer",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 577,
+                "end": 586
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 556,
+              "end": 586
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "reviewer",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 590,
+                "end": 599
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 600,
+                "end": 609
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "reviewerName",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 610,
+                "end": 623
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 590,
+              "end": 623
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 517,
+          "end": 625
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "review",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 638,
+                    "end": 645
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "rating1",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 646,
+                    "end": 658
+                  },
+                  "prefix": "bsbm"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "rating1",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 659,
+                    "end": 667
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 638,
+                  "end": 667
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 638,
+              "end": 669
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 627,
+          "end": 671
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "review",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 684,
+                    "end": 691
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "rating2",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 692,
+                    "end": 704
+                  },
+                  "prefix": "bsbm"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "rating2",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 705,
+                    "end": 713
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 684,
+                  "end": 713
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 684,
+              "end": 715
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 673,
+          "end": 717
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "review",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 730,
+                    "end": 737
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "rating3",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 738,
+                    "end": 750
+                  },
+                  "prefix": "bsbm"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "rating3",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 751,
+                    "end": 759
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 730,
+                  "end": 759
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 730,
+              "end": 761
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 719,
+          "end": 763
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "review",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 776,
+                    "end": 783
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "rating4",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 784,
+                    "end": 796
+                  },
+                  "prefix": "bsbm"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "rating4",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 797,
+                    "end": 805
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 776,
+                  "end": 805
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 776,
+              "end": 807
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 765,
+          "end": 809
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 303,
+      "end": 811
+    }
+  },
+  "solutionModifiers": {
+    "limitOffset": {
+      "type": "solutionModifier",
+      "subType": "limitOffset",
+      "limit": 20,
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 839,
+        "end": 847
+      }
+    },
+    "order": {
+      "type": "solutionModifier",
+      "subType": "order",
+      "orderDefs": [
+        {
+          "expression": {
+            "type": "term",
+            "subType": "variable",
+            "value": "reviewDate",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 825,
+              "end": 838
+            }
+          },
+          "descending": true,
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 821,
+            "end": 838
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 812,
+        "end": 838
+      }
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "title",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 211,
+        "end": 217
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "text",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 218,
+        "end": 223
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "reviewDate",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 224,
+        "end": 235
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "reviewer",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 236,
+        "end": 245
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "reviewerName",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 246,
+        "end": 259
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "rating1",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 260,
+        "end": 268
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "rating2",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 269,
+        "end": 277
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "rating3",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 278,
+        "end": 286
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "rating4",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 287,
+        "end": 295
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX bsbm: <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/>\nPREFIX dc: <http://purl.org/dc/elements/1.1/>\nPREFIX rev: <http://purl.org/stuff/rev#>\nPREFIX foaf: <http://xmlns.com/foaf/0.1/>\n\nSELECT ?title ?text ?reviewDate ?reviewer ?reviewerName ?rating1 ?rating2 ?rating3 ?rating4 \nWHERE { \n\t?review bsbm:reviewFor <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromProducer16/Product783> .\n\t?review dc:title ?title .\n\t?review rev:text ?text .\n\tFILTER langMatches( lang(?text), \"EN\" ) \n\t?review bsbm:reviewDate ?reviewDate .\n\t?review rev:reviewer ?reviewer .\n\t?reviewer foaf:name ?reviewerName .\n\tOPTIONAL { ?review bsbm:rating1 ?rating1 . }\n\tOPTIONAL { ?review bsbm:rating2 ?rating2 . }\n\tOPTIONAL { ?review bsbm:rating3 ?rating3 . }\n\tOPTIONAL { ?review bsbm:rating4 ?rating4 . }\n}\nORDER BY DESC(?reviewDate)\nLIMIT 20\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 847
+    },
+    "startOnNew": 0,
+    "endOnNew": 847
+  },
+  "type": "query"
+}

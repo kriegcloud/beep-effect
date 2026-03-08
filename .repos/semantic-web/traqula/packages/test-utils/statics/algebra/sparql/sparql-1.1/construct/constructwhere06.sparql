@@ -1,0 +1,2 @@
+PREFIX : <http://example.org/>
+CONSTRUCT WHERE { _:s_b ?p _:o_b}

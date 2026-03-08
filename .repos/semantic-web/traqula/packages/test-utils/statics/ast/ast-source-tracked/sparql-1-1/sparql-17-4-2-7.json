@@ -1,0 +1,261 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 41
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 41
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "xsd",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/2001/XMLSchema#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 55,
+          "end": 90
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 42,
+        "end": 90
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "eg",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://biometrics.example/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 104,
+          "end": 135
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 91,
+        "end": 135
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 168,
+                "end": 170
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 171,
+                "end": 180
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 182,
+                "end": 187
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 168,
+              "end": 187
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "shoeSize",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 190,
+                "end": 201
+              },
+              "prefix": "eg"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "shoeSize",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 203,
+                "end": 212
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 190,
+              "end": 212
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 168,
+          "end": 214
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "=",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "operation",
+              "operator": "datatype",
+              "args": [
+                {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "shoeSize",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 242,
+                    "end": 251
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 233,
+                "end": 252
+              }
+            },
+            {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "integer",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 255,
+                "end": 266
+              },
+              "prefix": "xsd"
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 231,
+            "end": 268
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 224,
+          "end": 268
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 166,
+      "end": 270
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "name",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 143,
+        "end": 148
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "shoeSize",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 149,
+        "end": 158
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nPREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>\nPREFIX eg:   <http://biometrics.example/ns#>\nSELECT ?name ?shoeSize\n WHERE { ?x foaf:name  ?name ; eg:shoeSize  ?shoeSize .\n         FILTER ( datatype(?shoeSize) = xsd:integer ) }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 270
+    },
+    "startOnNew": 0,
+    "endOnNew": 270
+  },
+  "type": "query"
+}

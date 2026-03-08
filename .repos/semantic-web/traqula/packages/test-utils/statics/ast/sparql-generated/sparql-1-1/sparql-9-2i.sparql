@@ -1,0 +1,4 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * WHERE {
+  <mailto:alice@example> (^foaf:mbox) ?x .
+}

@@ -1,0 +1,8 @@
+prefix : <http://example.org/data#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+insert {
+    ?class a rdfs:Class .
+} where {
+    [] a ?class .
+}

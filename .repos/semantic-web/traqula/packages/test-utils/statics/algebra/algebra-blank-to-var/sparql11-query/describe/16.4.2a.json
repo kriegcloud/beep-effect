@@ -1,0 +1,34 @@
+{
+  "type": "describe",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "x"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://xmlns.com/foaf/0.1/mbox"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "mailto:alice@org"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "terms": [
+    {
+      "termType": "Variable",
+      "value": "x"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc10",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.0/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 14,
+          "end": 48
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 48
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc11",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 63,
+          "end": 97
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 49,
+        "end": 97
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "union",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "group",
+            "patterns": [
+              {
+                "type": "pattern",
+                "subType": "bgp",
+                "triples": [
+                  {
+                    "type": "triple",
+                    "subject": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "book",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 123,
+                        "end": 128
+                      }
+                    },
+                    "predicate": {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "title",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 129,
+                        "end": 139
+                      },
+                      "prefix": "dc10"
+                    },
+                    "object": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "x",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 140,
+                        "end": 142
+                      }
+                    },
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 123,
+                      "end": 142
+                    }
+                  }
+                ],
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 123,
+                  "end": 142
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 121,
+              "end": 144
+            }
+          },
+          {
+            "type": "pattern",
+            "subType": "group",
+            "patterns": [
+              {
+                "type": "pattern",
+                "subType": "bgp",
+                "triples": [
+                  {
+                    "type": "triple",
+                    "subject": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "book",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 153,
+                        "end": 158
+                      }
+                    },
+                    "predicate": {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "title",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 159,
+                        "end": 169
+                      },
+                      "prefix": "dc11"
+                    },
+                    "object": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "y",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 171,
+                        "end": 173
+                      }
+                    },
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 153,
+                      "end": 173
+                    }
+                  }
+                ],
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 153,
+                  "end": 173
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 151,
+              "end": 175
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 121,
+          "end": 175
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 119,
+      "end": 177
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "x",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 106,
+        "end": 108
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "y",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 109,
+        "end": 111
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX dc10:  <http://purl.org/dc/elements/1.0/>\nPREFIX dc11:  <http://purl.org/dc/elements/1.1/>\n\nSELECT ?x ?y\nWHERE  { { ?book dc10:title ?x } UNION { ?book dc11:title  ?y } }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 177
+    },
+    "startOnNew": 0,
+    "endOnNew": 177
+  },
+  "type": "query"
+}

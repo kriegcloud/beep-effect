@@ -1,0 +1,7 @@
+prefix ex: <http://www.example.org/>
+select * where {
+graph ex:graph {
+    ?s ?p ex:o1
+    filter exists { ?s ?p ex:o2 }
+}
+}

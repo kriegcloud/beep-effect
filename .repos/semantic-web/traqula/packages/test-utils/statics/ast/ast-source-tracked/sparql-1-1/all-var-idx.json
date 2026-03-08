@@ -1,0 +1,134 @@
+{
+  "context": [],
+  "datasets": {
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    },
+    "type": "datasetClauses"
+  },
+  "loc": {
+    "end": 9007199254740991,
+    "endOnNew": 50,
+    "loc": {
+      "end": 50,
+      "sourceLocationType": "source",
+      "start": 0
+    },
+    "newSource": "SELECT * WHERE {\n  ?1s ?1p ?1o .\n  ?2s ?2p ?2o .\n}\n",
+    "sourceLocationType": "inlinedSource",
+    "start": 0,
+    "startOnNew": 0
+  },
+  "solutionModifiers": {},
+  "subType": "select",
+  "type": "query",
+  "variables": [
+    {
+      "loc": {
+        "end": 8,
+        "sourceLocationType": "source",
+        "start": 7
+      },
+      "type": "wildcard"
+    }
+  ],
+  "where": {
+    "loc": {
+      "end": 50,
+      "sourceLocationType": "source",
+      "start": 15
+    },
+    "patterns": [
+      {
+        "loc": {
+          "end": 48,
+          "sourceLocationType": "source",
+          "start": 19
+        },
+        "subType": "bgp",
+        "triples": [
+          {
+            "loc": {
+              "end": 30,
+              "sourceLocationType": "source",
+              "start": 19
+            },
+            "object": {
+              "loc": {
+                "end": 30,
+                "sourceLocationType": "source",
+                "start": 27
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "1o"
+            },
+            "predicate": {
+              "loc": {
+                "end": 26,
+                "sourceLocationType": "source",
+                "start": 23
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "1p"
+            },
+            "subject": {
+              "loc": {
+                "end": 22,
+                "sourceLocationType": "source",
+                "start": 19
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "1s"
+            },
+            "type": "triple"
+          },
+          {
+            "loc": {
+              "end": 46,
+              "sourceLocationType": "source",
+              "start": 35
+            },
+            "object": {
+              "loc": {
+                "end": 46,
+                "sourceLocationType": "source",
+                "start": 43
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "2o"
+            },
+            "predicate": {
+              "loc": {
+                "end": 42,
+                "sourceLocationType": "source",
+                "start": 39
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "2p"
+            },
+            "subject": {
+              "loc": {
+                "end": 38,
+                "sourceLocationType": "source",
+                "start": 35
+              },
+              "subType": "variable",
+              "type": "term",
+              "value": "2s"
+            },
+            "type": "triple"
+          }
+        ],
+        "type": "pattern"
+      }
+    ],
+    "subType": "group",
+    "type": "pattern"
+  }
+}

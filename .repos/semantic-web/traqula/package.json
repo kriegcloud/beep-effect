@@ -1,0 +1,43 @@
+{
+  "name": "traqula",
+  "type": "module",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "repository": "git+https://github.com/comunica/traqula/",
+  "workspaces": [
+    "engines/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "bench": "vitest bench --run",
+    "build": "yarn build:ts && yarn build:transpile && yarn build:cjs",
+    "build:ts": "tsc -b",
+    "build:transpile": "lerna run build:transpile",
+    "build:cjs": "tsc -b tsconfig.cjs.json",
+    "clean": "git clean -dfx",
+    "depcheck": "lerna exec --concurrency 1 -- depcheck --ignores=\"vitest,esbuild\"",
+    "doc": "typedoc",
+    "lint": "eslint . --cache",
+    "postinstall": "yarn husky && yarn run build",
+    "lerna-publish": "yarn install && npm login && lerna publish",
+    "spec:all": "lerna run spec:all --concurrency 1",
+    "spec:earl": "lerna run spec:earl --concurrency 1",
+    "test": "vitest test --run",
+    "version": "manual-git-changelog onversion"
+  },
+  "devDependencies": {
+    "@rdfjs/types": "^2.0.0",
+    "@rubensworks/eslint-config": "^3.1.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "depcheck": "^1.4.7",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.7",
+    "lerna": "9.0.4",
+    "manual-git-changelog": "^1.0.2",
+    "rdf-test-suite": "^2.1.4",
+    "typedoc": "^0.28.16",
+    "typescript": "^5.7.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  }
+}

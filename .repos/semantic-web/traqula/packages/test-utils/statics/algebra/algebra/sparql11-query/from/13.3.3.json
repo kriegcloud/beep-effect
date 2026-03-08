@@ -1,0 +1,200 @@
+{
+  "type": "from",
+  "input": {
+    "type": "project",
+    "input": {
+      "type": "join",
+      "input": [
+        {
+          "type": "graph",
+          "input": {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "alice"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/mbox"
+                },
+                "object": {
+                  "termType": "NamedNode",
+                  "value": "mailto:alice@work.example"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "alice"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/knows"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "whom"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "whom"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/mbox"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "mbox"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "whom"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://www.w3.org/2000/01/rdf-schema#seeAlso"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "ppd"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "ppd"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "object": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/PersonalProfileDocument"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          "name": {
+            "termType": "NamedNode",
+            "value": "http://example.org/foaf/aliceFoaf"
+          }
+        },
+        {
+          "type": "graph",
+          "input": {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "w"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/mbox"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "mbox"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "w"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://xmlns.com/foaf/0.1/nick"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "nick"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          "name": {
+            "termType": "Variable",
+            "value": "ppd"
+          }
+        }
+      ]
+    },
+    "variables": [
+      {
+        "termType": "Variable",
+        "value": "mbox"
+      },
+      {
+        "termType": "Variable",
+        "value": "nick"
+      },
+      {
+        "termType": "Variable",
+        "value": "ppd"
+      }
+    ]
+  },
+  "default": [],
+  "named": [
+    {
+      "termType": "NamedNode",
+      "value": "http://example.org/foaf/aliceFoaf"
+    },
+    {
+      "termType": "NamedNode",
+      "value": "http://example.org/foaf/bobFoaf"
+    }
+  ]
+}

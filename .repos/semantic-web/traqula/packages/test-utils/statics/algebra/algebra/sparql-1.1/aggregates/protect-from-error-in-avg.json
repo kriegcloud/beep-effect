@@ -1,0 +1,141 @@
+{
+  "type": "project",
+  "input": {
+    "type": "extend",
+    "input": {
+      "type": "group",
+      "input": {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "g"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://example.com/data/#p"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "p"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      },
+      "variables": [
+        {
+          "termType": "Variable",
+          "value": "g"
+        }
+      ],
+      "aggregates": [
+        {
+          "type": "expression",
+          "subType": "aggregate",
+          "aggregator": "avg",
+          "expression": {
+            "type": "expression",
+            "subType": "operator",
+            "operator": "if",
+            "args": [
+              {
+                "type": "expression",
+                "subType": "operator",
+                "operator": "isnumeric",
+                "args": [
+                  {
+                    "type": "expression",
+                    "subType": "term",
+                    "term": {
+                      "termType": "Variable",
+                      "value": "p"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "expression",
+                "subType": "term",
+                "term": {
+                  "termType": "Variable",
+                  "value": "p"
+                }
+              },
+              {
+                "type": "expression",
+                "subType": "operator",
+                "operator": "coalesce",
+                "args": [
+                  {
+                    "type": "expression",
+                    "subType": "named",
+                    "name": {
+                      "termType": "NamedNode",
+                      "value": "http://www.w3.org/2001/XMLSchema#double"
+                    },
+                    "args": [
+                      {
+                        "type": "expression",
+                        "subType": "term",
+                        "term": {
+                          "termType": "Variable",
+                          "value": "p"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "expression",
+                    "subType": "term",
+                    "term": {
+                      "termType": "Literal",
+                      "value": "0",
+                      "datatype": {
+                        "termType": "NamedNode",
+                        "value": "http://www.w3.org/2001/XMLSchema#integer"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "distinct": false,
+          "variable": {
+            "termType": "Variable",
+            "value": "var0"
+          }
+        }
+      ]
+    },
+    "variable": {
+      "termType": "Variable",
+      "value": "avg"
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "term",
+      "term": {
+        "termType": "Variable",
+        "value": "var0"
+      }
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "g"
+    },
+    {
+      "termType": "Variable",
+      "value": "avg"
+    }
+  ]
+}

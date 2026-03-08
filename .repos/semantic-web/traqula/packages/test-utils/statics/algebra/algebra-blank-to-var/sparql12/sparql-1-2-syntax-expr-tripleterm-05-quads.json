@@ -1,0 +1,163 @@
+{
+  "type": "project",
+  "input": {
+    "type": "filter",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "t"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://example.com/ns#source"
+          },
+          "object": {
+            "termType": "NamedNode",
+            "value": "http://example.com/ns#g"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "operator",
+      "operator": "&&",
+      "args": [
+        {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "&&",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "operator",
+              "operator": "&&",
+              "args": [
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "istriple",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "Variable",
+                        "value": "t"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "=",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "operator",
+                      "operator": "subject",
+                      "args": [
+                        {
+                          "type": "expression",
+                          "subType": "term",
+                          "term": {
+                            "termType": "Variable",
+                            "value": "t"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "NamedNode",
+                        "value": "http://example.com/ns#s"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "expression",
+              "subType": "operator",
+              "operator": "=",
+              "args": [
+                {
+                  "type": "expression",
+                  "subType": "operator",
+                  "operator": "predicate",
+                  "args": [
+                    {
+                      "type": "expression",
+                      "subType": "term",
+                      "term": {
+                        "termType": "Variable",
+                        "value": "t"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "expression",
+                  "subType": "term",
+                  "term": {
+                    "termType": "NamedNode",
+                    "value": "http://example.com/ns#p"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "=",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "operator",
+              "operator": "object",
+              "args": [
+                {
+                  "type": "expression",
+                  "subType": "term",
+                  "term": {
+                    "termType": "Variable",
+                    "value": "t"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#o"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "t"
+    }
+  ]
+}

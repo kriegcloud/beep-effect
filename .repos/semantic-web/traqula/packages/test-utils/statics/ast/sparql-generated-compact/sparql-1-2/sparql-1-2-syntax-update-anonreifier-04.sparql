@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> INSERT { << :a :b :c ~ _:g_0 >> . _:g_0 ?P :o2 {| ?Y << :s1 :p1 ?Z ~ _:g_2 >> |} . }  WHERE { << :a :b :c ~ _:g_3 >> . _:g_3 ?P :o1 {| ?Y << :s1 :p1 ?Z ~ _:g_5 >> |} . }

@@ -1,0 +1,1 @@
+CONSTRUCT { ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/ExampleThing> . ?s <http://example.org/hasvalue> "value" . ?s ?p ?o . } WHERE { ?s ?p ?o . }

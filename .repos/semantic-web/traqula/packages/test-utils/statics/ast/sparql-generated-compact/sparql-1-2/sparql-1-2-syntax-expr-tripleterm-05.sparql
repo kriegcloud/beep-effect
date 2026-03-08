@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> SELECT * WHERE { ?t :source :g . FILTER ( ISTRIPLE( ?t ) ) FILTER ( ( SUBJECT( ?t ) = :s ) ) FILTER ( ( PREDICATE( ?t ) = :p ) ) FILTER ( ( OBJECT( ?t ) = :o ) ) }

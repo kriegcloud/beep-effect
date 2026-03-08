@@ -1,0 +1,50 @@
+{
+  "type": "project",
+  "input": {
+    "type": "orderby",
+    "input": {
+      "type": "path",
+      "subject": {
+        "termType": "NamedNode",
+        "value": "http://example.org/A0"
+      },
+      "predicate": {
+        "type": "ZeroOrMorePath",
+        "path": {
+          "type": "ZeroOrMorePath",
+          "path": {
+            "type": "link",
+            "iri": {
+              "termType": "NamedNode",
+              "value": "http://example.org/P"
+            }
+          }
+        }
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "X"
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    },
+    "expressions": [
+      {
+        "type": "expression",
+        "subType": "term",
+        "term": {
+          "termType": "Variable",
+          "value": "X"
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "X"
+    }
+  ]
+}

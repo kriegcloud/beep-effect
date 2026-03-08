@@ -1,0 +1,266 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 28,
+                "end": 30
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 31,
+                "end": 32
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://dbpedia.org/ontology/Artist",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 33,
+                "end": 69
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 28,
+              "end": 69
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 28,
+          "end": 70
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "optional",
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "p",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 92,
+                    "end": 94
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://dbpedia.org/ontology/deathPlace",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 95,
+                    "end": 135
+                  }
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "d",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 136,
+                    "end": 138
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 92,
+                  "end": 138
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 92,
+              "end": 139
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 75,
+          "end": 145
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 150,
+                "end": 152
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://dbpedia.org/ontology/birthPlace",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 153,
+                "end": 193
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "c",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 194,
+                "end": 196
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 150,
+              "end": 196
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "c",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 202,
+                "end": 204
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://xmlns.com/foaf/0.1/name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 205,
+                "end": 237
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "literal",
+              "value": "York",
+              "langOrIri": "en",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 238,
+                "end": 247
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 202,
+              "end": 247
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 150,
+          "end": 248
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 22,
+      "end": 250
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "p",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 7,
+        "end": 9
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "c",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 10,
+        "end": 12
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "d",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 13,
+        "end": 15
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECT ?p ?c ?d WHERE {\n    ?p a <http://dbpedia.org/ontology/Artist>.\n    OPTIONAL {\n      ?p <http://dbpedia.org/ontology/deathPlace> ?d.\n    }\n    ?p <http://dbpedia.org/ontology/birthPlace> ?c.\n    ?c <http://xmlns.com/foaf/0.1/name> \"York\"@en.\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 250
+    },
+    "startOnNew": 0,
+    "endOnNew": 250
+  },
+  "type": "query"
+}

@@ -1,0 +1,1 @@
+PREFIX : <http://example.org/ns#> SELECT * WHERE { ?s ?p ?o . } ORDER BY ASC ( ( ?o + "5"^^<http://www.w3.org/2001/XMLSchema#integer> ) )

@@ -1,0 +1,88 @@
+{
+  "type": "ask",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#a"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#p"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "e_aa"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "e_aa"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#r"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "e_dd"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "e_dd"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#t"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "e_bb"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "e_bb"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#s"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "http://example.org/test#a"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  }
+}

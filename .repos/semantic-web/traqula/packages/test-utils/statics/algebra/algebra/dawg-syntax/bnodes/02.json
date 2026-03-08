@@ -1,0 +1,29 @@
+{
+  "type": "project",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "BlankNode",
+          "value": "g_0"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/ns#p"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "http://example.org/ns#q"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "variables": []
+}

@@ -1,0 +1,10 @@
+SELECT ?s
+WHERE {
+  GRAPH <http://graph.example.com/> {
+    ?s ?p ?o.
+    filter(uri(?s))
+  }
+  GRAPH <http://other.example.com/> {
+    ?s ?p  ?o.
+  }
+}

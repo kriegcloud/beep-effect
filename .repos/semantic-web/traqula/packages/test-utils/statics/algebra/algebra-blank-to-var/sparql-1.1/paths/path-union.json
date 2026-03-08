@@ -1,0 +1,98 @@
+{
+  "type": "project",
+  "input": {
+    "type": "union",
+    "input": [
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "item"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://www.wikidata.org/prop/direct/P31"
+            },
+            "object": {
+              "termType": "NamedNode",
+              "value": "http://www.wikidata.org/entity/Q486972"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      },
+      {
+        "type": "join",
+        "input": [
+          {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "item"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://www.wikidata.org/prop/direct/P31"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "instanceOf"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "type": "path",
+            "subject": {
+              "termType": "Variable",
+              "value": "instanceOf"
+            },
+            "predicate": {
+              "type": "OneOrMorePath",
+              "path": {
+                "type": "link",
+                "iri": {
+                  "termType": "NamedNode",
+                  "value": "http://www.wikidata.org/prop/direct/P279"
+                }
+              }
+            },
+            "object": {
+              "termType": "NamedNode",
+              "value": "http://www.wikidata.org/entity/Q486972"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "instanceOf"
+    },
+    {
+      "termType": "Variable",
+      "value": "item"
+    }
+  ]
+}

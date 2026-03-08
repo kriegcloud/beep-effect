@@ -1,0 +1,9 @@
+prefix : <http://example/>
+
+select * where {
+    graph ?g {
+        :a :b ?x.
+        :a (:p/:p)? ?t.
+        ?x :c ?t.
+    }
+}

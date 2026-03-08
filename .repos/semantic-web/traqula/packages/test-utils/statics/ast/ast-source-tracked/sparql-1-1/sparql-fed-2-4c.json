@@ -1,0 +1,187 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 15,
+          "end": 43
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 43
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 53,
+          "end": 74
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 44,
+        "end": 74
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 85,
+                "end": 87
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "knows",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 88,
+                "end": 98
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 99,
+                "end": 101
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 85,
+              "end": 101
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 85,
+          "end": 101
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 84,
+      "end": 103
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 82,
+        "end": 83
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:   <http://xmlns.com/foaf/0.1/>\nPREFIX : <http://example.org/>\nSELECT * {?s foaf:knows ?o } VALUES (?s) { (:a) (:b) }\n\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 129
+    },
+    "startOnNew": 0,
+    "endOnNew": 129
+  },
+  "type": "query",
+  "values": {
+    "type": "pattern",
+    "subType": "values",
+    "variables": [
+      {
+        "type": "term",
+        "subType": "variable",
+        "value": "s",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 112,
+          "end": 114
+        }
+      }
+    ],
+    "values": [
+      {
+        "s": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "a",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 119,
+            "end": 121
+          },
+          "prefix": ""
+        }
+      },
+      {
+        "s": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "b",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 124,
+            "end": 126
+          },
+          "prefix": ""
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 104,
+      "end": 129
+    }
+  }
+}

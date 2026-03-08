@@ -1,0 +1,256 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 12,
+          "end": 57
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 57
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "a",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 141,
+                "end": 143
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "value",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 144,
+                "end": 153
+              },
+              "prefix": "rdf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "val",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 154,
+                "end": 158
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 141,
+              "end": 158
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 141,
+          "end": 160
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 137,
+      "end": 162
+    }
+  },
+  "solutionModifiers": {
+    "group": {
+      "type": "solutionModifier",
+      "subType": "group",
+      "groupings": [
+        {
+          "type": "term",
+          "subType": "variable",
+          "value": "a",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 172,
+            "end": 174
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 163,
+        "end": 174
+      }
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "pattern",
+      "subType": "bind",
+      "expression": {
+        "type": "expression",
+        "subType": "aggregate",
+        "aggregation": "sum",
+        "distinct": false,
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 66,
+          "end": 75
+        },
+        "expression": [
+          {
+            "type": "term",
+            "subType": "variable",
+            "value": "val",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 70,
+              "end": 74
+            }
+          }
+        ]
+      },
+      "variable": {
+        "type": "term",
+        "subType": "variable",
+        "value": "sum",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 79,
+          "end": 83
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 65,
+        "end": 84
+      }
+    },
+    {
+      "type": "pattern",
+      "subType": "bind",
+      "expression": {
+        "type": "expression",
+        "subType": "aggregate",
+        "aggregation": "count",
+        "distinct": false,
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 86,
+          "end": 95
+        },
+        "expression": [
+          {
+            "type": "term",
+            "subType": "variable",
+            "value": "a",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 92,
+              "end": 94
+            }
+          }
+        ]
+      },
+      "variable": {
+        "type": "term",
+        "subType": "variable",
+        "value": "count",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 99,
+          "end": 105
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 85,
+        "end": 106
+      }
+    },
+    {
+      "type": "pattern",
+      "subType": "bind",
+      "expression": {
+        "type": "expression",
+        "subType": "aggregate",
+        "aggregation": "count",
+        "distinct": false,
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 108,
+          "end": 116
+        },
+        "expression": [
+          {
+            "type": "wildcard",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 114,
+              "end": 115
+            }
+          }
+        ]
+      },
+      "variable": {
+        "type": "term",
+        "subType": "variable",
+        "value": "countAll",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 120,
+          "end": 129
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 107,
+        "end": 130
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nSELECT (SUM(?val) AS ?sum) (COUNT(?a) AS ?count) (COUNT(*) AS ?countAll)\nWHERE {\n  ?a rdf:value ?val .\n} GROUP BY ?a\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 174
+    },
+    "startOnNew": 0,
+    "endOnNew": 174
+  },
+  "type": "query"
+}

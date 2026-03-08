@@ -1,0 +1,2 @@
+PREFIX : <http://example.org/>
+CONSTRUCT WHERE { ?s ?p ?o}

@@ -1,0 +1,44 @@
+{
+  "type": "project",
+  "input": {
+    "type": "group",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "s"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "http://example/p"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "v"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "variables": [
+      {
+        "termType": "Variable",
+        "value": "s"
+      }
+    ],
+    "aggregates": []
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "s"
+    }
+  ]
+}

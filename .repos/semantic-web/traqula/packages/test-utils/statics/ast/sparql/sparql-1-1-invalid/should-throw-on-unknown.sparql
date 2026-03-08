@@ -1,0 +1,5 @@
+#PREFIX dbo:  <http://dbpedia.org/property/>
+
+SELECT * {
+    ?territory dbo:name ?name .
+}

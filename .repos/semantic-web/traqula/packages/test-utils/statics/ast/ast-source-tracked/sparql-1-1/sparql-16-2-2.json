@@ -1,0 +1,381 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 12,
+          "end": 46
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 46
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "app",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 59,
+          "end": 83
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 47,
+        "end": 83
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "xsd",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/2001/XMLSchema#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 96,
+          "end": 131
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 84,
+        "end": 131
+      }
+    }
+  ],
+  "subType": "construct",
+  "template": {
+    "type": "pattern",
+    "subType": "bgp",
+    "triples": [
+      {
+        "type": "triple",
+        "subject": {
+          "type": "term",
+          "subType": "variable",
+          "value": "s",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 145,
+            "end": 147
+          }
+        },
+        "predicate": {
+          "type": "term",
+          "subType": "variable",
+          "value": "p",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 148,
+            "end": 150
+          }
+        },
+        "object": {
+          "type": "term",
+          "subType": "variable",
+          "value": "o",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 151,
+            "end": 153
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 145,
+          "end": 153
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 145,
+      "end": 153
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "graph",
+        "name": {
+          "type": "term",
+          "subType": "variable",
+          "value": "g",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 174,
+            "end": 176
+          }
+        },
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "s",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 179,
+                    "end": 181
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "p",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 182,
+                    "end": 184
+                  }
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "o",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 185,
+                    "end": 187
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 179,
+                  "end": 187
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 179,
+              "end": 187
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 168,
+          "end": 189
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "g",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 195,
+                "end": 197
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "publisher",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 198,
+                "end": 210
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www.w3.org/",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 211,
+                "end": 231
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 195,
+              "end": 231
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "g",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 237,
+                "end": 239
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "date",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 240,
+                "end": 247
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "date",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 248,
+                "end": 253
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 237,
+              "end": 253
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 195,
+          "end": 255
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": ">",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "functionCall",
+              "function": {
+                "type": "term",
+                "subType": "namedNode",
+                "value": "customDate",
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 268,
+                  "end": 282
+                },
+                "prefix": "app"
+              },
+              "args": [
+                {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "date",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 283,
+                    "end": 288
+                  }
+                }
+              ],
+              "distinct": false,
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 268,
+                "end": 289
+              }
+            },
+            {
+              "type": "term",
+              "subType": "literal",
+              "value": "2005-02-28T00:00:00Z",
+              "langOrIri": {
+                "type": "term",
+                "subType": "namedNode",
+                "value": "dateTime",
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 316,
+                  "end": 328
+                },
+                "prefix": "xsd"
+              },
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 292,
+                "end": 328
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 266,
+            "end": 330
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 259,
+          "end": 330
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 163,
+      "end": 335
+    }
+  },
+  "solutionModifiers": {},
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX  dc: <http://purl.org/dc/elements/1.1/>\nPREFIX app: <http://example.org/ns#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nCONSTRUCT { ?s ?p ?o } WHERE\n {\n   GRAPH ?g { ?s ?p ?o } .\n   ?g dc:publisher <http://www.w3.org/> .\n   ?g dc:date ?date .\n   FILTER ( app:customDate(?date) > \"2005-02-28T00:00:00Z\"^^xsd:dateTime ) .\n }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 335
+    },
+    "startOnNew": 0,
+    "endOnNew": 335
+  },
+  "type": "query"
+}

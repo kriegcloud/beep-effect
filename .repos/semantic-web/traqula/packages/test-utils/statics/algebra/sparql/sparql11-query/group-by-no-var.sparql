@@ -1,0 +1,3 @@
+SELECT (max(?y) as ?yy)
+WHERE { ?x ?y ?z }
+GROUP BY str(?x)

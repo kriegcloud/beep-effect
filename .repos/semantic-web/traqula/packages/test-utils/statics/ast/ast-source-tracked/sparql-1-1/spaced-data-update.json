@@ -1,0 +1,210 @@
+{
+  "type": "update",
+  "updates": [
+    {
+      "context": [],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "insertdata",
+        "data": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/subject",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 68,
+                    "end": 96
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/predicate",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 97,
+                    "end": 127
+                  }
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "literal",
+                  "value": "object",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 128,
+                    "end": 136
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 68,
+                  "end": 136
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 68,
+              "end": 138
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 48,
+          "end": 140
+        }
+      }
+    },
+    {
+      "context": [],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "deletedata",
+        "data": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/subject",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 158,
+                    "end": 186
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/predicate",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 187,
+                    "end": 217
+                  }
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "literal",
+                  "value": "object",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 218,
+                    "end": 226
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 158,
+                  "end": 226
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 158,
+              "end": 228
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 142,
+          "end": 230
+        }
+      }
+    },
+    {
+      "context": [],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "deletewhere",
+        "data": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/subject",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 249,
+                    "end": 277
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "http://example.org/predicate",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 278,
+                    "end": 308
+                  }
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "o",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 309,
+                    "end": 311
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 249,
+                  "end": 311
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 249,
+              "end": 313
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 232,
+          "end": 315
+        }
+      }
+    },
+    {
+      "context": []
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "# Basically tests Note 7 of the SPARQL 1.1 spec\nINsert     Data {\n  <http://example.org/subject> <http://example.org/predicate> \"object\" .\n};\nDelete\nData {\n  <http://example.org/subject> <http://example.org/predicate> \"object\" .\n};\nDeLete WHERE {\n  <http://example.org/subject> <http://example.org/predicate> ?o .\n};",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 48,
+      "end": 315
+    },
+    "startOnNew": 48,
+    "endOnNew": 315
+  }
+}

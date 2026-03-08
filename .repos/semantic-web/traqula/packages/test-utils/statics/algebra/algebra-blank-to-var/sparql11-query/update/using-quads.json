@@ -1,0 +1,65 @@
+{
+  "type": "deleteinsert",
+  "delete": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "s"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "foo:bar"
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "o"
+      },
+      "graph": {
+        "termType": "NamedNode",
+        "value": "urn:one:graph"
+      }
+    }
+  ],
+  "where": {
+    "type": "from",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "s"
+          },
+          "predicate": {
+            "termType": "NamedNode",
+            "value": "foo:bar"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "o"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "default": [
+      {
+        "termType": "NamedNode",
+        "value": "urn:another:graph"
+      }
+    ],
+    "named": [
+      {
+        "termType": "NamedNode",
+        "value": "urn:anamed:graph"
+      }
+    ]
+  }
+}
