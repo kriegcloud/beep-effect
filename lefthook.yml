@@ -9,7 +9,7 @@ pre-commit:
     jsdoc:
       glob: "tooling/*/src/**/*.ts"
       exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
-      run: npx eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
+      run: npx eslint --no-warn-ignored --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose
     typos:
