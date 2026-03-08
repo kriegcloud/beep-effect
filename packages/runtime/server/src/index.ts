@@ -40,12 +40,12 @@ import {
   Path,
   pipe,
   Ref,
-  String as Str,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as ClusterWorkflowEngine from "effect/unstable/cluster/ClusterWorkflowEngine";
 import * as HttpRunner from "effect/unstable/cluster/HttpRunner";
 import * as RunnerAddress from "effect/unstable/cluster/RunnerAddress";
@@ -463,6 +463,8 @@ const makeRpcHandlersLayer = () => {
 
             return decision.ack;
           }),
+        InterruptRepoRun: (payload) => repoRunService.interruptRun(payload).pipe(Effect.mapError(toRunStreamFailure)),
+        ResumeRepoRun: (payload) => repoRunService.resumeRun(payload).pipe(Effect.mapError(toRunStreamFailure)),
         StreamRunEvents: (payload) => repoRunService.streamRunEvents(payload),
       });
     })
@@ -631,7 +633,9 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         entryTable: "repo_memory_run_journal",
         remotesTable: "repo_memory_run_journal_remotes",
       }).pipe(Layer.provide(sqliteLayer));
-      const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(Layer.provide(fileSystemLayer));
+      const typeScriptIndexLayer = TypeScriptIndexService.layer.pipe(
+        Layer.provide([fileSystemLayer, repoMemorySqlLayer])
+      );
       const groundedRetrievalLayer = GroundedRetrievalService.layer.pipe(Layer.provide(repoMemorySqlLayer));
       const repoRunServiceLayer = RepoRunService.layer.pipe(
         Layer.provide([

@@ -17,24 +17,13 @@ import { createHash } from "node:crypto";
 import { $ClaudeId } from "@beep/identity/packages";
 import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import {
-  Clock,
-  Config,
-  Console,
-  Effect,
-  FileSystem,
-  HashSet,
-  Order,
-  Path,
-  pipe,
-  String as Str,
-  Terminal,
-} from "effect";
+import { Clock, Config, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $ClaudeId.create("hooks/skill-suggester/index");

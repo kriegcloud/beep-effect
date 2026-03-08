@@ -230,7 +230,6 @@ Template source: `tooling/cli/docgen.json`.
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect": ["../../packages/effect/src/index.ts"],
       "@beep/codebase-search": ["../../tooling/codebase-search/src/index.ts"]
     }
   }

@@ -1,9 +1,10 @@
 import { CommaSeparatedList } from "@beep/schema";
 import { Struct, Text } from "@beep/utils";
-import { Effect, Redacted, String as Str } from "effect";
+import { Effect, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 /**
  * Normalize an optional redacted value by trimming and dropping empty text.

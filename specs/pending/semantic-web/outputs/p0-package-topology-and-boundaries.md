@@ -109,7 +109,7 @@ The stable v1 export posture is:
 | `research/2026-03-08-effect-v4-module-selection.md` | preserved | Effect v4 source-backed module-fit evidence |
 | `design/foundation-decisions.md` | preserved and elevated | locked defaults for the formal spec |
 | `design/semantic-schema-metadata.md` | preserved and refined | promoted into formal metadata policy |
-| `handoffs/NEXT_SESSION_SPEC_PROMPT.md` | superseded but preserved | replaced operationally by the formal handoffs and prompts |
+| `handoffs/SPEC_FORMALIZATION_BOOTSTRAP_PROMPT.md` | superseded but preserved | replaced operationally by the formal handoffs and prompts |
 
 ## Locked Defaults Carried Forward
 

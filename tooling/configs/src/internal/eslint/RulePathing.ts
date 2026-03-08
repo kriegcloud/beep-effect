@@ -1,6 +1,7 @@
-import { Effect, pipe, SchemaIssue, SchemaTransformation, String as Str } from "effect";
+import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { normalizePath, PosixPath } from "../../eslint/Shared.ts";
 
 class RulePathPair extends S.Class<RulePathPair>("RulePathPair")({

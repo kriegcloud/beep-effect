@@ -1,26 +1,26 @@
 # Strict Implementation Prompt Template
 
 ## Usage
-Use this when you want a fresh Codex session to implement code with a higher enforcement bar than the default template.
+Use this when you want the higher-enforcement implementation variant of the default template.
 
 Replace every placeholder, delete any line that does not apply, and keep the task tightly scoped.
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
-This is a strict implementation session. Do not stop at analysis unless blocked by a real ambiguity or failing pre-existing state.
+Treat this as a strict implementation task. Do not stop at analysis unless blocked by a real ambiguity or failing pre-existing state.
 
 Replace every `{{PLACEHOLDER}}` before starting.
 
 Non-negotiable repo contract:
 
 1. Use `$effect-first-development`.
-2. This repo uses Effect v4. Treat `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4` as the only source of truth for Effect APIs and syntax.
+2. This repo uses Effect v4. Treat `.repos/effect-v4` as the only source of truth for Effect APIs and syntax.
 3. Before changing any Effect code, verify the exact APIs you plan to use against local Effect v4 source, docs, or tests in `.repos/effect-v4`.
 4. Reuse existing repo patterns before inventing new ones.
 5. Use `bun` for all repo commands. For package-local work, prefer `bun run --filter=@beep/{{PACKAGE_NAME}} <script>`.
-6. Add or update JSDoc for every touched export in a module, following `/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md`.
+6. Add or update JSDoc for every touched export in a module, following `.patterns/jsdoc-documentation.md`.
 7. Run narrow, relevant quality commands as soon as each file or module is coherent.
 8. Do not finish with failing `check`, `lint`, `test`, or `docgen` unless you clearly prove the failure is pre-existing.
 9. Do not use unverified Effect APIs, skip regression coverage for changed behavior, or widen the edit scope before the current area is stable.

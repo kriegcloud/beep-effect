@@ -12,11 +12,12 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { thunkFalse, thunkNegative1, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
-import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation, String as Str } from "effect";
+import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";

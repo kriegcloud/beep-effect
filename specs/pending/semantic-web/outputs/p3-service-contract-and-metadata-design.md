@@ -61,7 +61,7 @@ The metadata pattern must record:
 
 ## Outcome
 
-This P3 baseline is ready for execution. The package now has a clear contract layer, a bounded provenance posture, and an explicit metadata policy that later implementation can follow without implying that a separate P3 execution session already ran.
+This P3 baseline is ready for execution. The package now has a clear contract layer, a bounded provenance posture, and an explicit metadata policy that later implementation can follow without implying that a separate P3 execution pass already happened.
 
 ## Remaining Open Questions
 

@@ -1,22 +1,12 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import {
-  Array as A,
-  Effect,
-  FileSystem,
-  Inspectable,
-  Layer,
-  MutableHashMap,
-  Order,
-  Path,
-  pipe,
-  ServiceMap,
-  String as Str,
-} from "effect";
+import { Effect, FileSystem, Inspectable, Layer, MutableHashMap, Order, Path, pipe, ServiceMap } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Node, Project, type SourceFile } from "ts-morph";
 import { findRepoRoot } from "../Root.js";
 import type {

@@ -7,15 +7,15 @@ This template is research-oriented by default. Replace every placeholder before 
 
 ## Copy/Paste Prompt
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
-This is an Effect v4 exploration session. Default to research and explanation unless the task explicitly asks for code changes.
+This task is for Effect v4 exploration. Default to research and explanation unless the task explicitly asks for code changes.
 
 Replace every `{{PLACEHOLDER}}` before starting.
 
 Non-negotiable rules:
 
-1. Treat `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4` as the only trustworthy source of truth for Effect v4 APIs.
+1. Treat `.repos/effect-v4` as the only trustworthy source of truth for Effect v4 APIs.
 2. Do not rely on training data, `node_modules`, or web docs for Effect v4 answers.
 3. If local docs and local source disagree, source and tests win.
 4. Query Graphiti memory first if available, using the `beep-dev` group.

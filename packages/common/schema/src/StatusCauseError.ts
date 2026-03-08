@@ -1,11 +1,4 @@
-/**
- * Shared helpers for typed `{ message, status, cause }` error surfaces.
- *
- * @since 0.0.0
- * @module @beep/schema/StatusCauseError
- */
-
-import { Option as O } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 /**

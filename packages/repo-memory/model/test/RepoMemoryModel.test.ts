@@ -1,4 +1,13 @@
-import { RepoId, RepoRun, RunCursor, RunId, StreamRunEventsRequest } from "@beep/repo-memory-model";
+import {
+  InterruptRepoRunRequest,
+  RepoId,
+  RepoRun,
+  ResumeRepoRunRequest,
+  RunCommandAck,
+  RunCursor,
+  RunId,
+  StreamRunEventsRequest,
+} from "@beep/repo-memory-model";
 import { describe, expect, it } from "@effect/vitest";
 import { PrimaryKey } from "effect";
 import * as O from "effect/Option";
@@ -51,5 +60,23 @@ describe("repo-memory model", () => {
 
     expect(indexRun.kind).toBe("index");
     expect(queryRun.kind).toBe("query");
+  });
+
+  it("decodes interrupt and resume command payloads plus their shared ack", () => {
+    const interruptRequest = S.decodeUnknownSync(InterruptRepoRunRequest)({
+      runId: decodeRunId("run:interrupt:model"),
+    });
+    const resumeRequest = S.decodeUnknownSync(ResumeRepoRunRequest)({
+      runId: decodeRunId("run:resume:model"),
+    });
+    const ack = S.decodeUnknownSync(RunCommandAck)({
+      runId: decodeRunId("run:command:ack"),
+      command: "interrupt",
+      requestedAt: Date.parse("2026-03-08T18:30:00.000Z"),
+    });
+
+    expect(interruptRequest.runId).toBe("run:interrupt:model");
+    expect(resumeRequest.runId).toBe("run:resume:model");
+    expect(ack.command).toBe("interrupt");
   });
 });

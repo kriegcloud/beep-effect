@@ -4,6 +4,7 @@
   "include": ["."],
   "compilerOptions": {
     "types": ["node", "bun"],
+    "rootDir": ".",
     "noEmit": true
   }
 }

@@ -1,13 +1,13 @@
 # RFC 3987 IRI Implementation Prompt
 
-Use the block below as a fresh-session prompt for another Codex instance.
+Use the block below as a task prompt for another agent run.
 
 ```text
-Work in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Work from the repository root of the current workspace.
 
 Your task is to implement a spec-first, Effect v4, effect/Schema-based RFC 3987 IRI module centered on:
 
-- `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/semantic-web/src/iri.ts`
+- `packages/common/semantic-web/src/iri.ts`
 
 This file is the canonical public IRI implementation. Treat the work as semantic-web package implementation, not a schema-internal experiment.
 
@@ -22,17 +22,17 @@ You must follow the repo’s local instructions and patterns. In particular:
 Before coding, do this exploration first and use it as evidence:
 
 1. Read these local references in this order:
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/specs/pending/expert-memory-big-picture/research/IRI_rfc3987.txt`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/SCHEMA.md`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/.repos/effect-v4/packages/effect/src/Schema.ts`
+   - `specs/pending/expert-memory-big-picture/research/IRI_rfc3987.txt`
+   - `.repos/effect-v4/packages/effect/SCHEMA.md`
+   - `.repos/effect-v4/packages/effect/src/Schema.ts`
 2. Inspect repo-local schema examples and mirror their style where appropriate:
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/src/internal/ProvO/ProvO.ts`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/src/internal/email.ts`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/src/internal/ip.ts`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/test/Prov0.test.ts`
-   - `/home/elpresidank/YeeBois/projects/beep-effect3/packages/common/schema/test/FilePath.test.ts`
+   - `packages/common/schema/src/internal/ProvO/ProvO.ts`
+   - `packages/common/schema/src/internal/email.ts`
+   - `packages/common/schema/src/internal/ip.ts`
+   - `packages/common/schema/test/Prov0.test.ts`
+   - `packages/common/schema/test/FilePath.test.ts`
 3. Verify every Effect v4 API you intend to use against local source or tests in `.repos/effect-v4`. If an API is not confirmed there, do not assume it exists.
-4. Query Graphiti memory at session start if available, using the repo’s required `group_ids` form for `beep-dev`.
+4. Query Graphiti memory at the start of the run if available, using the repo’s required `group_ids` form for `beep-dev`.
 
 Primary objective:
 

@@ -9,10 +9,11 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, Order, Path, ServiceMap, String as Str, Struct } from "effect";
+import { Effect, FileSystem, flow, identity, Order, Path, ServiceMap, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
 /**

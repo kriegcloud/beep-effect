@@ -7,11 +7,12 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
+import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { VersionCategoryReport, VersionSyncError, VersionSyncResolution } from "../Models.js";
 import { updateBiomeSchema } from "../resolvers/BiomeResolver.js";
 import { updateCatalogEntry, updatePackageManagerField } from "../updaters/PackageJsonUpdater.js";

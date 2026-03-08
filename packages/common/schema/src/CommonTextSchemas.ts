@@ -1,7 +1,9 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { Boolean as Bool, HashSet, pipe, SchemaTransformation, String as Str } from "effect";
+import { HashSet, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $SchemaId.create("CommonTextSchemas");
 

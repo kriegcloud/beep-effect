@@ -13,7 +13,6 @@
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect": ["../../../packages/effect/src/index.ts"],
       "@beep/nlp": ["../../../packages/common/nlp/src/index.ts"]
     }
   }

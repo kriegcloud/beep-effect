@@ -1,6 +1,7 @@
 import { Struct, thunkUndefined } from "@beep/utils";
-import { Effect, Equal as Eq, Function as FN, SchemaGetter as G, HashSet, pipe, SchemaIssue } from "effect";
+import { Effect, Function as FN, SchemaGetter as G, HashSet, pipe, SchemaIssue } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

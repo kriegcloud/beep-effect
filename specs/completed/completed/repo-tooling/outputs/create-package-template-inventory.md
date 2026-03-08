@@ -322,7 +322,6 @@ import { VERSION } from "{{scopedName}}"
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect": ["../../packages/effect/src/index.ts"],
       "{{scopedName}}": ["../../{{parentDir}}/{{name}}/src/index.ts"]
     }
   }

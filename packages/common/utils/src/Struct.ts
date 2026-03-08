@@ -1,8 +1,9 @@
-import { Struct as EffectStruct, Function as Fn, pipe, String as Str } from "effect";
+import { Struct as EffectStruct, Function as Fn, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
 

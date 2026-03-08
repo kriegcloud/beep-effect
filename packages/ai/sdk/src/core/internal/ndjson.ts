@@ -1,5 +1,6 @@
-import { Effect, String as Str, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 /**
  * @since 0.0.0
@@ -16,7 +17,19 @@ export type NdjsonDecodeErrorDetails = Readonly<{
 }>;
 
 /**
+ * Decode newline-delimited JSON text into typed values.
+ *
  * @since 0.0.0
+ * @category Transformation
+ * @param schema - Schema used to decode each parsed JSON line.
+ * @param onError - Maps parse or decode failures into the stream error channel.
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { decodeNdjson } from "../../src/core/internal/ndjson.ts"
+ *
+ * const decodeStrings = decodeNdjson(S.String, (details) => details)
+ * ```
  */
 export const decodeNdjson = <S extends S.Top, E>(schema: S, onError: (details: NdjsonDecodeErrorDetails) => E) => {
   const parse = S.decodeUnknownEffect(S.UnknownFromJsonString);
