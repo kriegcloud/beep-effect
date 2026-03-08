@@ -11,6 +11,7 @@ const $I = $AiSdkId.create("core/Errors");
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class ConfigError extends TaggedErrorClass<ConfigError>($I`ConfigError`)(
   "ConfigError",
@@ -30,6 +31,7 @@ export class ConfigError extends TaggedErrorClass<ConfigError>($I`ConfigError`)(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class DecodeError extends TaggedErrorClass<DecodeError>($I`DecodeError`)(
   "DecodeError",
@@ -50,6 +52,7 @@ export class DecodeError extends TaggedErrorClass<DecodeError>($I`DecodeError`)(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class TransportError extends TaggedErrorClass<TransportError>($I`TransportError`)(
   "TransportError",
@@ -73,6 +76,7 @@ export class TransportError extends TaggedErrorClass<TransportError>($I`Transpor
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class HookError extends TaggedErrorClass<HookError>($I`HookError`)(
   "HookError",
@@ -90,6 +94,7 @@ export class HookError extends TaggedErrorClass<HookError>($I`HookError`)(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class McpError extends TaggedErrorClass<McpError>($I`McpError`)(
   "McpError",
@@ -109,6 +114,7 @@ export class McpError extends TaggedErrorClass<McpError>($I`McpError`)(
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const AgentSdkError = S.Union([
   ConfigError,
@@ -126,10 +132,12 @@ export const AgentSdkError = S.Union([
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AgentSdkError = typeof AgentSdkError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AgentSdkErrorEncoded = typeof AgentSdkError.Encoded;
 

@@ -15,7 +15,7 @@ const $I = $RuntimeServerId.create("internal/SidecarObservability");
  * Observability configuration for the repo-memory sidecar runtime.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class SidecarObservabilityConfig extends S.Class<SidecarObservabilityConfig>($I`SidecarObservabilityConfig`)(
   {
@@ -186,7 +186,7 @@ const recordHttpRequestMetrics = Effect.fn("SidecarObservability.recordHttpReque
  * Observe one HTTP request with success and failure metrics.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
   options: {
@@ -228,7 +228,7 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
  * Observe one HTTP request with success and failure metrics.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const provideSidecarObservability = <A, E, R>(
   config: SidecarObservabilityConfig,

@@ -6,6 +6,6 @@
 
 /**
  * @since 0.0.0
- * @category
+ * @category DomainModel
  */
 export * as Errors from "./errors/index.js";

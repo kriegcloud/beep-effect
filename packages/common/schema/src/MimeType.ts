@@ -35,6 +35,7 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
  * Extracts all file extensions from a mime-type dictionary.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const extractMimeExtensions = <const T extends MimeTypeProperty>(
   mime: T
@@ -52,6 +53,7 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
  * Extracts all mime-type keys from a mime-type dictionary.
  *
  * @since 0.0.0
+ * @category Utility
  */
 export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
   Fn.cast<Array<keyof T>, A.NonEmptyReadonlyArray<keyof T>>(pipe(mime, Struct.keys, A.dedupe));
@@ -60,6 +62,7 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
  * Schema kit that covers all supported mime types.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const MimeType: MimeTypeSchema = pipe(
   {
@@ -93,6 +96,7 @@ export const MimeType: MimeTypeSchema = pipe(
  * Union of supported mime-type literals.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type MimeType = MimeTypesData.MimeType;
 
@@ -100,6 +104,7 @@ export type MimeType = MimeTypesData.MimeType;
  * Application mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const ApplicationMimeType = MimeType.kinds.Application;
 
@@ -107,6 +112,7 @@ export const ApplicationMimeType = MimeType.kinds.Application;
  * Application mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
 
@@ -114,6 +120,7 @@ export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
  * Video mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const VideoMimeType = MimeType.kinds.Video;
 
@@ -121,6 +128,7 @@ export const VideoMimeType = MimeType.kinds.Video;
  * Video mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type VideoMimeType = typeof MimeType.kinds.Video.Type;
 
@@ -128,6 +136,7 @@ export type VideoMimeType = typeof MimeType.kinds.Video.Type;
  * Text mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const TextMimeType = MimeType.kinds.Text;
 
@@ -135,6 +144,7 @@ export const TextMimeType = MimeType.kinds.Text;
  * Text mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type TextMimeType = typeof MimeType.kinds.Text.Type;
 
@@ -142,6 +152,7 @@ export type TextMimeType = typeof MimeType.kinds.Text.Type;
  * Image mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const ImageMimeType = MimeType.kinds.Image;
 
@@ -149,6 +160,7 @@ export const ImageMimeType = MimeType.kinds.Image;
  * Image mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type ImageMimeType = typeof MimeType.kinds.Image.Type;
 
@@ -156,6 +168,7 @@ export type ImageMimeType = typeof MimeType.kinds.Image.Type;
  * Audio mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const AudioMimeType = MimeType.kinds.Audio;
 
@@ -163,6 +176,7 @@ export const AudioMimeType = MimeType.kinds.Audio;
  * Audio mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
 
@@ -170,6 +184,7 @@ export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
  * Miscellaneous mime-type schema.
  *
  * @since 0.0.0
+ * @category Validation
  */
 export const MiscMimeType = MimeType.kinds.Misc;
 
@@ -177,5 +192,6 @@ export const MiscMimeType = MimeType.kinds.Misc;
  * Miscellaneous mime-type literal union.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type MiscMimeType = typeof MimeType.kinds.Misc.Type;

@@ -79,6 +79,7 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const extractTextChunks = (message: SDKMessage): ReadonlyArray<string> => {
   if (message.type === "assistant") {
@@ -95,12 +96,14 @@ export const extractTextChunks = (message: SDKMessage): ReadonlyArray<string> =>
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const extractResultText = (message: SDKMessage): string | undefined =>
   message.type === "result" && message.subtype === "success" ? message.result : undefined;
 
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
   stream.pipe(
@@ -129,6 +132,7 @@ export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
 
 /**
  * @since 0.0.0
+ * @category UseCase
  */
 export const run = (prompt: string, options?: Options, entry?: RuntimeEntryOptions): Promise<SDKResultSuccess> =>
   Effect.runPromise(
@@ -142,6 +146,7 @@ export const run = (prompt: string, options?: Options, entry?: RuntimeEntryOptio
 
 /**
  * @since 0.0.0
+ * @category UseCase
  */
 export const streamText = (prompt: string, options?: Options, entry?: RuntimeEntryOptions): AsyncIterable<string> =>
   (async function* () {

@@ -20,6 +20,7 @@ class BaseHookInput extends S.Class<BaseHookInput>($I`BaseHookInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const HookEvent = LiteralKit([
   "PreToolUse",
@@ -45,15 +46,18 @@ export const HookEvent = LiteralKit([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookEvent = typeof HookEvent.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookEventEncoded = typeof HookEvent.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class NotificationHookInput extends S.Class<NotificationHookInput>($I`NotificationHookInput`)(
   {
@@ -69,11 +73,13 @@ export class NotificationHookInput extends S.Class<NotificationHookInput>($I`Not
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NotificationHookInputEncoded = typeof NotificationHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class UserPromptSubmitHookInput extends S.Class<UserPromptSubmitHookInput>($I`UserPromptSubmitHookInput`)(
   {
@@ -87,11 +93,13 @@ export class UserPromptSubmitHookInput extends S.Class<UserPromptSubmitHookInput
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type UserPromptSubmitHookInputEncoded = typeof UserPromptSubmitHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionStartHookInput extends S.Class<SessionStartHookInput>($I`SessionStartHookInput`)(
   {
@@ -107,11 +115,13 @@ export class SessionStartHookInput extends S.Class<SessionStartHookInput>($I`Ses
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionStartHookInputEncoded = typeof SessionStartHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionEndHookInput extends S.Class<SessionEndHookInput>($I`SessionEndHookInput`)(
   {
@@ -125,11 +135,13 @@ export class SessionEndHookInput extends S.Class<SessionEndHookInput>($I`Session
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionEndHookInputEncoded = typeof SessionEndHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class StopHookInput extends S.Class<StopHookInput>($I`StopHookInput`)(
   {
@@ -143,11 +155,13 @@ export class StopHookInput extends S.Class<StopHookInput>($I`StopHookInput`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type StopHookInputEncoded = typeof StopHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SubagentStartHookInput extends S.Class<SubagentStartHookInput>($I`SubagentStartHookInput`)(
   {
@@ -162,11 +176,13 @@ export class SubagentStartHookInput extends S.Class<SubagentStartHookInput>($I`S
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SubagentStartHookInputEncoded = typeof SubagentStartHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SubagentStopHookInput extends S.Class<SubagentStopHookInput>($I`SubagentStopHookInput`)(
   {
@@ -183,11 +199,13 @@ export class SubagentStopHookInput extends S.Class<SubagentStopHookInput>($I`Sub
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SubagentStopHookInputEncoded = typeof SubagentStopHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PreCompactHookInput extends S.Class<PreCompactHookInput>($I`PreCompactHookInput`)(
   {
@@ -202,11 +220,13 @@ export class PreCompactHookInput extends S.Class<PreCompactHookInput>($I`PreComp
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PreCompactHookInputEncoded = typeof PreCompactHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PreToolUseHookInput extends S.Class<PreToolUseHookInput>($I`PreToolUseHookInput`)(
   {
@@ -222,11 +242,13 @@ export class PreToolUseHookInput extends S.Class<PreToolUseHookInput>($I`PreTool
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PreToolUseHookInputEncoded = typeof PreToolUseHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PostToolUseHookInput extends S.Class<PostToolUseHookInput>($I`PostToolUseHookInput`)(
   {
@@ -243,11 +265,13 @@ export class PostToolUseHookInput extends S.Class<PostToolUseHookInput>($I`PostT
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PostToolUseHookInputEncoded = typeof PostToolUseHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PostToolUseFailureHookInput extends S.Class<PostToolUseFailureHookInput>($I`PostToolUseFailureHookInput`)(
   {
@@ -265,11 +289,13 @@ export class PostToolUseFailureHookInput extends S.Class<PostToolUseFailureHookI
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PostToolUseFailureHookInputEncoded = typeof PostToolUseFailureHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PermissionRequestHookInput extends S.Class<PermissionRequestHookInput>($I`PermissionRequestHookInput`)(
   {
@@ -285,11 +311,13 @@ export class PermissionRequestHookInput extends S.Class<PermissionRequestHookInp
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionRequestHookInputEncoded = typeof PermissionRequestHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SetupHookInput extends S.Class<SetupHookInput>($I`SetupHookInput`)(
   {
@@ -303,11 +331,13 @@ export class SetupHookInput extends S.Class<SetupHookInput>($I`SetupHookInput`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SetupHookInputEncoded = typeof SetupHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class TeammateIdleHookInput extends S.Class<TeammateIdleHookInput>($I`TeammateIdleHookInput`)(
   {
@@ -322,11 +352,13 @@ export class TeammateIdleHookInput extends S.Class<TeammateIdleHookInput>($I`Tea
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TeammateIdleHookInputEncoded = typeof TeammateIdleHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class TaskCompletedHookInput extends S.Class<TaskCompletedHookInput>($I`TaskCompletedHookInput`)(
   {
@@ -344,11 +376,13 @@ export class TaskCompletedHookInput extends S.Class<TaskCompletedHookInput>($I`T
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TaskCompletedHookInputEncoded = typeof TaskCompletedHookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const HookInput = S.Union([
   PreToolUseHookInput,
@@ -377,15 +411,18 @@ export const HookInput = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookInput = typeof HookInput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookInputEncoded = typeof HookInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PreToolUseHookSpecificOutput extends S.Class<PreToolUseHookSpecificOutput>(
   $I`PreToolUseHookSpecificOutput`
@@ -403,11 +440,13 @@ export class PreToolUseHookSpecificOutput extends S.Class<PreToolUseHookSpecific
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PreToolUseHookSpecificOutputEncoded = typeof PreToolUseHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class UserPromptSubmitHookSpecificOutput extends S.Class<UserPromptSubmitHookSpecificOutput>(
   $I`UserPromptSubmitHookSpecificOutput`
@@ -422,11 +461,13 @@ export class UserPromptSubmitHookSpecificOutput extends S.Class<UserPromptSubmit
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type UserPromptSubmitHookSpecificOutputEncoded = typeof UserPromptSubmitHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpecificOutput>(
   $I`SessionStartHookSpecificOutput`
@@ -441,11 +482,13 @@ export class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpec
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionStartHookSpecificOutputEncoded = typeof SessionStartHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SetupHookSpecificOutput extends S.Class<SetupHookSpecificOutput>($I`SetupHookSpecificOutput`)(
   {
@@ -458,11 +501,13 @@ export class SetupHookSpecificOutput extends S.Class<SetupHookSpecificOutput>($I
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SetupHookSpecificOutputEncoded = typeof SetupHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SubagentStartHookSpecificOutput extends S.Class<SubagentStartHookSpecificOutput>(
   $I`SubagentStartHookSpecificOutput`
@@ -477,11 +522,13 @@ export class SubagentStartHookSpecificOutput extends S.Class<SubagentStartHookSp
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SubagentStartHookSpecificOutputEncoded = typeof SubagentStartHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PostToolUseHookSpecificOutput extends S.Class<PostToolUseHookSpecificOutput>(
   $I`PostToolUseHookSpecificOutput`
@@ -497,11 +544,13 @@ export class PostToolUseHookSpecificOutput extends S.Class<PostToolUseHookSpecif
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PostToolUseHookSpecificOutputEncoded = typeof PostToolUseHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PostToolUseFailureHookSpecificOutput extends S.Class<PostToolUseFailureHookSpecificOutput>(
   $I`PostToolUseFailureHookSpecificOutput`
@@ -516,11 +565,13 @@ export class PostToolUseFailureHookSpecificOutput extends S.Class<PostToolUseFai
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PostToolUseFailureHookSpecificOutputEncoded = typeof PostToolUseFailureHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class NotificationHookSpecificOutput extends S.Class<NotificationHookSpecificOutput>(
   $I`NotificationHookSpecificOutput`
@@ -535,11 +586,13 @@ export class NotificationHookSpecificOutput extends S.Class<NotificationHookSpec
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type NotificationHookSpecificOutputEncoded = typeof NotificationHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const HookSpecificOutput = S.Union([
   PreToolUseHookSpecificOutput,
@@ -562,15 +615,18 @@ export const HookSpecificOutput = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookSpecificOutput = typeof HookSpecificOutput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookSpecificOutputEncoded = typeof HookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SyncHookJSONOutput extends S.Class<SyncHookJSONOutput>($I`SyncHookJSONOutput`)(
   {
@@ -588,11 +644,13 @@ export class SyncHookJSONOutput extends S.Class<SyncHookJSONOutput>($I`SyncHookJ
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SyncHookJSONOutputEncoded = typeof SyncHookJSONOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class AsyncHookJSONOutput extends S.Class<AsyncHookJSONOutput>($I`AsyncHookJSONOutput`)(
   {
@@ -605,11 +663,13 @@ export class AsyncHookJSONOutput extends S.Class<AsyncHookJSONOutput>($I`AsyncHo
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AsyncHookJSONOutputEncoded = typeof AsyncHookJSONOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const HookJSONOutput = S.Union([AsyncHookJSONOutput, SyncHookJSONOutput]).annotate(
   $I.annote("HookJSONOutput", {
@@ -619,15 +679,18 @@ export const HookJSONOutput = S.Union([AsyncHookJSONOutput, SyncHookJSONOutput])
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookJSONOutput = typeof HookJSONOutput.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookJSONOutputEncoded = typeof HookJSONOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const HookCallback = S.declare(
   (
@@ -648,15 +711,18 @@ export const HookCallback = S.declare(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookCallback = typeof HookCallback.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookCallbackEncoded = typeof HookCallback.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class HookCallbackMatcher extends S.Class<HookCallbackMatcher>($I`HookCallbackMatcher`)(
   {
@@ -670,5 +736,6 @@ export class HookCallbackMatcher extends S.Class<HookCallbackMatcher>($I`HookCal
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type HookCallbackMatcherEncoded = typeof HookCallbackMatcher.Encoded;

@@ -7,6 +7,7 @@ import {
   RepoRegistration,
   type RepoRegistrationInput,
   RepoRun,
+  RepoSemanticArtifacts,
   RepoSourceFile,
   RepoSourceSnapshot,
   RepoSymbolDocumentation,
@@ -37,12 +38,14 @@ const encodePacketJson = S.encodeUnknownEffect(S.fromJsonString(RetrievalPacket)
 const decodePacketJson = S.decodeUnknownEffect(S.fromJsonString(RetrievalPacket));
 const encodeRunJson = S.encodeUnknownEffect(S.fromJsonString(RepoRun));
 const decodeRunJson = S.decodeUnknownEffect(S.fromJsonString(RepoRun));
+const encodeSemanticArtifactsJson = S.encodeUnknownEffect(S.fromJsonString(RepoSemanticArtifacts));
+const decodeSemanticArtifactsJson = S.decodeUnknownEffect(S.fromJsonString(RepoSemanticArtifacts));
 
 /**
  * Configuration for the local repo-memory persistence driver.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category Configuration
  */
 export class RepoMemorySqlConfig extends S.Class<RepoMemorySqlConfig>($I`RepoMemorySqlConfig`)(
   {
@@ -167,10 +170,23 @@ class RunRow extends S.Class<RunRow>($I`RunRow`)(
   })
 ) {}
 
+class SemanticArtifactsRow extends S.Class<SemanticArtifactsRow>($I`SemanticArtifactsRow`)(
+  {
+    repo_id: RepoId,
+    source_snapshot_id: SourceSnapshotId,
+    artifacts_json: S.String,
+    updated_at: S.DateTimeUtcFromMillis,
+  },
+  $I.annote("SemanticArtifactsRow", {
+    description: "SQLite row shape for persisted semantic artifacts.",
+  })
+) {}
+
 const decodeRepoRow = S.decodeUnknownEffect(RepoRow);
 const decodeIndexArtifactRow = S.decodeUnknownEffect(IndexArtifactRow);
 const decodePacketRow = S.decodeUnknownEffect(PacketRow);
 const decodeRunRow = S.decodeUnknownEffect(RunRow);
+const decodeSemanticArtifactsRow = S.decodeUnknownEffect(SemanticArtifactsRow);
 const decodeSourceSnapshotRow = S.decodeUnknownEffect(SourceSnapshotRow);
 const decodeSourceFileRow = S.decodeUnknownEffect(SourceFileRow);
 const decodeSymbolRow = S.decodeUnknownEffect(SymbolRow);
@@ -201,7 +217,12 @@ export interface RepoMemorySqlShape {
   readonly getRepo: (repoId: RepoId) => Effect.Effect<RepoRegistration, RepoStoreError>;
   readonly getRetrievalPacket: (runId: RunId) => Effect.Effect<O.Option<RetrievalPacket>, RepoStoreError>;
   readonly getRun: (runId: RunId) => Effect.Effect<O.Option<RepoRun>, RepoStoreError>;
+  readonly getSemanticArtifacts: (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ) => Effect.Effect<O.Option<RepoSemanticArtifacts>, RepoStoreError>;
   readonly latestIndexArtifact: (repoId: RepoId) => Effect.Effect<O.Option<RepoIndexArtifact>, RepoStoreError>;
+  readonly latestSemanticArtifacts: (repoId: RepoId) => Effect.Effect<O.Option<RepoSemanticArtifacts>, RepoStoreError>;
   readonly latestSourceSnapshot: (repoId: RepoId) => Effect.Effect<O.Option<RepoSourceSnapshot>, RepoStoreError>;
   readonly listExportedSymbolsForFile: (
     repoId: RepoId,
@@ -238,6 +259,9 @@ export interface RepoMemorySqlShape {
     packet: RetrievalPacket
   ) => Effect.Effect<RetrievalPacket, RepoStoreError>;
   readonly saveRun: (run: RepoRun) => Effect.Effect<RepoRun, RepoStoreError>;
+  readonly saveSemanticArtifacts: (
+    artifacts: RepoSemanticArtifacts
+  ) => Effect.Effect<RepoSemanticArtifacts, RepoStoreError>;
   readonly searchSymbols: (
     repoId: RepoId,
     sourceSnapshotId: SourceSnapshotId,
@@ -278,6 +302,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
   const retrievalPacketsTable = sql("repo_memory_retrieval_packets");
   const citationsTable = sql("repo_memory_citations");
   const runsTable = sql("repo_memory_runs");
+  const semanticArtifactsTable = sql("repo_memory_semantic_artifacts");
 
   const toDriverError = makeStatusCauseError(RepoStoreError);
 
@@ -442,6 +467,16 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         updated_at INTEGER NOT NULL
       )
     `.pipe(Effect.mapError((cause) => toDriverError("Failed to create run projection table.", 500, cause)));
+
+    yield* sql`
+      CREATE TABLE IF NOT EXISTS ${semanticArtifactsTable} (
+        repo_id TEXT NOT NULL,
+        source_snapshot_id TEXT NOT NULL,
+        artifacts_json TEXT NOT NULL,
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (repo_id, source_snapshot_id)
+      )
+    `.pipe(Effect.mapError((cause) => toDriverError("Failed to create semantic artifact table.", 500, cause)));
 
     yield* sql`
       CREATE TABLE IF NOT EXISTS ${citationsTable} (
@@ -887,6 +922,41 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
             Effect.map(O.some),
             Effect.mapError((cause) =>
               toDriverError(`Failed to decode latest source snapshot for repo "${repoId}".`, 500, cause)
+            )
+          ),
+      })
+    );
+  });
+
+  const latestSemanticArtifacts: RepoMemorySqlShape["latestSemanticArtifacts"] = Effect.fn(
+    "RepoMemorySql.latestSemanticArtifacts"
+  )(function* (repoId): Effect.fn.Return<O.Option<RepoSemanticArtifacts>, RepoStoreError> {
+    yield* annotateDriverSpan({ repo_id: repoId });
+
+    const rows = yield* sql<SemanticArtifactsRow>`
+      SELECT repo_id, source_snapshot_id, artifacts_json, updated_at
+      FROM ${semanticArtifactsTable}
+      WHERE repo_id = ${repoId}
+      ORDER BY updated_at DESC, rowid DESC
+      LIMIT 1
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to load latest semantic artifacts for repo "${repoId}".`, 500, cause)
+      )
+    );
+
+    return yield* pipe(
+      rows,
+      A.head,
+      O.match({
+        onNone: thunkEffectSucceedNone<RepoSemanticArtifacts>,
+        onSome: (row) =>
+          decodeSemanticArtifactsRow(row).pipe(
+            Effect.flatMap((decodedRow) =>
+              decodeSemanticArtifactsJson(decodedRow.artifacts_json).pipe(Effect.map(O.some))
+            ),
+            Effect.mapError((cause) =>
+              toDriverError(`Failed to decode latest semantic artifacts for repo "${repoId}".`, 500, cause)
             )
           ),
       })
@@ -1378,6 +1448,52 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     return input.artifact;
   });
 
+  const saveSemanticArtifacts: RepoMemorySqlShape["saveSemanticArtifacts"] = Effect.fn(
+    "RepoMemorySql.saveSemanticArtifacts"
+  )(function* (artifacts): Effect.fn.Return<RepoSemanticArtifacts, RepoStoreError> {
+    yield* annotateDriverSpan({
+      repo_id: artifacts.repoId,
+      source_snapshot_id: artifacts.sourceSnapshotId,
+      semantic_dataset_quads: artifacts.dataset.quads.length,
+      semantic_evidence_anchor_count: artifacts.evidenceAnchors.length,
+      semantic_provenance_record_count: artifacts.provenance.records.length,
+    });
+
+    const artifactsJson = yield* encodeSemanticArtifactsJson(artifacts).pipe(
+      Effect.mapError((cause) =>
+        toDriverError(
+          `Failed to encode semantic artifacts for repo "${artifacts.repoId}" and snapshot "${artifacts.sourceSnapshotId}".`,
+          500,
+          cause
+        )
+      )
+    );
+    const updatedAt = yield* DateTime.now;
+
+    yield* sql`
+      INSERT INTO ${semanticArtifactsTable} (repo_id, source_snapshot_id, artifacts_json, updated_at)
+      VALUES (
+        ${artifacts.repoId},
+        ${artifacts.sourceSnapshotId},
+        ${artifactsJson},
+        ${DateTime.toEpochMillis(updatedAt)}
+      )
+      ON CONFLICT(repo_id, source_snapshot_id) DO UPDATE SET
+        artifacts_json = excluded.artifacts_json,
+        updated_at = excluded.updated_at
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(
+          `Failed to persist semantic artifacts for repo "${artifacts.repoId}" and snapshot "${artifacts.sourceSnapshotId}".`,
+          500,
+          cause
+        )
+      )
+    );
+
+    return artifacts;
+  });
+
   const saveRetrievalPacket: RepoMemorySqlShape["saveRetrievalPacket"] = Effect.fn("RepoMemorySql.saveRetrievalPacket")(
     function* (runId, packet): Effect.fn.Return<RetrievalPacket, RepoStoreError> {
       yield* annotateDriverSpan({ repo_id: packet.repoId, run_id: runId });
@@ -1458,6 +1574,49 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     }
   );
 
+  const getSemanticArtifacts: RepoMemorySqlShape["getSemanticArtifacts"] = Effect.fn(
+    "RepoMemorySql.getSemanticArtifacts"
+  )(function* (repoId, sourceSnapshotId): Effect.fn.Return<O.Option<RepoSemanticArtifacts>, RepoStoreError> {
+    yield* annotateDriverSpan({ repo_id: repoId, source_snapshot_id: sourceSnapshotId });
+
+    const rows = yield* sql<SemanticArtifactsRow>`
+      SELECT repo_id, source_snapshot_id, artifacts_json, updated_at
+      FROM ${semanticArtifactsTable}
+      WHERE repo_id = ${repoId}
+        AND source_snapshot_id = ${sourceSnapshotId}
+      LIMIT 1
+    `.pipe(
+      Effect.mapError((cause) =>
+        toDriverError(
+          `Failed to load semantic artifacts for repo "${repoId}" and snapshot "${sourceSnapshotId}".`,
+          500,
+          cause
+        )
+      )
+    );
+
+    return yield* pipe(
+      rows,
+      A.head,
+      O.match({
+        onNone: thunkEffectSucceedNone<RepoSemanticArtifacts>,
+        onSome: (row) =>
+          decodeSemanticArtifactsRow(row).pipe(
+            Effect.flatMap((decodedRow) =>
+              decodeSemanticArtifactsJson(decodedRow.artifacts_json).pipe(Effect.map(O.some))
+            ),
+            Effect.mapError((cause) =>
+              toDriverError(
+                `Failed to decode semantic artifacts for repo "${repoId}" and snapshot "${sourceSnapshotId}".`,
+                500,
+                cause
+              )
+            )
+          ),
+      })
+    );
+  });
+
   return {
     countSourceFiles: (repoId, sourceSnapshotId) =>
       observeDriverOperation("countSourceFiles", countSourceFiles(repoId, sourceSnapshotId)),
@@ -1468,7 +1627,11 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     getRepo: (repoId) => observeDriverOperation("getRepo", getRepo(repoId)),
     getRun: (runId) => observeDriverOperation("getRun", getRun(runId)),
     getRetrievalPacket: (runId) => observeDriverOperation("getRetrievalPacket", getRetrievalPacket(runId)),
+    getSemanticArtifacts: (repoId, sourceSnapshotId) =>
+      observeDriverOperation("getSemanticArtifacts", getSemanticArtifacts(repoId, sourceSnapshotId)),
     latestSourceSnapshot: (repoId) => observeDriverOperation("latestSourceSnapshot", latestSourceSnapshot(repoId)),
+    latestSemanticArtifacts: (repoId) =>
+      observeDriverOperation("latestSemanticArtifacts", latestSemanticArtifacts(repoId)),
     listExportedSymbolsForFile: (repoId, sourceSnapshotId, filePath) =>
       observeDriverOperation(
         "listExportedSymbolsForFile",
@@ -1496,6 +1659,8 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     registerRepo: (input) => observeDriverOperation("registerRepo", registerRepo(input)),
     saveIndexArtifact: (artifact) => observeDriverOperation("saveIndexArtifact", saveIndexArtifact(artifact)),
     saveRun: (run) => observeDriverOperation("saveRun", saveRun(run)),
+    saveSemanticArtifacts: (artifacts) =>
+      observeDriverOperation("saveSemanticArtifacts", saveSemanticArtifacts(artifacts)),
     saveRetrievalPacket: (runId, packet) =>
       observeDriverOperation("saveRetrievalPacket", saveRetrievalPacket(runId, packet)),
     searchSymbols: (repoId, sourceSnapshotId, query, limit) =>

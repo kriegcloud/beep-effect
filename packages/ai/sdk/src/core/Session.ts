@@ -28,6 +28,7 @@ import type { SDKSessionOptions } from "./Schema/Session.js";
  */
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SessionClosedError extends TaggedErrorClass<SessionClosedError>()("SessionClosedError", {
   message: Schema.String,
@@ -37,15 +38,18 @@ export class SessionClosedError extends TaggedErrorClass<SessionClosedError>()("
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const SessionError = Schema.Union([SessionClosedError, TransportError]);
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionError = typeof SessionError.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionErrorEncoded = typeof SessionError.Encoded;
 
@@ -54,6 +58,7 @@ export type SessionErrorEncoded = typeof SessionError.Encoded;
  */
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface SessionHandle {
   /**
@@ -95,6 +100,7 @@ type SessionState = {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type SessionRuntimeOptions = Readonly<{
   readonly closeDrainTimeout?: Duration.Input;
@@ -150,6 +156,7 @@ const normalizeUserMessage = (message: SDKUserMessage): ClaudeSdkUserMessage =>
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
   sdkSession: SDKSession,
@@ -373,6 +380,7 @@ const resumeSessionEffect = Effect.fn("Session.resumeSession")(function* (
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const createSession = (options: SDKSessionOptions, runtimeOptions?: SessionRuntimeOptions) =>
   Effect.acquireRelease(createSessionEffect(options, runtimeOptions), closeQuietly);
@@ -382,6 +390,7 @@ export const createSession = (options: SDKSessionOptions, runtimeOptions?: Sessi
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const resumeSession = (sessionId: string, options: SDKSessionOptions, runtimeOptions?: SessionRuntimeOptions) =>
   Effect.acquireRelease(resumeSessionEffect(sessionId, options, runtimeOptions), closeQuietly);
@@ -391,6 +400,7 @@ export const resumeSession = (sessionId: string, options: SDKSessionOptions, run
  */
 /**
  * @since 0.0.0
+ * @category DomainLogic
  */
 export const prompt = Effect.fn("Session.prompt")(
   (message: string, options: SDKSessionOptions): Effect.Effect<SDKResultMessage, TransportError> =>

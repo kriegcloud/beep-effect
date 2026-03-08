@@ -12,6 +12,7 @@ const $I = $AiSdkId.create("core/Schema/Options");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SettingSource = LiteralKit(["user", "project", "local"]).annotate(
   $I.annote("SettingSource", {
@@ -21,10 +22,12 @@ export const SettingSource = LiteralKit(["user", "project", "local"]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SettingSource = typeof SettingSource.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SettingSourceEncoded = typeof SettingSource.Encoded;
 
@@ -43,6 +46,7 @@ const SystemPromptPreset = SystemPromptPresetData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SystemPrompt = S.Union([S.String, SystemPromptPreset]).annotate(
   $I.annote("SystemPrompt", {
@@ -52,10 +56,12 @@ export const SystemPrompt = S.Union([S.String, SystemPromptPreset]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SystemPrompt = typeof SystemPrompt.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SystemPromptEncoded = typeof SystemPrompt.Encoded;
 
@@ -73,6 +79,7 @@ const ToolsPreset = ToolsPresetData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const ToolsConfig = S.Union([S.Array(S.String), ToolsPreset]).annotate(
   $I.annote("ToolsConfig", {
@@ -82,15 +89,18 @@ export const ToolsConfig = S.Union([S.Array(S.String), ToolsPreset]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ToolsConfig = typeof ToolsConfig.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ToolsConfigEncoded = typeof ToolsConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class JsonSchemaOutputFormatData extends S.Class<JsonSchemaOutputFormatData>($I`JsonSchemaOutputFormat`)(
   {
@@ -104,20 +114,24 @@ class JsonSchemaOutputFormatData extends S.Class<JsonSchemaOutputFormatData>($I`
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const JsonSchemaOutputFormat = JsonSchemaOutputFormatData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type JsonSchemaOutputFormat = typeof JsonSchemaOutputFormat.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type JsonSchemaOutputFormatEncoded = typeof JsonSchemaOutputFormat.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const OutputFormat = JsonSchemaOutputFormat.annotate(
   $I.annote("OutputFormat", {
@@ -127,15 +141,18 @@ export const OutputFormat = JsonSchemaOutputFormat.annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type OutputFormat = typeof OutputFormat.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type OutputFormatEncoded = typeof OutputFormat.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class AgentDefinitionData extends S.Class<AgentDefinitionData>($I`AgentDefinition`)(
   {
@@ -156,20 +173,24 @@ class AgentDefinitionData extends S.Class<AgentDefinitionData>($I`AgentDefinitio
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AgentDefinition = AgentDefinitionData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentDefinition = typeof AgentDefinition.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AgentMcpServerSpec = S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]).annotate(
   $I.annote("AgentMcpServerSpec", {
@@ -179,10 +200,12 @@ export const AgentMcpServerSpec = S.Union([S.String, S.Record(S.String, McpServe
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentMcpServerSpec = typeof AgentMcpServerSpec.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded;
 
@@ -233,6 +256,7 @@ const ThinkingConfig = S.Union([ThinkingConfigAdaptive, ThinkingConfigEnabled, T
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class OptionsData extends S.Class<OptionsData>($I`Options`)(
   {
@@ -288,14 +312,17 @@ class OptionsData extends S.Class<OptionsData>($I`Options`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const Options = OptionsData;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type Options = typeof Options.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type OptionsEncoded = typeof Options.Encoded;

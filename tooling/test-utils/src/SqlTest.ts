@@ -26,7 +26,7 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
  * Runtime metadata for an ephemeral integration-test database instance.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`TestDatabaseInfoShape`)(
   {
@@ -42,7 +42,7 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
  * Runtime metadata for an ephemeral integration-test database instance.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class TestDatabaseInfo extends ServiceMap.Service<TestDatabaseInfo, TestDatabaseInfoShape>()(
   $I`TestDatabaseInfo`
@@ -52,7 +52,7 @@ export class TestDatabaseInfo extends ServiceMap.Service<TestDatabaseInfo, TestD
  * Typed harness error surfaced while provisioning or preparing a test database.
  *
  * @since 0.0.0
- * @category Errors
+ * @category DomainModel
  */
 export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($I`SqlTestHarnessError`)(
   "SqlTestHarnessError",
@@ -71,7 +71,7 @@ export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($
  * Optional database setup hooks executed after the driver layer has been built.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export interface SqlTestHooks {
   readonly migrate?: undefined | Effect.Effect<void, unknown, SqlClient.SqlClient>;
@@ -82,7 +82,7 @@ export interface SqlTestHooks {
  * Driver contract for reusable SQL integration-test layers.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export interface SqlTestDriver<Config, Services, SqlService extends Services> {
   readonly makeLayer: (config: Config) => Layer.Layer<Services, SqlTestHarnessError>;
@@ -133,7 +133,7 @@ const runHook = <Services, SqlService extends Services>(
  * @param options.hooks Optional migrate and seed hooks executed after provisioning.
  * @returns A fresh scoped layer that provisions the driver and runs migrate/seed hooks.
  * @since 0.0.0
- * @category Constructors
+ * @category Configuration
  */
 export const makeSqlTestLayer = <Config, Services, SqlService extends Services>(options: {
   readonly config: Config;
@@ -208,7 +208,7 @@ const buildBunSqliteLayer = Effect.gen(function* () {
  * Fresh Bun SQLite integration-test driver backed by a scoped temp directory.
  *
  * @since 0.0.0
- * @category Drivers
+ * @category Configuration
  */
 export const BunSqliteTestDriver: SqlTestDriver<
   void,
@@ -256,7 +256,7 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
  * Fresh Node SQLite integration-test driver backed by a scoped temp directory.
  *
  * @since 0.0.0
- * @category Drivers
+ * @category Configuration
  */
 export const NodeSqliteTestDriver: SqlTestDriver<
   void,

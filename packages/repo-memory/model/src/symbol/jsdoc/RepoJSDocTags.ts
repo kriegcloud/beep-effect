@@ -3,63 +3,63 @@ export {
    * Repository JSDoc core tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocCoreTag,
   /**
    * Repository JSDoc deprecated tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocDeprecatedTag,
   /**
    * Repository JSDoc description tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocDescriptionTag,
   /**
    * Repository JSDoc param tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocParamTag,
   /**
    * Repository JSDoc remarks tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocRemarksTag,
   /**
    * Repository JSDoc returns tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocReturnsTag,
   /**
    * Repository JSDoc see tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocSeeTag,
   /**
    * Repository JSDoc summary tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocSummaryTag,
   /**
    * Repository JSDoc throws tag model.
    *
    * @since 0.0.0
-   * @category Models
+   * @category DomainModel
    */
   RepoJSDocThrowsTag,
 } from "../../internal/domain.js";

@@ -43,7 +43,7 @@ const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, st
  * Typed OTEL configuration resolved for the sidecar runtime boundary.
  *
  * @since 0.0.0
- * @category Models
+ * @category DomainModel
  */
 export class SidecarOtlpConfig extends S.Class<SidecarOtlpConfig>($I`SidecarOtlpConfig`)(
   {
@@ -60,7 +60,7 @@ export class SidecarOtlpConfig extends S.Class<SidecarOtlpConfig>($I`SidecarOtlp
  * Load OTEL configuration for the sidecar runtime from the ambient config provider.
  *
  * @since 0.0.0
- * @category Constructors
+ * @category Configuration
  */
 export const loadSidecarOtlpConfig = Effect.fn("SidecarRuntime.loadOtlpConfig")(function* (version: string) {
   const otlpServiceNameValue = yield* Config.option(Config.string("OTEL_SERVICE_NAME"));

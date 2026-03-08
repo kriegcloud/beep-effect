@@ -7,7 +7,7 @@ const $I = $RepoMemoryRuntimeId.create("telemetry/RepoMemoryTelemetry");
  * Metric label for the two public repo-memory workflow families.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const RepoRunKindMetric = LiteralKit(["index", "query"]).pipe(
   $I.annoteSchema("RepoRunKindMetric", {
@@ -26,7 +26,7 @@ export type RepoRunKindMetric = typeof RepoRunKindMetric.Type;
  * Metric label for deterministic grounded query interpretations.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const QueryKindMetric = LiteralKit([
   "countFiles",
@@ -61,7 +61,7 @@ export type QueryKindMetric = typeof QueryKindMetric.Type;
  * Metric label for terminal workflow outcomes.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export type RunOutcomeMetric = "completed" | "failed" | "interrupted";
 
@@ -69,7 +69,7 @@ export type RunOutcomeMetric = "completed" | "failed" | "interrupted";
  * Metric label for grounded query result quality.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export type QueryOutcomeMetric = "cited" | "notCited" | "unsupported";
 
@@ -119,7 +119,7 @@ const metricAttributes = (attributes: Record<string, string>) => attributes;
  * Record that one repo-memory run started.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const recordRunStarted = Effect.fn("RepoMemoryMetrics.recordRunStarted")(function* (runKind: RepoRunKindMetric) {
   yield* Effect.annotateCurrentSpan({
@@ -140,7 +140,7 @@ export const recordRunStarted = Effect.fn("RepoMemoryMetrics.recordRunStarted")(
  * Record one terminal repo-memory run outcome.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const recordRunFinished = Effect.fn("RepoMemoryMetrics.recordRunFinished")(function* (
   runKind: RepoRunKindMetric,
@@ -179,7 +179,7 @@ export const recordRunFinished = Effect.fn("RepoMemoryMetrics.recordRunFinished"
  * Record that one deterministic grounded query interpretation was selected.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const recordQueryInterpretation = Effect.fn("RepoMemoryMetrics.recordQueryInterpretation")(function* (
   queryKind: QueryKindMetric
@@ -202,7 +202,7 @@ export const recordQueryInterpretation = Effect.fn("RepoMemoryMetrics.recordQuer
  * Record the final observable quality of one grounded query result.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const recordQueryResult = Effect.fn("RepoMemoryMetrics.recordQueryResult")(function* (
   queryKind: QueryKindMetric,
@@ -230,7 +230,7 @@ export const recordQueryResult = Effect.fn("RepoMemoryMetrics.recordQueryResult"
  * Record the latest indexed file count emitted by the TypeScript indexer.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const recordIndexedFileCount = Effect.fn("RepoMemoryMetrics.recordIndexedFileCount")(function* (
   fileCount: number,
@@ -257,7 +257,7 @@ export const recordIndexedFileCount = Effect.fn("RepoMemoryMetrics.recordIndexed
  * Measure elapsed wall-clock milliseconds for one effect.
  *
  * @since 0.0.0
- * @category Observability
+ * @category CrossCutting
  */
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>

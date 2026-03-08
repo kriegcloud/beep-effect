@@ -6,6 +6,7 @@ const $I = $AiSdkId.create("core/Schema/Permission");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const PermissionMode = LiteralKit([
   "default",
@@ -22,15 +23,18 @@ export const PermissionMode = LiteralKit([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionMode = typeof PermissionMode.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionModeEncoded = typeof PermissionMode.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const PermissionBehavior = LiteralKit(["allow", "deny", "ask"]).annotate(
   $I.annote("PermissionBehavior", {
@@ -40,15 +44,18 @@ export const PermissionBehavior = LiteralKit(["allow", "deny", "ask"]).annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionBehavior = typeof PermissionBehavior.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionBehaviorEncoded = typeof PermissionBehavior.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const PermissionUpdateDestination = LiteralKit([
   "userSettings",
@@ -64,15 +71,18 @@ export const PermissionUpdateDestination = LiteralKit([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionUpdateDestination = typeof PermissionUpdateDestination.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionUpdateDestinationEncoded = typeof PermissionUpdateDestination.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PermissionRuleValue extends S.Class<PermissionRuleValue>($I`PermissionRuleValue`)(
   {
@@ -85,6 +95,7 @@ export class PermissionRuleValue extends S.Class<PermissionRuleValue>($I`Permiss
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionRuleValueEncoded = typeof PermissionRuleValue.Encoded;
 
@@ -168,6 +179,7 @@ class PermissionUpdateRemoveDirectories extends S.Class<PermissionUpdateRemoveDi
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const PermissionUpdate = S.Union([
   PermissionUpdateAddRules,
@@ -187,15 +199,18 @@ export const PermissionUpdate = S.Union([
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionUpdate = typeof PermissionUpdate.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionUpdateEncoded = typeof PermissionUpdate.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 class PermissionResultAllow extends S.Class<PermissionResultAllow>($I`PermissionResultAllow`)(
   {
@@ -223,6 +238,7 @@ class PermissionResultDeny extends S.Class<PermissionResultDeny>($I`PermissionRe
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const PermissionResult = S.Union([PermissionResultAllow, PermissionResultDeny]).pipe(
   S.toTaggedUnion("behavior"),
@@ -235,10 +251,12 @@ export const PermissionResult = S.Union([PermissionResultAllow, PermissionResult
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionResult = typeof PermissionResult.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionResultEncoded = typeof PermissionResult.Encoded;
 
@@ -270,6 +288,7 @@ class PermissionRequestHookDecisionDeny extends S.Class<PermissionRequestHookDec
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class PermissionRequestHookSpecificOutput extends S.Class<PermissionRequestHookSpecificOutput>(
   $I`PermissionRequestHookSpecificOutput`
@@ -284,11 +303,13 @@ export class PermissionRequestHookSpecificOutput extends S.Class<PermissionReque
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type PermissionRequestHookSpecificOutputEncoded = typeof PermissionRequestHookSpecificOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const CanUseTool = S.declare(
   (
@@ -314,9 +335,11 @@ export const CanUseTool = S.declare(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type CanUseTool = typeof CanUseTool.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type CanUseToolEncoded = typeof CanUseTool.Encoded;

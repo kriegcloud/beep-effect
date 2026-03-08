@@ -22,6 +22,7 @@ const QueryInputOptionsSchema: S.Codec<OptionsType, OptionsEncoded> = Options;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const Tenant = S.String.annotate(
   $I.annote("Tenant", {
@@ -31,15 +32,18 @@ export const Tenant = S.String.annotate(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type Tenant = typeof Tenant.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type TenantEncoded = typeof Tenant.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SessionId = S.String.annotate(
   $I.annote("SessionId", {
@@ -48,10 +52,12 @@ export const SessionId = S.String.annotate(
 );
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionId = typeof SessionId.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionIdEncoded = typeof SessionId.Encoded;
 
@@ -67,19 +73,23 @@ class QueryInputData extends S.Class<QueryInputData>($I`QueryInput`)(
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const QueryInput: typeof QueryInputData = QueryInputData;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type QueryInput = typeof QueryInputData.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type QueryInputEncoded = typeof QueryInputData.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class QueryResultOutput extends S.Class<QueryResultOutput>($I`QueryResultOutput`)(
   {
@@ -92,11 +102,13 @@ export class QueryResultOutput extends S.Class<QueryResultOutput>($I`QueryResult
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type QueryResultOutputEncoded = typeof QueryResultOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionCreateInput extends S.Class<SessionCreateInput>($I`SessionCreateInput`)(
   {
@@ -109,11 +121,13 @@ export class SessionCreateInput extends S.Class<SessionCreateInput>($I`SessionCr
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionCreateInputEncoded = typeof SessionCreateInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionCreateOutput extends S.Class<SessionCreateOutput>($I`SessionCreateOutput`)(
   {
@@ -125,11 +139,13 @@ export class SessionCreateOutput extends S.Class<SessionCreateOutput>($I`Session
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionCreateOutputEncoded = typeof SessionCreateOutput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionSendInput extends S.Class<SessionSendInput>($I`SessionSendInput`)(
   {
@@ -142,11 +158,13 @@ export class SessionSendInput extends S.Class<SessionSendInput>($I`SessionSendIn
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionSendInputEncoded = typeof SessionSendInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionInfo extends S.Class<SessionInfo>($I`SessionInfo`)(
   {
@@ -161,11 +179,13 @@ export class SessionInfo extends S.Class<SessionInfo>($I`SessionInfo`)(
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionInfoEncoded = typeof SessionInfo.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class QueryStreamQuery extends S.Class<QueryStreamQuery>($I`QueryStreamQuery`)(
   {
@@ -177,11 +197,13 @@ export class QueryStreamQuery extends S.Class<QueryStreamQuery>($I`QueryStreamQu
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type QueryStreamQueryEncoded = typeof QueryStreamQuery.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionTenantScope extends S.Class<SessionTenantScope>($I`SessionTenantScope`)(
   {
@@ -193,11 +215,13 @@ export class SessionTenantScope extends S.Class<SessionTenantScope>($I`SessionTe
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionTenantScopeEncoded = typeof SessionTenantScope.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionPathParams extends S.Class<SessionPathParams>($I`SessionPathParams`)(
   {
@@ -209,11 +233,13 @@ export class SessionPathParams extends S.Class<SessionPathParams>($I`SessionPath
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionPathParamsEncoded = typeof SessionPathParams.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionSelection extends S.Class<SessionSelection>($I`SessionSelection`)(
   {
@@ -226,11 +252,13 @@ export class SessionSelection extends S.Class<SessionSelection>($I`SessionSelect
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionSelectionEncoded = typeof SessionSelection.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class ResumeSessionInput extends S.Class<ResumeSessionInput>($I`ResumeSessionInput`)(
   {
@@ -244,11 +272,13 @@ export class ResumeSessionInput extends S.Class<ResumeSessionInput>($I`ResumeSes
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type ResumeSessionInputEncoded = typeof ResumeSessionInput.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SessionSendRequest extends S.Class<SessionSendRequest>($I`SessionSendRequest`)(
   {
@@ -262,5 +292,6 @@ export class SessionSendRequest extends S.Class<SessionSendRequest>($I`SessionSe
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SessionSendRequestEncoded = typeof SessionSendRequest.Encoded;

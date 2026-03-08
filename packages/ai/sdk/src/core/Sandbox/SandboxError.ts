@@ -6,6 +6,7 @@ const $I = $AiSdkId.create("core/Sandbox/SandboxError");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class SandboxError extends TaggedErrorClass<SandboxError>($I`SandboxError`)(
   "SandboxError",

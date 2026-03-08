@@ -9,6 +9,7 @@ const $I = $AiSdkId.create("core/AgentRuntimeConfig");
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type AgentRuntimeSettings = Readonly<{
   readonly defaultOptions: Options;
@@ -64,6 +65,7 @@ const makeAgentRuntimeConfig = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export type AgentRuntimeConfigShape = Readonly<{
   readonly settings: AgentRuntimeSettings;
@@ -71,6 +73,7 @@ export type AgentRuntimeConfigShape = Readonly<{
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export class AgentRuntimeConfig extends ServiceMap.Service<AgentRuntimeConfig, AgentRuntimeConfigShape>()(
   $I`AgentRuntimeConfig`

@@ -69,5 +69,6 @@ const make = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category Configuration
  */
 export const layerLocal: Layer.Layer<SandboxService, never, QuerySupervisor> = Layer.effect(SandboxService, make);

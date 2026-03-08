@@ -20,9 +20,13 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
     canonicalName,
     overview,
     status: "stable",
-    specifications: [{ name: "SHACL Core", disposition: "normative" }],
+    specifications: [{ name: "SHACL Core", disposition: "informative" }],
     equivalenceBasis: "Shape and result equality by exact field comparison.",
     representations: [{ kind: "RDF/JS" }],
+    implementationNotes: [
+      "The v1 package surface validates a bounded SHACL-inspired subset covering targetClass, minCount, maxCount, and datatype.",
+      "A full external SHACL engine can later back this contract without changing the public request and result wrappers.",
+    ],
   });
 
 /**
@@ -115,7 +119,7 @@ export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`S
     description: "SHACL validation request.",
     semanticSchemaMetadata: serviceContractMetadata(
       "ShaclValidationRequest",
-      "Request to validate RDF data against bounded SHACL shapes."
+      "Request to validate RDF data against bounded SHACL-inspired shapes."
     ),
   })
 ) {}

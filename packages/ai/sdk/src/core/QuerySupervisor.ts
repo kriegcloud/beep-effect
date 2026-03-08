@@ -49,27 +49,33 @@ const $I = $AiSdkId.create("core/QuerySupervisor");
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QuerySupervisorError = QuerySupervisorErrorSchema;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QuerySupervisorError = QuerySupervisorErrorType;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QuerySupervisorErrorEncoded = typeof QuerySupervisorErrorSchema.Encoded;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QueryPendingCanceledError = QueryPendingCanceledError_;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QueryPendingTimeoutError = QueryPendingTimeoutError_;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QueryQueueFullError = QueryQueueFullError_;
 
@@ -99,20 +105,24 @@ const QueryStartFailedEvent = S.TaggedStruct("QueryStartFailed", {
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export const QueryEvent = S.Union([QueryQueuedEvent, QueryStartedEvent, QueryCompletedEvent, QueryStartFailedEvent]);
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QueryEvent = typeof QueryEvent.Type;
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QueryEventEncoded = typeof QueryEvent.Encoded;
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export class QuerySupervisorStats extends S.Class<QuerySupervisorStats>($I`QuerySupervisorStats`)(
   {
@@ -129,6 +139,7 @@ export class QuerySupervisorStats extends S.Class<QuerySupervisorStats>($I`Query
 
 /**
  * @since 0.0.0
+ * @category DomainModel
  */
 export type QuerySupervisorStatsEncoded = typeof QuerySupervisorStats.Encoded;
 
@@ -654,6 +665,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
 
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export interface QuerySupervisorShape extends Effect.Success<typeof makeQuerySupervisor> {}
 
@@ -662,6 +674,7 @@ export interface QuerySupervisorShape extends Effect.Success<typeof makeQuerySup
  */
 /**
  * @since 0.0.0
+ * @category PortContract
  */
 export class QuerySupervisor extends ServiceMap.Service<QuerySupervisor, QuerySupervisorShape>()($I`QuerySupervisor`) {
   /**

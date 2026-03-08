@@ -6,6 +6,7 @@ const $I = $AiSdkId.create("core/Schema/Runtime");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AbortControllerLike = {
   signal: unknown;
@@ -13,6 +14,7 @@ export type AbortControllerLike = {
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const AbortController = S.declare((_: unknown): _ is AbortControllerLike => P.isObject(_) && "signal" in _).pipe(
   S.annotate(
@@ -25,15 +27,18 @@ export const AbortController = S.declare((_: unknown): _ is AbortControllerLike 
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AbortController = typeof AbortController.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type AbortControllerEncoded = typeof AbortController.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const StderrCallback = S.declare((_: unknown): _ is (data: string) => void => true).pipe(
   S.annotate(
@@ -46,15 +51,18 @@ export const StderrCallback = S.declare((_: unknown): _ is (data: string) => voi
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type StderrCallback = typeof StderrCallback.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type StderrCallbackEncoded = typeof StderrCallback.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SpawnedProcess = S.declare((_: unknown): _ is unknown => true).pipe(
   S.annotate(
@@ -67,15 +75,18 @@ export const SpawnedProcess = S.declare((_: unknown): _ is unknown => true).pipe
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SpawnedProcess = typeof SpawnedProcess.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SpawnedProcessEncoded = typeof SpawnedProcess.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SpawnClaudeCodeProcess = S.declare((_: unknown): _ is (options: unknown) => SpawnedProcess => true).pipe(
   S.annotate(
@@ -88,9 +99,11 @@ export const SpawnClaudeCodeProcess = S.declare((_: unknown): _ is (options: unk
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SpawnClaudeCodeProcess = typeof SpawnClaudeCodeProcess.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SpawnClaudeCodeProcessEncoded = typeof SpawnClaudeCodeProcess.Encoded;

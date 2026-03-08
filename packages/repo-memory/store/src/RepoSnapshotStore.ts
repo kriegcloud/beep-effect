@@ -17,7 +17,7 @@ const $I = $RepoMemoryStoreId.create("RepoSnapshotStore");
  * Contract for repository snapshot and artifact persistence.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export interface RepoSnapshotStoreShape {
   readonly countSourceFiles: (
@@ -42,7 +42,7 @@ export interface RepoSnapshotStoreShape {
  * Snapshot store service.
  *
  * @since 0.0.0
- * @category Services
+ * @category PortContract
  */
 export class RepoSnapshotStore extends ServiceMap.Service<RepoSnapshotStore, RepoSnapshotStoreShape>()(
   $I`RepoSnapshotStore`

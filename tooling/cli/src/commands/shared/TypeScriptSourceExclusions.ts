@@ -12,7 +12,7 @@ import * as Str from "effect/String";
  * Path segments excluded from TypeScript source lint traversals.
  *
  * @since 0.0.0
- * @category Internal
+ * @category CrossCutting
  */
 export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/.repos/",
@@ -33,7 +33,7 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
  * File suffixes excluded from TypeScript source lint traversals.
  *
  * @since 0.0.0
- * @category Internal
+ * @category CrossCutting
  */
 export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
   ".d.ts",
@@ -50,7 +50,7 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
  * @param value - Path string to normalize.
  * @returns POSIX-normalized path string.
  * @since 0.0.0
- * @category Internal
+ * @category CrossCutting
  */
 export const toPosixPath = (value: string): string => Str.replace(/\\/g, "/")(value);
 
@@ -60,7 +60,7 @@ export const toPosixPath = (value: string): string => Str.replace(/\\/g, "/")(va
  * @param filePath - Relative or absolute path to inspect.
  * @returns True when the path matches an excluded segment or suffix rule.
  * @since 0.0.0
- * @category Internal
+ * @category CrossCutting
  */
 export const isExcludedTypeScriptSourcePath = (filePath: string): boolean => {
   const normalized = toPosixPath(filePath);

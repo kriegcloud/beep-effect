@@ -7,7 +7,7 @@ import { thunkFalse, thunkTrue } from "./thunk.ts";
 const { dual, flow } = Function;
 
 /**
- * @category pattern matching
+ * @category DomainLogic
  * @since 0.0.0
  */
 export const matchToBoolean = flow(
@@ -28,7 +28,7 @@ const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmp
  * Like `Array.map` but asserts the result as `NonEmptyArray`.
  * Safe because mapping a non-empty input always produces a non-empty output.
  *
- * @category mapping
+ * @category DomainLogic
  * @since 0.0.0
  */
 export const mapNonEmpty: {
@@ -45,7 +45,7 @@ export const mapNonEmpty: {
  * Safe because flat-mapping non-empty input with a function returning non-empty arrays
  * always produces a non-empty output.
  *
- * @category sequencing
+ * @category DomainLogic
  * @since 0.0.0
  */
 export const flatMapNonEmpty: {
@@ -67,7 +67,7 @@ export const flatMapNonEmpty: {
  * Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`.
  * Safe because mapping a non-empty input always produces a non-empty output.
  *
- * @category mapping
+ * @category DomainLogic
  * @since 0.0.0
  */
 export const mapNonEmptyReadonly: {
@@ -84,7 +84,7 @@ export const mapNonEmptyReadonly: {
  * Safe because flat-mapping non-empty input with a function returning non-empty arrays
  * always produces a non-empty output.
  *
- * @category sequencing
+ * @category DomainLogic
  * @since 0.0.0
  */
 export const flatMapNonEmptyReadonly: {
@@ -115,7 +115,7 @@ export const flatMapNonEmptyReadonly: {
 export * from "effect/Array";
 
 /**
- *
  * @since 0.0.0
+ * @category Utility
  */
 export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => (A.isArray(a) ? a : A.of(a));

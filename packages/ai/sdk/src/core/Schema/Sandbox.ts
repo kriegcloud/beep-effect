@@ -5,6 +5,7 @@ const $I = $AiSdkId.create("core/Schema/Sandbox");
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SandboxNetworkConfig extends S.Class<SandboxNetworkConfig>($I`SandboxNetworkConfig`)(
   {
@@ -22,11 +23,13 @@ export class SandboxNetworkConfig extends S.Class<SandboxNetworkConfig>($I`Sandb
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SandboxNetworkConfigEncoded = typeof SandboxNetworkConfig.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export const SandboxIgnoreViolations = S.Record(S.String, S.Array(S.String)).annotate(
   $I.annote("SandboxIgnoreViolations", {
@@ -36,15 +39,18 @@ export const SandboxIgnoreViolations = S.Record(S.String, S.Array(S.String)).ann
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SandboxIgnoreViolations = typeof SandboxIgnoreViolations.Type;
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Encoded;
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SandboxFilesystemConfig extends S.Class<SandboxFilesystemConfig>($I`SandboxFilesystemConfig`)(
   {
@@ -58,6 +64,7 @@ export class SandboxFilesystemConfig extends S.Class<SandboxFilesystemConfig>($I
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Encoded;
 
@@ -73,6 +80,7 @@ class SandboxRipgrepConfig extends S.Class<SandboxRipgrepConfig>($I`SandboxRipgr
 
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export class SandboxSettings extends S.Class<SandboxSettings>($I`SandboxSettings`)(
   {
@@ -92,5 +100,6 @@ export class SandboxSettings extends S.Class<SandboxSettings>($I`SandboxSettings
 ) {}
 /**
  * @since 0.0.0
+ * @category Validation
  */
 export type SandboxSettingsEncoded = typeof SandboxSettings.Encoded;

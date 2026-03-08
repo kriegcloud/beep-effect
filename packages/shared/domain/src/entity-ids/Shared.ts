@@ -8,6 +8,7 @@ const make = EntityId.factory("shared", $I);
  * Entity id for organizations in the shared slice.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const OrganizationId = make("OrganizationId", {
   tableName: "organization",
@@ -17,6 +18,7 @@ export const OrganizationId = make("OrganizationId", {
  * Type for {@link OrganizationId}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type OrganizationId = typeof OrganizationId.Type;
 
@@ -24,6 +26,7 @@ export type OrganizationId = typeof OrganizationId.Type;
  * Entity id for sessions in the shared slice.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export const SessionId = make("SessionId", {
   tableName: "session",
@@ -33,5 +36,6 @@ export const SessionId = make("SessionId", {
  * Type for {@link SessionId}.
  *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type SessionId = typeof SessionId.Type;

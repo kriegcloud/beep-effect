@@ -8,6 +8,7 @@ import { ChatHistoryStore } from "./ChatHistoryStore.js";
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export type RecorderOptions = Readonly<{
   readonly sessionId?: string;
@@ -51,6 +52,7 @@ const recordMessages = (
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function* (
   handle: QueryHandle,
@@ -100,6 +102,7 @@ export const withRecorder = Effect.fn("ChatHistory.withRecorder")(function* (
 
 /**
  * @since 0.0.0
+ * @category DataAccess
  */
 export const ChatHistory = {
   withRecorder,

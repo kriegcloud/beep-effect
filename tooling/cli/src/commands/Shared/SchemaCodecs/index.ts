@@ -59,7 +59,7 @@ export const JsoncCodecService = JsoncCodecService_;
  * Live JSONC codec service layer.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const JsoncCodecServiceLive = JsoncCodecServiceLive_;
 
@@ -99,7 +99,7 @@ export const YamlCodecService = YamlCodecService_;
  * Live YAML codec service layer.
  *
  * @since 0.0.0
- * @category Layers
+ * @category Configuration
  */
 export const YamlCodecServiceLive = YamlCodecServiceLive_;
 

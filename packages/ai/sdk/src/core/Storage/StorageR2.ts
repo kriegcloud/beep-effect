@@ -39,6 +39,7 @@ const tryR2 = <A>(method: string, description: string, run: () => Promise<A>) =>
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export type R2Bucket = {
   put(
@@ -90,6 +91,7 @@ type R2ListResult =
  */
 /**
  * @since 0.0.0
+ * @category Integration
  */
 export const layerR2 = (bucket: R2Bucket): Layer.Layer<KeyValueStore.KeyValueStore> =>
   Layer.succeed(
