@@ -1,0 +1,46 @@
+{
+  "name": "rdfjs-wrapper",
+  "version": "0.28.0",
+  "description": "RDF/JS object mapping library",
+  "main": "dist/mod.js",
+  "type": "module",
+  "types": "./dist/mod.d.ts",
+  "exports": {
+    ".": "./dist/mod.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rdfjs/wrapper.git"
+  },
+  "scripts": {
+    "start": "npm test",
+    "build:test": "tsc && tsc -p test",
+    "test": "npm run build:test && node --experimental-test-coverage --test \"**/*.test.js\""
+  },
+  "keywords": [
+    "rdf",
+    "object-oriented",
+    "rdfjs",
+    "mapping",
+    "wrapper"
+  ],
+  "contributors": [
+    "Matthieu Bosquet (https://github.com/matthieubosquet)",
+    "Samu Lang (https://github.com/langsamu)"
+  ],
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@rdfjs/types": "^2",
+    "@types/node": "^24",
+    "typescript": "^5",
+    "@types/n3": "^1",
+    "n3": "^1"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}
