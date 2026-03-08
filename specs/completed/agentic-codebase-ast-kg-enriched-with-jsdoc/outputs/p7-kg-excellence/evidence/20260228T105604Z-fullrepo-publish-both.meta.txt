@@ -1,3 +1,0 @@
-timestamp=20260228T105604Z
-group=beep-ast-kg-p7-batch-20260228T105604Z
-zsh:12: command not found: -p
