@@ -42,6 +42,10 @@ describe("MimeType helpers", () => {
 });
 
 describe("MimeType kinds", () => {
+  it("preserves schema instance methods on the exported kit", () => {
+    expect(MimeType).toHaveProperty("annotate");
+  });
+
   it("keeps representative category members on the exported schema kits", () => {
     expect(MimeType.kinds.Application.Options).toContain("application/json");
     expect(TextMimeType.Options).toContain("text/html");

@@ -218,18 +218,17 @@ const SyncConflictPayload = S.Union([
   })
 );
 
-class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`SyncCompactionPayload`)(
-  {
-    remoteId: S.String,
-    before: S.Number,
-    after: S.Number,
-    events: S.optional(S.Array(S.String)),
-    timestamp: S.DateTimeUtcFromMillis,
-  },
+const SyncCompactionPayload = S.Struct({
+  remoteId: S.String,
+  before: S.Number,
+  after: S.Number,
+  events: S.optionalKey(S.Array(S.String)),
+  timestamp: S.DateTimeUtcFromMillis,
+}).annotate(
   $I.annote("SyncCompactionPayload", {
     description: "Payload for sync compaction audit events.",
   })
-) {}
+);
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.

@@ -84,7 +84,8 @@ export const MimeType: MimeTypeSchema = pipe(
         description: "a mime type.",
       })
     );
-    return Fn.cast(Struct.assign(base, { kinds }));
+    Reflect.set(base, "kinds", kinds);
+    return Fn.cast(base);
   }
 );
 

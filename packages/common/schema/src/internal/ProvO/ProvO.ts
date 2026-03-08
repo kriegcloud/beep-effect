@@ -1,7 +1,6 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { DateTime, pipe } from "effect";
+import { type Brand, DateTime, pipe } from "effect";
 import * as A from "effect/Array";
-import type * as Brand from "effect/Brand";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

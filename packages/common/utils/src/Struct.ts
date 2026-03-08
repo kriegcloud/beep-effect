@@ -1,9 +1,8 @@
-import { Function as Fn, pipe, String as Str } from "effect";
+import { Struct as EffectStruct, Function as Fn, pipe, String as Str } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as St from "effect/Struct";
 import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
 
@@ -334,7 +333,7 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
 export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
   Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
     pipe(
-      St.keys(obj),
+      EffectStruct.keys(obj),
       A.map((key): readonly [keyof R & string, R[keyof R & string]] => [key, obj[key]])
     )
   );
@@ -345,7 +344,7 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
  * @since 0.2.0
  * @category Utility
  */
-export const keys = <const R extends object>(obj: R): Array<keyof R & string> => St.keys(obj);
+export const keys = <const R extends object>(obj: R): Array<keyof R & string> => EffectStruct.keys(obj);
 
 /**
  * Type-safe `Object.fromEntries` that preserves per-key value types.

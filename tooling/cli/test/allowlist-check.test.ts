@@ -1,7 +1,7 @@
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
-import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "../src/commands/Laws/AllowlistCheck";
+import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "../src/commands/Laws/AllowlistCheck.js";
 
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
