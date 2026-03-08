@@ -107,22 +107,8 @@ const countAsciiCharacter = (input: string, search: string): number => {
   return count;
 };
 
-const containsDoubleColon = (input: string): boolean => {
-  let index = 0;
-
-  while (index + 1 < Str.length(input)) {
-    if (input[index] === ":" && input[index + 1] === ":") {
-      return true;
-    }
-
-    index += 1;
-  }
-
-  return false;
-};
-
-const findDoubleColon = (input: string): number | undefined => {
-  let index = 0;
+const findDoubleColon = (input: string, start = 0): number | undefined => {
+  let index = start;
 
   while (index + 1 < Str.length(input)) {
     if (input[index] === ":" && input[index + 1] === ":") {
@@ -757,6 +743,28 @@ const isRelativeIriReference = (input: string): boolean => parseRelativeIriRefer
 
 const isIriReference = (input: string): boolean => isIri(input) || isRelativeIriReference(input);
 
+const makeTrimmedSyntaxChecks = (
+  identifier: string,
+  title: string,
+  description: string,
+  message: string,
+  predicate: (value: string) => boolean
+) =>
+  [
+    S.isTrimmed({
+      identifier: $I.create(identifier).make("TrimmedCheck"),
+      title: `${title} Trimmed`,
+      description: `${description} without leading or trailing whitespace.`,
+      message: `${title} values must not contain leading or trailing whitespace`,
+    }),
+    S.makeFilter(predicate, {
+      identifier: $I.create(identifier).make("SyntaxCheck"),
+      title: `${title} Syntax`,
+      description,
+      message,
+    }),
+  ] as const;
+
 const makeReferenceChecks = (
   identifier: string,
   title: string,
@@ -764,27 +772,11 @@ const makeReferenceChecks = (
   message: string,
   predicate: (value: string) => boolean
 ) =>
-  S.makeFilterGroup(
-    [
-      S.isTrimmed({
-        identifier: $I.create(identifier).make("TrimmedCheck"),
-        title: `${title} Trimmed`,
-        description: `${description} without leading or trailing whitespace.`,
-        message: `${title} values must not contain leading or trailing whitespace`,
-      }),
-      S.makeFilter(predicate, {
-        identifier: $I.create(identifier).make("SyntaxCheck"),
-        title: `${title} Syntax`,
-        description,
-        message,
-      }),
-    ],
-    {
-      identifier: $I.create(identifier).make("Checks"),
-      title,
-      description,
-    }
-  );
+  S.makeFilterGroup(makeTrimmedSyntaxChecks(identifier, title, description, message, predicate), {
+    identifier: $I.create(identifier).make("Checks"),
+    title,
+    description,
+  });
 
 const makeNonEmptyReferenceChecks = (
   identifier: string,
@@ -801,7 +793,7 @@ const makeNonEmptyReferenceChecks = (
         description: `${description} that is not empty.`,
         message: `${title} values must not be empty`,
       }),
-      ...makeReferenceChecks(identifier, title, description, message, predicate).checks,
+      ...makeTrimmedSyntaxChecks(identifier, title, description, message, predicate),
     ],
     {
       identifier: $I.create(identifier).make("Checks"),
