@@ -1,0 +1,27 @@
+{
+  "spec": "@beep/semantic-web",
+  "status": "exploratory",
+  "stage": "shape-discovery",
+  "created": "2026-03-08",
+  "updated": "2026-03-08",
+  "currentSourceOfTruth": "README.md",
+  "completed": [
+    "initial local exploration",
+    "semantic-web reference subtree expansion",
+    "initial decisions capture",
+    "effect-v4 module selection capture"
+  ],
+  "nextArtifacts": [
+    "design/package-boundaries.md",
+    "plans/phase-roadmap.md"
+  ],
+  "keyDecisions": [
+    "@beep/semantic-web should be the canonical semantic-web foundation package",
+    "JSON-LD is first-class in the initial surface",
+    "foundation plus adapters is the primary package posture",
+    "IRI and ProvO are seed assets, not the full package design",
+    "ontology builder DSL work stays experimental unless later research justifies promotion",
+    "Schema.toEquivalence is the default equality surface for schema-modeled domain values",
+    "Graph is projection-only and should not be the primary RDF semantic model"
+  ]
+}

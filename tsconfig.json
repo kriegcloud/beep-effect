@@ -112,6 +112,12 @@
       ],
       "@beep/semantic-web/*": [
         "./packages/common/semantic-web/src/*"
+      ],
+      "@beep/nlp": [
+        "./packages/common/nlp/src/index.ts"
+      ],
+      "@beep/nlp/*": [
+        "./packages/common/nlp/src/*"
       ]
     },
     "plugins": [

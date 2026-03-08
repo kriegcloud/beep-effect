@@ -18,7 +18,8 @@
     "packages/shared/client/dtslint/**/*.tst.*",
     "packages/_internal/db-admin/dtslint/**/*.tst.*",
     "tooling/test-utils/test-utils/dtslint/**/*.tst.*",
-    "packages/common/semantic-web/dtslint/**/*.tst.*"
+    "packages/common/semantic-web/dtslint/**/*.tst.*",
+    "packages/common/nlp/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }
