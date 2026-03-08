@@ -64,6 +64,19 @@ export {
   createPackageCommand,
 } from "./commands/CreatePackage/index.js";
 /**
+ * Human-first docgen command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Human-first docgen command group.
+   *
+   * @since 0.0.0
+   */
+  docgenCommand,
+} from "./commands/Docgen/index.js";
+/**
  * Command-first docs discovery command tree.
  *
  * @since 0.0.0
