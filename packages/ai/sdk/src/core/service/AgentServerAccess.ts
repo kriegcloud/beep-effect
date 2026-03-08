@@ -11,13 +11,22 @@ const $I = $AiSdkId.create("core/service/AgentServerAccess");
 const authorizationHeader = "authorization";
 const fallbackTokenHeader = "x-agent-auth-token";
 
+/**
+ * Configuration for agent HTTP and RPC transport exposure.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
 export type AgentServerAccessOptions = Readonly<{
   readonly authToken?: string;
   readonly hostname?: string;
 }>;
 
 /**
+ * Typed access-control failure for agent HTTP and RPC transports.
+ *
  * @since 0.0.0
+ * @category Errors
  */
 export class AgentServerAccessError extends TaggedErrorClass<AgentServerAccessError>()("AgentServerAccessError", {
   message: S.String,
@@ -34,7 +43,10 @@ type AgentServerAccessShape = {
 };
 
 /**
+ * Access-control service for agent HTTP and RPC transports.
+ *
  * @since 0.0.0
+ * @category Services
  */
 export class AgentServerAccess extends ServiceMap.Service<AgentServerAccess, AgentServerAccessShape>()(
   $I`AgentServerAccess`
@@ -63,7 +75,10 @@ const isLoopbackHostname = (hostname: string): boolean => {
 };
 
 /**
+ * Build access-control state for agent HTTP and RPC transports.
+ *
  * @since 0.0.0
+ * @category Constructors
  */
 export const makeAgentServerAccess = (
   options: AgentServerAccessOptions = {}
