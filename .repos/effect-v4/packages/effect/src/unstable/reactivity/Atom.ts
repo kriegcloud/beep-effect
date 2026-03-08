@@ -25,7 +25,7 @@ import * as Scope from "../../Scope.ts"
 import * as ServiceMap from "../../ServiceMap.ts"
 import * as Stream from "../../Stream.ts"
 import * as SubscriptionRef from "../../SubscriptionRef.ts"
-import type { NoInfer } from "../../Types.ts"
+import type { Mutable, NoInfer } from "../../Types.ts"
 import * as KeyValueStore from "../persistence/KeyValueStore.ts"
 import * as AsyncResult from "./AsyncResult.ts"
 import { AtomRegistry } from "./AtomRegistry.ts"
@@ -56,6 +56,7 @@ export interface Atom<A> extends Pipeable, Inspectable.Inspectable {
   readonly refresh?: (f: <A>(atom: Atom<A>) => void) => void
   readonly label?: readonly [name: string, stack: string]
   readonly idleTTL?: number
+  readonly initialValueTarget?: Atom<A>
 }
 
 /**
@@ -716,7 +717,7 @@ export const context: (options: {
         }))
         get.subscribe(atom, (value) => get.setSelf(value))
         return get.once(atom)
-      }) as any as A
+      }, { initialValueTarget: atom }) as any as A
   return factory
 }
 
@@ -1428,16 +1429,30 @@ export const initialValue: {
  */
 export const transform: {
   <R extends Atom<any>, B>(
-    f: (get: Context, atom: R) => B
+    f: (get: Context, atom: R) => B,
+    options?: {
+      readonly initialValueTarget?: Atom<B> | undefined
+    }
   ): (self: R) => [R] extends [Writable<infer _, infer RW>] ? Writable<B, RW> : Atom<B>
   <R extends Atom<any>, B>(
     self: R,
-    f: (get: Context, atom: R) => B
+    f: (get: Context, atom: R) => B,
+    options?: {
+      readonly initialValueTarget?: Atom<B> | undefined
+    }
   ): [R] extends [Writable<infer _, infer RW>] ? Writable<B, RW> : Atom<B>
 } = dual(
-  2,
-  (<A, B>(self: Atom<A>, f: (get: Context, atom: Atom<A>) => B): Atom<B> =>
-    removeTtl(
+  (args) => isAtom(args[0]),
+  (<A, B>(
+    self: Atom<A>,
+    f: (get: Context, atom: Atom<A>, options?: {
+      readonly initialValueTarget?: Atom<B> | undefined
+    }) => B,
+    options?: {
+      readonly initialValueTarget?: Atom<B> | undefined
+    }
+  ): Atom<B> => {
+    const atom = removeTtl(
       isWritable(self)
         ? writable(
           (get) => f(get, self),
@@ -1454,8 +1469,21 @@ export const transform: {
             refresh(self)
           }
         )
-    )) as any
+    )
+    if (options?.initialValueTarget) {
+      ;(atom as Mutable<Atom<B>>).initialValueTarget = getInitialValueTarget(options.initialValueTarget)
+    }
+    return atom
+  }) as any
 )
+
+const getInitialValueTarget = <A>(atom: Atom<A>): Atom<A> => {
+  let target = atom
+  while (target.initialValueTarget) {
+    target = target.initialValueTarget
+  }
+  return target
+}
 
 /**
  * @since 4.0.0
@@ -1526,7 +1554,7 @@ export const debounce: {
         timeout = setTimeout(update, millis) as any
       })
       return value
-    })
+    }, { initialValueTarget: self })
   }
 )
 
@@ -1548,7 +1576,7 @@ export const withRefresh: {
       const handle = setTimeout(() => get.refresh(self), millis) as any
       get.addFinalizer(() => clearTimeout(handle))
       return get(self)
-    })
+    }, { initialValueTarget: self })
   }
 )
 
@@ -1621,7 +1649,7 @@ export const swr: {
         get.refresh(self)
       }
       return current
-    })
+    }, { initialValueTarget: self })
   }
 ) as any
 
@@ -1840,7 +1868,7 @@ export const makeRefreshOnSignal = <_>(signal: Atom<_>) => <A extends Atom<any>>
     get.subscribe(signal, (_) => get.refresh(self))
     get.subscribe(self, (value) => get.setSelf(value))
     return get.once(self)
-  }) as any
+  }, { initialValueTarget: self }) as any
 
 /**
  * @since 4.0.0
