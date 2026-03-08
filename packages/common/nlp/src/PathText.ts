@@ -5,14 +5,14 @@
  * @module @beep/nlp/PathText
  */
 import * as Str from "@beep/utils/Str";
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 
 const stripLeadingDotSlash = (input: string): string => pipe(input, Str.replace(/^\.\/+/, ""));
-const stripTypeScriptExtension = (input: string): string => pipe(input, Str.replace(/\.[cm]?tsx?$/i, ""));
-const basename = (input: string): string => pipe(input, Str.replace(/^.*\//, ""));
+const stripTypeScriptExtension = Str.replace(/\.[cm]?tsx?$/i, "");
+const basename = Str.replace(/^.*\//, "");
 
 const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
   const normalized = normalizePathPhrase(input);
@@ -32,8 +32,7 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
  * @since 0.0.0
  * @category Normalization
  */
-export const normalizePathPhrase = (input: string): string =>
-  pipe(input, QueryText.normalizePhrase, Str.replace(/\\+/g, "/"), Str.replace(/\/+/g, "/"));
+export const normalizePathPhrase = flow(QueryText.normalizePhrase, Str.replace(/\\+/g, "/"), Str.replace(/\/+/g, "/"));
 
 /**
  * True when the input is a bounded single-token path or module fragment.
@@ -49,7 +48,7 @@ export const isPathLike = (input: string): boolean => /^[A-Za-z0-9_./@-]+$/.test
  * @since 0.0.0
  * @category Variants
  */
-export const filePathVariants = (input: string): ReadonlyArray<string> => pathFragmentVariants(input);
+export const filePathVariants = pathFragmentVariants;
 
 /**
  * Generate deterministic module-specifier variants for import-edge lookup.
@@ -57,4 +56,4 @@ export const filePathVariants = (input: string): ReadonlyArray<string> => pathFr
  * @since 0.0.0
  * @category Variants
  */
-export const moduleSpecifierVariants = (input: string): ReadonlyArray<string> => pathFragmentVariants(input);
+export const moduleSpecifierVariants = pathFragmentVariants;

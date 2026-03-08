@@ -5,20 +5,18 @@
  * @module @beep/nlp/IdentifierText
  */
 import * as Str from "@beep/utils/Str";
-import { pipe } from "effect";
+import { flow } from "effect";
 import * as A from "effect/Array";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 
-const normalizeIdentifierWords = (input: string): string =>
-  pipe(
-    input,
-    QueryText.normalizePhrase,
-    Str.replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2"),
-    Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
-    Str.replace(/[_-]+/g, " "),
-    QueryText.normalizeQuestion
-  );
+const normalizeIdentifierWords = flow(
+  QueryText.normalizePhrase,
+  Str.replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2"),
+  Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+  Str.replace(/[_-]+/g, " "),
+  QueryText.normalizeQuestion
+);
 
 /**
  * Convert a candidate identifier phrase into lowercase word tokens.
@@ -26,8 +24,7 @@ const normalizeIdentifierWords = (input: string): string =>
  * @since 0.0.0
  * @category Tokenization
  */
-export const tokens = (input: string): ReadonlyArray<string> =>
-  pipe(input, normalizeIdentifierWords, Str.split(" "), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty));
+export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty));
 
 /**
  * Generate deterministic identifier variants for symbol lookup.
