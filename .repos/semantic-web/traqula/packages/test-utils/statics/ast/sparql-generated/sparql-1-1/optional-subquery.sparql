@@ -1,9 +1,0 @@
-SELECT * WHERE {
-  {
-  }
-  OPTIONAL {
-    SELECT * WHERE {
-      ?s ?p ?o .
-    }
-  }
-}

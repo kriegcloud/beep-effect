@@ -1,8 +1,0 @@
-{
-  "http://schema.org/": {
-    "properties": {
-      "additionalType": {"subPropertyOf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
-    }
-  },
-  "http://microformats.org/profile/hcard": {}
-}

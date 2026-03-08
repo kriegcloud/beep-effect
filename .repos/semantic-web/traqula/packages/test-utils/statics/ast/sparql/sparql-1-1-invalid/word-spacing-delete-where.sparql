@@ -1,3 +1,0 @@
-DeleteWhere {
-  ?s ?p ?o .
-}

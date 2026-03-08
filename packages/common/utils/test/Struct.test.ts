@@ -268,6 +268,16 @@ describe("@beep/utils Struct.keys", () => {
 });
 
 describe("@beep/utils Struct.fromEntries", () => {
+  it("treats __proto__ as a regular own property", () => {
+    const result = Struct.fromEntries([["__proto__", { polluted: true }]] as const);
+    const descriptor = Object.getOwnPropertyDescriptor(result, "__proto__");
+
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+    expect(Object.hasOwn(result, "__proto__")).toBe(true);
+    expect(descriptor?.value).toEqual({ polluted: true });
+    expect(Object.hasOwn(result, "polluted")).toBe(false);
+  });
+
   it("creates an object from entries", () => {
     const result = Struct.fromEntries([
       ["a", 1],

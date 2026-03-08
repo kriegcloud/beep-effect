@@ -1,5 +1,0 @@
-yarn run build
-yarn run lint
-yarn run test
-yarn run spec:all
-yarn run depcheck

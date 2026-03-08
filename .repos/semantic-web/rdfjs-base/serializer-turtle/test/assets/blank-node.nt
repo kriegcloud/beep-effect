@@ -1,2 +1,0 @@
-<http://example.org/resourceA> <http://example.org/propertyA> _:b1 .
-_:b1 <http://example.org/propertyB> <http://example.org/resourceB> .

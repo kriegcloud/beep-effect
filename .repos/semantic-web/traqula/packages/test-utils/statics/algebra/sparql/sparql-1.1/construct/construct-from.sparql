@@ -1,4 +1,0 @@
-CONSTRUCT { ?s ?p ?o. }
-FROM <http://example.com/data>
-WHERE { ?s ?p ?o. }
-LIMIT 100

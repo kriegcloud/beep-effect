@@ -1,7 +1,0 @@
-@@ not yet used. is this needed?
-%<http://shex.io/extensions/javascript/js>:{
-          const val = this.triples[0].object.value;
-          return isNaN(Date.parse(val))
-            ? [{type: "SemActViolation", message: `"${val} is not a date`}]
-            : []
-        %}

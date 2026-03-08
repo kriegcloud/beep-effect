@@ -1,7 +1,0 @@
-PREFIX : <http://example.com/ns#>
-CONSTRUCT {
-  << :s :p :o ~ :iri >> .
-  :iri :q :z .
-}
-WHERE {
-}

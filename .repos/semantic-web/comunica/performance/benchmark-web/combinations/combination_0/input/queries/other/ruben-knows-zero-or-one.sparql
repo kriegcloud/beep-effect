@@ -1,5 +1,0 @@
-# Datasource: https://www.rubensworks.net/
-SELECT * WHERE {
-  ?me foaf:knows? ?other.
-}
-

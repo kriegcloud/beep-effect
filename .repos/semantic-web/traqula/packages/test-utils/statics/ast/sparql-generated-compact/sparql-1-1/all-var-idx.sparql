@@ -1,1 +1,0 @@
-SELECT * WHERE { ?1s ?1p ?1o . ?2s ?2p ?2o . }

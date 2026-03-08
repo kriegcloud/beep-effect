@@ -1,5 +1,0 @@
-Effect.tryPromise
-13:35 - 13:52 | 0 | The 'catch' callback in Effect.tryPromise returns global 'Error', which loses type safety as untagged errors merge together. Consider using a tagged error and optionally wrapping the original in a 'cause' property.    effect(globalErrorInEffectCatch)
-
-Effect.tryMapPromise
-23:60 - 23:80 | 0 | The 'catch' callback in Effect.tryMapPromise returns global 'Error', which loses type safety as untagged errors merge together. Consider using a tagged error and optionally wrapping the original in a 'cause' property.    effect(globalErrorInEffectCatch)

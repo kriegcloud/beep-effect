@@ -1,6 +1,0 @@
-[graphiti-recover] Dry-run mode enabled; no containers or MCP services will be mutated.
-[graphiti-recover] Planned restart targets: graphiti-mcp-falkordb-1, graphiti-mcp-graphiti-mcp-1
-[graphiti-recover] Planned MCP endpoint: http://localhost:8000/mcp
-[graphiti-recover] Planned verify group: beep-ast-kg-p7-20260226T004744Z
-[graphiti-recover] Planned republish mode: never
-[graphiti-recover] Planned MCP path patch mode: auto

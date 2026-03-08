@@ -1,4 +1,0 @@
-Fn.pipe(
-  "hello"
-)
-8:28 - 10:1 | 2 | This pipe call contains no arguments.    effect(unnecessaryPipe)

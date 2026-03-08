@@ -1,7 +1,0 @@
-PREFIX : <http://mydom#>
-SELECT (?duration as ?d) WHERE {
-  ?a :startTime ?st;
-     :endTime ?et.
-
-  BIND( (?et - ?st) as ?duration)
-}

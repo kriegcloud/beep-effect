@@ -362,7 +362,12 @@ export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
   const out: Record<PropertyKey, unknown> = {};
 
   for (const [key, value] of entries) {
-    Reflect.set(out, key, value);
+    Reflect.defineProperty(out, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true,
+    });
   }
 
   return Fn.cast<Record<PropertyKey, unknown>, Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }>>(out);

@@ -1,9 +1,0 @@
-01	2026-02-26T05:37:47Z	2026-02-26T05:37:47Z	1	bunx tstyche packages/common/ontology/test/types/simple-property-def.tst.ts	outputs/p7-verification/logs/scenario-01.log
-02	2026-02-26T05:37:47Z	2026-02-26T05:37:47Z	1	bunx tstyche packages/common/ontology/test/types/object-specifier.tst.ts	outputs/p7-verification/logs/scenario-02.log
-03	2026-02-26T05:37:47Z	2026-02-26T05:37:47Z	1	bunx tstyche packages/common/ontology/test/types/aggregate-query-primitives.tst.ts	outputs/p7-verification/logs/scenario-03.log
-04	2026-02-26T05:37:47Z	2026-02-26T05:37:47Z	1	bunx tstyche packages/common/ontology/test/types/p5-objectset-osdk-heavy.tst.ts	outputs/p7-verification/logs/scenario-04.log
-05	2026-02-26T05:37:47Z	2026-02-26T05:37:48Z	1	bunx tstyche outputs/p7-verification/tmp/type-runtime-alias-matrix.tst.ts	outputs/p7-verification/logs/scenario-05.log
-06	2026-02-26T05:37:48Z	2026-02-26T05:37:48Z	0	bun outputs/p7-verification/tmp/property-security-runtime.ts	outputs/p7-verification/logs/scenario-06.log
-07	2026-02-26T05:37:48Z	2026-02-26T05:37:49Z	0	node outputs/p7-verification/tmp/export-parity-check.mjs	outputs/p7-verification/logs/scenario-07.log
-08	2026-02-26T05:38:24Z	2026-02-26T05:38:27Z	1	bunx tstyche --config /tmp/tstyche-p7-ontology.json --root /home/elpresidank/YeeBois/projects/beep-effect	outputs/p7-verification/logs/scenario-08.log
-09	2026-02-26T05:38:43Z	2026-02-26T05:38:48Z	0	bunx tstyche --config /tmp/tstyche-p7-ontology.json --root /home/elpresidank/YeeBois/projects/beep-effect	outputs/p7-verification/logs/scenario-09.log

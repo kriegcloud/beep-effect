@@ -1,5 +1,0 @@
-PREFIX schema: <http://schema.org/>
-
-<http://example.org/recipe>
-  a schema:Recipe ;
-  schema:datePublished "2020-02-02xx".

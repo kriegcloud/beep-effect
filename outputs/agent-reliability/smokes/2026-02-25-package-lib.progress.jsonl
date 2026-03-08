@@ -1,6 +1,0 @@
-{"type":"suite.started","atEpochMs":1772060258271,"plannedRunCount":2,"strictTaskCount":18,"maxWallMinutes":30}
-{"type":"run.started","atEpochMs":1772060258272,"runId":"package_lib_01:minimal:codex:1","runIndex":1,"totalRuns":2,"taskId":"package_lib_01","condition":"minimal","agent":"codex","trial":1}
-{"type":"run.completed","atEpochMs":1772060740988,"runId":"package_lib_01:minimal:codex:1","runIndex":1,"totalRuns":2,"success":false,"failureType":"runtime","wallMs":482709.25747400004}
-{"type":"run.started","atEpochMs":1772060740988,"runId":"package_lib_01:minimal:claude:1","runIndex":2,"totalRuns":2,"taskId":"package_lib_01","condition":"minimal","agent":"claude","trial":1}
-{"type":"run.completed","atEpochMs":1772061222902,"runId":"package_lib_01:minimal:claude:1","runIndex":2,"totalRuns":2,"success":false,"failureType":"effect_compliance","wallMs":481912.56348300003}
-{"type":"suite.completed","atEpochMs":1772061222902,"status":"completed","completedRunCount":2,"plannedRunCount":2}

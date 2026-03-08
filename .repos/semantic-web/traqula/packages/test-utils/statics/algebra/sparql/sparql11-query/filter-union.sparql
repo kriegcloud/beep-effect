@@ -1,7 +1,0 @@
-SELECT $this WHERE {
-  {
-    FILTER (false) .
-  } UNION {
-    FILTER ($this = <http://example.org/InvalidResource>) .
-  }
-}

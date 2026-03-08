@@ -1,9 +1,0 @@
-<http://a.example/percust>@ <http://a.example/Person>,
-<http://a.example/percust>@!<http://a.example/Employee>,
-<http://a.example/percust>@ <http://a.example/Customer>,
-<http://a.example/empcust>@!<http://a.example/Person>,
-<http://a.example/empcust>@ <http://a.example/Employee>,
-<http://a.example/empcust>@ <http://a.example/Customer>,
-<http://a.example/xcust>  @!<http://a.example/Person>,
-<http://a.example/xcust>  @!<http://a.example/Employee>,
-<http://a.example/xcust>  @ <http://a.example/Customer>

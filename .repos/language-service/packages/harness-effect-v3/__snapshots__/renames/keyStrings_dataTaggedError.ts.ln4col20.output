@@ -1,4 +1,0 @@
-// Result of running rename keyStrings at position 4:20
-import * as Data from "effect/Data"
-
-export class MyError extends Data.TaggedError("NewText")<{}> {}
