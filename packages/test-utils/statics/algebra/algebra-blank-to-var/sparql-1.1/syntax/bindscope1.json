@@ -1,0 +1,102 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "extend",
+        "input": {
+          "type": "bgp",
+          "patterns": [
+            {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "NamedNode",
+                "value": "http://www.example.orgs"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://www.example.orgp"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          ]
+        },
+        "variable": {
+          "termType": "Variable",
+          "value": "o1"
+        },
+        "expression": {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "+",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Literal",
+                "value": "1",
+                "datatype": {
+                  "termType": "NamedNode",
+                  "value": "http://www.w3.org/2001/XMLSchema#integer"
+                }
+              }
+            },
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Variable",
+                "value": "o"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "NamedNode",
+              "value": "http://www.example.orgs"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://www.example.orgq"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "o1"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "o"
+    },
+    {
+      "termType": "Variable",
+      "value": "o1"
+    }
+  ]
+}

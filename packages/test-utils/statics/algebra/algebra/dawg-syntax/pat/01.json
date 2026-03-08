@@ -1,0 +1,8 @@
+{
+  "type": "project",
+  "input": {
+    "type": "bgp",
+    "patterns": []
+  },
+  "variables": []
+}

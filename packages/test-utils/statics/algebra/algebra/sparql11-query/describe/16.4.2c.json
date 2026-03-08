@@ -1,0 +1,42 @@
+{
+  "type": "describe",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "x"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://xmlns.com/foaf/0.1/knows"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "y"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "terms": [
+    {
+      "termType": "Variable",
+      "value": "x"
+    },
+    {
+      "termType": "Variable",
+      "value": "y"
+    },
+    {
+      "termType": "NamedNode",
+      "value": "http://example.org/"
+    }
+  ]
+}

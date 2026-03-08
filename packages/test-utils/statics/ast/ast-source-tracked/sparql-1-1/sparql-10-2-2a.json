@@ -1,0 +1,266 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 47
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 47
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/book/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 62,
+          "end": 88
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 49,
+        "end": 88
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "ns",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 103,
+          "end": 127
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 90,
+        "end": 127
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "values",
+        "variables": [
+          {
+            "type": "term",
+            "subType": "variable",
+            "value": "book",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 169,
+              "end": 174
+            }
+          }
+        ],
+        "values": [
+          {
+            "book": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "book1",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 177,
+                "end": 183
+              },
+              "prefix": ""
+            }
+          },
+          {
+            "book": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "book3",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 184,
+                "end": 190
+              },
+              "prefix": ""
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 162,
+          "end": 192
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "book",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 196,
+                "end": 201
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 202,
+                "end": 210
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "title",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 211,
+                "end": 217
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 196,
+              "end": 217
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "book",
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "price",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 229,
+                "end": 237
+              },
+              "prefix": "ns"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "price",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 238,
+                "end": 244
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 229,
+              "end": 244
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 196,
+          "end": 246
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 157,
+      "end": 248
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "book",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 137,
+        "end": 142
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "title",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 143,
+        "end": 149
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "price",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 150,
+        "end": 156
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX dc:   <http://purl.org/dc/elements/1.1/> \nPREFIX :     <http://example.org/book/> \nPREFIX ns:   <http://example.org/ns#> \n\nSELECT ?book ?title ?price\n{\n   VALUES ?book { :book1 :book3 }\n   ?book dc:title ?title ;\n         ns:price ?price .\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 248
+    },
+    "startOnNew": 0,
+    "endOnNew": 248
+  },
+  "type": "query"
+}

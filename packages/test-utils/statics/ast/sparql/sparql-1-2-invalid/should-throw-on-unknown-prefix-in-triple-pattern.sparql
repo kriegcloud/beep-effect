@@ -1,0 +1,10 @@
+VERSION "1.2"
+PREFIX dbr:  <http://dbpedia.org/resource/>
+#PREFIX geo:  <http://example.org/ontology/geo/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dbo:  <http://dbpedia.org/property/>
+
+SELECT * {
+    << ?territory geo:partOf ?country >> prov:wasAttributedTo ?claimant .
+    ?territory dbo:name ?name .
+}

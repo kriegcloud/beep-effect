@@ -1,0 +1,6 @@
+SELECT ?hero_graph ?hero_name WHERE {
+  ?b2 <http://example.org/hero> ?hero.
+  GRAPH ?hero_graph {
+    ?hero <http://example.org/name> ?hero_name.
+  }
+}

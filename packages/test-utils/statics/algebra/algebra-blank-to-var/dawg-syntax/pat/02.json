@@ -1,0 +1,102 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "leftjoin",
+        "input": [
+          {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "a"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://example.org/ns#b"
+                },
+                "object": {
+                  "termType": "NamedNode",
+                  "value": "http://example.org/ns#c"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "NamedNode",
+                  "value": "http://example.org/ns#x"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://example.org/ns#y"
+                },
+                "object": {
+                  "termType": "NamedNode",
+                  "value": "http://example.org/ns#z"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "NamedNode",
+              "value": "http://example.org/ns#x"
+            },
+            "predicate": {
+              "termType": "Variable",
+              "value": "y"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "z"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "a"
+    },
+    {
+      "termType": "Variable",
+      "value": "y"
+    },
+    {
+      "termType": "Variable",
+      "value": "z"
+    }
+  ]
+}

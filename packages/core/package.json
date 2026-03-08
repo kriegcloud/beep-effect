@@ -1,0 +1,46 @@
+{
+  "name": "@traqula/core",
+  "type": "module",
+  "version": "1.0.3",
+  "description": "Core components of Traqula",
+  "lsd:module": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comunica/traqula.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/comunica/traqula/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/esm/lib/index.d.ts",
+      "import": "./dist/esm/lib/index.js",
+      "require": "./dist/cjs/lib/index.js"
+    }
+  },
+  "main": "dist/esm/lib/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/*/lib/**/*.d.ts",
+    "dist/*/lib/**/*.js",
+    "dist/*/lib/**/*.js.map",
+    "dist/cjs/package.json"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "build": "yarn build:ts && yarn build:cjs",
+    "build:ts": "node \"../../node_modules/typescript/bin/tsc\" -b",
+    "build:cjs": "node \"../../node_modules/typescript/bin/tsc\" -b tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@traqula/chevrotain": "^1.0.0"
+  }
+}

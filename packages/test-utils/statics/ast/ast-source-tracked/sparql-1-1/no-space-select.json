@@ -1,0 +1,268 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 17,
+                "end": 19
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 19,
+                "end": 21
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 21,
+                "end": 23
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 17,
+              "end": 23
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 17,
+          "end": 23
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 16,
+      "end": 24
+    }
+  },
+  "solutionModifiers": {
+    "limitOffset": {
+      "type": "solutionModifier",
+      "subType": "limitOffset",
+      "limit": 10,
+      "offset": 9,
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 59,
+        "end": 73
+      }
+    },
+    "group": {
+      "type": "solutionModifier",
+      "subType": "group",
+      "groupings": [
+        {
+          "type": "term",
+          "subType": "variable",
+          "value": "s",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 32,
+            "end": 34
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 24,
+        "end": 34
+      }
+    },
+    "having": {
+      "type": "solutionModifier",
+      "subType": "having",
+      "having": [
+        {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "=",
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 42,
+                "end": 44
+              }
+            },
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 45,
+                "end": 47
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 41,
+            "end": 48
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 35,
+        "end": 48
+      }
+    },
+    "order": {
+      "type": "solutionModifier",
+      "subType": "order",
+      "orderDefs": [
+        {
+          "expression": {
+            "type": "term",
+            "subType": "variable",
+            "value": "s",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 55,
+              "end": 59
+            }
+          },
+          "descending": false,
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 55,
+            "end": 59
+          }
+        }
+      ],
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 48,
+        "end": 59
+      }
+    }
+  },
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "s",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 14,
+        "end": 16
+      }
+    }
+  ],
+  "distinct": true,
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECTDISTINCT?s{?s?p?o}GROUPBY(?s)HAVING(?p=?o)ORDERBY(?s)LIMIT10OFFSET9VALUES?o{trueundeffalse}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 97
+    },
+    "startOnNew": 0,
+    "endOnNew": 97
+  },
+  "type": "query",
+  "values": {
+    "type": "pattern",
+    "subType": "values",
+    "variables": [
+      {
+        "type": "term",
+        "subType": "variable",
+        "value": "o",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 79,
+          "end": 81
+        }
+      }
+    ],
+    "values": [
+      {
+        "o": {
+          "type": "term",
+          "subType": "literal",
+          "value": "true",
+          "langOrIri": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "http://www.w3.org/2001/XMLSchema#boolean",
+            "loc": {
+              "sourceLocationType": "noMaterialize"
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 82,
+            "end": 86
+          }
+        }
+      },
+      {},
+      {
+        "o": {
+          "type": "term",
+          "subType": "literal",
+          "value": "false",
+          "langOrIri": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "http://www.w3.org/2001/XMLSchema#boolean",
+            "loc": {
+              "sourceLocationType": "noMaterialize"
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 91,
+            "end": 96
+          }
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 73,
+      "end": 97
+    }
+  }
+}

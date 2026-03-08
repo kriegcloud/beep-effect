@@ -1,0 +1,92 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "s"
+            },
+            "predicate": {
+              "termType": "Variable",
+              "value": "p1"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "o1"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          },
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "s"
+            },
+            "predicate": {
+              "termType": "Variable",
+              "value": "p2"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "o2"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      },
+      {
+        "type": "values",
+        "variables": [
+          {
+            "termType": "Variable",
+            "value": "o1"
+          },
+          {
+            "termType": "Variable",
+            "value": "o2"
+          }
+        ],
+        "bindings": [
+          {
+            "o1": {
+              "termType": "Literal",
+              "value": "Alan",
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#string"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "s"
+    },
+    {
+      "termType": "Variable",
+      "value": "o1"
+    },
+    {
+      "termType": "Variable",
+      "value": "o2"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "type": "deleteinsert",
+  "insert": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "NamedNode",
+        "value": "http://example.com/ns#s"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://example.com/ns#p"
+      },
+      "object": {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#a"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#b"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "http://example.com/ns#c"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    }
+  ]
+}

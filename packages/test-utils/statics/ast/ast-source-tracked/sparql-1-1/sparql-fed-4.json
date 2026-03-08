@@ -1,0 +1,320 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "void",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://rdfs.org/ns/void#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 14,
+          "end": 40
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 40
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "dc",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/dc/elements/1.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 55,
+          "end": 89
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 41,
+        "end": 89
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "doap",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://usefulinc.com/ns/doap#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 104,
+          "end": 135
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 90,
+        "end": 135
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 221,
+                "end": 223
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "subject",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 224,
+                "end": 234
+              },
+              "prefix": "dc"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "projectSubject",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 235,
+                "end": 250
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 221,
+              "end": 250
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "sparqlEndpoint",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 258,
+                "end": 277
+              },
+              "prefix": "void"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "service",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 278,
+                "end": 286
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 258,
+              "end": 286
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 221,
+          "end": 288
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "regex",
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "projectSubject",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 307,
+                "end": 322
+              }
+            },
+            {
+              "type": "term",
+              "subType": "literal",
+              "value": "remote",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 324,
+                "end": 332
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 301,
+            "end": 333
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 294,
+          "end": 333
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "service",
+        "silent": false,
+        "name": {
+          "type": "term",
+          "subType": "variable",
+          "value": "service",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 378,
+            "end": 386
+          }
+        },
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "project",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 394,
+                    "end": 402
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "name",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 404,
+                    "end": 413
+                  },
+                  "prefix": "doap"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "projectName",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 414,
+                    "end": 426
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 394,
+                  "end": 426
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 394,
+              "end": 428
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 370,
+          "end": 430
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 173,
+      "end": 433
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "service",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 145,
+        "end": 153
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "projectName",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 154,
+        "end": 166
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX  void: <http://rdfs.org/ns/void#>\nPREFIX  dc:   <http://purl.org/dc/elements/1.1/>\nPREFIX  doap: <http://usefulinc.com/ns/doap#> \n\nSELECT ?service ?projectName\nWHERE {\n  # Find the service with subject \"remote\".\n  ?p dc:subject ?projectSubject ;\n     void:sparqlEndpoint ?service .\n     FILTER regex(?projectSubject, \"remote\")\n\n  # Query that service projects.\n  SERVICE ?service {\n     ?project  doap:name ?projectName . } \n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 433
+    },
+    "startOnNew": 0,
+    "endOnNew": 433
+  },
+  "type": "query"
+}

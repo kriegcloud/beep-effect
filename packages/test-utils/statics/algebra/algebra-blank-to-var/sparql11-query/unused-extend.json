@@ -1,0 +1,99 @@
+{
+  "type": "project",
+  "input": {
+    "type": "extend",
+    "input": {
+      "type": "extend",
+      "input": {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "a"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://mydom#startTime"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "st"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          },
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "a"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://mydom#endTime"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "et"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      },
+      "variable": {
+        "termType": "Variable",
+        "value": "duration"
+      },
+      "expression": {
+        "type": "expression",
+        "subType": "operator",
+        "operator": "-",
+        "args": [
+          {
+            "type": "expression",
+            "subType": "term",
+            "term": {
+              "termType": "Variable",
+              "value": "et"
+            }
+          },
+          {
+            "type": "expression",
+            "subType": "term",
+            "term": {
+              "termType": "Variable",
+              "value": "st"
+            }
+          }
+        ]
+      }
+    },
+    "variable": {
+      "termType": "Variable",
+      "value": "d"
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "term",
+      "term": {
+        "termType": "Variable",
+        "value": "duration"
+      }
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "d"
+    }
+  ]
+}

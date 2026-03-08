@@ -1,0 +1,146 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "s"
+            },
+            "predicate": {
+              "termType": "Variable",
+              "value": "p"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "o"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          },
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "BlankNode",
+              "value": "g_0"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+            },
+            "object": {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "Variable",
+                "value": "s"
+              },
+              "predicate": {
+                "termType": "Variable",
+                "value": "p"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      },
+      {
+        "type": "path",
+        "subject": {
+          "termType": "BlankNode",
+          "value": "g_1"
+        },
+        "predicate": {
+          "type": "alt",
+          "input": [
+            {
+              "type": "link",
+              "iri": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#p1"
+              }
+            },
+            {
+              "type": "link",
+              "iri": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#p2"
+              }
+            }
+          ]
+        },
+        "object": {
+          "termType": "Literal",
+          "value": "ABC",
+          "datatype": {
+            "termType": "NamedNode",
+            "value": "http://www.w3.org/2001/XMLSchema#string"
+          }
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "BlankNode",
+              "value": "g_0"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://example.com/ns#r"
+            },
+            "object": {
+              "termType": "BlankNode",
+              "value": "g_1"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "o"
+    },
+    {
+      "termType": "Variable",
+      "value": "p"
+    },
+    {
+      "termType": "Variable",
+      "value": "s"
+    }
+  ]
+}

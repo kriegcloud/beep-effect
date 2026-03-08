@@ -1,0 +1,251 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdfs",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 52
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 52
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 65,
+          "end": 110
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 53,
+        "end": 110
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "bsbm",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 124,
+          "end": 184
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 111,
+        "end": 184
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "product",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 218,
+                "end": 226
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "label",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 227,
+                "end": 237
+              },
+              "prefix": "rdfs"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "label",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 238,
+                "end": 244
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 218,
+              "end": 244
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "product",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 251,
+                "end": 259
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "type",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 260,
+                "end": 268
+              },
+              "prefix": "rdf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "Product",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 269,
+                "end": 281
+              },
+              "prefix": "bsbm"
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 251,
+              "end": 281
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 218,
+          "end": 283
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "regex",
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "label",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 298,
+                "end": 304
+              }
+            },
+            {
+              "type": "term",
+              "subType": "literal",
+              "value": "word",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 306,
+                "end": 312
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 292,
+            "end": 313
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 285,
+          "end": 313
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 215,
+      "end": 315
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "product",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 193,
+        "end": 201
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "label",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 202,
+        "end": 208
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX bsbm: <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/>\n\nSELECT ?product ?label\nWHERE {\n\t?product rdfs:label ?label .\n    ?product rdf:type bsbm:Product .\n\tFILTER regex(?label, \"word\")\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 315
+    },
+    "startOnNew": 0,
+    "endOnNew": 315
+  },
+  "type": "query"
+}

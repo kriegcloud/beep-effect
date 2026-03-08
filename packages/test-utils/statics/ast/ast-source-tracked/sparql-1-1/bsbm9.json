@@ -1,0 +1,120 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rev",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://purl.org/stuff/rev#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 12,
+          "end": 40
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 40
+      }
+    }
+  ],
+  "subType": "describe",
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "x",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 51,
+        "end": 53
+      }
+    }
+  ],
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromRatingSite1/Review7958",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 62,
+                "end": 151
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "reviewer",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 152,
+                "end": 164
+              },
+              "prefix": "rev"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 165,
+                "end": 167
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 62,
+              "end": 167
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 62,
+          "end": 167
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 60,
+      "end": 169
+    }
+  },
+  "solutionModifiers": {},
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX rev: <http://purl.org/stuff/rev#>\n\nDESCRIBE ?x\nWHERE { <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromRatingSite1/Review7958> rev:reviewer ?x }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 169
+    },
+    "startOnNew": 0,
+    "endOnNew": 169
+  },
+  "type": "query"
+}

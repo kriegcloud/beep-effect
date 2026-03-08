@@ -1,0 +1,13 @@
+{
+  "type": "describe",
+  "input": {
+    "type": "bgp",
+    "patterns": []
+  },
+  "terms": [
+    {
+      "termType": "NamedNode",
+      "value": "http://example.org/"
+    }
+  ]
+}

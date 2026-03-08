@@ -1,0 +1,28 @@
+{
+  "type": "ask",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "NamedNode",
+          "value": "http://www.example.org/instance#a"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://www.example.org/schema#p"
+        },
+        "object": {
+          "termType": "NamedNode",
+          "value": "http://www.example.org/instance#b"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  }
+}

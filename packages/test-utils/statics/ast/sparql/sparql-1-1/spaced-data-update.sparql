@@ -1,0 +1,11 @@
+# Basically tests Note 7 of the SPARQL 1.1 spec
+INsert     Data {
+  <http://example.org/subject> <http://example.org/predicate> "object" .
+};
+Delete
+Data {
+  <http://example.org/subject> <http://example.org/predicate> "object" .
+};
+DeLete WHERE {
+  <http://example.org/subject> <http://example.org/predicate> ?o .
+};

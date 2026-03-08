@@ -1,0 +1,120 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 15,
+          "end": 43
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 43
+      }
+    }
+  ],
+  "subType": "describe",
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "x",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 53,
+        "end": 55
+      }
+    }
+  ],
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 67,
+                "end": 69
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "mbox",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 70,
+                "end": 79
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "mailto:alice@org",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 80,
+                "end": 98
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 67,
+              "end": 98
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 67,
+          "end": 98
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 65,
+      "end": 100
+    }
+  },
+  "solutionModifiers": {},
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:   <http://xmlns.com/foaf/0.1/>\nDESCRIBE ?x\nWHERE    { ?x foaf:mbox <mailto:alice@org> }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 100
+    },
+    "startOnNew": 0,
+    "endOnNew": 100
+  },
+  "type": "query"
+}

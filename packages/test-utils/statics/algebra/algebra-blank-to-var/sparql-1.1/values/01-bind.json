@@ -1,0 +1,84 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "values",
+        "variables": [
+          {
+            "termType": "Variable",
+            "value": "book"
+          }
+        ],
+        "bindings": [
+          {
+            "book": {
+              "termType": "NamedNode",
+              "value": "http://example.org/book/book1"
+            }
+          }
+        ]
+      },
+      {
+        "type": "bgp",
+        "patterns": [
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "book"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://purl.org/dc/elements/1.1/title"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "title"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          },
+          {
+            "type": "pattern",
+            "termType": "Quad",
+            "subject": {
+              "termType": "Variable",
+              "value": "book"
+            },
+            "predicate": {
+              "termType": "NamedNode",
+              "value": "http://example.org/ns#price"
+            },
+            "object": {
+              "termType": "Variable",
+              "value": "price"
+            },
+            "graph": {
+              "termType": "DefaultGraph",
+              "value": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "book"
+    },
+    {
+      "termType": "Variable",
+      "value": "title"
+    },
+    {
+      "termType": "Variable",
+      "value": "price"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "type": "project",
+  "input": {
+    "type": "join",
+    "input": [
+      {
+        "type": "values",
+        "variables": [
+          {
+            "termType": "Variable",
+            "value": "x"
+          }
+        ],
+        "bindings": [
+          {
+            "x": {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#s"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#p"
+              },
+              "object": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          },
+          {
+            "x": {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#x"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#q"
+              },
+              "object": {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/ns#s"
+                },
+                "predicate": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/ns#p"
+                },
+                "object": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/ns#o"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "values",
+        "variables": [
+          {
+            "termType": "Variable",
+            "value": "y"
+          },
+          {
+            "termType": "Variable",
+            "value": "z"
+          }
+        ],
+        "bindings": [
+          {
+            "y": {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#s"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#p"
+              },
+              "object": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            },
+            "z": {
+              "termType": "Literal",
+              "value": "123",
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#integer"
+              }
+            }
+          },
+          {
+            "y": {
+              "termType": "Literal",
+              "value": "123",
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#integer"
+              }
+            },
+            "z": {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#s"
+              },
+              "predicate": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#p"
+              },
+              "object": {
+                "termType": "NamedNode",
+                "value": "http://example.com/ns#o"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "x"
+    },
+    {
+      "termType": "Variable",
+      "value": "y"
+    },
+    {
+      "termType": "Variable",
+      "value": "z"
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 41
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 41
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 69,
+                "end": 71
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 72,
+                "end": 81
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 83,
+                "end": 88
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 69,
+              "end": 88
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "mbox",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 99,
+                "end": 108
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "mbox",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 110,
+                "end": 115
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 99,
+              "end": 115
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 69,
+          "end": 117
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "isliteral",
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "mbox",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 143,
+                "end": 148
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 133,
+            "end": 149
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 126,
+          "end": 149
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 67,
+      "end": 151
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "name",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 49,
+        "end": 54
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "mbox",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 55,
+        "end": 60
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT ?name ?mbox\nWHERE { ?x foaf:name  ?name ;\n        foaf:mbox  ?mbox .\n        FILTER isLiteral(?mbox) }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 151
+    },
+    "startOnNew": 0,
+    "endOnNew": 151
+  },
+  "type": "query"
+}

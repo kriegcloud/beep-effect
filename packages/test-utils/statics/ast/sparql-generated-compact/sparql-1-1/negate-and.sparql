@@ -1,0 +1,1 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#> SELECT * WHERE { { ?c <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> owl:Class . } FILTER ( ! ( BOUND( ?c ) && REGEX( STR( ?c ) , "^toto" , "i" ) ) ) } LIMIT 10

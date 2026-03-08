@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/ns#> SELECT * WHERE { << :x ?R :z ~ :iri1 >> . :iri1 :p << :a :b ?C ~ :iri2 >> . << << :x ?R :z ~ _:bnode1 >> :p << :a :b _:g_0 ~ _:bnode1 >> ~ :iri3 >> . :iri3 :q << << _:g_1 ?R :z ~ _:bnode2 >> :p << :a :b _:g_2 ~ _:bnode2 >> ~ :iri3 >> . }

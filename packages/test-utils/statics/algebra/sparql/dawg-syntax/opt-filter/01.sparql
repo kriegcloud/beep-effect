@@ -1,0 +1,9 @@
+PREFIX : <http://example/>
+
+SELECT * {
+    ?x :p ?v .
+    OPTIONAL {
+        ?y :q ?w .
+        FILTER(?v=2)
+    }
+}

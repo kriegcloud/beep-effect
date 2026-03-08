@@ -1,0 +1,175 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 14,
+                "end": 16
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "variable",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 17,
+                "end": 19
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 20,
+                "end": 22
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 14,
+              "end": 22
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 14,
+          "end": 22
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "patternOperation",
+          "operator": "notexists",
+          "args": {
+            "type": "pattern",
+            "subType": "group",
+            "patterns": [
+              {
+                "type": "pattern",
+                "subType": "bgp",
+                "triples": [
+                  {
+                    "type": "triple",
+                    "subject": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "x",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 45,
+                        "end": 47
+                      }
+                    },
+                    "predicate": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "y",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 48,
+                        "end": 50
+                      }
+                    },
+                    "object": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "z",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 51,
+                        "end": 53
+                      }
+                    },
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 45,
+                      "end": 53
+                    }
+                  }
+                ],
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 45,
+                  "end": 53
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 43,
+              "end": 55
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 32,
+            "end": 55
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 25,
+          "end": 55
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 9,
+      "end": 57
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 7,
+        "end": 8
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECT *\n{ \n  ?s ?p ?o\n  FILTER NOT EXISTS { ?x ?y ?z }\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 57
+    },
+    "startOnNew": 0,
+    "endOnNew": 57
+  },
+  "type": "query"
+}

@@ -1,0 +1,140 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 15,
+          "end": 43
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 43
+      }
+    }
+  ],
+  "subType": "describe",
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "x",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 53,
+        "end": 55
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "y",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 56,
+        "end": 58
+      }
+    },
+    {
+      "type": "term",
+      "subType": "namedNode",
+      "value": "http://example.org/",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 59,
+        "end": 80
+      }
+    }
+  ],
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 91,
+                "end": 93
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "knows",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 94,
+                "end": 104
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "y",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 105,
+                "end": 107
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 91,
+              "end": 107
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 91,
+          "end": 107
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 90,
+      "end": 108
+    }
+  },
+  "solutionModifiers": {},
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:   <http://xmlns.com/foaf/0.1/>\nDESCRIBE ?x ?y <http://example.org/>\nWHERE    {?x foaf:knows ?y}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 108
+    },
+    "startOnNew": 0,
+    "endOnNew": 108
+  },
+  "type": "query"
+}

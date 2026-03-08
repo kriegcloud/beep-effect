@@ -1,0 +1,5 @@
+SELECT *
+WHERE {
+    <http://dbpedia.org/resource/12_Monkeys> !<http://dbpedia.org/ontology/starring> ?o
+}
+LIMIT 100

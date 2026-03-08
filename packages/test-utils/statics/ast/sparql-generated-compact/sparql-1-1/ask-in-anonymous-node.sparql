@@ -1,0 +1,1 @@
+BASE <ex:> ASK WHERE { [ <> ?o ; ] . }

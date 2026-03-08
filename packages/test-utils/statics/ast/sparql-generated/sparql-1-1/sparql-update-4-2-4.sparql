@@ -1,0 +1,7 @@
+DELETE {
+  ?S ?P ?O .
+}
+WHERE {
+  ?S ?P ?O .
+  FILTER ( ISBLANK( ?S ) )
+}

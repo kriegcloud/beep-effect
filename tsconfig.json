@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.base.json",
+  "references": [
+    { "path": "packages/algebra-transformations-1-1" },
+    { "path": "packages/algebra-transformations-1-2" },
+    { "path": "packages/chevrotain" },
+    { "path": "packages/core" },
+    { "path": "packages/rules-sparql-1-1" },
+    { "path": "packages/rules-sparql-1-1-adjust" },
+    { "path": "packages/rules-sparql-1-2" },
+    { "path": "packages/test-utils" },
+
+    { "path": "engines/algebra-sparql-1-1" },
+    { "path": "engines/algebra-sparql-1-2" },
+    { "path": "engines/generator-sparql-1-1" },
+    { "path": "engines/generator-sparql-1-2" },
+    { "path": "engines/parser-sparql-1-1" },
+    { "path": "engines/parser-sparql-1-1-adjust" },
+    { "path": "engines/parser-sparql-1-2" }
+  ],
+  "files": [],
+  "include": [],
+  "exclude": [
+    "node_modules"
+  ]
+}

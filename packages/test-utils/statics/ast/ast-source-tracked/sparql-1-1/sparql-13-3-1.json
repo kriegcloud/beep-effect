@@ -1,0 +1,219 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 41
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 41
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "graph",
+        "name": {
+          "type": "term",
+          "subType": "variable",
+          "value": "src",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 176,
+            "end": 180
+          }
+        },
+        "patterns": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "x",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 187,
+                    "end": 189
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "mbox",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 190,
+                    "end": 199
+                  },
+                  "prefix": "foaf"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "mailto:bob@work.example",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 200,
+                    "end": 225
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 187,
+                  "end": 225
+                }
+              },
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "x",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 234,
+                    "end": 236
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "nick",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 237,
+                    "end": 246
+                  },
+                  "prefix": "foaf"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "bobNick",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 247,
+                    "end": 255
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 234,
+                  "end": 255
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 187,
+              "end": 227
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 170,
+          "end": 261
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 164,
+      "end": 265
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [
+      {
+        "clauseType": "named",
+        "value": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "http://example.org/foaf/aliceFoaf",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 75,
+            "end": 110
+          }
+        }
+      },
+      {
+        "clauseType": "named",
+        "value": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "http://example.org/foaf/bobFoaf",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 122,
+            "end": 155
+          }
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 64,
+      "end": 155
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "src",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 50,
+        "end": 54
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "bobNick",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 55,
+        "end": 63
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\n\nSELECT ?src ?bobNick\nFROM NAMED <http://example.org/foaf/aliceFoaf>\nFROM NAMED <http://example.org/foaf/bobFoaf>\nWHERE\n  {\n    GRAPH ?src\n    { ?x foaf:mbox <mailto:bob@work.example> .\n      ?x foaf:nick ?bobNick\n    }\n  }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 265
+    },
+    "startOnNew": 0,
+    "endOnNew": 265
+  },
+  "type": "query"
+}

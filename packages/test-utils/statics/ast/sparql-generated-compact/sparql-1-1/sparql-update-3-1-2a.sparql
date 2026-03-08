@@ -1,0 +1,1 @@
+PREFIX dc: <http://purl.org/dc/elements/1.1/> DELETE DATA { <http://example/book2> dc:title "David Copperfield" . <http://example/book2> dc:creator "Edmund Wells" . }

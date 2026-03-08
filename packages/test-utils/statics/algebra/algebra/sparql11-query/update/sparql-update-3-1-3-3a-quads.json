@@ -1,0 +1,98 @@
+{
+  "type": "deleteinsert",
+  "delete": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "person"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://xmlns.com/foaf/0.1/givenName"
+      },
+      "object": {
+        "termType": "Literal",
+        "value": "Fred",
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    },
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "person"
+      },
+      "predicate": {
+        "termType": "Variable",
+        "value": "property"
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "value"
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    }
+  ],
+  "where": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "person"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://xmlns.com/foaf/0.1/givenName"
+        },
+        "object": {
+          "termType": "Literal",
+          "value": "Fred",
+          "datatype": {
+            "termType": "NamedNode",
+            "value": "http://www.w3.org/2001/XMLSchema#string"
+          }
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "person"
+        },
+        "predicate": {
+          "termType": "Variable",
+          "value": "property"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "value"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "type": "project",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "BlankNode",
+          "value": "e_b"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/ns#p"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "b"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "BlankNode",
+          "value": "e_b"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/ns#p"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "b0"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      },
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "BlankNode",
+          "value": "e_b0"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://example.org/ns#p"
+        },
+        "object": {
+          "termType": "Variable",
+          "value": "b1"
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "b"
+    },
+    {
+      "termType": "Variable",
+      "value": "b0"
+    },
+    {
+      "termType": "Variable",
+      "value": "b1"
+    }
+  ]
+}

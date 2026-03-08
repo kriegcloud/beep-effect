@@ -1,0 +1,7 @@
+{
+  "type": "ask",
+  "input": {
+    "type": "bgp",
+    "patterns": []
+  }
+}

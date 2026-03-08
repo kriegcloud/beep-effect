@@ -1,0 +1,106 @@
+{
+  "context": [],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bind",
+        "expression": {
+          "type": "expression",
+          "subType": "operation",
+          "operator": "-",
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "a",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 25,
+                "end": 27
+              }
+            },
+            {
+              "type": "term",
+              "subType": "literal",
+              "value": "1",
+              "langOrIri": {
+                "type": "term",
+                "subType": "namedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#integer",
+                "loc": {
+                  "sourceLocationType": "noMaterialize"
+                }
+              },
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 27,
+                "end": 29
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 25,
+            "end": 29
+          }
+        },
+        "variable": {
+          "type": "term",
+          "subType": "variable",
+          "value": "b",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 33,
+            "end": 35
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 19,
+          "end": 36
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 15,
+      "end": 38
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 7,
+        "end": 8
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "SELECT * WHERE {\n  BIND (?a-1 AS ?b)\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 38
+    },
+    "startOnNew": 0,
+    "endOnNew": 38
+  },
+  "type": "query"
+}

@@ -1,0 +1,37 @@
+{
+  "type": "project",
+  "input": {
+    "type": "path",
+    "subject": {
+      "termType": "NamedNode",
+      "value": "http://www.example.org/instance#a"
+    },
+    "predicate": {
+      "type": "nps",
+      "iris": [
+        {
+          "termType": "NamedNode",
+          "value": "http://www.example.org/schema#p1"
+        },
+        {
+          "termType": "NamedNode",
+          "value": "http://www.example.org/schema#p2"
+        }
+      ]
+    },
+    "object": {
+      "termType": "Variable",
+      "value": "x"
+    },
+    "graph": {
+      "termType": "DefaultGraph",
+      "value": ""
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "x"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "type": "slice",
+  "input": {
+    "type": "project",
+    "input": {
+      "type": "path",
+      "subject": {
+        "termType": "NamedNode",
+        "value": "http://dbpedia.org/resource/12_Monkeys"
+      },
+      "predicate": {
+        "type": "nps",
+        "iris": [
+          {
+            "termType": "NamedNode",
+            "value": "http://dbpedia.org/ontology/starring"
+          }
+        ]
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "o"
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    },
+    "variables": [
+      {
+        "termType": "Variable",
+        "value": "o"
+      }
+    ]
+  },
+  "start": 0,
+  "length": 100
+}

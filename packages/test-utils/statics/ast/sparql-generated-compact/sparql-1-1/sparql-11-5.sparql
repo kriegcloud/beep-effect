@@ -1,0 +1,1 @@
+PREFIX : <http://example.com/data/#> SELECT ?g ( AVG( ?p ) AS ?avg ) ( ( ( MIN( ?p ) + MAX( ?p ) ) / "2"^^<http://www.w3.org/2001/XMLSchema#integer> ) AS ?c ) WHERE { ?g :p ?p . } GROUP BY ?g

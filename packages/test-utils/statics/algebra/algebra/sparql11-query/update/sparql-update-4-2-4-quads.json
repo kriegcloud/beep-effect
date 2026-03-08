@@ -1,0 +1,68 @@
+{
+  "type": "deleteinsert",
+  "delete": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "S"
+      },
+      "predicate": {
+        "termType": "Variable",
+        "value": "P"
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "O"
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    }
+  ],
+  "where": {
+    "type": "filter",
+    "input": {
+      "type": "bgp",
+      "patterns": [
+        {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "S"
+          },
+          "predicate": {
+            "termType": "Variable",
+            "value": "P"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "O"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        }
+      ]
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "operator",
+      "operator": "isblank",
+      "args": [
+        {
+          "type": "expression",
+          "subType": "term",
+          "term": {
+            "termType": "Variable",
+            "value": "S"
+          }
+        }
+      ]
+    }
+  }
+}

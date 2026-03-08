@@ -1,0 +1,88 @@
+{
+  "type": "project",
+  "input": {
+    "type": "service",
+    "input": {
+      "type": "leftjoin",
+      "input": [
+        {
+          "type": "bgp",
+          "patterns": [
+            {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "Variable",
+                "value": "s"
+              },
+              "predicate": {
+                "termType": "Variable",
+                "value": "p"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "o1"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "service",
+          "input": {
+            "type": "bgp",
+            "patterns": [
+              {
+                "type": "pattern",
+                "termType": "Quad",
+                "subject": {
+                  "termType": "Variable",
+                  "value": "s"
+                },
+                "predicate": {
+                  "termType": "Variable",
+                  "value": "p2"
+                },
+                "object": {
+                  "termType": "Variable",
+                  "value": "o2"
+                },
+                "graph": {
+                  "termType": "DefaultGraph",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          "name": {
+            "termType": "NamedNode",
+            "value": "http://invalid.endpoint.org/sparql"
+          },
+          "silent": true
+        }
+      ]
+    },
+    "name": {
+      "termType": "NamedNode",
+      "value": "http://example1.org/sparql"
+    },
+    "silent": false
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "s"
+    },
+    {
+      "termType": "Variable",
+      "value": "o1"
+    },
+    {
+      "termType": "Variable",
+      "value": "o2"
+    }
+  ]
+}

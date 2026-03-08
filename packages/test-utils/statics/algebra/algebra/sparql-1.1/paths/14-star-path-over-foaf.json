@@ -1,0 +1,59 @@
+{
+  "type": "project",
+  "input": {
+    "type": "orderby",
+    "input": {
+      "type": "path",
+      "subject": {
+        "termType": "Variable",
+        "value": "X"
+      },
+      "predicate": {
+        "type": "ZeroOrMorePath",
+        "path": {
+          "type": "link",
+          "iri": {
+            "termType": "NamedNode",
+            "value": "http://xmlns.com/foaf/0.1/knows"
+          }
+        }
+      },
+      "object": {
+        "termType": "Variable",
+        "value": "Y"
+      },
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      }
+    },
+    "expressions": [
+      {
+        "type": "expression",
+        "subType": "term",
+        "term": {
+          "termType": "Variable",
+          "value": "X"
+        }
+      },
+      {
+        "type": "expression",
+        "subType": "term",
+        "term": {
+          "termType": "Variable",
+          "value": "Y"
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "X"
+    },
+    {
+      "termType": "Variable",
+      "value": "Y"
+    }
+  ]
+}

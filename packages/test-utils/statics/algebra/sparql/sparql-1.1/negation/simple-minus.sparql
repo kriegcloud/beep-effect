@@ -1,0 +1,9 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT *
+WHERE {
+    ?uri skos:prefLabel ?prefLabel
+    MINUS {
+        ?uri skos:broader <https://test.com/>
+    }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "@traqula/algebra-sparql-1-2",
+  "type": "module",
+  "version": "1.0.3",
+  "description": "Convert SPARQL to SPARQL algebra",
+  "author": "Jitse De Smet",
+  "lsd:module": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comunica/traqula.git",
+    "directory": "engines/algebra-sparql-1-2"
+  },
+  "bugs": {
+    "url": "https://github.com/comunica/traqula/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/esm/lib/index.d.ts",
+      "import": "./dist/esm/lib/index.js",
+      "require": "./dist/cjs/lib/index.js"
+    }
+  },
+  "main": "dist/esm/lib/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/*/lib/**/*.d.ts",
+    "dist/*/lib/**/*.js",
+    "dist/*/lib/**/*.js.map",
+    "dist/cjs/package.json"
+  ],
+  "scripts": {
+    "build": "yarn build:ts && yarn build:cjs",
+    "build:ts": "node \"../../node_modules/typescript/bin/tsc\" -b",
+    "build:cjs": "node \"../../node_modules/typescript/bin/tsc\" -b tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@traqula/algebra-sparql-1-1": "^1.0.3",
+    "@traqula/algebra-transformations-1-1": "^1.0.3",
+    "@traqula/algebra-transformations-1-2": "^1.0.3",
+    "@traqula/core": "^1.0.3"
+  },
+  "devDependencies": {
+    "@rdfjs/types": "^2.0.1",
+    "@traqula/generator-sparql-1-2": "^1.0.3",
+    "@traqula/parser-sparql-1-2": "^1.0.3",
+    "@traqula/rules-sparql-1-2": "^1.0.3",
+    "@traqula/test-utils": "^1.0.3",
+    "sparqlalgebrajs": "^5.0.1"
+  }
+}

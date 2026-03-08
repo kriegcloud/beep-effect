@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "declaration": true,
+    "outDir": "dist/esm"
+  },
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/rules-sparql-1-2" },
+    { "path": "../../packages/algebra-transformations-1-1" },
+    { "path": "../../packages/algebra-transformations-1-2" },
+    { "path": "../../packages/test-utils" },
+    { "path": "../algebra-sparql-1-1" },
+    { "path": "../parser-sparql-1-2" },
+    { "path": "../generator-sparql-1-2" }
+  ],
+  "include": ["lib/**/*.ts", "test/**/*.ts"],
+  "exclude": ["dist/**"]
+}

@@ -1,0 +1,203 @@
+{
+  "type": "update",
+  "updates": [
+    {
+      "context": [
+        {
+          "type": "contextDef",
+          "subType": "prefix",
+          "key": "dc",
+          "value": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "http://purl.org/dc/elements/1.1/",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 11,
+              "end": 45
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 0,
+            "end": 45
+          }
+        }
+      ],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "deletedata",
+        "data": [
+          {
+            "type": "graph",
+            "graph": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://example/bookStore",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 66,
+                "end": 92
+              }
+            },
+            "triples": {
+              "type": "pattern",
+              "subType": "bgp",
+              "triples": [
+                {
+                  "type": "triple",
+                  "subject": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "http://example/book1",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 95,
+                      "end": 117
+                    }
+                  },
+                  "predicate": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "title",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 119,
+                      "end": 127
+                    },
+                    "prefix": "dc"
+                  },
+                  "object": {
+                    "type": "term",
+                    "subType": "literal",
+                    "value": "Fundamentals of Compiler Desing",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 129,
+                      "end": 162
+                    }
+                  },
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 95,
+                    "end": 162
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 95,
+                "end": 162
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 60,
+              "end": 164
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 46,
+          "end": 166
+        }
+      }
+    },
+    {
+      "context": [],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "insertdata",
+        "data": [
+          {
+            "type": "graph",
+            "graph": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://example/bookStore",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 190,
+                "end": 216
+              }
+            },
+            "triples": {
+              "type": "pattern",
+              "subType": "bgp",
+              "triples": [
+                {
+                  "type": "triple",
+                  "subject": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "http://example/book1",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 219,
+                      "end": 241
+                    }
+                  },
+                  "predicate": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "title",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 243,
+                      "end": 251
+                    },
+                    "prefix": "dc"
+                  },
+                  "object": {
+                    "type": "term",
+                    "subType": "literal",
+                    "value": "Fundamentals of Compiler Design",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 253,
+                      "end": 286
+                    }
+                  },
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 219,
+                    "end": 286
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 219,
+                "end": 286
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 184,
+              "end": 288
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 170,
+          "end": 290
+        }
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX dc: <http://purl.org/dc/elements/1.1/>\nDELETE DATA\n{ GRAPH <http://example/bookStore> { <http://example/book1>  dc:title  \"Fundamentals of Compiler Desing\" } } ;\n\nINSERT DATA\n{ GRAPH <http://example/bookStore> { <http://example/book1>  dc:title  \"Fundamentals of Compiler Design\" } }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 290
+    },
+    "startOnNew": 0,
+    "endOnNew": 290
+  }
+}

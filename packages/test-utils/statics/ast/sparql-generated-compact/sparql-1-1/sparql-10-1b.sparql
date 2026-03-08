@@ -1,0 +1,1 @@
+PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX ns: <http://example.org/ns#> SELECT ?title ?price WHERE { { ?x ns:price ?p . ?x ns:discount ?discount . BIND( ( ?p * ( "1"^^<http://www.w3.org/2001/XMLSchema#integer> - ?discount ) ) AS ?price ) } { ?x dc:title ?title . } FILTER ( ( ?price < "20"^^<http://www.w3.org/2001/XMLSchema#integer> ) ) }

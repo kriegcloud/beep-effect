@@ -1,0 +1,66 @@
+{
+  "type": "project",
+  "input": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "S"
+        },
+        "predicate": {
+          "termType": "Variable",
+          "value": "P"
+        },
+        "object": {
+          "type": "pattern",
+          "termType": "Quad",
+          "subject": {
+            "termType": "Variable",
+            "value": "a"
+          },
+          "predicate": {
+            "termType": "Variable",
+            "value": "b"
+          },
+          "object": {
+            "termType": "Variable",
+            "value": "c"
+          },
+          "graph": {
+            "termType": "DefaultGraph",
+            "value": ""
+          }
+        },
+        "graph": {
+          "termType": "DefaultGraph",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "a"
+    },
+    {
+      "termType": "Variable",
+      "value": "b"
+    },
+    {
+      "termType": "Variable",
+      "value": "c"
+    },
+    {
+      "termType": "Variable",
+      "value": "P"
+    },
+    {
+      "termType": "Variable",
+      "value": "S"
+    }
+  ]
+}

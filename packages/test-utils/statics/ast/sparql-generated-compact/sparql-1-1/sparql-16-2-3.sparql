@@ -1,0 +1,1 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX site: <http://example.org/stats#> CONSTRUCT { _:g_0 foaf:name ?name . } WHERE { _:g_1 foaf:name ?name . _:g_1 site:hits ?hits . } ORDER BY DESC ( ?hits ) LIMIT 2

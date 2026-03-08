@@ -1,0 +1,140 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 9,
+          "end": 30
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 30
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 46,
+          "end": 74
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 31,
+        "end": 74
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 89,
+                "end": 91
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 92,
+                "end": 93
+              }
+            },
+            "object": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "Person",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 94,
+                "end": 105
+              },
+              "prefix": "foaf"
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 89,
+              "end": 105
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 89,
+          "end": 105
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 85,
+      "end": 107
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "s",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 82,
+        "end": 84
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX : <http://example.org/>\nPREFIX foaf:   <http://xmlns.com/foaf/0.1/>\nSELECT ?s\n{\n  ?s a foaf:Person\n} \n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 107
+    },
+    "startOnNew": 0,
+    "endOnNew": 107
+  },
+  "type": "query"
+}

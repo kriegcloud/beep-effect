@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "declaration": true,
+    "outDir": "dist/esm"
+  },
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/rules-sparql-1-1" },
+    { "path": "../../packages/test-utils" },
+    { "path": "../parser-sparql-1-1" }
+  ],
+  "include": ["lib/**/*.ts", "test/**/*.ts"],
+  "exclude": ["dist/**"]
+}

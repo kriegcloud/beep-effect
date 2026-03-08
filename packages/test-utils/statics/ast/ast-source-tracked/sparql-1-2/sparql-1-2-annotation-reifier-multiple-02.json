@@ -1,0 +1,219 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.com/ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 9,
+          "end": 33
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 33
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "s",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 48,
+                "end": 50
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "p",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 51,
+                "end": 53
+              },
+              "prefix": ""
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "o",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 54,
+                "end": 56
+              }
+            },
+            "annotations": [
+              {
+                "val": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "iri1",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 59,
+                    "end": 64
+                  },
+                  "prefix": ""
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 57,
+                  "end": 64
+                }
+              },
+              {
+                "type": "tripleCollection",
+                "subType": "blankNodeProperties",
+                "triples": [
+                  {
+                    "type": "triple",
+                    "subject": {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "iri1",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 59,
+                        "end": 64
+                      },
+                      "prefix": ""
+                    },
+                    "predicate": {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "r1",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 68,
+                        "end": 71
+                      },
+                      "prefix": ""
+                    },
+                    "object": {
+                      "type": "term",
+                      "subType": "variable",
+                      "value": "Z1",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 72,
+                        "end": 75
+                      }
+                    },
+                    "annotations": [],
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 59,
+                      "end": 75
+                    }
+                  }
+                ],
+                "identifier": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "iri1",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 59,
+                    "end": 64
+                  },
+                  "prefix": ""
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 65,
+                  "end": 78
+                }
+              },
+              {
+                "val": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "iri2",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 80,
+                    "end": 85
+                  },
+                  "prefix": ""
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 79,
+                  "end": 85
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 48,
+              "end": 85
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 48,
+          "end": 87
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 44,
+      "end": 89
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 42,
+        "end": 43
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX : <http://example.com/ns#>\n\nSELECT * {\n  ?s :p ?o ~ :iri1 {| :r1 ?Z1 |} ~:iri2 .\n}\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 89
+    },
+    "startOnNew": 0,
+    "endOnNew": 89
+  },
+  "type": "query"
+}

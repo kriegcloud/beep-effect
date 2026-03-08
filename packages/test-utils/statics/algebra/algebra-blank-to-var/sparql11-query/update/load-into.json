@@ -1,0 +1,11 @@
+{
+  "type": "load",
+  "source": {
+    "termType": "NamedNode",
+    "value": "http://www.w3.org/TR/skos-reference/skos.rdf"
+  },
+  "destination": {
+    "termType": "NamedNode",
+    "value": "urn:namespaces:skos"
+  }
+}

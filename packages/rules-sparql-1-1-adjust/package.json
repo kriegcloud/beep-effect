@@ -1,0 +1,47 @@
+{
+  "name": "@traqula/rules-sparql-1-1-adjust",
+  "type": "module",
+  "version": "1.0.3",
+  "description": "Traqula Lexer and Grammar Rules for sparql 1.1-ADJUST",
+  "lsd:module": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comunica/traqula.git",
+    "directory": "packages/rules-sparql-1-1-adjust"
+  },
+  "bugs": {
+    "url": "https://github.com/comunica/traqula/issues"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/esm/lib/index.d.ts",
+      "import": "./dist/esm/lib/index.js",
+      "require": "./dist/cjs/lib/index.js"
+    }
+  },
+  "main": "dist/esm/lib/index.js",
+  "files": [
+    "dist/*/lib/**/*.d.ts",
+    "dist/*/lib/**/*.js",
+    "dist/*/lib/**/*.js.map",
+    "dist/cjs/package.json"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "build": "yarn build:ts && yarn build:cjs",
+    "build:ts": "node \"../../node_modules/typescript/bin/tsc\" -b",
+    "build:cjs": "node \"../../node_modules/typescript/bin/tsc\" -b tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@traqula/core": "^1.0.3",
+    "@traqula/rules-sparql-1-1": "^1.0.3"
+  }
+}

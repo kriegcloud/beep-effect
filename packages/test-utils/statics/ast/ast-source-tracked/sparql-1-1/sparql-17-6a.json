@@ -1,0 +1,229 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "foaf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://xmlns.com/foaf/0.1/",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 13,
+          "end": 41
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 41
+      }
+    },
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "func",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://example.org/functions#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 55,
+          "end": 86
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 42,
+        "end": 86
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 112,
+                "end": 114
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 115,
+                "end": 124
+              },
+              "prefix": "foaf"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "name",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 126,
+                "end": 131
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 112,
+              "end": 131
+            }
+          },
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "noMaterialize"
+              }
+            },
+            "predicate": {
+              "type": "term",
+              "subType": "namedNode",
+              "value": "empId",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 145,
+                "end": 155
+              },
+              "prefix": "func"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "id",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 158,
+                "end": 161
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 145,
+              "end": 161
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 112,
+          "end": 163
+        }
+      },
+      {
+        "type": "pattern",
+        "subType": "filter",
+        "expression": {
+          "type": "expression",
+          "subType": "functionCall",
+          "function": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "even",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 180,
+              "end": 189
+            },
+            "prefix": "func"
+          },
+          "args": [
+            {
+              "type": "term",
+              "subType": "variable",
+              "value": "id",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 190,
+                "end": 193
+              }
+            }
+          ],
+          "distinct": false,
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 179,
+            "end": 195
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 172,
+          "end": 195
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 110,
+      "end": 197
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "name",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 94,
+        "end": 99
+      }
+    },
+    {
+      "type": "term",
+      "subType": "variable",
+      "value": "id",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 100,
+        "end": 103
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nPREFIX func: <http://example.org/functions#>\nSELECT ?name ?id\nWHERE { ?x foaf:name  ?name ;\n           func:empId   ?id .\n        FILTER (func:even(?id)) }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 197
+    },
+    "startOnNew": 0,
+    "endOnNew": 197
+  },
+  "type": "query"
+}

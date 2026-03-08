@@ -1,0 +1,233 @@
+{
+  "type": "update",
+  "updates": [
+    {
+      "context": [
+        {
+          "type": "contextDef",
+          "subType": "prefix",
+          "key": "foaf",
+          "value": {
+            "type": "term",
+            "subType": "namedNode",
+            "value": "http://xmlns.com/foaf/0.1/",
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 14,
+              "end": 42
+            }
+          },
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 0,
+            "end": 42
+          }
+        }
+      ],
+      "operation": {
+        "type": "updateOperation",
+        "subType": "modify",
+        "insert": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "person",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 126,
+                    "end": 133
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "givenName",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 134,
+                    "end": 148
+                  },
+                  "prefix": "foaf"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "literal",
+                  "value": "William",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 149,
+                    "end": 158
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 126,
+                  "end": 158
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 126,
+              "end": 158
+            }
+          }
+        ],
+        "delete": [
+          {
+            "type": "pattern",
+            "subType": "bgp",
+            "triples": [
+              {
+                "type": "triple",
+                "subject": {
+                  "type": "term",
+                  "subType": "variable",
+                  "value": "person",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 85,
+                    "end": 92
+                  }
+                },
+                "predicate": {
+                  "type": "term",
+                  "subType": "namedNode",
+                  "value": "givenName",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 93,
+                    "end": 107
+                  },
+                  "prefix": "foaf"
+                },
+                "object": {
+                  "type": "term",
+                  "subType": "literal",
+                  "value": "Bill",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 108,
+                    "end": 114
+                  }
+                },
+                "loc": {
+                  "sourceLocationType": "source",
+                  "start": 85,
+                  "end": 114
+                }
+              }
+            ],
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 85,
+              "end": 114
+            }
+          }
+        ],
+        "graph": {
+          "type": "term",
+          "subType": "namedNode",
+          "value": "http://example/addresses",
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 49,
+            "end": 75
+          }
+        },
+        "where": {
+          "type": "pattern",
+          "subType": "group",
+          "patterns": [
+            {
+              "type": "pattern",
+              "subType": "bgp",
+              "triples": [
+                {
+                  "type": "triple",
+                  "subject": {
+                    "type": "term",
+                    "subType": "variable",
+                    "value": "person",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 171,
+                      "end": 178
+                    }
+                  },
+                  "predicate": {
+                    "type": "term",
+                    "subType": "namedNode",
+                    "value": "givenName",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 179,
+                      "end": 193
+                    },
+                    "prefix": "foaf"
+                  },
+                  "object": {
+                    "type": "term",
+                    "subType": "literal",
+                    "value": "Bill",
+                    "loc": {
+                      "sourceLocationType": "source",
+                      "start": 194,
+                      "end": 200
+                    }
+                  },
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 171,
+                    "end": 200
+                  }
+                }
+              ],
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 171,
+                "end": 200
+              }
+            }
+          ],
+          "loc": {
+            "sourceLocationType": "source",
+            "start": 169,
+            "end": 204
+          }
+        },
+        "from": {
+          "type": "datasetClauses",
+          "clauses": [],
+          "loc": {
+            "sourceLocationType": "noMaterialize"
+          }
+        },
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 44,
+          "end": 204
+        }
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX foaf:  <http://xmlns.com/foaf/0.1/>\n\nWITH <http://example/addresses>\nDELETE { ?person foaf:givenName 'Bill' }\nINSERT { ?person foaf:givenName 'William' }\nWHERE\n  { ?person foaf:givenName 'Bill'\n  }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 204
+    },
+    "startOnNew": 0,
+    "endOnNew": 204
+  }
+}

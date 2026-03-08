@@ -1,0 +1,100 @@
+{
+  "type": "project",
+  "input": {
+    "type": "extend",
+    "input": {
+      "type": "group",
+      "input": {
+        "type": "extend",
+        "input": {
+          "type": "bgp",
+          "patterns": [
+            {
+              "type": "pattern",
+              "termType": "Quad",
+              "subject": {
+                "termType": "Variable",
+                "value": "x"
+              },
+              "predicate": {
+                "termType": "Variable",
+                "value": "y"
+              },
+              "object": {
+                "termType": "Variable",
+                "value": "z"
+              },
+              "graph": {
+                "termType": "DefaultGraph",
+                "value": ""
+              }
+            }
+          ]
+        },
+        "variable": {
+          "termType": "Variable",
+          "value": "var1"
+        },
+        "expression": {
+          "type": "expression",
+          "subType": "operator",
+          "operator": "str",
+          "args": [
+            {
+              "type": "expression",
+              "subType": "term",
+              "term": {
+                "termType": "Variable",
+                "value": "x"
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "termType": "Variable",
+          "value": "var1"
+        }
+      ],
+      "aggregates": [
+        {
+          "type": "expression",
+          "subType": "aggregate",
+          "aggregator": "max",
+          "expression": {
+            "type": "expression",
+            "subType": "term",
+            "term": {
+              "termType": "Variable",
+              "value": "y"
+            }
+          },
+          "distinct": false,
+          "variable": {
+            "termType": "Variable",
+            "value": "var0"
+          }
+        }
+      ]
+    },
+    "variable": {
+      "termType": "Variable",
+      "value": "yy"
+    },
+    "expression": {
+      "type": "expression",
+      "subType": "term",
+      "term": {
+        "termType": "Variable",
+        "value": "var0"
+      }
+    }
+  },
+  "variables": [
+    {
+      "termType": "Variable",
+      "value": "yy"
+    }
+  ]
+}

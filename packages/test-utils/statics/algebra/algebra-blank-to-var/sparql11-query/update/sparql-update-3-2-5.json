@@ -1,0 +1,8 @@
+{
+  "type": "add",
+  "source": "DEFAULT",
+  "destination": {
+    "termType": "NamedNode",
+    "value": "http://example.org/named"
+  }
+}

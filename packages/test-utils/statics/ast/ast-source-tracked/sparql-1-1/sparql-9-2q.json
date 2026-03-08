@@ -1,0 +1,162 @@
+{
+  "context": [
+    {
+      "type": "contextDef",
+      "subType": "prefix",
+      "key": "rdf",
+      "value": {
+        "type": "term",
+        "subType": "namedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 12,
+          "end": 57
+        }
+      },
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 0,
+        "end": 57
+      }
+    }
+  ],
+  "subType": "select",
+  "where": {
+    "type": "pattern",
+    "subType": "group",
+    "patterns": [
+      {
+        "type": "pattern",
+        "subType": "bgp",
+        "triples": [
+          {
+            "type": "triple",
+            "subject": {
+              "type": "term",
+              "subType": "variable",
+              "value": "x",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 73,
+                "end": 75
+              }
+            },
+            "predicate": {
+              "type": "path",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 76,
+                "end": 97
+              },
+              "items": [
+                {
+                  "type": "path",
+                  "loc": {
+                    "sourceLocationType": "source",
+                    "start": 77,
+                    "end": 97
+                  },
+                  "items": [
+                    {
+                      "type": "term",
+                      "subType": "namedNode",
+                      "value": "type",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 78,
+                        "end": 86
+                      },
+                      "prefix": "rdf"
+                    },
+                    {
+                      "type": "path",
+                      "loc": {
+                        "sourceLocationType": "source",
+                        "start": 87,
+                        "end": 96
+                      },
+                      "items": [
+                        {
+                          "type": "term",
+                          "subType": "namedNode",
+                          "value": "type",
+                          "loc": {
+                            "sourceLocationType": "source",
+                            "start": 88,
+                            "end": 96
+                          },
+                          "prefix": "rdf"
+                        }
+                      ],
+                      "subType": "^"
+                    }
+                  ],
+                  "subType": "|"
+                }
+              ],
+              "subType": "!"
+            },
+            "object": {
+              "type": "term",
+              "subType": "variable",
+              "value": "y",
+              "loc": {
+                "sourceLocationType": "source",
+                "start": 98,
+                "end": 100
+              }
+            },
+            "loc": {
+              "sourceLocationType": "source",
+              "start": 73,
+              "end": 100
+            }
+          }
+        ],
+        "loc": {
+          "sourceLocationType": "source",
+          "start": 73,
+          "end": 100
+        }
+      }
+    ],
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 71,
+      "end": 102
+    }
+  },
+  "solutionModifiers": {},
+  "datasets": {
+    "type": "datasetClauses",
+    "clauses": [],
+    "loc": {
+      "sourceLocationType": "noMaterialize"
+    }
+  },
+  "variables": [
+    {
+      "type": "wildcard",
+      "loc": {
+        "sourceLocationType": "source",
+        "start": 67,
+        "end": 68
+      }
+    }
+  ],
+  "loc": {
+    "sourceLocationType": "inlinedSource",
+    "newSource": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n  SELECT *\n  { ?x !(rdf:type|^rdf:type) ?y }\n",
+    "start": 0,
+    "end": 9007199254740991,
+    "loc": {
+      "sourceLocationType": "source",
+      "start": 0,
+      "end": 102
+    },
+    "startOnNew": 0,
+    "endOnNew": 102
+  },
+  "type": "query"
+}

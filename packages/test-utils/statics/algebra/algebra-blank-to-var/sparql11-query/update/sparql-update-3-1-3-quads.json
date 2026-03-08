@@ -1,0 +1,84 @@
+{
+  "type": "deleteinsert",
+  "delete": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "person"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://xmlns.com/foaf/0.1/givenName"
+      },
+      "object": {
+        "termType": "Literal",
+        "value": "Bill",
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      },
+      "graph": {
+        "termType": "NamedNode",
+        "value": "http://example/addresses"
+      }
+    }
+  ],
+  "insert": [
+    {
+      "type": "pattern",
+      "termType": "Quad",
+      "subject": {
+        "termType": "Variable",
+        "value": "person"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://xmlns.com/foaf/0.1/givenName"
+      },
+      "object": {
+        "termType": "Literal",
+        "value": "William",
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      },
+      "graph": {
+        "termType": "NamedNode",
+        "value": "http://example/addresses"
+      }
+    }
+  ],
+  "where": {
+    "type": "bgp",
+    "patterns": [
+      {
+        "type": "pattern",
+        "termType": "Quad",
+        "subject": {
+          "termType": "Variable",
+          "value": "person"
+        },
+        "predicate": {
+          "termType": "NamedNode",
+          "value": "http://xmlns.com/foaf/0.1/givenName"
+        },
+        "object": {
+          "termType": "Literal",
+          "value": "Bill",
+          "datatype": {
+            "termType": "NamedNode",
+            "value": "http://www.w3.org/2001/XMLSchema#string"
+          }
+        },
+        "graph": {
+          "termType": "NamedNode",
+          "value": "http://example/addresses"
+        }
+      }
+    ]
+  }
+}
