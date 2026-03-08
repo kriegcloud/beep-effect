@@ -1,0 +1,43 @@
+{
+  "name": "rdf-validate",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --ignore-path .gitignore --quiet",
+    "test": "npm test --workspaces --if-present",
+    "release": "changeset publish"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@changesets/cli": "^2.29.7",
+    "@rdfjs/parser-n3": "^2.0.2",
+    "@tpluscode/eslint-config": "^0.5",
+    "@types/chai": "^5.2.1",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/clownface": "^2.0.10",
+    "@types/debug": "^4.1.12",
+    "@types/mocha": "^10.0.10",
+    "@types/n3": "^1.24.2",
+    "@types/node": "^20.10.6",
+    "@types/rdfjs__environment": "^1.0.0",
+    "@types/sinon": "^17.0.4",
+    "@types/sinon-chai": "^4.0.0",
+    "@typescript-eslint/eslint-plugin": "^7",
+    "@typescript-eslint/parser": "^7",
+    "c8": "^8.0.1",
+    "chai": "^5.2.0",
+    "chai-as-promised": "^8.0.1",
+    "eslint": "^8.57.1",
+    "eslint-import-resolver-typescript": "^3.8.3",
+    "get-stream": "^6.0.0",
+    "mocha": "^11.2.2",
+    "mocha-chai-rdf": "^0.1.8",
+    "nanoid": "^5.1.5",
+    "rdf-ext": "^2.5.2",
+    "sinon-chai": "^4.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.3.3"
+  }
+}
