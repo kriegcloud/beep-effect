@@ -47,8 +47,8 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:",
-    "@beep/identity": "workspace:^"
+    "@beep/identity": "workspace:^",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

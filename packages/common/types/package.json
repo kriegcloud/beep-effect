@@ -26,8 +26,8 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

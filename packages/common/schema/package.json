@@ -17,14 +17,14 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/data": "workspace:^",
+    "@beep/identity": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/node": "catalog:",
-    "@effect/vitest": "catalog:"
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

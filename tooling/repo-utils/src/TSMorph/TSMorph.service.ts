@@ -1,44 +1,40 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Layer, MutableHashMap, Path, ServiceMap, String as Str } from "effect";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import {
-  type ClassDeclaration,
-  type ConstructorDeclaration,
-  type EnumDeclaration,
-  type FunctionDeclaration,
-  type GetAccessorDeclaration,
-  type InterfaceDeclaration,
-  type MethodDeclaration,
-  Node,
-  Project,
-  type SetAccessorDeclaration,
-  type SourceFile,
-  type TypeAliasDeclaration,
-} from "ts-morph";
+  Array as A,
+  Effect,
+  FileSystem,
+  Inspectable,
+  Layer,
+  MutableHashMap,
+  Order,
+  Path,
+  pipe,
+  ServiceMap,
+  String as Str,
+} from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { Node, Project, type SourceFile } from "ts-morph";
 import { findRepoRoot } from "../Root.js";
 import type {
   ProjectCacheKey,
-  SymbolKind,
   TsMorphDiagnosticsRequest,
-  TsMorphDiagnosticsResult,
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
   TsMorphScopeEntrypoint,
   TsMorphSourceTextRequest,
   Symbol as TsMorphSymbol,
   TsMorphSymbolLookupRequest,
-  TsMorphSymbolLookupResult,
   TsMorphSymbolSearchRequest,
-  TsMorphSymbolSearchResult,
   TsMorphSymbolSourceRequest,
-  TsMorphSymbolSourceResult,
 } from "./TSMorph.model.js";
 import {
   ByteLength,
   ByteOffset,
+  ColumnNumber,
   ContentHashFromSourceText,
   LineNumber,
   makeProjectCacheKey,
@@ -49,20 +45,40 @@ import {
   RepoRootPath,
   SourceText,
   SymbolFilePath,
+  SymbolId,
   SymbolNameSegment,
   SymbolQualifiedName,
-  symbolCategoryFromKind,
   TsConfigFilePath,
+  TsMorphDiagnostic,
+  TsMorphDiagnosticsResult,
   TsMorphFileOutline,
   TsMorphProjectScope,
   TsMorphReferencePolicy,
   TsMorphScopeMode,
   TsMorphSourceTextResult,
+  TsMorphSymbolLookupResult,
+  TsMorphSymbolSearchResult,
+  TsMorphSymbolSourceResult,
   TypeScriptFilePath,
   TypeScriptImplementationFilePath,
   TypeScriptImplementationFilePathToSymbolFilePath,
   WorkspaceDirectoryPath,
 } from "./TSMorph.model.js";
+import {
+  byNormalizedDiagnosticAscending,
+  byTsMorphSymbolAscending,
+  flattenDiagnosticMessageText,
+  getDeclarationName,
+  makeKeywords,
+  makeScopeSymbolSearchText,
+  makeSummary,
+  normalizeDiagnosticCategory,
+  type OutlineDeclaration,
+  pipeQualifiedName,
+  readDecorators,
+  readDocstring,
+  readSignature,
+} from "./TSMorph.shared.js";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.service");
 
@@ -73,14 +89,17 @@ const utf8Encoder = new TextEncoder();
 
 const decodeByteLength = S.decodeUnknownSync(ByteLength);
 const decodeByteOffset = S.decodeUnknownSync(ByteOffset);
+const decodeColumnNumber = S.decodeUnknownSync(ColumnNumber);
 const decodeContentHashFromSourceText = S.decodeUnknownEffect(ContentHashFromSourceText);
 const decodeLineNumber = S.decodeUnknownSync(LineNumber);
+const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 const decodeProjectScopeIdParts = S.decodeUnknownSync(ProjectScopeIdParts);
 const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
 const decodeSourceText = S.decodeUnknownSync(SourceText);
 const decodeSymbolFilePath = S.decodeUnknownSync(SymbolFilePath);
 const decodeSymbolNameSegment = S.decodeUnknownSync(SymbolNameSegment);
 const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
+const decodeTsMorphDiagnostic = S.decodeUnknownSync(TsMorphDiagnostic);
 const decodeTsConfigFilePath = S.decodeUnknownSync(TsConfigFilePath);
 const decodeTypeScriptFilePath = S.decodeUnknownSync(TypeScriptFilePath);
 const decodeTypeScriptImplementationFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePath);
@@ -88,12 +107,13 @@ const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(
   TypeScriptImplementationFilePathToSymbolFilePath
 );
 const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
+const decodeTypeScriptImplementationFilePathOption = S.decodeOption(TypeScriptImplementationFilePath);
 
 const isSymbolNameSegment = S.is(SymbolNameSegment);
 const isSymbolQualifiedName = S.is(SymbolQualifiedName);
 
 /**
- * Typed error returned by the remaining placeholder TSMorphService methods.
+ * Typed error retained for compatibility with older placeholder service wiring.
  *
  * @since 0.0.0
  * @category Errors
@@ -108,7 +128,7 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
   },
   $I.annote("TsMorphServiceUnavailableError", {
     description:
-      "Typed error indicating that a TSMorphService method contract exists but is not yet backed by a live implementation.",
+      "Typed compatibility error for placeholder TSMorphService methods; the current read-only live methods should not emit it.",
   })
 ) {}
 
@@ -170,6 +190,29 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
 ) {}
 
 /**
+ * Typed error returned when a symbol id cannot be resolved within a scope.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
+export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNotFoundError>(
+  $I`TsMorphSymbolNotFoundError`
+)(
+  "TsMorphSymbolNotFoundError",
+  {
+    scopeId: ProjectScopeId,
+    symbolId: SymbolId,
+    message: S.String,
+  },
+  $I.annote("TsMorphSymbolNotFoundError", {
+    description: "Typed error indicating that a stable symbol id could not be resolved inside a ts-morph scope.",
+    reason: "Raised when a requested stable symbol id is absent from the scope-local symbol index.",
+    owner: "repo-utils",
+    issueContext: "ts-morph-read-only-v1",
+  })
+) {}
+
+/**
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
  *
  * @since 0.0.0
@@ -199,6 +242,7 @@ export type TSMorphServiceError =
   | TsMorphProjectLoadError
   | TsMorphScopeResolutionError
   | TsMorphSourceFileError
+  | TsMorphSymbolNotFoundError
   | TsMorphUnsupportedFileError
   | TsMorphServiceUnavailableError;
 
@@ -240,30 +284,30 @@ export type TSMorphServiceShape = {
  */
 export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
-type OutlineDeclaration =
-  | ClassDeclaration
-  | ConstructorDeclaration
-  | EnumDeclaration
-  | FunctionDeclaration
-  | GetAccessorDeclaration
-  | InterfaceDeclaration
-  | MethodDeclaration
-  | SetAccessorDeclaration
-  | TypeAliasDeclaration;
-
 type ProjectPool = {
   readonly getOrCreate: (scope: TsMorphProjectScope) => Effect.Effect<Project, TsMorphProjectLoadError>;
 };
 
-const schemaMessage = (cause: unknown): string => (cause instanceof Error ? cause.message : String(cause));
+type ScopeSymbolIndex = {
+  readonly entries: ReadonlyArray<ScopeSymbolEntry>;
+  readonly entriesById: MutableHashMap.MutableHashMap<string, ScopeSymbolEntry>;
+  readonly entriesByFilePath: MutableHashMap.MutableHashMap<string, ReadonlyArray<ScopeSymbolEntry>>;
+};
 
-const unavailable = <A>(method: string): Effect.Effect<A, TSMorphServiceError> =>
-  Effect.fail(
-    new TsMorphServiceUnavailableError({
-      method,
-      message: `TSMorphService.${method} is not implemented yet. The schema and service contract are available, but the live ts-morph-backed engine still needs to be wired.`,
-    })
-  );
+interface ScopeSymbolEntry {
+  readonly contentHash: TsMorphSymbol["contentHash"];
+  readonly searchText: string;
+  readonly sourceText: SourceText;
+  readonly symbol: TsMorphSymbol;
+}
+
+const byScopeSymbolEntryAscending: Order.Order<ScopeSymbolEntry> = Order.mapInput(
+  byTsMorphSymbolAscending,
+  (entry: ScopeSymbolEntry) => entry.symbol
+);
+
+const schemaMessage = (cause: unknown): string =>
+  P.isError(cause) ? cause.message : Inspectable.toStringUnknown(cause, 0);
 
 const decodeOrFail = <A, E extends TSMorphServiceError>(
   decode: (value: unknown) => A,
@@ -344,162 +388,39 @@ const createProjectPool = (pathApi: Path.Path): ProjectPool => {
   return { getOrCreate };
 };
 
-const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
-  if (!Node.isJSDocable(node)) {
-    return O.none();
-  }
-
-  const descriptions: Array<string> = [];
-  for (const jsDoc of node.getJsDocs()) {
-    const description = Str.trim(jsDoc.getDescription());
-    if (description.length > 0) {
-      descriptions.push(description);
-    }
-  }
-
-  return descriptions.length === 0 ? O.none() : O.some(descriptions.join("\n\n"));
-};
-
-const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> => {
-  if (!Node.isDecoratable(node)) {
-    return [];
-  }
-
-  const decorators: Array<string> = [];
-  for (const decorator of node.getDecorators()) {
-    const decoratorText = Str.trim(decorator.getText());
-    if (decoratorText.length > 0) {
-      decorators.push(decoratorText);
-    }
-  }
-
-  return decorators;
-};
-
-const readSignature = (node: OutlineDeclaration): string => {
-  const nodeText = Str.trim(node.getText());
-  if (nodeText.length === 0) {
-    return nodeText;
-  }
-
-  const [firstLine] = nodeText.split("\n");
-  return firstLine === undefined ? nodeText : Str.trim(firstLine);
-};
-
-const makeSummary = (docstring: O.Option<string>): O.Option<string> => docstring;
-
-const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string> => [
-  name,
-  qualifiedName,
-  kind,
-  symbolCategoryFromKind(kind),
-];
-
-const getDeclarationName = (
-  declaration: OutlineDeclaration
-): O.Option<{
-  readonly name: string;
-  readonly kind: SymbolKind;
-}> => {
-  if (Node.isConstructorDeclaration(declaration)) {
-    return O.some({
-      name: "constructor",
-      kind: "Constructor",
-    });
-  }
-
-  if (Node.isFunctionDeclaration(declaration)) {
-    const name = declaration.getName();
-    return name === undefined
-      ? O.none()
-      : O.some({
-          name,
-          kind: "FunctionDeclaration",
-        });
-  }
-
-  if (Node.isClassDeclaration(declaration)) {
-    const name = declaration.getName();
-    return name === undefined
-      ? O.none()
-      : O.some({
-          name,
-          kind: "ClassDeclaration",
-        });
-  }
-
-  if (Node.isMethodDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "MethodDeclaration",
-    });
-  }
-
-  if (Node.isGetAccessorDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "GetAccessor",
-    });
-  }
-
-  if (Node.isSetAccessorDeclaration(declaration)) {
-    return O.some({
-      name: declaration.getName(),
-      kind: "SetAccessor",
-    });
-  }
-
-  if (Node.isInterfaceDeclaration(declaration)) {
-    const name = declaration.getName();
-    return name === undefined
-      ? O.none()
-      : O.some({
-          name,
-          kind: "InterfaceDeclaration",
-        });
-  }
-
-  if (Node.isTypeAliasDeclaration(declaration)) {
-    const name = declaration.getName();
-    return name === undefined
-      ? O.none()
-      : O.some({
-          name,
-          kind: "TypeAliasDeclaration",
-        });
-  }
-
-  const name = declaration.getName();
-  return name === undefined
-    ? O.none()
-    : O.some({
-        name,
-        kind: "EnumDeclaration",
-      });
-};
-
 const normalizeOutlineSymbol = (
   sourceFileText: string,
   symbolFilePath: SymbolFilePath,
   declaration: OutlineDeclaration,
   parentSymbol: O.Option<TsMorphSymbol>
-): Effect.Effect<O.Option<TsMorphSymbol>, TSMorphServiceError> =>
+): Effect.Effect<O.Option<ScopeSymbolEntry>, TSMorphServiceError> =>
   Effect.gen(function* () {
     const declarationName = getDeclarationName(declaration);
     if (O.isNone(declarationName)) {
-      return O.none<TsMorphSymbol>();
+      return O.none<ScopeSymbolEntry>();
     }
 
     if (!isSymbolNameSegment(declarationName.value.name)) {
-      return O.none<TsMorphSymbol>();
+      return O.none<ScopeSymbolEntry>();
     }
 
     const qualifiedName = pipeQualifiedName(parentSymbol, declarationName.value.name);
     if (!isSymbolQualifiedName(qualifiedName)) {
-      return O.none<TsMorphSymbol>();
+      return O.none<ScopeSymbolEntry>();
     }
 
-    const symbolText = declaration.getFullText();
+    const startOffset = declaration.getStart(true);
+    const endOffset = declaration.getEnd();
+    const symbolText = yield* decodeOrFail(
+      decodeSourceText,
+      sourceFileText.slice(startOffset, endOffset),
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`,
+        })
+    );
     const contentHash = yield* decodeContentHashFromSourceText(symbolText).pipe(
       Effect.mapError(
         (error) =>
@@ -511,39 +432,38 @@ const normalizeOutlineSymbol = (
       )
     );
 
-    const startOffset = declaration.getStart(true);
     const bytePrefix = utf8Encoder.encode(sourceFileText.slice(0, startOffset));
     const byteSpan = utf8Encoder.encode(symbolText);
     const docstring = readDocstring(declaration);
+    const symbol = makeSymbol({
+      filePath: decodeSymbolFilePath(symbolFilePath),
+      name: decodeSymbolNameSegment(declarationName.value.name),
+      qualifiedName: decodeSymbolQualifiedName(qualifiedName),
+      kind: declarationName.value.kind,
+      signature: readSignature(declaration),
+      docstring,
+      summary: makeSummary(docstring),
+      decorators: readDecorators(declaration),
+      keywords: makeKeywords(declarationName.value.name, qualifiedName, declarationName.value.kind),
+      parentId: O.map(parentSymbol, (parent) => parent.id),
+      startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
+      endLine: decodeLineNumber(declaration.getEndLineNumber()),
+      byteOffset: decodeByteOffset(bytePrefix.length),
+      byteLength: decodeByteLength(byteSpan.length),
+      contentHash,
+    });
 
-    return O.some(
-      makeSymbol({
-        filePath: decodeSymbolFilePath(symbolFilePath),
-        name: decodeSymbolNameSegment(declarationName.value.name),
-        qualifiedName: decodeSymbolQualifiedName(qualifiedName),
-        kind: declarationName.value.kind,
-        signature: readSignature(declaration),
-        docstring,
-        summary: makeSummary(docstring),
-        decorators: readDecorators(declaration),
-        keywords: makeKeywords(declarationName.value.name, qualifiedName, declarationName.value.kind),
-        parentId: O.map(parentSymbol, (symbol) => symbol.id),
-        startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
-        endLine: decodeLineNumber(declaration.getEndLineNumber()),
-        byteOffset: decodeByteOffset(bytePrefix.length),
-        byteLength: decodeByteLength(byteSpan.length),
-        contentHash,
-      })
-    );
+    return O.some({
+      symbol,
+      sourceText: symbolText,
+      contentHash,
+      searchText: makeScopeSymbolSearchText(symbol, symbolText),
+    } satisfies ScopeSymbolEntry);
   });
 
-const pipeQualifiedName = (parentSymbol: O.Option<TsMorphSymbol>, name: string): string =>
-  O.isSome(parentSymbol) ? `${parentSymbol.value.qualifiedName}.${name}` : name;
-
-const collectOutlineSymbols = (
-  filePath: TypeScriptFilePath,
-  sourceFile: SourceFile
-): Effect.Effect<ReadonlyArray<TsMorphSymbol>, TSMorphServiceError> =>
+const resolveSymbolFilePath = (
+  filePath: TypeScriptFilePath
+): Effect.Effect<SymbolFilePath, TsMorphUnsupportedFileError> =>
   Effect.gen(function* () {
     const implementationFilePath = yield* decodeOrFail(
       decodeTypeScriptImplementationFilePath,
@@ -555,7 +475,7 @@ const collectOutlineSymbols = (
         })
     );
 
-    const symbolFilePath = yield* decodeOrFail(
+    return yield* decodeOrFail(
       decodeTypeScriptImplementationToSymbolFilePath,
       implementationFilePath,
       (message) =>
@@ -564,23 +484,31 @@ const collectOutlineSymbols = (
           message: `Failed to normalize implementation file path "${implementationFilePath}" for symbol ids: ${message}`,
         })
     );
+  });
 
-    const symbols: Array<TsMorphSymbol> = [];
+const collectOutlineEntries = (
+  filePath: TypeScriptFilePath,
+  sourceFile: SourceFile
+): Effect.Effect<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError> =>
+  Effect.gen(function* () {
+    const symbolFilePath = yield* resolveSymbolFilePath(filePath);
+
+    const entries: Array<ScopeSymbolEntry> = [];
     const sourceText = sourceFile.getFullText();
 
     for (const statement of sourceFile.getStatements()) {
       if (Node.isFunctionDeclaration(statement)) {
-        const symbol = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(symbol)) {
-          symbols.push(symbol.value);
+        const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+        if (O.isSome(entry)) {
+          entries.push(entry.value);
         }
         continue;
       }
 
       if (Node.isClassDeclaration(statement)) {
-        const classSymbol = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(classSymbol)) {
-          symbols.push(classSymbol.value);
+        const classEntry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+        if (O.isSome(classEntry)) {
+          entries.push(classEntry.value);
 
           for (const member of statement.getMembers()) {
             if (
@@ -589,9 +517,14 @@ const collectOutlineSymbols = (
               Node.isGetAccessorDeclaration(member) ||
               Node.isSetAccessorDeclaration(member)
             ) {
-              const memberSymbol = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, member, classSymbol);
-              if (O.isSome(memberSymbol)) {
-                symbols.push(memberSymbol.value);
+              const memberEntry = yield* normalizeOutlineSymbol(
+                sourceText,
+                symbolFilePath,
+                member,
+                O.some(classEntry.value.symbol)
+              );
+              if (O.isSome(memberEntry)) {
+                entries.push(memberEntry.value);
               }
             }
           }
@@ -604,14 +537,14 @@ const collectOutlineSymbols = (
         Node.isTypeAliasDeclaration(statement) ||
         Node.isEnumDeclaration(statement)
       ) {
-        const symbol = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(symbol)) {
-          symbols.push(symbol.value);
+        const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+        if (O.isSome(entry)) {
+          entries.push(entry.value);
         }
       }
     }
 
-    return symbols;
+    return entries;
   });
 
 /**
@@ -628,6 +561,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
 
     const resolvedScopes = MutableHashMap.empty<string, TsMorphProjectScope>();
     const projectPool = createProjectPool(pathApi);
+    const symbolIndexPool = MutableHashMap.empty<ProjectCacheKey, ScopeSymbolIndex>();
 
     const resolveRepoRoot = (
       repoRootPath: O.Option<RepoRootPath>
@@ -892,8 +826,8 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
         }
 
         const project = yield* projectPool.getOrCreate(scope);
-        const sourceFile =
-          project.getSourceFile(absoluteFilePath) ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
+        const existingSourceFile = project.getSourceFile(absoluteFilePath);
+        const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
 
         if (sourceFile === undefined) {
           return yield* new TsMorphSourceFileError({
@@ -903,10 +837,101 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
           });
         }
 
+        if (existingSourceFile === undefined) {
+          MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+        }
+
         return {
           sourceFile,
           filePath: normalizedFilePath,
         };
+      });
+
+    const collectScopeSymbolIndex = (
+      scope: TsMorphProjectScope
+    ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
+      Effect.gen(function* () {
+        const project = yield* projectPool.getOrCreate(scope);
+        const entries: Array<ScopeSymbolEntry> = [];
+
+        for (const sourceFile of project.getSourceFiles()) {
+          const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
+          if (
+            scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
+            isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
+          ) {
+            continue;
+          }
+
+          const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
+          if (
+            repoRelativeFilePath.length === 0 ||
+            pathApi.isAbsolute(repoRelativeFilePath) ||
+            Str.startsWith("..")(repoRelativeFilePath)
+          ) {
+            continue;
+          }
+
+          const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
+          if (O.isSome(implementationFilePath)) {
+            const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
+            entries.push(...sourceEntries);
+          }
+        }
+
+        const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
+        const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
+        const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
+
+        for (const entry of entries) {
+          const fileEntries = O.getOrElse(
+            MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
+            A.empty<ScopeSymbolEntry>
+          );
+          MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
+        }
+
+        for (const entry of sortedEntries) {
+          MutableHashMap.set(entriesById, entry.symbol.id, entry);
+        }
+
+        return {
+          entries: sortedEntries,
+          entriesById,
+          entriesByFilePath,
+        } satisfies ScopeSymbolIndex;
+      });
+
+    const getOrCreateScopeSymbolIndex = (
+      scope: TsMorphProjectScope
+    ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
+      Effect.gen(function* () {
+        const cachedSymbolIndex = MutableHashMap.get(symbolIndexPool, scope.cacheKey);
+        if (O.isSome(cachedSymbolIndex)) {
+          return cachedSymbolIndex.value;
+        }
+
+        const symbolIndex = yield* collectScopeSymbolIndex(scope);
+        MutableHashMap.set(symbolIndexPool, scope.cacheKey, symbolIndex);
+        return symbolIndex;
+      });
+
+    const findScopeSymbolEntry = (
+      scope: TsMorphProjectScope,
+      symbolId: SymbolId
+    ): Effect.Effect<ScopeSymbolEntry, TSMorphServiceError> =>
+      Effect.gen(function* () {
+        const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+        const entry = MutableHashMap.get(symbolIndex.entriesById, symbolId);
+        if (O.isSome(entry)) {
+          return entry.value;
+        }
+
+        return yield* new TsMorphSymbolNotFoundError({
+          scopeId: scope.scopeId,
+          symbolId,
+          message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
+        });
       });
 
     const resolveProjectScope: TSMorphServiceShape["resolveProjectScope"] = Effect.fn(function* (request) {
@@ -960,7 +985,13 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
     const getFileOutline: TSMorphServiceShape["getFileOutline"] = Effect.fn(function* (request) {
       const scope = yield* resolveScopeById(request.scopeId);
       const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-      const symbols = yield* collectOutlineSymbols(loadedSourceFile.filePath, loadedSourceFile.sourceFile);
+      const symbolFilePath = yield* resolveSymbolFilePath(loadedSourceFile.filePath);
+      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+      const symbols = pipe(
+        MutableHashMap.get(symbolIndex.entriesByFilePath, symbolFilePath),
+        O.map((entries) => A.map(entries, (entry) => entry.symbol)),
+        O.getOrElse(A.empty<TsMorphSymbol>)
+      );
 
       return new TsMorphFileOutline({
         scopeId: scope.scopeId,
@@ -969,14 +1000,114 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       });
     });
 
+    const getSymbolById: TSMorphServiceShape["getSymbolById"] = Effect.fn(function* (request) {
+      const scope = yield* resolveScopeById(request.scopeId);
+      const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
+
+      return new TsMorphSymbolLookupResult({
+        scopeId: scope.scopeId,
+        symbol: entry.symbol,
+      });
+    });
+
+    const searchSymbols: TSMorphServiceShape["searchSymbols"] = Effect.fn(function* (request) {
+      const scope = yield* resolveScopeById(request.scopeId);
+      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+      const normalizedQuery = pipe(request.query, Str.trim, Str.toLowerCase);
+      const searchableEntries = Str.isNonEmpty(normalizedQuery) ? symbolIndex.entries : A.empty<ScopeSymbolEntry>();
+      const matchesRequestedFilters = (entry: ScopeSymbolEntry): boolean =>
+        (A.isReadonlyArrayEmpty(request.categories) ||
+          A.some(request.categories, (category) => category === entry.symbol.category)) &&
+        (A.isReadonlyArrayEmpty(request.kinds) || A.some(request.kinds, (kind) => kind === entry.symbol.kind));
+      const filteredEntries = pipe(
+        searchableEntries,
+        A.filter((entry) => Str.includes(normalizedQuery)(entry.searchText) && matchesRequestedFilters(entry))
+      );
+
+      return new TsMorphSymbolSearchResult({
+        scopeId: scope.scopeId,
+        query: request.query,
+        limit: request.limit,
+        symbols: pipe(
+          A.take(filteredEntries, request.limit),
+          A.map((entry) => entry.symbol)
+        ),
+        total: decodeNonNegativeInt(A.length(filteredEntries)),
+      });
+    });
+
+    const readSymbolSource: TSMorphServiceShape["readSymbolSource"] = Effect.fn(function* (request) {
+      const scope = yield* resolveScopeById(request.scopeId);
+      const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
+
+      return new TsMorphSymbolSourceResult({
+        scopeId: scope.scopeId,
+        symbol: entry.symbol,
+        sourceText: entry.sourceText,
+        contentHash: entry.contentHash,
+      });
+    });
+
+    const getDiagnostics: TSMorphServiceShape["getDiagnostics"] = Effect.fn(function* (request) {
+      const scope = yield* resolveScopeById(request.scopeId);
+      const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
+      const normalizedLoadedSourceFilePath = pathApi.normalize(loadedSourceFile.sourceFile.getFilePath());
+      const diagnostics = yield* pipe(
+        loadedSourceFile.sourceFile.getPreEmitDiagnostics(),
+        A.filter((diagnostic) => {
+          const diagnosticSourceFile = diagnostic.getSourceFile();
+
+          return (
+            diagnosticSourceFile !== undefined &&
+            pathApi.normalize(diagnosticSourceFile.getFilePath()) === normalizedLoadedSourceFilePath
+          );
+        }),
+        Effect.forEach((diagnostic) => {
+          const start = diagnostic.getStart() ?? 0;
+          const length = diagnostic.getLength() ?? 0;
+          const end = start + length;
+          const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
+          const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
+          const source = diagnostic.getSource();
+
+          return decodeOrFail(
+            decodeTsMorphDiagnostic,
+            {
+              category: normalizeDiagnosticCategory(diagnostic.getCategory()),
+              code: decodeNonNegativeInt(diagnostic.getCode()),
+              message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
+              source: source ?? null,
+              startLine: decodeLineNumber(startPosition.line),
+              startColumn: decodeColumnNumber(startPosition.column),
+              endLine: decodeLineNumber(endPosition.line),
+              endColumn: decodeColumnNumber(endPosition.column),
+            },
+            (message) =>
+              new TsMorphSourceFileError({
+                scopeId: O.some(scope.scopeId),
+                filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+                message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
+              })
+          );
+        }),
+        Effect.map((items) => A.sort(items, byNormalizedDiagnosticAscending))
+      );
+
+      return new TsMorphDiagnosticsResult({
+        scopeId: scope.scopeId,
+        filePath: loadedSourceFile.filePath,
+        diagnostics,
+      });
+    });
+
     return {
       resolveProjectScope,
       getFileOutline,
-      getSymbolById: () => unavailable("getSymbolById"),
-      searchSymbols: () => unavailable("searchSymbols"),
+      getSymbolById,
+      searchSymbols,
       readSourceText,
-      readSymbolSource: () => unavailable("readSymbolSource"),
-      getDiagnostics: () => unavailable("getDiagnostics"),
+      readSymbolSource,
+      getDiagnostics,
     };
   });
 

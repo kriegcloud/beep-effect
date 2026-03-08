@@ -21,8 +21,8 @@
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/node": "catalog:",
     "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
     "type-fest": "catalog:"
   },
   "exports": {
