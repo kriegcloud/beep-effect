@@ -33,70 +33,105 @@ export type AgentServiceErrorEncoded = typeof AgentServiceError.Encoded;
 /**
  * @since 0.0.0
  */
-export class AgentRpcs extends RpcGroup.make(
-  Rpc.make("QueryStream", {
-    payload: QueryInput,
-    success: SdkSchema.SDKMessage,
-    error: AgentServiceError,
-    stream: true,
-  }),
-  Rpc.make("QueryResult", {
-    payload: QueryInput,
-    success: QueryResultOutput,
-    error: AgentServiceError,
-  }),
-  Rpc.make("Stats", {
-    success: QuerySupervisorStats,
-  }),
-  Rpc.make("InterruptAll", {
-    success: S.Void,
-    error: AgentSdkError,
-  }),
-  Rpc.make("SupportedModels", {
-    success: S.Array(SdkSchema.ModelInfo),
-    error: AgentServiceError,
-  }),
-  Rpc.make("SupportedCommands", {
-    success: S.Array(SdkSchema.SlashCommand),
-    error: AgentServiceError,
-  }),
-  Rpc.make("AccountInfo", {
-    success: SdkSchema.AccountInfo,
-    error: AgentServiceError,
-  }),
-  Rpc.make("CreateSession", {
-    payload: SessionCreateInput,
-    success: SessionCreateOutput,
-    error: SessionServiceError,
-  }),
-  Rpc.make("ResumeSession", {
-    payload: ResumeSessionInput,
-    success: SessionCreateOutput,
-    error: SessionServiceError,
-  }),
-  Rpc.make("SendSession", {
-    payload: SessionSendRequest,
-    success: S.Void,
-    error: SessionServiceError,
-  }),
-  Rpc.make("SessionStream", {
-    payload: SessionSelection,
-    success: SdkSchema.SDKMessage,
-    error: SessionServiceError,
-    stream: true,
-  }),
-  Rpc.make("CloseSession", {
-    payload: SessionSelection,
-    success: S.Void,
-    error: SessionServiceError,
-  }),
-  Rpc.make("ListSessionsByTenant", {
-    payload: SessionTenantScope,
-    success: S.Array(SessionInfo),
-    error: SessionServiceError,
-  }),
-  Rpc.make("ListSessions", {
-    success: S.Array(SessionInfo),
-    error: SessionServiceError,
-  })
-) {}
+const ModelInfoList = S.Array(SdkSchema.ModelInfo);
+const SlashCommandList = S.Array(SdkSchema.SlashCommand);
+const SessionInfoList = S.Array(SessionInfo);
+const SdkMessageSchema = SdkSchema.SDKMessage as S.Codec<SdkSchema.SDKMessage, SdkSchema.SDKMessageEncoded>;
+
+const QueryStreamRpc = Rpc.make("QueryStream", {
+  payload: QueryInput,
+  success: SdkMessageSchema,
+  error: AgentServiceError,
+  stream: true,
+});
+
+const QueryResultRpc = Rpc.make("QueryResult", {
+  payload: QueryInput,
+  success: QueryResultOutput,
+  error: AgentServiceError,
+});
+
+const StatsRpc = Rpc.make("Stats", {
+  success: QuerySupervisorStats,
+});
+
+const InterruptAllRpc = Rpc.make("InterruptAll", {
+  success: S.Void,
+  error: AgentSdkError,
+});
+
+const SupportedModelsRpc = Rpc.make("SupportedModels", {
+  success: ModelInfoList,
+  error: AgentServiceError,
+});
+
+const SupportedCommandsRpc = Rpc.make("SupportedCommands", {
+  success: SlashCommandList,
+  error: AgentServiceError,
+});
+
+const AccountInfoRpc = Rpc.make("AccountInfo", {
+  success: SdkSchema.AccountInfo,
+  error: AgentServiceError,
+});
+
+const CreateSessionRpc = Rpc.make("CreateSession", {
+  payload: SessionCreateInput,
+  success: SessionCreateOutput,
+  error: SessionServiceError,
+});
+
+const ResumeSessionRpc = Rpc.make("ResumeSession", {
+  payload: ResumeSessionInput,
+  success: SessionCreateOutput,
+  error: SessionServiceError,
+});
+
+const SendSessionRpc = Rpc.make("SendSession", {
+  payload: SessionSendRequest,
+  success: S.Void,
+  error: SessionServiceError,
+});
+
+const SessionStreamRpc = Rpc.make("SessionStream", {
+  payload: SessionSelection,
+  success: SdkMessageSchema,
+  error: SessionServiceError,
+  stream: true,
+});
+
+const CloseSessionRpc = Rpc.make("CloseSession", {
+  payload: SessionSelection,
+  success: S.Void,
+  error: SessionServiceError,
+});
+
+const ListSessionsByTenantRpc = Rpc.make("ListSessionsByTenant", {
+  payload: SessionTenantScope,
+  success: SessionInfoList,
+  error: SessionServiceError,
+});
+
+const ListSessionsRpc = Rpc.make("ListSessions", {
+  success: SessionInfoList,
+  error: SessionServiceError,
+});
+
+const AgentRpcsValue = RpcGroup.make(
+  QueryStreamRpc,
+  QueryResultRpc,
+  StatsRpc,
+  InterruptAllRpc,
+  SupportedModelsRpc,
+  SupportedCommandsRpc,
+  AccountInfoRpc,
+  CreateSessionRpc,
+  ResumeSessionRpc,
+  SendSessionRpc,
+  SessionStreamRpc,
+  CloseSessionRpc,
+  ListSessionsByTenantRpc,
+  ListSessionsRpc
+);
+
+export const AgentRpcs: typeof AgentRpcsValue = AgentRpcsValue;

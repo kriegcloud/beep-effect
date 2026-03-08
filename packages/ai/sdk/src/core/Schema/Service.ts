@@ -1,10 +1,24 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { SDKResultSuccess, SDKUserMessage } from "./Message.js";
-import { Options } from "./Options.js";
+import {
+  SDKResultSuccess,
+  SDKUserMessage,
+  type SDKUserMessageEncoded,
+  type SDKUserMessage as SDKUserMessageType,
+} from "./Message.js";
+import { Options, type OptionsEncoded, type Options as OptionsType } from "./Options.js";
 import { SDKSessionOptions } from "./Session.js";
 
 const $I = $AiSdkId.create("core/Schema/Service");
+
+type QueryPrompt = string | ReadonlyArray<SDKUserMessageType>;
+type QueryPromptEncoded = string | ReadonlyArray<SDKUserMessageEncoded>;
+type SessionMessage = string | SDKUserMessageType;
+type SessionMessageEncoded = string | SDKUserMessageEncoded;
+
+const QueryPromptSchema = S.Union([S.String, S.Array(SDKUserMessage)]) as S.Codec<QueryPrompt, QueryPromptEncoded>;
+const SessionMessageSchema = S.Union([S.String, SDKUserMessage]) as S.Codec<SessionMessage, SessionMessageEncoded>;
+const QueryInputOptionsSchema = Options as S.Codec<OptionsType, OptionsEncoded>;
 
 /**
  * @since 0.0.0
@@ -24,22 +38,28 @@ export type Tenant = typeof Tenant.Type;
  */
 export type TenantEncoded = typeof Tenant.Encoded;
 
-/**
- * @since 0.0.0
- */
-export class QueryInput extends S.Class<QueryInput>($I`QueryInput`)(
+class QueryInputData extends S.Class<QueryInputData>($I`QueryInput`)(
   {
-    prompt: S.Union([S.String, S.Array(SDKUserMessage)]),
-    options: S.optional(Options),
+    prompt: QueryPromptSchema,
+    options: S.optional(QueryInputOptionsSchema),
   },
   $I.annote("QueryInput", {
     description: "Request payload for running an SDK query with an optional execution configuration.",
   })
 ) {}
+
 /**
  * @since 0.0.0
  */
-export type QueryInputEncoded = typeof QueryInput.Encoded;
+export const QueryInput: typeof QueryInputData = QueryInputData;
+/**
+ * @since 0.0.0
+ */
+export type QueryInput = typeof QueryInputData.Type;
+/**
+ * @since 0.0.0
+ */
+export type QueryInputEncoded = typeof QueryInputData.Encoded;
 
 /**
  * @since 0.0.0
@@ -96,7 +116,7 @@ export type SessionCreateOutputEncoded = typeof SessionCreateOutput.Encoded;
  */
 export class SessionSendInput extends S.Class<SessionSendInput>($I`SessionSendInput`)(
   {
-    message: S.Union([S.String, SDKUserMessage]),
+    message: SessionMessageSchema,
     tenant: S.optional(Tenant),
   },
   $I.annote("SessionSendInput", {
@@ -216,7 +236,7 @@ export type ResumeSessionInputEncoded = typeof ResumeSessionInput.Encoded;
 export class SessionSendRequest extends S.Class<SessionSendRequest>($I`SessionSendRequest`)(
   {
     sessionId: S.String,
-    message: S.Union([S.String, SDKUserMessage]),
+    message: SessionMessageSchema,
     tenant: S.optional(Tenant),
   },
   $I.annote("SessionSendRequest", {
