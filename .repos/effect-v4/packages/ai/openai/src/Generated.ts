@@ -19334,7 +19334,9 @@ export const EvalItemContent = Schema.Union([EvalItemContentItem, EvalItemConten
     "Inputs to the model - can contain template strings. Supports text, output text, input images, and input audio, either as a single item or an array of items.\n"
 })
 export type OutputMessageContent = OutputTextContent | RefusalContent
-export const OutputMessageContent = Schema.Union([OutputTextContent, RefusalContent], { mode: "oneOf" })
+export const OutputMessageContent = Schema.Union([OutputTextContent, RefusalContent], {
+  mode: "oneOf"
+})
 export type ResponseContentPartAddedEvent = {
   readonly "type": "response.content_part.added"
   readonly "item_id": string
@@ -23841,6 +23843,21 @@ export const CreateResponse = Schema.Struct({
     ])
   )
 })
+export type ResponseKeepAliveEvent = {
+  readonly "type": "keepalive"
+  readonly "sequence_number": number
+}
+export const ResponseKeepAliveEvent = Schema.Struct({
+  "type": Schema.Literal("keepalive").annotate({
+    "description": "The type of the keepalive event. Always `keepalive`."
+  }),
+  "sequence_number": Schema.Number.annotate({ "description": "The sequence number of this keepalive event." }).check(
+    Schema.isInt()
+  )
+}).annotate({
+  "title": "Keep alive",
+  "description": "A keepalive event emitted during long-running response streams."
+})
 export type ResponseStreamEvent =
   | ResponseAudioDeltaEvent
   | ResponseAudioDoneEvent
@@ -23864,6 +23881,7 @@ export type ResponseStreamEvent =
   | ResponseInProgressEvent
   | ResponseFailedEvent
   | ResponseIncompleteEvent
+  | ResponseKeepAliveEvent
   | ResponseOutputItemAddedEvent
   | ResponseOutputItemDoneEvent
   | ResponseReasoningSummaryPartAddedEvent
@@ -23920,6 +23938,7 @@ export const ResponseStreamEvent = Schema.Union([
   ResponseInProgressEvent,
   ResponseFailedEvent,
   ResponseIncompleteEvent,
+  ResponseKeepAliveEvent,
   ResponseOutputItemAddedEvent,
   ResponseOutputItemDoneEvent,
   ResponseReasoningSummaryPartAddedEvent,
