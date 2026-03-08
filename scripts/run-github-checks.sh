@@ -74,6 +74,8 @@ run_changeset_status() {
 }
 
 run_quality() {
+  require_command typos
+
   log "quality: build"
   run_with_local_env bun run build:ci
 

@@ -66,6 +66,11 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Install typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: typos-cli@1.44.0
+
       - name: Cache Bun dependencies
         uses: actions/cache@v4
         with:
