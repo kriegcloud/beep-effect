@@ -1,0 +1,25 @@
+{
+  "description": "collection of partition tests",
+  "tests": [
+    {
+      "from": "1dotInherit3",
+      "include": ["http://a.example/S1"],
+      "expect": "1dotInherit3_S1"
+    },
+    {
+      "from": "1dotInherit3",
+      "include": ["http://a.example/S1", "http://a.example/S3"],
+      "expect": "1dotInherit3_S1_S3"
+    },
+    {
+      "from": "1dotInherit3",
+      "include": ["http://a.example/S3", "http://a.example/S4"],
+      "expect": "1dotInherit3_S3_S4"
+    },
+    {
+      "from": "1dotInherit3",
+      "include": ["http://a.example/S1", "http://a.example/S3", "http://a.example/S4"],
+      "expect": "1dotInherit3_S1_S3_S4"
+    }
+  ]
+}

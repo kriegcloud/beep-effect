@@ -1,0 +1,15 @@
+PREFIX : <http://hl7.org/fhir/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+BASE <http://schema.example/>
+
+start = @<ObservationShape>
+
+<ObservationShape> {               # An Observation has:
+  :status ["preliminary" "final"]; #   status in this value set
+  :subject @<PatientShape>         #   a subject matching <PatientShape>.
+}
+
+<PatientShape> {                   # A Patient has:
+ :name xsd:string*;                #   one or more names
+ :birthdate xsd:date?              #   and an optional birthdate.
+}

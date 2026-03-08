@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+// time ./lib/partition ~/checkouts/hcls/hcls-fhir-rdf/generic/fhir-shapes.shex MedicationPrescriptionShape
+
+const ShExUtil = require('@shexjs/util');
+const ShExWriter = require('@shexjs/writer');
+const Jsonld = require("jsonld");
+const N3 = require("n3");
+const ShExNode = require("@shexjs/node")({rdfjs: N3, jsonld: Jsonld});
+
+// Generate command line interface
+const CLI = require("command-line-args")([
+    { name: "help",  alias: "h", type: Boolean },
+    { name: "shex"    ,  alias: "x", type: String, multiple:  true, defaultValue:   [], defaultOption:  true },
+    { name: "json"    ,  alias: "j", type: String, multiple:  true, defaultValue:   [], defaultOption:  true },
+    { name: "includes",  alias: "d", type: String, multiple:  true, defaultValue:   [], defaultOption:  true }
+]);
+
+const includes = process.argv.slice(3); // which shapes to include
+
+function abort (msg) {
+  console.error(msg);
+  console.error(CLI.getUsage({
+    title: "shex-to-json",
+    description: "load some number of schema files from web or filesystem and display as JSON (ShExJ), for example:\n    shex-to-json http://tracker.example/schemas/Issue.shex",
+    footer: "Project home: [underline]{https://github.com/shexSpec/shex.js}"
+  }));
+  process.exit(1);
+}
+
+// Extract user commands
+const cmds = CLI.parse();
+if (cmds.help)
+    abort("");
+if (cmds.shex.length > 1 && cmds.includes.length === 0) {
+  cmds.includes = cmds.shex.splice(1); // push all but one into includes
+}
+if (cmds.json.length > 1 && cmds.includes.length === 0) {
+  cmds.includes = cmds.json.splice(1); // push all but one into includes
+}
+if (cmds.includes.length === 0) abort("no includes specified");
+if (cmds.shex.length === 0 && cmds.json.length === 0) abort("no shex specified");
+const input = cmds.shex.concat(cmds.json).join(", ");
+
+
+ShExNode(cmds.shex, cmds.json, []).then(function (loaded) {
+  console.warn("calculating dependencies for " + input);
+  const deps = ShExUtil.getDependencies(loaded.schema);
+  // console.log('%s', JSON.stringify(deps, null, '  '));
+  console.warn("partitioning " + input);
+  partition = ShExUtil.partition(loaded.schema, cmds.includes, deps,
+				 // avoid throwing Error
+				 function (what, why) {
+				   console.warn("Warning: can't find shape "+
+						(why ?
+						 why + " dependency " + what :
+						 what));
+				 });
+  new ShExWriter().
+    writeSchema(partition,
+		function (error, text, prefixes) {
+		  if (error) throw error;
+		  else if (text) console.log(text);
+		});
+}).catch(function (e) {
+  console.error("aborting:", e);
+  // if (e.name === "SyntaxError")
+  //   console.error(input+":"+e.line+":"+e.column+": (offset: "+e.offset+"): error: "+e.message);
+})
+

@@ -1,0 +1,16 @@
+{
+  "type": "Failure",
+  "node": "http://example.org/recipe",
+  "shape": "http://schema.org/shex#Recipe",
+  "errors": [
+    {
+      "type": "SemActFailure",
+      "errors": [
+        {
+          "type": "SemActViolation",
+          "message": "\"2020-02-02xx is not a date"
+        }
+      ]
+    }
+  ]
+}

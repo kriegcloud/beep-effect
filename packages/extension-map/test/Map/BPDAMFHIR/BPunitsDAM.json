@@ -1,0 +1,96 @@
+{
+  "type": "schema",
+  "prefixes": {
+    "": "http://shex.io/extensions/Map/#BPunitsDAM-",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "bp": "http://shex.io/extensions/Map/#BPDAM-",
+    "Map": "http://shex.io/extensions/Map/#"
+  },
+  "start": "BPunitsDAM",
+  "shapes": {
+    "_:b0": {
+      "type": "shape",
+      "expression": {
+        "type": "group",
+        "expressions": [
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-value",
+            "value": {
+              "type": "valueClass",
+              "datatype": "http://www.w3.org/2001/XMLSchema#float"
+            },
+            "semAct": {
+              "http://shex.io/extensions/Map/#": " bp:sysVal "
+            }
+          },
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-units",
+            "value": {
+              "type": "valueClass",
+              "datatype": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "semAct": {
+              "http://shex.io/extensions/Map/#": " bp:sysUnits "
+            }
+          }
+        ]
+      }
+    },
+    "_:b1": {
+      "type": "shape",
+      "expression": {
+        "type": "group",
+        "expressions": [
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-value",
+            "value": {
+              "type": "valueClass",
+              "datatype": "http://www.w3.org/2001/XMLSchema#float"
+            },
+            "semAct": {
+              "http://shex.io/extensions/Map/#": " bp:diaVal "
+            }
+          },
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-units",
+            "value": {
+              "type": "valueClass",
+              "datatype": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "semAct": {
+              "http://shex.io/extensions/Map/#": " bp:diaUnits "
+            }
+          }
+        ]
+      }
+    },
+    "BPunitsDAM": {
+      "type": "shape",
+      "expression": {
+        "type": "group",
+        "expressions": [
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-systolic",
+            "value": {
+              "type": "valueClass",
+              "reference": "_:b0"
+            }
+          },
+          {
+            "type": "tripleConstraint",
+            "predicate": "http://shex.io/extensions/Map/#BPunitsDAM-diastolic",
+            "value": {
+              "type": "valueClass",
+              "reference": "_:b1"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "type": "ShapeTest",
+  "node": "http://a.example/n1",
+  "shape": "http://a.example/S1",
+  "solution": {
+    "type": "TripleConstraintSolutions",
+    "predicate": "http://a.example/p1",
+    "valueExpr": "http://a.example/List0PlusDot",
+    "solutions": [
+      {
+        "type": "TestedTriple",
+        "subject": "http://a.example/n1",
+        "predicate": "http://a.example/p1",
+        "object": "_:l0",
+        "referenced": {
+          "type": "ShapeOrResults",
+          "solution": {
+            "type": "ShapeTest",
+            "node": "_:l0",
+            "shape": "http://a.example/List0PlusDot",
+            "solution": {
+              "type": "EachOfSolutions",
+              "solutions": [
+                {
+                  "type": "EachOfSolution",
+                  "expressions": [
+                    {
+                      "type": "TripleConstraintSolutions",
+                      "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                      "solutions": [
+                        {
+                          "type": "TestedTriple",
+                          "subject": "_:l0",
+                          "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                          "object": "http://a.example/v1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TripleConstraintSolutions",
+                      "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                      "valueExpr": "http://a.example/List0PlusDot",
+                      "solutions": [
+                        {
+                          "type": "TestedTriple",
+                          "subject": "_:l0",
+                          "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                          "object": "_:l1",
+                          "referenced": {
+                            "type": "ShapeOrResults",
+                            "solution": {
+                              "type": "ShapeTest",
+                              "node": "_:l1",
+                              "shape": "http://a.example/List0PlusDot",
+                              "solution": {
+                                "type": "EachOfSolutions",
+                                "solutions": [
+                                  {
+                                    "type": "EachOfSolution",
+                                    "expressions": [
+                                      {
+                                        "type": "TripleConstraintSolutions",
+                                        "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                                        "solutions": [
+                                          {
+                                            "type": "TestedTriple",
+                                            "subject": "_:l1",
+                                            "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                                            "object": "http://a.example/v2"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "TripleConstraintSolutions",
+                                        "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                                        "valueExpr": "http://a.example/List0PlusDot",
+                                        "solutions": [
+                                          {
+                                            "type": "TestedTriple",
+                                            "subject": "_:l1",
+                                            "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                                            "object": "_:l2",
+                                            "referenced": {
+                                              "type": "ShapeOrResults",
+                                              "solution": {
+                                                "type": "ShapeTest",
+                                                "node": "_:l2",
+                                                "shape": "http://a.example/List0PlusDot",
+                                                "solution": {
+                                                  "type": "EachOfSolutions",
+                                                  "solutions": [
+                                                    {
+                                                      "type": "EachOfSolution",
+                                                      "expressions": [
+                                                        {
+                                                          "type": "TripleConstraintSolutions",
+                                                          "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                                                          "solutions": [
+                                                            {
+                                                              "type": "TestedTriple",
+                                                              "subject": "_:l2",
+                                                              "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+                                                              "object": "http://a.example/v3"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "type": "TripleConstraintSolutions",
+                                                          "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                                                          "valueExpr": "http://a.example/List0PlusDot",
+                                                          "solutions": [
+                                                            {
+                                                              "type": "TestedTriple",
+                                                              "subject": "_:l2",
+                                                              "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                                                              "object": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+                                                              "referenced": {
+                                                                "type": "ShapeOrResults",
+                                                                "solution": {
+                                                                  "type": "NodeConstraintTest",
+                                                                  "node": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+                                                                  "shape": "http://a.example/List0PlusDot",
+                                                                  "shapeExpr": {
+                                                                    "type": "NodeConstraint",
+                                                                    "values": [
+                                                                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

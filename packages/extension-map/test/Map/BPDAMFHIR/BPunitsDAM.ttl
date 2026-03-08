@@ -1,0 +1,7 @@
+<tag:b0>
+  <http://shex.io/extensions/Map/#BPunitsDAM-systolic> [
+    <http://shex.io/extensions/Map/#BPunitsDAM-value> "110"^^<http://www.w3.org/2001/XMLSchema#float> ;
+    <http://shex.io/extensions/Map/#BPunitsDAM-units> "mmHg" ] ;
+  <http://shex.io/extensions/Map/#BPunitsDAM-diastolic> [
+    <http://shex.io/extensions/Map/#BPunitsDAM-value> "70"^^<http://www.w3.org/2001/XMLSchema#float> ;
+    <http://shex.io/extensions/Map/#BPunitsDAM-units> "mmHg" ].

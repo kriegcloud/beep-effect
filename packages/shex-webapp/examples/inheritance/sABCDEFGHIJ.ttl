@@ -1,0 +1,14 @@
+<sABCDEFGHIJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sxBCDEFGHIJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABxDEFGHIJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABCDEFxHIJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABCDEFGxIJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABCDEFGHxJx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABCDEFGHIxx> <p> 0, 2, 3, 4   ; <q> 5, 6 .
+<sABCDEFGHIJ0> <r> 1 .
+<sABCDEFGHIJ1> <p> 0            ; <q> 5, 6 .
+<sABCDEFGHIJ2> <p> 0, 2         ; <q> 5, 6 .
+<sABCDEFGHIJ3> <p> 0, 2, 3      ; <q> 5, 6 .
+<sABCDEFGHIJ5> <p> 0, 2, 3, 4, 5; <q> 5, 6 .
+<sABCDEFGHIJ6> <p> 0, 2, 3, 4   ; <q> 5 .
+<sABCDEFGHIJ7> <p> 0, 2, 3, 4   ; <q> 5, 6, 7 .

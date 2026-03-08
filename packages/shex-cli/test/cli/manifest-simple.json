@@ -1,0 +1,11 @@
+[
+  {
+    "name": ":S1 {:p1 .|:p2 .,:p3 .} / { :s1 :p1 \"p1-0\" . }" ,
+    "name": "1dotOr2dot_pass_p1" ,
+    "options": { "or": "someOf" } ,
+    "shex": "1dotOr2dot.shex" ,
+    "shape": "http://a.example/S1" ,
+    "data": "p1.ttl" ,
+    "node": "x"
+  }
+]

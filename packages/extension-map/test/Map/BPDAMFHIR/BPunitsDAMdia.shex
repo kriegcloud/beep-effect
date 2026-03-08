@@ -1,0 +1,17 @@
+PREFIX    : <http://shex.io/extensions/Map/#BPunitsDAM->
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX bp: <http://shex.io/extensions/Map/#BPDAM->
+PREFIX Map: <http://shex.io/extensions/Map/#>
+
+start = @<BPunitsDAM>
+
+<BPunitsDAM> {
+    :systolic {
+        :value xsd:float,
+        :units xsd:string
+    },
+    :diastolic {
+        :value xsd:float %Map:{ bp:diaVal %},
+        :units xsd:string %Map:{ bp:diaUnits %}
+    }
+}

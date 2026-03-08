@@ -1,0 +1,30 @@
+# -*- mode: n3; outline-regexp: "[#]+ "; -*-
+
+# prefixes
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix sht:     <http://www.w3.org/ns/shacl/test-suite#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+
+# entries
+<> a mf:Manifest ;
+    rdfs:comment "ShEx validation tests" ;
+    mf:entries
+    (
+        <#1dotOr2dot_pass_p1>
+    ) .
+
+<#1dotOr2dot_pass_p1> a sht:ValidationTest ;
+    mf:name "1dotOr2dot_pass_p1" ;
+    sht:trait sht:OneOf , sht:EachOf-unvisited ;
+    rdfs:comment ":S1 {:p1 .|:p2 .,:p3 .} / { :s1 :p1 \"p1-0\" . }" ;
+    mf:status mf:proposed ;
+    mf:action [
+      sht:schema <1dotOr2dot.shex> ;
+      sht:shape <http://a.example/S1> ;
+      sht:data <p1.ttl> ;
+      sht:focus <x>
+    ] ;
+    mf:result <open1dotOropen2dotcloseclose_pass_p1.val>
+    .

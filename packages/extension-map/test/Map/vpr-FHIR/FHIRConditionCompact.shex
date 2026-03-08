@@ -1,0 +1,63 @@
+PREFIX fhir: <http://hl7.org/fhir/> 
+PREFIX fhirvs: <http://hl7.org/fhir/ValueSet/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX prob: <tag:eric@w3.org/2016/ProblemList/>
+PREFIX Map: <http://shex.io/extensions/Map/#>
+BASE <http://hl7.org/fhir/shape/>
+
+start=@<Condition> AND {fhir:nodeRole [fhir:treeRoot]}
+
+# Detailed information about conditions, problems or diagnoses
+<Condition> CLOSED {
+  a [fhir:Condition];
+  fhir:nodeRole [fhir:treeRoot]?;
+  fhir:DomainResource.text {             # Text summary of the resource, for 
+    fhir:Narrative.status  { fhir:value xsd:string? %Map:{ prob:PARAM-narStat %} }?;
+                                          # generated | extensions | 
+                                          # additional | empty 
+    fhir:Narrative.div xsd:string %Map:{ prob:Text %}; # Limited xhtml content
+  }?;
+                                          # human interpretation 
+  fhir:Condition.identifier {             # External Ids for this condition
+                                          # The namespace for the identifier
+    fhir:Identifier.system { fhir:value xsd:string? %Map:{ prob:PARAM-IDsystem %} }?;
+                                          # The value that is unique
+    fhir:Identifier.value { fhir:value xsd:string MAXLENGTH 1048576? %Map:{ prob:ID %} }?;
+  }*;
+  fhir:Condition.verificationStatus {
+    fhir:value xsd:string? %Map:{ prob:PARAM-status %};
+  };                                      # provisional | differential | 
+                                          # confirmed | refuted | 
+                                          # entered-in-error | unknown 
+  fhir:Condition.code {
+    fhir:CodeableConcept.coding {         # Code defined by a terminology system
+	                                  # xml:id (or equivalent in JSON)
+      fhir:Element.id { fhir:value xsd:string MAXLENGTH 1048576? %Map:{ prob:CodeID %} }?;
+	                                  # Identity of the terminology system
+      fhir:Coding.system { fhir:value xsd:string? %Map:{ prob:Sys %} }?;
+	                                  # Symbol in syntax defined by the system
+      fhir:Coding.code { fhir:value xsd:string? %Map:{ prob:Code %} }?;
+                                          # Representation defined by the system 
+      fhir:Coding.display { fhir:value xsd:string MAXLENGTH 1048576? %Map:{ prob:Disp %} } ?;
+    }*;
+  };  # Identification of the condition, 
+  fhir:Condition.subject {                # Who has the condition?
+    fhir:Element.id {
+      fhir:value xsd:string? %Map:{ prob:patID %};
+    }?;
+  };
+                                          # Estimated or actual date,  
+                                          # date-time, or age 
+  fhir:Condition.onsetDateTime {
+    fhir:value xsd:dateTime %Map:{ prob:Onset %}
+  }?;
+  fhir:Condition.dateRecorded {           # When first entered
+    fhir:value xsd:date? %Map:{ prob:Entered %};
+  }?;
+}
+
+#---------------------- Value Sets ------------------------
+
+# The verification status to support or decline the clinical status of the condition or diagnosis.
+fhirvs:condition-ver-status ["provisional" "differential" "confirmed" "refuted" "entered-in-error" "unknown"]
+

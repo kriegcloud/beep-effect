@@ -1,0 +1,3 @@
+PREFIX : <http://a.example/>
+
+<x> :p1 "p1-0" .

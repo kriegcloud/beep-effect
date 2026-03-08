@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0-alpha.29",
+  "npmClient": "npm",
+  "hoist": true,
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "ignored-file",
+        "*.md"
+      ],
+      "message": "chore(release): publish",
+      "registry": "https://registry.npmjs.org"
+    },
+    "bootstrap": {
+      "ignore": "component-*",
+      "npmClientArgs": []
+    }
+  },
+  "packages": [
+    "packages/*"
+  ],
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
+}

@@ -1,0 +1,70 @@
+name: Feature request
+description: Create a report to help us improve
+title: "Feature Request"
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request! Please check [existing requests](https://github.com/ericprud/toy/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement) to avoid duplication.
+  - type: dropdown
+    id: browser
+    attributes:
+      label: What could be better?
+      multiple: true
+      options:
+        - shexjs in node
+        - shexjs in browser
+        - Typescript types
+        - ShEx WebApp
+        - ShExMap WebApp
+        - Other (specify in text)
+
+  - type: textarea
+    id: related-problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: What problem are you trying to solve? E.g. "I'd really like to do X, but I can't because Y."
+      placeholder: 
+    validations:
+      required: false
+
+  - type: textarea
+    id: pref-solution
+    attributes:
+      label: What solution(s) would you like?
+      description: What new thing would you like ReSpec to do? Is there a similar solution in other software?
+      placeholder: 
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives-tried
+    attributes:
+      label: What alternatives have you tried?
+      description: How are you currently working around this limitation?
+      placeholder: 
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here.
+      placeholder: 
+    validations:
+      required: false
+
+  - type: dropdown
+    id: payola
+    attributes:
+      label: Can you or your organization fund the work or help with development?
+      options:
+        - Yes, would love to
+        - No, you'll get nothing from me
+        - -ish, possible but challenging
+      default: 0
+    validations:
+      required: true

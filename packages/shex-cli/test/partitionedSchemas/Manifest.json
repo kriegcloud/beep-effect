@@ -1,0 +1,50 @@
+{
+  "description": "collection of partition tests",
+  "tests": [
+    {
+      "from": "1dotRefOR3",
+      "include": ["http://a.example/S1"],
+      "expect": "1dotRefOR3_S1"
+    },
+    {
+      "from": "1dotRefOR3",
+      "include": ["http://a.example/S4"],
+      "expect": "1dotRefOR3_S4"
+    },
+    {
+      "from": "1dotRefOR3",
+      "include": ["http://a.example/S2", "http://a.example/S4"],
+      "expect": "1dotRefOR3_S2_S4"
+    },
+    {
+      "from": "2EachInclude1",
+      "include": ["http://a.example/S2"],
+      "expect": "2EachInclude1_S2"
+    },
+    {
+      "from": "2EachInclude1",
+      "include": ["http://a.example/S1"],
+      "expect": "2EachInclude1_S1"
+    },
+    {
+      "from": "2EachInclude1",
+      "include": ["http://a.example/S2", "http://a.example/S1"],
+      "expect": "2EachInclude1_S2_S1"
+    },
+    {
+      "from": "3circRefPlus1",
+      "include": ["http://a.example/S2"],
+      "expect": "3circRefPlus1_S2"
+    },
+    {
+      "from": "3circRefPlus1",
+      "include": ["http://a.example/S4"],
+      "expect": "3circRefPlus1_S4"
+    },
+    {
+      "from": "3circRefPlus1",
+      "include": ["http://a.example/S1", "http://a.example/S3", "http://a.example/S4", "http://a.example/S2"],
+      "expect": "3circRefPlus1_S1_S3_S4_S2"
+    }
+  ]
+}

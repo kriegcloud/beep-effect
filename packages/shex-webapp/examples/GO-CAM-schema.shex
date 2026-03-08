@@ -1,0 +1,48 @@
+PREFIX part_of: <http://purl.obolibrary.org/obo/BFO_0000050>
+PREFIX occurs_in: <http://purl.obolibrary.org/obo/BFO_0000066>
+PREFIX enabled_by: <http://purl.obolibrary.org/obo/RO_0002333>
+PREFIX pav: <http://purl.org/pav/>
+PREFIX layout: <http://geneontology.org/lego/hint/layout/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX lego: <http://geneontology.org/lego/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#S1> @<#S2> AND {
+  (  part_of: .
+   | occurs_in: .
+   | enabled_by: .
+  )+
+}
+
+<#S2> EXTRA a {
+  part_of: @<#S2> ? ;
+  occurs_in: @<#S2> ? ;
+  enabled_by: @<#S2> ? ;
+  pav:providedBy xsd:string ;
+  ( layout:x xsd:string  ;
+    layout:y xsd:string )?;
+  a IRI AND NOT [owl:NamedIndividual];
+  a owl:NamedIndividual ? ;
+  dc:contributor xsd:string + ; # !! IRI
+  dc:date xsd:string ; # !! xsd:date
+  owl:annotatedTarget {
+    lego:evidence @<#contribution> ;
+    owl:annotatedProperty .
+  }*
+}
+
+<#contribution> {
+  pav:providedBy  xsd:string ; # !! IRI
+  a  [owl:NamedIndividual] ;
+  a  @<#flavor> ;
+  dc:contributor  xsd:string ; # !! IRI
+  dc:date  xsd:string ; # !! xsd:date
+  dc:source  xsd:string # ?? IRI, i.e. is "PMID:30057120" a qname?
+}
+
+<#flavor> [
+  part_of:
+  occurs_in:
+  enabled_by:
+]

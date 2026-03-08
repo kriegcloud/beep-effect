@@ -1,0 +1,36 @@
+PREFIX data: <urn:local:data:>
+PREFIX vpr: <urn:local:vpr:>
+
+data:Problem:101 vpr:Problem.id "101" ;
+    vpr:Problem.pid "D110000000" ;
+    vpr:Problem.problemText "fainting preceded by sudden severe throat pain" ;
+    vpr:Problem.code data:Code:301 ;
+    vpr:Problem.comment data:Comment:201 ;
+    vpr:Problem.onset "8/31/1996 12:30" ;
+    vpr:Problem.entered "9/1/1996 12:30" .
+
+data:Problem:102 vpr:Problem.id "102" ;
+    vpr:Problem.pid "D110000000" ;
+    vpr:Problem.problemText "BENIGN NEOPLASM PHEOCHROMOCYTOMA (ECTOPIC)" ;
+    vpr:Problem.code data:Code:302 ;
+    vpr:Problem.comment data:Comment:202 ;
+    vpr:Problem.onset "3/7/1997 3:37" ;
+    vpr:Problem.entered "3/8/1997 3:37" .
+
+data:Comment:201 vpr:Comment.id "201" ;
+    vpr:Comment.comment "N/A" ;
+    vpr:Comment.entered "9/1/1996 12:30" .
+
+data:Comment:202 vpr:Comment.id "202" ;
+    vpr:Comment.comment "N/A" ;
+    vpr:Comment.entered "3/8/1997 3:37" .
+
+data:Code:301 vpr:Code.id "301" ;
+    vpr:Code.code "1530" ;
+    vpr:Code.display "Syncope (disorder)" ;
+    vpr:Code.system "MEDCIN" .
+
+data:Code:302 vpr:Code.id "302" ;
+    vpr:Code.code "91177" ;
+    vpr:Code.display "Benign pheochromocytoma (disorder)" ;
+    vpr:Code.system "MEDCIN" .
