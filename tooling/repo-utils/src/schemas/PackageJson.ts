@@ -724,13 +724,7 @@ const npmPackageJsonFields = {
   readme: S.OptionFromOptionalKey(S.String),
 } as const;
 
-class NpmPackageJsonShape extends S.Class<NpmPackageJsonShape>($I`NpmPackageJsonShape`)(
-  npmPackageJsonFields,
-  $I.annote("NpmPackageJsonShape", {
-    title: "Npm Package Json Shape",
-    description: "Base npm package.json fields before the strict exported npm package-json schema is applied.",
-  })
-) {}
+const NpmPackageJsonShape = S.Struct(npmPackageJsonFields);
 
 const packageJsonFields = {
   ...npmPackageJsonFields,
@@ -738,13 +732,7 @@ const packageJsonFields = {
   "resolutions#": S.OptionFromOptionalKey(NonEmptyStringRecord),
 } as const;
 
-class PackageJsonShape extends S.Class<PackageJsonShape>($I`PackageJsonShape`)(
-  packageJsonFields,
-  $I.annote("PackageJsonShape", {
-    title: "Package Json Shape",
-    description: "Base repo package.json fields before the strict exported repo package-json schema is applied.",
-  })
-) {}
+const PackageJsonShape = S.Struct(packageJsonFields);
 
 /**
  * Type-safe schema for npm package.json files.
