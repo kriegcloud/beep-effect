@@ -1,0 +1,11 @@
+# CQ-005: What energy topics does a given publication cover?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?topic ?topicLabel WHERE {
+  ?article enews:publishedBy enews:pub_bloomberg ;
+           enews:coversTopic ?topic .
+  ?topic rdfs:label ?topicLabel .
+}

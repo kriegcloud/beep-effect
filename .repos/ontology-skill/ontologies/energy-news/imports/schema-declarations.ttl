@@ -1,0 +1,32 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+
+<http://example.org/ontology/energy-news/schema-declarations> a owl:Ontology ;
+    rdfs:comment "Minimal OWL type declarations for schema.org and SIOC terms referenced by the Energy News Ontology. Required for OWL API / ROBOT to correctly parse cross-ontology axioms." .
+
+# --- Schema.org Classes ---
+schema:NewsArticle a owl:Class .
+schema:NewsMediaOrganization a owl:Class .
+schema:Organization a owl:Class .
+schema:Person a owl:Class .
+schema:Place a owl:Class .
+schema:SocialMediaPosting a owl:Class .
+
+# --- Schema.org Object Properties ---
+schema:about a owl:ObjectProperty .
+schema:author a owl:ObjectProperty .
+schema:contentLocation a owl:ObjectProperty .
+schema:mentions a owl:ObjectProperty .
+schema:publisher a owl:ObjectProperty .
+schema:sharedContent a owl:ObjectProperty .
+
+# --- Schema.org Datatype Properties ---
+schema:datePublished a owl:DatatypeProperty .
+schema:description a owl:DatatypeProperty .
+schema:headline a owl:DatatypeProperty .
+schema:url a owl:DatatypeProperty .
+
+# --- SIOC ---
+sioc:UserAccount a owl:Class .

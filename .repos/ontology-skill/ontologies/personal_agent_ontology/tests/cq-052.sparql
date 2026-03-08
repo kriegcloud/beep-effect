@@ -1,0 +1,9 @@
+PREFIX pao: <https://purl.org/pao/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# CQ-052: What items were dropped during a compaction event?
+# Expected: non-empty result set
+SELECT ?compaction ?item WHERE {
+  ?compaction a pao:CompactionEvent .
+  ?item prov:wasInvalidatedBy ?compaction .
+}

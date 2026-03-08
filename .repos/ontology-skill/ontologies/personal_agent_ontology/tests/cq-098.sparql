@@ -1,0 +1,9 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-098: Which clarifications were issued before commitment was established?
+# Expected: non_empty
+SELECT ?clarification ?turn WHERE {
+  ?clarification a pao:ClarificationRequest ;
+                 pao:clarifiesTurn ?turn .
+}

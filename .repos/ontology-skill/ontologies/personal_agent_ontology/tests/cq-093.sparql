@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-093: What is the scope and source of each memory item?
+# Expected: non_empty
+SELECT ?item ?source ?scope WHERE {
+  ?item a pao:MemoryItem ;
+        pao:hasMemorySource ?source ;
+        pao:hasMemoryScope ?scope .
+}

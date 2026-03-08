@@ -1,0 +1,11 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-057: What is the unique identifier for a given agent, session, or conversation?
+# Expected: non-empty result set
+SELECT ?entity ?id WHERE {
+  { ?entity a pao:AIAgent ; pao:hasAgentId ?id . }
+  UNION
+  { ?entity a pao:Session ; pao:hasSessionId ?id . }
+  UNION
+  { ?entity a pao:Conversation ; pao:hasConversationId ?id . }
+}

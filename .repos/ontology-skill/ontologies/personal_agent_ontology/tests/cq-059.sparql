@@ -1,0 +1,10 @@
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-059: What was the previous status of a session before it ended?
+# Expected: non-empty result set
+SELECT ?session ?prevStatus WHERE {
+  ?transition a pao:SessionStatusTransition ;
+              pao:transitionSubject ?session ;
+              pao:toStatus pao:Ended ;
+              pao:fromStatus ?prevStatus .
+}

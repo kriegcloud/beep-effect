@@ -1,0 +1,8 @@
+# CQ-049: Does a consent record exist for a given data subject and purpose?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+ASK {
+  ?consent a pao:ConsentRecord ;
+           pao:consentSubject ?agent ;
+           pao:consentPurpose ?purpose .
+}

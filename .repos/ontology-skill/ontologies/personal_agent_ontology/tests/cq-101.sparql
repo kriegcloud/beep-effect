@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-101: Which provider hosts a given model?
+# Expected: non_empty
+SELECT ?model ?modelLabel ?provider ?providerLabel WHERE {
+  ?model a pao:FoundationModel ;
+         rdfs:label ?modelLabel ;
+         pao:hasProvider ?provider .
+  ?provider a pao:ModelProvider ;
+            rdfs:label ?providerLabel .
+}

@@ -1,0 +1,29 @@
+# Constraint: every domain property must have both rdfs:domain and rdfs:range
+# Expected: zero results (ROBOT verify passes on zero rows)
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX enews: <http://example.org/ontology/energy-news#>
+
+SELECT ?property ?issue WHERE {
+  {
+    ?property a owl:ObjectProperty .
+    FILTER(STRSTARTS(STR(?property), STR(enews:)))
+    FILTER NOT EXISTS { ?property rdfs:domain ?d }
+    BIND("missing domain" AS ?issue)
+  } UNION {
+    ?property a owl:ObjectProperty .
+    FILTER(STRSTARTS(STR(?property), STR(enews:)))
+    FILTER NOT EXISTS { ?property rdfs:range ?r }
+    BIND("missing range" AS ?issue)
+  } UNION {
+    ?property a owl:DatatypeProperty .
+    FILTER(STRSTARTS(STR(?property), STR(enews:)))
+    FILTER NOT EXISTS { ?property rdfs:domain ?d }
+    BIND("missing domain" AS ?issue)
+  } UNION {
+    ?property a owl:DatatypeProperty .
+    FILTER(STRSTARTS(STR(?property), STR(enews:)))
+    FILTER NOT EXISTS { ?property rdfs:range ?r }
+    BIND("missing range" AS ?issue)
+  }
+}

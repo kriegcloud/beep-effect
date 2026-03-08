@@ -1,0 +1,5 @@
+child,label
+http://example.org/ontology/energy-news#Wind,wind
+http://example.org/ontology/energy-news#Solar,solar
+http://example.org/ontology/energy-news#Hydro,hydro
+http://example.org/ontology/energy-news#Geothermal,geothermal

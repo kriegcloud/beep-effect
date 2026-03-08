@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-086: What authorization decisions were recorded for denied operations?
+# Expected: non-empty result set
+SELECT ?entry ?invocation ?decision ?reason WHERE {
+  ?entry a pao:AuditEntry ;
+         pao:auditForInvocation ?invocation ;
+         pao:recordsDecision ?decision ;
+         pao:hasDecisionReason ?reason .
+  FILTER(?decision = pao:Deny)
+}

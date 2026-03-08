@@ -1,0 +1,11 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://purl.org/pao/foaf-declarations> a owl:Ontology ;
+    rdfs:label "FOAF declarations for PAO"@en ;
+    rdfs:comment "MIREOT-style stub declaring FOAF terms used by PAO."@en .
+
+# Classes
+foaf:Person a owl:Class ; rdfs:label "Person"@en .

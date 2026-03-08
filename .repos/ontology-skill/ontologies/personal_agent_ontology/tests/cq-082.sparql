@@ -1,0 +1,18 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-082: Which services provide resources versus tools versus prompts?
+# Expected: non-empty result set
+SELECT ?service ?serviceLabel ?capType (COUNT(?cap) AS ?count) WHERE {
+  ?service a pao:ExternalService ;
+           rdfs:label ?serviceLabel ;
+           pao:exposesCapability ?cap .
+  ?cap rdf:type ?capType .
+  VALUES ?capType {
+    pao:ServiceToolCapability
+    pao:ServiceResourceCapability
+    pao:ServicePromptCapability
+  }
+}
+GROUP BY ?service ?serviceLabel ?capType

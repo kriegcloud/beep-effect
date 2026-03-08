@@ -1,0 +1,22 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://purl.org/pao/time-declarations> a owl:Ontology ;
+    rdfs:label "OWL-Time declarations for PAO"@en ;
+    rdfs:comment "MIREOT-style stub declaring OWL-Time terms used by PAO."@en .
+
+# Classes
+time:TemporalEntity a owl:Class ; rdfs:label "Temporal Entity"@en .
+time:Instant a owl:Class ; rdfs:subClassOf time:TemporalEntity ; rdfs:label "Instant"@en .
+time:Interval a owl:Class ; rdfs:subClassOf time:TemporalEntity ; rdfs:label "Interval"@en .
+
+# Properties
+time:hasBeginning a owl:ObjectProperty ; rdfs:label "has beginning"@en ;
+    rdfs:domain time:TemporalEntity ; rdfs:range time:Instant .
+time:hasEnd a owl:ObjectProperty ; rdfs:label "has end"@en ;
+    rdfs:domain time:TemporalEntity ; rdfs:range time:Instant .
+time:inXSDDateTime a owl:DatatypeProperty ; rdfs:label "in XSD dateTime"@en ;
+    rdfs:domain time:Instant ; rdfs:range xsd:dateTime .

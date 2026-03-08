@@ -1,0 +1,22 @@
+# ROBOT report severity profile — moderate (OBO Foundry standard)
+# See: skills/_shared/quality-checklist.md for full quality framework
+#
+# ERROR = blocks commit/CI
+# WARN  = logged, tracked, non-blocking
+# INFO  = informational only
+ERROR	missing_label
+WARN	missing_definition
+ERROR	duplicate_label
+ERROR	deprecated_class_reference
+ERROR	deprecated_property_reference
+ERROR	multiple_labels
+ERROR	multiple_definitions
+WARN	duplicate_exact_synonym
+WARN	duplicate_definition
+WARN	missing_obsolete_label
+WARN	annotation_whitespace
+WARN	missing_ontology_description
+ERROR	missing_ontology_license
+WARN	missing_ontology_title
+INFO	missing_superclass
+WARN	equivalent_pair

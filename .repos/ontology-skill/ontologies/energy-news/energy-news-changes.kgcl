@@ -1,0 +1,201 @@
+# Energy News Ontology — KGCL Change Log
+# Initial creation — Architect Phase (Pipeline A, Step 4)
+# Date: 2026-02-11
+# Author: ontology-architect skill
+
+# --- Classes (8) ---
+create class enews:EnergyTopic
+create class enews:Article
+create class enews:Publication
+create class enews:Post
+create class enews:AuthorAccount
+create class enews:Feed
+create class enews:Organization
+create class enews:GeographicEntity
+
+# --- Object Properties (6) ---
+create object property enews:coversTopic
+create object property enews:publishedBy
+create object property enews:postedBy
+create object property enews:sharesArticle
+create object property enews:mentionsOrganization
+create object property enews:hasGeographicFocus
+
+# --- Datatype Properties (6) ---
+create datatype property enews:handle
+create datatype property enews:title
+create datatype property enews:url
+create datatype property enews:description
+create datatype property enews:publishedDate
+create datatype property enews:siteDomain
+
+# --- SKOS Concept Scheme ---
+create individual enews:EnergyTopicScheme
+
+# --- Topic Individuals (66) ---
+# Top-level topics (19)
+create individual enews:Renewable
+create individual enews:Fossil
+create individual enews:Nuclear
+create individual enews:EnergyStorage
+create individual enews:Hydrogen
+create individual enews:CarbonCapture
+create individual enews:GridAndInfrastructure
+create individual enews:EnergyPolicy
+create individual enews:EnergyMarkets
+create individual enews:EnergyFinance
+create individual enews:ClimateAndEmissions
+create individual enews:Electrification
+create individual enews:DataCenterDemand
+create individual enews:EnergyGeopolitics
+create individual enews:EnergyJustice
+create individual enews:WorkforceAndManufacturing
+create individual enews:ResearchAndInnovation
+create individual enews:BuildingsAndEfficiency
+create individual enews:EnvironmentAndLandUse
+
+# Narrower topics (47)
+create individual enews:Solar
+create individual enews:Wind
+create individual enews:Hydro
+create individual enews:Geothermal
+create individual enews:Coal
+create individual enews:NaturalGas
+create individual enews:Oil
+create individual enews:SMR
+create individual enews:Fusion
+create individual enews:Transmission
+create individual enews:Distribution
+create individual enews:Interconnection
+create individual enews:GridOperator
+create individual enews:Regulation
+create individual enews:Legislation
+create individual enews:Tariff
+create individual enews:Permitting
+create individual enews:WholesaleMarkets
+create individual enews:Commodity
+create individual enews:PowerPurchaseAgreement
+create individual enews:ProjectFinance
+create individual enews:CorporateDeals
+create individual enews:PublicFunding
+create individual enews:EmissionsTracking
+create individual enews:Decarbonization
+create individual enews:NetZero
+create individual enews:ElectricVehicles
+create individual enews:EVCharging
+create individual enews:HeatPumps
+create individual enews:ElectricTransport
+create individual enews:TradeAndSanctions
+create individual enews:SupplyChain
+create individual enews:CriticalMinerals
+create individual enews:Affordability
+create individual enews:CommunityEnergy
+create individual enews:EnergyAccess
+create individual enews:EnergyJobs
+create individual enews:Manufacturing
+create individual enews:LaborRelations
+create individual enews:EfficiencyRecords
+create individual enews:Patent
+create individual enews:BuildingElectrification
+create individual enews:Retrofits
+create individual enews:RooftopSolar
+create individual enews:WaterUse
+create individual enews:Agrivoltaics
+create individual enews:WasteAndPollution
+
+# --- Axioms ---
+# AllDisjointClasses: 8 domain classes
+# Existential restrictions: Article coversTopic some EnergyTopic, Post postedBy some AuthorAccount
+# HasKey: Article(url), AuthorAccount(handle), Publication(siteDomain)
+# Functional properties: publishedBy, postedBy, sharesArticle, handle, title, url, description, publishedDate, siteDomain
+# Schema.org alignment: 10 equivalence/subclass axioms
+# SIOC alignment: AuthorAccount equivalentClass sioc:UserAccount
+# SKOS hierarchy: 47 broader relations, 19 topConceptOf relations
+# AllDifferent: 20 sibling groups (19 child groups + 1 top-level group)
+
+# ===========================================================================
+# Multi-Platform Extension (v0.2.0)
+# Date: 2026-02-11
+# Author: ontology-architect skill
+# Design Decision: DD-008 — platforms as named individuals, not subclasses
+# ===========================================================================
+
+# --- New Class ---
+create class enews:SocialMediaPlatform
+
+# --- New Object Property ---
+create object property enews:onPlatform
+
+# --- New Individuals ---
+create individual enews:Bluesky
+create individual enews:Twitter
+
+# --- New Edges (subclass / type assertions) ---
+create edge enews:SocialMediaPlatform rdfs:subClassOf obo:BFO_0000031
+create edge enews:Bluesky rdf:type enews:SocialMediaPlatform
+create edge enews:Twitter rdf:type enews:SocialMediaPlatform
+
+# --- New Axioms (OWL-specific, no KGCL grammar) ---
+# AllDisjointClasses: 9 domain classes (added SocialMediaPlatform)
+# Existential: AuthorAccount SubClassOf onPlatform some SocialMediaPlatform
+# Existential: Feed SubClassOf onPlatform some SocialMediaPlatform
+# HasKey(AuthorAccount): changed from (handle) to (handle, onPlatform)
+# Functional property: onPlatform
+# AllDifferent: (Bluesky, Twitter)
+# Removed: rdfs:domain on onPlatform (was AuthorAccount; omitted to avoid
+#   incorrect type inference on Feed instances given AllDisjointClasses)
+
+# --- Definition Updates (Bluesky -> platform-agnostic) ---
+change definition of enews:AuthorAccount from "a Bluesky account that shares energy news" to "a social media account that shares energy news"
+change definition of enews:Post from "a Bluesky post sharing energy content" to "a social media post sharing energy content"
+change definition of enews:Feed from "a curated Bluesky feed for energy content" to "a curated social media feed for energy content"
+change definition of enews:handle from "The Bluesky handle string for an AuthorAccount" to "The handle or username string for an AuthorAccount"
+change definition of <http://example.org/ontology/energy-news> from "as observed through Bluesky social media posts" to "as observed through social media posts"
+
+# --- New Competency Questions ---
+# CQ-017: Which platforms have the most energy news posts?
+# CQ-018: Which authors share energy news on a given platform?
+
+# ===========================================================================
+# URL-Publication Linking Implementation (v0.2.0)
+# Date: 2026-02-12
+# Author: ontology-architect skill
+# Design Decision: Derive publishedBy from article URL domain matching
+#   Publication siteDomain (as specified in property-design.yaml notes)
+# ===========================================================================
+
+# --- Build Script Changes ---
+# Added _extract_domain() helper: extracts domain from URL, strips www. prefix
+# Modified _add_sample_articles(): publishedBy now derived from URL domain
+#   lookup against Publication siteDomain values (no more hardcoded publication keys)
+# If domain unrecognized or URL unparseable, publishedBy is omitted (valid per min=0)
+
+# --- SHACL SPARQL Constraint (ArticleShape) ---
+# New sh:SPARQLConstraint on ArticleShape validates: if an Article has both
+#   url and publishedBy, the URL domain must match the Publication's siteDomain
+# First SPARQL-based SHACL constraint in the shapes graph
+
+# --- New Competency Question ---
+# CQ-019: Which publication published an article based on its URL domain?
+
+# --- Validator Fixes (B-001, W-001) ---
+# B-001: Fixed description literal datatype conflict. Removed lang="en" from
+#   description literals to match xsd:string range (rdf:langString and xsd:string
+#   are disjoint in OWL 2 — HermiT correctly flagged inconsistency).
+# W-001: Added rdfs:label to all ABox sample individuals (articles, authors,
+#   posts) to satisfy ROBOT report missing_label check.
+# W-001b: Made post labels unique by including article reference
+#   ("Post by {author} sharing {article}") to resolve duplicate_label ERROR.
+
+# ===========================================================================
+# Release v0.2.0
+# Date: 2026-02-12
+# Author: ontology-curator skill
+# ===========================================================================
+
+# --- Version Metadata ---
+# Added owl:priorVersion pointing to v0.1.0 IRIs on all three modules
+# Updated dcterms:modified to 2026-02-12
+# Generated release artifacts: TTL (merged + reasoned), OWL/XML,
+#   Manchester Syntax, JSON, plus modular source files and SHACL shapes
+# FAIR assessment documented in release/energy-news-fair.md

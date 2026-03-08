@@ -1,0 +1,2491 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pao: <https://purl.org/pao/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pao: a owl:Ontology ;
+    dcterms:created "2026-02-21" ;
+    dcterms:creator "ontology-architect skill" ;
+    dcterms:description "An OWL 2 DL ontology modeling AI agent architecture including conversations, memory systems, goals, plans, and governance."@en ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    dcterms:rights "MIT License" ;
+    dcterms:title "Personal Agent Ontology"@en ;
+    owl:imports pao:bfo-declarations,
+        pao:foaf-declarations,
+        pao:odrl-declarations,
+        pao:prov-declarations,
+        pao:reference-individuals,
+        pao:time-declarations ;
+    owl:priorVersion pao:0.7.0 ;
+    owl:versionIRI pao:0.8.0 ;
+    owl:versionInfo "0.8.0" ;
+    prov:generatedAtTime "2026-02-21T00:00:00+00:00"^^xsd:dateTime .
+
+pao:SubAgent a owl:Class ;
+    rdfs:label "sub agent"@en ;
+    obo:IAO_0000115 "An AI agent that was spawned by another agent to perform delegated work."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:spawnedBy ;
+            owl:someValuesFrom pao:AIAgent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:delegatedTask ;
+            owl:someValuesFrom pao:Task ],
+        pao:AIAgent ;
+    skos:definition "An AI agent that was spawned by another agent to perform delegated work."@en .
+
+pao:allowsCatchUp a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "allows catch up"@en ;
+    obo:IAO_0000115 "Whether a schedule allows catch-up of missed executions after downtime."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range xsd:boolean ;
+    skos:definition "Whether a schedule allows catch-up of missed executions after downtime."@en .
+
+pao:attemptedRetry a owl:ObjectProperty ;
+    rdfs:label "attempted retry"@en ;
+    obo:IAO_0000115 "Links an error recovery event to a retry attempt it initiated."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range pao:RetryAttempt ;
+    skos:definition "Links an error recovery event to a retry attempt it initiated."@en .
+
+pao:belongsTo a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "belongs to"@en ;
+    obo:IAO_0000115 "Links an agent to the organization it belongs to."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Organization ;
+    owl:inverseOf pao:hasMember ;
+    skos:definition "Links an agent to the organization it belongs to."@en .
+
+pao:blockSequenceIndex a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "block sequence index"@en ;
+    obo:IAO_0000115 "The zero-based ordinal position of a content block within its message."@en ;
+    rdfs:domain pao:ContentBlock ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The zero-based ordinal position of a content block within its message."@en .
+
+pao:blockedBy a owl:ObjectProperty ;
+    rdfs:label "blocked by"@en ;
+    obo:IAO_0000115 "Links a task to another task that must complete before it can proceed."@en ;
+    rdfs:domain pao:Task ;
+    rdfs:range pao:Task ;
+    owl:inverseOf pao:blocks ;
+    skos:definition "Links a task to another task that must complete before it can proceed."@en .
+
+pao:claimType a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "claim type"@en ;
+    obo:IAO_0000115 "Links a claim to its type classifier."@en ;
+    rdfs:domain pao:Claim ;
+    rdfs:range pao:ClaimType ;
+    skos:definition "Links a claim to its type classifier."@en .
+
+pao:compactedContextOf a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "compacted context of"@en ;
+    obo:IAO_0000115 "Links a compaction event to the context window that triggered it."@en ;
+    rdfs:domain pao:CompactionEvent ;
+    rdfs:range pao:ContextWindow ;
+    skos:definition "Links a compaction event to the context window that triggered it."@en .
+
+pao:consentPurpose a owl:ObjectProperty ;
+    rdfs:label "consent purpose"@en ;
+    obo:IAO_0000115 "Links a consent record to the entity describing the purpose."@en ;
+    rdfs:domain pao:ConsentRecord ;
+    rdfs:range prov:Entity ;
+    skos:definition "Links a consent record to the entity describing the purpose."@en .
+
+pao:continuedFrom a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "continued from"@en ;
+    obo:IAO_0000115 "Links a session to the prior session it continues."@en ;
+    rdfs:domain pao:Session ;
+    rdfs:range pao:Session ;
+    owl:inverseOf pao:continuedBy ;
+    skos:definition "Links a session to the prior session it continues."@en .
+
+pao:enforcedBySandboxPolicy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "enforced by sandbox policy"@en ;
+    obo:IAO_0000115 "Links an AI agent to the sandbox policy that constrains its execution."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range pao:SandboxPolicy ;
+    skos:definition "Links an AI agent to the sandbox policy that constrains its execution."@en .
+
+pao:fateReason a owl:DatatypeProperty ;
+    rdfs:label "fate reason"@en ;
+    obo:IAO_0000115 "A textual reason for the compaction disposition decision."@en ;
+    rdfs:domain pao:CompactionDisposition ;
+    rdfs:range xsd:string ;
+    skos:definition "A textual reason for the compaction disposition decision."@en .
+
+pao:hasAttemptCount a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has attempt count"@en ;
+    obo:IAO_0000115 "The number of retry attempts made during an error recovery event."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The number of retry attempts made during an error recovery event."@en .
+
+pao:hasBlockKey a owl:DatatypeProperty ;
+    rdfs:label "has block key"@en ;
+    obo:IAO_0000115 "A key in a memory block's key-value store."@en ;
+    rdfs:domain pao:MemoryBlock ;
+    rdfs:range xsd:string ;
+    skos:definition "A key in a memory block's key-value store."@en .
+
+pao:hasBlockValue a owl:DatatypeProperty ;
+    rdfs:label "has block value"@en ;
+    obo:IAO_0000115 "A value in a memory block's key-value store."@en ;
+    rdfs:domain pao:MemoryBlock ;
+    rdfs:range xsd:string ;
+    skos:definition "A value in a memory block's key-value store."@en .
+
+pao:hasCompactionDisposition a owl:ObjectProperty ;
+    rdfs:label "has compaction disposition"@en ;
+    obo:IAO_0000115 "Links a compaction event to a disposition record for one of its items."@en ;
+    rdfs:domain pao:CompactionEvent ;
+    rdfs:range pao:CompactionDisposition ;
+    skos:definition "Links a compaction event to a disposition record for one of its items."@en .
+
+pao:hasConfidence a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has confidence"@en ;
+    obo:IAO_0000115 "The confidence level of a claim, between 0.0 and 1.0."@en ;
+    rdfs:domain pao:Claim ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The confidence level of a claim, between 0.0 and 1.0."@en .
+
+pao:hasContent a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has content"@en ;
+    obo:IAO_0000115 "The textual or structured content of an information artifact."@en ;
+    rdfs:domain prov:Entity ;
+    rdfs:range xsd:string ;
+    skos:definition "The textual or structured content of an information artifact."@en .
+
+pao:hasContentBlock a owl:ObjectProperty ;
+    rdfs:label "has content block"@en ;
+    obo:IAO_0000115 "Links a message to one of its typed content blocks."@en ;
+    rdfs:domain pao:Message ;
+    rdfs:range pao:ContentBlock ;
+    skos:definition "Links a message to one of its typed content blocks."@en .
+
+pao:hasContextWindow a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has context window"@en ;
+    obo:IAO_0000115 "Links a session to its context window resource."@en ;
+    rdfs:domain pao:Session ;
+    rdfs:range pao:ContextWindow ;
+    skos:definition "Links a session to its context window resource."@en .
+
+pao:hasCronExpression a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has cron expression"@en ;
+    obo:IAO_0000115 "The cron expression defining when a recurrence pattern fires."@en ;
+    rdfs:domain pao:RecurrencePattern ;
+    rdfs:range xsd:string ;
+    skos:definition "The cron expression defining when a recurrence pattern fires."@en .
+
+pao:hasDecisionReason a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has decision reason"@en ;
+    obo:IAO_0000115 "A textual justification for the authorization decision in an audit entry."@en ;
+    rdfs:domain pao:AuditEntry ;
+    rdfs:range xsd:string ;
+    skos:definition "A textual justification for the authorization decision in an audit entry."@en .
+
+pao:hasDialogAct a owl:ObjectProperty ;
+    rdfs:label "has dialog act"@en ;
+    obo:IAO_0000115 "Links a turn to a dialog act it performs."@en ;
+    rdfs:domain pao:Turn ;
+    rdfs:range pao:DialogAct ;
+    skos:definition "Links a turn to a dialog act it performs."@en .
+
+pao:hasEndpoint a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has endpoint"@en ;
+    obo:IAO_0000115 "The endpoint URI of the external service an integration connects to."@en ;
+    rdfs:domain pao:Integration ;
+    rdfs:range xsd:anyURI ;
+    skos:definition "The endpoint URI of the external service an integration connects to."@en .
+
+pao:hasEvidence a owl:ObjectProperty ;
+    rdfs:label "has evidence"@en ;
+    obo:IAO_0000115 "Links a claim to the evidence entities that support it."@en ;
+    rdfs:domain pao:Claim ;
+    rdfs:range prov:Entity ;
+    skos:definition "Links a claim to the evidence entities that support it."@en .
+
+pao:hasIntervalSeconds a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has interval seconds"@en ;
+    obo:IAO_0000115 "The interval in seconds between recurring firings."@en ;
+    rdfs:domain pao:RecurrencePattern ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The interval in seconds between recurring firings."@en .
+
+pao:hasLastAccessTime a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has last access time"@en ;
+    obo:IAO_0000115 "The timestamp of the most recent access to this memory item."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range xsd:dateTime ;
+    skos:definition "The timestamp of the most recent access to this memory item."@en .
+
+pao:hasMaxOutputTokens a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has max output tokens"@en ;
+    obo:IAO_0000115 "The maximum number of output tokens for generation."@en ;
+    rdfs:domain pao:GenerationConfiguration ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The maximum number of output tokens for generation."@en .
+
+pao:hasMemoryScope a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has memory scope"@en ;
+    obo:IAO_0000115 "Links a memory item to its visibility scope."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range pao:MemoryScope ;
+    skos:definition "Links a memory item to its visibility scope."@en .
+
+pao:hasMemorySource a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has memory source"@en ;
+    obo:IAO_0000115 "Links a memory item to its origination source."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range pao:MemorySource ;
+    skos:definition "Links a memory item to its origination source."@en .
+
+pao:hasMetricName a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has metric name"@en ;
+    obo:IAO_0000115 "The name of an operational metric."@en ;
+    rdfs:domain pao:OperationalMetric ;
+    rdfs:range xsd:string ;
+    skos:definition "The name of an operational metric."@en .
+
+pao:hasMetricValue a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has metric value"@en ;
+    obo:IAO_0000115 "The measured value of a metric observation."@en ;
+    rdfs:domain pao:MetricObservation ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The measured value of a metric observation."@en .
+
+pao:hasModelVersion a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has model version"@en ;
+    obo:IAO_0000115 "The version string of a foundation model."@en ;
+    rdfs:domain pao:FoundationModel ;
+    rdfs:range xsd:string ;
+    skos:definition "The version string of a foundation model."@en .
+
+pao:hasPromptVersion a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has prompt version"@en ;
+    obo:IAO_0000115 "The version identifier of the prompt template used."@en ;
+    rdfs:domain pao:GenerationConfiguration ;
+    rdfs:range xsd:string ;
+    skos:definition "The version identifier of the prompt template used."@en .
+
+pao:hasRecoveryOutcome a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has recovery outcome"@en ;
+    obo:IAO_0000115 "The outcome of an error recovery event (e.g. resolved, escalated, abandoned)."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range xsd:string ;
+    skos:definition "The outcome of an error recovery event (e.g. resolved, escalated, abandoned)."@en .
+
+pao:hasRole a owl:ObjectProperty ;
+    rdfs:label "has role"@en ;
+    obo:IAO_0000115 "Links an agent to a role it bears in some context."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:AgentRole ;
+    skos:definition "Links an agent to a role it bears in some context."@en .
+
+pao:hasSeed a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has seed"@en ;
+    obo:IAO_0000115 "The random seed for reproducible generation."@en ;
+    rdfs:domain pao:GenerationConfiguration ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The random seed for reproducible generation."@en .
+
+pao:hasServiceConnection a owl:ObjectProperty ;
+    rdfs:label "has service connection"@en ;
+    obo:IAO_0000115 "Links an agent to a runtime connection to an external service."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:ServiceConnection ;
+    skos:definition "Links an agent to a runtime connection to an external service."@en .
+
+pao:hasServiceIdentifier a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has service identifier"@en ;
+    obo:IAO_0000115 "A unique string identifier for an external service configuration."@en ;
+    rdfs:domain pao:ExternalService ;
+    rdfs:range xsd:string ;
+    skos:definition "A unique string identifier for an external service configuration."@en .
+
+pao:hasServiceName a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has service name"@en ;
+    obo:IAO_0000115 "The display name of the external service an integration connects to."@en ;
+    rdfs:domain pao:Integration ;
+    rdfs:range xsd:string ;
+    skos:definition "The display name of the external service an integration connects to."@en .
+
+pao:hasServiceTransport a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has service transport"@en ;
+    obo:IAO_0000115 "The transport protocol of an external service (e.g. stdio, sse, http)."@en ;
+    rdfs:domain pao:ExternalService ;
+    rdfs:range xsd:string ;
+    skos:definition "The transport protocol of an external service (e.g. stdio, sse, http)."@en .
+
+pao:hasTemperature a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has temperature"@en ;
+    obo:IAO_0000115 "The temperature parameter for controlling generation randomness."@en ;
+    rdfs:domain pao:GenerationConfiguration ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The temperature parameter for controlling generation randomness."@en .
+
+pao:hasTimestamp a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has timestamp"@en ;
+    obo:IAO_0000115 "A convenience timestamp for point-in-time events."@en ;
+    rdfs:range xsd:dateTime ;
+    skos:definition "A convenience timestamp for point-in-time events."@en .
+
+pao:hasTokenCapacity a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has token capacity"@en ;
+    obo:IAO_0000115 "The maximum number of tokens the context window can hold."@en ;
+    rdfs:domain pao:ContextWindow ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The maximum number of tokens the context window can hold."@en .
+
+pao:hasTokensUsed a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has tokens used"@en ;
+    obo:IAO_0000115 "The number of tokens currently used in the context window."@en ;
+    rdfs:domain pao:ContextWindow ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The number of tokens currently used in the context window."@en .
+
+pao:hasTopP a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has top p"@en ;
+    obo:IAO_0000115 "The top-p (nucleus sampling) parameter for generation."@en ;
+    rdfs:domain pao:GenerationConfiguration ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The top-p (nucleus sampling) parameter for generation."@en .
+
+pao:heldBelief a owl:ObjectProperty ;
+    rdfs:label "held belief"@en ;
+    obo:IAO_0000115 "Links an agent to a belief it holds."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Belief ;
+    skos:definition "Links an agent to a belief it holds."@en .
+
+pao:holdsDesire a owl:ObjectProperty ;
+    rdfs:label "holds desire"@en ;
+    obo:IAO_0000115 "Links an agent to a desire it has."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Desire ;
+    skos:definition "Links an agent to a desire it has."@en .
+
+pao:hookTriggeredExecution a owl:ObjectProperty ;
+    rdfs:label "hook triggered execution"@en ;
+    obo:IAO_0000115 "Links a hook to an execution instance it triggered."@en ;
+    rdfs:domain pao:Hook ;
+    rdfs:range pao:HookExecution ;
+    skos:definition "Links a hook to an execution instance it triggered."@en .
+
+pao:initiatedSession a owl:ObjectProperty ;
+    rdfs:label "initiated session"@en ;
+    obo:IAO_0000115 "Links a scheduled execution to a session it initiated."@en ;
+    rdfs:domain pao:ScheduledExecution ;
+    rdfs:range pao:Session ;
+    skos:definition "Links a scheduled execution to a session it initiated."@en .
+
+pao:isEvictionCandidate a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "is eviction candidate"@en ;
+    obo:IAO_0000115 "Whether this memory item is eligible for eviction from its tier."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range xsd:boolean ;
+    skos:definition "Whether this memory item is eligible for eviction from its tier."@en .
+
+pao:linkedToRecovery a owl:ObjectProperty ;
+    rdfs:label "linked to recovery"@en ;
+    obo:IAO_0000115 "Links a reliability incident to a recovery event that addressed it."@en ;
+    rdfs:domain pao:ReliabilityIncident ;
+    rdfs:range pao:ErrorRecoveryEvent ;
+    skos:definition "Links a reliability incident to a recovery event that addressed it."@en .
+
+pao:observedOnEntity a owl:ObjectProperty ;
+    rdfs:label "observed on entity"@en ;
+    obo:IAO_0000115 "Links a metric observation to the entity it was recorded on."@en ;
+    rdfs:domain pao:MetricObservation ;
+    rdfs:range owl:Thing ;
+    skos:definition "Links a metric observation to the entity it was recorded on."@en .
+
+pao:partOfInvocationGroup a owl:ObjectProperty ;
+    rdfs:label "part of invocation group"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the parallel invocation group it belongs to."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:ToolInvocationGroup ;
+    skos:definition "Links a tool invocation to the parallel invocation group it belongs to."@en .
+
+pao:previousTransition a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "previous transition"@en ;
+    obo:IAO_0000115 "Links to the preceding status transition for the same subject."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range pao:StatusTransition ;
+    owl:inverseOf pao:nextTransition ;
+    skos:definition "Links to the preceding status transition for the same subject."@en .
+
+pao:providesAcceptanceEvidence a owl:ObjectProperty ;
+    rdfs:label "provides acceptance evidence"@en ;
+    obo:IAO_0000115 "Links a grounding act to evidence of acceptance or understanding."@en ;
+    rdfs:domain pao:GroundingAct ;
+    rdfs:range pao:AcceptanceEvidence ;
+    skos:definition "Links a grounding act to evidence of acceptance or understanding."@en .
+
+pao:recordedInEpisode a owl:ObjectProperty ;
+    rdfs:label "recorded in episode"@en ;
+    obo:IAO_0000115 "Links an event to the episode that records it."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Episode ;
+    owl:inverseOf pao:recordsEvent ;
+    skos:definition "Links an event to the episode that records it."@en .
+
+pao:resolvedByPolicy a owl:ObjectProperty ;
+    rdfs:label "resolved by policy"@en ;
+    obo:IAO_0000115 "Links a memory write conflict to the policy that resolved it."@en ;
+    rdfs:domain pao:MemoryWriteConflict ;
+    rdfs:range pao:PermissionPolicy ;
+    skos:definition "Links a memory write conflict to the policy that resolved it."@en .
+
+pao:retentionPeriodDays a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "retention period days"@en ;
+    obo:IAO_0000115 "The number of days a memory item should be retained."@en ;
+    rdfs:domain pao:RetentionPolicy ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The number of days a memory item should be retained."@en .
+
+pao:sentViaChannel a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "sent via channel"@en ;
+    obo:IAO_0000115 "Links a message to the communication channel it was sent through."@en ;
+    rdfs:domain pao:Message ;
+    rdfs:range pao:CommunicationChannel ;
+    skos:definition "Links a message to the communication channel it was sent through."@en .
+
+pao:servesGoal a owl:ObjectProperty ;
+    rdfs:label "serves goal"@en ;
+    obo:IAO_0000115 "Links a schedule to a goal it serves."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:Goal ;
+    skos:definition "Links a schedule to a goal it serves."@en .
+
+pao:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by"@en ;
+    obo:IAO_0000115 "The event that caused this status transition."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range pao:Event ;
+    skos:definition "The event that caused this status transition."@en .
+
+pao:triggeredReplan a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "triggered replan"@en ;
+    obo:IAO_0000115 "Links an error recovery event to the replan event it triggered."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range pao:ReplanEvent ;
+    skos:definition "Links an error recovery event to the replan event it triggered."@en .
+
+pao:triggeredRollback a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "triggered rollback"@en ;
+    obo:IAO_0000115 "Links an error recovery event to the rollback event it triggered."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range pao:RollbackEvent ;
+    skos:definition "Links an error recovery event to the rollback event it triggered."@en .
+
+pao:viaChannel a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "via channel"@en ;
+    obo:IAO_0000115 "Links a session to the communication channel it uses."@en ;
+    rdfs:domain pao:Session ;
+    rdfs:range pao:CommunicationChannel ;
+    skos:definition "Links a session to the communication channel it uses."@en .
+
+pao:AgentRole a owl:Class ;
+    rdfs:label "agent role"@en ;
+    obo:IAO_0000115 "A role that an agent plays in the context of a conversation or activity."@en ;
+    rdfs:subClassOf obo:BFO_0000023,
+        prov:Role ;
+    skos:definition "A role that an agent plays in the context of a conversation or activity."@en .
+
+pao:HumanUser a owl:Class ;
+    rdfs:label "human user"@en ;
+    obo:IAO_0000115 "An agent that is a human person who interacts with AI systems."@en ;
+    rdfs:subClassOf obo:BFO_0000030,
+        prov:Person,
+        foaf:Person,
+        pao:Agent ;
+    skos:definition "An agent that is a human person who interacts with AI systems."@en .
+
+pao:Observation a owl:Class ;
+    rdfs:label "observation"@en ;
+    obo:IAO_0000115 "An event in which an agent receives environmental feedback."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:inSession ;
+            owl:someValuesFrom pao:Session ],
+        pao:Event ;
+    skos:definition "An event in which an agent receives environmental feedback."@en .
+
+pao:SessionStatusTransition a owl:Class ;
+    rdfs:label "session status transition"@en ;
+    obo:IAO_0000115 "A status transition in which a session's status changes."@en ;
+    rdfs:subClassOf pao:StatusTransition ;
+    skos:definition "A status transition in which a session's status changes."@en .
+
+pao:TaskStatusTransition a owl:Class ;
+    rdfs:label "task status transition"@en ;
+    obo:IAO_0000115 "A status transition in which a task's status changes."@en ;
+    rdfs:subClassOf pao:StatusTransition ;
+    skos:definition "A status transition in which a task's status changes."@en .
+
+pao:aboutAgent a owl:ObjectProperty ;
+    rdfs:label "about agent"@en ;
+    obo:IAO_0000115 "Links a memory item to the agent it describes."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a memory item to the agent it describes."@en .
+
+pao:achievesGoal a owl:ObjectProperty ;
+    rdfs:label "achieves goal"@en ;
+    obo:IAO_0000115 "Links a plan to the goal it is designed to achieve."@en ;
+    rdfs:domain pao:Plan ;
+    rdfs:range pao:Goal ;
+    skos:definition "Links a plan to the goal it is designed to achieve."@en .
+
+pao:activatedBy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "activated by"@en ;
+    obo:IAO_0000115 "Links a schedule to the trigger that activates it."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:Trigger ;
+    skos:definition "Links a schedule to the trigger that activates it."@en .
+
+pao:auditForInvocation a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "audit for invocation"@en ;
+    obo:IAO_0000115 "Links an audit entry to the tool invocation it documents."@en ;
+    rdfs:domain pao:AuditEntry ;
+    rdfs:range pao:ToolInvocation ;
+    skos:definition "Links an audit entry to the tool invocation it documents."@en .
+
+pao:availableToAgent a owl:ObjectProperty ;
+    rdfs:label "available to agent"@en ;
+    obo:IAO_0000115 "Links a tool definition to an agent that may invoke it."@en ;
+    rdfs:domain pao:ToolDefinition ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a tool definition to an agent that may invoke it."@en .
+
+pao:blocks a owl:ObjectProperty ;
+    rdfs:label "blocks"@en ;
+    obo:IAO_0000115 "Links a task to another task that depends on its completion."@en ;
+    rdfs:domain pao:Task ;
+    rdfs:range pao:Task ;
+    skos:definition "Links a task to another task that depends on its completion."@en .
+
+pao:checkpointDecision a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "checkpoint decision"@en ;
+    obo:IAO_0000115 "Links a checkpoint to the human decision recorded for it."@en ;
+    rdfs:domain pao:Checkpoint ;
+    rdfs:range pao:CheckpointDecision ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a checkpoint to the human decision recorded for it."@en .
+
+pao:checkpointForTask a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "checkpoint for task"@en ;
+    obo:IAO_0000115 "Links a checkpoint to the task it gates."@en ;
+    rdfs:domain pao:Checkpoint ;
+    rdfs:range pao:Task ;
+    skos:definition "Links a checkpoint to the task it gates."@en .
+
+pao:clarifiesTurn a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "clarifies turn"@en ;
+    obo:IAO_0000115 "Links a clarification request to the turn it seeks to clarify."@en ;
+    rdfs:domain pao:ClarificationRequest ;
+    rdfs:range pao:Turn ;
+    skos:definition "Links a clarification request to the turn it seeks to clarify."@en .
+
+pao:compactedItem a owl:ObjectProperty ;
+    rdfs:label "compacted item"@en ;
+    obo:IAO_0000115 "Links a compaction event to an item that was in scope for compaction."@en ;
+    rdfs:domain pao:CompactionEvent ;
+    rdfs:range prov:Entity ;
+    rdfs:subPropertyOf prov:used ;
+    skos:definition "Links a compaction event to an item that was in scope for compaction."@en .
+
+pao:conflictOnArtifact a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "conflict on artifact"@en ;
+    obo:IAO_0000115 "Links a memory write conflict to the shared artifact in contention."@en ;
+    rdfs:domain pao:MemoryWriteConflict ;
+    rdfs:range pao:SharedMemoryArtifact ;
+    skos:definition "Links a memory write conflict to the shared artifact in contention."@en .
+
+pao:connectsToService a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "connects to service"@en ;
+    obo:IAO_0000115 "Links a service connection to the external service it connects to."@en ;
+    rdfs:domain pao:ServiceConnection ;
+    rdfs:range pao:ExternalService ;
+    skos:definition "Links a service connection to the external service it connects to."@en .
+
+pao:consentSubject a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "consent subject"@en ;
+    obo:IAO_0000115 "Links a consent record to the data subject agent."@en ;
+    rdfs:domain pao:ConsentRecord ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a consent record to the data subject agent."@en .
+
+pao:considersBelief a owl:ObjectProperty ;
+    rdfs:label "considers belief"@en ;
+    obo:IAO_0000115 "Links a deliberation to a belief it considers."@en ;
+    rdfs:domain pao:Deliberation ;
+    rdfs:range pao:Belief ;
+    skos:definition "Links a deliberation to a belief it considers."@en .
+
+pao:considersDesire a owl:ObjectProperty ;
+    rdfs:label "considers desire"@en ;
+    obo:IAO_0000115 "Links a deliberation to a desire it considers."@en ;
+    rdfs:domain pao:Deliberation ;
+    rdfs:range pao:Desire ;
+    skos:definition "Links a deliberation to a desire it considers."@en .
+
+pao:continuedBy a owl:ObjectProperty ;
+    rdfs:label "continued by"@en ;
+    obo:IAO_0000115 "Links a session to a subsequent session that continues its work."@en ;
+    rdfs:domain pao:Session ;
+    rdfs:range pao:Session ;
+    skos:definition "Links a session to a subsequent session that continues its work."@en .
+
+pao:contributesToCommonGround a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "contributes to common ground"@en ;
+    obo:IAO_0000115 "Links a grounding act to the common ground it updates."@en ;
+    rdfs:domain pao:GroundingAct ;
+    rdfs:range pao:CommonGround ;
+    skos:definition "Links a grounding act to the common ground it updates."@en .
+
+pao:delegatedTask a owl:ObjectProperty ;
+    rdfs:label "delegated task"@en ;
+    obo:IAO_0000115 "Links a sub-agent to the task it was spawned to perform."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Task ;
+    skos:definition "Links a sub-agent to the task it was spawned to perform."@en .
+
+pao:deployedAs a owl:ObjectProperty ;
+    rdfs:label "deployed as"@en ;
+    obo:IAO_0000115 "Links a foundation model to one of its deployments."@en ;
+    rdfs:domain pao:FoundationModel ;
+    rdfs:range pao:ModelDeployment ;
+    skos:definition "Links a foundation model to one of its deployments."@en .
+
+pao:derivedFromGoal a owl:ObjectProperty ;
+    rdfs:label "derived from goal"@en ;
+    obo:IAO_0000115 "Links an intention to the goal it was derived from."@en ;
+    rdfs:domain pao:Intention ;
+    rdfs:range pao:Goal ;
+    skos:definition "Links an intention to the goal it was derived from."@en .
+
+pao:discoveredCapability a owl:ObjectProperty ;
+    rdfs:label "discovered capability"@en ;
+    obo:IAO_0000115 "Links a capability discovery event to a capability it discovered."@en ;
+    rdfs:domain pao:CapabilityDiscoveryEvent ;
+    rdfs:range pao:ServiceCapability ;
+    skos:definition "Links a capability discovery event to a capability it discovered."@en .
+
+pao:discoveryAgainstService a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "discovery against service"@en ;
+    obo:IAO_0000115 "Links a capability discovery event to the service it queried."@en ;
+    rdfs:domain pao:CapabilityDiscoveryEvent ;
+    rdfs:range pao:ExternalService ;
+    skos:definition "Links a capability discovery event to the service it queried."@en .
+
+pao:dispositionOf a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "disposition of"@en ;
+    obo:IAO_0000115 "Links a compaction disposition to the item it describes."@en ;
+    rdfs:domain pao:CompactionDisposition ;
+    rdfs:range prov:Entity ;
+    skos:definition "Links a compaction disposition to the item it describes."@en .
+
+pao:executionOf a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "execution of"@en ;
+    obo:IAO_0000115 "Links a scheduled execution to the schedule it instantiates."@en ;
+    rdfs:domain pao:ScheduledExecution ;
+    rdfs:range pao:Schedule ;
+    skos:definition "Links a scheduled execution to the schedule it instantiates."@en .
+
+pao:exposesCapability a owl:ObjectProperty ;
+    rdfs:label "exposes capability"@en ;
+    obo:IAO_0000115 "Links an external service to a capability it exposes."@en ;
+    rdfs:domain pao:ExternalService ;
+    rdfs:range pao:ServiceCapability ;
+    skos:definition "Links an external service to a capability it exposes."@en .
+
+pao:fromStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "from status"@en ;
+    obo:IAO_0000115 "The status value before the transition."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range pao:Status ;
+    skos:definition "The status value before the transition."@en .
+
+pao:governedByPolicy a owl:ObjectProperty ;
+    rdfs:label "governed by policy"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the permission policy that governed it."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:PermissionPolicy ;
+    skos:definition "Links a tool invocation to the permission policy that governed it."@en .
+
+pao:governedByRetention a owl:ObjectProperty ;
+    rdfs:label "governed by retention"@en ;
+    obo:IAO_0000115 "Links a memory item to the retention policy that governs it."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range pao:RetentionPolicy ;
+    skos:definition "Links a memory item to the retention policy that governs it."@en .
+
+pao:grantsPermission a owl:ObjectProperty ;
+    rdfs:label "grants permission"@en ;
+    obo:IAO_0000115 "Links a permission policy to the specific permission it grants."@en ;
+    rdfs:domain pao:PermissionPolicy ;
+    rdfs:range odrl:Permission ;
+    skos:definition "Links a permission policy to the specific permission it grants."@en .
+
+pao:groupedInTurn a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "grouped in turn"@en ;
+    obo:IAO_0000115 "Links an invocation group to the turn in which it was executed."@en ;
+    rdfs:domain pao:ToolInvocationGroup ;
+    rdfs:range pao:Turn ;
+    skos:definition "Links an invocation group to the turn in which it was executed."@en .
+
+pao:hasAgentId a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has agent id"@en ;
+    obo:IAO_0000115 "The unique string identifier for this AI agent."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range xsd:string ;
+    skos:definition "The unique string identifier for this AI agent."@en .
+
+pao:hasAvailableTool a owl:ObjectProperty ;
+    rdfs:label "has available tool"@en ;
+    obo:IAO_0000115 "Links an agent to a tool definition available for invocation."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:ToolDefinition ;
+    owl:inverseOf pao:availableToAgent ;
+    skos:definition "Links an agent to a tool definition available for invocation."@en .
+
+pao:hasChannelType a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has channel type"@en ;
+    obo:IAO_0000115 "Links a communication channel to its type classification."@en ;
+    rdfs:domain pao:CommunicationChannel ;
+    rdfs:range pao:ChannelType ;
+    skos:definition "Links a communication channel to its type classification."@en .
+
+pao:hasCommunicativeFunction a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has communicative function"@en ;
+    obo:IAO_0000115 "Links a dialog act to its communicative function classification."@en ;
+    rdfs:domain pao:DialogAct ;
+    rdfs:range pao:CommunicativeFunction ;
+    skos:definition "Links a dialog act to its communicative function classification."@en .
+
+pao:hasComplianceStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has compliance status"@en ;
+    obo:IAO_0000115 "Links a tool invocation to its compliance status."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:ComplianceStatus ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a tool invocation to its compliance status."@en .
+
+pao:hasConcurrencyPolicy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has concurrency policy"@en ;
+    obo:IAO_0000115 "Links a schedule to its concurrency policy."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:ConcurrencyPolicy ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a schedule to its concurrency policy."@en .
+
+pao:hasConnectionStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has connection status"@en ;
+    obo:IAO_0000115 "Links a service connection to its runtime status."@en ;
+    rdfs:domain pao:ServiceConnection ;
+    rdfs:range pao:ConnectionStatus ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a service connection to its runtime status."@en .
+
+pao:hasContentBlockType a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has content block type"@en ;
+    obo:IAO_0000115 "Links a content block to its type classification."@en ;
+    rdfs:domain pao:ContentBlock ;
+    rdfs:range pao:ContentBlockType ;
+    skos:definition "Links a content block to its type classification."@en .
+
+pao:hasConversationId a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has conversation id"@en ;
+    obo:IAO_0000115 "The unique string identifier for this conversation."@en ;
+    rdfs:domain pao:Conversation ;
+    rdfs:range xsd:string ;
+    skos:definition "The unique string identifier for this conversation."@en .
+
+pao:hasExecutionOutcome a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has execution outcome"@en ;
+    obo:IAO_0000115 "Links a scheduled execution to its outcome."@en ;
+    rdfs:domain pao:ScheduledExecution ;
+    rdfs:range pao:ExecutionOutcome ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a scheduled execution to its outcome."@en .
+
+pao:hasExternalService a owl:ObjectProperty ;
+    rdfs:label "has external service"@en ;
+    obo:IAO_0000115 "Links an agent to an external service it is configured to access."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:ExternalService ;
+    skos:definition "Links an agent to an external service it is configured to access."@en .
+
+pao:hasFailureType a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has failure type"@en ;
+    obo:IAO_0000115 "Links an error recovery event to its classified failure type."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range pao:FailureType ;
+    skos:definition "Links an error recovery event to its classified failure type."@en .
+
+pao:hasGenerationConfig a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has generation config"@en ;
+    obo:IAO_0000115 "Links a model invocation to its generation configuration."@en ;
+    rdfs:domain pao:ModelInvocation ;
+    rdfs:range pao:GenerationConfiguration ;
+    skos:definition "Links a model invocation to its generation configuration."@en .
+
+pao:hasHook a owl:ObjectProperty ;
+    rdfs:label "has hook"@en ;
+    obo:IAO_0000115 "Links an AI agent to a hook configured for tool invocation interception."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range pao:Hook ;
+    skos:definition "Links an AI agent to a hook configured for tool invocation interception."@en .
+
+pao:hasInput a owl:ObjectProperty ;
+    rdfs:label "has input"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the input data provided."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range prov:Entity ;
+    skos:definition "Links a tool invocation to the input data provided."@en .
+
+pao:hasIntegration a owl:ObjectProperty ;
+    rdfs:label "has integration"@en ;
+    obo:IAO_0000115 "Links an agent to an integration it has configured."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Integration ;
+    skos:definition "Links an agent to an integration it has configured."@en .
+
+pao:hasIntegrationStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has integration status"@en ;
+    obo:IAO_0000115 "Links an integration to its current operational status."@en ;
+    rdfs:domain pao:Integration ;
+    rdfs:range pao:IntegrationStatus ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links an integration to its current operational status."@en .
+
+pao:hasItemFate a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has item fate"@en ;
+    obo:IAO_0000115 "Links a compaction disposition to the fate of the item."@en ;
+    rdfs:domain pao:CompactionDisposition ;
+    rdfs:range pao:ItemFate ;
+    skos:definition "Links a compaction disposition to the fate of the item."@en .
+
+pao:hasModelId a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has model id"@en ;
+    obo:IAO_0000115 "The unique string identifier of a foundation model."@en ;
+    rdfs:domain pao:FoundationModel ;
+    rdfs:range xsd:string ;
+    skos:definition "The unique string identifier of a foundation model."@en .
+
+pao:hasOutput a owl:ObjectProperty ;
+    rdfs:label "has output"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the output data returned."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range prov:Entity ;
+    skos:definition "Links a tool invocation to the output data returned."@en .
+
+pao:hasPersona a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has persona"@en ;
+    obo:IAO_0000115 "Links an AI agent to its configured persona."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range pao:Persona ;
+    skos:definition "Links an AI agent to its configured persona."@en .
+
+pao:hasProvider a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has provider"@en ;
+    obo:IAO_0000115 "Links a foundation model to its hosting provider."@en ;
+    rdfs:domain pao:FoundationModel ;
+    rdfs:range pao:ModelProvider ;
+    skos:definition "Links a foundation model to its hosting provider."@en .
+
+pao:hasRecurrencePattern a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has recurrence pattern"@en ;
+    obo:IAO_0000115 "Links a schedule to its recurrence pattern."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:RecurrencePattern ;
+    skos:definition "Links a schedule to its recurrence pattern."@en .
+
+pao:hasScheduleStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has schedule status"@en ;
+    obo:IAO_0000115 "Links a schedule to its current lifecycle status."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:ScheduleStatus ;
+    rdfs:subPropertyOf pao:hasStatus ;
+    skos:definition "Links a schedule to its current lifecycle status."@en .
+
+pao:hasSensitivityLevel a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has sensitivity level"@en ;
+    obo:IAO_0000115 "Links a memory item to its privacy sensitivity classification."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range pao:SensitivityLevel ;
+    skos:definition "Links a memory item to its privacy sensitivity classification."@en .
+
+pao:hasSessionId a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has session id"@en ;
+    obo:IAO_0000115 "The unique string identifier for this session."@en ;
+    rdfs:domain pao:Session ;
+    rdfs:range xsd:string ;
+    skos:definition "The unique string identifier for this session."@en .
+
+pao:hasTask a owl:ObjectProperty ;
+    rdfs:label "has task"@en ;
+    obo:IAO_0000115 "Links a plan to a task that is one of its component steps."@en ;
+    rdfs:domain pao:Plan ;
+    rdfs:range pao:Task ;
+    rdfs:subPropertyOf pao:hasPart ;
+    skos:definition "Links a plan to a task that is one of its component steps."@en .
+
+pao:hasTopic a owl:ObjectProperty ;
+    rdfs:label "has topic"@en ;
+    obo:IAO_0000115 "Links a memory item to a topic concept describing its subject."@en ;
+    rdfs:domain pao:MemoryItem ;
+    rdfs:range skos:Concept ;
+    skos:definition "Links a memory item to a topic concept describing its subject."@en .
+
+pao:hasTurnIndex a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:label "has turn index"@en ;
+    obo:IAO_0000115 "The zero-based ordinal position of a turn within its session."@en ;
+    rdfs:domain pao:Turn ;
+    rdfs:range xsd:nonNegativeInteger ;
+    skos:definition "The zero-based ordinal position of a turn within its session."@en .
+
+pao:inConversation a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "in conversation"@en ;
+    obo:IAO_0000115 "Links an event to its containing conversation."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Conversation ;
+    skos:definition "Links an event to its containing conversation."@en .
+
+pao:incidentForEntity a owl:ObjectProperty ;
+    rdfs:label "incident for entity"@en ;
+    obo:IAO_0000115 "Links a reliability incident to the entity it affects."@en ;
+    rdfs:domain pao:ReliabilityIncident ;
+    rdfs:range owl:Thing ;
+    skos:definition "Links a reliability incident to the entity it affects."@en .
+
+pao:intendedBy a owl:ObjectProperty ;
+    rdfs:label "intended by"@en ;
+    obo:IAO_0000115 "Links an intention to the agent that holds it."@en ;
+    rdfs:domain pao:Intention ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links an intention to the agent that holds it."@en .
+
+pao:interceptsInvocation a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "intercepts invocation"@en ;
+    obo:IAO_0000115 "Links a hook execution to the tool invocation it intercepted."@en ;
+    rdfs:domain pao:HookExecution ;
+    rdfs:range pao:ToolInvocation ;
+    skos:definition "Links a hook execution to the tool invocation it intercepted."@en .
+
+pao:invokedBy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "invoked by"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the agent that initiated it."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:Agent ;
+    rdfs:subPropertyOf pao:performedBy ;
+    skos:definition "Links a tool invocation to the agent that initiated it."@en .
+
+pao:invokedIn a owl:ObjectProperty ;
+    rdfs:label "invoked in"@en ;
+    obo:IAO_0000115 "Links a tool definition to invocations in which it was used."@en ;
+    rdfs:domain pao:ToolDefinition ;
+    rdfs:range pao:ToolInvocation ;
+    skos:definition "Links a tool definition to invocations in which it was used."@en .
+
+pao:invokedOnDeployment a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "invoked on deployment"@en ;
+    obo:IAO_0000115 "Links a model invocation to the deployment it was executed on."@en ;
+    rdfs:domain pao:ModelInvocation ;
+    rdfs:range pao:ModelDeployment ;
+    skos:definition "Links a model invocation to the deployment it was executed on."@en .
+
+pao:invokesTool a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "invokes tool"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the tool definition invoked."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:ToolDefinition ;
+    owl:inverseOf pao:invokedIn ;
+    skos:definition "Links a tool invocation to the tool definition invoked."@en .
+
+pao:justifiesIntention a owl:ObjectProperty ;
+    rdfs:label "justifies intention"@en ;
+    obo:IAO_0000115 "Links a justification to the intention it supports."@en ;
+    rdfs:domain pao:Justification ;
+    rdfs:range pao:Intention ;
+    skos:definition "Links a justification to the intention it supports."@en .
+
+pao:modelInvocationForTurn a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "model invocation for turn"@en ;
+    obo:IAO_0000115 "Links a model invocation to the turn it produced output for."@en ;
+    rdfs:domain pao:ModelInvocation ;
+    rdfs:range pao:Turn ;
+    owl:inverseOf pao:producedByModelInvocation ;
+    skos:definition "Links a model invocation to the turn it produced output for."@en .
+
+pao:nextTransition a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "next transition"@en ;
+    obo:IAO_0000115 "Links to the following status transition for the same subject."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range pao:StatusTransition ;
+    skos:definition "Links to the following status transition for the same subject."@en .
+
+pao:observesMetric a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "observes metric"@en ;
+    obo:IAO_0000115 "Links a metric observation to the metric it measures."@en ;
+    rdfs:domain pao:MetricObservation ;
+    rdfs:range pao:OperationalMetric ;
+    skos:definition "Links a metric observation to the metric it measures."@en .
+
+pao:operatesInMode a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "operates in mode"@en ;
+    obo:IAO_0000115 "Links an AI agent to the permission mode it currently operates under."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range pao:PermissionMode ;
+    skos:definition "Links an AI agent to the permission mode it currently operates under."@en .
+
+pao:operatesOn a owl:ObjectProperty ;
+    rdfs:label "operates on"@en ;
+    obo:IAO_0000115 "Links a memory operation to the memory item it acts upon."@en ;
+    rdfs:domain pao:MemoryOperation ;
+    rdfs:range pao:MemoryItem ;
+    skos:definition "Links a memory operation to the memory item it acts upon."@en .
+
+pao:ownedByAgent a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "owned by agent"@en ;
+    obo:IAO_0000115 "Links a schedule to the agent that owns it."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a schedule to the agent that owns it."@en .
+
+pao:partOfPlan a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "part of plan"@en ;
+    obo:IAO_0000115 "Links a task to the plan it belongs to as a component."@en ;
+    rdfs:domain pao:Task ;
+    rdfs:range pao:Plan ;
+    rdfs:subPropertyOf pao:partOf ;
+    owl:inverseOf pao:hasTask ;
+    skos:definition "Links a task to the plan it belongs to as a component."@en .
+
+pao:partOfSession a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "part of session"@en ;
+    obo:IAO_0000115 "Links a turn to the session it is a temporal part of."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Session ;
+    rdfs:subPropertyOf pao:partOf ;
+    skos:definition "Links a turn to the session it is a temporal part of."@en .
+
+pao:participatesIn a owl:ObjectProperty ;
+    rdfs:label "participates in"@en ;
+    obo:IAO_0000115 "Links an agent to an event it participates in."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Event ;
+    skos:definition "Links an agent to an event it participates in."@en .
+
+pao:producedByModelInvocation a owl:ObjectProperty ;
+    rdfs:label "produced by model invocation"@en ;
+    obo:IAO_0000115 "Links a turn to the model invocation that produced it."@en ;
+    rdfs:domain pao:Turn ;
+    rdfs:range pao:ModelInvocation ;
+    skos:definition "Links a turn to the model invocation that produced it."@en .
+
+pao:producedSummary a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "produced summary"@en ;
+    obo:IAO_0000115 "Links a compaction event to the summary it generated."@en ;
+    rdfs:domain pao:CompactionEvent ;
+    rdfs:range pao:MemoryItem ;
+    skos:definition "Links a compaction event to the summary it generated."@en .
+
+pao:producedToolResult a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "produced tool result"@en ;
+    obo:IAO_0000115 "Links a tool invocation to the result artifact it produced."@en ;
+    rdfs:domain pao:ToolInvocation ;
+    rdfs:range pao:ToolResult ;
+    skos:definition "Links a tool invocation to the result artifact it produced."@en .
+
+pao:producesIntention a owl:ObjectProperty ;
+    rdfs:label "produces intention"@en ;
+    obo:IAO_0000115 "Links a deliberation process to an intention it produces."@en ;
+    rdfs:domain pao:Deliberation ;
+    rdfs:range pao:Intention ;
+    skos:definition "Links a deliberation process to an intention it produces."@en .
+
+pao:providesTool a owl:ObjectProperty ;
+    rdfs:label "provides tool"@en ;
+    obo:IAO_0000115 "Links an integration to a tool definition it provides."@en ;
+    rdfs:domain pao:Integration ;
+    rdfs:range pao:ToolDefinition ;
+    skos:definition "Links an integration to a tool definition it provides."@en .
+
+pao:pursuedBy a owl:ObjectProperty ;
+    rdfs:label "pursued by"@en ;
+    obo:IAO_0000115 "Links a goal to the agent that is actively pursuing it."@en ;
+    rdfs:domain pao:Goal ;
+    rdfs:range pao:Agent ;
+    owl:inverseOf pao:pursuesGoal ;
+    skos:definition "Links a goal to the agent that is actively pursuing it."@en .
+
+pao:pursuesGoal a owl:ObjectProperty ;
+    rdfs:label "pursues goal"@en ;
+    obo:IAO_0000115 "Links an agent to a goal it is actively pursuing."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Goal ;
+    skos:definition "Links an agent to a goal it is actively pursuing."@en .
+
+pao:recordsDecision a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "records decision"@en ;
+    obo:IAO_0000115 "Links an audit entry to the authorization decision it records."@en ;
+    rdfs:domain pao:AuditEntry ;
+    rdfs:range pao:AuthorizationDecision ;
+    skos:definition "Links an audit entry to the authorization decision it records."@en .
+
+pao:recordsEvent a owl:ObjectProperty ;
+    rdfs:label "records event"@en ;
+    obo:IAO_0000115 "Links an episode to an event it records."@en ;
+    rdfs:domain pao:Episode ;
+    rdfs:range pao:Event ;
+    skos:definition "Links an episode to an event it records."@en .
+
+pao:recoveringFrom a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "recovering from"@en ;
+    obo:IAO_0000115 "Links an error recovery event to the failed tool invocation that triggered it."@en ;
+    rdfs:domain pao:ErrorRecoveryEvent ;
+    rdfs:range pao:ToolInvocation ;
+    skos:definition "Links an error recovery event to the failed tool invocation that triggered it."@en .
+
+pao:requestedBy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "requested by"@en ;
+    obo:IAO_0000115 "Links an erasure event to the agent who requested deletion."@en ;
+    rdfs:domain pao:ErasureEvent ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links an erasure event to the agent who requested deletion."@en .
+
+pao:restrictsToolUse a owl:ObjectProperty ;
+    rdfs:label "restricts tool use"@en ;
+    obo:IAO_0000115 "Links a permission policy to a tool whose use it restricts."@en ;
+    rdfs:domain pao:PermissionPolicy ;
+    rdfs:range pao:ToolDefinition ;
+    skos:definition "Links a permission policy to a tool whose use it restricts."@en .
+
+pao:schedulesAction a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "schedules action"@en ;
+    obo:IAO_0000115 "Links a schedule to the action it specifies for execution."@en ;
+    rdfs:domain pao:Schedule ;
+    rdfs:range pao:Action ;
+    skos:definition "Links a schedule to the action it specifies for execution."@en .
+
+pao:spawnedBy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "spawned by"@en ;
+    obo:IAO_0000115 "Links a sub-agent to the parent agent that spawned it."@en ;
+    rdfs:domain pao:Agent ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a sub-agent to the parent agent that spawned it."@en .
+
+pao:stores a owl:ObjectProperty ;
+    rdfs:label "stores"@en ;
+    obo:IAO_0000115 "Links a memory tier to a memory item it currently holds."@en ;
+    rdfs:domain pao:MemoryTier ;
+    rdfs:range pao:MemoryItem ;
+    skos:definition "Links a memory tier to a memory item it currently holds."@en .
+
+pao:toStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "to status"@en ;
+    obo:IAO_0000115 "The status value after the transition."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range pao:Status ;
+    skos:definition "The status value after the transition."@en .
+
+pao:transitionSubject a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "transition subject"@en ;
+    obo:IAO_0000115 "The entity whose status changed in this transition."@en ;
+    rdfs:domain pao:StatusTransition ;
+    rdfs:range owl:Thing ;
+    skos:definition "The entity whose status changed in this transition."@en .
+
+pao:usesModel a owl:ObjectProperty ;
+    rdfs:label "uses model"@en ;
+    obo:IAO_0000115 "Links an AI agent to a foundation model it uses."@en ;
+    rdfs:domain pao:AIAgent ;
+    rdfs:range pao:FoundationModel ;
+    skos:definition "Links an AI agent to a foundation model it uses."@en .
+
+pao:writtenToAuditLog a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "written to audit log"@en ;
+    obo:IAO_0000115 "Links an audit entry to the audit log it belongs to."@en ;
+    rdfs:domain pao:AuditEntry ;
+    rdfs:range pao:AuditLog ;
+    skos:definition "Links an audit entry to the audit log it belongs to."@en .
+
+pao:AcceptanceEvidence a owl:Class ;
+    rdfs:label "acceptance evidence"@en ;
+    obo:IAO_0000115 "A prov:Entity that records evidence that a participant has accepted or understood a proposition."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that records evidence that a participant has accepted or understood a proposition."@en .
+
+pao:ClaimType a owl:Class ;
+    rdfs:label "claim type"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the type of a claim."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the type of a claim."@en .
+
+pao:ClarificationRequest a owl:Class ;
+    rdfs:label "clarification request"@en ;
+    obo:IAO_0000115 "A prov:Entity that records a request for additional information to resolve ambiguity."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:clarifiesTurn ;
+            owl:someValuesFrom pao:Turn ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that records a request for additional information to resolve ambiguity."@en .
+
+pao:Consolidation a owl:Class ;
+    rdfs:label "consolidation"@en ;
+    obo:IAO_0000115 "A memory operation that transforms episodic memories into semantic memories."@en ;
+    rdfs:subClassOf pao:MemoryOperation ;
+    skos:definition "A memory operation that transforms episodic memories into semantic memories."@en .
+
+pao:CronTrigger a owl:Class ;
+    rdfs:label "cron trigger"@en ;
+    obo:IAO_0000115 "A trigger that activates on a cron schedule expression."@en ;
+    rdfs:subClassOf pao:Trigger ;
+    skos:definition "A trigger that activates on a cron schedule expression."@en .
+
+pao:Encoding a owl:Class ;
+    rdfs:label "encoding"@en ;
+    obo:IAO_0000115 "A memory operation that writes new information into a memory tier."@en ;
+    rdfs:subClassOf pao:MemoryOperation ;
+    skos:definition "A memory operation that writes new information into a memory tier."@en .
+
+pao:ErasureEvent a owl:Class ;
+    rdfs:label "erasure event"@en ;
+    obo:IAO_0000115 "A process in which memory items are identified and deleted to comply with privacy requirements."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:requestedBy ;
+            owl:someValuesFrom pao:Agent ],
+        pao:Event ;
+    skos:definition "A process in which memory items are identified and deleted to comply with privacy requirements."@en .
+
+pao:EventTrigger a owl:Class ;
+    rdfs:label "event trigger"@en ;
+    obo:IAO_0000115 "A trigger that activates in response to an external event or webhook."@en ;
+    rdfs:subClassOf pao:Trigger ;
+    skos:definition "A trigger that activates in response to an external event or webhook."@en .
+
+pao:Forgetting a owl:Class ;
+    rdfs:label "forgetting"@en ;
+    obo:IAO_0000115 "A memory operation that removes or decays memory items from a memory tier."@en ;
+    rdfs:subClassOf pao:MemoryOperation ;
+    skos:definition "A memory operation that removes or decays memory items from a memory tier."@en .
+
+pao:IntervalTrigger a owl:Class ;
+    rdfs:label "interval trigger"@en ;
+    obo:IAO_0000115 "A trigger that activates at fixed time intervals."@en ;
+    rdfs:subClassOf pao:Trigger ;
+    skos:definition "A trigger that activates at fixed time intervals."@en .
+
+pao:Justification a owl:Class ;
+    rdfs:label "justification"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that provides evidence supporting an agent's intention."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:justifiesIntention ;
+            owl:someValuesFrom pao:Intention ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that provides evidence supporting an agent's intention."@en .
+
+pao:MemoryScope a owl:Class ;
+    rdfs:label "memory scope"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the visibility scope of a memory item."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the visibility scope of a memory item."@en .
+
+pao:MemorySource a owl:Class ;
+    rdfs:label "memory source"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify where a memory item originates."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify where a memory item originates."@en .
+
+pao:ProceduralMemory a owl:Class ;
+    rdfs:label "procedural memory"@en ;
+    obo:IAO_0000115 "A memory tier that stores learned action policies, skills, and behavioral patterns."@en ;
+    rdfs:subClassOf pao:MemoryTier ;
+    skos:definition "A memory tier that stores learned action policies, skills, and behavioral patterns."@en .
+
+pao:Rehearsal a owl:Class ;
+    rdfs:label "rehearsal"@en ;
+    obo:IAO_0000115 "A memory operation that strengthens a memory item via repeated access."@en ;
+    rdfs:subClassOf pao:MemoryOperation ;
+    skos:definition "A memory operation that strengthens a memory item via repeated access."@en .
+
+pao:Retrieval a owl:Class ;
+    rdfs:label "retrieval"@en ;
+    obo:IAO_0000115 "A memory operation that reads information from a memory tier."@en ;
+    rdfs:subClassOf pao:MemoryOperation ;
+    skos:definition "A memory operation that reads information from a memory tier."@en .
+
+pao:SafetyConstraint a owl:Class ;
+    rdfs:label "safety constraint"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies a non-negotiable behavioral limit on an agent."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:appliesTo ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that specifies a non-negotiable behavioral limit on an agent."@en .
+
+pao:SemanticMemory a owl:Class ;
+    rdfs:label "semantic memory"@en ;
+    obo:IAO_0000115 "A memory tier that stores generalized facts, knowledge, and beliefs extracted from experience."@en ;
+    rdfs:subClassOf pao:MemoryTier ;
+    skos:definition "A memory tier that stores generalized facts, knowledge, and beliefs extracted from experience."@en .
+
+pao:ServicePromptCapability a owl:Class ;
+    rdfs:label "service prompt capability"@en ;
+    obo:IAO_0000115 "A service capability that provides a prompt template."@en ;
+    rdfs:subClassOf pao:ServiceCapability ;
+    skos:definition "A service capability that provides a prompt template."@en .
+
+pao:ServiceResourceCapability a owl:Class ;
+    rdfs:label "service resource capability"@en ;
+    obo:IAO_0000115 "A service capability that provides a data resource for agent access."@en ;
+    rdfs:subClassOf pao:ServiceCapability ;
+    skos:definition "A service capability that provides a data resource for agent access."@en .
+
+pao:ServiceToolCapability a owl:Class ;
+    rdfs:label "service tool capability"@en ;
+    obo:IAO_0000115 "A service capability that provides a tool for agent invocation."@en ;
+    rdfs:subClassOf pao:ServiceCapability ;
+    skos:definition "A service capability that provides a tool for agent invocation."@en .
+
+pao:SessionStatus a owl:Class ;
+    rdfs:label "session status"@en ;
+    obo:IAO_0000115 "A status applicable to sessions indicating whether the session is active, ended, or interrupted."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status applicable to sessions indicating whether the session is active, ended, or interrupted."@en .
+
+pao:WorkingMemory a owl:Class ;
+    rdfs:label "working memory"@en ;
+    obo:IAO_0000115 "A memory tier that holds information currently active in the agent's context window."@en ;
+    rdfs:subClassOf pao:MemoryTier ;
+    skos:definition "A memory tier that holds information currently active in the agent's context window."@en .
+
+pao:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to"@en ;
+    obo:IAO_0000115 "Links a policy or constraint to the agent it governs."@en ;
+    rdfs:domain prov:Entity ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a policy or constraint to the agent it governs."@en .
+
+pao:hasMember a owl:ObjectProperty ;
+    rdfs:label "has member"@en ;
+    obo:IAO_0000115 "Links an organization to its member agents."@en ;
+    rdfs:domain pao:Organization ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links an organization to its member agents."@en .
+
+pao:hasPart a owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:label "has part"@en ;
+    obo:IAO_0000115 "A transitive relation linking a whole to one of its parts."@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    skos:definition "A transitive relation linking a whole to one of its parts."@en .
+
+pao:inSession a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "in session"@en ;
+    obo:IAO_0000115 "Links an event to its containing session."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Session ;
+    skos:definition "Links an event to its containing session."@en .
+
+pao:partOfConversation a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "part of conversation"@en ;
+    obo:IAO_0000115 "Links a session to the conversation it is a temporal part of."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Conversation ;
+    rdfs:subPropertyOf pao:partOf ;
+    skos:definition "Links a session to the conversation it is a temporal part of."@en .
+
+pao:performedBy a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "performed by"@en ;
+    obo:IAO_0000115 "Links an action to the agent that intentionally performed it."@en ;
+    rdfs:domain pao:Action ;
+    rdfs:range pao:Agent ;
+    rdfs:subPropertyOf pao:hasParticipant ;
+    skos:definition "Links an action to the agent that intentionally performed it."@en .
+
+pao:sharedAcrossAgents a owl:ObjectProperty ;
+    rdfs:label "shared across agents"@en ;
+    obo:IAO_0000115 "Links a shared memory artifact to an agent that has access to it."@en ;
+    rdfs:domain pao:SharedMemoryArtifact ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a shared memory artifact to an agent that has access to it."@en .
+
+pao:writesByAgent a owl:ObjectProperty ;
+    rdfs:label "writes by agent"@en ;
+    obo:IAO_0000115 "Links a memory write conflict to an agent involved in the concurrent write."@en ;
+    rdfs:domain pao:MemoryWriteConflict ;
+    rdfs:range pao:Agent ;
+    skos:definition "Links a memory write conflict to an agent involved in the concurrent write."@en .
+
+pao:AuthorizationDecision a owl:Class ;
+    rdfs:label "authorization decision"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify authorization outcomes."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify authorization outcomes."@en .
+
+pao:CapabilityDiscoveryEvent a owl:Class ;
+    rdfs:label "capability discovery event"@en ;
+    obo:IAO_0000115 "An event in which an agent discovers what capabilities an external service exposes."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:discoveredCapability ;
+            owl:someValuesFrom pao:ServiceCapability ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:discoveryAgainstService ;
+            owl:someValuesFrom pao:ExternalService ],
+        pao:Event ;
+    skos:definition "An event in which an agent discovers what capabilities an external service exposes."@en .
+
+pao:ChannelType a owl:Class ;
+    rdfs:label "channel type"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the type of communication channel."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the type of communication channel."@en .
+
+pao:Checkpoint a owl:Class ;
+    rdfs:label "checkpoint"@en ;
+    obo:IAO_0000115 "A GDC marking a task decision point where human approval may be required."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:checkpointForTask ;
+            owl:someValuesFrom pao:Task ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:checkpointDecision ;
+            owl:someValuesFrom pao:CheckpointDecision ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC marking a task decision point where human approval may be required."@en .
+
+pao:CheckpointDecision a owl:Class ;
+    rdfs:label "checkpoint decision"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify checkpoint decision outcomes."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify checkpoint decision outcomes."@en .
+
+pao:CommonGround a owl:Class ;
+    rdfs:label "common ground"@en ;
+    obo:IAO_0000115 "A prov:Entity that represents the accumulated shared knowledge state between conversation participants."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that represents the accumulated shared knowledge state between conversation participants."@en .
+
+pao:CommunicativeFunction a owl:Class ;
+    rdfs:label "communicative function"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the communicative purpose of a dialog act."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the communicative purpose of a dialog act."@en .
+
+pao:ComplianceStatus a owl:Class ;
+    rdfs:label "compliance status"@en ;
+    obo:IAO_0000115 "A status indicating whether a tool invocation complied with applicable permission policies."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status indicating whether a tool invocation complied with applicable permission policies."@en .
+
+pao:ConcurrencyPolicy a owl:Class ;
+    rdfs:label "concurrency policy"@en ;
+    obo:IAO_0000115 "A controlled vocabulary for how a schedule handles overlapping executions."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A controlled vocabulary for how a schedule handles overlapping executions."@en .
+
+pao:ConnectionStatus a owl:Class ;
+    rdfs:label "connection status"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify runtime connection state."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify runtime connection state."@en .
+
+pao:ContentBlockType a owl:Class ;
+    rdfs:label "content block type"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the type of a content block."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the type of a content block."@en .
+
+pao:DialogAct a owl:Class ;
+    rdfs:label "dialog act"@en ;
+    obo:IAO_0000115 "A prov:Entity that represents the pragmatic classification of a turn's communicative intent."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasCommunicativeFunction ;
+            owl:someValuesFrom pao:CommunicativeFunction ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that represents the pragmatic classification of a turn's communicative intent."@en .
+
+pao:Episode a owl:Class ;
+    rdfs:label "episode"@en ;
+    obo:IAO_0000115 "A memory item that records a temporally bounded cluster of related events."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasTopic ;
+            owl:someValuesFrom skos:Concept ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:storedIn ;
+            owl:someValuesFrom pao:MemoryTier ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom pao:EpisodicMemory ;
+            owl:onProperty pao:storedIn ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasTemporalExtent ;
+            owl:someValuesFrom time:Interval ],
+        pao:MemoryItem ;
+    skos:definition "A memory item that records a temporally bounded cluster of related events."@en .
+
+pao:EpisodicMemory a owl:Class ;
+    rdfs:label "episodic memory"@en ;
+    obo:IAO_0000115 "A memory tier that stores time-situated experiences and interaction histories."@en ;
+    rdfs:subClassOf pao:MemoryTier ;
+    skos:definition "A memory tier that stores time-situated experiences and interaction histories."@en .
+
+pao:ExecutionOutcome a owl:Class ;
+    rdfs:label "execution outcome"@en ;
+    obo:IAO_0000115 "A controlled vocabulary for the outcome of a scheduled execution."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A controlled vocabulary for the outcome of a scheduled execution."@en .
+
+pao:FailureType a owl:Class ;
+    rdfs:label "failure type"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the type of failure causing an error recovery event."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the type of failure causing an error recovery event."@en .
+
+pao:GroundingAct a owl:Class ;
+    rdfs:label "grounding act"@en ;
+    obo:IAO_0000115 "An event in which a participant contributes evidence to the common ground of a conversation."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:contributesToCommonGround ;
+            owl:someValuesFrom pao:CommonGround ],
+        pao:Event ;
+    skos:definition "An event in which a participant contributes evidence to the common ground of a conversation."@en .
+
+pao:HookExecution a owl:Class ;
+    rdfs:label "hook execution"@en ;
+    obo:IAO_0000115 "An event in which a hook intercepts and processes a tool invocation."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:interceptsInvocation ;
+            owl:someValuesFrom pao:ToolInvocation ],
+        pao:Event ;
+    skos:definition "An event in which a hook intercepts and processes a tool invocation."@en .
+
+pao:IntegrationStatus a owl:Class ;
+    rdfs:label "integration status"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify the operational state of an integration."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify the operational state of an integration."@en .
+
+pao:ItemFate a owl:Class ;
+    rdfs:label "item fate"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify what happened to an item during compaction."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify what happened to an item during compaction."@en .
+
+pao:MemoryBlock a owl:Class ;
+    rdfs:label "memory block"@en ;
+    obo:IAO_0000115 "A memory item that stores structured key-value data (Letta core memory pattern)."@en ;
+    rdfs:subClassOf pao:MemoryItem ;
+    skos:definition "A memory item that stores structured key-value data (Letta core memory pattern)."@en .
+
+pao:Message a owl:Class ;
+    rdfs:label "message"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is the textual or structured content of a conversational turn."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is the textual or structured content of a conversational turn."@en .
+
+pao:ModelProvider a owl:Class ;
+    rdfs:label "model provider"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that identifies an organization or service that hosts and serves foundation models."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that identifies an organization or service that hosts and serves foundation models."@en .
+
+pao:Organization a owl:Class ;
+    rdfs:label "organization"@en ;
+    obo:IAO_0000115 "An agent that is a formal body or group of people."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasMember ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000030,
+        pao:Agent ;
+    skos:definition "An agent that is a formal body or group of people."@en .
+
+pao:PermissionMode a owl:Class ;
+    rdfs:label "permission mode"@en ;
+    obo:IAO_0000115 "A GDC specifying the permission enforcement level under which an agent operates."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A GDC specifying the permission enforcement level under which an agent operates."@en .
+
+pao:Persona a owl:Class ;
+    rdfs:label "persona"@en ;
+    obo:IAO_0000115 "A GDC that specifies an agent's configured identity behavior and system prompt."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that specifies an agent's configured identity behavior and system prompt."@en .
+
+pao:ReliabilityIncident a owl:Class ;
+    rdfs:label "reliability incident"@en ;
+    obo:IAO_0000115 "An event representing a failure or degradation occurrence for a service or component."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:incidentForEntity ;
+            owl:someValuesFrom owl:Thing ],
+        pao:Event ;
+    skos:definition "An event representing a failure or degradation occurrence for a service or component."@en .
+
+pao:ReplanEvent a owl:Class ;
+    rdfs:label "replan event"@en ;
+    obo:IAO_0000115 "An event in which an agent generates a new plan after a failure."@en ;
+    rdfs:subClassOf pao:Event ;
+    skos:definition "An event in which an agent generates a new plan after a failure."@en .
+
+pao:RetryAttempt a owl:Class ;
+    rdfs:label "retry attempt"@en ;
+    obo:IAO_0000115 "An event representing a retry of a failed operation."@en ;
+    rdfs:subClassOf pao:Event ;
+    skos:definition "An event representing a retry of a failed operation."@en .
+
+pao:RollbackEvent a owl:Class ;
+    rdfs:label "rollback event"@en ;
+    obo:IAO_0000115 "An event in which an agent reverts changes made by a failed operation."@en ;
+    rdfs:subClassOf pao:Event ;
+    skos:definition "An event in which an agent reverts changes made by a failed operation."@en .
+
+pao:SandboxPolicy a owl:Class ;
+    rdfs:label "sandbox policy"@en ;
+    obo:IAO_0000115 "A GDC specifying filesystem and network restrictions imposed on an agent."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC specifying filesystem and network restrictions imposed on an agent."@en .
+
+pao:ScheduleStatus a owl:Class ;
+    rdfs:label "schedule status"@en ;
+    obo:IAO_0000115 "A controlled vocabulary for the lifecycle state of a schedule."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A controlled vocabulary for the lifecycle state of a schedule."@en .
+
+pao:SensitivityLevel a owl:Class ;
+    rdfs:label "sensitivity level"@en ;
+    obo:IAO_0000115 "A status class whose individuals classify privacy sensitivity."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status class whose individuals classify privacy sensitivity."@en .
+
+pao:TaskStatus a owl:Class ;
+    rdfs:label "task status"@en ;
+    obo:IAO_0000115 "A status applicable to tasks indicating progress from pending through completion."@en ;
+    rdfs:subClassOf pao:Status ;
+    skos:definition "A status applicable to tasks indicating progress from pending through completion."@en .
+
+pao:ToolInvocationGroup a owl:Class ;
+    rdfs:label "tool invocation group"@en ;
+    obo:IAO_0000115 "A prov:Entity that groups tool invocations executed in parallel within a single turn."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:groupedInTurn ;
+            owl:someValuesFrom pao:Turn ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that groups tool invocations executed in parallel within a single turn."@en .
+
+pao:ToolResult a owl:Class ;
+    rdfs:label "tool result"@en ;
+    obo:IAO_0000115 "A prov:Entity that represents the typed output artifact produced by a tool invocation."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that represents the typed output artifact produced by a tool invocation."@en .
+
+pao:partOf a owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:label "part of"@en ;
+    obo:IAO_0000115 "A transitive relation linking an entity to a whole it is part of."@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf pao:hasPart ;
+    skos:definition "A transitive relation linking an entity to a whole it is part of."@en .
+
+pao:AuditLog a owl:Class ;
+    rdfs:label "audit log"@en ;
+    obo:IAO_0000115 "A GDC that serves as a container for audit entries."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that serves as a container for audit entries."@en .
+
+pao:Belief a owl:Class ;
+    rdfs:label "belief"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is a proposition an agent holds to be true about the world."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is a proposition an agent holds to be true about the world."@en .
+
+pao:Claim a owl:Class ;
+    rdfs:label "claim"@en ;
+    obo:IAO_0000115 "A memory item that represents an agent-held proposition with associated confidence, evidence, and provenance metadata."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:aboutAgent ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:storedIn ;
+            owl:someValuesFrom pao:MemoryTier ],
+        pao:MemoryItem ;
+    skos:definition "A memory item that represents an agent-held proposition with associated confidence, evidence, and provenance metadata."@en .
+
+pao:CommunicationChannel a owl:Class ;
+    rdfs:label "communication channel"@en ;
+    obo:IAO_0000115 "A GDC that specifies a configured communication endpoint through which agent-user dialogue occurs."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasChannelType ;
+            owl:someValuesFrom pao:ChannelType ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that specifies a configured communication endpoint through which agent-user dialogue occurs."@en .
+
+pao:ConsentRecord a owl:Class ;
+    rdfs:label "consent record"@en ;
+    obo:IAO_0000115 "A GDC that records a data subject's consent for a specific purpose."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:consentSubject ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that records a data subject's consent for a specific purpose."@en .
+
+pao:ContentBlock a owl:Class ;
+    rdfs:label "content block"@en ;
+    obo:IAO_0000115 "A prov:Entity that represents a typed segment of a message's content."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasContentBlockType ;
+            owl:someValuesFrom pao:ContentBlockType ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that represents a typed segment of a message's content."@en .
+
+pao:Deliberation a owl:Class ;
+    rdfs:label "deliberation"@en ;
+    obo:IAO_0000115 "An event that is a reasoning process in which an agent considers beliefs and desires to produce intentions."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:considersDesire ;
+            owl:someValuesFrom pao:Desire ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:considersBelief ;
+            owl:someValuesFrom pao:Belief ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:producesIntention ;
+            owl:someValuesFrom pao:Intention ],
+        pao:Event ;
+    skos:definition "An event that is a reasoning process in which an agent considers beliefs and desires to produce intentions."@en .
+
+pao:Desire a owl:Class ;
+    rdfs:label "desire"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that represents a desired state or outcome an agent works toward."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that represents a desired state or outcome an agent works toward."@en .
+
+pao:MemoryWriteConflict a owl:Class ;
+    rdfs:label "memory write conflict"@en ;
+    obo:IAO_0000115 "An event in which multiple agents attempt concurrent writes to the same shared memory artifact."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onClass pao:Agent ;
+            owl:onProperty pao:writesByAgent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:writesByAgent ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:conflictOnArtifact ;
+            owl:someValuesFrom pao:SharedMemoryArtifact ],
+        pao:Event ;
+    skos:definition "An event in which multiple agents attempt concurrent writes to the same shared memory artifact."@en .
+
+pao:MetricObservation a owl:Class ;
+    rdfs:label "metric observation"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is a recorded measurement data point for an operational metric."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:observesMetric ;
+            owl:someValuesFrom pao:OperationalMetric ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is a recorded measurement data point for an operational metric."@en .
+
+pao:OperationalMetric a owl:Class ;
+    rdfs:label "operational metric"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that defines a named metric type for operational monitoring."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that defines a named metric type for operational monitoring."@en .
+
+pao:ScheduledExecution a owl:Class ;
+    rdfs:label "scheduled execution"@en ;
+    obo:IAO_0000115 "An individual execution instance of a schedule, recording when it ran, what it produced, and whether it succeeded."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:executionOf ;
+            owl:someValuesFrom pao:Schedule ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasTemporalExtent ;
+            owl:someValuesFrom time:Interval ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasExecutionOutcome ;
+            owl:someValuesFrom pao:ExecutionOutcome ],
+        pao:Event ;
+    skos:definition "An individual execution instance of a schedule, recording when it ran, what it produced, and whether it succeeded."@en .
+
+pao:ServiceConnection a owl:Class ;
+    rdfs:label "service connection"@en ;
+    obo:IAO_0000115 "A GDC representing the runtime connection between an agent and an external service."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:connectsToService ;
+            owl:someValuesFrom pao:ExternalService ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasConnectionStatus ;
+            owl:someValuesFrom pao:ConnectionStatus ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC representing the runtime connection between an agent and an external service."@en .
+
+pao:SharedMemoryArtifact a owl:Class ;
+    rdfs:label "shared memory artifact"@en ;
+    obo:IAO_0000115 "A prov:Entity that represents a memory artifact accessible to multiple agents for shared read/write."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onClass pao:Agent ;
+            owl:onProperty pao:sharedAcrossAgents ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:sharedAcrossAgents ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A prov:Entity that represents a memory artifact accessible to multiple agents for shared read/write."@en .
+
+pao:hasParticipant a owl:ObjectProperty ;
+    rdfs:label "has participant"@en ;
+    obo:IAO_0000115 "Links an event to an agent that participates in it."@en ;
+    rdfs:domain pao:Event ;
+    rdfs:range pao:Agent ;
+    owl:inverseOf pao:participatesIn ;
+    skos:definition "Links an event to an agent that participates in it."@en .
+
+pao:hasTemporalExtent a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has temporal extent"@en ;
+    obo:IAO_0000115 "Links an event to its temporal extent."@en ;
+    rdfs:range time:TemporalEntity ;
+    skos:definition "Links an event to its temporal extent."@en .
+
+pao:Action a owl:Class ;
+    rdfs:label "action"@en ;
+    obo:IAO_0000115 "An event that is intentionally caused by an agent to affect the environment or internal state."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:performedBy ;
+            owl:someValuesFrom pao:Agent ],
+        pao:Event ;
+    skos:definition "An event that is intentionally caused by an agent to affect the environment or internal state."@en .
+
+pao:AuditEntry a owl:Class ;
+    rdfs:label "audit entry"@en ;
+    obo:IAO_0000115 "A GDC recording an authorization decision for a tool invocation with rationale."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:recordsDecision ;
+            owl:someValuesFrom pao:AuthorizationDecision ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:writtenToAuditLog ;
+            owl:someValuesFrom pao:AuditLog ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:auditForInvocation ;
+            owl:someValuesFrom pao:ToolInvocation ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC recording an authorization decision for a tool invocation with rationale."@en .
+
+pao:CompactionDisposition a owl:Class ;
+    rdfs:label "compaction disposition"@en ;
+    obo:IAO_0000115 "An information artifact recording the fate of an individual item during a compaction event."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasItemFate ;
+            owl:someValuesFrom pao:ItemFate ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:dispositionOf ;
+            owl:someValuesFrom prov:Entity ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "An information artifact recording the fate of an individual item during a compaction event."@en .
+
+pao:CompactionEvent a owl:Class ;
+    rdfs:label "compaction event"@en ;
+    obo:IAO_0000115 "A process in which an agent's context window is compressed by summarizing prior turns."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:compactedItem ;
+            owl:someValuesFrom prov:Entity ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:inConversation ;
+            owl:someValuesFrom pao:Conversation ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:producedSummary ;
+            owl:someValuesFrom pao:MemoryItem ],
+        pao:Event ;
+    skos:definition "A process in which an agent's context window is compressed by summarizing prior turns."@en .
+
+pao:ContextWindow a owl:Class ;
+    rdfs:label "context window"@en ;
+    obo:IAO_0000115 "A GDC representing the finite attention resource of an AI agent session with token capacity and usage tracking."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC representing the finite attention resource of an AI agent session with token capacity and usage tracking."@en .
+
+pao:Hook a owl:Class ;
+    rdfs:label "hook"@en ;
+    obo:IAO_0000115 "A GDC representing a configured interceptor that can modify or block tool invocations."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC representing a configured interceptor that can modify or block tool invocations."@en .
+
+pao:ModelDeployment a owl:Class ;
+    rdfs:label "model deployment"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is a configuration artifact for a running model endpoint."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is a configuration artifact for a running model endpoint."@en .
+
+pao:ModelInvocation a owl:Class ;
+    rdfs:label "model invocation"@en ;
+    obo:IAO_0000115 "An event in which a foundation model is invoked to produce output for a turn."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasGenerationConfig ;
+            owl:someValuesFrom pao:GenerationConfiguration ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:invokedOnDeployment ;
+            owl:someValuesFrom pao:ModelDeployment ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:modelInvocationForTurn ;
+            owl:someValuesFrom pao:Turn ],
+        pao:Event ;
+    skos:definition "An event in which a foundation model is invoked to produce output for a turn."@en .
+
+pao:Plan a owl:Class ;
+    rdfs:label "plan"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies an ordered sequence of intended actions to achieve a goal."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:achievesGoal ;
+            owl:someValuesFrom pao:Goal ],
+        prov:Plan ;
+    skos:definition "A generically dependent continuant that specifies an ordered sequence of intended actions to achieve a goal."@en .
+
+pao:RecurrencePattern a owl:Class ;
+    rdfs:label "recurrence pattern"@en ;
+    obo:IAO_0000115 "A temporal specification defining when a schedule should fire, expressed as a cron expression, fixed interval, or calendar rule."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A temporal specification defining when a schedule should fire, expressed as a cron expression, fixed interval, or calendar rule."@en .
+
+pao:RetentionPolicy a owl:Class ;
+    rdfs:label "retention policy"@en ;
+    obo:IAO_0000115 "A GDC specifying how long memory items should be retained before deletion."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC specifying how long memory items should be retained before deletion."@en .
+
+pao:storedIn a owl:ObjectProperty ;
+    rdfs:label "stored in"@en ;
+    obo:IAO_0000115 "Links a memory item to the memory tier where it is stored."@en ;
+    rdfs:range pao:MemoryTier ;
+    owl:inverseOf pao:stores ;
+    skos:definition "Links a memory item to the memory tier where it is stored."@en .
+
+pao:Trigger a owl:Class ;
+    rdfs:label "trigger"@en ;
+    obo:IAO_0000115 "A condition that activates a schedule, such as a time-based cron expression, a fixed interval, or an external event."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    owl:disjointUnionOf ( pao:CronTrigger pao:IntervalTrigger pao:EventTrigger ) ;
+    skos:definition "A condition that activates a schedule, such as a time-based cron expression, a fixed interval, or an external event."@en .
+
+pao:Conversation a owl:Class ;
+    rdfs:label "conversation"@en ;
+    obo:IAO_0000115 "A process consisting of a coherent thread of dialogue between participants that may span multiple sessions."@en ;
+    rdfs:subClassOf pao:Event ;
+    owl:hasKey ( pao:hasConversationId ) ;
+    skos:definition "A process consisting of a coherent thread of dialogue between participants that may span multiple sessions."@en .
+
+pao:FoundationModel a owl:Class ;
+    rdfs:label "foundation model"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies a model family with a name and version."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasProvider ;
+            owl:someValuesFrom pao:ModelProvider ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:deployedAs ;
+            owl:someValuesFrom pao:ModelDeployment ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    owl:hasKey ( pao:hasModelId ) ;
+    skos:definition "A generically dependent continuant that specifies a model family with a name and version."@en .
+
+pao:Integration a owl:Class ;
+    rdfs:label "integration"@en ;
+    obo:IAO_0000115 "A GDC that represents a configured connection to an external service that provides one or more tools."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:providesTool ;
+            owl:someValuesFrom pao:ToolDefinition ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasIntegrationStatus ;
+            owl:someValuesFrom pao:IntegrationStatus ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that represents a configured connection to an external service that provides one or more tools."@en .
+
+pao:Intention a owl:Class ;
+    rdfs:label "intention"@en ;
+    obo:IAO_0000115 "A GDC representing an agent's commitment to execute a plan (BDI model)."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:derivedFromGoal ;
+            owl:someValuesFrom pao:Goal ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:intendedBy ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC representing an agent's commitment to execute a plan (BDI model)."@en .
+
+pao:MemoryOperation a owl:Class ;
+    rdfs:label "memory operation"@en ;
+    obo:IAO_0000115 "A process that acts on memory items to encode, retrieve, consolidate, or remove them."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:operatesOn ;
+            owl:someValuesFrom pao:MemoryItem ],
+        pao:Event ;
+    owl:disjointUnionOf ( pao:Encoding pao:Retrieval pao:Consolidation pao:Forgetting pao:Rehearsal ) ;
+    skos:definition "A process that acts on memory items to encode, retrieve, consolidate, or remove them."@en .
+
+pao:PermissionPolicy a owl:Class ;
+    rdfs:label "permission policy"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies rules governing what actions an agent is permitted or forbidden to perform."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:restrictsToolUse ;
+            owl:someValuesFrom pao:ToolDefinition ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:grantsPermission ;
+            owl:someValuesFrom odrl:Permission ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:appliesTo ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        odrl:Policy ;
+    skos:definition "A generically dependent continuant that specifies rules governing what actions an agent is permitted or forbidden to perform."@en .
+
+pao:GenerationConfiguration a owl:Class ;
+    rdfs:label "generation configuration"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies the parameter set for controlling model generation."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that specifies the parameter set for controlling model generation."@en .
+
+pao:Goal a owl:Class ;
+    rdfs:label "goal"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies a desired state an agent works toward."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasStatus ;
+            owl:someValuesFrom pao:TaskStatus ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:pursuedBy ;
+            owl:someValuesFrom pao:Agent ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that specifies a desired state an agent works toward."@en .
+
+pao:ServiceCapability a owl:Class ;
+    rdfs:label "service capability"@en ;
+    obo:IAO_0000115 "A GDC representing a capability that an external service exposes (abstract parent)."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    owl:disjointUnionOf ( pao:ServiceToolCapability pao:ServiceResourceCapability pao:ServicePromptCapability ) ;
+    skos:definition "A GDC representing a capability that an external service exposes (abstract parent)."@en .
+
+pao:AIAgent a owl:Class ;
+    rdfs:label "ai agent"@en ;
+    obo:IAO_0000115 "An agent that is a software system capable of autonomous decision-making and tool use."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:operatesInMode ;
+            owl:someValuesFrom pao:PermissionMode ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasIntegration ;
+            owl:someValuesFrom pao:Integration ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasHook ;
+            owl:someValuesFrom pao:Hook ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasAvailableTool ;
+            owl:someValuesFrom pao:ToolDefinition ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:usesModel ;
+            owl:someValuesFrom pao:FoundationModel ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasPersona ;
+            owl:someValuesFrom pao:Persona ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasExternalService ;
+            owl:someValuesFrom pao:ExternalService ],
+        obo:BFO_0000031,
+        prov:SoftwareAgent,
+        pao:Agent ;
+    owl:hasKey ( pao:hasAgentId ) ;
+    skos:definition "An agent that is a software system capable of autonomous decision-making and tool use."@en .
+
+pao:ErrorRecoveryEvent a owl:Class ;
+    rdfs:label "error recovery event"@en ;
+    obo:IAO_0000115 "An event in which an agent initiates recovery after a failure."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:recoveringFrom ;
+            owl:someValuesFrom pao:ToolInvocation ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasFailureType ;
+            owl:someValuesFrom pao:FailureType ],
+        pao:Event ;
+    skos:definition "An event in which an agent initiates recovery after a failure."@en .
+
+pao:ExternalService a owl:Class ;
+    rdfs:label "external service"@en ;
+    obo:IAO_0000115 "A GDC that describes a configured external service with identity and transport metadata."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:exposesCapability ;
+            owl:someValuesFrom pao:ServiceCapability ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A GDC that describes a configured external service with identity and transport metadata."@en .
+
+pao:Turn a owl:Class ;
+    rdfs:label "turn"@en ;
+    obo:IAO_0000115 "A process that is a single contribution by one participant in a conversation."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:partOfSession ;
+            owl:someValuesFrom pao:Session ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:partOfConversation ;
+            owl:someValuesFrom pao:Conversation ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasParticipant ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onClass pao:Agent ;
+            owl:onProperty pao:hasParticipant ;
+            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ],
+        [ a owl:Restriction ;
+            owl:onDataRange xsd:nonNegativeInteger ;
+            owl:onProperty pao:hasTurnIndex ;
+            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ],
+        pao:Event ;
+    skos:definition "A process that is a single contribution by one participant in a conversation."@en .
+
+pao:hasStatus a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has status"@en ;
+    obo:IAO_0000115 "Links an entity to its current status value."@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range pao:Status ;
+    skos:definition "Links an entity to its current status value."@en .
+
+pao:MemoryTier a owl:Class ;
+    rdfs:label "memory tier"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that defines a layer in the agent's memory architecture with specific storage and access characteristics."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    owl:disjointUnionOf ( pao:WorkingMemory pao:EpisodicMemory pao:SemanticMemory pao:ProceduralMemory ) ;
+    skos:definition "A generically dependent continuant that defines a layer in the agent's memory architecture with specific storage and access characteristics."@en .
+
+pao:Schedule a owl:Class ;
+    rdfs:label "schedule"@en ;
+    obo:IAO_0000115 "A named definition that binds a recurrence pattern and trigger to an action specification, governing when an agent should perform automated work."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:ownedByAgent ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasRecurrencePattern ;
+            owl:someValuesFrom pao:RecurrencePattern ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:activatedBy ;
+            owl:someValuesFrom pao:Trigger ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasConcurrencyPolicy ;
+            owl:someValuesFrom pao:ConcurrencyPolicy ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:schedulesAction ;
+            owl:someValuesFrom pao:Action ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasScheduleStatus ;
+            owl:someValuesFrom pao:ScheduleStatus ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A named definition that binds a recurrence pattern and trigger to an action specification, governing when an agent should perform automated work."@en .
+
+pao:StatusTransition a owl:Class ;
+    rdfs:label "status transition"@en ;
+    obo:IAO_0000115 "A process in which an entity's status changes from one value to another."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:transitionSubject ;
+            owl:someValuesFrom owl:Thing ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:toStatus ;
+            owl:someValuesFrom pao:Status ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:fromStatus ;
+            owl:someValuesFrom pao:Status ],
+        pao:Event ;
+    skos:definition "A process in which an entity's status changes from one value to another."@en .
+
+pao:Task a owl:Class ;
+    rdfs:label "task"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is a concrete actionable work item within a plan with status and dependencies."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:partOfPlan ;
+            owl:someValuesFrom pao:Plan ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasStatus ;
+            owl:someValuesFrom pao:TaskStatus ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is a concrete actionable work item within a plan with status and dependencies."@en .
+
+pao:ToolDefinition a owl:Class ;
+    rdfs:label "tool definition"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that specifies the interface, capabilities, and constraints of an available tool."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that specifies the interface, capabilities, and constraints of an available tool."@en .
+
+pao:Session a owl:Class ;
+    rdfs:label "session"@en ;
+    obo:IAO_0000115 "A process that is a bounded period of agent-user interaction within a conversation."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasParticipant ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:partOfConversation ;
+            owl:someValuesFrom pao:Conversation ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasStatus ;
+            owl:someValuesFrom pao:SessionStatus ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasTemporalExtent ;
+            owl:someValuesFrom time:Interval ],
+        pao:Event ;
+    owl:hasKey ( pao:hasSessionId ) ;
+    skos:definition "A process that is a bounded period of agent-user interaction within a conversation."@en .
+
+pao:ToolInvocation a owl:Class ;
+    rdfs:label "tool invocation"@en ;
+    obo:IAO_0000115 "A process in which an agent requests execution of a tool by providing inputs and receiving outputs."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:governedByPolicy ;
+            owl:someValuesFrom pao:PermissionPolicy ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:inSession ;
+            owl:someValuesFrom pao:Session ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasOutput ;
+            owl:someValuesFrom prov:Entity ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:invokesTool ;
+            owl:someValuesFrom pao:ToolDefinition ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasInput ;
+            owl:someValuesFrom prov:Entity ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:producedToolResult ;
+            owl:someValuesFrom pao:ToolResult ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasComplianceStatus ;
+            owl:someValuesFrom pao:ComplianceStatus ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:invokedBy ;
+            owl:someValuesFrom pao:Agent ],
+        pao:Action ;
+    skos:definition "A process in which an agent requests execution of a tool by providing inputs and receiving outputs."@en .
+
+pao:MemoryItem a owl:Class ;
+    rdfs:label "memory item"@en ;
+    obo:IAO_0000115 "A generically dependent continuant that is an information artifact persisted in an agent's memory system."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:governedByRetention ;
+            owl:someValuesFrom pao:RetentionPolicy ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:storedIn ;
+            owl:someValuesFrom pao:MemoryTier ],
+        [ a owl:Restriction ;
+            owl:onProperty pao:hasSensitivityLevel ;
+            owl:someValuesFrom pao:SensitivityLevel ],
+        [ a owl:Restriction ;
+            owl:onProperty prov:wasAttributedTo ;
+            owl:someValuesFrom pao:Agent ],
+        [ a owl:Restriction ;
+            owl:onProperty prov:wasGeneratedBy ;
+            owl:someValuesFrom prov:Activity ],
+        [ a owl:Restriction ;
+            owl:onClass pao:MemoryTier ;
+            owl:onProperty pao:storedIn ;
+            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ],
+        obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A generically dependent continuant that is an information artifact persisted in an agent's memory system."@en .
+
+pao:Status a owl:Class ;
+    rdfs:label "status"@en ;
+    obo:IAO_0000115 "A class whose individuals represent the current state of an entity."@en ;
+    rdfs:subClassOf obo:BFO_0000031,
+        prov:Entity ;
+    skos:definition "A class whose individuals represent the current state of an entity."@en .
+
+pao:Event a owl:Class ;
+    rdfs:label "event"@en ;
+    obo:IAO_0000115 "A process that is an occurrence situated in time within the agent system."@en ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty pao:hasTemporalExtent ;
+            owl:someValuesFrom time:TemporalEntity ],
+        obo:BFO_0000015,
+        prov:Activity ;
+    skos:definition "A process that is an occurrence situated in time within the agent system."@en .
+
+pao:Agent a owl:Class ;
+    rdfs:label "agent"@en ;
+    obo:IAO_0000115 "An entity that bears responsibility for activities and can act on behalf of itself or others."@en ;
+    rdfs:subClassOf prov:Agent ;
+    skos:definition "An entity that bears responsibility for activities and can act on behalf of itself or others."@en .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:SessionStatusTransition pao:TaskStatusTransition ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:Action pao:Conversation pao:Session pao:Turn pao:CompactionEvent pao:ErasureEvent pao:MemoryOperation pao:Observation pao:StatusTransition pao:CapabilityDiscoveryEvent pao:HookExecution pao:ErrorRecoveryEvent pao:RetryAttempt pao:ReplanEvent pao:RollbackEvent pao:MemoryWriteConflict pao:GroundingAct pao:ModelInvocation pao:ReliabilityIncident pao:Deliberation pao:ScheduledExecution ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:Message pao:ToolDefinition pao:MemoryItem pao:MemoryTier pao:Goal pao:Plan pao:Task pao:PermissionPolicy pao:SafetyConstraint pao:Persona pao:Intention pao:ConsentRecord pao:RetentionPolicy pao:CompactionDisposition pao:ContextWindow pao:CommunicationChannel pao:Integration pao:ExternalService pao:ServiceConnection pao:ServiceCapability pao:SandboxPolicy pao:Hook pao:AuditLog pao:AuditEntry pao:Checkpoint pao:ToolResult pao:ToolInvocationGroup pao:ContentBlock pao:SharedMemoryArtifact pao:DialogAct pao:CommonGround pao:ClarificationRequest pao:AcceptanceEvidence pao:ModelProvider pao:FoundationModel pao:ModelDeployment pao:GenerationConfiguration pao:OperationalMetric pao:MetricObservation pao:Belief pao:Desire pao:Justification pao:Schedule pao:RecurrencePattern pao:Trigger ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:Encoding pao:Retrieval pao:Consolidation pao:Forgetting pao:Rehearsal ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:ServiceToolCapability pao:ServiceResourceCapability pao:ServicePromptCapability ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:WorkingMemory pao:EpisodicMemory pao:SemanticMemory pao:ProceduralMemory ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:PermissionPolicy pao:SafetyConstraint pao:ConsentRecord pao:RetentionPolicy pao:SandboxPolicy pao:Hook pao:AuditLog ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:AIAgent pao:HumanUser pao:Organization ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:Episode pao:Claim pao:MemoryBlock ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:CronTrigger pao:IntervalTrigger pao:EventTrigger ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:SessionStatus pao:TaskStatus pao:ComplianceStatus pao:SensitivityLevel pao:ItemFate pao:ChannelType pao:IntegrationStatus pao:ConnectionStatus pao:PermissionMode pao:AuthorizationDecision pao:CheckpointDecision pao:ContentBlockType pao:MemorySource pao:MemoryScope pao:CommunicativeFunction pao:ClaimType pao:FailureType pao:ScheduleStatus pao:ExecutionOutcome pao:ConcurrencyPolicy ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( pao:RetryAttempt pao:ReplanEvent pao:RollbackEvent ) .

@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-113: What justification supports a given intention?
+# Expected: non_empty
+SELECT ?intention ?justification ?label WHERE {
+  ?justification a pao:Justification ;
+                 pao:justifiesIntention ?intention ;
+                 rdfs:label ?label .
+  ?intention a pao:Intention .
+}

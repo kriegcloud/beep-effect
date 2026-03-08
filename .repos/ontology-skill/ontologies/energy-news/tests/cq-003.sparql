@@ -1,0 +1,10 @@
+# CQ-003: Which articles cover a given energy topic?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+
+SELECT ?article ?title WHERE {
+  ?article a enews:Article ;
+           enews:coversTopic enews:EnergyStorage ;
+           enews:title ?title .
+}

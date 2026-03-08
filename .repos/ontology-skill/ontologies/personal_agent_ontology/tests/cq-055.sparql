@@ -1,0 +1,10 @@
+PREFIX pao: <https://purl.org/pao/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# CQ-055: Which memory items in a given tier are eligible for eviction?
+# Expected: non-empty result set
+SELECT ?item ?tier WHERE {
+  ?item a pao:MemoryItem ;
+        pao:storedIn ?tier ;
+        pao:isEvictionCandidate true .
+}

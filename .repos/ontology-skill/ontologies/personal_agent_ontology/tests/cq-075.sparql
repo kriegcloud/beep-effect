@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-075: How many tools does each integration provide?
+# Expected: non-empty result set
+SELECT ?integration ?label (COUNT(?tool) AS ?toolCount) WHERE {
+  ?integration a pao:Integration ;
+               rdfs:label ?label ;
+               pao:providesTool ?tool .
+}
+GROUP BY ?integration ?label

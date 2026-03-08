@@ -1,0 +1,67 @@
+topic,label
+http://example.org/ontology/energy-news#ProjectFinance,project finance
+http://example.org/ontology/energy-news#Electrification,electrification
+http://example.org/ontology/energy-news#Commodity,commodity
+http://example.org/ontology/energy-news#CommunityEnergy,community energy
+http://example.org/ontology/energy-news#DataCenterDemand,data center demand
+http://example.org/ontology/energy-news#Permitting,permitting
+http://example.org/ontology/energy-news#Manufacturing,manufacturing
+http://example.org/ontology/energy-news#CarbonCapture,carbon capture
+http://example.org/ontology/energy-news#BuildingElectrification,building electrification
+http://example.org/ontology/energy-news#ElectricVehicles,electric vehicles
+http://example.org/ontology/energy-news#RooftopSolar,rooftop solar
+http://example.org/ontology/energy-news#NaturalGas,natural gas
+http://example.org/ontology/energy-news#Retrofits,retrofits
+http://example.org/ontology/energy-news#Renewable,renewable
+http://example.org/ontology/energy-news#Tariff,tariff
+http://example.org/ontology/energy-news#EmissionsTracking,emissions tracking
+http://example.org/ontology/energy-news#CriticalMinerals,critical minerals
+http://example.org/ontology/energy-news#SMR,smr
+http://example.org/ontology/energy-news#Nuclear,nuclear
+http://example.org/ontology/energy-news#Decarbonization,decarbonization
+http://example.org/ontology/energy-news#EnergyFinance,energy finance
+http://example.org/ontology/energy-news#NetZero,net zero
+http://example.org/ontology/energy-news#EfficiencyRecords,efficiency records
+http://example.org/ontology/energy-news#EnergyAccess,energy access
+http://example.org/ontology/energy-news#ElectricTransport,electric transport
+http://example.org/ontology/energy-news#GridOperator,grid operator
+http://example.org/ontology/energy-news#Affordability,affordability
+http://example.org/ontology/energy-news#WaterUse,water use
+http://example.org/ontology/energy-news#LaborRelations,labor relations
+http://example.org/ontology/energy-news#BuildingsAndEfficiency,buildings and efficiency
+http://example.org/ontology/energy-news#EnvironmentAndLandUse,environment and land use
+http://example.org/ontology/energy-news#Hydrogen,hydrogen
+http://example.org/ontology/energy-news#PowerPurchaseAgreement,power purchase agreement
+http://example.org/ontology/energy-news#Interconnection,interconnection
+http://example.org/ontology/energy-news#EnergyJobs,energy jobs
+http://example.org/ontology/energy-news#Coal,coal
+http://example.org/ontology/energy-news#Solar,solar
+http://example.org/ontology/energy-news#ResearchAndInnovation,research and innovation
+http://example.org/ontology/energy-news#WholesaleMarkets,wholesale markets
+http://example.org/ontology/energy-news#Wind,wind
+http://example.org/ontology/energy-news#ClimateAndEmissions,climate and emissions
+http://example.org/ontology/energy-news#Geothermal,geothermal
+http://example.org/ontology/energy-news#HeatPumps,heat pumps
+http://example.org/ontology/energy-news#WasteAndPollution,waste and pollution
+http://example.org/ontology/energy-news#EnergyMarkets,energy markets
+http://example.org/ontology/energy-news#Hydro,hydro
+http://example.org/ontology/energy-news#Transmission,transmission
+http://example.org/ontology/energy-news#Agrivoltaics,agrivoltaics
+http://example.org/ontology/energy-news#Distribution,distribution
+http://example.org/ontology/energy-news#Legislation,legislation
+http://example.org/ontology/energy-news#Fossil,fossil
+http://example.org/ontology/energy-news#EnergyJustice,energy justice
+http://example.org/ontology/energy-news#EVCharging,ev charging
+http://example.org/ontology/energy-news#Patent,patent
+http://example.org/ontology/energy-news#EnergyPolicy,energy policy
+http://example.org/ontology/energy-news#CorporateDeals,corporate deals
+http://example.org/ontology/energy-news#WorkforceAndManufacturing,workforce and manufacturing
+http://example.org/ontology/energy-news#TradeAndSanctions,trade and sanctions
+http://example.org/ontology/energy-news#EnergyStorage,energy storage
+http://example.org/ontology/energy-news#PublicFunding,public funding
+http://example.org/ontology/energy-news#EnergyGeopolitics,energy geopolitics
+http://example.org/ontology/energy-news#SupplyChain,supply chain
+http://example.org/ontology/energy-news#Oil,oil
+http://example.org/ontology/energy-news#Fusion,fusion
+http://example.org/ontology/energy-news#GridAndInfrastructure,grid and infrastructure
+http://example.org/ontology/energy-news#Regulation,regulation

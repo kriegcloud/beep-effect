@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-066: What communication channel was used for a given session?
+# Expected: non-empty result set
+SELECT ?session ?channel WHERE {
+  ?session a pao:Session ;
+           pao:viaChannel ?channel .
+  ?channel a pao:CommunicationChannel .
+}

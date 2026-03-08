@@ -1,0 +1,7 @@
+# CQ-042: What persona/system prompt is assigned to an agent?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?agent ?persona WHERE {
+  ?agent pao:hasPersona ?persona .
+  ?persona a pao:Persona .
+}

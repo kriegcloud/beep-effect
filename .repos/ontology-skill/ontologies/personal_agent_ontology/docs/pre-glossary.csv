@@ -1,0 +1,81 @@
+term,category,source_cq,notes
+Agent,class,"CQ-001,CQ-002,CQ-003,CQ-004",Top-level class for all actors; aligns with prov:Agent and BFO:0000040 (material entity) or BFO:0000015 (process) depending on framing
+AIAgent,class,CQ-001,Software agent; subclass of Agent; aligns with prov:SoftwareAgent
+HumanUser,class,"CQ-001,CQ-009",Human participant; subclass of Agent; aligns with prov:Person and foaf:Person
+SubAgent,class,CQ-003,Agent spawned by another agent for delegated work
+AgentRole,class,CQ-004,Role played by an agent in a conversation; aligns with prov:Role
+AssistantRole,class,CQ-004,Named individual: role of the AI assistant
+UserRole,class,CQ-004,Named individual: role of the human user
+ToolDefinition,class,"CQ-002,CQ-007",Description of an available tool (name, schema, capabilities)
+ToolInvocation,class,"CQ-007,CQ-008,CQ-031,CQ-037,CQ-039",An instance of tool use with input, output, and status; subclass of Action
+Conversation,class,"CQ-005,CQ-006,CQ-010",A coherent thread of dialogue; may span multiple sessions
+Session,class,"CQ-005,CQ-007,CQ-009,CQ-020,CQ-038",A bounded period of agent-user interaction; subclass of Event or temporal entity
+Turn,class,"CQ-006,CQ-020,CQ-025",A single contribution by one participant in a conversation; subclass of Event
+Message,class,CQ-006,Content of a turn (text or structured data); information artifact
+ConversationParticipation,class,CQ-004,N-ary relation linking agent + conversation + role
+CompactionEvent,class,CQ-010,Event when context window is compressed; subclass of Event
+MemoryItem,class,"CQ-011,CQ-014,CQ-018,CQ-032,CQ-033,CQ-036,CQ-040",Any item persisted in agent memory; subclass of prov:Entity
+MemoryTier,class,"CQ-011,CQ-018",A layer in the memory architecture (working, episodic, semantic, procedural)
+WorkingMemory,class,CQ-011,In-context memory tier; maps to LLM context window
+EpisodicMemory,class,"CQ-012,CQ-011",Long-term memory tier for time-situated experiences
+SemanticMemory,class,"CQ-013,CQ-011",Long-term memory tier for generalized facts and knowledge
+ProceduralMemory,class,CQ-011,Long-term memory tier for skills and action policies
+Episode,class,"CQ-012,CQ-016,CQ-025",Temporally bounded cluster of related events; subclass of MemoryItem and Event
+Claim,class,"CQ-013,CQ-015,CQ-016,CQ-017",Agent-held proposition with confidence and evidence; n-ary pattern; subclass of MemoryItem
+MemoryOperation,class,CQ-019,Process that acts on memory items (encoding, retrieval, consolidation, forgetting)
+Encoding,class,CQ-019,Memory operation: writing new items to memory; subclass of MemoryOperation
+Retrieval,class,CQ-019,Memory operation: reading items from memory; subclass of MemoryOperation
+Consolidation,class,CQ-019,Memory operation: transforming episodic into semantic; subclass of MemoryOperation
+Forgetting,class,CQ-019,Memory operation: removing or decaying items; subclass of MemoryOperation
+Event,class,"CQ-020,CQ-021,CQ-022,CQ-024,CQ-025",Something that occurs in time; aligns with BFO:0000015 (process)
+Action,class,"CQ-023,CQ-024",Intentional event caused by an agent; subclass of Event
+Goal,class,"CQ-026,CQ-028",Desired state the agent works toward; aligns with BDI goal concept
+Plan,class,"CQ-027,CQ-028,CQ-029",Sequence of intended actions to achieve a goal; aligns with prov:Plan
+Task,class,"CQ-003,CQ-027,CQ-029",Concrete work item with status and dependencies; subclass of Plan component
+PermissionPolicy,class,"CQ-030,CQ-031,CQ-039",Rule governing what an agent may do; aligns with ODRL Policy
+SafetyConstraint,class,CQ-035,Non-negotiable behavioral limit on an agent
+ErasureEvent,class,CQ-034,Event recording deletion of memory items for compliance; subclass of Event
+hasAvailableTool,property,CQ-002,Links Agent to ToolDefinition
+spawnedBy,property,CQ-003,Links SubAgent to parent Agent
+delegatedTask,property,CQ-003,Links SubAgent to the Task it was spawned for
+hasParticipant,property,"CQ-004,CQ-006,CQ-009",Links Event/Session/Turn to participating Agent
+inConversation,property,"CQ-005,CQ-010",Links Session/Turn/Event to its Conversation
+partOfConversation,property,"CQ-005,CQ-006",Links Session or Turn to its parent Conversation
+hasTemporalExtent,property,"CQ-005,CQ-012,CQ-021,CQ-022",Links Event to a time:Interval
+hasTurnIndex,property,CQ-006,Integer ordering of turns within a conversation
+hasTimestamp,property,"CQ-006,CQ-007,CQ-020,CQ-023,CQ-034",xsd:dateTime timestamp for events and items
+invokesTool,property,CQ-007,Links ToolInvocation to ToolDefinition
+invokedBy,property,"CQ-007,CQ-037",Links ToolInvocation to invoking Agent
+hasStatus,property,"CQ-007,CQ-026,CQ-027,CQ-029,CQ-038",Status of an entity (Active, Completed, Pending, etc.)
+inSession,property,"CQ-007,CQ-020,CQ-037",Links Event to its containing Session
+hasInput,property,CQ-008,Input data provided to a ToolInvocation
+hasOutput,property,CQ-008,Output data returned from a ToolInvocation
+producedSummary,property,CQ-010,Links CompactionEvent to the summary it generated
+storedIn,property,"CQ-011,CQ-012,CQ-013,CQ-018",Links MemoryItem to its MemoryTier
+hasTopic,property,CQ-012,Topic label for an Episode
+hasContent,property,"CQ-013,CQ-015",Textual content of a Claim or MemoryItem
+hasConfidence,property,CQ-013,Confidence level (0.0-1.0) of a Claim; xsd:decimal
+claimType,property,CQ-015,Classifies a Claim (e.g. UserPreference, WorldFact)
+aboutAgent,property,CQ-015,Links a Claim to the Agent it describes
+operatesOn,property,CQ-019,Links MemoryOperation to the MemoryItem it affects
+performedBy,property,CQ-023,Links Action to the Agent that performed it
+pursuedBy,property,CQ-026,Links Goal to the Agent pursuing it
+partOfPlan,property,"CQ-027,CQ-029",Links Task to its parent Plan
+achievesGoal,property,CQ-028,Links Plan to the Goal it aims to achieve
+blockedBy,property,CQ-027,Links Task to another Task that must complete first
+appliesTo,property,"CQ-030,CQ-035",Links Policy/Constraint to the Agent it governs
+grantsPermission,property,CQ-030,Links PermissionPolicy to the permission type granted
+hasComplianceStatus,property,"CQ-031,CQ-039",Links ToolInvocation to compliance status (Compliant/NonCompliant)
+restrictsToolUse,property,CQ-039,Links PermissionPolicy to the ToolDefinition it restricts
+hasSensitivityLevel,property,CQ-033,Links MemoryItem to its privacy sensitivity classification
+requestedBy,property,CQ-034,Links ErasureEvent to the Agent who requested deletion
+partOfEpisode,property,CQ-025,Links Event to its containing Episode
+hasRole,property,CQ-004,Links ConversationParticipation to an AgentRole
+Active,individual,"CQ-026,CQ-038",Status value: entity is currently active
+InProgress,individual,CQ-029,Status value: task is being worked on
+Pending,individual,CQ-029,Status value: task has not started
+Completed,individual,"CQ-007,CQ-029",Status value: entity has finished
+Compliant,individual,CQ-031,Compliance status: invocation follows policy
+NonCompliant,individual,CQ-039,Compliance status: invocation violates policy
+UserPreference,individual,CQ-015,Claim type: a user preference
+PersonalData,individual,CQ-033,Sensitivity level: contains personal data

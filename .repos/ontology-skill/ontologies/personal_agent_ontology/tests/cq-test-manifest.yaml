@@ -1,0 +1,1202 @@
+# Personal Agent Ontology -- CQ Test Manifest (TDOD-style)
+# Framework: Test-Driven Ontology Development (Keet & Lawrynowicz, 2016)
+# Runner: ROBOT verify (--queries flag) or custom SPARQL test harness
+
+ontology:
+  name: Personal Agent Ontology
+  prefix: pao
+  namespace: "https://purl.org/pao/"
+
+# --- Module 1: Identity & Actors ---
+
+cq_tests:
+  - id: cq-001
+    file: cq-001.sparql
+    cq: CQ-001
+    module: identity_actors
+    question: "What agents exist in the system and what type is each?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-002
+    file: cq-002.sparql
+    cq: CQ-002
+    module: identity_actors
+    question: "What tools are available to a given agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-003
+    file: cq-003.sparql
+    cq: CQ-003
+    module: identity_actors
+    question: "Which sub-agents were spawned by a given parent agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-004
+    file: cq-004.sparql
+    cq: CQ-004
+    module: identity_actors
+    question: "What role does an agent play in a given conversation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Module 2: Conversation & Interaction ---
+
+  - id: cq-005
+    file: cq-005.sparql
+    cq: CQ-005
+    module: conversation_interaction
+    question: "What sessions belong to a given conversation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-006
+    file: cq-006.sparql
+    cq: CQ-006
+    module: conversation_interaction
+    question: "What turns occurred in a given conversation, in temporal order?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-007
+    file: cq-007.sparql
+    cq: CQ-007
+    module: conversation_interaction
+    question: "What tool invocations occurred in a given session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-008
+    file: cq-008.sparql
+    cq: CQ-008
+    module: conversation_interaction
+    question: "What input was provided to a tool invocation and what output was returned?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-009
+    file: cq-009.sparql
+    cq: CQ-009
+    module: conversation_interaction
+    question: "What was the most recent session for a given user?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-010
+    file: cq-010.sparql
+    cq: CQ-010
+    module: conversation_interaction
+    question: "When did context compaction events occur in a conversation and what was preserved?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Module 3: Memory ---
+
+  - id: cq-011
+    file: cq-011.sparql
+    cq: CQ-011
+    module: memory
+    question: "What memory items does an agent currently hold, and in which memory tier?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-012
+    file: cq-012.sparql
+    cq: CQ-012
+    module: memory
+    question: "What episodes are stored in episodic memory for a given agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-013
+    file: cq-013.sparql
+    cq: CQ-013
+    module: memory
+    question: "What claims are stored in semantic memory and what is their confidence level?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-014
+    file: cq-014.sparql
+    cq: CQ-014
+    module: memory
+    question: "What is the provenance chain of a given memory item?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-015
+    file: cq-015.sparql
+    cq: CQ-015
+    module: memory
+    question: "What are the stored preferences for a given user?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-016
+    file: cq-016.sparql
+    cq: CQ-016
+    module: memory
+    question: "From which episodes was a given semantic memory claim derived?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-017
+    file: cq-017.sparql
+    cq: CQ-017
+    module: memory
+    question: "What is the revision history of a given claim?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-018
+    file: cq-018.sparql
+    cq: CQ-018
+    module: memory
+    question: "What memory tier does a given memory item reside in?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-019
+    file: cq-019.sparql
+    cq: CQ-019
+    module: memory
+    question: "What memory operations have been performed on a given memory item?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Module 4: Actions, Events, and Time ---
+
+  - id: cq-020
+    file: cq-020.sparql
+    cq: CQ-020
+    module: actions_events_time
+    question: "What events occurred in a given session, in temporal order?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-021
+    file: cq-021.sparql
+    cq: CQ-021
+    module: actions_events_time
+    question: "Does event A occur before event B?"
+    type: ASK
+    expected: "true"
+    requires_abox: true
+
+  - id: cq-022
+    file: cq-022.sparql
+    cq: CQ-022
+    module: actions_events_time
+    question: "What events overlap temporally with a given event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-023
+    file: cq-023.sparql
+    cq: CQ-023
+    module: actions_events_time
+    question: "What actions did a specific agent perform in a given time period?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-024
+    file: cq-024.sparql
+    cq: CQ-024
+    module: actions_events_time
+    question: "What is the type of a given event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-025
+    file: cq-025.sparql
+    cq: CQ-025
+    module: actions_events_time
+    question: "What events are part of a given episode?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Module 5: Goals, Plans, and Tasks ---
+
+  - id: cq-026
+    file: cq-026.sparql
+    cq: CQ-026
+    module: goals_plans_tasks
+    question: "What goals is an agent currently pursuing?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-027
+    file: cq-027.sparql
+    cq: CQ-027
+    module: goals_plans_tasks
+    question: "What tasks compose a given plan, and what are their dependencies?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-028
+    file: cq-028.sparql
+    cq: CQ-028
+    module: goals_plans_tasks
+    question: "What plan was created to achieve a given goal?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-029
+    file: cq-029.sparql
+    cq: CQ-029
+    module: goals_plans_tasks
+    question: "What is the current status of each task in a given plan?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Module 6: Governance & Safety ---
+
+  - id: cq-030
+    file: cq-030.sparql
+    cq: CQ-030
+    module: governance_safety
+    question: "What permission policies apply to a given agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-031
+    file: cq-031.sparql
+    cq: CQ-031
+    module: governance_safety
+    question: "Did a given tool invocation comply with its applicable permission policies?"
+    type: ASK
+    expected: "true"
+    requires_abox: true
+
+  - id: cq-032
+    file: cq-032.sparql
+    cq: CQ-032
+    module: governance_safety
+    question: "What memory items are derived from a given source item (for deletion cascading)?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-033
+    file: cq-033.sparql
+    cq: CQ-033
+    module: governance_safety
+    question: "What sensitivity level is assigned to a given memory item?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-034
+    file: cq-034.sparql
+    cq: CQ-034
+    module: governance_safety
+    question: "What erasure events have been recorded for compliance auditing?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-035
+    file: cq-035.sparql
+    cq: CQ-035
+    module: governance_safety
+    question: "What safety constraints are defined for a given agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Cross-Module Questions ---
+
+  - id: cq-036
+    file: cq-036.sparql
+    cq: CQ-036
+    module: cross_module
+    question: "What agent generated a given memory item, and through what activity?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-037
+    file: cq-037.sparql
+    cq: CQ-037
+    module: cross_module
+    question: "How many tool invocations did a given agent perform in a session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-038
+    file: cq-038.sparql
+    cq: CQ-038
+    module: cross_module
+    question: "Is a given session still active or has it ended?"
+    type: ASK
+    expected: "true"
+    requires_abox: true
+
+  # --- Constraint / Negative Tests ---
+
+  - id: cq-039
+    file: cq-039.sparql
+    cq: CQ-039
+    module: constraint
+    question: "Are there any tool invocations that violate their permission policies?"
+    type: SELECT
+    expected: zero_rows
+    requires_abox: true
+
+  - id: cq-040
+    file: cq-040.sparql
+    cq: CQ-040
+    module: constraint
+    question: "Are there any memory items without provenance attribution?"
+    type: SELECT
+    expected: zero_rows
+    requires_abox: true
+
+  # --- v0.2.0 Additions: Identity, Memory, Planning, Governance ---
+
+  - id: cq-041
+    file: cq-041.sparql
+    cq: CQ-041
+    module: identity_actors
+    question: "What organization does an agent belong to?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-042
+    file: cq-042.sparql
+    cq: CQ-042
+    module: identity_actors
+    question: "What persona/system prompt is assigned to an agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-043
+    file: cq-043.sparql
+    cq: CQ-043
+    module: conversation_interaction
+    question: "What observations were recorded during a session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-044
+    file: cq-044.sparql
+    cq: CQ-044
+    module: memory
+    question: "Which memory items have been rehearsed and how many times?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-045
+    file: cq-045.sparql
+    cq: CQ-045
+    module: memory
+    question: "What memory blocks exist and what key-value pairs do they contain?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-046
+    file: cq-046.sparql
+    cq: CQ-046
+    module: goals_plans_tasks
+    question: "What intentions has an agent committed to?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-047
+    file: cq-047.sparql
+    cq: CQ-047
+    module: goals_plans_tasks
+    question: "Which intentions are derived from which goals?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-048
+    file: cq-048.sparql
+    cq: CQ-048
+    module: governance_safety
+    question: "What sensitivity level is assigned to a memory item? (upgraded to controlled vocab)"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-049
+    file: cq-049.sparql
+    cq: CQ-049
+    module: governance_safety
+    question: "Does a consent record exist for a given data subject and purpose?"
+    type: ASK
+    expected: "true"
+    requires_abox: true
+
+  - id: cq-050
+    file: cq-050.sparql
+    cq: CQ-050
+    module: governance_safety
+    question: "What retention policy governs a memory item?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-051
+    file: cq-051.sparql
+    cq: CQ-051
+    module: governance_safety
+    question: "Which memory items have exceeded their retention period?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.3.0 Additions: Compaction, Memory Lifecycle, Session Continuity,
+  #     Identifiers, Status Transitions ---
+
+  - id: cq-052
+    file: cq-052.sparql
+    cq: CQ-052
+    module: conversation_interaction
+    question: "What items were dropped during a compaction event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-053
+    file: cq-053.sparql
+    cq: CQ-053
+    module: conversation_interaction
+    question: "What fraction of items were preserved during compaction?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-054
+    file: cq-054.sparql
+    cq: CQ-054
+    module: memory
+    question: "When was a memory item last accessed?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-055
+    file: cq-055.sparql
+    cq: CQ-055
+    module: memory
+    question: "Which memory items in a given tier are eligible for eviction?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-056
+    file: cq-056.sparql
+    cq: CQ-056
+    module: conversation_interaction
+    question: "Which session continued from a given prior session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-057
+    file: cq-057.sparql
+    cq: CQ-057
+    module: identity_actors
+    question: "What is the unique identifier for a given agent, session, or conversation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-058
+    file: cq-058.sparql
+    cq: CQ-058
+    module: goals_plans_tasks
+    question: "What status transitions has a task undergone?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-059
+    file: cq-059.sparql
+    cq: CQ-059
+    module: conversation_interaction
+    question: "What was the previous status of a session before it ended?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-060
+    file: cq-060.sparql
+    cq: CQ-060
+    module: goals_plans_tasks
+    question: "What event triggered a given status transition?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.4.0 Additions: Context Window ---
+
+  - id: cq-061
+    file: cq-061.sparql
+    cq: CQ-061
+    module: conversation_interaction
+    question: "What context window is associated with a given session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-062
+    file: cq-062.sparql
+    cq: CQ-062
+    module: conversation_interaction
+    question: "What is the token capacity and current usage of a context window?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-063
+    file: cq-063.sparql
+    cq: CQ-063
+    module: conversation_interaction
+    question: "Which context windows have usage exceeding a given threshold?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-064
+    file: cq-064.sparql
+    cq: CQ-064
+    module: conversation_interaction
+    question: "Which compaction events were triggered by a specific context window?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-065
+    file: cq-065.sparql
+    cq: CQ-065
+    module: conversation_interaction
+    question: "What is the available (remaining) capacity of a context window?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.5.0 Additions: Communication Channels & Integrations ---
+
+  - id: cq-066
+    file: cq-066.sparql
+    cq: CQ-066
+    module: conversation_interaction
+    question: "What communication channel was used for a given session?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-067
+    file: cq-067.sparql
+    cq: CQ-067
+    module: conversation_interaction
+    question: "What type of communication channel is a given channel?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-068
+    file: cq-068.sparql
+    cq: CQ-068
+    module: conversation_interaction
+    question: "Which sessions used a specific type of communication channel?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-069
+    file: cq-069.sparql
+    cq: CQ-069
+    module: conversation_interaction
+    question: "What messages were exchanged on a given communication channel?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-070
+    file: cq-070.sparql
+    cq: CQ-070
+    module: conversation_interaction
+    question: "Which communication channels are associated with a given conversation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-071
+    file: cq-071.sparql
+    cq: CQ-071
+    module: identity_actors
+    question: "What integrations does a given agent have configured?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-072
+    file: cq-072.sparql
+    cq: CQ-072
+    module: identity_actors
+    question: "What tools are provided by a given integration?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-073
+    file: cq-073.sparql
+    cq: CQ-073
+    module: identity_actors
+    question: "What is the connection status of an agent's integrations?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-074
+    file: cq-074.sparql
+    cq: CQ-074
+    module: identity_actors
+    question: "Which integration provides a given tool?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-075
+    file: cq-075.sparql
+    cq: CQ-075
+    module: identity_actors
+    question: "How many tools does each integration provide?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-076
+    file: cq-076.sparql
+    cq: CQ-076
+    module: governance_safety
+    question: "Are there any integrations currently in error status?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-077
+    file: cq-077.sparql
+    cq: CQ-077
+    module: cross_module
+    question: "Which tool invocations used tools from a specific integration?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-078
+    file: cq-078.sparql
+    cq: CQ-078
+    module: cross_module
+    question: "What service name and endpoint are configured for an agent's integrations?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # ── v0.6.0 Phase A: External Service Capability Model ──────────────
+
+  - id: cq-079
+    file: cq-079.sparql
+    cq: CQ-079
+    module: service_capability
+    question: "What external services are configured for each agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-080
+    file: cq-080.sparql
+    cq: CQ-080
+    module: service_capability
+    question: "What capabilities does a given external service expose?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-081
+    file: cq-081.sparql
+    cq: CQ-081
+    module: service_capability
+    question: "Which capabilities were discovered in the latest discovery event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-082
+    file: cq-082.sparql
+    cq: CQ-082
+    module: service_capability
+    question: "Which services provide resources versus tools versus prompts?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # ── v0.6.0 Phase A: Runtime Safety Control Plane ───────────────────
+
+  - id: cq-083
+    file: cq-083.sparql
+    cq: CQ-083
+    module: governance_safety
+    question: "What permission mode is active for each agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-084
+    file: cq-084.sparql
+    cq: CQ-084
+    module: governance_safety
+    question: "Which sandbox policy constrains a given agent?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-085
+    file: cq-085.sparql
+    cq: CQ-085
+    module: governance_safety
+    question: "Which hooks intercepted a specific tool invocation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-086
+    file: cq-086.sparql
+    cq: CQ-086
+    module: governance_safety
+    question: "What authorization decisions were recorded for denied operations?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # ── v0.6.0 Phase A: Recovery and Resilience ────────────────────────
+
+  - id: cq-087
+    file: cq-087.sparql
+    cq: CQ-087
+    module: events_lifecycle
+    question: "What recovery events occurred after failed invocations?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-088
+    file: cq-088.sparql
+    cq: CQ-088
+    module: events_lifecycle
+    question: "How many retries were attempted before success or abandonment?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-089
+    file: cq-089.sparql
+    cq: CQ-089
+    module: events_lifecycle
+    question: "Which tasks required human checkpoint decisions?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Phase B (P1): Tool & Message Trace Richness ---
+
+  - id: cq-090
+    file: cq-090.sparql
+    cq: CQ-090
+    module: conversation_interaction
+    question: "Which tool invocations were executed in parallel within a single turn?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-091
+    file: cq-091.sparql
+    cq: CQ-091
+    module: conversation_interaction
+    question: "What result artifact was produced by each tool invocation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-092
+    file: cq-092.sparql
+    cq: CQ-092
+    module: conversation_interaction
+    question: "Which message content blocks are tool-use blocks versus text blocks?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Phase B (P1): Memory Control Plane and Sharing ---
+
+  - id: cq-093
+    file: cq-093.sparql
+    cq: CQ-093
+    module: memory
+    question: "What is the scope and source of each memory item?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-094
+    file: cq-094.sparql
+    cq: CQ-094
+    module: memory
+    question: "Which memory artifacts are shared across multiple agents?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-095
+    file: cq-095.sparql
+    cq: CQ-095
+    module: memory
+    question: "What memory write conflicts occurred and how were they resolved?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- Phase B (P1): Dialog Pragmatics and Grounding ---
+
+  - id: cq-096
+    file: cq-096.sparql
+    cq: CQ-096
+    module: conversation_interaction
+    question: "What communicative function does each turn perform?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-097
+    file: cq-097.sparql
+    cq: CQ-097
+    module: conversation_interaction
+    question: "Which turns updated common ground with acceptance evidence?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-098
+    file: cq-098.sparql
+    cq: CQ-098
+    module: conversation_interaction
+    question: "Which clarifications were issued before commitment was established?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.7.0 Additions: Model Identity, Observability, Failure Taxonomy, BDI ---
+
+  - id: cq-099
+    file: cq-099.sparql
+    cq: CQ-099
+    module: model_identity
+    question: "Which foundation model was used for a given turn?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-100
+    file: cq-100.sparql
+    cq: CQ-100
+    module: model_identity
+    question: "What model deployments exist for a foundation model?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-101
+    file: cq-101.sparql
+    cq: CQ-101
+    module: model_identity
+    question: "Which provider hosts a given model?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-102
+    file: cq-102.sparql
+    cq: CQ-102
+    module: model_identity
+    question: "What generation config was used for a model invocation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-103
+    file: cq-103.sparql
+    cq: CQ-103
+    module: model_identity
+    question: "Which model does a given AI agent use?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-104
+    file: cq-104.sparql
+    cq: CQ-104
+    module: observability
+    question: "What metric observations were recorded for a given entity?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-105
+    file: cq-105.sparql
+    cq: CQ-105
+    module: observability
+    question: "What operational metrics are defined in the system?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-106
+    file: cq-106.sparql
+    cq: CQ-106
+    module: observability
+    question: "What reliability incidents occurred for a service?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-107
+    file: cq-107.sparql
+    cq: CQ-107
+    module: observability
+    question: "Is a reliability incident linked to a recovery event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-108
+    file: cq-108.sparql
+    cq: CQ-108
+    module: failure_taxonomy
+    question: "What failure type caused a given error recovery event?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-109
+    file: cq-109.sparql
+    cq: CQ-109
+    module: failure_taxonomy
+    question: "How many recovery events of each failure type occurred?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-110
+    file: cq-110.sparql
+    cq: CQ-110
+    module: bdi
+    question: "What beliefs does an agent hold?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-111
+    file: cq-111.sparql
+    cq: CQ-111
+    module: bdi
+    question: "What desires does an agent have?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-112
+    file: cq-112.sparql
+    cq: CQ-112
+    module: bdi
+    question: "What beliefs and desires were considered in a deliberation?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-113
+    file: cq-113.sparql
+    cq: CQ-113
+    module: bdi
+    question: "What justification supports a given intention?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  # --- v0.8.0 Additions: Scheduling & Automation ---
+
+  - id: cq-114
+    file: cq-114.sparql
+    cq: CQ-114
+    module: scheduling
+    question: "What schedules are defined in the system?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-115
+    file: cq-115.sparql
+    cq: CQ-115
+    module: scheduling
+    question: "What recurrence pattern does a given schedule use?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-116
+    file: cq-116.sparql
+    cq: CQ-116
+    module: scheduling
+    question: "What action does a schedule specify?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-117
+    file: cq-117.sparql
+    cq: CQ-117
+    module: scheduling
+    question: "What is the lifecycle status of a given schedule?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-118
+    file: cq-118.sparql
+    cq: CQ-118
+    module: scheduling
+    question: "What executions have occurred for a given schedule?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-119
+    file: cq-119.sparql
+    cq: CQ-119
+    module: scheduling
+    question: "What was the outcome of a scheduled execution?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-120
+    file: cq-120.sparql
+    cq: CQ-120
+    module: scheduling
+    question: "When did a scheduled execution start and end?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-121
+    file: cq-121.sparql
+    cq: CQ-121
+    module: scheduling
+    question: "What concurrency policy does a schedule have?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-122
+    file: cq-122.sparql
+    cq: CQ-122
+    module: scheduling
+    question: "Were any scheduled executions skipped due to concurrency?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-123
+    file: cq-123.sparql
+    cq: CQ-123
+    module: scheduling
+    question: "Does a schedule allow catch-up of missed executions?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-124
+    file: cq-124.sparql
+    cq: CQ-124
+    module: scheduling
+    question: "What trigger type activates a given schedule?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-125
+    file: cq-125.sparql
+    cq: CQ-125
+    module: scheduling
+    question: "What schedules are activated by a specific trigger type?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-126
+    file: cq-126.sparql
+    cq: CQ-126
+    module: scheduling
+    question: "Which goal does a schedule serve?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-127
+    file: cq-127.sparql
+    cq: CQ-127
+    module: scheduling
+    question: "Which agent owns a given schedule?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true
+
+  - id: cq-128
+    file: cq-128.sparql
+    cq: CQ-128
+    module: scheduling
+    question: "Which session was initiated by a scheduled execution?"
+    type: SELECT
+    expected: non_empty
+    requires_abox: true

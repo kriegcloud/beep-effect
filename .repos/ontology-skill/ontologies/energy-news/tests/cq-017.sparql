@@ -1,0 +1,12 @@
+# CQ-017: Which platforms have the most energy news posts?
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?platform ?platformLabel (COUNT(?post) AS ?postCount) WHERE {
+    ?post a enews:Post ;
+          enews:postedBy ?author .
+    ?author enews:onPlatform ?platform .
+    ?platform rdfs:label ?platformLabel .
+}
+GROUP BY ?platform ?platformLabel
+ORDER BY DESC(?postCount)

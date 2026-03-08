@@ -1,0 +1,16 @@
+# CQ-040: Are there any memory items without provenance attribution?
+# Expected: zero_rows (constraint test -- all memory items must have provenance)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX pao: <https://purl.org/pao/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?item WHERE {
+  ?item a pao:MemoryItem .
+  FILTER NOT EXISTS { ?item prov:wasAttributedTo ?agent . }
+}

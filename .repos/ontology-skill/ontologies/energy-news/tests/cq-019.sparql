@@ -1,0 +1,11 @@
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?article ?url ?domain ?pub ?pubLabel WHERE {
+  ?article a enews:Article ; enews:url ?url .
+  BIND(REPLACE(STR(?url), "^https?://([^/]+).*$", "$1") AS ?urlDomainRaw)
+  BIND(IF(STRSTARTS(?urlDomainRaw, "www."),
+          SUBSTR(?urlDomainRaw, 5), ?urlDomainRaw) AS ?domain)
+  ?pub a enews:Publication ;
+       enews:siteDomain ?domain ;
+       rdfs:label ?pubLabel .
+}

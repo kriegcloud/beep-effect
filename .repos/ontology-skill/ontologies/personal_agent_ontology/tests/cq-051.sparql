@@ -1,0 +1,15 @@
+# CQ-051: Which memory items have exceeded their retention period?
+# Uses approximate day arithmetic compatible with rdflib's SPARQL engine.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?item ?policy ?days WHERE {
+  ?item pao:governedByRetention ?policy ;
+        pao:hasTimestamp ?ts .
+  ?policy pao:retentionPeriodDays ?days .
+  FILTER(
+    (YEAR(NOW()) * 365 + MONTH(NOW()) * 30 + DAY(NOW()))
+    - (YEAR(?ts) * 365 + MONTH(?ts) * 30 + DAY(?ts))
+    > ?days
+  )
+}

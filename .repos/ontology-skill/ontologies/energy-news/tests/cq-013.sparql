@@ -1,0 +1,10 @@
+# CQ-013: Which countries or regions are covered in energy news?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?geo ?label WHERE {
+  ?article enews:hasGeographicFocus ?geo .
+  ?geo rdfs:label ?label .
+}

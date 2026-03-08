@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-079: What external services are configured for each agent?
+# Expected: non-empty result set
+SELECT ?agent ?service ?label WHERE {
+  ?agent pao:hasExternalService ?service .
+  ?service a pao:ExternalService ;
+           rdfs:label ?label .
+}

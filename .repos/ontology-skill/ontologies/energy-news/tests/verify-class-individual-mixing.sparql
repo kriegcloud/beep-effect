@@ -1,0 +1,8 @@
+# Constraint: no entity should be both an owl:Class and owl:NamedIndividual
+# Expected: zero results (ROBOT verify passes on zero rows)
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+SELECT ?entity WHERE {
+  ?entity a owl:Class .
+  ?entity a owl:NamedIndividual .
+}

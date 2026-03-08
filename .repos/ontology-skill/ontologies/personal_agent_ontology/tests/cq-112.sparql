@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-112: What beliefs and desires were considered in a deliberation?
+# Expected: non_empty
+SELECT ?deliberation ?belief ?desire WHERE {
+  ?deliberation a pao:Deliberation ;
+                pao:considersBelief ?belief ;
+                pao:considersDesire ?desire .
+  ?belief a pao:Belief .
+  ?desire a pao:Desire .
+}

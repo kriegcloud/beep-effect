@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-090: Which tool invocations were executed in parallel within a single turn?
+# Expected: non_empty
+SELECT ?group ?turn ?invocation WHERE {
+  ?group a pao:ToolInvocationGroup ;
+         pao:groupedInTurn ?turn .
+  ?invocation a pao:ToolInvocation ;
+              pao:partOfInvocationGroup ?group .
+}

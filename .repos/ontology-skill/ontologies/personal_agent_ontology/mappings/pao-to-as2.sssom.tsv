@@ -1,0 +1,29 @@
+#curie_map:
+#  pao: "https://purl.org/pao/"
+#  as: "https://www.w3.org/ns/activitystreams#"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#  owl: "http://www.w3.org/2002/07/owl#"
+#mapping_set_id: "https://purl.org/pao/mappings/pao-to-as2"
+#mapping_set_title: "PAO to ActivityStreams 2.0 Mappings"
+#mapping_set_description: "Cross-ontology mappings between the Personal Agent Ontology and W3C ActivityStreams 2.0 vocabulary for activity log interoperability."
+#license: "https://creativecommons.org/licenses/by/4.0/"
+#subject_source: "https://purl.org/pao/"
+#subject_source_version: "0.5.0"
+#object_source: "https://www.w3.org/ns/activitystreams#"
+#mapping_set_version: "0.1.0"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+pao:Action	action	skos:closeMatch	as:Activity	Activity	semapv:SemanticSimilarityThresholdMatching	0.82	Both model agent-initiated occurrences. PAO Action requires intentionality; AS2 Activity is broader.
+pao:Agent	agent	skos:closeMatch	as:Actor	Actor	semapv:SemanticSimilarityThresholdMatching	0.85	Both represent entities that perform activities. AS2 includes organizations; PAO focuses on AI/human agents.
+pao:Encoding	encoding	skos:broadMatch	as:Create	Create	semapv:SemanticSimilarityThresholdMatching	0.70	PAO Encoding writes to memory; AS2 Create produces any new entity.
+pao:Retrieval	retrieval	skos:broadMatch	as:Read	Read	semapv:SemanticSimilarityThresholdMatching	0.70	PAO Retrieval reads from memory tiers; AS2 Read is general content consumption.
+pao:Forgetting	forgetting	skos:broadMatch	as:Delete	Delete	semapv:SemanticSimilarityThresholdMatching	0.65	PAO Forgetting is cognitive decay; AS2 Delete is explicit removal.
+pao:ErasureEvent	erasure event	skos:closeMatch	as:Delete	Delete	semapv:SemanticSimilarityThresholdMatching	0.78	Both are deliberate removal events; PAO ErasureEvent is privacy-motivated.
+pao:Consolidation	consolidation	skos:broadMatch	as:Update	Update	semapv:SemanticSimilarityThresholdMatching	0.55	PAO Consolidation transforms episodic to semantic memory; AS2 Update modifies existing objects. Weak structural parallel.
+pao:Message	message	skos:closeMatch	as:Note	Note	semapv:SemanticSimilarityThresholdMatching	0.80	Both represent textual content in communication contexts.
+pao:ToolInvocation	tool invocation	skos:broadMatch	as:Activity	Activity	semapv:SemanticSimilarityThresholdMatching	0.60	PAO ToolInvocation is a specific delegation pattern; AS2 Activity is a general activity type.
+pao:Conversation	conversation	skos:closeMatch	as:Collection	Collection	semapv:SemanticSimilarityThresholdMatching	0.60	PAO Conversation is a coherent dialogue process; AS2 Collection is a generic ordered group. Structural similarity only.
+pao:HumanUser	human user	skos:closeMatch	as:Person	Person	semapv:SemanticSimilarityThresholdMatching	0.85	Both represent human individuals in activity contexts.
+pao:AIAgent	ai agent	skos:closeMatch	as:Application	Application	semapv:SemanticSimilarityThresholdMatching	0.72	PAO AIAgent emphasizes autonomy; AS2 Application is generic software.
+pao:Organization	organization	skos:closeMatch	as:Organization	Organization	semapv:SemanticSimilarityThresholdMatching	0.88	Both represent formal groups/bodies. PAO Organization is BFO-aligned; AS2 Organization is an actor type.
+pao:Integration	integration	skos:closeMatch	as:Service	Service	semapv:SemanticSimilarityThresholdMatching	0.65	PAO Integration is a configured service connection; AS2 Service represents a web service endpoint. Both describe external service access.

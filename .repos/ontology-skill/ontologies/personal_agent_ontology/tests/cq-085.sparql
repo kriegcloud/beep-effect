@@ -1,0 +1,12 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-085: Which hooks intercepted a specific tool invocation?
+# Expected: non-empty result set
+SELECT ?invocation ?hook ?execution WHERE {
+  ?execution a pao:HookExecution ;
+             pao:interceptsInvocation ?invocation .
+  ?hook a pao:Hook ;
+        pao:hookTriggeredExecution ?execution .
+}

@@ -1,0 +1,19 @@
+# CQ-004: What role does an agent play in a given conversation?
+# Expected: non_empty (at least one result row)
+# DD-03: Uses PROV-O qualified association pattern (not ConversationParticipation)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX pao: <https://purl.org/pao/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?agent ?conversation ?role WHERE {
+  ?conversation a pao:Conversation ;
+                prov:qualifiedAssociation ?assoc .
+  ?assoc prov:agent ?agent ;
+         prov:hadRole ?role .
+}

@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+
+# CQ-077: Which tool invocations used tools from a specific integration?
+# Expected: non-empty result set
+SELECT ?invocation ?tool ?integration WHERE {
+  ?invocation a pao:ToolInvocation ;
+              pao:invokesTool ?tool .
+  ?integration a pao:Integration ;
+               pao:providesTool ?tool .
+}

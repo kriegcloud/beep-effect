@@ -1,0 +1,7 @@
+# CQ-047: Which intentions are derived from which goals?
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX pao: <https://purl.org/pao/>
+SELECT ?intention ?goal WHERE {
+  ?intention a pao:Intention ;
+             pao:derivedFromGoal ?goal .
+}

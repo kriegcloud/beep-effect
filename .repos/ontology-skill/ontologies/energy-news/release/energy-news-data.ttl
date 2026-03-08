@@ -1,0 +1,125 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix enews: <http://example.org/ontology/energy-news#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+enews:feed_energysky a enews:Feed ;
+    rdfs:label "EnergySky"@en ;
+    enews:onPlatform enews:Bluesky .
+
+enews:feed_energyx a enews:Feed ;
+    rdfs:label "EnergyX"@en ;
+    enews:onPlatform enews:Twitter .
+
+enews:feed_gridpulse a enews:Feed ;
+    rdfs:label "GridPulse"@en ;
+    enews:onPlatform enews:Bluesky .
+
+enews:post_001 a enews:Post ;
+    rdfs:label "Post by torsolarfred sharing article 001"@en ;
+    enews:postedBy enews:author_torsolarfred ;
+    enews:sharesArticle enews:article_001 .
+
+enews:post_002 a enews:Post ;
+    rdfs:label "Post by torsolarfred sharing article 002"@en ;
+    enews:postedBy enews:author_torsolarfred ;
+    enews:sharesArticle enews:article_002 .
+
+enews:post_003 a enews:Post ;
+    rdfs:label "Post by gridwatch sharing article 003"@en ;
+    enews:postedBy enews:author_gridwatch ;
+    enews:sharesArticle enews:article_003 .
+
+enews:post_004 a enews:Post ;
+    rdfs:label "Post by energytweets sharing article 001"@en ;
+    enews:postedBy enews:author_energytweets ;
+    enews:sharesArticle enews:article_001 .
+
+<http://example.org/ontology/energy-news/data> a owl:Ontology ;
+    dcterms:created "2026-02-11" ;
+    dcterms:creator "ontology-architect skill" ;
+    dcterms:description "Representative ABox individuals for CQ/SPARQL tests: articles, posts, authors, publications, feeds, organizations, and geographies."@en ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    dcterms:modified "2026-02-12" ;
+    dcterms:title "Energy News Ontology — Sample Data"@en ;
+    owl:imports <http://example.org/ontology/energy-news> ;
+    owl:priorVersion <http://example.org/ontology/energy-news/data/0.1.0> ;
+    owl:versionIRI <http://example.org/ontology/energy-news/data/0.2.0> ;
+    owl:versionInfo "0.2.0" .
+
+enews:article_002 a enews:Article ;
+    rdfs:label "Australian rooftop solar hits new record"@en ;
+    enews:coversTopic enews:RooftopSolar,
+        enews:Solar ;
+    enews:description "Analysis of distributed rooftop solar growth and policy implications in Australia." ;
+    enews:hasGeographicFocus enews:geo_australia ;
+    enews:publishedBy enews:pub_canary_media ;
+    enews:publishedDate "2026-02-03T10:30:00+00:00"^^xsd:dateTime ;
+    enews:title "Australian rooftop solar hits new record" ;
+    enews:url "https://canarymedia.com/example/rooftop"^^xsd:anyURI .
+
+enews:article_003 a enews:Article ;
+    rdfs:label "FERC advances interconnection reform rule"@en ;
+    enews:coversTopic enews:Interconnection,
+        enews:Regulation ;
+    enews:description "U.S. grid interconnection reform with implications for transmission expansion." ;
+    enews:hasGeographicFocus enews:geo_us ;
+    enews:mentionsOrganization enews:org_ferc ;
+    enews:publishedBy enews:pub_bloomberg ;
+    enews:publishedDate "2026-02-05T14:00:00+00:00"^^xsd:dateTime ;
+    enews:title "FERC advances interconnection reform rule" ;
+    enews:url "https://bloomberg.com/example/ferc-rule"^^xsd:anyURI .
+
+enews:author_energytweets a enews:AuthorAccount ;
+    rdfs:label "@energytweets"@en ;
+    enews:handle "@energytweets" ;
+    enews:onPlatform enews:Twitter .
+
+enews:author_gridwatch a enews:AuthorAccount ;
+    rdfs:label "gridwatch.bsky.social"@en ;
+    enews:handle "gridwatch.bsky.social" ;
+    enews:onPlatform enews:Bluesky .
+
+enews:geo_us a enews:GeographicEntity ;
+    rdfs:label "United States"@en .
+
+enews:org_catl a enews:Organization ;
+    rdfs:label "CATL"@en ;
+    enews:hasSector enews:EnergyStorage,
+        enews:Manufacturing ;
+    skos:definition "A battery manufacturer operating in utility-scale energy storage and electric vehicle supply chains."@en .
+
+enews:org_ferc a enews:Organization ;
+    rdfs:label "FERC"@en ;
+    enews:hasSector enews:Regulation ;
+    skos:definition "A U.S. energy regulator overseeing interstate electricity and natural gas markets."@en .
+
+enews:pub_canary_media a enews:Publication ;
+    rdfs:label "Canary Media"@en ;
+    enews:siteDomain "canarymedia.com" .
+
+enews:article_001 a enews:Article ;
+    rdfs:label "CATL signs multi-GWh storage agreements"@en ;
+    enews:coversTopic enews:EnergyStorage,
+        enews:Manufacturing ;
+    enews:description "Coverage of large-scale battery procurement and manufacturing expansion." ;
+    enews:hasGeographicFocus enews:geo_australia ;
+    enews:mentionsOrganization enews:org_catl ;
+    enews:publishedBy enews:pub_bloomberg ;
+    enews:publishedDate "2026-02-01T09:00:00+00:00"^^xsd:dateTime ;
+    enews:title "CATL signs multi-GWh storage agreements" ;
+    enews:url "https://bloomberg.com/example/storage"^^xsd:anyURI .
+
+enews:author_torsolarfred a enews:AuthorAccount ;
+    rdfs:label "torsolarfred.bsky.social"@en ;
+    enews:handle "torsolarfred.bsky.social" ;
+    enews:onPlatform enews:Bluesky .
+
+enews:geo_australia a enews:GeographicEntity ;
+    rdfs:label "Australia"@en .
+
+enews:pub_bloomberg a enews:Publication ;
+    rdfs:label "Bloomberg"@en ;
+    enews:siteDomain "bloomberg.com" .

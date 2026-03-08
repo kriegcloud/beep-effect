@@ -1,0 +1,12 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+
+<https://purl.org/pao/odrl-declarations> a owl:Ontology ;
+    rdfs:label "ODRL declarations for PAO"@en ;
+    rdfs:comment "MIREOT-style stub declaring ODRL terms used by PAO."@en .
+
+# Classes
+odrl:Policy a owl:Class ; rdfs:label "Policy"@en .
+odrl:Permission a owl:Class ; rdfs:label "Permission"@en .

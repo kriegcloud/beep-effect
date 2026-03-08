@@ -1,0 +1,11 @@
+# CQ-004: Which publication published a given article?
+# Expected: non_empty (at least one result row)
+
+PREFIX enews: <http://example.org/ontology/energy-news#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?article ?pub ?pubLabel WHERE {
+  ?article a enews:Article ;
+           enews:publishedBy ?pub .
+  ?pub rdfs:label ?pubLabel .
+}

@@ -1,0 +1,4 @@
+article,pub,pubLabel
+http://example.org/ontology/energy-news#article_001,http://example.org/ontology/energy-news#pub_bloomberg,Bloomberg
+http://example.org/ontology/energy-news#article_003,http://example.org/ontology/energy-news#pub_bloomberg,Bloomberg
+http://example.org/ontology/energy-news#article_002,http://example.org/ontology/energy-news#pub_canary_media,Canary Media

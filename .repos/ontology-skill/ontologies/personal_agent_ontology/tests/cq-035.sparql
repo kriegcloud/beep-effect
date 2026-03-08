@@ -1,0 +1,17 @@
+# CQ-035: What safety constraints are defined for a given agent?
+# Expected: non_empty (at least one result row)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX pao: <https://purl.org/pao/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?constraint ?description WHERE {
+  ?constraint a pao:SafetyConstraint ;
+              pao:appliesTo ?agent ;
+              rdfs:label ?description .
+}

@@ -1,0 +1,26 @@
+#curie_map:
+#  pao: "https://purl.org/pao/"
+#  sioc: "http://rdfs.org/sioc/ns#"
+#  skos: "http://www.w3.org/2004/02/skos/core#"
+#  semapv: "https://w3id.org/semapv/vocab/"
+#  owl: "http://www.w3.org/2002/07/owl#"
+#mapping_set_id: "https://purl.org/pao/mappings/pao-to-sioc"
+#mapping_set_title: "PAO to SIOC Mappings"
+#mapping_set_description: "Cross-ontology mappings between the Personal Agent Ontology and the Semantically-Interlinked Online Communities (SIOC) ontology for conversation threading interoperability."
+#license: "https://creativecommons.org/licenses/by/4.0/"
+#subject_source: "https://purl.org/pao/"
+#subject_source_version: "0.5.0"
+#object_source: "http://rdfs.org/sioc/ns#"
+#mapping_set_version: "0.1.0"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	confidence	comment
+pao:Conversation	conversation	skos:closeMatch	sioc:Thread	Thread	semapv:SemanticSimilarityThresholdMatching	0.90	Both represent coherent dialogue sequences. PAO Conversation is a BFO process; SIOC Thread is an information container.
+pao:Turn	turn	skos:closeMatch	sioc:Post	Post	semapv:SemanticSimilarityThresholdMatching	0.82	PAO Turn is a temporal process (one participant contribution); SIOC Post is an information item. Strong functional equivalence.
+pao:Message	message	skos:closeMatch	sioc:Post	Post	semapv:SemanticSimilarityThresholdMatching	0.85	Both represent communication content. PAO Message is the content of a Turn; SIOC Post combines the act and content.
+pao:Session	session	skos:broadMatch	sioc:Container	Container	semapv:SemanticSimilarityThresholdMatching	0.60	PAO Session is a bounded interaction period (process); SIOC Container is a generic grouping construct.
+pao:AgentRole	agent role	skos:closeMatch	sioc:Role	Role	semapv:SemanticSimilarityThresholdMatching	0.80	Both represent roles played by participants. PAO AgentRole is BFO-aligned (prov:Role); SIOC Role is simpler.
+pao:Agent	agent	skos:broadMatch	sioc:UserAccount	UserAccount	semapv:SemanticSimilarityThresholdMatching	0.55	PAO Agent is broader (includes AI agents); SIOC UserAccount is a human user identity.
+pao:HumanUser	human user	skos:closeMatch	sioc:UserAccount	UserAccount	semapv:SemanticSimilarityThresholdMatching	0.72	PAO HumanUser is a person; SIOC UserAccount is an account identity. Close but ontologically distinct (person vs account).
+pao:hasTopic	has topic	skos:closeMatch	sioc:topic	topic	semapv:SemanticSimilarityThresholdMatching	0.88	Both link content to topics/subjects via SKOS concepts.
+pao:hasContent	has content	skos:closeMatch	sioc:content	content	semapv:SemanticSimilarityThresholdMatching	0.90	Both represent the textual body of a communication item.
+pao:partOfConversation	part of conversation	skos:closeMatch	sioc:has_container	has_container	semapv:SemanticSimilarityThresholdMatching	0.75	PAO partOfConversation links turns to conversations; SIOC has_container links posts to threads.
+pao:CommunicationChannel	communication channel	skos:closeMatch	sioc:Site	Site	semapv:SemanticSimilarityThresholdMatching	0.60	PAO CommunicationChannel is a medium for agent interaction; SIOC Site hosts online communities. Both are interaction venues, but PAO is medium-focused while SIOC is platform-focused.
