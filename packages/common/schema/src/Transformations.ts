@@ -1,4 +1,4 @@
-import { Effect, Function as Fn, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, Function as Fn, SchemaIssue, SchemaTransformation, Struct } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -43,7 +43,7 @@ export const destructiveTransform: {
         SchemaTransformation.transformOrFail({
           decode: (input, options) =>
             decodeInput(input, options).pipe(
-              Effect.mapError((error) => error.issue),
+              Effect.mapError(Struct.get("issue")),
               Effect.flatMap((decoded) =>
                 Effect.try({
                   try: () => transform(decoded),
@@ -54,7 +54,7 @@ export const destructiveTransform: {
                 })
               )
             ),
-          encode: (decoded) => Effect.succeed(decoded),
+          encode: Effect.succeed,
         })
       )
     );

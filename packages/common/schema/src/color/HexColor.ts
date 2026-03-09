@@ -1,20 +1,53 @@
-import { $SchemaId } from "@beep/identity";
-import * as S from "effect/Schema";
+import {
+  HexColorInput as HexColorInputSchema,
+  HexColor as HexColorSchema,
+  NormalizeHexColor as NormalizeHexColorSchema,
+} from "./Color.ts";
 
+/**
+ * Compatibility export for {@link HexColor}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const HexColor = HexColorSchema;
 
-const $I = $SchemaId.create("color/HexColor");
-
-export const HexColor = S.TemplateLiteral(
-  [
-    "#",
-    S.String.check(S.isPattern(/^[0-9a-fA-F]{6}$/))
-  ]
-).pipe(
-  $I.annoteSchema("HexColor", {
-    description: "A 6-digit hex color string",
-    examples: ["#000000", "#FFFFFF"],
-  })
-)
-
-
+/**
+ * Type for {@link HexColor}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type HexColor = typeof HexColor.Type;
+
+/**
+ * Compatibility export for {@link HexColorInput}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const HexColorInput = HexColorInputSchema;
+
+/**
+ * Type for {@link HexColorInput}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type HexColorInput = typeof HexColorInput.Type;
+
+/**
+ * Compatibility export for {@link NormalizeHexColor}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const NormalizeHexColor = NormalizeHexColorSchema;
+
+/**
+ * Type for {@link NormalizeHexColor}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type NormalizeHexColor = typeof NormalizeHexColor.Type;

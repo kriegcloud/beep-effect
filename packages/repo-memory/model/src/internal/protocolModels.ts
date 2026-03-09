@@ -3,7 +3,9 @@ import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
 import { PrimaryKey, pipe, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import {Str} from "@beep/utils";
+import * as P from "effect/Predicate";
+
 import {
   Citation,
   RepoId,
@@ -43,7 +45,7 @@ const DisplayNameConstraints = S.makeFilterGroup(
       description: "Display name must not exceed 255 characters.",
       message: "displayName must not exceed 255 characters",
     }),
-    S.makeFilter((s: string) => !controlCharacterRegExp.test(s), {
+    S.makeFilter(P.not(controlCharacterRegExp.test), {
       identifier: $I`DisplayNameNoControlCharsCheck`,
       title: "Display Name No Control Characters",
       description: "Display name must not contain control characters.",
@@ -401,14 +403,15 @@ export class StreamRunEventsRequest extends S.Class<StreamRunEventsRequest>($I`S
     description: "Request payload used to replay and continue streaming run events for a workflow execution.",
   })
 ) {
-  [PrimaryKey.symbol](): string {
+  [PrimaryKey.symbol]() {
+    const prefix = Str.prefix(`${this.runId}:`)
     return pipe(
       this.cursor,
       O.match({
-        onNone: () => `${this.runId}:stream`,
-        onSome: (cursor) => `${this.runId}:stream:${cursor}`,
+        onNone: () =>  prefix("stream"),
+        onSome: (cursor) => prefix(`stream:${cursor}`),
       })
-    );
+    )
   }
 }
 

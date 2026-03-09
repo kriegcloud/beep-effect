@@ -54,7 +54,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import { Str } from "@beep/utils";
 import * as Workflow from "effect/unstable/workflow/Workflow";
 import * as WorkflowEngine from "effect/unstable/workflow/WorkflowEngine";
 import { Node, Project, type SourceFile, type Statement, VariableDeclarationKind } from "ts-morph";
@@ -180,14 +180,14 @@ export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexSe
         const repoRunStore = yield* RepoRunStore;
 
         return TypeScriptIndexService.of({
-          indexRepo: (options) =>
-            indexTypeScriptRepo(options).pipe(
-              Effect.withSpan("TypeScriptIndexer.indexRepo"),
-              Effect.annotateLogs({ component: "repo-memory-typescript-indexer" }),
-              Effect.provideService(FileSystem.FileSystem, fs),
-              Effect.provideService(Path.Path, path),
-              Effect.provideService(RepoRunStore, repoRunStore)
-            ),
+          indexRepo: flow(
+            indexTypeScriptRepo,
+            Effect.withSpan("TypeScriptIndexer.indexRepo"),
+            Effect.annotateLogs({ component: "repo-memory-typescript-indexer" }),
+            Effect.provideService(FileSystem.FileSystem, fs),
+            Effect.provideService(Path.Path, path),
+            Effect.provideService(RepoRunStore, repoRunStore)
+          ),
         });
       })
     );
@@ -203,11 +203,10 @@ const isTypeScriptSourceFile = (filePath: string): boolean => {
   return A.some(typeScriptSourceFileSuffixes, (suffix) => pipe(filePath, Str.endsWith(suffix)));
 };
 
-const isIgnoredPath = (absolutePath: string): boolean =>
-  pipe(
-    Str.split("/")(absolutePath),
-    A.some((segment) => HashSet.has(ignoredDirectoryNames, segment))
-  );
+const isIgnoredPath = flow(
+  Str.split("/"),
+  A.some((segment) => HashSet.has(ignoredDirectoryNames, segment))
+);
 
 const isContainedRepoPath = (path: Path.Path, repoRootPath: string, candidatePath: string): boolean => {
   const relativeFromRoot = normalizePath(path.relative(repoRootPath, candidatePath));
@@ -237,7 +236,7 @@ const firstSignatureLine = (text: string): string =>
     Str.split("\n")(text),
     A.map(Str.trim),
     A.findFirst(Str.isNonEmpty),
-    O.getOrElse(() => Str.trim(text))
+    O.getOrElse(Str.trimThunk(text))
   );
 
 const normalizedText = (value: string | undefined): O.Option<string> =>
@@ -828,7 +827,7 @@ const extractImportEdges = (options: {
     const resolvedTargetFilePath = pipe(
       O.fromNullishOr(importDeclaration.getModuleSpecifierSourceFile()),
       O.map((targetSourceFile) => targetSourceFile.getFilePath()),
-      O.filter((targetFilePath) => !isIgnoredPath(targetFilePath) && isTypeScriptSourceFile(targetFilePath)),
+      O.filter(P.and(P.not(isIgnoredPath), isTypeScriptSourceFile)),
       O.filter((targetFilePath) => {
         const normalizedRepoRoot = normalizePath(options.repoRootPath);
         const normalizedTargetFilePath = normalizePath(targetFilePath);

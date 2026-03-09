@@ -1,5 +1,6 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { HashSet, pipe, SchemaTransformation } from "effect";
+import { thunkFalse, thunkTrue } from "@beep/utils";
+import { HashSet, identity, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
@@ -13,11 +14,11 @@ const falseyBooleanString = HashSet.fromIterable(["false", "0", "no", "off"]);
 const normalizeBooleanString = (value: string): boolean => {
   const normalized = pipe(value, Str.trim, Str.toLowerCase);
   return Bool.match(HashSet.has(truthyBooleanString, normalized), {
-    onTrue: () => true,
+    onTrue: thunkTrue,
     onFalse: () =>
       Bool.match(HashSet.has(falseyBooleanString, normalized), {
-        onTrue: () => false,
-        onFalse: () => false,
+        onTrue: thunkFalse,
+        onFalse: thunkFalse,
       }),
   });
 };
@@ -33,7 +34,7 @@ export const TrimmedNonEmptyText = S.String.pipe(
     S.NonEmptyString,
     SchemaTransformation.transform({
       decode: Str.trim,
-      encode: (value) => value,
+      encode: identity,
     })
   ),
   S.annotate(

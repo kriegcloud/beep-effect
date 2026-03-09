@@ -30,14 +30,10 @@ const matchesPattern =
   (value: string): boolean =>
     O.isSome(O.fromNullishOr(Str.match(pattern)(value)));
 
-const split = (separator: string | RegExp, value: string) => Str.split(separator)(value);
-
-const splitNonEmpty = (separator: string | RegExp) =>
-  flow((value: string): ReadonlyArray<string> => split(separator, value), A.filter(Str.isNonEmpty));
+const splitNonEmpty = (separator: string | RegExp) => flow(Str.split(separator), A.filter(Str.isNonEmpty));
 
 const usesUnsupportedWindowsNamespacePrefix = Match.type<string>().pipe(
-  Match.when(Str.startsWith("\\\\?\\"), thunkTrue),
-  Match.when(Str.startsWith("\\\\.\\"), thunkTrue),
+  Match.whenOr(Str.startsWith("\\\\?\\"), Str.startsWith("\\\\.\\"), thunkTrue),
   Match.orElse(thunkFalse)
 );
 
@@ -614,7 +610,7 @@ export const WindowsUncPath = S.NonEmptyString.check(
         description: "A UNC path that includes a leaf segment and is not only a UNC root.",
         message: "Windows UNC paths must include a leaf segment",
       }),
-      S.makeFilter((value: string) => pipe(Str.substring(2)(value), splitNonEmpty(/\\+/), isValidWindowsUncSegments), {
+      S.makeFilter(flow(Str.substring(2), splitNonEmpty(/\\+/), isValidWindowsUncSegments), {
         identifier: $I`WindowsUncPathSegmentsCheck`,
         title: "Windows UNC Path Segments",
         description: "A UNC path whose segments form `[server, share, ...rest]` with valid Windows path segments.",
@@ -692,7 +688,7 @@ export const WindowsRelativePath = S.NonEmptyString.check(
         description: "A Windows relative path that includes a leaf segment and does not end with a separator.",
         message: "Windows relative paths must include a leaf segment",
       }),
-      S.makeFilter((value: string) => pipe(value, splitNonEmpty(/\\+/), isWindowsSegments), {
+      S.makeFilter(flow(splitNonEmpty(/\\+/), isWindowsSegments), {
         identifier: $I`WindowsRelativePathSegmentsCheck`,
         title: "Windows Relative Path Segments",
         description: "A Windows relative path whose segments are valid Windows path segments.",

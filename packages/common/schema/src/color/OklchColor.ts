@@ -1,37 +1,104 @@
-import { $SchemaId } from "@beep/identity";
+import {
+  OklchChroma as OklchChromaSchema,
+  OklchColor as OklchColorSchema,
+  OklchCoordinate as OklchCoordinateSchema,
+  OklchHue as OklchHueSchema,
+  OklchInput as OklchInputSchema,
+  OklchLightness as OklchLightnessSchema,
+} from "./Color.ts";
 
-import * as S from "effect/Schema";
+/**
+ * Compatibility export for {@link OklchChroma}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchChroma = OklchChromaSchema;
 
-const $I = $SchemaId.create("color/OklchColor");
+/**
+ * Type for {@link OklchChroma}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchChroma = typeof OklchChroma.Type;
 
-export class OklchColor extends S.Class<OklchColor>($I`OklchColor`)(
-  {
-    l: S.Number.check(
-      S.isBetween({
-        minimum: 0,
-        maximum: 1,
-      })
-    ).annotateKey({
-      description: "Lightness 0-1",
-    }),
-    c: S.Number.check(
-      S.isBetween({
-        minimum: 0,
-        maximum: 0.4, // ?
-      })
-    ).annotateKey({
-      description: "Chroma 0-0.4+",
-    }),
-    h: S.Number.check(
-      S.isBetween({
-        minimum: 0,
-        maximum: 360,
-      })
-    ),
-  },
-  $I.annote("OklchColor", {
-    description: "A color in Oklch space",
-  })
-) {}
+/**
+ * Compatibility export for {@link OklchColor}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchColor = OklchColorSchema;
 
+/**
+ * Type for {@link OklchColor}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchColor = InstanceType<typeof OklchColor>;
 
+/**
+ * Compatibility export for {@link OklchCoordinate}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchCoordinate = OklchCoordinateSchema;
+
+/**
+ * Type for {@link OklchCoordinate}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchCoordinate = typeof OklchCoordinate.Type;
+
+/**
+ * Compatibility export for {@link OklchHue}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchHue = OklchHueSchema;
+
+/**
+ * Type for {@link OklchHue}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchHue = typeof OklchHue.Type;
+
+/**
+ * Compatibility export for {@link OklchInput}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchInput = OklchInputSchema;
+
+/**
+ * Type for {@link OklchInput}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchInput = InstanceType<typeof OklchInput>;
+
+/**
+ * Compatibility export for {@link OklchLightness}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const OklchLightness = OklchLightnessSchema;
+
+/**
+ * Type for {@link OklchLightness}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type OklchLightness = typeof OklchLightness.Type;

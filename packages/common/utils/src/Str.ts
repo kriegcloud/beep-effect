@@ -23,6 +23,20 @@ export const prefix: {
 );
 
 /**
+ * Prepends `prefix` to a string and returns a thunk of that value.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const prefixThunk:{
+  <const Pre extends string>(prefix: Pre): <S extends string>(str: S) => () => `${Pre}${S}`;
+  <const Pre extends string, const S extends string>(str: S, prefix: Pre): () => `${Pre}${S}`;
+} = dual(
+  2,
+  <const Pre extends string, const S extends string>(str: S, prefix: Pre): () => `${Pre}${S}` => () => `${prefix}${str}` as const
+);
+
+/**
  * Appends `postfix` to a string.
  *
  * @since 0.0.0
@@ -35,6 +49,20 @@ export const postfix: {
   2,
   <const Post extends string, const S extends string>(str: S, postfix: Post): `${S}${Post}` =>
     `${str}${postfix}` as const
+);
+
+/**
+ * Appends `postfix` to a string and returns a thunk of that value.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const postfixThunk: {
+  <const Post extends string>(postfix: Post): <S extends string>(str: S) => () => `${S}${Post}`;
+  <const Post extends string, const S extends string>(str: S, postfix: Post): () => `${S}${Post}`;
+} = dual(
+  2,
+  <const Post extends string, const S extends string>(str: S, postfix: Post): () => `${S}${Post}` => () => `${str}${postfix}` as const
 );
 
 /**
@@ -240,3 +268,6 @@ export const repeat: {
  * @since 0.0.0
  */
 export * from "effect/String";
+
+
+export const trimThunk = (s: string) => () => Str.trim(s);

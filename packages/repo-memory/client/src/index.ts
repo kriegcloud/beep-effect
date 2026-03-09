@@ -17,7 +17,7 @@ import {
   type StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Layer, ServiceMap, Stream } from "effect";
+import { Cause, Effect, Layer, ServiceMap, Stream, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -26,7 +26,7 @@ import type * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import { HttpApiClient } from "effect/unstable/httpapi";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
-
+import * as Str from "effect/String";
 const $I = $RepoMemoryClientId.create("index");
 const controlPlanePrefix = "/api/v0";
 const rpcSuffix = `${controlPlanePrefix}/rpc`;
@@ -106,10 +106,10 @@ export type RepoMemoryRunRpcClient = Effect.Success<ReturnType<typeof makeRepoMe
  */
 export type RepoMemoryControlPlaneClient = Effect.Success<ReturnType<typeof makeRepoMemoryHttpClientDefault>>;
 
-type RuntimeBoundaryPayload = {
-  readonly message: string;
-  readonly status: number;
-};
+export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
+  message: S.String,
+  status: S.Number,
+}) {}
 
 /**
  * Normalize a user-provided sidecar URL to the root server URL.
@@ -120,10 +120,10 @@ type RuntimeBoundaryPayload = {
  * @category Utility
  */
 export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
-  const trimmed = `${baseUrl}`.trim().replace(/\/+$/, "");
+  const trimmed = pipe(Str.trim(`${baseUrl}`), Str.replace(/\/+$/, ""));
 
-  if (trimmed.endsWith(controlPlanePrefix)) {
-    return trimmed.slice(0, -controlPlanePrefix.length);
+  if (Str.endsWith(controlPlanePrefix)(trimmed)) {
+    return Str.slice(0, -controlPlanePrefix.length)(trimmed);
   }
 
   return trimmed;
@@ -146,7 +146,7 @@ export const makeRepoMemoryRpcUrl = (baseUrl: string | URL): string =>
  */
 export type RepoMemoryHttpClientOptions = {
   readonly baseUrl: string | URL;
-  readonly transformClient?: (client: HttpClient.HttpClient) => HttpClient.HttpClient;
+  readonly transformClient?: undefined | ((client: HttpClient.HttpClient) => HttpClient.HttpClient);
   readonly transformResponse?:
     | ((effect: Effect.Effect<unknown, unknown, unknown>) => Effect.Effect<unknown, unknown, unknown>)
     | undefined;

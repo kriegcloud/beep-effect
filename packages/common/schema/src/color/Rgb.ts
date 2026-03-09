@@ -1,17 +1,70 @@
-import { $SchemaId } from "@beep/identity";
-import * as S from "effect/Schema";
+import {
+  RgbChannel as RgbChannelSchema,
+  RgbInputChannel as RgbInputChannelSchema,
+  RgbInput as RgbInputSchema,
+  Rgb as RgbSchema,
+} from "./Color.ts";
 
-const $I = $SchemaId.create("color/OklchColor");
+/**
+ * Compatibility export for {@link Rgb}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const Rgb = RgbSchema;
 
-export class Rgb extends S.Class<Rgb>($I`Rgb`)(
-  {
-    r: S.Number,
-    g: S.Number,
-    b: S.Number,
-  },
-  $I.annote("Rgb", {
-    description: "A color in RGB space",
-  })
-) {
+/**
+ * Type for {@link Rgb}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type Rgb = InstanceType<typeof Rgb>;
 
-}
+/**
+ * Compatibility export for {@link RgbChannel}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const RgbChannel = RgbChannelSchema;
+
+/**
+ * Type for {@link RgbChannel}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RgbChannel = typeof RgbChannel.Type;
+
+/**
+ * Compatibility export for {@link RgbInput}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const RgbInput = RgbInputSchema;
+
+/**
+ * Type for {@link RgbInput}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RgbInput = InstanceType<typeof RgbInput>;
+
+/**
+ * Compatibility export for {@link RgbInputChannel}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const RgbInputChannel = RgbInputChannelSchema;
+
+/**
+ * Type for {@link RgbInputChannel}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RgbInputChannel = typeof RgbInputChannel.Type;
