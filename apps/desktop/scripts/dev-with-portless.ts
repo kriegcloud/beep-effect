@@ -72,7 +72,7 @@ const makeProbeFetch = (host: string): typeof globalThis.fetch =>
     (input: RequestInfo | URL, init?: RequestInit) => {
       const currentInit = init as BunTlsRequestInit | undefined;
       const requestInit: BunTlsRequestInit = {
-        ...(init ?? {}),
+        ...currentInit,
         tls: {
           ...currentInit?.tls,
           rejectUnauthorized: false,

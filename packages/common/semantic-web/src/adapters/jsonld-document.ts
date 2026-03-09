@@ -402,12 +402,7 @@ const expandJsonLdNode = (
       ),
       "@type": pipe(
         node["@type"],
-        O.map((values) =>
-          pipe(
-            values,
-            A.map((value) => decodeIriReference(resolveJsonLdIdentifier(value, context, base)))
-          )
-        )
+        O.map(flow(A.map((value) => decodeIriReference(resolveJsonLdIdentifier(value, context, base)))))
       ),
       properties: R.fromEntries(expandedProperties),
     });

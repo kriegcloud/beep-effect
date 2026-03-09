@@ -1,3 +1,8 @@
+type GraphStylesheetEntry = {
+  readonly selector: string;
+  readonly style: Readonly<Record<string, string | number>>;
+};
+
 export const graphStyles = [
   {
     selector: "node",
@@ -503,7 +508,7 @@ export const graphStyles = [
 ];
 
 /** Performance-optimized styles for large graphs (>300 nodes) */
-export const graphStylesFast: any[] = [
+export const graphStylesFast = [
   {
     selector: "node",
     style: {
@@ -940,4 +945,4 @@ export const graphStylesFast: any[] = [
     selector: ".filter-hidden",
     style: { display: "none" },
   },
-];
+] satisfies ReadonlyArray<GraphStylesheetEntry>;

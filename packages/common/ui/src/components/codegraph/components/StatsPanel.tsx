@@ -1,9 +1,8 @@
 import { basename } from "node:path";
 import { $UiId } from "@beep/identity";
 import { useAtom } from "@effect/atom-react";
-import { Match, pipe } from "effect";
+import { Match, Number as N, pipe } from "effect";
 import * as A from "effect/Array";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";

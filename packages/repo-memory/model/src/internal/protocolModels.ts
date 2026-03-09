@@ -18,7 +18,7 @@ import {
 
 const $I = $RepoMemoryModelId.create("internal/protocolModels");
 
-const controlCharacterRegExp = /[\x00-\x1f]/;
+const controlCharacterRegExp = /\p{Cc}/u;
 
 const AbsoluteFilePath = FilePath.check(
   S.makeFilter((s: string) => Str.startsWith("/")(s) || /^[A-Za-z]:[\\/]/.test(s) || Str.startsWith("\\\\")(s), {

@@ -13,6 +13,12 @@ const repoRootMarkers = [".git", "bun.lock"] as const;
 const defaultAppDataDir = ".beep/repo-memory";
 
 class PackageJsonVersion extends S.Class<PackageJsonVersion>($I`PackageJsonVersion`)({ version: S.String }) {}
+/**
+ * Normalize optional text config values by trimming and dropping empty results.
+ *
+ * @since 0.0.0
+ * @category Helpers
+ */
 export const normalizeOptionalText = flow(O.map(Str.trim), O.flatMap(O.liftPredicate(Str.isNonEmpty)));
 
 const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, string> =>

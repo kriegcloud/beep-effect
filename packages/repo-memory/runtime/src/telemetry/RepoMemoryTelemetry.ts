@@ -68,6 +68,12 @@ export const RunOutcomeMetric = LiteralKit(["completed", "failed", "interrupted"
     description: "Metric label for terminal workflow outcomes.",
   })
 );
+/**
+ * Runtime type for the terminal workflow outcome metric label schema.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export type RunOutcomeMetric = typeof RunOutcomeMetric.Type;
 
 /**
@@ -81,6 +87,12 @@ export const QueryOutcomeMetric = LiteralKit(["cited", "notCited", "unsupported"
     description: "Metric label for grounded query result quality.",
   })
 );
+/**
+ * Runtime type for the grounded query result outcome metric label schema.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
 export type QueryOutcomeMetric = typeof QueryOutcomeMetric.Type;
 
 const runsStartedTotal = Metric.counter("beep_repo_memory_runs_started_total", {

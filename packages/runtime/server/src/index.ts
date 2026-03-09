@@ -37,6 +37,7 @@ import {
   Fiber,
   FileSystem,
   flow,
+  HashSet,
   Layer,
   Path,
   pipe,
@@ -277,6 +278,12 @@ const decodeExecutionRunId = (workflowName: string, executionId: string) =>
     )
   );
 
+/**
+ * Minimal error payload shape used at runtime HTTP boundaries before protocol-specific mapping.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
   message: S.String,
   status: S.Number,
@@ -784,9 +791,13 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
           const storedRuns = yield* sql<{ readonly id: string }>`SELECT id FROM repo_memory_runs`.pipe(
             Effect.catchCause(() => Effect.succeed([] as ReadonlyArray<{ readonly id: string }>))
           );
-          const storedIds = new Set(A.map(storedRuns, (r) => r.id));
+          const storedIds = pipe(
+            storedRuns,
+            A.map((r) => r.id),
+            HashSet.fromIterable
+          );
           const missingCount = A.length(
-            A.filter(knownRuns as ReadonlyArray<{ readonly id: string }>, (r) => !storedIds.has(r.id))
+            A.filter(knownRuns as ReadonlyArray<{ readonly id: string }>, (r) => !HashSet.has(storedIds, r.id))
           );
 
           if (missingCount > 0) {

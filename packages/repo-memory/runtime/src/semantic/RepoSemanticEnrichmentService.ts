@@ -18,7 +18,7 @@ import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semanti
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { RDFS_COMMENT, RDFS_LABEL } from "@beep/semantic-web/vocab/rdfs";
 import { XSD_BOOLEAN, XSD_INTEGER, XSD_STRING } from "@beep/semantic-web/vocab/xsd";
-import { Effect, Layer, pipe, ServiceMap } from "effect";
+import { Effect, HashSet, Layer, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -136,7 +136,7 @@ const dirname = (filePath: string): string => {
 };
 
 const resolveRelativeImportTarget = (
-  filePaths: ReadonlySet<string>,
+  filePaths: HashSet.HashSet<string>,
   importerFilePath: string,
   moduleSpecifier: string
 ) => {
@@ -153,7 +153,7 @@ const resolveRelativeImportTarget = (
 
   return pipe(
     A.fromIterable(candidates),
-    A.findFirst((candidate) => filePaths.has(candidate))
+    A.findFirst((candidate) => HashSet.has(filePaths, candidate))
   );
 };
 
@@ -274,11 +274,10 @@ const deriveSemanticArtifacts = Effect.fn("RepoSemanticEnrichmentService.deriveS
         makeQuad(semanticDatasetNode, RDF_TYPE, DATASET_CLASS),
         makeQuad(semanticDatasetNode, DERIVED_FROM_SNAPSHOT, snapshotNode),
       ];
-      const filePaths = new Set(
-        pipe(
-          artifacts.files,
-          A.map((file) => file.filePath)
-        )
+      const filePaths = pipe(
+        artifacts.files,
+        A.map((file) => file.filePath),
+        HashSet.fromIterable
       );
 
       for (const file of artifacts.files) {

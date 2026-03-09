@@ -27,7 +27,7 @@ import {
 import { makeStatusCauseError, PosInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as Str from "@beep/utils/Str";
-import { DateTime, Effect, Layer, Order, pipe, ServiceMap } from "effect";
+import { DateTime, Effect, HashSet, Layer, Order, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -1286,11 +1286,10 @@ const matchedSemanticAnchorCount = (
     return 0;
   }
 
-  const citationIds = new Set(
-    pipe(
-      citations,
-      A.map((citation) => citation.id)
-    )
+  const citationIds = pipe(
+    citations,
+    A.map((citation) => citation.id),
+    HashSet.fromIterable
   );
   return pipe(
     semanticArtifacts.value.evidenceAnchors,
@@ -1298,7 +1297,7 @@ const matchedSemanticAnchorCount = (
       (anchor) =>
         O.isSome(anchor.note) &&
         pipe(anchor.note.value, Str.startsWith("citationId=")) &&
-        citationIds.has(pipe(anchor.note.value, Str.slice("citationId=".length)))
+        HashSet.has(citationIds, pipe(anchor.note.value, Str.slice("citationId=".length)))
     ),
     A.length
   );
