@@ -1,0 +1,61 @@
+name: Validate Documentation
+
+on:
+  schedule:
+    # Run weekly on Mondays at midnight UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Claude validation
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools "WebFetch(domain:raw.githubusercontent.com),WebFetch(domain:githubusercontent.com),Bash(gh issue create:*)"'
+          prompt: |
+            TASK: Validate documentation ACCURACY against source repositories
+
+            FOCUS: Check if documented instructions are INCORRECT or OUTDATED.
+            DO NOT flag missing features - local docs are intentionally simplified.
+
+            VALIDATION TARGETS:
+            1. Effect Language Service Setup
+               - Local: packages/website/docs/01-project-setup.md
+               - Source: https://raw.githubusercontent.com/Effect-TS/language-service/main/README.md
+
+            INSTRUCTIONS:
+            For each target:
+            1. Read the local documentation file
+            2. Fetch the source repository documentation
+            3. Compare ONLY what's documented locally against source
+            4. If inaccuracies found, create ONE GitHub issue with ALL findings using `gh issue create`
+
+            CHECK FOR (HIGH severity):
+            - Installation commands that no longer work or use wrong package names
+            - CLI commands with incorrect syntax, wrong flags, or deprecated usage
+            - Configuration that's structurally wrong or uses removed options
+            - File paths or URLs that changed
+            - Instructions that contradict current source behavior
+
+            IGNORE (these are NOT issues):
+            - Local docs being shorter/simpler than source
+            - Missing features, commands, or options not mentioned locally
+            - Lack of comprehensive configuration coverage
+            - Source having more detail than local
+
+            ISSUE FORMAT (if inaccuracies found):
+            Title: "Documentation Accuracy Issues - [date]"
+            Body: Markdown listing ONLY incorrect/outdated information with severity
+            Labels: documentation,automated
+
+            If everything documented is accurate, output "✓ All documentation accurate"

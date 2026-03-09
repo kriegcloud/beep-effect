@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun-types"],
+    "outDir": "dist",
+    "rootDirs": ["./src", "../website/docs"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "../website/docs/**/*.md"]
+}

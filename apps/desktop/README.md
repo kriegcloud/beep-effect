@@ -32,6 +32,6 @@ The runtime still belongs in the Bun + Effect sidecar described in:
 - Install `portless` globally for desktop dev: `npm install -g portless`
 - Run `portless trust` once so the local `portless` CA is trusted by browsers and the Tauri dev webview
 - On Linux, if `portless trust` complains that `/usr/local/share/ca-certificates` is missing, create it as root and rerun the trust step
-- `bun run --cwd apps/desktop dev` serves the UI at `https://desktop.localhost:1355`
+- `bun run --cwd apps/desktop dev` serves the UI at `https://desktop.localhost:1355` and auto-starts the repo-memory sidecar at `https://repo-memory-sidecar.localhost:1355`
 - `bun run --cwd apps/desktop dev:native` uses the same `desktop.localhost` URL inside the Tauri dev webview
-- `dev:raw` is only the direct Vite escape hatch; the default dev flow is the named `.localhost` URL
+- `dev:raw` is only the direct Vite escape hatch; it does not manage the portless sidecar route

@@ -681,7 +681,14 @@ export class IndexRepoRunInput extends S.Class<IndexRepoRunInput>($I`IndexRepoRu
 export class QueryRepoRunInput extends S.Class<QueryRepoRunInput>($I`QueryRepoRunInput`)(
   {
     repoId: RepoId,
-    question: S.String,
+    question: S.NonEmptyString.check(
+      S.isMaxLength(2000, {
+        identifier: $I`QueryRepoRunInputQuestionMaxLengthCheck`,
+        title: "Query Question Max Length",
+        description: "Query question must not exceed 2000 characters.",
+        message: "Query question must not exceed 2000 characters",
+      })
+    ),
     questionFingerprint: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("QueryRepoRunInput", {

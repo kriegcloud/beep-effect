@@ -613,6 +613,22 @@ const importEdgeCitation = (edge: RepoImportEdge): Citation =>
     },
   });
 
+const fileCitation = (file: Pick<RepoSourceFile, "repoId" | "filePath">): Citation =>
+  new Citation({
+    id: file.filePath,
+    repoId: file.repoId,
+    label: file.filePath,
+    rationale: `Source file ${file.filePath}.`,
+    span: {
+      filePath: file.filePath,
+      startLine: decodePosInt(1),
+      endLine: decodePosInt(1),
+      startColumn: O.none(),
+      endColumn: O.none(),
+      symbolName: O.none(),
+    },
+  });
+
 const documentationCitation = (
   symbol: Pick<RepoSymbolRecord, "repoId" | "symbolId" | "symbolName" | "documentation">
 ): O.Option<Citation> =>
@@ -1370,15 +1386,16 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
       matches: ReadonlyArray<RepoSymbolRecord>,
       nlpNotes: ReadonlyArray<string>
     ) {
+      const citations = normalizeCitations(pipe(matches, A.take(10), A.map(symbolCitation)));
       const packet = yield* makeQueryPacket({
         summary: `Symbol query "${symbolName}" matched multiple indexed symbols.`,
-        citations: A.empty(),
-        notes: A.appendAll(A.make(`candidateCount=${matches.length}`), nlpNotes),
+        citations,
+        notes: A.appendAll(A.make(`candidateCount=${A.length(matches)}`), nlpNotes),
       });
 
       return new GroundedQueryResult({
         answer: `Ambiguous symbol query "${symbolName}". Matching symbols: ${formatSymbolCandidates(matches)}.`,
-        citations: A.empty(),
+        citations,
         packet,
       });
     });
@@ -1406,15 +1423,16 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
       matches: ReadonlyArray<RepoSourceFile>,
       nlpNotes: ReadonlyArray<string>
     ) {
+      const citations = normalizeCitations(pipe(matches, A.take(10), A.map(fileCitation)));
       const packet = yield* makeQueryPacket({
         summary: `File query "${fileQuery}" matched multiple indexed files.`,
-        citations: A.empty(),
-        notes: A.appendAll(A.make(`candidateCount=${matches.length}`), nlpNotes),
+        citations,
+        notes: A.appendAll(A.make(`candidateCount=${A.length(matches)}`), nlpNotes),
       });
 
       return new GroundedQueryResult({
         answer: `Ambiguous file query "${fileQuery}". Matching files: ${formatFileCandidates(matches)}.`,
-        citations: A.empty(),
+        citations,
         packet,
       });
     });

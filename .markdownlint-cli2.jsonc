@@ -30,6 +30,8 @@
     ".claude/**",
     "specs/**",
     "**/AGENTS.md",
-    "**/CLAUDE.md"
+    "**/CLAUDE.md",
+    "QA*.md",
+    "QA_*.md"
   ]
 }

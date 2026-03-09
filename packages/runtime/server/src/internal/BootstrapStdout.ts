@@ -13,7 +13,7 @@ const $I = $RuntimeServerId.create("internal/BootstrapStdout");
  */
 export class SidecarBootstrapStdoutLine extends S.Class<SidecarBootstrapStdoutLine>($I`SidecarBootstrapStdoutLine`)(
   {
-    type: S.Literal("bootstrap"),
+    type: S.tag("bootstrap"),
     sessionId: S.String,
     host: S.String,
     port: NonNegativeInt,
@@ -54,7 +54,6 @@ export const decodeBootstrapStdoutLine = S.decodeUnknownEffect(BootstrapStdoutJs
  */
 export const toBootstrapStdoutLine = (bootstrap: SidecarBootstrap) =>
   new SidecarBootstrapStdoutLine({
-    type: "bootstrap",
     sessionId: bootstrap.sessionId,
     host: bootstrap.host,
     port: bootstrap.port,

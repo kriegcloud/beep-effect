@@ -58,7 +58,8 @@ const makeRuntimeLayer = () => {
     Layer.provideMerge(semanticEnrichmentLayer),
     Layer.provideMerge(EventJournal.layerMemory),
     Layer.provideMerge(Reactivity.layer),
-    Layer.provideMerge(groundedLayer)
+    Layer.provideMerge(groundedLayer),
+    Layer.provideMerge(sqlLayer)
   );
 
   return Layer.mergeAll(
@@ -624,7 +625,8 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index"');
         expect(O.getOrThrow(result.run.answer)).toContain("src/index.ts");
         expect(O.getOrThrow(result.run.answer)).toContain("src/feature/index.ts");
-        expect(result.run.citations).toEqual([]);
+        expect(result.run.citations.length).toBe(2);
+        assertCitationAlignment({ events: result.events, run: result.run });
         expect(packet.summary).toContain("matched multiple indexed files");
         expect(packet.notes).toContain("candidateCount=2");
         expect(packetNlpNotes(result.run)).toContain("nlp:match-strategy=file-suffix");

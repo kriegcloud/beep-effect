@@ -20,9 +20,11 @@
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
+    "@effect/atom-react": "catalog:",
     "@phosphor-icons/react": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
+    "cytoscape": "catalog:",
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {

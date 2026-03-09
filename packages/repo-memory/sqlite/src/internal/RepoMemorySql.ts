@@ -814,12 +814,37 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
 
       const existing = A.head(existingRows);
       if (O.isSome(existing)) {
-        return yield* decodeRepoRow(existing.value).pipe(
+        const existingRegistration = yield* decodeRepoRow(existing.value).pipe(
           Effect.map(repoRowToRegistration),
           Effect.mapError((cause) =>
             toDriverError(`Failed to decode existing repository registration at "${canonicalRepoPath}".`, 500, cause)
           )
         );
+
+        const incomingDisplayName = pipe(input.displayName, O.filter(Str.isNonEmpty));
+
+        if (O.isSome(incomingDisplayName) && incomingDisplayName.value !== existingRegistration.displayName) {
+          yield* sql`
+            UPDATE ${reposTable}
+            SET display_name = ${incomingDisplayName.value}
+            WHERE id = ${existingRegistration.id}
+          `.pipe(
+            Effect.mapError((cause) =>
+              toDriverError(
+                `Failed to update display name for existing repository "${existingRegistration.id}".`,
+                500,
+                cause
+              )
+            )
+          );
+
+          return new RepoRegistration({
+            ...existingRegistration,
+            displayName: incomingDisplayName.value,
+          });
+        }
+
+        return existingRegistration;
       }
 
       const displayName = pipe(

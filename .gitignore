@@ -73,3 +73,5 @@ sst-env.d.ts
 
 # lsmcp cache
 .lsmcp/cache
+.beep
+**/.beep

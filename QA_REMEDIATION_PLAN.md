@@ -1,0 +1,396 @@
+# QA Findings Remediation Plan — All 30 Findings
+
+## Context
+
+A comprehensive QA campaign (2026-03-08) against the Repo Expert Memory Local-First System (sidecar) found 30 issues across 7 categories. This plan remediates **all** findings.
+
+**Architecture note**: This repo uses **Effect v4** — cluster/sharding lives at `effect/unstable/cluster` (not the legacy `@effect/cluster` package). The Effect v4 source is vendored at `.repos/effect-v4/` for reference.
+
+**Severity**: 2 Critical, 7 High, 9 Medium, 6 Low, 6 Informational
+
+---
+
+## Phase 1: SQLite Stability (Blocks Phases 2-3)
+
+> Root cause of FINDING-004, FINDING-002, FINDING-025
+
+### FINDING-004: SQLite "Database is Locked" (High)
+
+Three subsystems share one SQLite file: application storage, event journal, and cluster sharding. WAL mode is already enabled but write contention remains.
+
+**Fix**: Add `PRAGMA busy_timeout = 5000` after SQLite connection creation.
+
+**File**: `packages/runtime/server/src/index.ts` (line ~582-592, `sqliteLayer`)
+
+After creating the SqliteClient layer, add a post-init effect:
+```typescript
+sql`PRAGMA busy_timeout = 5000`
+```
+
+This makes SQLite retry internally for up to 5s instead of failing immediately.
+
+**Test**: Run concurrent index + query operations → no "database is locked" errors in logs.
+
+### FINDING-002: Cluster 503 After ~36 Minutes (High)
+
+Stale shard locks from prior sessions aren't cleaned. Lock refresh fails due to SQLite contention (fixed by FINDING-004), but stale locks from prior sessions persist.
+
+**File**: `packages/runtime/server/src/index.ts`
+
+**Fix 1 — Startup cleanup** (line ~582, after sqliteLayer):
+```typescript
+sql`DELETE FROM repo_memory_cluster_locks WHERE 1=1`
+sql`DELETE FROM repo_memory_cluster_runners WHERE 1=1`
+```
+
+**Fix 2 — Increase lock tolerance** (line ~594, shardingConfigLayer):
+```typescript
+shardLockExpiration: Duration.seconds(120),
+shardLockRefreshInterval: Duration.seconds(15),
+```
+
+**Fix 3 — Health endpoint cluster awareness** (line ~513, respondHealth):
+Query `repo_memory_cluster_runners` for a healthy runner matching current session. Report unhealthy if no valid runner found.
+
+**Test**: Restart sidecar → stale locks cleared. RPCs work beyond 36 minutes.
+
+### FINDING-025: Run Journal Persistence Broken (Critical)
+
+Current session runs exist only in memory. The `SqlEventLogJournal.write` wraps journal INSERT + `materializeRunEvent` in a transaction. SQLite contention causes transaction failures, losing both journal and run snapshot.
+
+**Files**:
+- `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts` (appendRunEvent)
+- `packages/runtime/server/src/index.ts` (sqliteLayer)
+
+**Fix 1**: PRAGMA busy_timeout (already in FINDING-004 fix above) — primary mitigation.
+
+**Fix 2**: Add `Effect.retry` with 3 attempts + exponential backoff to `appendRunEvent` for transient `SqlError`:
+```typescript
+Effect.retry({ times: 3, schedule: Schedule.exponential("100 millis") })
+```
+The journal INSERT uses `ON CONFLICT DO NOTHING`, so retries are safe.
+
+**Fix 3**: Add startup reconciliation — after cluster init, compare cluster-tracked runs against `repo_memory_runs` table and re-materialize any missing entries.
+
+**Test**: Create runs → query `sqlite3 $DB "SELECT COUNT(*) FROM repo_memory_runs"` → count matches API. Restart → runs survive.
+
+---
+
+## Phase 2: Run Lifecycle Hardening
+
+### FINDING-026: Run Worker Starvation (Critical)
+
+Runs on deleted/invalid repos get stuck at "accepted" forever, exhausting capacity.
+
+**File**: `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts`
+
+**Fix 1 — Pre-dispatch validation** in `acceptIndexRun` (line ~578):
+```typescript
+const repoExists = yield* FileSystem.exists(repo.repoPath)
+if (!repoExists) return yield* toRunServiceError(`Repository path does not exist: ${repo.repoPath}`, 400)
+```
+
+**Fix 2 — Stale run cleanup fiber**: Background fiber that scans for `status === "accepted"` runs older than 5 minutes and transitions them to "failed".
+
+**Test**: Register repo → delete directory → start index run → immediate error (not stuck).
+
+### FINDING-028: Index Run on Deleted Directory (High)
+
+Same root cause as FINDING-026. Covered by the pre-dispatch path existence check above.
+
+### FINDING-008: No Index-Existence Pre-Check for Query Runs (Medium)
+
+**File**: `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts` (acceptQueryRun, line ~630)
+
+**Fix**: Before accepting, check `driver.latestSourceSnapshot(payload.repoId)`. If `O.isNone`, return error.
+
+The `latestSnapshotForRepo` function in `packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts` (line ~574) already does this check but inside the workflow. Move it to pre-dispatch.
+
+**Test**: Register repo (no index) → start query → immediate 400 "No index exists."
+
+### FINDING-027: Run ID Collision Across Sessions (High)
+
+RunIds are deterministic: `${workflowVersion}:${repoId}:${fingerprint}`. Same input = same RunId across sessions.
+
+**File**: `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts` (lines ~155-186)
+
+**Fix**: Include `sessionId` in the workflow version string:
+```typescript
+const workflowVersion = `cluster-first-v0:${sessionId}`
+```
+
+This preserves within-session idempotency while ensuring cross-session uniqueness.
+
+**File**: `packages/runtime/server/src/index.ts` — pass `config.sessionId` to `RepoRunService` layer.
+
+**Test**: Start index run → restart → start same index run → different RunId.
+
+---
+
+## Phase 3: HTTP Error Handling & Status Codes
+
+### FINDING-001: HTTP Status Code Mismatch (High)
+
+`handleControlPlaneErrors` (index.ts:370-406) returns error payloads with correct `status` field (400/404/500) but the HTTP response status line is always 500.
+
+**File**: `packages/runtime/server/src/index.ts` (lines 370-406)
+
+**Fix**: After `toControlPlaneErrorPayload()` discriminates the error, match on payload type and set HTTP response status:
+- `SidecarBadRequestPayload` → `HttpServerResponse.json(payload, { status: 400 })`
+- `SidecarNotFoundPayload` → `HttpServerResponse.json(payload, { status: 404 })`
+- `SidecarInternalErrorPayload` → `HttpServerResponse.json(payload, { status: 500 })`
+
+**Test**: `curl -w "%{http_code}" -X POST /api/v0/repos -d ''` → `400` not `500`.
+
+### FINDING-009: Empty RPC Body Returns 500 Empty (Medium)
+
+**File**: `packages/runtime/server/src/index.ts` (RPC handler, line ~677)
+
+**Fix**: Add body-presence validation before the RPC handler. If body is empty/unparseable, return structured JSON error with status 400.
+
+**Test**: `curl -X POST /api/v0/rpc -d ''` → `{"message":"Request body required","status":400}`.
+
+### FINDING-013: Null RunId → Die Instead of Fail (Low)
+
+**File**: `packages/runtime/server/src/index.ts` (RPC handlers, line ~445-500)
+
+**Fix**: Wrap `decodeExecutionRunId` in `Effect.catchTag("ParseError", ...)` to convert to typed `RunStreamFailure`.
+
+**Test**: `{"_tag":"StreamRunEvents","runId":null}` → `Fail` not `Die`.
+
+---
+
+## Phase 4: Input Validation & Schema Hardening
+
+### FINDING-007: No Query Question Validation (Medium)
+
+**File**: `packages/repo-memory/model/src/internal/domain.ts` (QueryRepoRunInput, line ~681-690)
+
+**Fix**: `question: S.String` → `question: S.NonEmptyString.pipe(S.maxLength(2000))`
+
+**Test**: Empty string → 400. 14K string → 400.
+
+### FINDING-005: displayName Defaults to "test" (Medium)
+
+**File**: Registration handler (wherever displayName default is applied)
+
+**Fix**: When displayName is omitted, derive from `path.basename(repoPath)` instead of "test".
+
+### FINDING-006: Relative Paths Accepted (Medium)
+
+**File**: `packages/repo-memory/model/src/internal/domain.ts` (RepoRegistrationInput)
+
+**Fix**: Add filter to repoPath schema:
+```typescript
+S.filter((s) => s.startsWith("/"), { message: () => "repoPath must be an absolute path" })
+```
+
+**Test**: `{"repoPath":"../../../../etc/passwd"}` → 400.
+
+### FINDING-014 + FINDING-015: Display Name Constraints (Low)
+
+**File**: `packages/repo-memory/model/src/internal/domain.ts`
+
+**Fix**: Add to displayName schema:
+```typescript
+S.maxLength(255)
+S.filter((s) => !/[\x00-\x1f]/.test(s), { message: () => "must not contain control characters" })
+```
+
+### FINDING-010: Null Bytes in URL Params (Medium)
+
+**File**: `packages/runtime/server/src/index.ts` (respondGetRun, line ~545)
+
+**Fix**: Strip null bytes from path params: `runId.replace(/\0/g, "")`
+
+### FINDING-016: Content-Type Not Validated (Low)
+
+**File**: `packages/runtime/server/src/index.ts` (REST endpoints)
+
+**Fix**: Middleware checking `Content-Type` includes `application/json` for POST endpoints. Return 415 otherwise.
+
+---
+
+## Phase 5: Citation Pipeline (High)
+
+### FINDING-003: Zero Citations on Multi-Match Queries (High)
+
+**File**: `packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts`
+
+**Root cause**: `ambiguousSymbolMatchResult` (line ~1368) produces `citations: A.empty()`. Same for `ambiguousFileMatchResult` (line ~1404) and `noSymbolMatchResult` (line ~1350).
+
+**Fix**:
+1. `ambiguousSymbolMatchResult`: Generate a citation for each matching symbol (up to 10):
+   ```typescript
+   citations: pipe(matches, A.take(10), A.map(symbolCitation))
+   ```
+2. `ambiguousFileMatchResult`: Generate a citation for each matching file's first line.
+3. `noSymbolMatchResult`: Leave as-is (nothing found = no citations).
+4. Count queries (`countFiles`/`countSymbols`): No code-level citations needed.
+
+**Test**: Query "describe symbol `Schema`" with 9 matches → 9 citations.
+
+---
+
+## Phase 6: Desktop UI
+
+### FINDING-029: CSS Grid Overflow (High)
+
+**File**: `apps/desktop/src/styles.css`
+
+**Fix 1 — Grid containment**:
+```css
+.workspace > *, .content > *, .summary-strip > *,
+.workspace-grid > *, .stack > *, .detail-stack > *,
+.packet-shell > * {
+  min-width: 0;
+}
+```
+
+**Fix 2 — Single-line truncation** (headings/labels):
+```css
+.summary-card strong, .list-item-top strong,
+.detail-card-top h3, .citation-top strong,
+.list-item-bottom small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+```
+
+**Fix 3 — Word-wrap** (multi-line text):
+```css
+.summary-card p, .list-item p, .answer-copy,
+.packet-summary, .notice, .status-line, .field-note,
+.note-list li, .citation-card p, .event-card p {
+  overflow-wrap: anywhere;
+}
+```
+
+**Test**: Register repo with 1000-char name → grid stays within viewport.
+
+### FINDING-030: No Connection Timeout (Medium)
+
+**File**: `apps/desktop/src/RepoMemoryDesktop.tsx`
+
+**Fix**:
+1. Add `connectAbortRef = useRef<AbortController | null>(null)`
+2. In `connectToBaseUrl`: Add `Effect.timeout("12 seconds")` to bootstrap call
+3. In `connect`: Create AbortController, pass signal, guard state with `signal.aborted`
+4. In `disconnect`: Call `connectAbortRef.current?.abort()` before clearing state
+5. Cleanup on unmount: abort pending connections
+
+**Test**: Unreachable host → timeout after ~12s. Disconnect during connection → immediate idle.
+
+---
+
+## Phase 7: Security Headers & Limits
+
+### FINDING-022: Missing CSP Header (Informational)
+
+**File**: `packages/runtime/server/src/index.ts` (security headers, line ~121-125)
+
+**Fix**: Add `"content-security-policy": "default-src 'none'"` to response headers.
+
+### FINDING-021: CORS Partial Headers (Informational)
+
+**File**: `packages/runtime/server/src/index.ts` (CORS, line ~127)
+
+**Fix**: Add pre-flight middleware that returns empty response (no CORS headers) for disallowed origins.
+
+### FINDING-023: No Body Size Limit (Informational)
+
+**File**: `packages/runtime/server/src/index.ts`
+
+**Fix**: Middleware rejecting bodies > 256KB with 413 Payload Too Large.
+
+---
+
+## Phase 8: Observability
+
+### FINDING-011: Duplicate Histogram Buckets (Medium)
+
+**Approach**: Workaround in sidecar (not patching `.repos/effect-v4` subtree).
+
+**Root cause**: Effect's `formatHistogram` emits `boundary.toString()` which produces `"Infinity"` for the last bucket, then adds explicit `+Inf` bucket → duplicates.
+
+**File**: `packages/runtime/server/src/internal/SidecarObservability.ts`
+
+**Fix**: Post-process the `/metrics` scrape response — filter lines matching `le="Infinity"` before returning. Add a response transformer on the metrics endpoint that strips duplicate terminal buckets.
+
+**Test**: `GET /metrics` → no `le="Infinity"` lines, only `le="+Inf"`.
+
+### FINDING-012: OTLP Run Metrics Empty (Medium)
+
+**File**: `packages/runtime/server/src/internal/SidecarObservability.ts`, `packages/repo-memory/runtime/src/telemetry/RepoMemoryTelemetry.ts`
+
+**Root cause**: Run lifecycle metrics are recorded inside the cluster workflow execution context. The OTLP metric provider may not propagate to that scope.
+
+**Fix**: Investigate whether metric fiber scope is available in workflow handlers. If not, add explicit metric reporting at the `RepoRunService` layer (outside workflow) by hooking into run state transitions.
+
+**Test**: Complete index + query runs → `beep_repo_memory_runs_started_total` has samples in Prometheus.
+
+### FINDING-019: Version "0.0.0" (Informational)
+
+**File**: `packages/runtime/server/src/internal/SidecarRuntimeConfig.ts`
+
+**Fix**: Read version from `BEEP_REPO_MEMORY_VERSION` env var or package.json.
+
+### FINDING-020: Duplicate Registration Idempotent (Informational)
+
+**File**: `packages/repo-memory/sqlite/src/internal/RepoMemorySql.ts` (registerRepo)
+
+**Fix**: When repo exists, update displayName if different. Return 200 (existing) vs 201 (created).
+
+---
+
+## Phase 9: Document-Only
+
+### FINDING-017: RPC Errors Return HTTP 200 (Low)
+Intentional Effect RPC protocol behavior. Add documentation comment.
+
+### FINDING-018: Vite Dev Server Crash (Low)
+Dev-only. Add note to dev setup docs.
+
+### FINDING-024: Grafana Sift Not Available (Informational)
+Local infra gap. Document as known limitation.
+
+---
+
+## Implementation Order
+
+| Order | Phase | Findings | Risk |
+|-------|-------|----------|------|
+| 1 | SQLite stability | 004, 002, 025 | Medium — blocks everything |
+| 2 | Run lifecycle | 026, 028, 008, 027 | Medium — prevents starvation |
+| 3 | HTTP errors | 001, 009, 013 | Low — error handling only |
+| 4 | Input validation | 007, 005, 006, 014, 015, 010, 016 | Low — schema changes |
+| 5 | Citation pipeline | 003 | Low — additive |
+| 6 | Desktop UI | 029, 030 | Low — CSS + timeout |
+| 7 | Security headers | 022, 021, 023 | Very low — additive |
+| 8 | Observability | 011, 012, 019, 020 | Low — correctness |
+| 9 | Documentation | 017, 018, 024 | None |
+
+## Critical Files
+
+| File | Findings |
+|------|----------|
+| `packages/runtime/server/src/index.ts` | 001, 002, 004, 009, 010, 016, 021, 022, 023, 025, 026 |
+| `packages/runtime/protocol/src/index.ts` | 001 |
+| `packages/repo-memory/model/src/internal/domain.ts` | 005, 006, 007, 014, 015 |
+| `packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts` | 008, 025, 026, 027, 028 |
+| `packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts` | 003 |
+| `packages/repo-memory/sqlite/src/internal/RepoMemorySql.ts` | 020, 025 |
+| `packages/runtime/server/src/internal/SidecarRuntimeConfig.ts` | 019 |
+| `packages/runtime/server/src/internal/SidecarObservability.ts` | 011, 012 |
+| `apps/desktop/src/styles.css` | 029 |
+| `apps/desktop/src/RepoMemoryDesktop.tsx` | 030 |
+
+## Verification Strategy
+
+1. **Unit/integration tests**: New test file `packages/runtime/server/test/SidecarApi.test.ts` for API boundary tests (status codes, validation, error handling)
+2. **Run lifecycle tests**: Extend existing tests or new file for pre-dispatch validation, run ID uniqueness, stale cleanup
+3. **Manual visual**: CSS grid with 1000-char names, connection timeout with unreachable host
+4. **Observability**: Query Prometheus for run metrics after index/query runs, scrape /metrics for histogram correctness
+5. **Quality gates**: `bun run check` (typecheck) + `bun run test` (tests) after each phase

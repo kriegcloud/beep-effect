@@ -3,6 +3,7 @@ import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
 import { PrimaryKey, pipe, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   Citation,
   RepoId,
@@ -17,6 +18,45 @@ import {
 
 const $I = $RepoMemoryModelId.create("internal/protocolModels");
 
+const controlCharacterRegExp = /[\x00-\x1f]/;
+
+const AbsoluteFilePath = FilePath.check(
+  S.makeFilter((s: string) => Str.startsWith("/")(s) || /^[A-Za-z]:[\\/]/.test(s) || Str.startsWith("\\\\")(s), {
+    identifier: $I`AbsoluteFilePathCheck`,
+    title: "Absolute File Path",
+    description: "A file path that is rooted (POSIX absolute, Windows drive, or UNC).",
+    message: "repoPath must be an absolute path",
+  })
+).pipe(
+  S.annotate(
+    $I.annote("AbsoluteFilePath", {
+      description: "A file path that is rooted (POSIX absolute, Windows drive, or UNC).",
+    })
+  )
+);
+
+const DisplayNameConstraints = S.makeFilterGroup(
+  [
+    S.isMaxLength(255, {
+      identifier: $I`DisplayNameMaxLengthCheck`,
+      title: "Display Name Max Length",
+      description: "Display name must not exceed 255 characters.",
+      message: "displayName must not exceed 255 characters",
+    }),
+    S.makeFilter((s: string) => !controlCharacterRegExp.test(s), {
+      identifier: $I`DisplayNameNoControlCharsCheck`,
+      title: "Display Name No Control Characters",
+      description: "Display name must not contain control characters.",
+      message: "displayName must not contain control characters",
+    }),
+  ],
+  {
+    identifier: $I`DisplayNameConstraints`,
+    title: "Display Name Constraints",
+    description: "Length and character constraints for repository display names.",
+  }
+);
+
 /**
  * Request payload used to register a local repository with the sidecar.
  *
@@ -25,8 +65,8 @@ const $I = $RepoMemoryModelId.create("internal/protocolModels");
  */
 export class RepoRegistrationInput extends S.Class<RepoRegistrationInput>($I`RepoRegistrationInput`)(
   {
-    repoPath: FilePath,
-    displayName: S.OptionFromOptionalKey(S.String),
+    repoPath: AbsoluteFilePath,
+    displayName: S.OptionFromOptionalKey(S.String.check(DisplayNameConstraints)),
   },
   $I.annote("RepoRegistrationInput", {
     description: "Request payload used to register a local repository with the sidecar.",
@@ -43,7 +83,7 @@ export class RepoRegistration extends S.Class<RepoRegistration>($I`RepoRegistrat
   {
     id: RepoId,
     repoPath: FilePath,
-    displayName: S.String,
+    displayName: S.NonEmptyString.check(DisplayNameConstraints),
     language: S.Literal("typescript"),
     registeredAt: S.DateTimeUtcFromMillis,
   },

@@ -63,17 +63,11 @@ export type QueryKindMetric = typeof QueryKindMetric.Type;
  * @since 0.0.0
  * @category CrossCutting
  */
-export const RunOutcomeMetric = LiteralKit(
-  [
-    "completed",
-    "failed",
-    "interrupted"
-  ]
-).pipe(
+export const RunOutcomeMetric = LiteralKit(["completed", "failed", "interrupted"]).pipe(
   $I.annoteSchema("RunOutcomeMetric", {
     description: "Metric label for terminal workflow outcomes.",
   })
-)
+);
 export type RunOutcomeMetric = typeof RunOutcomeMetric.Type;
 
 /**

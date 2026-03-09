@@ -1,12 +1,16 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
+import { thunkUndefined } from "@beep/utils";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
-import { DateTime, Duration, Effect, Layer, Metric, pipe, Tracer } from "effect";
+import { DateTime, Duration, Effect, Layer, Match, Metric, pipe, Tracer } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as DevToolsClient from "effect/unstable/devtools/DevToolsClient";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
+import * as HttpRouter from "effect/unstable/http/HttpRouter";
+import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as Otlp from "effect/unstable/observability/Otlp";
+import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetrics";
 import * as Socket from "effect/unstable/socket/Socket";
 
 const $I = $RuntimeServerId.create("internal/SidecarObservability");
@@ -40,6 +44,21 @@ const httpRequestsTotal = Metric.counter("beep_repo_memory_http_requests_total",
 
 const httpRequestDuration = Metric.timer("beep_repo_memory_http_request_duration_ms", {
   description: "Control-plane HTTP request duration for the repo-memory sidecar.",
+});
+
+const runsStartedTotal = Metric.counter("beep_repo_memory_runs_started_total", {
+  description: "Total runs started at the handler/service layer (outside workflow scope).",
+  incremental: true,
+});
+
+const runsCompletedTotal = Metric.counter("beep_repo_memory_runs_completed_total", {
+  description: "Total runs completed at the handler/service layer (outside workflow scope).",
+  incremental: true,
+});
+
+const runsFailedTotal = Metric.counter("beep_repo_memory_runs_failed_total", {
+  description: "Total runs failed at the handler/service layer (outside workflow scope).",
+  incremental: true,
 });
 
 const defaultEnvironment = "local";
@@ -77,42 +96,32 @@ const statusClass = (status: number): string => {
 const shouldPublishDevToolsSpan = (name: string): boolean =>
   A.some(devtoolsSpanPrefixes, (prefix) => pipe(name, Str.startsWith(prefix)));
 
-const toDevToolsSpanStatus = (status: Tracer.SpanStatus): DevToolsSchema.SpanStatus =>
-  status._tag === "Started"
-    ? {
-        _tag: "Started",
-        startTime: status.startTime,
-      }
-    : {
-        _tag: "Ended",
-        startTime: status.startTime,
-        endTime: status.endTime,
-      };
+const toDevToolsSpanStatus = Match.type<Tracer.SpanStatus>().pipe(
+  Match.withReturnType<DevToolsSchema.SpanStatus>(),
+  Match.tagsExhaustive({
+    Started: ({ startTime }) => ({ _tag: "Started", startTime }),
+    Ended: ({ startTime, endTime }) => ({ _tag: "Ended", startTime, endTime }),
+  })
+);
 
 const toDevToolsParentSpan = (parent: Tracer.AnySpan | undefined): DevToolsSchema.ParentSpan | undefined => {
-  if (parent === undefined) {
-    return undefined;
-  }
-
-  if (parent._tag === "ExternalSpan") {
-    return {
-      _tag: "ExternalSpan",
-      spanId: parent.spanId,
-      traceId: parent.traceId,
-      sampled: parent.sampled,
-    };
-  }
-
-  return {
-    _tag: "Span",
-    spanId: parent.spanId,
-    traceId: parent.traceId,
-    name: parent.name,
-    sampled: parent.sampled,
-    attributes: parent.attributes,
-    status: toDevToolsSpanStatus(parent.status),
-    parent: toDevToolsParentSpan(parent.parent),
-  };
+  return Match.value(parent).pipe(
+    Match.withReturnType<DevToolsSchema.ParentSpan | undefined>(),
+    Match.when(undefined, thunkUndefined),
+    Match.tagsExhaustive({
+      ExternalSpan: ({ spanId, traceId, sampled }) => ({ _tag: "ExternalSpan", spanId, traceId, sampled }),
+      Span: ({ spanId, traceId, name, sampled, attributes, status, parent }) => ({
+        _tag: "Span",
+        spanId,
+        traceId,
+        name,
+        sampled,
+        attributes,
+        status: toDevToolsSpanStatus(status),
+        parent: toDevToolsParentSpan(parent),
+      }),
+    })
+  );
 };
 
 const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
@@ -259,3 +268,73 @@ export const provideSidecarObservability = <A, E, R>(
 
   return provided;
 };
+
+/**
+ * Strip duplicate terminal histogram buckets from Prometheus exposition text.
+ *
+ * Effect's `formatHistogram` emits `boundary.toString()` which produces
+ * `le="Infinity"` for the last bucket, then adds an explicit `le="+Inf"`
+ * bucket. This post-processor removes the `le="Infinity"` lines so that
+ * Prometheus scrapers do not see duplicate terminal buckets.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const sanitizePrometheusMetrics = (text: string): string =>
+  pipe(
+    text,
+    Str.split("\n"),
+    A.filter((line) => !pipe(line, Str.includes('le="Infinity"'))),
+    A.join("\n")
+  );
+
+/**
+ * Creates a Layer that serves a sanitized `/metrics` HTTP endpoint.
+ *
+ * Wraps `PrometheusMetrics.format` with {@link sanitizePrometheusMetrics} to
+ * strip duplicate terminal histogram buckets before returning the response.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const layerPrometheusMetricsHttp = (
+  options?: PrometheusMetrics.HttpOptions | undefined
+): Layer.Layer<never, never, HttpRouter.HttpRouter> => {
+  const { path: routePath, ...formatOptions } = options ?? {};
+
+  return Layer.effectDiscard(
+    Effect.gen(function* () {
+      const router = yield* HttpRouter.HttpRouter;
+
+      const handler = Effect.gen(function* () {
+        const raw = yield* PrometheusMetrics.format(formatOptions);
+        const body = sanitizePrometheusMetrics(raw);
+        return HttpServerResponse.text(body, {
+          contentType: "text/plain; version=0.0.4; charset=utf-8",
+        });
+      });
+
+      yield* router.add("GET", routePath ?? "/metrics", handler);
+    })
+  );
+};
+
+/**
+ * Observe a run lifecycle at the handler/service layer (outside workflow
+ * execution scope) to ensure OTLP metric providers receive the counters.
+ *
+ * Increments `beep_repo_memory_runs_started_total` before the effect runs,
+ * then increments either `_completed_total` or `_failed_total` on completion.
+ *
+ * @since 0.0.0
+ * @category CrossCutting
+ */
+export const observeRunLifecycle = <A, E, R>(
+  attributes: Record<string, string>,
+  effect: Effect.Effect<A, E, R>
+): Effect.Effect<A, E, R> =>
+  Metric.update(Metric.withAttributes(runsStartedTotal, attributes), 1).pipe(
+    Effect.andThen(effect),
+    Effect.tap(() => Metric.update(Metric.withAttributes(runsCompletedTotal, attributes), 1)),
+    Effect.tapError(() => Metric.update(Metric.withAttributes(runsFailedTotal, attributes), 1))
+  );

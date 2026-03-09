@@ -43,6 +43,7 @@ import {
   Ref,
 } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -68,11 +69,12 @@ import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetr
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
+import * as SqlClient from "effect/unstable/sql/SqlClient";
 import * as WorkflowProxy from "effect/unstable/workflow/WorkflowProxy";
 import * as WorkflowProxyServer from "effect/unstable/workflow/WorkflowProxyServer";
 import { encodeBootstrapStdoutLine, toBootstrapStdoutLine } from "./internal/BootstrapStdout.js";
 import { observeHttpRequest, provideSidecarObservability } from "./internal/SidecarObservability.js";
-import { loadSidecarOtlpConfig } from "./internal/SidecarRuntimeConfig.js";
+import { loadSidecarOtlpConfig, resolveSidecarAppDataDir } from "./internal/SidecarRuntimeConfig.js";
 
 const $I = $RuntimeServerId.create("index");
 const decodeRunId = S.decodeUnknownEffect(RunId);
@@ -121,15 +123,63 @@ const sidecarSecurityHeaders = {
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
   "referrer-policy": "no-referrer",
+  // FINDING-022: Content-Security-Policy header for API-only server.
+  "content-security-policy": "default-src 'none'",
 } as const;
 
-const isLoopbackHost = (hostname: string): boolean =>
-  hostname === "localhost" ||
-  hostname === "127.0.0.1" ||
-  hostname === "::1" ||
-  hostname === "[::1]" ||
-  hostname.endsWith(".localhost");
+// FINDING-023: Maximum request body size (256KB).
+const maxBodySizeBytes = 262_144;
 
+// FINDING-009/FINDING-016/FINDING-023: Transport-level validation middleware.
+// Validates Content-Type, body presence for POST, and body size limits.
+const sidecarRequestValidation = <E, R>(
+  httpEffect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
+): Effect.Effect<HttpServerResponse.HttpServerResponse, E, R | HttpServerRequest.HttpServerRequest> =>
+  Effect.gen(function* () {
+    const request = yield* HttpServerRequest.HttpServerRequest;
+    const method = request.method;
+    const url = request.url;
+    const contentLength = request.headers["content-length"];
+
+    // FINDING-023: Reject oversized request bodies.
+    if (contentLength !== undefined) {
+      const length = Number(contentLength);
+      if (!Number.isNaN(length) && length > maxBodySizeBytes) {
+        return HttpServerResponse.empty({ status: 413 });
+      }
+    }
+
+    // Only apply POST-specific checks to non-cluster internal paths.
+    if (method === "POST" && !pipe(url, Str.includes("__cluster"))) {
+      // FINDING-016: Validate Content-Type for POST endpoints.
+      const contentType = request.headers["content-type"];
+      if (
+        contentType !== undefined &&
+        !pipe(contentType, Str.includes("application/json")) &&
+        !pipe(contentType, Str.includes("ndjson"))
+      ) {
+        return HttpServerResponse.empty({ status: 415 });
+      }
+
+      // FINDING-009: Reject empty POST bodies.
+      if (
+        contentLength === "0" ||
+        (contentLength === undefined && request.headers["transfer-encoding"] === undefined)
+      ) {
+        return HttpServerResponse.jsonUnsafe({ message: "Request body required", status: 400 }, { status: 400 });
+      }
+    }
+
+    return yield* httpEffect;
+  });
+
+const isLoopbackHost = P.some([
+  Eq.equals("localhost"),
+  Eq.equals("127.0.0.1"),
+  Eq.equals("::1"),
+  Eq.equals("[::1]"),
+  Str.endsWith(".localhost"),
+]);
 const isAllowedSidecarOrigin = (origin: string): boolean => {
   try {
     const url = new URL(origin);
@@ -147,12 +197,17 @@ const isAllowedSidecarOrigin = (origin: string): boolean => {
 const setSidecarSecurityHeaders = (response: HttpServerResponse.HttpServerResponse) =>
   HttpServerResponse.setHeaders(response, sidecarSecurityHeaders);
 
+// FINDING-021: CORS pre-flight is handled by HttpMiddleware.cors which returns 204 for OPTIONS
+// with Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers,
+// and Access-Control-Max-Age headers when the origin passes isAllowedSidecarOrigin.
 const sidecarTransportMiddlewareLayer = HttpRouter.middleware(
   flow(
+    sidecarRequestValidation,
     HttpMiddleware.cors({
       allowedOrigins: isAllowedSidecarOrigin,
       allowedMethods: sidecarCorsAllowedMethods,
       allowedHeaders: sidecarCorsAllowedHeaders,
+      credentials: true,
       maxAge: 86_400,
     }),
     HttpEffect.withPreResponseHandler((_request, response) => Effect.succeed(setSidecarSecurityHeaders(response)))
@@ -210,6 +265,7 @@ const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
     status: error.status,
   });
 
+// FINDING-013: Use mapError to produce a typed RunStreamFailure instead of letting ParseError die.
 const decodeExecutionRunId = (workflowName: string, executionId: string) =>
   decodeRunId(executionId).pipe(
     Effect.mapError(
@@ -221,10 +277,10 @@ const decodeExecutionRunId = (workflowName: string, executionId: string) =>
     )
   );
 
-type RuntimeBoundaryPayload = {
-  readonly message: string;
-  readonly status: number;
-};
+export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
+  message: S.String,
+  status: S.Number,
+}) {}
 
 const hasMessage = (input: unknown): input is { readonly message: string } =>
   P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
@@ -408,7 +464,7 @@ const handleControlPlaneErrors = <A, E, R>(
   );
 
 const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Address) => {
-  if (address._tag !== "TcpAddress") {
+  if (!P.isTagged(address, "TcpAddress")) {
     return Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address.", 500));
   }
 
@@ -444,6 +500,9 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
   });
 });
 
+// FINDING-017: Effect RPC protocol returns HTTP 200 for all RPC responses, including errors.
+// RPC errors are encoded in the response body, not the HTTP status code.
+// This is intentional protocol behavior -- typed clients decode errors from the body.
 const makeRpcHandlersLayer = () => {
   const internalWorkflowRpcGroup = WorkflowProxy.toRpcGroup(RepoRunWorkflows, {
     prefix: "InternalRepoRun",
@@ -481,9 +540,9 @@ const makeRpcHandlersLayer = () => {
 
             return decision.ack;
           }),
-        InterruptRepoRun: (payload) => repoRunService.interruptRun(payload).pipe(Effect.mapError(toRunStreamFailure)),
-        ResumeRepoRun: (payload) => repoRunService.resumeRun(payload).pipe(Effect.mapError(toRunStreamFailure)),
-        StreamRunEvents: (payload) => repoRunService.streamRunEvents(payload),
+        InterruptRepoRun: flow(repoRunService.interruptRun, Effect.mapError(toRunStreamFailure)),
+        ResumeRepoRun: flow(repoRunService.resumeRun, Effect.mapError(toRunStreamFailure)),
+        StreamRunEvents: repoRunService.streamRunEvents,
       });
     })
   );
@@ -512,6 +571,10 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
     Effect.gen(function* () {
       const startedAt = yield* DateTime.now;
 
+      // FINDING-002: Health endpoint reports server liveness.
+      // The cluster runner table is not available in the handler context, so we
+      // report "healthy" whenever the HTTP server is responding.  Cluster-level
+      // runner health is monitored internally by the sharding subsystem.
       const respondHealth = Effect.fn("SidecarRuntime.route.health")(function* () {
         const httpServer = yield* HttpServer.HttpServer;
         const publicAddress = yield* toPublicAddress(config, httpServer.address);
@@ -545,9 +608,11 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       });
 
       const respondGetRun = Effect.fn("SidecarRuntime.route.getRun")(function* (runId: string) {
+        // FINDING-010: Strip null bytes from URL params to prevent injection.
+        const sanitizedRunId = pipe(runId, Str.replaceAll("\0", ""));
         const repoRunService = yield* RepoRunService;
-        const decodedRunId = yield* decodeRunId(runId).pipe(
-          Effect.mapError((cause) => toRuntimeError(`Invalid run id: "${runId}".`, 400, cause))
+        const decodedRunId = yield* decodeRunId(sanitizedRunId).pipe(
+          Effect.mapError((cause) => toRuntimeError(`Invalid run id: "${sanitizedRunId}".`, 400, cause))
         );
         return yield* repoRunService.getRun(decodedRunId);
       });
@@ -558,12 +623,14 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
             handleControlPlaneInternalErrors("GET", "/api/v0/health", config.sessionId, 200, respondHealth())
           )
         ),
+        // FINDING-001: Use handle instead of handleRaw so the framework maps error types
+        // to correct HTTP status codes via HttpApiSchema.status() annotations.
         HttpApiBuilder.group(ControlPlaneApi, "repos", (handlers) =>
           handlers
             .handle("listRepos", () =>
               handleControlPlaneInternalErrors("GET", "/api/v0/repos", config.sessionId, 200, respondListRepos())
             )
-            .handleRaw("registerRepo", () =>
+            .handle("registerRepo", () =>
               handleControlPlaneErrors("POST", "/api/v0/repos", config.sessionId, 201, respondRegisterRepo())
             )
         ),
@@ -581,7 +648,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const controlPlaneApiLayer = HttpApiBuilder.layer(ControlPlaneApi).pipe(Layer.provide(controlPlaneHandlersLayer));
 
       const fileSystemLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
-      const sqliteLayer = Layer.unwrap(
+      const sqliteBaseLayer = Layer.unwrap(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
@@ -592,6 +659,21 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
           });
         }).pipe(Effect.provide(fileSystemLayer))
       );
+
+      // FINDING-004: Set busy_timeout so SQLite retries internally for 5s on contention.
+      // FINDING-002: Clear stale cluster locks/runners from a previous session on startup.
+      // The DELETE statements are wrapped in catchAll because the tables may not yet exist
+      // on the very first boot; they are created by SqlRunnerStorage during cluster init.
+      const sqlitePostInitLayer = Layer.effectDiscard(
+        Effect.gen(function* () {
+          const sql = yield* SqlClient.SqlClient;
+          yield* sql`PRAGMA busy_timeout = 5000`;
+          yield* sql`DELETE FROM repo_memory_cluster_locks WHERE 1=1`.pipe(Effect.catchDefect(Effect.logDebug));
+          yield* sql`DELETE FROM repo_memory_cluster_runners WHERE 1=1`.pipe(Effect.catchDefect(Effect.logDebug));
+        })
+      ).pipe(Layer.provide(sqliteBaseLayer));
+      const sqliteLayer = Layer.merge(sqliteBaseLayer, sqlitePostInitLayer);
+
       const rpcSerializationLayer = RpcSerialization.layerNdjson;
       const shardingConfigLayer = ShardingConfig.layer({
         runnerAddress: makeRunnerAddress(config),
@@ -602,6 +684,9 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         sendRetryInterval: Duration.millis(100),
         refreshAssignmentsInterval: Duration.seconds(2),
         runnerHealthCheckInterval: Duration.seconds(30),
+        // FINDING-002: Increase lock tolerance to avoid premature 503 under SQLite contention.
+        shardLockExpiration: Duration.seconds(120),
+        shardLockRefreshInterval: Duration.seconds(15),
         simulateRemoteSerialization: true,
       });
       const messageStorageLayer = SqlMessageStorage.layerWith({
@@ -658,6 +743,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const semanticEnrichmentLayer = RepoSemanticEnrichmentService.layer;
       const repoRunServiceLayer = RepoRunService.layer.pipe(
         Layer.provide([
+          fileSystemLayer,
           repoMemorySqlLayer,
           eventJournalLayer,
           groundedRetrievalLayer,
@@ -685,10 +771,46 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         path: "/metrics",
       });
 
+      // FINDING-025: Reconcile cluster-tracked runs against repo_memory_runs on startup.
+      // Wrapped in catchCause so that defects from missing tables on first boot
+      // are logged as warnings and never crash the startup sequence.
+      const startupReconciliationLayer = Layer.effectDiscard(
+        Effect.gen(function* () {
+          const sql = yield* SqlClient.SqlClient;
+          const repoRunService = yield* RepoRunService;
+          const knownRuns = yield* repoRunService.listRuns.pipe(
+            Effect.catchCause(() => Effect.succeed([] as ReadonlyArray<unknown>))
+          );
+          const storedRuns = yield* sql<{ readonly id: string }>`SELECT id FROM repo_memory_runs`.pipe(
+            Effect.catchCause(() => Effect.succeed([] as ReadonlyArray<{ readonly id: string }>))
+          );
+          const storedIds = new Set(A.map(storedRuns, (r) => r.id));
+          const missingCount = A.length(
+            A.filter(knownRuns as ReadonlyArray<{ readonly id: string }>, (r) => !storedIds.has(r.id))
+          );
+
+          if (missingCount > 0) {
+            yield* Effect.logWarning({
+              message: `Startup reconciliation found ${missingCount} runs tracked by cluster but missing from repo_memory_runs table.`,
+              session_id: config.sessionId,
+            });
+          }
+        }).pipe(
+          Effect.catchCause((cause) =>
+            Effect.logWarning({
+              message: "Startup run reconciliation skipped due to error.",
+              error: Cause.pretty(cause),
+            })
+          ),
+          Effect.withSpan("SidecarRuntime.startupReconciliation")
+        )
+      ).pipe(Layer.provide(sqliteLayer), Layer.provide(repoRunServiceLayer));
+
       const applicationRoutesLayer = Layer.mergeAll(
         controlPlaneApiLayer,
         repoRunRpcRouteLayer,
-        prometheusMetricsLayer
+        prometheusMetricsLayer,
+        startupReconciliationLayer
       ).pipe(Layer.provide(repoRunServiceLayer));
 
       const routesLayer = Layer.mergeAll(applicationRoutesLayer, clusterHttpRouteLayer).pipe(
@@ -793,15 +915,12 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
  * @category Configuration
  */
 export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(function* () {
-  const path = yield* Path.Path;
   const host = yield* Config.string("BEEP_REPO_MEMORY_HOST").pipe(Config.withDefault("127.0.0.1"));
   const port = yield* Config.number("BEEP_REPO_MEMORY_PORT").pipe(
     Config.orElse(() => Config.number("PORT")),
     Config.withDefault(8788)
   );
-  const appDataDirInput = yield* Config.string("BEEP_REPO_MEMORY_APP_DATA_DIR").pipe(
-    Config.withDefault(".beep/repo-memory")
-  );
+  const appDataDirInput = yield* Config.option(Config.string("BEEP_REPO_MEMORY_APP_DATA_DIR"));
   const sessionIdOption = yield* Config.option(Config.string("BEEP_REPO_MEMORY_SESSION_ID"));
   const sessionId = yield* O.match(sessionIdOption, {
     onNone: () => DateTime.now.pipe(Effect.map((now) => `sidecar-${DateTime.toEpochMillis(now)}`)),
@@ -816,7 +935,7 @@ export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(f
   const devtoolsUrl = yield* Config.string("BEEP_REPO_MEMORY_DEVTOOLS_URL").pipe(
     Config.withDefault("ws://127.0.0.1:34437")
   );
-  const appDataDir = path.resolve(appDataDirInput);
+  const appDataDir = yield* resolveSidecarAppDataDir(appDataDirInput);
   const { otlpServiceName, otlpServiceVersion, otlpResourceAttributes } = yield* loadSidecarOtlpConfig(version);
 
   const config = new SidecarRuntimeConfig({

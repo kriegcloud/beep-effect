@@ -144,7 +144,7 @@ const makeRepoRunRpcClient = (baseUrl: string) =>
     const context = yield* Layer.build(
       RpcClient.layerProtocolHttp({
         url: `${baseUrl}/rpc`,
-      }).pipe(Layer.provide(NodeHttpClient.layerUndici), Layer.provide(RpcSerialization.layerNdjson))
+      }).pipe(Layer.provide(NodeHttpClient.layerFetch), Layer.provide(RpcSerialization.layerNdjson))
     );
 
     return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));

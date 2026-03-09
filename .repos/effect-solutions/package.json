@@ -1,0 +1,47 @@
+{
+  "name": "effect-best-practices",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --cwd packages/website dev",
+    "dev:cli": "bun --cwd packages/cli dev",
+    "build": "bun --filter '*' build",
+    "build:website": "bun --cwd packages/website build",
+    "build:cli": "cd packages/cli && bun run build:artifacts",
+    "generate:og": "cd packages/website && bun run generate:og",
+    "generate:manifest": "bun --cwd packages/cli scripts/generate-manifest.ts",
+    "changeset": "bun scripts/changeset-named.ts",
+    "version": "changeset version && bun install",
+    "release": "bun scripts/release.ts",
+    "test": "bun run generate:manifest && bunx vitest run",
+    "test:docs": "vitest run tests",
+    "typecheck:docs": "bun scripts/typecheck-docs.ts",
+    "check": "biome check . --write && bunx tsc --build --force && bun run typecheck:docs && bun run test"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.94.1",
+    "@next/mdx": "^16.1.1",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-visually-hidden": "^1.2.4",
+    "cmdk": "^1.1.1",
+    "effect": "^3.19.14",
+    "ink": "^6.6.0",
+    "next-mdx-remote": "^5.0.0"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
+    "@effect/cli": "^0.73.0",
+    "@effect/cluster": "^0.56.1",
+    "@effect/platform-bun": "^0.87.0",
+    "@effect/platform-node": "^0.104.0",
+    "@effect/vitest": "^0.27.0",
+    "vitest": "^4.0.16"
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+}

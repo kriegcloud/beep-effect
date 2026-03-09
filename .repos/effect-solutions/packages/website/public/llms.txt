@@ -1,0 +1,9 @@
+# Effect Solutions LLM Access Policy
+Version: 2025-11-19
+Contact: hello@effect.solutions
+User-Agent: *
+Allow: /
+Preferred-Interface: CLI=bunx effect-solutions@latest list|show
+Use-Case: Reference Effect TypeScript best-practice summaries only; do not copy full docs into public corpora.
+Update-Frequency: daily
+Source-Repository: https://github.com/kitlangton/effect-best-practices

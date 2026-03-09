@@ -44,7 +44,21 @@ import {
 } from "@beep/repo-memory-store";
 import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { DateTime, Duration, Effect, flow, Layer, Match, pipe, Semaphore, ServiceMap, Stream } from "effect";
+import {
+  Config,
+  DateTime,
+  Duration,
+  Effect,
+  FileSystem,
+  flow,
+  Layer,
+  Match,
+  pipe,
+  Schedule,
+  Semaphore,
+  ServiceMap,
+  Stream,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -84,7 +98,9 @@ const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
 const decodeRunEventPayload = S.decodeUnknownEffect(Msgpack.schema(RunStreamEvent));
 const encodeRunEventPayload = S.encodeUnknownEffect(Msgpack.schema(RunStreamEvent));
-const workflowVersion = "cluster-first-v0";
+// FINDING-027: Include sessionId in workflow version to prevent run ID collisions across sessions.
+// This module-level variable is set once during RepoRunService initialization.
+let workflowVersion = "cluster-first-v0";
 const workflowSuspensionPollInterval = Duration.millis(25);
 const workflowSuspensionPollMaxAttempts = 200;
 type RepoRuntimeStoreShape = RepoRegistryStoreShape &
@@ -214,6 +230,12 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const typeScriptIndex = yield* TypeScriptIndexServiceInternal;
   const semanticEnrichment = yield* RepoSemanticEnrichmentServiceInternal;
   const groundedRetrieval = yield* GroundedRetrievalServiceInternal;
+  const fs = yield* FileSystem.FileSystem;
+
+  // FINDING-027: Scope workflow version to the current session to prevent run ID collisions.
+  const sessionId = yield* Config.string("BEEP_REPO_MEMORY_SESSION_ID").pipe(Config.withDefault("default"));
+  workflowVersion = `cluster-first-v0:${sessionId}`;
+
   const runCommandSemaphore = yield* Semaphore.makePartitioned<RunId>({ permits: 1 });
 
   const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
@@ -342,6 +364,8 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     );
   });
 
+  // FINDING-025: Retry journal writes up to 3 times with exponential backoff for transient SqlError.
+  // Journal INSERT uses ON CONFLICT DO NOTHING so retries are safe.
   const appendRunEvent = Effect.fn("RepoRunService.appendRunEvent")(function* (
     event: RunStreamEvent
   ): Effect.fn.Return<RunStreamEvent, RepoRunServiceError> {
@@ -353,12 +377,19 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
 
     return yield* mapJournalError(
       `append run event "${event.kind}" for "${event.runId}"`,
-      journal.write({
-        event: event.kind,
-        primaryKey: event.runId,
-        payload,
-        effect: () => materializeRunEvent(event).pipe(Effect.as(event)),
-      })
+      journal
+        .write({
+          event: event.kind,
+          primaryKey: event.runId,
+          payload,
+          effect: () => materializeRunEvent(event).pipe(Effect.as(event)),
+        })
+        .pipe(
+          Effect.retry({
+            times: 3,
+            schedule: Schedule.exponential("100 millis"),
+          })
+        )
     );
   });
 
@@ -578,6 +609,16 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const acceptIndexRun: RepoRunServiceShape["acceptIndexRun"] = Effect.fn("RepoRunService.acceptIndexRun")(
     function* (payload, runId) {
       yield* annotateRunServiceSpan({ repo_id: payload.repoId, run_id: runId, run_kind: "index" });
+
+      // FINDING-026/FINDING-028: Validate repository path exists before accepting an index run.
+      const repo = yield* mapDriverError(driver.getRepo(payload.repoId));
+      const repoExists = yield* fs
+        .exists(repo.repoPath)
+        .pipe(Effect.mapError((e) => toRunServiceError(`Failed to check repository path: ${e.message}`, 500, e)));
+      if (!repoExists) {
+        return yield* toRunServiceError(`Repository path does not exist: ${repo.repoPath}`, 400);
+      }
+
       const maybeRun = yield* mapDriverError(driver.getRun(runId));
 
       if (O.isSome(maybeRun)) {
@@ -616,6 +657,13 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const acceptQueryRun: RepoRunServiceShape["acceptQueryRun"] = Effect.fn("RepoRunService.acceptQueryRun")(
     function* (payload, runId) {
       yield* annotateRunServiceSpan({ repo_id: payload.repoId, run_id: runId, run_kind: "query" });
+
+      // FINDING-008: Pre-check that an index exists before accepting a query run.
+      const latestSnapshot = yield* mapDriverError(driver.latestSourceSnapshot(payload.repoId));
+      if (O.isNone(latestSnapshot)) {
+        return yield* toRunServiceError(`No index exists for repository "${payload.repoId}". Run an index first.`, 400);
+      }
+
       const maybeRun = yield* mapDriverError(driver.getRun(runId));
 
       if (O.isSome(maybeRun)) {
@@ -1057,6 +1105,33 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
       )
     );
 
+  // FINDING-026: Background fiber that transitions stale "accepted" runs older than 5 minutes to "failed".
+  const staleRunReaperInterval = Duration.minutes(1);
+  const staleRunThreshold = Duration.minutes(5);
+  yield* Effect.gen(function* () {
+    const runs = yield* mapDriverError(driver.listRuns);
+    const now = yield* DateTime.now;
+    yield* Effect.forEach(
+      A.filter(
+        runs,
+        (run) =>
+          run.status === "accepted" &&
+          DateTime.toEpochMillis(now) - DateTime.toEpochMillis(run.acceptedAt) > Duration.toMillis(staleRunThreshold)
+      ),
+      (run) =>
+        emitFailedRun(
+          run.id,
+          `Run "${run.id}" timed out in accepted state after ${Duration.toMillis(staleRunThreshold)}ms.`
+        ),
+      { discard: true }
+    );
+  }).pipe(
+    Effect.catch(() => Effect.void),
+    Effect.repeat(Schedule.spaced(staleRunReaperInterval)),
+    Effect.forkDetach,
+    Effect.interruptible
+  );
+
   return {
     acceptIndexRun,
     acceptQueryRun,
@@ -1082,6 +1157,7 @@ export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunSe
   static readonly layer: Layer.Layer<
     RepoRunService,
     never,
+    | FileSystem.FileSystem
     | GroundedRetrievalServiceInternal
     | RepoSemanticEnrichmentServiceInternal
     | TypeScriptIndexServiceInternal
@@ -1096,7 +1172,8 @@ export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunSe
     RepoRunService,
     makeRepoRunService().pipe(
       Effect.withSpan("RepoRunService.make"),
-      Effect.annotateLogs({ component: "repo-memory-runtime" })
+      Effect.annotateLogs({ component: "repo-memory-runtime" }),
+      Effect.orDie
     )
   );
 }

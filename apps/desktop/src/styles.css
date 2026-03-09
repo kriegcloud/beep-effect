@@ -603,6 +603,43 @@ code {
   margin: 0;
 }
 
+/* Grid containment: prevent children from overflowing grid tracks */
+.workspace > *,
+.content > *,
+.summary-strip > *,
+.workspace-grid > *,
+.stack > *,
+.detail-stack > *,
+.packet-shell > * {
+  min-width: 0;
+}
+
+/* Single-line truncation for headings and labels */
+.summary-card strong,
+.list-item-top strong,
+.detail-card-top h3,
+.citation-top strong,
+.list-item-bottom small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Word-wrap for multi-line text content */
+.summary-card p,
+.list-item p,
+.answer-copy,
+.packet-summary,
+.notice,
+.status-line,
+.field-note,
+.note-list li,
+.citation-card p,
+.event-card p {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 1140px) {
   .summary-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));

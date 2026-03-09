@@ -24,7 +24,7 @@ import {
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { FilePath } from "@beep/schema";
-import { DateTime, Effect, Fiber, Order, pipe, Result, Stream } from "effect";
+import { DateTime, Duration, Effect, Fiber, Order, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -360,6 +360,7 @@ export function RepoMemoryDesktop() {
   const [eventsByRunId, setEventsByRunId] = useState<Record<string, ReadonlyArray<RunStreamEvent>>>({});
   const [activeStreamRunId, setActiveStreamRunId] = useState<string | null>(null);
   const streamFiberRef = useRef<Fiber.Fiber<void, never> | null>(null);
+  const connectAbortRef = useRef<AbortController | null>(null);
 
   const selectedRepo = useMemo(() => findRepoById(repos, selectedRepoId), [repos, selectedRepoId]);
   const selectedRun = useMemo(() => findRunById(runs, selectedRunId), [runs, selectedRunId]);
@@ -376,6 +377,7 @@ export function RepoMemoryDesktop() {
 
   useEffect(
     () => () => {
+      connectAbortRef.current?.abort();
       if (streamFiberRef.current !== null) {
         Effect.runFork(Fiber.interrupt(streamFiberRef.current).pipe(Effect.ignore));
       }
@@ -487,7 +489,7 @@ export function RepoMemoryDesktop() {
         })
       )
     );
-    const nextBootstrap = await Effect.runPromise(nextClient.bootstrap);
+    const nextBootstrap = await Effect.runPromise(nextClient.bootstrap.pipe(Effect.timeout(Duration.seconds(12))));
 
     stopStreaming();
     await syncSnapshot(nextClient);
@@ -507,6 +509,9 @@ export function RepoMemoryDesktop() {
   };
 
   const connect = async () => {
+    const ac = new AbortController();
+    connectAbortRef.current = ac;
+
     setConnectionState("connecting");
     setActionState("refreshing");
     setErrorMessage(null);
@@ -518,33 +523,30 @@ export function RepoMemoryDesktop() {
 
     try {
       const browserBaseUrl = browserDevClientBaseUrl();
-      const normalizedBrowserBaseUrl = browserBaseUrl === null ? null : normalizeSidecarBaseUrl(browserBaseUrl);
-      const normalizedInputBaseUrl = normalizeSidecarBaseUrl(baseUrlInput);
-
-      if (
-        shellMode === "browser" &&
-        normalizedBrowserBaseUrl !== null &&
-        normalizedBrowserBaseUrl !== normalizedInputBaseUrl
-      ) {
+      if (shellMode === "browser" && browserBaseUrl !== null) {
         setStatusMessage("Connecting to the repo-memory sidecar through the desktop proxy.");
+        await connectToBaseUrl(browserBaseUrl, {
+          persistBaseUrl: false,
+        });
+        if (ac.signal.aborted) return;
+        return;
+      }
 
-        try {
-          await connectToBaseUrl(normalizedBrowserBaseUrl, {
-            persistBaseUrl: false,
-          });
-          return;
-        } catch {
-          setStatusMessage("Desktop proxy unavailable. Falling back to the direct sidecar URL.");
-        }
+      if (shellMode === "browser") {
+        setStatusMessage("Raw Vite origin detected. Connecting to the saved direct sidecar URL.");
       }
 
       await connectToBaseUrl(baseUrlInput);
+      if (ac.signal.aborted) return;
     } catch (error) {
+      if (ac.signal.aborted) return;
       clearClientState("The shell could not reach the repo-memory sidecar.", "error", errorToMessage(error));
     } finally {
-      startTransition(() => {
-        setActionState("idle");
-      });
+      if (!ac.signal.aborted) {
+        startTransition(() => {
+          setActionState("idle");
+        });
+      }
     }
   };
 
@@ -552,6 +554,9 @@ export function RepoMemoryDesktop() {
     if (!nativeAvailable) {
       return;
     }
+
+    const ac = new AbortController();
+    connectAbortRef.current = ac;
 
     setConnectionState("connecting");
     setActionState("refreshing");
@@ -582,12 +587,15 @@ export function RepoMemoryDesktop() {
         persistBaseUrl: false,
       });
 
+      if (ac.signal.aborted) return;
+
       if (nextManagedState !== null) {
         startTransition(() => {
           setManagedState(nextManagedState);
         });
       }
     } catch (error) {
+      if (ac.signal.aborted) return;
       await syncManagedSidecar();
       clearClientState(
         "The native shell could not launch the managed repo-memory sidecar.",
@@ -595,13 +603,16 @@ export function RepoMemoryDesktop() {
         errorToMessage(error)
       );
     } finally {
-      startTransition(() => {
-        setActionState("idle");
-      });
+      if (!ac.signal.aborted) {
+        startTransition(() => {
+          setActionState("idle");
+        });
+      }
     }
   };
 
   const disconnect = () => {
+    connectAbortRef.current?.abort();
     clearClientState("Disconnected from the sidecar.", "idle");
   };
 
@@ -610,6 +621,8 @@ export function RepoMemoryDesktop() {
       disconnect();
       return;
     }
+
+    connectAbortRef.current?.abort();
 
     try {
       await Effect.runPromise(stopManagedSidecar());
@@ -1127,8 +1140,9 @@ export function RepoMemoryDesktop() {
           ) : (
             <div className="stack">
               <p className="field-note">
-                Browser dev prefers the desktop proxy first and falls back to the saved direct sidecar URL if the proxy
-                is unavailable.
+                {browserDevClientBaseUrl() === null
+                  ? "Raw Vite dev does not include the desktop proxy. Use the saved direct sidecar URL here, or switch back to the default portless desktop flow."
+                  : "Browser dev uses the HTTPS desktop proxy and the portless sidecar route. Use manual override only when you need to inspect a different runtime."}
               </p>
               <div className="button-row">
                 <button type="button" disabled={connectionState === "connecting"} onClick={() => void connect()}>

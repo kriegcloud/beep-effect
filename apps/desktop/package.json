@@ -20,6 +20,7 @@
     "@beep/repo-memory-client": "workspace:^",
     "@beep/runtime-protocol": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@effect/platform-bun": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tauri-apps/api": "^2.8.0",
     "effect": "catalog:",

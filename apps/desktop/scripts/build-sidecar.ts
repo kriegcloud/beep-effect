@@ -1,82 +1,241 @@
-import { spawnSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { $I } from "@beep/identity/packages";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { BunRuntime } from "@effect/platform-bun";
+import * as BunServices from "@effect/platform-bun/BunServices";
+import { Config, Effect, Fiber, FileSystem, Path, Runtime, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import type * as PlatformError from "effect/PlatformError";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { ChildProcess } from "effect/unstable/process";
 
-const rustTripleToBunTarget = {
+const $DesktopBuildId = $I.create("apps/desktop/scripts/build-sidecar");
+
+const SupportedRustTargetTriple = LiteralKit([
+  "x86_64-unknown-linux-gnu",
+  "aarch64-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "aarch64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+]).annotate(
+  $DesktopBuildId.annote("SupportedRustTargetTriple", {
+    description: "Rust target triples supported by the desktop Bun standalone sidecar build.",
+  })
+);
+
+type SupportedRustTargetTriple = typeof SupportedRustTargetTriple.Type;
+
+const BunBuildTarget = LiteralKit([
+  "bun-linux-x64-modern",
+  "bun-linux-arm64-modern",
+  "bun-darwin-x64-modern",
+  "bun-darwin-arm64-modern",
+  "bun-windows-x64-modern",
+]).annotate(
+  $DesktopBuildId.annote("BunBuildTarget", {
+    description: "Bun standalone compilation targets used by the desktop sidecar build script.",
+  })
+);
+
+type BunBuildTarget = typeof BunBuildTarget.Type;
+
+class BuildSidecarInvariantError extends TaggedErrorClass<BuildSidecarInvariantError>(
+  $DesktopBuildId`BuildSidecarInvariantError`
+)(
+  "BuildSidecarInvariantError",
+  {
+    message: S.String,
+  },
+  $DesktopBuildId.annote("BuildSidecarInvariantError", {
+    description: "Raised when the desktop sidecar build script hits an unexpected invariant.",
+  })
+) {}
+
+class BuildSidecarCommandExitError extends TaggedErrorClass<BuildSidecarCommandExitError>(
+  $DesktopBuildId`BuildSidecarCommandExitError`
+)(
+  "BuildSidecarCommandExitError",
+  {
+    command: S.String,
+    exitCode: S.Number,
+    stderr: S.String,
+  },
+  $DesktopBuildId.annote("BuildSidecarCommandExitError", {
+    description: "Raised when a required child process exits with a non-zero status.",
+  })
+) {}
+
+class UnsupportedRustTargetTripleError extends TaggedErrorClass<UnsupportedRustTargetTripleError>(
+  $DesktopBuildId`UnsupportedRustTargetTripleError`
+)(
+  "UnsupportedRustTargetTripleError",
+  {
+    triple: S.String,
+  },
+  $DesktopBuildId.annote("UnsupportedRustTargetTripleError", {
+    description: "Raised when the desktop sidecar build script resolves an unsupported Rust target triple.",
+  })
+) {}
+
+const isSupportedRustTargetTriple = S.is(SupportedRustTargetTriple);
+
+const rustTripleToBunTarget: Record<SupportedRustTargetTriple, BunBuildTarget> = {
   "x86_64-unknown-linux-gnu": "bun-linux-x64-modern",
   "aarch64-unknown-linux-gnu": "bun-linux-arm64-modern",
   "x86_64-apple-darwin": "bun-darwin-x64-modern",
   "aarch64-apple-darwin": "bun-darwin-arm64-modern",
   "x86_64-pc-windows-msvc": "bun-windows-x64-modern",
-} as const satisfies Record<string, string>;
-
-type SupportedRustTargetTriple = keyof typeof rustTripleToBunTarget;
-
-const decode = (buffer: Uint8Array | string | null | undefined): string => {
-  if (buffer === undefined || buffer === null) {
-    return "";
-  }
-
-  return `${buffer}`.trim();
 };
 
-const rustHostTriple = (): string => {
-  const hostTuple = spawnSync("rustc", ["--print", "host-tuple"], {
-    encoding: "utf8",
-  });
+const withExitCode = <E extends object>(error: E, exitCode: number): E & { readonly [Runtime.errorExitCode]: number } =>
+  Object.assign(error, { [Runtime.errorExitCode]: exitCode });
 
-  if (hostTuple.status === 0) {
-    return decode(hostTuple.stdout);
+const buildSidecarCommandExitError = (command: string, exitCode: number, stderr: string) =>
+  withExitCode(
+    new BuildSidecarCommandExitError({
+      command,
+      exitCode,
+      stderr,
+    }),
+    exitCode
+  );
+
+const collectText = (stream: Stream.Stream<Uint8Array, PlatformError.PlatformError>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(() => Str.empty, Str.concat),
+    Effect.map(Str.trim)
+  );
+
+const runBufferedCommand = Effect.fn("DesktopBuild.runBufferedCommand")(function* (command: ChildProcess.Command) {
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* command;
+      const stdoutFiber = yield* Effect.forkScoped(collectText(handle.stdout));
+      const stderrFiber = yield* Effect.forkScoped(collectText(handle.stderr));
+      const exitCode = yield* handle.exitCode;
+      const stdout = yield* Fiber.join(stdoutFiber);
+      const stderr = yield* Fiber.join(stderrFiber);
+
+      return { stdout, stderr, exitCode };
+    })
+  );
+});
+
+const decodeHostTripleLine = Effect.fn("DesktopBuild.decodeHostTripleLine")(function* (verboseVersionOutput: string) {
+  const hostLine = A.findFirst(Str.split("\n")(verboseVersionOutput), (line) => Str.startsWith("host: ")(line));
+
+  if (O.isNone(hostLine)) {
+    return yield* new BuildSidecarInvariantError({
+      message: "Could not find the rust host triple in `rustc -vV` output.",
+    });
   }
 
-  const verboseVersion = spawnSync("rustc", ["-vV"], {
-    encoding: "utf8",
-  });
+  return Str.trim(Str.replace("host: ", "")(hostLine.value));
+});
 
-  if (verboseVersion.status !== 0) {
-    throw new Error(`Failed to inspect rust host triple.\n${decode(verboseVersion.stderr)}`);
+const resolveRustHostTriple = Effect.fn("DesktopBuild.resolveRustHostTriple")(function* () {
+  const rustHostTupleResult = yield* runBufferedCommand(
+    ChildProcess.make("rustc", ["--print", "host-tuple"], {
+      extendEnv: true,
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+  );
+
+  if (rustHostTupleResult.exitCode === 0 && Str.isNonEmpty(rustHostTupleResult.stdout)) {
+    return rustHostTupleResult.stdout;
   }
 
-  const hostLine = decode(verboseVersion.stdout)
-    .split("\n")
-    .find((line) => line.startsWith("host: "));
+  const rustVerboseVersionResult = yield* runBufferedCommand(
+    ChildProcess.make("rustc", ["-vV"], {
+      extendEnv: true,
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+  );
 
-  if (hostLine === undefined) {
-    throw new Error("Could not find the rust host triple in `rustc -vV` output.");
+  if (rustVerboseVersionResult.exitCode !== 0) {
+    return yield* buildSidecarCommandExitError(
+      "rustc -vV",
+      rustVerboseVersionResult.exitCode,
+      rustVerboseVersionResult.stderr
+    );
   }
 
-  return hostLine.replace("host: ", "").trim();
-};
+  return yield* decodeHostTripleLine(rustVerboseVersionResult.stdout);
+});
 
-const isSupportedRustTargetTriple = (triple: string): triple is SupportedRustTargetTriple =>
-  triple in rustTripleToBunTarget;
+const resolveBuildScriptConfig = Effect.fn("DesktopBuild.resolveBuildScriptConfig")(function* () {
+  const path = yield* Path.Path;
+  const currentDirectory = fileURLToPath(new URL(".", import.meta.url));
+  const repoRoot = path.resolve(currentDirectory, "../../..");
+  const configuredTargetTriple = yield* Config.option(
+    Config.string("TAURI_ENV_TARGET_TRIPLE").pipe(Config.orElse(() => Config.string("CARGO_BUILD_TARGET")))
+  );
+  const resolvedTargetTriple = O.isSome(configuredTargetTriple)
+    ? configuredTargetTriple.value
+    : yield* resolveRustHostTriple();
 
-const resolvedTargetTriple = process.env.TAURI_ENV_TARGET_TRIPLE ?? process.env.CARGO_BUILD_TARGET ?? rustHostTriple();
-if (!isSupportedRustTargetTriple(resolvedTargetTriple)) {
-  throw new Error(`Unsupported rust target triple for Bun standalone sidecar build: ${resolvedTargetTriple}`);
-}
-
-const targetTriple = resolvedTargetTriple;
-const bunTarget = rustTripleToBunTarget[targetTriple];
-
-const currentDirectory = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(currentDirectory, "../../..");
-const isWindows = targetTriple.includes("windows");
-const binaryFileName = `repo-memory-sidecar-${targetTriple}${isWindows ? ".exe" : ""}`;
-const outputPath = resolve(currentDirectory, "../src-tauri/binaries", binaryFileName);
-
-mkdirSync(dirname(outputPath), { recursive: true });
-
-const result = spawnSync(
-  "bun",
-  ["build", "packages/runtime/server/src/main.ts", "--compile", `--target=${bunTarget}`, `--outfile=${outputPath}`],
-  {
-    cwd: repoRoot,
-    stdio: "inherit",
+  if (!isSupportedRustTargetTriple(resolvedTargetTriple)) {
+    return yield* new UnsupportedRustTargetTripleError({ triple: resolvedTargetTriple });
   }
+
+  const binaryFileName = `repo-memory-sidecar-${resolvedTargetTriple}${
+    Str.includes("windows")(resolvedTargetTriple) ? ".exe" : ""
+  }`;
+
+  return {
+    repoRoot,
+    outputPath: path.resolve(currentDirectory, "../src-tauri/binaries", binaryFileName),
+    bunTarget: rustTripleToBunTarget[resolvedTargetTriple],
+  };
+});
+
+const buildSidecar = Effect.fn("DesktopBuild.buildSidecar")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const config = yield* resolveBuildScriptConfig();
+
+  yield* fs.makeDirectory(path.dirname(config.outputPath), { recursive: true });
+
+  const exitCode = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(
+        "bun",
+        [
+          "build",
+          "packages/runtime/server/src/main.ts",
+          "--compile",
+          `--target=${config.bunTarget}`,
+          `--outfile=${config.outputPath}`,
+        ],
+        {
+          cwd: config.repoRoot,
+          extendEnv: true,
+          stdin: "inherit",
+          stdout: "inherit",
+          stderr: "inherit",
+        }
+      );
+
+      return yield* handle.exitCode;
+    })
+  );
+
+  if (exitCode !== 0) {
+    return yield* buildSidecarCommandExitError(
+      "bun build packages/runtime/server/src/main.ts --compile",
+      exitCode,
+      Str.empty
+    );
+  }
+});
+
+BunRuntime.runMain(
+  buildSidecar().pipe(Effect.withSpan("DesktopBuild.buildSidecar"), Effect.provide(BunServices.layer))
 );
-
-if (result.status !== 0) {
-  process.exit(result.status ?? 1);
-}

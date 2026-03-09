@@ -1,0 +1,370 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #000000;
+  --color-foreground: #f1efe8;
+  --color-border: #333333;
+  --color-callout-background: #242d63;
+  --color-callout-border: rgba(91, 108, 208, 0.55);
+  --color-callout-border-alt: rgba(137, 130, 255, 0.35);
+  --color-callout-text: rgb(230, 236, 255);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@layer base {
+  html {
+    font-size: 18px;
+    position: relative;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-commit-mono), monospace;
+    line-height: 1.75;
+    margin: 0;
+    text-rendering: optimizeLegibility;
+    color-scheme: dark;
+    letter-spacing: 0.02em;
+    overflow-x: hidden;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  a:hover {
+    @apply border-foreground/40;
+  }
+
+  ::selection {
+    background-color: rgba(101, 116, 134, 0.45);
+  }
+
+  /* Custom scrollbar styles */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+    border-left: 1px solid rgb(38, 38, 38);
+  }
+
+  *::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    border: none;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Light theme scrollbar */
+  @media (prefers-color-scheme: light) {
+    * {
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+  }
+}
+
+.prose code {
+  font-family:
+    var(--font-commit-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.prose h2 {
+  letter-spacing: 0.02em;
+  margin-top: 0rem;
+  margin-bottom: 1em;
+}
+
+.prose h3 {
+  letter-spacing: 0.02em;
+  margin-top: 0rem;
+  margin-bottom: 1em;
+}
+
+/* Heading spacing - add top margin when following content, but not after hr or other headings */
+.prose p + h2,
+.prose ul + h2,
+.prose ol + h2,
+.prose blockquote + h2,
+.prose pre + h2,
+.prose code + h2,
+.prose div + h2 {
+  margin-top: 4.5rem;
+}
+
+.prose p + h3,
+.prose ul + h3,
+.prose ol + h3,
+.prose blockquote + h3,
+.prose pre + h3,
+.prose code + h3,
+.prose div + h3 {
+  margin-top: 3.5rem;
+}
+
+/* Remove top margin when heading follows hr or another heading */
+.prose hr + h2,
+.prose h1 + h2,
+.prose h2 + h2,
+.prose h3 + h2,
+.prose hr + h3,
+.prose h1 + h3,
+.prose h2 + h3,
+.prose h3 + h3 {
+  margin-top: 0rem;
+}
+
+/* Add spacing above headings when they follow code blocks (.not-prose divs) */
+.prose .not-prose + h2 {
+  margin-top: 4.5rem;
+}
+
+.prose .not-prose + h3 {
+  margin-top: 3.5rem;
+}
+
+/* Ensure code blocks have bottom margin */
+.prose .not-prose {
+  margin-bottom: 2rem;
+}
+
+/* Paragraph spacing */
+.prose p + p {
+  margin-top: 1.5em;
+}
+
+/* List spacing */
+.prose p + ul,
+.prose p + ol {
+  margin-top: 1.5em;
+}
+
+.prose ul + p,
+.prose ol + p {
+  margin-top: 1.5em;
+}
+
+/* Add margin to .not-prose elements only when they follow prose elements */
+.prose :not(.not-prose) + .not-prose {
+  @apply mt-6;
+}
+
+/* Add margin to prose elements when they follow .not-prose elements */
+.prose .not-prose + * {
+  @apply mt-6;
+}
+
+/* Animated font weight for variable fonts */
+.font-weight-animated {
+  font-variation-settings: "wght" 400;
+}
+
+.font-weight-animated:hover {
+  font-variation-settings: "wght" 900;
+}
+
+/* Code annotations */
+.diagnostic {
+  text-decoration: wavy underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.diagnostic-error {
+  text-decoration-color: rgb(239, 68, 68);
+}
+
+.diagnostic-warning {
+  text-decoration-color: rgb(234, 179, 8);
+}
+
+.diagnostic-info {
+  text-decoration-color: rgb(59, 130, 246);
+}
+
+.diagnostic-squiggle {
+  text-decoration-color: rgb(156, 163, 175);
+}
+
+.diagnostic-message {
+  border-left: 3px solid;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.diagnostic-message-error {
+  border-color: rgb(239, 68, 68);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgb(252, 165, 165);
+}
+
+.diagnostic-message-warning {
+  border-color: rgb(234, 179, 8);
+  background-color: rgba(234, 179, 8, 0.1);
+  color: rgb(253, 224, 71);
+}
+
+.diagnostic-message-info {
+  border-color: rgb(59, 130, 246);
+  background-color: rgba(59, 130, 246, 0.1);
+  color: rgb(147, 197, 253);
+}
+
+.diagnostic-message-callout {
+  border-color: rgb(168, 85, 247);
+  background-color: rgba(168, 85, 247, 0.1);
+  color: rgb(216, 180, 254);
+}
+
+.annotation-border {
+  outline: 2px solid rgb(239, 68, 68);
+  outline-offset: -2px;
+}
+
+.annotation-bg {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Show messages using data attributes and ::after */
+.line[data-annotation-message]:not([data-annotation-type="callout"])::after {
+  content: attr(data-annotation-message);
+  display: block;
+  border-left: 3px solid;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-decoration: none; /* Remove any inherited decorations */
+}
+
+.line[data-annotation-type="error"]::after {
+  border-color: rgb(239, 68, 68);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgb(252, 165, 165);
+}
+
+.line[data-annotation-type="warning"]::after {
+  border-color: rgb(234, 179, 8);
+  background-color: rgba(234, 179, 8, 0.1);
+  color: rgb(253, 224, 71);
+}
+
+.line[data-annotation-type="info"]::after {
+  border-color: rgb(59, 130, 246);
+  background-color: rgba(59, 130, 246, 0.1);
+  color: rgb(147, 197, 253);
+}
+
+.line[data-annotation-type="callout"] {
+  position: relative;
+}
+
+.line[data-callout-line="true"] {
+  display: block;
+  position: relative;
+}
+
+.line[data-callout-line="true"] .callout-message {
+  display: block;
+  width: 100%;
+  margin: 0.75rem 0 0.35rem;
+  padding: 0.65rem 1rem;
+  --callout-pointer-size: 0.9rem;
+  background: var(--color-callout-background);
+  color: var(--color-callout-text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  position: relative;
+  border-radius: 0.35rem;
+  box-shadow:
+    0 18px 32px rgba(16, 14, 40, 0.55),
+    inset 0 0 0 1px var(--color-callout-border);
+  white-space: normal;
+  word-break: break-word;
+}
+
+.line[data-callout-line="true"] .callout-message {
+  --callout-anchor-px: 1rem;
+}
+
+.line[data-callout-line="true"] .callout-message::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--callout-pointer-size) / 2);
+  left: clamp(1rem, var(--callout-anchor-px, 1rem), calc(100% - 1rem));
+  width: var(--callout-pointer-size);
+  height: var(--callout-pointer-size);
+  background: var(--color-callout-background);
+  border-left: 1px solid var(--color-callout-border);
+  border-top: 1px solid var(--color-callout-border);
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.line .callout {
+  /* text-decoration: underline var(--color-callout-border);
+  text-decoration-thickness: 2px; */
+
+  /* text-underline-offset: 1px; */
+
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 0rem 0.35rem;
+  margin-bottom: 0.2rem;
+  margin-left: 0.1rem;
+  margin-right: 0.1rem;
+
+  border-radius: 0.35rem;
+  color: var(--color-callout-text);
+  background: color-mix(in srgb, var(--color-callout-background) 60%, transparent);
+  box-shadow: inset 0 0 0 1px var(--color-callout-border-alt);
+}

@@ -16,6 +16,9 @@ Inferrable = "Inferrable"
 noInferrableTypes = "noInferrableTypes"
 
 # Domain terms
+cose = "cose"
+Cose = "Cose"
+unparseable = "unparseable"
 sherif = "sherif"
 beep = "beep"
 monorepo = "monorepo"
