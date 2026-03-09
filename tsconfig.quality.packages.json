@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  // Keep the editor/workspace graph intact while excluding scratchpad from root quality checks.
+  "extends": "./tsconfig.packages.json",
+  "references": [
+    {
+      "path": ".claude"
+    },
+    {
+      "path": "apps/desktop"
+    },
+    {
+      "path": "packages/_internal/db-admin"
+    },
+    {
+      "path": "packages/ai/sdk"
+    },
+    {
+      "path": "packages/common/data"
+    },
+    {
+      "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/messages"
+    },
+    {
+      "path": "packages/common/nlp"
+    },
+    {
+      "path": "packages/common/schema"
+    },
+    {
+      "path": "packages/common/semantic-web"
+    },
+    {
+      "path": "packages/common/types"
+    },
+    {
+      "path": "packages/common/ui"
+    },
+    {
+      "path": "packages/common/utils"
+    },
+    {
+      "path": "packages/repo-memory/client"
+    },
+    {
+      "path": "packages/repo-memory/model"
+    },
+    {
+      "path": "packages/repo-memory/runtime"
+    },
+    {
+      "path": "packages/repo-memory/sqlite"
+    },
+    {
+      "path": "packages/repo-memory/store"
+    },
+    {
+      "path": "packages/runtime/protocol"
+    },
+    {
+      "path": "packages/runtime/server"
+    },
+    {
+      "path": "packages/shared/client"
+    },
+    {
+      "path": "packages/shared/domain"
+    },
+    {
+      "path": "packages/shared/env"
+    },
+    {
+      "path": "packages/shared/server"
+    },
+    {
+      "path": "packages/shared/tables"
+    },
+    {
+      "path": "packages/shared/ui"
+    },
+    {
+      "path": "tooling/cli"
+    },
+    {
+      "path": "tooling/codegraph"
+    },
+    {
+      "path": "tooling/configs"
+    },
+    {
+      "path": "tooling/repo-utils"
+    },
+    {
+      "path": "tooling/test-utils"
+    }
+  ]
+}

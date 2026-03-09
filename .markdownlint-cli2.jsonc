@@ -25,6 +25,7 @@
     "storybook-static/**",
     "tmp/**",
     ".beep/**",
+    "scratchpad/**",
     "**/docs/**",
     ".agents/**",
     ".claude/**",

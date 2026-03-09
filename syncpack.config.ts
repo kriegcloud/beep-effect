@@ -1,6 +1,18 @@
 import type { RcFile } from "syncpack";
 
 const config = {
+  source: [
+    "package.json",
+    ".claude/package.json",
+    "apps/*/package.json",
+    "packages/_internal/*/package.json",
+    "packages/ai/*/package.json",
+    "packages/common/*/package.json",
+    "packages/repo-memory/*/package.json",
+    "packages/runtime/*/package.json",
+    "packages/shared/*/package.json",
+    "tooling/*/package.json",
+  ],
   customTypes: {
     catalog: {
       path: "catalog",
