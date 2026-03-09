@@ -109,7 +109,6 @@
     "@babel/plugin-transform-modules-commonjs": "catalog:",
     "@biomejs/biome": "catalog:",
     "@changesets/changelog-github": "catalog:",
-
     "@changesets/cli": "catalog:",
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",
