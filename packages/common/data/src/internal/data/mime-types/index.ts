@@ -152,7 +152,7 @@ export type FileExtension = (typeof mimes)[MimeType]["extensions"][number];
 export const mimeTypes = mimes as unknown as Record<MimeType, { source: string; extensions: FileExtension[] }>;
 
 function extname(path: string) {
-  return O.fromUndefinedOr(Str.lastIndexOf(".")(path)).pipe(
+  return Str.lastIndexOf(".")(path).pipe(
     O.map((index) => Str.substring(index)(path)),
     O.getOrElse(thunkEmptyStr)
   );
@@ -248,7 +248,11 @@ let inittedMaps = false;
 const preference: ReadonlyArray<string | undefined> = ["nginx", "apache", undefined, "iana"];
 
 function preferenceOf(source: string): number {
-  return A.findFirstIndex(preference, (p) => p === source) ?? -1;
+  return pipe(
+    preference,
+    A.findFirstIndex((p) => p === source),
+    O.getOrElse(() => -1)
+  );
 }
 
 /**

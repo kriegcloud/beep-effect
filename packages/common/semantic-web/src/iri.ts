@@ -1,6 +1,7 @@
 import { $SemanticWebId } from "@beep/identity/packages";
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -72,6 +73,9 @@ const iprivateRanges = [
 ] as const satisfies ReadonlyArray<readonly [number, number]>;
 
 const slice = (input: string, start: number, end?: number): string => pipe(input, Str.slice(start, end));
+
+const codePointAt = (input: string, index: number): number | undefined =>
+  pipe(input, Str.codePointAt(index), O.getOrUndefined);
 
 const findAsciiCharacter = (input: string, search: string, start = 0): number | undefined => {
   let index = start;
@@ -179,8 +183,8 @@ const isIunreserved = (codePoint: number): boolean =>
   !isForbiddenBidiFormattingCodePoint(codePoint) && (isAsciiUnreserved(codePoint) || isUcschar(codePoint));
 
 const isPctEncodedAt = (input: string, index: number): boolean => {
-  const first = pipe(input, Str.codePointAt(index + 1));
-  const second = pipe(input, Str.codePointAt(index + 2));
+  const first = codePointAt(input, index + 1);
+  const second = codePointAt(input, index + 2);
 
   return input[index] === "%" && first !== undefined && second !== undefined && isHexDigit(first) && isHexDigit(second);
 };
@@ -196,7 +200,12 @@ const scanComponent = (
   let index = start;
 
   while (index < Str.length(input)) {
-    const codePoint = Number(pipe(input, Str.codePointAt(index)));
+    const codePoint = codePointAt(input, index);
+
+    if (codePoint === undefined) {
+      return undefined;
+    }
+
     const width = codePoint > 0xffff ? 2 : 1;
 
     if (stopCodePoint(codePoint)) {
@@ -254,15 +263,15 @@ const isValidH16 = (input: string): boolean => {
 
 const isValidIPv4Octet = (input: string): boolean => {
   const length = Str.length(input);
-  const firstCodePoint = Number(pipe(input, Str.codePointAt(0)));
-  const secondCodePoint = Number(pipe(input, Str.codePointAt(1)));
+  const firstCodePoint = codePointAt(input, 0);
+  const secondCodePoint = codePointAt(input, 1);
 
   if (length === 1) {
-    return isDigit(firstCodePoint);
+    return firstCodePoint !== undefined && isDigit(firstCodePoint);
   }
 
   if (length === 2) {
-    return input[0] >= "1" && input[0] <= "9" && isDigit(secondCodePoint);
+    return input[0] >= "1" && input[0] <= "9" && secondCodePoint !== undefined && isDigit(secondCodePoint);
   }
 
   if (length !== 3) {
@@ -365,7 +374,13 @@ const isValidIPvFuture = (input: string): boolean => {
 
   let index = 1;
 
-  while (index < Str.length(input) && isHexDigit(Number(pipe(input, Str.codePointAt(index))))) {
+  while (index < Str.length(input)) {
+    const codePoint = codePointAt(input, index);
+
+    if (codePoint === undefined || !isHexDigit(codePoint)) {
+      break;
+    }
+
     index += 1;
   }
 
@@ -619,7 +634,7 @@ const parseIRelativePart = (input: string, start: number): ParseEnd => {
 };
 
 const parseScheme = (input: string, start: number): ParseEnd => {
-  const first = pipe(input, Str.codePointAt(start));
+  const first = codePointAt(input, start);
 
   if (first === undefined || !isAlpha(first)) {
     return undefined;
@@ -634,7 +649,7 @@ const parseScheme = (input: string, start: number): ParseEnd => {
       return index;
     }
 
-    const codePoint = pipe(input, Str.codePointAt(index));
+    const codePoint = codePointAt(input, index);
 
     if (
       codePoint === undefined ||

@@ -204,7 +204,7 @@ export const getQueryTypeStyle = QueryType.$match({
 const processLineHighlight = (line: string) => {
   // 1. Protect and highlight strings first (highest priority, don't touch contents)
   const afterStrings = pipe({ result: line, strings: A.empty<string>(), quotedIds: A.empty<string>() }, (state) => {
-    const matches = pipe(state.result, Str.match(/'[^']*'/g)) ?? A.empty<string>();
+    const matches = pipe(state.result, Str.match(/'[^']*'/g), O.getOrElse(A.empty<string>));
     const highlighted = pipe(matches, A.map(pc.green));
     const replaced = pipe(
       highlighted,
@@ -218,7 +218,7 @@ const processLineHighlight = (line: string) => {
 
   // 2. Protect and highlight quoted identifiers
   const afterQuotedIds = pipe(afterStrings, (state) => {
-    const matches = pipe(state.result, Str.match(/"[^"]+"/g)) ?? A.empty<string>();
+    const matches = pipe(state.result, Str.match(/"[^"]+"/g), O.getOrElse(A.empty<string>));
     const highlighted = pipe(matches, A.map(pc.white));
     const replaced = pipe(
       highlighted,
@@ -478,7 +478,6 @@ const extractSourceLocationFromLine = (line: string): O.Option<string> =>
   pipe(
     line,
     Str.match(stackFramePattern),
-    O.fromNullishOr,
     O.flatMap((match) => {
       const filePath = match[1];
       const lineNum = match[2];
@@ -516,7 +515,6 @@ const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
   pipe(
     message,
     Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s),
-    O.fromNullishOr,
     O.map((failedQueryMatch): DrizzleQueryExtraction => {
       const query = pipe(failedQueryMatch[1], O.fromNullishOr, O.map(Str.trim), O.getOrNull);
       const params = pipe(

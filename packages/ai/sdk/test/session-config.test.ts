@@ -4,6 +4,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import { runEffect } from "./effect-test.js";
 
@@ -12,7 +13,7 @@ const sessionConfigLayer = (entries: Record<string, string>) =>
   Layer.fresh(SessionConfig.layer.pipe(Layer.provide(configLayer(entries))));
 const toMillis = (input: Duration.Input) => {
   const duration = Duration.fromInput(input);
-  return duration === undefined ? undefined : Duration.toMillis(duration);
+  return O.getOrUndefined(O.map(duration, Duration.toMillis));
 };
 
 test("SessionConfig reads defaults from config provider", async () => {

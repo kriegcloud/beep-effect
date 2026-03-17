@@ -83,7 +83,6 @@ export const findRepoRoot: (
 const parentDir = (p: string): string =>
   pipe(
     Str.lastIndexOf("/")(p),
-    O.fromNullishOr,
     O.map((lastSlash) => (lastSlash === 0 ? "/" : Str.substring(0, lastSlash)(p))),
     O.getOrElse(() => "/")
   );

@@ -47,7 +47,7 @@ export const resolveRequestTenant = (requestedTenant?: string) =>
     const requestOption = yield* Effect.serviceOption(HttpServerRequest.HttpServerRequest);
     const requested = normalizeTenant(requestedTenant);
     const caller = O.isSome(requestOption)
-      ? normalizeTenant(Headers.get(requestOption.value.headers, callerTenantHeader))
+      ? normalizeTenant(O.getOrUndefined(Headers.get(requestOption.value.headers, callerTenantHeader)))
       : undefined;
 
     yield* validateTenant(requested, "requested");

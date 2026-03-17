@@ -1,6 +1,7 @@
 import { Struct } from "@beep/utils";
 import { Clock, Duration, Effect, HashSet } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 
 /**
@@ -55,8 +56,8 @@ export const Compaction = {
   byAge: (maxAge: Duration.Input): CompactionStrategy =>
     Effect.fn("Compaction.byAge")(function* (entries) {
       const maxAgeDuration = Duration.fromInput(maxAge);
-      if (maxAgeDuration === undefined) return toBracket(A.empty(), entries);
-      const maxAgeMs = Duration.toMillis(maxAgeDuration);
+      if (O.isNone(maxAgeDuration)) return toBracket(A.empty(), entries);
+      const maxAgeMs = Duration.toMillis(maxAgeDuration.value);
       if (maxAgeMs <= 0) return toBracket(A.empty(), entries);
       const now = yield* Clock.currentTimeMillis;
       const cutoff = now - maxAgeMs;

@@ -28,7 +28,7 @@ const windowsInvalidTrailingSegmentRegExp = /^(?!.*[ .]$).+$/;
 const matchesPattern =
   (pattern: RegExp) =>
   (value: string): boolean =>
-    O.isSome(O.fromNullishOr(Str.match(pattern)(value)));
+    O.isSome(Str.match(pattern)(value));
 
 const splitNonEmpty = (separator: string | RegExp) => flow(Str.split(separator), A.filter(Str.isNonEmpty));
 

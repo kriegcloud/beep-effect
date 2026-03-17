@@ -196,7 +196,7 @@ const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: strin
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = decodeTstychePattern(packagePath);
   if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
-  const lastSlash = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf("/")(packagePath)), thunkNegative1);
+  const lastSlash = pipe(packagePath, Str.lastIndexOf("/"), O.getOrElse(thunkNegative1));
   if (lastSlash < 0) return false;
   const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;

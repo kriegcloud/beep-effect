@@ -41,12 +41,12 @@ export const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
   pipe(O.fromNullishOr(input.file_path), O.filter(P.isString));
 
 const parseYaml = (content: string): Record<string, unknown> => {
-  const matched = O.getOrNull(O.fromNullishOr(Str.match(/^---\n([\s\S]*?)\n---/)(content)));
+  const matched = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---/)(content));
   if (!matched || !matched[1]) return {};
   return pipe(
     Str.split("\n")(matched[1]),
     A.map((line: string) => {
-      const m = O.getOrNull(O.fromNullishOr(Str.match(/^(\w+):\s*["']?(.+?)["']?$/)(line)));
+      const m = O.getOrNull(Str.match(/^(\w+):\s*["']?(.+?)["']?$/)(line));
       return m?.[1] && m[2] ? O.some([m[1], m[2]] as const) : O.none();
     }),
     A.getSomes,

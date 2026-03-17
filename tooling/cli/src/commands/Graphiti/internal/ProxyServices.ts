@@ -195,8 +195,7 @@ const normalizeEndpointPath = (value: string): string => {
 const isAllowedEndpointPath = (allowedPath: string, inboundPath: string): boolean =>
   allowedPath === "/" || inboundPath === allowedPath || pipe(inboundPath, Str.startsWith(`${allowedPath}/`));
 
-const isAbsoluteRequestTarget = (value: string): boolean =>
-  O.isSome(O.fromNullishOr(Str.match(absoluteRequestTargetPattern)(value)));
+const isAbsoluteRequestTarget = (value: string): boolean => O.isSome(Str.match(absoluteRequestTargetPattern)(value));
 
 const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): HttpServerResponse.HttpServerResponse =>
   Match.value(error.reason._tag).pipe(
@@ -448,7 +447,7 @@ export const makeGraphitiProxyForwarderService = (
           return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(requestBodyResult.failure, 0), 400);
         }
         const bodyBytes = new Uint8Array(requestBodyResult.success);
-        const contentTypeOption = O.fromUndefinedOr(Headers.get(headers, "content-type"));
+        const contentTypeOption = Headers.get(headers, "content-type");
         const body = O.match(contentTypeOption, {
           onNone: () => HttpBody.uint8Array(bodyBytes),
           onSome: (contentType) => HttpBody.uint8Array(bodyBytes, contentType),

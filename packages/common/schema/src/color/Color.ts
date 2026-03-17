@@ -6,10 +6,9 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { flow, pipe, SchemaGetter, SchemaTransformation } from "effect";
+import { flow, Number as Num, pipe, SchemaGetter, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
-import * as Num from "effect/Number";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 

@@ -53,14 +53,15 @@ import {
   flow,
   Layer,
   Match,
+  PartitionedSemaphore,
   pipe,
   Schedule,
-  Semaphore,
   ServiceMap,
   Stream,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Msgpack from "effect/unstable/encoding/Msgpack";
@@ -236,7 +237,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const sessionId = yield* Config.string("BEEP_REPO_MEMORY_SESSION_ID").pipe(Config.withDefault("default"));
   workflowVersion = `cluster-first-v0:${sessionId}`;
 
-  const runCommandSemaphore = yield* Semaphore.makePartitioned<RunId>({ permits: 1 });
+  const runCommandSemaphore = yield* PartitionedSemaphore.make<RunId>({ permits: 1 });
 
   const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
 
@@ -526,7 +527,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         })
       );
 
-      if (result !== undefined && result._tag === "Suspended") {
+      if (P.isTagged("Some")(result) && P.isTagged("Suspended")(result.value)) {
         return;
       }
 

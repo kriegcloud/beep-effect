@@ -185,13 +185,13 @@ const decodeDockerImageValueToString = S.decodeUnknownSync(UnknownDockerImageVal
 
 const SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
 
-const parseSemverPart = (value: string): O.Option<number> => O.fromUndefinedOr(N.parse(value));
+const parseSemverPart = N.parse;
 
 const parseSemver = (tag: string): O.Option<readonly [number, number, number]> =>
-  O.flatMap(O.fromNullishOr(Str.match(SEMVER_PATTERN)(tag)), (m) =>
-    O.flatMap(parseSemverPart(m[1]), (major) =>
-      O.flatMap(parseSemverPart(m[2]), (minor) =>
-        O.map(parseSemverPart(m[3]), (patch) => [major, minor, patch] as const)
+  O.flatMap(Str.match(SEMVER_PATTERN)(tag), (match) =>
+    O.flatMap(parseSemverPart(match[1]), (major) =>
+      O.flatMap(parseSemverPart(match[2]), (minor) =>
+        O.map(parseSemverPart(match[3]), (patch) => [major, minor, patch] as const)
       )
     )
   );
@@ -207,8 +207,8 @@ const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 const parseImageRef = (service: string, image: string, yamlPath: ReadonlyArray<string | number>): DockerImageRef => {
-  const colonIdx = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf(":")(image)), () => -1);
-  const slashIdx = O.getOrElse(O.fromUndefinedOr(Str.indexOf("/")(image)), () => -1);
+  const colonIdx = O.getOrElse(Str.lastIndexOf(":")(image), () => -1);
+  const slashIdx = O.getOrElse(Str.indexOf("/")(image), () => -1);
 
   let repository: string;
   let tag: string;
@@ -260,7 +260,7 @@ const VERSION_PATTERN = /v?(\d+)\.(\d+)\.(\d+)/;
 const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string): O.Option<string> => {
   // Current tag is like "pg17" — find latest "pg17-v*" or similar
   const prefix = O.getOrElse(
-    O.flatMap(O.fromNullishOr(Str.match(/^(pg\d+)/)(currentTag)), (m) => O.fromNullishOr(m[1])),
+    O.flatMap(Str.match(/^(pg\d+)/)(currentTag), (match) => O.fromUndefinedOr(match[1])),
     () => currentTag
   );
 
@@ -270,7 +270,7 @@ const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string):
     if (!Str.startsWith(prefix)(tag)) continue;
     if (!isStableTag(tag)) continue;
     // Pattern: pg17-v0.8.0 or similar with version suffix
-    const version = O.flatMap(O.fromNullishOr(Str.match(VERSION_PATTERN)(tag)), (versionMatch) =>
+    const version = O.flatMap(Str.match(VERSION_PATTERN)(tag), (versionMatch) =>
       O.flatMap(parseSemverPart(versionMatch[1]), (major) =>
         O.flatMap(parseSemverPart(versionMatch[2]), (minor) =>
           O.map(parseSemverPart(versionMatch[3]), (patch) => [major, minor, patch] as const)

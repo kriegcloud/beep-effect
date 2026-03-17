@@ -377,7 +377,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
           Effect.gen(function* () {
             for (let page = 0; page < pageCount; page += 1) {
               const pageData = yield* loadPage(page);
-              const index = O.fromUndefinedOr(A.findFirstIndex(pageData.ids, (id) => id === sessionId));
+              const index = A.findFirstIndex(pageData.ids, (id) => id === sessionId);
               if (O.isSome(index)) {
                 return { page, index: index.value, pageData };
               }

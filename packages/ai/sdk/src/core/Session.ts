@@ -165,7 +165,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
   const decodeSdkMessage = Schema.decodeUnknownEffect(SDKMessage);
   const closeDrainTimeoutInput = runtimeOptions?.closeDrainTimeout ?? defaultSessionLifecyclePolicy.closeDrainTimeout;
   const closeDrainTimeout = Duration.fromInput(closeDrainTimeoutInput);
-  if (closeDrainTimeout === undefined) {
+  if (Option.isNone(closeDrainTimeout)) {
     return yield* toTransportError("Invalid session close drain timeout", closeDrainTimeoutInput);
   }
 
@@ -316,7 +316,7 @@ export const fromSdkSession = Effect.fn("Session.fromSdkSession")(function* (
         if (action.idle) {
           yield* Deferred.succeed(action.idleSignal, undefined);
         }
-        const idleResult = yield* Deferred.await(action.idleSignal).pipe(Effect.timeoutOption(closeDrainTimeout));
+        const idleResult = yield* Deferred.await(action.idleSignal).pipe(Effect.timeoutOption(closeDrainTimeout.value));
         if (Option.isNone(idleResult)) {
           yield* Effect.logWarning("Session close timed out waiting for in-flight work. Forcing shutdown.");
         }

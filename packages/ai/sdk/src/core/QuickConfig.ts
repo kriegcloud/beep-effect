@@ -1,6 +1,7 @@
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Duration, Effect, Layer, Match } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";
 import { AgentRuntimeConfig } from "./AgentRuntimeConfig.js";
@@ -123,7 +124,7 @@ type RuntimeParts = {
 
 const buildRuntimeParts = (config: ResolvedQuickConfig): RuntimeParts => {
   const runtimeConfigLayer = AgentRuntimeConfig.layerWith({
-    queryTimeout: Duration.fromInput(config.timeout),
+    queryTimeout: O.getOrUndefined(Duration.fromInput(config.timeout)),
   });
   const supervisorConfigLayer = QuerySupervisorConfig.layerWith({
     concurrencyLimit: config.concurrency,

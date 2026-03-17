@@ -386,11 +386,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const metricsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput)));
+        const metricsMatch = O.getOrNull(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput));
         yield* Console.log(metricsMatch?.[0] ?? "<metrics />");
       } else {
         const fullOutput = formatAgent(graph);
-        const metricsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput)));
+        const metricsMatch = O.getOrNull(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput));
         yield* Console.log(metricsMatch?.[0] ?? "<metrics />");
       }
       break;
@@ -401,11 +401,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const domainsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput)));
+        const domainsMatch = O.getOrNull(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput));
         yield* Console.log(domainsMatch?.[0] ?? "<domains />");
       } else {
         const fullOutput = formatAgent(graph);
-        const domainsMatch = O.getOrNull(O.fromNullishOr(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput)));
+        const domainsMatch = O.getOrNull(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput));
         yield* Console.log(domainsMatch?.[0] ?? "<domains />");
       }
       break;
@@ -416,11 +416,11 @@ const main = Effect.gen(function* () {
         directory = args[1];
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
-        const hotMatch = O.getOrNull(O.fromNullishOr(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput)));
+        const hotMatch = O.getOrNull(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput));
         yield* Console.log(hotMatch?.[0] ?? "<hot />");
       } else {
         const fullOutput = formatAgent(graph);
-        const hotMatch = O.getOrNull(O.fromNullishOr(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput)));
+        const hotMatch = O.getOrNull(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput));
         yield* Console.log(hotMatch?.[0] ?? "<hot />");
       }
       break;

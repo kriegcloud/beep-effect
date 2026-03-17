@@ -100,7 +100,7 @@ const parseBunVersionPart = (value: string): O.Option<number> => {
 };
 
 const parsePrereleaseIdentifier = (value: string): O.Option<BunSemverIdentifier> =>
-  O.isSome(O.fromNullishOr(Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value)))
+  O.isSome(Str.match(NUMERIC_PRERELEASE_IDENTIFIER)(value))
     ? parseBunVersionPart(value)
     : Str.isNonEmpty(value)
       ? O.some(value)

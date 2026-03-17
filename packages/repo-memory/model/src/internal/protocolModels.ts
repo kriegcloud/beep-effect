@@ -1,10 +1,9 @@
 import { $RepoMemoryModelId } from "@beep/identity/packages";
 import { FilePath, LiteralKit, NonNegativeInt } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { PrimaryKey, pipe, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {Str} from "@beep/utils";
-import * as P from "effect/Predicate";
 
 import {
   Citation,
@@ -45,7 +44,7 @@ const DisplayNameConstraints = S.makeFilterGroup(
       description: "Display name must not exceed 255 characters.",
       message: "displayName must not exceed 255 characters",
     }),
-    S.makeFilter(P.not(controlCharacterRegExp.test), {
+    S.makeFilter((value: string) => !controlCharacterRegExp.test(value), {
       identifier: $I`DisplayNameNoControlCharsCheck`,
       title: "Display Name No Control Characters",
       description: "Display name must not contain control characters.",
@@ -404,14 +403,14 @@ export class StreamRunEventsRequest extends S.Class<StreamRunEventsRequest>($I`S
   })
 ) {
   [PrimaryKey.symbol]() {
-    const prefix = Str.prefix(`${this.runId}:`)
+    const prefix = Str.prefix(`${this.runId}:`);
     return pipe(
       this.cursor,
       O.match({
-        onNone: () =>  prefix("stream"),
+        onNone: () => prefix("stream"),
         onSome: (cursor) => prefix(`stream:${cursor}`),
       })
-    )
+    );
   }
 }
 

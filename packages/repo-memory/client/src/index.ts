@@ -17,16 +17,17 @@ import {
   type StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Layer, ServiceMap, Stream, pipe } from "effect";
+import { Cause, Effect, Layer, pipe, ServiceMap, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import { HttpApiClient } from "effect/unstable/httpapi";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
-import * as Str from "effect/String";
+
 const $I = $RepoMemoryClientId.create("index");
 const controlPlanePrefix = "/api/v0";
 const rpcSuffix = `${controlPlanePrefix}/rpc`;
@@ -106,6 +107,10 @@ export type RepoMemoryRunRpcClient = Effect.Success<ReturnType<typeof makeRepoMe
  */
 export type RepoMemoryControlPlaneClient = Effect.Success<ReturnType<typeof makeRepoMemoryHttpClientDefault>>;
 
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
   message: S.String,
   status: S.Number,

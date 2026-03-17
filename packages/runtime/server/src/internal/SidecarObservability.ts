@@ -1,8 +1,8 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { thunkUndefined } from "@beep/utils";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import { DateTime, Duration, Effect, Layer, Match, Metric, pipe, Tracer } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as DevToolsClient from "effect/unstable/devtools/DevToolsClient";
@@ -104,25 +104,29 @@ const toDevToolsSpanStatus = Match.type<Tracer.SpanStatus>().pipe(
   })
 );
 
-const toDevToolsParentSpan = (parent: Tracer.AnySpan | undefined): DevToolsSchema.ParentSpan | undefined => {
-  return Match.value(parent).pipe(
-    Match.withReturnType<DevToolsSchema.ParentSpan | undefined>(),
-    Match.when(undefined, thunkUndefined),
-    Match.tagsExhaustive({
-      ExternalSpan: ({ spanId, traceId, sampled }) => ({ _tag: "ExternalSpan", spanId, traceId, sampled }),
-      Span: ({ spanId, traceId, name, sampled, attributes, status, parent }) => ({
-        _tag: "Span",
-        spanId,
-        traceId,
-        name,
-        sampled,
-        attributes,
-        status: toDevToolsSpanStatus(status),
-        parent: toDevToolsParentSpan(parent),
-      }),
-    })
-  );
-};
+const toDevToolsParentSpan = (parent: O.Option<Tracer.AnySpan>): O.Option<DevToolsSchema.ParentSpan> =>
+  O.match(parent, {
+    onNone: O.none,
+    onSome: (value) =>
+      O.some(
+        Match.value(value).pipe(
+          Match.withReturnType<DevToolsSchema.ParentSpan>(),
+          Match.tagsExhaustive({
+            ExternalSpan: ({ spanId, traceId, sampled }) => ({ _tag: "ExternalSpan", spanId, traceId, sampled }),
+            Span: ({ spanId, traceId, name, sampled, attributes, status, parent }) => ({
+              _tag: "Span",
+              spanId,
+              traceId,
+              name,
+              sampled,
+              attributes,
+              status: toDevToolsSpanStatus(status),
+              parent: toDevToolsParentSpan(parent),
+            }),
+          })
+        )
+      ),
+  });
 
 const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
   _tag: "Span",

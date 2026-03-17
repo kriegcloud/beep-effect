@@ -349,64 +349,70 @@ export const AuditEventInput = AuditEventInputBase.pipe(
 export type AuditEventInput = typeof AuditEventInput.Type;
 
 const normalizeToolUsePayload = (payload: ToolUsePayload): ToolUsePayload =>
-  ToolUsePayloadBase.match<ToolUsePayload>(payload, {
-    start: (value) => new ToolUsePayloadStart(value),
-    success: (value) => new ToolUsePayloadSuccess(value),
-    failure: (value) => new ToolUsePayloadFailure(value),
-  });
+  payload.status === "start"
+    ? new ToolUsePayloadStart(payload)
+    : payload.status === "success"
+      ? new ToolUsePayloadSuccess(payload)
+      : payload.status === "failure"
+        ? new ToolUsePayloadFailure(payload)
+        : payload;
 
 const normalizePermissionDecisionPayload = (payload: PermissionDecisionPayload): PermissionDecisionPayload =>
-  PermissionDecisionPayloadBase.match<PermissionDecisionPayload>(payload, {
-    allow: (value) => new PermissionDecisionPayloadAllow(value),
-    deny: (value) => new PermissionDecisionPayloadDeny(value),
-    prompt: (value) => new PermissionDecisionPayloadPrompt(value),
-  });
+  payload.decision === "allow"
+    ? new PermissionDecisionPayloadAllow(payload)
+    : payload.decision === "deny"
+      ? new PermissionDecisionPayloadDeny(payload)
+      : payload.decision === "prompt"
+        ? new PermissionDecisionPayloadPrompt(payload)
+        : payload;
 
 const normalizeHookEventPayload = (payload: HookEventPayload): HookEventPayload =>
-  HookEventPayloadBase.match<HookEventPayload>(payload, {
-    success: (value) => new HookEventPayloadSuccess(value),
-    failure: (value) => new HookEventPayloadFailure(value),
-  });
+  payload.outcome === "success"
+    ? new HookEventPayloadSuccess(payload)
+    : payload.outcome === "failure"
+      ? new HookEventPayloadFailure(payload)
+      : payload;
 
 const normalizeSyncConflictPayload = (payload: SyncConflictPayload): SyncConflictPayload =>
-  SyncConflictPayloadBase.match<SyncConflictPayload>(payload, {
-    accept: (value) => new SyncConflictPayloadAccept(value),
-    merge: (value) => new SyncConflictPayloadMerge(value),
-    reject: (value) => new SyncConflictPayloadReject(value),
-  });
+  payload.resolution === "accept"
+    ? new SyncConflictPayloadAccept(payload)
+    : payload.resolution === "merge"
+      ? new SyncConflictPayloadMerge(payload)
+      : payload.resolution === "reject"
+        ? new SyncConflictPayloadReject(payload)
+        : payload;
 
 /**
  * @since 0.0.0
  * @category DomainLogic
  */
 export const normalizeAuditEventInput: (input: AuditEventInput) => AuditEventInput = (input) =>
-  AuditEventInputBase.match<AuditEventInput>(input, {
-    tool_use: ({ payload }) =>
-      new AuditEventInputToolUse({
+  input.event === "tool_use"
+    ? new AuditEventInputToolUse({
         event: "tool_use",
-        payload: normalizeToolUsePayload(payload),
-      }),
-    permission_decision: ({ payload }) =>
-      new AuditEventInputPermissionDecision({
-        event: "permission_decision",
-        payload: normalizePermissionDecisionPayload(payload),
-      }),
-    hook_event: ({ payload }) =>
-      new AuditEventInputHookEvent({
-        event: "hook_event",
-        payload: normalizeHookEventPayload(payload),
-      }),
-    sync_conflict: ({ payload }) =>
-      new AuditEventInputSyncConflict({
-        event: "sync_conflict",
-        payload: normalizeSyncConflictPayload(payload),
-      }),
-    sync_compaction: ({ payload }) =>
-      new AuditEventInputSyncCompaction({
-        event: "sync_compaction",
-        payload: SyncCompactionPayload.make(payload),
-      }),
-  });
+        payload: normalizeToolUsePayload(input.payload),
+      })
+    : input.event === "permission_decision"
+      ? new AuditEventInputPermissionDecision({
+          event: "permission_decision",
+          payload: normalizePermissionDecisionPayload(input.payload),
+        })
+      : input.event === "hook_event"
+        ? new AuditEventInputHookEvent({
+            event: "hook_event",
+            payload: normalizeHookEventPayload(input.payload),
+          })
+        : input.event === "sync_conflict"
+          ? new AuditEventInputSyncConflict({
+              event: "sync_conflict",
+              payload: normalizeSyncConflictPayload(input.payload),
+            })
+          : input.event === "sync_compaction"
+            ? new AuditEventInputSyncCompaction({
+                event: "sync_compaction",
+                payload: SyncCompactionPayload.make(input.payload),
+              })
+            : input;
 
 /**
  * Event group definitions for auditing tool use, permissions, and hook events.

@@ -683,7 +683,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
 
       const rpcSerializationLayer = RpcSerialization.layerNdjson;
       const shardingConfigLayer = ShardingConfig.layer({
-        runnerAddress: makeRunnerAddress(config),
+        runnerAddress: O.some(makeRunnerAddress(config)),
         shardsPerGroup: 300,
         entityMailboxCapacity: 4096,
         entityMessagePollInterval: Duration.millis(250),
@@ -837,7 +837,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       return HttpRouter.serve(routesLayer, {
         disableListenLog: true,
         disableLogger: true,
-      }).pipe(Layer.provideMerge(httpServerLayer));
+      }).pipe(Layer.provideMerge(httpServerLayer), Layer.provide(repoRunServiceLayer));
     })
   );
 

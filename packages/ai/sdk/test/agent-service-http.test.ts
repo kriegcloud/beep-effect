@@ -46,8 +46,10 @@ const makeWebHandler = (serverLayer: Layer.Layer<never, never, any>) =>
     ({ dispose }) => Effect.promise(dispose)
   );
 
-const makeApiLayer = <R>(handlersLayer: Layer.Layer<R, never, never>) =>
-  HttpApiBuilder.layer(AgentHttpApi).pipe(Layer.provide(handlersLayer));
+const makeApiLayer = <ROut, RIn>(
+  handlersLayer: Layer.Layer<ROut, never, RIn>,
+  accessLayer: Layer.Layer<AgentServerAccess, never, never>
+) => HttpApiBuilder.layer(AgentHttpApi).pipe(Layer.provide(handlersLayer), Layer.provide(accessLayer));
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 test("AgentHttpHandlers layer builds with AgentRuntime only", async () => {
@@ -91,11 +93,9 @@ test("AgentHttpHandlers layer builds with AgentRuntime and SessionPool", async (
 });
 
 test("AgentHttpHandlers rejects requests without the configured auth token", async () => {
-  const handlersLayer = AgentHttpHandlers.pipe(
-    Layer.provide(runtimeLayer),
-    Layer.provide(makeAccessLayer({ authToken: "secret-token" }))
-  );
-  const apiLayer = makeApiLayer(handlersLayer);
+  const accessLayer = makeAccessLayer({ authToken: "secret-token" });
+  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(accessLayer));
+  const apiLayer = makeApiLayer(handlersLayer, accessLayer);
 
   const program = Effect.scoped(
     Effect.gen(function* () {
@@ -127,6 +127,7 @@ test("AgentHttpHandlers rejects requests without the configured auth token", asy
 
 test("AgentHttpHandlers requires caller tenant header before honoring a tenant-scoped session request", async () => {
   const captured: Array<string | undefined> = [];
+  const accessLayer = makeAccessLayer();
   const poolLayer = Layer.succeed(
     SessionPool,
     SessionPool.of({
@@ -151,9 +152,9 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
   const handlersLayer = AgentHttpHandlers.pipe(
     Layer.provide(runtimeLayer),
     Layer.provide(poolLayer),
-    Layer.provide(makeAccessLayer())
+    Layer.provide(accessLayer)
   );
-  const apiLayer = makeApiLayer(handlersLayer);
+  const apiLayer = makeApiLayer(handlersLayer, accessLayer);
 
   const program = Effect.scoped(
     Effect.gen(function* () {

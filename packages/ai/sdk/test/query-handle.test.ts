@@ -42,6 +42,7 @@ const makeSdkQuery = (
     setPermissionMode: async (_mode: PermissionMode) => {},
     setModel: async (_model?: string) => {},
     setMaxThinkingTokens: async (_maxThinkingTokens: number | null) => {},
+    applyFlagSettings: async (_settings: Parameters<SdkQueryLike["applyFlagSettings"]>[0]) => {},
     initializationResult: async () => ({
       commands: [],
       output_style: "default",

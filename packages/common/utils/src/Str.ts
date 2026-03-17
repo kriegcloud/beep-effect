@@ -28,12 +28,14 @@ export const prefix: {
  * @since 0.0.0
  * @category Utility
  */
-export const prefixThunk:{
+export const prefixThunk: {
   <const Pre extends string>(prefix: Pre): <S extends string>(str: S) => () => `${Pre}${S}`;
   <const Pre extends string, const S extends string>(str: S, prefix: Pre): () => `${Pre}${S}`;
 } = dual(
   2,
-  <const Pre extends string, const S extends string>(str: S, prefix: Pre): () => `${Pre}${S}` => () => `${prefix}${str}` as const
+  <const Pre extends string, const S extends string>(str: S, prefix: Pre): (() => `${Pre}${S}`) =>
+    () =>
+      `${prefix}${str}` as const
 );
 
 /**
@@ -62,7 +64,9 @@ export const postfixThunk: {
   <const Post extends string, const S extends string>(str: S, postfix: Post): () => `${S}${Post}`;
 } = dual(
   2,
-  <const Post extends string, const S extends string>(str: S, postfix: Post): () => `${S}${Post}` => () => `${str}${postfix}` as const
+  <const Post extends string, const S extends string>(str: S, postfix: Post): (() => `${S}${Post}`) =>
+    () =>
+      `${str}${postfix}` as const
 );
 
 /**
@@ -269,5 +273,8 @@ export const repeat: {
  */
 export * from "effect/String";
 
-
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export const trimThunk = (s: string) => () => Str.trim(s);

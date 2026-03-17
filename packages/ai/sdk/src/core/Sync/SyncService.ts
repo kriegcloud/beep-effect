@@ -540,13 +540,13 @@ function makeService() {
       if (O.isSome(syncConfigOption) && syncConfigOption.value.syncInterval !== undefined) {
         const intervalInput = syncConfigOption.value.syncInterval;
         const interval = Duration.fromInput(intervalInput);
-        if (interval === undefined) {
+        if (O.isNone(interval)) {
           return;
         }
-        if (Duration.toMillis(interval) <= 0) {
+        if (Duration.toMillis(interval.value) <= 0) {
           return;
         }
-        yield* Effect.repeat(syncNow(), Schedule.spaced(interval));
+        yield* Effect.repeat(syncNow(), Schedule.spaced(interval.value));
         return;
       }
       const config = yield* Effect.serviceOption(StorageConfig);

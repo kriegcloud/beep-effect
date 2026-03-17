@@ -30,7 +30,11 @@ const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, st
       onSome: flow(
         Str.split(","),
         A.reduce(A.empty<readonly [string, string]>(), (entries, pair) => {
-          const separatorIndex = pipe(pair, Str.indexOf("="), (index) => index ?? -1);
+          const separatorIndex = pipe(
+            pair,
+            Str.indexOf("="),
+            O.getOrElse(() => -1)
+          );
           if (separatorIndex <= 0) {
             return entries;
           }

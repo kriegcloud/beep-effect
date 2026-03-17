@@ -159,7 +159,7 @@ const fetchMiseTasks = (cwd: string) =>
 
 const parseFrontmatter = (content: string): R.ReadonlyRecord<string, string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-  const match = O.getOrNull(O.fromNullishOr(Str.match(frontmatterRegex)(content)));
+  const match = O.getOrNull(Str.match(frontmatterRegex)(content));
   if (!match) return R.empty();
 
   const frontmatter = match[1];
@@ -170,7 +170,6 @@ const parseFrontmatter = (content: string): R.ReadonlyRecord<string, string> => 
     A.map((line: string) =>
       pipe(
         Str.indexOf(":")(line),
-        O.fromUndefinedOr,
         O.flatMap((colonIndex) => {
           const key = pipe(line, Str.slice(0, colonIndex), Str.trim);
           const value = pipe(line, Str.slice(colonIndex + 1), Str.trim);
@@ -351,7 +350,7 @@ const searchModules = (prompt: string, cwd: string) =>
       Effect.catch(() => Effect.succeed(""))
     );
 
-    const countMatch = O.getOrNull(O.fromNullishOr(Str.match(/count="(\d+)"/)(result)));
+    const countMatch = O.getOrNull(Str.match(/count="(\d+)"/)(result));
     const count = countMatch ? Number.parseInt(countMatch[1], 10) : 0;
 
     if (count === 0) return O.none<string>();

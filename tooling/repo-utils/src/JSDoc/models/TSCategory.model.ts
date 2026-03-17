@@ -1084,12 +1084,11 @@ const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
  * @category Utility
  */
 export function getCategoryPrecedence(tag: CategoryTag): number {
-  const index = pipe(
+  return pipe(
     CATEGORY_PRECEDENCE,
-    A.findFirstIndex((candidate) => candidate === tag)
+    A.findFirstIndex((candidate) => candidate === tag),
+    O.getOrElse(() => CATEGORY_PRECEDENCE.length)
   );
-
-  return index === undefined ? CATEGORY_PRECEDENCE.length : index;
 }
 
 /**

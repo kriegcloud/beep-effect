@@ -22,6 +22,7 @@ import {
   RgbInput,
   RgbToHex,
   RgbToOklch,
+  ThemeToken,
   WithAlpha,
 } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
@@ -90,13 +91,14 @@ describe("OklchColor", () => {
 describe("HexToRgb", () => {
   const decode = S.decodeUnknownSync(HexToRgb);
   const encode = S.encodeSync(HexToRgb);
+  const decodeRgb = S.decodeUnknownSync(Rgb);
 
   it("decodes shorthand hex into normalized RGB", () => {
-    expect(decode("#0f0")).toEqual(Rgb.makeUnsafe({ r: 0, g: 1, b: 0 }));
+    expect(decode("#0f0")).toEqual(decodeRgb({ r: 0, g: 1, b: 0 }));
   });
 
   it("encodes RGB back to canonical hex", () => {
-    expect(encode(Rgb.makeUnsafe({ r: 0, g: 1, b: 0 }))).toBe("#00ff00");
+    expect(encode(decodeRgb({ r: 0, g: 1, b: 0 }))).toBe("#00ff00");
   });
 });
 
@@ -128,6 +130,7 @@ describe("RgbToOklch and OklchToRgb", () => {
 describe("HexToOklch and OklchToHex", () => {
   const decodeHexToOklch = S.decodeUnknownSync(HexToOklch);
   const decodeOklchToHex = S.decodeUnknownSync(OklchToHex);
+  const decodeOklchInput = S.decodeUnknownSync(OklchInput);
 
   it("converts hex into canonical OKLCH", () => {
     const value = decodeHexToOklch("#ff0000");
@@ -137,7 +140,7 @@ describe("HexToOklch and OklchToHex", () => {
 
   it("encodes OKLCH input into canonical hex", () => {
     expect(
-      decodeOklchToHex(OklchInput.makeUnsafe({ l: 0.6279553606145516, c: 0.2576833077361567, h: 29.2338851923426 }))
+      decodeOklchToHex(decodeOklchInput({ l: 0.6279553606145516, c: 0.2576833077361567, h: 29.2338851923426 }))
     ).toBe("#ff0000");
   });
 });
@@ -212,6 +215,7 @@ describe("Theme schemas", () => {
   const decodeDesktopTheme = S.decodeUnknownSync(DesktopTheme);
   const decodeColorValue = S.decodeUnknownSync(ColorValue);
   const decodeResolvedTheme = S.decodeUnknownSync(ResolvedTheme);
+  const decodeThemeToken = S.decodeUnknownSync(ThemeToken);
 
   it("decodes theme color values from css var refs or normalized hex", () => {
     expect(decodeColorValue("#AbC")).toBe("#aabbcc");
@@ -256,7 +260,7 @@ describe("Theme schemas", () => {
 
     expect(theme.name).toBe("Beep Theme");
     expect(theme.id).toBe("beep-theme");
-    expect(theme.dark.overrides?.["surface.primary"]).toBe("#aabbcc");
+    expect(theme.dark.overrides?.[decodeThemeToken("surface.primary")]).toBe("#aabbcc");
   });
 
   it("decodes resolved theme records", () => {
@@ -265,6 +269,6 @@ describe("Theme schemas", () => {
       "surface.primary": "var(--surface-primary)",
     });
 
-    expect(resolved["text.primary"]).toBe("#ffffff");
+    expect(resolved[decodeThemeToken("text.primary")]).toBe("#ffffff");
   });
 });

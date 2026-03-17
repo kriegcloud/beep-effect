@@ -34,7 +34,7 @@ import {
   StatusCauseFields,
   TaggedErrorClass,
 } from "@beep/schema";
-import { Text, thunkEmptyStr } from "@beep/utils";
+import { Str, Text, thunkEmptyStr } from "@beep/utils";
 import {
   DateTime,
   Effect,
@@ -54,7 +54,6 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Str } from "@beep/utils";
 import * as Workflow from "effect/unstable/workflow/Workflow";
 import * as WorkflowEngine from "effect/unstable/workflow/WorkflowEngine";
 import { Node, Project, type SourceFile, type Statement, VariableDeclarationKind } from "ts-morph";
@@ -232,12 +231,7 @@ const boundedDeclarationText = (text: string): string => {
 };
 
 const firstSignatureLine = (text: string): string =>
-  pipe(
-    Str.split("\n")(text),
-    A.map(Str.trim),
-    A.findFirst(Str.isNonEmpty),
-    O.getOrElse(Str.trimThunk(text))
-  );
+  pipe(Str.split("\n")(text), A.map(Str.trim), A.findFirst(Str.isNonEmpty), O.getOrElse(Str.trimThunk(text)));
 
 const normalizedText = (value: string | undefined): O.Option<string> =>
   pipe(value === undefined ? O.none<string>() : O.some(value), O.map(Str.trim), O.filter(Str.isNonEmpty));
@@ -931,7 +925,6 @@ const dedupeArtifactsByKey = <A>(
         pipe(
           deduped,
           A.replace(existingIndex.value, choose(current, value)),
-          O.fromNullishOr,
           O.match({
             onNone: () => {},
             onSome: (d) => {

@@ -10,7 +10,6 @@ import { LiteralKit } from "@beep/schema";
 import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { VersionCategoryReport, VersionSyncError, VersionSyncResolution } from "../Models.js";
@@ -109,17 +108,17 @@ const applyDockerUpdates = Effect.fn(function* (repoRoot: string, report: Versio
       continue;
     }
 
-    const colonIdx = O.getOrElse(O.fromUndefinedOr(Str.lastIndexOf(":")(item.expected)), () => -1);
+    const colonIdx = O.getOrElse(Str.lastIndexOf(":")(item.expected), () => -1);
     if (colonIdx < 0) {
       continue;
     }
 
-    const serviceMatch = Str.match(/\(([^)]+)\)/)(item.field);
-    if (P.isNull(serviceMatch)) {
+    const serviceName = O.flatMap(Str.match(/\(([^)]+)\)/)(item.field), (match) => O.fromUndefinedOr(match[1]));
+    if (O.isNone(serviceName)) {
       continue;
     }
 
-    const changed = yield* updateYamlValue(composePath, ["services", serviceMatch[1], "image"], item.expected);
+    const changed = yield* updateYamlValue(composePath, ["services", serviceName.value, "image"], item.expected);
     filesChanged += changed ? 1 : 0;
   }
 

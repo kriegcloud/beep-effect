@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, Order, Path } from "effect";
+import { Effect, FileSystem, Inspectable, Number as N, Order, Path } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -80,27 +80,17 @@ type VersionSpecifierParts = {
 };
 
 const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierParts> => {
-  const match = Str.match(VERSION_SPECIFIER_PATTERN)(Str.trim(specifier));
-
-  if (match === null) {
-    return O.none();
-  }
-
-  return O.some({
-    prefix: match[1],
-    exact: match[2],
-  });
+  return O.flatMap(Str.match(VERSION_SPECIFIER_PATTERN)(Str.trim(specifier)), (match) =>
+    O.flatMap(O.fromUndefinedOr(match[1]), (prefix) =>
+      O.map(O.fromUndefinedOr(match[2]), (exact) => ({ prefix, exact }))
+    )
+  );
 };
 
 const parseMajorVersion = (exactVersion: string): O.Option<number> => {
-  const match = Str.match(EXACT_VERSION_PATTERN)(exactVersion);
-
-  if (match === null) {
-    return O.none();
-  }
-
-  const major = Number.parseInt(match[1], 10);
-  return Number.isNaN(major) ? O.none() : O.some(major);
+  return O.flatMap(Str.match(EXACT_VERSION_PATTERN)(exactVersion), (match) =>
+    O.flatMap(O.fromUndefinedOr(match[1]), N.parse)
+  );
 };
 
 const isLockstepEffectPackage = (packageName: string, versionSpecifier: string, canonicalMajor: number): boolean => {

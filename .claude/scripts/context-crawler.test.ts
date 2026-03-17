@@ -9,13 +9,13 @@ import { describe, expect, it } from "vitest";
 // Pure function tests - re-implement for testing since not exported
 const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-  const match = O.getOrNull(O.fromNullishOr(Str.match(frontmatterRegex)(content)));
+  const match = O.getOrNull(Str.match(frontmatterRegex)(content));
   return match ? O.some(match[1]) : O.none();
 };
 
 const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
-  const match = O.getOrNull(O.fromNullishOr(Str.match(messageRegex)(toml)));
+  const match = O.getOrNull(Str.match(messageRegex)(toml));
   return match ? O.some(match[1]) : O.none();
 };
 
@@ -35,7 +35,7 @@ const extractFirstParagraph = (content: string): O.Option<string> => {
 
 const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
-  const match = O.getOrNull(O.fromNullishOr(Str.match(purposeRegex)(content)));
+  const match = O.getOrNull(Str.match(purposeRegex)(content));
   return match ? O.some(Str.trim(match[1])) : O.none();
 };
 

@@ -1,5 +1,6 @@
 import { Duration, Effect } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { HookError } from "../Errors.js";
 import type {
@@ -107,7 +108,7 @@ export const matcher = (options: {
   readonly timeout?: Duration.Input | undefined;
   readonly hooks: ReadonlyArray<HookCallback>;
 }): HookCallbackMatcher => {
-  const timeout = options.timeout === undefined ? undefined : Duration.fromInput(options.timeout);
+  const timeout = options.timeout === undefined ? undefined : O.getOrUndefined(Duration.fromInput(options.timeout));
 
   return {
     matcher: options.matcher,

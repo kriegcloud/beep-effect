@@ -181,7 +181,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
       if (typeArgs && typeArgs.length > 0) {
         typeArgString = checker.typeToString(typeArgs[0]);
       } else if (typeString.startsWith("Id<")) {
-        const match = O.getOrNull(O.fromNullishOr(Str.match(/^Id<(.+)>$/)(typeString)));
+        const match = O.getOrNull(Str.match(/^Id<(.+)>$/)(typeString));
         if (match) {
           typeArgString = match[1];
         }
@@ -201,7 +201,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
             deps.push(serviceName);
           }
         } else if (typeArgString.startsWith('"@')) {
-          const match = O.getOrNull(O.fromNullishOr(Str.match(/^"@[^/]+\/([^"]+)"$/)(typeArgString)));
+          const match = O.getOrNull(Str.match(/^"@[^/]+\/([^"]+)"$/)(typeArgString));
           if (match) {
             const serviceName = match[1];
 
