@@ -657,14 +657,18 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const fileSystemLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
       const sqliteBaseLayer = Layer.unwrap(
         Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          yield* fs.makeDirectory(config.appDataDir, { recursive: true });
+          const fileSystemContext = yield* Layer.build(fileSystemLayer);
 
-          return SqliteClient.layer({
-            filename: path.join(config.appDataDir, "repo-memory.sqlite"),
-          });
-        }).pipe(Effect.provide(fileSystemLayer))
+          return yield* Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            yield* fs.makeDirectory(config.appDataDir, { recursive: true });
+
+            return SqliteClient.layer({
+              filename: path.join(config.appDataDir, "repo-memory.sqlite"),
+            });
+          }).pipe(Effect.provide(fileSystemContext));
+        })
       );
 
       // FINDING-004: Set busy_timeout so SQLite retries internally for 5s on contention.

@@ -73,9 +73,9 @@ export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($
  * @since 0.0.0
  * @category DomainModel
  */
-export interface SqlTestHooks {
-  readonly migrate?: undefined | Effect.Effect<void, unknown, SqlClient.SqlClient>;
-  readonly seed?: undefined | Effect.Effect<void, unknown, SqlClient.SqlClient>;
+export interface SqlTestHooks<MigrateError = never, SeedError = never> {
+  readonly migrate?: undefined | Effect.Effect<void, MigrateError, SqlClient.SqlClient>;
+  readonly seed?: undefined | Effect.Effect<void, SeedError, SqlClient.SqlClient>;
 }
 
 /**
@@ -103,11 +103,11 @@ const toHarnessError = (
     phase,
   });
 
-const runHook = <Services, SqlService extends Services>(
+const runHook = <Services, SqlService extends Services, HookError>(
   driver: typeof TestDatabaseDriver.Type,
   phase: Extract<typeof SqlTestHarnessPhase.Type, "migrate" | "seed">,
   sqlClient: ServiceMap.Key<SqlService, SqlClient.SqlClient>,
-  hook: undefined | Effect.Effect<void, unknown, SqlClient.SqlClient>,
+  hook: undefined | Effect.Effect<void, HookError, SqlClient.SqlClient>,
   context: ServiceMap.ServiceMap<Services>
 ): Effect.Effect<void, SqlTestHarnessError> =>
   hook === undefined
@@ -135,10 +135,10 @@ const runHook = <Services, SqlService extends Services>(
  * @since 0.0.0
  * @category Configuration
  */
-export const makeSqlTestLayer = <Config, Services, SqlService extends Services>(options: {
+export const makeSqlTestLayer = <Config, Services, SqlService extends Services, MigrateError = never, SeedError = never>(options: {
   readonly config: Config;
   readonly driver: SqlTestDriver<Config, Services, SqlService>;
-  readonly hooks?: SqlTestHooks;
+  readonly hooks?: SqlTestHooks<MigrateError, SeedError>;
 }): Layer.Layer<Services, SqlTestHarnessError> =>
   Layer.unwrap(
     Effect.gen(function* () {

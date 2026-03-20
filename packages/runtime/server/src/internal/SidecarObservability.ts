@@ -246,32 +246,27 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
 export const provideSidecarObservability = <A, E, R>(
   config: SidecarObservabilityConfig,
   effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> => {
-  let provided = effect.pipe(Effect.provide(Metric.enableRuntimeMetricsLayer));
-
-  if (config.otlpEnabled) {
-    provided = provided.pipe(
-      Effect.provide(
-        Otlp.layerProtobuf({
-          baseUrl: config.otlpBaseUrl,
-          resource: makeOtlpResource(config),
-          loggerExportInterval: Duration.seconds(1),
-          loggerMergeWithExisting: true,
-          metricsExportInterval: Duration.seconds(10),
-          metricsTemporality: "cumulative",
-          tracerExportInterval: Duration.seconds(5),
-          shutdownTimeout: Duration.seconds(3),
-        }).pipe(Layer.provide(BunHttpClient.layer))
+): Effect.Effect<A, E, R> =>
+  Effect.scoped(
+    Layer.build(
+      Layer.mergeAll(
+        Metric.enableRuntimeMetricsLayer,
+        config.otlpEnabled
+          ? Otlp.layerProtobuf({
+              baseUrl: config.otlpBaseUrl,
+              resource: makeOtlpResource(config),
+              loggerExportInterval: Duration.seconds(1),
+              loggerMergeWithExisting: true,
+              metricsExportInterval: Duration.seconds(10),
+              metricsTemporality: "cumulative",
+              tracerExportInterval: Duration.seconds(5),
+              shutdownTimeout: Duration.seconds(3),
+            }).pipe(Layer.provide(BunHttpClient.layer))
+          : Layer.empty,
+        config.devtoolsEnabled ? makeFilteredDevToolsLayer(config.devtoolsUrl) : Layer.empty
       )
-    );
-  }
-
-  if (config.devtoolsEnabled) {
-    provided = provided.pipe(Effect.provide(makeFilteredDevToolsLayer(config.devtoolsUrl)));
-  }
-
-  return provided;
-};
+    ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+  );
 
 /**
  * Strip duplicate terminal histogram buckets from Prometheus exposition text.

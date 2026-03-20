@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
@@ -41,4 +41,8 @@ export const makeHttpClient = (options?: AgentHttpClientOptions) =>
  * @category Integration
  */
 export const makeHttpClientDefault = (options?: AgentHttpClientOptions) =>
-  makeHttpClient(options).pipe(Effect.provide(FetchHttpClient.layer));
+  Effect.scoped(
+    Layer.build(FetchHttpClient.layer).pipe(
+      Effect.flatMap((context) => makeHttpClient(options).pipe(Effect.provide(context)))
+    )
+  );

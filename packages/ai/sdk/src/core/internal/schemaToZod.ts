@@ -146,7 +146,7 @@ const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Res
       return compiledRest;
     }
     const [first, ...rest] = compiledElements;
-    if (!first) {
+    if (first === undefined) {
       return Result.succeed(z.array(compiledRest.success));
     }
     return Result.succeed(z.tuple([first, ...rest]).rest(compiledRest.success));
@@ -208,7 +208,7 @@ const compileEnum = (ast: AST.Enum): Result.Result<z.ZodType, SchemaToZodError> 
   }
 
   const [head, next, ...rest] = literals;
-  if (!head || !next) {
+  if (head === undefined || next === undefined) {
     return Result.succeed(z.never());
   }
 

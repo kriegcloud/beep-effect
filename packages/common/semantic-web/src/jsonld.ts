@@ -259,7 +259,7 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
 export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObject`)(
   {
     "@id": S.OptionFromOptionalKey(JsonLdNodeIdentifier),
-    "@type": S.OptionFromOptionalKey(S.Array(IRIReference)),
+    "@type": IRIReference.pipe(S.Array, S.OptionFromOptionalKey),
     properties: S.Record(S.String, S.Array(JsonLdPropertyValue)),
   },
   $I.annote("JsonLdNodeObject", {
@@ -313,7 +313,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
 export class JsonLdFrame extends S.Class<JsonLdFrame>($I`JsonLdFrame`)(
   {
     "@type": S.OptionFromOptionalKey(IRIReference),
-    includeProperties: S.OptionFromOptionalKey(S.Array(S.String)),
+    includeProperties: S.String.pipe(S.Array, S.OptionFromOptionalKey),
   },
   $I.annote("JsonLdFrame", {
     description: "Bounded JSON-LD frame model.",

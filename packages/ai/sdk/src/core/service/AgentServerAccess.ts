@@ -64,11 +64,12 @@ const normalizeAuthHeaderToken = (value: string): string => {
 };
 
 const extractRequestToken = (request: HttpServerRequest.HttpServerRequest): O.Option<string> =>
-  pipe(
-    normalizeOptionalValue(O.getOrUndefined(Headers.get(request.headers, authorizationHeader))),
+  Headers.get(request.headers, authorizationHeader).pipe(
+    O.getOrUndefined,
+    normalizeOptionalValue,
     O.map(normalizeAuthHeaderToken),
     O.filter(Str.isNonEmpty),
-    O.orElse(() => normalizeOptionalValue(O.getOrUndefined(Headers.get(request.headers, fallbackTokenHeader))))
+    O.orElse(() => Headers.get(request.headers, fallbackTokenHeader).pipe(O.getOrUndefined, normalizeOptionalValue))
   );
 
 const normalizeHostname = (hostname: string): string => pipe(hostname, Str.trim, Str.toLowerCase);

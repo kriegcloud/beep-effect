@@ -1,6 +1,11 @@
 {
   "name": "@beep/shared-providers",
   "private": true,
+  "scripts": {
+    "build": "echo 'no build needed'",
+    "check": "echo 'no check needed'",
+    "lint:fix": "echo 'no lint fixes needed'"
+  },
   "type": "module",
   "version": "0.0.0"
 }

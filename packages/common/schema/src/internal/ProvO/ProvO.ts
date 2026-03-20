@@ -1173,65 +1173,47 @@ const EntityFields = {
   wasQuotedFrom: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   wasRevisionOf: S.OptionFromOptionalKey(S.suspend((): SyncSchema => OneOrMoreEntitiesOrRefIds)),
   atLocation: S.OptionFromOptionalKey(LocationReference),
-  links: S.OptionFromOptionalKey(S.Array(ExternalLink)),
-  qualifiedGeneration: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedGenerationReference",
-      "A qualified generation relation or reference.",
-      (): SyncSchema => Generation
-    )
-  ),
-  qualifiedInvalidation: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedInvalidationReference",
-      "A qualified invalidation relation or reference.",
-      (): SyncSchema => Invalidation
-    )
-  ),
-  qualifiedDerivation: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedDerivationReference",
-      "A qualified derivation relation or reference.",
-      (): SyncSchema => Derivation
-    )
-  ),
-  qualifiedPrimarySource: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedPrimarySourceReference",
-      "A qualified primary source relation or reference.",
-      (): SyncSchema => PrimarySource
-    )
-  ),
-  qualifiedQuotation: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedQuotationReference",
-      "A qualified quotation relation or reference.",
-      (): SyncSchema => Quotation
-    )
-  ),
-  qualifiedRevision: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedRevisionReference",
-      "A qualified revision relation or reference.",
-      (): SyncSchema => Revision
-    )
-  ),
-  qualifiedAttribution: S.OptionFromOptionalKey(
-    objectRefOrInlineOrMany(
-      "QualifiedAttributionReference",
-      "A qualified attribution relation or reference.",
-      (): SyncSchema => Attribution
-    )
-  ),
-  hadMember: S.OptionFromOptionalKey(
-    S.Array(
-      objectRefOrInline(
-        "CollectionMemberEntityReference",
-        "A collection member entity or entity reference.",
-        (): SyncSchema => Entity
-      )
-    )
-  ),
+  links: ExternalLink.pipe(S.Array, S.OptionFromOptionalKey),
+  qualifiedGeneration: objectRefOrInlineOrMany(
+    "QualifiedGenerationReference",
+    "A qualified generation relation or reference.",
+    (): SyncSchema => Generation
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedInvalidation: objectRefOrInlineOrMany(
+    "QualifiedInvalidationReference",
+    "A qualified invalidation relation or reference.",
+    (): SyncSchema => Invalidation
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedDerivation: objectRefOrInlineOrMany(
+    "QualifiedDerivationReference",
+    "A qualified derivation relation or reference.",
+    (): SyncSchema => Derivation
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedPrimarySource: objectRefOrInlineOrMany(
+    "QualifiedPrimarySourceReference",
+    "A qualified primary source relation or reference.",
+    (): SyncSchema => PrimarySource
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedQuotation: objectRefOrInlineOrMany(
+    "QualifiedQuotationReference",
+    "A qualified quotation relation or reference.",
+    (): SyncSchema => Quotation
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedRevision: objectRefOrInlineOrMany(
+    "QualifiedRevisionReference",
+    "A qualified revision relation or reference.",
+    (): SyncSchema => Revision
+  ).pipe(S.OptionFromOptionalKey),
+  qualifiedAttribution: objectRefOrInlineOrMany(
+    "QualifiedAttributionReference",
+    "A qualified attribution relation or reference.",
+    (): SyncSchema => Attribution
+  ).pipe(S.OptionFromOptionalKey),
+  hadMember: objectRefOrInline(
+    "CollectionMemberEntityReference",
+    "A collection member entity or entity reference.",
+    (): SyncSchema => Entity
+  ).pipe(S.Array, S.OptionFromOptionalKey),
   ...InfluencedFields,
   activityType: S.optionalKey(S.Never),
   endedAtTime: S.optionalKey(S.Never),

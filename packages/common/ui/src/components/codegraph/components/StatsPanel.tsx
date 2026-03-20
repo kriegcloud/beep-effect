@@ -1,10 +1,10 @@
-import { basename } from "node:path";
 import { $UiId } from "@beep/identity";
 import { useAtom } from "@effect/atom-react";
 import { Match, Number as N, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Atom } from "effect/unstable/reactivity";
 import { HealthStats } from "../neo4j.ts";
 
@@ -22,6 +22,8 @@ const showGodObjectsAtom = Atom.make<boolean>(false);
 const showGodFilesAtom = Atom.make<boolean>(false);
 
 const showDuplicatesAtom = Atom.make<boolean>(false);
+
+const basename = Str.replace(/^.*[\\/]/, "");
 
 export function StatsPanel({ loading, stats }: Props) {
   const [showDeadCode, setShowDeadCode] = useAtom(showDeadCodeAtom);

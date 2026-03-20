@@ -36,7 +36,7 @@ const encodeSsePayload = S.encodeUnknownOption(S.UnknownFromJsonString);
 
 const toSseChunk = (data: unknown, event?: string) => {
   const payload = O.getOrElse(encodeSsePayload(data), () => String(data));
-  const eventLine = event ? `event: ${event}\n` : "";
+  const eventLine = event === undefined ? "" : `event: ${event}\n`;
   return textEncoder.encode(`${eventLine}data: ${payload}\n\n`);
 };
 

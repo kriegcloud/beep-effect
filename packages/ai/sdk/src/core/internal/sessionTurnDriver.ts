@@ -175,7 +175,7 @@ export const makeSessionTurnDriver = ({
     const completeTurn = (request: TurnRequest) => pushOutput(request, { _tag: "Done" });
 
     const publishOutput = (request: TurnRequest, message: SDKMessage) =>
-      (onOutputMessage ? onOutputMessage(message) : Effect.void).pipe(
+      (onOutputMessage === undefined ? Effect.void : onOutputMessage(message)).pipe(
         Effect.andThen(pushOutput(request, { _tag: "Message", message }))
       );
 
@@ -385,9 +385,10 @@ export const makeSessionTurnDriver = ({
       })
     );
 
-    const streamRaw = onOutputMessage
-      ? streamRawBase.pipe(Stream.tap((message) => onOutputMessage(message)))
-      : streamRawBase;
+    const streamRaw =
+      onOutputMessage === undefined
+        ? streamRawBase
+        : streamRawBase.pipe(Stream.tap((message) => onOutputMessage(message)));
 
     return {
       turn,

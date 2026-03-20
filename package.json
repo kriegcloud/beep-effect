@@ -127,12 +127,14 @@
     "@effect/platform-node-shared": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/sql-sqlite-node": "catalog:",
+    "@effect/tsgo": "0.0.16",
     "@effect/vitest": "catalog:",
     "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
     "@types/doctrine": "catalog:",
     "@types/node": "catalog:",
     "@typescript-eslint/parser": "catalog:",
+    "@typescript/native-preview": "^7.0.0-dev.20260320.1",
     "@vitest/browser": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "babel-plugin-annotate-pure-calls": "catalog:",
@@ -154,8 +156,7 @@
     "turbo": "catalog:",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "catalog:",
-    "vitest": "catalog:",
-"@effect/tsgo": "0.0.16"
+    "vitest": "catalog:"
   },
   "overrides": {
     "@hono/node-server": "^1.19.11",

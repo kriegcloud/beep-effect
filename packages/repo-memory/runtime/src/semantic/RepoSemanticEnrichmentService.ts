@@ -127,7 +127,7 @@ const normalizeRelativePath = (value: string): string => {
   }
 
   const joined = reduced.join("/");
-  return joined === "" ? absolutePrefix || "." : `${absolutePrefix}${joined}`;
+  return joined === "" ? (absolutePrefix === "" ? "." : absolutePrefix) : `${absolutePrefix}${joined}`;
 };
 
 const dirname = (filePath: string): string => {

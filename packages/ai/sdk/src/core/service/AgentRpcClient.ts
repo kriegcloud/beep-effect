@@ -48,4 +48,8 @@ export const layer = (options: AgentRpcClientOptions) => {
  * @category Integration
  */
 export const makeRpcClient = (options: AgentRpcClientOptions) =>
-  RpcClient.make(AgentRpcs).pipe(Effect.provide(layer(options)));
+  Effect.scoped(
+    Layer.build(layer(options)).pipe(
+      Effect.flatMap((context) => RpcClient.make(AgentRpcs).pipe(Effect.provide(context)))
+    )
+  );

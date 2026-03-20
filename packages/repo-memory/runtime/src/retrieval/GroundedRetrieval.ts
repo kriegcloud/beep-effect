@@ -656,7 +656,7 @@ const documentationCitations = (
     pipe(
       A.make(
         pipe(documentationCitation(symbol), O.getOrNull),
-        options?.includeDeclaration ? symbolCitation(symbol) : null
+        options?.includeDeclaration === true ? symbolCitation(symbol) : null
       ),
       A.filter((citation): citation is Citation => citation !== null)
     )

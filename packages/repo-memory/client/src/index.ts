@@ -177,7 +177,11 @@ export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =
  * @category Integration
  */
 export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOptions) =>
-  makeRepoMemoryHttpClient(options).pipe(Effect.provide(FetchHttpClient.layer));
+  Effect.scoped(
+    Layer.build(FetchHttpClient.layer).pipe(
+      Effect.flatMap((context) => makeRepoMemoryHttpClient(options).pipe(Effect.provide(context)))
+    )
+  );
 
 /**
  * Options for creating a repo-memory RPC client.
@@ -211,7 +215,11 @@ export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
  * @category Integration
  */
 export const makeRepoMemoryRpcClient = (options: RepoMemoryRpcClientOptions) =>
-  RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(repoMemoryRpcLayer(options)));
+  Effect.scoped(
+    Layer.build(repoMemoryRpcLayer(options)).pipe(
+      Effect.flatMap((context) => RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context)))
+    )
+  );
 
 const hasMessage = (input: unknown): input is { readonly message: string } =>
   P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
@@ -226,7 +234,7 @@ const transportStatus = (cause: unknown): number =>
   HttpClientError.isHttpClientError(cause) && cause.response !== undefined ? cause.response.status : 500;
 
 const toClientError = (fallback: string, cause: unknown): RepoMemoryClientError =>
-  cause instanceof RepoMemoryClientError
+  S.is(RepoMemoryClientError)(cause)
     ? cause
     : isRuntimeBoundaryPayload(cause)
       ? new RepoMemoryClientError({
@@ -240,10 +248,10 @@ const toClientError = (fallback: string, cause: unknown): RepoMemoryClientError 
           cause: O.fromUndefinedOr(P.isError(cause) ? cause : undefined),
         });
 
-const mapClientError = <A>(fallback: string, effect: Effect.Effect<A, unknown>) =>
+const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
   effect.pipe(Effect.catchCause((cause) => Effect.fail(toClientError(fallback, Cause.squash(cause)))));
 
-const mapStreamClientError = <A>(fallback: string, stream: Stream.Stream<A, unknown>) =>
+const mapStreamClientError = <A, E>(fallback: string, stream: Stream.Stream<A, E>) =>
   stream.pipe(Stream.catchCause((cause) => Stream.fail(toClientError(fallback, Cause.squash(cause)))));
 
 /**

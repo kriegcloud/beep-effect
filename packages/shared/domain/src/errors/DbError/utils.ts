@@ -620,9 +620,9 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
 
   // Header with clickable source location.
   appendLine(
-    sourceLocation
-      ? `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))} ${pc.dim("at")} ${pc.underline(pc.cyan(sourceLocation))}`
-      : `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))}`
+    sourceLocation === null
+      ? `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))}`
+      : `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))} ${pc.dim("at")} ${pc.underline(pc.cyan(sourceLocation))}`
   );
 
   // Error type and message.
@@ -651,7 +651,7 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
     if (P.isString(code) && S.is(ErrorCodeFromKey)(code)) {
       const codeLabel = ErrorCodeFromKey.To.Enum[code];
       appendLine(
-        `${boxColor(BOX.vertical)}  ${pc.dim("code")}       ${pc.yellow(code)}${codeLabel ? pc.dim(` (${codeLabel})`) : ""}`
+        `${boxColor(BOX.vertical)}  ${pc.dim("code")}       ${pc.yellow(code)}${codeLabel === undefined ? "" : pc.dim(` (${codeLabel})`)}`
       );
     }
     if (P.isString(schema)) {

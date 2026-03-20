@@ -279,7 +279,7 @@ export const pathsOf = <const S extends Record<string, unknown>>(
   const walk = (current: unknown, prefix: string): void => {
     if (P.isNullish(current) || !P.isObject(current)) return;
     for (const key of R.keys(current)) {
-      const path = prefix ? `${prefix}.${key}` : key;
+      const path = Str.isEmpty(prefix) ? key : `${prefix}.${key}`;
       result.push(path);
       walk(current[key], path);
     }
