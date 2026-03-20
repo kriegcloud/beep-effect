@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
+  "$schema": "https://raw.githubusercontent.com/Effect-TS/tsgo/refs/heads/main/schema.json",
   "include": [],
   "compilerOptions": {
     "outDir": "${configDir}/dist",
@@ -47,7 +47,50 @@
           "Record": "R",
           "Schema": "S",
           "Equal": "Eq"
-        }
+        },
+"diagnosticSeverity": {
+	"anyUnknownInErrorContext": "error",
+	"catchAllToMapError": "error",
+	"catchUnfailableEffect": "error",
+	"deterministicKeys": "error",
+	"duplicatePackage": "error",
+	"effectFnIife": "error",
+	"effectFnOpportunity": "error",
+	"effectGenUsesAdapter": "error",
+	"effectInFailure": "error",
+	"effectInVoidSuccess": "error",
+	"effectMapVoid": "error",
+	"effectSucceedWithVoid": "error",
+	"extendsNativeError": "error",
+	"genericEffectServices": "error",
+	"globalErrorInEffectCatch": "error",
+	"globalErrorInEffectFailure": "error",
+	"instanceOfSchema": "error",
+	"layerMergeAllWithDependencies": "error",
+	"leakingRequirements": "error",
+	"missedPipeableOpportunity": "error",
+	"missingEffectServiceDependency": "error",
+	"multipleEffectProvide": "error",
+	"nodeBuiltinImport": "error",
+	"outdatedApi": "error",
+	"preferSchemaOverJson": "error",
+	"redundantSchemaTagIdentifier": "error",
+	"returnEffectInGen": "error",
+	"runEffectInsideEffect": "error",
+	"schemaStructWithTag": "error",
+	"schemaSyncInEffect": "error",
+	"schemaUnionOfLiterals": "error",
+	"scopeInLayerEffect": "error",
+	"serviceNotAsClass": "error",
+	"strictBooleanExpressions": "error",
+	"strictEffectProvide": "error",
+	"tryCatchInEffectGen": "error",
+	"unknownInEffectCatch": "error",
+	"unnecessaryEffectGen": "error",
+	"unnecessaryFailYieldableError": "error",
+	"unnecessaryPipe": "error",
+	"unnecessaryPipeChain": "error"
+}
       }
     ]
   }
