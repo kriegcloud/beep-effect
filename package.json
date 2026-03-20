@@ -1,0 +1,12 @@
+{
+  "name": "effectts-skills",
+  "version": "1.0.0",
+  "description": "⚡ Effect-TS v4 skills and smart context injection for pi",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "repository": "joelhooks/effectts-skills",
+  "pi": {
+    "extensions": ["./extensions"],
+    "skills": ["./skills"]
+  }
+}
