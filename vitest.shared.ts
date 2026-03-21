@@ -1,19 +1,69 @@
+import fs from "node:fs";
 import path from "node:path";
-import aliases from "vite-tsconfig-paths";
+import ts from "typescript";
 import type { ViteUserConfig } from "vitest/config";
 
+type AliasEntry = {
+  readonly find: RegExp | string;
+  readonly replacement: string;
+};
+
+const rootTsconfigPath = path.join(__dirname, "tsconfig.json");
+
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> => {
+  const fileText = fs.readFileSync(rootTsconfigPath, "utf8");
+  const parsed = ts.parseConfigFileTextToJson(rootTsconfigPath, fileText);
+
+  if (
+    typeof parsed.config !== "object" ||
+    parsed.config === null ||
+    typeof parsed.config.compilerOptions !== "object" ||
+    parsed.config.compilerOptions === null ||
+    typeof parsed.config.compilerOptions.paths !== "object" ||
+    parsed.config.compilerOptions.paths === null
+  ) {
+    return {};
+  }
+
+  return parsed.config.compilerOptions.paths as Record<string, readonly string[]>;
+};
+
+const toAliasEntry = (find: string, replacement: string): AliasEntry => {
+  const absoluteReplacement = path.resolve(__dirname, replacement);
+
+  if (!find.includes("*")) {
+    return {
+      find,
+      replacement: absoluteReplacement,
+    };
+  }
+
+  return {
+    find: new RegExp(`^${escapeRegExp(find).replace("\\*", "(.*)")}$`),
+    replacement: absoluteReplacement.replaceAll("*", "$1"),
+  };
+};
+
+const rootTsconfigAliases = Object.entries(readRootTsconfigPaths())
+  .sort(([left], [right]) => right.length - left.length)
+  .flatMap(([find, replacements]) =>
+    replacements.map((replacement) => toAliasEntry(find, replacement))
+  );
+
 const config: ViteUserConfig = {
-  esbuild: {
+  oxc: {
     target: "es2020",
   },
   optimizeDeps: {
     exclude: ["bun:sqlite"],
   },
-  plugins: [
-    aliases({
-      ignoreConfigErrors: true,
-    }),
-  ],
+  resolve: {
+    alias: rootTsconfigAliases,
+    tsconfigPaths: true,
+  },
   server: {
     watch: {
       ignored: ["**/.context/**"],
