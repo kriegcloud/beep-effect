@@ -23,8 +23,15 @@ require_command() {
 
 run_with_local_env() {
   if command -v op >/dev/null 2>&1 && [ -f .env ]; then
-    op run --env-file=.env -- "$@"
-    return
+    if op whoami >/dev/null 2>&1; then
+      op run --env-file=.env -- "$@"
+      return
+    fi
+
+    if [ "${RUN_WITH_LOCAL_ENV_WARNED:-0}" = "0" ]; then
+      log "local env: op is installed but not signed in; running without injected env"
+      RUN_WITH_LOCAL_ENV_WARNED=1
+    fi
   fi
 
   "$@"
