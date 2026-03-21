@@ -435,6 +435,22 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/Fn.ts",
+      "symbol": "FnSchemaNoArg",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Fn.ts",
+      "symbol": "FnSchemaUnary",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/common/schema/src/Graph.ts",
       "symbol": "DirectedGraph",
       "kind": "exported-interface",

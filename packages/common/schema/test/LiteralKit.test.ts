@@ -60,6 +60,7 @@ describe("LiteralKit", () => {
     expect(() => LiteralKit([true, "true"] as const)).toThrow(LiteralKitKeyCollisionError);
     expect(() => LiteralKit([1, "number1"] as const)).toThrow(LiteralKitKeyCollisionError);
     expect(() => LiteralKit([1n, "bigint1n"] as const)).toThrow(LiteralKitKeyCollisionError);
+    expect(() => LiteralKit([0, -0] as const)).toThrow(LiteralKitKeyCollisionError);
   });
 
   it("matches literals in uncurried form", () => {
