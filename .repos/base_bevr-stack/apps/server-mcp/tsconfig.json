@@ -1,0 +1,16 @@
+{
+  "extends": "@repo/config-typescript/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": true,
+    "types": ["@types/bun"],
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  },
+  "references": [{ "path": "../../packages/domain" }],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

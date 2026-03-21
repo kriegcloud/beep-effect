@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+bun.lockb
+
+# Build outputs
+dist
+.turbo
+.cache
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
