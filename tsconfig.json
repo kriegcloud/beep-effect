@@ -118,6 +118,12 @@
       ],
       "@beep/nlp/*": [
         "./packages/common/nlp/src/*"
+      ],
+      "@beep/editor": [
+        "./packages/editor/src/index.ts"
+      ],
+      "@beep/editor/*": [
+        "./packages/editor/src/*"
       ]
     },
     "plugins": [
