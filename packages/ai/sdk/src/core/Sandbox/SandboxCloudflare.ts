@@ -127,7 +127,7 @@ const collectStringFragments = (value: unknown): Array<string> => {
 };
 
 const isStaleResumeFailure = (error: unknown): boolean => {
-  if (!error || !P.isObject(error)) return false;
+  if (!P.isObject(error)) return false;
   const candidate = error as {
     readonly _tag?: string;
     readonly message?: string;
@@ -223,7 +223,9 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
         Effect.tryPromise({
           try: async () => {
             const fullCommand =
-              args && args.length > 0 ? `${shellEscape(command)} ${args.map(shellEscape).join(" ")}` : command;
+              args !== undefined && args.length > 0
+                ? `${shellEscape(command)} ${args.map(shellEscape).join(" ")}`
+                : command;
             const result = await sandbox.exec(fullCommand);
             return {
               stdout: result.stdout,
@@ -286,7 +288,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                 args.push("--resume", shellEscape(resumeSessionId));
               }
 
-              if (queryOptions?.maxTurns) {
+              if (queryOptions?.maxTurns !== undefined) {
                 args.push("--max-turns", String(queryOptions.maxTurns));
               }
 
@@ -361,13 +363,13 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
                   const handleExecEvent = (event: ExecEvent) =>
                     Match.value(event.type).pipe(
                       Match.when("stdout", () =>
-                        !event.data || event.data.length === 0
+                        event.data === undefined || event.data.length === 0
                           ? Effect.succeed([] as ReadonlyArray<string>)
                           : drainStdoutChunk(event.data)
                       ),
                       Match.when("stderr", () =>
                         Effect.gen(function* () {
-                          if (event.data && event.data.length > 0) {
+                          if (event.data !== undefined && event.data.length > 0) {
                             const stderrLine = event.data;
                             yield* Ref.update(stderrBuffer, (current) =>
                               current.length > 0 ? `${current}\n${stderrLine}` : stderrLine
@@ -472,7 +474,7 @@ export const layerCloudflare = (options: CloudflareSandboxOptions): Layer.Layer<
               // Control — cancel the stream to interrupt the sandbox process.
               interrupt: Ref.get(activeReadableRef).pipe(
                 Effect.flatMap((readable) =>
-                  readable
+                  readable !== undefined
                     ? Effect.tryPromise({
                         try: () => readable.cancel(),
                         catch: (cause) => mapError("interrupt", cause),

@@ -52,7 +52,11 @@ const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FetchHttpCli
  * @category UseCase
  * @internal
  */
-const program = Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(DerivedLayers));
+const program = Effect.scoped(
+  Layer.build(DerivedLayers).pipe(
+    Effect.flatMap((context) => Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(context)))
+  )
+);
 
 Effect.runPromise(program).catch((err) => {
   console.error(err);

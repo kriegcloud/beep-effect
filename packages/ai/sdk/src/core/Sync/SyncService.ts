@@ -164,9 +164,7 @@ export class SyncService extends ServiceMap.Service<SyncService, SyncServiceShap
     return layer;
   };
 
-  static readonly layerMemory: (
-    options?: SyncServiceWebSocketOptions
-  ) => Layer.Layer<SyncService, unknown, EventLogModule.EventLog> = (options) =>
+  static readonly layerMemory = (options?: SyncServiceWebSocketOptions) =>
     Layer.unwrap(
       Effect.gen(function* () {
         const server = yield* EventLogRemoteServer;
@@ -401,7 +399,7 @@ function makeService() {
       if (hasFiber) {
         const statusMap = yield* SubscriptionRef.get(statusRef);
         const previous = O.getOrUndefined(HashMap.get(statusMap, key));
-        if (previous?.connected) {
+        if (previous?.connected === true) {
           return;
         }
       }

@@ -157,13 +157,13 @@ export type OutputFormatEncoded = typeof OutputFormat.Encoded;
 class AgentDefinitionData extends S.Class<AgentDefinitionData>($I`AgentDefinition`)(
   {
     description: S.String,
-    tools: S.optional(S.Array(S.String)),
-    disallowedTools: S.optional(S.Array(S.String)),
+    tools: S.optional(S.String.pipe(S.Array)),
+    disallowedTools: S.optional(S.String.pipe(S.Array)),
     prompt: S.String,
     model: S.optional(LiteralKit(["sonnet", "opus", "haiku", "inherit"])),
-    mcpServers: S.optional(S.Union([S.Array(S.String), S.Record(S.String, McpServerConfigForProcessTransport)])),
+    mcpServers: S.optional(S.Union([S.String.pipe(S.Array), S.Record(S.String, McpServerConfigForProcessTransport)])),
     criticalSystemReminder_EXPERIMENTAL: S.optional(S.String),
-    skills: S.optional(S.Array(S.String)),
+    skills: S.optional(S.String.pipe(S.Array)),
     maxTurns: S.optional(S.Number),
   },
   $I.annote("AgentDefinition", {
@@ -192,10 +192,12 @@ export type AgentDefinitionEncoded = typeof AgentDefinition.Encoded;
  * @since 0.0.0
  * @category Validation
  */
-export const AgentMcpServerSpec = S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]).annotate(
-  $I.annote("AgentMcpServerSpec", {
-    description: "Agent-local MCP server selection expressed as names or inline process transport definitions.",
-  })
+export const AgentMcpServerSpec = S.Union([S.String, S.Record(S.String, McpServerConfigForProcessTransport)]).pipe(
+  S.annotate(
+    $I.annote("AgentMcpServerSpec", {
+      description: "Agent-local MCP server selection expressed as names or inline process transport definitions.",
+    })
+  )
 );
 
 /**
@@ -209,7 +211,7 @@ export type AgentMcpServerSpec = typeof AgentMcpServerSpec.Type;
  */
 export type AgentMcpServerSpecEncoded = typeof AgentMcpServerSpec.Encoded;
 
-const HookMap = S.Record(S.optionalKey(HookEvent), S.UndefinedOr(S.Array(HookCallbackMatcher)));
+const HookMap = S.Record(S.optionalKey(HookEvent), HookCallbackMatcher.pipe(S.Array, S.UndefinedOr));
 
 class ThinkingConfigAdaptiveData extends S.Class<ThinkingConfigAdaptiveData>($I`ThinkingConfigAdaptive`)(
   {
@@ -261,23 +263,23 @@ const ThinkingConfig = S.Union([ThinkingConfigAdaptive, ThinkingConfigEnabled, T
 class OptionsData extends S.Class<OptionsData>($I`Options`)(
   {
     abortController: S.optional(AbortController),
-    additionalDirectories: S.optional(S.Array(S.String)),
+    additionalDirectories: S.optional(S.String.pipe(S.Array)),
     agent: S.optional(S.String),
     agents: S.optional(S.Record(S.String, AgentDefinition)),
     allowDangerouslySkipPermissions: S.optional(S.Boolean),
-    allowedTools: S.optional(S.Array(S.String)),
-    betas: S.optional(S.Array(SdkBeta)),
+    allowedTools: S.optional(S.String.pipe(S.Array)),
+    betas: S.optional(SdkBeta.pipe(S.Array)),
     canUseTool: S.optional(CanUseTool),
     continue: S.optional(S.Boolean),
     cwd: S.optional(S.String),
     debug: S.optional(S.Boolean),
     debugFile: S.optional(FilePath),
-    disallowedTools: S.optional(S.Array(S.String)),
+    disallowedTools: S.optional(S.String.pipe(S.Array)),
     effort: S.optional(LiteralKit(["low", "medium", "high", "max"])),
     enableFileCheckpointing: S.optional(S.Boolean),
     env: S.optional(S.Record(S.String, S.Union([S.String, S.Undefined]))),
     executable: S.optional(LiteralKit(["bun", "deno", "node"])),
-    executableArgs: S.optional(S.Array(S.String)),
+    executableArgs: S.optional(S.String.pipe(S.Array)),
     extraArgs: S.optional(S.Record(S.String, S.Union([S.String, S.Null]))),
     fallbackModel: S.optional(S.String),
     forkSession: S.optional(S.Boolean),
@@ -292,12 +294,12 @@ class OptionsData extends S.Class<OptionsData>($I`Options`)(
     permissionMode: S.optional(PermissionMode),
     permissionPromptToolName: S.optional(S.String),
     persistSession: S.optional(S.Boolean),
-    plugins: S.optional(S.Array(SdkPluginConfig)),
+    plugins: S.optional(SdkPluginConfig.pipe(S.Array)),
     resume: S.optional(S.String),
     resumeSessionAt: S.optional(S.String),
     sandbox: S.optional(SandboxSettings),
     sessionId: S.optional(S.String),
-    settingSources: S.optional(S.Array(SettingSource)),
+    settingSources: S.optional(SettingSource.pipe(S.Array)),
     stderr: S.optional(StderrCallback),
     strictMcpConfig: S.optional(S.Boolean),
     systemPrompt: S.optional(SystemPrompt),

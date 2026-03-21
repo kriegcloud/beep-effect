@@ -1,8 +1,10 @@
-import { Clock, type Duration, Effect, HashMap, Ref, type ServiceMap } from "effect";
+import { Clock, type Duration, Effect, HashMap, pipe, Ref, type ServiceMap, Struct } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { HookError } from "../Errors.js";
 import type { HookCallback, HookEvent, HookInput, HookJSONOutput } from "../Schema/Hooks.js";
-import { AuditEventStore } from "../Storage/index.js";
+import { AuditEventStore, type StorageError } from "../Storage/index.js";
 import type { HookContext } from "./Hook.js";
 import { callback, matcher } from "./Hook.js";
 import type { HookMap } from "./utils.js";
@@ -43,11 +45,24 @@ type ResolvedPermissionDecision = {
   readonly reason?: undefined | string;
 };
 
-const recordWrite = (strict: boolean, effect: Effect.Effect<void, unknown>) =>
+const recordWrite = (strict: boolean, effect: Effect.Effect<void, StorageError>) =>
   strict ? effect : effect.pipe(Effect.catch(() => Effect.void));
 
 const resolveHookToolUseId = (input: HookInput, toolUseId: string | undefined) =>
-  toolUseId ?? ("tool_use_id" in input ? input.tool_use_id : undefined);
+  O.fromNullishOr(toolUseId).pipe(
+    O.match({
+      onNone: () =>
+        pipe(
+          input,
+          O.liftPredicate(
+            (i: unknown): i is Omit<HookInput, "tool_use_id"> & { readonly tool_use_id: string } =>
+              P.isNotNullish(i) && P.isObject(i) && P.hasProperty(i, "tool_use_id") && Str.isString(i.tool_use_id)
+          ),
+          O.map(Struct.get("tool_use_id"))
+        ),
+      onSome: O.some,
+    })
+  );
 
 const recordHookOutcome = (
   store: AuditEventStoreService,
@@ -65,7 +80,10 @@ const recordHookOutcome = (
       payload: {
         sessionId,
         hook: input.hook_event_name,
-        ...(resolvedToolUseId ? { toolUseId: resolvedToolUseId } : {}),
+        ...resolvedToolUseId.pipe(
+          O.map((toolUseId) => ({ toolUseId })),
+          O.getOrElse(() => ({}))
+        ),
         outcome,
       },
     })
@@ -91,39 +109,41 @@ const resolvePermissionDecision = (output: HookJSONOutput): ResolvedPermissionDe
   if ("hookSpecificOutput" in output && output.hookSpecificOutput?.hookEventName === "PermissionRequest") {
     const decision = output.hookSpecificOutput.decision;
     const reason =
-      "message" in decision && decision.message
+      P.hasProperty(decision, "message") && Str.isString(decision.message)
         ? decision.message
-        : "reason" in output && output.reason
+        : P.isObject(output) && P.hasProperty(output, "reason") && Str.isString(output.reason)
           ? output.reason
           : undefined;
     return {
       decision: decision.behavior,
-      ...(reason ? { reason } : {}),
+      reason,
     };
   }
 
-  if ("hookSpecificOutput" in output && output.hookSpecificOutput) {
-    const hookSpecific = output.hookSpecificOutput;
-    if ("permissionDecision" in hookSpecific && hookSpecific.permissionDecision) {
-      const decision = hookSpecific.permissionDecision === "ask" ? "prompt" : hookSpecific.permissionDecision;
+  const hookSpecific =
+    P.isObject(output) && P.hasProperty(output, "hookSpecificOutput") ? output.hookSpecificOutput : undefined;
+  if (hookSpecific !== undefined && P.isObject(hookSpecific) && P.hasProperty(hookSpecific, "permissionDecision")) {
+    const permissionDecision = hookSpecific.permissionDecision;
+    if (permissionDecision === "ask" || permissionDecision === "allow" || permissionDecision === "deny") {
+      const decision = permissionDecision === "ask" ? "prompt" : permissionDecision;
       const reason =
-        "permissionDecisionReason" in hookSpecific
+        P.hasProperty(hookSpecific, "permissionDecisionReason") && Str.isString(hookSpecific.permissionDecisionReason)
           ? hookSpecific.permissionDecisionReason
-          : "reason" in output && output.reason
+          : P.hasProperty(output, "reason") && Str.isString(output.reason)
             ? output.reason
             : undefined;
       return {
         decision,
-        ...(reason ? { reason } : {}),
+        ...(reason === undefined ? {} : { reason }),
       };
     }
   }
 
-  if ("decision" in output && output.decision) {
-    const reason = "reason" in output && output.reason ? output.reason : undefined;
+  if (P.hasProperty(output, "decision") && (output.decision === "approve" || output.decision === "block")) {
+    const reason = P.hasProperty(output, "reason") && Str.isString(output.reason) ? output.reason : undefined;
     return {
       decision: output.decision === "approve" ? "allow" : "deny",
-      ...(reason ? { reason } : {}),
+      ...(reason === undefined ? {} : { reason }),
     };
   }
 
@@ -139,7 +159,7 @@ const wrapPermissionCallback =
     }
 
     const resolved = resolvePermissionDecision(output);
-    if (!resolved) return output;
+    if (resolved === undefined) return output;
 
     const resolvedSessionId = sessionId || input.session_id;
     const effect = store.write({
@@ -148,7 +168,7 @@ const wrapPermissionCallback =
         sessionId: resolvedSessionId,
         toolName: input.tool_name,
         decision: resolved.decision,
-        ...(resolved.reason ? { reason: resolved.reason } : {}),
+        ...(resolved.reason === undefined ? {} : { reason: resolved.reason }),
       },
     });
 
@@ -171,13 +191,16 @@ export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(functi
   const strict = options?.strict ?? false;
   const matchers = hooks.PermissionRequest;
   const preToolMatchers = hooks.PreToolUse;
-  if ((!matchers || matchers.length === 0) && (!preToolMatchers || preToolMatchers.length === 0)) {
+  if (
+    (matchers === undefined || matchers.length === 0) &&
+    (preToolMatchers === undefined || preToolMatchers.length === 0)
+  ) {
     return hooks;
   }
 
   const wrapped: HookMap = {
     ...hooks,
-    ...(matchers && matchers.length > 0
+    ...(matchers !== undefined && matchers.length > 0
       ? {
           PermissionRequest: matchers.map((matcherEntry) => ({
             matcher: matcherEntry.matcher,
@@ -186,7 +209,7 @@ export const wrapPermissionHooks = Effect.fn("Hooks.wrapPermissionHooks")(functi
           })),
         }
       : {}),
-    ...(preToolMatchers && preToolMatchers.length > 0
+    ...(preToolMatchers !== undefined && preToolMatchers.length > 0
       ? {
           PreToolUse: preToolMatchers.map((matcherEntry) => ({
             matcher: matcherEntry.matcher,

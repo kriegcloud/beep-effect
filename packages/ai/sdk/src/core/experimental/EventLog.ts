@@ -252,7 +252,7 @@ export class SyncCompactionPayload extends S.Class<SyncCompactionPayload>($I`Syn
     remoteId: S.String,
     before: S.Number,
     after: S.Number,
-    events: S.optional(S.Array(S.String)),
+    events: S.Array(S.String).pipe(S.optionalKey),
     timestamp: S.DateTimeUtcFromMillis,
   },
   $I.annote("SyncCompactionPayload", {

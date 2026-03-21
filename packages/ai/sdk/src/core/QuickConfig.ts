@@ -1,8 +1,9 @@
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
-import * as BunPath from "@effect/platform-bun/BunPath";
 import { Duration, Effect, Layer, Match } from "effect";
+import type * as Config from "effect/Config";
 import * as O from "effect/Option";
+import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
+import type { EventJournalError } from "effect/unstable/eventlog/EventJournal";
 import { AgentRuntime, type PersistenceLayers } from "./AgentRuntime.js";
 import { AgentRuntimeConfig } from "./AgentRuntimeConfig.js";
 import { AgentSdk } from "./AgentSdk.js";
@@ -11,11 +12,14 @@ import { ConfigError } from "./Errors.js";
 import { QuerySupervisor } from "./QuerySupervisor.js";
 import { QuerySupervisorConfig, type QuerySupervisorSettings } from "./QuerySupervisorConfig.js";
 import { type CloudflareSandboxEnv, layerCloudflare } from "./Sandbox/SandboxCloudflare.js";
+import type { SandboxError } from "./Sandbox/SandboxError.js";
 import { layerLocal } from "./Sandbox/SandboxLocal.js";
 import type { SandboxService } from "./Sandbox/SandboxService.js";
 import { ArtifactStore, AuditEventStore, ChatHistoryStore, SessionIndexStore, StorageConfig } from "./Storage/index.js";
 import {
   type CloudflareStorageBindings,
+  layersFileSystemBun,
+  layersFileSystemBunJournaled,
   type StorageBackend,
   type StorageMode,
   layers as storageLayers,
@@ -118,9 +122,16 @@ const validateQuickConfig = Effect.fn("QuickConfig.validateQuickConfig")(functio
 });
 
 type RuntimeParts = {
-  readonly runtime: Layer.Layer<AgentRuntime, unknown, never>;
-  readonly supervisor: Layer.Layer<QuerySupervisor, unknown, never>;
+  readonly runtime: Layer.Layer<AgentRuntime, Config.ConfigError | ConfigError, never>;
+  readonly supervisor: Layer.Layer<QuerySupervisor, Config.ConfigError | ConfigError, never>;
 };
+
+type RuntimeLayerError =
+  | Config.ConfigError
+  | ConfigError
+  | EventJournalError
+  | PlatformError.PlatformError
+  | SandboxError;
 
 const buildRuntimeParts = (config: ResolvedQuickConfig): RuntimeParts => {
   const runtimeConfigLayer = AgentRuntimeConfig.layerWith({
@@ -148,7 +159,9 @@ const buildRuntimeParts = (config: ResolvedQuickConfig): RuntimeParts => {
   return { runtime, supervisor: supervisorLayer };
 };
 
-const memoryPersistenceLayers = (runtime: Layer.Layer<AgentRuntime, unknown, never>): PersistenceLayers => ({
+const memoryPersistenceLayers = (
+  runtime: Layer.Layer<AgentRuntime, Config.ConfigError | ConfigError, never>
+): PersistenceLayers => ({
   runtime,
   chatHistory: ChatHistoryStore.layerMemory,
   artifacts: ArtifactStore.layerMemory,
@@ -159,8 +172,11 @@ const memoryPersistenceLayers = (runtime: Layer.Layer<AgentRuntime, unknown, nev
 
 const resolveSandboxLayer = (
   config: ResolvedQuickConfig
-): Layer.Layer<SandboxService, unknown, QuerySupervisor> | Layer.Layer<SandboxService, unknown, never> | undefined => {
-  if (!config.sandbox) return undefined;
+):
+  | Layer.Layer<SandboxService, SandboxError, QuerySupervisor>
+  | Layer.Layer<SandboxService, SandboxError, never>
+  | undefined => {
+  if (config.sandbox === undefined) return undefined;
   if (config.sandbox === "local") {
     return layerLocal;
   }
@@ -192,17 +208,13 @@ const resolveStorageLayers = (config: ResolvedQuickConfig) => {
 
   return Match.value(backend).pipe(
     Match.when("filesystem", () => {
-      const layers = storageLayers({
-        backend: "filesystem",
-        ...commonOptions,
-      });
-      const bunFileSystemLayer = Layer.merge(BunFileSystem.layer, BunPath.layer);
-      return {
-        chatHistory: layers.chatHistory.pipe(Layer.provide(bunFileSystemLayer)),
-        artifacts: layers.artifacts.pipe(Layer.provide(bunFileSystemLayer)),
-        auditLog: layers.auditLog.pipe(Layer.provide(bunFileSystemLayer)),
-        sessionIndex: layers.sessionIndex.pipe(Layer.provide(bunFileSystemLayer)),
+      const filesystemOptions = {
+        ...(directory !== undefined ? { directory } : {}),
+        ...(config.tenant !== undefined ? { tenant: config.tenant } : {}),
       };
+      return mode === "journaled"
+        ? layersFileSystemBunJournaled(filesystemOptions)
+        : layersFileSystemBun(filesystemOptions);
     }),
     Match.when("r2", () =>
       storageLayers({
@@ -229,7 +241,11 @@ const buildRuntimeLayer = (resolved: ResolvedQuickConfig) => {
   const { runtime, supervisor } = buildRuntimeParts(resolved);
   const sandboxLayer = resolveSandboxLayer(resolved);
 
-  let persistence: Layer.Layer<AgentRuntime, unknown, unknown>;
+  let persistence: Layer.Layer<
+    AgentRuntime,
+    Config.ConfigError | ConfigError | EventJournalError | PlatformError.PlatformError,
+    never
+  >;
 
   if (resolved.persistence === "memory") {
     persistence = AgentRuntime.layerWithPersistence({
@@ -257,7 +273,7 @@ const buildRuntimeLayer = (resolved: ResolvedQuickConfig) => {
   }
 
   const withSupervisor = Layer.merge(persistence, supervisor);
-  if (sandboxLayer) {
+  if (sandboxLayer !== undefined) {
     return sandboxLayer.pipe(Layer.provideMerge(withSupervisor));
   }
   return withSupervisor;
@@ -275,12 +291,18 @@ const buildRuntimeLayer = (resolved: ResolvedQuickConfig) => {
  */
 export function runtimeLayer(
   config: QuickConfig & { sandbox: NonNullable<QuickConfig["sandbox"]> }
-): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, unknown, unknown>;
+): Layer.Layer<AgentRuntime | QuerySupervisor | SandboxService, RuntimeLayerError, never>;
 /**
  * @since 0.0.0
  * @category Configuration
  */
-export function runtimeLayer(config?: QuickConfig): Layer.Layer<AgentRuntime | QuerySupervisor, unknown, unknown>;
+export function runtimeLayer(
+  config?: QuickConfig
+): Layer.Layer<
+  AgentRuntime | QuerySupervisor,
+  Config.ConfigError | ConfigError | EventJournalError | PlatformError.PlatformError,
+  never
+>;
 /**
  * @since 0.0.0
  * @category Configuration

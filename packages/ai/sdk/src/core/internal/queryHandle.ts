@@ -51,31 +51,35 @@ export const makeQueryHandle = (
     )
   );
 
-  const streamWithFailure = failureSignal ? baseStream.pipe(Stream.interruptWhen(failureSignal)) : baseStream;
+  const streamWithFailure =
+    failureSignal === undefined ? baseStream : baseStream.pipe(Stream.interruptWhen(failureSignal));
 
   const stream = streamWithFailure.pipe(Stream.ensuring(Effect.ignore(closeInput)));
 
-  const send = inputQueue
-    ? Effect.fn("QueryHandle.send")((message: SDKUserMessage) => inputQueue.send(message))
-    : Effect.fn("QueryHandle.send")((_message: SDKUserMessage) =>
-        inputUnavailable("Streaming input is not enabled for this query")
-      );
+  const send =
+    inputQueue === undefined
+      ? Effect.fn("QueryHandle.send")((_message: SDKUserMessage) =>
+          inputUnavailable("Streaming input is not enabled for this query")
+        )
+      : Effect.fn("QueryHandle.send")((message: SDKUserMessage) => inputQueue.send(message));
 
-  const sendAll = inputQueue
-    ? Effect.fn("QueryHandle.sendAll")((messages: Iterable<SDKUserMessage>) => inputQueue.sendAll(messages))
-    : Effect.fn("QueryHandle.sendAll")((_messages: Iterable<SDKUserMessage>) =>
-        inputUnavailable("Streaming input is not enabled for this query")
-      );
+  const sendAll =
+    inputQueue === undefined
+      ? Effect.fn("QueryHandle.sendAll")((_messages: Iterable<SDKUserMessage>) =>
+          inputUnavailable("Streaming input is not enabled for this query")
+        )
+      : Effect.fn("QueryHandle.sendAll")((messages: Iterable<SDKUserMessage>) => inputQueue.sendAll(messages));
 
-  const sendForked = inputQueue
-    ? Effect.fn("QueryHandle.sendForked")((message: SDKUserMessage) =>
-        Effect.forkScoped(inputQueue.send(message)).pipe(Effect.asVoid)
-      )
-    : Effect.fn("QueryHandle.sendForked")((_message: SDKUserMessage) =>
-        inputUnavailable("Streaming input is not enabled for this query")
-      );
+  const sendForked =
+    inputQueue === undefined
+      ? Effect.fn("QueryHandle.sendForked")((_message: SDKUserMessage) =>
+          inputUnavailable("Streaming input is not enabled for this query")
+        )
+      : Effect.fn("QueryHandle.sendForked")((message: SDKUserMessage) =>
+          Effect.forkScoped(inputQueue.send(message)).pipe(Effect.asVoid)
+        );
 
-  const closeInputEffect = inputQueue ? closeInput : Effect.void;
+  const closeInputEffect = inputQueue === undefined ? Effect.void : closeInput;
 
   const defaultShareConfig: StreamShareConfig = {
     capacity: 16,

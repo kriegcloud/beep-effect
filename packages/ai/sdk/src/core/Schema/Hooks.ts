@@ -303,7 +303,7 @@ export class PermissionRequestHookInput extends S.Class<PermissionRequestHookInp
     hook_event_name: S.Literal("PermissionRequest"),
     tool_name: S.String,
     tool_input: S.Unknown,
-    permission_suggestions: S.optional(S.Array(PermissionUpdate)),
+    permission_suggestions: S.optional(PermissionUpdate.pipe(S.Array)),
   },
   $I.annote("PermissionRequestHookInput", {
     description: "Incoming PermissionRequest hook payload describing a tool permission decision request.",

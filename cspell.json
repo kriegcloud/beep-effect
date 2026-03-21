@@ -271,6 +271,7 @@
     ".next",
     "storybook-static",
     ".beep/**",
+    ".aiassistant/**",
     "scratchpad/**",
     ".turbo",
     "*.tsbuildinfo",

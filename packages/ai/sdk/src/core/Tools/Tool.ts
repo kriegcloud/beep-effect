@@ -23,15 +23,27 @@ export type FailureMode = "error" | "return";
  * @category DomainModel
  */
 export type AnySchema = S.Top & {
-  readonly DecodingServices: unknown;
-  readonly EncodingServices: unknown;
+  readonly DecodingServices: never;
+  readonly EncodingServices: never;
 };
 
 /**
  * @since 0.0.0
  * @category DomainModel
  */
-export type AnyStructSchema = AnySchema;
+type AnyFields = {
+  readonly [x: PropertyKey]: AnySchema;
+};
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type AnyStructSchema = S.Top & {
+  readonly fields: AnyFields;
+  readonly DecodingServices: never;
+  readonly EncodingServices: never;
+};
 
 /**
  * Declarative tool definition used for SDK tool registration.
@@ -73,7 +85,7 @@ export interface Tool<
     Requirements
   >;
 
-  setParameters(schema: S.Struct<S.Struct.Fields> | S.Struct.Fields): Tool<
+  setParameters(schema: S.Struct<AnyFields> | AnyFields): Tool<
     Name,
     {
       readonly parameters: AnyStructSchema;
@@ -270,7 +282,7 @@ export type ToolWithHandler<
  * @category DomainModel
  */
 export type DefinitionFields<
-  Parameters extends S.Struct.Fields = {},
+  Parameters extends AnyFields = {},
   Success extends AnySchema = typeof S.Void,
   Failure extends AnySchema = typeof S.Never,
   Mode extends FailureMode | undefined = undefined,
@@ -313,7 +325,7 @@ export type DefinitionSchema<
  */
 export type Definition = {
   readonly description?: string | undefined;
-  readonly parameters?: S.Struct.Fields | AnyStructSchema | undefined;
+  readonly parameters?: AnyFields | AnyStructSchema | undefined;
   readonly success?: AnySchema | undefined;
   readonly failure?: AnySchema | undefined;
   readonly failureMode?: FailureMode | undefined;
@@ -321,9 +333,9 @@ export type Definition = {
 };
 
 type DefinitionParametersSchema<D> = D extends { parameters: infer P }
-  ? P extends AnySchema
+  ? P extends AnyStructSchema
     ? P
-    : P extends S.Struct.Fields
+    : P extends AnyFields
       ? S.Struct<P>
       : typeof EmptyToolParameters
   : typeof EmptyToolParameters;
@@ -373,7 +385,7 @@ const Proto = {
       annotations: this.annotations,
     });
   },
-  setParameters(this: Any, schema: S.Struct<S.Struct.Fields> | S.Struct.Fields) {
+  setParameters(this: Any, schema: S.Struct<AnyFields> | AnyFields) {
     if (isStructFields(schema)) {
       return makeTool({
         ...this,
@@ -399,8 +411,7 @@ const Proto = {
   },
 };
 
-const isStructFields = (schema: S.Struct<S.Struct.Fields> | S.Struct.Fields): schema is S.Struct.Fields =>
-  !S.isSchema(schema);
+const isStructFields = (schema: S.Struct<AnyFields> | AnyFields): schema is AnyFields => !S.isSchema(schema);
 
 const makeTool = <Name extends string>(options: {
   readonly name: Name;
@@ -436,7 +447,7 @@ export const make = <const Name extends string>(
   name: Name,
   options?: {
     readonly description?: string | undefined;
-    readonly parameters?: S.Struct.Fields | undefined;
+    readonly parameters?: AnyFields | undefined;
     readonly success?: AnySchema | undefined;
     readonly failure?: AnySchema | undefined;
     readonly failureMode?: FailureMode | undefined;
@@ -447,7 +458,7 @@ export const make = <const Name extends string>(
   return makeTool({
     name,
     description: options?.description,
-    parametersSchema: options?.parameters ? S.Struct(options.parameters) : EmptyToolParameters,
+    parametersSchema: options?.parameters === undefined ? EmptyToolParameters : S.Struct(options.parameters),
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? "error",
@@ -580,7 +591,58 @@ export const getJsonSchema = <
   tool: Tool<Name, Config>
 ): JsonSchema.JsonSchema => getJsonSchemaFromSchema(tool.parametersSchema);
 
-const getJsonSchemaFromSchema = (schema: AnySchema): JsonSchema.JsonSchema => {
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const getParametersSchema = <
+  Name extends string,
+  Config extends {
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
+  },
+  Requirements,
+>(
+  tool: Tool<Name, Config, Requirements>
+): Config["parameters"] => tool.parametersSchema;
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const getSuccessSchema = <
+  Name extends string,
+  Config extends {
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
+  },
+  Requirements,
+>(
+  tool: Tool<Name, Config, Requirements>
+): Config["success"] => tool.successSchema;
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const getFailureSchema = <
+  Name extends string,
+  Config extends {
+    readonly parameters: AnyStructSchema;
+    readonly success: AnySchema;
+    readonly failure: AnySchema;
+    readonly failureMode: FailureMode;
+  },
+  Requirements,
+>(
+  tool: Tool<Name, Config, Requirements>
+): Config["failure"] => tool.failureSchema;
+
+const getJsonSchemaFromSchema = (schema: S.Top): JsonSchema.JsonSchema => {
   const document = S.toJsonSchemaDocument(schema);
   if (R.keys(document.definitions).length === 0) {
     return document.schema;
@@ -605,7 +667,7 @@ export const getJsonSchemaFromSchemaAst = (ast: SchemaAST.AST): JsonSchema.JsonS
  * @since 0.0.0
  * @category DomainModel
  */
-export const Title = ServiceMap.Service<string>($I`Title`);
+export class Title extends ServiceMap.Service<Title, string>()($I`Title`) {}
 
 /**
  * Indicates the tool is readonly (no side-effects).

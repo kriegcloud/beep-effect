@@ -35,7 +35,7 @@ export const status = Effect.gen(function* () {
   const resolvedSync = O.isSome(sync) ? yield* sync.value.status() : undefined;
 
   return {
-    ...(resolvedConfig ? { config: resolvedConfig } : {}),
-    ...(resolvedSync ? { sync: resolvedSync } : {}),
+    ...(resolvedConfig === undefined ? {} : { config: resolvedConfig }),
+    ...(resolvedSync === undefined ? {} : { sync: resolvedSync }),
   } satisfies StorageStatus;
 });

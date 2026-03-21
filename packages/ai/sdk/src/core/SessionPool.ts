@@ -201,7 +201,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
           MutableHashMap.remove(sessions, key);
           yield* Scope.close(entry.value.scope, Exit.succeed(undefined));
 
-          if (options.onSessionClosed) {
+          if (options.onSessionClosed !== undefined) {
             yield* options.onSessionClosed(sessionId, reason, tenant);
           }
         })
@@ -244,7 +244,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
         Effect.gen(function* () {
           const sessions = yield* Ref.get(sessionsRef);
           MutableHashMap.set(sessions, key, entry);
-          if (options.onSessionCreated) {
+          if (options.onSessionCreated !== undefined) {
             yield* options.onSessionCreated(entry.sessionId, entry.tenant);
           }
         })
@@ -351,7 +351,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
           ([, entry]) =>
             Scope.close(entry.scope, Exit.succeed(undefined)).pipe(
               Effect.andThen(
-                options.onSessionClosed
+                options.onSessionClosed !== undefined
                   ? options.onSessionClosed(entry.sessionId, "shutdown", entry.tenant)
                   : Effect.void
               )
@@ -393,7 +393,7 @@ const makeSessionPool = (options: SessionPoolOptions) =>
               for (const [key, entry] of stale) {
                 MutableHashMap.remove(sessions, key);
                 yield* Scope.close(entry.scope, Exit.succeed(undefined));
-                if (options.onSessionClosed) {
+                if (options.onSessionClosed !== undefined) {
                   yield* options.onSessionClosed(entry.sessionId, "idle", entry.tenant);
                 }
               }

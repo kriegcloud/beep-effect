@@ -98,7 +98,7 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
     enforceVersion: S.optionalKey(S.Boolean),
     tscExecutable: S.optionalKey(S.String),
     runExamples: S.optionalKey(S.Boolean),
-    exclude: S.optionalKey(S.Array(S.String)),
+    exclude: S.String.pipe(S.Array, S.optionalKey),
     parseCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
     examplesCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
   },
@@ -1128,14 +1128,14 @@ export const aggregateGeneratedDocs = (options?: {
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
     const docsRoot = path.join(repoRoot, "docs");
-    const selectedPackage = options?.package
-      ? yield* resolveDocgenWorkspacePackage(options.package, repoRoot)
-      : undefined;
-    const packages = selectedPackage
-      ? selectedPackage.hasGeneratedDocs
-        ? [selectedPackage]
-        : []
-      : (yield* discoverDocgenWorkspacePackages(repoRoot)).filter((pkg) => pkg.hasGeneratedDocs);
+    const selectedPackage =
+      options?.package === undefined ? undefined : yield* resolveDocgenWorkspacePackage(options.package, repoRoot);
+    const packages =
+      selectedPackage === undefined
+        ? (yield* discoverDocgenWorkspacePackages(repoRoot)).filter((pkg) => pkg.hasGeneratedDocs)
+        : selectedPackage.hasGeneratedDocs
+          ? [selectedPackage]
+          : [];
 
     if (selectedPackage !== undefined && packages.length === 0) {
       return yield* new DomainError({
@@ -1269,7 +1269,7 @@ export const runDocgenForPackage: (
     ).pipe(
       Effect.catch((cause) =>
         Effect.succeed({
-          output: Str.trim(stringFromUnknown(cause)),
+          output: pipe(cause, stringFromUnknown, Str.trim),
           exitCode: 1,
         })
       )

@@ -179,7 +179,7 @@ export const rateLimitHandlers = <Handlers extends Record<string, HandlerLike>>(
   config: RateLimitWindowConfig | ((name: keyof Handlers) => RateLimitWindowConfig),
   options?: undefined | { readonly keyPrefix?: undefined | string }
 ): Handlers => {
-  const prefix = options?.keyPrefix ? `${options.keyPrefix}:` : "";
+  const prefix = options?.keyPrefix === undefined ? "" : `${options.keyPrefix}:`;
   const output = {} as Handlers;
 
   for (const [name, handler] of R.toEntries(handlers)) {

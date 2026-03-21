@@ -138,7 +138,7 @@ const ExitPlanModePrompt = ExitPlanModePromptData;
 
 class ExitPlanModeBaseData extends S.Class<ExitPlanModeBaseData>($I`ExitPlanModeBase`)(
   {
-    allowedPrompts: S.optional(S.Array(ExitPlanModePrompt)),
+    allowedPrompts: S.optional(ExitPlanModePrompt.pipe(S.Array)),
     pushToRemote: S.optional(S.Boolean),
     remoteSessionId: S.optional(S.String),
     remoteSessionUrl: S.optional(S.String),
@@ -554,8 +554,8 @@ export type WebFetchInputEncoded = typeof WebFetchInput.Encoded;
 class WebSearchInputData extends S.Class<WebSearchInputData>($I`WebSearchInput`)(
   {
     query: S.String,
-    allowed_domains: S.optional(S.Array(S.String)),
-    blocked_domains: S.optional(S.Array(S.String)),
+    allowed_domains: S.optional(S.String.pipe(S.Array)),
+    blocked_domains: S.optional(S.String.pipe(S.Array)),
   },
   toolInputAnnotation("WebSearchInput", "Tool input for running a web search with optional domain filters.")
 ) {}

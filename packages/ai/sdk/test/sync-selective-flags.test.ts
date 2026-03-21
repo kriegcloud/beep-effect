@@ -36,14 +36,12 @@ const waitFor = <A, E>(
   });
 
 const makeReplicaLayer = (url: string, directory: string) => {
-  const layers = Storage.layersFileSystemBunJournaledWithSyncWebSocket(url, {
+  return Storage.layerFileSystemBunJournaledWithSyncWebSocket(url, {
     directory,
     syncChatHistory: false,
     syncArtifacts: true,
     disablePing: true,
   });
-  const merged = Layer.mergeAll(layers.chatHistory, layers.artifacts, layers.auditLog, layers.sessionIndex);
-  return layers.sync ? Layer.merge(merged, layers.sync) : merged;
 };
 
 const makeTempDir = async () => mkdtemp(path.join(os.tmpdir(), "agent-sync-"));

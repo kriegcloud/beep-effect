@@ -2,7 +2,7 @@ import { $AiSdkId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
-import { Config, Effect, pipe } from "effect";
+import { Config, Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -59,10 +59,10 @@ export type DiagnosticSeverity = typeof DiagnosticSeverity.Type;
 export class DiagnosticCheck extends S.Class<DiagnosticCheck>($I`DiagnosticCheck`)(
   {
     status: DiagnosticStatus,
-    message: S.optionalKey(S.UndefinedOr(S.String)),
-    fix: S.optionalKey(S.UndefinedOr(S.String)),
-    version: S.optionalKey(S.UndefinedOr(S.String)),
-    path: S.optionalKey(S.UndefinedOr(S.String)),
+    message: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    fix: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    version: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    path: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("DiagnosticCheck", {
     description: "Outcome for a single SDK diagnostic check.",
@@ -77,7 +77,7 @@ export class DiagnosticIssue extends S.Class<DiagnosticIssue>($I`DiagnosticIssue
   {
     severity: DiagnosticSeverity,
     message: S.String,
-    fix: S.optionalKey(S.UndefinedOr(S.String)),
+    fix: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("DiagnosticIssue", {
     description: "Actionable issue emitted by diagnose.",
@@ -101,7 +101,7 @@ export class DiagnosticResult extends S.Class<DiagnosticResult>($I`DiagnosticRes
 
 class PackageVersion extends S.Class<PackageVersion>($I`PackageVersion`)(
   {
-    version: S.optionalKey(S.UndefinedOr(S.String)),
+    version: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("PackageVersion", {
     description: "Minimal package.json payload containing optional version.",
@@ -200,11 +200,11 @@ const decodePackageVersionFromText = (text: string): O.Option<string> =>
 const tryResolvePackageVersion = (specifier: string): Effect.Effect<O.Option<string>, never, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const url = resolveImport(`${specifier}/package.json`);
-    if (!url) return O.none<string>();
+    if (url === undefined) return O.none<string>();
 
     const bun = getBun();
     const bunFile = bun?.file;
-    if (bunFile) {
+    if (bunFile !== undefined) {
       const textResult = yield* Effect.tryPromise({
         try: () => bunFile(url).text(),
         catch: thunkEmptyStr,
@@ -248,7 +248,7 @@ const checkClaudeCodeCli = () =>
   Effect.tryPromise({
     try: async () => {
       const bun = getBun();
-      if (!bun?.spawnSync) {
+      if (bun?.spawnSync === undefined) {
         return new DiagnosticCheck({
           status: "unknown",
           message: "Unable to detect Claude Code CLI in this runtime",
@@ -289,60 +289,68 @@ const checkClaudeCodeCli = () =>
  * @since 0.0.0
  * @category Utility
  */
+const diagnoseEffect = Effect.gen(function* () {
+  const issues = A.empty<DiagnosticIssue>();
+  const checks = R.empty<string, DiagnosticCheck>();
+
+  const [apiKeyCheck, apiIssues] = yield* checkApiKey();
+  checks.apiKey = apiKeyCheck;
+  for (const issue of apiIssues) {
+    issues.push(issue);
+  }
+
+  const cliCheck = yield* checkClaudeCodeCli();
+  checks.claudeCode = cliCheck;
+  if (cliCheck.status === "missing") {
+    issues.push(
+      new DiagnosticIssue({
+        severity: "warning",
+        message: "Claude Code CLI not found",
+        ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : R.empty),
+      })
+    );
+  }
+
+  const sdkVersion = yield* tryResolvePackageVersion("effect-claude-agent-sdk");
+  checks.sdkVersion = O.match(sdkVersion, {
+    onSome: (version) =>
+      new DiagnosticCheck({
+        status: "ok",
+        version,
+      }),
+    onNone: () =>
+      new DiagnosticCheck({
+        status: "unknown",
+        message: "Unable to resolve SDK version",
+      }),
+  });
+
+  const effectVersion = yield* tryResolvePackageVersion("effect");
+  checks.effectVersion = O.match(effectVersion, {
+    onSome: (version) =>
+      new DiagnosticCheck({
+        status: "ok",
+        version,
+      }),
+    onNone: () =>
+      new DiagnosticCheck({
+        status: "unknown",
+        message: "Unable to resolve Effect version",
+      }),
+  });
+
+  return new DiagnosticResult({
+    valid: O.isNone(A.findFirst(issues, (issue) => issue.severity === "error")),
+    checks,
+    issues,
+  });
+});
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export const diagnose = (): Effect.Effect<DiagnosticResult> =>
-  Effect.gen(function* () {
-    const issues = A.empty<DiagnosticIssue>();
-    const checks = R.empty<string, DiagnosticCheck>();
-
-    const [apiKeyCheck, apiIssues] = yield* checkApiKey();
-    checks.apiKey = apiKeyCheck;
-    for (const issue of apiIssues) {
-      issues.push(issue);
-    }
-
-    const cliCheck = yield* checkClaudeCodeCli();
-    checks.claudeCode = cliCheck;
-    if (cliCheck.status === "missing") {
-      issues.push(
-        new DiagnosticIssue({
-          severity: "warning",
-          message: "Claude Code CLI not found",
-          ...(cliCheck.fix !== undefined ? { fix: cliCheck.fix } : R.empty),
-        })
-      );
-    }
-
-    const sdkVersion = yield* tryResolvePackageVersion("effect-claude-agent-sdk");
-    checks.sdkVersion = O.match(sdkVersion, {
-      onSome: (version) =>
-        new DiagnosticCheck({
-          status: "ok",
-          version,
-        }),
-      onNone: () =>
-        new DiagnosticCheck({
-          status: "unknown",
-          message: "Unable to resolve SDK version",
-        }),
-    });
-
-    const effectVersion = yield* tryResolvePackageVersion("effect");
-    checks.effectVersion = O.match(effectVersion, {
-      onSome: (version) =>
-        new DiagnosticCheck({
-          status: "ok",
-          version,
-        }),
-      onNone: () =>
-        new DiagnosticCheck({
-          status: "unknown",
-          message: "Unable to resolve Effect version",
-        }),
-    });
-
-    return new DiagnosticResult({
-      valid: O.isNone(A.findFirst(issues, (issue) => issue.severity === "error")),
-      checks,
-      issues,
-    });
-  }).pipe(Effect.provide(BunHttpClient.layer));
+  Effect.scoped(
+    Layer.build(BunHttpClient.layer).pipe(Effect.flatMap((context) => diagnoseEffect.pipe(Effect.provide(context))))
+  );

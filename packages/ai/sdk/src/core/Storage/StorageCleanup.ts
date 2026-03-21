@@ -16,17 +16,17 @@ const runCleanup = Effect.gen(function* () {
   const tasks: Array<Effect.Effect<void, StorageError>> = [];
 
   const chat = yield* ChatHistoryStore;
-  if (settings.enabled.chatHistory && chat.cleanup) {
+  if (settings.enabled.chatHistory && chat.cleanup !== undefined) {
     tasks.push(chat.cleanup());
   }
 
   const artifacts = yield* ArtifactStore;
-  if (settings.enabled.artifacts && artifacts.cleanup) {
+  if (settings.enabled.artifacts && artifacts.cleanup !== undefined) {
     tasks.push(artifacts.cleanup());
   }
 
   const audit = yield* AuditEventStore;
-  if (settings.enabled.auditLog && audit.cleanup) {
+  if (settings.enabled.auditLog && audit.cleanup !== undefined) {
     tasks.push(audit.cleanup());
   }
 

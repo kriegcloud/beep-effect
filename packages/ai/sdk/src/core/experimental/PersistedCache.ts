@@ -127,21 +127,21 @@ export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadat
       handle.supportedCommands.pipe(Effect.flatMap(normalizeSlashCommandList)),
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
   });
   const supportedModels = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-models`,
     lookup: (_key: SupportedModelsRequest) => handle.supportedModels.pipe(Effect.flatMap(normalizeModelInfoList)),
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
   });
   const accountInfo = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-account-info`,
     lookup: (_key: AccountInfoRequest) => handle.accountInfo.pipe(Effect.flatMap(normalizeAccountInfo)),
     timeToLive: () => timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL ? { inMemoryTTL: () => inMemoryTTL } : {}),
+    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
   });
 
   return {

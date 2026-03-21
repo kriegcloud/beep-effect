@@ -2,19 +2,11 @@ import { Struct as EffectStruct, Function as Fn, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
-
-const PathInput = S.Union([S.String, S.Array(S.String)]);
-
-type PathInput = typeof PathInput.Type;
-
-const PathLookup = S.TaggedUnion({
-  notFound: { found: S.tag(false) },
-  found: { found: S.tag(true), value: S.Unknown },
-});
+import type { PathLookup as InternalPathLookup, PathInput } from "./internal/StructPath.ts";
+import { lookupAtPath, unsafeDotGet } from "./internal/StructPath.ts";
 
 /**
  * Result of a runtime struct path lookup.
@@ -22,48 +14,7 @@ const PathLookup = S.TaggedUnion({
  * @since 0.2.0
  * @category DomainModel
  */
-export type PathLookup = typeof PathLookup.Type;
-
-const normalizePath = (path: PathInput): ReadonlyArray<string> => (P.isString(path) ? Str.split(path, ".") : path);
-
-const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
-  const parts = normalizePath(path);
-  if (parts.length === 0) {
-    return PathLookup.cases.notFound.makeUnsafe({ found: false });
-  }
-
-  let current: unknown = self;
-
-  for (const part of parts) {
-    if (part.length === 0) {
-      return PathLookup.cases.notFound.makeUnsafe({ found: false });
-    }
-
-    if (P.isNullish(current)) {
-      return PathLookup.cases.notFound.makeUnsafe({ found: false });
-    }
-    if (P.not(P.isObject)(current) && P.not(A.isArray)(current) && P.not(P.isFunction)(current)) {
-      return PathLookup.cases.notFound.makeUnsafe({ found: false });
-    }
-
-    const record = Fn.cast<unknown, Record<string, unknown>>(current);
-    if (!R.has(record, part)) {
-      return PathLookup.cases.notFound.makeUnsafe({ found: false });
-    }
-
-    current = record[part];
-  }
-
-  return PathLookup.cases.found.makeUnsafe({
-    found: true,
-    value: current,
-  });
-};
-
-const unsafeDotGet = (self: object, path: PathInput): unknown => {
-  const lookup = lookupAtPath(self, path);
-  return lookup.found ? lookup.value : undefined;
-};
+export type PathLookup = InternalPathLookup;
 
 /**
  * Retrieves a value from a struct by a path.

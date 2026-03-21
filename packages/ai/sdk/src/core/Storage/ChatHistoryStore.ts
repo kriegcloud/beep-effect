@@ -54,7 +54,7 @@ export type ChatHistoryJournaledOptions<R = never> = {
   readonly prefix?: string;
   readonly journalKey?: string;
   readonly identityKey?: string;
-  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, unknown, R>;
+  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, never, R>;
 };
 
 /**
@@ -143,7 +143,7 @@ const normalizeRange = (lastSequence: number, options?: ChatHistoryListOptions) 
   const orderedStart = reverse ? Math.min(start, end) : Math.min(start, end);
   const orderedEnd = reverse ? Math.max(start, end) : Math.max(start, end);
   const total = orderedEnd - orderedStart + 1;
-  const limit = options?.limit ? Math.min(total, options.limit) : total;
+  const limit = options?.limit === undefined ? total : Math.min(total, options.limit);
 
   return {
     start: orderedStart,
@@ -180,9 +180,12 @@ const resolveJournalKeys = (options?: {
   readonly identityKey?: string;
   readonly prefix?: string;
 }) => ({
-  journalKey: options?.journalKey ?? (options?.prefix ? `${options.prefix}/event-journal` : defaultChatEventJournalKey),
+  journalKey:
+    options?.journalKey ??
+    (options?.prefix !== undefined ? `${options.prefix}/event-journal` : defaultChatEventJournalKey),
   identityKey:
-    options?.identityKey ?? (options?.prefix ? `${options.prefix}/event-log-identity` : defaultChatIdentityKey),
+    options?.identityKey ??
+    (options?.prefix !== undefined ? `${options.prefix}/event-log-identity` : defaultChatIdentityKey),
 });
 
 const resolveJournaledOptions = <R = never>(options?: ChatHistoryJournaledOptions<R>) => ({
@@ -210,7 +213,7 @@ const removeSessionIndex = (sessionId: string) =>
   }).pipe(Effect.catch((cause) => logIndexWarning("remove", sessionId, cause).pipe(Effect.asVoid)));
 
 const applyRetention = (events: ReadonlyArray<ChatEvent>, retention: ChatRetention | undefined, now: number) => {
-  if (!retention) return events;
+  if (retention === undefined) return events;
   let filtered = events;
   if (retention.maxAgeMs !== undefined) {
     const cutoff = now - retention.maxAgeMs;
@@ -264,7 +267,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
           retention: ChatRetention | undefined
         ) =>
           Effect.gen(function* () {
-            if (!retention) return;
+            if (retention === undefined) return;
             let removals = HashSet.empty<number>();
 
             if (retention.maxEvents !== undefined) {
@@ -351,7 +354,7 @@ const layerChatJournalHandlers = (options?: { readonly prefix?: string }) =>
 const layerChatJournalCompaction = Layer.effectDiscard(
   Effect.gen(function* () {
     const retention = yield* resolveRetention;
-    if (!retention) return;
+    if (retention === undefined) return;
     const strategies: Array<CompactionStrategy> = [];
     if (retention.maxAgeMs !== undefined) {
       strategies.push(Compaction.byAge(retention.maxAgeMs));
@@ -372,9 +375,7 @@ const layerChatJournalCompaction = Layer.effectDiscard(
   })
 );
 
-const journaledEventLogLayer = <R = never>(
-  options?: ChatHistoryJournaledOptions<R>
-): Layer.Layer<EventLogModule.EventLog, unknown, KeyValueStore.KeyValueStore | R> => {
+const journaledEventLogLayer = <R = never>(options?: ChatHistoryJournaledOptions<R>) => {
   const keys = resolveJournalKeys(options);
   const conflictPolicyLayer = options?.conflictPolicy ?? ConflictPolicy.layerLastWriteWins;
   const baseLayer = EventLogModule.layerEventLog.pipe(
@@ -553,7 +554,7 @@ const makeJournaledStore = (options?: {
       const enabled = yield* resolveEnabled;
       if (!enabled) return;
       const retention = yield* resolveRetention;
-      if (!retention) return;
+      if (retention === undefined) return;
       const indexOption = yield* Effect.serviceOption(SessionIndexStore);
       if (O.isNone(indexOption)) return;
       const sessionIds = yield* indexOption.value.listIds();
@@ -570,7 +571,6 @@ const makeJournaledStore = (options?: {
                 : Effect.gen(function* () {
                     const meta = yield* repairTrailingMetaGap(sessionId, metaOption.value);
                     const retentionValue = retention;
-                    if (!retentionValue) return;
                     let removals = HashSet.empty<number>();
 
                     if (retentionValue.maxEvents !== undefined) {
@@ -758,9 +758,9 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
 
       const cleanup = Effect.fn("ChatHistoryStore.cleanup")(function* () {
         const enabled = yield* resolveEnabled;
-        if (!enabled) return;
+        if (enabled === false) return;
         const retention = yield* resolveRetention;
-        if (!retention) return;
+        if (retention === undefined) return;
         const now = yield* Clock.currentTimeMillis;
         yield* SynchronizedRef.update(stateRef, (state) => {
           if (HashMap.size(state) === 0) return state;
@@ -847,7 +847,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           retention: ChatRetention | undefined
         ) =>
           Effect.gen(function* () {
-            if (!retention) return;
+            if (retention === undefined) return;
             let removals = HashSet.empty<number>();
 
             if (retention.maxEvents !== undefined) {
@@ -1069,7 +1069,7 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
           const enabled = yield* resolveEnabled;
           if (!enabled) return;
           const retention = yield* resolveRetention;
-          if (!retention) return;
+          if (retention === undefined) return;
           const indexOption = yield* Effect.serviceOption(SessionIndexStore);
           if (O.isNone(indexOption)) return;
           const sessionIds = yield* indexOption.value.listIds();
@@ -1102,20 +1102,13 @@ export class ChatHistoryStore extends ServiceMap.Service<ChatHistoryStore, ChatH
   static readonly layerJournaled = <R = never>(options?: ChatHistoryJournaledOptions<R>) =>
     Layer.effect(ChatHistoryStore, makeJournaledStore(options)).pipe(Layer.provide(journaledEventLogLayer(options)));
 
-  static readonly layerJournaledWithEventLog: <R = never>(
-    options?: ChatHistoryJournaledOptions<R>
-  ) => Layer.Layer<ChatHistoryStore | EventLogModule.EventLog, unknown, KeyValueStore.KeyValueStore | R> = (
-    options
-  ) => {
+  static readonly layerJournaledWithEventLog = <R = never>(options?: ChatHistoryJournaledOptions<R>) => {
     const eventLogLayer = journaledEventLogLayer(options);
     const storeLayer = Layer.effect(ChatHistoryStore, makeJournaledStore(options)).pipe(Layer.provide(eventLogLayer));
     return Layer.merge(eventLogLayer, storeLayer);
   };
 
-  static readonly layerJournaledWithSyncWebSocket: <R = never>(
-    url: string,
-    options?: ChatHistorySyncOptions<R>
-  ) => Layer.Layer<ChatHistoryStore, unknown, KeyValueStore.KeyValueStore | R> = (url, options) => {
+  static readonly layerJournaledWithSyncWebSocket = <R = never>(url: string, options?: ChatHistorySyncOptions<R>) => {
     const baseLayer = ChatHistoryStore.layerJournaledWithEventLog(resolveJournaledOptions(options));
     const syncOptions =
       options?.disablePing !== undefined || options?.protocols !== undefined

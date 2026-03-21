@@ -2,6 +2,8 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import type { Duration, FileSystem, Path } from "effect";
 import { Effect, Layer } from "effect";
+import type * as PlatformError from "effect/PlatformError";
+import type * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { ConfigError } from "../Errors.js";
 import type { ConflictPolicy } from "../Sync/index.js";
@@ -83,7 +85,7 @@ export type StorageSyncLayerOptions<R = never> = StorageLayerOptions & {
   readonly protocols?: string | Array<string>;
   readonly syncChatHistory?: boolean;
   readonly syncArtifacts?: boolean;
-  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, unknown, R>;
+  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, never, R>;
   readonly exposeSync?: boolean;
 };
 
@@ -106,6 +108,13 @@ export type StorageLayerBundleOptions<R = never> = StorageLayerOptions & {
   readonly bindings?: CloudflareStorageBindings;
   readonly allowUnsafeKv?: boolean;
 };
+
+type FilesystemDependencies = FileSystem.FileSystem | Path.Path;
+type StorageLayerError = ConfigError | EventJournal.EventJournalError | PlatformError.PlatformError;
+type BunStorageLayers = StorageLayers<StorageLayerError, never>;
+type BunStorageLayersWithSync = StorageLayersWithSync<StorageLayerError, never>;
+type FilesystemStorageLayers = StorageLayers<StorageLayerError, FilesystemDependencies>;
+type FilesystemStorageLayersWithSync = StorageLayersWithSync<StorageLayerError, FilesystemDependencies>;
 
 const tenantPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
@@ -222,11 +231,11 @@ const resolveLayers = (
   };
 };
 
-const resolveLayersFromKvs = <R>(
-  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, R>,
+const resolveLayersFromKvs = <E, R>(
+  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, E, R>,
   mode: StorageMode,
   tenant: string | undefined
-): StorageLayers => {
+) => {
   const tenantScope = resolveTenantScope(tenant);
   return {
     chatHistory:
@@ -275,10 +284,10 @@ const provideBunLayers = <E, R>(layers: StorageLayers<E, R>): StorageLayers<E, E
  * @since 0.0.0
  * @category Configuration
  */
-export const layersFileSystem = (options?: StorageLayerOptions): StorageLayers => {
+export const layersFileSystem = (options?: StorageLayerOptions): FilesystemStorageLayers => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return failLayers(tenantError);
+  if (tenantError !== undefined) {
+    return failLayers<FileSystem.FileSystem | Path.Path>(tenantError);
   }
   return resolveLayers(options, "filesystem", "standard");
 };
@@ -287,10 +296,10 @@ export const layersFileSystem = (options?: StorageLayerOptions): StorageLayers =
  * @since 0.0.0
  * @category Configuration
  */
-export const layersFileSystemJournaled = (options?: StorageLayerOptions): StorageLayers => {
+export const layersFileSystemJournaled = (options?: StorageLayerOptions): FilesystemStorageLayers => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return failLayers(tenantError);
+  if (tenantError !== undefined) {
+    return failLayers<FileSystem.FileSystem | Path.Path>(tenantError);
   }
   return resolveLayers(options, "filesystem", "journaled");
 };
@@ -302,9 +311,9 @@ const bunPathLayer = BunPath.layer;
  * @since 0.0.0
  * @category Configuration
  */
-export const layersFileSystemBun = (options?: StorageLayerOptions): StorageLayers => {
+export const layersFileSystemBun = (options?: StorageLayerOptions): BunStorageLayers => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
+  if (tenantError !== undefined) {
     return failLayers(tenantError);
   }
   const layers = resolveLayers(options, "bun", "standard");
@@ -315,9 +324,9 @@ export const layersFileSystemBun = (options?: StorageLayerOptions): StorageLayer
  * @since 0.0.0
  * @category Configuration
  */
-export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): StorageLayers => {
+export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): BunStorageLayers => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
+  if (tenantError !== undefined) {
     return failLayers(tenantError);
   }
   const layers = resolveLayers(options, "bun", "journaled");
@@ -330,8 +339,8 @@ export const layersFileSystemBunJournaled = (options?: StorageLayerOptions): Sto
  */
 export const layerFileSystem = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return mergeLayers(failLayers(tenantError));
+  if (tenantError !== undefined) {
+    return tenantError.pipe(failLayers, mergeLayers);
   }
   const layers = resolveLayers(options, "filesystem", "standard");
   return mergeLayers(layers);
@@ -343,8 +352,8 @@ export const layerFileSystem = (options?: StorageLayerOptions) => {
  */
 export const layerFileSystemBun = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return mergeLayers(failLayers(tenantError));
+  if (tenantError !== undefined) {
+    return tenantError.pipe(failLayers, mergeLayers);
   }
   const layers = layersFileSystemBun(options);
   return mergeLayers(layers);
@@ -356,8 +365,8 @@ export const layerFileSystemBun = (options?: StorageLayerOptions) => {
  */
 export const layerFileSystemJournaled = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return mergeLayers(failLayers(tenantError));
+  if (tenantError !== undefined) {
+    return tenantError.pipe(failLayers, mergeLayers);
   }
   const layers = resolveLayers(options, "filesystem", "journaled");
   return mergeLayers(layers);
@@ -369,14 +378,14 @@ export const layerFileSystemJournaled = (options?: StorageLayerOptions) => {
  */
 export const layerFileSystemBunJournaled = (options?: StorageLayerOptions) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return mergeLayers(failLayers(tenantError));
+  if (tenantError !== undefined) {
+    return tenantError.pipe(failLayers, mergeLayers);
   }
   const layers = layersFileSystemBunJournaled(options);
   return mergeLayers(layers);
 };
 
-const resolveSyncOptions = (options?: StorageSyncLayerOptions<unknown>) =>
+const resolveSyncOptions = <R>(options?: StorageSyncLayerOptions<R>) =>
   options?.disablePing !== undefined || options?.protocols !== undefined
     ? {
         ...(options?.disablePing !== undefined ? { disablePing: options.disablePing } : {}),
@@ -384,20 +393,17 @@ const resolveSyncOptions = (options?: StorageSyncLayerOptions<unknown>) =>
       }
     : undefined;
 
-const resolveSyncFlags = (options?: StorageSyncLayerOptions<unknown>) => ({
+const resolveSyncFlags = <R>(options?: StorageSyncLayerOptions<R>) => ({
   syncChatHistory: options?.syncChatHistory ?? true,
   syncArtifacts: options?.syncArtifacts ?? false,
   exposeSync: options?.exposeSync ?? false,
 });
 
-const buildChatSyncLayers = <RBase, ROptions>(
+const buildChatSyncLayers = <EKvs, RBase, ROptions>(
   url: string,
   options: StorageSyncLayerOptions<ROptions> | undefined,
-  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, RBase>
-): {
-  readonly chatHistory: Layer.Layer<ChatHistoryStore, unknown, unknown>;
-  readonly syncLayer: Layer.Layer<SyncService, unknown, unknown>;
-} => {
+  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, EKvs, RBase>
+) => {
   const tenantScope = resolveTenantScope(options?.tenant);
   const baseLayer = ChatHistoryStore.layerJournaledWithEventLog({
     prefix: tenantScope.chatPrefix,
@@ -413,15 +419,15 @@ const buildChatSyncLayers = <RBase, ROptions>(
   return { chatHistory, syncLayer };
 };
 
-const buildJournaledSyncLayers = <RBase, ROptions>(
+const buildJournaledSyncLayers = <EBase, EKvs, RBase, ROptions>(
   url: string,
   options: StorageSyncLayerOptions<ROptions> | undefined,
-  baseLayers: StorageLayers<unknown, RBase>,
-  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, unknown, RBase>
-): StorageLayersWithSync => {
+  baseLayers: StorageLayers<EBase, RBase>,
+  kvsLayer: Layer.Layer<KeyValueStore.KeyValueStore, EKvs, RBase>
+) => {
   const tenantScope = resolveTenantScope(options?.tenant);
   const flags = resolveSyncFlags(options);
-  let syncLayer: Layer.Layer<SyncService, unknown, unknown> | undefined;
+  let syncLayer: Layer.Layer<SyncService, EventJournal.EventJournalError | EKvs, RBase | ROptions> | undefined;
   const chatHistory = flags.syncChatHistory
     ? flags.exposeSync
       ? (() => {
@@ -457,17 +463,14 @@ const buildJournaledSyncLayers = <RBase, ROptions>(
     artifacts,
     auditLog: baseLayers.auditLog,
     sessionIndex: baseLayers.sessionIndex,
-    ...(syncLayer ? { sync: syncLayer } : {}),
+    ...(syncLayer === undefined ? {} : { sync: syncLayer }),
   };
 };
 
-const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
-  url: string,
-  options?: StorageSyncLayerOptions<R>
-): StorageLayersWithSync => {
+const layersFileSystemJournaledWithSyncWebSocket = <R = never>(url: string, options?: StorageSyncLayerOptions<R>) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
-    return failLayers(tenantError);
+  if (tenantError !== undefined) {
+    return failLayers<FileSystem.FileSystem | Path.Path>(tenantError);
   }
   const directory = options?.directory;
   const kvsLayer = KeyValueStore.layerFileSystem(directory ?? defaultStorageDirectory);
@@ -485,9 +488,9 @@ const layersFileSystemJournaledWithSyncWebSocket = <R = never>(
 export const layersFileSystemBunJournaledWithSyncWebSocket = <R = never>(
   url: string,
   options?: StorageSyncLayerOptions<R>
-): StorageLayersWithSync => {
+) => {
   const tenantError = validateTenant(options?.tenant);
-  if (tenantError) {
+  if (tenantError !== undefined) {
     return failLayers(tenantError);
   }
   const directory = options?.directory;
@@ -511,87 +514,84 @@ export const layerFileSystemBunJournaledWithSyncWebSocket = <R = never>(
 ) => {
   const layers = layersFileSystemBunJournaledWithSyncWebSocket(url, options);
   const combined = mergeLayers(layers);
-  return layers.sync ? Layer.merge(combined, layers.sync) : combined;
+  const syncLayer: Layer.Layer<SyncService, StorageLayerError, R> | undefined = layers.sync;
+  return syncLayer === undefined ? combined : Layer.merge(combined, syncLayer);
 };
 
 /**
  * @since 0.0.0
  * @category Configuration
  */
-export function layers(
-  options?: StorageLayerBundleOptions & { readonly backend?: "bun" }
-): StorageLayersWithSync<unknown, never>;
+export function layers(options?: StorageLayerBundleOptions & { readonly backend?: "bun" }): BunStorageLayersWithSync;
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "filesystem" }
-): StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
+): FilesystemStorageLayersWithSync;
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "r2" }
-): StorageLayersWithSync<unknown, never>;
+): StorageLayersWithSync<ConfigError, never>;
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions & { readonly backend: "kv" }
-): StorageLayersWithSync<unknown, never>;
+): StorageLayersWithSync<ConfigError, never>;
 /**
  * @since 0.0.0
  * @category Configuration
  */
-export function layers(
-  options?: StorageLayerBundleOptions
-): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
+export function layers(options?: StorageLayerBundleOptions): BunStorageLayersWithSync | FilesystemStorageLayersWithSync;
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export function layers(
   options: StorageLayerBundleOptions = {}
-): StorageLayersWithSync<unknown, never> | StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path> {
+): BunStorageLayersWithSync | FilesystemStorageLayersWithSync {
   const tenantError = validateTenant(options.tenant);
-  if (tenantError) {
+  if (tenantError !== undefined) {
     return failLayers<FileSystem.FileSystem | Path.Path>(tenantError);
   }
   const backend = options.backend ?? "bun";
-  const mode = options.sync ? "journaled" : (options.mode ?? "standard");
+  const mode = options.sync === undefined ? (options.mode ?? "standard") : "journaled";
   const directory = options.directory;
 
   if (backend === "bun") {
-    if (options.sync) {
+    if (options.sync !== undefined) {
       return layersFileSystemBunJournaledWithSyncWebSocket(options.sync.url, {
         ...options.sync,
         ...(directory !== undefined ? { directory } : {}),
         ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-      }) as StorageLayersWithSync<unknown, never>;
+      });
     }
     return mode === "journaled"
-      ? (layersFileSystemBunJournaled({
+      ? layersFileSystemBunJournaled({
           ...(directory !== undefined ? { directory } : {}),
           ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-        }) as StorageLayersWithSync<unknown, never>)
-      : (layersFileSystemBun({
+        })
+      : layersFileSystemBun({
           ...(directory !== undefined ? { directory } : {}),
           ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-        }) as StorageLayersWithSync<unknown, never>);
+        });
   }
 
   if (backend === "r2") {
-    if (!options.bindings?.r2Bucket) {
+    if (options.bindings?.r2Bucket === undefined) {
       return failLayers(
         ConfigError.make({
           message: "StorageLayers: backend 'r2' requires bindings.r2Bucket",
         })
       );
     }
-    if (options.sync) {
+    if (options.sync !== undefined) {
       return failLayers(
         ConfigError.make({
           message:
@@ -600,7 +600,7 @@ export function layers(
       );
     }
     const kvsLayer = layerR2(options.bindings.r2Bucket);
-    return resolveLayersFromKvs(kvsLayer, mode, options.tenant) as StorageLayersWithSync<unknown, never>;
+    return resolveLayersFromKvs(kvsLayer, mode, options.tenant);
   }
 
   if (backend === "kv") {
@@ -612,14 +612,14 @@ export function layers(
         })
       );
     }
-    if (!options.bindings?.kvNamespace) {
+    if (options.bindings?.kvNamespace === undefined) {
       return failLayers(
         ConfigError.make({
           message: "StorageLayers: backend 'kv' requires bindings.kvNamespace",
         })
       );
     }
-    if (options.sync) {
+    if (options.sync !== undefined) {
       return failLayers(
         ConfigError.make({
           message:
@@ -636,24 +636,24 @@ export function layers(
       );
     }
     const kvsLayer = layerKV(options.bindings.kvNamespace);
-    return resolveLayersFromKvs(kvsLayer, mode, options.tenant) as StorageLayersWithSync<unknown, never>;
+    return resolveLayersFromKvs(kvsLayer, mode, options.tenant);
   }
 
-  if (options.sync) {
+  if (options.sync !== undefined) {
     return layersFileSystemJournaledWithSyncWebSocket(options.sync.url, {
       ...options.sync,
       ...(directory !== undefined ? { directory } : {}),
       ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-    }) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>;
+    });
   }
 
   return mode === "journaled"
-    ? (layersFileSystemJournaled({
+    ? layersFileSystemJournaled({
         ...(directory !== undefined ? { directory } : {}),
         ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-      }) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>)
-    : (layersFileSystem({
+      })
+    : layersFileSystem({
         ...(directory !== undefined ? { directory } : {}),
         ...(options.tenant !== undefined ? { tenant: options.tenant } : {}),
-      }) as StorageLayersWithSync<unknown, FileSystem.FileSystem | Path.Path>);
+      });
 }

@@ -5,6 +5,8 @@
  * @module
  */
 
+import { Effect, Layer } from "effect";
+import type * as S from "effect/Schema";
 import type { JsoncCodecServiceShape as JsoncCodecServiceShape_ } from "./JsoncCodecs.js";
 import {
   decodeJsoncTextAs as decodeJsoncTextAs_,
@@ -48,6 +50,22 @@ export type YamlCodecServiceShape = YamlCodecServiceShape_;
 export const decodeJsoncTextAs = decodeJsoncTextAs_;
 
 /**
+ * Decode JSONC text using the shared live codec implementation.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const decodeJsoncTextAsLive = <Schema extends S.Top>(schema: Schema) => {
+  const decode = decodeJsoncTextAs(schema);
+  return (content: string) =>
+    Effect.scoped(
+      Layer.build(JsoncCodecServiceLive).pipe(
+        Effect.flatMap((context) => decode(content).pipe(Effect.provide(context)))
+      )
+    );
+};
+
+/**
  * Service tag for JSONC parsing.
  *
  * @since 0.0.0
@@ -86,6 +104,20 @@ export const JsoncTextToUnknown = JsoncTextToUnknown_;
  * @category Utility
  */
 export const decodeYamlTextAs = decodeYamlTextAs_;
+
+/**
+ * Decode YAML text using the shared live codec implementation.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const decodeYamlTextAsLive = <Schema extends S.Top>(schema: Schema) => {
+  const decode = decodeYamlTextAs(schema);
+  return (content: string) =>
+    Effect.scoped(
+      Layer.build(YamlCodecServiceLive).pipe(Effect.flatMap((context) => decode(content).pipe(Effect.provide(context))))
+    );
+};
 
 /**
  * Service tag for YAML parsing.

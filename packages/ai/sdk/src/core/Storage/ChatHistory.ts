@@ -45,7 +45,7 @@ const recordMessages = (
 ) => {
   if (messages.length === 0) return Effect.void;
   const resolvedSessionId = sessionId ?? messages[0]?.session_id;
-  if (!resolvedSessionId) return Effect.void;
+  if (resolvedSessionId === undefined || resolvedSessionId.length === 0) return Effect.void;
   const effect = store.appendMessages(resolvedSessionId, messages, { source }).pipe(Effect.asVoid);
   return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catch(() => Effect.void));
 };

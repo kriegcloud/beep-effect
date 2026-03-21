@@ -82,4 +82,9 @@ export const handleVersionSync: (
   void,
   VersionSyncError | VersionSyncDriftError | NoSuchFileError,
   FileSystem.FileSystem | Path.Path | HttpClient.HttpClient
-> = (options) => handleVersionSyncProgram(options).pipe(Effect.provide(VersionSyncServicesLive));
+> = (options) =>
+  Effect.scoped(
+    Layer.build(VersionSyncServicesLive).pipe(
+      Effect.flatMap((context) => handleVersionSyncProgram(options).pipe(Effect.provide(context)))
+    )
+  );

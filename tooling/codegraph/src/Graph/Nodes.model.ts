@@ -240,7 +240,7 @@ export class RouteNode extends GraphNodeBase.extend<RouteNode>($I`RouteNode`)(
     apiTags: S.optional(ArrayOfStrings),
     apiSummary: S.optional(S.String),
     apiDescription: S.optional(S.String),
-    apiResponseStatus: S.optional(S.Array(S.Number)),
+    apiResponseStatus: S.Number.pipe(S.Array, S.optional),
   },
   $I.annote("RouteNode", {
     description: "Graph node representing an HTTP route.",

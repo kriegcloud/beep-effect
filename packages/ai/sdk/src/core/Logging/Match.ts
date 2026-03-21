@@ -344,9 +344,9 @@ export const matchSdkMessage = Match.type<SDKMessage>().pipe(
   ),
   Match.when({ type: "auth_status" }, (message) =>
     makeSdkEvent(message, {
-      level: message.error ? "Warn" : "Info",
-      event: message.error ? "sdk.message.auth_status.error" : "sdk.message.auth_status",
-      messageText: message.error ? "auth status error" : "auth status",
+      level: message.error === undefined ? "Info" : "Warn",
+      event: message.error === undefined ? "sdk.message.auth_status" : "sdk.message.auth_status.error",
+      messageText: message.error === undefined ? "auth status" : "auth status error",
       data: {
         error: message.error,
         output: message.output,

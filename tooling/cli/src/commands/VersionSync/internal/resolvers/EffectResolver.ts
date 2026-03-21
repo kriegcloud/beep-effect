@@ -16,7 +16,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
+import { decodeJsoncTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   VersionCategoryReport,
   VersionCategoryStatusEnum,
@@ -135,8 +135,7 @@ export const resolveEffectCatalog: (
       )
     );
 
-    const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.provide(JsoncCodecServiceLive),
+    const pkgJson = yield* decodeJsoncTextAsLive(RootPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

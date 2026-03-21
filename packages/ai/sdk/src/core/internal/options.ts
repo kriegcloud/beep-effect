@@ -4,10 +4,10 @@ import { mergeHookMaps } from "../Hooks/utils.js";
 import type { Options } from "../Schema/Options.js";
 
 const mergeRecord = <T>(base: Record<string, T> | undefined, override: Record<string, T> | undefined) =>
-  base || override ? { ...base, ...override } : undefined;
+  base !== undefined || override !== undefined ? { ...base, ...override } : undefined;
 
 const mergeHooks = (base: HookMap | undefined, override: HookMap | undefined) => {
-  if (!base && !override) return undefined;
+  if (base === undefined && override === undefined) return undefined;
   const merged = mergeHookMaps(base, override);
   return Struct.keys(merged).length === 0 ? undefined : merged;
 };
@@ -16,7 +16,7 @@ const mergeHooks = (base: HookMap | undefined, override: HookMap | undefined) =>
  * @since 0.0.0
  */
 export const mergeOptions = (base: Options, override?: Partial<Options>): Options => {
-  if (!override) return { ...base };
+  if (override === undefined) return { ...base };
   const hooks = mergeHooks(base.hooks, override.hooks);
   const env = mergeRecord(base.env, override.env);
   const mcpServers = mergeRecord(base.mcpServers, override.mcpServers);
@@ -26,10 +26,10 @@ export const mergeOptions = (base: Options, override?: Partial<Options>): Option
   return {
     ...base,
     ...override,
-    ...(hooks ? { hooks } : {}),
-    ...(env ? { env } : {}),
-    ...(mcpServers ? { mcpServers } : {}),
-    ...(agents ? { agents } : {}),
-    ...(extraArgs ? { extraArgs } : {}),
+    ...(hooks === undefined ? {} : { hooks }),
+    ...(env === undefined ? {} : { env }),
+    ...(mcpServers === undefined ? {} : { mcpServers }),
+    ...(agents === undefined ? {} : { agents }),
+    ...(extraArgs === undefined ? {} : { extraArgs }),
   };
 };

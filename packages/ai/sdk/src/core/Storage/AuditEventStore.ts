@@ -34,9 +34,11 @@ const resolveAuditKeys = (options?: {
   readonly prefix?: string;
 }) => ({
   journalKey:
-    options?.journalKey ?? (options?.prefix ? `${options.prefix}/event-journal` : defaultAuditEventJournalKey),
+    options?.journalKey ??
+    (options?.prefix !== undefined ? `${options.prefix}/event-journal` : defaultAuditEventJournalKey),
   identityKey:
-    options?.identityKey ?? (options?.prefix ? `${options.prefix}/event-log-identity` : defaultAuditIdentityKey),
+    options?.identityKey ??
+    (options?.prefix !== undefined ? `${options.prefix}/event-log-identity` : defaultAuditIdentityKey),
 });
 
 const auditEventTags = ["tool_use", "permission_decision", "hook_event", "sync_conflict", "sync_compaction"] as const;
@@ -67,7 +69,7 @@ const makeStore = Effect.gen(function* () {
   const write = Effect.fn("AuditEventStore.write")((input: AuditEventInput) =>
     Effect.gen(function* () {
       const enabled = yield* resolveEnabled;
-      if (!enabled) return;
+      if (enabled === false) return;
       const normalized = yield* Effect.try({
         try: () => normalizeAuditEventInput(input),
         catch: (cause) => mapError("normalize", cause),
@@ -126,7 +128,9 @@ export class AuditEventStore extends ServiceMap.Service<AuditEventStore, AuditEv
           const conflictPolicyLayer = options?.conflictPolicy ?? ConflictPolicy.layerLastWriteWins;
           const baseLayer = EventLog.layerEventLog.pipe(
             Layer.provide(
-              layerEventJournalKeyValueStore(options?.journalKey ? { key: options.journalKey } : undefined)
+              layerEventJournalKeyValueStore(
+                options?.journalKey === undefined ? undefined : { key: options.journalKey }
+              )
             ),
             Layer.provide(Layer.sync(EventLog.Identity, () => EventLog.makeIdentityUnsafe())),
             Layer.provide(layerAuditHandlers),

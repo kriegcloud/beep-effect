@@ -1,11 +1,14 @@
 import { $AiSdkId } from "@beep/identity/packages";
 import { Clock, Deferred, Effect, Layer, Random, Schedule, ServiceMap, Stream } from "effect";
 import * as A from "effect/Array";
+import type * as Config from "effect/Config";
 import * as O from "effect/Option";
+import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type { EventJournalError } from "effect/unstable/eventlog/EventJournal";
 import { AgentRuntimeConfig, type AgentRuntimeSettings } from "./AgentRuntimeConfig.js";
-import type { AgentSdkError } from "./Errors.js";
+import type { ConfigError as AgentConfigError, AgentSdkError } from "./Errors.js";
 import { type AuditLoggingOptions, withAuditLogging, wrapPermissionHooks } from "./Hooks/Audit.js";
 import { withHooks } from "./Hooks/utils.js";
 import { utcFromMillis } from "./internal/dateTime.js";
@@ -25,17 +28,19 @@ import {
   StorageConfig,
   type StorageSyncLayerOptions,
 } from "./Storage/index.js";
-import { layerAuditEventStore } from "./Sync/index.js";
+import { layerAuditEventStore, type SyncService } from "./Sync/index.js";
 
 const $I = $AiSdkId.create("core/AgentRuntime");
 
 type ChatHistoryStoreService = ServiceMap.Service.Shape<typeof ChatHistoryStore>;
+type PersistenceError = Config.ConfigError | AgentConfigError | EventJournalError | PlatformError.PlatformError;
+type PersistenceLayer<Service> = Layer.Layer<Service, PersistenceError, never>;
 
 const decorateHandle = (handle: QueryHandle, settings: AgentRuntimeSettings) =>
   Effect.gen(function* () {
     let stream = handle.stream;
 
-    if (settings.firstMessageTimeout) {
+    if (settings.firstMessageTimeout !== undefined) {
       const firstMessage = yield* Deferred.make<void>();
       stream = stream.pipe(
         Stream.tap(() => Deferred.succeed(firstMessage, undefined).pipe(Effect.ignore)),
@@ -51,7 +56,7 @@ const decorateHandle = (handle: QueryHandle, settings: AgentRuntimeSettings) =>
       );
     }
 
-    if (settings.queryTimeout) {
+    if (settings.queryTimeout !== undefined) {
       yield* Effect.forkScoped(
         Effect.sleep(settings.queryTimeout).pipe(Effect.andThen(handle.interrupt.pipe(Effect.ignore)))
       );
@@ -79,12 +84,12 @@ const applyRetry = <A, E, R>(effect: Effect.Effect<A, E, R>, settings: AgentRunt
  * @category Configuration
  */
 export type PersistenceLayers = {
-  readonly runtime?: Layer.Layer<AgentRuntime, unknown, unknown>;
-  readonly chatHistory?: Layer.Layer<ChatHistoryStore, unknown, unknown>;
-  readonly artifacts?: Layer.Layer<ArtifactStore, unknown, unknown>;
-  readonly auditLog?: Layer.Layer<AuditEventStore, unknown, unknown>;
-  readonly sessionIndex?: Layer.Layer<SessionIndexStore, unknown, unknown>;
-  readonly storageConfig?: Layer.Layer<StorageConfig, unknown, unknown>;
+  readonly runtime?: PersistenceLayer<AgentRuntime>;
+  readonly chatHistory?: PersistenceLayer<ChatHistoryStore>;
+  readonly artifacts?: PersistenceLayer<ArtifactStore>;
+  readonly auditLog?: PersistenceLayer<AuditEventStore>;
+  readonly sessionIndex?: PersistenceLayer<SessionIndexStore>;
+  readonly storageConfig?: PersistenceLayer<StorageConfig>;
 };
 
 /**
@@ -146,7 +151,7 @@ const recordHandleWithStore = Effect.fn("AgentRuntime.recordHandleWithStore")(fu
   const recordMessages = (messages: ReadonlyArray<SDKUserMessage>, source: ChatEventSource) => {
     if (messages.length === 0) return Effect.void;
     const resolvedSessionId = sessionId ?? messages[0]?.session_id;
-    if (!resolvedSessionId) return Effect.void;
+    if (resolvedSessionId === undefined) return Effect.void;
     const effect = store.appendMessages(resolvedSessionId, messages, { source }).pipe(Effect.asVoid);
     return strict ? effect.pipe(Effect.orDie) : effect.pipe(Effect.catchCause(() => Effect.void));
   };
@@ -284,12 +289,12 @@ export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeS
           if (!settings.enabled.auditLog) return opts;
           const base = opts ?? {};
           let hooks = base.hooks;
-          if (hooks && (options?.audit?.logPermissionDecisions ?? true)) {
+          if (hooks !== undefined && (options?.audit?.logPermissionDecisions ?? true)) {
             hooks = yield* wrapPermissionHooks(hooks, "", options?.audit).pipe(
               Effect.provideService(AuditEventStore, auditStore)
             );
           }
-          return auditHooks
+          return auditHooks !== undefined
             ? withHooks(
                 {
                   ...base,
@@ -413,7 +418,7 @@ export class AgentRuntime extends ServiceMap.Service<AgentRuntime, AgentRuntimeS
       ...(options.history !== undefined ? { history: options.history } : {}),
       ...(options.audit !== undefined ? { audit: options.audit } : {}),
     });
-
-    return syncLayers.sync ? Layer.merge(runtimeLayer, syncLayers.sync) : runtimeLayer;
+    const syncLayer: Layer.Layer<SyncService, PersistenceError, never> | undefined = syncLayers.sync;
+    return syncLayer === undefined ? runtimeLayer : Layer.merge(runtimeLayer, syncLayer);
   };
 }

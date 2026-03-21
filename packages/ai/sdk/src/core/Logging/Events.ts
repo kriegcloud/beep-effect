@@ -10,16 +10,17 @@ const shouldLogCategory = (category: AgentLogCategory) =>
   Effect.map(Effect.service(AgentLoggingConfig), (config) => config.settings.categories[category]);
 
 const logAgentEvent = (event: AgentLogEvent) => {
-  const payload = event.data
-    ? {
-        event: event.event,
-        message: event.message,
-        data: event.data,
-      }
-    : {
-        event: event.event,
-        message: event.message,
-      };
+  const payload =
+    event.data !== undefined
+      ? {
+          event: event.event,
+          message: event.message,
+          data: event.data,
+        }
+      : {
+          event: event.event,
+          message: event.message,
+        };
 
   return Effect.logWithLevel(event.level)(payload).pipe(
     Effect.annotateLogs({

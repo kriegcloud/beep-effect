@@ -115,7 +115,7 @@ const fromExit = <A, E>(exit: Exit.Exit<A, E>): Effect.Effect<A, E> =>
 const isIdle = (state: SessionState) => state.inFlightSends === 0 && state.inFlightStreams === 0;
 
 const signalIdleIfNeeded = (state: SessionState) =>
-  state.phase === "closing" && isIdle(state) && state.idleSignal
+  state.phase === "closing" && isIdle(state) && state.idleSignal !== null
     ? Deferred.succeed(state.idleSignal, undefined).pipe(Effect.asVoid)
     : Effect.void;
 

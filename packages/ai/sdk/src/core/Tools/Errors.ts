@@ -50,13 +50,28 @@ export class ToolOutputError extends TaggedErrorClass<ToolOutputError>()("ToolOu
 }
 
 /**
+ * Tool handler failed while executing.
+ */
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class ToolHandlerError extends TaggedErrorClass<ToolHandlerError>()("ToolHandlerError", {
+  name: S.String,
+  message: S.String,
+  cause: S.optional(S.Defect),
+}) {
+  static readonly make = (params: Pick<ToolHandlerError, "name" | "message" | "cause">) => new ToolHandlerError(params);
+}
+
+/**
  * Union of all tool-related errors.
  */
 /**
  * @since 0.0.0
  * @category DomainModel
  */
-export const ToolError = S.Union([ToolNotFoundError, ToolInputError, ToolOutputError]);
+export const ToolError = S.Union([ToolNotFoundError, ToolInputError, ToolOutputError, ToolHandlerError]);
 
 /**
  * @since 0.0.0

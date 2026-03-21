@@ -55,12 +55,12 @@ const hasHooks = (hooks: HookMap | undefined): boolean =>
 export const mergeHookMaps = (...maps: ReadonlyArray<HookMap | undefined>): HookMap => {
   const merged = emptyHookMap();
   for (const map of maps) {
-    if (!map) continue;
+    if (map === undefined) continue;
     for (const event of hookEvents) {
       const matchers = map[event];
-      if (!matchers || matchers.length === 0) continue;
+      if (matchers === undefined || matchers.length === 0) continue;
       const existing = merged[event];
-      merged[event] = existing ? [...existing, ...matchers] : [...matchers];
+      merged[event] = existing === undefined ? [...matchers] : [...existing, ...matchers];
     }
   }
   return merged;

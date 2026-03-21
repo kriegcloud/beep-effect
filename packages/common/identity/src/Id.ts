@@ -666,7 +666,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | Schema["~annotate.in"]
-  ) => {
+  ): ((self: Schema) => Schema["~rebuild.out"]) => {
     const annotation = annote(identifier, extras);
 
     return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);
@@ -707,7 +707,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteHttp = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
-  ) => {
+  ): ((self: Schema) => Schema["~rebuild.out"]) => {
     const annotation = annote(identifier, extras);
 
     return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);

@@ -163,7 +163,7 @@ const makeAgentSdkConfig = Effect.gen(function* () {
                 allowUnsandboxedCommands: sandboxAllowUnsandboxedCommands.value,
               }
             : {}),
-          ...(sandboxNetwork ? { network: sandboxNetwork } : {}),
+          ...(sandboxNetwork === undefined ? {} : { network: sandboxNetwork }),
           ...(O.isSome(sandboxIgnoreViolations) ? { ignoreViolations: sandboxIgnoreViolations.value } : {}),
           ...(O.isSome(sandboxEnableWeakerNestedSandbox)
             ? {
@@ -171,7 +171,7 @@ const makeAgentSdkConfig = Effect.gen(function* () {
               }
             : {}),
           ...(O.isSome(sandboxExcludedCommands) ? { excludedCommands: sandboxExcludedCommands.value } : {}),
-          ...(sandboxRipgrep ? { ripgrep: sandboxRipgrep } : {}),
+          ...(sandboxRipgrep === undefined ? {} : { ripgrep: sandboxRipgrep }),
         }
       : undefined;
 
@@ -183,7 +183,7 @@ const makeAgentSdkConfig = Effect.gen(function* () {
     permissionMode: O.getOrUndefined(permissionMode),
     settingSources,
     env,
-    ...(sandbox ? { sandbox } : {}),
+    ...(sandbox === undefined ? {} : { sandbox }),
   };
 
   const sandboxProvider = O.isSome(sandboxProviderValue) ? sandboxProviderValue : O.some("local");
@@ -220,10 +220,10 @@ export class AgentSdkConfig extends ServiceMap.Service<AgentSdkConfig, AgentSdkC
    */
   static readonly layerWithOverrides = (overrides: { readonly apiKey?: string; readonly model?: string }) => {
     const entries: Array<[string, string]> = [];
-    if (overrides.apiKey) {
+    if (overrides.apiKey !== undefined) {
       entries.push(["ANTHROPIC_API_KEY", overrides.apiKey]);
     }
-    if (overrides.model) {
+    if (overrides.model !== undefined) {
       entries.push(["MODEL", overrides.model]);
     }
     if (entries.length === 0) {

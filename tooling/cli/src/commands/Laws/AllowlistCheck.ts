@@ -48,7 +48,7 @@ class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`Effe
     reason: NonEmptyString,
     owner: NonEmptyString,
     issue: NonEmptyString,
-    expiresOn: S.optionalKey(S.UndefinedOr(DateYmdString)),
+    expiresOn: DateYmdString.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("EffectLawsAllowlistEntry", {
     description: "Single allowlist entry describing a temporary exception for an Effect law.",

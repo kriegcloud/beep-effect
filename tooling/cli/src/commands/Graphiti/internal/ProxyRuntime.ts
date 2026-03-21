@@ -40,8 +40,9 @@ export const runGraphitiProxy = Effect.scoped(
     const config = yield* loadGraphitiProxyConfig;
     const dependencyHealthService = yield* makeGraphitiDependencyHealthService(config);
     const forwarderService = makeGraphitiProxyForwarderService(config);
+    const httpClientContext = yield* Layer.build(BunHttpClient.layer);
     const queueService = yield* makeGraphitiProxyQueueService(config, forwarderService).pipe(
-      Effect.provide(BunHttpClient.layer)
+      Effect.provide(httpClientContext)
     );
 
     const logger = {

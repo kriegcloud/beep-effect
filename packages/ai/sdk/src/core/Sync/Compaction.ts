@@ -41,7 +41,7 @@ export const compactEntries = (strategy: CompactionStrategy, entries: ReadonlyAr
   strategy(toRemoteEntries(entries)).pipe(
     Effect.map((brackets) => {
       const last = brackets[brackets.length - 1];
-      return last ? last[0] : A.empty();
+      return last === undefined ? A.empty() : last[0];
     })
   );
 
@@ -98,7 +98,7 @@ export const Compaction = {
       for (const strategy of strategies) {
         const brackets = yield* strategy(current);
         const next = brackets[brackets.length - 1];
-        if (!next) {
+        if (next === undefined) {
           current = A.empty();
           continue;
         }

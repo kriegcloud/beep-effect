@@ -105,7 +105,7 @@ export const JSONRPCMessage = S.Json.pipe(
  */
 export class CallToolResult extends S.Class<CallToolResult>($I`CallToolResult`)(
   {
-    content: S.optional(S.Array(S.Unknown)),
+    content: S.optional(S.Unknown.pipe(S.Array)),
     structuredContent: S.optional(S.Record(S.String, S.Unknown)),
     isError: S.optional(S.Boolean),
   },

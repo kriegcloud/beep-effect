@@ -11,7 +11,7 @@ import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
-const makeLayer = (hooks?: SqlTestHooks) =>
+const makeLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
   makeSqlTestLayer(
     hooks === undefined
       ? {

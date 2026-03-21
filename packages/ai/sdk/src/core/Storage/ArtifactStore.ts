@@ -31,7 +31,7 @@ export type ArtifactJournaledOptions<R = never> = {
   readonly prefix?: string;
   readonly journalKey?: string;
   readonly identityKey?: string;
-  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, unknown, R>;
+  readonly conflictPolicy?: Layer.Layer<ConflictPolicy, never, R>;
 };
 
 /**
@@ -103,7 +103,7 @@ const applyRetention = (
   retention: ArtifactRetention | undefined,
   now: number
 ): ArtifactState => {
-  if (!retention) return state;
+  if (retention === undefined) return state;
 
   const ids = O.getOrElse(HashMap.get(state.bySession, sessionId), () => [] as ReadonlyArray<string>);
   let filteredIds = ids.filter((id) => HashMap.has(state.byId, id));
@@ -134,7 +134,7 @@ const applyRetention = (
       const kept: Array<string> = [];
       for (let index = filteredIds.length - 1; index >= 0; index -= 1) {
         const id = filteredIds[index];
-        if (!id) continue;
+        if (id === undefined) continue;
         const record = HashMap.get(state.byId, id);
         if (O.isNone(record)) continue;
         const size = sizeOfRecord(record.value);
@@ -184,7 +184,7 @@ const makeMemoryStore = Effect.gen(function* () {
   const put = Effect.fn("ArtifactStore.put")((record: ArtifactRecord) =>
     Effect.gen(function* () {
       const enabled = yield* resolveEnabled;
-      if (!enabled) return;
+      if (enabled === false) return;
       const now = utcToMillis(record.createdAt);
       const retention = yield* resolveRetention;
       yield* SynchronizedRef.update(stateRef, (state) => {
@@ -262,9 +262,9 @@ const makeMemoryStore = Effect.gen(function* () {
 
   const cleanup = Effect.fn("ArtifactStore.cleanup")(function* () {
     const enabled = yield* resolveEnabled;
-    if (!enabled) return;
+    if (enabled === false) return;
     const retention = yield* resolveRetention;
-    if (!retention) return;
+    if (retention === undefined) return;
     const now = yield* Clock.currentTimeMillis;
 
     yield* SynchronizedRef.update(stateRef, (state) => {

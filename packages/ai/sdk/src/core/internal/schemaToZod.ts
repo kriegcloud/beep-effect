@@ -55,7 +55,7 @@ const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Resul
   }
 
   const [head, next, ...rest] = compiledMembers;
-  if (!head || !next) {
+  if (head === undefined || next === undefined) {
     return Result.succeed(z.never());
   }
 
@@ -122,7 +122,7 @@ const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Res
       compiledElements.push(compiled.success);
     }
     const [first, ...rest] = compiledElements;
-    if (!first) {
+    if (first === undefined) {
       return Result.succeed(z.tuple([]));
     }
     return Result.succeed(z.tuple([first, ...rest]));

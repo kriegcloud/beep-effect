@@ -69,7 +69,7 @@ export const make = (options?: { readonly key?: string }) =>
       while (low < high) {
         const mid = Math.floor((low + high) / 2);
         const current = entries[mid];
-        if (current && current.createdAtMillis <= entry.createdAtMillis) {
+        if (current !== undefined && current.createdAtMillis <= entry.createdAtMillis) {
           low = mid + 1;
         } else {
           high = mid;
@@ -122,11 +122,11 @@ export const make = (options?: { readonly key?: string }) =>
             Effect.sync(() => {
               if (exit._tag === "Failure") return;
               const last = entries[entries.length - 1];
-              if (!last) return;
+              if (last === undefined) return;
               const remote = ensureRemote(remoteId);
               for (let i = remote.missing.length - 1; i >= 0; i -= 1) {
                 const missing = remote.missing[i];
-                if (missing && missing.idString === last.idString) {
+                if (missing !== undefined && missing.idString === last.idString) {
                   remote.missing = remote.missing.slice(i + 1);
                   break;
                 }
@@ -192,7 +192,10 @@ export const make = (options?: { readonly key?: string }) =>
 
             const brackets: ReadonlyArray<
               readonly [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>]
-            > = options.compact ? yield* options.compact(uncommittedRemotes) : [[uncommitted, uncommittedRemotes]];
+            > =
+              options.compact !== undefined
+                ? yield* options.compact(uncommittedRemotes)
+                : [[uncommitted, uncommittedRemotes]];
 
             const policyOption = yield* Effect.serviceOption(ConflictPolicy);
             const auditOption = yield* Effect.serviceOption(SyncAudit);

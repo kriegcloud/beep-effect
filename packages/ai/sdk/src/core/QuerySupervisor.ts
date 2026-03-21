@@ -232,7 +232,7 @@ const toHookMatcherRegex = (matcher: string) =>
   new RegExp(`^${matcher.replace(/[.+^${}()|[\]\\]/g, "\\$&").replaceAll("*", ".*")}$`);
 
 const hookMatcherAllowsInput = (matcher: string | undefined, input: HookInput) => {
-  if (!matcher || matcher === "*") return true;
+  if (matcher === undefined || matcher === "*") return true;
   if ("tool_name" in input) {
     return toHookMatcherRegex(matcher).test(input.tool_name);
   }
@@ -241,7 +241,7 @@ const hookMatcherAllowsInput = (matcher: string | undefined, input: HookInput) =
 
 const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle => {
   const hooks = options?.hooks;
-  if (!hooks || R.keys(hooks).length === 0) return handle;
+  if (hooks === undefined || R.keys(hooks).length === 0) return handle;
 
   const baseCwd = options?.cwd ?? "";
   const basePermissionMode = options?.permissionMode;
@@ -250,7 +250,7 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
     session_id: sessionId,
     transcript_path: "",
     cwd: baseCwd,
-    ...(basePermissionMode ? { permission_mode: basePermissionMode } : {}),
+    ...(basePermissionMode === undefined ? {} : { permission_mode: basePermissionMode }),
   });
 
   const runHookEvent = (event: keyof NonNullable<Options["hooks"]>, input: HookInput, toolUseID?: string) =>
@@ -293,7 +293,7 @@ const applySandboxHooks = (handle: QueryHandle, options?: Options): QueryHandle 
           tool_input: {},
           tool_use_id: toolUseId,
           error: errorMessage,
-          ...(isInterrupt ? { is_interrupt: true } : {}),
+          ...(isInterrupt === undefined ? {} : { is_interrupt: true }),
         };
         yield* runHookEvent("PostToolUseFailure", input, toolUseId).pipe(Effect.ignore);
       }
@@ -419,7 +419,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
     : undefined;
 
   const publishEvent = (event: QueryEvent) =>
-    eventBus ? PubSub.publish(eventBus, event).pipe(Effect.asVoid, Effect.ignore) : Effect.void;
+    eventBus === undefined ? Effect.void : PubSub.publish(eventBus, event).pipe(Effect.asVoid, Effect.ignore);
 
   const trackStarted = settings.metricsEnabled ? Metric.update(queryStartedMetric, 1) : Effect.void;
   const trackCompleted = settings.metricsEnabled ? Metric.update(queryCompletedMetric, 1) : Effect.void;
@@ -449,10 +449,12 @@ const makeQuerySupervisor = Effect.gen(function* () {
             })
           );
         }
-        return sandboxOption.value.runAgent(prompt, options ? stripNonSerializableOptions(options) : options).pipe(
-          Effect.map((handle) => applySandboxHooks(handle, options)),
-          Effect.mapError((error): AgentSdkError => error)
-        );
+        return sandboxOption.value
+          .runAgent(prompt, options === undefined ? options : stripNonSerializableOptions(options))
+          .pipe(
+            Effect.map((handle) => applySandboxHooks(handle, options)),
+            Effect.mapError((error): AgentSdkError => error)
+          );
       }
       return sdk.query(prompt, options).pipe(Effect.mapError((error): AgentSdkError => error));
     });
@@ -536,7 +538,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
             scope,
           };
 
-    if (!pendingQueue) {
+    if (pendingQueue === undefined) {
       return yield* startQuery(request);
     }
 
@@ -573,7 +575,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
     });
 
     const awaitHandle = Deferred.await(deferred);
-    if (settings.maxPendingTime) {
+    if (settings.maxPendingTime !== undefined) {
       const timeoutMs = Duration.toMillis(settings.maxPendingTime);
       const timeoutError = new QueryPendingTimeoutError({
         message: "Query did not start within maxPendingTime",
@@ -597,13 +599,13 @@ const makeQuerySupervisor = Effect.gen(function* () {
 
   const stats = Effect.gen(function* () {
     const active = yield* SynchronizedRef.get(activeRef).pipe(Effect.map((current) => HashMap.size(current)));
-    const pending = pendingQueue ? Math.max(0, yield* Queue.size(pendingQueue)) : 0;
+    const pending = pendingQueue === undefined ? 0 : Math.max(0, yield* Queue.size(pendingQueue));
     return new QuerySupervisorStats({
       active,
       pending,
       concurrencyLimit: settings.concurrencyLimit,
-      pendingQueueCapacity: pendingQueue ? settings.pendingQueueCapacity : 0,
-      pendingQueueStrategy: pendingQueue ? settings.pendingQueueStrategy : "disabled",
+      pendingQueueCapacity: pendingQueue === undefined ? 0 : settings.pendingQueueCapacity,
+      pendingQueueStrategy: pendingQueue === undefined ? "disabled" : settings.pendingQueueStrategy,
     });
   });
 
@@ -621,9 +623,9 @@ const makeQuerySupervisor = Effect.gen(function* () {
     );
   });
 
-  const events = eventBus ? Stream.fromPubSub(eventBus) : Stream.empty;
+  const events = eventBus === undefined ? Stream.empty : Stream.fromPubSub(eventBus);
 
-  if (pendingQueue) {
+  if (pendingQueue !== undefined) {
     yield* Effect.forkScoped(
       Effect.forever(
         Effect.gen(function* () {
@@ -644,8 +646,8 @@ const makeQuerySupervisor = Effect.gen(function* () {
     Effect.all(
       [
         interruptAll.pipe(Effect.ignore),
-        pendingQueue ? Queue.shutdown(pendingQueue).pipe(Effect.ignore) : Effect.void,
-        eventBus ? PubSub.shutdown(eventBus).pipe(Effect.ignore) : Effect.void,
+        pendingQueue === undefined ? Effect.void : Queue.shutdown(pendingQueue).pipe(Effect.ignore),
+        eventBus === undefined ? Effect.void : PubSub.shutdown(eventBus).pipe(Effect.ignore),
       ],
       {
         concurrency: "unbounded",

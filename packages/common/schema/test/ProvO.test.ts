@@ -1,479 +1,170 @@
-import { readFileSync } from "node:fs";
-import { basename, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import {
-  ActivityWithRequirements,
-  AgentInfluence,
+  Activity,
   Association,
   Attribution,
-  Bundle,
   Collection,
   Delegation,
-  EmptyCollection,
-  EntityInfluence,
-  EntityWithRequirements,
-  ExternalLink,
+  Derivation,
+  End,
+  Entity,
   Generation,
-  Influence,
-  InstantaneousEvent,
-  Location,
   ObjectRef,
   Organization,
   Person,
   Plan,
   PrimarySource,
-  Prov,
+  ProvBundle,
   ProvDateTime,
   ProvO,
   Quotation,
   Revision,
-  Role,
   SoftwareAgent,
+  Start,
   Usage,
-} from "@beep/schema/internal/ProvO/ProvO.ts";
-import { describe, expect, it } from "@effect/vitest";
-import { DateTime } from "effect";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
+} from "../../semantic-web/src/prov.ts";
 
-const testDir = dirname(fileURLToPath(import.meta.url));
-const fixtureRoot = resolve(testDir, "fixtures");
 const decodeUnknownSync = <Schema extends S.Top>(schema: Schema) =>
   S.decodeUnknownSync(schema as Schema & { readonly DecodingServices: never });
-const decodeJson = decodeUnknownSync(S.UnknownFromJsonString);
-const decodeProvO = decodeUnknownSync(ProvO);
-const decodeProv = decodeUnknownSync(Prov);
-const decodeEntity = decodeUnknownSync(EntityWithRequirements);
-const decodeActivity = decodeUnknownSync(ActivityWithRequirements);
-const decodeBundle = decodeUnknownSync(Bundle);
-const decodePlan = decodeUnknownSync(Plan);
-const decodeCollection = decodeUnknownSync(Collection);
-const decodeEmptyCollection = decodeUnknownSync(EmptyCollection);
-const decodePerson = decodeUnknownSync(Person);
-const decodeOrganization = decodeUnknownSync(Organization);
-const decodeSoftwareAgent = decodeUnknownSync(SoftwareAgent);
-const decodeLocation = decodeUnknownSync(Location);
-const decodeRole = decodeUnknownSync(Role);
-const decodeUsage = decodeUnknownSync(Usage);
+
+const decodeActivity = decodeUnknownSync(Activity);
 const decodeAssociation = decodeUnknownSync(Association);
 const decodeAttribution = decodeUnknownSync(Attribution);
+const decodeCollection = decodeUnknownSync(Collection);
 const decodeDelegation = decodeUnknownSync(Delegation);
-const decodeEntityInfluence = decodeUnknownSync(EntityInfluence);
-const decodeAgentInfluence = decodeUnknownSync(AgentInfluence);
+const decodeDerivation = decodeUnknownSync(Derivation);
+const decodeEnd = decodeUnknownSync(End);
+const decodeEntity = decodeUnknownSync(Entity);
+const decodeGeneration = decodeUnknownSync(Generation);
+const decodeObjectRef = decodeUnknownSync(ObjectRef);
+const decodeOrganization = decodeUnknownSync(Organization);
+const decodePerson = decodeUnknownSync(Person);
+const decodePlan = decodeUnknownSync(Plan);
 const decodePrimarySource = decodeUnknownSync(PrimarySource);
+const decodeProvBundle = decodeUnknownSync(ProvBundle);
+const decodeProvDateTime = decodeUnknownSync(ProvDateTime);
+const decodeProvO = decodeUnknownSync(ProvO);
 const decodeQuotation = decodeUnknownSync(Quotation);
 const decodeRevision = decodeUnknownSync(Revision);
-const decodeInfluence = decodeUnknownSync(Influence);
-const decodeInstantaneousEvent = decodeUnknownSync(InstantaneousEvent);
+const decodeSoftwareAgent = decodeUnknownSync(SoftwareAgent);
+const decodeStart = decodeUnknownSync(Start);
+const decodeUsage = decodeUnknownSync(Usage);
 
-const readFixture = (relativePath: string): unknown =>
-  decodeJson(readFileSync(resolve(fixtureRoot, relativePath), "utf8"));
-
-const exampleFixtures = [
-  "prov/examples/example-activity.json",
-  "prov/examples/example-activityinfluence.json",
-  "prov/examples/example-llm.json",
-  "prov/examples/example-withrefs.json",
-  "prov/examples/example.json",
-  "prov/examples/simple-rel.json",
-] as const;
-
-const invalidProvFixtures = [
-  "prov/tests/ambiguous-type-fail.json",
-  "prov/tests/relationship-fail.json",
-  "prov/tests/sequential-time-fail.json",
-] as const;
-
-describe("ProvO fixtures", () => {
-  for (const fixture of exampleFixtures) {
-    it(`decodes ${basename(fixture)}`, () => {
-      expect(() => decodeProvO(readFixture(fixture))).not.toThrow();
-    });
-  }
-
-  for (const fixture of invalidProvFixtures) {
-    it(`rejects ${basename(fixture)}`, () => {
-      expect(() => decodeProvO(readFixture(fixture))).toThrow();
-    });
-  }
-
-  it("rejects the prov-activity entity fixture for an activity-only schema", () => {
-    expect(() => decodeActivity(readFixture("prov-activity/tests/entity-fail.json"))).toThrow(
-      'Expected "Activity" | "prov:Activity", got "Entity"'
-    );
-  });
-
-  it("decodes qualified generation timestamps from the upstream influence fixture", () => {
-    const decoded = decodeEntity(readFixture("prov/examples/example-activityinfluence.json"));
-
-    if (O.isNone(decoded.qualifiedGeneration)) {
-      throw new Error("Expected an entity root with qualifiedGeneration members.");
-    }
-
-    const qualifiedGeneration = decoded.qualifiedGeneration.value;
-    if (!globalThis.Array.isArray(qualifiedGeneration)) {
-      throw new Error("Expected qualifiedGeneration to decode as an array.");
-    }
-
-    const [generation] = qualifiedGeneration;
-    if (!(generation instanceof Generation)) {
-      throw new Error("Expected the first qualified generation member to decode as Generation.");
-    }
-
-    expect(O.isSome(generation.atTime)).toBe(true);
-    if (O.isNone(generation.atTime)) {
-      throw new Error("Expected the qualified generation to carry an atTime value.");
-    }
-
-    expect(DateTime.formatIso(generation.atTime.value)).toBe("2018-10-25T15:46:38.058Z");
-  });
-});
-
-describe("ProvO canonical surface", () => {
-  it("accepts standalone agent roots at the canonical entrypoint and inside Prov arrays", () => {
-    expect(decodeProvO({ id: "agent-1", provType: "Agent" })).toBeDefined();
-    expect(decodeProv([{ id: "agent-1", provType: "Agent" }])).toHaveLength(1);
-  });
-});
-
-describe("ProvO scalar helpers", () => {
-  it("accepts IRI, CURIE, and local object references", () => {
-    const decodeObjectRef = S.decodeUnknownSync(ObjectRef);
-
-    expect(decodeObjectRef("https://example.org/things/1")).toBe("https://example.org/things/1");
-    expect(decodeObjectRef("thing:DP-1-S1")).toBe("thing:DP-1-S1");
-    expect(decodeObjectRef("localIdentifier")).toBe("localIdentifier");
-  });
-
-  it("rejects malformed object references", () => {
-    expect(() => S.decodeUnknownSync(ObjectRef)("bad value with spaces")).toThrow(
-      "Object references must be valid IRIs, CURIEs, or local identifiers"
-    );
-  });
-
-  it("decodes external links with required and optional members", () => {
-    const minimal = S.decodeUnknownSync(ExternalLink)({
-      href: "https://example.org/spec",
-      rel: "related",
-    });
-    const complete = S.decodeUnknownSync(ExternalLink)({
-      href: "https://example.org/spec",
-      rel: "alternate",
-      anchor: "#section-1",
-      type: "text/html",
-      hreflang: "en",
-      title: "Spec",
-      length: 42,
-    });
-
-    expect(minimal.href).toBe("https://example.org/spec");
-    expect(minimal.rel).toBe("related");
-    expect(O.isNone(minimal.title)).toBe(true);
-    expect(O.isSome(complete.title)).toBe(true);
-    expect(O.isSome(complete.length)).toBe(true);
-
-    if (O.isSome(complete.title) && O.isSome(complete.length)) {
-      expect(complete.title.value).toBe("Spec");
-      expect(complete.length.value).toBe(42);
-    }
-  });
-
-  it("normalizes PROV timestamps to DateTime.Utc and encodes canonical ISO output", () => {
-    const decoded = S.decodeUnknownSync(ProvDateTime)("2024-11-19T05:07:34.304708Z");
-
-    expect(DateTime.toEpochMillis(decoded)).toBe(1731992854304);
-    expect(S.encodeSync(ProvDateTime)(decoded)).toBe("2024-11-19T05:07:34.304Z");
-  });
-});
-
-describe("ProvO expanded terms", () => {
-  it("decodes entity scalar and temporal expanded properties", () => {
-    const decoded = decodeEntity({
-      id: "entity-1",
+const rawBundle = {
+  lifecycle: {
+    observedAt: "2026-03-08T12:00:00Z",
+  },
+  records: [
+    {
       provType: "Entity",
-      generatedAtTime: "2024-01-01T00:00:00Z",
-      invalidatedAtTime: "2024-01-02T00:00:00Z",
-      value: "snapshot",
-      atLocation: {
-        provType: "Location",
-      },
-    });
+      id: "thing:alice",
+      value: "Alice",
+    },
+    {
+      provType: "Activity",
+      id: "activity:ingest",
+      used: ["thing:alice"],
+      startedAtTime: "2026-03-08T11:00:00Z",
+      endedAtTime: "2026-03-08T12:00:00Z",
+    },
+    {
+      provType: "SoftwareAgent",
+      id: "agent:semantic-web",
+      name: "semantic-web",
+    },
+  ],
+} as const;
 
-    expect(O.isSome(decoded.generatedAtTime)).toBe(true);
-    expect(O.isSome(decoded.invalidatedAtTime)).toBe(true);
-    expect(O.isSome(decoded.value)).toBe(true);
-    expect(O.isSome(decoded.atLocation)).toBe(true);
+describe("ProvO", () => {
+  it("decodes bounded provenance bundles through the current public entrypoint", () => {
+    const decoded = decodeProvO(rawBundle);
 
-    if (O.isSome(decoded.generatedAtTime) && O.isSome(decoded.invalidatedAtTime) && O.isSome(decoded.value)) {
-      expect(DateTime.formatIso(decoded.generatedAtTime.value)).toBe("2024-01-01T00:00:00.000Z");
-      expect(DateTime.formatIso(decoded.invalidatedAtTime.value)).toBe("2024-01-02T00:00:00.000Z");
-      expect(decoded.value.value).toBe("snapshot");
+    expect("records" in decoded).toBe(true);
+    if ("records" in decoded) {
+      expect(decoded.records).toHaveLength(3);
+      expect(O.isSome(decoded.lifecycle)).toBe(true);
     }
   });
 
-  it("rejects non-scalar prov:value payloads", () => {
-    expect(() =>
+  it("decodes stable record variants and timestamp adjuncts", () => {
+    expect(
       decodeEntity({
-        id: "entity-2",
         provType: "Entity",
-        value: {
-          bad: true,
-        },
-      })
-    ).toThrow();
-  });
-
-  it("exports explicit bundle, plan, collection, and agent subtype schemas", () => {
-    expect(decodeBundle({ id: "bundle-1", provType: "Bundle" })).toBeDefined();
-    expect(decodePlan({ id: "plan-1", provType: "Plan" })).toBeDefined();
-    expect(
-      decodeCollection({
-        id: "collection-1",
-        provType: "Collection",
-        hadMember: ["member-1"],
+        id: "thing:alice",
+        wasGeneratedBy: ["activity:ingest"],
+        generatedAtTime: "2026-03-08T12:00:00Z",
       })
     ).toBeDefined();
-    expect(
-      decodeEmptyCollection({
-        id: "collection-2",
-        provType: "EmptyCollection",
-        hadMember: [],
-      })
-    ).toBeDefined();
-    expect(decodePerson({ id: "person-1", provType: "Person", name: "Ada" })).toBeDefined();
-    expect(decodeOrganization({ id: "org-1", provType: "Organization", name: "OpenAI" })).toBeDefined();
-    expect(decodeSoftwareAgent({ id: "sa-1", provType: "SoftwareAgent", name: "bot" })).toBeDefined();
-  });
 
-  it("accepts inline Location values and rejects untyped inline locations", () => {
-    expect(decodeLocation({ provType: "Location" })).toBeDefined();
-    expect(() => decodeLocation({ id: "location-1" })).toThrow(
-      "Location values must carry a canonical Location type marker"
-    );
-  });
-});
-
-describe("ProvO qualified terms", () => {
-  it("accepts typed Role values for qualified usage", () => {
-    const decoded = decodeUsage({
-      entity: {
-        id: "entity-1",
-        provType: "Entity",
-      },
-      hadRole: {
-        provType: "Role",
-      },
+    const activity = decodeActivity({
+      provType: "Activity",
+      id: "activity:ingest",
+      used: ["thing:alice"],
+      startedAtTime: "2026-03-08T11:00:00Z",
+      endedAtTime: "2026-03-08T12:00:00Z",
     });
 
-    expect(O.isSome(decoded.hadRole)).toBe(true);
+    expect(O.isSome(activity.startedAtTime)).toBe(true);
+    expect(O.isSome(activity.endedAtTime)).toBe(true);
+    expect(() => decodeProvDateTime("2026-03-08T12:00:00Z")).not.toThrow();
   });
 
-  it("accepts typed Plan and Role values for qualified association", () => {
+  it("decodes extension-tier records that remain on the public semantic-web surface", () => {
+    expect(decodePlan({ provType: "Plan", id: "plan:1", name: "Normalize bundle" })).toBeDefined();
+    expect(decodeCollection({ provType: "Collection", id: "collection:1", hadMember: ["thing:alice"] })).toBeDefined();
+    expect(decodePerson({ provType: "Person", id: "person:ada", name: "Ada" })).toBeDefined();
+    expect(decodeOrganization({ provType: "Organization", id: "org:beep", name: "Beep" })).toBeDefined();
+    expect(decodeSoftwareAgent({ provType: "SoftwareAgent", id: "agent:bot", name: "Bot" })).toBeDefined();
+  });
+
+  it("decodes stable and extension-tier relations with object references", () => {
+    expect(
+      decodeUsage({
+        activity: "activity:ingest",
+        entity: "thing:alice",
+        atTime: "2026-03-08T11:30:00Z",
+      })
+    ).toBeDefined();
+
+    expect(
+      decodeGeneration({
+        activity: "activity:ingest",
+        entity: "thing:alice",
+        atTime: "2026-03-08T12:00:00Z",
+      })
+    ).toBeDefined();
+
     expect(
       decodeAssociation({
-        agent: {
-          id: "agent-1",
-          provType: "Agent",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-        hadPlan: {
-          id: "plan-1",
-          provType: "Plan",
-        },
+        activity: "activity:ingest",
+        agent: "agent:semantic-web",
+        hadPlan: "plan:1",
       })
     ).toBeDefined();
+
+    expect(decodeAttribution({ entity: "thing:alice", agent: "agent:semantic-web" })).toBeDefined();
+    expect(decodeDelegation({ delegate: "agent:bot", responsible: "agent:semantic-web" })).toBeDefined();
+    expect(decodeDerivation({ generatedEntity: "thing:alice:v2", usedEntity: "thing:alice:v1" })).toBeDefined();
+    expect(decodePrimarySource({ entity: "thing:alice", source: "source:1" })).toBeDefined();
+    expect(decodeQuotation({ entity: "thing:alice", source: "source:2" })).toBeDefined();
+    expect(decodeRevision({ entity: "thing:alice:v2", source: "thing:alice:v1" })).toBeDefined();
+    expect(decodeStart({ activity: "activity:ingest", trigger: "trigger:start" })).toBeDefined();
+    expect(decodeEnd({ activity: "activity:ingest", trigger: "trigger:end" })).toBeDefined();
   });
 
-  it("rejects untyped inline plans in hadPlan", () => {
-    expect(() =>
-      decodeAssociation({
-        agent: {
-          id: "agent-1",
-          provType: "Agent",
-        },
-        hadPlan: {
-          id: "plan-1",
-        },
-      })
-    ).toThrow("Plan values must carry a canonical Plan type marker");
+  it("rejects invalid provenance values for the current schema surface", () => {
+    expect(() => decodeProvO({ provType: "Bundle" })).toThrow();
+    expect(() => decodeCollection({ provType: "Collection", id: "collection:1" })).toThrow();
+    expect(() => decodeUsage({ activity: "activity:ingest" })).toThrow();
+    expect(() => decodeObjectRef("not valid whitespace ref")).toThrow();
   });
 
-  it("exports primary source, quotation, and revision qualified relations", () => {
-    expect(
-      decodePrimarySource({
-        entity: {
-          id: "entity-1",
-          provType: "Entity",
-        },
-        type: "PrimarySource",
-      })
-    ).toBeDefined();
+  it("accepts direct bundle decoding without going through the union entrypoint", () => {
+    const decoded = decodeProvBundle(rawBundle);
 
-    expect(
-      decodeQuotation({
-        entity: {
-          id: "entity-1",
-          provType: "Entity",
-        },
-        type: "Quotation",
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeRevision({
-        entity: {
-          id: "entity-1",
-          provType: "Entity",
-        },
-        type: "Revision",
-      })
-    ).toBeDefined();
-  });
-
-  it("exports entity and agent influence bases plus hadRole-capable agent relations", () => {
-    expect(
-      decodeEntityInfluence({
-        entity: {
-          id: "entity-1",
-          provType: "Entity",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeAgentInfluence({
-        agent: {
-          id: "agent-1",
-          provType: "Agent",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeAttribution({
-        agent: {
-          id: "agent-1",
-          provType: "Agent",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeDelegation({
-        agent: {
-          id: "agent-1",
-          provType: "Agent",
-        },
-        hadActivity: {
-          id: "activity-1",
-          provType: "Activity",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-      })
-    ).toBeDefined();
-  });
-
-  it("supports generic Influence.influenced and instantaneous event location coverage", () => {
-    expect(
-      decodeInfluence({
-        influenced: {
-          id: "entity-1",
-          provType: "Entity",
-        },
-        influencer: {
-          id: "activity-1",
-          provType: "Activity",
-        },
-        hadRole: {
-          provType: "Role",
-        },
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeInstantaneousEvent({
-        type: "InstantaneousEvent",
-        atTime: "2024-01-01T00:00:00Z",
-        atLocation: {
-          provType: "Location",
-        },
-      })
-    ).toBeDefined();
-  });
-
-  it("rejects untyped inline roles", () => {
-    expect(() => decodeRole({ id: "role-1" })).toThrow("Role values must carry a canonical Role type marker");
-  });
-});
-
-describe("ProvO invariants", () => {
-  it("enforces collection and empty collection semantics", () => {
-    expect(
-      decodeEntity({
-        id: "collection-1",
-        provType: "Entity",
-        type: "Collection",
-        hadMember: [{ id: "member-1", provType: "Entity" }],
-      })
-    ).toBeDefined();
-
-    expect(
-      decodeEntity({
-        id: "collection-2",
-        provType: "Entity",
-        type: "EmptyCollection",
-        hadMember: [],
-      })
-    ).toBeDefined();
-
-    expect(() =>
-      decodeEntity({
-        id: "collection-3",
-        provType: "Entity",
-        type: "Collection",
-        hadMember: [],
-      })
-    ).toThrow("Entity collection fields must align with Collection or EmptyCollection semantics");
-
-    expect(() =>
-      decodeEntity({
-        id: "collection-4",
-        provType: "Entity",
-        type: "EmptyCollection",
-        hadMember: [{ id: "member-2", provType: "Entity" }],
-      })
-    ).toThrow("Entity collection fields must align with Collection or EmptyCollection semantics");
-  });
-
-  it("rejects activities that use entities generated by later activities", () => {
-    expect(() =>
-      decodeActivity({
-        id: "activity-1",
-        provType: "Activity",
-        endedAtTime: "2021-01-01T00:00:00Z",
-        used: {
-          id: "entity-1",
-          provType: "Entity",
-          wasGeneratedBy: {
-            id: "activity-2",
-            provType: "Activity",
-            endedAtTime: "2029-01-01T00:00:00Z",
-          },
-        },
-      })
-    ).toThrow("Activities must not use inline entities generated by later activities");
+    expect(decoded.records).toHaveLength(3);
+    expect(O.isSome(decoded.lifecycle)).toBe(true);
   });
 });

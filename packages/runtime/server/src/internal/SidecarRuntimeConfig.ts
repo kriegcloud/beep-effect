@@ -1,14 +1,14 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
-import { Config, Effect, FileSystem, flow, Path, pipe, Struct } from "effect";
+import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { thunkFalse, thunkNegative1 } from "@beep/utils";
+
 const $I = $RuntimeServerId.create("internal/SidecarRuntimeConfig");
 const defaultOtlpServiceName = "beep-repo-memory-sidecar";
-const defaultVersion = () => "0.0.0";
+const defaultVersion = "0.0.0";
 const repoRootMarkers = [".git", "bun.lock"] as const;
 const defaultAppDataDir = ".beep/repo-memory";
 
@@ -30,31 +30,14 @@ const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, st
       onSome: flow(
         Str.split(","),
         A.reduce(A.empty<readonly [string, string]>(), (entries, pair) => {
-          const separatorIndex = pipe(pair, Str.indexOf("="), O.getOrElse(thunkNegative1));
-          const l = pipe(
+          const separatorIndex = pipe(
             pair,
             Str.indexOf("="),
-            O.map(
-              (separatorIndex) =>
-                ({
-                  tuple: [
-                    pipe(pair, Str.slice(0, separatorIndex), Str.trim),
-                    pipe(pair, Str.slice(separatorIndex + 1), Str.trim),
-                  ],
-                  separatorIndex,
-                }) as const
-            ),
-            O.map(({tuple, separatorIndex}) => pipe(tuple))
+            O.getOrElse(() => -1) //
           );
-          console.log(l);
-          // return pipe(
-          //  pair,
-          //  Str.indexOf("="),
-
-          // O.match({})
-          // )
-          // return entries;
-          // }
+          if (separatorIndex <= 0) {
+            return entries;
+          }
 
           const key = pipe(pair, Str.slice(0, separatorIndex), Str.trim);
           const value = pipe(pair, Str.slice(separatorIndex + 1), Str.trim);
@@ -110,7 +93,9 @@ const findRepoRootOrStart = Effect.fn("SidecarRuntime.findRepoRootOrStart")(func
 
   while (true) {
     for (const marker of repoRootMarkers) {
-      const markerExists = yield* fs.exists(path.join(currentDirectory, marker)).pipe(Effect.orElseSucceed(thunkFalse));
+      const markerExists = yield* fs
+        .exists(path.join(currentDirectory, marker))
+        .pipe(Effect.orElseSucceed(() => false));
 
       if (markerExists) {
         return currentDirectory;
@@ -173,11 +158,9 @@ export const resolveSidecarVersion = Effect.fn("SidecarRuntime.resolveVersion")(
 
   const PackageJsonVersionJson = S.fromJsonString(PackageJsonVersion);
 
-  return yield* fs
-    .readFileString(packageJsonPath)
-    .pipe(
-      Effect.flatMap(S.decodeUnknownEffect(PackageJsonVersionJson)),
-      Effect.map(Struct.get("version")),
-      Effect.orElseSucceed(defaultVersion)
-    );
+  return yield* fs.readFileString(packageJsonPath).pipe(
+    Effect.flatMap(S.decodeUnknownEffect(PackageJsonVersionJson)),
+    Effect.map((pkg) => pkg.version),
+    Effect.orElseSucceed(() => defaultVersion)
+  );
 });

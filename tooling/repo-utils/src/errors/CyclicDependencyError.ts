@@ -25,7 +25,7 @@ export class CyclicDependencyError extends TaggedErrorClass<CyclicDependencyErro
   "CyclicDependencyError",
   {
     message: S.String,
-    cycles: S.Array(S.Array(S.String)),
+    cycles: S.String.pipe(S.Array, S.Array),
   },
   $I.annote("CyclicDependencyError", {
     title: "Cyclic Dependency Error",

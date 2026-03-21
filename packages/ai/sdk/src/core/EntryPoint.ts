@@ -59,7 +59,7 @@ export const sessionLayer = (options: SDKSessionOptions, entry?: SessionEntryOpt
   const managerLayer = entry?.layers?.sessionManager ?? SessionManager.layer.pipe(Layer.provide(sessionConfig));
   const baseLayer = SessionService.layer(options).pipe(Layer.provide(managerLayer));
 
-  if (!entry?.history) {
+  if (entry?.history === undefined) {
     return baseLayer;
   }
 
@@ -75,6 +75,6 @@ export const sessionLayer = (options: SDKSessionOptions, entry?: SessionEntryOpt
  * @category Configuration
  */
 export const runtimeLayer = (entry?: RuntimeEntryOptions) => {
-  if (entry?.layers?.runtime) return entry.layers.runtime;
+  if (entry?.layers?.runtime !== undefined) return entry.layers.runtime;
   return AgentRuntime.layerDefaultFromEnv(entry?.prefix ?? "AGENTSDK");
 };

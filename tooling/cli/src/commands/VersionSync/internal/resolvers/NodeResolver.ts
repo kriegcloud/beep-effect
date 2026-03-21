@@ -18,7 +18,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
+import { decodeYamlTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import { VersionCategoryReport, VersionCategoryStatusThunk, VersionDriftItem, VersionSyncError } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolver");
@@ -194,8 +194,7 @@ const findNodeVersionLocations: (
 ) => Effect.Effect<Array<NodeVersionLocation>, VersionSyncError> = Effect.fn(function* (content, relativeFile) {
   let locations = A.empty<NodeVersionLocation>();
 
-  const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
-    Effect.provide(YamlCodecServiceLive),
+  const workflow = yield* decodeYamlTextAsLive(WorkflowDocument)(content).pipe(
     Effect.mapError(
       (e) =>
         new VersionSyncError({

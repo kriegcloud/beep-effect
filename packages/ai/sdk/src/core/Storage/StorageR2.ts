@@ -100,7 +100,7 @@ export const layerR2 = (bucket: R2Bucket): Layer.Layer<KeyValueStore.KeyValueSto
       get: (key) =>
         tryR2("get", "R2 get failed", async () => {
           const obj = await bucket.get(key);
-          if (!obj) return undefined;
+          if (obj === null) return undefined;
           return await obj.text();
         }),
 

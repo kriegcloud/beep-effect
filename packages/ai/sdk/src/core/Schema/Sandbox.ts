@@ -9,9 +9,9 @@ const $I = $AiSdkId.create("core/Schema/Sandbox");
  */
 export class SandboxNetworkConfig extends S.Class<SandboxNetworkConfig>($I`SandboxNetworkConfig`)(
   {
-    allowedDomains: S.optional(S.Array(S.String)),
+    allowedDomains: S.optional(S.String.pipe(S.Array)),
     allowManagedDomainsOnly: S.optional(S.Boolean),
-    allowUnixSockets: S.optional(S.Array(S.String)),
+    allowUnixSockets: S.optional(S.String.pipe(S.Array)),
     allowAllUnixSockets: S.optional(S.Boolean),
     allowLocalBinding: S.optional(S.Boolean),
     httpProxyPort: S.optional(S.Number),
@@ -54,9 +54,9 @@ export type SandboxIgnoreViolationsEncoded = typeof SandboxIgnoreViolations.Enco
  */
 export class SandboxFilesystemConfig extends S.Class<SandboxFilesystemConfig>($I`SandboxFilesystemConfig`)(
   {
-    allowWrite: S.optional(S.Array(S.String)),
-    denyWrite: S.optional(S.Array(S.String)),
-    denyRead: S.optional(S.Array(S.String)),
+    allowWrite: S.optional(S.String.pipe(S.Array)),
+    denyWrite: S.optional(S.String.pipe(S.Array)),
+    denyRead: S.optional(S.String.pipe(S.Array)),
   },
   $I.annote("SandboxFilesystemConfig", {
     description: "Sandbox filesystem policy settings for writable and blocked paths.",
@@ -71,7 +71,7 @@ export type SandboxFilesystemConfigEncoded = typeof SandboxFilesystemConfig.Enco
 class SandboxRipgrepConfig extends S.Class<SandboxRipgrepConfig>($I`SandboxRipgrepConfig`)(
   {
     command: S.String,
-    args: S.optional(S.Array(S.String)),
+    args: S.optional(S.String.pipe(S.Array)),
   },
   $I.annote("SandboxRipgrepConfig", {
     description: "Optional ripgrep command override used inside the sandbox.",
@@ -91,7 +91,7 @@ export class SandboxSettings extends S.Class<SandboxSettings>($I`SandboxSettings
     filesystem: S.optional(SandboxFilesystemConfig),
     ignoreViolations: S.optional(SandboxIgnoreViolations),
     enableWeakerNestedSandbox: S.optional(S.Boolean),
-    excludedCommands: S.optional(S.Array(S.String)),
+    excludedCommands: S.optional(S.String.pipe(S.Array)),
     ripgrep: S.optional(SandboxRipgrepConfig),
   },
   $I.annote("SandboxSettings", {

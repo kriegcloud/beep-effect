@@ -4,8 +4,8 @@
  * @since 0.0.0
  * @module @beep/messages/i18n
  */
+import { O } from "@beep/utils";
 import { Exit, Match, pipe, SchemaIssue } from "effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import i18next from "i18next";
 
@@ -176,7 +176,7 @@ export const logIssues = getLogIssues({
     pipe(
       annotations,
       O.fromNullishOr,
-      O.flatMap(({ meta }) => O.fromNullishOr(meta)),
+      O.flatMap(O.propFromNullishOr("meta")),
       O.match({
         onNone: thunkDefaultCheck,
         onSome: matchMetaFilter,

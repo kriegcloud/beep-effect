@@ -44,7 +44,7 @@ export const buildRemoteUrl = Effect.fn("RemoteSync.buildRemoteUrl")(function* (
   const isEventLogPath = path === "/event-log" || path === "/event-log/";
   if (isEventLogPath) {
     const tenant = options?.tenant;
-    if (!tenant) {
+    if (tenant === undefined || tenant.length === 0) {
       return yield* ConfigError.make({
         message: "Remote sync requires a tenant when using /event-log.",
       });
@@ -58,7 +58,7 @@ export const buildRemoteUrl = Effect.fn("RemoteSync.buildRemoteUrl")(function* (
   } else {
     url.pathname = path;
   }
-  if (options?.authToken) {
+  if (options?.authToken !== undefined) {
     url.searchParams.set("token", options.authToken);
   }
   return url.toString();

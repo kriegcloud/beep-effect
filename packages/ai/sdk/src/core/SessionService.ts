@@ -64,7 +64,7 @@ export class SessionService extends ServiceMap.Service<SessionService, SessionSe
           send: handle.send,
           stream: handle.stream,
           close: handle.close,
-          ...(timeouts ? { timeouts } : {}),
+          ...(timeouts === undefined ? {} : { timeouts }),
         });
 
         return SessionService.of({
@@ -139,8 +139,8 @@ export class SessionService extends ServiceMap.Service<SessionService, SessionSe
           send,
           stream: handle.stream,
           close: handle.close,
-          ...(timeouts ? { timeouts } : {}),
-          ...(onOutputMessage ? { onOutputMessage } : {}),
+          ...(timeouts === undefined ? {} : { timeouts }),
+          ...(onOutputMessage === undefined ? {} : { onOutputMessage }),
         });
 
         return SessionService.of({

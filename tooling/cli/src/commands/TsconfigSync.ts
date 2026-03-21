@@ -32,7 +32,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
-import { decodeJsoncTextAs, JsoncCodecServiceLive } from "./Shared/SchemaCodecs/index.js";
+import { decodeJsoncTextAsLive } from "./Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets, resolveRootExportTarget } from "./Shared/TsconfigAliasTargets.js";
 
 export {
@@ -153,7 +153,7 @@ export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftEr
 export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
   {
-    cycles: S.Array(S.Array(S.String)),
+    cycles: S.String.pipe(S.Array, S.Array),
     message: S.String,
   },
   $I.annote("TsconfigSyncCycleError", {
@@ -206,7 +206,7 @@ const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
 class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
   {
     mode: S.tag("sync"),
-    filter: S.optionalKey(S.UndefinedOr(S.String)),
+    filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
   },
   $I.annote("TsconfigSyncRunOptionsSync", {
@@ -217,7 +217,7 @@ class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`
 class TsconfigSyncRunOptionsCheck extends S.Class<TsconfigSyncRunOptionsCheck>($I`TsconfigSyncRunOptionsCheck`)(
   {
     mode: S.tag("check"),
-    filter: S.optionalKey(S.UndefinedOr(S.String)),
+    filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
   },
   $I.annote("TsconfigSyncRunOptionsCheck", {
@@ -228,7 +228,7 @@ class TsconfigSyncRunOptionsCheck extends S.Class<TsconfigSyncRunOptionsCheck>($
 class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>($I`TsconfigSyncRunOptionsDryRun`)(
   {
     mode: S.tag("dry-run"),
-    filter: S.optionalKey(S.UndefinedOr(S.String)),
+    filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
   },
   $I.annote("TsconfigSyncRunOptionsDryRun", {
@@ -490,8 +490,8 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     relativeDir: S.String,
     ownerTsconfigPath: S.UndefinedOr(S.String),
     hasProjectTsconfig: S.Boolean,
-    rootAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
-    wildcardAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
+    rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("WorkspaceDescriptor", {
     description: "A workspace package descriptor with metadata for tsconfig synchronization.",
@@ -524,7 +524,7 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
  */
 export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`TsconfigWithReferences`)(
   {
-    references: S.optionalKey(S.Array(TsconfigReferenceEntry)),
+    references: TsconfigReferenceEntry.pipe(S.Array, S.optionalKey),
   },
   $I.annote("TsconfigWithReferences", {
     description: "A class representing a tsconfig.json file with references property.",
@@ -581,8 +581,7 @@ const dependencyNamesFromWorkspaceDeps = (workspaceDeps: WorkspaceDeps): Readonl
   ]);
 
 const parseJsonc = Effect.fn(function* <Schema extends S.Top>(content: string, filePath: string, schema: Schema) {
-  return yield* decodeJsoncTextAs(schema)(content).pipe(
-    Effect.provide(JsoncCodecServiceLive),
+  return yield* decodeJsoncTextAsLive(schema)(content).pipe(
     Effect.mapError(
       (cause) =>
         new DomainError({

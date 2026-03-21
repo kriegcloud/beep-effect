@@ -19,7 +19,7 @@ const make = Effect.gen(function* () {
   const exec = Effect.fn("SandboxLocal.exec")((command: string, args?: ReadonlyArray<string>) =>
     Effect.tryPromise({
       try: async () => {
-        const cmd = args ? [command, ...args] : [command];
+        const cmd = args === undefined ? [command] : [command, ...args];
         const result = Bun.spawnSync({ cmd });
         return {
           stdout: result.stdout.toString(),

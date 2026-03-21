@@ -216,7 +216,7 @@ class PermissionResultAllow extends S.Class<PermissionResultAllow>($I`Permission
   {
     behavior: S.Literal("allow"),
     updatedInput: S.optional(S.Record(S.String, S.Unknown)),
-    updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+    updatedPermissions: S.Array(PermissionUpdate).pipe(S.optionalKey),
     toolUseID: S.optional(S.String),
   },
   $I.annote("PermissionResultAllow", {
@@ -264,9 +264,9 @@ class PermissionRequestHookDecisionAllow extends S.Class<PermissionRequestHookDe
   $I`PermissionRequestHookDecisionAllow`
 )(
   {
-    behavior: S.Literal("allow"),
+    behavior: S.tag("allow"),
     updatedInput: S.optional(S.Record(S.String, S.Unknown)),
-    updatedPermissions: S.optional(S.Array(PermissionUpdate)),
+    updatedPermissions: S.Array(PermissionUpdate).pipe(S.optionalKey),
   },
   $I.annote("PermissionRequestHookDecisionAllow", {
     description: "Permission-request hook decision that allows execution and may rewrite input or permissions.",

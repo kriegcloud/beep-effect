@@ -17,7 +17,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
+import { decodeJsoncTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   VersionCategoryReport,
   VersionCategoryStatusEnum,
@@ -190,8 +190,7 @@ export const resolveBiomeSchema: (
       )
     );
 
-    const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
-      Effect.provide(JsoncCodecServiceLive),
+    const biomeJson = yield* decodeJsoncTextAsLive(BiomeJsoncDocument)(biomeContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({
@@ -216,8 +215,7 @@ export const resolveBiomeSchema: (
       )
     );
 
-    const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.provide(JsoncCodecServiceLive),
+    const pkgJson = yield* decodeJsoncTextAsLive(RootPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

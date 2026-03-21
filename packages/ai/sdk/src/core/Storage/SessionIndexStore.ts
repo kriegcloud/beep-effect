@@ -65,11 +65,11 @@ export class SessionIndexCursor extends S.Class<SessionIndexCursor>($I`SessionIn
  */
 export class SessionIndexListOptions extends S.Class<SessionIndexListOptions>($I`SessionIndexListOptions`)(
   {
-    offset: S.optionalKey(S.UndefinedOr(S.Number)),
-    limit: S.optionalKey(S.UndefinedOr(S.Number)),
-    orderBy: S.optionalKey(S.UndefinedOr(SessionIndexOrderBy)),
-    direction: S.optionalKey(S.UndefinedOr(SessionIndexDirection)),
-    cursor: S.optionalKey(S.UndefinedOr(SessionIndexCursor)),
+    offset: S.optionalKey(S.Number.pipe(S.UndefinedOr)),
+    limit: S.optionalKey(S.Number.pipe(S.UndefinedOr)),
+    orderBy: S.optionalKey(SessionIndexOrderBy.pipe(S.UndefinedOr)),
+    direction: S.optionalKey(SessionIndexDirection.pipe(S.UndefinedOr)),
+    cursor: S.optionalKey(SessionIndexCursor.pipe(S.UndefinedOr)),
   },
   $I.annote("SessionIndexListOptions", {
     description: "Options for listing SessionIndexStore metadata with ordering and cursor pagination.",
@@ -82,8 +82,8 @@ export class SessionIndexListOptions extends S.Class<SessionIndexListOptions>($I
  */
 export class SessionIndexTouchOptions extends S.Class<SessionIndexTouchOptions>($I`SessionIndexTouchOptions`)(
   {
-    createdAt: S.optionalKey(S.UndefinedOr(S.Number)),
-    updatedAt: S.optionalKey(S.UndefinedOr(S.Number)),
+    createdAt: S.optionalKey(S.Number.pipe(S.UndefinedOr)),
+    updatedAt: S.optionalKey(S.Number.pipe(S.UndefinedOr)),
   },
   $I.annote("SessionIndexTouchOptions", {
     description: "Optional timestamp overrides when touching session index metadata.",
@@ -97,7 +97,7 @@ export class SessionIndexTouchOptions extends S.Class<SessionIndexTouchOptions>(
 export class SessionIndexPage extends S.Class<SessionIndexPage>($I`SessionIndexPage`)(
   {
     items: S.Array(SessionMeta),
-    nextCursor: S.optionalKey(S.UndefinedOr(SessionIndexCursor)),
+    nextCursor: S.optionalKey(SessionIndexCursor.pipe(S.UndefinedOr)),
   },
   $I.annote("SessionIndexPage", {
     description: "Cursor-paginated SessionIndexStore response payload.",
@@ -162,7 +162,7 @@ const applyOrdering = (metas: ReadonlyArray<SessionMeta>, options?: SessionIndex
   const ordering = makeMetaOrder(orderBy, direction);
   let sorted = A.sort(metas, ordering);
 
-  if (options?.cursor) {
+  if (options?.cursor !== undefined) {
     const after = Order.isGreaterThan(resolveTupleOrder(direction));
     const cursorKey = toCursorKey(options.cursor);
     sorted = A.filter(sorted, (meta) => after(toOrderKey(meta, orderBy), cursorKey));
@@ -472,7 +472,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
             total = 1;
           } else {
             const found = yield* findSessionPage(sessionId, pageCount);
-            if (!found) {
+            if (found === undefined) {
               const lastPageIndex = pageCount - 1;
               const lastPage = yield* loadPage(lastPageIndex);
               if (lastPage.ids.length < pageSize) {
@@ -510,7 +510,7 @@ export class SessionIndexStore extends ServiceMap.Service<SessionIndexStore, Ses
 
             if (pageCount > 0) {
               const found = yield* findSessionPage(sessionId, pageCount);
-              if (found) {
+              if (found !== undefined) {
                 const remaining = A.filter(found.pageData.ids, (id) => id !== sessionId);
                 if (A.isReadonlyArrayEmpty(remaining)) {
                   yield* pageStore

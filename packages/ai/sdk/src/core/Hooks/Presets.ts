@@ -71,7 +71,7 @@ export const autoDeny = (options: {
     if (!options.tools.includes(input.tool_name)) {
       return Effect.succeed({});
     }
-    if (options.match) {
+    if (options.match !== undefined) {
       const raw = O.getOrElse(encodeJson(input.tool_input ?? ""), () => String(input.tool_input ?? ""));
       if (!raw.includes(options.match)) {
         return Effect.succeed({});
@@ -82,7 +82,7 @@ export const autoDeny = (options: {
         hookEventName: "PermissionRequest",
         decision: {
           behavior: "deny",
-          ...(options.message ? { message: options.message } : {}),
+          ...(options.message === undefined ? {} : { message: options.message }),
           ...(options.interrupt !== undefined ? { interrupt: options.interrupt } : {}),
         },
       },

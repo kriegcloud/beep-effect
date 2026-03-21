@@ -28,7 +28,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { decodeYamlTextAs, YamlCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
+import { decodeYamlTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   NetworkUnavailableError,
   VersionCategoryReport,
@@ -346,8 +346,7 @@ export const resolveDockerImages: (
       )
     );
 
-    const composeDocument = yield* decodeYamlTextAs(DockerComposeDocument)(content).pipe(
-      Effect.provide(YamlCodecServiceLive),
+    const composeDocument = yield* decodeYamlTextAsLive(DockerComposeDocument)(content).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

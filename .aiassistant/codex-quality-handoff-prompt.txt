@@ -1,0 +1,74 @@
+You are working in `/home/elpresidank/YeeBois/projects/beep-effect3`.
+
+Goal:
+Keep all repo quality commands that matter for Lefthook `pre-commit` and `pre-push` green without weakening rules.
+
+Hard rule:
+Do not change any `tsconfig*` file to relax, bypass, or suppress checks.
+
+Current source of truth:
+- The repo is currently green on the repo-quality path.
+- If anything is red in your session, trust the fresh local command output over older notes.
+
+Important hook context:
+- `pre-commit` is defined in `lefthook.yml` and runs:
+  - biome on staged JS/TS/JSON/CSS files
+  - jsdoc eslint on staged tooling TS files
+  - gitleaks protect --staged
+  - typos
+- `pre-push` calls `bash scripts/run-github-checks.sh pre-push`
+- `scripts/run-github-checks.sh quality` may try to wrap some commands in `op run` when both `op` and `.env` are present.
+- On this machine, `op run` can fail with an authorization prompt dismissal in non-interactive runs.
+- If that happens, run the underlying quality commands directly instead of using the wrapper, but do not skip the checks themselves.
+
+Run and keep green:
+1. `bun run build:ci`
+2. `bun run check`
+3. `bun run check:migration-drift`
+4. `bun run lint`
+5. `bun run docgen`
+6. `bun run test`
+7. `bunx syncpack lint`
+8. `bun run audit:high:ci`
+
+Branch-specific note:
+- `run-github-checks.sh` skips `changeset status` on `main`.
+- This repo is currently on `main`, so do not invent an extra failure if that step is skipped.
+
+Current non-blocking warnings:
+- `packages/ai/sdk/src/core/AgentRuntime.ts`
+- `packages/ai/sdk/src/core/Tools/Toolkit.ts`
+- `packages/common/utils/src/Option.ts`
+- `tooling/cli/src/commands/Shared/SchemaCodecs/index.ts`
+- These are warnings only. Do not treat them as failing gates unless the commands actually fail.
+
+Recent fixes already in the tree:
+- `packages/ai/sdk/src/core/Diagnose.ts`
+  - added the missing exported `@since` doc tag so docgen passes
+- `packages/ai/sdk/src/core/Tools/Toolkit.ts`
+  - removed the `as unknown as` double-cast pattern that was failing `packages/ai/sdk/test/conventions-guard.test.ts`
+  - kept the handler registration path typed with a single explicit decoded-parameter cast at the narrow inference boundary
+- `package.json`
+  - restored catalog references for `@effect/tsgo` and `@typescript/native-preview`
+- `bun.lock`
+  - refreshed with `bun install --lockfile-only`
+
+Working rules:
+- Use `apply_patch` for edits.
+- Do not revert unrelated worktree changes.
+- Keep the repo Effect-first, schema-first, typed-errors-first.
+- Fix the actual failing command output, not symptoms.
+- Do not weaken tests, allowlists, or lint rules just to make failures disappear.
+
+Suggested recovery workflow if anything regresses:
+1. Re-run the failing command exactly.
+2. Fix only the concrete failures it reports.
+3. Re-run that command until green.
+4. Re-run the full repo-quality list above.
+5. Stage everything and run `lefthook run pre-commit`.
+6. Commit only after the staged hook passes.
+
+Success means:
+- All commands listed above exit 0.
+- `lefthook run pre-commit` exits 0 on the staged tree.
+- No rule-bypassing config changes were introduced.

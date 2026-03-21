@@ -443,9 +443,9 @@ const makeAgentSdk = Effect.gen(function* () {
   ) {
     const mergedOptions = mergeOptions(config.options, options);
     const promptStream = P.isString(prompt) ? undefined : prompt;
-    const inputQueue = promptStream ? yield* createInputQueue() : undefined;
-    const inputFailure = inputQueue ? yield* Deferred.make<never, AgentSdkError>() : undefined;
-    const sdkPrompt = toSdkPrompt(inputQueue ? inputQueue.input : prompt);
+    const inputQueue = promptStream === undefined ? undefined : yield* createInputQueue();
+    const inputFailure = inputQueue === undefined ? undefined : yield* Deferred.make<never, AgentSdkError>();
+    const sdkPrompt = toSdkPrompt(inputQueue === undefined ? prompt : inputQueue.input);
     const sdkOptions = toSdkOptions(mergedOptions);
     const sdkParams: Parameters<typeof sdkQuery>[0] = {
       prompt: sdkPrompt,
@@ -456,7 +456,7 @@ const makeAgentSdk = Effect.gen(function* () {
       catch: (cause) => TransportError.make("Failed to start SDK query", cause),
     });
     const pumpFiber =
-      inputQueue && promptStream && inputFailure
+      inputQueue !== undefined && promptStream !== undefined && inputFailure !== undefined
         ? yield* Effect.forkDetach(
             pumpInput(inputQueue.queue, promptStream).pipe(
               Effect.catch((error) =>
@@ -473,15 +473,16 @@ const makeAgentSdk = Effect.gen(function* () {
             )
           )
         : undefined;
-    const closeInput = inputQueue
-      ? Effect.gen(function* () {
-          yield* inputQueue.closeInput;
-          if (pumpFiber) {
-            yield* Fiber.interrupt(pumpFiber);
-          }
-        })
-      : Effect.void;
-    const failureSignal = inputFailure ? Deferred.await(inputFailure) : undefined;
+    const closeInput =
+      inputQueue === undefined
+        ? Effect.void
+        : Effect.gen(function* () {
+            yield* inputQueue.closeInput;
+            if (pumpFiber !== undefined) {
+              yield* Fiber.interrupt(pumpFiber);
+            }
+          });
+    const failureSignal = inputFailure === undefined ? undefined : Deferred.await(inputFailure);
     const handle = makeQueryHandle(sdkQueryInstance, inputQueue, closeInput, failureSignal);
     yield* Effect.addFinalizer(() =>
       Effect.all([handle.closeInput, handle.interrupt], {

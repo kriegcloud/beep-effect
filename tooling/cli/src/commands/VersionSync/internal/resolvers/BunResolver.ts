@@ -17,7 +17,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../../../Shared/SchemaCodecs/index.js";
+import { decodeJsoncTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   NetworkUnavailableError,
   VersionCategoryReport,
@@ -294,8 +294,7 @@ export const resolveBunVersions: (
       )
     );
 
-    const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.provide(JsoncCodecServiceLive),
+    const pkgJson = yield* decodeJsoncTextAsLive(BunPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

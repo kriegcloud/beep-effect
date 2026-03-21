@@ -1,4 +1,4 @@
-import { Effect, Stream } from "effect";
+import { Effect, Layer, Stream } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import { AgentRuntime } from "./AgentRuntime.js";
@@ -20,7 +20,7 @@ const extractTextFromContent = (content: unknown): ReadonlyArray<string> => {
   const chunks: Array<string> = [];
   for (const item of content) {
     const record = toRecord(item);
-    if (!record) {
+    if (record === undefined) {
       continue;
     }
     if (record.type !== "text") {
@@ -37,7 +37,7 @@ const extractTextFromContent = (content: unknown): ReadonlyArray<string> => {
 
 const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   const record = toRecord(event);
-  if (!record) {
+  if (record === undefined) {
     return [];
   }
 
@@ -47,7 +47,7 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   }
 
   const delta = toRecord(record.delta);
-  if (delta) {
+  if (delta !== undefined) {
     const deltaText = delta.text;
     if (P.isString(deltaText) && deltaText.length > 0) {
       return [deltaText];
@@ -59,7 +59,7 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   }
 
   const contentBlock = toRecord(record.content_block);
-  if (contentBlock) {
+  if (contentBlock !== undefined) {
     const text = contentBlock.text;
     if (P.isString(text) && text.length > 0) {
       return [text];
@@ -67,7 +67,7 @@ const extractTextFromStreamEvent = (event: unknown): ReadonlyArray<string> => {
   }
 
   const message = toRecord(record.message);
-  if (message) {
+  if (message !== undefined) {
     const fromMessage = extractTextFromContent(message.content);
     if (fromMessage.length > 0) {
       return fromMessage;
@@ -137,10 +137,14 @@ export const toTextStream = <E>(stream: Stream.Stream<SDKMessage, E>) =>
 export const run = (prompt: string, options?: Options, entry?: RuntimeEntryOptions): Promise<SDKResultSuccess> =>
   Effect.runPromise(
     Effect.scoped(
-      Effect.gen(function* () {
-        const runtime = yield* AgentRuntime;
-        return yield* QueryResult.collectResultSuccess(runtime.stream(prompt, options));
-      }).pipe(Effect.provide(runtimeLayer(entry)))
+      Layer.build(runtimeLayer(entry)).pipe(
+        Effect.flatMap((context) =>
+          Effect.gen(function* () {
+            const runtime = yield* AgentRuntime;
+            return yield* QueryResult.collectResultSuccess(runtime.stream(prompt, options));
+          }).pipe(Effect.provide(context))
+        )
+      )
     )
   );
 
@@ -152,11 +156,15 @@ export const streamText = (prompt: string, options?: Options, entry?: RuntimeEnt
   (async function* () {
     const iterable = await Effect.runPromise(
       Effect.scoped(
-        Effect.gen(function* () {
-          const runtime = yield* AgentRuntime;
-          const stream = toTextStream(runtime.stream(prompt, options));
-          return yield* Stream.toAsyncIterableEffect(stream);
-        }).pipe(Effect.provide(runtimeLayer(entry)))
+        Layer.build(runtimeLayer(entry)).pipe(
+          Effect.flatMap((context) =>
+            Effect.gen(function* () {
+              const runtime = yield* AgentRuntime;
+              const stream = toTextStream(runtime.stream(prompt, options));
+              return yield* Stream.toAsyncIterableEffect(stream);
+            }).pipe(Effect.provide(context))
+          )
+        )
       )
     );
 

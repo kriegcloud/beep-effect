@@ -254,7 +254,7 @@ const normalizeMcpInputSchema = (
   toolName: string,
   schema?: McpToolInputSchema
 ): Effect.Effect<SdkToolInputSchema, McpError> => {
-  if (!schema) {
+  if (schema === undefined) {
     return Effect.fail(
       McpError.make({
         message: `Missing MCP input schema for tool '${toolName}'`,
@@ -264,7 +264,7 @@ const normalizeMcpInputSchema = (
   if (isZodRawShapeCompat(schema)) return Effect.succeed(schema);
   if (isZodSchema(schema)) {
     const rawShape = getZodRawShape(schema);
-    if (rawShape) return Effect.succeed(rawShape);
+    if (rawShape !== undefined) return Effect.succeed(rawShape);
   }
   return Effect.fail(
     McpError.make({
@@ -350,7 +350,7 @@ export const tool = <ParametersSchema extends S.Top & { readonly DecodingService
           )
         )
       );
-      const runOptions = signal ? { signal } : undefined;
+      const runOptions = signal === undefined ? undefined : { signal };
       return runWithServices(effect, runOptions);
     };
     return sdkTool(options.name, options.description, normalizedInputSchema, handler);
@@ -367,13 +367,16 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
   toolkit: Toolkit.Toolkit<Tools>,
   handlers: Toolkit.HandlersFrom<Tools> | Effect.Effect<Toolkit.HandlersFrom<Tools>, EX, RX>,
   options?: ToolkitMcpOptions
-): Effect.Effect<ReadonlyArray<ReturnType<typeof sdkTool>>, McpError | EX, unknown> =>
+): Effect.Effect<
+  ReadonlyArray<ReturnType<typeof sdkTool>>,
+  McpError | EX,
+  RX | Tool.Requirements<Tools[keyof Tools]>
+> =>
   Effect.gen(function* () {
-    const services = yield* Effect.services<unknown>();
+    const services = yield* Effect.services<RX | Tool.Requirements<Tools[keyof Tools]>>();
     const runWithServices = Effect.runPromiseWith(services);
     const context = yield* toolkit.toContext(handlers);
     const built = yield* toolkit.commit().pipe(Effect.provide(context), Effect.orDie);
-    const builtWithStringNames: Toolkit.WithHandler<Record<string, Tool.Any>> = built;
     const renderResult = options?.renderResult ?? defaultRenderResult;
     const renderError = options?.renderError ?? defaultRenderError;
     const inputSchemas = options?.inputSchema;
@@ -396,11 +399,11 @@ export const toolsFromToolkit = <Tools extends Record<string, Tool.Any>, EX = ne
           const normalizedInputSchema = yield* normalizeMcpInputSchema(toolEntry.name, inputSchema);
           const handler = (args: unknown, extra: unknown) => {
             const signal = getSignalFromExtra(extra);
-            const effect = builtWithStringNames.handle(toolEntry.name, args).pipe(
+            const effect = built.handle(toolEntry.name, args).pipe(
               Effect.map((result) => renderResult(toolEntry, result)),
               Effect.catch((error) => Effect.succeed(renderError(toolEntry, error)))
             );
-            const runOptions = signal ? { signal } : undefined;
+            const runOptions = signal === undefined ? undefined : { signal };
             return runWithServices(effect, runOptions);
           };
           return sdkTool(toolEntry.name, toolEntry.description ?? toolEntry.name, normalizedInputSchema, handler);
@@ -429,9 +432,10 @@ export const createSdkMcpServer: <R = never>(
   options: CreateSdkMcpServerOptions<R>
 ) => Effect.Effect<ReturnType<typeof sdkCreateSdkMcpServer>, McpError, R> = Effect.fn("Mcp.createSdkMcpServer")(
   function* <R>(options: CreateSdkMcpServerOptions<R>) {
-    const tools = options.tools
-      ? yield* Effect.forEach(options.tools, (entry) => (Effect.isEffect(entry) ? entry : Effect.succeed(entry)))
-      : undefined;
+    const tools =
+      options.tools === undefined
+        ? undefined
+        : yield* Effect.forEach(options.tools, (entry) => (Effect.isEffect(entry) ? entry : Effect.succeed(entry)));
     const sdkOptions: Parameters<typeof sdkCreateSdkMcpServer>[0] = {
       name: options.name,
       ...(options.version !== undefined ? { version: options.version } : {}),
@@ -451,7 +455,7 @@ export const createSdkMcpServer: <R = never>(
 const closeSdkMcpServer = (server: { readonly instance?: { close?: () => Promise<void> } }) =>
   Effect.tryPromise({
     try: async () => {
-      if (server.instance?.close) {
+      if (server.instance?.close !== undefined) {
         await server.instance.close();
       }
     },

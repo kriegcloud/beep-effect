@@ -19,7 +19,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import { decodeJsoncTextAs, JsoncCodecServiceLive } from "../Shared/SchemaCodecs/index.js";
+import { decodeJsoncTextAsLive } from "../Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 
 const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
@@ -56,8 +56,8 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
   {
     packageName: S.String,
     packagePath: S.String,
-    rootAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
-    wildcardAliasTarget: S.optionalKey(S.UndefinedOr(S.String)),
+    rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("ConfigUpdateTarget", {
     description: "Config update target for a package registered in root tsconfig files.",
@@ -163,8 +163,7 @@ const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
 
 const parseJsoncObject: (content: string, filePath: string) => Effect.Effect<Record<string, unknown>, DomainError> =
   Effect.fn(function* (content, filePath) {
-    return yield* decodeJsoncTextAs(JsoncUnknownObject)(content).pipe(
-      Effect.provide(JsoncCodecServiceLive),
+    return yield* decodeJsoncTextAsLive(JsoncUnknownObject)(content).pipe(
       Effect.mapError((cause) => new DomainError({ message: `Invalid JSONC in ${filePath}: ${cause.message}`, cause }))
     );
   });

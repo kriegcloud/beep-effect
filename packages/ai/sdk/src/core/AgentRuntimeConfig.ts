@@ -30,12 +30,13 @@ const defaultSettings: AgentRuntimeSettings = {
 };
 
 const resolveSettings = (overrides?: Partial<AgentRuntimeSettings>): AgentRuntimeSettings => {
-  if (!overrides) {
+  if (overrides === undefined) {
     return defaultSettings;
   }
-  const defaultOptions = overrides.defaultOptions
-    ? mergeOptions(defaultSettings.defaultOptions, overrides.defaultOptions)
-    : defaultSettings.defaultOptions;
+  const defaultOptions =
+    overrides.defaultOptions === undefined
+      ? defaultSettings.defaultOptions
+      : mergeOptions(defaultSettings.defaultOptions, overrides.defaultOptions);
   return {
     ...defaultSettings,
     ...overrides,

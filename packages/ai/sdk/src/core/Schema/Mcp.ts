@@ -13,7 +13,7 @@ export class McpStdioServerConfig extends S.Class<McpStdioServerConfig>($I`McpSt
   {
     type: S.optional(S.Literal("stdio")),
     command: S.String,
-    args: S.optional(S.Array(S.String)),
+    args: S.optional(S.String.pipe(S.Array)),
     env: S.optional(S.Record(S.String, S.String)),
   },
   $I.annote("McpStdioServerConfig", {

@@ -43,14 +43,14 @@ export type SessionManagerErrorEncoded = typeof SessionManagerError.Encoded;
 const mergeRecord = <T>(
   base: Readonly<Record<string, T>> | undefined,
   override: Readonly<Record<string, T>> | undefined
-) => (base || override ? { ...base, ...override } : undefined);
+) => (base === undefined && override === undefined ? undefined : { ...base, ...override });
 
 const mergeDefaults = (defaults: SessionDefaults, options: SDKSessionOptions): SDKSessionOptions => {
   const env = mergeRecord(defaults.env, options.env);
   return {
     ...defaults,
     ...options,
-    ...(env ? { env } : {}),
+    ...(env === undefined ? {} : { env }),
   };
 };
 
@@ -104,7 +104,7 @@ const makeSessionServiceWithRuntime = (
       send: handle.send,
       stream: handle.stream,
       close: handle.close,
-      ...(timeouts ? { timeouts } : {}),
+      ...(timeouts === undefined ? {} : { timeouts }),
     });
 
     return {

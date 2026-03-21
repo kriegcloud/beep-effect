@@ -135,7 +135,13 @@ const runHook = <Services, SqlService extends Services, HookError>(
  * @since 0.0.0
  * @category Configuration
  */
-export const makeSqlTestLayer = <Config, Services, SqlService extends Services, MigrateError = never, SeedError = never>(options: {
+export const makeSqlTestLayer = <
+  Config,
+  Services,
+  SqlService extends Services,
+  MigrateError = never,
+  SeedError = never,
+>(options: {
   readonly config: Config;
   readonly driver: SqlTestDriver<Config, Services, SqlService>;
   readonly hooks?: SqlTestHooks<MigrateError, SeedError>;

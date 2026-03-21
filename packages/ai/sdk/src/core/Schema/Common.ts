@@ -229,7 +229,7 @@ export class RewindFilesResult extends S.Class<RewindFilesResult>($I`RewindFiles
   {
     canRewind: S.Boolean,
     error: S.optional(S.String),
-    filesChanged: S.optional(S.Array(S.String)),
+    filesChanged: S.optional(S.String.pipe(S.Array)),
     insertions: S.optional(S.Number),
     deletions: S.optional(S.Number),
   },

@@ -71,7 +71,7 @@ export const toWebSocketUrl = Effect.fn("EventLogRemoteServer.toWebSocketUrl")(f
       return {
         hostname: parsed.hostname,
         scheme,
-        port: parsed.port ? Number(parsed.port) : undefined,
+        port: parsed.port.length > 0 ? Number(parsed.port) : undefined,
       };
     } catch {
       return { hostname };
@@ -93,7 +93,7 @@ export const toWebSocketUrl = Effect.fn("EventLogRemoteServer.toWebSocketUrl")(f
 });
 
 const toWebSocketUrlError = (cause: unknown) =>
-  cause instanceof EventLogRemoteServerError
+  S.is(EventLogRemoteServerError)(cause)
     ? cause
     : EventLogRemoteServerError.make({
         message: cause instanceof Error ? cause.message : "Failed to build WebSocket URL.",
@@ -143,9 +143,9 @@ export class EventLogRemoteServer extends ServiceMap.Service<EventLogRemoteServe
   $I`EventLogRemoteServer`
 ) {}
 
-const buildBunWebSocketLayerWithServer = (
+const buildBunWebSocketLayerWithServer = <E, R>(
   options: EventLogRemoteServerOptions,
-  httpServerLayer: Layer.Layer<HttpServer.HttpServer, unknown>
+  httpServerLayer: Layer.Layer<HttpServer.HttpServer, E, R>
 ) => {
   const path = options.path ?? "/event-log";
   const storageLayer = options.storage ?? EventLogServer.layerStorageMemory;
@@ -196,7 +196,7 @@ export const layerBunWebSocketTest = (options: EventLogRemoteServerOptions = {})
     Effect.gen(function* () {
       yield* Effect.void;
       const makeTestServer = Effect.gen(function* () {
-        const maxAttempts = options.port ? 1 : 20;
+        const maxAttempts = options.port === undefined ? 20 : 1;
         let lastError: unknown = undefined;
         for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
           const port = options.port ?? (yield* findAvailablePort());

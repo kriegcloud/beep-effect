@@ -566,9 +566,9 @@ class SDKSystemMessageData extends S.Class<SDKSystemMessageData>($I`SDKSystemMes
   {
     type: S.Literal("system"),
     subtype: S.Literal("init"),
-    agents: S.optional(S.Array(S.String)),
+    agents: S.optional(S.String.pipe(S.Array)),
     apiKeySource: ApiKeySource,
-    betas: S.optional(S.Array(S.String)),
+    betas: S.optional(S.String.pipe(S.Array)),
     claude_code_version: S.String,
     cwd: S.String,
     tools: S.Array(S.String),
