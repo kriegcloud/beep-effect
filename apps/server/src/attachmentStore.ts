@@ -12,8 +12,7 @@ import { inferImageExtension, SAFE_IMAGE_FILE_EXTENSIONS } from "./imageMime.ts"
 const ATTACHMENT_FILENAME_EXTENSIONS = [...SAFE_IMAGE_FILE_EXTENSIONS, ".bin"];
 const ATTACHMENT_ID_THREAD_SEGMENT_MAX_CHARS = 80;
 const ATTACHMENT_ID_THREAD_SEGMENT_PATTERN = "[a-z0-9_]+(?:-[a-z0-9_]+)*";
-const ATTACHMENT_ID_UUID_PATTERN =
-  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const ATTACHMENT_ID_UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const ATTACHMENT_ID_PATTERN = new RegExp(
   `^(${ATTACHMENT_ID_THREAD_SEGMENT_PATTERN})-(${ATTACHMENT_ID_UUID_PATTERN})$`,
   "i",
@@ -67,17 +66,17 @@ export function attachmentRelativePath(attachment: ChatAttachment): string {
 }
 
 export function resolveAttachmentPath(input: {
-  readonly stateDir: string;
+  readonly attachmentsDir: string;
   readonly attachment: ChatAttachment;
 }): string | null {
   return resolveAttachmentRelativePath({
-    stateDir: input.stateDir,
+    attachmentsDir: input.attachmentsDir,
     relativePath: attachmentRelativePath(input.attachment),
   });
 }
 
 export function resolveAttachmentPathById(input: {
-  readonly stateDir: string;
+  readonly attachmentsDir: string;
   readonly attachmentId: string;
 }): string | null {
   const normalizedId = normalizeAttachmentRelativePath(input.attachmentId);
@@ -86,7 +85,7 @@ export function resolveAttachmentPathById(input: {
   }
   for (const extension of ATTACHMENT_FILENAME_EXTENSIONS) {
     const maybePath = resolveAttachmentRelativePath({
-      stateDir: input.stateDir,
+      attachmentsDir: input.attachmentsDir,
       relativePath: `${normalizedId}${extension}`,
     });
     if (maybePath && existsSync(maybePath)) {

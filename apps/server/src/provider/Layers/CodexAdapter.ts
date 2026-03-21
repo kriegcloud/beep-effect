@@ -109,6 +109,14 @@ function asNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
+function toTurnId(value: string | undefined): TurnId | undefined {
+  return value?.trim() ? TurnId.makeUnsafe(value) : undefined;
+}
+
+function toProviderItemId(value: string | undefined): ProviderItemId | undefined {
+  return value?.trim() ? ProviderItemId.makeUnsafe(value) : undefined;
+}
+
 function toTurnStatus(value: unknown): "completed" | "failed" | "cancelled" | "interrupted" {
   switch (value) {
     case "completed":
@@ -164,7 +172,7 @@ function itemTitle(itemType: CanonicalItemType): string | undefined {
     case "plan":
       return "Plan";
     case "command_execution":
-      return "Command run";
+      return "Ran command";
     case "file_change":
       return "File change";
     case "mcp_tool_call":
@@ -403,7 +411,9 @@ function asRuntimeTaskId(taskId: string): RuntimeTaskId {
   return RuntimeTaskId.makeUnsafe(taskId);
 }
 
-function codexEventMessage(payload: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+function codexEventMessage(
+  payload: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
   return asObject(payload?.msg);
 }
 
@@ -413,27 +423,27 @@ function codexEventBase(
 ): Omit<ProviderRuntimeEvent, "type" | "payload"> {
   const payload = asObject(event.payload);
   const msg = codexEventMessage(payload);
-  const turnId = asString(msg?.turn_id) ?? asString(msg?.turnId);
-  const itemId = asString(msg?.item_id) ?? asString(msg?.itemId);
+  const turnId = event.turnId ?? toTurnId(asString(msg?.turn_id) ?? asString(msg?.turnId));
+  const itemId = event.itemId ?? toProviderItemId(asString(msg?.item_id) ?? asString(msg?.itemId));
   const requestId = asString(msg?.request_id) ?? asString(msg?.requestId);
   const base = runtimeEventBase(event, canonicalThreadId);
   const providerRefs = base.providerRefs
     ? {
         ...base.providerRefs,
         ...(turnId ? { providerTurnId: turnId } : {}),
-        ...(itemId ? { providerItemId: ProviderItemId.makeUnsafe(itemId) } : {}),
+        ...(itemId ? { providerItemId: itemId } : {}),
         ...(requestId ? { providerRequestId: requestId } : {}),
       }
     : {
         ...(turnId ? { providerTurnId: turnId } : {}),
-        ...(itemId ? { providerItemId: ProviderItemId.makeUnsafe(itemId) } : {}),
+        ...(itemId ? { providerItemId: itemId } : {}),
         ...(requestId ? { providerRequestId: requestId } : {}),
       };
 
   return {
     ...base,
-    ...(turnId ? { turnId: TurnId.makeUnsafe(turnId) } : {}),
-    ...(itemId ? { itemId: asRuntimeItemId(ProviderItemId.makeUnsafe(itemId)) } : {}),
+    ...(turnId ? { turnId } : {}),
+    ...(itemId ? { itemId: asRuntimeItemId(itemId) } : {}),
     ...(requestId ? { requestId: asRuntimeRequestId(requestId) } : {}),
     ...(Object.keys(providerRefs).length > 0 ? { providerRefs } : {}),
   };
@@ -1037,7 +1047,9 @@ function mapToRuntimeEvents(
         type: "content.delta",
         payload: {
           streamKind:
-            asNumber(msg?.summary_index) !== undefined ? "reasoning_summary_text" : "reasoning_text",
+            asNumber(msg?.summary_index) !== undefined
+              ? "reasoning_summary_text"
+              : "reasoning_text",
           delta,
           ...(asNumber(msg?.summary_index) !== undefined
             ? { summaryIndex: asNumber(msg?.summary_index) }
@@ -1192,13 +1204,14 @@ function mapToRuntimeEvents(
   if (event.method === "error") {
     const message =
       asString(asObject(payload?.error)?.message) ?? event.message ?? "Provider runtime error";
+    const willRetry = payload?.willRetry === true;
     return [
       {
-        type: "runtime.error",
+        type: willRetry ? "runtime.warning" : "runtime.error",
         ...runtimeEventBase(event, canonicalThreadId),
         payload: {
           message,
-          class: "provider_error",
+          ...(!willRetry ? { class: "provider_error" as const } : {}),
           ...(event.payload !== undefined ? { detail: event.payload } : {}),
         },
       },
@@ -1313,9 +1326,7 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
             detail: toMessage(cause, "Failed to start Codex adapter session."),
             cause,
           }),
-      }).pipe(
-        Effect.map((session) => session),
-      );
+      }).pipe(Effect.map((session) => session));
     };
 
     const sendTurn: CodexAdapterShape["sendTurn"] = (input) =>
@@ -1325,7 +1336,7 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
           (attachment) =>
             Effect.gen(function* () {
               const attachmentPath = resolveAttachmentPath({
-                stateDir: serverConfig.stateDir,
+                attachmentsDir: serverConfig.attachmentsDir,
                 attachment,
               });
               if (!attachmentPath) {
@@ -1335,11 +1346,17 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
                   new Error(`Invalid attachment id '${attachment.id}'.`),
                 );
               }
-              const bytes = yield* fileSystem
-                .readFile(attachmentPath)
-                .pipe(
-                  Effect.mapError((cause) => toRequestError(input.threadId, "turn/start", cause)),
-                );
+              const bytes = yield* fileSystem.readFile(attachmentPath).pipe(
+                Effect.mapError(
+                  (cause) =>
+                    new ProviderAdapterRequestError({
+                      provider: PROVIDER,
+                      method: "turn/start",
+                      detail: toMessage(cause, "Failed to read attachment file."),
+                      cause,
+                    }),
+                ),
+              );
               return {
                 type: "image" as const,
                 url: `data:${attachment.mimeType};base64,${Buffer.from(bytes).toString("base64")}`,
@@ -1354,7 +1371,6 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
               threadId: input.threadId,
               ...(input.input !== undefined ? { input: input.input } : {}),
               ...(input.model !== undefined ? { model: input.model } : {}),
-              ...(input.serviceTier !== undefined ? { serviceTier: input.serviceTier } : {}),
               ...(input.modelOptions?.codex?.reasoningEffort !== undefined
                 ? { effort: input.modelOptions.codex.reasoningEffort }
                 : {}),

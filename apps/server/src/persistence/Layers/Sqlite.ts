@@ -49,9 +49,6 @@ export const SqlitePersistenceMemory = Layer.provideMerge(
   makeRuntimeSqliteLayer({ filename: ":memory:" }),
 );
 
-export const layerConfig = Effect.gen(function* () {
-  const { stateDir } = yield* ServerConfig;
-  const { join } = yield* Path.Path;
-  const dbPath = join(stateDir, "state.sqlite");
-  return makeSqlitePersistenceLive(dbPath);
-}).pipe(Layer.unwrap);
+export const layerConfig = Layer.unwrap(
+  Effect.map(Effect.service(ServerConfig), ({ dbPath }) => makeSqlitePersistenceLive(dbPath)),
+);

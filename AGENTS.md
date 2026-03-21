@@ -2,12 +2,12 @@
 
 ## Task Completion Requirements
 
-- Both `bun lint` and `bun typecheck` must pass before considering tasks completed.
+- All of `bun fmt`, `bun lint`, and `bun typecheck` must pass before considering tasks completed.
 - NEVER run `bun test`. Always use `bun run test` (runs Vitest).
 
 ## Project Snapshot
 
-T3 Code is a minimal web GUI for using code agents like Codex and Claude Code (coming soon).
+T3 Code is a minimal web GUI for using coding agents like Codex and Claude.
 
 This repository is a VERY EARLY WIP. Proposing sweeping changes that improve long-term maintainability is encouraged.
 
@@ -21,7 +21,7 @@ If a tradeoff is required, choose correctness and robustness over short-term con
 
 ## Maintainability
 
-Long term maintainability is a core priority. If you add new functionality, first check if there are shared logic that can be extracted to a separate module. Duplicate logic across mulitple files is a code smell and should be avoided. Don't be afraid to change existing code. Don't take shortcuts by just adding local logic to solve a problem.
+Long term maintainability is a core priority. If you add new functionality, first check if there is shared logic that can be extracted to a separate module. Duplicate logic across multiple files is a code smell and should be avoided. Don't be afraid to change existing code. Don't take shortcuts by just adding local logic to solve a problem.
 
 ## Package Roles
 
