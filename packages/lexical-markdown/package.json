@@ -1,0 +1,47 @@
+{
+  "name": "@lexical/markdown",
+  "description": "This package contains Markdown helpers and functionality for Lexical.",
+  "keywords": [
+    "lexical",
+    "editor",
+    "rich-text",
+    "markdown"
+  ],
+  "license": "MIT",
+  "version": "0.42.0",
+  "main": "LexicalMarkdown.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@lexical/code-core": "workspace:*",
+    "@lexical/link": "workspace:*",
+    "@lexical/list": "workspace:*",
+    "@lexical/rich-text": "workspace:*",
+    "@lexical/text": "workspace:*",
+    "@lexical/utils": "workspace:*",
+    "lexical": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/lexical.git",
+    "directory": "packages/lexical-markdown"
+  },
+  "module": "LexicalMarkdown.mjs",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "development": "./LexicalMarkdown.dev.mjs",
+        "production": "./LexicalMarkdown.prod.mjs",
+        "node": "./LexicalMarkdown.node.mjs",
+        "default": "./LexicalMarkdown.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "development": "./LexicalMarkdown.dev.js",
+        "production": "./LexicalMarkdown.prod.js",
+        "default": "./LexicalMarkdown.js"
+      }
+    }
+  }
+}

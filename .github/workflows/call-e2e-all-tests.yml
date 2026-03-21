@@ -1,0 +1,156 @@
+name: Lexical e2e tests
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  mac-rich:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['webkit', 'chromium', 'firefox']
+        editor-mode: ['rich-text']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'macos-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  mac-plain:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['webkit']
+        editor-mode: ['plain-text']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'macos-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  linux:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['chromium', 'firefox']
+        editor-mode: ['rich-text', 'plain-text']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'ubuntu-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  windows:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['chromium', 'firefox']
+        editor-mode: ['rich-text', 'plain-text']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'windows-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  collab-mac:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['webkit']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'macos-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: 'rich-text-with-collab'
+
+  collab-linux:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['chromium', 'firefox']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'ubuntu-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: 'rich-text-with-collab'
+
+  collab-windows:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['chromium', 'firefox']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'windows-latest'
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: 'rich-text-with-collab'
+
+  prod:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        node-version: [22.x]
+        browser: ['chromium']
+        editor-mode: ['rich-text']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      prod: true
+      os: ${{ matrix.os }}
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  collab-prod:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        node-version: [22.x]
+        browser: ['chromium']
+        editor-mode: ['rich-text-with-collab']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      prod: true
+      os: ${{ matrix.os }}
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
+
+  # This has been stalling in GitHub CI for unknown reasons, disable for now
+  # react-beta:
+  #   strategy:
+  #     matrix:
+  #       # Currently using a single combination for every-patch e2e tests of
+  #       # react beta to reduce cost impact
+  #       editor-mode: ['rich-text']
+  #       prod: [false]
+  #   uses: ./.github/workflows/call-e2e-test.yml
+  #   with:
+  #     os: 'ubuntu-latest'
+  #     browser: 'chromium'
+  #     node-version: 22.x
+  #     editor-mode: ${{ matrix.editor-mode }}
+  #     prod: ${{ matrix.prod }}
+  #     override-react-version: beta
+
+  flaky:
+    strategy:
+      matrix:
+        node-version: [22.x]
+        browser: ['chromium', 'firefox']
+        editor-mode: ['rich-text', 'plain-text', 'rich-text-with-collab']
+    uses: ./.github/workflows/call-e2e-test.yml
+    with:
+      os: 'ubuntu-latest'
+      flaky: true
+      node-version: ${{ matrix.node-version }}
+      browser: ${{ matrix.browser }}
+      editor-mode: ${{ matrix.editor-mode }}
