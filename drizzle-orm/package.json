@@ -1,0 +1,252 @@
+{
+	"name": "drizzle-orm",
+	"version": "1.0.0-beta.18",
+	"description": "Drizzle ORM package for SQL databases",
+	"type": "module",
+	"scripts": {
+		"p": "prisma generate --schema src/prisma/schema.prisma",
+		"build": "pnpm p && bun --bun run scripts/build.ts",
+		"build:artifact": "pnpm build",
+		"b": "pnpm build",
+		"test:types": "cd type-tests && tsc",
+		"test": "vitest run",
+		"pack": "(cd dist && npm pack --pack-destination ..) && rm -f package.tgz && mv *.tgz package.tgz",
+		"pack:artifact": "pnpm run pack",
+		"publish": "npm publish package.tgz"
+	},
+	"main": "./index.cjs",
+	"module": "./index.js",
+	"types": "./index.d.ts",
+	"sideEffects": false,
+	"publishConfig": {
+		"provenance": true
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/drizzle-team/drizzle-orm.git"
+	},
+	"homepage": "https://orm.drizzle.team",
+	"keywords": [
+		"drizzle",
+		"orm",
+		"pg",
+		"mysql",
+		"singlestore",
+		"postgresql",
+		"postgres",
+		"sqlite",
+		"database",
+		"sql",
+		"typescript",
+		"ts",
+		"drizzle-orm"
+	],
+	"author": "Drizzle Team",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/drizzle-team/drizzle-orm/issues"
+	},
+	"peerDependencies": {
+		"@aws-sdk/client-rds-data": ">=3",
+		"@cloudflare/workers-types": ">=4",
+		"@effect/sql": "^0.48.5",
+		"@effect/sql-pg": "^0.49.7",
+		"@electric-sql/pglite": ">=0.2.0",
+		"@libsql/client": ">=0.10.0",
+		"@libsql/client-wasm": ">=0.10.0",
+		"@neondatabase/serverless": ">=0.10.0",
+		"@op-engineering/op-sqlite": ">=2",
+		"@opentelemetry/api": "^1.4.1",
+		"@planetscale/database": ">=1.13",
+		"@sinclair/typebox": ">=0.34.8",
+		"@sqlitecloud/drivers": ">=1.0.653",
+		"@tidbcloud/serverless": "*",
+		"@tursodatabase/database": ">=0.2.1",
+		"@tursodatabase/database-common": ">=0.2.1",
+		"@tursodatabase/database-wasm": ">=0.2.1",
+		"@types/better-sqlite3": "*",
+		"@types/mssql": "^9.1.4",
+		"@types/pg": "*",
+		"@types/sql.js": "*",
+		"@upstash/redis": ">=1.34.7",
+		"@vercel/postgres": ">=0.8.0",
+		"@xata.io/client": "*",
+		"arktype": ">=2.0.0",
+		"better-sqlite3": ">=9.3.0",
+		"bun-types": "*",
+		"expo-sqlite": ">=14.0.0",
+		"gel": ">=2",
+		"mssql": "^11.0.1",
+		"mysql2": ">=2",
+		"pg": ">=8",
+		"postgres": ">=3",
+		"sql.js": ">=1",
+		"sqlite3": ">=5",
+		"typebox": ">=1.0.0",
+		"valibot": ">=1.0.0-beta.7",
+		"zod": "^3.25.0 || ^4.0.0"
+	},
+	"peerDependenciesMeta": {
+		"arktype": {
+			"optional": true
+		},
+		"mysql2": {
+			"optional": true
+		},
+		"@vercel/postgres": {
+			"optional": true
+		},
+		"@xata.io/client": {
+			"optional": true
+		},
+		"better-sqlite3": {
+			"optional": true
+		},
+		"@types/better-sqlite3": {
+			"optional": true
+		},
+		"sqlite3": {
+			"optional": true
+		},
+		"sql.js": {
+			"optional": true
+		},
+		"@types/sql.js": {
+			"optional": true
+		},
+		"@cloudflare/workers-types": {
+			"optional": true
+		},
+		"pg": {
+			"optional": true
+		},
+		"@types/pg": {
+			"optional": true
+		},
+		"postgres": {
+			"optional": true
+		},
+		"@neondatabase/serverless": {
+			"optional": true
+		},
+		"bun-types": {
+			"optional": true
+		},
+		"@aws-sdk/client-rds-data": {
+			"optional": true
+		},
+		"@planetscale/database": {
+			"optional": true
+		},
+		"@libsql/client": {
+			"optional": true
+		},
+		"@libsql/client-wasm": {
+			"optional": true
+		},
+		"@opentelemetry/api": {
+			"optional": true
+		},
+		"expo-sqlite": {
+			"optional": true
+		},
+		"gel": {
+			"optional": true
+		},
+		"@op-engineering/op-sqlite": {
+			"optional": true
+		},
+		"@electric-sql/pglite": {
+			"optional": true
+		},
+		"@sqlitecloud/drivers": {
+			"optional": true
+		},
+		"@tidbcloud/serverless": {
+			"optional": true
+		},
+		"@sinclair/typebox": {
+			"optional": true
+		},
+		"@tursodatabase/database": {
+			"optional": true
+		},
+		"@tursodatabase/database-wasm": {
+			"optional": true
+		},
+		"@tursodatabase/database-common": {
+			"optional": true
+		},
+		"@upstash/redis": {
+			"optional": true
+		},
+		"@effect/sql": {
+			"optional": true
+		},
+		"@effect/sql-pg": {
+			"optional": true
+		},
+		"typebox": {
+			"optional": true
+		},
+		"valibot": {
+			"optional": true
+		},
+		"zod": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@arktype/attest": "^0.46.0",
+		"@aws-sdk/client-rds-data": "^3.914.0",
+		"@cloudflare/workers-types": "^4.20251004.0",
+		"@effect/sql": "^0.48.5",
+		"@effect/sql-pg": "^0.49.7",
+		"@effect/sql-sqlite-node": "^0.49.1",
+		"@electric-sql/pglite": "^0.2.12",
+		"@libsql/client": "^0.10.0",
+		"@libsql/client-wasm": "^0.10.0",
+		"@miniflare/d1": "^2.14.4",
+		"@neondatabase/serverless": "^0.10.0",
+		"@op-engineering/op-sqlite": "^2.0.16",
+		"@opentelemetry/api": "^1.4.1",
+		"@originjs/vite-plugin-commonjs": "^1.0.3",
+		"@planetscale/database": "^1.16.0",
+		"@prisma/client": "5.14.0",
+		"@sinclair/typebox": "^0.34.48",
+		"@sqlitecloud/drivers": "^1.0.653",
+		"@tidbcloud/serverless": "^0.1.1",
+		"@tursodatabase/database": "0.2.1",
+		"@tursodatabase/database-common": "^0.2.1",
+		"@tursodatabase/database-wasm": "^0.2.1",
+		"@types/better-sqlite3": "^7.6.12",
+		"@types/node": "^25.4.0",
+		"@types/pg": "^8.10.1",
+		"@types/react": "^18.2.45",
+		"@types/sql.js": "^1.4.4",
+		"@upstash/redis": "^1.34.3",
+		"@vercel/postgres": "^0.8.0",
+		"@xata.io/client": "^0.29.3",
+		"arktype": "^2.1.10",
+		"better-sqlite3": "^11.9.1",
+		"bun-types": "^1.2.23",
+		"cpy": "^10.1.0",
+		"effect": "^3.19.8",
+		"expo-sqlite": "^14.0.0",
+		"gel": "^2.0.0",
+		"glob": "^11.0.1",
+		"mysql2": "^3.14.1",
+		"pg": "^8.11.0",
+		"postgres": "^3.3.5",
+		"prisma": "5.14.0",
+		"react": "^18.2.0",
+		"sql.js": "^1.8.0",
+		"sqlite3": "^5.1.2",
+		"ts-morph": "^25.0.1",
+		"tslib": "^2.5.2",
+		"tsx": "^3.12.7",
+		"typebox": "^1.0.80",
+		"valibot": "1.0.0-beta.7",
+		"zod": "^3.20.2"
+	}
+}
