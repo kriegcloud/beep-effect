@@ -1,6 +1,8 @@
 import type { GitBranch } from "@t3tools/contracts";
+import { Schema } from "effect";
 
-export type EnvMode = "local" | "worktree";
+export const EnvMode = Schema.Literals(["local", "worktree"]);
+export type EnvMode = typeof EnvMode.Type;
 
 export function resolveEffectiveEnvMode(input: {
   activeWorktreePath: string | null;
@@ -81,10 +83,43 @@ export function dedupeRemoteBranchesWithLocalMatches(
       return true;
     }
 
+    if (branch.remoteName !== "origin") {
+      return true;
+    }
+
     const localBranchCandidates = deriveLocalBranchNameCandidatesFromRemoteRef(
       branch.name,
       branch.remoteName,
     );
     return !localBranchCandidates.some((candidate) => localBranchNames.has(candidate));
   });
+}
+
+export function resolveBranchSelectionTarget(input: {
+  activeProjectCwd: string;
+  activeWorktreePath: string | null;
+  branch: Pick<GitBranch, "isDefault" | "worktreePath">;
+}): {
+  checkoutCwd: string;
+  nextWorktreePath: string | null;
+  reuseExistingWorktree: boolean;
+} {
+  const { activeProjectCwd, activeWorktreePath, branch } = input;
+
+  if (branch.worktreePath) {
+    return {
+      checkoutCwd: branch.worktreePath,
+      nextWorktreePath: branch.worktreePath === activeProjectCwd ? null : branch.worktreePath,
+      reuseExistingWorktree: true,
+    };
+  }
+
+  const nextWorktreePath =
+    activeWorktreePath !== null && branch.isDefault ? null : activeWorktreePath;
+
+  return {
+    checkoutCwd: nextWorktreePath ?? activeProjectCwd,
+    nextWorktreePath,
+    reuseExistingWorktree: false,
+  };
 }

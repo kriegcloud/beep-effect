@@ -37,6 +37,7 @@ function createSendTurnHarness() {
       planType: null,
       sparkEnabled: true,
     },
+    collabReceiverTurns: new Map(),
   };
 
   const requireSession = vi
@@ -75,6 +76,7 @@ function createThreadControlHarness() {
       createdAt: "2026-02-10T00:00:00.000Z",
       updatedAt: "2026-02-10T00:00:00.000Z",
     },
+    collabReceiverTurns: new Map(),
   };
 
   const requireSession = vi
@@ -117,6 +119,7 @@ function createPendingUserInputHarness() {
         },
       ],
     ]),
+    collabReceiverTurns: new Map(),
   };
 
   const requireSession = vi
@@ -133,6 +136,43 @@ function createPendingUserInputHarness() {
     .mockImplementation(() => {});
 
   return { manager, context, requireSession, writeMessage, emitEvent };
+}
+
+function createCollabNotificationHarness() {
+  const manager = new CodexAppServerManager();
+  const context = {
+    session: {
+      provider: "codex",
+      status: "running",
+      threadId: asThreadId("thread_1"),
+      runtimeMode: "full-access",
+      model: "gpt-5.3-codex",
+      activeTurnId: "turn_parent",
+      resumeCursor: { threadId: "provider_parent" },
+      createdAt: "2026-02-10T00:00:00.000Z",
+      updatedAt: "2026-02-10T00:00:00.000Z",
+    },
+    account: {
+      type: "unknown",
+      planType: null,
+      sparkEnabled: true,
+    },
+    pending: new Map(),
+    pendingApprovals: new Map(),
+    pendingUserInputs: new Map(),
+    collabReceiverTurns: new Map<string, string>(),
+    nextRequestId: 1,
+    stopping: false,
+  };
+
+  const emitEvent = vi
+    .spyOn(manager as unknown as { emitEvent: (...args: unknown[]) => void }, "emitEvent")
+    .mockImplementation(() => {});
+  const updateSession = vi
+    .spyOn(manager as unknown as { updateSession: (...args: unknown[]) => void }, "updateSession")
+    .mockImplementation(() => {});
+
+  return { manager, context, emitEvent, updateSession };
 }
 
 describe("classifyCodexStderrLine", () => {
@@ -721,6 +761,7 @@ describe("respondToUserInput", () => {
       },
       pendingApprovals: new Map(),
       pendingUserInputs: new Map(),
+      collabReceiverTurns: new Map(),
     };
     type ApprovalRequestContext = {
       session: typeof context.session;
@@ -748,89 +789,229 @@ describe("respondToUserInput", () => {
   });
 });
 
+describe("collab child conversation routing", () => {
+  it("rewrites child notification turn ids onto the parent turn", () => {
+    const { manager, context, emitEvent } = createCollabNotificationHarness();
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "item/completed",
+      params: {
+        item: {
+          type: "collabAgentToolCall",
+          id: "call_collab_1",
+          receiverThreadIds: ["child_provider_1"],
+        },
+        threadId: "provider_parent",
+        turnId: "turn_parent",
+      },
+    });
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "item/agentMessage/delta",
+      params: {
+        threadId: "child_provider_1",
+        turnId: "turn_child_1",
+        itemId: "msg_child_1",
+        delta: "working",
+      },
+    });
+
+    expect(emitEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        method: "item/agentMessage/delta",
+        turnId: "turn_parent",
+        itemId: "msg_child_1",
+      }),
+    );
+  });
+
+  it("suppresses child lifecycle notifications so they cannot replace the parent turn", () => {
+    const { manager, context, emitEvent, updateSession } = createCollabNotificationHarness();
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "item/completed",
+      params: {
+        item: {
+          type: "collabAgentToolCall",
+          id: "call_collab_1",
+          receiverThreadIds: ["child_provider_1"],
+        },
+        threadId: "provider_parent",
+        turnId: "turn_parent",
+      },
+    });
+    emitEvent.mockClear();
+    updateSession.mockClear();
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "turn/started",
+      params: {
+        threadId: "child_provider_1",
+        turn: { id: "turn_child_1" },
+      },
+    });
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "turn/completed",
+      params: {
+        threadId: "child_provider_1",
+        turn: { id: "turn_child_1", status: "completed" },
+      },
+    });
+
+    expect(emitEvent).not.toHaveBeenCalled();
+    expect(updateSession).not.toHaveBeenCalled();
+  });
+
+  it("rewrites child approval requests onto the parent turn", () => {
+    const { manager, context, emitEvent } = createCollabNotificationHarness();
+
+    (
+      manager as unknown as {
+        handleServerNotification: (context: unknown, notification: Record<string, unknown>) => void;
+      }
+    ).handleServerNotification(context, {
+      method: "item/completed",
+      params: {
+        item: {
+          type: "collabAgentToolCall",
+          id: "call_collab_1",
+          receiverThreadIds: ["child_provider_1"],
+        },
+        threadId: "provider_parent",
+        turnId: "turn_parent",
+      },
+    });
+    emitEvent.mockClear();
+
+    (
+      manager as unknown as {
+        handleServerRequest: (context: unknown, request: Record<string, unknown>) => void;
+      }
+    ).handleServerRequest(context, {
+      id: 42,
+      method: "item/commandExecution/requestApproval",
+      params: {
+        threadId: "child_provider_1",
+        turnId: "turn_child_1",
+        itemId: "call_child_1",
+        command: "bun install",
+      },
+    });
+
+    expect(Array.from(context.pendingApprovals.values())[0]).toEqual(
+      expect.objectContaining({
+        turnId: "turn_parent",
+        itemId: "call_child_1",
+      }),
+    );
+    expect(emitEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "item/commandExecution/requestApproval",
+        turnId: "turn_parent",
+        itemId: "call_child_1",
+      }),
+    );
+  });
+});
+
 describe.skipIf(!process.env.CODEX_BINARY_PATH)("startSession live Codex resume", () => {
-  it(
-    "keeps prior thread history when resuming with a changed runtime mode",
-    async () => {
-      const workspaceDir = mkdtempSync(path.join(os.tmpdir(), "codex-live-resume-"));
-      writeFileSync(path.join(workspaceDir, "README.md"), "hello\n", "utf8");
+  it("keeps prior thread history when resuming with a changed runtime mode", async () => {
+    const workspaceDir = mkdtempSync(path.join(os.tmpdir(), "codex-live-resume-"));
+    writeFileSync(path.join(workspaceDir, "README.md"), "hello\n", "utf8");
 
-      const manager = new CodexAppServerManager();
+    const manager = new CodexAppServerManager();
 
-      try {
-        const firstSession = await manager.startSession({
-          threadId: asThreadId("thread-live"),
-          provider: "codex",
-          cwd: workspaceDir,
-          runtimeMode: "full-access",
-          providerOptions: {
-            codex: {
-              ...(process.env.CODEX_BINARY_PATH
-                ? { binaryPath: process.env.CODEX_BINARY_PATH }
-                : {}),
-              ...(process.env.CODEX_HOME_PATH
-                ? { homePath: process.env.CODEX_HOME_PATH }
-                : {}),
-            },
+    try {
+      const firstSession = await manager.startSession({
+        threadId: asThreadId("thread-live"),
+        provider: "codex",
+        cwd: workspaceDir,
+        runtimeMode: "full-access",
+        providerOptions: {
+          codex: {
+            ...(process.env.CODEX_BINARY_PATH ? { binaryPath: process.env.CODEX_BINARY_PATH } : {}),
+            ...(process.env.CODEX_HOME_PATH ? { homePath: process.env.CODEX_HOME_PATH } : {}),
           },
-        });
+        },
+      });
 
-        const firstTurn = await manager.sendTurn({
-          threadId: firstSession.threadId,
-          input: `Reply with exactly the word ALPHA ${randomUUID()}`,
-        });
+      const firstTurn = await manager.sendTurn({
+        threadId: firstSession.threadId,
+        input: `Reply with exactly the word ALPHA ${randomUUID()}`,
+      });
 
-        expect(firstTurn.threadId).toBe(firstSession.threadId);
+      expect(firstTurn.threadId).toBe(firstSession.threadId);
 
-        await vi.waitFor(async () => {
+      await vi.waitFor(
+        async () => {
           const snapshot = await manager.readThread(firstSession.threadId);
           expect(snapshot.turns.length).toBeGreaterThan(0);
-        }, { timeout: 120_000, interval: 1_000 });
+        },
+        { timeout: 120_000, interval: 1_000 },
+      );
 
-        const firstSnapshot = await manager.readThread(firstSession.threadId);
-        const originalThreadId = firstSnapshot.threadId;
-        const originalTurnCount = firstSnapshot.turns.length;
+      const firstSnapshot = await manager.readThread(firstSession.threadId);
+      const originalThreadId = firstSnapshot.threadId;
+      const originalTurnCount = firstSnapshot.turns.length;
 
-        manager.stopSession(firstSession.threadId);
+      manager.stopSession(firstSession.threadId);
 
-        const resumedSession = await manager.startSession({
-          threadId: firstSession.threadId,
-          provider: "codex",
-          cwd: workspaceDir,
-          runtimeMode: "approval-required",
-          resumeCursor: firstSession.resumeCursor,
-          providerOptions: {
-            codex: {
-              ...(process.env.CODEX_BINARY_PATH
-                ? { binaryPath: process.env.CODEX_BINARY_PATH }
-                : {}),
-              ...(process.env.CODEX_HOME_PATH
-                ? { homePath: process.env.CODEX_HOME_PATH }
-                : {}),
-            },
+      const resumedSession = await manager.startSession({
+        threadId: firstSession.threadId,
+        provider: "codex",
+        cwd: workspaceDir,
+        runtimeMode: "approval-required",
+        resumeCursor: firstSession.resumeCursor,
+        providerOptions: {
+          codex: {
+            ...(process.env.CODEX_BINARY_PATH ? { binaryPath: process.env.CODEX_BINARY_PATH } : {}),
+            ...(process.env.CODEX_HOME_PATH ? { homePath: process.env.CODEX_HOME_PATH } : {}),
           },
-        });
+        },
+      });
 
-        expect(resumedSession.threadId).toBe(originalThreadId);
+      expect(resumedSession.threadId).toBe(originalThreadId);
 
-        const resumedSnapshotBeforeTurn = await manager.readThread(resumedSession.threadId);
-        expect(resumedSnapshotBeforeTurn.threadId).toBe(originalThreadId);
-        expect(resumedSnapshotBeforeTurn.turns.length).toBeGreaterThanOrEqual(originalTurnCount);
+      const resumedSnapshotBeforeTurn = await manager.readThread(resumedSession.threadId);
+      expect(resumedSnapshotBeforeTurn.threadId).toBe(originalThreadId);
+      expect(resumedSnapshotBeforeTurn.turns.length).toBeGreaterThanOrEqual(originalTurnCount);
 
-        await manager.sendTurn({
-          threadId: resumedSession.threadId,
-          input: `Reply with exactly the word BETA ${randomUUID()}`,
-        });
+      await manager.sendTurn({
+        threadId: resumedSession.threadId,
+        input: `Reply with exactly the word BETA ${randomUUID()}`,
+      });
 
-        await vi.waitFor(async () => {
+      await vi.waitFor(
+        async () => {
           const snapshot = await manager.readThread(resumedSession.threadId);
           expect(snapshot.turns.length).toBeGreaterThan(originalTurnCount);
-        }, { timeout: 120_000, interval: 1_000 });
-      } finally {
-        manager.stopAll();
-        rmSync(workspaceDir, { recursive: true, force: true });
-      }
-    },
-    180_000,
-  );
+        },
+        { timeout: 120_000, interval: 1_000 },
+      );
+    } finally {
+      manager.stopAll();
+      rmSync(workspaceDir, { recursive: true, force: true });
+    }
+  }, 180_000);
 });

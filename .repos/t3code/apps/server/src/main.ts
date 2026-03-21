@@ -11,12 +11,13 @@ import { Command, Flag } from "effect/unstable/cli";
 import { NetService } from "@t3tools/shared/Net";
 import {
   DEFAULT_PORT,
+  deriveServerPaths,
   resolveStaticDir,
   ServerConfig,
   type RuntimeMode,
   type ServerConfigShape,
 } from "./config";
-import { fixPath, resolveStateDir } from "./os-jank";
+import { fixPath, resolveBaseDir } from "./os-jank";
 import { Open } from "./open";
 import * as SqlitePersistence from "./persistence/Layers/Sqlite";
 import { makeServerProviderLayer, makeServerRuntimeServicesLayer } from "./serverLayers";
@@ -36,7 +37,7 @@ interface CliInput {
   readonly mode: Option.Option<RuntimeMode>;
   readonly port: Option.Option<number>;
   readonly host: Option.Option<string>;
-  readonly stateDir: Option.Option<string>;
+  readonly t3Home: Option.Option<string>;
   readonly devUrl: Option.Option<URL>;
   readonly noBrowser: Option.Option<boolean>;
   readonly authToken: Option.Option<string>;
@@ -99,10 +100,7 @@ const CliEnvConfig = Config.all({
   ),
   port: Config.port("T3CODE_PORT").pipe(Config.option, Config.map(Option.getOrUndefined)),
   host: Config.string("T3CODE_HOST").pipe(Config.option, Config.map(Option.getOrUndefined)),
-  stateDir: Config.string("T3CODE_STATE_DIR").pipe(
-    Config.option,
-    Config.map(Option.getOrUndefined),
-  ),
+  t3Home: Config.string("T3CODE_HOME").pipe(Config.option, Config.map(Option.getOrUndefined)),
   devUrl: Config.url("VITE_DEV_SERVER_URL").pipe(Config.option, Config.map(Option.getOrUndefined)),
   noBrowser: Config.boolean("T3CODE_NO_BROWSER").pipe(
     Config.option,
@@ -152,10 +150,10 @@ const ServerConfigLive = (input: CliInput) =>
           return findAvailablePort(DEFAULT_PORT);
         },
       });
-      const stateDir = yield* resolveStateDir(
-        Option.getOrUndefined(input.stateDir) ?? env.stateDir,
-      );
+
       const devUrl = Option.getOrElse(input.devUrl, () => env.devUrl);
+      const baseDir = yield* resolveBaseDir(Option.getOrUndefined(input.t3Home) ?? env.t3Home);
+      const derivedPaths = yield* deriveServerPaths(baseDir, devUrl);
       const noBrowser = resolveBooleanFlag(input.noBrowser, env.noBrowser ?? mode === "desktop");
       const authToken = Option.getOrUndefined(input.authToken) ?? env.authToken;
       const autoBootstrapProjectFromCwd = resolveBooleanFlag(
@@ -167,8 +165,6 @@ const ServerConfigLive = (input: CliInput) =>
         env.logWebSocketEvents ?? Boolean(devUrl),
       );
       const staticDir = devUrl ? undefined : yield* cliConfig.resolveStaticDir;
-      const { join } = yield* Path.Path;
-      const keybindingsConfigPath = join(stateDir, "keybindings.json");
       const host =
         Option.getOrUndefined(input.host) ??
         env.host ??
@@ -178,9 +174,9 @@ const ServerConfigLive = (input: CliInput) =>
         mode,
         port,
         cwd: cliConfig.cwd,
-        keybindingsConfigPath,
         host,
-        stateDir,
+        baseDir,
+        ...derivedPaths,
         staticDir,
         devUrl,
         noBrowser,
@@ -299,8 +295,8 @@ const hostFlag = Flag.string("host").pipe(
   Flag.withDescription("Host/interface to bind (for example 127.0.0.1, 0.0.0.0, or a Tailnet IP)."),
   Flag.optional,
 );
-const stateDirFlag = Flag.string("state-dir").pipe(
-  Flag.withDescription("State directory path (equivalent to T3CODE_STATE_DIR)."),
+const t3HomeFlag = Flag.string("home-dir").pipe(
+  Flag.withDescription("Base directory for all T3 Code data (equivalent to T3CODE_HOME)."),
   Flag.optional,
 );
 const devUrlFlag = Flag.string("dev-url").pipe(
@@ -335,7 +331,7 @@ export const t3Cli = Command.make("t3", {
   mode: modeFlag,
   port: portFlag,
   host: hostFlag,
-  stateDir: stateDirFlag,
+  t3Home: t3HomeFlag,
   devUrl: devUrlFlag,
   noBrowser: noBrowserFlag,
   authToken: authTokenFlag,

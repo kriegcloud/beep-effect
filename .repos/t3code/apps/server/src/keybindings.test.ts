@@ -3,7 +3,7 @@ import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import { Effect, FileSystem, Layer, Logger, Path, Schema } from "effect";
-import { ServerConfig, type ServerConfigShape } from "./config";
+import { ServerConfig } from "./config";
 
 import {
   DEFAULT_KEYBINDINGS,
@@ -17,21 +17,17 @@ import {
 } from "./keybindings";
 
 const KeybindingsConfigJson = Schema.fromJsonString(KeybindingsConfig);
-const makeKeybindingsLayer = () =>
-  KeybindingsLive.pipe(
+const makeKeybindingsLayer = () => {
+  return KeybindingsLive.pipe(
     Layer.provideMerge(
-      Layer.effect(
-        ServerConfig,
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const { join } = yield* Path.Path;
-          const dir = yield* fs.makeTempDirectoryScoped({ prefix: "t3code-server-config-test-" });
-          const configPath = join(dir, "keybindings.json");
-          return { keybindingsConfigPath: configPath } as ServerConfigShape;
+      Layer.fresh(
+        ServerConfig.layerTest(process.cwd(), {
+          prefix: "t3code-keybindings-test-",
         }),
       ),
     ),
   );
+};
 
 const toDetailResult = <A, R>(effect: Effect.Effect<A, KeybindingsConfigError, R>) =>
   effect.pipe(
@@ -42,7 +38,9 @@ const toDetailResult = <A, R>(effect: Effect.Effect<A, KeybindingsConfigError, R
 const writeKeybindingsConfig = (configPath: string, rules: readonly KeybindingRule[]) =>
   Effect.gen(function* () {
     const fileSystem = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
     const encoded = yield* Schema.encodeEffect(KeybindingsConfigJson)(rules);
+    yield* fileSystem.makeDirectory(path.dirname(configPath), { recursive: true });
     yield* fileSystem.writeFileString(configPath, encoded);
   });
 
@@ -211,7 +209,9 @@ it.layer(NodeServices.layer)("keybindings", (it) => {
       });
 
       assert.isTrue(configState.keybindings.some((entry) => entry.command === "terminal.toggle"));
-      assert.isFalse(configState.keybindings.some((entry) => String(entry.command) === "invalid.command"));
+      assert.isFalse(
+        configState.keybindings.some((entry) => String(entry.command) === "invalid.command"),
+      );
       assert.deepEqual(configState.issues, [
         {
           kind: "keybindings.invalid-entry",

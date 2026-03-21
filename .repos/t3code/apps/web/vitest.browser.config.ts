@@ -15,7 +15,7 @@ export default mergeConfig(
       },
     },
     test: {
-      include: ["src/components/ChatView.browser.tsx"],
+      include: ["src/components/**/*.browser.tsx"],
       browser: {
         enabled: true,
         provider: playwright(),
