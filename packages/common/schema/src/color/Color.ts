@@ -6,11 +6,12 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { flow, Number as Num, pipe, SchemaGetter, SchemaTransformation } from "effect";
+import { flow, Number as Num, pipe, SchemaGetter, SchemaTransformation, identity } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { thunk0, thunk1 } from "@beep/utils";
 
 const $I = $SchemaId.create("color/Color");
 
@@ -246,15 +247,15 @@ const oklchToHexValue = flow(oklchToRgbValue, rgbToHexValue);
 const hexToOklchValue = flow(hexToRgbValue, rgbToOklchValue);
 
 const darkScaleLightSteps = [0.15, 0.18, 0.22, 0.26, 0.32, 0.38, 0.46, 0.56] as const;
-const darkScaleChromaMultipliers = [0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1, 1, 0.9, 0.6] as const;
+const darkScaleChromaMultipliers = () => ([0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1, 1, 0.9, 0.6] as const);
 const lightScaleLightSteps = [0.99, 0.97, 0.94, 0.9, 0.85, 0.79, 0.72, 0.64] as const;
-const lightScaleChromaMultipliers = [0.1, 0.15, 0.25, 0.35, 0.45, 0.55, 0.7, 0.85, 1, 1, 0.95, 0.85] as const;
+const lightScaleChromaMultipliers = () => ([0.1, 0.15, 0.25, 0.35, 0.45, 0.55, 0.7, 0.85, 1, 1, 0.95, 0.85] as const);
 
-const darkNeutralScaleLightSteps = [0.13, 0.16, 0.2, 0.24, 0.28, 0.33, 0.4, 0.52, 0.58, 0.66, 0.82, 0.96] as const;
-const lightNeutralScaleLightSteps = [0.995, 0.98, 0.96, 0.94, 0.91, 0.88, 0.84, 0.78, 0.62, 0.56, 0.46, 0.2] as const;
+const darkNeutralScaleLightSteps = () => ([0.13, 0.16, 0.2, 0.24, 0.28, 0.33, 0.4, 0.52, 0.58, 0.66, 0.82, 0.96] as const);
+const lightNeutralScaleLightSteps = () => ([0.995, 0.98, 0.96, 0.94, 0.91, 0.88, 0.84, 0.78, 0.62, 0.56, 0.46, 0.2] as const);
 
-const darkAlphaSteps = [0.02, 0.04, 0.08, 0.12, 0.16, 0.2, 0.26, 0.36, 0.44, 0.52, 0.76, 0.96] as const;
-const lightAlphaSteps = [0.01, 0.03, 0.06, 0.09, 0.12, 0.15, 0.2, 0.28, 0.48, 0.56, 0.64, 0.88] as const;
+const darkAlphaSteps = () => ([0.02, 0.04, 0.08, 0.12, 0.16, 0.2, 0.26, 0.36, 0.44, 0.52, 0.76, 0.96] as const);
+const lightAlphaSteps = () => ([0.01, 0.03, 0.06, 0.09, 0.12, 0.15, 0.2, 0.28, 0.48, 0.56, 0.64, 0.88] as const);
 
 const generateScaleValues = ({ seed, isDark }: GenerateScaleInput): HexColorScale12 => {
   const base = hexToOklchValue(seed);
@@ -263,8 +264,8 @@ const generateScaleValues = ({ seed, isDark }: GenerateScaleInput): HexColorScal
     onFalse: () => [...lightScaleLightSteps, base.l, base.l + 0.05, 0.45, 0.25],
   });
   const chromaMultipliers = Bool.match(isDark, {
-    onTrue: () => darkScaleChromaMultipliers,
-    onFalse: () => lightScaleChromaMultipliers,
+    onTrue: darkScaleChromaMultipliers,
+    onFalse: lightScaleChromaMultipliers,
   });
 
   return S.decodeUnknownSync(HexColorScale12)(
@@ -282,8 +283,8 @@ const generateNeutralScaleValues = ({ seed, isDark }: GenerateNeutralScaleInput)
   const base = hexToOklchValue(seed);
   const neutralChroma = Num.min(base.c, 0.02);
   const lightSteps = Bool.match(isDark, {
-    onTrue: () => darkNeutralScaleLightSteps,
-    onFalse: () => lightNeutralScaleLightSteps,
+    onTrue: darkNeutralScaleLightSteps,
+    onFalse: lightNeutralScaleLightSteps,
   });
 
   return S.decodeUnknownSync(HexColorScale12)(
@@ -299,12 +300,12 @@ const generateNeutralScaleValues = ({ seed, isDark }: GenerateNeutralScaleInput)
 
 const generateAlphaScaleValues = ({ scale, isDark }: GenerateAlphaScaleInput): HexColorScale12 => {
   const alphas = Bool.match(isDark, {
-    onTrue: () => darkAlphaSteps,
-    onFalse: () => lightAlphaSteps,
+    onTrue: darkAlphaSteps,
+    onFalse: lightAlphaSteps,
   });
   const background = Bool.match(isDark, {
-    onTrue: () => 0,
-    onFalse: () => 1,
+    onTrue: thunk0,
+    onFalse: thunk1,
   });
 
   return S.decodeUnknownSync(HexColorScale12)(
@@ -415,7 +416,7 @@ export const NormalizeHexColor = HexColorInput.pipe(
     HexColor,
     SchemaTransformation.transform({
       decode: normalizeHexColorValue,
-      encode: (value) => value,
+      encode: identity,
     })
   ),
   S.annotate(
