@@ -360,10 +360,10 @@ export interface ParsedTokens {
   readonly flags: Record<string, ReadonlyArray<string>>
   readonly arguments: ReadonlyArray<string>
   readonly errors?: ReadonlyArray<CliError.CliError>
-  readonly subcommand?: {
+  readonly subcommand: Option.Option<{
     readonly name: string
     readonly parsedInput: ParsedTokens
-  }
+  }>
 }
 
 /**
@@ -646,17 +646,17 @@ export const withSubcommands: {
   type InternalInput = NextInput & { readonly [SubcommandStateSymbol]?: SubcommandState }
 
   const parse = Effect.fnUntraced(function*(raw: ParsedTokens) {
-    if (!raw.subcommand) {
+    if (Option.isNone(raw.subcommand)) {
       return (yield* impl.parse(raw)) as NextInput
     }
 
-    const sub = byName.get(raw.subcommand.name)
+    const sub = byName.get(raw.subcommand.value.name)
     if (!sub) {
       return (yield* impl.parse(raw)) as NextInput
     }
 
     const context = yield* impl.parseContext(raw)
-    const result = yield* sub.parse(raw.subcommand.parsedInput)
+    const result = yield* sub.parse(raw.subcommand.value.parsedInput)
     return Object.assign({}, context, { [SubcommandStateSymbol]: { name: sub.name, result } }) as NextInput
   })
 
@@ -838,15 +838,15 @@ export const withGlobalFlags: {
 
 // Type extractors for subcommand arrays - T[number] gives union of all elements
 type ExtractGlobalFlagContext<T extends ReadonlyArray<GlobalFlag.GlobalFlag<any>>> = T[number] extends infer F
-  ? F extends GlobalFlag.Setting<infer Id, any> ? GlobalFlag.Setting.Identifier<Id>
+  ? F extends GlobalFlag.Setting<infer Id, infer _A> ? GlobalFlag.Setting.Identifier<Id>
   : never
   : never
-type ExtractSubcommand<T> = T extends Command<any, any, any, any, any> ? T
+type ExtractSubcommand<T> = T extends Command<infer _Name, infer _Input, infer _CI, infer _E, infer _R> ? T
   : T extends Command.SubcommandGroup<infer Commands> ? Commands[number]
   : never
 type ExtractSubcommandErrors<T extends ReadonlyArray<Command.SubcommandEntry>> = Error<ExtractSubcommand<T[number]>>
 type ExtractSubcommandContext<T extends ReadonlyArray<Command.SubcommandEntry>> = ExtractSubcommand<T[number]> extends
-  Command<any, any, any, any, infer R> ? R : never
+  Command<infer _Name, infer _Input, infer _CI, infer _E, infer _R> ? _R : never
 
 /**
  * Sets the description for a command.

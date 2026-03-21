@@ -57,7 +57,17 @@ import type {
 } from "./Types.ts"
 import type * as Unify from "./Unify.ts"
 
-const TypeId = "~effect/Stream"
+/**
+ * @since 4.0.0
+ * @category Type Identifiers
+ */
+export type TypeId = "~effect/Stream"
+
+/**
+ * @since 4.0.0
+ * @category Type Identifiers
+ */
+export const TypeId: TypeId = "~effect/Stream"
 
 /**
  * A `Stream<A, E, R>` describes a program that can emit many `A` values, fail
@@ -2863,7 +2873,7 @@ export const merge: {
     } | undefined
   ): Stream<A | A2, E | E2, R | R2>
 } = dual(
-  2,
+  (args) => isStream(args[0]) && isStream(args[1]),
   <A, E, R, A2, E2, R2>(
     self: Stream<A, E, R>,
     that: Stream<A2, E2, R2>,

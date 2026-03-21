@@ -27,6 +27,11 @@ import { assertCauseFail } from "./utils/assert.ts"
 class ATag extends ServiceMap.Service<ATag, "A">()("ATag") {}
 
 describe("Effect", () => {
+  it("isEffect", () => {
+    assert.isTrue(Effect.isEffect(Effect.succeed(0)))
+    assert.isFalse(Effect.isEffect([0]))
+  })
+
   describe("structural compare", () => {
     it("should pass structural comparison", () => {
       assert.deepEqual(Effect.succeed(0), Effect.succeed(0))
@@ -552,6 +557,28 @@ describe("Effect", () => {
         yield* Fiber.await(fiber)
         assert.strictEqual(release, true)
       }).pipe(Effect.runPromise))
+
+    it.effect("supports release dependencies", () =>
+      Effect.gen(function*() {
+        let release = false
+        const scope = yield* Scope.make()
+        yield* Scope.provide(scope)(
+          Effect.provideService(
+            Effect.acquireRelease(
+              Effect.succeed("foo"),
+              () =>
+                Effect.flatMap(Effect.service(ATag), () =>
+                  Effect.sync(() => {
+                    release = true
+                  }))
+            ),
+            ATag,
+            "A"
+          )
+        )
+        yield* Scope.close(scope, Exit.void)
+        assert.strictEqual(release, true)
+      }))
   })
 
   it.effect("raceAll", () =>
@@ -2575,6 +2602,35 @@ describe("Effect", () => {
           Effect.exit
         )
         assertExitFailure(exit, Cause.fail(error))
+      }))
+  })
+
+  describe("cachedWithTTL", () => {
+    it.effect("starts ttl from value creation", () =>
+      Effect.gen(function*() {
+        let count = 0
+        const cached = yield* Effect.cachedWithTTL(
+          Effect.sleep("2 seconds").pipe(
+            Effect.flatMap(() =>
+              Effect.sync(() => {
+                count += 1
+                return count
+              })
+            )
+          ),
+          "1 second"
+        )
+
+        const firstFiber = yield* Effect.forkChild(cached)
+        yield* Effect.yieldNow
+        yield* TestClock.adjust("2 seconds")
+        assert.strictEqual(yield* Fiber.join(firstFiber), 1)
+
+        const secondFiber = yield* Effect.forkChild(cached)
+        yield* Effect.yieldNow
+        yield* TestClock.adjust("2 seconds")
+        assert.strictEqual(yield* Fiber.join(secondFiber), 1)
+        assert.strictEqual(count, 1)
       }))
   })
 

@@ -19,6 +19,7 @@
  */
 import type { NonEmptyArray, NonEmptyReadonlyArray } from "./Array.ts"
 import type * as Cause from "./Cause.ts"
+import type * as Channel from "./Channel.ts"
 import * as Deferred from "./Deferred.ts"
 import type { Effect } from "./Effect.ts"
 import type * as Exit from "./Exit.ts"
@@ -33,6 +34,7 @@ import { hasProperty } from "./Predicate.ts"
 import { CurrentStackFrame } from "./References.ts"
 import * as Scope from "./Scope.ts"
 import * as ServiceMap from "./ServiceMap.ts"
+import type * as Stream from "./Stream.ts"
 import * as Tracer from "./Tracer.ts"
 import type * as Types from "./Types.ts"
 
@@ -1310,6 +1312,88 @@ export const flatMap: {
   ))
 
 /**
+ * Performs the specified effect if this layer succeeds.
+ *
+ * @since 4.0.0
+ * @category sequencing
+ */
+export const tap: {
+  <ROut, XR extends ROut, RIn2, E2, X>(
+    f: (context: ServiceMap.ServiceMap<XR>) => Effect<X, E2, RIn2>
+  ): <RIn, E>(self: Layer<ROut, E, RIn>) => Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+  <RIn, E, ROut, XR extends ROut, RIn2, E2, X>(
+    self: Layer<ROut, E, RIn>,
+    f: (context: ServiceMap.ServiceMap<XR>) => Effect<X, E2, RIn2>
+  ): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+} = dual(2, <RIn, E, ROut, XR extends ROut, RIn2, E2, X>(
+  self: Layer<ROut, E, RIn>,
+  f: (context: ServiceMap.ServiceMap<XR>) => Effect<X, E2, RIn2>
+): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>> =>
+  fromBuild((memoMap, scope) =>
+    internalEffect.flatMap(
+      self.build(memoMap, scope),
+      (context) => Scope.provide(internalEffect.as(f(context as ServiceMap.ServiceMap<XR>), context), scope)
+    )
+  ))
+
+/**
+ * Performs the specified effect if this layer fails.
+ *
+ * @since 4.0.0
+ * @category sequencing
+ */
+export const tapError: {
+  <E, XE extends E, RIn2, E2, X>(
+    f: (e: XE) => Effect<X, E2, RIn2>
+  ): <RIn, ROut>(self: Layer<ROut, E, RIn>) => Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+  <RIn, E, XE extends E, ROut, RIn2, E2, X>(
+    self: Layer<ROut, E, RIn>,
+    f: (e: XE) => Effect<X, E2, RIn2>
+  ): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+} = dual(2, <RIn, E, XE extends E, ROut, RIn2, E2, X>(
+  self: Layer<ROut, E, RIn>,
+  f: (e: XE) => Effect<X, E2, RIn2>
+): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>> =>
+  fromBuild((memoMap, scope) =>
+    internalEffect.catch_(
+      self.build(memoMap, scope),
+      (error) => Scope.provide(internalEffect.andThen(f(error as XE), internalEffect.fail(error)), scope)
+    )
+  ))
+
+/**
+ * Performs the specified effect if this layer fails.
+ *
+ * **Previously Known As**
+ *
+ * This API replaces the following from Effect 3.x:
+ *
+ * - `Layer.tapErrorCause`
+ *
+ * @since 4.0.0
+ * @category sequencing
+ */
+export const tapCause: {
+  <E, XE extends E, RIn2, E2, X>(
+    f: (cause: Cause.Cause<XE>) => Effect<X, E2, RIn2>
+  ): <RIn, ROut>(self: Layer<ROut, E, RIn>) => Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+  <RIn, E, XE extends E, ROut, RIn2, E2, X>(
+    self: Layer<ROut, E, RIn>,
+    f: (cause: Cause.Cause<XE>) => Effect<X, E2, RIn2>
+  ): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>>
+} = dual(2, <RIn, E, XE extends E, ROut, RIn2, E2, X>(
+  self: Layer<ROut, E, RIn>,
+  f: (cause: Cause.Cause<XE>) => Effect<X, E2, RIn2>
+): Layer<ROut, E | E2, RIn | Exclude<RIn2, Scope.Scope>> =>
+  fromBuild((memoMap, scope) =>
+    internalEffect.catchCause(
+      self.build(memoMap, scope),
+      (cause) =>
+        Scope.provide(internalEffect.andThen(f(cause as Cause.Cause<XE>), internalEffect.failCause(cause)), scope)
+    )
+  ))
+
+/**
  * Translates effect failure into death of the fiber, making all failures
  * unchecked and not a part of the type of the layer.
  *
@@ -1698,18 +1782,20 @@ export const launch = <RIn, E, ROut>(self: Layer<ROut, E, RIn>): Effect<never, E
  */
 export type PartialEffectful<A extends object> = Types.Simplify<
   & {
-    [
-      K in keyof A as A[K] extends Effect<any, any, any> | ((...args: any) => Effect<any, any, any>) ? K
-        : never
-    ]?: A[K]
+    [K in keyof A as A[K] extends AnyEffectOrStream ? K : never]?: A[K]
   }
   & {
-    [
-      K in keyof A as A[K] extends Effect<any, any, any> | ((...args: any) => Effect<any, any, any>) ? never
-        : K
-    ]: A[K]
+    [K in keyof A as A[K] extends AnyEffectOrStream ? never : K]: A[K]
   }
 >
+
+type AnyEffectOrStream =
+  | Effect<any, any, any>
+  | Stream.Stream<any, any, any>
+  | Channel.Channel<any, any, any, any, any, any, any>
+  | ((...args: any) => Effect<any, any, any>)
+  | ((...args: any) => Stream.Stream<any, any, any>)
+  | ((...args: any) => Channel.Channel<any, any, any, any, any, any, any>)
 
 /**
  * Creates a mock layer for testing purposes. You can provide a partial
@@ -1733,7 +1819,7 @@ export type PartialEffectful<A extends object> = Types.Simplify<
  * }>()("UserService") {}
  *
  * // Create a partial mock - only implement what you need for testing
- * const testUserLayer = Layer.mock(UserService)({
+ * const testUserLayer = Layer.mock(UserService, {
  *   config: { apiUrl: "https://test-api.com" }, // Required - non-Effect property
  *   getUser: (id: string) => Effect.succeed({ id, name: "Test User" }) // Mock implementation
  *   // deleteUser and updateUser are omitted - will throw UnimplementedError if called
@@ -1757,27 +1843,47 @@ export type PartialEffectful<A extends object> = Types.Simplify<
  * @since 4.0.0
  * @category Testing
  */
-export const mock =
-  <I, S extends object>(service: ServiceMap.Key<I, S>) => (implementation: PartialEffectful<S>): Layer<I> =>
-    succeed(service)(
-      new Proxy({ ...implementation as object } as S, {
-        get(target, prop, _receiver) {
-          if (prop in target) {
-            return target[prop as keyof S]
-          }
-          const prevLimit = (Error as ErrorWithStackTraceLimit).stackTraceLimit
-          ;(Error as ErrorWithStackTraceLimit).stackTraceLimit = 2
-          const error = new Error(`${service.key}: Unimplemented method "${prop.toString()}"`)
-          ;(Error as ErrorWithStackTraceLimit).stackTraceLimit = prevLimit
-          error.name = "UnimplementedError"
-          return makeUnimplemented(error)
-        },
-        has: constTrue
-      })
-    )
+export const mock: {
+  <I, S extends object>(service: ServiceMap.Key<I, S>): (implementation: PartialEffectful<S>) => Layer<I>
+  <I, S extends object>(service: ServiceMap.Key<I, S>, implementation: Types.NoInfer<PartialEffectful<S>>): Layer<I>
+} = function() {
+  if (arguments.length === 1) {
+    return (implementation: any) => mockImpl(arguments[0], implementation)
+  }
+  return mockImpl(arguments[0], arguments[1])
+} as any
+
+const mockImpl = <I, S extends object>(service: ServiceMap.Key<I, S>, implementation: PartialEffectful<S>): Layer<I> =>
+  succeed(service)(
+    new Proxy({ ...implementation as object } as S, {
+      get(target, prop, _receiver) {
+        if (prop in target) {
+          return target[prop as keyof S]
+        }
+        const prevLimit = (Error as ErrorWithStackTraceLimit).stackTraceLimit
+        ;(Error as ErrorWithStackTraceLimit).stackTraceLimit = 2
+        const error = new Error(`${service.key}: Unimplemented method "${prop.toString()}"`)
+        ;(Error as ErrorWithStackTraceLimit).stackTraceLimit = prevLimit
+        error.name = "UnimplementedError"
+        return makeUnimplemented(error)
+      },
+      has: constTrue
+    })
+  )
 
 const makeUnimplemented = (error: globalThis.Error) => {
-  const dead = internalEffect.die(error)
+  const dead = Object.assign(internalEffect.die(error), {
+    [StreamTypeId]: StreamTypeId,
+    channel: {
+      [ChannelTypeId]: ChannelTypeId,
+      transform: () => internalEffect.succeed(dead),
+      pipe() {
+        return pipeArguments(this, arguments)
+      }
+    },
+    [ChannelTypeId]: ChannelTypeId,
+    transform: () => internalEffect.succeed(dead)
+  })
   function unimplemented() {
     return dead
   }
@@ -1786,6 +1892,9 @@ const makeUnimplemented = (error: globalThis.Error) => {
   Object.setPrototypeOf(unimplemented, Object.getPrototypeOf(dead))
   return unimplemented
 }
+
+const StreamTypeId: Stream.TypeId = "~effect/Stream"
+const ChannelTypeId: Channel.TypeId = "~effect/Channel"
 
 // -----------------------------------------------------------------------------
 // Type constraints

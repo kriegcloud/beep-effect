@@ -64,7 +64,6 @@ import * as IdGenerator from "./IdGenerator.ts"
 import * as LanguageModel from "./LanguageModel.ts"
 import * as Prompt from "./Prompt.ts"
 import type * as Response from "./Response.ts"
-import type * as Tool from "./Tool.ts"
 
 /**
  * The `Chat` service tag for dependency injection.
@@ -200,10 +199,9 @@ export interface Service {
    * ```
    */
   readonly generateText: <
-    Options extends NoExcessProperties<LanguageModel.GenerateTextOptions<any>, Options>,
-    Tools extends Record<string, Tool.Any> = {}
-  >(options: Options & LanguageModel.GenerateTextOptions<Tools>) => Effect.Effect<
-    LanguageModel.GenerateTextResponse<Tools>,
+    Options extends NoExcessProperties<LanguageModel.GenerateTextOptions<any>, Options>
+  >(options: Options & LanguageModel.GenerateTextOptions<LanguageModel.ExtractTools<Options>>) => Effect.Effect<
+    LanguageModel.GenerateTextResponse<LanguageModel.ExtractTools<Options>>,
     LanguageModel.ExtractError<Options>,
     LanguageModel.LanguageModel | LanguageModel.ExtractServices<Options>
   >
@@ -234,10 +232,9 @@ export interface Service {
    * ```
    */
   readonly streamText: <
-    Options extends NoExcessProperties<LanguageModel.GenerateTextOptions<any>, Options>,
-    Tools extends Record<string, Tool.Any> = {}
-  >(options: Options & LanguageModel.GenerateTextOptions<Tools>) => Stream.Stream<
-    Response.StreamPart<Tools>,
+    Options extends NoExcessProperties<LanguageModel.GenerateTextOptions<any>, Options>
+  >(options: Options & LanguageModel.GenerateTextOptions<LanguageModel.ExtractTools<Options>>) => Stream.Stream<
+    Response.StreamPart<LanguageModel.ExtractTools<Options>>,
     LanguageModel.ExtractError<Options>,
     LanguageModel.LanguageModel | LanguageModel.ExtractServices<Options>
   >
@@ -278,10 +275,11 @@ export interface Service {
   readonly generateObject: <
     ObjectEncoded extends Record<string, any>,
     ObjectSchema extends Schema.Encoder<ObjectEncoded, unknown>,
-    Options extends NoExcessProperties<LanguageModel.GenerateObjectOptions<any, ObjectSchema>, Options>,
-    Tools extends Record<string, Tool.Any> = {}
-  >(options: Options & LanguageModel.GenerateObjectOptions<Tools, ObjectSchema>) => Effect.Effect<
-    LanguageModel.GenerateObjectResponse<Tools, ObjectSchema["Type"]>,
+    Options extends NoExcessProperties<LanguageModel.GenerateObjectOptions<any, ObjectSchema>, Options>
+  >(
+    options: Options & LanguageModel.GenerateObjectOptions<LanguageModel.ExtractTools<Options>, ObjectSchema>
+  ) => Effect.Effect<
+    LanguageModel.GenerateObjectResponse<LanguageModel.ExtractTools<Options>, ObjectSchema["Type"]>,
     LanguageModel.ExtractError<Options>,
     LanguageModel.ExtractServices<Options> | ObjectSchema["DecodingServices"] | LanguageModel.LanguageModel
   >
@@ -698,7 +696,9 @@ export const makePersisted = Effect.fnUntraced(function*(options: {
           yield* Ref.set(chat.history, history)
           // Export the chat history
           const exported = yield* Effect.orDie(chat.export)
-          const timeToLive = Predicate.isNotUndefined(ttl) ? Duration.fromInput(ttl) : undefined
+          const timeToLive = Predicate.isNotUndefined(ttl)
+            ? Option.getOrUndefined(Duration.fromInput(ttl))
+            : undefined
           // Save the chat to the backing store
           yield* store.set(chatId, exported as object, timeToLive)
         }
@@ -740,7 +740,9 @@ export const makePersisted = Effect.fnUntraced(function*(options: {
       // Export the chat history
       const history = yield* Effect.orDie(chat.export)
       // Save the history for the newly created chat
-      const timeToLive = Predicate.isNotUndefined(ttl) ? Duration.fromInput(ttl) : undefined
+      const timeToLive = Predicate.isNotUndefined(ttl)
+        ? Option.getOrUndefined(Duration.fromInput(ttl))
+        : undefined
       yield* store.set(chatId, history as object, timeToLive)
       // Convert the chat to a persisted chat
       return yield* toPersisted(chatId, chat, ttl)

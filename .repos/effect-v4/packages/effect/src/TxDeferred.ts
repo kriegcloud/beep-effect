@@ -13,6 +13,7 @@ import type { Option } from "./Option.ts"
 import * as O from "./Option.ts"
 import type { Pipeable } from "./Pipeable.ts"
 import { pipeArguments } from "./Pipeable.ts"
+import { hasProperty } from "./Predicate.ts"
 import type { Result } from "./Result.ts"
 import * as Res from "./Result.ts"
 import * as TxRef from "./TxRef.ts"
@@ -270,5 +271,4 @@ export const fail: {
  * @since 4.0.0
  * @category guards
  */
-export const isTxDeferred = (u: unknown): u is TxDeferred<unknown, unknown> =>
-  typeof u === "object" && u !== null && TypeId in u
+export const isTxDeferred = (u: unknown): u is TxDeferred<unknown, unknown> => hasProperty(u, TypeId)

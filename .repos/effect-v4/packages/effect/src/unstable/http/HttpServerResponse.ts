@@ -7,7 +7,8 @@ import type * as FileSystem from "../../FileSystem.ts"
 import { dual } from "../../Function.ts"
 import * as Inspectable from "../../Inspectable.ts"
 import { PipeInspectableProto } from "../../internal/core.ts"
-import type { Pipeable } from "../../Pipeable.ts"
+import * as Option from "../../Option.ts"
+import { type Pipeable, pipeArguments } from "../../Pipeable.ts"
 import type { PlatformError } from "../../PlatformError.ts"
 import { hasProperty } from "../../Predicate.ts"
 import { redact } from "../../Redactable.ts"
@@ -830,7 +831,7 @@ export const toClientResponse = (
     response
   )
 
-class ServerHttpClientResponse extends Inspectable.Class implements HttpClientResponse.HttpClientResponse {
+class ServerHttpClientResponse extends Inspectable.Class implements HttpClientResponse.HttpClientResponse, Pipeable {
   readonly [HttpIncomingMessage.TypeId]: typeof HttpIncomingMessage.TypeId
   readonly [HttpClientResponse.TypeId]: typeof HttpClientResponse.TypeId
 
@@ -871,8 +872,8 @@ class ServerHttpClientResponse extends Inspectable.Class implements HttpClientRe
     return this.response.cookies
   }
 
-  get remoteAddress(): string | undefined {
-    return undefined
+  get remoteAddress(): Option.Option<string> {
+    return Option.none()
   }
 
   get stream(): Stream.Stream<Uint8Array, HttpClientError.HttpClientError> {
@@ -921,10 +922,10 @@ class ServerHttpClientResponse extends Inspectable.Class implements HttpClientRe
     }
   }
 
-  get json(): Effect.Effect<unknown, HttpClientError.HttpClientError> {
+  get json(): Effect.Effect<Schema.Json, HttpClientError.HttpClientError> {
     return Effect.flatMap(this.text, (text) =>
       Effect.try({
-        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        try: () => text === "" ? null : JSON.parse(text),
         catch: (cause) =>
           new HttpClientError.HttpClientError({
             reason: new HttpClientError.DecodeError({
@@ -1021,6 +1022,10 @@ class ServerHttpClientResponse extends Inspectable.Class implements HttpClientRe
   private getFormDataResponse(): Response {
     return this.formDataResponse ??= new Response((this.response.body as Body.FormData).formData)
   }
+
+  pipe() {
+    return pipeArguments(this, arguments)
+  }
 }
 
 const textDecoder = new TextDecoder()
@@ -1039,7 +1044,7 @@ export const fromClientResponse = (
     cookies: response.cookies,
     body: Body.stream(
       Stream.catchIf(response.stream, isEmptyBodyError, () => Stream.empty),
-      Headers.get(headers, "content-type"),
+      Option.getOrUndefined(Headers.get(headers, "content-type")),
       getContentLength(headers)
     )
   })
@@ -1054,7 +1059,7 @@ const isEmptyBodyError = (
   HttpClientError.isHttpClientError(error) && error.reason._tag === "EmptyBodyError"
 
 const getContentLength = (headers: Headers.Headers): number | undefined => {
-  const contentLength = Headers.get(headers, "content-length")
+  const contentLength = Option.getOrUndefined(Headers.get(headers, "content-length"))
   if (contentLength === undefined) {
     return undefined
   }
@@ -1126,12 +1131,16 @@ export const fromWeb = (response: Response): HttpServerResponse => {
     cookies: Cookies.fromSetCookie(setCookieHeaders)
   })
   if (response.body) {
+    const contentType = response.headers.get("content-type")
     self = setBody(
       self,
-      Body.stream(Stream.fromReadableStream({
-        evaluate: () => response.body!,
-        onError: (e) => e
-      }))
+      Body.stream(
+        Stream.fromReadableStream({
+          evaluate: () => response.body!,
+          onError: (e) => e
+        }),
+        contentType ?? undefined
+      )
     )
   }
   return self

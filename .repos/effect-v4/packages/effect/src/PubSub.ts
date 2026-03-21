@@ -38,8 +38,10 @@ import * as Latch from "./Latch.ts"
 import * as MutableList from "./MutableList.ts"
 import * as MutableRef from "./MutableRef.ts"
 import { nextPow2 } from "./Number.ts"
+import * as Option from "./Option.ts"
 import { type Pipeable, pipeArguments } from "./Pipeable.ts"
 import * as Scope from "./Scope.ts"
+import * as ServiceMap from "./ServiceMap.ts"
 import type { Covariant, Invariant } from "./Types.ts"
 
 const TypeId = "~effect/PubSub"
@@ -808,7 +810,7 @@ export const publish: {
 } = dual(2, <A>(self: PubSub<A>, value: A): Effect.Effect<boolean> =>
   Effect.suspend(() => {
     if (self.shutdownFlag.current) {
-      return Effect.interrupt
+      return Effect.succeed(false)
     }
 
     if (self.pubsub.publish(value)) {
@@ -907,7 +909,7 @@ export const publishAll: {
 } = dual(2, <A>(self: PubSub<A>, elements: Iterable<A>): Effect.Effect<boolean> =>
   Effect.suspend(() => {
     if (self.shutdownFlag.current) {
-      return Effect.interrupt
+      return Effect.succeed(false)
     }
     const surplus = self.pubsub.publishAll(elements)
     self.strategy.completeSubscribersUnsafe(self.pubsub, self.subscribers)
@@ -970,9 +972,16 @@ export const publishAll: {
  * @category subscription
  */
 export const subscribe = <A>(self: PubSub<A>): Effect.Effect<Subscription<A>, never, Scope.Scope> =>
-  Effect.acquireRelease(
-    Effect.sync(() => makeSubscriptionUnsafe(self.pubsub, self.subscribers, self.strategy)),
-    unsubscribe
+  Effect.uninterruptible(
+    Effect.servicesWith((services) => {
+      const localScope = ServiceMap.get(services, Scope.Scope)
+      const scope = Scope.forkUnsafe(self.scope)
+      const subscription = makeSubscriptionUnsafe(self.pubsub, self.subscribers, self.strategy)
+      return Scope.addFinalizer(scope, unsubscribe(subscription)).pipe(
+        Effect.andThen(Scope.addFinalizerExit(localScope, (exit) => Scope.close(scope, exit))),
+        Effect.as(subscription)
+      )
+    })
   )
 
 const unsubscribe = <A>(self: Subscription<A>): Effect.Effect<void> =>
@@ -1300,14 +1309,14 @@ export const remaining = <A>(self: Subscription<A>): Effect.Effect<number> =>
  *
  * // Unsafe synchronous check for remaining messages
  * const remainingOption = PubSub.remainingUnsafe(subscription)
- * if (remainingOption) {
- *   console.log("Messages available:", remainingOption)
+ * if (remainingOption._tag === "Some") {
+ *   console.log("Messages available:", remainingOption.value)
  * } else {
  *   console.log("Subscription is shutdown")
  * }
  *
  * // Useful for polling or batching scenarios
- * if (remainingOption && remainingOption > 10) {
+ * if (remainingOption._tag === "Some" && remainingOption.value > 10) {
  *   // Process messages in batch
  * }
  * ```
@@ -1315,11 +1324,11 @@ export const remaining = <A>(self: Subscription<A>): Effect.Effect<number> =>
  * @since 4.0.0
  * @category getters
  */
-export const remainingUnsafe = <A>(self: Subscription<A>): number | undefined => {
+export const remainingUnsafe = <A>(self: Subscription<A>): Option.Option<number> => {
   if (self.shutdownFlag.current) {
-    return undefined
+    return Option.none()
   }
-  return self.subscription.size() + self.replayWindow.remaining
+  return Option.some(self.subscription.size() + self.replayWindow.remaining)
 }
 
 // -----------------------------------------------------------------------------

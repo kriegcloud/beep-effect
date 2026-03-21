@@ -7,6 +7,7 @@ import type { Inspectable } from "./Inspectable.ts"
 import { NodeInspectSymbol, toJson } from "./Inspectable.ts"
 import type { Pipeable } from "./Pipeable.ts"
 import { pipeArguments } from "./Pipeable.ts"
+import { hasProperty } from "./Predicate.ts"
 import type * as Scope from "./Scope.ts"
 import * as TxRef from "./TxRef.ts"
 
@@ -433,15 +434,26 @@ export const releaseN = (self: TxSemaphore, n: number): Effect.Effect<void, neve
  * @since 4.0.0
  * @category combinators
  */
-export const withPermit = <A, E, R>(
-  self: TxSemaphore,
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  Effect.acquireUseRelease(
+export const withPermit: {
+  (self: TxSemaphore): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  <A, E, R>(self: TxSemaphore, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
+} = ((...args: Array<any>) => {
+  if (args.length === 1) {
+    const [self] = args
+    return (effect: Effect.Effect<any, any, any>) =>
+      Effect.acquireUseRelease(
+        Effect.transaction(acquire(self)),
+        () => effect,
+        () => Effect.transaction(release(self))
+      )
+  }
+  const [self, effect] = args
+  return Effect.acquireUseRelease(
     Effect.transaction(acquire(self)),
     () => effect,
     () => Effect.transaction(release(self))
   )
+}) as any
 
 /**
  * Executes an effect with the specified number of permits from the semaphore.
@@ -482,16 +494,26 @@ export const withPermit = <A, E, R>(
  * @since 4.0.0
  * @category combinators
  */
-export const withPermits = <A, E, R>(
-  self: TxSemaphore,
-  n: number,
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  Effect.acquireUseRelease(
+export const withPermits: {
+  (self: TxSemaphore, n: number): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  <A, E, R>(self: TxSemaphore, n: number, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
+} = ((...args: Array<any>) => {
+  if (args.length === 2) {
+    const [self, n] = args
+    return (effect: Effect.Effect<any, any, any>) =>
+      Effect.acquireUseRelease(
+        Effect.transaction(acquireN(self, n)),
+        () => effect,
+        () => Effect.transaction(releaseN(self, n))
+      )
+  }
+  const [self, n, effect] = args
+  return Effect.acquireUseRelease(
     Effect.transaction(acquireN(self, n)),
     () => effect,
     () => Effect.transaction(releaseN(self, n))
   )
+}) as any
 
 /**
  * Acquires a single permit from the semaphore in a scoped manner. The permit
@@ -563,4 +585,4 @@ export const withPermitScoped = (self: TxSemaphore): Effect.Effect<void, never, 
  * @since 4.0.0
  * @category guards
  */
-export const isTxSemaphore = (u: unknown): u is TxSemaphore => typeof u === "object" && u !== null && TypeId in u
+export const isTxSemaphore = (u: unknown): u is TxSemaphore => hasProperty(u, TypeId)

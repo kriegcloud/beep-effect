@@ -10,6 +10,7 @@ import type { Inspectable } from "./Inspectable.ts"
 import * as Internal from "./internal/dateTime.ts"
 import { provideService } from "./internal/effect.ts"
 import * as Layer from "./Layer.ts"
+import type * as Option from "./Option.ts"
 import type * as order from "./Order.ts"
 import type { Pipeable } from "./Pipeable.ts"
 import * as ServiceMap from "./ServiceMap.ts"
@@ -21,70 +22,30 @@ const TimeZoneTypeId = Internal.TimeZoneTypeId
  * A `DateTime` represents a point in time. It can optionally have a time zone
  * associated with it.
  *
- * @example
- * ```ts
- * import { DateTime } from "effect"
- *
- * // Create a UTC DateTime
- * const utc: DateTime.DateTime = DateTime.nowUnsafe()
- *
- * // Create a zoned DateTime
- * const zoned: DateTime.DateTime = DateTime.makeZonedUnsafe(new Date(), {
- *   timeZone: "Europe/London"
- * })
- * ```
- *
  * @since 3.6.0
  * @category models
  */
 export type DateTime = Utc | Zoned
 
 /**
- * @example
- * ```ts
- * import { DateTime } from "effect"
- *
- * const utc = DateTime.nowUnsafe()
- *
- * if (DateTime.isUtc(utc)) {
- *   console.log(utc._tag) // "Utc"
- *   console.log(utc.epochMillis) // timestamp in milliseconds
- * }
- * ```
- *
  * @since 3.6.0
  * @category models
  */
 export interface Utc extends DateTime.Proto {
   readonly _tag: "Utc"
-  readonly epochMillis: number
+  readonly epochMilliseconds: number
   partsUtc: DateTime.PartsWithWeekday | undefined
 }
 
 /**
- * @example
- * ```ts
- * import { DateTime } from "effect"
- *
- * const zoned = DateTime.makeZonedUnsafe(new Date(), {
- *   timeZone: "Europe/London"
- * })
- *
- * if (DateTime.isZoned(zoned)) {
- *   console.log(zoned._tag) // "Zoned"
- *   console.log(zoned.epochMillis) // timestamp in milliseconds
- *   console.log(DateTime.zoneToString(zoned.zone)) // "Europe/London"
- * }
- * ```
- *
  * @since 3.6.0
  * @category models
  */
 export interface Zoned extends DateTime.Proto {
   readonly _tag: "Zoned"
-  readonly epochMillis: number
+  readonly epochMilliseconds: number
   readonly zone: TimeZone
-  adjustedEpochMillis: number | undefined
+  adjustedEpochMilliseconds: number | undefined
   partsAdjusted: DateTime.PartsWithWeekday | undefined
   partsUtc: DateTime.PartsWithWeekday | undefined
 }
@@ -95,29 +56,10 @@ export interface Zoned extends DateTime.Proto {
  */
 export declare namespace DateTime {
   /**
-   * @example
-   * ```ts
-   * import { DateTime } from "effect"
-   *
-   * // All valid inputs for DateTime constructors
-   * const date = new Date()
-   * const stringDate = "2024-01-01"
-   * const epochMillis = 1704067200000
-   * const partsObj = { year: 2024, month: 1, day: 1 }
-   * const existing = DateTime.nowUnsafe()
-   *
-   * // All these can be used as DateTime.Input
-   * const dt1 = DateTime.makeUnsafe(date)
-   * const dt2 = DateTime.makeUnsafe(stringDate)
-   * const dt3 = DateTime.makeUnsafe(epochMillis)
-   * const dt4 = DateTime.makeUnsafe(partsObj)
-   * const dt5 = DateTime.makeUnsafe(existing)
-   * ```
-   *
    * @since 3.6.0
    * @category models
    */
-  export type Input = DateTime | Partial<Parts> | Date | number | string
+  export type Input = DateTime | Partial<Parts> | Instant | InstantWithZone | Date | number | string
 
   /**
    * @since 3.6.0
@@ -136,7 +78,7 @@ export declare namespace DateTime {
    * @category models
    */
   export type UnitSingular =
-    | "milli"
+    | "millisecond"
     | "second"
     | "minute"
     | "hour"
@@ -150,7 +92,7 @@ export declare namespace DateTime {
    * @category models
    */
   export type UnitPlural =
-    | "millis"
+    | "milliseconds"
     | "seconds"
     | "minutes"
     | "hours"
@@ -164,10 +106,10 @@ export declare namespace DateTime {
    * @category models
    */
   export interface PartsWithWeekday {
-    readonly millis: number
-    readonly seconds: number
-    readonly minutes: number
-    readonly hours: number
+    readonly millisecond: number
+    readonly second: number
+    readonly minute: number
+    readonly hour: number
     readonly day: number
     readonly weekDay: number
     readonly month: number
@@ -179,10 +121,10 @@ export declare namespace DateTime {
    * @category models
    */
   export interface Parts {
-    readonly millis: number
-    readonly seconds: number
-    readonly minutes: number
-    readonly hours: number
+    readonly millisecond: number
+    readonly second: number
+    readonly minute: number
+    readonly hour: number
     readonly day: number
     readonly month: number
     readonly year: number
@@ -193,7 +135,7 @@ export declare namespace DateTime {
    * @category models
    */
   export interface PartsForMath {
-    readonly millis: number
+    readonly milliseconds: number
     readonly seconds: number
     readonly minutes: number
     readonly hours: number
@@ -201,6 +143,23 @@ export declare namespace DateTime {
     readonly weeks: number
     readonly months: number
     readonly years: number
+  }
+
+  /**
+   * @since 4.0.0
+   * @category models
+   */
+  export interface Instant {
+    readonly epochMilliseconds: number
+  }
+
+  /**
+   * @since 4.0.0
+   * @category models
+   */
+  export interface InstantWithZone {
+    readonly timeZoneId: string
+    readonly epochMilliseconds: number
   }
 
   /**
@@ -560,7 +519,7 @@ export const makeZoned: (
     readonly adjustForTimeZone?: boolean | undefined
     readonly disambiguation?: Disambiguation | undefined
   }
-) => Zoned | undefined = Internal.makeZoned
+) => Option.Option<Zoned> = Internal.makeZoned
 
 /**
  * Create a `DateTime` from one of the following:
@@ -589,7 +548,7 @@ export const makeZoned: (
  * DateTime.make("2024-01-01")
  * ```
  */
-export const make: <A extends DateTime.Input>(input: A) => DateTime.PreserveZone<A> | undefined = Internal.make
+export const make: <A extends DateTime.Input>(input: A) => Option.Option<DateTime.PreserveZone<A>> = Internal.make
 
 /**
  * Create a `DateTime.Zoned` from a string.
@@ -603,19 +562,19 @@ export const make: <A extends DateTime.Input>(input: A) => DateTime.PreserveZone
  * const result1 = DateTime.makeZonedFromString(
  *   "2024-01-01T12:00:00+02:00[Europe/Berlin]"
  * )
- * console.log(result1 !== undefined) // true
+ * console.log(result1._tag === "Some") // true
  *
  * const result2 = DateTime.makeZonedFromString("2024-01-01T12:00:00Z")
- * console.log(result2 !== undefined) // true
+ * console.log(result2._tag === "Some") // true
  *
  * const invalid = DateTime.makeZonedFromString("invalid")
- * console.log(invalid === undefined) // true
+ * console.log(invalid._tag === "None") // true
  * ```
  *
  * @since 3.6.0
  * @category constructors
  */
-export const makeZonedFromString: (input: string) => Zoned | undefined = Internal.makeZonedFromString
+export const makeZonedFromString: (input: string) => Option.Option<Zoned> = Internal.makeZonedFromString
 
 /**
  * Get the current time using the `Clock` service and convert it to a `DateTime`.
@@ -807,16 +766,16 @@ export const zoneMakeOffset: (offset: number) => TimeZone.Offset = Internal.zone
  * import { DateTime } from "effect"
  *
  * const validZone = DateTime.zoneMakeNamed("Europe/London")
- * console.log(validZone !== undefined) // true
+ * console.log(validZone._tag === "Some") // true
  *
  * const invalidZone = DateTime.zoneMakeNamed("Invalid/Zone")
- * console.log(invalidZone === undefined) // true
+ * console.log(invalidZone._tag === "None") // true
  * ```
  *
  * @category time zones
  * @since 3.6.0
  */
-export const zoneMakeNamed: (zoneId: string) => TimeZone.Named | undefined = Internal.zoneMakeNamed
+export const zoneMakeNamed: (zoneId: string) => Option.Option<TimeZone.Named> = Internal.zoneMakeNamed
 
 /**
  * Create a named time zone from a IANA time zone identifier.
@@ -875,15 +834,15 @@ export const zoneMakeLocal: () => TimeZone.Named = Internal.zoneMakeLocal
  * const offsetZone = DateTime.zoneFromString("+03:00")
  * const invalid = DateTime.zoneFromString("invalid")
  *
- * console.log(namedZone !== undefined) // true
- * console.log(offsetZone !== undefined) // true
- * console.log(invalid === undefined) // true
+ * console.log(namedZone._tag === "Some") // true
+ * console.log(offsetZone._tag === "Some") // true
+ * console.log(invalid._tag === "None") // true
  * ```
  *
  * @category time zones
  * @since 3.6.0
  */
-export const zoneFromString: (zone: string) => TimeZone | undefined = Internal.zoneFromString
+export const zoneFromString: (zone: string) => Option.Option<TimeZone> = Internal.zoneFromString
 
 /**
  * Format a `TimeZone` as a string.
@@ -924,11 +883,11 @@ export const setZoneNamed: {
   (zoneId: string, options?: {
     readonly adjustForTimeZone?: boolean | undefined
     readonly disambiguation?: Disambiguation | undefined
-  }): (self: DateTime) => Zoned | undefined
+  }): (self: DateTime) => Option.Option<Zoned>
   (self: DateTime, zoneId: string, options?: {
     readonly adjustForTimeZone?: boolean | undefined
     readonly disambiguation?: Disambiguation | undefined
-  }): Zoned | undefined
+  }): Option.Option<Zoned>
 } = Internal.setZoneNamed
 
 /**
@@ -1513,7 +1472,7 @@ export const setParts: {
  * const dt = DateTime.makeUnsafe("2024-01-01T12:00:00Z")
  * const updated = DateTime.setPartsUtc(dt, {
  *   year: 2025,
- *   hours: 18
+ *   hour: 18
  * })
  *
  * console.log(DateTime.formatIso(updated)) // "2025-01-01T18:00:00.000Z"
