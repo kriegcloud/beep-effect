@@ -6,6 +6,10 @@ import { TransportError } from "../Errors.js";
 import type { QueryHandle } from "../Query.js";
 import { SDKUserMessage } from "../Schema/Message.js";
 import type { Options } from "../Schema/Options.js";
+import * as S from "effect/Schema";
+import { $AiSdkId } from "@beep/identity";
+
+const $I = $AiSdkId.create("core/experimental/PersistedQueue");
 
 /**
  * @since 0.0.0
@@ -21,6 +25,9 @@ export * from "effect/unstable/persistence/PersistedQueue";
  */
 export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueue.layerStoreMemory));
 
+class MakeUserMessageQueueParams extends S.Class<MakeUserMessageQueueParams>($I`MakeUserMessageQueueParams`)({
+  name: S.String.pipe(S.optionalKey)
+}) {}
 /**
  * Create a persisted queue for SDK user messages.
  *
@@ -36,7 +43,7 @@ export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueu
  * @since 0.0.0
  * @category DomainLogic
  */
-export const makeUserMessageQueue = (options?: undefined | { readonly name?: undefined | string }) =>
+export const makeUserMessageQueue = (options?: undefined | MakeUserMessageQueueParams) =>
   PersistedQueue.make({
     name: options?.name ?? "claude-sdk-user-messages",
     schema: SDKUserMessage,
@@ -57,7 +64,9 @@ export type PersistedInputAdapter = {
 };
 
 const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);
-
+class MakeInputAdapterOptions extends S.Class<MakeInputAdapterOptions>($I`MakeInputAdapterOptions`)({
+  maxAttempts: S.Number.pipe(S.optionalKey)
+}) {}
 /**
  * Build an input adapter from a persisted queue.
  */
@@ -67,7 +76,7 @@ const toTransportError = (message: string, cause: unknown) => TransportError.mak
  */
 export const makeInputAdapter = (
   queue: PersistedQueue.PersistedQueue<SDKUserMessage>,
-  options?: undefined | { readonly maxAttempts?: undefined | number }
+  options?: undefined | MakeInputAdapterOptions
 ) =>
   Effect.gen(function* () {
     const stream = Stream.fromEffectRepeat(

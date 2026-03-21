@@ -46,7 +46,7 @@
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "changeset:version": "changeset version",
-    "check": "tsc -p tsconfig.quality.json --noEmit && bun run --cwd .claude check",
+    "check": "tsc -p tsconfig.quality.json --noEmit && bun run --cwd .claude check && bunx turbo run check --filter=@beep/crypto-taxes",
     "check:infra": "tsc -p infra/tsconfig.json --noEmit",
     "check:migration-drift": "if [ -f apps/web/drizzle.config.ts ]; then bunx drizzle-kit check --config apps/web/drizzle.config.ts; elif [ -f apps/web/drizzle.config.json ]; then bunx drizzle-kit check --config apps/web/drizzle.config.json; else echo 'skipped: no drizzle config present'; fi",
     "test": "vitest run && tstyche",

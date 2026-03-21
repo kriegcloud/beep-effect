@@ -99,6 +99,11 @@ export const isPositive = isPositiveInternal;
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Duration.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./SeverityLevel.ts";
 /**
  * @since 0.0.0
@@ -110,6 +115,11 @@ export * from "./Sha256.ts";
  * @category Validation
  */
 export * from "./StatusCauseError.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./String.ts";
 /**
  * @since 0.0.0
  * @category Validation

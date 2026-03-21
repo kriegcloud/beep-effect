@@ -37,6 +37,7 @@ stats.html
 # Turborepo
 .turbo
 .vercel
+**/.next/
 docs/
 **/docs
 !packages/common/schema/docs/

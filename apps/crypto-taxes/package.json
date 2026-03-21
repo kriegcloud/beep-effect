@@ -1,56 +1,40 @@
 {
-  "name": "@beep/nlp",
+  "name": "@beep/crypto-taxes",
   "version": "0.0.0",
-  "description": "Doing my crypto taxes",
+  "description": "Next.js app for the crypto tax workflow",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/nlp",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "apps/nlp"
-  },
   "scripts": {
-    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "build": "tsc -b tsconfig.json && bun run babel",
-    "check": "tsc -b tsconfig.json",
-    "codegen": "echo 'no codegen needed'",
-    "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "check": "next typegen && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --config vitest.config.ts",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write",
-    "test": "vitest"
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts",
-    "./internal/*": null,
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "src/**/*.ts",
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map"
-  ],
-  "sideEffects": [],
-  "publishConfig": {
-    "access": "public",
-    "provenance": true,
-    "exports": {
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
-      "./internal/*": null,
-      "./package.json": "./package.json"
-    }
+    "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "effect": "catalog:"
+    "@beep/data": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/messages": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "shadcn": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "tw-animate-css": "catalog:"
   }
 }

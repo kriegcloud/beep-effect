@@ -1,32 +1,17 @@
-# @beep/nlp Agent Guide
+# @beep/crypto-taxes Agent Guide
 
 ## Purpose & Fit
-- Doing my crypto taxes
+- App Router Next.js shell for the crypto tax workflow.
+- Keep product UI and route logic here.
+- Push shared logic into workspace packages when it needs reuse or stronger boundaries.
 
-## Surface Map
-| Surface | Key exports | Notes |
-| --- | --- | --- |
-| entry module | VERSION | package entry point |
+## Commands
+- `bun run --cwd apps/crypto-taxes dev`
+- `bun run --cwd apps/crypto-taxes build`
+- `bun run --cwd apps/crypto-taxes check`
+- `bun run --cwd apps/crypto-taxes lint`
 
-## Laws
-- Follow repository laws through command discovery.
-- Run `bun run beep docs laws`.
-- Prefer tersest equivalent helper forms when behavior is unchanged.
-- Keep package guidance concise and avoid duplicating long policy prose.
-
-## Quick Recipes
-```ts
-import { VERSION } from "@beep/nlp"
-```
-
-## Verifications
-- `bunx turbo run test --filter=@beep/nlp`
-- `bunx turbo run lint --filter=@beep/nlp`
-- `bunx turbo run check --filter=@beep/nlp`
-
-## Contributor Checklist
-- [ ] New exports include jsdoc metadata
-- [ ] Tests added or updated for behavior changes
-- [ ] `bun run check` passes
-- [ ] `bun run test` passes
-- [ ] `bun run lint` passes
+## Boundaries
+- Treat this app as the composition layer.
+- Prefer shared packages for domain models, parsing, and reusable UI primitives.
+- Keep framework-specific concerns in the app and business logic outside it when possible.

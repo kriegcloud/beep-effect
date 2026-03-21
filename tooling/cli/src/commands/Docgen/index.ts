@@ -33,6 +33,10 @@ const packageFlag = Flag.string("package").pipe(
   Flag.withDescription("Target a workspace package by name or repo-relative path"),
   Flag.optional
 );
+const filterFlag = Flag.string("filter").pipe(
+  Flag.withDescription('Compatibility selector for commands like "bun run docgen --filter=@beep/schema"'),
+  Flag.optional
+);
 const requiredPackageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
   Flag.withDescription("Target a workspace package by name or repo-relative path")
@@ -126,6 +130,21 @@ const resolveAnalyzeTargets = (selector: O.Option<string>) =>
     return yield* discoverDocgenWorkspacePackages().pipe(
       Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
     );
+  });
+
+const resolveAggregateSelector = (packageSelector: O.Option<string>, filterSelector: O.Option<string>) =>
+  Effect.gen(function* () {
+    if (
+      O.isSome(packageSelector) &&
+      O.isSome(filterSelector) &&
+      packageSelector.value !== filterSelector.value
+    ) {
+      return yield* new DomainError({
+        message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
+      });
+    }
+
+    return O.isSome(packageSelector) ? packageSelector : filterSelector;
   });
 
 const docgenInitCommand = Command.make(
@@ -304,10 +323,12 @@ const docgenAggregateCommand = Command.make(
   "aggregate",
   {
     package: packageFlag,
+    filter: filterFlag,
     clean: cleanFlag,
   },
-  ({ package: selector, clean }) =>
+  ({ package: packageSelector, filter: filterSelector, clean }) =>
     Effect.gen(function* () {
+      const selector = yield* resolveAggregateSelector(packageSelector, filterSelector);
       const results = yield* aggregateGeneratedDocs({
         clean,
         package: O.getOrUndefined(selector),

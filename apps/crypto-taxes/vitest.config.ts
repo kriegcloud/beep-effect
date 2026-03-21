@@ -1,11 +1,7 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-import shared from "../../vitest.shared.ts";
+import { defineConfig } from "vitest/config";
 
-export default mergeConfig(
-  shared,
-  defineConfig({
-    test: {
-      // Package-specific overrides
-    },
-  })
-);
+export default defineConfig({
+  test: {
+    passWithNoTests: true,
+  },
+});

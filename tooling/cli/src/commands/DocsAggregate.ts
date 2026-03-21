@@ -8,6 +8,7 @@
  * @module
  */
 
+import { DomainError } from "@beep/repo-utils";
 import { Console, Effect } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
@@ -18,7 +19,26 @@ const packageFlag = Flag.string("package").pipe(
   Flag.withDescription("Limit aggregation to one workspace package"),
   Flag.optional
 );
+const filterFlag = Flag.string("filter").pipe(
+  Flag.withDescription('Compatibility selector for commands like "bun run docgen --filter=@beep/schema"'),
+  Flag.optional
+);
 const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove the root docs directory before aggregating"));
+
+const resolveAggregateSelector = (packageSelector: O.Option<string>, filterSelector: O.Option<string>) =>
+  Effect.gen(function* () {
+    if (
+      O.isSome(packageSelector) &&
+      O.isSome(filterSelector) &&
+      packageSelector.value !== filterSelector.value
+    ) {
+      return yield* new DomainError({
+        message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
+      });
+    }
+
+    return O.isSome(packageSelector) ? packageSelector : filterSelector;
+  });
 
 const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: boolean) {
   const results = yield* aggregateGeneratedDocs({
@@ -46,10 +66,12 @@ export const docsAggregateCommand = Command.make(
   "aggregate",
   {
     package: packageFlag,
+    filter: filterFlag,
     clean: cleanFlag,
   },
-  ({ package: selector, clean }) =>
-    aggregateDocs(selector, clean).pipe(
+  ({ package: packageSelector, filter: filterSelector, clean }) =>
+    resolveAggregateSelector(packageSelector, filterSelector).pipe(
+      Effect.flatMap((selector) => aggregateDocs(selector, clean)),
       Effect.catchTag(
         "DomainError",
         Effect.fn(function* (error) {

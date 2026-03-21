@@ -1,35 +1,13 @@
-# @beep/nlp
+# Crypto Taxes
 
-Doing my crypto taxes
+`apps/crypto-taxes` is a Next.js App Router app pinned to the repo catalog's
+Next 16 canary.
 
-## Installation
-
-```bash
-bun add @beep/nlp
-```
-
-## Usage
-
-```ts
-import { VERSION } from "@beep/nlp"
-```
-
-## Development
+## Commands
 
 ```bash
-# Build
-bun run build
-
-# Type check
-bun run check
-
-# Test
-bun run test
-
-# Lint
-bun run lint:fix
+bun run --cwd apps/crypto-taxes dev
+bun run --cwd apps/crypto-taxes build
+bun run --cwd apps/crypto-taxes check
+bun run --cwd apps/crypto-taxes lint
 ```
-
-## License
-
-MIT

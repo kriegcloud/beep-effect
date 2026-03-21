@@ -1,39 +1,28 @@
 ---
-path: apps/nlp
-summary: Doing my crypto taxes
-tags: [effect]
+path: apps/crypto-taxes
+summary: Next.js App Router shell for the crypto tax workflow
+tags: [nextjs, app-router]
 ---
 
-# @beep/nlp
+# @beep/crypto-taxes
 
-Doing my crypto taxes
+Next.js App Router workspace for the crypto tax workflow.
 
 ## Architecture
 
-(Document the module architecture as the package grows)
+- `src/app/layout.tsx` owns metadata and shared page chrome.
+- `src/app/page.tsx` is the initial landing page placeholder.
+- `next.config.ts` is the hook point for future Next-specific configuration.
 
-## Core Modules
+## Commands
 
-| Module | Purpose |
-|--------|---------|
-| `index.ts` | Package entry point |
-
-## Usage Patterns
-
-```typescript
-import { VERSION } from "@beep/nlp"
+```bash
+bun run --cwd apps/crypto-taxes dev
+bun run --cwd apps/crypto-taxes build
+bun run --cwd apps/crypto-taxes check
+bun run --cwd apps/crypto-taxes lint
 ```
-
-## Design Decisions
-
-| Decision | Rationale |
-|----------|-----------|
-
-## Dependencies
-
-**Internal**: (none)
-**External**: `effect`
 
 ## Related
 
-- **AGENTS.md** - Detailed contributor guidance
+- `AGENTS.md` for local contributor guidance

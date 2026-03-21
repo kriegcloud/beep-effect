@@ -32,6 +32,7 @@ const composers = $I.compose(
   "utils",
   "ui",
   "web",
+  "crypto-taxes",
   "semantic-web",
   "beep-sync",
   "repo-cli",
@@ -126,6 +127,13 @@ export const $UiId = composers.$UiId;
  * @category Configuration
  */
 export const $WebId = composers.$WebId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/crypto-taxes">}
+ */
+export const $CryptoTaxesId: Identity.IdentityComposer<"@beep/crypto-taxes"> = composers.$CryptoTaxesId;
 
 // --- tooling ---
 

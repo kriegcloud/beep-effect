@@ -1,7 +1,12 @@
 import { type Duration, Effect, Layer } from "effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import { $AiSdkId } from "@beep/identity";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
+
+import { LiteralKit } from "@beep/schema";
+
+const $I = $AiSdkId.create("core/experimental/RateLimiter");
 
 /**
  * @since 0.0.0
@@ -60,6 +65,32 @@ export const keyForEndpoint = (endpoint: string) => `endpoint:${endpoint}`;
  */
 export const keyForSessionTool = (sessionId: string, toolName: string) => `${keyForSession(sessionId)}:${toolName}`;
 
+const RateLimitWindowConfigAlgo = LiteralKit([
+  "fixed-window",
+  "token-bucket"
+]).pipe(
+  $I.annoteSchema(
+    "RateLimitWindowConfigAlgo",
+    {
+      description: "Rate limiting algorithm to use"
+    }
+  )
+);
+
+type RateLimitWindowConfigAlgo = typeof RateLimitWindowConfigAlgo.Type
+
+const RateLimitWindowConfigExceededReason = LiteralKit([
+  "delay",
+  "fail"
+]).pipe(
+  $I.annoteSchema(
+    "RateLimitWindowConfigExceededReason",
+    {
+      description: "Action to take when rate limit is exceeded"
+    }
+  )
+)
+type RateLimitWindowConfigExceededReason = typeof RateLimitWindowConfigExceededReason.Type
 /**
  * Configuration for a shared rate limiting window.
  */
@@ -67,12 +98,17 @@ export const keyForSessionTool = (sessionId: string, toolName: string) => `${key
  * @since 0.0.0
  * @category Configuration
  */
+// export class RateLimitWindowConfigBase extends S.Class<RateLimitWindowConfigBase>($I`RateLimitWindowConfigBase`)(
+//   {
+//     window: S.Duration
+//   }
+// ) {}
 export type RateLimitWindowConfig = Readonly<{
-  readonly algorithm?: "fixed-window" | "token-bucket";
-  readonly onExceeded?: "delay" | "fail";
+  readonly algorithm?: undefined | RateLimitWindowConfigAlgo;
+  readonly onExceeded?: undefined | RateLimitWindowConfigExceededReason;
   readonly window: Duration.Input;
   readonly limit: number;
-  readonly tokens?: number;
+  readonly tokens?: undefined | number;
 }>;
 
 /**
