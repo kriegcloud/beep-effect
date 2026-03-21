@@ -52,6 +52,7 @@
     "GenericTag",
     "ServiceMap",
     "Inspectable",
+    "Pipeable",
     "Yieldable",
     "decodeUnknown",
     "decodeUnknownSync",

@@ -95,6 +95,12 @@ export const isNonPositive = isNonPositiveInternal;
  * @category Validation
  */
 export const isPositive = isPositiveInternal;
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * as Model from "./Model.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -130,3 +136,9 @@ export * from "./TaggedErrorClass.ts";
  * @category Validation
  */
 export * from "./Transformations.ts";
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * as VariantSchema from "./VariantSchema.ts";
