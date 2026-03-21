@@ -372,7 +372,7 @@ export declare namespace Yieldable {
  * @since 2.0.0
  * @category Guards
  */
-export const isEffect = (u: unknown): u is Effect<any, any, any> => typeof u === "object" && u !== null && TypeId in u
+export const isEffect: (u: unknown) => u is Effect<any, any, any> = core.isEffect
 
 /**
  * Iterator interface for Effect generators, enabling Effect values to work with generator functions.
@@ -1390,8 +1390,13 @@ export {
  *
  * **When to Use**
  *
- * Use `Effect.async` when dealing with APIs that use callback-style instead of
+ * Use `Effect.callback` when dealing with APIs that use callback-style instead of
  * `async/await` or `Promise`.
+ * * **Previously Known As**
+ *
+ * This API replaces the following from Effect 3.x:
+ *
+ * - `Effect.async`
  *
  * @example
  * ```ts
@@ -2703,12 +2708,12 @@ export {
    *
    * **Details**
    *
-   * The `catchAll` function catches any errors that may occur during the
+   * The `catch` function catches any errors that may occur during the
    * execution of an effect and allows you to handle them by specifying a fallback
    * effect. This ensures that the program continues without failing by recovering
    * from errors using the provided fallback logic.
    *
-   * **Note**: `catchAll` only handles recoverable errors. It will not recover
+   * **Note**: `catch` only handles recoverable errors. It will not recover
    * from unrecoverable defects.
    *
    * @see {@link catchCause} for a version that can recover from both recoverable and unrecoverable errors.
@@ -3916,29 +3921,22 @@ export declare namespace Retry {
    */
   export type Return<R, E, A, O extends Options<E>> = Effect<
     A,
-    | (O extends { schedule: Schedule<infer _O, infer _I, infer _E1, infer _R> } ? E | _E1
+    | (O extends { schedule: Schedule<infer _O, infer _I, infer _E1, infer _R> } ? E
       : O extends { until: Predicate.Refinement<E, infer E2> } ? E2
+      : O extends { while: Predicate.Refinement<E, infer E2> } ? Exclude<E, E2>
       : E)
     | (O extends { schedule: Schedule<infer _O, infer _I, infer E, infer _R> } ? E
       : never)
-    | (O extends {
-      while: (...args: Array<any>) => Effect<infer _A, infer E, infer _R>
-    } ? E
+    | (O extends { while: (...args: Array<any>) => Effect<infer _A, infer E, infer _R> } ? E
       : never)
-    | (O extends {
-      until: (...args: Array<any>) => Effect<infer _A, infer E, infer _R>
-    } ? E
+    | (O extends { until: (...args: Array<any>) => Effect<infer _A, infer E, infer _R> } ? E
       : never),
     | R
     | (O extends { schedule: Schedule<infer _O, infer _I, infer _E1, infer R> } ? R
       : never)
-    | (O extends {
-      while: (...args: Array<any>) => Effect<infer _A, infer _E, infer R>
-    } ? R
+    | (O extends { while: (...args: Array<any>) => Effect<infer _A, infer _E, infer R> } ? R
       : never)
-    | (O extends {
-      until: (...args: Array<any>) => Effect<infer _A, infer _E, infer R>
-    } ? R
+    | (O extends { until: (...args: Array<any>) => Effect<infer _A, infer _E, infer R> } ? R
       : never)
   > extends infer Z ? Z
     : never
@@ -6236,10 +6234,11 @@ export const scopedWith: <A, E, R>(
  * @since 2.0.0
  * @category Resource Management & Finalization
  */
-export const acquireRelease: <A, E, R>(
+export const acquireRelease: <A, E, R, R2>(
   acquire: Effect<A, E, R>,
-  release: (a: A, exit: Exit.Exit<unknown, unknown>) => Effect<unknown>
-) => Effect<A, E, R | Scope> = internal.acquireRelease
+  release: (a: A, exit: Exit.Exit<unknown, unknown>) => Effect<unknown, never, R2>,
+  options?: { readonly interruptible?: boolean }
+) => Effect<A, E, R | R2 | Scope> = internal.acquireRelease
 
 /**
  * This function is used to ensure that an `Effect` value that represents the
@@ -7029,17 +7028,14 @@ export declare namespace Repeat {
   export type Return<R, E, A, O extends Options<A>> = Effect<
     O extends { schedule: Schedule<infer Out, infer _I, infer _E, infer _R> } ? Out
       : O extends { until: Predicate.Refinement<A, infer B> } ? B
+      : O extends { while: Predicate.Refinement<A, infer B> } ? Exclude<A, B>
       : A,
     | E
     | (O extends { schedule: Schedule<infer _Out, infer _I, infer E, infer _R> } ? E
       : never)
-    | (O extends {
-      while: (...args: Array<any>) => Effect<infer _A, infer E, infer _R>
-    } ? E
+    | (O extends { while: (...args: Array<any>) => Effect<infer _A, infer E, infer _R> } ? E
       : never)
-    | (O extends {
-      until: (...args: Array<any>) => Effect<infer _A, infer E, infer _R>
-    } ? E
+    | (O extends { until: (...args: Array<any>) => Effect<infer _A, infer E, infer _R> } ? E
       : never),
     | R
     | (O extends { schedule: Schedule<infer _O, infer _I, infer _E, infer R> } ? R
@@ -13274,7 +13270,7 @@ export const annotateLogs = dual<
     ): Effect<A, E, R>
   }
 >(
-  (args) => core.isEffect(args[0]),
+  (args) => isEffect(args[0]),
   <A, E, R>(
     effect: Effect<A, E, R>,
     ...args: [Record<string, unknown>] | [key: string, value: unknown]
@@ -13894,7 +13890,6 @@ export const transactionWith = <A, E, R>(
   withFiber((fiber) => {
     // Always create a new transaction state, never compose with parent
     const state: Transaction["Service"] = { journal: new Map(), retry: false }
-    const scheduler = fiber.currentScheduler
     let result: Exit.Exit<A, E> | undefined
     return uninterruptibleMask((restore) =>
       flatMap(
@@ -13915,7 +13910,7 @@ export const transactionWith = <A, E, R>(
               return clearTransaction(state)
             }
             if (Exit.isSuccess(exit)) {
-              commitTransaction(scheduler, state)
+              commitTransaction(fiber, state)
             } else {
               clearTransaction(state)
             }
@@ -13957,14 +13952,14 @@ const awaitPendingTransaction = (state: Transaction["Service"]) =>
     })
   })
 
-function commitTransaction(scheduler: Scheduler, state: Transaction["Service"]) {
+function commitTransaction(fiber: Fiber<unknown, unknown>, state: Transaction["Service"]) {
   for (const [ref, { value }] of state.journal) {
     if (value !== ref.value) {
       ref.version = ref.version + 1
       ref.value = value
     }
     for (const pending of ref.pending.values()) {
-      scheduler.scheduleTask(pending, 0)
+      fiber.currentDispatcher.scheduleTask(pending, 0)
     }
     ref.pending.clear()
   }

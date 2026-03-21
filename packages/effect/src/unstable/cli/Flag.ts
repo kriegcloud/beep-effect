@@ -304,7 +304,7 @@ export const fileParse = (
  * const ConfigSchema = Schema.Struct({
  *   port: Schema.Number,
  *   host: Schema.String
- * }).pipe(Schema.fromJsonString)
+ * })
  *
  * const config = Flag.fileSchema("config", ConfigSchema, { format: "json" })
  * ```
@@ -314,7 +314,7 @@ export const fileParse = (
  */
 export const fileSchema = <A>(
   name: string,
-  schema: Schema.Codec<A, string>,
+  schema: Schema.Decoder<A>,
   options?: Primitive.FileSchemaOptions | undefined
 ): Flag<A> => Param.fileSchema(Param.flagKind, name, schema, options)
 

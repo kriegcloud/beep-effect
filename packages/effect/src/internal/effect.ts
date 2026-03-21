@@ -216,7 +216,8 @@ export const causeInterruptors = <E>(self: Cause.Cause<E>): ReadonlySet<number> 
 const emptySet = new Set<number>()
 
 /** @internal */
-export const hasInterruptsOnly = <E>(self: Cause.Cause<E>): boolean => self.reasons.every(isInterruptReason)
+export const hasInterruptsOnly = <E>(self: Cause.Cause<E>): boolean =>
+  self.reasons.length > 0 && self.reasons.every(isInterruptReason)
 
 /** @internal */
 export const reasonAnnotations = <E>(
@@ -539,6 +540,11 @@ export class FiberImpl<A = any, E = any> implements Fiber.Fiber<A, E> {
   maxOpsBeforeYield!: number
   currentPreventYield!: boolean
 
+  _dispatcher: Scheduler.SchedulerDispatcher | undefined = undefined
+  get currentDispatcher(): Scheduler.SchedulerDispatcher {
+    return this._dispatcher ??= this.currentScheduler.makeDispatcher()
+  }
+
   getRef<X>(ref: ServiceMap.Reference<X>): X {
     return ServiceMap.getReferenceUnsafe(this.services, ref)
   }
@@ -674,7 +680,11 @@ export class FiberImpl<A = any, E = any> implements Fiber.Fiber<A, E> {
   }
   setServices(services: ServiceMap.ServiceMap<never>): void {
     this.services = services
-    this.currentScheduler = this.getRef(Scheduler.Scheduler)
+    const scheduler = this.getRef(Scheduler.Scheduler)
+    if (scheduler !== this.currentScheduler) {
+      this.currentScheduler = scheduler
+      this._dispatcher = undefined
+    }
     this.currentSpan = services.mapUnsafe.get(Tracer.ParentSpanKey)
     this.currentLogLevel = this.getRef(CurrentLogLevel)
     this.minimumLogLevel = this.getRef(MinimumLogLevel)
@@ -902,7 +912,7 @@ export const yieldNowWith: (priority?: number) => Effect.Effect<void> = makePrim
   op: "Yield",
   [evaluate](fiber) {
     let resumed = false
-    fiber.currentScheduler.scheduleTask(() => {
+    fiber.currentDispatcher.scheduleTask(() => {
       if (resumed) return
       fiber.evaluate(exitVoid as any)
     }, this[args] ?? 0)
@@ -3782,13 +3792,22 @@ export const scopedWith = <A, E, R>(
   })
 
 /** @internal */
-export const acquireRelease = <A, E, R>(
+export const acquireRelease = <A, E, R, R2>(
   acquire: Effect.Effect<A, E, R>,
-  release: (a: A, exit: Exit.Exit<unknown, unknown>) => Effect.Effect<unknown>
-): Effect.Effect<A, E, R | Scope.Scope> =>
-  uninterruptible(
-    flatMap(scope, (scope) =>
-      tap(acquire, (a) => scopeAddFinalizerExit(scope, (exit) => internalCall(() => release(a, exit)))))
+  release: (a: A, exit: Exit.Exit<unknown, unknown>) => Effect.Effect<unknown, never, R2>,
+  options?: { readonly interruptible?: boolean }
+): Effect.Effect<A, E, R | R2 | Scope.Scope> =>
+  servicesWith((services: ServiceMap.ServiceMap<R2>) =>
+    uninterruptibleMask((restore) =>
+      flatMap(
+        scope,
+        (scope) =>
+          tap(
+            options?.interruptible ? restore(acquire) : acquire,
+            (a) => scopeAddFinalizerExit(scope, (exit) => provideServices(release(a, exit), services))
+          )
+      )
+    )
   )
 
 /** @internal */
@@ -4044,7 +4063,8 @@ export const cachedInvalidateWithTTL: {
     const wait = flatMap(latch.await, () => exit!)
     return [
       withFiber((fiber) => {
-        const now = isFinite ? fiber.getRef(ClockRef).currentTimeMillisUnsafe() : 0
+        const clock = fiber.getRef(ClockRef)
+        const now = isFinite ? clock.currentTimeMillisUnsafe() : 0
         if (running || now < expiresAt) return exit ?? wait
         running = true
         latch.closeUnsafe()
@@ -4052,7 +4072,7 @@ export const cachedInvalidateWithTTL: {
         return onExit(self, (exit_) =>
           sync(() => {
             running = false
-            expiresAt = now + ttlMillis
+            expiresAt = clock.currentTimeMillisUnsafe() + ttlMillis
             exit = exit_
             latch.openUnsafe()
           }))
@@ -4848,7 +4868,7 @@ export const forkUnsafe = <FA, FE, A, E, R>(
   if (immediate) {
     child.evaluate(effect as any)
   } else {
-    parent.currentScheduler.scheduleTask(() => child.evaluate(effect as any), 0)
+    parent.currentDispatcher.scheduleTask(() => child.evaluate(effect as any), 0)
   }
   if (!daemon && !child._exit) {
     parent.children().add(child)
@@ -4989,10 +5009,8 @@ export const runForkWith = <R>(services: ServiceMap.ServiceMap<R>) =>
   effect: Effect.Effect<A, E, R>,
   options?: Effect.RunOptions | undefined
 ): Fiber.Fiber<A, E> => {
-  const scheduler = options?.scheduler ||
-    (!services.mapUnsafe.has(Scheduler.Scheduler.key) && new Scheduler.MixedScheduler())
   const fiber = new FiberImpl<A, E>(
-    scheduler ? ServiceMap.add(services, Scheduler.Scheduler, scheduler) : services,
+    options?.scheduler ? ServiceMap.add(services, Scheduler.Scheduler, options.scheduler) : services,
     options?.uninterruptible !== true
   )
   fiber.evaluate(effect as any)
@@ -5112,7 +5130,7 @@ export const runSyncExitWith = <R>(services: ServiceMap.ServiceMap<R>) => {
     if (effectIsExit(effect)) return effect
     const scheduler = new Scheduler.MixedScheduler("sync")
     const fiber = runFork(effect, { scheduler })
-    scheduler.flush()
+    fiber.currentDispatcher?.flush()
     return (fiber as FiberImpl<A, E>)._exit ?? exitDie(fiber)
   }
 }
@@ -5135,108 +5153,6 @@ export const runSyncWith = <R>(services: ServiceMap.ServiceMap<R>) => {
 /** @internal */
 export const runSync: <A, E>(effect: Effect.Effect<A, E>) => A = runSyncWith(ServiceMap.empty())
 
-// ----------------------------------------------------------------------------
-// Semaphore
-// ----------------------------------------------------------------------------
-
-/** @internal */
-class Semaphore {
-  public waiters = new Set<() => void>()
-  public taken = 0
-  public permits: number
-
-  constructor(permits: number) {
-    this.permits = permits
-  }
-
-  get free() {
-    return this.permits - this.taken
-  }
-
-  readonly take = (n: number): Effect.Effect<number> => {
-    const take: Effect.Effect<number> = suspend(() => {
-      if (this.free < n) {
-        return callback((resume) => {
-          if (this.free >= n) return resume(take)
-          const observer = () => {
-            if (this.free < n) return
-            this.waiters.delete(observer)
-            resume(take)
-          }
-          this.waiters.add(observer)
-          return sync(() => {
-            this.waiters.delete(observer)
-          })
-        })
-      }
-      this.taken += n
-      return succeed(n)
-    })
-    return take
-  }
-
-  updateTakenUnsafe(fiber: Fiber.Fiber<any, any>, f: (n: number) => number): Effect.Effect<number> {
-    this.taken = f(this.taken)
-    if (this.waiters.size > 0) {
-      fiber.currentScheduler.scheduleTask(() => {
-        const iter = this.waiters.values()
-        let item = iter.next()
-        while (item.done === false && this.free > 0) {
-          item.value()
-          item = iter.next()
-        }
-      }, 0)
-    }
-    return succeed(this.free)
-  }
-
-  updateTaken(f: (n: number) => number): Effect.Effect<number> {
-    return withFiber((fiber) => this.updateTakenUnsafe(fiber, f))
-  }
-
-  readonly resize = (permits: number) =>
-    asVoid(
-      withFiber((fiber) => {
-        this.permits = permits
-        if (this.free < 0) {
-          return void_
-        }
-        return this.updateTakenUnsafe(fiber, (taken) => taken)
-      })
-    )
-
-  readonly release = (n: number): Effect.Effect<number> => this.updateTaken((taken) => taken - n)
-
-  readonly releaseAll: Effect.Effect<number> = this.updateTaken((_) => 0)
-
-  readonly withPermits = (n: number) => <A, E, R>(self: Effect.Effect<A, E, R>) =>
-    uninterruptibleMask((restore) =>
-      flatMap(
-        restore(this.take(n)),
-        (permits) => onExitPrimitive(restore(self), () => this.release(permits), true)
-      )
-    )
-
-  readonly withPermit = this.withPermits(1)
-
-  readonly withPermitsIfAvailable = (n: number) => <A, E, R>(self: Effect.Effect<A, E, R>) =>
-    uninterruptibleMask((restore) =>
-      suspend(() => {
-        if (this.free < n) {
-          return succeedNone
-        }
-        this.taken += n
-        return ensuring(restore(asSome(self)), this.release(n))
-      })
-    )
-}
-
-/** @internal */
-export const makeSemaphoreUnsafe = (permits: number): Semaphore => new Semaphore(permits)
-
-/** @internal */
-export const makeSemaphore = (permits: number) => sync(() => makeSemaphoreUnsafe(permits))
-
 const succeedTrue = succeed(true)
 const succeedFalse = succeed(false)
 
@@ -5254,7 +5170,7 @@ class Latch implements _Latch.Latch {
       return succeedTrue
     }
     this.scheduled = true
-    fiber.currentScheduler.scheduleTask(this.flushWaiters, 0)
+    fiber.currentDispatcher.scheduleTask(this.flushWaiters, 0)
     return succeedTrue
   }
   private flushWaiters = () => {
@@ -5296,7 +5212,7 @@ class Latch implements _Latch.Latch {
     return true
   }
   close = sync(() => this.closeUnsafe())
-  whenOpen = <A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => andThen(this.await, self)
+  whenOpen = <A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => flatMap(this.await, () => self)
 }
 
 /** @internal */
@@ -5359,16 +5275,15 @@ const NoopSpanProto: Omit<Tracer.Span, "parent" | "name" | "annotations" | "leve
 /** @internal */
 export const noopSpan = (options: {
   readonly name: string
-  readonly parent: Tracer.AnySpan | undefined
+  readonly parent: Option.Option<Tracer.AnySpan>
   readonly annotations: ServiceMap.ServiceMap<never>
 }): Tracer.Span => Object.assign(Object.create(NoopSpanProto), options)
 
-const filterDisablePropagation = (span: Tracer.AnySpan | undefined): Tracer.AnySpan | undefined => {
-  if (span) {
-    return ServiceMap.get(span.annotations, Tracer.DisablePropagation)
-      ? span._tag === "Span" ? filterDisablePropagation(span.parent) : undefined
-      : span
-  }
+const filterDisablePropagation = (span: Tracer.AnySpan | undefined): Option.Option<Tracer.AnySpan> => {
+  if (!span) return Option.none()
+  return ServiceMap.get(span.annotations, Tracer.DisablePropagation)
+    ? span._tag === "Span" ? filterDisablePropagation(Option.getOrUndefined(span.parent)) : Option.none()
+    : Option.some(span)
 }
 
 /** @internal */
@@ -5379,7 +5294,11 @@ export const makeSpanUnsafe = <XA, XE>(
 ) => {
   const disablePropagation = !fiber.getRef(TracerEnabled) ||
     (options?.annotations && ServiceMap.get(options.annotations, Tracer.DisablePropagation))
-  const parent = options?.parent ?? (options?.root ? undefined : filterDisablePropagation(fiber.currentSpan))
+  const parent = options?.parent !== undefined
+    ? Option.some(options.parent)
+    : options?.root
+    ? Option.none<Tracer.AnySpan>()
+    : filterDisablePropagation(fiber.currentSpan)
 
   let span: Tracer.Span
 
@@ -5412,9 +5331,9 @@ export const makeSpanUnsafe = <XA, XE>(
       links,
       startTime: timingEnabled ? clock.currentTimeNanosUnsafe() : 0n,
       kind: options?.kind ?? "internal",
-      root: options?.root ?? options?.parent === undefined,
+      root: options?.root ?? Option.isNone(parent),
       sampled: options?.sampled ??
-        (parent?.sampled === false
+        (Option.isSome(parent) && parent.value.sampled === false
           ? false
           : !isLogLevelGreaterThan(fiber.getRef(Tracer.MinimumTraceLevel), level))
     })
@@ -6071,7 +5990,7 @@ const prettyLoggerTty = (options: {
   readonly formatDate: (date: Date) => string
 }) => {
   const processIsBun = typeof process === "object" && "isBun" in process && process.isBun === true
-  const color = options.colors && processStdoutIsTTY ? withColor : withColorNoop
+  const color = options.colors ? withColor : withColorNoop
   return loggerMake<unknown, void>(
     ({ cause, date, fiber, logLevel, message: message_ }) => {
       const console = fiber.getRef(ConsoleRef)
@@ -6194,7 +6113,7 @@ const prettyLoggerBrowser = (options: {
 export const defaultLogger = loggerMake<unknown, void>(({ cause, date, fiber, logLevel, message }) => {
   const message_ = Array.isArray(message) ? message.slice() : [message]
   if (cause.reasons.length > 0) {
-    message_.unshift(causePretty(cause))
+    message_.push(causePretty(cause))
   }
   const now = date.getTime()
   const spans = fiber.getRef(CurrentLogSpans)

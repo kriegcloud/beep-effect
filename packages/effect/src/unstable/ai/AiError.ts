@@ -183,7 +183,7 @@ export class NetworkError extends Schema.ErrorClass<NetworkError>(
       description: error.description,
       reason: error._tag,
       request: {
-        hash: error.request.hash,
+        hash: Option.getOrUndefined(error.request.hash),
         headers: redactHeaders(error.request.headers),
         method: error.request.method,
         url: error.request.url,
@@ -1396,10 +1396,8 @@ export class AiError extends Schema.ErrorClass<AiError>(
   method: Schema.String,
   reason: AiErrorReason
 }) {
-  /**
-   * @since 1.0.0
-   */
   readonly [TypeId] = TypeId
+  override readonly cause = this.reason
 
   /**
    * Delegates to the underlying reason's `isRetryable` getter.
@@ -1534,11 +1532,13 @@ export const reasonFromHttpStatus = (params: {
   readonly body?: unknown
   readonly http?: typeof HttpContext.Type
   readonly metadata?: typeof ProviderMetadata.Type
+  readonly description?: string | undefined
 }): AiErrorReason => {
-  const { status, http, metadata } = params
+  const { status, http, metadata, description } = params
   const common = {
     http,
-    ...(Predicate.isNotUndefined(metadata) ? { metadata } : {})
+    ...(metadata ? { metadata } : undefined),
+    ...(description ? { description } : undefined)
   }
   switch (status) {
     case 400:

@@ -4,6 +4,8 @@
 import * as Effect from "../../Effect.ts"
 import { dual } from "../../Function.ts"
 import * as Inspectable from "../../Inspectable.ts"
+import * as Option from "../../Option.ts"
+import { type Pipeable, pipeArguments } from "../../Pipeable.ts"
 import * as Schema from "../../Schema.ts"
 import type { ParseOptions } from "../../SchemaAST.ts"
 import * as Stream from "../../Stream.ts"
@@ -43,7 +45,7 @@ export const TypeId = "~effect/http/HttpClientResponse"
  * @since 4.0.0
  * @category models
  */
-export interface HttpClientResponse extends HttpIncomingMessage.HttpIncomingMessage<Error.HttpClientError> {
+export interface HttpClientResponse extends HttpIncomingMessage.HttpIncomingMessage<Error.HttpClientError>, Pipeable {
   readonly [TypeId]: typeof TypeId
   readonly request: HttpClientRequest.HttpClientRequest
   readonly status: number
@@ -213,7 +215,7 @@ export const filterStatusOk = (self: HttpClientResponse): Effect.Effect<HttpClie
 // internal
 // -----------------------------------------------------------------------------
 
-class WebHttpClientResponse extends Inspectable.Class implements HttpClientResponse {
+class WebHttpClientResponse extends Inspectable.Class implements HttpClientResponse, Pipeable {
   readonly [HttpIncomingMessage.TypeId]: typeof HttpIncomingMessage.TypeId
   readonly [TypeId]: typeof TypeId
 
@@ -255,8 +257,8 @@ class WebHttpClientResponse extends Inspectable.Class implements HttpClientRespo
     return this.cachedCookies = Cookies.fromSetCookie(this.source.headers.getSetCookie())
   }
 
-  get remoteAddress(): string | undefined {
-    return undefined
+  get remoteAddress(): Option.Option<string> {
+    return Option.none()
   }
 
   get stream(): Stream.Stream<Uint8Array, Error.HttpClientError> {
@@ -283,10 +285,10 @@ class WebHttpClientResponse extends Inspectable.Class implements HttpClientRespo
       )
   }
 
-  get json(): Effect.Effect<unknown, Error.HttpClientError> {
+  get json(): Effect.Effect<Schema.Json, Error.HttpClientError> {
     return Effect.flatMap(this.text, (text) =>
       Effect.try({
-        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        try: () => text === "" ? null : JSON.parse(text),
         catch: (cause) =>
           new Error.HttpClientError({
             reason: new Error.DecodeError({
@@ -356,5 +358,9 @@ class WebHttpClientResponse extends Inspectable.Class implements HttpClientRespo
           })
         })
     }).pipe(Effect.cached, Effect.runSync)
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }

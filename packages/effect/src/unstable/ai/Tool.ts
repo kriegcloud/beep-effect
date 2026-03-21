@@ -1129,6 +1129,9 @@ const dynamicProto = <
  * can call. The tool definition includes parameter validation, success/failure
  * schemas, and optional service dependencies.
  *
+ * If a tool accepts no parameters but still needs an explicit empty object
+ * schema, use {@link EmptyParams}.
+ *
  * @example
  * ```ts
  * import { Schema } from "effect"
@@ -1146,7 +1149,7 @@ const dynamicProto = <
  */
 export const make = <
   const Name extends string,
-  Parameters extends Schema.Top = typeof Schema.Void,
+  Parameters extends Schema.Top = typeof EmptyParams,
   Success extends Schema.Top = typeof Schema.Void,
   Failure extends Schema.Top = typeof Schema.Never,
   Mode extends FailureMode | undefined = undefined,
@@ -1207,7 +1210,7 @@ export const make = <
   return userDefinedProto({
     name,
     description: options?.description,
-    parametersSchema: options?.parameters ?? Schema.Void,
+    parametersSchema: options?.parameters ?? EmptyParams,
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? "error",
@@ -1829,4 +1832,21 @@ export const unsafeSecureJsonParse = (text: string): unknown => {
   } finally {
     Error.stackTraceLimit = stackTraceLimit
   }
+}
+
+/**
+ * @since 4.0.0
+ */
+export interface EmptyParams extends Schema.$Record<Schema.String, Schema.Never> {}
+
+/**
+ * A schema for tools that accept no parameters.
+ *
+ * @since 4.0.0
+ */
+export const EmptyParams: EmptyParams = Schema.Record(Schema.String, Schema.Never)
+
+/** @internal */
+export function isEmptyParamsRecord(indexSignature: AST.IndexSignature): boolean {
+  return indexSignature.parameter === AST.string && AST.isNever(indexSignature.type)
 }

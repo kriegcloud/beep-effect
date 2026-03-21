@@ -92,7 +92,17 @@ import { ParentSpan, type SpanOptions } from "./Tracer.ts"
 import type * as Types from "./Types.ts"
 import type * as Unify from "./Unify.ts"
 
-const TypeId = "~effect/Channel"
+/**
+ * @since 4.0.0
+ * @category Type Identifiers
+ */
+export type TypeId = "~effect/Channel"
+
+/**
+ * @since 4.0.0
+ * @category Type Identifiers
+ */
+export const TypeId: TypeId = "~effect/Channel"
 
 /**
  * Tests if a value is a `Channel`.
@@ -3570,17 +3580,19 @@ export const scanEffect: {
     Effect.map(toTransform(self)(upstream, scope), (pull) => {
       let state = initial
       let isFirst = true
-      if (isFirst) {
-        isFirst = false
-        return Effect.succeed(state)
-      }
-      return Effect.map(
-        Effect.flatMap(pull, (a) => f(state, a)),
-        (newState) => {
-          state = newState
-          return state
+      return Effect.suspend(() => {
+        if (isFirst) {
+          isFirst = false
+          return Effect.succeed(state)
         }
-      )
+        return Effect.map(
+          Effect.flatMap(pull, (a) => f(state, a)),
+          (newState) => {
+            state = newState
+            return state
+          }
+        )
+      })
     })
   ))
 
@@ -5978,7 +5990,7 @@ export const decodeText = <Err, Done>(encoding?: string, options?: TextDecoderOp
   Arr.NonEmptyReadonlyArray<string>,
   Err,
   Done,
-  Arr.NonEmptyReadonlyArray<Uint8Array<ArrayBuffer>>,
+  Arr.NonEmptyReadonlyArray<Uint8Array>,
   Err,
   Done
 > =>
@@ -5994,7 +6006,7 @@ export const decodeText = <Err, Done>(encoding?: string, options?: TextDecoderOp
  * @category String manipulation
  */
 export const encodeText = <Err, Done>(): Channel<
-  Arr.NonEmptyReadonlyArray<Uint8Array<ArrayBuffer>>,
+  Arr.NonEmptyReadonlyArray<Uint8Array>,
   Err,
   Done,
   Arr.NonEmptyReadonlyArray<string>,
@@ -6004,7 +6016,7 @@ export const encodeText = <Err, Done>(): Channel<
   fromTransform((upstream, _scope) =>
     Effect.sync(() => {
       const encoder = new TextEncoder()
-      return Effect.map(upstream, Arr.map((line) => encoder.encode(line) as Uint8Array<ArrayBuffer>))
+      return Effect.map(upstream, Arr.map((line) => encoder.encode(line)))
     })
   )
 

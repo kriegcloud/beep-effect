@@ -5,6 +5,9 @@ import * as Effect from "effect/Effect"
 import { flow } from "effect/Function"
 import * as Inspectable from "effect/Inspectable"
 import * as Layer from "effect/Layer"
+import * as Option from "effect/Option"
+import { type Pipeable, pipeArguments } from "effect/Pipeable"
+import type * as Schema from "effect/Schema"
 import type * as Scope from "effect/Scope"
 import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
@@ -150,7 +153,7 @@ function convertBody(
 
 function noopErrorHandler(_: any) {}
 
-class UndiciResponse extends Inspectable.Class implements HttpClientResponse {
+class UndiciResponse extends Inspectable.Class implements HttpClientResponse, Pipeable {
   readonly [IncomingMessage.TypeId]: typeof IncomingMessage.TypeId
   readonly [Response.TypeId]: typeof Response.TypeId
   readonly request: HttpClientRequest
@@ -189,8 +192,8 @@ class UndiciResponse extends Inspectable.Class implements HttpClientResponse {
     return this.cachedCookies = header ? Cookies.fromSetCookie(header) : Cookies.empty
   }
 
-  get remoteAddress(): string | undefined {
-    return undefined
+  get remoteAddress(): Option.Option<string> {
+    return Option.none()
   }
 
   get stream(): Stream.Stream<Uint8Array, Error.HttpClientError> {
@@ -207,10 +210,10 @@ class UndiciResponse extends Inspectable.Class implements HttpClientResponse {
     })
   }
 
-  get json(): Effect.Effect<unknown, Error.HttpClientError> {
+  get json(): Effect.Effect<Schema.Json, Error.HttpClientError> {
     return Effect.flatMap(this.text, (text) =>
       Effect.try({
-        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        try: () => text === "" ? null : JSON.parse(text),
         catch: (cause) =>
           new Error.HttpClientError({
             reason: new Error.DecodeError({
@@ -288,6 +291,10 @@ class UndiciResponse extends Inspectable.Class implements HttpClientResponse {
       request: this.request.toJSON(),
       status: this.status
     })
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }
 
@@ -490,7 +497,7 @@ const waitForFinish = (nodeRequest: Http.ClientRequest, request: HttpClientReque
     })
   })
 
-class NodeHttpResponse extends NodeHttpIncomingMessage<Error.HttpClientError> implements HttpClientResponse {
+class NodeHttpResponse extends NodeHttpIncomingMessage<Error.HttpClientError> implements HttpClientResponse, Pipeable {
   readonly [Response.TypeId]: typeof Response.TypeId
   readonly request: HttpClientRequest
 
@@ -554,6 +561,10 @@ class NodeHttpResponse extends NodeHttpIncomingMessage<Error.HttpClientError> im
       request: this.request.toJSON(),
       status: this.status
     })
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }
 

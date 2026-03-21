@@ -94,7 +94,7 @@ import * as Reducer from "./Reducer.ts"
 import type { Result } from "./Result.ts"
 import type { Covariant, NoInfer, NotFunction } from "./Types.ts"
 import type * as Unify from "./Unify.ts"
-import * as Gen from "./Utils.ts"
+import type * as Gen from "./Utils.ts"
 
 const TypeId = "~effect/data/Option"
 
@@ -156,6 +156,7 @@ export type Option<A> = None<A> | Some<A>
 export interface None<out A> extends Pipeable, Inspectable, Yieldable<Option<A>, A, NoSuchElementError> {
   readonly _tag: "None"
   readonly _op: "None"
+  readonly valueOrUndefined: undefined
   readonly [TypeId]: {
     readonly _A: Covariant<A>
   }
@@ -189,6 +190,7 @@ export interface Some<out A> extends Pipeable, Inspectable, Yieldable<Option<A>,
   readonly _tag: "Some"
   readonly _op: "Some"
   readonly value: A
+  readonly valueOrUndefined: A
   readonly [TypeId]: {
     readonly _A: Covariant<A>
   }
@@ -2550,9 +2552,7 @@ export const gen: Gen.Gen<OptionTypeLambda> = (...args) => {
   const iterator = f()
   let state: IteratorResult<any> = iterator.next()
   while (!state.done) {
-    const current = Gen.isGenKind(state.value)
-      ? state.value.value
-      : state.value
+    const current = state.value
     if (isNone(current)) {
       return current
     }

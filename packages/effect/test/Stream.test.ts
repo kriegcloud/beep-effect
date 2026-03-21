@@ -754,6 +754,16 @@ describe("Stream", () => {
         })
         assert.deepStrictEqual(result1, result2)
       }))
+
+    it.effect("scanEffect", () =>
+      Effect.gen(function*() {
+        const result = yield* Stream.make(1, 2, 3, 4, 5).pipe(
+          Stream.scanEffect(0, (acc, curr) => Effect.succeed(acc + curr)),
+          Stream.runCollect
+        )
+
+        assert.deepStrictEqual(result, Array.scan([1, 2, 3, 4, 5], 0, (acc, curr) => acc + curr))
+      }))
   })
 
   describe("grouping", () => {
@@ -3342,6 +3352,26 @@ describe("Stream", () => {
         const numbers2 = yield* (Stream.runCollect(stream2))
         const interleavedChunks = interleave(bools, numbers1, numbers2)
         deepStrictEqual(interleavedStream, interleavedChunks)
+      }))
+  })
+
+  describe("merge", () => {
+    it.effect("data-first with options", () =>
+      Effect.gen(function*() {
+        const result = yield* Stream.runCollect(
+          Stream.merge(Stream.make(1), Stream.never, { haltStrategy: "left" })
+        )
+        deepStrictEqual(result, [1])
+      }))
+
+    it.effect("data-last with options", () =>
+      Effect.gen(function*() {
+        const result = yield* pipe(
+          Stream.make(1),
+          Stream.merge(Stream.never, { haltStrategy: "left" }),
+          Stream.runCollect
+        )
+        deepStrictEqual(result, [1])
       }))
   })
 

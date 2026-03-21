@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect"
 import * as Encoding from "effect/Encoding"
 import { dual } from "effect/Function"
 import * as Layer from "effect/Layer"
+import * as Option from "effect/Option"
 import * as Predicate from "effect/Predicate"
 import * as Redactable from "effect/Redactable"
 import type * as Schema from "effect/Schema"
@@ -759,7 +760,7 @@ const buildHttpRequestDetails = (
   method: request.method,
   url: request.url,
   urlParams: Array.from(request.urlParams),
-  hash: request.hash,
+  hash: Option.getOrUndefined(request.hash),
   headers: Redactable.redact(request.headers) as Record<string, string>
 })
 
@@ -979,11 +980,13 @@ const makeStreamResponse = Effect.fnUntraced(
           hasToolCalls = hasToolCalls || choice.delta.tool_calls.length > 0
           choice.delta.tool_calls.forEach((deltaTool, indexInChunk) => {
             const toolIndex = deltaTool.index ?? indexInChunk
-            const toolId = deltaTool.id ?? `${event.id}_tool_${toolIndex}`
-            const providerToolName = deltaTool.function?.name
-            const toolName = toolNameMapper.getCustomName(providerToolName ?? "unknown_tool")
-            const argumentsDelta = deltaTool.function?.arguments ?? ""
             const activeToolCall = activeToolCalls[toolIndex]
+            const toolId = activeToolCall?.id ?? deltaTool.id ?? `${event.id}_tool_${toolIndex}`
+            const providerToolName = deltaTool.function?.name
+            const toolName = providerToolName !== undefined
+              ? toolNameMapper.getCustomName(providerToolName)
+              : activeToolCall?.name ?? toolNameMapper.getCustomName("unknown_tool")
+            const argumentsDelta = deltaTool.function?.arguments ?? ""
 
             if (Predicate.isUndefined(activeToolCall)) {
               activeToolCalls[toolIndex] = {
