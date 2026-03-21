@@ -34,6 +34,11 @@ export * as O from "./Option.ts";
  * @since 0.0.0
  * @category Utility
  */
+export * as P from "./Predicate.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export * as Str from "./Str.ts";
 /**
  * @since 0.0.0

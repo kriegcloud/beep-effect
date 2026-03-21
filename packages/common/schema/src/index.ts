@@ -59,6 +59,11 @@ export * from "./FilePath.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Graph.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Int.ts";
 /**
  * @since 0.0.0
@@ -70,6 +75,16 @@ export * from "./Logs.ts";
  * @category Validation
  */
 export * from "./MimeType.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./MutableHashMap.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./MutableHashSet.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -125,6 +140,11 @@ export * from "./StatusCauseError.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./String.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./TaggedErrorClass.ts";
 /**
  * @since 0.0.0
@@ -136,8 +156,3 @@ export * from "./Transformations.ts";
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./String.ts";

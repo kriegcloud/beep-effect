@@ -7,5 +7,28 @@
     "outDir": "dist",
     "rootDir": "src",
     "jsx": "react-jsx"
-  }
+  },
+  "references": [
+    {
+      "path": "../common/data/tsconfig.json"
+    },
+    {
+      "path": "../common/identity/tsconfig.json"
+    },
+    {
+      "path": "../common/messages/tsconfig.json"
+    },
+    {
+      "path": "../common/schema/tsconfig.json"
+    },
+    {
+      "path": "../common/types/tsconfig.json"
+    },
+    {
+      "path": "../common/ui/tsconfig.json"
+    },
+    {
+      "path": "../common/utils/tsconfig.json"
+    }
+  ]
 }

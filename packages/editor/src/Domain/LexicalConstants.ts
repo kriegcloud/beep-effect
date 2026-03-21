@@ -87,8 +87,7 @@ export type TextDetailType = typeof TextDetailType.Type;
 export const TextModeType = textModeTypeBase.pipe(
   $I.annoteSchema("TextModeType", {
     description: "Schema for Lexical text mode names.",
-  }),
-
+  })
 );
 
 export type TextModeType = typeof TextModeType.Type;
@@ -96,8 +95,7 @@ export type TextModeType = typeof TextModeType.Type;
 export const ElementFormatType = elementFormatTypeBase.pipe(
   $I.annoteSchema("ElementFormatType", {
     description: "Schema for Lexical element format names.",
-  }),
-
+  })
 );
 
 export type ElementFormatType = typeof ElementFormatType.Type;
@@ -105,8 +103,7 @@ export type ElementFormatType = typeof ElementFormatType.Type;
 const NonEmptyElementFormatType = nonEmptyElementFormatTypeBase.pipe(
   $I.annoteSchema("NonEmptyElementFormatType", {
     description: "Internal schema for non-empty Lexical element format names.",
-  }),
-
+  })
 );
 
 //------------------------------------------------------------------------------

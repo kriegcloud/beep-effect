@@ -8,7 +8,7 @@
  * @module
  */
 
-import { FsUtilsLive } from "@beep/repo-utils";
+import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
@@ -38,9 +38,12 @@ const BaseLayers = Layer.mergeAll(NodeServices.layer);
  * @category Configuration
  * @internal
  */
-const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FetchHttpClient.layer, FsUtilsLive).pipe(
-  Layer.provideMerge(BaseLayers)
-);
+const DerivedLayers = Layer.mergeAll(
+  NodeChildProcessSpawner.layer,
+  FetchHttpClient.layer,
+  FsUtilsLive,
+  TSMorphServiceLive
+).pipe(Layer.provideMerge(BaseLayers));
 
 /**
  * Top-level CLI program effect produced by running the root command tree

@@ -172,9 +172,10 @@ export const buildDocgenAliasTargets = (
   wildcardExportTarget?: string
 ): CanonicalAliasTargets => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
-  const normalizedWildcardExportTarget = Str.replace(/^\.\//, "")(
-    wildcardExportTarget ?? deriveDocgenWildcardTarget(rootExportTarget)
-  );
+  const normalizedWildcardExportTarget = Str.replace(
+    /^\.\//,
+    ""
+  )(wildcardExportTarget ?? deriveDocgenWildcardTarget(rootExportTarget));
 
   return new CanonicalAliasTargets({
     rootAliasTarget: `./${packagePath}/${normalizedRootExportTarget}`,

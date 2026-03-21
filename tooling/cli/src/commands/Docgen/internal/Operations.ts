@@ -724,8 +724,10 @@ export const loadDocgenConfigDocument: (
 export const createDocgenConfigDocument: (
   targetPackage: DocgenWorkspacePackage,
   rootDir: string
-) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
-  (targetPackage, rootDir) =>
+) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> = (
+  targetPackage,
+  rootDir
+) =>
   Effect.gen(function* () {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
     const workspaceAliasSources = yield* loadWorkspaceDocgenAliasSources(rootDir);

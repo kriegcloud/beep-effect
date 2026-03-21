@@ -4,11 +4,12 @@
  * @module @beep/editor/Domain/LexicalNode
  * @since 0.0.0
  */
-import {$EditorId} from "@beep/identity";
+import { $EditorId } from "@beep/identity";
+import { NonEmptyTrimmedStr } from "@beep/schema";
+import { thunk1 } from "@beep/utils";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {NonEmptyTrimmedStr} from "@beep/schema";
-import {thunk1} from "@beep/utils";
-import * as lexical from "lexical";
+import type * as lexical from "lexical";
 
 const $I = $EditorId.create("Domain/LexicalNode");
 
@@ -19,42 +20,29 @@ export class SerializedLexicalNode extends S.Class<SerializedLexicalNode>($I`Ser
   {
     /** The type string used by the Node class */
     type: NonEmptyTrimmedStr.annotateKey({
-      description: "The type string used by the Node class"
+      description: "The type string used by the Node class",
     }),
     /** A numeric version for this schema, defaulting to 1, but not generally recommended for use */
-    version: S.Number.pipe(S.withDecodingDefaultKey(thunk1))
-    .annotateKey({
-      description: "A numeric version for this schema, defaulting to 1, but not generally recommended for use"
-    }), /**
+    version: S.Number.pipe(S.withDecodingDefaultKey(thunk1)).annotateKey({
+      description: "A numeric version for this schema, defaulting to 1, but not generally recommended for use",
+    }) /**
      * Any state persisted with the NodeState API that is not
      * configured for flat storage
-     */
-    ["$" as const]: S.optionalKey(S.Record(
-      S.String,
-      S.Unknown
-    ))
-    .annotateKey({
-      description: "Any state persisted with the NodeState API that is not\nconfigured for flat storage"
-    })
+     */,
+    ["$" as const]: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({
+      description: "Any state persisted with the NodeState API that is not\nconfigured for flat storage",
+    }),
   },
-  $I.annote(
-    "SerializedLexicalNode",
-    {
-      description: "The base type for all serialized nodes"
-    }
-  )
-) {
-}
-
+  $I.annote("SerializedLexicalNode", {
+    description: "The base type for all serialized nodes",
+  })
+) {}
 
 export const NodeKey = NonEmptyTrimmedStr.pipe(
   S.brand("NodeKey"),
-  $I.annoteSchema(
-    "NodeKey",
-    {
-      description: "Schema for node key"
-    }
-  )
+  $I.annoteSchema("NodeKey", {
+    description: "Schema for node key",
+  })
 );
 
 export type NodeKey = typeof NodeKey.Type;
@@ -111,7 +99,49 @@ export const LexicalNodeKeys = [
   "selectPrevious",
   "selectNext",
   "markDirty",
-  "reconcileObservedMutation"
+  "reconcileObservedMutation",
 ] as const;
 
-// const l = S.instanceOf(lexical.LexicalNode)
+const hasFunctionProperty = (input: Record<string, unknown>, key: string): boolean =>
+  P.hasProperty(input, key) && P.isFunction(input[key]);
+
+const hasStringProperty = (input: Record<string, unknown>, key: string): boolean =>
+  P.hasProperty(input, key) && P.isString(input[key]);
+
+/**
+ * lexical does not expose the base LexicalNode constructor as a runtime export,
+ * so we validate against the shared instance surface instead of S.instanceOf(...).
+ */
+export const isLexicalNode = (input: unknown): input is lexical.LexicalNode => {
+  if (!P.isObject(input)) return false;
+
+  const lexicalNode = input as Record<string, unknown>;
+  const constructorValue = lexicalNode.constructor;
+
+  if (!P.isFunction(constructorValue)) return false;
+
+  const lexicalNodeConstructor = constructorValue as unknown as Record<string, unknown>;
+
+  return (
+    hasStringProperty(lexicalNode, "__type") &&
+    hasStringProperty(lexicalNode, "__key") &&
+    hasFunctionProperty(lexicalNode, "getType") &&
+    hasFunctionProperty(lexicalNode, "getKey") &&
+    hasFunctionProperty(lexicalNode, "getLatest") &&
+    hasFunctionProperty(lexicalNode, "getWritable") &&
+    hasFunctionProperty(lexicalNode, "exportJSON") &&
+    hasFunctionProperty(lexicalNodeConstructor, "getType") &&
+    hasFunctionProperty(lexicalNodeConstructor, "clone")
+  );
+};
+
+export const LexicalNode = S.declare(isLexicalNode).pipe(
+  S.annotate(
+    $I.annote("LexicalNode", {
+      description: "Runtime Lexical node instance.",
+      jsonSchema: {},
+    })
+  )
+);
+
+export type LexicalNode = typeof LexicalNode.Type;

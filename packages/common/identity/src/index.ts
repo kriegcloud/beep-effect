@@ -1,14 +1,14 @@
 /**
- * @beep/identity
+ * Re-exports for @beep/identity.
  *
  * @since 0.0.0
  */
+/**
+ * @since 0.0.0
+ */
+export * from "./Id.js";
 
 /**
  * @since 0.0.0
  */
-export * from "./Id.ts";
-/**
- * @since 0.0.0
- */
-export * from "./packages.ts";
+export * from "./packages.js";

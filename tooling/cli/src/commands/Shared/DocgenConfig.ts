@@ -1,8 +1,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
 import { Effect, HashMap, HashSet, Order, Path, pipe } from "effect";
-import { dual } from "effect/Function";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -28,10 +28,11 @@ const uniqueSortedStringValues = (values: ReadonlyArray<string>): ReadonlyArray<
 const withRootRelativePrefix: {
   (rootRelativePrefix: string, targetPath: string): string;
   (rootRelativePrefix: string): (targetPath: string) => string;
-} = dual(2,  (rootRelativePrefix: string, targetPath: string): string =>
-  `${rootRelativePrefix}${Str.replace(/^\.\//, Str.empty)(targetPath)}`
-)
-
+} = dual(
+  2,
+  (rootRelativePrefix: string, targetPath: string): string =>
+    `${rootRelativePrefix}${Str.replace(/^\.\//, Str.empty)(targetPath)}`
+);
 
 /**
  * Default docgen exclude globs for repo packages.
@@ -169,9 +170,7 @@ export const buildDocgenAliasSource = (
   });
 };
 
-const buildDocgenAliasIndex = (
-  sources: ReadonlyArray<DocgenAliasSource>
-): HashMap.HashMap<string, DocgenAliasSource> =>
+const buildDocgenAliasIndex = (sources: ReadonlyArray<DocgenAliasSource>): HashMap.HashMap<string, DocgenAliasSource> =>
   HashMap.fromIterable(A.map(sources, (source) => [source.packageName, source] as const));
 
 const buildDocgenExamplesPaths = (
@@ -182,7 +181,10 @@ const buildDocgenExamplesPaths = (
 ): Readonly<Record<string, ReadonlyArray<string>>> => {
   const packageSequence = [
     packageName,
-    ...A.filter(uniqueSortedStringValues(directWorkspaceDependencies), (dependencyName) => dependencyName !== packageName),
+    ...A.filter(
+      uniqueSortedStringValues(directWorkspaceDependencies),
+      (dependencyName) => dependencyName !== packageName
+    ),
   ];
 
   let mappings: Record<string, ReadonlyArray<string>> = {};

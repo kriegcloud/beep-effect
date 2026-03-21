@@ -67,7 +67,7 @@ const composers = $I.compose(
   "iam-ui",
 
   // editor
-  "editor",
+  "editor"
 );
 
 // --- common ---

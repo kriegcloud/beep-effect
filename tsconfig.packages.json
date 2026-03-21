@@ -46,6 +46,9 @@
       "path": "packages/common/utils"
     },
     {
+      "path": "packages/editor"
+    },
+    {
       "path": "packages/repo-memory/client"
     },
     {
@@ -101,9 +104,6 @@
     },
     {
       "path": "tooling/test-utils"
-    },
-    {
-      "path": "packages/editor"
-    },
+    }
   ]
 }

@@ -34,10 +34,10 @@ import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import {
   buildDocgenAliasSource,
-  DocgenAliasSource,
   CanonicalDocgenConfigInput,
   collectDocgenWorkspaceDependencyNames,
   createCanonicalDocgenConfig,
+  DocgenAliasSource,
   mergeManagedDocgenConfig,
 } from "./Shared/DocgenConfig.js";
 import { decodeJsoncTextAsLive } from "./Shared/SchemaCodecs/index.js";
@@ -281,7 +281,10 @@ export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
  */
 export const TsconfigSyncSection = LiteralKit([
   "root-references",
+  "root-quality-references",
   "root-aliases",
+  "root-tstyche",
+  "root-syncpack",
   "package-references",
   "package-docgen",
 ]).annotate(
@@ -320,6 +323,39 @@ class RootAliasesChange extends S.Class<RootAliasesChange>($I`RootAliasesChange`
   })
 ) {}
 
+class RootQualityReferencesChange extends S.Class<RootQualityReferencesChange>($I`RootQualityReferencesChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-quality-references"),
+  },
+  $I.annote("RootQualityReferencesChange", {
+    description: "Planned change entry for root quality tsconfig references.",
+  })
+) {}
+
+class RootTstycheChange extends S.Class<RootTstycheChange>($I`RootTstycheChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-tstyche"),
+  },
+  $I.annote("RootTstycheChange", {
+    description: "Planned change entry for root tstyche config.",
+  })
+) {}
+
+class RootSyncpackChange extends S.Class<RootSyncpackChange>($I`RootSyncpackChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-syncpack"),
+  },
+  $I.annote("RootSyncpackChange", {
+    description: "Planned change entry for root syncpack config.",
+  })
+) {}
+
 class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`PackageReferencesChange`)(
   {
     filePath: S.String,
@@ -350,7 +386,15 @@ class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenC
  * @category DomainModel
  */
 export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
-  Tuple.evolve([() => RootReferencesChange, () => RootAliasesChange, () => PackageReferencesChange, () => PackageDocgenChange])
+  Tuple.evolve([
+    () => RootReferencesChange,
+    () => RootQualityReferencesChange,
+    () => RootAliasesChange,
+    () => RootTstycheChange,
+    () => RootSyncpackChange,
+    () => PackageReferencesChange,
+    () => PackageDocgenChange,
+  ])
 )
   .annotate(
     $I.annote("TsconfigSyncChange", {
@@ -393,6 +437,44 @@ class RootAliasesPlannedFileChange extends S.Class<RootAliasesPlannedFileChange>
   })
 ) {}
 
+class RootQualityReferencesPlannedFileChange extends S.Class<RootQualityReferencesPlannedFileChange>(
+  $I`RootQualityReferencesPlannedFileChange`
+)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-quality-references"),
+    content: S.String,
+  },
+  $I.annote("RootQualityReferencesPlannedFileChange", {
+    description: "Planned file content change for root quality tsconfig references.",
+  })
+) {}
+
+class RootTstychePlannedFileChange extends S.Class<RootTstychePlannedFileChange>($I`RootTstychePlannedFileChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-tstyche"),
+    content: S.String,
+  },
+  $I.annote("RootTstychePlannedFileChange", {
+    description: "Planned file content change for root tstyche config.",
+  })
+) {}
+
+class RootSyncpackPlannedFileChange extends S.Class<RootSyncpackPlannedFileChange>($I`RootSyncpackPlannedFileChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("root-syncpack"),
+    content: S.String,
+  },
+  $I.annote("RootSyncpackPlannedFileChange", {
+    description: "Planned file content change for root syncpack config.",
+  })
+) {}
+
 class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlannedFileChange>(
   $I`PackageReferencesPlannedFileChange`
 )(
@@ -407,7 +489,9 @@ class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlanne
   })
 ) {}
 
-class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileChange>($I`PackageDocgenPlannedFileChange`)(
+class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileChange>(
+  $I`PackageDocgenPlannedFileChange`
+)(
   {
     filePath: S.String,
     summary: S.String,
@@ -429,7 +513,10 @@ class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileCha
 export const PlannedFileChange = TsconfigSyncSection.mapMembers(
   Tuple.evolve([
     () => RootReferencesPlannedFileChange,
+    () => RootQualityReferencesPlannedFileChange,
     () => RootAliasesPlannedFileChange,
+    () => RootTstychePlannedFileChange,
+    () => RootSyncpackPlannedFileChange,
     () => PackageReferencesPlannedFileChange,
     () => PackageDocgenPlannedFileChange,
   ])
@@ -658,6 +745,28 @@ const renderJson = (value: unknown): string => {
   return `${jsonc.applyEdits(encoded, edits)}\n`;
 };
 
+const readRootPackageJson = Effect.fn(function* (rootDir: string) {
+  const path = yield* Path.Path;
+  const filePath = path.join(rootDir, "package.json");
+  const content = yield* readFileString(filePath);
+  const parsed = yield* parseJsonObject(content, filePath);
+  const packageJson = yield* decodePackageJsonEffect(parsed).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Failed to decode package.json at "${filePath}"`,
+          cause,
+        })
+    )
+  );
+
+  return {
+    filePath,
+    content,
+    packageJson,
+  } as const;
+});
+
 const readFileString = Effect.fn(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs
@@ -690,6 +799,126 @@ const relativeFromRoot = (rootDir: string, filePath: string, path: Path.Path): s
 
 const normalizeRelativeRef = (sourceDir: string, targetPath: string, path: Path.Path): string =>
   toPosixPath(path.relative(sourceDir, targetPath));
+
+const workspacePatternsFromPackageJson = (
+  workspaces: O.Option<ReadonlyArray<string> | { readonly packages?: ReadonlyArray<string> }>
+): ReadonlyArray<string> => {
+  if (O.isNone(workspaces)) {
+    return A.empty();
+  }
+
+  const value: unknown = workspaces.value;
+  if (A.isArray(value) && A.every(value, P.isString)) {
+    return value;
+  }
+
+  if (
+    P.isObject(value) &&
+    P.hasProperty(value, "packages") &&
+    A.isArray(value.packages) &&
+    A.every(value.packages, P.isString)
+  ) {
+    return value.packages;
+  }
+
+  return A.empty();
+};
+
+const pathSegments = (value: string): ReadonlyArray<string> =>
+  pipe(value, toPosixPath, Str.split("/"), A.filter(Str.isNonEmpty));
+
+const uniqueInInputOrder = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const results = A.empty<string>();
+  let seen = HashSet.empty<string>();
+
+  for (const value of values) {
+    if (HashSet.has(seen, value)) {
+      continue;
+    }
+    seen = HashSet.add(seen, value);
+    results.push(value);
+  }
+
+  return results;
+};
+
+const readStringArray = (value: unknown): ReadonlyArray<string> =>
+  A.isArray(value) && A.every(value, P.isString) ? value : A.empty<string>();
+
+const readTstycheTestFileMatch = (parsed: Record<string, unknown>): ReadonlyArray<string> =>
+  readStringArray(parsed.testFileMatch);
+
+const isManagedTstycheWorkspace = (relativeDir: string): boolean =>
+  Str.startsWith("packages/")(relativeDir) ||
+  Str.startsWith("tooling/")(relativeDir) ||
+  Str.startsWith("apps/")(relativeDir);
+
+const isCoveredByTopLevelTstychePattern = (relativeDir: string): boolean => {
+  const segments = pathSegments(relativeDir);
+  return (
+    A.length(segments) === 2 &&
+    A.some(["packages", "tooling", "apps"], (prefix) => stringEquivalence(segments[0] ?? "", prefix))
+  );
+};
+
+const buildCanonicalTstycheTestFileMatch = (workspaces: ReadonlyArray<WorkspaceDescriptor>): ReadonlyArray<string> => {
+  const topLevelPatterns = uniqueInInputOrder(
+    [
+      A.some(workspaces, (workspace) => Str.startsWith("packages/")(workspace.relativeDir))
+        ? "packages/*/dtslint/**/*.tst.*"
+        : undefined,
+      A.some(workspaces, (workspace) => Str.startsWith("tooling/")(workspace.relativeDir))
+        ? "tooling/*/dtslint/**/*.tst.*"
+        : undefined,
+      A.some(workspaces, (workspace) => Str.startsWith("apps/")(workspace.relativeDir))
+        ? "apps/*/dtslint/**/*.tst.*"
+        : undefined,
+    ].filter(P.isString)
+  );
+
+  const explicitWorkspacePatterns = pipe(
+    workspaces,
+    A.map((workspace) => workspace.relativeDir),
+    A.filter(isManagedTstycheWorkspace),
+    A.filter((relativeDir) => !isCoveredByTopLevelTstychePattern(relativeDir)),
+    A.map((relativeDir) => `${relativeDir}/dtslint/**/*.tst.*`),
+    A.sort(byStringAscending)
+  );
+
+  return uniqueInInputOrder([...topLevelPatterns, ...explicitWorkspacePatterns]);
+};
+
+const SYNCPACK_SOURCE_ARRAY_PATTERN = /source:\s*\[(?<body>[\s\S]*?)\],/m;
+const SYNC_SOURCE_ENTRY_PATTERN = /"([^"]+)"/g;
+
+const readSyncpackSources = (content: string): Effect.Effect<ReadonlyArray<string>, DomainError> => {
+  const match = SYNCPACK_SOURCE_ARRAY_PATTERN.exec(content);
+  if (match === null) {
+    return Effect.fail(new DomainError({ message: "Failed to read syncpack source array: source array not found" }));
+  }
+
+  return Effect.succeed(
+    pipe(
+      [...(match.groups?.body ?? "").matchAll(SYNC_SOURCE_ENTRY_PATTERN)],
+      A.map((entry) => entry[1] ?? "")
+    )
+  );
+};
+
+const renderSyncpackSourcesBlock = (sources: ReadonlyArray<string>): string =>
+  `source: [\n${pipe(
+    sources,
+    A.map((source) => `    "${source}",`),
+    A.join("\n")
+  )}\n  ],`;
+
+const replaceSyncpackSources = (content: string, sources: ReadonlyArray<string>): Effect.Effect<string, DomainError> =>
+  SYNCPACK_SOURCE_ARRAY_PATTERN.test(content)
+    ? Effect.succeed(content.replace(SYNCPACK_SOURCE_ARRAY_PATTERN, renderSyncpackSourcesBlock(sources)))
+    : Effect.fail(new DomainError({ message: "Failed to replace syncpack source array: source array not found" }));
+
+const buildCanonicalSyncpackSources = (workspacePatterns: ReadonlyArray<string>): ReadonlyArray<string> =>
+  uniqueInInputOrder(["package.json", ...A.map(workspacePatterns, (pattern) => `${pattern}/package.json`)]);
 
 const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined => {
   const normalized = A.map(paths, toPosixPath);
@@ -864,6 +1093,43 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
   );
 });
 
+const planRootQualityReferenceSync = Effect.fn(function* (
+  rootDir: string,
+  workspaces: ReadonlyArray<WorkspaceDescriptor>
+) {
+  const path = yield* Path.Path;
+  const filePath = path.join(rootDir, "tsconfig.quality.packages.json");
+
+  const original = yield* readFileString(filePath);
+  const parsed = yield* parseJsonc(original, filePath, TsconfigWithReferences);
+
+  const expected = uniqueSorted(
+    pipe(
+      workspaces,
+      A.flatMap((workspace) =>
+        workspace.hasProjectTsconfig && !stringEquivalence(workspace.relativeDir, "scratchpad")
+          ? A.make(workspace.relativeDir)
+          : A.empty<string>()
+      )
+    )
+  );
+
+  const current = compareReferencePathsInOrder(parsed);
+  if (arraysEqual(current, expected)) {
+    return O.none<PlannedFileChange>();
+  }
+
+  const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
+
+  return O.some(
+    PlannedFileChange.cases["root-quality-references"].makeUnsafe({
+      filePath,
+      summary: summaryCounts(current, expected, "references"),
+      content: nextContent,
+    })
+  );
+});
+
 const canonicalAliasEntriesForWorkspace = (
   workspace: WorkspaceDescriptor
 ): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => {
@@ -946,6 +1212,56 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
     PlannedFileChange.cases["root-aliases"].makeUnsafe({
       filePath,
       summary: `aliases: add ${additions}, update ${updates}, remove ${keysToRemove.length}`,
+      content: nextContent,
+    })
+  );
+});
+
+const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: ReadonlyArray<WorkspaceDescriptor>) {
+  const path = yield* Path.Path;
+  const filePath = path.join(rootDir, "tstyche.config.json");
+
+  const original = yield* readFileString(filePath);
+  const parsed = yield* parseJsonObject(original, filePath);
+  const current = readTstycheTestFileMatch(parsed);
+  const expected = buildCanonicalTstycheTestFileMatch(workspaces);
+
+  if (arraysEqual(current, expected)) {
+    return O.none<PlannedFileChange>();
+  }
+
+  const nextContent = renderJson({
+    ...parsed,
+    testFileMatch: expected,
+  });
+
+  return O.some(
+    PlannedFileChange.cases["root-tstyche"].makeUnsafe({
+      filePath,
+      summary: summaryCounts(current, expected, "testFileMatch"),
+      content: nextContent,
+    })
+  );
+});
+
+const planRootSyncpackSync = Effect.fn(function* (rootDir: string) {
+  const path = yield* Path.Path;
+  const { packageJson } = yield* readRootPackageJson(rootDir);
+  const syncpackFilePath = path.join(rootDir, "syncpack.config.ts");
+  const original = yield* readFileString(syncpackFilePath);
+  const current = yield* readSyncpackSources(original);
+  const workspacePatterns = workspacePatternsFromPackageJson(packageJson.workspaces);
+  const expected = buildCanonicalSyncpackSources(workspacePatterns);
+
+  if (arraysEqual(current, expected)) {
+    return O.none<PlannedFileChange>();
+  }
+
+  const nextContent = yield* replaceSyncpackSources(original, expected);
+  return O.some(
+    PlannedFileChange.cases["root-syncpack"].makeUnsafe({
+      filePath: syncpackFilePath,
+      summary: summaryCounts(current, expected, "sources"),
       content: nextContent,
     })
   );
@@ -1232,8 +1548,14 @@ const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
   PlannedFileChange.match(change, {
     "root-references": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["root-references"].makeUnsafe({ filePath, summary }),
+    "root-quality-references": ({ filePath, summary }): TsconfigSyncChange =>
+      TsconfigSyncChange.cases["root-quality-references"].makeUnsafe({ filePath, summary }),
     "root-aliases": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["root-aliases"].makeUnsafe({ filePath, summary }),
+    "root-tstyche": ({ filePath, summary }): TsconfigSyncChange =>
+      TsconfigSyncChange.cases["root-tstyche"].makeUnsafe({ filePath, summary }),
+    "root-syncpack": ({ filePath, summary }): TsconfigSyncChange =>
+      TsconfigSyncChange.cases["root-syncpack"].makeUnsafe({ filePath, summary }),
     "package-references": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["package-references"].makeUnsafe({ filePath, summary }),
     "package-docgen": ({ filePath, summary }): TsconfigSyncChange =>
@@ -1304,9 +1626,24 @@ export const syncTsconfigAtRoot: (
       plannedChanges.push(rootReferenceChange.value);
     }
 
+    const rootQualityReferenceChange = yield* planRootQualityReferenceSync(rootDir, workspaces);
+    if (O.isSome(rootQualityReferenceChange)) {
+      plannedChanges.push(rootQualityReferenceChange.value);
+    }
+
     const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);
     if (O.isSome(rootAliasChange)) {
       plannedChanges.push(rootAliasChange.value);
+    }
+
+    const rootTstycheChange = yield* planRootTstycheSync(rootDir, workspaces);
+    if (O.isSome(rootTstycheChange)) {
+      plannedChanges.push(rootTstycheChange.value);
+    }
+
+    const rootSyncpackChange = yield* planRootSyncpackSync(rootDir);
+    if (O.isSome(rootSyncpackChange)) {
+      plannedChanges.push(rootSyncpackChange.value);
     }
 
     const packageChanges = yield* planPackageReferenceSync(
@@ -1434,6 +1771,6 @@ export const tsconfigSyncCommand = Command.make(
   })
 ).pipe(
   Command.withDescription(
-    "Synchronize workspace tsconfig references plus root tsconfig.packages.json and root @beep/* path aliases"
+    "Synchronize repo-managed config files including root tsconfig references, aliases, tstyche, syncpack, and package docgen"
   )
 );

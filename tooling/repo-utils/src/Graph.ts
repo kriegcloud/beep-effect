@@ -21,7 +21,7 @@ import { CyclicDependencyError } from "./errors/index.js";
 /**
  * Convert a `HashMap<string, HashSet<string>>` adjacency list into an
  * `G.DirectedGraph<string, void>` and a bidirectional lookup
- * between package names and node indices.
+ * between package names and node indices.export * from "./Graph.ts";
  *
  * @param adjacencyList Package dependency adjacency list.
  * @internal
