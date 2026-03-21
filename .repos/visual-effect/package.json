@@ -1,0 +1,83 @@
+{
+  "name": "visual-effect",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "sideEffects": false,
+  "license": "MIT",
+  "description": "Interactive visual state machine for Effect (effect-ts) with a Next.js + React demo and Tone.js sound cues.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kitlangton/visual-effect.git"
+  },
+  "homepage": "https://github.com/kitlangton/visual-effect#readme",
+  "bugs": {
+    "url": "https://github.com/kitlangton/visual-effect/issues"
+  },
+  "author": "Kit Langton",
+  "keywords": [
+    "effect",
+    "effect-ts",
+    "react",
+    "nextjs",
+    "tonejs",
+    "state-machine",
+    "visualization",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "tsx scripts/generate-og-images.tsx",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome lint .",
+    "lint-fix": "biome lint . --apply",
+    "format": "biome format . --write",
+    "check": "biome check .",
+    "check-fix": "biome check . --write",
+    "preview": "next start",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
+    "generate-og-images": "tsx scripts/generate-og-images.tsx",
+    "fix": "biome check . --write && bun run typecheck",
+    "clean": "biome format . --write && biome lint . --write && bun run typecheck",
+    "verify": "biome check . && bun run typecheck && bun run test",
+    "ready": "bun run clean && bun run build"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@vercel/analytics": "^1.6.1",
+    "effect": "^3.19.14",
+    "motion": "^12.27.1",
+    "next": "^16.1.3",
+    "prism-react-renderer": "^2.4.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tone": "^15.1.22"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.11",
+    "@effect/language-service": "^0.71.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@vitest/ui": "^4.0.17",
+    "jsdom": "^27.4.0",
+    "satori": "^0.19.1",
+    "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.17"
+  },
+  "packageManager": "bun@1.3.0",
+  "trustedDependencies": [
+    "@tailwindcss/oxide"
+  ]
+}
