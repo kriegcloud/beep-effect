@@ -30,6 +30,7 @@ import {
   CanonicalDocgenConfigInput,
   collectDocgenWorkspaceDependencyNames,
   createCanonicalDocgenConfig,
+  toCanonicalDocgenConfigJson,
 } from "../../Shared/DocgenConfig.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
@@ -741,11 +742,12 @@ export const createDocgenConfigDocument: (
         workspaceAliasSources,
       })
     );
+    const canonicalConfigJson = toCanonicalDocgenConfigJson(canonicalConfig);
 
     return new DocgenConfigDocument({
       srcDir: "src",
       outDir: "docs",
-      ...canonicalConfig,
+      ...canonicalConfigJson,
     });
   });
 
