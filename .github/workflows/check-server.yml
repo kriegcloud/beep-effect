@@ -1,0 +1,73 @@
+name: Check - Server
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/server/**"
+      - "packages/domain/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/server/**"
+      - "packages/domain/**"
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Run Lint
+        run: bun lint
+
+  verify-types:
+    name: "Types"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Verify Types
+        run: bun type-check --filter=server
+
+  formatting:
+    name: "Formatting"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Check Formatting
+        run: bun format:check
+
+  test:
+    name: "Unit Test"
+    needs:
+      - lint
+      - verify-types
+      - formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Run Tests
+        run: bun run test --filter=server

@@ -1,0 +1,25 @@
+{
+  "name": "@repo/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/Api.ts",
+    "./Api": "./src/Api.ts",
+    "./Chat": "./src/Chat.ts",
+    "./Rpc": "./src/Rpc.ts",
+    "./WebSocket": "./src/WebSocket.ts"
+  },
+  "main": "./src/Api.ts",
+  "types": "./src/Api.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "clean": "git clean -xdf .cache .turbo dist node_modules tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "effect": "4.0.0-beta.36"
+  },
+  "devDependencies": {
+    "@repo/config-typescript": "workspace:*"
+  }
+}

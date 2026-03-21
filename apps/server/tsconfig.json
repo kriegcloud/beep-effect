@@ -1,0 +1,15 @@
+{
+  "extends": "@repo/config-typescript/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": true,
+    "types": ["@types/bun"],
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  },
+  "include": ["src/**/*", "../../packages/ai/src/LanguageModel.ts"],
+  "exclude": ["node_modules", "dist"]
+}
