@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { ApplicableTo } from "./ApplicableTo.model.js";
+import { SchemaUtils } from "@beep/schema";
 import { ArchitecturalLayer, type ArchitecturalLayer as ArchitecturalLayerValue } from "./ArchitecturalLayer.model.js";
 import { ASTSignal } from "./ASTSignal.model.js";
 import { DependencyProfile } from "./DependencyProfile.model.js";
@@ -1305,3 +1306,20 @@ export function resolveContextFallback(
     O.getOrElse(() => UNCATEGORIZED_CATEGORY_TAG)
   );
 }
+
+
+/**
+ * The TypeScript Category Tag
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const Category = S.Union(CATEGORY_TAG_SCHEMAS).pipe(
+  SchemaUtils.withStatics((self) => ({
+    decodeUnknown: (u: unknown) => S.decodeUnknownEffect(self)(u)
+  })),
+  $I.annoteSchema("Category", {
+    description: "A TypeScript category tag, representing a categorization of TypeScript constructs."
+  })
+)
+
+export type Category = typeof Category.Type;
