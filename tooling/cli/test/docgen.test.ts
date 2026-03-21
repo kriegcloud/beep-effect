@@ -145,17 +145,6 @@ describe("Docgen operations", () => {
               workspaces: ["packages/*/*"],
             })
           );
-          yield* fs.writeFileString(
-            path.join(tmpDir, "tsconfig.json"),
-            encodeJson({
-              compilerOptions: {
-                paths: {
-                  "@beep/schema": ["./packages/common/schema/src/index.ts"],
-                  "@beep/schema/*": ["./packages/common/schema/src/*.ts"],
-                },
-              },
-            })
-          );
 
           const schemaDir = path.join(tmpDir, "packages", "common", "schema");
           yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
@@ -164,6 +153,10 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/schema",
               version: "0.0.0",
+              exports: {
+                ".": "./src/index.ts",
+                "./*": "./src/*.ts",
+              },
             })
           );
 
@@ -176,6 +169,10 @@ describe("Docgen operations", () => {
               version: "0.0.0",
               dependencies: {
                 "@beep/schema": "workspace:*",
+              },
+              exports: {
+                ".": "./src/index.ts",
+                "./*": "./src/*.ts",
               },
             })
           );
@@ -193,12 +190,102 @@ describe("Docgen operations", () => {
           expect(config.srcLink).toBe(
             "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/"
           );
-          expect(typeof paths).toBe("object");
-          expect(paths).toMatchObject({
+          expect(paths).toEqual({
+            noEmit: true,
+            strict: true,
+            skipLibCheck: true,
+            moduleResolution: "Bundler",
+            module: "ES2022",
+            target: "ES2022",
+            lib: ["ESNext", "DOM", "DOM.Iterable"],
+            rewriteRelativeImportExtensions: true,
+            allowImportingTsExtensions: true,
+            moduleDetection: "force",
+            verbatimModuleSyntax: true,
+            allowJs: false,
+            erasableSyntaxOnly: true,
+            declaration: true,
+            declarationMap: true,
+            sourceMap: true,
+            exactOptionalPropertyTypes: true,
+            noUnusedLocals: true,
+            noUnusedParameters: true,
+            noImplicitOverride: true,
+            noFallthroughCasesInSwitch: true,
+            stripInternal: false,
+            noErrorTruncation: true,
+            types: [],
+            jsx: "react-jsx",
             paths: {
-              effect: ["../../../packages/effect/src/index.ts"],
               "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["../../../packages/common/identity/src/*"],
+              "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+              "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+              "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+            },
+          });
+        })
+      )
+    );
+  });
+
+  it("builds docgen path mappings from non-standard source exports", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/ai/*", "packages/common/*"],
+            })
+          );
+
+          const schemaDir = path.join(tmpDir, "packages", "common", "schema");
+          yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(schemaDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+              exports: {
+                ".": "./src/index.ts",
+                "./*": "./src/*.ts",
+              },
+            })
+          );
+
+          const sdkDir = path.join(tmpDir, "packages", "ai", "sdk");
+          yield* fs.makeDirectory(path.join(sdkDir, "src", "core"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(sdkDir, "package.json"),
+            encodeJson({
+              name: "@beep/ai-sdk",
+              version: "0.0.0",
+              dependencies: {
+                "@beep/schema": "workspace:*",
+              },
+              exports: {
+                ".": "./src/core/index.ts",
+                "./*": "./src/core/*.ts",
+              },
+            })
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/ai-sdk");
+
+          expect(target).toBeDefined();
+
+          const config = yield* createDocgenConfigDocument(target!, tmpDir);
+
+          expect(config.examplesCompilerOptions).toMatchObject({
+            paths: {
+              "@beep/ai-sdk": ["../../../packages/ai/sdk/src/core/index.ts"],
+              "@beep/ai-sdk/*": ["../../../packages/ai/sdk/src/core/*.ts"],
               "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
               "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
             },

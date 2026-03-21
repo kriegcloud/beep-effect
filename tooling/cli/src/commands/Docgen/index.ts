@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
+import * as jsonc from "jsonc-parser";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -63,7 +64,14 @@ const parallelFlag = Flag.integer("parallel").pipe(
 );
 
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const renderJson = (value: unknown): string => `${encodeJson(value)}\n`;
+const renderJson = (value: unknown): string => {
+  const encoded = encodeJson(value);
+  const edits = jsonc.format(encoded, undefined, {
+    tabSize: 2,
+    insertSpaces: true,
+  });
+  return `${jsonc.applyEdits(encoded, edits)}\n`;
+};
 
 const defaultAnalysisPath = (packagePath: string, json: boolean, path: Path.Path): string =>
   path.join(packagePath, json ? "JSDOC_ANALYSIS.json" : "JSDOC_ANALYSIS.md");

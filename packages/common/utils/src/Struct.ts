@@ -1,12 +1,53 @@
+import { $UtilsId } from "@beep/identity/packages";
 import { Struct as EffectStruct, Function as Fn, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { Get, Paths, Simplify } from "type-fest";
 import * as A from "./Array.ts";
 import type { PathLookup as InternalPathLookup, PathInput } from "./internal/StructPath.ts";
 import { lookupAtPath, unsafeDotGet } from "./internal/StructPath.ts";
+
+const $I = $UtilsId.create("Struct");
+
+type NonEmptyStringKeyStruct<R extends object> = [keyof R & string] extends [never] ? never : R;
+
+const NonEmptyStringKeys = S.NonEmptyArray(S.String);
+const assertNonEmptyStringKeys: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<string> =
+  S.asserts(NonEmptyStringKeys);
+
+/**
+ * Thrown when a struct expected to have at least one string key is empty.
+ *
+ * @since 0.2.0
+ * @category DomainModel
+ */
+export class EmptyStructError extends S.TaggedErrorClass<EmptyStructError>($I`EmptyStructError`)(
+  "EmptyStructError",
+  {
+    input: S.Unknown,
+    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  },
+  $I.annote("EmptyStructError", {
+    description: "Invariant violation thrown when a struct expected to have at least one string key is empty.",
+  })
+) {}
+
+function assertStructHasStringKeys<T extends string>(
+  input: Array<T>,
+  source: object
+): asserts input is A.NonEmptyArray<T> {
+  try {
+    assertNonEmptyStringKeys(input);
+  } catch (cause) {
+    throw new EmptyStructError({
+      input: source,
+      cause: S.decodeUnknownOption(S.DefectWithStack)(cause),
+    });
+  }
+}
 
 /**
  * Result of a runtime struct path lookup.
@@ -298,6 +339,23 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
  * @category Utility
  */
 export const keys = <const R extends object>(obj: R): Array<keyof R & string> => EffectStruct.keys(obj);
+
+/**
+ * Returns the string keys of a non-empty object in a type-safe manner.
+ *
+ * Empty struct types are rejected at compile time. A runtime empty value still
+ * fails fast with {@link EmptyStructError} to protect the invariant.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const keysNonEmpty = <const R extends object>(
+  obj: R & NonEmptyStringKeyStruct<R>
+): A.NonEmptyReadonlyArray<keyof R & string> => {
+  const result: Array<keyof R & string> = Fn.cast(EffectStruct.keys(obj));
+  assertStructHasStringKeys(result, obj);
+  return Fn.cast<Array<keyof R & string>, A.NonEmptyReadonlyArray<keyof R & string>>(result);
+};
 
 /**
  * Type-safe `Object.fromEntries` that preserves per-key value types.

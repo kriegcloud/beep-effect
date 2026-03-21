@@ -168,49 +168,5 @@
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
-  },
-  "overrides": [
-    {
-      // Type utility, schema, and factory files require any for type-level computations
-      "includes": [
-        "packages/common/types/**/*.ts",
-        "packages/common/schema/**/*.ts",
-        "packages/shared/domain/src/factories/**/*.ts",
-        "packages/shared/server/src/factories/**/*.ts"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "warn"
-          }
-        }
-      }
-    },
-    {
-      // Tooling and test files have lower strictness requirements
-      "includes": ["tooling/**/*.ts", "**/test/**/*.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "warn"
-          }
-        }
-      }
-    },
-    {
-      // AI SDK runtime adapters still bridge external, weakly-typed contracts.
-      // Keep `any` tolerated in this package until the typed boundary migration lands.
-      "includes": [
-        "packages/ai/sdk/src/**/*.ts",
-        "packages/ai/sdk/test/**/*.ts"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }

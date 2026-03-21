@@ -103,6 +103,11 @@ export const isPositive = isPositiveInternal;
 export * as Model from "./Model.ts";
 /**
  * @since 0.0.0
+ * @category Utility
+ */
+export * as SchemaUtils from "./SchemaUtils/index.ts";
+/**
+ * @since 0.0.0
  * @category Validation
  */
 export * from "./SeverityLevel.ts";
@@ -126,9 +131,13 @@ export * from "./TaggedErrorClass.ts";
  * @category Validation
  */
 export * from "./Transformations.ts";
-
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./String.ts";

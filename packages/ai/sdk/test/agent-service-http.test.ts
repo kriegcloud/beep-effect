@@ -36,16 +36,6 @@ const makeAccessLayer = (options?: { readonly authToken?: string; readonly hostn
 
 const httpTestPlatformLayer = Layer.mergeAll(NodeServices.layer, NodeHttpPlatform.layer);
 
-const makeWebHandler = (serverLayer: Layer.Layer<never, never, any>) =>
-  Effect.acquireRelease(
-    Effect.sync(() =>
-      HttpRouter.toWebHandler(
-        serverLayer.pipe(Layer.provideMerge(httpTestPlatformLayer)) as Layer.Layer<unknown, never, never>
-      )
-    ),
-    ({ dispose }) => Effect.promise(dispose)
-  );
-
 const makeApiLayer = <ROut, RIn>(
   handlersLayer: Layer.Layer<ROut, never, RIn>,
   accessLayer: Layer.Layer<AgentServerAccess, never, never>
@@ -96,10 +86,14 @@ test("AgentHttpHandlers rejects requests without the configured auth token", asy
   const accessLayer = makeAccessLayer({ authToken: "secret-token" });
   const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(accessLayer));
   const apiLayer = makeApiLayer(handlersLayer, accessLayer);
+  const serverLayer = apiLayer.pipe(Layer.provideMerge(httpTestPlatformLayer));
 
   const program = Effect.scoped(
     Effect.gen(function* () {
-      const { handler } = yield* makeWebHandler(apiLayer);
+      const { handler } = yield* Effect.acquireRelease(
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
+        ({ dispose }) => Effect.promise(dispose)
+      );
 
       const unauthorized = yield* Effect.promise(() => handler(new Request("http://localhost/stats")));
       expect(unauthorized.status).not.toBe(200);
@@ -155,10 +149,14 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
     Layer.provide(accessLayer)
   );
   const apiLayer = makeApiLayer(handlersLayer, accessLayer);
+  const serverLayer = apiLayer.pipe(Layer.provideMerge(httpTestPlatformLayer));
 
   const program = Effect.scoped(
     Effect.gen(function* () {
-      const { handler } = yield* makeWebHandler(apiLayer);
+      const { handler } = yield* Effect.acquireRelease(
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
+        ({ dispose }) => Effect.promise(dispose)
+      );
       const requestBody = encodeJson({
         options: {
           model: "claude-test",

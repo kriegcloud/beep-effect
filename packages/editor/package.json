@@ -61,7 +61,7 @@
     "clsx": "catalog:",
     "cytoscape": "catalog:",
     "tailwind-merge": "catalog:",
-        "lexical": "catalog:",
+    "lexical": "catalog:",
     "@lexical/react": "catalog:",
     "@lexical/utils": "catalog:",
     "@lexical/code": "catalog:",

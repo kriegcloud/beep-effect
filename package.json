@@ -17,7 +17,8 @@
     "packages/repo-memory/store",
     "packages/runtime/*",
     "packages/shared/*",
-    "tooling/*"
+    "tooling/*",
+    "packages/editor"
   ],
   "repository": {
     "type": "git",
@@ -236,7 +237,7 @@
     "effect": "^4.0.0-beta.36",
     "picomatch": "^4.0.3",
     "@typescript-eslint/parser": "^8.57.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260320.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260321.1",
     "@vitest/browser": "^4.1.0",
     "@vitest/browser-playwright": "^4.1.0",
     "@vitest/coverage-v8": "^4.1.0",
@@ -300,7 +301,7 @@
     "fast-check": "^4.6.0",
     "@next/bundle-analyzer": "16.2.1-canary.4",
     "@playwright/test": "^1.58.2",
-    "yaml": "^2.8.2",
+    "yaml": "^2.8.3",
     "publint": "^0.3.18",
     "@arethetypeswrong/cli": "^0.18.2",
     "@storybook/addon-a11y": "^10.3.1",

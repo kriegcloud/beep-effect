@@ -32,6 +32,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
+import {
+  buildDocgenAliasSource,
+  DocgenAliasSource,
+  CanonicalDocgenConfigInput,
+  collectDocgenWorkspaceDependencyNames,
+  createCanonicalDocgenConfig,
+  mergeManagedDocgenConfig,
+} from "./Shared/DocgenConfig.js";
 import { decodeJsoncTextAsLive } from "./Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets, resolveRootExportTarget } from "./Shared/TsconfigAliasTargets.js";
 
@@ -62,6 +70,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
   insertSpaces: true,
 };
+const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 
 /**
  * Synthetic root key in repo-utils dependency maps.
@@ -270,7 +279,12 @@ export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const TsconfigSyncSection = LiteralKit(["root-references", "root-aliases", "package-references"]).annotate(
+export const TsconfigSyncSection = LiteralKit([
+  "root-references",
+  "root-aliases",
+  "package-references",
+  "package-docgen",
+]).annotate(
   $I.annote("TsconfigSyncSection", {
     description: "Sync change section categories for tsconfig-sync.",
   })
@@ -317,6 +331,17 @@ class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`Packag
   })
 ) {}
 
+class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("package-docgen"),
+  },
+  $I.annote("PackageDocgenChange", {
+    description: "Planned change entry for package docgen configs.",
+  })
+) {}
+
 /**
  * A single planned file change.
  *
@@ -325,7 +350,7 @@ class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`Packag
  * @category DomainModel
  */
 export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
-  Tuple.evolve([() => RootReferencesChange, () => RootAliasesChange, () => PackageReferencesChange])
+  Tuple.evolve([() => RootReferencesChange, () => RootAliasesChange, () => PackageReferencesChange, () => PackageDocgenChange])
 )
   .annotate(
     $I.annote("TsconfigSyncChange", {
@@ -382,6 +407,18 @@ class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlanne
   })
 ) {}
 
+class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileChange>($I`PackageDocgenPlannedFileChange`)(
+  {
+    filePath: S.String,
+    summary: S.String,
+    section: S.tag("package-docgen"),
+    content: S.String,
+  },
+  $I.annote("PackageDocgenPlannedFileChange", {
+    description: "Planned file content change for package docgen configs.",
+  })
+) {}
+
 /**
  * A planned file change with transformed file content.
  *
@@ -394,6 +431,7 @@ export const PlannedFileChange = TsconfigSyncSection.mapMembers(
     () => RootReferencesPlannedFileChange,
     () => RootAliasesPlannedFileChange,
     () => PackageReferencesPlannedFileChange,
+    () => PackageDocgenPlannedFileChange,
   ])
 )
   .annotate(
@@ -490,13 +528,23 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     relativeDir: S.String,
     ownerTsconfigPath: S.UndefinedOr(S.String),
     hasProjectTsconfig: S.Boolean,
+    hasDocgenConfig: S.Boolean,
+    directWorkspaceDependencies: S.Array(S.String),
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    docgenRootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    docgenWildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("WorkspaceDescriptor", {
     description: "A workspace package descriptor with metadata for tsconfig synchronization.",
   })
 ) {}
+
+const JsonObject = S.Record(S.String, S.Unknown).annotate(
+  $I.annote("JsonObject", {
+    description: "Generic JSON object document used for parsed docgen configs.",
+  })
+);
 
 class TsconfigReferenceEntry extends S.Class<TsconfigReferenceEntry>($I`TsconfigReferenceEntry`)(
   {
@@ -592,6 +640,24 @@ const parseJsonc = Effect.fn(function* <Schema extends S.Top>(content: string, f
   );
 });
 
+const parseJsonObject = Effect.fn(function* (content: string, filePath: string) {
+  return yield* Effect.try({
+    try: () => S.decodeUnknownSync(S.fromJsonString(JsonObject))(content),
+    catch: (cause) =>
+      new DomainError({
+        message: `Failed to parse JSON in "${filePath}"`,
+        cause,
+      }),
+  });
+});
+
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const renderJson = (value: unknown): string => {
+  const encoded = encodeJson(value);
+  const edits = jsonc.format(encoded, undefined, FORMATTING_OPTIONS);
+  return `${jsonc.applyEdits(encoded, edits)}\n`;
+};
+
 const readFileString = Effect.fn(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs
@@ -647,6 +713,7 @@ const workspaceContainsPath = (workspace: WorkspaceDescriptor, targetPath: strin
 };
 
 const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
   const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
@@ -659,6 +726,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
 
     const ownerTsconfigPath = chooseOwnerTsconfig(tsconfigPaths);
     const hasProjectTsconfig = A.some(tsconfigPaths, (entry) => Str.endsWith("/tsconfig.json")(toPosixPath(entry)));
+    const relativeDir = toPosixPath(path.relative(rootDir, absoluteDir));
     const packageJsonPath = path.join(absoluteDir, "package.json");
     const packageJsonContent = yield* readFileString(packageJsonPath);
     const packageJson = yield* Effect.try({
@@ -681,23 +749,30 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         )
       )
     );
+    const hasDocgenConfig = yield* fs
+      .exists(path.join(absoluteDir, DOCGEN_CONFIG_FILENAME))
+      .pipe(Effect.orElseSucceed(thunkFalse));
+    const directWorkspaceDependencies = collectDocgenWorkspaceDependencyNames(packageJson);
     const aliasTargets = pipe(
       packageJson.exports,
       O.flatMap(resolveRootExportTarget),
-      O.map((rootExportTarget) =>
-        buildCanonicalAliasTargets(toPosixPath(path.relative(rootDir, absoluteDir)), rootExportTarget)
-      )
+      O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
+    const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 
     descriptors.push(
       new WorkspaceDescriptor({
         packageName,
         absoluteDir,
-        relativeDir: toPosixPath(path.relative(rootDir, absoluteDir)),
+        relativeDir,
         ownerTsconfigPath,
         hasProjectTsconfig,
+        hasDocgenConfig,
+        directWorkspaceDependencies: [...directWorkspaceDependencies],
         rootAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.rootAliasTarget)),
         wildcardAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.wildcardAliasTarget)),
+        docgenRootAliasTarget: docgenAliasSource.rootAliasTarget,
+        docgenWildcardAliasTarget: docgenAliasSource.wildcardAliasTarget,
       })
     );
   }
@@ -901,6 +976,41 @@ const buildSubsetAdjacency = (
   return subset;
 };
 
+const resolveTargetWorkspacesForPackageSync = (
+  workspaces: ReadonlyArray<WorkspaceDescriptor>,
+  filter: string | undefined
+): Effect.Effect<ReadonlyArray<WorkspaceDescriptor>, TsconfigSyncFilterError> => {
+  const normalizedFilter = filter === undefined ? undefined : Str.replace(/^\.\//, "")(toPosixPath(filter));
+
+  const targetWorkspaces = A.filter(workspaces, (workspace) => {
+    if (workspace.ownerTsconfigPath === undefined) {
+      return false;
+    }
+
+    if (normalizedFilter === undefined) {
+      return true;
+    }
+
+    const packageNameMatchesFilter = O.match(O.fromUndefinedOr(filter), {
+      onNone: thunkFalse,
+      onSome: (filterValue) => stringEquivalence(workspace.packageName, filterValue),
+    });
+
+    return packageNameMatchesFilter || stringEquivalence(workspace.relativeDir, normalizedFilter);
+  });
+
+  if (filter !== undefined && isArrayEmpty(targetWorkspaces)) {
+    return Effect.fail(
+      new TsconfigSyncFilterError({
+        filter,
+        message: `No workspace matched filter "${filter}"`,
+      })
+    );
+  }
+
+  return Effect.succeed(targetWorkspaces);
+};
+
 const canonicalizeExistingRefTarget = Effect.fn(function* (
   sourceWorkspace: WorkspaceDescriptor,
   sourceOwnerTsconfigPath: string,
@@ -958,31 +1068,7 @@ const planPackageReferenceSync = Effect.fn(function* (
   const workspaceByName = HashMap.fromIterable(
     A.map(workspaces, (workspace) => [workspace.packageName, workspace] as const)
   );
-  const normalizedFilter = filter === undefined ? undefined : Str.replace(/^\.\//, "")(toPosixPath(filter));
-
-  const targetWorkspaces = A.filter(workspaces, (workspace) => {
-    if (workspace.ownerTsconfigPath === undefined) {
-      return false;
-    }
-
-    if (normalizedFilter === undefined) {
-      return true;
-    }
-
-    const packageNameMatchesFilter = O.match(O.fromUndefinedOr(filter), {
-      onNone: thunkFalse,
-      onSome: (filterValue) => stringEquivalence(workspace.packageName, filterValue),
-    });
-
-    return packageNameMatchesFilter || stringEquivalence(workspace.relativeDir, normalizedFilter);
-  });
-
-  if (filter !== undefined && isArrayEmpty(targetWorkspaces)) {
-    return yield* new TsconfigSyncFilterError({
-      filter,
-      message: `No workspace matched filter "${filter}"`,
-    });
-  }
+  const targetWorkspaces = yield* resolveTargetWorkspacesForPackageSync(workspaces, filter);
 
   const plannedChanges = A.empty<PlannedFileChange>();
 
@@ -1084,6 +1170,61 @@ const planPackageReferenceSync = Effect.fn(function* (
   return plannedChanges;
 });
 
+const planPackageDocgenSync = Effect.fn(function* (
+  rootDir: string,
+  workspaces: ReadonlyArray<WorkspaceDescriptor>,
+  filter: string | undefined
+) {
+  const path = yield* Path.Path;
+  const targetWorkspaces = yield* resolveTargetWorkspacesForPackageSync(workspaces, filter);
+  const workspaceAliasSources = A.map(
+    workspaces,
+    (workspace) =>
+      new DocgenAliasSource({
+        packageName: workspace.packageName,
+        rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
+        wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
+      })
+  );
+  const plannedChanges = A.empty<PlannedFileChange>();
+
+  for (const workspace of targetWorkspaces) {
+    if (!workspace.hasDocgenConfig) {
+      continue;
+    }
+
+    const filePath = path.join(workspace.absoluteDir, DOCGEN_CONFIG_FILENAME);
+    const original = yield* readFileString(filePath);
+    const parsed = yield* parseJsonObject(original, filePath);
+    const canonicalConfig = yield* createCanonicalDocgenConfig(
+      new CanonicalDocgenConfigInput({
+        rootDir,
+        packageAbsolutePath: workspace.absoluteDir,
+        packageRelativePath: workspace.relativeDir,
+        packageName: workspace.packageName,
+        directWorkspaceDependencies: [...workspace.directWorkspaceDependencies],
+        workspaceAliasSources,
+      })
+    );
+    const nextDocument = mergeManagedDocgenConfig(parsed, canonicalConfig);
+    const nextContent = renderJson(nextDocument);
+
+    if (stringEquivalence(nextContent, original)) {
+      continue;
+    }
+
+    plannedChanges.push(
+      PlannedFileChange.cases["package-docgen"].makeUnsafe({
+        filePath,
+        summary: "managed docgen fields synchronized",
+        content: nextContent,
+      })
+    );
+  }
+
+  return plannedChanges;
+});
+
 const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<PlannedFileChange> =>
   A.sort(changes, byPlannedChangeAscending);
 
@@ -1095,6 +1236,8 @@ const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
       TsconfigSyncChange.cases["root-aliases"].makeUnsafe({ filePath, summary }),
     "package-references": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["package-references"].makeUnsafe({ filePath, summary }),
+    "package-docgen": ({ filePath, summary }): TsconfigSyncChange =>
+      TsconfigSyncChange.cases["package-docgen"].makeUnsafe({ filePath, summary }),
   });
 
 const renderChanges = Effect.fn(function* (
@@ -1175,6 +1318,9 @@ export const syncTsconfigAtRoot: (
       options.verbose
     );
     plannedChanges.push(...packageChanges);
+
+    const docgenChanges = yield* planPackageDocgenSync(rootDir, workspaces, options.filter);
+    plannedChanges.push(...docgenChanges);
 
     const sortedPlannedChanges = sortChanges(plannedChanges);
 
