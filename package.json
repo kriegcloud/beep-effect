@@ -311,6 +311,18 @@
     "@storybook/addon-vitest": "^10.3.1",
     "sst": "^4.5.1",
     "@types/picomatch": "^4.0.2",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "lexical": "^0.42.0",
+    "@lexical/react": "^0.42.0",
+    "@lexical/utils": "^0.42.0",
+    "@lexical/code": "^0.42.0",
+    "@lexical/link": "^0.42.0",
+    "@lexical/list": "^0.42.0",
+    "@lexical/markdown": "^0.42.0",
+    "@lexical/overflow": "^0.42.0",
+    "@lexical/rich-text": "^0.42.0",
+    "@lexical/selection": "^0.42.0",
+    "@lexical/table": "^0.42.0",
+    "@lexical/headless": "^0.42.0"
   }
 }

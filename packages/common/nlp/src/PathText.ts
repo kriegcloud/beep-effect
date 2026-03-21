@@ -5,14 +5,26 @@
  * @module @beep/nlp/PathText
  */
 import * as Str from "@beep/utils/Str";
-import { flow, pipe } from "effect";
+import {flow, pipe} from "effect";
 import * as A from "effect/Array";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 
-const stripLeadingDotSlash = (input: string): string => pipe(input, Str.replace(/^\.\/+/, ""));
-const stripTypeScriptExtension = Str.replace(/\.[cm]?tsx?$/i, "");
-const basename = Str.replace(/^.*\//, "");
+const stripLeadingDotSlash = (input: string): string => pipe(
+  input,
+  Str.replace(
+    /^\.\/+/,
+    Str.empty
+  )
+);
+const stripTypeScriptExtension = Str.replace(
+  /\.[cm]?tsx?$/i,
+  Str.empty
+);
+const basename = Str.replace(
+  /^.*\//,
+  Str.empty
+);
 
 const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
   const normalized = normalizePathPhrase(input);
@@ -21,9 +33,13 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
   const base = basename(withoutDotSlash);
   const basenameWithoutExtension = stripTypeScriptExtension(base);
 
-  return VariantText.orderedDedupe(
-    A.make(normalized, withoutDotSlash, withoutExtension, base, basenameWithoutExtension)
-  );
+  return VariantText.orderedDedupe(A.make(
+    normalized,
+    withoutDotSlash,
+    withoutExtension,
+    base,
+    basenameWithoutExtension
+  ));
 };
 
 /**
@@ -32,7 +48,17 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
  * @since 0.0.0
  * @category Normalization
  */
-export const normalizePathPhrase = flow(QueryText.normalizePhrase, Str.replace(/\\+/g, "/"), Str.replace(/\/+/g, "/"));
+export const normalizePathPhrase = flow(
+  QueryText.normalizePhrase,
+  Str.replace(
+    /\\+/g,
+    "/"
+  ),
+  Str.replace(
+    /\/+/g,
+    "/"
+  )
+);
 
 /**
  * True when the input is a bounded single-token path or module fragment.
