@@ -101,6 +101,9 @@
     },
     {
       "path": "tooling/test-utils"
+    },
+    {
+      "path": "apps/nlp"
     }
   ]
 }

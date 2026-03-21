@@ -114,10 +114,10 @@
         "./packages/common/semantic-web/src/*"
       ],
       "@beep/nlp": [
-        "./packages/common/nlp/src/index.ts"
+        "./apps/nlp/src/index.ts"
       ],
       "@beep/nlp/*": [
-        "./packages/common/nlp/src/*"
+        "./apps/nlp/src/*"
       ]
     },
     "plugins": [
