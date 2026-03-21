@@ -84,46 +84,41 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
  * @since 0.0.0
  * @category DomainModel
  */
-export const CanonicalDocgenExamplesCompilerOptions = S.Struct({
-  noEmit: S.Literal(true),
-  strict: S.Literal(true),
-  skipLibCheck: S.Literal(true),
-  moduleResolution: S.Literal("Bundler"),
-  module: S.Literal("ES2022"),
-  target: S.Literal("ES2022"),
-  lib: S.Array(S.String),
-  rewriteRelativeImportExtensions: S.Literal(true),
-  allowImportingTsExtensions: S.Literal(true),
-  moduleDetection: S.Literal("force"),
-  verbatimModuleSyntax: S.Literal(true),
-  allowJs: S.Literal(false),
-  erasableSyntaxOnly: S.Literal(true),
-  declaration: S.Literal(true),
-  declarationMap: S.Literal(true),
-  sourceMap: S.Literal(true),
-  exactOptionalPropertyTypes: S.Literal(true),
-  noUnusedLocals: S.Literal(true),
-  noUnusedParameters: S.Literal(true),
-  noImplicitOverride: S.Literal(true),
-  noFallthroughCasesInSwitch: S.Literal(true),
-  stripInternal: S.Literal(false),
-  noErrorTruncation: S.Literal(true),
-  types: S.Array(S.String),
-  jsx: S.Literal("react-jsx"),
-  paths: S.Record(S.String, S.Array(S.String)),
-}).pipe(
-  $I.annoteSchema("CanonicalDocgenExamplesCompilerOptions", {
+export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDocgenExamplesCompilerOptions>(
+  $I`CanonicalDocgenExamplesCompilerOptions`
+)(
+  {
+    noEmit: S.Literal(true),
+    strict: S.Literal(true),
+    skipLibCheck: S.Literal(true),
+    moduleResolution: S.Literal("Bundler"),
+    module: S.Literal("ES2022"),
+    target: S.Literal("ES2022"),
+    lib: S.Array(S.String),
+    rewriteRelativeImportExtensions: S.Literal(true),
+    allowImportingTsExtensions: S.Literal(true),
+    moduleDetection: S.Literal("force"),
+    verbatimModuleSyntax: S.Literal(true),
+    allowJs: S.Literal(false),
+    erasableSyntaxOnly: S.Literal(true),
+    declaration: S.Literal(true),
+    declarationMap: S.Literal(true),
+    sourceMap: S.Literal(true),
+    exactOptionalPropertyTypes: S.Literal(true),
+    noUnusedLocals: S.Literal(true),
+    noUnusedParameters: S.Literal(true),
+    noImplicitOverride: S.Literal(true),
+    noFallthroughCasesInSwitch: S.Literal(true),
+    stripInternal: S.Literal(false),
+    noErrorTruncation: S.Literal(true),
+    types: S.Array(S.String),
+    jsx: S.Literal("react-jsx"),
+    paths: S.Record(S.String, S.Array(S.String)),
+  },
+  $I.annote("CanonicalDocgenExamplesCompilerOptions", {
     description: "Managed TypeScript compiler options used for docgen examples.",
   })
-);
-
-/**
- * Managed TypeScript compiler options used for docgen examples.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type CanonicalDocgenExamplesCompilerOptions = typeof CanonicalDocgenExamplesCompilerOptions.Type;
+) {}
 
 /**
  * Canonical repo docgen config payload.
@@ -131,24 +126,86 @@ export type CanonicalDocgenExamplesCompilerOptions = typeof CanonicalDocgenExamp
  * @since 0.0.0
  * @category DomainModel
  */
-export const CanonicalDocgenConfig = S.Struct({
-  $schema: S.String,
-  exclude: S.Array(S.String),
-  srcLink: S.String,
-  examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions,
-}).pipe(
-  $I.annoteSchema("CanonicalDocgenConfig", {
+export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`CanonicalDocgenConfig`)(
+  {
+    $schema: S.String,
+    exclude: S.Array(S.String),
+    srcLink: S.String,
+    examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions,
+  },
+  $I.annote("CanonicalDocgenConfig", {
     description: "Canonical repo docgen config payload.",
   })
-);
+) {}
+
+const cloneStringArray = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.fromIterable(values);
+
+const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
 /**
- * Canonical repo docgen config payload.
+ * Convert canonical docgen compiler options to a plain JSON-compatible object.
  *
+ * @param options - Canonical compiler options model.
+ * @returns Plain JSON-compatible compiler options payload.
  * @since 0.0.0
  * @category DomainModel
  */
-export type CanonicalDocgenConfig = typeof CanonicalDocgenConfig.Type;
+export const toDocgenExamplesCompilerOptionsJson = (
+  options: CanonicalDocgenExamplesCompilerOptions
+): Readonly<Record<string, unknown>> => ({
+  noEmit: options.noEmit,
+  strict: options.strict,
+  skipLibCheck: options.skipLibCheck,
+  moduleResolution: options.moduleResolution,
+  module: options.module,
+  target: options.target,
+  lib: cloneStringArray(options.lib),
+  rewriteRelativeImportExtensions: options.rewriteRelativeImportExtensions,
+  allowImportingTsExtensions: options.allowImportingTsExtensions,
+  moduleDetection: options.moduleDetection,
+  verbatimModuleSyntax: options.verbatimModuleSyntax,
+  allowJs: options.allowJs,
+  erasableSyntaxOnly: options.erasableSyntaxOnly,
+  declaration: options.declaration,
+  declarationMap: options.declarationMap,
+  sourceMap: options.sourceMap,
+  exactOptionalPropertyTypes: options.exactOptionalPropertyTypes,
+  noUnusedLocals: options.noUnusedLocals,
+  noUnusedParameters: options.noUnusedParameters,
+  noImplicitOverride: options.noImplicitOverride,
+  noFallthroughCasesInSwitch: options.noFallthroughCasesInSwitch,
+  stripInternal: options.stripInternal,
+  noErrorTruncation: options.noErrorTruncation,
+  types: cloneStringArray(options.types),
+  jsx: options.jsx,
+  paths: pipe(
+    options.paths,
+    R.map((targets) => cloneStringArray(targets))
+  ),
+});
+
+/**
+ * Convert the canonical docgen config model to a plain JSON-compatible object.
+ *
+ * @param config - Canonical docgen config model.
+ * @returns Plain JSON-compatible docgen config payload.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const toCanonicalDocgenConfigJson = (
+  config: CanonicalDocgenConfig
+): {
+  readonly $schema: string;
+  readonly exclude: ReadonlyArray<string>;
+  readonly srcLink: string;
+  readonly examplesCompilerOptions: Readonly<Record<string, unknown>>;
+} => ({
+  $schema: config.$schema,
+  exclude: cloneStringArray(config.exclude),
+  srcLink: config.srcLink,
+  examplesCompilerOptions: toDocgenExamplesCompilerOptionsJson(config.examplesCompilerOptions),
+});
 
 /**
  * Collect direct workspace package dependencies from a package manifest.
@@ -259,11 +316,11 @@ export const createCanonicalDocgenConfig: (
     rootRelativePrefix
   );
 
-  return {
+  return new CanonicalDocgenConfig({
     $schema: `${rootRelativePrefix}node_modules/@effect/docgen/schema.json`,
     exclude: [...DEFAULT_DOCGEN_EXCLUDE],
     srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${input.packageRelativePath}/src/`,
-    examplesCompilerOptions: {
+    examplesCompilerOptions: new CanonicalDocgenExamplesCompilerOptions({
       noEmit: true,
       strict: true,
       skipLibCheck: true,
@@ -290,8 +347,8 @@ export const createCanonicalDocgenConfig: (
       types: [],
       jsx: "react-jsx",
       paths: examplesPaths,
-    },
-  };
+    }),
+  });
 });
 
 /**
@@ -310,12 +367,26 @@ export const mergeManagedDocgenConfig = (
   existing: Readonly<Record<string, unknown>>,
   canonical: CanonicalDocgenConfig
 ): Record<string, unknown> => {
+  const canonicalJson = toCanonicalDocgenConfigJson(canonical);
+  const existingExamplesCompilerOptions = isReadonlyUnknownRecord(existing.examplesCompilerOptions)
+    ? existing.examplesCompilerOptions
+    : undefined;
+  const mergedExamplesCompilerOptions =
+    existingExamplesCompilerOptions === undefined
+      ? canonicalJson.examplesCompilerOptions
+      : {
+          ...existingExamplesCompilerOptions,
+          ...canonicalJson.examplesCompilerOptions,
+          ...(Array.isArray(existingExamplesCompilerOptions.types)
+            ? { types: existingExamplesCompilerOptions.types }
+            : {}),
+        };
   const merged = {
     ...existing,
-    $schema: canonical.$schema,
-    srcLink: canonical.srcLink,
-    examplesCompilerOptions: canonical.examplesCompilerOptions,
+    $schema: canonicalJson.$schema,
+    srcLink: canonicalJson.srcLink,
+    examplesCompilerOptions: mergedExamplesCompilerOptions,
   };
 
-  return "exclude" in existing ? merged : { ...merged, exclude: [...canonical.exclude] };
+  return "exclude" in existing ? merged : { ...merged, exclude: [...canonicalJson.exclude] };
 };

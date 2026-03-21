@@ -26,7 +26,7 @@
     "noFallthroughCasesInSwitch": true,
     "stripInternal": false,
     "noErrorTruncation": true,
-    "types": [],
+    "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],

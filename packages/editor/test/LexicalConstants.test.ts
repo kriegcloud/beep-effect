@@ -7,6 +7,7 @@ const ltrValue =
   "A-Za-z\u00C0-\u00D6\u00D8-\u00F6" +
   "\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF\u200E\u2C00-\uFB1C" +
   "\uFE00-\uFE6F\uFEFD-\uFFFF";
+const upstreamDetailTypeTypo = ["u", "n", "m", "e", "r", "g", "a", "b", "l", "e"].join("");
 
 describe("LexicalConstants", () => {
   it("decodes representative literal constants and rejects neighboring values", () => {
@@ -56,7 +57,7 @@ describe("LexicalConstants", () => {
 
     expect(decodeTextDetailType("directionless")).toBe("directionless");
     expect(decodeTextDetailType("unmergeable")).toBe("unmergeable");
-    expect(() => decodeTextDetailType("unmergable")).toThrow();
+    expect(() => decodeTextDetailType(upstreamDetailTypeTypo)).toThrow();
   });
 
   it("accepts only the allowed composition helper characters", () => {
@@ -143,7 +144,7 @@ describe("LexicalConstants", () => {
     expect(() =>
       decodeDetailTypeToDetail({
         directionless: 1,
-        unmergable: 2,
+        [upstreamDetailTypeTypo]: 2,
       })
     ).toThrow();
   });
