@@ -1,0 +1,60 @@
+{
+  "name": "@lexical/headless",
+  "description": "This package contains Headless helpers and functionality for Lexical.",
+  "keywords": [
+    "lexical",
+    "editor",
+    "rich-text",
+    "headless"
+  ],
+  "license": "MIT",
+  "version": "0.42.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/lexical.git",
+    "directory": "packages/lexical-headless"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./dom": {
+      "browser": {
+        "types": "./dom.d.ts",
+        "development": "./LexicalHeadlessDom.browser.dev.mjs",
+        "production": "./LexicalHeadlessDom.browser.prod.mjs",
+        "default": "./LexicalHeadlessDom.browser.mjs"
+      },
+      "import": {
+        "types": "./dom.d.ts",
+        "development": "./LexicalHeadlessDom.dev.mjs",
+        "production": "./LexicalHeadlessDom.prod.mjs",
+        "node": "./LexicalHeadlessDom.node.mjs",
+        "default": "./LexicalHeadlessDom.mjs"
+      },
+      "require": {
+        "types": "./dom.d.ts",
+        "development": "./LexicalHeadlessDom.dev.js",
+        "production": "./LexicalHeadlessDom.prod.js",
+        "default": "./LexicalHeadlessDom.js"
+      }
+    },
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "development": "./LexicalHeadless.dev.mjs",
+        "production": "./LexicalHeadless.prod.mjs",
+        "node": "./LexicalHeadless.node.mjs",
+        "default": "./LexicalHeadless.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "development": "./LexicalHeadless.dev.js",
+        "production": "./LexicalHeadless.prod.js",
+        "default": "./LexicalHeadless.js"
+      }
+    }
+  },
+  "dependencies": {
+    "happy-dom": "^20.0.0",
+    "lexical": "workspace:*"
+  }
+}

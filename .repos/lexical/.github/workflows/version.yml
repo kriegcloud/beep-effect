@@ -1,0 +1,20 @@
+name: Create New Release Branch
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: 'Version Increment'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+jobs:
+  release:
+    uses: ./.github/workflows/call-increment-version.yml
+    with:
+      increment: ${{ inputs.increment }}
+      dry-run: false
+      channel: ${{ inputs.increment == 'prerelease' && 'next' || 'latest' }}
