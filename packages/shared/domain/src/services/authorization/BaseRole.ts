@@ -8,7 +8,6 @@
  * - 'viewer': Read-only access to view data and reports only
  *
  * @module @beep/shared-domain/services/authorization/BaseRole
+ * @since 0.0.0
  */
-// import { $SharedDomainId } from "@beep/identity";
-// import * as S from "effect/Schema";
-// const $I = $SharedDomainId.create("services/authorization/.ts");
+void 0;

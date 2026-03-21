@@ -5,14 +5,13 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { ArrayOfStrings, LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit, SchemaUtils } from "@beep/schema";
 import { Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { ApplicableTo } from "./ApplicableTo.model.js";
-import { SchemaUtils } from "@beep/schema";
 import { ArchitecturalLayer, type ArchitecturalLayer as ArchitecturalLayerValue } from "./ArchitecturalLayer.model.js";
 import { ASTSignal } from "./ASTSignal.model.js";
 import { DependencyProfile } from "./DependencyProfile.model.js";
@@ -1307,19 +1306,25 @@ export function resolveContextFallback(
   );
 }
 
-
 /**
  * The TypeScript Category Tag
+ *
  * @since 0.0.0
  * @category DomainModel
  */
 export const Category = S.Union(CATEGORY_TAG_SCHEMAS).pipe(
   SchemaUtils.withStatics((self) => ({
-    decodeUnknown: (u: unknown) => S.decodeUnknownEffect(self)(u)
+    decodeUnknown: (u: unknown) => S.decodeUnknownEffect(self)(u),
   })),
   $I.annoteSchema("Category", {
-    description: "A TypeScript category tag, representing a categorization of TypeScript constructs."
+    description: "A TypeScript category tag, representing a categorization of TypeScript constructs.",
   })
-)
+);
 
+/**
+ * Type for {@link Category}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type Category = typeof Category.Type;

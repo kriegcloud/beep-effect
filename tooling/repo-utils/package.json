@@ -51,6 +51,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-node": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
     "effect": "catalog:",
     "glob": "catalog:",
     "ts-morph": "catalog:"

@@ -8,8 +8,6 @@
  * precedence over allow policies at the same priority level.
  *
  * @module @beep/shared-domain/services/authorization/AuthorizationPolicy
+ * @since 0.0.0
  */
-// import { $SharedDomainId } from "@beep/identity";
-// import * as S from "effect/Schema";
-
-// const $I = $SharedDomainId.create("services/authorization/.ts");
+void 0;

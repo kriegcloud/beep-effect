@@ -12,7 +12,6 @@
  * 4. Member permissions are determined by functional roles
  *
  * @module @beep/shared-domain/services/authorization/PermissionMatrix
+ * @since 0.0.0
  */
-// import { $SharedDomainId } from "@beep/identity";
-// import * as S from "effect/Schema";
-// const $I = $SharedDomainId.create("services/authorization/.ts");
+void 0;

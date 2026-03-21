@@ -10,7 +10,6 @@
  * 4. Default deny if no policies match
  *
  * @module @beep/shared-domain/services/authorization/PolicyEngine
+ * @since 0.0.0
  */
-// import { $SharedDomainId } from "@beep/identity";
-// import * as S from "effect/Schema";
-// const $I = $SharedDomainId.create("services/authorization/.ts");
+void 0;

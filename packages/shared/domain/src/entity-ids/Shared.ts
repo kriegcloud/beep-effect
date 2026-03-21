@@ -39,3 +39,21 @@ export const SessionId = make("SessionId", {
  * @category DomainModel
  */
 export type SessionId = typeof SessionId.Type;
+
+/**
+ * Entity id for organizations in the shared slice.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const UserId = make("UserId", {
+  tableName: "user",
+});
+
+/**
+ * Type for {@link UserId}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type UserId = typeof UserId.Type;

@@ -11,7 +11,6 @@
  * - 'consolidation_manager': Manage consolidation groups, elimination rules
  *
  * @module @beep/shared-domain/services/authorization/FunctionalRole
+ * @since 0.0.0
  */
-// import { $SharedDomainId } from "@beep/identity";
-// import * as S from "effect/Schema";
-// const $I = $SharedDomainId.create("services/authorization/.ts");
+void 0;

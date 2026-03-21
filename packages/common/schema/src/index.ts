@@ -115,6 +115,11 @@ export const isPositive = isPositiveInternal;
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Fn.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * as Model from "./Model.ts";
 /**
  * @since 0.0.0
@@ -150,15 +155,14 @@ export * from "./TaggedErrorClass.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * as Thunk from "./Thunk.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Transformations.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
-
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * as Fn from "./Fn.ts";

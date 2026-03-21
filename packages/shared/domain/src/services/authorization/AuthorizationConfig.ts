@@ -113,3 +113,39 @@ export const AuthorizationConfigLive: Layer.Layer<AuthorizationConfig, Config.Co
     return AuthorizationConfig.of(AuthorizationConfigData.new(config));
   })
 );
+
+// =============================================================================
+// Helper Layers
+// =============================================================================
+
+/**
+ * Create an AuthorizationConfig layer with specific settings
+ *
+ * Useful for tests or specific configurations.
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const makeAuthorizationConfigLayer = (config: AuthorizationConfigData): Layer.Layer<AuthorizationConfig> =>
+  Layer.succeed(AuthorizationConfig, config);
+
+/**
+ * AuthorizationConfigEnforced - Layer with enforcement enabled
+ *
+ * Use this in production after the migration grace period.
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer({
+  enforcementEnabled: true,
+});
+
+/**
+ * AuthorizationConfigGracePeriod - Layer with enforcement disabled
+ *
+ * Use this during migration while membership records are being populated.
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const AuthorizationConfigGracePeriod: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer({
+  enforcementEnabled: false,
+});

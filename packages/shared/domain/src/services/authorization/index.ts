@@ -7,20 +7,24 @@
 
 /**
  * The Action Domain Model
+ *
  * @since 0.0.0
  * @category DomainModel
  */
-export * as Action from "./Action.ts"
+export * as Action from "./Action.ts";
 
 /**
  * The Authorization Configuration
+ *
  * @since 0.0.0
  * @category Configuration
  */
 export * as AuthorizationConfig from "./AuthorizationConfig.ts";
 
 /**
- * The Authorization Configuration
+ * The Authorization Errors
+ *
  * @since 0.0.0
- * @category E
+ * @category Errors
  */
+export * as AuthorizationErrors from "./AuthorizationErrors.ts";
