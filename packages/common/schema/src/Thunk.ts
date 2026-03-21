@@ -1,54 +1,56 @@
-import {$SchemaId} from "@beep/identity";
-import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity";
+import { Brand } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import {Brand} from "effect";
-import {dual} from "effect/Function";
+import * as S from "effect/Schema";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("Thunk");
 
-export const TypeId = $I`Thunk`;
+export const TypeId = $I`ThunkUnknown`;
 export type TypeId = typeof TypeId;
 
-export type Thunk = Brand.Branded<string, TypeId>
-const guard = (u: unknown): u is (() => unknown) => P.isFunction(u);
-export const nominal = Brand.make(guard);
+export type ThunkUnknown<A = unknown> = Brand.Branded<() => A, TypeId>;
 
-export const Thunk = S.declare(guard)
-.pipe(
-	S.fromBrand(
-		TypeId,
-		nominal
-	),
-	$I.annoteSchema(
-		"Thunk",
-		{
-			description: "A schema for a function that returns a value."
-		}
-	),
-	SchemaUtils.withStatics(() => ({
-		generic: <T = never>(guard: (u: unknown) => u is (() => T)) => S.declare(guard)
-	}))
+const isThunkThunkUnknownValue = (u: unknown): u is (() => unknown) => P.isFunction(u);
+export const nominal = Brand.make<ThunkUnknown>(isThunkThunkUnknownValue);
+
+export const ThunkUnknown = S.declare<() => unknown>(isThunkThunkUnknownValue).pipe(
+  S.fromBrand(
+    TypeId,
+    nominal
+  ),
+  $I.annoteSchema(
+    "ThunkUnknown",
+    {
+      description: "A schema for a function that returns a value."
+    }
+  ),
+  SchemaUtils.withStatics(() => ({
+    generic: <A = never>(guard: (u: unknown) => u is (() => A)) => S.declare<() => A>(guard)
+  }))
 );
 
-export const isThunk = S.is(Thunk);
+const assertGuard: (u: unknown) => asserts u is () => unknown = S.asserts(ThunkUnknown);
 
+export const isThunkThunkUnknown = S.is(ThunkUnknown);
 
+// `returnSchema` is type-level only here; validating it would require invoking the thunk.
 export const make: {
-	<TSchema extends S.Top, T>(
-		guard: (u: unknown) => u is (() => T),
-		_returnSchema: S.Schema<TSchema>
-	): S.declare<() => T, () => T>
-	<T>(guard: (u: unknown) => u is (() => T)): <TSchema extends S.Top>(_returnSchema: S.Schema<TSchema>) => S.declare<() => T, () => T>
+  <TSchema extends S.Top>(
+    guard: (u: unknown) => u is (() => S.Schema.Type<TSchema>),
+    _returnSchema: TSchema
+  ): S.declare<() => S.Schema.Type<TSchema>>
+  <TSchema extends S.Top>(
+    guard: (u: unknown) => u is (() => S.Schema.Type<TSchema>)
+  ): (_returnSchema: TSchema) => S.declare<() => S.Schema.Type<TSchema>>
 } = dual(
-	2,
-	<TSchema extends S.Top, T = never>(
-		guard: (u: unknown) => u is (() => T),
-		_returnSchema: S.Schema<TSchema>
-	): S.declare<() => T, () => T> => {
-
-		return S.declare(guard);
-	}
+  2,
+  <TSchema extends S.Top>(
+    guard: (u: unknown) => u is (() => S.Schema.Type<TSchema>),
+    _returnSchema: TSchema
+  ): S.declare<() => S.Schema.Type<TSchema>> => {
+    assertGuard(guard);
+		return S.declare<() => S.Schema.Type<TSchema>>(guard)
+  }
 );
-const g = (u: unknown): u is string  => P.isString(u)
-const l = make(g)
