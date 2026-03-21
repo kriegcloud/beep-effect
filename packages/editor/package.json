@@ -60,7 +60,19 @@
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cytoscape": "catalog:",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:",
+        "lexical": "catalog:",
+    "@lexical/react": "catalog:",
+    "@lexical/utils": "catalog:",
+    "@lexical/code": "catalog:",
+    "@lexical/link": "catalog:",
+    "@lexical/list": "catalog:",
+    "@lexical/markdown": "catalog:",
+    "@lexical/overflow": "catalog:",
+    "@lexical/rich-text": "catalog:",
+    "@lexical/selection": "catalog:",
+    "@lexical/table": "catalog:",
+    "@lexical/headless": "catalog:"
   },
   "peerDependencies": {
     "react": "^19",
