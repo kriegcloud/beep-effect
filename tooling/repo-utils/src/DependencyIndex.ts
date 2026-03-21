@@ -44,8 +44,10 @@ const ROOT_KEY = "@beep/root";
  *
  * const program = Effect.gen(function*() {
  *   const index = yield* buildRepoDependencyIndex("/path/to/repo")
+ *   void index
  *   // HashMap<string, WorkspaceDeps>
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility

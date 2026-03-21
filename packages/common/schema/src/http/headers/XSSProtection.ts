@@ -21,6 +21,9 @@ const headerName = "X-XSS-Protection" as const;
 
 const XSSProtectionModeBase = LiteralKit(["sanitize", "block-rendering"]);
 
+/**
+ * @since 0.0.0
+ */
 export const XSSProtectionMode = XSSProtectionModeBase.pipe(
   $I.annoteSchema("XSSProtectionMode", {
     description: "The direct `X-XSS-Protection` policy modes.",
@@ -28,8 +31,14 @@ export const XSSProtectionMode = XSSProtectionModeBase.pipe(
   SchemaUtils.withLiteralKitStatics(XSSProtectionModeBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type XSSProtectionMode = typeof XSSProtectionMode.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig>($I`XSSProtectionReportConfig`)(
   {
     uri: internal.StringOrUrl,
@@ -39,22 +48,37 @@ export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const XSSProtectionReport = S.Tuple([S.Literal("report"), XSSProtectionReportConfig]).pipe(
   $I.annoteSchema("XSSProtectionReport", {
     description: "Tuple form used to configure `X-XSS-Protection` report mode.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type XSSProtectionReport = typeof XSSProtectionReport.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const XSSProtectionOption = S.Union([S.Literal(false), XSSProtectionMode, XSSProtectionReport]).pipe(
   $I.annoteSchema("XSSProtectionOption", {
     description: "The supported `X-XSS-Protection` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type XSSProtectionOption = typeof XSSProtectionOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class XSSProtectionResponseHeader extends S.Class<XSSProtectionResponseHeader>($I`XSSProtectionResponseHeader`)(
   {
     name: S.tag(headerName),
@@ -103,6 +127,9 @@ const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effe
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).pipe(
   S.decodeTo(
     XSSProtectionResponseHeader,
@@ -149,4 +176,7 @@ export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).p
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type XSSProtectionHeader = typeof XSSProtectionHeader.Type;

@@ -310,15 +310,13 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  *
  * @example
  * ```ts-morph
- * import * as assert from "node:assert"
  * import * as Struct from "@beep/utils/Struct"
  *
  * const c = Symbol("c")
  * const value = { a: "foo", b: 1, [c]: true }
  *
  * const entries: Array<["a", string] | ["b", number]> = Struct.entries(value)
- *
- * assert.deepStrictEqual(entries, [["a", "foo"], ["b", 1]])
+ * void entries
  * ```
  *
  * @since 3.17.0

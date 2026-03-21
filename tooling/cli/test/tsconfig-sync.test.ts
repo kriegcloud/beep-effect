@@ -456,7 +456,10 @@ describe("tsconfig-sync", () => {
           );
 
           expect(drift?._tag).toBe("TsconfigSyncDriftError");
-          expect(drift?.fileCount).toBe(1);
+          if (drift?._tag !== "TsconfigSyncDriftError") {
+            return;
+          }
+          expect(drift.fileCount).toBe(1);
 
           const syncResult = yield* syncTsconfigAtRoot(rootDir, {
             mode: "sync",

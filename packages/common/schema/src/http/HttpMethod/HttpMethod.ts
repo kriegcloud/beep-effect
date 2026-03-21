@@ -12,6 +12,9 @@ import * as SchemaUtils from "../../SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("http/HttpMethod/HttpMethod");
 
+/**
+ * @since 0.0.0
+ */
 export const HttpMethod_ = LiteralKit(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"]);
 
 const NoBodyBase = LiteralKit(HttpMethod_.pickOptions(["GET", "HEAD", "OPTIONS", "TRACE"]));
@@ -37,6 +40,9 @@ const WithBody = WithBodyBase.pipe(
 type WithBody = typeof WithBody.Type;
 type HttpMethodValue = typeof HttpMethod_.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const HttpMethod = HttpMethod_.pipe(
   $I.annoteSchema("HttpMethod", {
     description: "HTTP method literal type.",
@@ -63,4 +69,7 @@ export const HttpMethod = HttpMethod_.pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type HttpMethod = typeof HttpMethod.Type;

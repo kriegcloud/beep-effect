@@ -19,6 +19,9 @@ const $I = $SchemaId.create("http/headers/ForceHttpsRedirect");
 const headerName = "Strict-Transport-Security" as const;
 const defaultMaxAge = 60 * 60 * 24 * 365 * 2;
 
+/**
+ * @since 0.0.0
+ */
 export class ForceHttpsRedirectConfig extends S.Class<ForceHttpsRedirectConfig>($I`ForceHttpsRedirectConfig`)(
   {
     maxAge: S.optionalKey(S.Finite),
@@ -30,22 +33,37 @@ export class ForceHttpsRedirectConfig extends S.Class<ForceHttpsRedirectConfig>(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ForceHttpsRedirectEnabled = S.Tuple([S.Literal(true), ForceHttpsRedirectConfig]).pipe(
   $I.annoteSchema("ForceHttpsRedirectEnabled", {
     description: "Tuple form used to enable `Strict-Transport-Security` with additional configuration.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ForceHttpsRedirectEnabled = typeof ForceHttpsRedirectEnabled.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ForceHttpsRedirectOption = S.Union([S.Boolean, ForceHttpsRedirectEnabled]).pipe(
   $I.annoteSchema("ForceHttpsRedirectOption", {
     description: "The supported `Strict-Transport-Security` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ForceHttpsRedirectOption = typeof ForceHttpsRedirectOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class ForceHttpsRedirectResponseHeader extends S.Class<ForceHttpsRedirectResponseHeader>(
   $I`ForceHttpsRedirectResponseHeader`
 )(
@@ -71,6 +89,9 @@ const formatForceHttpsRedirectValue = (config: ForceHttpsRedirectConfig): string
     A.join("; ")
   );
 
+/**
+ * @since 0.0.0
+ */
 export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Undefined]).pipe(
   S.decodeTo(
     ForceHttpsRedirectResponseHeader,
@@ -137,4 +158,7 @@ export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Und
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ForceHttpsRedirectHeader = typeof ForceHttpsRedirectHeader.Type;

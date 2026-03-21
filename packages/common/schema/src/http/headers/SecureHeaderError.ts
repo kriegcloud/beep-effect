@@ -15,6 +15,9 @@ const commonFields = {
   cause: S.OptionFromOptionalKey(S.DefectWithStack),
 };
 
+/**
+ * @since 0.0.0
+ */
 export class CspError extends TaggedErrorClass<CspError>($I`CspError`)(
   SecureHeader.Enum.CONTENT_SECURITY_POLICY,
   commonFields,
@@ -23,6 +26,9 @@ export class CspError extends TaggedErrorClass<CspError>($I`CspError`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class ForceHttpsRedirectError extends TaggedErrorClass<ForceHttpsRedirectError>($I`ForceHttpsRedirectError`)(
   SecureHeader.Enum.FORCE_HTTPS_REDIRECT,
   commonFields,
@@ -31,6 +37,9 @@ export class ForceHttpsRedirectError extends TaggedErrorClass<ForceHttpsRedirect
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class XssProtectionError extends TaggedErrorClass<XssProtectionError>($I`XssProtectionError`)(
   SecureHeader.Enum.XSS_PROTECTION,
   commonFields,
@@ -39,6 +48,9 @@ export class XssProtectionError extends TaggedErrorClass<XssProtectionError>($I`
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class ReferrerPolicyError extends TaggedErrorClass<ReferrerPolicyError>($I`ReferrerPolicyError`)(
   SecureHeader.Enum.REFERRER_POLICY,
   commonFields,
@@ -47,6 +59,9 @@ export class ReferrerPolicyError extends TaggedErrorClass<ReferrerPolicyError>($
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class NoSniffError extends TaggedErrorClass<NoSniffError>($I`NoSniffError`)(
   SecureHeader.Enum.NO_SNIFF,
   commonFields,
@@ -55,6 +70,9 @@ export class NoSniffError extends TaggedErrorClass<NoSniffError>($I`NoSniffError
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class NoOpenError extends TaggedErrorClass<NoOpenError>($I`NoOpenError`)(
   SecureHeader.Enum.NO_OPEN,
   commonFields,
@@ -63,6 +81,9 @@ export class NoOpenError extends TaggedErrorClass<NoOpenError>($I`NoOpenError`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class FrameGuardError extends TaggedErrorClass<FrameGuardError>($I`FrameGuardError`)(
   SecureHeader.Enum.FRAME_GUARD,
   commonFields,
@@ -71,6 +92,9 @@ export class FrameGuardError extends TaggedErrorClass<FrameGuardError>($I`FrameG
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class ExpectCtError extends TaggedErrorClass<ExpectCtError>($I`ExpectCtError`)(
   SecureHeader.Enum.EXPECT_CT,
   commonFields,
@@ -79,6 +103,9 @@ export class ExpectCtError extends TaggedErrorClass<ExpectCtError>($I`ExpectCtEr
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class PermissionsPolicyError extends TaggedErrorClass<PermissionsPolicyError>($I`PermissionsPolicyError`)(
   SecureHeader.Enum.PERMISSIONS_POLICY,
   commonFields,
@@ -87,6 +114,9 @@ export class PermissionsPolicyError extends TaggedErrorClass<PermissionsPolicyEr
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class CrossOriginOpenerPolicyError extends TaggedErrorClass<CrossOriginOpenerPolicyError>(
   $I`CrossOriginOpenerPolicyError`
 )(
@@ -97,6 +127,9 @@ export class CrossOriginOpenerPolicyError extends TaggedErrorClass<CrossOriginOp
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class CrossOriginEmbedderPolicyError extends TaggedErrorClass<CrossOriginEmbedderPolicyError>(
   $I`CrossOriginEmbedderPolicyError`
 )(
@@ -107,6 +140,9 @@ export class CrossOriginEmbedderPolicyError extends TaggedErrorClass<CrossOrigin
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class CrossOriginResourcePolicyError extends TaggedErrorClass<CrossOriginResourcePolicyError>(
   $I`CrossOriginResourcePolicyError`
 )(
@@ -117,6 +153,9 @@ export class CrossOriginResourcePolicyError extends TaggedErrorClass<CrossOrigin
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class PermittedCrossDomainPoliciesError extends TaggedErrorClass<PermittedCrossDomainPoliciesError>(
   $I`PermittedCrossDomainPoliciesError`
 )(
@@ -127,6 +166,9 @@ export class PermittedCrossDomainPoliciesError extends TaggedErrorClass<Permitte
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class CoreError extends TaggedErrorClass<CoreError>($I`CoreError`)(
   SecureHeader.Enum.CORE,
   commonFields,
@@ -135,6 +177,9 @@ export class CoreError extends TaggedErrorClass<CoreError>($I`CoreError`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const SecureHeaderError = SecureHeader.mapMembers(
   Tuple.evolve([
     () => CspError,
@@ -159,4 +204,7 @@ export const SecureHeaderError = SecureHeader.mapMembers(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SecureHeaderError = typeof SecureHeaderError.Type;

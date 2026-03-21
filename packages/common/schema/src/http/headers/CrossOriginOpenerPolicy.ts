@@ -20,6 +20,9 @@ const headerName = "Cross-Origin-Opener-Policy" as const;
 
 const CoopValueBase = LiteralKit(["unsafe-none", "same-origin-allow-popups", "same-origin", "same-origin-plus-COEP"]);
 
+/**
+ * @since 0.0.0
+ */
 export const CoopValue = CoopValueBase.pipe(
   $I.annoteSchema("CoopValue", {
     description: "The supported `Cross-Origin-Opener-Policy` header values.",
@@ -27,10 +30,16 @@ export const CoopValue = CoopValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(CoopValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CoopValue = typeof CoopValue.Type;
 
 const CrossOriginOpenerPolicyOptionBase = LiteralKit([false, ...CoopValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const CrossOriginOpenerPolicyOption = CrossOriginOpenerPolicyOptionBase.pipe(
   $I.annoteSchema("CrossOriginOpenerPolicyOption", {
     description: "The supported `Cross-Origin-Opener-Policy` option values.",
@@ -38,8 +47,14 @@ export const CrossOriginOpenerPolicyOption = CrossOriginOpenerPolicyOptionBase.p
   SchemaUtils.withLiteralKitStatics(CrossOriginOpenerPolicyOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class CrossOriginOpenerPolicyResponseHeader extends S.Class<CrossOriginOpenerPolicyResponseHeader>(
   $I`CrossOriginOpenerPolicyResponseHeader`
 )(
@@ -54,6 +69,9 @@ export class CrossOriginOpenerPolicyResponseHeader extends S.Class<CrossOriginOp
 
 type CrossOriginOpenerPolicyResponseHeaderEncoded = typeof CrossOriginOpenerPolicyResponseHeader.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
     CrossOriginOpenerPolicyResponseHeader,
@@ -108,4 +126,7 @@ export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOpt
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginOpenerPolicyHeader = typeof CrossOriginOpenerPolicyHeader.Type;

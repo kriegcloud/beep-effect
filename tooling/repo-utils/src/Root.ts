@@ -40,6 +40,7 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  *   const root = yield* findRepoRoot()
  *   console.log("Repo root:", root)
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility

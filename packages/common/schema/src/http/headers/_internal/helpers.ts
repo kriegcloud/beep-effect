@@ -7,22 +7,37 @@ import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("http/headers/_internal/helpers");
 
+/**
+ * @since 0.0.0
+ */
 export const ArrayOfStrOrStr = S.Union([S.String, S.Array(S.String)]).pipe(
   $I.annoteSchema("ArrayOfStrOrStr", {
     description: "A string or array of strings.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ArrayOfStrOrStr = typeof ArrayOfStrOrStr.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const StringOrUrl = S.Union([S.String, S.URL]).pipe(
   $I.annoteSchema("StringOrUrl", {
     description: "A string or URL.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type StringOrUrl = typeof StringOrUrl.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
   S.decodeTo(
     S.String.pipe(S.brand("EncodedStrictURIFromStrOrURL")),
@@ -43,17 +58,32 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
 
 const decodeStrictURI = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL);
 
+/**
+ * @since 0.0.0
+ */
 export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrURL => decodeStrictURI(value);
 
+/**
+ * @since 0.0.0
+ */
 export const encodeStrictURIOption = S.decodeUnknownOption(EncodedStrictURIFromStrOrURL);
 
+/**
+ * @since 0.0.0
+ */
 export const wrapArray = <T>(value: T | ReadonlyArray<T>): readonly T[] =>
   A.isArray(value) ? cast(value) : cast(A.make(value));
 
+/**
+ * @since 0.0.0
+ */
 export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
   {
     name: S.String,
@@ -64,6 +94,9 @@ export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const makeHeaderEncodeForbidden =
   <A>(schemaName: string) =>
   (header: A): Effect.Effect<never, SchemaIssue.Issue> =>
@@ -73,11 +106,17 @@ export const makeHeaderEncodeForbidden =
       })
     );
 
+/**
+ * @since 0.0.0
+ */
 export const makeResponseHeader = (name: string, value: string): ResponseHeader =>
   new ResponseHeader({
     name,
     value: Option.some(value),
   });
 
+/**
+ * @since 0.0.0
+ */
 export const makeResponseHeaderOption = (name: string, value: Option.Option<string>): Option.Option<ResponseHeader> =>
   Option.map(value, (headerValue) => makeResponseHeader(name, headerValue));

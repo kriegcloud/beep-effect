@@ -12,6 +12,7 @@ import { DateTime } from "effect";
  * import { makeUnsafeUtc } from "@beep/utils/DateTime"
  *
  * const value = makeUnsafeUtc("2026-01-01T00:00:00.000Z")
+ * void value
  * ```
  */
 export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.makeUnsafe>[0]>(input: A): DateTime.Utc =>

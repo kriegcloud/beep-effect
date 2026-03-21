@@ -20,6 +20,9 @@ const headerName = "Cross-Origin-Resource-Policy" as const;
 
 const CorpValueBase = LiteralKit(["same-site", "same-origin", "cross-origin"]);
 
+/**
+ * @since 0.0.0
+ */
 export const CorpValue = CorpValueBase.pipe(
   $I.annoteSchema("CorpValue", {
     description: "The supported `Cross-Origin-Resource-Policy` header values.",
@@ -27,10 +30,16 @@ export const CorpValue = CorpValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(CorpValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CorpValue = typeof CorpValue.Type;
 
 const CrossOriginResourcePolicyOptionBase = LiteralKit([false, ...CorpValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const CrossOriginResourcePolicyOption = CrossOriginResourcePolicyOptionBase.pipe(
   $I.annoteSchema("CrossOriginResourcePolicyOption", {
     description: "The supported `Cross-Origin-Resource-Policy` option values.",
@@ -38,8 +47,14 @@ export const CrossOriginResourcePolicyOption = CrossOriginResourcePolicyOptionBa
   SchemaUtils.withLiteralKitStatics(CrossOriginResourcePolicyOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginResourcePolicyOption = typeof CrossOriginResourcePolicyOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class CrossOriginResourcePolicyResponseHeader extends S.Class<CrossOriginResourcePolicyResponseHeader>(
   $I`CrossOriginResourcePolicyResponseHeader`
 )(
@@ -54,6 +69,9 @@ export class CrossOriginResourcePolicyResponseHeader extends S.Class<CrossOrigin
 
 type CrossOriginResourcePolicyResponseHeaderEncoded = typeof CrossOriginResourcePolicyResponseHeader.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolicyOption, S.Undefined]).pipe(
   S.decodeTo(
     CrossOriginResourcePolicyResponseHeader,
@@ -108,4 +126,7 @@ export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolic
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginResourcePolicyHeader = typeof CrossOriginResourcePolicyHeader.Type;

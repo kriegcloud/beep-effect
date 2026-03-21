@@ -182,70 +182,72 @@ const makeProto = <const Tools extends Record<string, Tool.Any>>(tools: Tools): 
     Effect.gen(function* () {
       const context = yield* Effect.services<ToolkitRequirements<Tools>>();
       const handlers: HandlersFrom<Tools> = Effect.isEffect(build) ? yield* build : build;
-      const bindings = new Map<string, HandlerBinding<unknown>>();
+      return ServiceMap.mutate(ServiceMap.empty(), (serviceMap) => {
+        const bindings = serviceMap.mapUnsafe as Map<string, HandlerBinding<unknown>>;
 
-      const registerNamedTool = <Name extends keyof Tools & string>(name: Name, tool: Tools[Name]) => {
-        const handler = handlers[name];
-        const toolContext = ServiceMap.makeUnsafe<Tool.Requirements<Tools[Name]>>(context.mapUnsafe);
-        const providedHandler = (
-          params: Tool.Parameters<Tools[Name]>
-        ): Effect.Effect<Tool.Success<Tools[Name]>, Tool.Failure<Tools[Name]>, never> =>
-          handler(params).pipe(Effect.provide(toolContext));
-        const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema);
-        const resultSchema = S.Union([tool.successSchema, tool.failureSchema] as const);
-        const validateResult = S.decodeUnknownEffect(resultSchema);
-        const encodeResult = S.encodeEffect(resultSchema);
-        const binding: HandlerBinding<unknown> = {
-          run: (params) =>
-            decodeParameters(params).pipe(
-              Effect.mapError((cause) =>
-                ToolInputError.make({
-                  name: tool.name,
-                  message: `Failed to decode parameters for tool '${tool.name}'`,
-                  input: params,
-                  cause,
-                })
-              ),
-              Effect.flatMap((decodedParams) =>
-                Effect.exit(providedHandler(decodedParams as Tool.Parameters<Tools[Name]>)).pipe(
-                  Effect.flatMap((exit) => normalizeHandlerExit(tool, exit))
-                )
-              ),
-              Effect.flatMap(({ result, isFailure }) =>
-                validateResult(result).pipe(
-                  Effect.mapError((cause) =>
-                    ToolOutputError.make({
-                      name: tool.name,
-                      message: `Failed to validate result for tool '${tool.name}'`,
-                      cause,
-                    })
-                  ),
-                  Effect.flatMap(() =>
-                    encodeResult(result).pipe(
-                      Effect.mapError((cause) =>
-                        ToolOutputError.make({
-                          name: tool.name,
-                          message: `Failed to encode result for tool '${tool.name}'`,
-                          output: result,
-                          cause,
-                        })
-                      ),
-                      Effect.map((encodedResult) => ({
-                        isFailure,
-                        result,
-                        encodedResult,
-                      }))
+        const registerNamedTool = <Name extends keyof Tools & string>(name: Name, tool: Tools[Name]) => {
+          const handler = handlers[name];
+          const toolContext = ServiceMap.makeUnsafe<Tool.Requirements<Tools[Name]>>(context.mapUnsafe);
+          const providedHandler = (
+            params: Tool.Parameters<Tools[Name]>
+          ): Effect.Effect<Tool.Success<Tools[Name]>, Tool.Failure<Tools[Name]>, never> =>
+            handler(params).pipe(Effect.provide(toolContext));
+          const decodeParameters = S.decodeUnknownEffect(tool.parametersSchema);
+          const resultSchema = S.Union([tool.successSchema, tool.failureSchema] as const);
+          const validateResult = S.decodeUnknownEffect(resultSchema);
+          const encodeResult = S.encodeEffect(resultSchema);
+          const binding: HandlerBinding<unknown> = {
+            run: (params) =>
+              decodeParameters(params).pipe(
+                Effect.mapError((cause) =>
+                  ToolInputError.make({
+                    name: tool.name,
+                    message: `Failed to decode parameters for tool '${tool.name}'`,
+                    input: params,
+                    cause,
+                  })
+                ),
+                Effect.flatMap((decodedParams) =>
+                  Effect.exit(providedHandler(decodedParams as Tool.Parameters<Tools[Name]>)).pipe(
+                    Effect.flatMap((exit) => normalizeHandlerExit(tool, exit))
+                  )
+                ),
+                Effect.flatMap(({ result, isFailure }) =>
+                  validateResult(result).pipe(
+                    Effect.mapError((cause) =>
+                      ToolOutputError.make({
+                        name: tool.name,
+                        message: `Failed to validate result for tool '${tool.name}'`,
+                        cause,
+                      })
+                    ),
+                    Effect.flatMap(() =>
+                      encodeResult(result).pipe(
+                        Effect.mapError((cause) =>
+                          ToolOutputError.make({
+                            name: tool.name,
+                            message: `Failed to encode result for tool '${tool.name}'`,
+                            output: result,
+                            cause,
+                          })
+                        ),
+                        Effect.map((encodedResult) => ({
+                          isFailure,
+                          result,
+                          encodedResult,
+                        }))
+                      )
                     )
                   )
                 )
-              )
-            ),
+              ),
+          };
+          bindings.set(tool.id, binding);
         };
-        bindings.set(tool.id, binding);
-      };
 
-      forEachTool(tools, registerNamedTool);
-      return ServiceMap.makeUnsafe(bindings);
+        forEachTool(tools, registerNamedTool);
+        return serviceMap;
+      });
     });
 
   const toLayer = <Handlers extends HandlersFrom<Tools>, EX = never, RX = never>(

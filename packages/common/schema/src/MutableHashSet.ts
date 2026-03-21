@@ -5,30 +5,44 @@
  * @module @beep/schema/MutableHashSet
  */
 
-import { $SchemaId } from "@beep/identity/packages"
-import { Effect, Option, pipe, SchemaIssue, SchemaTransformation } from "effect"
-import * as A from "effect/Array"
-import * as MutableHashSet_ from "effect/MutableHashSet"
-import * as S from "effect/Schema"
-import * as SchemaParser from "effect/SchemaParser"
-import * as Str from "effect/String"
+import { $SchemaId } from "@beep/identity/packages";
+import {
+  Effect,
+  MutableHashSet as MutableHashSet_,
+  Option,
+  pipe,
+  SchemaIssue,
+  SchemaParser,
+  SchemaTransformation,
+} from "effect";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const $I = $SchemaId.create("MutableHashSet")
+const $I = $SchemaId.create("MutableHashSet");
 
 const formatValues = <A>(values: ReadonlyArray<A>, formatValue: (value: A) => string): string =>
-  pipe(values, A.map(formatValue), A.sort(Str.Order), A.join(", "))
+  pipe(values, A.map(formatValue), A.sort(Str.Order), A.join(", "));
 
-const makeMutableHashSetEquivalence = <A>(equivalence: (self: A, that: A) => boolean) =>
+const makeMutableHashSetEquivalence =
+  <A>(equivalence: (self: A, that: A) => boolean) =>
   (self: Iterable<A>, that: Iterable<A>): boolean => {
-    const selfValues = A.fromIterable(self)
-    const thatValues = A.fromIterable(that)
+    const selfValues = A.fromIterable(self);
+    const thatValues = A.fromIterable(that);
 
-    return selfValues.length === thatValues.length &&
+    return (
+      selfValues.length === thatValues.length &&
       pipe(
         selfValues,
-        A.every((selfValue) => pipe(thatValues, A.some((thatValue) => equivalence(selfValue, thatValue))))
+        A.every((selfValue) =>
+          pipe(
+            thatValues,
+            A.some((thatValue) => equivalence(selfValue, thatValue))
+          )
+        )
       )
-  }
+    );
+  };
 
 /**
  * `MutableHashSet` iso representation used by {@link MutableHashSetFromSelf}.
@@ -36,7 +50,7 @@ const makeMutableHashSetEquivalence = <A>(equivalence: (self: A, that: A) => boo
  * @since 0.0.0
  * @category DomainModel
  */
-export type MutableHashSetIso<Value extends S.Top> = ReadonlyArray<Value["Iso"]>
+export type MutableHashSetIso<Value extends S.Top> = ReadonlyArray<Value["Iso"]>;
 
 /**
  * Schema for validating an existing `MutableHashSet` instance.
@@ -44,15 +58,14 @@ export type MutableHashSetIso<Value extends S.Top> = ReadonlyArray<Value["Iso"]>
  * @since 0.0.0
  * @category Validation
  */
-export interface MutableHashSetFromSelf<Value extends S.Top> extends
-  S.declareConstructor<
+export interface MutableHashSetFromSelf<Value extends S.Top>
+  extends S.declareConstructor<
     MutableHashSet_.MutableHashSet<Value["Type"]>,
     MutableHashSet_.MutableHashSet<Value["Encoded"]>,
     readonly [Value],
     MutableHashSetIso<Value>
-  >
-{
-  readonly value: Value
+  > {
+  readonly value: Value;
 }
 
 /**
@@ -61,10 +74,9 @@ export interface MutableHashSetFromSelf<Value extends S.Top> extends
  * @since 0.0.0
  * @category Validation
  */
-export interface MutableHashSet<Value extends S.Top> extends
-  S.decodeTo<MutableHashSetFromSelf<S.toType<Value>>, S.$Array<Value>>
-{
-  readonly value: Value
+export interface MutableHashSet<Value extends S.Top>
+  extends S.decodeTo<MutableHashSetFromSelf<S.toType<Value>>, S.$Array<Value>> {
+  readonly value: Value;
 }
 
 /**
@@ -76,7 +88,7 @@ export interface MutableHashSet<Value extends S.Top> extends
  * @category Guards
  */
 export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet_.MutableHashSet<Value> =>
-  MutableHashSet_.isMutableHashSet(value)
+  MutableHashSet_.isMutableHashSet(value);
 
 /**
  * Schema for validating existing `MutableHashSet` instances while applying the
@@ -96,19 +108,19 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
   >()(
     [value],
     ([value]) => {
-      const values = S.Array(value)
+      const values = S.Array(value);
 
       return (input, ast, options) => {
         if (!MutableHashSet_.isMutableHashSet(input)) {
-          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)))
+          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
         }
 
         return Effect.mapBothEager(SchemaParser.decodeUnknownEffect(values)(A.fromIterable(input), options), {
           onSuccess: MutableHashSet_.fromIterable,
           onFailure: (issue) =>
             new SchemaIssue.Composite(ast, Option.some(input), [new SchemaIssue.Pointer(["values"], issue)]),
-        })
-      }
+        });
+      };
     },
     {
       typeConstructor: {
@@ -129,32 +141,36 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
             encode: A.fromIterable,
           })
         ),
-      toArbitrary: ([value]) => (fc, ctx) =>
-        fc
-          .oneof(
-            ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashSet" } : {},
-            fc.constant([]),
-            fc.array(value, ctx?.constraints?.array)
-          )
-          .map(MutableHashSet_.fromIterable),
+      toArbitrary:
+        ([value]) =>
+        (fc, ctx) =>
+          fc
+            .oneof(
+              ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashSet" } : {},
+              fc.constant([]),
+              fc.array(value, ctx?.constraints?.array)
+            )
+            .map(MutableHashSet_.fromIterable),
       toEquivalence: ([value]) => makeMutableHashSetEquivalence(value),
-      toFormatter: ([value]) => (set) => {
-        const size = MutableHashSet_.size(set)
-        if (size === 0) {
-          return "MutableHashSet(0) {}"
-        }
+      toFormatter:
+        ([value]) =>
+        (set) => {
+          const size = MutableHashSet_.size(set);
+          if (size === 0) {
+            return "MutableHashSet(0) {}";
+          }
 
-        return `MutableHashSet(${size}) { ${formatValues(A.fromIterable(set), value)} }`
-      },
+          return `MutableHashSet(${size}) { ${formatValues(A.fromIterable(set), value)} }`;
+        },
     }
-  )
+  );
 
   return S.make<MutableHashSetFromSelf<Value>>(schema.ast, { value }).pipe(
     $I.annoteSchema("MutableHashSetFromSelf", {
       description: "Schema for validating existing MutableHashSet runtime values.",
     })
-  )
-}
+  );
+};
 
 /**
  * Schema for decoding arrays into `MutableHashSet` instances and encoding sets
@@ -169,6 +185,7 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
  *
  * const decoded = S.decodeUnknownSync(StringSet)(["a", "b", "a"])
  * const encoded = S.encodeSync(StringSet)(decoded)
+ * void encoded
  * ```
  *
  * @param value - Element schema for set members.
@@ -185,7 +202,7 @@ export const MutableHashSet = <Value extends S.Top>(value: Value): MutableHashSe
         encode: A.fromIterable,
       })
     )
-  )
+  );
 
   return S.make<MutableHashSet<Value>>(schema.ast, {
     from: schema.from,
@@ -195,5 +212,5 @@ export const MutableHashSet = <Value extends S.Top>(value: Value): MutableHashSe
     $I.annoteSchema("MutableHashSet", {
       description: "Array-backed schema for Effect MutableHashSet values.",
     })
-  )
-}
+  );
+};

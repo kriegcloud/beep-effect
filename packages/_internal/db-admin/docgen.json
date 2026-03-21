@@ -12,8 +12,25 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
     "paths": {
-      "@beep/db-admin": ["../../../packages/_internal/db-admin/src/index.ts"]
+      "@beep/db-admin": ["../../../packages/_internal/db-admin/src/index.ts"],
+      "@beep/db-admin/*": ["../../../packages/_internal/db-admin/src/*.ts"]
     }
   }
 }

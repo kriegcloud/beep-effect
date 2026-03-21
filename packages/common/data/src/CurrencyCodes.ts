@@ -33,6 +33,7 @@ import * as internal from "./internal/data/currency-codes.ts";
  *   currency: "UAE Dirham",
  *   countries: ["United Arab Emirates (The)"]
  * }
+ * void entry
  * ```
  */
 export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
@@ -48,6 +49,8 @@ export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
  *
  * const usd: CurrencyCode = "USD"
  * const eur: CurrencyCode = "EUR"
+ * void usd
+ * void eur
  * ```
  */
 export type CurrencyCode = CurrencyCodeData["code"];

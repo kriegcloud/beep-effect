@@ -19,20 +19,29 @@ import { CspError, type SecureHeaderError } from "./SecureHeaderError.ts";
 
 const $I = $SchemaId.create("http/headers/Csp");
 
+/**
+ * @since 0.0.0
+ */
 export const DirectiveSource = S.Union([...internal.ArrayOfStrOrStr.members, S.Undefined]).pipe(
   $I.annoteSchema("DirectiveSource", {
     description: "A CSP directive source",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type DirectiveSource = typeof DirectiveSource.Type;
 
 const headerName = "Content-Security-Policy";
 const reportOnlyHeaderName = "Content-Security-Policy-Report-Only";
-const directiveValueSepartor = "; ";
+const directiveValueSeparator = "; ";
 
 const ContentSecurityPolicyHeaderNameBase = LiteralKit([headerName, reportOnlyHeaderName]);
 
+/**
+ * @since 0.0.0
+ */
 export const ContentSecurityPolicyHeaderName = ContentSecurityPolicyHeaderNameBase.pipe(
   $I.annoteSchema("ContentSecurityPolicyHeaderName", {
     description: "The valid `Content-Security-Policy` response header names.",
@@ -40,6 +49,9 @@ export const ContentSecurityPolicyHeaderName = ContentSecurityPolicyHeaderNameBa
   SchemaUtils.withLiteralKitStatics(ContentSecurityPolicyHeaderNameBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ContentSecurityPolicyHeaderName = typeof ContentSecurityPolicyHeaderName.Type;
 
 type DirectiveInput<T extends object> = Partial<{
@@ -60,10 +72,12 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  *
  * // Get standard CSP header name
  * const standardHeader = getProperHeaderName();
+ * void standardHeader;
  * // => "Content-Security-Policy"
  *
  * // Get report-only CSP header name
  * const reportOnlyHeader = getProperHeaderName(true);
+ * void reportOnlyHeader;
  * // => "Content-Security-Policy-Report-Only"
  * ```
  *
@@ -94,12 +108,18 @@ export const createDirectiveValue = <const T extends string>(
   return `${directiveName} ${A.join(" ")(values)}` as const;
 };
 
+/**
+ * @since 0.0.0
+ */
 export const PluginTypes = internal.ArrayOfStrOrStr.pipe(
   $I.annoteSchema("PluginTypes", {
     description: "A CSP plugin-types source",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PluginTypes = typeof PluginTypes.Type;
 
 const SandboxBase = LiteralKit([
@@ -119,6 +139,9 @@ const SandboxBase = LiteralKit([
   "allow-top-navigation-by-user-activation",
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const Sandbox = SandboxBase.pipe(
   $I.annoteSchema("Sandbox", {
     description: "A CSP sandbox directive",
@@ -126,6 +149,9 @@ export const Sandbox = SandboxBase.pipe(
   SchemaUtils.withLiteralKitStatics(SandboxBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type Sandbox = typeof Sandbox.Type;
 
 const fetchDirectiveNamesByKey = {
@@ -165,6 +191,9 @@ const fetchDirectiveNamesByKey = {
   "worker-src": "worker-src",
 } as const;
 
+/**
+ * @since 0.0.0
+ */
 export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
   {
     childSrc: DirectiveSource,
@@ -226,10 +255,13 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
       strings.push(createDirectiveValue(directiveName, wrapArray(directiveValue)));
     });
 
-    return A.join(strings, directiveValueSepartor);
+    return A.join(strings, directiveValueSeparator);
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDirective`)(
   {
     baseURI: DirectiveSource,
@@ -266,10 +298,13 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
       strings.push(value);
     }
 
-    return pipe(strings, A.join(directiveValueSepartor));
+    return pipe(strings, A.join(directiveValueSeparator));
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export class NavigationDirective extends S.Class<NavigationDirective>($I`NavigationDirective`)(
   {
     formAction: DirectiveSource,
@@ -306,16 +341,22 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
       strings.push(createDirectiveValue("navigate-to", wrapArray(navigateTo)));
     }
 
-    return pipe(strings, A.join(directiveValueSepartor));
+    return pipe(strings, A.join(directiveValueSeparator));
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export const ReportURI = S.Union([...internal.StringOrUrl.members, S.Array(internal.StringOrUrl)]).pipe(
   $I.annoteSchema("ReportURI", {
     description: "A CSP report-uri",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export class ReportingDirective extends S.Class<ReportingDirective>($I`ReportingDirective`)(
   {
     reportURI: ReportURI,
@@ -344,10 +385,13 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
       strings.push(createDirectiveValue("report-to", reportTo));
     }
 
-    return pipe(strings, A.join(directiveValueSepartor));
+    return pipe(strings, A.join(directiveValueSeparator));
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export const CspDirectives = S.Struct({
   ...FetchDirective.fields,
   ...DocumentDirective.fields,
@@ -359,6 +403,9 @@ export const CspDirectives = S.Struct({
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPolicyOptionStruct>(
   $I`ContentSecurityPolicyOptionStruct`
 )(
@@ -387,14 +434,23 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSecurityPolicyOptionStruct]).pipe(
   $I.annoteSchema("ContentSecurityPolicyOption", {
     description: "A CSP option",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ContentSecurityPolicyOption = typeof ContentSecurityPolicyOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class ContentSecurityPolicyResponseHeader extends S.Class<ContentSecurityPolicyResponseHeader>(
   $I`ContentSecurityPolicyResponseHeader`
 )(
@@ -450,6 +506,9 @@ const decodeContentSecurityPolicyHeader = (
     } as const;
   });
 
+/**
+ * @since 0.0.0
+ */
 export const createContentSecurityPolicyOptionHeaderValue = (
   option?: undefined | ContentSecurityPolicyOption,
   fetchDirectiveToStringConverter = FetchDirective.convertToString,
@@ -468,10 +527,13 @@ export const createContentSecurityPolicyOptionHeaderValue = (
       reportingDirectiveToStringConverter(option.directives)
     ),
     A.filter(Str.isNonEmpty),
-    A.join(directiveValueSepartor)
+    A.join(directiveValueSeparator)
   );
 };
 
+/**
+ * @since 0.0.0
+ */
 export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
     ContentSecurityPolicyResponseHeader,
@@ -536,4 +598,7 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ContentSecurityPolicyHeader = typeof ContentSecurityPolicyHeader.Type;

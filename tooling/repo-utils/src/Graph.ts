@@ -96,8 +96,10 @@ const fromAdjacencyList = (
  *
  * const program = Effect.gen(function*() {
  *   const order = yield* topologicalSort(adj)
+ *   void order
  *   console.log(order) // ["C", "B", "A"]
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic
@@ -153,8 +155,10 @@ export const topologicalSort: (
  *
  * const program = Effect.gen(function*() {
  *   const cycles = yield* detectCycles(adj)
+ *   void cycles
  *   // cycles contains [["A", "B", "C", "A"]] (or similar rotation)
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic
@@ -307,8 +311,10 @@ const buildCyclePath = (
  *
  * const program = Effect.gen(function*() {
  *   const deps = yield* computeTransitiveClosure(adj, "A")
+ *   void deps
  *   // deps = HashSet("B", "C")
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic

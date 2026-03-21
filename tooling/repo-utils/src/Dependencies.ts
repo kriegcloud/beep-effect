@@ -64,6 +64,7 @@ const classifyRecord = (
  *   dependencies: O.some({ "@my/other": "workspace:*", "lodash": "^4.0.0" }),
  * })
  * const deps = extractWorkspaceDependencies(pkg, HashSet.make("@my/other", "@my/another"))
+ * void deps
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```

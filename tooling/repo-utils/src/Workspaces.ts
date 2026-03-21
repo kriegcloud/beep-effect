@@ -10,7 +10,9 @@
 import { normalizePath } from "@beep/schema";
 import { Effect, HashMap, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
@@ -44,11 +46,7 @@ const isSafeWorkspacePattern = (pattern: string): boolean => {
   const normalized = normalizePath(pattern);
   const segments = pipe(normalized, Str.split("/"), A.filter(Str.isNonEmpty));
 
-  return (
-    Str.isNonEmpty(normalized) &&
-    !absoluteWorkspacePattern.test(normalized) &&
-    !A.some(segments, (segment) => segment === "..")
-  );
+  return Str.isNonEmpty(normalized) && !absoluteWorkspacePattern.test(normalized) && !A.some(segments, Eq.equals(".."));
 };
 
 const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolean => {
@@ -78,8 +76,10 @@ const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolea
  *
  * const program = Effect.gen(function*() {
  *   const workspaces = yield* resolveWorkspaceDirs("/path/to/repo")
+ *   void workspaces
  *   // HashMap<string, string> e.g. { "@mock/pkg-a" => "/path/to/repo/packages/pkg-a" }
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility
@@ -109,7 +109,7 @@ export const resolveWorkspaceDirs: (
     );
 
     const workspaceGlobs = workspaceGlobsFrom(rootPkg.workspaces);
-    if (workspaceGlobs.length === 0) {
+    if (A.isReadonlyArrayEmpty(workspaceGlobs)) {
       return HashMap.empty<string, string>();
     }
 
@@ -162,7 +162,7 @@ export const resolveWorkspaceDirs: (
       const rawChildPkg = yield* fsUtils
         .readJson(pkgJsonPath)
         .pipe(Effect.catchTag("NoSuchFileError", () => Effect.succeed(null)));
-      if (rawChildPkg === null) {
+      if (P.isNull(rawChildPkg)) {
         continue;
       }
       if (O.isNone(rawChildPkg)) {
@@ -209,6 +209,7 @@ export const resolveWorkspaceDirs: (
  *     console.log("Found:", dir.value)
  *   }
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility

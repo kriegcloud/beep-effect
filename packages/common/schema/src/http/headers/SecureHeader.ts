@@ -26,6 +26,9 @@ const SecureHeaderBase = LiteralKit([
   "CORE",
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const SecureHeader = SecureHeaderBase.pipe(
   $I.annoteSchema("SecureHeader", {
     description: "A secure header.",
@@ -33,4 +36,7 @@ export const SecureHeader = SecureHeaderBase.pipe(
   SchemaUtils.withLiteralKitStatics(SecureHeaderBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type SecureHeader = typeof SecureHeader.Type;

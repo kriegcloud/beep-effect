@@ -22,6 +22,9 @@ const defaultValue = "deny" as const;
 
 const FrameGuardModeBase = LiteralKit(["deny", "sameorigin"]);
 
+/**
+ * @since 0.0.0
+ */
 export const FrameGuardMode = FrameGuardModeBase.pipe(
   $I.annoteSchema("FrameGuardMode", {
     description: "The direct `X-Frame-Options` policy values.",
@@ -29,8 +32,14 @@ export const FrameGuardMode = FrameGuardModeBase.pipe(
   SchemaUtils.withLiteralKitStatics(FrameGuardModeBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type FrameGuardMode = typeof FrameGuardMode.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class FrameGuardAllowFromConfig extends S.Class<FrameGuardAllowFromConfig>($I`FrameGuardAllowFromConfig`)(
   {
     uri: internal.StringOrUrl,
@@ -40,22 +49,37 @@ export class FrameGuardAllowFromConfig extends S.Class<FrameGuardAllowFromConfig
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const FrameGuardAllowFrom = S.Tuple([S.Literal("allow-from"), FrameGuardAllowFromConfig]).pipe(
   $I.annoteSchema("FrameGuardAllowFrom", {
     description: "Tuple form used to configure `X-Frame-Options: allow-from`.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type FrameGuardAllowFrom = typeof FrameGuardAllowFrom.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const FrameGuardOption = S.Union([S.Literal(false), FrameGuardMode, FrameGuardAllowFrom]).pipe(
   $I.annoteSchema("FrameGuardOption", {
     description: "The supported `X-Frame-Options` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type FrameGuardOption = typeof FrameGuardOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class FrameGuardResponseHeader extends S.Class<FrameGuardResponseHeader>($I`FrameGuardResponseHeader`)(
   {
     name: S.tag(headerName),
@@ -96,6 +120,9 @@ const formatFrameGuardValue = (option: FrameGuardMode | FrameGuardAllowFrom): Ef
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const FrameGuardHeader = S.Union([FrameGuardOption, S.Undefined]).pipe(
   S.decodeTo(
     FrameGuardResponseHeader,
@@ -164,4 +191,7 @@ export const FrameGuardHeader = S.Union([FrameGuardOption, S.Undefined]).pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type FrameGuardHeader = typeof FrameGuardHeader.Type;

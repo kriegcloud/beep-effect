@@ -15,6 +15,8 @@ const $I = $EditorId.create("Domain/LexicalNode");
 
 /**
  * The base type for all serialized nodes
+ *
+ * @since 0.0.0
  */
 export class SerializedLexicalNode extends S.Class<SerializedLexicalNode>($I`SerializedLexicalNode`)(
   {
@@ -38,6 +40,9 @@ export class SerializedLexicalNode extends S.Class<SerializedLexicalNode>($I`Ser
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const NodeKey = NonEmptyTrimmedStr.pipe(
   S.brand("NodeKey"),
   $I.annoteSchema("NodeKey", {
@@ -45,8 +50,14 @@ export const NodeKey = NonEmptyTrimmedStr.pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NodeKey = typeof NodeKey.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const LexicalNodeKeys = [
   "getType",
   "errorOnInsertTextNodeOnRoot",
@@ -111,6 +122,8 @@ const hasStringProperty = (input: Record<string, unknown>, key: string): boolean
 /**
  * lexical does not expose the base LexicalNode constructor as a runtime export,
  * so we validate against the shared instance surface instead of S.instanceOf(...).
+ *
+ * @since 0.0.0
  */
 export const isLexicalNode = (input: unknown): input is lexical.LexicalNode => {
   if (!P.isObject(input)) return false;
@@ -135,6 +148,9 @@ export const isLexicalNode = (input: unknown): input is lexical.LexicalNode => {
   );
 };
 
+/**
+ * @since 0.0.0
+ */
 export const LexicalNode = S.declare(isLexicalNode).pipe(
   S.annotate(
     $I.annote("LexicalNode", {
@@ -144,4 +160,7 @@ export const LexicalNode = S.declare(isLexicalNode).pipe(
   )
 );
 
+/**
+ * @since 0.0.0
+ */
 export type LexicalNode = typeof LexicalNode.Type;

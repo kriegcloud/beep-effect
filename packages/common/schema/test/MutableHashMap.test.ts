@@ -56,9 +56,7 @@ describe("MutableHashMapFromSelf", () => {
     );
 
     expect(formatter(MutableHashMap_.make(["b", 2], ["a", 1]))).toBe(`MutableHashMap(2) { "a" => 1, "b" => 2 }`);
-    expect(
-      equivalence(MutableHashMap_.make(["a", 1], ["b", 2]), MutableHashMap_.make(["b", 2], ["a", 1]))
-    ).toBe(true);
+    expect(equivalence(MutableHashMap_.make(["a", 1], ["b", 2]), MutableHashMap_.make(["b", 2], ["a", 1]))).toBe(true);
     expect(equivalence(MutableHashMap_.make(["a", 1]), MutableHashMap_.make(["a", 2]))).toBe(false);
   });
 });
@@ -69,7 +67,10 @@ describe("MutableHashMap", () => {
       key: S.String,
       value: S.NumberFromString,
     });
-    const decoded = S.decodeUnknownSync(schema)([["a", "1"], ["b", "2"]]);
+    const decoded = S.decodeUnknownSync(schema)([
+      ["a", "1"],
+      ["b", "2"],
+    ]);
 
     expect(schema.key).toBe(S.String);
     expect(schema.value).toBe(S.NumberFromString);

@@ -21,6 +21,9 @@ const defaultValue = "noopen" as const;
 
 const NoOpenValueBase = LiteralKit([defaultValue]);
 
+/**
+ * @since 0.0.0
+ */
 export const NoOpenValue = NoOpenValueBase.pipe(
   $I.annoteSchema("NoOpenValue", {
     description: "The supported `X-Download-Options` header values.",
@@ -28,10 +31,16 @@ export const NoOpenValue = NoOpenValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(NoOpenValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoOpenValue = typeof NoOpenValue.Type;
 
 const NoOpenOptionBase = LiteralKit([false, ...NoOpenValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const NoOpenOption = NoOpenOptionBase.pipe(
   $I.annoteSchema("NoOpenOption", {
     description: "The supported `X-Download-Options` option values.",
@@ -39,8 +48,14 @@ export const NoOpenOption = NoOpenOptionBase.pipe(
   SchemaUtils.withLiteralKitStatics(NoOpenOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoOpenOption = typeof NoOpenOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpenResponseHeader`)(
   {
     name: S.tag(headerName),
@@ -53,6 +68,9 @@ export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpe
 
 type NoOpenResponseHeaderEncoded = typeof NoOpenResponseHeader.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const NoOpenHeader = S.Union([NoOpenOption, S.Undefined]).pipe(
   S.decodeTo(
     NoOpenResponseHeader,
@@ -108,4 +126,7 @@ export const NoOpenHeader = S.Union([NoOpenOption, S.Undefined]).pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoOpenHeader = typeof NoOpenHeader.Type;

@@ -8,7 +8,9 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as ServiceMap from "effect/ServiceMap";
 import * as Stream from "effect/Stream";
+import * as Etag from "effect/unstable/http/Etag";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { runEffect } from "./effect-test.js";
@@ -32,14 +34,9 @@ const runtimeLayer = Layer.succeed(
 );
 
 const makeAccessLayer = (options?: { readonly authToken?: string; readonly hostname?: string }) =>
-  Layer.effect(AgentServerAccess, makeAgentServerAccess(options).pipe(Effect.orDie));
+  Layer.effect(AgentServerAccess, makeAgentServerAccess(options));
 
-const httpTestPlatformLayer = Layer.mergeAll(NodeServices.layer, NodeHttpPlatform.layer);
-
-const makeApiLayer = <ROut, RIn>(
-  handlersLayer: Layer.Layer<ROut, never, RIn>,
-  accessLayer: Layer.Layer<AgentServerAccess, never, never>
-) => HttpApiBuilder.layer(AgentHttpApi).pipe(Layer.provide(handlersLayer), Layer.provide(accessLayer));
+const httpTestPlatformLayer = Layer.mergeAll(NodeServices.layer, NodeHttpPlatform.layer, Etag.layer);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 test("AgentHttpHandlers layer builds with AgentRuntime only", async () => {
@@ -85,17 +82,19 @@ test("AgentHttpHandlers layer builds with AgentRuntime and SessionPool", async (
 test("AgentHttpHandlers rejects requests without the configured auth token", async () => {
   const accessLayer = makeAccessLayer({ authToken: "secret-token" });
   const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(accessLayer));
-  const apiLayer = makeApiLayer(handlersLayer, accessLayer);
-  const serverLayer = apiLayer.pipe(Layer.provideMerge(httpTestPlatformLayer));
+  const apiLayer = HttpApiBuilder.layer(AgentHttpApi).pipe(Layer.provide(handlersLayer), Layer.provide(accessLayer));
+  const serverLayer = Layer.provide(apiLayer, httpTestPlatformLayer);
 
   const program = Effect.scoped(
     Effect.gen(function* () {
+      const access = yield* makeAgentServerAccess({ authToken: "secret-token" });
+      const requestContext = ServiceMap.make(AgentServerAccess, access);
       const { handler } = yield* Effect.acquireRelease(
         Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
         ({ dispose }) => Effect.promise(dispose)
       );
 
-      const unauthorized = yield* Effect.promise(() => handler(new Request("http://localhost/stats")));
+      const unauthorized = yield* Effect.promise(() => handler(new Request("http://localhost/stats"), requestContext));
       expect(unauthorized.status).not.toBe(200);
       expect(yield* Effect.promise(() => unauthorized.text())).toContain("Missing or invalid agent auth token.");
 
@@ -105,7 +104,8 @@ test("AgentHttpHandlers rejects requests without the configured auth token", asy
             headers: {
               Authorization: "Bearer secret-token",
             },
-          })
+          }),
+          requestContext
         )
       );
       expect(authorized.status).toBe(200);
@@ -148,11 +148,13 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
     Layer.provide(poolLayer),
     Layer.provide(accessLayer)
   );
-  const apiLayer = makeApiLayer(handlersLayer, accessLayer);
-  const serverLayer = apiLayer.pipe(Layer.provideMerge(httpTestPlatformLayer));
+  const apiLayer = HttpApiBuilder.layer(AgentHttpApi).pipe(Layer.provide(handlersLayer), Layer.provide(accessLayer));
+  const serverLayer = Layer.provide(apiLayer, httpTestPlatformLayer);
 
   const program = Effect.scoped(
     Effect.gen(function* () {
+      const access = yield* makeAgentServerAccess();
+      const requestContext = ServiceMap.make(AgentServerAccess, access);
       const { handler } = yield* Effect.acquireRelease(
         Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
         ({ dispose }) => Effect.promise(dispose)
@@ -172,7 +174,8 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
               "content-type": "application/json",
             },
             body: requestBody,
-          })
+          }),
+          requestContext
         )
       );
       expect(missingHeader.status).not.toBe(200);
@@ -187,7 +190,8 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
               "x-agent-tenant": "team-a",
             },
             body: requestBody,
-          })
+          }),
+          requestContext
         )
       );
       expect(accepted.status).toBe(200);

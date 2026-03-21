@@ -5,15 +5,21 @@
  * @module @beep/schema/MutableHashMap
  */
 
-import { $SchemaId } from "@beep/identity/packages"
-import { Effect, Option, pipe, SchemaIssue, SchemaTransformation } from "effect"
-import * as A from "effect/Array"
-import * as MutableHashMap_ from "effect/MutableHashMap"
-import * as S from "effect/Schema"
-import * as SchemaParser from "effect/SchemaParser"
-import * as Str from "effect/String"
+import { $SchemaId } from "@beep/identity/packages";
+import {
+  Effect,
+  MutableHashMap as MutableHashMap_,
+  Option,
+  pipe,
+  SchemaIssue,
+  SchemaParser,
+  SchemaTransformation,
+} from "effect";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const $I = $SchemaId.create("MutableHashMap")
+const $I = $SchemaId.create("MutableHashMap");
 
 const formatEntries = <K, V>(
   entries: ReadonlyArray<readonly [K, V]>,
@@ -25,33 +31,33 @@ const formatEntries = <K, V>(
     A.map(([key, value]) => `${formatKey(key)} => ${formatValue(value)}`),
     A.sort(Str.Order),
     A.join(", ")
-  )
+  );
 
-const makeMutableHashMapEquivalence = <K, V>(
-  keyEquivalence: (self: K, that: K) => boolean,
-  valueEquivalence: (self: V, that: V) => boolean
-) => (self: Iterable<readonly [K, V]>, that: Iterable<readonly [K, V]>): boolean => {
-  const selfEntries = A.fromIterable(self)
-  const thatEntries = A.fromIterable(that)
+const makeMutableHashMapEquivalence =
+  <K, V>(keyEquivalence: (self: K, that: K) => boolean, valueEquivalence: (self: V, that: V) => boolean) =>
+  (self: Iterable<readonly [K, V]>, that: Iterable<readonly [K, V]>): boolean => {
+    const selfEntries = A.fromIterable(self);
+    const thatEntries = A.fromIterable(that);
 
-  return selfEntries.length === thatEntries.length &&
-    pipe(
-      selfEntries,
-      A.every(([selfKey, selfValue]) =>
-        pipe(
-          thatEntries,
-          A.some(([thatKey, thatValue]) =>
-            keyEquivalence(selfKey, thatKey) && valueEquivalence(selfValue, thatValue)
+    return (
+      selfEntries.length === thatEntries.length &&
+      pipe(
+        selfEntries,
+        A.every(([selfKey, selfValue]) =>
+          pipe(
+            thatEntries,
+            A.some(([thatKey, thatValue]) => keyEquivalence(selfKey, thatKey) && valueEquivalence(selfValue, thatValue))
           )
-        ))
-    )
-}
+        )
+      )
+    );
+  };
 
 const toReadonlyEntries = <K, V>(map: MutableHashMap_.MutableHashMap<K, V>): ReadonlyArray<readonly [K, V]> =>
   pipe(
     A.fromIterable(map),
     A.map(([key, value]): readonly [K, V] => [key, value])
-  )
+  );
 
 /**
  * `MutableHashMap` iso representation used by {@link MutableHashMapFromSelf}.
@@ -64,11 +70,14 @@ type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
   readonly [Key["Encoded"], Value["Encoded"]],
   Key["DecodingServices"] | Value["DecodingServices"],
   Key["EncodingServices"] | Value["EncodingServices"]
->
+>;
 
+/**
+ * @since 0.0.0
+ */
 export type MutableHashMapIso<Key extends S.Top, Value extends S.Top> = ReadonlyArray<
   readonly [Key["Iso"], Value["Iso"]]
->
+>;
 
 /**
  * Schema for validating an existing `MutableHashMap` instance.
@@ -76,16 +85,15 @@ export type MutableHashMapIso<Key extends S.Top, Value extends S.Top> = Readonly
  * @since 0.0.0
  * @category Validation
  */
-export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top> extends
-  S.declareConstructor<
+export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top>
+  extends S.declareConstructor<
     MutableHashMap_.MutableHashMap<Key["Type"], Value["Type"]>,
     MutableHashMap_.MutableHashMap<Key["Encoded"], Value["Encoded"]>,
     readonly [Key, Value],
     MutableHashMapIso<Key, Value>
-  >
-{
-  readonly key: Key
-  readonly value: Value
+  > {
+  readonly key: Key;
+  readonly value: Value;
 }
 
 /**
@@ -94,11 +102,13 @@ export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top> 
  * @since 0.0.0
  * @category Validation
  */
-export interface MutableHashMap<Key extends S.Top, Value extends S.Top> extends
-  S.decodeTo<MutableHashMapFromSelf<S.toType<Key>, S.toType<Value>>, S.$Array<MutableHashMapEntry<Key, Value>>>
-{
-  readonly key: Key
-  readonly value: Value
+export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
+  extends S.decodeTo<
+    MutableHashMapFromSelf<S.toType<Key>, S.toType<Value>>,
+    S.$Array<MutableHashMapEntry<Key, Value>>
+  > {
+  readonly key: Key;
+  readonly value: Value;
 }
 
 /**
@@ -110,7 +120,7 @@ export interface MutableHashMap<Key extends S.Top, Value extends S.Top> extends
  * @category Guards
  */
 export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHashMap_.MutableHashMap<Key, Value> =>
-  MutableHashMap_.isMutableHashMap(value)
+  MutableHashMap_.isMutableHashMap(value);
 
 /**
  * Schema for validating existing `MutableHashMap` instances while applying the
@@ -123,8 +133,8 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
  * @category Validation
  */
 export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(options: {
-  readonly key: Key
-  readonly value: Value
+  readonly key: Key;
+  readonly value: Value;
 }): MutableHashMapFromSelf<Key, Value> => {
   const schema = S.declareConstructor<
     MutableHashMap_.MutableHashMap<Key["Type"], Value["Type"]>,
@@ -133,19 +143,19 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
   >()(
     [options.key, options.value],
     ([key, value]) => {
-      const entries = S.Array(S.Tuple([key, value]))
+      const entries = S.Array(S.Tuple([key, value]));
 
       return (input, ast, parseOptions) => {
         if (!MutableHashMap_.isMutableHashMap(input)) {
-          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)))
+          return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
         }
 
         return Effect.mapBothEager(SchemaParser.decodeUnknownEffect(entries)(A.fromIterable(input), parseOptions), {
           onSuccess: MutableHashMap_.fromIterable,
           onFailure: (issue) =>
             new SchemaIssue.Composite(ast, Option.some(input), [new SchemaIssue.Pointer(["entries"], issue)]),
-        })
-      }
+        });
+      };
     },
     {
       typeConstructor: {
@@ -166,32 +176,36 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
             encode: toReadonlyEntries,
           })
         ),
-      toArbitrary: ([key, value]) => (fc, ctx) =>
-        fc
-          .oneof(
-            ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashMap" } : {},
-            fc.constant([]),
-            fc.array(fc.tuple(key, value), ctx?.constraints?.array)
-          )
-          .map(MutableHashMap_.fromIterable),
+      toArbitrary:
+        ([key, value]) =>
+        (fc, ctx) =>
+          fc
+            .oneof(
+              ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashMap" } : {},
+              fc.constant([]),
+              fc.array(fc.tuple(key, value), ctx?.constraints?.array)
+            )
+            .map(MutableHashMap_.fromIterable),
       toEquivalence: ([key, value]) => makeMutableHashMapEquivalence(key, value),
-      toFormatter: ([key, value]) => (map) => {
-        const size = MutableHashMap_.size(map)
-        if (size === 0) {
-          return "MutableHashMap(0) {}"
-        }
+      toFormatter:
+        ([key, value]) =>
+        (map) => {
+          const size = MutableHashMap_.size(map);
+          if (size === 0) {
+            return "MutableHashMap(0) {}";
+          }
 
-        return `MutableHashMap(${size}) { ${formatEntries(toReadonlyEntries(map), key, value)} }`
-      },
+          return `MutableHashMap(${size}) { ${formatEntries(toReadonlyEntries(map), key, value)} }`;
+        },
     }
-  )
+  );
 
   return S.make<MutableHashMapFromSelf<Key, Value>>(schema.ast, options).pipe(
     $I.annoteSchema("MutableHashMapFromSelf", {
       description: "Schema for validating existing MutableHashMap runtime values.",
     })
-  )
-}
+  );
+};
 
 /**
  * Schema for decoding entry arrays into `MutableHashMap` instances and encoding
@@ -209,6 +223,7 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  *
  * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])
  * const encoded = S.encodeSync(StringNumberMap)(decoded)
+ * void encoded
  * ```
  *
  * @param options - Schemas for keys and values.
@@ -217,11 +232,11 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  * @category Validation
  */
 export const MutableHashMap = <Key extends S.Top, Value extends S.Top>(options: {
-  readonly key: Key
-  readonly value: Value
+  readonly key: Key;
+  readonly value: Value;
 }): MutableHashMap<Key, Value> => {
-  const entry = S.make<MutableHashMapEntry<Key, Value>>(S.Tuple([options.key, options.value]).ast)
-  const entries = S.Array(entry)
+  const entry = S.make<MutableHashMapEntry<Key, Value>>(S.Tuple([options.key, options.value]).ast);
+  const entries = S.Array(entry);
   const schema = entries.pipe(
     S.decodeTo(
       MutableHashMapFromSelf({
@@ -233,7 +248,7 @@ export const MutableHashMap = <Key extends S.Top, Value extends S.Top>(options: 
         encode: (map): typeof entries.Type => A.fromIterable(map),
       })
     )
-  )
+  );
 
   return S.make<MutableHashMap<Key, Value>>(schema.ast, {
     from: schema.from,
@@ -244,5 +259,5 @@ export const MutableHashMap = <Key extends S.Top, Value extends S.Top>(options: 
     $I.annoteSchema("MutableHashMap", {
       description: "Entry-array-backed schema for Effect MutableHashMap values.",
     })
-  )
-}
+  );
+};

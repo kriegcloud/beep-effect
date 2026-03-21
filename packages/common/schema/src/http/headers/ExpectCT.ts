@@ -19,6 +19,9 @@ const $I = $SchemaId.create("http/headers/ExpectCT");
 const headerName = "Expect-CT" as const;
 const defaultMaxAge = 60 * 60 * 24;
 
+/**
+ * @since 0.0.0
+ */
 export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
   {
     maxAge: S.optionalKey(S.Finite),
@@ -30,22 +33,37 @@ export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const ExpectCTEnabled = S.Tuple([S.Literal(true), ExpectCTConfig]).pipe(
   $I.annoteSchema("ExpectCTEnabled", {
     description: "Tuple form used to enable `Expect-CT` with additional configuration.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ExpectCTEnabled = typeof ExpectCTEnabled.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ExpectCTOption = S.Union([S.Boolean, ExpectCTEnabled]).pipe(
   $I.annoteSchema("ExpectCTOption", {
     description: "The supported `Expect-CT` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ExpectCTOption = typeof ExpectCTOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class ExpectCTResponseHeader extends S.Class<ExpectCTResponseHeader>($I`ExpectCTResponseHeader`)(
   {
     name: S.tag(headerName),
@@ -118,6 +136,9 @@ const decodeExpectCTValue = (
     } as const;
   });
 
+/**
+ * @since 0.0.0
+ */
 export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
   S.decodeTo(
     ExpectCTResponseHeader,
@@ -172,4 +193,7 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ExpectCTHeader = typeof ExpectCTHeader.Type;

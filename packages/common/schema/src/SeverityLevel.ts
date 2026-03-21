@@ -18,13 +18,10 @@ const SeverityLevelBase = LiteralKit(["low", "medium", "high", "critical"] as co
  * @since 0.0.0
  * @category Validation
  */
-export const SeverityLevel = Object.assign(
-  SeverityLevelBase.annotate(
-    $I.annote("SeverityLevel", {
-      description: "Generic four-level severity scale shared across beep packages.",
-    })
-  ),
-  SeverityLevelBase
+export const SeverityLevel = SeverityLevelBase.annotate(
+  $I.annote("SeverityLevel", {
+    description: "Generic four-level severity scale shared across beep packages.",
+  })
 );
 
 /**

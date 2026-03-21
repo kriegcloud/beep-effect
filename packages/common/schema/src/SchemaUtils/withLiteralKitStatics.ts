@@ -19,6 +19,7 @@ type LiteralKitStatics<L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>
  * `LiteralKit` augments the underlying schema object with runtime helpers like
  * `Enum`, `Options`, and `pickOptions`. Schema annotations rebuild the schema,
  * so those helpers need to be copied back onto the annotated value.
+ * @since 0.0.0
  */
 export const withLiteralKitStatics = <const L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>>(
   literalKit: LiteralKitSchema<L>

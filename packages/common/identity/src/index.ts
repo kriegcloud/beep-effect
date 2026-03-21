@@ -6,9 +6,9 @@
 /**
  * @since 0.0.0
  */
-export * from "./Id.js";
+export * from "./Id.ts";
 
 /**
  * @since 0.0.0
  */
-export * from "./packages.js";
+export * from "./packages.ts";

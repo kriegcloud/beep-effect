@@ -27,6 +27,7 @@ import * as internal from "./internal/data/timezones.ts";
  * import type { TimezoneName } from "@beep/data/Timezones"
  *
  * const tz: TimezoneName = "America/New_York"
+ * void tz
  * ```
  */
 export type TimezoneName = (typeof internal.TimezoneNameValues)[number];

@@ -1,8 +1,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
-import { Effect, HashMap, HashSet, Order, Path, pipe } from "effect";
+import { Effect, Function as Fn, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -28,7 +27,7 @@ const uniqueSortedStringValues = (values: ReadonlyArray<string>): ReadonlyArray<
 const withRootRelativePrefix: {
   (rootRelativePrefix: string, targetPath: string): string;
   (rootRelativePrefix: string): (targetPath: string) => string;
-} = dual(
+} = Fn.dual(
   2,
   (rootRelativePrefix: string, targetPath: string): string =>
     `${rootRelativePrefix}${Str.replace(/^\.\//, Str.empty)(targetPath)}`
@@ -80,44 +79,76 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
 ) {}
 
 /**
+ * Managed TypeScript compiler options used for docgen examples.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const CanonicalDocgenExamplesCompilerOptions = S.Struct({
+  noEmit: S.Literal(true),
+  strict: S.Literal(true),
+  skipLibCheck: S.Literal(true),
+  moduleResolution: S.Literal("Bundler"),
+  module: S.Literal("ES2022"),
+  target: S.Literal("ES2022"),
+  lib: S.Array(S.String),
+  rewriteRelativeImportExtensions: S.Literal(true),
+  allowImportingTsExtensions: S.Literal(true),
+  moduleDetection: S.Literal("force"),
+  verbatimModuleSyntax: S.Literal(true),
+  allowJs: S.Literal(false),
+  erasableSyntaxOnly: S.Literal(true),
+  declaration: S.Literal(true),
+  declarationMap: S.Literal(true),
+  sourceMap: S.Literal(true),
+  exactOptionalPropertyTypes: S.Literal(true),
+  noUnusedLocals: S.Literal(true),
+  noUnusedParameters: S.Literal(true),
+  noImplicitOverride: S.Literal(true),
+  noFallthroughCasesInSwitch: S.Literal(true),
+  stripInternal: S.Literal(false),
+  noErrorTruncation: S.Literal(true),
+  types: S.Array(S.String),
+  jsx: S.Literal("react-jsx"),
+  paths: S.Record(S.String, S.Array(S.String)),
+}).pipe(
+  $I.annoteSchema("CanonicalDocgenExamplesCompilerOptions", {
+    description: "Managed TypeScript compiler options used for docgen examples.",
+  })
+);
+
+/**
+ * Managed TypeScript compiler options used for docgen examples.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type CanonicalDocgenExamplesCompilerOptions = typeof CanonicalDocgenExamplesCompilerOptions.Type;
+
+/**
  * Canonical repo docgen config payload.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export type CanonicalDocgenConfig = {
-  readonly $schema: string;
-  readonly exclude: ReadonlyArray<string>;
-  readonly srcLink: string;
-  readonly examplesCompilerOptions: {
-    readonly noEmit: true;
-    readonly strict: true;
-    readonly skipLibCheck: true;
-    readonly moduleResolution: "Bundler";
-    readonly module: "ES2022";
-    readonly target: "ES2022";
-    readonly lib: readonly ["ESNext", "DOM", "DOM.Iterable"];
-    readonly rewriteRelativeImportExtensions: true;
-    readonly allowImportingTsExtensions: true;
-    readonly moduleDetection: "force";
-    readonly verbatimModuleSyntax: true;
-    readonly allowJs: false;
-    readonly erasableSyntaxOnly: true;
-    readonly declaration: true;
-    readonly declarationMap: true;
-    readonly sourceMap: true;
-    readonly exactOptionalPropertyTypes: true;
-    readonly noUnusedLocals: true;
-    readonly noUnusedParameters: true;
-    readonly noImplicitOverride: true;
-    readonly noFallthroughCasesInSwitch: true;
-    readonly stripInternal: false;
-    readonly noErrorTruncation: true;
-    readonly types: readonly [];
-    readonly jsx: "react-jsx";
-    readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
-  };
-};
+export const CanonicalDocgenConfig = S.Struct({
+  $schema: S.String,
+  exclude: S.Array(S.String),
+  srcLink: S.String,
+  examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions,
+}).pipe(
+  $I.annoteSchema("CanonicalDocgenConfig", {
+    description: "Canonical repo docgen config payload.",
+  })
+);
+
+/**
+ * Canonical repo docgen config payload.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type CanonicalDocgenConfig = typeof CanonicalDocgenConfig.Type;
 
 /**
  * Collect direct workspace package dependencies from a package manifest.

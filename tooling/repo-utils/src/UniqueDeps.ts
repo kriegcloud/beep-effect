@@ -59,6 +59,7 @@ export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
  *   console.log("Runtime deps:", unique.dependencies)
  *   console.log("Dev deps:", unique.devDependencies)
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility

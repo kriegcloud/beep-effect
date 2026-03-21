@@ -157,6 +157,26 @@ const splitMappings = <M extends MappedPairs>(
   ) as ToLiterals<M>,
 });
 
+const attachHelperDescriptors = <T extends object>(schema: T, descriptors: PropertyDescriptorMap): T => {
+  const originalAnnotate = Reflect.get(schema, "annotate");
+
+  return Object.defineProperties(schema, {
+    ...descriptors,
+    ...(typeof originalAnnotate === "function"
+      ? {
+          annotate: {
+            value(annotation: unknown) {
+              return attachHelperDescriptors(originalAnnotate.call(schema, annotation), descriptors);
+            },
+            enumerable: false,
+            writable: false,
+            configurable: true,
+          },
+        }
+      : {}),
+  }) as T;
+};
+
 const makeDirectionalKit = <
   From extends Literals,
   To extends { readonly [I in keyof From]: LiteralValue },
@@ -175,7 +195,7 @@ const makeDirectionalKit = <
     configurable: false,
   });
 
-  return Object.defineProperties(base, {
+  return attachHelperDescriptors(base, {
     Options: readonlyProperty(literalKit.Options),
     is: readonlyProperty(literalKit.is),
     Enum: readonlyProperty(Enum),
@@ -251,7 +271,13 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
     configurable: false,
   });
 
-  return Object.defineProperties(From, {
+  return attachHelperDescriptors(From, {
+    Options: readonlyProperty(From.Options),
+    is: readonlyProperty(From.is),
+    Enum: readonlyProperty(From.Enum),
+    pickOptions: readonlyProperty(From.pickOptions),
+    omitOptions: readonlyProperty(From.omitOptions),
+    $match: readonlyProperty(From.$match),
     From: readonlyProperty(From),
     To: readonlyProperty(To),
   }) as MappedLiteralKit<M>;

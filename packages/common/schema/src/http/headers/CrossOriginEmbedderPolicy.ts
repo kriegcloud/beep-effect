@@ -22,6 +22,9 @@ const headerName = "Cross-Origin-Embedder-Policy" as const;
 
 const CoepValueBase = LiteralKit(["unsafe-none", "require-corp", "credentialless"]);
 
+/**
+ * @since 0.0.0
+ */
 export const CoepValue = CoepValueBase.pipe(
   $I.annoteSchema("CoepValue", {
     description: "The value of the `Cross-Origin-Embedder-Policy` header.",
@@ -29,10 +32,16 @@ export const CoepValue = CoepValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(CoepValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CoepValue = typeof CoepValue.Type;
 
 const CrossOriginEmbedderPolicyOptionBase = LiteralKit([false, ...CoepValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const CrossOriginEmbedderPolicyOption = CrossOriginEmbedderPolicyOptionBase.pipe(
   $I.annoteSchema("CrossOriginEmbedderPolicyOption", {
     description: "The value of the `Cross-Origin-Embedder-Policy` header.",
@@ -40,10 +49,14 @@ export const CrossOriginEmbedderPolicyOption = CrossOriginEmbedderPolicyOptionBa
   SchemaUtils.withLiteralKitStatics(CrossOriginEmbedderPolicyOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginEmbedderPolicyOption = typeof CrossOriginEmbedderPolicyOption.Type;
 
 /**
  * Schema for the Cross-Origin-Embedder-Policy response header output.
+ * @since 0.0.0
  */
 export class COEPResponseHeader extends S.Class<COEPResponseHeader>($I`COEPResponseHeader`)(
   {
@@ -64,6 +77,7 @@ type COEPResponseHeaderEncoded = typeof COEPResponseHeader.Encoded;
  * - `false` → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: undefined }`
  * - `undefined` → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: undefined }` (no default)
  * - Valid COEP value → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: <value> }`
+ * @since 0.0.0
  */
 export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
@@ -138,4 +152,7 @@ export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolic
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type CrossOriginEmbedderPolicyHeader = typeof CrossOriginEmbedderPolicyHeader.Type;

@@ -27,6 +27,9 @@ const PermittedCrossDomainPoliciesValueBase = LiteralKit([
   "all",
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const PermittedCrossDomainPoliciesValue = PermittedCrossDomainPoliciesValueBase.pipe(
   $I.annoteSchema("PermittedCrossDomainPoliciesValue", {
     description: "The supported `X-Permitted-Cross-Domain-Policies` header values.",
@@ -34,10 +37,16 @@ export const PermittedCrossDomainPoliciesValue = PermittedCrossDomainPoliciesVal
   SchemaUtils.withLiteralKitStatics(PermittedCrossDomainPoliciesValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermittedCrossDomainPoliciesValue = typeof PermittedCrossDomainPoliciesValue.Type;
 
 const PermittedCrossDomainPoliciesOptionBase = LiteralKit([false, ...PermittedCrossDomainPoliciesValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const PermittedCrossDomainPoliciesOption = PermittedCrossDomainPoliciesOptionBase.pipe(
   $I.annoteSchema("PermittedCrossDomainPoliciesOption", {
     description: "The supported `X-Permitted-Cross-Domain-Policies` option values.",
@@ -45,8 +54,14 @@ export const PermittedCrossDomainPoliciesOption = PermittedCrossDomainPoliciesOp
   SchemaUtils.withLiteralKitStatics(PermittedCrossDomainPoliciesOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermittedCrossDomainPoliciesOption = typeof PermittedCrossDomainPoliciesOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<PermittedCrossDomainPoliciesResponseHeader>(
   $I`PermittedCrossDomainPoliciesResponseHeader`
 )(
@@ -61,6 +76,9 @@ export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<Permitte
 
 type PermittedCrossDomainPoliciesResponseHeaderEncoded = typeof PermittedCrossDomainPoliciesResponseHeader.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainPoliciesOption, S.Undefined]).pipe(
   S.decodeTo(
     PermittedCrossDomainPoliciesResponseHeader,
@@ -119,4 +137,7 @@ export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainP
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermittedCrossDomainPoliciesHeader = typeof PermittedCrossDomainPoliciesHeader.Type;

@@ -34,6 +34,9 @@ type ResolvedHeader = {
   readonly value: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureHeaderOptions`)(
   {
     contentSecurityPolicy: S.optionalKey(ContentSecurityPolicyOption),
@@ -55,6 +58,9 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeaderEntry`)(
   {
     key: S.String,
@@ -110,6 +116,9 @@ const resolveHeaders = Effect.fnUntraced(function* (
   return resolvedHeaders;
 });
 
+/**
+ * @since 0.0.0
+ */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
   options: typeof SecureHeaderOptions.Type = {}
 ): Effect.fn.Return<Record<string, string>, SecureHeaderError> {
@@ -124,6 +133,9 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
   );
 });
 
+/**
+ * @since 0.0.0
+ */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
   options: typeof SecureHeaderOptions.Type = {}
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {

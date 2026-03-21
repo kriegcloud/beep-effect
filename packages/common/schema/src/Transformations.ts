@@ -23,6 +23,7 @@ const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Read
  * import { destructiveTransform } from "@beep/schema/Transformations";
  *
  * const schema = destructiveTransform(S.String, (value) => value.length);
+ * void schema;
  * ```
  *
  * @since 0.0.0

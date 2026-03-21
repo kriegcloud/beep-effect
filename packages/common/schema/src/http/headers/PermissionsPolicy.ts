@@ -51,6 +51,9 @@ const PermissionsPolicyDirectiveBase = LiteralKit([
   "xr-spatial-tracking",
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyDirective = PermissionsPolicyDirectiveBase.pipe(
   $I.annoteSchema("PermissionsPolicyDirective", {
     description: "The supported directive names for the `Permissions-Policy` header.",
@@ -58,8 +61,14 @@ export const PermissionsPolicyDirective = PermissionsPolicyDirectiveBase.pipe(
   SchemaUtils.withLiteralKitStatics(PermissionsPolicyDirectiveBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyDirective = typeof PermissionsPolicyDirective.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyDirectiveKey = S.String.check(
   S.makeFilter(S.is(PermissionsPolicyDirective), {
     identifier: "PermissionsPolicyDirectiveKey",
@@ -73,8 +82,14 @@ export const PermissionsPolicyDirectiveKey = S.String.check(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyDirectiveKey = typeof PermissionsPolicyDirectiveKey.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const QuotedOrigin = S.String.check(
   S.isPattern(quotedOriginPattern, {
     title: "QuotedOrigin",
@@ -87,10 +102,16 @@ export const QuotedOrigin = S.String.check(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type QuotedOrigin = typeof QuotedOrigin.Type;
 
 const PermissionsPolicyDirectiveValueSingleBase = LiteralKit(["*", "self", "none"]);
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyDirectiveValueSingle = PermissionsPolicyDirectiveValueSingleBase.pipe(
   $I.annoteSchema("PermissionsPolicyDirectiveValueSingle", {
     description: "Single-value `Permissions-Policy` allowlist forms.",
@@ -98,16 +119,28 @@ export const PermissionsPolicyDirectiveValueSingle = PermissionsPolicyDirectiveV
   SchemaUtils.withLiteralKitStatics(PermissionsPolicyDirectiveValueSingleBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyDirectiveValueSingle = typeof PermissionsPolicyDirectiveValueSingle.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyAllowlistedOrigin = S.Union([S.Literal("self"), QuotedOrigin]).pipe(
   $I.annoteSchema("PermissionsPolicyAllowlistedOrigin", {
     description: "A `Permissions-Policy` allowlisted origin item.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyAllowlistedOrigin = typeof PermissionsPolicyAllowlistedOrigin.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyDirectiveValue = S.Union([
   PermissionsPolicyDirectiveValueSingle,
   QuotedOrigin,
@@ -118,8 +151,14 @@ export const PermissionsPolicyDirectiveValue = S.Union([
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyDirectiveValue = typeof PermissionsPolicyDirectiveValue.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyDirectives = S.Record(
   PermissionsPolicyDirectiveKey,
   PermissionsPolicyDirectiveValue
@@ -129,8 +168,14 @@ export const PermissionsPolicyDirectives = S.Record(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyDirectives = typeof PermissionsPolicyDirectives.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOptionStruct>(
   $I`PermissionsPolicyOptionStruct`
 )(
@@ -142,14 +187,23 @@ export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOpti
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyOption = S.Union([S.Literal(false), PermissionsPolicyOptionStruct]).pipe(
   $I.annoteSchema("PermissionsPolicyOption", {
     description: "The supported `Permissions-Policy` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyOption = typeof PermissionsPolicyOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class PermissionsPolicyResponseHeader extends S.Class<PermissionsPolicyResponseHeader>(
   $I`PermissionsPolicyResponseHeader`
 )(
@@ -189,11 +243,14 @@ const buildHeaderValue = (directives: PermissionsPolicyDirectives): O.Option<str
     Struct.entries(directives),
     A.map(([key, value]) => `${key}=${formatDirectiveValue(value)}`),
     A.match({
-      onEmpty: () => O.none<string>(),
+      onEmpty: O.none<string>,
       onNonEmpty: (parts) => O.some(A.join(parts, ", ")),
     })
   );
 
+/**
+ * @since 0.0.0
+ */
 export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
     PermissionsPolicyResponseHeader,
@@ -252,4 +309,7 @@ export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undef
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type PermissionsPolicyHeader = typeof PermissionsPolicyHeader.Type;

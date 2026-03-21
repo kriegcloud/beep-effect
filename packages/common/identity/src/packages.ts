@@ -7,6 +7,8 @@
  *
  * const serviceId = $SchemaId`TenantService`
  * const customId = $I.create("custom").make("CustomService")
+ * void serviceId
+ * void customId
  * ```
  *
  * @since 0.0.0

@@ -14,10 +14,11 @@ export * from "effect/Function";
  *
  * @example
  * ```ts
- * import { cast, identity } from "effect/Function"
- * import * as assert from "node:assert"
+ * import { identity } from "effect/Function"
+ * import { cast } from "@beep/utils/Function"
  *
- * assert.deepStrictEqual(cast, identity)
+ * const same = cast === identity
+ * void same
  * ```
  *
  * @category Utility

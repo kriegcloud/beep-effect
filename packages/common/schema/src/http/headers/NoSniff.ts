@@ -21,6 +21,9 @@ const defaultValue = "nosniff" as const;
 
 const NoSniffValueBase = LiteralKit([defaultValue]);
 
+/**
+ * @since 0.0.0
+ */
 export const NoSniffValue = NoSniffValueBase.pipe(
   $I.annoteSchema("NoSniffValue", {
     description: "The supported `X-Content-Type-Options` header values.",
@@ -28,10 +31,16 @@ export const NoSniffValue = NoSniffValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(NoSniffValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoSniffValue = typeof NoSniffValue.Type;
 
 const NoSniffOptionBase = LiteralKit([false, ...NoSniffValueBase.Options]);
 
+/**
+ * @since 0.0.0
+ */
 export const NoSniffOption = NoSniffOptionBase.pipe(
   $I.annoteSchema("NoSniffOption", {
     description: "The supported `X-Content-Type-Options` option values.",
@@ -39,8 +48,14 @@ export const NoSniffOption = NoSniffOptionBase.pipe(
   SchemaUtils.withLiteralKitStatics(NoSniffOptionBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoSniffOption = typeof NoSniffOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class NoSniffResponseHeader extends S.Class<NoSniffResponseHeader>($I`NoSniffResponseHeader`)(
   {
     name: S.tag(headerName),
@@ -53,6 +68,9 @@ export class NoSniffResponseHeader extends S.Class<NoSniffResponseHeader>($I`NoS
 
 type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
 
+/**
+ * @since 0.0.0
+ */
 export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
   S.decodeTo(
     NoSniffResponseHeader,
@@ -108,4 +126,7 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type NoSniffHeader = typeof NoSniffHeader.Type;

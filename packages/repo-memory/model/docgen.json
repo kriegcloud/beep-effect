@@ -1,5 +1,71 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": ["src/index.ts", "src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/model/src/"
+  "exclude": [
+    "src/index.ts",
+    "src/internal/**/*.ts"
+  ],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/model/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/repo-memory-model": [
+        "../../../packages/repo-memory/model/src/index.ts"
+      ],
+      "@beep/repo-memory-model/*": [
+        "../../../packages/repo-memory/model/src/*.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/common/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/common/identity/src/*.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/common/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/common/schema/src/*.ts"
+      ],
+      "@beep/semantic-web": [
+        "../../../packages/common/semantic-web/src/index.ts"
+      ],
+      "@beep/semantic-web/*": [
+        "../../../packages/common/semantic-web/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../packages/common/types/src/*.ts"
+      ]
+    }
+  }
 }

@@ -29,6 +29,9 @@ const ReferrerPolicyValueBase = LiteralKit([
   "strict-origin-when-cross-origin",
 ]);
 
+/**
+ * @since 0.0.0
+ */
 export const ReferrerPolicyValue = ReferrerPolicyValueBase.pipe(
   $I.annoteSchema("ReferrerPolicyValue", {
     description: "The supported `Referrer-Policy` header values.",
@@ -36,24 +39,42 @@ export const ReferrerPolicyValue = ReferrerPolicyValueBase.pipe(
   SchemaUtils.withLiteralKitStatics(ReferrerPolicyValueBase)
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ReferrerPolicyValue = typeof ReferrerPolicyValue.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ReferrerPolicyValueList = S.Array(ReferrerPolicyValue).pipe(
   $I.annoteSchema("ReferrerPolicyValueList", {
     description: "A fallback list of `Referrer-Policy` values for legacy browser support.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ReferrerPolicyValueList = typeof ReferrerPolicyValueList.Type;
 
+/**
+ * @since 0.0.0
+ */
 export const ReferrerPolicyOption = S.Union([S.Literal(false), ReferrerPolicyValue, ReferrerPolicyValueList]).pipe(
   $I.annoteSchema("ReferrerPolicyOption", {
     description: "The supported `Referrer-Policy` option values.",
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ReferrerPolicyOption = typeof ReferrerPolicyOption.Type;
 
+/**
+ * @since 0.0.0
+ */
 export class ReferrerPolicyResponseHeader extends S.Class<ReferrerPolicyResponseHeader>(
   $I`ReferrerPolicyResponseHeader`
 )(
@@ -91,6 +112,9 @@ const formatReferrerPolicyValue = (
     });
   });
 
+/**
+ * @since 0.0.0
+ */
 export const ReferrerPolicyHeader = S.Union([ReferrerPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
     ReferrerPolicyResponseHeader,
@@ -151,4 +175,7 @@ export const ReferrerPolicyHeader = S.Union([ReferrerPolicyOption, S.Undefined])
   })
 );
 
+/**
+ * @since 0.0.0
+ */
 export type ReferrerPolicyHeader = typeof ReferrerPolicyHeader.Type;
