@@ -156,7 +156,7 @@ const validateHelperKeys = <L extends Literals>(literals: L): void => {
       const key = matchLiteral(literal);
       const existing = HashMap.get(seen, key);
 
-      if (O.isSome(existing) && existing.value !== literal) {
+      if (O.isSome(existing) && !Object.is(existing.value, literal)) {
         throw new LiteralKitKeyCollisionError({
           key,
           existing: existing.value,

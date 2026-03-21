@@ -656,15 +656,18 @@ export type AuthorizationError =
 export const AUTHORIZATION_ERROR_STATUS_CODES = {
   // 403 Forbidden
   PermissionDeniedError: 403,
-  MembershipNotActiveError: 403, // 404 Not Found
+  MembershipNotActiveError: 403,
+  // 404 Not Found
   MembershipNotFoundError: 404,
-  PolicyNotFoundError: 404, // 400 Bad Request
+  PolicyNotFoundError: 404,
+  // 400 Bad Request
   InvalidInvitationError: 400,
   InvitationExpiredError: 400,
   InvalidPolicyIdError: 400,
   InvalidPolicyConditionError: 400,
   PolicyPriorityValidationError: 400,
-  InvalidResourceTypeError: 400, // 409 Conflict
+  InvalidResourceTypeError: 400,
+  // 409 Conflict
   OwnerCannotBeRemovedError: 409,
   OwnerCannotBeSuspendedError: 409,
   MemberNotSuspendedError: 409,
@@ -672,7 +675,8 @@ export const AUTHORIZATION_ERROR_STATUS_CODES = {
   InvitationAlreadyExistsError: 409,
   UserAlreadyMemberError: 409,
   PolicyAlreadyExistsError: 409,
-  SystemPolicyCannotBeModifiedError: 409, // 500 Internal Server Error
+  SystemPolicyCannotBeModifiedError: 409,
+  // 500 Internal Server Error
   PolicyLoadError: 500,
   AuthorizationAuditError: 500,
 } as const;

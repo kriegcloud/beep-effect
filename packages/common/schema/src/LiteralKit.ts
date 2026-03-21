@@ -226,7 +226,7 @@ const validateLiteralKeys = <L extends Literals>(literals: L): void => {
     A.reduce(HashMap.empty<string, SchemaAST.LiteralValue>(), (seen, literal): SeenLiteralKeys => {
       const key = matchLiteral(literal);
       const existing = HashMap.get(seen, key);
-      if (O.isSome(existing) && existing.value !== literal) {
+      if (O.isSome(existing) && !Object.is(existing.value, literal)) {
         throw new LiteralKitKeyCollisionError({
           key,
           existing: existing.value,

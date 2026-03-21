@@ -19,7 +19,28 @@ const $I = $RepoUtilsId.create("TSDoc/TSDoc");
  * @category DomainModel
  */
 export class TextLocation extends S.Class<TextLocation>($I`TextLocation`)(
-  {},
+  {
+    /**
+     * The line number for the text location.
+     *
+     * @remarks
+     * This is 1-based for known positions. Use `0` to represent an unspecified or unknown line.
+     */
+    line: NonNegativeInt.annotateKey({
+      description: "The line number for the text location.",
+      documentation: "This is 1-based for known positions. Use `0` to represent an unspecified or unknown line.",
+    }),
+    /**
+     * The column number for the text location.
+     *
+     * @remarks
+     * This is 1-based for known positions. Use `0` to represent an unspecified or unknown column.
+     */
+    column: NonNegativeInt.annotateKey({
+      description: "The column number for the text location.",
+      documentation: "This is 1-based for known positions. Use `0` to represent an unspecified or unknown column.",
+    }),
+  },
   $I.annote("TextLocation", {
     description: "Text coordinates represented as a line number and column number.",
     documentation:
@@ -36,13 +57,14 @@ export class TextLocation extends S.Class<TextLocation>($I`TextLocation`)(
 export class TextRange extends S.Class<TextRange>($I`TextRange`)(
   {
     /**
-     * Efficiently references a range of text from a string buffer.
+     * The inclusive starting index for the associated text buffer.
      *
      * @remarks
-     * The (non-inclusive) ending index for the associated text buffer.
+     * This is a zero-based offset into `buffer`.
      */
     pos: NonNegativeInt.annotateKey({
-      description: "Efficiently references a range of text from a string buffer.",
+      description: "The inclusive starting index for the associated text buffer.",
+      documentation: "This is a zero-based offset into `buffer`.",
     }),
     /**
      * The (non-inclusive) ending index for the associated text buffer.
