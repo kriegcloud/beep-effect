@@ -9,3 +9,8 @@
  * @category DomainModel
  */
 export * as Errors from "./errors/index.js";
+
+/**
+ * @since 0.0.0
+ */
+export * from "./factories/index.ts";

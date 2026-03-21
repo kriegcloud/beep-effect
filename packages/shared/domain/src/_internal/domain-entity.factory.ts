@@ -1,7 +1,7 @@
 // import * as Model from "effect/unstable/schema/Model";
 // import * as S from "effect/Schema";
 import type { TString } from "@beep/types";
-import type { EntityId } from "../entity-ids/internal/index.js";
+import type { EntityId } from "../entity-ids/_internal/index.js";
 
 /**
  * Temporary domain-entity constructor helper.

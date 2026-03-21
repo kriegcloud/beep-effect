@@ -19,7 +19,8 @@
   "dependencies": {
     "@beep/data": "workspace:^",
     "@beep/identity": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

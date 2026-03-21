@@ -85,7 +85,7 @@ function isStruct(schema: TaggedErrorFields | TaggedErrorStruct): schema is Tagg
 
 /**
  * @category Validation
- * @since 4.0.0
+ * @since 0.0.0
  */
 export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: string) => {
   return ((

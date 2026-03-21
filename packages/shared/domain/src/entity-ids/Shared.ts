@@ -1,5 +1,5 @@
 import { $SharedDomainId } from "@beep/identity";
-import { EntityId } from "./internal/index.js";
+import { EntityId } from "./_internal/index.js";
 
 const $I = $SharedDomainId.create("entity-ids/Shared");
 const make = EntityId.factory("shared", $I);
