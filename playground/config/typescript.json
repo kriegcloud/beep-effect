@@ -1,0 +1,13 @@
+/**
+ * Configures the TypeScript plugin for Heft.  This plugin also manages linting.
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/heft/v0/typescript.schema.json",
+
+  "extends": "tsdoc-build-rig/profiles/web/config/typescript.json",
+
+  "staticAssetsToCopy": {
+    "fileExtensions": [".json", ".css", ".scss"],
+    "includeGlobs": ["samples/*.ts"]
+  }
+}

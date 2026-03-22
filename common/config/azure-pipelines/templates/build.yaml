@@ -1,0 +1,14 @@
+steps:
+  - template: /common/config/azure-pipelines/templates/configure-git.yaml@self
+
+  - script: 'node common/scripts/install-run-rush.js change --verify'
+    displayName: 'Verify Change Logs'
+    workingDirectory: '$(Agent.BuildDirectory)/tsdoc'
+
+  - script: 'node common/scripts/install-run-rush.js install'
+    displayName: 'Rush Install'
+    workingDirectory: '$(Agent.BuildDirectory)/tsdoc'
+
+  - script: 'node common/scripts/install-run-rush.js retest --verbose --production'
+    displayName: 'Rush retest'
+    workingDirectory: '$(Agent.BuildDirectory)/tsdoc'
