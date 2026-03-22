@@ -1,0 +1,600 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`00 Symbol references: positive examples 1`] = `
+Object {
+  "buffer": "/**[n] * {@link Class1.[WellknownSymbols.toStringPrimitive]}[n] * {@link Class1 . ( [ WellknownSymbols . toStringPrimitive ] : static) | link text}[n] */",
+  "gaps": Array [],
+  "lines": Array [
+    "{@link Class1.[WellknownSymbols.toStringPrimitive]}",
+    "{@link Class1 . ( [ WellknownSymbols . toStringPrimitive ] : static) | link text}",
+  ],
+  "logMessages": Array [],
+  "nodes": Object {
+    "kind": "Comment",
+    "nodes": Array [
+      Object {
+        "kind": "Section",
+        "nodes": Array [
+          Object {
+            "kind": "Paragraph",
+            "nodes": Array [
+              Object {
+                "kind": "LinkTag",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: InlineTag_OpeningDelimiter",
+                    "nodeExcerpt": "{",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagName",
+                    "nodeExcerpt": "@link",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "DeclarationReference",
+                    "nodes": Array [
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "MemberIdentifier",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: MemberIdentifier_Identifier",
+                                "nodeExcerpt": "Class1",
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "Excerpt: MemberReference_Dot",
+                            "nodeExcerpt": ".",
+                          },
+                          Object {
+                            "kind": "MemberSymbol",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_LeftBracket",
+                                "nodeExcerpt": "[",
+                              },
+                              Object {
+                                "kind": "DeclarationReference",
+                                "nodes": Array [
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "WellknownSymbols",
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_Dot",
+                                        "nodeExcerpt": ".",
+                                      },
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "toStringPrimitive",
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_RightBracket",
+                                "nodeExcerpt": "]",
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_ClosingDelimiter",
+                    "nodeExcerpt": "}",
+                  },
+                ],
+              },
+              Object {
+                "kind": "SoftBreak",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: SoftBreak",
+                    "nodeExcerpt": "[n]",
+                  },
+                ],
+              },
+              Object {
+                "kind": "LinkTag",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: InlineTag_OpeningDelimiter",
+                    "nodeExcerpt": "{",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagName",
+                    "nodeExcerpt": "@link",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "DeclarationReference",
+                    "nodes": Array [
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "MemberIdentifier",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: MemberIdentifier_Identifier",
+                                "nodeExcerpt": "Class1",
+                              },
+                            ],
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                        ],
+                      },
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "Excerpt: MemberReference_Dot",
+                            "nodeExcerpt": ".",
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_LeftParenthesis",
+                            "nodeExcerpt": "(",
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                          Object {
+                            "kind": "MemberSymbol",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_LeftBracket",
+                                "nodeExcerpt": "[",
+                              },
+                              Object {
+                                "kind": "Excerpt: Spacing",
+                                "nodeExcerpt": " ",
+                              },
+                              Object {
+                                "kind": "DeclarationReference",
+                                "nodes": Array [
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "WellknownSymbols",
+                                          },
+                                        ],
+                                      },
+                                      Object {
+                                        "kind": "Excerpt: Spacing",
+                                        "nodeExcerpt": " ",
+                                      },
+                                    ],
+                                  },
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_Dot",
+                                        "nodeExcerpt": ".",
+                                      },
+                                      Object {
+                                        "kind": "Excerpt: Spacing",
+                                        "nodeExcerpt": " ",
+                                      },
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "toStringPrimitive",
+                                          },
+                                        ],
+                                      },
+                                      Object {
+                                        "kind": "Excerpt: Spacing",
+                                        "nodeExcerpt": " ",
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_RightBracket",
+                                "nodeExcerpt": "]",
+                              },
+                            ],
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_Colon",
+                            "nodeExcerpt": ":",
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                          Object {
+                            "kind": "MemberSelector",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: MemberSelector",
+                                "nodeExcerpt": "static",
+                              },
+                            ],
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_RightParenthesis",
+                            "nodeExcerpt": ")",
+                          },
+                          Object {
+                            "kind": "Excerpt: Spacing",
+                            "nodeExcerpt": " ",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  Object {
+                    "kind": "Excerpt: LinkTag_Pipe",
+                    "nodeExcerpt": "|",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "Excerpt: LinkTag_LinkText",
+                    "nodeExcerpt": "link text",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_ClosingDelimiter",
+                    "nodeExcerpt": "}",
+                  },
+                ],
+              },
+              Object {
+                "kind": "SoftBreak",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: SoftBreak",
+                    "nodeExcerpt": "[n]",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`01 Symbol references: negative examples 1`] = `
+Object {
+  "buffer": "/**[n] * {@link Class1.[WellknownSymbols.toStringPrimitive}[n] * {@link Class1.[]}[n] */",
+  "gaps": Array [],
+  "lines": Array [
+    "{@link Class1.[WellknownSymbols.toStringPrimitive}",
+    "{@link Class1.[]}",
+  ],
+  "logMessages": Array [
+    "(2,18): Missing closing square bracket for symbol reference",
+    "(3,18): Expecting a declaration reference",
+    "(3,18): Missing declaration reference in symbol reference",
+  ],
+  "nodes": Object {
+    "kind": "Comment",
+    "nodes": Array [
+      Object {
+        "kind": "Section",
+        "nodes": Array [
+          Object {
+            "kind": "Paragraph",
+            "nodes": Array [
+              Object {
+                "kind": "InlineTag",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: InlineTag_OpeningDelimiter",
+                    "nodeExcerpt": "{",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagName",
+                    "nodeExcerpt": "@link",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagContent",
+                    "nodeExcerpt": "Class1.[WellknownSymbols.toStringPrimitive",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_ClosingDelimiter",
+                    "nodeExcerpt": "}",
+                  },
+                ],
+              },
+              Object {
+                "kind": "SoftBreak",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: SoftBreak",
+                    "nodeExcerpt": "[n]",
+                  },
+                ],
+              },
+              Object {
+                "kind": "InlineTag",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: InlineTag_OpeningDelimiter",
+                    "nodeExcerpt": "{",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagName",
+                    "nodeExcerpt": "@link",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagContent",
+                    "nodeExcerpt": "Class1.[]",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_ClosingDelimiter",
+                    "nodeExcerpt": "}",
+                  },
+                ],
+              },
+              Object {
+                "kind": "SoftBreak",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: SoftBreak",
+                    "nodeExcerpt": "[n]",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`02 Complicated examples 1`] = `
+Object {
+  "buffer": "/**[n] * {@link ./lib/controls/Button#Button.([(WellknownSymbols:namespace).toStringPrimitive]:instance)}[n] */",
+  "gaps": Array [],
+  "lines": Array [
+    "{@link ./lib/controls/Button#Button.([(WellknownSymbols:namespace).toStringPrimitive]:instance)}",
+  ],
+  "logMessages": Array [],
+  "nodes": Object {
+    "kind": "Comment",
+    "nodes": Array [
+      Object {
+        "kind": "Section",
+        "nodes": Array [
+          Object {
+            "kind": "Paragraph",
+            "nodes": Array [
+              Object {
+                "kind": "LinkTag",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: InlineTag_OpeningDelimiter",
+                    "nodeExcerpt": "{",
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_TagName",
+                    "nodeExcerpt": "@link",
+                  },
+                  Object {
+                    "kind": "Excerpt: Spacing",
+                    "nodeExcerpt": " ",
+                  },
+                  Object {
+                    "kind": "DeclarationReference",
+                    "nodes": Array [
+                      Object {
+                        "kind": "Excerpt: DeclarationReference_ImportPath",
+                        "nodeExcerpt": "./lib/controls/Button",
+                      },
+                      Object {
+                        "kind": "Excerpt: DeclarationReference_ImportHash",
+                        "nodeExcerpt": "#",
+                      },
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "MemberIdentifier",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: MemberIdentifier_Identifier",
+                                "nodeExcerpt": "Button",
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      Object {
+                        "kind": "MemberReference",
+                        "nodes": Array [
+                          Object {
+                            "kind": "Excerpt: MemberReference_Dot",
+                            "nodeExcerpt": ".",
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_LeftParenthesis",
+                            "nodeExcerpt": "(",
+                          },
+                          Object {
+                            "kind": "MemberSymbol",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_LeftBracket",
+                                "nodeExcerpt": "[",
+                              },
+                              Object {
+                                "kind": "DeclarationReference",
+                                "nodes": Array [
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_LeftParenthesis",
+                                        "nodeExcerpt": "(",
+                                      },
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "WellknownSymbols",
+                                          },
+                                        ],
+                                      },
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_Colon",
+                                        "nodeExcerpt": ":",
+                                      },
+                                      Object {
+                                        "kind": "MemberSelector",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberSelector",
+                                            "nodeExcerpt": "namespace",
+                                          },
+                                        ],
+                                      },
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_RightParenthesis",
+                                        "nodeExcerpt": ")",
+                                      },
+                                    ],
+                                  },
+                                  Object {
+                                    "kind": "MemberReference",
+                                    "nodes": Array [
+                                      Object {
+                                        "kind": "Excerpt: MemberReference_Dot",
+                                        "nodeExcerpt": ".",
+                                      },
+                                      Object {
+                                        "kind": "MemberIdentifier",
+                                        "nodes": Array [
+                                          Object {
+                                            "kind": "Excerpt: MemberIdentifier_Identifier",
+                                            "nodeExcerpt": "toStringPrimitive",
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                              Object {
+                                "kind": "Excerpt: DocMemberSymbol_RightBracket",
+                                "nodeExcerpt": "]",
+                              },
+                            ],
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_Colon",
+                            "nodeExcerpt": ":",
+                          },
+                          Object {
+                            "kind": "MemberSelector",
+                            "nodes": Array [
+                              Object {
+                                "kind": "Excerpt: MemberSelector",
+                                "nodeExcerpt": "instance",
+                              },
+                            ],
+                          },
+                          Object {
+                            "kind": "Excerpt: MemberReference_RightParenthesis",
+                            "nodeExcerpt": ")",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  Object {
+                    "kind": "Excerpt: InlineTag_ClosingDelimiter",
+                    "nodeExcerpt": "}",
+                  },
+                ],
+              },
+              Object {
+                "kind": "SoftBreak",
+                "nodes": Array [
+                  Object {
+                    "kind": "Excerpt: SoftBreak",
+                    "nodeExcerpt": "[n]",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+}
+`;

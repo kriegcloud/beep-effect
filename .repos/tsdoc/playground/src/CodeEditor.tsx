@@ -1,0 +1,324 @@
+// Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
+// See LICENSE in the project root for license information.
+
+import * as React from 'react';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+
+import * as tsdoc from '@microsoft/tsdoc';
+
+import { FlexColDiv } from './FlexDivs';
+
+export interface ITextRange {
+  /**
+   * Beginning position as a character index of the text in the editor
+   */
+  pos: number;
+
+  /**
+   * End position as a character index of the text in the editor
+   */
+  end: number;
+}
+
+/**
+ * Describes a marker. Markers refer to annotations (i.e. - squiggly lines) in code.
+ */
+export interface ISyntaxMarker extends ITextRange {
+  message: string;
+}
+
+/**
+ * Describes a styled range. This allows CSS styling to be applied to ranges of code.
+ */
+export interface IStyledRange extends ITextRange {
+  className: string;
+}
+
+export interface ICodeEditorProps {
+  className?: string;
+  style?: React.CSSProperties;
+  value?: string;
+  readOnly?: boolean;
+  language?: string;
+  onChange?: (value: string) => void;
+
+  disableLineNumbers?: boolean;
+  theme?: string;
+  markers?: ISyntaxMarker[];
+  syntaxStyles?: IStyledRange[];
+  wordWrap?: boolean;
+}
+
+export interface ICodeEditorState {
+  monacoErrorMessage?: string;
+}
+
+interface IMonarchLanguageConfiguration extends monaco.languages.IMonarchLanguage {
+  keywords: string[];
+}
+
+export class CodeEditor extends React.Component<ICodeEditorProps, ICodeEditorState> {
+  private static _editorIdCounter: number = 0;
+
+  private _existingSyntaxStyles: { [hash: string]: string } = {};
+  private _editorId: string;
+  private _editor: monaco.editor.IStandaloneCodeEditor | undefined;
+
+  private _placeholderDivRef: HTMLDivElement | undefined;
+  private _hostDivRef: HTMLDivElement | undefined;
+
+  public constructor(props: ICodeEditorProps) {
+    super(props);
+
+    this._editorId = `tsdoc-monaco-${CodeEditor._editorIdCounter++}`;
+    this.state = {};
+    this._onWindowResize = this._onWindowResize.bind(this);
+    this._onRefHost = this._onRefHost.bind(this);
+    this._onRefPlaceholder = this._onRefPlaceholder.bind(this);
+  }
+
+  private get _value(): string | undefined {
+    if (this._editor) {
+      return this._editor.getValue();
+    } else {
+      return undefined;
+    }
+  }
+
+  private _getEditorModel(): monaco.editor.ITextModel {
+    if (this._editor) {
+      const model: monaco.editor.ITextModel | null = this._editor.getModel();
+      if (model) {
+        return model;
+      }
+    }
+    throw new Error('Invalid access to MonacoEditor.getModel()');
+  }
+
+  public componentDidMount(): void {
+    window.addEventListener('resize', this._onWindowResize);
+
+    this._createEditor();
+  }
+
+  public componentWillUnmount(): void {
+    this._editor = undefined;
+
+    this._placeholderDivRef = undefined;
+    this._hostDivRef = undefined;
+
+    window.removeEventListener('resize', this._onWindowResize);
+  }
+
+  public componentDidUpdate(prevProps: ICodeEditorProps): void {
+    if (this._editor) {
+      if (this._value !== this.props.value) {
+        this._editor.setValue(this.props.value || '');
+      }
+
+      monaco.editor.setModelMarkers(
+        this._getEditorModel(),
+        this._editorId,
+        (this.props.markers || []).map((marker) => {
+          const startPos: monaco.Position = this._getEditorModel().getPositionAt(marker.pos);
+          const endPos: monaco.Position = this._getEditorModel().getPositionAt(marker.end);
+          return {
+            startLineNumber: startPos.lineNumber,
+            startColumn: startPos.column,
+            endLineNumber: endPos.lineNumber,
+            endColumn: endPos.column,
+            severity: monaco.MarkerSeverity.Error,
+            message: marker.message
+          };
+        })
+      );
+
+      if (this.props.theme !== prevProps.theme) {
+        monaco.editor.setTheme(this.props.theme || 'vs');
+      }
+
+      if (this.props.disableLineNumbers !== prevProps.disableLineNumbers) {
+        this._editor.updateOptions({
+          lineNumbers: this.props.disableLineNumbers ? 'off' : 'on'
+        });
+      }
+      this._applySyntaxStyling(this.props.syntaxStyles || []);
+    }
+  }
+
+  public render(): React.ReactNode {
+    if (this.state.monacoErrorMessage) {
+      return (
+        <FlexColDiv className={this.props.className} style={this.props.style}>
+          {this.state.monacoErrorMessage}
+        </FlexColDiv>
+      );
+    } else {
+      // The Monaco application is very complex and its div does not resize reliably.
+      // To work around this, we render a blank placeholder div (that is well-behaved),
+      // and then the Monaco host div floats above that using absolute positioning
+      // and manual resizing.
+      return (
+        <div
+          className="playground-monaco-placeholder"
+          ref={this._onRefPlaceholder}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            minHeight: '400px',
+            marginTop: '10px',
+            ...this.props.style
+          }}
+        >
+          <div
+            className="playground-monaco-host"
+            ref={this._onRefHost}
+            style={{ display: 'block', position: 'absolute' }}
+          />
+        </div>
+      );
+    }
+  }
+
+  private _onRefPlaceholder(element: HTMLDivElement): void {
+    this._placeholderDivRef = element;
+  }
+
+  private _onRefHost(element: HTMLDivElement): void {
+    this._hostDivRef = element;
+  }
+
+  private _applySyntaxStyling(newSyntaxStyles: IStyledRange[]): void {
+    if (this._editor) {
+      // Find decorations to remove
+      const newExistingSyntaxStyles: { [hash: string]: string } = {};
+      const decorationsToAdd: IStyledRange[] = [];
+      const hashesOfDecorationsToAdd: string[] = [];
+      const decorationsToRemove: string[] = [];
+      for (const syntaxStyle of newSyntaxStyles) {
+        const hash: string = JSON.stringify(syntaxStyle);
+
+        if (this._existingSyntaxStyles[hash] !== undefined) {
+          newExistingSyntaxStyles[hash] = this._existingSyntaxStyles[hash];
+          delete this._existingSyntaxStyles[hash];
+        } else {
+          newExistingSyntaxStyles[hash] = ''; // Put an empty identifier here so we don't add duplicates
+          hashesOfDecorationsToAdd.push(hash);
+          decorationsToAdd.push(syntaxStyle);
+        }
+      }
+
+      for (const hash in this._existingSyntaxStyles) {
+        if (this._existingSyntaxStyles.hasOwnProperty(hash)) {
+          const decorationId: string = this._existingSyntaxStyles[hash];
+          decorationsToRemove.push(decorationId);
+        }
+      }
+
+      this._getEditorModel().deltaDecorations(decorationsToRemove, []);
+      const decorationIds: string[] = this._getEditorModel().deltaDecorations(
+        [],
+        decorationsToAdd.map((decoration) => {
+          const startPos: monaco.Position = this._getEditorModel().getPositionAt(decoration.pos);
+          const endPos: monaco.Position = this._getEditorModel().getPositionAt(decoration.end);
+
+          return {
+            range: new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column),
+            options: {
+              stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+              isWholeLine: false,
+              inlineClassName: decoration.className
+            }
+          };
+        })
+      );
+
+      for (let i: number = 0; i < decorationsToAdd.length; i++) {
+        newExistingSyntaxStyles[hashesOfDecorationsToAdd[i]] = decorationIds[i];
+      }
+
+      this._existingSyntaxStyles = newExistingSyntaxStyles;
+    }
+  }
+
+  private _safeOnChange(newValue: string): void {
+    if (this.props.onChange) {
+      try {
+        this.props.onChange(newValue);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`Error in onChange callback: ${e}`);
+      }
+    }
+  }
+
+  private _createEditor(): void {
+    if (!this._editor && this._hostDivRef) {
+      const tsdocLanguage: IMonarchLanguageConfiguration = {
+        keywords: tsdoc.StandardTags.allDefinitions.map((tag: tsdoc.TSDocTagDefinition) => tag.tagName),
+        tokenizer: {
+          common: [[/\/\*\*/, 'comment', '@comment']],
+          comment: [
+            [/\*/, 'comment'],
+            [/\\* [^\n@*]*/, 'comment'],
+            [/(?:\/)[\n|*]*/, 'comment', '@pop'],
+            [
+              /@[^ \n]*/,
+              {
+                cases: {
+                  '@keywords': 'keyword',
+                  '@default': 'annotation'
+                }
+              }
+            ]
+          ]
+        }
+      };
+
+      monaco.languages.register({ id: 'tsdocLanguage' });
+      monaco.languages.setMonarchTokensProvider('tsdocLanguage', tsdocLanguage);
+
+      this._editor = monaco.editor.create(this._hostDivRef, {
+        value: this.props.value || '',
+        language: this.props.language,
+        readOnly: this.props.readOnly,
+        minimap: {
+          enabled: false
+        },
+        lineNumbers: this.props.disableLineNumbers ? 'off' : 'on',
+        theme: this.props.theme,
+        wordWrap: this.props.wordWrap ? 'on' : 'off'
+      });
+
+      this._editor.addAction({
+        id: 'escapeAction',
+        label: 'Accessability Escape',
+        keybindings: [monaco.KeyCode.Escape],
+        run: () => {
+          (document.activeElement as HTMLElement | undefined)?.blur?.();
+        }
+      });
+
+      this._getEditorModel().onDidChangeContent((e) => {
+        if (this._editor) {
+          this._safeOnChange(this._editor.getValue());
+        }
+      });
+
+      this._onWindowResize();
+    }
+  }
+
+  private _onWindowResize(): void {
+    if (this._placeholderDivRef && this._hostDivRef) {
+      // Resize the host div to match whatever the browser did for the placeholder div
+      this._hostDivRef.style.width = this._placeholderDivRef.clientWidth + 'px';
+      this._hostDivRef.style.height = this._placeholderDivRef.clientHeight + 'px';
+
+      if (this._editor) {
+        this._editor.layout();
+      }
+    }
+  }
+}
