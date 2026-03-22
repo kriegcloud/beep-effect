@@ -23,7 +23,7 @@ import * as internal from "./internal/data/timezones.ts";
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import type { TimezoneName } from "@beep/data/Timezones"
  *
  * const tz: TimezoneName = "America/New_York"
@@ -45,7 +45,7 @@ export type TimezoneName = (typeof internal.TimezoneNameValues)[number];
  * @since 0.0.0
  * @category Configuration
  * @example
- * ```ts-morph
+ * ```typescript
  * import { TimezoneNameValues } from "@beep/data/Timezones"
  *
  * TimezoneNameValues[0] // "Africa/Abidjan"

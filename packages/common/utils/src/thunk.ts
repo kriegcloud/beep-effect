@@ -52,7 +52,7 @@ export const thunkVoid = thunk(void 0);
  * @since 0.0.0
  * @category Utility
  */
-export const thunkTrue = thunk(true);
+export const thunkTrue = thunk(true as const);
 
 /**
  * Returns a thunk that always yields `false`.
@@ -190,7 +190,7 @@ export const thunkSomeFalse = thunkSome(false);
  * @since 0.0.0
  * @category Utility
  */
-export const thunkSomeTrue = thunkSome(true);
+export const thunkSomeTrue = thunkSome(true as const);
 
 /**
  * Returns a thunk yielding `Option.some([])`.

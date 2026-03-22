@@ -23,7 +23,7 @@ import * as internal from "./internal/data/mime-types/index.ts";
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import type { MimeType } from "@beep/data/MimeTypes"
  *
  * const contentType: MimeType = "application/json"
@@ -41,7 +41,7 @@ export type MimeType = internal.MimeType;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import type { FileExtension } from "@beep/data/MimeTypes"
  *
  * const ext: FileExtension = "json"
@@ -61,7 +61,7 @@ export type FileExtension = internal.FileExtension;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { application } from "@beep/data/MimeTypes"
  *
  * application["application/json"]
@@ -77,7 +77,7 @@ export const application: typeof internal.application = internal.application;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { audio } from "@beep/data/MimeTypes"
  *
  * audio["audio/mpeg"]
@@ -93,7 +93,7 @@ export const audio: typeof internal.audio = internal.audio;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { image } from "@beep/data/MimeTypes"
  *
  * image["image/png"]
@@ -109,7 +109,7 @@ export const image: typeof internal.image = internal.image;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { misc } from "@beep/data/MimeTypes"
  *
  * misc["font/woff2"]
@@ -125,7 +125,7 @@ export const misc: typeof internal.misc = internal.misc;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { text } from "@beep/data/MimeTypes"
  *
  * text["text/html"]
@@ -141,7 +141,7 @@ export const text: typeof internal.text = internal.text;
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { video } from "@beep/data/MimeTypes"
  *
  * video["video/mp4"]
@@ -163,7 +163,7 @@ export const video: typeof internal.video = internal.video;
  * @since 0.0.0
  * @category Configuration
  * @example
- * ```ts-morph
+ * ```typescript
  * import { mimes } from "@beep/data/MimeTypes"
  *
  * mimes["text/css"]
@@ -180,7 +180,7 @@ export const mimes: typeof internal.mimes = internal.mimes;
  * @since 0.0.0
  * @category Configuration
  * @example
- * ```ts-morph
+ * ```typescript
  * import { mimeTypes } from "@beep/data/MimeTypes"
  *
  * const json = mimeTypes["application/json"]
@@ -205,7 +205,7 @@ export const mimeTypes: typeof internal.mimeTypes = internal.mimeTypes;
  * @since 0.0.0
  * @category Utility
  * @example
- * ```ts-morph
+ * ```typescript
  * import { getTypes } from "@beep/data/MimeTypes"
  *
  * const types = getTypes()
@@ -225,7 +225,7 @@ export const getTypes: () => Record<FileExtension, MimeType> = internal.getTypes
  * @since 0.0.0
  * @category Utility
  * @example
- * ```ts-morph
+ * ```typescript
  * import { getExtensions } from "@beep/data/MimeTypes"
  *
  * const extensions = getExtensions()
@@ -249,7 +249,7 @@ export const getExtensions: () => Record<MimeType, FileExtension[]> = internal.g
  * @since 0.0.0
  * @category Utility
  * @example
- * ```ts-morph
+ * ```typescript
  * import { lookup } from "@beep/data/MimeTypes"
  *
  * lookup("json")            // "application/json"

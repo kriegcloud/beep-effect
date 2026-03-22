@@ -84,7 +84,7 @@ const fromAdjacencyList = (
  * Fails with {@link CyclicDependencyError} when the graph contains cycles.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
@@ -143,7 +143,7 @@ export const topologicalSort: (
  * @param adjacencyList Package dependency adjacency list.
  * @returns Effect producing all detected cycle paths.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
@@ -299,7 +299,7 @@ const buildCyclePath = (
  * @param pkg Package name whose dependency closure should be computed.
  * @returns Effect producing all transitively reachable dependencies.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *

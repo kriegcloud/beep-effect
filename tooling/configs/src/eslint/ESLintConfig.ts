@@ -229,7 +229,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "jsdoc/require-returns": "warn",
       "jsdoc/require-returns-description": "warn",
       "jsdoc/informative-docs": "error",
-      "jsdoc/no-types": "error",
       "jsdoc/no-blank-block-descriptions": "error",
       "jsdoc/check-tag-names": [
         "error",
@@ -265,7 +264,7 @@ export const ESLintConfig: ESLintConfigShape = [
           },
         },
       ],
-      "jsdoc/sort-tags": "off",
+      "jsdoc/sort-tags": "warn",
       "jsdoc/multiline-blocks": "warn",
       "jsdoc/tag-lines": ["warn", "never", { startLines: 1 }],
     },

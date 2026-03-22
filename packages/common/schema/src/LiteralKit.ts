@@ -336,7 +336,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * Builds a literal schema kit from a non-empty tuple of mixed literals.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { LiteralKit } from "@beep/schema";
  * import * as S from "effect/Schema";
  *

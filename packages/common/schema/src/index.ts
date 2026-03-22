@@ -118,7 +118,7 @@ export const isPositive = isPositiveInternal;
 export * from "./Fn.ts";
 /**
  * @since 0.0.0
- * @cateogry Validation
+ * @category Validation
  */
 export * from "./LocalDate.ts";
 /**
@@ -163,7 +163,7 @@ export * from "./TaggedErrorClass.ts";
 export * as Thunk from "./Thunk.ts";
 /**
  * @since 0.0.0
- * @cateogry Validation
+ * @category Validation
  */
 export * from "./Timezone.ts";
 /**

@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { text } from "@beep/data/mime-types/text"
  *
  * text["text/html"]

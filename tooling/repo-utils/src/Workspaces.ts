@@ -70,7 +70,7 @@ const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolea
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns A HashMap mapping package names to their absolute directory paths.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces"
  *
@@ -198,7 +198,7 @@ export const resolveWorkspaceDirs: (
  * @param name - The package name to look up.
  * @returns An Option containing the absolute directory path, or None.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import * as O from "effect/Option"
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"

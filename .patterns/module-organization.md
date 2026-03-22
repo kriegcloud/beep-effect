@@ -303,7 +303,7 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
  * Maps over a structure using the provided function.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect/Array"
  * import { pipe } from "effect"
  *
@@ -408,7 +408,7 @@ export const symbol = "~effect/interfaces/Equal"
  * Type guard to check if a value is an instance of ModuleName.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, FiberSet } from "effect"
  *
  * Effect.gen(function*() {

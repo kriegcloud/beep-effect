@@ -6,8 +6,10 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { type Brand, DateTime, Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
-import * as Num from "effect/Number";
+import { LocalDate } from "@beep/schema/LocalDate";
+import { type Brand, DateTime, Effect, Order as Order_, pipe, Schema, SchemaIssue, SchemaTransformation } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PosInt } from "./Int.ts";
@@ -18,6 +20,7 @@ const $I = $SchemaId.create("Timestamp");
 const stripMilliseconds = (value: string): string => pipe(value, Str.replace(/\.\d{3}Z$/, "Z"));
 
 /**
+ * @see {@link @beep/schema/Number#NonEmptyTrimmedStr | NonEmptyTrimmedStr}
  * Branded ISO 8601 datetime string
  *
  * @example
@@ -143,7 +146,7 @@ export type ToIsoString = typeof ToIsoStr.Type;
  * - **Type safety**: Ensures encoded values conform to the defined type
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { ToIsoStr } from "effect";
  *
  * // Access Encoded Type
@@ -200,6 +203,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    * @since 0.0.0
    * @category Utility
    * @returns {DateTime.Utc}
+   * {@link Timestamp.toDateTime}
    */
   readonly toDateTime: () => DateTime.Utc = (): DateTime.Utc => DateTime.makeUnsafe(this.epochMillis);
 
@@ -220,7 +224,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    * - Is non-empty and trimmed, satisfying the `NonEmptyTrimmedStr` constraint.
    *
    * @example
-   * ```ts-morph
+   * ```typescript
    * import { ISOStr } from "effect/Date" // Hypothetical module path; update as needed.
    *
    * // Assume a valid date object
@@ -241,4 +245,216 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
     Brand.Branded<string, "NonEmptyTrimmedStr">,
     "ISOStr"
   > => ISOStr.makeUnsafe(this.toDate().toISOString());
+
+  /**
+   * Convert to string representation
+   *
+   * @since 0.0.0
+   * @category Utility
+   * @returns {ISOStr}
+   */
+  readonly toStr: () => ISOStr = (): ISOStr => ISOStr.makeUnsafe(this.toISOStr());
+
+  /**
+   * Extract the LocalDate portion (UTC date)
+   *
+   * @since 0.0.0
+   * @category Utility
+   * @returns {LocalDate}
+   */
+  readonly toLocalDate: () => LocalDate = (): LocalDate => {
+    const date = this.toDate();
+    return LocalDate.makeUnsafe({
+      year: date.getUTCFullYear(),
+      month: date.getUTCMonth() + 1,
+      day: date.getUTCDate(),
+    });
+  };
 }
+
+/**
+ * Type guard for Timestamp using Schema.is
+ */
+export const isTimestamp = Schema.is(Timestamp);
+
+/**
+ * Create a Timestamp from a DateTime.Utc
+ */
+export const fromDateTime = (dateTime: DateTime.Utc): Timestamp =>
+  Timestamp.makeUnsafe({ epochMillis: dateTime.epochMilliseconds });
+
+/**
+ * Create a Timestamp from a JavaScript Date
+ */
+export const fromDate = (date: Date): Timestamp => Timestamp.makeUnsafe({ epochMillis: date.getTime() });
+
+/**
+ * Create a Timestamp from an ISO 8601 string
+ * Returns an Effect that may fail with ParseError
+ */
+export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaIssue.InvalidValue> => {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
+  }
+  return Effect.succeed(Timestamp.makeUnsafe({ epochMillis: date.getTime() }));
+};
+
+/**
+ * Get the current timestamp (now)
+ */
+export const now = (): Timestamp => Timestamp.makeUnsafe({ epochMillis: Date.now() });
+
+/**
+ * Get the current timestamp as an Effect using the Clock service
+ */
+export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
+  Effect.clockWith((clock) => clock.currentTimeMillis),
+  (millis) => Timestamp.makeUnsafe({ epochMillis: Number(millis) })
+);
+
+/**
+ * Order for Timestamp - compares chronologically
+ */
+export const Order: Order_.Order<Timestamp> = Order_.make((a, b) => {
+  if (a.epochMillis < b.epochMillis) return -1;
+  if (a.epochMillis > b.epochMillis) return 1;
+  return 0;
+});
+
+/**
+ * Check if the first timestamp is before the second
+ */
+export const isBefore: {
+  (that: Timestamp): (self: Timestamp) => boolean;
+  (self: Timestamp, that: Timestamp): boolean;
+} = dual(2, (self: Timestamp, that: Timestamp): boolean => Order(self, that) === -1);
+
+/**
+ * Check if the first timestamp is after the second
+ */
+export const isAfter: {
+  (that: Timestamp): (self: Timestamp) => boolean;
+  (self: Timestamp, that: Timestamp): boolean;
+} = dual(2, (self: Timestamp, that: Timestamp): boolean => Order(self, that) === 1);
+
+/**
+ * Check if two timestamps are equal
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const equals: {
+  (that: Timestamp): (self: Timestamp) => boolean;
+  (self: Timestamp, that: Timestamp): boolean;
+} = dual(2, (self: Timestamp, that: Timestamp): boolean => self.epochMillis === that.epochMillis);
+
+/**
+ * Add milliseconds to a timestamp
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const addMillis: {
+  (millis: number): (self: Timestamp) => Timestamp;
+  (self: Timestamp, millis: number): Timestamp;
+} = dual(
+  2,
+  (self: Timestamp, millis: number): Timestamp => Timestamp.makeUnsafe({ epochMillis: self.epochMillis + millis })
+);
+
+/**
+ * Add seconds to a timestamp
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const addSeconds: {
+  (seconds: number): (self: Timestamp) => Timestamp;
+  (self: Timestamp, seconds: number): Timestamp;
+} = dual(2, (self: Timestamp, seconds: number): Timestamp => addMillis(self, seconds * 1000));
+
+/**
+ * Add minutes to a timestamp
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const addMinutes: {
+  (minutes: number): (self: Timestamp) => Timestamp;
+  (self: Timestamp, minutes: number): Timestamp;
+} = dual(2, (self: Timestamp, minutes: number): Timestamp => addMillis(self, minutes * 60 * 1000));
+
+/**
+ * Add hours to a timestamp
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const addHours: {
+  (hours: number): (self: Timestamp) => Timestamp;
+  (self: Timestamp, hours: number): Timestamp;
+} = dual(2, (self: Timestamp, hours: number): Timestamp => addMillis(self, hours * 60 * 60 * 1000));
+
+/**
+ * Add days to a timestamp
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const addDays: {
+  (days: number): (self: Timestamp) => Timestamp;
+  (self: Timestamp, days: number): Timestamp;
+} = dual(2, (self: Timestamp, days: number): Timestamp => addMillis(self, days * 24 * 60 * 60 * 1000));
+
+/**
+ * Get the difference in milliseconds between two timestamps
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const diffInMillis: {
+  (that: Timestamp): (self: Timestamp) => number;
+  (self: Timestamp, that: Timestamp): number;
+} = dual(2, (self: Timestamp, that: Timestamp): number => self.epochMillis - that.epochMillis);
+
+/**
+ * Get the difference in seconds between two timestamps
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const diffInSeconds: {
+  (that: Timestamp): (self: Timestamp) => number;
+  (self: Timestamp, that: Timestamp): number;
+} = dual(2, (self: Timestamp, that: Timestamp): number => Math.floor(diffInMillis(self, that) / 1000));
+
+/**
+ * Get the minimum of two timestamps
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const min: {
+  (that: Timestamp): (self: Timestamp) => Timestamp;
+  (self: Timestamp, that: Timestamp): Timestamp;
+} = dual(2, (self: Timestamp, that: Timestamp): Timestamp => (Order(self, that) <= 0 ? self : that));
+
+/**
+ * Get the maximum of two timestamps
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const max: {
+  (that: Timestamp): (self: Timestamp) => Timestamp;
+  (self: Timestamp, that: Timestamp): Timestamp;
+} = dual(2, (self: Timestamp, that: Timestamp): Timestamp => (Order(self, that) >= 0 ? self : that));
+
+/**
+ * Unix epoch timestamp (1970-01-01T00:00:00.000Z)
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const EPOCH: Timestamp = Timestamp.makeUnsafe({ epochMillis: 0 });

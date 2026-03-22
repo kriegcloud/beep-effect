@@ -8,11 +8,9 @@
  * @module @beep/schema/LocalDate
  * @since 0.0.0
  */
-import {$SchemaId} from "@beep/identity";
-import {
-  DateTime, Duration, Effect, pipe, SchemaTransformation, SchemaIssue
-} from "effect";
-import {dual} from "effect/Function";
+import { $SchemaId } from "@beep/identity";
+import { DateTime, Duration, Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order_ from "effect/Order";
 import * as P from "effect/Predicate";
@@ -29,26 +27,15 @@ const $I = $SchemaId.create("LocalDate");
  */
 export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
   {
-    year: S.Int.check(S.makeFilterGroup([
-      S.isGreaterThanOrEqualTo(1),
-      S.isLessThanOrEqualTo(9999)
-    ])),
-    month: S.Int.check(S.makeFilterGroup([
-      S.isGreaterThanOrEqualTo(1),
-      S.isLessThanOrEqualTo(12)
-    ])),
-    day: S.Int.check(S.makeFilterGroup([
-      S.isGreaterThanOrEqualTo(1),
-      S.isLessThanOrEqualTo(31)
-    ]))
+    year: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(9999)])),
+    month: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(12)])),
+    day: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(31)])),
   },
-  $I.annote(
-    "LocalDate",
-    {
-      description: "LocalDate - A S.Class representing a calendar date without time",
-      documentation: "Stores year, month (1-12), and day (1-31) as numbers.\nEncoded as ISO 8601 date string (YYYY-MM-DD)."
-    }
-  )
+  $I.annote("LocalDate", {
+    description: "LocalDate - A S.Class representing a calendar date without time",
+    documentation:
+      "Stores year, month (1-12), and day (1-31) as numbers.\nEncoded as ISO 8601 date string (YYYY-MM-DD).",
+  })
 ) {
   /**
    * Format as ISO 8601 date string (YYYY-MM-DD)
@@ -58,21 +45,9 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @category Utility
    */
   toISOString(): string {
-    const y = Str.padStart(
-      4,
-      "0"
-    )(
-      this.year.toString());
-    const m = Str.padStart(
-      2,
-      "0"
-    )(
-      this.month.toString());
-    const d = Str.padStart(
-      2,
-      "0"
-    )(
-      this.day.toString());
+    const y = Str.padStart(4, "0")(this.year.toString());
+    const m = Str.padStart(2, "0")(this.month.toString());
+    const d = Str.padStart(2, "0")(this.day.toString());
     return `${y}-${m}-${d}`;
   }
 
@@ -96,7 +71,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
     return DateTime.makeUnsafe({
       year: this.year,
       month: this.month,
-      day: this.day
+      day: this.day,
     });
   }
 
@@ -107,11 +82,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @category Utility
    */
   readonly toDate = (): Date => {
-    return new Date(Date.UTC(
-      this.year,
-      this.month - 1,
-      this.day
-    ));
+    return new Date(Date.UTC(this.year, this.month - 1, this.day));
   };
 }
 
@@ -130,43 +101,18 @@ const decodeLocalDate = S.decodeUnknownEffect(LocalDate);
 
 const makeInvalidLocalDateError: {
   (message: string): (dateString: string) => S.SchemaError;
-  (
-    dateString: string,
-    message: string
-  ): S.SchemaError;
+  (dateString: string, message: string): S.SchemaError;
 } = dual(
   2,
-  (
-    dateString: string,
-    message: string
-  ): S.SchemaError => new S.SchemaError(new SchemaIssue.InvalidValue(
-    O.some(dateString),
-    {message}
-  ))
+  (dateString: string, message: string): S.SchemaError =>
+    new S.SchemaError(new SchemaIssue.InvalidValue(O.some(dateString), { message }))
 );
 
-const isValidCalendarDate = ({
-                               year,
-                               month,
-                               day
-                             }: {
-  year: number;
-  month: number;
-  day: number
-}): boolean => {
+const isValidCalendarDate = ({ year, month, day }: { year: number; month: number; day: number }): boolean => {
   const date = new Date(0);
 
-  date.setUTCHours(
-    0,
-    0,
-    0,
-    0
-  );
-  date.setUTCFullYear(
-    year,
-    month - 1,
-    day
-  );
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, month - 1, day);
 
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 };
@@ -180,39 +126,22 @@ const isValidCalendarDate = ({
  * @param {string} dateString
  * @returns {Effect<LocalDate, S.SchemaError>}
  */
-export const fromString = (dateString: string): Effect.Effect<LocalDate, S.SchemaError> => O.match(
-  Str.match(ISO_DATE_PATTERN)(
-    dateString),
-  {
-    onNone: () => Effect.fail(makeInvalidLocalDateError(
-      dateString,
-      "Expected an ISO 8601 local date in YYYY-MM-DD format"
-    )),
+export const fromString = (dateString: string): Effect.Effect<LocalDate, S.SchemaError> =>
+  O.match(Str.match(ISO_DATE_PATTERN)(dateString), {
+    onNone: () =>
+      Effect.fail(makeInvalidLocalDateError(dateString, "Expected an ISO 8601 local date in YYYY-MM-DD format")),
     onSome: ([, yearString, monthString, dayString]) => {
       const parts = {
-        year: Number.parseInt(
-          yearString,
-          10
-        ),
-        month: Number.parseInt(
-          monthString,
-          10
-        ),
-        day: Number.parseInt(
-          dayString,
-          10
-        )
+        year: Number.parseInt(yearString, 10),
+        month: Number.parseInt(monthString, 10),
+        day: Number.parseInt(dayString, 10),
       };
 
       return isValidCalendarDate(parts)
-             ? decodeLocalDate(parts)
-             : Effect.fail(makeInvalidLocalDateError(
-          dateString,
-          "Invalid calendar date"
-        ));
-    }
-  }
-);
+        ? decodeLocalDate(parts)
+        : Effect.fail(makeInvalidLocalDateError(dateString, "Invalid calendar date"));
+    },
+  });
 
 /**
  * Create a LocalDate from a JavaScript Date
@@ -223,16 +152,14 @@ export const fromString = (dateString: string): Effect.Effect<LocalDate, S.Schem
  * @param {Date} date
  * @returns {LocalDate}
  */
-export const fromDate = (date: Date): LocalDate => pipe(
-  date,
-  DateTime.fromDateUnsafe,
-  DateTime.toPartsUtc,
-  (parts) => LocalDate.makeUnsafe({
-    year: parts.year,
-    month: parts.month + 1,
-    day: parts.day
-  })
-);
+export const fromDate = (date: Date): LocalDate =>
+  pipe(date, DateTime.fromDateUnsafe, DateTime.toPartsUtc, (parts) =>
+    LocalDate.makeUnsafe({
+      year: parts.year,
+      month: parts.month + 1,
+      day: parts.day,
+    })
+  );
 
 /**
  * Get the current date (UTC)
@@ -241,11 +168,7 @@ export const fromDate = (date: Date): LocalDate => pipe(
  * @since 0.0.0
  * @returns {LocalDate}
  */
-export const today = (): LocalDate => DateTime.nowUnsafe()
-.pipe(
-  DateTime.toDate,
-  fromDate
-);
+export const today = (): LocalDate => DateTime.nowUnsafe().pipe(DateTime.toDate, fromDate);
 
 /**
  * Get the current date (UTC) as an Effect using the Clock service
@@ -257,16 +180,12 @@ export const today = (): LocalDate => DateTime.nowUnsafe()
  */
 export const todayEffect = pipe(
   Effect.clockWith((clock) => clock.currentTimeMillis),
-  Effect.map((millis) => DateTime.makeUnsafe(Number(millis))
-  .pipe(
-    DateTime.toDate,
-    fromDate
-  ))
+  Effect.map((millis) => DateTime.makeUnsafe(Number(millis)).pipe(DateTime.toDate, fromDate))
 );
 
 /**
  * LocalDate.ts
- * urlpath.ts
+ * URL path helpers
  *
  * @category Utility
  * @since 0.0.0
@@ -278,7 +197,7 @@ export const fromDateTime = (dateTime: DateTime.DateTime): LocalDate => {
   return LocalDate.makeUnsafe({
     year: parts.year,
     month: parts.month,
-    day: parts.day
+    day: parts.day,
   });
 };
 
@@ -289,24 +208,15 @@ export const fromDateTime = (dateTime: DateTime.DateTime): LocalDate => {
  * @since 0.0.0
  * @type {Order<LocalDate>}
  */
-export const Order: Order_.Order<LocalDate> = Order_.make((
-  a,
-  b
-) => {
+export const Order: Order_.Order<LocalDate> = Order_.make((a, b) => {
   if (a.year !== b.year) {
-    return a.year < b.year
-           ? -1
-           : 1;
+    return a.year < b.year ? -1 : 1;
   }
   if (a.month !== b.month) {
-    return a.month < b.month
-           ? -1
-           : 1;
+    return a.month < b.month ? -1 : 1;
   }
   if (a.day !== b.day) {
-    return a.day < b.day
-           ? -1
-           : 1;
+    return a.day < b.day ? -1 : 1;
   }
   return 0;
 });
@@ -322,20 +232,8 @@ export const Order: Order_.Order<LocalDate> = Order_.make((
  */
 export const isBefore: {
   (that: LocalDate): (self: LocalDate) => boolean;
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean;
-} = dual(
-  2,
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean => Order(
-    self,
-    that
-  ) === -1
-);
+  (self: LocalDate, that: LocalDate): boolean;
+} = dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === -1);
 
 /**
  * Check if first date is after second
@@ -348,20 +246,8 @@ export const isBefore: {
  */
 export const isAfter: {
   (that: LocalDate): (self: LocalDate) => boolean;
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean;
-} = dual(
-  2,
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean => Order(
-    self,
-    that
-  ) === 1
-);
+  (self: LocalDate, that: LocalDate): boolean;
+} = dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === 1);
 
 /**
  * Check if two dates are equal
@@ -374,16 +260,11 @@ export const isAfter: {
  */
 export const equals: {
   (that: LocalDate): (self: LocalDate) => boolean;
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean;
+  (self: LocalDate, that: LocalDate): boolean;
 } = dual(
   2,
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): boolean => self.year === that.year && self.month === that.month && self.day === that.day
+  (self: LocalDate, that: LocalDate): boolean =>
+    self.year === that.year && self.month === that.month && self.day === that.day
 );
 
 /**
@@ -397,23 +278,11 @@ export const equals: {
  */
 export const addDays: {
   (days: number): (self: LocalDate) => LocalDate;
-  (
-    self: LocalDate,
-    days: number
-  ): LocalDate;
+  (self: LocalDate, days: number): LocalDate;
 } = dual(
   2,
-  (
-    self: LocalDate,
-    days: number
-  ): LocalDate => pipe(
-    self.toDate(),
-    DateTime.fromDateUnsafe,
-    DateTime.toUtc,
-    DateTime.add({days}),
-    DateTime.toDate,
-    fromDate
-  )
+  (self: LocalDate, days: number): LocalDate =>
+    pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ days }), DateTime.toDate, fromDate)
 );
 
 /**
@@ -427,23 +296,11 @@ export const addDays: {
  */
 export const addMonths: {
   (months: number): (self: LocalDate) => LocalDate;
-  (
-    self: LocalDate,
-    months: number
-  ): LocalDate;
+  (self: LocalDate, months: number): LocalDate;
 } = dual(
   2,
-  (
-    self: LocalDate,
-    months: number
-  ): LocalDate => pipe(
-    self.toDate(),
-    DateTime.fromDateUnsafe,
-    DateTime.toUtc,
-    DateTime.add({months}),
-    DateTime.toDate,
-    fromDate
-  )
+  (self: LocalDate, months: number): LocalDate =>
+    pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ months }), DateTime.toDate, fromDate)
 );
 
 /**
@@ -455,23 +312,11 @@ export const addMonths: {
  */
 export const addYears: {
   (years: number): (self: LocalDate) => LocalDate;
-  (
-    self: LocalDate,
-    years: number
-  ): LocalDate;
+  (self: LocalDate, years: number): LocalDate;
 } = dual(
   2,
-  (
-    self: LocalDate,
-    years: number
-  ): LocalDate => pipe(
-    self.toDate(),
-    DateTime.fromDateUnsafe,
-    DateTime.toUtc,
-    DateTime.add({years}),
-    DateTime.toDate,
-    fromDate
-  )
+  (self: LocalDate, years: number): LocalDate =>
+    pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ years }), DateTime.toDate, fromDate)
 );
 
 /**
@@ -485,23 +330,13 @@ export const addYears: {
  */
 export const diffInDays: {
   (that: LocalDate): (self: LocalDate) => number;
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): number;
-} = dual(
-  2,
-  (
-    self: LocalDate,
-    that: LocalDate
-  ): number => {
-    const msPerDay = Duration.days(1)
-    .pipe(Duration.toMillis);
-    const dateA = self.toDate();
-    const dateB = that.toDate();
-    return Math.round((dateA.getTime() - dateB.getTime()) / msPerDay);
-  }
-);
+  (self: LocalDate, that: LocalDate): number;
+} = dual(2, (self: LocalDate, that: LocalDate): number => {
+  const msPerDay = Duration.days(1).pipe(Duration.toMillis);
+  const dateA = self.toDate();
+  const dateB = that.toDate();
+  return Math.round((dateA.getTime() - dateB.getTime()) / msPerDay);
+});
 
 /**
  * Get the start of the month for a LocalDate
@@ -515,7 +350,7 @@ export const startOfMonth = (date: LocalDate): LocalDate => {
   return LocalDate.makeUnsafe({
     year: date.year,
     month: date.month,
-    day: 1
+    day: 1,
   });
 };
 
@@ -528,11 +363,7 @@ export const startOfMonth = (date: LocalDate): LocalDate => {
  * @returns {LocalDate}
  */
 export const endOfMonth = (date: LocalDate): LocalDate => {
-  const d = new Date(Date.UTC(
-    date.year,
-    date.month,
-    0
-  ));
+  const d = new Date(Date.UTC(date.year, date.month, 0));
   return fromDate(d);
 };
 
@@ -548,7 +379,7 @@ export const startOfYear = (date: LocalDate): LocalDate => {
   return LocalDate.makeUnsafe({
     year: date.year,
     month: 1,
-    day: 1
+    day: 1,
   });
 };
 
@@ -562,7 +393,7 @@ export const endOfYear = (date: LocalDate): LocalDate => {
   return LocalDate.makeUnsafe({
     year: date.year,
     month: 12,
-    day: 31
+    day: 31,
   });
 };
 
@@ -589,22 +420,8 @@ export const isLeapYear = (year: number): boolean => {
  */
 export const daysInMonth: {
   (month: number): (year: number) => number;
-  (
-    year: number,
-    month: number
-  ): number;
-} = dual(
-  2,
-  (
-    year: number,
-    month: number
-  ): number => new Date(Date.UTC(
-    year,
-    month,
-    0
-  )).getUTCDate()
-);
-
+  (year: number, month: number): number;
+} = dual(2, (year: number, month: number): number => new Date(Date.UTC(year, month, 0)).getUTCDate());
 
 /**
  * Regular expression for ISO 8601 date format (YYYY-MM-DD)
@@ -633,8 +450,6 @@ export const daysInMonth: {
  * ```
  */
 
-
-
 export const LocalDateFromString = S.String.pipe(
   S.decodeTo(
     LocalDate,
@@ -645,74 +460,41 @@ export const LocalDateFromString = S.String.pipe(
           return Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
         }
         const [, yearStr, monthStr, dayStr] = match;
-        const year = parseInt(
-          yearStr,
-          10
-        );
-        const month = parseInt(
-          monthStr,
-          10
-        );
-        const day = parseInt(
-          dayStr,
-          10
-        );
+        const year = Number.parseInt(yearStr, 10);
+        const month = Number.parseInt(monthStr, 10);
+        const day = Number.parseInt(dayStr, 10);
 
         // Validate month range
         if (month < 1 || month > 12) {
-          return Effect.fail(new SchemaIssue.InvalidType(
-            S.String.ast,
-            O.some(dateString)
-          ));
-
+          return Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
         }
 
         // Validate day range for the given month
-        const maxDays = daysInMonth(
-          year,
-          month
-        );
+        const maxDays = daysInMonth(year, month);
         if (day < 1 || day > maxDays) {
-          return Effect.fail(new SchemaIssue.InvalidType(
-            S.String.ast,
-            O.some(dateString)
-          ));
+          return Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
         }
 
         return Effect.succeed({
           year,
           month,
-          day
+          day,
         });
       },
       encode: (localDate) => {
         // Format as ISO 8601 date string (YYYY-MM-DD)
-        const y = String(localDate.year)
-        .padStart(
-          4,
-          "0"
-        );
-        const m = String(localDate.month)
-        .padStart(
-          2,
-          "0"
-        );
-        const d = String(localDate.day)
-        .padStart(
-          2,
-          "0"
-        );
+        const y = String(localDate.year).padStart(4, "0");
+        const m = String(localDate.month).padStart(2, "0");
+        const d = String(localDate.day).padStart(2, "0");
         return Effect.succeed(`${y}-${m}-${d}`);
-      }
+      },
     })
   ),
-  $I.annoteSchema(
-    "LocalDateFromString",
-    {
-      description: "LocalDateFromString - Schema that transforms ISO date strings (YYYY-MM-DD) to LocalDate",
-      documentation: "This schema can be used directly in API URL params, request bodies, and database columns\nto automatically parse date strings into LocalDate instances.\n\n@example\n```ts\n// In API URL params\nconst params = S.Struct({\n  asOfDate: LocalDateFromString\n})\n\n// Decoding\nconst date = yield* S.decodeUnknown(LocalDateFromString)(\"2024-06-15\")\n// date is now LocalDate { year: 2024, month: 6, day: 15 }\n\n// Encoding\nconst str = yield* S.encode(LocalDateFromString)(date)\n// str is \"2024-06-15\"\n```"
-    }
-  )
+  $I.annoteSchema("LocalDateFromString", {
+    description: "LocalDateFromString - Schema that transforms ISO date strings (YYYY-MM-DD) to LocalDate",
+    documentation:
+      'This schema can be used directly in API URL params, request bodies, and database columns\nto automatically parse date strings into LocalDate instances.\n\n@example\n```ts\n// In API URL params\nconst params = S.Struct({\n  asOfDate: LocalDateFromString\n})\n\n// Decoding\nconst date = yield* S.decodeUnknown(LocalDateFromString)("2024-06-15")\n// date is now LocalDate { year: 2024, month: 6, day: 15 }\n\n// Encoding\nconst str = yield* S.encode(LocalDateFromString)(date)\n// str is "2024-06-15"\n```',
+  })
 );
 
 /**
@@ -723,7 +505,7 @@ export const LocalDateFromString = S.String.pipe(
  * but for which you want typed validation and runtime parsing into `LocalDate`.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as S from "effect/Schema";
  * import { LocalDateFromString } from "your-library-path"; // Replace with actual implementation
  *
@@ -732,7 +514,7 @@ export const LocalDateFromString = S.String.pipe(
  * ```
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as S from "effect/Schema";
  * import { LocalDateFromString } from "your-library-path"; // Replace with actual implementation
  *
@@ -768,7 +550,7 @@ export declare namespace LocalDateFromString {
    * - Promotes type safety in data handling workflows.
    *
    * @example
-   * ```ts-morph
+   * ```typescript
    * import { LocalDateFromString, Encoded } from "effect";
    *
    * type MyEncodedType = Encoded;

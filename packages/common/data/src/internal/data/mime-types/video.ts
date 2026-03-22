@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { video } from "@beep/data/mime-types/video"
  *
  * video["video/mp4"]

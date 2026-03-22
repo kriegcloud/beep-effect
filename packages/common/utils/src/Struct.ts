@@ -309,7 +309,7 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * `Array<["a" | "b", string | number]>`.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as Struct from "@beep/utils/Struct"
  *
  * const c = Symbol("c")

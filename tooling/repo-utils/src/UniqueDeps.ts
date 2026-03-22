@@ -50,7 +50,7 @@ export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
  * @returns An object with sorted, deduplicated `dependencies` and
  *   `devDependencies` arrays.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps"
  *

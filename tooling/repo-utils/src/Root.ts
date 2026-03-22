@@ -32,7 +32,7 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * @returns An Effect that succeeds with the absolute path of the repo root,
  *   or fails with `NoSuchFileError` if no root marker is found.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import { findRepoRoot } from "@beep/repo-utils/Root"
  *

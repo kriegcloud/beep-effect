@@ -12,7 +12,7 @@ export * from "effect/unstable/persistence/RateLimiter";
  * In-memory rate limiter layer for local development and tests.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.gen(function*() {
  *   return yield* Effect.succeed("ready")
  * }).pipe(Effect.provide(layerMemory))
@@ -91,7 +91,7 @@ export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & 
  * Apply a rate limit to a single Effect.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const guarded = withRateLimit({
  *   key: "query",
  *   window: "1 minute",
@@ -124,7 +124,7 @@ export const withRateLimit =
  * Wrap a handler function with rate limiting.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const handler = rateLimitHandler(
  *   (input: { sessionId: string }) => Effect.succeed(input.sessionId),
  *   {
@@ -159,7 +159,7 @@ type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
  * Apply rate limiting to a map of handlers using a shared window config.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const handlers = rateLimitHandlers(
  *   {
  *     send: (input: string) => Effect.succeed(input),

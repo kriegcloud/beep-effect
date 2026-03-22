@@ -276,7 +276,7 @@ const truncateForPreview = (value: string, maxLength: number): string =>
  * @category Utility
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { highlightSql } from "@beep/shared-domain/errors/DbError/utils";
  *
  * highlightSql("select * from users where id = $1");
@@ -576,7 +576,7 @@ export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtrac
  * @category Utility
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { formatDbError } from "@beep/shared-domain/errors/DbError/utils";
  *
  * const error = new Error("Query failed");

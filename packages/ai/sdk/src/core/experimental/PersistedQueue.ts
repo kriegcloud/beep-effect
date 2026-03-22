@@ -25,7 +25,7 @@ export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueu
  * Create a persisted queue for SDK user messages.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.gen(function*() {
  *   const queue = yield* makeUserMessageQueue()
  *   return queue
@@ -112,7 +112,7 @@ export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedI
  * Create a query wired to a persisted queue for streaming input.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.scoped(
  *   Effect.gen(function*() {
  *     const queue = yield* makeUserMessageQueue()

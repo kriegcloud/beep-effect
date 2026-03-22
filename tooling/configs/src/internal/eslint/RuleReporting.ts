@@ -1,3 +1,4 @@
+import { thunkUndefined } from "@beep/utils";
 import { pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -43,7 +44,7 @@ export const createAllowlistViolationReporter = (params: {
     pipe(
       O.liftPredicate((value: boolean) => !value)(allowlisted),
       O.match({
-        onNone: () => undefined,
+        onNone: thunkUndefined,
         onSome: () =>
           params.context.report({
             node,

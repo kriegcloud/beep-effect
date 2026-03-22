@@ -246,7 +246,7 @@ const makeDirectionalKit = <
  * - Both sides must be unique by literal value and by `LiteralToKey` helper key encoding.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { MappedLiteralKit } from "@beep/schema";
  * import * as S from "effect/Schema";
  *
