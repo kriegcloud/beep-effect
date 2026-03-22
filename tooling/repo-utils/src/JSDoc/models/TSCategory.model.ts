@@ -229,7 +229,7 @@ export const make = <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<
 /**
  * Confidence threshold where deterministic classification can skip LLM inference.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
@@ -237,7 +237,7 @@ export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
 /**
  * Guardrail threshold used to route low-confidence matches to `Uncategorized`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
@@ -248,7 +248,7 @@ export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
  * or route them to a dedicated test-handling path before applying
  * the main taxonomy.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TESTING_FILE_PATTERNS = [
@@ -271,7 +271,7 @@ export const TESTING_FILE_PATTERNS = [
  * Used as a secondary signal when file paths are ambiguous
  * (e.g., test utilities not in a conventional test directory).
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TESTING_IMPORT_PATTERNS = [
@@ -930,7 +930,7 @@ const CATEGORY_TAG_SCHEMAS = [
 /**
  * Closed category taxonomy used by `@category` tags.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
@@ -949,7 +949,7 @@ export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
 /**
  * All valid category tag values.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type CategoryTag = TSCategoryTag;
@@ -973,7 +973,7 @@ const UNCATEGORIZED_CATEGORY_TAG: CategoryTag = "Uncategorized";
  * This policy is intentionally separate from `getCandidateCategories`,
  * which preserves canonical sorting by confidence and `_tag`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
@@ -995,7 +995,7 @@ export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
  * Explicit fallback policy for non-declaration nodes where direct classification
  * is ambiguous without structural context.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CONTEXT_FALLBACK_POLICY = {
@@ -1013,7 +1013,7 @@ export const CONTEXT_FALLBACK_POLICY = {
  * Complete routing table from `ApplicableTo` node intent to candidate categories.
  * This makes taxonomy completeness auditable against HasJSDoc surfaces.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const APPLICABLE_TO_CATEGORY_ROUTING: Readonly<Record<ApplicableTo, ReadonlyArray<CategoryTag>>> = {
@@ -1063,7 +1063,7 @@ const clampConfidence = (confidence: number): number =>
  *
  * @param confidences - Individual signal confidence scores to combine.
  * @returns Combined confidence score clamped to the inclusive range [0, 1].
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
@@ -1080,7 +1080,7 @@ const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
  *
  * @param tag - Category tag to rank by conflict precedence.
  * @returns Zero-based precedence index, or the list length when absent.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoryPrecedence(tag: CategoryTag): number {
@@ -1096,7 +1096,7 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
  *
  * @param tag - Category tag identifier to resolve.
  * @returns Matching category definition, when present.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategory(tag: string): TSCategory | undefined {
@@ -1112,7 +1112,7 @@ export function getCategory(tag: string): TSCategory | undefined {
  *
  * @param purity - Purity value used to filter the taxonomy.
  * @returns Categories whose `purity` matches the requested value.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArray<TSCategory> {
@@ -1127,7 +1127,7 @@ export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArr
  *
  * @param layer - Architectural layer used to filter taxonomy members.
  * @returns Categories mapped to the provided architectural layer.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): ReadonlyArray<TSCategory> {
@@ -1147,7 +1147,7 @@ export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): Readon
  *
  * @param analog - Effect/monad analog label to match.
  * @returns Categories whose `effectAnalog` equals the provided label.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCategory> {
@@ -1162,7 +1162,7 @@ export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCat
  *
  * @param applicableTo - Node intent routed to taxonomy candidates.
  * @returns Categories in routing-table order, excluding unknown tags.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): ReadonlyArray<TSCategory> {
@@ -1214,7 +1214,7 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  *
  * @param signals - Category signal tuples with confidence values.
  * @returns Candidate categories sorted by confidence and tag.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCandidateCategories(
@@ -1269,7 +1269,7 @@ export function getCandidateCategories(
  * @param ancestorCategory - Nearest ancestor category, if available.
  * @param sourceFileDominantCategory - Dominant category inferred from the source file.
  * @returns Resolved category tag using fallback precedence and guardrail policy.
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function resolveContextFallback(

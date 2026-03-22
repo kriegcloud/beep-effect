@@ -51,7 +51,7 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
 }
 
 /**
- * @since 1.0.0
+ * @since 0.0.0
  * @category PortContract
  */
 export interface Glob {
@@ -62,13 +62,13 @@ export interface Glob {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.0.0
  * @category PortContract
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
 /**
- * @since 1.0.0
+ * @since 0.0.0
  * @category Configuration
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {

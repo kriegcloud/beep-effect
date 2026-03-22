@@ -45,6 +45,7 @@ export class TextRange extends S.Class<TextRange>($I`TextRange`)(
       description: "Efficiently references a range of text from a string buffer.",
     }),
     /**
+     * @see {@link @beep/schema/Number#NonNegativeInt | A Branded NonNegative Integer}
      * The (non-inclusive) ending index for the associated text buffer.
      *
      * @remarks
@@ -55,6 +56,9 @@ export class TextRange extends S.Class<TextRange>($I`TextRange`)(
       documentation: "The text range corresponds to the `range.buffer.substring(range.pos, range.end)`.",
     }),
     /**
+     * @see {@link effect/Schema#String}
+     *
+     * @since 0.0.0
      * The string buffer that the `pos` and `end` indexes refer to.
      */
     buffer: S.String.annotateKey({

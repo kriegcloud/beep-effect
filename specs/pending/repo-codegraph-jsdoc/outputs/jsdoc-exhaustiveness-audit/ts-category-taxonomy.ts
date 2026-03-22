@@ -9,7 +9,7 @@
  *   - Empirical shape of production TypeScript monorepos and framework conventions
  *   - Optimized for graph query utility and deterministic AST-first classification
  *
- * @since 2026-03-01
+ * @since 0.0.0
  */
 
 import type { ApplicableTo } from "./jsdoc-tags-database";
@@ -18,7 +18,7 @@ import type { ApplicableTo } from "./jsdoc-tags-database";
  * Deterministic heuristic for auto-classifying code elements
  * from the AST without LLM inference.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface ASTSignal {
@@ -42,7 +42,7 @@ export interface ASTSignal {
  * Enables cross-framework queries such as "show me all code in the
  * domain core that depends on infrastructure".
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type ArchitecturalLayer =
@@ -60,7 +60,7 @@ export type ArchitecturalLayer =
  * if something classified as domain logic has high fan-out, that is a
  * misclassification signal.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface DependencyProfile {
@@ -74,7 +74,7 @@ export interface DependencyProfile {
  * A single member of the closed taxonomy used to classify
  * TypeScript code elements in the knowledge graph.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface TSCategory {
@@ -134,7 +134,7 @@ export interface TSCategory {
 /**
  * Confidence threshold where deterministic classification can skip LLM inference.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
@@ -142,7 +142,7 @@ export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
 /**
  * Guardrail threshold used to route low-confidence matches to `Uncategorized`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
@@ -153,7 +153,7 @@ export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
  * or route them to a dedicated test-handling path before applying
  * the main taxonomy.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TESTING_FILE_PATTERNS = [
@@ -176,7 +176,7 @@ export const TESTING_FILE_PATTERNS = [
  * Used as a secondary signal when file paths are ambiguous
  * (e.g., test utilities not in a conventional test directory).
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TESTING_IMPORT_PATTERNS = [
@@ -196,7 +196,7 @@ export const TESTING_IMPORT_PATTERNS = [
 /**
  * Closed category taxonomy used by `@category` tags.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CATEGORY_TAXONOMY = [
@@ -769,7 +769,7 @@ export const CATEGORY_TAXONOMY = [
 /**
  * All valid category tag values.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type CategoryTag = (typeof CATEGORY_TAXONOMY)[number]["_tag"];
@@ -791,7 +791,7 @@ export type CategoryTag = (typeof CATEGORY_TAXONOMY)[number]["_tag"];
  * This policy is intentionally separate from `getCandidateCategories`,
  * which preserves canonical sorting by confidence and `_tag`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
@@ -813,7 +813,7 @@ export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
  * Explicit fallback policy for non-declaration nodes where direct classification
  * is ambiguous without structural context.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CONTEXT_FALLBACK_POLICY = {
@@ -831,7 +831,7 @@ export const CONTEXT_FALLBACK_POLICY = {
  * Complete routing table from `ApplicableTo` node intent to candidate categories.
  * This makes taxonomy completeness auditable against HasJSDoc surfaces.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const APPLICABLE_TO_CATEGORY_ROUTING: Readonly<
@@ -883,7 +883,7 @@ const clampConfidence = (confidence: number): number =>
  * combined confidence. Callers should prefer structurally independent
  * detection criteria when designing AST signals.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
@@ -895,7 +895,7 @@ const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
 /**
  * Get deterministic conflict precedence rank for a category tag.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoryPrecedence(tag: CategoryTag): number {
@@ -906,7 +906,7 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
 /**
  * Lookup a category by `_tag`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategory(tag: string): TSCategory | undefined {
@@ -916,7 +916,7 @@ export function getCategory(tag: string): TSCategory | undefined {
 /**
  * Get categories by purity classification.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByPurity(
@@ -928,7 +928,7 @@ export function getCategoriesByPurity(
 /**
  * Get categories by architectural layer.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByArchLayer(
@@ -942,7 +942,7 @@ export function getCategoriesByArchLayer(
 /**
  * Get categories by Effect or monad analog.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesByEffectAnalog(
@@ -954,7 +954,7 @@ export function getCategoriesByEffectAnalog(
 /**
  * Get ordered candidate categories for an `ApplicableTo` node intent.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCategoriesForApplicableTo(
@@ -979,7 +979,7 @@ export function getCategoriesForApplicableTo(
  * Combined confidence formula:
  *   1 - Π(1 - c_i)
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getCandidateCategories(
@@ -1030,7 +1030,7 @@ export function getCandidateCategories(
  * traversal that depends on the extraction pipeline architecture.
  * The stub documents the contract and makes the fallback policy executable.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function resolveContextFallback(
