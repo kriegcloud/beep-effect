@@ -135,9 +135,11 @@ export const makeAuthorizationConfigLayer = (config: AuthorizationConfigData): L
  * @category Configuration
  * @since 0.0.0
  */
-export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer({
-  enforcementEnabled: true,
-});
+export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer(
+  AuthorizationConfigData.new({
+    enforcementEnabled: true,
+  })
+);
 
 /**
  * AuthorizationConfigGracePeriod - Layer with enforcement disabled
@@ -146,6 +148,8 @@ export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = mak
  * @category Configuration
  * @since 0.0.0
  */
-export const AuthorizationConfigGracePeriod: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer({
-  enforcementEnabled: false,
-});
+export const AuthorizationConfigGracePeriod: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer(
+  AuthorizationConfigData.new({
+    enforcementEnabled: false,
+  })
+);

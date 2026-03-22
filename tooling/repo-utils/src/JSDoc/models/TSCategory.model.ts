@@ -1314,7 +1314,7 @@ export function resolveContextFallback(
  */
 export const Category = S.Union(CATEGORY_TAG_SCHEMAS).pipe(
   SchemaUtils.withStatics((self) => ({
-    decodeUnknown: (u: unknown) => S.decodeUnknownEffect(self)(u),
+    decodeUnknown: S.decodeUnknownEffect(self),
   })),
   $I.annoteSchema("Category", {
     description: "A TypeScript category tag, representing a categorization of TypeScript constructs.",

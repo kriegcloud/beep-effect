@@ -21,7 +21,6 @@ const $I = $SharedDomainId.create("services/authorization/Action");
  * - resource: The type of entity being acted upon
  * - verb: The operation being performed (create, read, update, delete, etc.)
  *
- * The wildcard "*" matches any action.
  */
 export const Action = LiteralKit([
   // Organization actions
@@ -33,7 +32,7 @@ export const Action = LiteralKit([
   $I.annoteSchema("Action", {
     description: "An authorization action that can be performed in the system",
     documentation:
-      'Actions follow the pattern "{resource}:{verb}" where:\n- resource: The type of entity being acted upon\n- verb: The operation being performed (create, read, update, delete, etc.)\n\nThe wildcard "*" matches any action.',
+      'Actions follow the pattern "{resource}:{verb}" where:\n- resource: The type of entity being acted upon\n- verb: The operation being performed (create, read, update, delete, etc.)',
   })
 );
 /**

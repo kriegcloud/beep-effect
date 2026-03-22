@@ -37,7 +37,7 @@ export type TypeId = typeof TypeId;
  */
 export type ThunkUnknown<A = unknown> = Brand.Branded<() => A, TypeId>;
 
-const isThunkThunkUnknownValue = (u: unknown): u is () => unknown => P.isFunction(u);
+const isThunkUnknownValue = (u: unknown): u is () => unknown => P.isFunction(u);
 
 /**
  * Brand constructor for {@link ThunkUnknown}.
@@ -45,7 +45,7 @@ const isThunkThunkUnknownValue = (u: unknown): u is () => unknown => P.isFunctio
  * @since 0.0.0
  * @category Validation
  */
-export const nominal = Brand.make<ThunkUnknown>(isThunkThunkUnknownValue);
+export const nominal = Brand.make<ThunkUnknown>(isThunkUnknownValue);
 
 /**
  * Schema for unknown thunks.
@@ -53,7 +53,7 @@ export const nominal = Brand.make<ThunkUnknown>(isThunkThunkUnknownValue);
  * @since 0.0.0
  * @category Validation
  */
-export const ThunkUnknown = S.declare<() => unknown>(isThunkThunkUnknownValue).pipe(
+export const ThunkUnknown = S.declare<() => unknown>(isThunkUnknownValue).pipe(
   S.fromBrand(TypeId, nominal),
   $I.annoteSchema("ThunkUnknown", {
     description: "A schema for a function that returns a value.",
@@ -63,15 +63,13 @@ export const ThunkUnknown = S.declare<() => unknown>(isThunkThunkUnknownValue).p
   }))
 );
 
-const assertGuard: (u: unknown) => asserts u is () => unknown = S.asserts(ThunkUnknown);
-
 /**
  * Guard for {@link ThunkUnknown}.
  *
  * @since 0.0.0
  * @category Guards
  */
-export const isThunkThunkUnknown = S.is(ThunkUnknown);
+export const isThunkUnknown = S.is(ThunkUnknown);
 
 // `returnSchema` is type-level only here; validating it would require invoking the thunk.
 /**
@@ -93,8 +91,5 @@ export const make: {
   <TSchema extends S.Top>(
     guard: (u: unknown) => u is () => S.Schema.Type<TSchema>,
     _returnSchema: TSchema
-  ): S.declare<() => S.Schema.Type<TSchema>> => {
-    assertGuard(guard);
-    return S.declare<() => S.Schema.Type<TSchema>>(guard);
-  }
+  ): S.declare<() => S.Schema.Type<TSchema>> => S.declare<() => S.Schema.Type<TSchema>>(guard)
 );

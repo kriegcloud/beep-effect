@@ -28,3 +28,11 @@ export * as AuthorizationConfig from "./AuthorizationConfig.ts";
  * @category Errors
  */
 export * as AuthorizationErrors from "./AuthorizationErrors.ts";
+
+/**
+ * The Base Role Domain Model
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export * as BaseRole from "./BaseRole.ts";
